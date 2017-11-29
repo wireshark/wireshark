@@ -431,7 +431,8 @@ static int hf_rtps_flag_participant_stateless_message_writer    = -1;
 static int hf_rtps_flag_participant_stateless_message_reader    = -1;
 static int hf_rtps_flag_secure_participant_volatile_message_writer  = -1;
 static int hf_rtps_flag_secure_participant_volatile_message_reader  = -1;
-
+static int hf_rtps_flag_participant_secure_writer               = -1;
+static int hf_rtps_flag_participant_secure_reader               = -1;
 static int hf_rtps_flag_typeflag_final                          = -1;
 static int hf_rtps_flag_typeflag_mutable                        = -1;
 static int hf_rtps_flag_typeflag_nested                         = -1;
@@ -587,6 +588,8 @@ static const value_string entity_id_vals[] = {
   { ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_READER,          "ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_READER" },
   { ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER,    "ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER" },
   { ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_READER,    "ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_READER" },
+  { ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_WRITER,   "ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_WRITER"},
+  { ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_READER,   "ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_READER"},
 
   /* vendor specific - RTI */
   { ENTITYID_RTI_BUILTIN_LOCATOR_PING_WRITER,       "ENTITYID_RTI_BUILTIN_LOCATOR_PING_WRITER" },
@@ -1413,6 +1416,8 @@ static const int* STATUS_INFO_FLAGS[] = {
 };
 
 static const int* BUILTIN_ENDPOINT_FLAGS[] = {
+  &hf_rtps_flag_participant_secure_reader,                      /* Bit 27 */
+  &hf_rtps_flag_participant_secure_writer,                      /* Bit 26 */
   &hf_rtps_flag_secure_participant_volatile_message_reader,     /* Bit 25 */
   &hf_rtps_flag_secure_participant_volatile_message_writer,     /* Bit 24 */
   &hf_rtps_flag_participant_stateless_message_reader,           /* Bit 23 */
@@ -1594,15 +1599,21 @@ static void append_status_info(packet_info *pinfo,
    *
    * First letter table:
    *
-   *    writerEntityId value                            | Letter
-   * ---------------------------------------------------+--------------
-   * ENTITYID_UNKNOWN                                   | ?
-   * ENTITYID_PARTICIPANT                               | P
-   * ENTITYID_SEDP_BUILTIN_TOPIC_WRITER                 | t
-   * ENTITYID_SEDP_BUILTIN_PUBLICATIONS_WRITER          | w
-   * ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_WRITER         | r
-   * ENTITYID_SPDP_BUILTIN_PARTICIPANT_WRITER           | p
-   * ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER    | m
+   *    writerEntityId value                                   | Letter
+   * ----------------------------------------------------------+--------
+   * ENTITYID_UNKNOWN                                          | ?
+   * ENTITYID_PARTICIPANT                                      | P
+   * ENTITYID_SEDP_BUILTIN_TOPIC_WRITER                        | t
+   * ENTITYID_SEDP_BUILTIN_PUBLICATIONS_WRITER                 | w
+   * ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_WRITER                | r
+   * ENTITYID_SPDP_BUILTIN_PARTICIPANT_WRITER                  | p
+   * ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER           | m
+   * ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER         | s
+   * ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER   | V
+   * ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_WRITER    | M
+   * ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER          | W
+   * ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER         | R
+
    *
    * The letter is followed by:
    * status_info &1 | status_info & 2       | Text
@@ -1621,6 +1632,7 @@ static void append_status_info(packet_info *pinfo,
 
   switch(writer_id) {
     case ENTITYID_PARTICIPANT:
+    case ENTITYID_SPDP_RELIABLE_BUILTIN_PARTICIPANT_SECURE_WRITER:
       writerId = "P";
       break;
     case ENTITYID_BUILTIN_TOPIC_WRITER:
@@ -1646,6 +1658,12 @@ static void append_status_info(packet_info *pinfo,
       break;
     case ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_WRITER:
       writerId = "M";
+      break;
+    case ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER:
+      writerId = "W";
+      break;
+    case ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER:
+      writerId = "R";
       break;
     default:
     /* Unknown writer ID, don't format anything */
@@ -2025,24 +2043,7 @@ gboolean rtps_util_add_entity_id(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
   /* is a built-in entity if the bit M and R (5 and 6) of the entityKind are set */
   /*  return ((entity_kind & 0xc0) == 0xc0); */
-  return ( entity_id == ENTITYID_BUILTIN_TOPIC_WRITER ||
-           entity_id == ENTITYID_BUILTIN_TOPIC_READER ||
-           entity_id == ENTITYID_BUILTIN_PUBLICATIONS_WRITER ||
-           entity_id == ENTITYID_BUILTIN_PUBLICATIONS_READER ||
-           entity_id == ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER ||
-           entity_id == ENTITYID_BUILTIN_SUBSCRIPTIONS_READER ||
-           entity_id == ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER ||
-           entity_id == ENTITYID_BUILTIN_SDP_PARTICIPANT_READER ||
-           entity_id == ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER ||
-           entity_id == ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_READER ||
-           entity_id == ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER ||
-           entity_id == ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_READER ||
-           entity_id == ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_WRITER ||
-           entity_id == ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_READER ||
-           entity_id == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER ||
-           entity_id == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_READER ||
-           entity_id == ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER ||
-           entity_id == ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_READER ||
+  return ( ((entity_kind & 0xc0) == 0xc0) ||
            entity_id == ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER ||
            entity_id == ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_READER ||
            entity_id == ENTITYID_RTI_BUILTIN_LOCATOR_PING_WRITER ||
@@ -11503,13 +11504,21 @@ void proto_register_rtps(void) {
         "Participant Stateless Message Reader", "rtps.flag.participant_stateless_message_reader",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00800000, NULL, HFILL }
     },
-    { &hf_rtps_flag_secure_participant_volatile_message_writer, {
+    { &hf_rtps_flag_secure_participant_volatile_message_writer,{
         "Secure Participant Volatile Message Writer", "rtps.flag.secure_participant_volatile_message_writer",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x01000000, NULL, HFILL }
     },
-    { &hf_rtps_flag_secure_participant_volatile_message_reader, {
+    { &hf_rtps_flag_secure_participant_volatile_message_reader,{
         "Secure Participant Volatile Message Reader", "rtps.flag.secure_participant_volatile_message_reader",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x02000000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_secure_writer,{
+        "Participant Secure Writer", "rtps.flag.participant_secure_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x04000000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_secure_reader,{
+        "Participant Secure Reader", "rtps.flag.participant_secure_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x08000000, NULL, HFILL }
     },
     { &hf_rtps_type_object_type_id_disc,
           { "TypeId (_d)", "rtps.type_object.type_id.discr",
