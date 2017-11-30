@@ -1511,7 +1511,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    /* compute the base packet length to determine what is actual I/O data */
    base_length = multicast ? 12 : 6;
 
-   if (item_length <= base_length) {
+   if (item_length < base_length) {
       expert_add_info(pinfo, item, &ei_mal_io);
       return;
    }
