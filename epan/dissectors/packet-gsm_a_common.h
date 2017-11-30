@@ -792,6 +792,7 @@ extern const value_string gsm_a_dtap_numbering_plan_id_values[];
 extern const value_string gsm_a_sms_vals[];
 extern const value_string tighter_cap_level_vals[];
 extern value_string_ext gsm_a_rr_rxlev_vals_ext;
+extern const value_string gsm_a_rr_rxqual_vals[];
 extern const value_string gsm_a_gm_type_of_ciph_alg_vals[];
 
 extern value_string_ext nas_eps_emm_cause_values_ext;

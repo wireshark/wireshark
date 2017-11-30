@@ -547,6 +547,18 @@ static const value_string gsm_a_rr_rxlev_vals [] = {
 };
 value_string_ext gsm_a_rr_rxlev_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_rr_rxlev_vals);
 
+const value_string gsm_a_rr_rxqual_vals[] = {
+    {0, "BER < 0.2%, Mean value 0.14%"},
+    {1, "0.2% <= BER < 0.4%, Mean value 0.28%"},
+    {2, "0.4% <= BER < 0.8%, Mean value 0.57%"},
+    {3, "0.8% <= BER < 1.6%, Mean value 1.13%"},
+    {4, "1.6% <= BER < 3.2%, Mean value 2.26%"},
+    {5, "3.2% <= BER < 6.4%, Mean value 4.53%"},
+    {6, "6.4% <= BER < 12.8%, Mean value 9.05%"},
+    {7, "BER > 12.8%, Mean value 18.10%"},
+    {0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
 

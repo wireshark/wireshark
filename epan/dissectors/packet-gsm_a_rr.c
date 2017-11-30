@@ -4222,18 +4222,6 @@ static const true_false_string gsm_a_rr_mv_vals  = {
     "The measurement results are valid"
 };
 
-static const value_string gsm_a_rr_rxqual_vals [] = {
-    {0, "BER < 0.2%, Mean value 0.14%"},
-    {1, "0.2% <= BER < 0.4%, Mean value 0.28%"},
-    {2, "0.4% <= BER < 0.8%, Mean value 0.57%"},
-    {3, "0.8% <= BER < 1.6%, Mean value 1.13%"},
-    {4, "1.6% <= BER < 3.2%, Mean value 2.26%"},
-    {5, "3.2% <= BER < 6.4%, Mean value 4.53%"},
-    {6, "6.4% <= BER < 12.8%, Mean value 9.05%"},
-    {7, "BER > 12.8%, Mean value 18.10%"},
-    {0, NULL}
-};
-
 static const value_string gsm_a_rr_ncell_vals [] = {
     {0, "No neighbour cell measurement result"},
     {1, "1 neighbour cell measurement result"},

@@ -4346,22 +4346,22 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_rxlev_full_up,
           { "RXLEV.FULL.up",           "gsm_abis_rsl.rxlev_full_up",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x3f,
             NULL, HFILL }
         },
         { &hf_rsl_rxlev_sub_up,
           { "RXLEV.SUB.up",           "gsm_abis_rsl.rxlev_sub_up",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x3f,
             NULL, HFILL }
         },
         { &hf_rsl_rxqual_full_up,
           { "RXQUAL.FULL.up",           "gsm_abis_rsl.rxqual_full_up",
-            FT_UINT8, BASE_DEC, NULL, 0x38,
+            FT_UINT8, BASE_DEC, VALS(gsm_a_rr_rxqual_vals), 0x38,
             NULL, HFILL }
         },
         { &hf_rsl_rxqual_sub_up,
           { "RXQUAL.SUB.up",           "gsm_abis_rsl.rxqual_sub_up",
-            FT_UINT8, BASE_DEC, NULL, 0x07,
+            FT_UINT8, BASE_DEC, VALS(gsm_a_rr_rxqual_vals), 0x07,
             NULL, HFILL }
         },
         { &hf_rsl_acc_delay,
