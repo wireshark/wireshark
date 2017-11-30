@@ -1014,10 +1014,10 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     guint8 *headbuf;
     proto_tree *header_tree;
     proto_item *header, *ti;
-    int header_name_length;
-    int header_value_length;
-    const gchar *header_name;
-    const gchar *header_value;
+    guint32 header_name_length;
+    guint32 header_value_length;
+    const guint8 *header_name;
+    const guint8 *header_value;
     int hoffset = 0;
     nghttp2_hd_inflater *hd_inflater;
     tvbuff_t *header_tvb = tvb_new_composite();
@@ -1230,23 +1230,19 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         header_tree = proto_item_add_subtree(header, ett_http2_headers);
 
         /* header value length */
-        header_name_length = tvb_get_ntohl(header_tvb, hoffset);
-        proto_tree_add_uint(header_tree, hf_http2_header_name_length, tvb, offset, in->length, header_name_length);
+        proto_tree_add_item_ret_uint(header_tree, hf_http2_header_name_length, header_tvb, hoffset, 4, ENC_BIG_ENDIAN, &header_name_length);
         hoffset += 4;
 
         /* Add header name. */
-        header_name = (gchar *)tvb_get_string_enc(wmem_packet_scope(), header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA);
-        proto_tree_add_string(header_tree, hf_http2_header_name, tvb, offset, in->length, header_name);
+        proto_tree_add_item_ret_string(header_tree, hf_http2_header_name, header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header_name);
         hoffset += header_name_length;
 
         /* header value length */
-        header_value_length = tvb_get_ntohl(header_tvb, hoffset);
-        proto_tree_add_uint(header_tree, hf_http2_header_value_length, tvb, offset, in->length, header_value_length);
+        proto_tree_add_item_ret_uint(header_tree, hf_http2_header_value_length, header_tvb, hoffset, 4, ENC_BIG_ENDIAN, &header_value_length);
         hoffset += 4;
 
         /* Add header value. */
-        header_value = (gchar *)tvb_get_string_enc(wmem_packet_scope(),header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA);
-        proto_tree_add_string(header_tree, hf_http2_header_value, tvb, offset, in->length, header_value);
+        proto_tree_add_item_ret_string(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header_value);
         hoffset += header_value_length;
 
         /* Only track HEADER and CONTINUATION frames part there of. Don't look at PUSH_PROMISE and trailing CONTINUATION.
@@ -1257,13 +1253,21 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         }
 
         /* Add encoding representation */
-        proto_tree_add_string(header_tree, hf_http2_header_repr, tvb, offset, in->length, http2_header_repr_type[in->type].strptr);
+        // This should probably be a bitmask for the first bits, see https://tools.ietf.org/html/rfc7541#section-6
+        proto_tree_add_string(header_tree, hf_http2_header_repr, tvb, offset, 1, http2_header_repr_type[in->type].strptr);
 
         if(in->type == HTTP2_HD_INDEXED ||
            in->type == HTTP2_HD_LITERAL_INDEXING_INDEXED_NAME ||
            in->type == HTTP2_HD_LITERAL_INDEXED_NAME ||
            in->type == HTTP2_HD_LITERAL_NEVER_INDEXING_INDEXED_NAME) {
-            proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, in->length, in->table.data.idx);
+            /* Only for HTTP2_HD_INDEXED, the index value covers the full
+             * "in->length". In other cases, it is a subset. For simplicity,
+             * just select 1 octet (this might not be accurate though). */
+            guint index_length = in->length;
+            if (in->type != HTTP2_HD_INDEXED) {
+                index_length = 1;
+            }
+            proto_tree_add_uint(header_tree, hf_http2_header_index, tvb, offset, index_length, in->table.data.idx);
         }
 
         proto_item_append_text(header, ": %s: %s", header_name, header_value);
