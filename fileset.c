@@ -27,14 +27,16 @@
 
 #include "fileset.h"
 
-
-
 typedef struct _fileset {
     GList   *entries;
     char    *dirname;
 } fileset;
 
-/* this is the fileset's global data */
+/*
+ * This is the fileset's global data.
+ *
+ * XXX This should probably be per-main-window instead of global.
+ */
 static fileset set = { NULL, NULL};
 
 /*
@@ -258,13 +260,14 @@ void fileset_update_dlg(void *window)
 {
     GList         *le;
 
-
-    /* add all entries to the dialog */
+    /* Add all entries to the dialog. */
+    fileset_dlg_begin_add_file(window);
     le = g_list_first(set.entries);
     while(le) {
         fileset_dlg_add_file((fileset_entry *)le->data, window);
         le = g_list_next(le);
     }
+    fileset_dlg_end_add_file(window);
 }
 
 

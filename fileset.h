@@ -38,10 +38,30 @@ extern const char *fileset_get_dirname(void);
 extern fileset_entry *fileset_get_next(void);
 extern fileset_entry *fileset_get_previous(void);
 
-
-
-/* this file is a part of the current file set */
+/**
+ * Add an entry to our dialog / window. Called by fileset_update_dlg.
+ * Must be implemented in the UI.
+ *
+ * @param entry The new fileset entry.
+ * @param window Window / dialog reference provided by the UI code.
+ */
 extern void fileset_dlg_add_file(fileset_entry *entry, void *window);
+
+/**
+ * Notify our dialog / window that we're about to add files. Called by fileset_update_dlg.
+ * Must be implemented in the UI.
+ *
+ * @param window Window / dialog reference provided by the UI code.
+ */
+extern void fileset_dlg_begin_add_file(void *window);
+
+/**
+ * Notify our dialog / window that we're done adding files. Called by fileset_update_dlg.
+ * Must be implemented in the UI.
+ *
+ * @param window Window / dialog reference provided by the UI code.
+ */
+extern void fileset_dlg_end_add_file(void *window);
 
 extern void fileset_update_dlg(void *window);
 
