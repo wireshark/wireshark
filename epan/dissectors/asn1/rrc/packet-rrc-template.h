@@ -60,6 +60,6 @@ typedef struct rrc_ciphering_info
 
 extern GTree * hsdsch_muxed_flows;
 extern GTree * rrc_ciph_info_tree;
-extern wmem_tree_t* rrc_rach_urnti_crnti_map;
+extern wmem_tree_t* rrc_global_urnti_crnti_map;
 
 #endif  /* PACKET_RRC_H */

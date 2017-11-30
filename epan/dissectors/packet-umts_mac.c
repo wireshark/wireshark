@@ -238,6 +238,7 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
     fp_rach_channel_info_t *fp_rach_channel_info = NULL;
     fp_fach_channel_info_t *fp_fach_channel_info = NULL;
+    wmem_tree_t* channel_rnti_map = NULL;
     guint16 c_rnti;
     fp_crnti_allocation_info_t *fp_crnti_allocation_info = NULL;
 
@@ -260,34 +261,42 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
         /* Trying to resolve the U-RNTI for this C-RNTI based on the channel type*/
         switch(fpinf->channel){
             case CHANNEL_RACH_FDD:
-                /* In RACH: First look in the channel's RNTIs map */
+                /* In RACH: Get the channel's RNTIs map */
                 if (umts_fp_conversation_info) {
                     fp_rach_channel_info = (fp_rach_channel_info_t *)umts_fp_conversation_info->channel_specific_info;
                     if(fp_rach_channel_info) {
-                        fp_crnti_allocation_info = (fp_crnti_allocation_info_t *)wmem_tree_lookup32(fp_rach_channel_info->crnti_to_urnti_map, c_rnti);
-                    }
-                }
-                if(fp_crnti_allocation_info == NULL) {
-                    /* If not found in the channel's map, Look in the global RNTIs map */
-                    fp_crnti_allocation_info = (fp_crnti_allocation_info_t *)wmem_tree_lookup32(rrc_rach_urnti_crnti_map, c_rnti);
-                    if(fp_crnti_allocation_info != NULL) {
-                        /* If found in the global map, remove and insert to the channel's map*/
-                        wmem_tree_remove32(rrc_rach_urnti_crnti_map, c_rnti);
-                        if(fp_rach_channel_info) {
-                            wmem_tree_insert32(fp_rach_channel_info->crnti_to_urnti_map, c_rnti, (void *)fp_crnti_allocation_info);
-                        }
+                        channel_rnti_map = fp_rach_channel_info->crnti_to_urnti_map;
                     }
                 }
                 break;
             case CHANNEL_FACH_FDD:
-                /* In FACH: Look in the channel's RNTIs map */
+                /* In FACH: Get the channel's RNTIs map */
                 if (umts_fp_conversation_info) {
                     fp_fach_channel_info = (fp_fach_channel_info_t *)umts_fp_conversation_info->channel_specific_info;
                     if(fp_fach_channel_info) {
-                        fp_crnti_allocation_info = (fp_crnti_allocation_info_t *)wmem_tree_lookup32(fp_fach_channel_info->crnti_to_urnti_map, c_rnti);
+                        channel_rnti_map = fp_fach_channel_info->crnti_to_urnti_map;
                     }
                 }
                 break;
+        }
+        if(channel_rnti_map) {
+            fp_crnti_allocation_info = (fp_crnti_allocation_info_t *)wmem_tree_lookup32(channel_rnti_map, c_rnti);
+        }
+        /* If not found in the RACH/FACH channel's map, Look in the global RNTIs map */
+        if(fp_crnti_allocation_info == NULL) {
+            fp_crnti_allocation_info = (fp_crnti_allocation_info_t *)wmem_tree_lookup32(rrc_global_urnti_crnti_map, c_rnti);
+            if(fp_crnti_allocation_info != NULL) {
+                /* If found in the global map, check how many times it was retrieved (including this one) */
+                fp_crnti_allocation_info->global_retrieval_count++;
+                /* If seen 2 times (RACH + fast FACH) remove from global map */
+                if(fp_crnti_allocation_info->global_retrieval_count == 2) {
+                    wmem_tree_remove32(rrc_global_urnti_crnti_map, c_rnti);
+                }
+                /* Also add to this channel's map for later retrieval */
+                if(channel_rnti_map) {
+                    wmem_tree_insert32(channel_rnti_map, c_rnti, (void *)fp_crnti_allocation_info);
+                }
+            }
         }
         /* Choosing between resolved U-RNTI (if found) or the C-RNTI as UE-ID for RLC */
         if(fp_crnti_allocation_info != NULL) {

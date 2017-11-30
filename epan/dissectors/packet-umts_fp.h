@@ -112,6 +112,7 @@ typedef struct fp_crnti_allocation_info_t
 {
     guint32 alloc_frame_number; /* Frame where C-RNTI was allocated */
     guint32 urnti; /* The U-RNTI to which the C-RNTI was allocated*/
+    guint32 global_retrieval_count; /* How many times this alloc info was retrieved for FACH channels*/
 } fp_crnti_allocation_info_t;
 
 /* Used in the 'channel_specific_info' field for FACH channels */

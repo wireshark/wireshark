@@ -65,7 +65,7 @@ extern int proto_umts_rlc; /*Handler to RLC*/
 
 GTree * hsdsch_muxed_flows = NULL;
 GTree * rrc_ciph_info_tree = NULL;
-wmem_tree_t* rrc_rach_urnti_crnti_map = NULL;
+wmem_tree_t* rrc_global_urnti_crnti_map = NULL;
 static int msg_type _U_;
 
 /*****************************************************************************/
@@ -462,7 +462,7 @@ rrc_init(void) {
                        rrc_free_value);
 
     /* Global U-RNTI / C-RNTI map to be used in RACH channels */
-    rrc_rach_urnti_crnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    rrc_global_urnti_crnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 static void
