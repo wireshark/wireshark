@@ -32,7 +32,7 @@ epan/dissectors/mesa
 epan/dissectors/xcbproto
 epan/dissectors/packet-ncp2222.c
 epan/dissectors/dissectors.c
-epan/dissectors/dissectors.c.in
+epan/dissectors/dissectors.in.txt
 epan/dissectors/make-dissectors
 epan/dtd_parse.c
 epan/dtd_preparse.c

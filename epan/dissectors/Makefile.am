@@ -1946,11 +1946,11 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 #
 dissectors.c: make-dissectors $(ALL_DISSECTORS_SRC)
 	@echo Making dissectors.c
-	@echo $^ | tr ' ' '\n' | $(GREP) '\.c$$' > $@.in && \
-	    $(builddir)/make-dissectors $@ @$@.in
+	@echo $^ | tr ' ' '\n' | $(GREP) '\.c$$' > dissectors.in.txt && \
+	    $(builddir)/make-dissectors $@ @dissectors.in.txt
 
 MOSTLYCLEANFILES = \
-	dissectors.c.in
+	dissectors.in.txt
 
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)

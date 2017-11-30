@@ -1871,15 +1871,15 @@ target_link_libraries(make-dissectors ${GLIB2_LIBRARIES})
 # We pass the arguments to make-dissectors in a file to avoid limitations
 # with the number of arguments handled by main().
 #
-string(REPLACE ";" "\n" dissectors_c_in_contents "${ALL_DISSECTOR_SRC}\n")
-file(WRITE
-	"${CMAKE_CURRENT_BINARY_DIR}/dissectors.c.in"
-	"${dissectors_c_in_contents}"
+file(GENERATE
+	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dissectors.in.txt"
+	CONTENT "$<JOIN:${ALL_DISSECTOR_SRC},\n>\n"
 )
 add_custom_command(
 	OUTPUT dissectors.c
-	COMMAND make-dissectors dissectors.c @dissectors.c.in
+	COMMAND make-dissectors dissectors.c @dissectors.in.txt
 	DEPENDS make-dissectors ${ALL_DISSECTOR_SRC}
+		"${CMAKE_CURRENT_BINARY_DIR}/dissectors.in.txt"
 	COMMENT "Making dissectors.c"
 )
 
