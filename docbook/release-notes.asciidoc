@@ -14,32 +14,14 @@ used for troubleshooting, analysis, development and education.
 
 The following bugs have been fixed:
 
-* ws-salink:2017-47[]
+* ws-salink:2018-01[]
 +
-The IWARP_MPA dissector could crash.
-(ws-buglink:14236[])
+A dissector went awry.
+(ws-buglink:xxxx[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: f23a6e193f
-// Fixed in master-2.4: 8502fe94ef
-// Fixed in master-2.2: 53cf81d4f2
-
-* ws-salink:2017-48[]
-+
-The NetBIOS dissector could crash.
-(ws-buglink:14249[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: b59dc97dfe
-// Fixed in master-2.4: 87b6ea2237
-// Fixed in master-2.2: 79768d63d1
-
-* ws-salink:2017-49[]
-+
-The CIP Safety dissector could crash.
-(ws-buglink:14250[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: 041e3e7c27, 3d6da018e7
-// Fixed in master-2.4: ec6972193c, 1166734b35
-// Fixed in master-2.2: 6966d5db73, 6966d5db73
+// Fixed in master: xxxx
+// Fixed in master-2.4: xxxx
+// Fixed in master-2.2: xxxx
 
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
@@ -47,47 +29,6 @@ The CIP Safety dissector could crash.
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.4rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* &quot;tshark -G ?&quot; doesn't provide expected help. (ws-buglink:13984[])
-
-* File loading is very slow with TRANSUM dissector enabled. (ws-buglink:14094[])
-
-* packet-knxnetip.c:936: bad bitmask ?. (ws-buglink:14115[])
-
-* packet-q931.c:1306: bad compare ?. (ws-buglink:14116[])
-
-* SSL Dissection bug. (ws-buglink:14117[])
-
-* Wireshark crashes when exporting various files to .csv, txt and other ‘non-capture file’ formats. (ws-buglink:14128[])
-
-* RLC reassembly doesn't work for RLC over UDP heuristic dissector. (ws-buglink:14129[])
-
-* HTTP Object export fails with long extension (possibly query string). (ws-buglink:14130[])
-
-* 3GPP Civic Address not displayed in Packet Details. (ws-buglink:14131[])
-
-* Wireshark prefers packet.dll in System32\\Npcap over the one in System32. (ws-buglink:14134[])
-
-* PEEKREMOTE dissector does not decode 11ac MCS rates properly. (ws-buglink:14136[])
-
-* Visual Studio Community Edition 2015 lacks tools named in developer guide. (ws-buglink:14147[])
-
-* TCP: Malformed data with Riverbed Probe option. (ws-buglink:14150[])
-
-* Wireshark Crash when trying to use Preferences | Advanced. (ws-buglink:14157[])
-
-* Right click on SMB2 Message ID and then Apply as Column causes Runtime Error. (ws-buglink:14169[])
-
-* Return [Enter] should apply change (Column title - Button Label toolbars). (ws-buglink:14191[])
-
-* Wireshark crashes if &quot;rip.display_routing_domain&quot; is set to TRUE in preferences file. (ws-buglink:14197[])
-
-* Entry point inflatePrime not found for androiddump.exe and randpktdump.exe. (ws-buglink:14207[])
-
-* BGP: IPv6 NLRI is received with Add-path ID, then Wire shark is not able to decode the packet correctly. (ws-buglink:14241[])
-
-* Wrong SSL decryption when using EXTENDED MASTER SECRET and Client certificate request (mutual authentication). (ws-buglink:14243[])
-
-* Frame direction isn't always set if it comes from the pcapng record header rather than the packet pseudo-header. (ws-buglink:14245[])
 
 === New and Updated Features
 
@@ -104,24 +45,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-3GPP NAS
-BGP
-CIP Safety
-DTLS
-IEEE 802.11 Radio
-IWARP_MPA
-KNXnet/IP
-LCSAP
-MQTT
-NetBIOS
-PEEKREMOTE
-Q.931
-RIP
-RLC
-SIP
-SSL/TLS
-TCP
-TRANSUM
 --sort-and-group--
 
 === New and Updated Capture File Support
