@@ -232,6 +232,17 @@
 #define TDS_DONEPROC_TOKEN        254  /* 0xFE                              */
 #define TDS_DONEINPROC_TOKEN      255  /* 0xFF                              */
 
+/* TDS 7 Prelogin options */
+#define TDS7_PRELOGIN_OPTION_VERSION         0x00
+#define TDS7_PRELOGIN_OPTION_ENCRYPTION      0x01
+#define TDS7_PRELOGIN_OPTION_INSTOPT         0x02
+#define TDS7_PRELOGIN_OPTION_THREADID        0x03
+#define TDS7_PRELOGIN_OPTION_MARS            0x04
+#define TDS7_PRELOGIN_OPTION_TRACEID         0x05
+#define TDS7_PRELOGIN_OPTION_FEDAUTHREQUIRED 0x06
+#define TDS7_PRELOGIN_OPTION_NONCEOPT        0x07
+#define TDS7_PRELOGIN_OPTION_TERMINATOR      0xff
+
 /* Microsoft internal stored procedure id's */
 #define TDS_SP_CURSOR           1
 #define TDS_SP_CURSOROPEN       2
@@ -1453,6 +1464,35 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, t
     }  /* while */
 }
 
+static void
+set_tds7_version(tds_conv_info_t *tds_info, guint32 tds_version)
+{
+    switch (tds_version) {
+        case 0x07000000:
+            tds_info->tds7_version = TDS_PROTOCOL_7_0;
+            break;
+        case 0x07010000:
+        case 0x71000001:
+            tds_info->tds7_version = TDS_PROTOCOL_7_1;
+            break;
+        case 0x72090002:
+            tds_info->tds7_version = TDS_PROTOCOL_7_2;
+            break;
+        case 0x730A0003:
+            tds_info->tds7_version = TDS_PROTOCOL_7_3A;
+            break;
+        case 0x730B0003:
+            tds_info->tds7_version = TDS_PROTOCOL_7_3B;
+            break;
+        case 0x74000004:
+            tds_info->tds7_version = TDS_PROTOCOL_7_4;
+            break;
+        default:
+            tds_info->tds7_version = TDS_PROTOCOL_7_4;
+            break;
+    }
+}
+
 static int detect_tls(tvbuff_t *tvb)
 {
     guint8 tls_type, tls_maj_ver, tls_min_ver;
@@ -1481,7 +1521,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
     gint offset = 0;
     guint16 tokenoffset, tokenlen;
     proto_tree *prelogin_tree = NULL, *option_tree;
-    proto_item *item;
+    proto_item *item, *option_item;
 
     item = proto_tree_add_item(tree, hf_tds_prelogin, tvb, 0, -1, ENC_NA);
 
@@ -1495,11 +1535,12 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
     while(tvb_reported_length_remaining(tvb, offset) > 0)
     {
         token = tvb_get_guint8(tvb, offset);
-        option_tree = proto_tree_add_subtree(prelogin_tree, tvb, offset, token == 0xff ? 1 : 5, ett_tds_prelogin_option, NULL, "Option");
+        option_tree = proto_tree_add_subtree(prelogin_tree, tvb, offset, token == 0xff ? 1 : 5,
+                                             ett_tds_prelogin_option, &option_item, "Option");
         proto_tree_add_item(option_tree, hf_tds_prelogin_option_token, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
-        if(token == 0xff)
+        if(token == TDS7_PRELOGIN_OPTION_TERMINATOR)
             break;
 
         tokenoffset = tvb_get_ntohs(tvb, offset);
@@ -1514,36 +1555,44 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
         {
             switch(token)
             {
-                case 0: {
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_version, tvb, tokenoffset, 4, ENC_LITTLE_ENDIAN);
+                case TDS7_PRELOGIN_OPTION_VERSION: {
+                    proto_item_append_text(option_item, ": Version");
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_version, tvb, tokenoffset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(option_tree, hf_tds_prelogin_option_subbuild, tvb, tokenoffset + 4, 2, ENC_LITTLE_ENDIAN);
                     break;
                 }
-                case 1: {
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, 1, ENC_LITTLE_ENDIAN);
+                case TDS7_PRELOGIN_OPTION_ENCRYPTION: {
+                    proto_item_append_text(option_item, ": Encryption");
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, 1, ENC_NA);
                     break;
                 }
-                case 2: {
+                case TDS7_PRELOGIN_OPTION_INSTOPT: {
+                    proto_item_append_text(option_item, ": InstOpt");
                     proto_tree_add_item(option_tree, hf_tds_prelogin_option_instopt, tvb, tokenoffset, tokenlen, ENC_ASCII | ENC_NA);
                     break;
                 }
-                case 3: {
+                case TDS7_PRELOGIN_OPTION_THREADID: {
+                    proto_item_append_text(option_item, ": ThreadID");
                     proto_tree_add_item(option_tree, hf_tds_prelogin_option_threadid, tvb, tokenoffset, 4, ENC_BIG_ENDIAN);
                     break;
                 }
-                case 4: {
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, 1, ENC_LITTLE_ENDIAN);
+                case TDS7_PRELOGIN_OPTION_MARS: {
+                    proto_item_append_text(option_item, ": MARS");
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, 1, ENC_NA);
                     break;
                 }
-                case 5: {
+                case TDS7_PRELOGIN_OPTION_TRACEID: {
+                    proto_item_append_text(option_item, ": TraceID");
                     proto_tree_add_item(option_tree, hf_tds_prelogin_option_traceid, tvb, tokenoffset, tokenlen, ENC_NA);
                     break;
                 }
-                case 6: {
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, 1, ENC_LITTLE_ENDIAN);
+                case TDS7_PRELOGIN_OPTION_FEDAUTHREQUIRED: {
+                    proto_item_append_text(option_item, ": FedAuthRequired");
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, 1, ENC_NA);
                     break;
                 }
-                case 7: {
+                case TDS7_PRELOGIN_OPTION_NONCEOPT: {
+                    proto_item_append_text(option_item, ": NonceOpt");
                     proto_tree_add_item(option_tree, hf_tds_prelogin_option_nonceopt, tvb, tokenoffset, tokenlen, ENC_NA);
                     break;
                 }
@@ -1553,7 +1602,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint offset, i, j, k, offset2, len, login_hf = 0;
     char *val, *val2;
@@ -1574,12 +1623,13 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += (int)sizeof(td7hdr.total_packet_size);
 
     proto_tree_add_item_ret_uint(header_tree, hf_tds7login_version, tvb, offset, sizeof(td7hdr.tds_version), ENC_LITTLE_ENDIAN, &(td7hdr.tds_version));
+    set_tds7_version(tds_info, td7hdr.tds_version);
     offset += (int)sizeof(td7hdr.tds_version);
 
     proto_tree_add_item_ret_uint(header_tree, hf_tds7login_packet_size, tvb, offset, sizeof(td7hdr.packet_size), ENC_LITTLE_ENDIAN, &(td7hdr.packet_size));
     offset += (int)sizeof(td7hdr.packet_size);
 
-    proto_tree_add_item_ret_uint(header_tree, hf_tds7login_client_version, tvb, offset, sizeof(td7hdr.client_version), ENC_LITTLE_ENDIAN, &(td7hdr.client_version));
+    proto_tree_add_item_ret_uint(header_tree, hf_tds7login_client_version, tvb, offset, sizeof(td7hdr.client_version), ENC_BIG_ENDIAN, &(td7hdr.client_version));
     offset += (int)sizeof(td7hdr.client_version);
 
     proto_tree_add_item_ret_uint(header_tree, hf_tds7login_client_pid, tvb, offset, sizeof(td7hdr.client_pid), ENC_LITTLE_ENDIAN, &(td7hdr.client_pid));
@@ -2450,48 +2500,50 @@ dissect_tds_prelogin_response(tvbuff_t *tvb, guint offset, proto_tree *tree)
     guint8 token = 0;
     gint tokenoffset, tokenlen, cur = offset, valid = 0;
 
-    /* Test for prelogin format compliance */
+    /*
+     * Test for prelogin format compliance
+     * A prelogin response consists solely of "tokens" from 0 to 7, followed by
+     * a terminator.
+     */
+
     while(tvb_reported_length_remaining(tvb, cur) > 0)
     {
         token = tvb_get_guint8(tvb, cur);
         cur += 1;
 
-           if((token <= 8) || (token == 0xff))
-           {
-               valid = 1;
-           } else {
-               valid = 0;
-               break;
-           }
-
-        if(token == 0xff)
+        if(token == TDS7_PRELOGIN_OPTION_TERMINATOR)
             break;
 
-           tokenoffset = tvb_get_ntohs(tvb, cur);
-           if(tokenoffset > tvb_captured_length_remaining(tvb, 0))
-           {
-               valid = 0;
-               break;
-           }
-           cur += 2;
+        if(token <= TDS7_PRELOGIN_OPTION_NONCEOPT) {
+            valid = 1;
+        }
+        else {
+            valid = 0;
+            break;
+        }
 
-           tokenlen = tvb_get_ntohs(tvb, cur);
-           if(tokenlen > tvb_captured_length_remaining(tvb, 0))
-           {
-               valid = 0;
-               break;
-           }
-           cur += 2;
+       tokenoffset = tvb_get_ntohs(tvb, cur);
+       if(tokenoffset > tvb_captured_length_remaining(tvb, 0)) {
+           valid = 0;
+           break;
+       }
+       cur += 2;
+
+       tokenlen = tvb_get_ntohs(tvb, cur);
+       if(tokenlen > tvb_captured_length_remaining(tvb, 0)) {
+           valid = 0;
+           break;
+       }
+       cur += 2;
     }
 
-    if(token != 0xff)
-    {
+    if(token != TDS7_PRELOGIN_OPTION_TERMINATOR) {
         valid = 0;
     }
 
 
-    if(valid)
-    {
+    if(valid) {
+        /* The prelogin response has the same form as the prelogin request. */
         dissect_tds7_prelogin_packet(tvb, tree);
     }
 
@@ -2874,30 +2926,8 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_c
     proto_tree_add_item(tree, hf_tds_loginack_interface, tvb, cur, 1, ENC_NA);
     cur +=1;
     proto_tree_add_item_ret_uint(tree, hf_tds_loginack_tdsversion, tvb, cur, 4, ENC_BIG_ENDIAN, &tds_version);
-    switch (tds_version) {
-        case 0x07000000:
-            tds_info->tds7_version = TDS_PROTOCOL_7_0;
-            break;
-        case 0x07010000:
-        case 0x71000001:
-            tds_info->tds7_version = TDS_PROTOCOL_7_1;
-            break;
-        case 0x72090002:
-            tds_info->tds7_version = TDS_PROTOCOL_7_2;
-            break;
-        case 0x730A0003:
-            tds_info->tds7_version = TDS_PROTOCOL_7_3A;
-            break;
-        case 0x730B0003:
-            tds_info->tds7_version = TDS_PROTOCOL_7_3B;
-            break;
-        case 0x74000004:
-            tds_info->tds7_version = TDS_PROTOCOL_7_4;
-            break;
-        default:
-            tds_info->tds7_version = TDS_PROTOCOL_7_4;
-            break;
-    }
+    set_tds7_version(tds_info, tds_version);
+
     cur += 4;
 
     msg_len = tvb_get_guint8(tvb, cur);
@@ -2907,7 +2937,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_c
     proto_tree_add_item(tree, hf_tds_loginack_progname, tvb, cur, msg_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
     cur += msg_len;
 
-    proto_tree_add_item(tree, hf_tds_loginack_progversion, tvb, cur, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_tds_loginack_progversion, tvb, cur, 4, ENC_BIG_ENDIAN);
 
     cur += 4;
 
@@ -3881,7 +3911,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * Assumptions:
              * Packet number of zero on a fragment typically will occur only when
-             * going to appear in order. This will happen with DB-Library or CT-Library.
+             * they are going to appear in order. This will happen with DB-Library
+             * or CT-Library.
              * Exception:
              * When a more modern stream has a large number of fragments and the packet
              * number wraps back to zero.
@@ -3979,7 +4010,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_tds_resp(next_tvb, pinfo, tds_tree, tds_info);
                 break;
             case TDS_LOGIN7_PKT:
-                dissect_tds7_login(next_tvb, pinfo, tds_tree);
+                dissect_tds7_login(next_tvb, pinfo, tds_tree, tds_info);
                 break;
             case TDS_QUERY_PKT:
                 dissect_tds_query_packet(next_tvb, pinfo, tds_tree, tds_info);
@@ -4112,8 +4143,12 @@ dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static void
 version_convert( gchar *result, guint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d",
-        (hexver >> 24) & 0xFF, (hexver >> 16) & 0xFF, (hexver >> 8) & 0xFF, hexver & 0xFF);
+    /* Version string is major(8).minor(8).build(16) in big-endian order.
+     * By specifying ENC_BIG_ENDIAN, the bytes have been swapped before we
+     * see them.
+     */
+    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d",
+        (hexver >> 24) & 0xFF, (hexver >> 16) & 0xFF, (hexver & 0xFFFF));
 }
 
 static void
@@ -4870,7 +4905,7 @@ proto_register_tds(void)
         },
         { &hf_tds7login_client_version,
           { "Client version", "tds.7login.client_version",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(version_convert), 0x0,
             NULL, HFILL }
         },
         { &hf_tds7login_client_pid,
@@ -4988,7 +5023,7 @@ proto_register_tds(void)
         },
         { &hf_tds_prelogin_option_version,
           { "Version", "tds.prelogin.option.version",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(version_convert), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_prelogin_option_subbuild,
@@ -5003,7 +5038,7 @@ proto_register_tds(void)
         },
         { &hf_tds_prelogin_option_instopt,
           { "InstOpt", "tds.prelogin.option.instopt",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_prelogin_option_threadid,
