@@ -1,4 +1,4 @@
-                         Wireshark 2.4.2 Release Notes
+                         Wireshark 2.4.3 Release Notes
      __________________________________________________________________
 
 What is Wireshark?
@@ -12,54 +12,49 @@ What's New
   Bug Fixes
 
    The following bugs have been fixed:
-     * [1]wnpa-sec-2017-42
-       BT ATT dissector crash ([2]Bug 14049) [3]CVE-2017-15192
-     * [4]wnpa-sec-2017-43
-       MBIM dissector crash ([5]Bug 14056) [6]CVE-2017-15193
-     * [7]wnpa-sec-2017-44
-       DMP dissector crash ([8]Bug 14068) [9]CVE-2017-15191
-     * [10]wnpa-sec-2017-45
-       RTSP dissector crash ([11]Bug 14077) [12]CVE-2017-15190
-     * [13]wnpa-sec-2017-46
-       DOCSIS infinite loop ([14]Bug 14080) [15]CVE-2017-15189
+     * [1]wnpa-sec-2017-47
+       The IWARP_MPA dissector could crash. ([2]Bug 14236)
+     * [3]wnpa-sec-2017-48
+       The NetBIOS dissector could crash. ([4]Bug 14249)
+     * [5]wnpa-sec-2017-49
+       The CIP Safety dissector could crash. ([6]Bug 14250)
 
-     * Wireshark crash when end capturing with "Update list of packets in
-       real-time" option off. ([16]Bug 13024)
-     * Diameter service response time statistics broken in 2.2.4. ([17]Bug
-       13442)
-     * Sequence number isn't shown as the X axis in TCP Stream Graph -
-       RTT. ([18]Bug 13740)
-     * Using an SSL subdissector will cause SSL data to not be decoded
-       (related to reassembly of application data). ([19]Bug 13885)
-     * Wireshark 2.4.0 doesn't build with Qt 4.8. ([20]Bug 13909)
-     * Some Infiniband Connect Req fields are not decoded correctly.
-       ([21]Bug 13997)
-     * Voip Flow Sequence button crash. ([22]Bug 14010)
-     * wireshark-2.4.1/epan/dissectors/packet-dmp.c:1034: sanity check in
-       wrong place ?. ([23]Bug 14016)
-     * wireshark-2.4.1/ui/qt/tcp_stream_dialog.cpp:1206: sanity check in
-       odd place ?. ([24]Bug 14017)
-     * [oss-fuzz] ASAN: 232 byte(s) leaked in 4 allocation(s). ([25]Bug
-       14025)
-     * [oss-fuzz] ASAN: 47 byte(s) leaked in 1 allocation(s). ([26]Bug
-       14032)
-     * Own interface toolbar logger dialog for each log command. ([27]Bug
-       14033)
-     * Wireshark crashes when dissecting DOCSIS REGRSPMP which contains
-       UCD. ([28]Bug 14038)
-     * Broken installation instructions for Visual Studio Community
-       Edition. ([29]Bug 14039)
-     * RTP Analysis "save as CSV" saves twice the forward stream, if two
-       streams are selected. ([30]Bug 14040)
-     * VWR file read ends early with vwr: Invalid data length 0. ([31]Bug
-       14051)
-     * reordercap fails with segmentation fault 11 on MacOS. ([32]Bug
-       14055)
-     * Cannot Apply Bitmask to Long Unsigned. ([33]Bug 14063)
-     * text2pcap since version 2.4 aborts when there are no arguments.
-       ([34]Bug 14082)
-     * gtpprime: Missing in frame.protocols. ([35]Bug 14083)
-     * HTTP dissector believes ICY response is a request. ([36]Bug 14091)
+     * "tshark -G ?" doesn't provide expected help. ([7]Bug 13984)
+     * File loading is very slow with TRANSUM dissector enabled. ([8]Bug
+       14094)
+     * packet-knxnetip.c:936: bad bitmask ?. ([9]Bug 14115)
+     * packet-q931.c:1306: bad compare ?. ([10]Bug 14116)
+     * SSL Dissection bug. ([11]Bug 14117)
+     * Wireshark crashes when exporting various files to .csv, txt and
+       other `non-capture file' formats. ([12]Bug 14128)
+     * RLC reassembly doesn't work for RLC over UDP heuristic dissector.
+       ([13]Bug 14129)
+     * HTTP Object export fails with long extension (possibly query
+       string). ([14]Bug 14130)
+     * 3GPP Civic Address not displayed in Packet Details. ([15]Bug 14131)
+     * Wireshark prefers packet.dll in System32\\Npcap over the one in
+       System32. ([16]Bug 14134)
+     * PEEKREMOTE dissector does not decode 11ac MCS rates properly.
+       ([17]Bug 14136)
+     * Visual Studio Community Edition 2015 lacks tools named in developer
+       guide. ([18]Bug 14147)
+     * TCP: Malformed data with Riverbed Probe option. ([19]Bug 14150)
+     * Wireshark Crash when trying to use Preferences | Advanced. ([20]Bug
+       14157)
+     * Right click on SMB2 Message ID and then Apply as Column causes
+       Runtime Error. ([21]Bug 14169)
+     * Return [Enter] should apply change (Column title - Button Label
+       toolbars). ([22]Bug 14191)
+     * Wireshark crashes if "rip.display_routing_domain" is set to TRUE in
+       preferences file. ([23]Bug 14197)
+     * Entry point inflatePrime not found for androiddump.exe and
+       randpktdump.exe. ([24]Bug 14207)
+     * BGP: IPv6 NLRI is received with Add-path ID, then Wire shark is not
+       able to decode the packet correctly. ([25]Bug 14241)
+     * Wrong SSL decryption when using EXTENDED MASTER SECRET and Client
+       certificate request (mutual authentication). ([26]Bug 14243)
+     * Frame direction isn't always set if it comes from the pcapng record
+       header rather than the packet pseudo-header. ([27]Bug 14245)
 
   New and Updated Features
 
@@ -71,25 +66,26 @@ What's New
 
   Updated Protocol Support
 
-   6LoWPAN, Bluetooth, BOOTP/DHCP, BT ATT, BT LE, DCERPC, DMP, DOCSIS,
-   EPL, GTP, H.248, HTTP, InfiniBand, MBIM, RPC, RTSP, SSL, and WSP
+   3GPP NAS, BGP, CIP Safety, DTLS, IEEE 802.11 Radio, IWARP_MPA,
+   KNXnet/IP, LCSAP, MQTT, NetBIOS, PEEKREMOTE, Q.931, RIP, RLC, SIP,
+   SSL/TLS, TCP, and TRANSUM
 
   New and Updated Capture File Support
 
-   Ixia IxVeriWave
+   There is no new or updated capture file support in this release.
      __________________________________________________________________
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [37]https://www.wireshark.org/download.html.
+   [28]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [38]download page on the Wireshark web site.
+   found on the [29]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -102,90 +98,81 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([39]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([30]Bug 1419)
 
-   The BER dissector might infinitely loop. ([40]Bug 1516)
+   The BER dissector might infinitely loop. ([31]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
-   ([41]Bug 1814)
+   ([32]Bug 1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([42]Bug 2234)
+   ([33]Bug 2234)
 
-   Application crash when changing real-time option. ([43]Bug 4035)
+   Application crash when changing real-time option. ([34]Bug 4035)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([44]Bug 4985)
+   ([35]Bug 4985)
 
-   Wireshark should let you work with multiple capture files. ([45]Bug
+   Wireshark should let you work with multiple capture files. ([36]Bug
    10488)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [46]Wireshark's Q&A site and on the
+   Community support is available on [37]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [47]the web site.
+   all of Wireshark's mailing lists can be found on [38]the web site.
 
    Official Wireshark training and certification are available from
-   [48]Wireshark University.
+   [39]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [49]Wireshark web site.
+   A complete FAQ is available on the [40]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2017-10-10 17:02:59 UTC
+   Last updated 2017-11-30 17:01:36 UTC
 
 References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2017-42.html
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14049
-   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15192
-   4. https://www.wireshark.org/security/wnpa-sec-2017-43.html
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14056
-   6. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15193
-   7. https://www.wireshark.org/security/wnpa-sec-2017-44.html
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14068
-   9. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15191
-  10. https://www.wireshark.org/security/wnpa-sec-2017-45.html
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14077
-  12. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15190
-  13. https://www.wireshark.org/security/wnpa-sec-2017-46.html
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14080
-  15. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15189
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13024
-  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13442
-  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13740
-  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13885
-  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13909
-  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13997
-  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14010
-  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14016
-  24. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14017
-  25. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14025
-  26. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14032
-  27. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14033
-  28. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14038
-  29. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14039
-  30. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14040
-  31. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14051
-  32. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14055
-  33. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14063
-  34. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14082
-  35. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14083
-  36. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14091
-  37. https://www.wireshark.org/download.html
-  38. https://www.wireshark.org/download.html#thirdparty
-  39. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-  40. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-  41. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-  42. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-  43. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  44. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  45. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  46. https://ask.wireshark.org/
-  47. https://www.wireshark.org/lists/
-  48. http://www.wiresharktraining.com/
-  49. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2017-47.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14236
+   3. https://www.wireshark.org/security/wnpa-sec-2017-48.html
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14249
+   5. https://www.wireshark.org/security/wnpa-sec-2017-49.html
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14250
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13984
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14094
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14115
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14116
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14117
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14128
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14129
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14130
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14131
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14134
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14136
+  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14147
+  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14150
+  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14157
+  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14169
+  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14191
+  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14197
+  24. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14207
+  25. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14241
+  26. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14243
+  27. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14245
+  28. https://www.wireshark.org/download.html
+  29. https://www.wireshark.org/download.html#thirdparty
+  30. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+  31. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  32. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  33. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  34. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  35. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  36. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  37. https://ask.wireshark.org/
+  38. https://www.wireshark.org/lists/
+  39. http://www.wiresharktraining.com/
+  40. https://www.wireshark.org/faq.html
