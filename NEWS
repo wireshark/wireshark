@@ -1,4 +1,4 @@
-                         Wireshark 2.2.10 Release Notes
+                         Wireshark 2.2.11 Release Notes
      __________________________________________________________________
 
 What is Wireshark?
@@ -12,29 +12,33 @@ What's New
   Bug Fixes
 
    The following vulnerabilities have been fixed:
-     * [1]wnpa-sec-2017-42
-       BT ATT dissector crash ([2]Bug 14049) [3]CVE-2017-15192
-     * [4]wnpa-sec-2017-43
-       MBIM dissector crash ([5]Bug 14056) [6]CVE-2017-15193
-     * [7]wnpa-sec-2017-44
-       DMP dissector crash ([8]Bug 14068) [9]CVE-2017-15191
+     * [1]wnpa-sec-2017-47
+       The IWARP_MPA dissector could crash. ([2]Bug 14236)
+     * [3]wnpa-sec-2017-48
+       The NetBIOS dissector could crash. ([4]Bug 14249)
+     * [5]wnpa-sec-2017-49
+       The CIP Safety dissector could crash. ([6]Bug 14250)
 
    The following bugs have been fixed:
-     * Wireshark crash when end capturing with "Update list of packets in
-       real-time" option off. ([10]Bug 13024)
-     * Diameter service response time statistics broken in 2.2.4. ([11]Bug
-       13442)
-     * Some Infiniband Connect Req fields are not decoded correctly.
-       ([12]Bug 13997)
-     * wireshark-2.4.1/epan/dissectors/packet-dmp.c:1034: sanity check in
-       wrong place ?. ([13]Bug 14016)
-     * [oss-fuzz] ASAN: 232 byte(s) leaked in 4 allocation(s). ([14]Bug
-       14025)
-     * [oss-fuzz] ASAN: 47 byte(s) leaked in 1 allocation(s). ([15]Bug
-       14032)
-     * RTP Analysis "save as CSV" saves twice the forward stream, if two
-       streams are selected. ([16]Bug 14040)
-     * Cannot Apply Bitmask to Long Unsigned. ([17]Bug 14063)
+     * "tshark -G ?" doesn't provide expected help. ([7]Bug 13984)
+     * packet-knxnetip.c:936: bad bitmask ?. ([8]Bug 14115)
+     * packet-q931.c:1306: bad compare ?. ([9]Bug 14116)
+     * Wireshark crashes when exporting various files to .csv, txt and
+       other `non-capture file' formats. ([10]Bug 14128)
+     * Wireshark prefers packet.dll in System32\Npcap over the one in
+       System32. ([11]Bug 14134)
+     * PEEKREMOTE dissector does not decode 11ac MCS rates properly.
+       ([12]Bug 14136)
+     * Wireshark Crash when trying to use Preferences | Advanced. ([13]Bug
+       14157)
+     * Right click on SMB2 Message ID and then Apply as Column causes
+       Runtime Error!. ([14]Bug 14169)
+     * Wireshark crashes if "rip.display_routing_domain" is set to TRUE in
+       preferences file. ([15]Bug 14197)
+     * Entry point inflatePrime not found for androiddump.exe and
+       randpktdump.exe. ([16]Bug 14207)
+     * Frame direction isn't always set if it comes from the pcapng record
+       header rather than the packet pseudo-header. ([17]Bug 14245)
 
   New and Updated Features
 
@@ -50,7 +54,8 @@ What's New
 
   Updated Protocol Support
 
-   BT ATT, DCERPC, DMP, E.212, H.248, InfiniBand, MBIM, RPC, and WSP
+   3GPP NAS, CIP Safety, IWARP_MPA, KNXnet/IP, NetBIOS, PEEKREMOTE, Q.931,
+   and RIP
 
   New and Updated Capture File Support
 
@@ -126,27 +131,27 @@ Frequently Asked Questions
    A complete FAQ is available on the [31]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2017-10-10 16:49:23 UTC
+   Last updated 2017-11-30 17:12:52 UTC
 
 References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2017-42.html
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14049
-   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15192
-   4. https://www.wireshark.org/security/wnpa-sec-2017-43.html
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14056
-   6. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15193
-   7. https://www.wireshark.org/security/wnpa-sec-2017-44.html
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14068
-   9. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15191
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13024
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13442
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13997
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14016
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14025
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14032
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14040
-  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14063
+   1. https://www.wireshark.org/security/wnpa-sec-2017-47.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14236
+   3. https://www.wireshark.org/security/wnpa-sec-2017-48.html
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14249
+   5. https://www.wireshark.org/security/wnpa-sec-2017-49.html
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14250
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13984
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14115
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14116
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14128
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14134
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14136
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14157
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14169
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14197
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14207
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14245
   18. https://www.wireshark.org/download.html
   19. https://www.wireshark.org/download.html#thirdparty
   20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419

@@ -21,6 +21,24 @@ The IWARP_MPA dissector could crash.
 // Fixed in master-2.4: 8502fe94ef
 // Fixed in master-2.2: 53cf81d4f2
 
+* ws-salink:2017-48[]
++
+The NetBIOS dissector could crash.
+(ws-buglink:14249[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: b59dc97dfe
+// Fixed in master-2.4: 87b6ea2237
+// Fixed in master-2.2: 79768d63d1
+
+* ws-salink:2017-49[]
++
+The CIP Safety dissector could crash.
+(ws-buglink:14250[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: 041e3e7c27, 3d6da018e7
+// Fixed in master-2.4: ec6972193c, 1166734b35
+// Fixed in master-2.2: 6966d5db73, 6966d5db73
+
 The following bugs have been fixed:
 
 //* ws-buglink:5000[]
@@ -51,9 +69,6 @@ The following bugs have been fixed:
 
 * Frame direction isn't always set if it comes from the pcapng record header rather than the packet pseudo-header. (ws-buglink:14245[])
 
-// Left off at a689f0c2d6
-
-
 === New and Updated Features
 
 There are no new features in this release.
@@ -72,8 +87,10 @@ There are no new protocols in this release.
 
 --sort-and-group--
 3GPP NAS
+CIP Safety
 IWARP_MPA
 KNXnet/IP
+NetBIOS
 RIP
 PEEKREMOTE
 Q.931
