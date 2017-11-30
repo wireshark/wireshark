@@ -65,7 +65,6 @@ extern int proto_umts_rlc; /*Handler to RLC*/
 
 GTree * hsdsch_muxed_flows = NULL;
 GTree * rrc_ciph_info_tree = NULL;
-GTree * rrc_scrambling_code_urnti = NULL;
 wmem_tree_t* rrc_rach_urnti_crnti_map = NULL;
 static int msg_type _U_;
 
@@ -462,12 +461,6 @@ rrc_init(void) {
                        NULL,
                        rrc_free_value);
 
-    /*Initialize Scrambling code to U-RNTI dictionary*/
-    rrc_scrambling_code_urnti = g_tree_new_full(rrc_key_cmp,
-                       NULL,
-                       NULL,
-                       NULL);
-
     /* Global U-RNTI / C-RNTI map to be used in RACH channels */
     rrc_rach_urnti_crnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
@@ -477,7 +470,6 @@ rrc_cleanup(void) {
     /*Cleanup*/
     g_tree_destroy(hsdsch_muxed_flows);
     g_tree_destroy(rrc_ciph_info_tree);
-    g_tree_destroy(rrc_scrambling_code_urnti);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
