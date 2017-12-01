@@ -6644,7 +6644,7 @@ void proto_register_sip(void)
         },
         { &hf_sip_original_frame,
           { "Suspected resend of frame",  "sip.resend-original",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RETRANS_PREV), 0x0,
             "Original transmission of frame", HFILL}
         },
         { &hf_sip_matching_request_frame,
