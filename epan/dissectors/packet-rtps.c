@@ -11844,7 +11844,7 @@ void proto_register_rtps(void) {
         FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_dcps_publication_data_frame_number,{
-        "DCPSPublicationData n", "rtps.dcps_publication_data_frame_number",
+        "DCPSPublicationData In", "rtps.dcps_publication_data_frame_number",
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "This is a submessage sent by the DataWriter described in the DCPSPublicationData found in this frame", HFILL }
     },
