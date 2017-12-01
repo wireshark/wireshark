@@ -451,6 +451,33 @@ static int hf_rtps_flag_security_access_protected               = -1;
 static int hf_rtps_flag_security_discovery_protected            = -1;
 static int hf_rtps_flag_security_submessage_protected           = -1;
 static int hf_rtps_flag_security_payload_protected              = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_read_protected                = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_write_protected               = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_discovery_protected           = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_submessage_protected          = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_payload_protected             = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_key_protected                 = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_liveliness_protected          = -1;
+static int hf_rtps_flag_endpoint_security_attribute_flag_is_valid                         = -1;
+static int hf_rtps_param_endpoint_security_attributes_mask                                = -1;
+static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted      = -1;
+static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted          = -1;
+static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted   = -1;
+static int hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid                  = -1;
+static int hf_rtps_param_plugin_endpoint_security_attributes_mask                         = -1;
+static int hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected             = -1;
+static int hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected        = -1;
+static int hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected       = -1;
+static int hf_rtps_flag_participant_security_attribute_flag_is_valid                      = -1;
+static int hf_rtps_param_participant_security_attributes_mask                             = -1;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_encrypted              = -1;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_encrypted         = -1;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_encrypted        = -1;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_origin_encrypted       = -1;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_origin_encrypted  = -1;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_origin_encrypted = -1;
+static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_valid                       = -1;
+static int hf_rtps_param_plugin_participant_security_attributes_mask                              = -1;
 static int hf_rtps_sm_rti_crc_number                            = -1;
 static int hf_rtps_sm_rti_crc_result                            = -1;
 
@@ -896,6 +923,8 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_IDENTITY_TOKEN,                 "PID_IDENTITY_TOKEN" },
   { PID_PERMISSIONS_TOKEN,              "PID_PERMISSIONS_TOKEN" },
   { PID_DATA_TAGS,                      "PID_DATA_TAGS" },
+  { PID_ENDPOINT_SECURITY_INFO,         "PID_ENDPOINT_SECURITY_INFO" },
+  { PID_PARTICIPANT_SECURITY_INFO,      "PID_PARTICIPANT_SECURITY_INFO" },
 
   /* The following PID are deprecated */
   { PID_DEADLINE_OFFERED,               "PID_DEADLINE_OFFERED [deprecated]" },
@@ -1479,6 +1508,44 @@ static const int* SECURE_POSTFIX_FLAGS[] = {
   &hf_rtps_flag_reserved02,                     /* Bit 1 */
   &hf_rtps_flag_endianness,                     /* Bit 0 */
   NULL
+};
+
+static const int* ENDPOINT_SECURITY_INFO_FLAGS[] = {
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_valid,                      /* Bit 31 */
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_liveliness_protected,       /* Bit 6 */
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_key_protected,              /* Bit 5 */
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_payload_protected,          /* Bit 4 */
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_submessage_protected,       /* Bit 3 */
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_discovery_protected,        /* Bit 2 */
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_write_protected,            /* Bit 1 */
+  &hf_rtps_flag_endpoint_security_attribute_flag_is_read_protected,             /* Bit 0 */
+  NULL
+};
+
+static const int* PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS[] = {
+  &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid,                 /* Bit 31 */
+  &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted,  /* Bit 2 */
+  &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted,         /* Bit 1 */
+  &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted,     /* Bit 0 */
+  NULL
+};
+static const int* PARTICIPANT_SECURITY_INFO_FLAGS[] = {
+  &hf_rtps_flag_participant_security_attribute_flag_is_valid,                     /* Bit 31 */
+  &hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected,      /* Bit 2 */
+  &hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected,       /* Bit 1 */
+  &hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected,            /* Bit 0 */
+  NULL
+};
+
+static const int* PLUGIN_PARTICIPANT_SECURITY_INFO_FLAGS[] = {
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_valid,                        /* Bit 31 */
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_origin_encrypted,  /* Bit 5 */
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_origin_encrypted,   /* Bit 4 */
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_origin_encrypted,        /* Bit 3 */
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_encrypted,         /* Bit 2 */
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_encrypted,          /* Bit 1 */
+    &hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_encrypted,               /* Bit 0 */
+    NULL
 };
 
 /* Vendor specific: RTI */
@@ -4177,10 +4244,38 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
       break;
 
     case PID_ENABLE_ENCRYPTION:
-          ENSURE_LENGTH(1);
-          proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_enable_encryption, tvb,
-                offset, 1, ENC_NA);
-          break;
+      ENSURE_LENGTH(1);
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_enable_encryption, tvb,
+              offset, 1, ENC_NA);
+      break;
+
+    case PID_ENDPOINT_SECURITY_INFO: {
+      guint32 flags;
+      ENSURE_LENGTH(8);
+      flags = tvb_get_guint32(tvb, offset, encoding);
+      proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
+              hf_rtps_param_endpoint_security_attributes_mask, ett_rtps_flags,
+              ENDPOINT_SECURITY_INFO_FLAGS, flags);
+      flags = tvb_get_guint32(tvb, offset, encoding);
+      proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
+              hf_rtps_param_plugin_endpoint_security_attributes_mask, ett_rtps_flags,
+              PLUGIN_ENDPOINT_SECURITY_INFO_FLAGS, flags);
+      break;
+    }
+
+    case PID_PARTICIPANT_SECURITY_INFO: {
+      guint32 flags;
+      ENSURE_LENGTH(8);
+      flags = tvb_get_guint32(tvb, offset, encoding);
+      proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
+              hf_rtps_param_participant_security_attributes_mask, ett_rtps_flags,
+              PARTICIPANT_SECURITY_INFO_FLAGS, flags);
+      flags = tvb_get_guint32(tvb, offset, encoding);
+      proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
+              hf_rtps_param_plugin_participant_security_attributes_mask, ett_rtps_flags,
+              PLUGIN_PARTICIPANT_SECURITY_INFO_FLAGS, flags);
+      break;
+    }
 
     case PID_VENDOR_BUILTIN_ENDPOINT_SET: {
       guint32 flags;
@@ -11676,6 +11771,125 @@ void proto_register_rtps(void) {
     { &hf_rtps_flag_security_payload_protected, {
         "Payload Protected", "rtps.flag.security.payload_protected",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_read_protected,{
+        "Read Protected" ,"rtps.flag.security.info.read_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_write_protected,{
+        "Write Protected" ,"rtps.flag.security.info.write_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_discovery_protected,{
+        "Discovery Protected" ,"rtps.flag.security.info.discovery_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_submessage_protected,{
+        "Submessage Protected" ,"rtps.flag.security.info.submessage_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_payload_protected,{
+        "Payload Protected" ,"rtps.flag.security.info.payload_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_key_protected,{
+        "Key Protected" ,"rtps.flag.security.info.key_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_liveliness_protected,{
+        "Liveliness Protected" ,"rtps.flag.security.info.liveliness_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040, NULL, HFILL }
+    },
+    { &hf_rtps_flag_endpoint_security_attribute_flag_is_valid,{
+        "Mask Valid" ,"rtps.flag.security.info.valid",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, NULL, HFILL }
+    },
+    { &hf_rtps_param_endpoint_security_attributes_mask,{
+        "EndpointSecurityAttributesMask", "rtps.param.endpoint_security_attributes",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the EndpointSecurityAttributes flags in PID_ENDPOINT_SECURITY_INFO",
+        HFILL }
+    },
+    { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted,{
+        "Submessage Encrypted" ,"rtps.flag.security.info.plugin_submessage_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted,{
+        "Payload Encrypted" ,"rtps.flag.security.info.plugin_payload_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_liveliness_encrypted,{
+        "Submessage Origin Encrypted" ,"rtps.flag.security.info.plugin_liveliness_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_valid,{
+        "Mask Valid" ,"rtps.flag.security.info.plugin_valid",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, NULL, HFILL }
+    },
+    { &hf_rtps_param_plugin_endpoint_security_attributes_mask,{
+        "PluginEndpointSecurityAttributesMask (valid dissection if using the Specification Builtin Plugins)",
+        "rtps.param.plugin_endpoint_security_attributes",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the PluginEndpointSecurityAttributes flags in PID_ENDPOINT_SECURITY_INFO",
+        HFILL }
+    },
+    { &hf_rtps_flag_participant_security_attribute_flag_is_rtps_protected,{
+        "RTPS Protected" ,"rtps.flag.security.info.participant_rtps_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_security_attribute_flag_is_discovery_protected,{
+        "Discovery Protected" ,"rtps.flag.security.info.participant_discovery_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_security_attribute_flag_is_liveliness_protected,{
+        "Liveliness Protected" ,"rtps.flag.security.info.participant_liveliness_protected",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_security_attribute_flag_is_valid,{
+        "Mask Valid" ,"rtps.flag.security.info.participant_mask_valid",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, NULL, HFILL }
+    },
+    { &hf_rtps_param_participant_security_attributes_mask,{
+        "ParticipantSecurityAttributesMask",
+        "rtps.param.participant_security_attributes",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the ParticipantSecurityAttributes flags in PID_PARTICIPANT_SECURITY_INFO",
+        HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_encrypted,{
+        "RTPS Encrypted" ,"rtps.flag.security.info.plugin_participant_rtps_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_encrypted,{
+        "Discovery Encrypted" ,"rtps.flag.security.info.plugin_participant_discovery_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_encrypted,{
+        "Liveliness Encrypted" ,"rtps.flag.security.info.plugin_participant_liveliness_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_rtps_origin_encrypted,{
+        "RTPS Origin Encrypted" ,"rtps.flag.security.info.plugin_participant_rtps_origin_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_discovery_origin_encrypted,{
+        "Discovery Origin Encrypted" ,"rtps.flag.security.info.plugin_participant_discovery_origin_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_liveliness_origin_encrypted,{
+        "Liveliness Origin Encrypted" ,"rtps.flag.security.info.plugin_participant_liveliness_origin_encrypted",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_participant_security_attribute_flag_is_valid,{
+        "Mask Valid" ,"rtps.flag.security.info.plugin_participant_mask_valid",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, NULL, HFILL }
+    },
+    { &hf_rtps_param_plugin_participant_security_attributes_mask,{
+        "PluginParticipantSecurityAttributesMask (valid dissection if using the Specification Builtin Plugins)",
+        "rtps.param.plugin_participant_security_attributes",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the PluginParticipantSecurityAttributes flags in PID_PARTICIPANT_SECURITY_INFO",
+        HFILL }
     },
     { &hf_rtps_param_enable_authentication,
       { "Authentication enabled", "rtps.secure.enable_authentication",

@@ -290,6 +290,8 @@ typedef struct _rtps_dissector_data {
 #define PID_IDENTITY_TOKEN                      (0x1001)
 #define PID_PERMISSIONS_TOKEN                   (0x1002)
 #define PID_DATA_TAGS                           (0x1003)
+#define PID_ENDPOINT_SECURITY_INFO              (0x1004)
+#define PID_PARTICIPANT_SECURITY_INFO           (0x1005)
 
 /* Vendor-specific: PT */
 #define PID_PRISMTECH_WRITER_INFO               (0x8001)
