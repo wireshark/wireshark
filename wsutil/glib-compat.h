@@ -24,6 +24,8 @@
 #define GLIB_COMPAT_H
 
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
+
 #if !GLIB_CHECK_VERSION(2, 28, 0)
 WS_DLL_PUBLIC void g_slist_free_full(GSList *list, GDestroyNotify  free_func);
 WS_DLL_PUBLIC void g_list_free_full(GList *list, GDestroyNotify free_func);
