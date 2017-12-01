@@ -1352,7 +1352,7 @@ dissect_zcl_price_publish_block_period(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 4;
 
     /* Block Period Duration */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_block_period_duration, tvb, *offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_block_period_duration, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Block Period Control */
@@ -1594,7 +1594,7 @@ dissect_zcl_price_publish_price_matrix(tvbuff_t *tvb, proto_tree *tree, guint *o
         *offset += 1;
 
         /* Price */
-        proto_tree_add_item(tree, hf_zbee_zcl_price_price_matrix_price, tvb, *offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_zbee_zcl_price_price_matrix_price, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
     }
 } /*dissect_zcl_price_publish_price_matrix*/
@@ -1655,16 +1655,21 @@ dissect_zcl_price_publish_block_thresholds(tvbuff_t *tvb, proto_tree *tree, guin
     *offset += 1;
 
     while (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        guint8 thresholds;
+
         /* Tier/Number of Block Thresholds */
+        thresholds = tvb_get_guint8(tvb, *offset) & ZBEE_ZCL_PRICE_BLOCK_THRESHOLDS_NUMBER_OF_BLOCK_THRESHOLDS;
         if (sub_payload_control == 0)
             proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, ett_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, tier_number_of_block_thresholds, ENC_LITTLE_ENDIAN);
         else
             proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, ett_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, number_of_block_thresholds, ENC_LITTLE_ENDIAN);
         *offset += 1;
 
-        /* Block Threshold */
-        proto_tree_add_item(tree, hf_zbee_zcl_price_block_thresholds_block_threshold, tvb, *offset, 6, ENC_NA);
-        *offset += 6;
+        /* Block Threshold(s) */
+        for (gint i = 0; i < thresholds; i++) {
+            proto_tree_add_item(tree, hf_zbee_zcl_price_block_thresholds_block_threshold, tvb, *offset, 6, ENC_LITTLE_ENDIAN);
+            *offset += 6;
+        }
     }
 } /*dissect_zcl_price_publish_block_thresholds*/
 
@@ -1704,7 +1709,7 @@ dissect_zcl_price_publish_co2_value(tvbuff_t *tvb, proto_tree *tree, guint *offs
     *offset += 1;
 
     /* CO2 Value */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_co2_value, tvb, *offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_co2_value, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* CO2 Unit */
@@ -1798,7 +1803,7 @@ dissect_zcl_price_publish_billing_period(tvbuff_t *tvb, proto_tree *tree, guint 
     *offset += 4;
 
     /* Billing Period Duration */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_billing_period_duration, tvb, *offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_billing_period_duration, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
     *offset += 3;
 
     /* Billing Period Duration Type */
@@ -1848,7 +1853,7 @@ dissect_zcl_price_publish_consolidated_bill(tvbuff_t *tvb, proto_tree *tree, gui
     *offset += 4;
 
     /* Billing Period Duration */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_billing_period_duration, tvb, *offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_billing_period_duration, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
     *offset += 3;
 
     /* Billing Period Duration Type */
