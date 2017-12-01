@@ -19,9 +19,8 @@
 #include "cfile.h"
 
 const char *
-cap_file_get_interface_name(void *data, guint32 interface_id)
+cap_file_get_interface_name(struct _capture_file *cf, guint32 interface_id)
 {
-  capture_file *cf = (capture_file *) data;
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
   char* interface_name;
@@ -43,9 +42,8 @@ cap_file_get_interface_name(void *data, guint32 interface_id)
 }
 
 const char *
-cap_file_get_interface_description(void *data, guint32 interface_id)
+cap_file_get_interface_description(struct _capture_file *cf, guint32 interface_id)
 {
-  capture_file *cf = (capture_file *) data;
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
   char* interface_name;

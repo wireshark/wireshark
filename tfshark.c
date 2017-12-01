@@ -1026,10 +1026,8 @@ clean_exit:
 }
 
 static const nstime_t *
-tfshark_get_frame_ts(void *data, guint32 frame_num)
+tfshark_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
 {
-  capture_file *cf = (capture_file *) data;
-
   if (ref && ref->num == frame_num)
     return &ref->abs_ts;
 
@@ -1049,7 +1047,7 @@ tfshark_get_frame_ts(void *data, guint32 frame_num)
 }
 
 static const char *
-no_interface_name(void *data _U_, guint32 interface_id _U_)
+no_interface_name(struct _capture_file *cf _U_, guint32 interface_id _U_)
 {
     return "";
 }
@@ -1059,7 +1057,7 @@ tfshark_epan_new(capture_file *cf)
 {
   epan_t *epan = epan_new();
 
-  epan->data = cf;
+  epan->cf = cf;
   epan->get_frame_ts = tfshark_get_frame_ts;
   epan->get_interface_name = no_interface_name;
   epan->get_user_comment = NULL;

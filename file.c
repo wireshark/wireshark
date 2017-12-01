@@ -225,10 +225,8 @@ static void compute_elapsed(capture_file *cf, GTimeVal *start_time)
 }
 
 static const nstime_t *
-ws_get_frame_ts(void *data, guint32 frame_num)
+ws_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
 {
-  capture_file *cf = (capture_file *) data;
-
   if (cf->prev_dis && cf->prev_dis->num == frame_num)
     return &cf->prev_dis->abs_ts;
 
@@ -245,10 +243,8 @@ ws_get_frame_ts(void *data, guint32 frame_num)
 }
 
 static const char *
-ws_get_user_comment(void *data, const frame_data *fd)
+ws_get_user_comment(struct _capture_file *cf, const frame_data *fd)
 {
-  capture_file *cf = (capture_file *) data;
-
   return cf_get_user_packet_comment(cf, fd);
 }
 
@@ -257,7 +253,7 @@ ws_epan_new(capture_file *cf)
 {
   epan_t *epan = epan_new();
 
-  epan->data = cf;
+  epan->cf = cf;
   epan->get_frame_ts = ws_get_frame_ts;
   epan->get_interface_name = cap_file_get_interface_name;
   epan->get_interface_description = cap_file_get_interface_description;

@@ -286,7 +286,7 @@ epan_cleanup(void)
 epan_t *
 epan_new(void)
 {
-	epan_t *session = g_slice_new(epan_t);
+	epan_t *session = g_slice_new0(epan_t);
 
 	/* XXX, it should take session as param */
 	init_dissection();
@@ -298,7 +298,7 @@ const char *
 epan_get_user_comment(const epan_t *session, const frame_data *fd)
 {
 	if (session->get_user_comment)
-		return session->get_user_comment(session->data, fd);
+		return session->get_user_comment(session->cf, fd);
 
 	return NULL;
 }
@@ -307,7 +307,7 @@ const char *
 epan_get_interface_name(const epan_t *session, guint32 interface_id)
 {
 	if (session->get_interface_name)
-		return session->get_interface_name(session->data, interface_id);
+		return session->get_interface_name(session->cf, interface_id);
 
 	return NULL;
 }
@@ -316,7 +316,7 @@ const char *
 epan_get_interface_description(const epan_t *session, guint32 interface_id)
 {
 	if (session->get_interface_description)
-		return session->get_interface_description(session->data, interface_id);
+		return session->get_interface_description(session->cf, interface_id);
 
 	return NULL;
 }
@@ -327,7 +327,7 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 	const nstime_t *abs_ts = NULL;
 
 	if (session->get_frame_ts)
-		abs_ts = session->get_frame_ts(session->data, frame_num);
+		abs_ts = session->get_frame_ts(session->cf, frame_num);
 
 	if (!abs_ts)
 		ws_g_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);

@@ -25,13 +25,15 @@
 #include <epan/frame_data.h>
 #include <wsutil/nstime.h>
 
-struct epan_session {
-	void *data;
+struct _capture_file;
 
-	const nstime_t *(*get_frame_ts)(void *data, guint32 frame_num);
-	const char *(*get_interface_name)(void *data, guint32 interface_id);
-	const char *(*get_interface_description)(void *data, guint32 interface_id);
-	const char *(*get_user_comment)(void *data, const frame_data *fd);
+struct epan_session {
+	struct _capture_file *cf;
+
+	const nstime_t *(*get_frame_ts)(struct _capture_file *cf, guint32 frame_num);
+	const char *(*get_interface_name)(struct _capture_file *cf, guint32 interface_id);
+	const char *(*get_interface_description)(struct _capture_file *cf, guint32 interface_id);
+	const char *(*get_user_comment)(struct _capture_file *cf, const frame_data *fd);
 };
 
 #endif

@@ -1466,7 +1466,7 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 }
 
 static const nstime_t *
-raw_get_frame_ts(void *data _U_, guint32 frame_num)
+raw_get_frame_ts(struct _capture_file *cf _U_, guint32 frame_num)
 {
     if (ref && ref->num == frame_num)
         return &ref->abs_ts;
@@ -1485,7 +1485,7 @@ raw_epan_new(capture_file *cf)
 {
     epan_t *epan = epan_new();
 
-    epan->data = cf;
+    epan->cf = cf;
     epan->get_frame_ts = raw_get_frame_ts;
     epan->get_interface_name = cap_file_get_interface_name;
     epan->get_interface_description = cap_file_get_interface_description;
