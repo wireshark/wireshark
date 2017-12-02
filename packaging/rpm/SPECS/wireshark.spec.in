@@ -418,6 +418,11 @@ fi
 %files
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog INSTALL INSTALL.configure NEWS README*
+
+# Include the User Guide:
+%docdir %{_datadir}/doc/wireshark/guides/
+%{_datadir}/doc/wireshark/guides/
+
 # Don't pick up any of the wireshark (GUI) binaries here
 %exclude %{_bindir}/wireshark*
 %{_bindir}/*
@@ -495,6 +500,9 @@ fi
 %endif
 
 %changelog
+* Sat Dec  2 2017 Jeff Morriss
+- Include the User Guide (now installed by default by autotools).
+
 * Wed Jul 26 2017 Pascal Quantin
 - Added bcg729 (as an option, defaulting to not required).
 
