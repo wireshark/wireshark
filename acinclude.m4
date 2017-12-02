@@ -704,7 +704,18 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 					LUA_LIBS="-L$lua_dir/lib $ac_cv_search_luaL_openlibs -lm"
 					have_lua=yes
 				],[
-					have_lua=no
+					# Try again with -ldl
+
+					# Tell autoconf we don't want to use the cached result
+					unset ac_cv_search_luaL_openlibs
+
+					AC_SEARCH_LIBS(luaL_openlibs, [lua-${lua_ver} lua${lua_ver} lua],
+					[
+						LUA_LIBS="-L$lua_dir/lib $ac_cv_search_luaL_openlibs -lm -ldl"
+						have_lua=yes
+					],[
+						have_lua=no
+					], -lm -ldl)
 				], -lm)
 			fi
 		fi
