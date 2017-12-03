@@ -83,13 +83,32 @@ if( PCAP_FOUND )
   check_function_exists( "pcap_list_datalinks" HAVE_PCAP_LIST_DATALINKS )
   check_function_exists( "pcap_set_datalink" HAVE_PCAP_SET_DATALINK )
   check_function_exists( "bpf_image" HAVE_BPF_IMAGE )
-  check_function_exists( "pcap_setsampling" HAVE_PCAP_SETSAMPLING )
   check_function_exists( "pcap_set_tstamp_precision" HAVE_PCAP_SET_TSTAMP_PRECISION )
   check_function_exists( "pcap_set_tstamp_type" HAVE_PCAP_SET_TSTAMP_TYPE )
   # Remote pcap checks
   check_function_exists( "pcap_open" HAVE_PCAP_OPEN )
   if( HAVE_PCAP_OPEN )
     set( HAVE_PCAP_REMOTE 1 )
+    #
+    # XXX - this *should* be checked for independently of checking
+    # for pcap_open(), as you might have pcap_setsampling() without
+    # remote capture support.
+    #
+    # However, 1) the sampling options are treated as remote options
+    # in the GUI and and 2) having pcap_setsampling() doesn't mean
+    # you have sampling support.  libpcap needs a way to indicate
+    # whether a given device supports sampling, and the GUI should
+    # be changed to decouple them.
+    #
+    # (Actually, libpcap needs a general mechanism to offer options
+    # for particular devices, and Wireshark needs to use that
+    # mechanism.  The former is a work in progress.)
+    #
+    # (Note: another work in progress is support for remote
+    # capturing using pcap_create()/pcap_activate(), which we
+    # also need to support once it's available.)
+    #
+    check_function_exists( "pcap_setsampling" HAVE_PCAP_SETSAMPLING )
   endif()
 
   cmake_pop_check_state()
