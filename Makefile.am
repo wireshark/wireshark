@@ -698,6 +698,7 @@ dumpcap_LDADD = \
 
 pkginclude_HEADERS = \
 	cfile.h			\
+	cfile-int.h		\
 	file.h			\
 	globals.h		\
 	log.h			\
