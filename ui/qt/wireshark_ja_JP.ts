@@ -60,8 +60,20 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Acknowledgments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>License</source>
         <translation>ライセンス</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">コピー</translation>
+    </message>
+    <message>
+        <source>Copy Row(s)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4432,8 +4444,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>表示部3:</translation>
     </message>
     <message>
-        <source>Show packet separator on Packet List</source>
-        <translation>パケット一覧のパケット行間仕切りを表示</translation>
+        <source>Packet List settings:</source>
+        <oldsource>Show packet separator on Packet List</oldsource>
+        <translation type="unfinished">パケット一覧のパケット行間仕切りを表示</translation>
+    </message>
+    <message>
+        <source>Show packet separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>

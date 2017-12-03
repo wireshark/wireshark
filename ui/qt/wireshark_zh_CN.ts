@@ -60,8 +60,20 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Acknowledgments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>License</source>
         <translation>许可</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">复制</translation>
+    </message>
+    <message>
+        <source>Copy Row(s)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4433,8 +4445,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>窗格 2:</translation>
     </message>
     <message>
-        <source>Show packet separator on Packet List</source>
-        <translation>在分组列表显示分组分隔器</translation>
+        <source>Packet List settings:</source>
+        <oldsource>Show packet separator on Packet List</oldsource>
+        <translation type="unfinished">在分组列表显示分组分隔器</translation>
+    </message>
+    <message>
+        <source>Show packet separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>

@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the wireshark package.
 # 
 # Translators:
+# Göran Uddeborg <goeran@uddeborg.se>, 2017
 # Martin Ågren <martin.agren@gmail.com>, 2009-2010
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
 "POT-Creation-Date: 2017-08-06 18:31-0400\n"
-"PO-Revision-Date: 2017-09-22 06:50+0000\n"
-"Last-Translator: Gerald Combs <gerald@wireshark.org>\n"
+"PO-Revision-Date: 2017-11-27 22:17+0000\n"
+"Last-Translator: Göran Uddeborg <goeran@uddeborg.se>\n"
 "Language-Team: Swedish (http://www.transifex.com/wireshark/wireshark/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -54,7 +55,7 @@ msgstr "Att aktivera denna funktion kan vara en säkerhetsrisk, så den är avak
 #. Description
 #: ../templates:3001
 msgid "Creating the wireshark system group failed"
-msgstr ""
+msgstr "Att skapa systemgruppen wireshark misslyckades"
 
 #. Type: error
 #. Description
@@ -62,7 +63,7 @@ msgstr ""
 msgid ""
 "The wireshark group does not exist, and creating it failed, so Wireshark "
 "cannot be configured to capture traffic as an unprivileged user."
-msgstr ""
+msgstr "Gruppen wireshark finns inte, och att skapa den misslyckades, så Wireshark kan inte konfigureras att fånga trafik som en opriviligierad användare."
 
 #. Type: error
 #. Description
@@ -70,13 +71,13 @@ msgstr ""
 msgid ""
 "Please create the wireshark system group and try configuring wireshark-"
 "common again."
-msgstr ""
+msgstr "Skapa systemgruppen wireshark och försök konfigurera wireshark-common igen."
 
 #. Type: error
 #. Description
 #: ../templates:4001
 msgid "The wireshark group is a system group"
-msgstr ""
+msgstr "Gruppen wireshark är en systemgrupp"
 
 #. Type: error
 #. Description
@@ -84,7 +85,7 @@ msgstr ""
 msgid ""
 "The wireshark group exists as a user group, but the preferred configuration "
 "is for it to be created as a system group."
-msgstr ""
+msgstr "Gruppen wireshark finns som en användargrupp, men den rekommenderade konfigurationen är att den skapas som sen systemgrupp."
 
 #. Type: error
 #. Description
@@ -92,13 +93,13 @@ msgstr ""
 msgid ""
 "As a result, purging wireshark-common will not remove the wireshark group, "
 "but everything else should work properly."
-msgstr ""
+msgstr "Som ett resultat kommer rensning av wireshark-common inte ta bort gruppen wireshark, men allt annat skall fungera normalt."
 
 #. Type: error
 #. Description
 #: ../templates:5001
 msgid "Setting capabilities for dumpcap failed"
-msgstr ""
+msgstr "Att sätta förmågor för dumpcap misslyckades"
 
 #. Type: error
 #. Description
@@ -106,13 +107,13 @@ msgstr ""
 msgid ""
 "The attempt to use Linux capabilities to grant packet-capturing privileges "
 "to the dumpcap binary failed. Instead, it has had the set-user-id bit set."
-msgstr ""
+msgstr "Försöket att använda Linux förmågor (capabilities) för att ge rättigheter att fånga paket till programmet dumpcap misslyckades.  Istället har det fått set-user-id-biten satt."
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid "Removal of the wireshark group failed"
-msgstr ""
+msgstr "Att ta bort gruppen wireshark misslyckades"
 
 #. Type: error
 #. Description
@@ -121,7 +122,7 @@ msgid ""
 "When the wireshark-common package is configured to allow non-superusers to "
 "capture packets the postinst script of wireshark-common creates the "
 "wireshark group as a system group."
-msgstr ""
+msgstr "När paketet wireshark-common är konfigurerat för att tillåta andra än superanvändaren att fånga paket skapara postinst-skriptet i wireshark-common gruppen wireshark som en systemgrupp."
 
 #. Type: error
 #. Description
@@ -129,10 +130,10 @@ msgstr ""
 msgid ""
 "However, on this system the wireshark group is a user group instead of being"
 " a system group, so purging wireshark-common did not remove it."
-msgstr ""
+msgstr "Dock är gruppen wireshark en användargrupp på detta system istället för en systemgrupp, så att rensa bort wireshark-common tog inte bort den."
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid "If the group is no longer needed, please remove it manually."
-msgstr ""
+msgstr "Om gruppen inte behövs längre, ta då bort den manuellt."

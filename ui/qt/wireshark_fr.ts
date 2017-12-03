@@ -60,8 +60,20 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Acknowledgments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>License</source>
         <translation>Licence</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Copier</translation>
+    </message>
+    <message>
+        <source>Copy Row(s)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4449,8 +4461,13 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Panneau 3:</translation>
     </message>
     <message>
-        <source>Show packet separator on Packet List</source>
-        <translation>Voir le séparateur de paquet dans la Liste de Paquets</translation>
+        <source>Packet List settings:</source>
+        <oldsource>Show packet separator on Packet List</oldsource>
+        <translation type="unfinished">Voir le séparateur de paquet dans la Liste de Paquets</translation>
+    </message>
+    <message>
+        <source>Show packet separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>

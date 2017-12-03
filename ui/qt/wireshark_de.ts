@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Pfad filtern</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -45,11 +45,11 @@
     </message>
     <message>
         <source>Search plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugins suchen</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Typ filtern:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -57,11 +57,23 @@
     </message>
     <message>
         <source>Search Shortcuts</source>
+        <translation>Tastaturkürzel suchen</translation>
+    </message>
+    <message>
+        <source>Acknowledgments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>License</source>
         <translation>Lizenzen</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopieren</translation>
+    </message>
+    <message>
+        <source>Copy Row(s)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -92,11 +104,11 @@
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>E-Mail</source>
-        <translation type="unfinished"></translation>
+        <translation>E-Mail</translation>
     </message>
 </context>
 <context>
@@ -2235,15 +2247,15 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>FolderListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokation</translation>
     </message>
     <message>
         <source>Typical Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Typische Dateien</translation>
     </message>
 </context>
 <context>
@@ -4449,8 +4461,13 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Bereich 3:</translation>
     </message>
     <message>
-        <source>Show packet separator on Packet List</source>
-        <translation>Pakettrenner in Paketliste anzeigen</translation>
+        <source>Packet List settings:</source>
+        <oldsource>Show packet separator on Packet List</oldsource>
+        <translation type="unfinished">Pakettrenner in Paketliste anzeigen</translation>
+    </message>
+    <message>
+        <source>Show packet separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -5853,11 +5870,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Delete All Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Paketkommentare löschen</translation>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Paketkommentare in der Mitschnittdatei löschen</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -7146,7 +7163,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Are you sure you want to remove all packet comments?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wollen Sie alle Paketkommentare löschen?</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
@@ -7790,19 +7807,19 @@ text-decoration: underline;
     <name>PluginListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Version</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad</translation>
     </message>
 </context>
 <context>
@@ -10832,15 +10849,15 @@ text-decoration: underline;
     <name>ShortcutListModel</name>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Tastaturkürzel</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
 </context>
 <context>

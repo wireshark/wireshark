@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro per percorso</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -45,11 +45,11 @@
     </message>
     <message>
         <source>Search plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin di ricerca</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro per tipo:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -57,11 +57,23 @@
     </message>
     <message>
         <source>Search Shortcuts</source>
+        <translation>Scorciatoie di ricerca</translation>
+    </message>
+    <message>
+        <source>Acknowledgments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>License</source>
         <translation>Licenza</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Copia</translation>
+    </message>
+    <message>
+        <source>Copy Row(s)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -92,11 +104,11 @@
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>E-Mail</source>
-        <translation type="unfinished"></translation>
+        <translation>Email</translation>
     </message>
 </context>
 <context>
@@ -2235,15 +2247,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <name>FolderListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Posizione</translation>
     </message>
     <message>
         <source>Typical Files</source>
-        <translation type="unfinished"></translation>
+        <translation>File tipici</translation>
     </message>
 </context>
 <context>
@@ -4448,8 +4460,13 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Pannello 3:</translation>
     </message>
     <message>
-        <source>Show packet separator on Packet List</source>
-        <translation>Mostra il separatore nelle elenco dei pacchetti</translation>
+        <source>Packet List settings:</source>
+        <oldsource>Show packet separator on Packet List</oldsource>
+        <translation type="unfinished">Mostra il separatore nelle elenco dei pacchetti</translation>
+    </message>
+    <message>
+        <source>Show packet separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -5852,11 +5869,11 @@ a:hover {
     </message>
     <message>
         <source>Delete All Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina tutti i commenti dei pacchetti</translation>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi tutti i commenti dei pacchetti nel file di cattura</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -7145,7 +7162,7 @@ a:hover {
     </message>
     <message>
         <source>Are you sure you want to remove all packet comments?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sei sicuro di voler rimuovere tutti i commenti dei pacchetti?</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
@@ -7789,19 +7806,19 @@ a:hover {
     <name>PluginListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versione</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Percorso</translation>
     </message>
 </context>
 <context>
@@ -10831,15 +10848,15 @@ a:hover {
     <name>ShortcutListModel</name>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorciatoia</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Descrizione</translation>
+        <translation>Descrizione</translation>
     </message>
 </context>
 <context>

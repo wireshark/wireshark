@@ -60,7 +60,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Acknowledgments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Row(s)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4414,7 +4426,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show packet separator on Packet List</source>
+        <source>Packet List settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
