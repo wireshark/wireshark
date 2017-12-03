@@ -102,6 +102,8 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     ctx_menu_->addAction(ui->actionDragZoom);
 //    ctx_menu_->addAction(ui->actionToggleTimeOrigin);
     ctx_menu_->addAction(ui->actionCrosshairs);
+    ctx_menu_->addSeparator();
+    ctx_menu_->addAction(ui->actionSwitchDirection);
 
     // Zero out this struct.
     memset(&graph_, 0, sizeof(graph_));
@@ -121,7 +123,8 @@ LteRlcGraphDialog::~LteRlcGraphDialog()
 
 // Set the channel information that this graph should show.
 void LteRlcGraphDialog::setChannelInfo(guint16 ueid, guint8 rlcMode,
-                                       guint16 channelType, guint16 channelId, guint8 direction)
+                                       guint16 channelType, guint16 channelId, guint8 direction,
+                                       bool maybe_empty)
 {
     graph_.ueid = ueid;
     graph_.rlcMode = rlcMode;
@@ -130,16 +133,16 @@ void LteRlcGraphDialog::setChannelInfo(guint16 ueid, guint8 rlcMode,
     graph_.channelSet = TRUE;
     graph_.direction = direction;
 
-    completeGraph();
+    completeGraph(maybe_empty);
 }
 
 // Once channel details are known, complete the graph with details that depend upon the channel.
-void LteRlcGraphDialog::completeGraph()
+void LteRlcGraphDialog::completeGraph(bool may_be_empty)
 {
     QCustomPlot *rp = ui->rlcPlot;
 
     // If no channel chosen already, try to use currently selected frame.
-    findChannel();
+    findChannel(may_be_empty);
 
     // Set window title here.
     if (graph_.channelSet) {
@@ -194,7 +197,7 @@ bool LteRlcGraphDialog::compareHeaders(rlc_segment *seg)
 }
 
 // Look for channel to plot based upon currently selected frame.
-void LteRlcGraphDialog::findChannel()
+void LteRlcGraphDialog::findChannel(bool may_fail)
 {
     // Temporarily disconnect mouse move signals.
     QCustomPlot *rp = ui->rlcPlot;
@@ -205,7 +208,9 @@ void LteRlcGraphDialog::findChannel()
     // Rescan for channel data.
     rlc_graph_segment_list_free(&graph_);
     if (!rlc_graph_segment_list_get(cap_file_.capFile(), &graph_, graph_.channelSet,
-                                    &err_string)) {
+                                    &err_string) &&
+        !may_fail) {
+
         // Pop up an error box to report error.
         simple_error_message_box("%s", err_string);
         g_free(err_string);
@@ -392,6 +397,11 @@ void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Z:
         on_actionDragZoom_triggered();
         break;
+
+    case Qt::Key_D:
+        on_actionSwitchDirection_triggered();
+        break;
+
     }
 
     WiresharkDialog::keyPressEvent(event);
@@ -495,6 +505,7 @@ void LteRlcGraphDialog::panAxes(int x_pixels, int y_pixels)
     }
 }
 
+// Given a selected rect in pixels, work out what this should be in graph units.
 // Don't accidentally zoom into a 1x1 rect if you happen to click on the graph
 // in zoom mode.
 const int min_zoom_pixels_ = 20;
@@ -614,6 +625,7 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
 
     } else {
         if (event && rubber_band_ && rubber_band_->isVisible()) {
+            // Work out zoom based upon selected region (in pixels).
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
             QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
             if (zoom_ranges.width() > 0.0 && zoom_ranges.height() > 0.0) {
@@ -640,6 +652,7 @@ void LteRlcGraphDialog::mouseReleased(QMouseEvent *event)
     if (rubber_band_) {
         rubber_band_->hide();
         if (!mouse_drags_) {
+            resetAxes();
             QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
             if (zoom_ranges.width() > 0.0 && zoom_ranges.height() > 0.0) {
                 rp->xAxis->setRangeLower(zoom_ranges.x());
@@ -779,6 +792,20 @@ void LteRlcGraphDialog::on_actionMoveDown1_triggered()
     panAxes(0, -1);
 }
 
+void LteRlcGraphDialog::on_actionSwitchDirection_triggered()
+{
+    // Channel settings exactly the same, except change direction.
+    // N.B. do not fail and close if there are no packets in opposite direction.
+    setChannelInfo(graph_.ueid,
+                   graph_.rlcMode,
+                   graph_.channelType,
+                   graph_.channelId,
+                   !graph_.direction,
+                   true /* maybe_empty */);
+}
+
+
+
 // Switch between zoom/drag.
 void LteRlcGraphDialog::on_actionDragZoom_triggered()
 {
@@ -806,6 +833,11 @@ void LteRlcGraphDialog::on_zoomRadioButton_toggled(bool checked)
 void LteRlcGraphDialog::on_resetButton_clicked()
 {
     resetAxes();
+}
+
+void LteRlcGraphDialog::on_otherDirectionButton_clicked()
+{
+    on_actionSwitchDirection_triggered();
 }
 
 // No need to register tap listeners here.  This is done

@@ -46,7 +46,8 @@ public:
     ~LteRlcGraphDialog();
 
     void setChannelInfo(guint16 ueid, guint8 rlcMode,
-                        guint16 channelType, guint16 channelId, guint8 direction);
+                        guint16 channelType, guint16 channelId, guint8 direction,
+                        bool maybe_empty=false);
 
 signals:
     void goToPacket(int packet_num);
@@ -76,11 +77,11 @@ private:
     QCPItemTracer *tracer_;
     guint32 packet_num_;
 
-    void completeGraph();
+    void completeGraph(bool may_be_empty=false);
 
     bool compareHeaders(rlc_segment *seg);
 
-    void findChannel();
+    void findChannel(bool may_fail=false);
     void fillGraph();
 
     void zoomAxes(bool in);
@@ -101,6 +102,7 @@ private slots:
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);
     void on_resetButton_clicked();
+    void on_otherDirectionButton_clicked();
 
     void on_actionReset_triggered();
     void on_actionZoomIn_triggered();
@@ -118,6 +120,7 @@ private slots:
     void on_actionMoveDown100_triggered();
     void on_actionGoToPacket_triggered();
     void on_actionCrosshairs_triggered();
+    void on_actionSwitchDirection_triggered();
 };
 
 #endif // LTE_RLC_GRAPH_DIALOG_H

@@ -32,7 +32,6 @@
 #include <QTreeWidgetItem>
 #include <QPushButton>
 
-#include "lte_rlc_graph_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
@@ -935,6 +934,7 @@ void LteRlcStatisticsDialog::launchDLGraphButtonClicked()
                             DIRECTION_DOWNLINK);
     }
 }
+
 
 // Store filter from signal.
 void LteRlcStatisticsDialog::filterUpdated(QString filter)

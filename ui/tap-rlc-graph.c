@@ -1,8 +1,7 @@
-/* tap-rlc-stream.c
- * LTE RLC stream statistics
+/* tap-rlc-graph.c
+ * LTE RLC channel graph info
  *
  * Originally from tcp_graph.c by Pavel Mores <pvl@uh.cz>
- * Win32 port:  rwh@unifiedtech.com
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -172,8 +171,6 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     hdrs->num = fdata->num;
     hdrs->rel_secs = (guint32) rel_ts.secs;
     hdrs->rel_usecs = rel_ts.nsecs/1000;
-    hdrs->abs_secs = (guint32) fdata->abs_ts.secs;
-    hdrs->abs_usecs = fdata->abs_ts.nsecs/1000;
 
     hdrs->ueid = th.rlchdrs[0]->ueid;
     hdrs->channelType = th.rlchdrs[0]->channelType;
@@ -203,8 +200,6 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
         segment->num = pinfo->num;
         segment->rel_secs = (guint32) pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
-        segment->abs_secs = (guint32) pinfo->abs_ts.secs;
-        segment->abs_usecs = pinfo->abs_ts.nsecs/1000;
 
         segment->ueid = rlchdr->ueid;
         segment->channelType = rlchdr->channelType;
@@ -254,7 +249,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     struct rlc_segment current;
     GString    *error_string;
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "graph_segment_list_get()");
+    g_log(NULL, G_LOG_LEVEL_DEBUG, "rlc_graph_segment_list_get()");
 
     if (!cf || !g) {
         /* Really shouldn't happen */
@@ -276,8 +271,8 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     }
 
 
-    /* rescan all the packets and pick up all interesting RLC headers.
-     * we only filter for rlc-lte here for speed and do the actual compare
+    /* Rescan all the packets and pick up all interesting RLC headers.
+     * We only filter for rlc-lte here for speed and do the actual compare
      * in the tap listener
      */
 

@@ -113,6 +113,16 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="otherDirectionButton">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Switch Direction</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -344,6 +354,17 @@
    </property>
    <property name="shortcut">
     <string>Shift+X</string>
+   </property>
+  </action>
+  <action name="actionSwitchDirection">
+   <property name="text">
+    <string>Switch Direction</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch direction (swap between UL and DL)</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
    </property>
   </action>
  </widget>

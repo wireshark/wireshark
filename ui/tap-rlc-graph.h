@@ -35,11 +35,9 @@ extern "C" {
 
 struct rlc_segment {
     struct rlc_segment *next;
-    guint32 num;            /* framenum */
-    guint32 rel_secs;
-    guint32 rel_usecs;
-    guint32 abs_secs;
-    guint32 abs_usecs;
+    guint32         num;            /* framenum */
+    guint32         rel_secs;
+    guint32         rel_usecs;
 
     gboolean        isControlPDU;
     guint16         SN;
