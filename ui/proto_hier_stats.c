@@ -10,14 +10,15 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #include "file.h"
 #include "frame_tvbuff.h"
 #include "ui/proto_hier_stats.h"
 #include "ui/progress_dlg.h"
 #include "epan/epan_dissect.h"
 #include "epan/proto.h"
-
-#include <string.h>
+#include "cfile-int.h"
 
 /* Update the progress bar this many times when scanning the packet list. */
 #define N_PROGBAR_UPDATES	100

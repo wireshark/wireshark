@@ -29,6 +29,8 @@
 
 #include <epan/prefs.h>
 
+#include "cfile-int.h"
+
 #include "ui/recent.h"
 #include "ui/traffic_table_ui.h"
 

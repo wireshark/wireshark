@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include "cfile.h"
+#include <epan/epan.h>
 #include <epan/packet_info.h>
 #include <QDialog>
 

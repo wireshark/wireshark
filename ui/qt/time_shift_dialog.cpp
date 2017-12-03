@@ -24,6 +24,8 @@
 
 #include "wireshark_application.h"
 
+#include "cfile-int.h"
+
 #include <ui/time_shift.h>
 #include <ui/qt/utils/tango_colors.h>
 

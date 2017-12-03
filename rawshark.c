@@ -1466,7 +1466,7 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 }
 
 static const nstime_t *
-raw_get_frame_ts(struct _capture_file *cf _U_, guint32 frame_num)
+raw_get_frame_ts(capture_file *cf _U_, guint32 frame_num)
 {
     if (ref && ref->num == frame_num)
         return &ref->abs_ts;

@@ -27,10 +27,11 @@
 #include <string.h>
 #include <math.h>
 
-
 #include "time_shift.h"
 
 #include "ui/ws_ui_util.h"
+
+#include "cfile-int.h"
 
 #ifndef HAVE_FLOORL
 #define floorl(x) floor((double)x)

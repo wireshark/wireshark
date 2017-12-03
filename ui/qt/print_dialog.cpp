@@ -22,6 +22,8 @@
 #include "print_dialog.h"
 #include <ui_print_dialog.h>
 
+#include "cfile-int.h"
+
 #include <wsutil/utf8_entities.h>
 
 #include <QPrintDialog>

@@ -17,9 +17,10 @@
 #include <wiretap/pcapng.h>
 
 #include "cfile.h"
+#include "cfile-int.h"
 
 const char *
-cap_file_get_interface_name(struct _capture_file *cf, guint32 interface_id)
+cap_file_get_interface_name(capture_file *cf, guint32 interface_id)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
@@ -42,7 +43,7 @@ cap_file_get_interface_name(struct _capture_file *cf, guint32 interface_id)
 }
 
 const char *
-cap_file_get_interface_description(struct _capture_file *cf, guint32 interface_id)
+cap_file_get_interface_description(capture_file *cf, guint32 interface_id)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;

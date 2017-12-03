@@ -25,6 +25,8 @@
 #include <config.h>
 #include <glib.h>
 
+#include "cfile.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -34,7 +36,6 @@ class SCTPGraphDialog;
 class QCPAbstractPlottable;
 class QCustomPlot;
 
-struct _capture_file;
 struct _sctp_assoc_info;
 
 struct chunk_header {
@@ -88,12 +89,12 @@ class SCTPGraphDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SCTPGraphDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, struct _capture_file *cf = NULL, int dir = 0);
+    explicit SCTPGraphDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, capture_file *cf = NULL, int dir = 0);
     ~SCTPGraphDialog();
     static void save_graph(QDialog *dlg, QCustomPlot *plot);
 
 public slots:
-    void setCaptureFile(struct _capture_file *cf) { cap_file_ = cf; }
+    void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
 
 private slots:
     void on_pushButton_clicked();
@@ -111,7 +112,7 @@ private slots:
 private:
     Ui::SCTPGraphDialog *ui;
     struct _sctp_assoc_info *selected_assoc;
-    struct _capture_file *cap_file_;
+    capture_file *cap_file_;
     int frame_num;
     int direction;
     QVector<double> xt, yt, xs, ys, xg, yg, xd, yd, xn, yn;

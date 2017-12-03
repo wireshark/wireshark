@@ -26,6 +26,9 @@
 #include "wireshark_application.h"
 
 #include "epan/charsets.h"
+
+#include "cfile-int.h"
+
 #include "wsutil/base64.h"
 #include "wsutil/utf8_entities.h"
 

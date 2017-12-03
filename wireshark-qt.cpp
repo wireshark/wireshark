@@ -63,6 +63,7 @@
 
 /* general (not Qt specific) */
 #include "file.h"
+#include "cfile-int.h"
 #include "epan/color_filters.h"
 #include "log.h"
 

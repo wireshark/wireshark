@@ -39,6 +39,8 @@ DIAG_ON(frame-larger-than=)
 #include <epan/plugin_if.h>
 #include <epan/export_object.h>
 
+#include "cfile-int.h"
+
 #include "ui/iface_toolbar.h"
 
 #ifdef HAVE_LIBPCAP

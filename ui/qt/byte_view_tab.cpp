@@ -28,6 +28,7 @@
 #include <QTreeWidgetItem>
 
 #include "cfile.h"
+#include "cfile-int.h"
 #include "epan/epan_dissect.h"
 #include "epan/tvbuff-int.h"
 

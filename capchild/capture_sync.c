@@ -122,7 +122,7 @@ static void (*fetch_dumpcap_pid)(ws_process_id) = NULL;
 
 
 void
-capture_session_init(capture_session *cap_session, struct _capture_file *cf)
+capture_session_init(capture_session *cap_session, capture_file *cf)
 {
     cap_session->cf                              = cf;
     cap_session->fork_child                      = WS_INVALID_PID;   /* invalid process handle */

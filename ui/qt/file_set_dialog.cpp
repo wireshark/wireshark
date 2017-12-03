@@ -25,6 +25,7 @@
 
 #include "file.h"
 #include "fileset.h"
+#include "cfile-int.h"
 
 #include "ui/help_url.h"
 

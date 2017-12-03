@@ -19,6 +19,7 @@ extern "C" {
  */
 
 #include <epan/proto.h>
+#include "cfile.h"
 
 typedef struct {
     header_field_info	*hfinfo;
@@ -37,8 +38,7 @@ typedef struct {
     double	last_time;	/* seconds (msec resolution) of last packet  */
 } ph_stats_t;
 
-struct _capture_file;
-ph_stats_t *ph_stats_new(struct _capture_file *cf);
+ph_stats_t *ph_stats_new(capture_file *cf);
 
 void ph_stats_free(ph_stats_t *ps);
 

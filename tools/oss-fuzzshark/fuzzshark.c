@@ -111,7 +111,7 @@ failure_message_cont(const char *msg_format, va_list ap)
 }
 
 static const nstime_t *
-fuzzshark_get_frame_ts(struct _capture_file *cf _U_, guint32 frame_num _U_)
+fuzzshark_get_frame_ts(capture_file *cf _U_, guint32 frame_num _U_)
 {
 	static nstime_t empty;
 

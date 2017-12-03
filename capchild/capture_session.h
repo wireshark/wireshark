@@ -44,7 +44,7 @@ typedef enum {
     CAPTURE_RUNNING         /**< capture child signalled ok, capture is running now */
 } capture_state;
 
-struct _capture_file;
+#include "cfile.h"
 struct _info_data;
 /*
  * State of a capture session.
@@ -63,12 +63,12 @@ typedef struct _capture_session {
     gboolean  session_started;
     guint32   count;                      /**< Total number of frames captured */
     capture_options *capture_opts;        /**< options for this capture */
-    struct    _capture_file *cf;          /**< handle to cfile */
+    capture_file *cf;                     /**< handle to cfile */
     struct _info_data *cap_data_info;          /**< stats for this capture */
 } capture_session;
 
 extern void
-capture_session_init(capture_session *cap_session, struct _capture_file *cf);
+capture_session_init(capture_session *cap_session, capture_file *cf);
 #else
 
 /* dummy is needed because clang throws the error: empty struct has size 0 in C, size 1 in C++ */

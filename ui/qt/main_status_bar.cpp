@@ -35,12 +35,13 @@
 #include "ui/profile.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 
-
 #include "capture_file.h"
 #include "main_status_bar.h"
 #include "profile_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/tango_colors.h>
+
+#include "cfile-int.h"
 
 #include <QAction>
 #include <QHBoxLayout>

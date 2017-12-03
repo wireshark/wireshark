@@ -30,6 +30,8 @@
 #include "sctp_graph_byte_dialog.h"
 #include "sctp_chunk_statistics_dialog.h"
 
+#include "cfile-int.h"
+
 SCTPAssocAnalyseDialog::SCTPAssocAnalyseDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, SCTPAllAssocsDialog* caller) :
     QDialog(parent),
     ui(new Ui::SCTPAssocAnalyseDialog),

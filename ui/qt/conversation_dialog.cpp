@@ -24,6 +24,8 @@
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-tcp.h>
 
+#include "cfile-int.h"
+
 #include "ui/recent.h"
 #include "ui/tap-tcp-stream.h"
 #include "ui/traffic_table_ui.h"

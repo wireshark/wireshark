@@ -23,6 +23,7 @@
 #include <ui_search_frame.h>
 
 #include "file.h"
+#include "cfile-int.h"
 
 #include <epan/proto.h>
 #include <epan/strutil.h>

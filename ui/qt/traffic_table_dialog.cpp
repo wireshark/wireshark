@@ -26,6 +26,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
+#include "cfile-int.h"
+
 #include "ui/recent.h"
 
 #include "progress_frame.h"

@@ -1026,7 +1026,7 @@ clean_exit:
 }
 
 static const nstime_t *
-tfshark_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
+tfshark_get_frame_ts(capture_file *cf, guint32 frame_num)
 {
   if (ref && ref->num == frame_num)
     return &ref->abs_ts;
@@ -1047,7 +1047,7 @@ tfshark_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
 }
 
 static const char *
-no_interface_name(struct _capture_file *cf _U_, guint32 interface_id _U_)
+no_interface_name(capture_file *cf _U_, guint32 interface_id _U_)
 {
     return "";
 }

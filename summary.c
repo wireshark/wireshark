@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include "cfile.h"
+#include "cfile-int.h"
 #include "summary.h"
 
 static void

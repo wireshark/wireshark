@@ -26,6 +26,7 @@
 #include <glib.h>
 
 #include "file.h"
+#include "cfile-int.h"
 
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>

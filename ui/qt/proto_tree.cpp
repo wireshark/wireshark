@@ -26,6 +26,8 @@
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
+#include "cfile-int.h"
+
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/wireshark_mime_data.h>

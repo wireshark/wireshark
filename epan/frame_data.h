@@ -31,9 +31,10 @@ extern "C" {
 #include <ws_symbol_export.h>
 #include <wsutil/nstime.h>
 
+#include <wiretap/wtap.h>
+
 struct _packet_info;
 struct epan_session;
-struct wtap_pkthdr;
 
 #define PINFO_FD_VISITED(pinfo)   ((pinfo)->fd->flags.visited)
 

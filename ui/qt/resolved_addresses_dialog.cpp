@@ -27,6 +27,7 @@
 #include <glib.h>
 
 #include "file.h"
+#include "cfile-int.h"
 
 #include "epan/addr_resolv.h"
 #include <wiretap/wtap.h>

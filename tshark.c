@@ -2346,7 +2346,7 @@ pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_pro
 }
 
 static const nstime_t *
-tshark_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
+tshark_get_frame_ts(capture_file *cf, guint32 frame_num)
 {
   if (ref && ref->num == frame_num)
     return &ref->abs_ts;

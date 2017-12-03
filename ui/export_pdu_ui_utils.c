@@ -40,6 +40,7 @@
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include "tap_export_pdu.h"
+#include "cfile-int.h"
 #include "export_pdu_ui_utils.h"
 
 static void

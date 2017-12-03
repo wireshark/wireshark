@@ -38,6 +38,8 @@
 
 #include "ui/simple_dialog.h"
 
+#include "cfile-int.h"
+
 #include "tap-tcp-stream.h"
 
 typedef struct _tcp_scan_t {

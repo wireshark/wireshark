@@ -23,6 +23,7 @@
 #include <ui_iax2_analysis_dialog.h>
 
 #include "file.h"
+#include "cfile-int.h"
 #include "frame_tvbuff.h"
 
 #include <epan/epan_dissect.h>

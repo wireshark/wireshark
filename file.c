@@ -44,6 +44,7 @@
 #include <epan/color_filters.h>
 
 #include "cfile.h"
+#include "cfile-int.h"
 #include "file.h"
 #include "fileset.h"
 #include "frame_tvbuff.h"
@@ -225,7 +226,7 @@ static void compute_elapsed(capture_file *cf, GTimeVal *start_time)
 }
 
 static const nstime_t *
-ws_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
+ws_get_frame_ts(capture_file *cf, guint32 frame_num)
 {
   if (cf->prev_dis && cf->prev_dis->num == frame_num)
     return &cf->prev_dis->abs_ts;
@@ -243,7 +244,7 @@ ws_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
 }
 
 static const char *
-ws_get_user_comment(struct _capture_file *cf, const frame_data *fd)
+ws_get_user_comment(capture_file *cf, const frame_data *fd)
 {
   return cf_get_user_packet_comment(cf, fd);
 }

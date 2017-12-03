@@ -27,6 +27,7 @@
 #include <glib.h>
 
 #include "epan/address.h"
+#include "epan/proto.h"
 
 #include "ui/rtp_stream.h"
 #include "ui/tap-rtp-analysis.h"

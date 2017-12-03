@@ -11,10 +11,11 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include "wiretap/wtap.h"
 #include <errno.h>
-#include <epan/epan.h>
 
+#include <wiretap/wtap.h>
+#include <epan/epan.h>
+#include <epan/dfilter/dfilter.h>
 #include <epan/print.h>
 #include <ui/packet_range.h>
 

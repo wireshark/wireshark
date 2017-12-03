@@ -28,7 +28,8 @@
 
 #include <glib.h>
 
-typedef struct _capture_file capture_file;
+#include "cfile.h"
+
 typedef struct _capture_session capture_session;
 
 struct _packet_info;

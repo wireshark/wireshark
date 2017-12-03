@@ -12,6 +12,7 @@
 #define __GLOBALS_H__
 
 #include "file.h"
+#include "cfile-int.h"
 #include <epan/timestamp.h>
 
 #ifdef __cplusplus

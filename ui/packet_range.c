@@ -33,6 +33,8 @@
 
 #include "packet_range.h"
 
+#include "cfile-int.h"
+
 /* (re-)calculate the packet counts (except the user specified range) */
 static void packet_range_calc(packet_range_t *range) {
     guint32       framenum;

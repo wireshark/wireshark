@@ -25,6 +25,8 @@
 #include <config.h>
 #include <glib.h>
 
+#include "cfile.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -33,7 +35,6 @@ class SCTPGraphByteDialog;
 
 class QCPAbstractPlottable;
 
-struct _capture_file;
 struct _sctp_assoc_info;
 
 class SCTPGraphByteDialog : public QDialog
@@ -41,11 +42,11 @@ class SCTPGraphByteDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SCTPGraphByteDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, struct _capture_file *cf = NULL, int dir = 0);
+    explicit SCTPGraphByteDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, capture_file *cf = NULL, int dir = 0);
     ~SCTPGraphByteDialog();
 
 public slots:
-    void setCaptureFile(struct _capture_file *cf) { cap_file_ = cf; }
+    void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
 
 private slots:
     void on_pushButton_4_clicked();
@@ -57,7 +58,7 @@ private slots:
 private:
     Ui::SCTPGraphByteDialog *ui;
     struct _sctp_assoc_info *selected_assoc;
-    struct _capture_file *cap_file_;
+    capture_file *cap_file_;
     int frame_num;
     int direction;
     QVector<double> xb, yb;

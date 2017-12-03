@@ -30,6 +30,8 @@
 #include "epan/epan_dissect.h"
 #include "epan/frame_data.h"
 
+#include "cfile-int.h"
+
 #include "address_editor_frame.h"
 #include <ui_address_editor_frame.h>
 

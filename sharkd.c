@@ -224,7 +224,7 @@ clean_exit:
 }
 
 static const nstime_t *
-sharkd_get_frame_ts(struct _capture_file *cf, guint32 frame_num)
+sharkd_get_frame_ts(capture_file *cf, guint32 frame_num)
 {
   if (ref && ref->num == frame_num)
     return &ref->abs_ts;
