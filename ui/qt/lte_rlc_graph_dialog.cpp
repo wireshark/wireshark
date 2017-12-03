@@ -304,6 +304,8 @@ void LteRlcGraphDialog::fillGraph()
     mouseMoved(NULL);
     resetAxes();
 
+    // This is why, in mouseMoved(), we only match the entries
+    // corresponding to data segments (base_graph_)...
     tracer_->setGraph(base_graph_);
 
     // XXX QCustomPlot doesn't seem to draw any sort of focus indicator.
@@ -597,6 +599,9 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
 
         tracer_->setVisible(true);
         packet_num_ = packet_seg->num;
+        // N.B. because tracer only looks up entries in base_graph_,
+        // we know that packet_seg will be a data segment, so no need to check
+        // iscontrolPDU or isResegmented fields.
         hint += tr("%1 %2 (%3s seq %4 len %5)")
                 .arg(cap_file_.capFile() ? tr("Click to select packet") : tr("Packet"))
                 .arg(packet_num_)
