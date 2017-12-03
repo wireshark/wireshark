@@ -20,6 +20,7 @@
 #include <strsafe.h>
 
 #include "file.h"
+#include "cfile-int.h"
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
