@@ -123,14 +123,14 @@ static gint ett_serialization = -1;
 static int proto_sap = -1;
 static int hf_sap_request = -1;
 static int hf_sap_response = -1;
-/* Generated from convert_proto_tree_add_text.pl */
-static int hf_sap_intermediate_networks = -1;
-static int hf_sap_server_type = -1;
 static int hf_sap_packet_type = -1;
-static int hf_sap_node = -1;
-static int hf_sap_network = -1;
+static int hf_sap_server = -1;
+static int hf_sap_server_type = -1;
 static int hf_sap_server_name = -1;
-static int hf_sap_socket = -1;
+static int hf_sap_server_network = -1;
+static int hf_sap_server_node = -1;
+static int hf_sap_server_socket = -1;
+static int hf_sap_server_intermediate_networks = -1;
 
 static gint ett_ipxsap = -1;
 static gint ett_ipxsap_server = -1;
@@ -1253,15 +1253,18 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 			int available_length = tvb_reported_length(tvb);
 			for (cursor =  2; (cursor + 64) <= available_length; cursor += 64) {
+				const guint8 *server_name;
 
-				ti = proto_tree_add_item(sap_tree, hf_sap_server_name, tvb, cursor+2, 48, ENC_ASCII|ENC_NA);
+				ti = proto_tree_add_item(sap_tree, hf_sap_server, tvb, cursor, 64, ENC_NA);
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
 				proto_tree_add_item(s_tree, hf_sap_server_type, tvb, cursor, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(s_tree, hf_sap_network, tvb, cursor+50, 4, ENC_NA);
-				proto_tree_add_item(s_tree, hf_sap_node, tvb, cursor+54, 6, ENC_NA);
-				proto_tree_add_item(s_tree, hf_sap_socket, tvb, cursor+60, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(s_tree, hf_sap_intermediate_networks, tvb, cursor+62, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_string(s_tree, hf_sap_server_name, tvb, cursor+2, 48, ENC_ASCII|ENC_NA, wmem_packet_scope(), &server_name);
+				proto_item_append_text(ti, ": %s", server_name);
+				proto_tree_add_item(s_tree, hf_sap_server_network, tvb, cursor+50, 4, ENC_NA);
+				proto_tree_add_item(s_tree, hf_sap_server_node, tvb, cursor+54, 6, ENC_NA);
+				proto_tree_add_item(s_tree, hf_sap_server_socket, tvb, cursor+60, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(s_tree, hf_sap_server_intermediate_networks, tvb, cursor+62, 2, ENC_BIG_ENDIAN);
 			}
 		}
 		else {  /* queries */
@@ -1478,15 +1481,45 @@ proto_register_ipx(void)
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if SAP response", HFILL }},
 
-		/* Generated from convert_proto_tree_add_text.pl */
-		{ &hf_sap_packet_type, { "SAP packet type", "ipxsap.packet_type", FT_UINT16, BASE_DEC, VALS(ipxsap_packet_vals), 0x0, NULL, HFILL }},
-		{ &hf_sap_server_name, { "Server Name", "ipxsap.server_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sap_server_type, { "Server Type", "ipxsap.server_type", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &novell_server_vals_ext, 0x0, NULL, HFILL }},
-		{ &hf_sap_network, { "Network", "ipxsap.network", FT_IPXNET, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sap_node, { "Node", "ipxsap.node", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_sap_socket, { "Socket", "ipxsap.socket", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ipx_socket_vals_ext, 0x0, NULL, HFILL }},
-		{ &hf_sap_intermediate_networks, { "Intermediate Networks", "ipxsap.intermediate_networks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sap_packet_type,
+		{ "SAP packet type",		"ipxsap.packet_type",
+		  FT_UINT16,	BASE_DEC,	VALS(ipxsap_packet_vals), 0x0,
+		  NULL, HFILL }},
 
+		{ &hf_sap_server,
+		{ "Server",			"ipxsap.server",
+		  FT_NONE,	BASE_NONE,	NULL,	0x0,
+		  NULL, HFILL }},
+
+		{ &hf_sap_server_type,
+		{ "Server Type",		"ipxsap.server.type",
+		  FT_UINT16,	BASE_HEX|BASE_EXT_STRING, &novell_server_vals_ext, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_sap_server_name,
+		{ "Server Name",		"ipxsap.server.name",
+		  FT_STRINGZ,	BASE_NONE,	NULL,	0x0,
+		  NULL, HFILL }},
+
+		{ &hf_sap_server_network,
+		{ "Network",			"ipxsap.server.network",
+		  FT_IPXNET,	BASE_NONE,	NULL,	0x0,
+		  NULL, HFILL }},
+
+		{ &hf_sap_server_node,
+		{ "Node",			"ipxsap.server.node",
+		  FT_ETHER,	BASE_NONE,	NULL,	0x0,
+		  NULL, HFILL }},
+
+		{ &hf_sap_server_socket,
+		{ "Socket",			"ipxsap.server.socket",
+		  FT_UINT16,	BASE_HEX|BASE_EXT_STRING, &ipx_socket_vals_ext, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_sap_server_intermediate_networks,
+		{ "Intermediate Networks",	"ipxsap.server.intermediate_networks",
+		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
+		  NULL, HFILL }},
 	};
 
 	static hf_register_info hf_ipxmsg[] = {
