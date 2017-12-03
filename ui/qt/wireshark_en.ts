@@ -11338,22 +11338,25 @@ a:hover {
     <message>
         <location filename="remote_capture_dialog.cpp" line="60"/>
         <location filename="remote_capture_dialog.cpp" line="92"/>
-        <location filename="remote_capture_dialog.cpp" line="140"/>
+        <location filename="remote_capture_dialog.cpp" line="145"/>
         <source>Clear list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="remote_capture_dialog.cpp" line="132"/>
+        <location filename="remote_capture_dialog.cpp" line="134"/>
+        <location filename="remote_capture_dialog.cpp" line="136"/>
+        <location filename="remote_capture_dialog.cpp" line="138"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="133"/>
+        <location filename="remote_capture_dialog.cpp" line="132"/>
         <source>No remote interfaces found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="133"/>
+        <location filename="remote_capture_dialog.cpp" line="136"/>
         <source>PCAP not found</source>
         <translation type="unfinished"></translation>
     </message>

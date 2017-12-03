@@ -2889,17 +2889,17 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="filter_expression_frame.cpp" line="125"/>
         <source>Missing label.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Beschriftung.</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="127"/>
         <source>Missing filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlender Filterausdruck.</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="129"/>
         <source>Invalid filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Filterausdruck.</translation>
     </message>
 </context>
 <context>
@@ -11449,22 +11449,25 @@ text-decoration: underline;
     <message>
         <location filename="remote_capture_dialog.cpp" line="60"/>
         <location filename="remote_capture_dialog.cpp" line="92"/>
-        <location filename="remote_capture_dialog.cpp" line="140"/>
+        <location filename="remote_capture_dialog.cpp" line="145"/>
         <source>Clear list</source>
         <translation>Liste löschen</translation>
     </message>
     <message>
         <location filename="remote_capture_dialog.cpp" line="132"/>
+        <location filename="remote_capture_dialog.cpp" line="134"/>
+        <location filename="remote_capture_dialog.cpp" line="136"/>
+        <location filename="remote_capture_dialog.cpp" line="138"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="133"/>
+        <location filename="remote_capture_dialog.cpp" line="132"/>
         <source>No remote interfaces found.</source>
         <translation>Keine entfernte Schnittstelle gefunden.</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="133"/>
+        <location filename="remote_capture_dialog.cpp" line="136"/>
         <source>PCAP not found</source>
         <translation>Kein PCAP gefunden</translation>
     </message>

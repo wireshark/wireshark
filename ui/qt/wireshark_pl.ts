@@ -11434,22 +11434,25 @@ text-decoration: underline;
     <message>
         <location filename="remote_capture_dialog.cpp" line="60"/>
         <location filename="remote_capture_dialog.cpp" line="92"/>
-        <location filename="remote_capture_dialog.cpp" line="140"/>
+        <location filename="remote_capture_dialog.cpp" line="145"/>
         <source>Clear list</source>
         <translation>Wyczyść listę</translation>
     </message>
     <message>
         <location filename="remote_capture_dialog.cpp" line="132"/>
+        <location filename="remote_capture_dialog.cpp" line="134"/>
+        <location filename="remote_capture_dialog.cpp" line="136"/>
+        <location filename="remote_capture_dialog.cpp" line="138"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="133"/>
+        <location filename="remote_capture_dialog.cpp" line="132"/>
         <source>No remote interfaces found.</source>
         <translation>Nie znaleziono zdalnych interfejsów.</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="133"/>
+        <location filename="remote_capture_dialog.cpp" line="136"/>
         <source>PCAP not found</source>
         <translation>PCAP nie znaleziony</translation>
     </message>
