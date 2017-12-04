@@ -35,14 +35,24 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
+#ifdef HAVE_SNAPPY
+#include <snappy-c.h>
+#endif
 
 void proto_register_mongo(void);
 void proto_reg_handoff_mongo(void);
 
 static dissector_handle_t mongo_handle;
 
+/* Forward declaration */
+static int
+dissect_opcode_types(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *mongo_tree, guint opcode, guint *effective_opcode);
+
 /* This is not IANA assigned nor registered */
 #define TCP_PORT_MONGO 27017
+
+/* the code can reasonably attempt to decompress buffer up to 20MB */
+#define MAX_UNCOMPRESSED_SIZE (20 * 1024 * 1024)
 
 #define OP_REPLY           1
 #define OP_MESSAGE      1000
@@ -55,6 +65,7 @@ static dissector_handle_t mongo_handle;
 #define OP_KILL_CURSORS 2007
 #define OP_COMMAND      2010
 #define OP_COMMANDREPLY 2011
+#define OP_COMPRESSED   2012
 #define OP_MSG          2013
 
 /**************************************************************************/
@@ -70,8 +81,9 @@ static const value_string opcode_vals[] = {
   { OP_GET_MORE,  "Get More" },
   { OP_DELETE,  "Delete document" },
   { OP_KILL_CURSORS,  "Kill Cursors" },
-  { OP_COMMAND,  "Command Request (Cluster internal)" },
-  { OP_COMMANDREPLY,  "Command Reply (Cluster internal)" },
+  { OP_COMMAND,  "Command Request" },
+  { OP_COMMANDREPLY,  "Command Reply" },
+  { OP_COMPRESSED,  "Compressed Data" },
   { OP_MSG,  "Extensible Message Format" },
   { 0,  NULL }
 };
@@ -85,6 +97,20 @@ static const value_string opcode_vals[] = {
 static const value_string section_kind_vals[] = {
   { KIND_BODY, "Body" },
   { KIND_DOCUMENT_SEQUENCE, "Document Sequence" },
+  { 0,  NULL }
+};
+
+/**************************************************************************/
+/*                      Compression Engines                               */
+/**************************************************************************/
+#define MONGO_COMPRESSOR_NOOP    0
+#define MONGO_COMPRESSOR_SNAPPY  1
+#define MONGO_COMPRESSOR_ZLIB    2
+
+static const value_string compressor_vals[] = {
+  { MONGO_COMPRESSOR_NOOP,   "Noop (Uncompressed)" },
+  { MONGO_COMPRESSOR_SNAPPY, "Snappy" },
+  { MONGO_COMPRESSOR_ZLIB,   "Zlib" },
   { 0,  NULL }
 };
 
@@ -227,18 +253,22 @@ static int hf_mongo_commandargs = -1;
 static int hf_mongo_commandreply = -1;
 static int hf_mongo_outputdocs = -1;
 static int hf_mongo_unknown = -1;
+static int hf_mongo_compression_info = -1;
+static int hf_mongo_original_op_code = -1;
+static int hf_mongo_uncompressed_size = -1;
+static int hf_mongo_compressor = -1;
+static int hf_mongo_compressed_data = -1;
+static int hf_mongo_unsupported_compressed = -1;
 static int hf_mongo_msg_flags = -1;
 static int hf_mongo_msg_flags_checksumpresent = -1;
 static int hf_mongo_msg_flags_moretocome = -1;
 static int hf_mongo_msg_flags_exhaustallowed = -1;
-static int hf_mongo_msg_sections = -1;
 static int hf_mongo_msg_sections_section = -1;
 static int hf_mongo_msg_sections_section_kind = -1;
 static int hf_mongo_msg_sections_section_body = -1;
 static int hf_mongo_msg_sections_section_doc_sequence = -1;
 static int hf_mongo_msg_sections_section_size = -1;
 static int hf_mongo_msg_sections_section_doc_sequence_id = -1;
-static int hf_mongo_msg_sections_section_doc_sequence_documents = -1;
 
 static gint ett_mongo = -1;
 static gint ett_mongo_doc = -1;
@@ -248,6 +278,7 @@ static gint ett_mongo_objectid = -1;
 static gint ett_mongo_code = -1;
 static gint ett_mongo_fcn = -1;
 static gint ett_mongo_flags = -1;
+static gint ett_mongo_compression_info = -1;
 static gint ett_mongo_sections = -1;
 static gint ett_mongo_section = -1;
 static gint ett_mongo_msg_flags = -1;
@@ -256,6 +287,8 @@ static gint ett_mongo_doc_sequence= -1;
 static expert_field ei_mongo_document_recursion_exceeded = EI_INIT;
 static expert_field ei_mongo_document_length_bad = EI_INIT;
 static expert_field ei_mongo_unknown = EI_INIT;
+static expert_field ei_mongo_unsupported_compression = EI_INIT;
+static expert_field ei_mongo_too_large_compressed = EI_INIT;
 
 static int
 dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -651,6 +684,100 @@ dissect_mongo_op_commandreply(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 }
 
 static int
+dissect_mongo_op_compressed(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, guint *effective_opcode)
+{
+  guint opcode = 0;
+  guint8 compressor;
+  proto_item *ti;
+  proto_tree *compression_info_tree;
+
+  ti = proto_tree_add_item(tree, hf_mongo_compression_info, tvb, offset, 9, ENC_NA);
+  compression_info_tree = proto_item_add_subtree(ti, ett_mongo_compression_info);
+  proto_tree_add_item(compression_info_tree, hf_mongo_original_op_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(compression_info_tree, hf_mongo_uncompressed_size, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(compression_info_tree, hf_mongo_compressor, tvb, offset + 8, 1, ENC_NA);
+  proto_tree_add_item(compression_info_tree, hf_mongo_compressed_data, tvb, offset + 9, -1, ENC_NA);
+
+  opcode = tvb_get_letohl(tvb, offset);
+  *effective_opcode = opcode;
+  compressor = tvb_get_guint8(tvb, offset + 8);
+  offset += 9;
+
+  switch(compressor) {
+  case MONGO_COMPRESSOR_NOOP:
+    offset = dissect_opcode_types(tvb, pinfo, offset, tree, opcode, effective_opcode);
+    break;
+
+#ifdef HAVE_SNAPPY
+  case MONGO_COMPRESSOR_SNAPPY: {
+    guchar *decompressed_buffer = NULL;
+    size_t orig_size = 0;
+    snappy_status ret;
+    tvbuff_t* compressed_tvb = NULL;
+
+    /* get the raw data length */
+    ret = snappy_uncompressed_length(tvb_get_ptr(tvb, offset, -1),
+      tvb_captured_length_remaining(tvb, offset),
+      &orig_size);
+    /* if we get the length and it's reasonably short to allocate a buffer for it
+     * proceed to try decompressing the data
+     */
+    if (ret == SNAPPY_OK && orig_size <= MAX_UNCOMPRESSED_SIZE) {
+      decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
+
+      ret = snappy_uncompress(tvb_get_ptr(tvb, offset, -1),
+        tvb_captured_length_remaining(tvb, offset),
+        decompressed_buffer,
+        &orig_size);
+
+      if (ret == SNAPPY_OK) {
+        compressed_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, (guint32)orig_size, (guint32)orig_size);
+        add_new_data_source(pinfo, compressed_tvb, "Decompressed Data");
+
+        dissect_opcode_types(compressed_tvb, pinfo, 0, tree, opcode, effective_opcode);
+      } else {
+        expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Error uncompressing snappy data");
+      }
+    } else {
+      if (orig_size > MAX_UNCOMPRESSED_SIZE) {
+        expert_add_info_format(pinfo, ti, &ei_mongo_too_large_compressed, "Uncompressed size too large");
+      } else {
+        expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Error uncompressing snappy data");
+      }
+    }
+
+    offset = tvb_reported_length(tvb);
+  } break;
+#endif
+
+  case MONGO_COMPRESSOR_ZLIB: {
+    tvbuff_t* compressed_tvb = NULL;
+
+    compressed_tvb = tvb_child_uncompress(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+
+    if (compressed_tvb) {
+      add_new_data_source(pinfo, compressed_tvb, "Decompressed Data");
+
+      dissect_opcode_types(compressed_tvb, pinfo, 0, tree, opcode, effective_opcode);
+    } else {
+      proto_tree_add_item(compression_info_tree, hf_mongo_unsupported_compressed, tvb, offset, -1, ENC_NA);
+      expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Error uncompressing zlib data");
+    }
+
+    offset = tvb_reported_length(tvb);
+  } break;
+
+  default:
+    proto_tree_add_item(compression_info_tree, hf_mongo_unsupported_compressed, tvb, offset, -1, ENC_NA);
+    expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Unsupported compression format: %d", compressor);
+    offset = tvb_reported_length(tvb);
+    break;
+  }
+
+  return offset;
+}
+
+static int
 dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
   proto_item *ti;
@@ -723,41 +850,9 @@ dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
 }
 
 static int
-dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_opcode_types(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *mongo_tree, guint opcode, guint *effective_opcode)
 {
-    proto_item *ti;
-    proto_tree *mongo_tree;
-    guint offset = 0, opcode;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MONGO");
-
-    ti = proto_tree_add_item(tree, proto_mongo, tvb, 0, -1, ENC_NA);
-
-    mongo_tree = proto_item_add_subtree(ti, ett_mongo);
-
-    proto_tree_add_item(mongo_tree, hf_mongo_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
-
-    proto_tree_add_item(mongo_tree, hf_mongo_request_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
-
-    proto_tree_add_item(mongo_tree, hf_mongo_response_to, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
-
-    proto_tree_add_item(mongo_tree, hf_mongo_op_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    opcode = tvb_get_letohl(tvb, offset);
-    offset += 4;
-
-    if(opcode == 1)
-    {
-      col_set_str(pinfo->cinfo, COL_INFO, "Response :");
-    }
-    else
-    {
-      col_set_str(pinfo->cinfo, COL_INFO, "Request :");
-
-    }
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(opcode, opcode_vals, "Unknown"));
+    *effective_opcode = opcode;
 
     switch(opcode){
     case OP_REPLY:
@@ -790,6 +885,9 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     case OP_COMMANDREPLY:
       offset = dissect_mongo_op_commandreply(tvb, pinfo, offset, mongo_tree);
       break;
+    case OP_COMPRESSED:
+      offset = dissect_mongo_op_compressed(tvb, pinfo, offset, mongo_tree, effective_opcode);
+      break;
     case OP_MSG:
       offset = dissect_mongo_op_msg(tvb, pinfo, offset, mongo_tree);
       break;
@@ -797,6 +895,53 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
       /* No default Action */
       break;
     }
+
+    return offset;
+}
+
+static int
+dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item *ti;
+    proto_tree *mongo_tree;
+    guint offset = 0, opcode, effective_opcode = 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MONGO");
+
+    ti = proto_tree_add_item(tree, proto_mongo, tvb, 0, -1, ENC_NA);
+
+    mongo_tree = proto_item_add_subtree(ti, ett_mongo);
+
+    proto_tree_add_item(mongo_tree, hf_mongo_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(mongo_tree, hf_mongo_request_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(mongo_tree, hf_mongo_response_to, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(mongo_tree, hf_mongo_op_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    opcode = tvb_get_letohl(tvb, offset);
+    offset += 4;
+
+    offset = dissect_opcode_types(tvb, pinfo, offset, mongo_tree, opcode, &effective_opcode);
+
+    if(opcode == 1)
+    {
+      col_set_str(pinfo->cinfo, COL_INFO, "Response :");
+    }
+    else
+    {
+      col_set_str(pinfo->cinfo, COL_INFO, "Request :");
+
+    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(effective_opcode, opcode_vals, "Unknown"));
+
+    if(opcode != effective_opcode) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, " (Compressed)");
+    }
+
     if(offset < tvb_reported_length(tvb))
     {
       ti = proto_tree_add_item(mongo_tree, hf_mongo_unknown, tvb, offset, -1, ENC_NA);
@@ -1045,6 +1190,36 @@ proto_register_mongo(void)
       "If set, the database will remove only the first matching document in the"
         " collection. Otherwise all matching documents will be removed", HFILL }
     },
+    { &hf_mongo_compression_info,
+      { "Compression Info", "mongo.compression",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      "Compressed Packet", HFILL }
+    },
+    { &hf_mongo_original_op_code,
+      { "Original OpCode", "mongo.compression.original_opcode",
+      FT_INT32, BASE_DEC, VALS(opcode_vals), 0x0,
+      "Type of request message (Wrapped)", HFILL }
+    },
+    { &hf_mongo_uncompressed_size,
+      { "Uncompressed Size", "mongo.compression.original_size",
+      FT_INT32, BASE_DEC, NULL, 0x0,
+      "Size of the uncompressed packet", HFILL }
+    },
+    { &hf_mongo_compressor,
+      { "Compressor", "mongo.compression.compressor",
+      FT_INT8, BASE_DEC, VALS(compressor_vals), 0x0,
+      "Compression engine", HFILL }
+    },
+    { &hf_mongo_compressed_data,
+      { "Compressed Data", "mongo.compression.compressed_data",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      "The compressed data", HFILL }
+    },
+    { &hf_mongo_unsupported_compressed,
+      { "Unsupported Compressed Data", "mongo.compression.unsupported_compressed",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      "This data is compressed with an unsupported compressor engine", HFILL }
+    },
     { &hf_mongo_msg_flags,
       { "Message Flags", "mongo.msg.flags",
       FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1064,11 +1239,6 @@ proto_register_mongo(void)
       { "ExhaustAllowed", "mongo.msg.flags.exhaustallowed",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00010000,
       "The client is prepared for multiple replies to this request using the moreToCome bit.", HFILL }
-    },
-    { &hf_mongo_msg_sections,
-      { "Sections", "mongo.msg.sections",
-      FT_NONE, BASE_NONE, NULL, 0x0,
-      "Message body sections", HFILL }
     },
     { &hf_mongo_msg_sections_section,
       { "Section", "mongo.msg.sections.section",
@@ -1099,11 +1269,6 @@ proto_register_mongo(void)
       { "SeqID", "mongo.msg.sections.section.doc_sequence_id",
       FT_STRING, BASE_NONE, NULL, 0x0,
       "Document sequence identifier", HFILL }
-    },
-    { &hf_mongo_msg_sections_section_doc_sequence_documents,
-      { "Documents", "mongo.msg.sections.section.doc_sequence_documents",
-      FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
     },
     { &hf_mongo_number_of_cursor_ids,
       { "Number of Cursor IDS", "mongo.number_to_cursor_ids",
@@ -1266,6 +1431,7 @@ proto_register_mongo(void)
     &ett_mongo_code,
     &ett_mongo_fcn,
     &ett_mongo_flags,
+    &ett_mongo_compression_info,
     &ett_mongo_sections,
     &ett_mongo_section,
     &ett_mongo_msg_flags,
@@ -1276,6 +1442,8 @@ proto_register_mongo(void)
      { &ei_mongo_document_recursion_exceeded, { "mongo.document.recursion_exceeded", PI_MALFORMED, PI_ERROR, "BSON document recursion exceeds", EXPFILL }},
      { &ei_mongo_document_length_bad, { "mongo.document.length.bad",  PI_MALFORMED, PI_ERROR, "BSON document length bad", EXPFILL }},
      { &ei_mongo_unknown, { "mongo.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
+     { &ei_mongo_unsupported_compression, { "mongo.unsupported_compression.expert", PI_UNDECODED, PI_WARN, "This packet was compressed with an unsupported compressor", EXPFILL }},
+     { &ei_mongo_too_large_compressed, { "mongo.too_large_compressed.expert", PI_UNDECODED, PI_WARN, "The size of the uncompressed packet exceeded the maximum allowed value", EXPFILL }},
   };
 
   proto_mongo = proto_register_protocol("Mongo Wire Protocol", "MONGO", "mongo");
