@@ -930,7 +930,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			}
 			else {
 				proto_tree_add_uint_format_value(rip_tree, hf_ipxrip_ticks, tvb, cursor+6, 2, ticks,
-                    "%d ms", ticks * 1000 / 18);
+					"%d ms", ticks * 1000 / 18);
 			}
 		}
 	}
@@ -1252,7 +1252,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
 
 			guint available_length = tvb_reported_length(tvb);
-			for (cursor =  2; cursor <= available_length; cursor += 64) {
+			for (cursor =  2; cursor < available_length; cursor += 64) {
 				const guint8 *server_name;
 
 				ti = proto_tree_add_item(sap_tree, hf_sap_server, tvb, cursor, 64, ENC_NA);
