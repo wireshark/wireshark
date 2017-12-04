@@ -153,12 +153,11 @@
 #define tshark_debug(...)
 #endif
 
+capture_file cfile;
+
 static guint32 cum_bytes;
-static const frame_data *ref;
 static frame_data ref_frame;
-static frame_data *prev_dis;
 static frame_data prev_dis_frame;
-static frame_data *prev_cap;
 static frame_data prev_cap_frame;
 
 static gboolean perform_two_pass_analysis;
@@ -252,8 +251,6 @@ static void open_failure_message(const char *filename, int err,
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 static void failure_message_cont(const char *msg_format, va_list ap);
-
-capture_file cfile;
 
 static GHashTable *output_only_tables = NULL;
 
@@ -2348,14 +2345,14 @@ pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_pro
 static const nstime_t *
 tshark_get_frame_ts(capture_file *cf, guint32 frame_num)
 {
-  if (ref && ref->num == frame_num)
-    return &ref->abs_ts;
+  if (cf->ref && cf->ref->num == frame_num)
+    return &cf->ref->abs_ts;
 
-  if (prev_dis && prev_dis->num == frame_num)
-    return &prev_dis->abs_ts;
+  if (cf->prev_dis && cf->prev_dis->num == frame_num)
+    return &cf->prev_dis->abs_ts;
 
-  if (prev_cap && prev_cap->num == frame_num)
-    return &prev_cap->abs_ts;
+  if (cf->prev_cap && cf->prev_cap->num == frame_num)
+    return &cf->prev_cap->abs_ts;
 
   if (cf->frames) {
      frame_data *fd = frame_data_sequence_find(cf->frames, frame_num);
@@ -2911,10 +2908,10 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     prime_epan_dissect_with_postdissector_wanted_hfids(edt);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
-                                  &ref, prev_dis);
-    if (ref == &fdlocal) {
+                                  &cf->ref, cf->prev_dis);
+    if (cf->ref == &fdlocal) {
       ref_frame = fdlocal;
-      ref = &ref_frame;
+      cf->ref = &ref_frame;
     }
 
     epan_dissect_run(edt, cf->cd_t, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
@@ -2926,7 +2923,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 
   if (passed) {
     frame_data_set_after_dissect(&fdlocal, &cum_bytes);
-    prev_cap = prev_dis = frame_data_sequence_add(cf->frames, &fdlocal);
+    cf->prev_cap = cf->prev_dis = frame_data_sequence_add(cf->frames, &fdlocal);
 
     /* If we're not doing dissection then there won't be any dependent frames.
      * More importantly, edt.pi.dependent_frames won't be initialized because
@@ -2996,10 +2993,10 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
       cinfo = NULL;
 
     frame_data_set_before_dissect(fdata, &cf->elapsed_time,
-                                  &ref, prev_dis);
-    if (ref == fdata) {
+                                  &cf->ref, cf->prev_dis);
+    if (cf->ref == fdata) {
       ref_frame = *fdata;
-      ref = &ref_frame;
+      cf->ref = &ref_frame;
     }
 
     if (dissect_color) {
@@ -3033,9 +3030,9 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         exit(2);
       }
     }
-    prev_dis = fdata;
+    cf->prev_dis = fdata;
   }
-  prev_cap = fdata;
+  cf->prev_cap = fdata;
 
   if (edt) {
     epan_dissect_reset(edt);
@@ -3224,8 +3221,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
      * don't need after the sequential run-through of the packets. */
     postseq_cleanup_all_protocols();
 
-    prev_dis = NULL;
-    prev_cap = NULL;
+    cf->prev_dis = NULL;
+    cf->prev_cap = NULL;
     ws_buffer_init(&buf, 1500);
 
     tshark_debug("tshark: done with first pass");
@@ -3511,10 +3508,10 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
       cinfo = NULL;
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &ref, prev_dis);
-    if (ref == &fdata) {
+                                  &cf->ref, cf->prev_dis);
+    if (cf->ref == &fdata) {
       ref_frame = fdata;
-      ref = &ref_frame;
+      cf->ref = &ref_frame;
     }
 
     if (dissect_color) {
@@ -3553,11 +3550,11 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
 
     /* this must be set after print_packet() [bug #8160] */
     prev_dis_frame = fdata;
-    prev_dis = &prev_dis_frame;
+    cf->prev_dis = &prev_dis_frame;
   }
 
   prev_cap_frame = fdata;
-  prev_cap = &prev_cap_frame;
+  cf->prev_cap = &prev_cap_frame;
 
   if (edt) {
     epan_dissect_reset(edt);
@@ -4055,9 +4052,9 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->drops     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
   nstime_set_zero(&cf->elapsed_time);
-  ref = NULL;
-  prev_dis = NULL;
-  prev_cap = NULL;
+  cf->ref       = NULL;
+  cf->prev_dis  = NULL;
+  cf->prev_cap  = NULL;
 
   cf->state = FILE_READ_IN_PROGRESS;
 

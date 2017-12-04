@@ -117,12 +117,11 @@ static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_
 #define OPEN_ERROR 2
 #define FORMAT_ERROR 2
 
+capture_file cfile;
+
 static guint32 cum_bytes;
-static const frame_data *ref;
 static frame_data ref_frame;
-static frame_data *prev_dis;
 static frame_data prev_dis_frame;
-static frame_data *prev_cap;
 static frame_data prev_cap_frame;
 
 /*
@@ -167,7 +166,6 @@ typedef struct string_fmt_s {
     string_fmt_e format;    /* Valid if plain is NULL */
 } string_fmt_t;
 
-capture_file cfile;
 int n_rfilters;
 int n_rfcodes;
 dfilter_t *rfcodes[64];
@@ -1030,11 +1028,11 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     printf("%lu", (unsigned long int) cf->count);
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &ref, prev_dis);
+                                  &cf->ref, cf->prev_dis);
 
-    if (ref == &fdata) {
+    if (cf->ref == &fdata) {
        ref_frame = fdata;
-       ref = &ref_frame;
+       cf->ref = &ref_frame;
     }
 
     /* We only need the columns if we're printing packet info but we're
@@ -1044,10 +1042,10 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
 
     frame_data_set_after_dissect(&fdata, &cum_bytes);
     prev_dis_frame = fdata;
-    prev_dis = &prev_dis_frame;
+    cf->prev_dis = &prev_dis_frame;
 
     prev_cap_frame = fdata;
-    prev_cap = &prev_cap_frame;
+    cf->prev_cap = &prev_cap_frame;
 
     for(i = 0; i < n_rfilters; i++) {
         /* Run the read filter if we have one. */
@@ -1466,16 +1464,16 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 }
 
 static const nstime_t *
-raw_get_frame_ts(capture_file *cf _U_, guint32 frame_num)
+raw_get_frame_ts(capture_file *cf, guint32 frame_num)
 {
-    if (ref && ref->num == frame_num)
-        return &ref->abs_ts;
+    if (cf->ref && cf->ref->num == frame_num)
+        return &cf->ref->abs_ts;
 
-    if (prev_dis && prev_dis->num == frame_num)
-        return &prev_dis->abs_ts;
+    if (cf->prev_dis && cf->prev_dis->num == frame_num)
+        return &cf->prev_dis->abs_ts;
 
-    if (prev_cap && prev_cap->num == frame_num)
-        return &prev_cap->abs_ts;
+    if (cf->prev_cap && cf->prev_cap->num == frame_num)
+        return &cf->prev_cap->abs_ts;
 
     return NULL;
 }
@@ -1527,9 +1525,9 @@ raw_cf_open(capture_file *cf, const char *fname)
     cf->drops     = 0;
     cf->snap      = 0;
     nstime_set_zero(&cf->elapsed_time);
-    ref = NULL;
-    prev_dis = NULL;
-    prev_cap = NULL;
+    cf->ref       = NULL;
+    cf->prev_dis  = NULL;
+    cf->prev_cap  = NULL;
 
     return CF_OK;
 }
