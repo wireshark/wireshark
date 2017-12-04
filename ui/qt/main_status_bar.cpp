@@ -41,8 +41,6 @@
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/tango_colors.h>
 
-#include "cfile-int.h"
-
 #include <QAction>
 #include <QHBoxLayout>
 #include <QSplitter>

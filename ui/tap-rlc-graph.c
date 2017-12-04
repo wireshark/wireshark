@@ -37,8 +37,6 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 
-#include "cfile-int.h"
-
 /* Return TRUE if the 2 sets of parameters refer to the same channel. */
 int compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
                         guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,

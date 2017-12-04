@@ -29,8 +29,6 @@
 #include <epan/prefs-int.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
-#include "cfile-int.h"
-
 #include <ui/qt/utils/qt_ui_utils.h>
 
 static const char *DEFAULT_TABLE = "tcp.port";    // Arbitrary

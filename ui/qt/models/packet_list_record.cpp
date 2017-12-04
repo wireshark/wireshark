@@ -22,7 +22,6 @@
 #include "packet_list_record.h"
 
 #include <file.h>
-#include <cfile-int.h>
 
 #include <epan/epan_dissect.h>
 #include <epan/column-info.h>

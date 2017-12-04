@@ -27,7 +27,6 @@
 #include "wiretap/wtap.h"
 
 #include "cfile.h"
-#include "cfile-int.h"
 #include "file.h"
 #include <ui/qt/capture_file.h>
 

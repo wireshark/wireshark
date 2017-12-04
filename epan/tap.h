@@ -24,7 +24,6 @@
 #define __TAP_H__
 
 #include <epan/epan.h>
-#include <epan/packet_info.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

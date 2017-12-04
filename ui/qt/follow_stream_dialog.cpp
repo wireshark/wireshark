@@ -34,8 +34,6 @@
 #include "epan/epan_dissect.h"
 #include "epan/tap.h"
 
-#include "cfile-int.h"
-
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>

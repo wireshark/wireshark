@@ -31,8 +31,6 @@
 
 #include "ui/ws_ui_util.h"
 
-#include "cfile-int.h"
-
 #ifndef HAVE_FLOORL
 #define floorl(x) floor((double)x)
 #endif

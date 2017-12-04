@@ -25,8 +25,6 @@
 #include "epan/decode_as.h"
 #include "epan/epan_dissect.h"
 
-#include "cfile-int.h"
-
 #include <ui/qt/utils/variant_pointer.h>
 
 #include <QComboBox>

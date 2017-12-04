@@ -21,8 +21,6 @@
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
 #include "file.h"
-#include "cfile.h"
-#include "cfile-int.h"
 #include "ui/capture.h"
 #include "caputils/capture_ifinfo.h"
 #include <capchild/capture_sync.h>

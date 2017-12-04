@@ -44,7 +44,6 @@
 #include <epan/color_filters.h>
 
 #include "cfile.h"
-#include "cfile-int.h"
 #include "file.h"
 #include "fileset.h"
 #include "frame_tvbuff.h"

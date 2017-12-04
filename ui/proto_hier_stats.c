@@ -18,7 +18,6 @@
 #include "ui/progress_dlg.h"
 #include "epan/epan_dissect.h"
 #include "epan/proto.h"
-#include "cfile-int.h"
 
 /* Update the progress bar this many times when scanning the packet list. */
 #define N_PROGBAR_UPDATES	100

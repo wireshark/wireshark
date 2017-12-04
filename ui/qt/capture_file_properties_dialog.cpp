@@ -33,8 +33,6 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
-#include "cfile-int.h"
-
 #include <QPushButton>
 #include <QScrollBar>
 #include <QTextStream>

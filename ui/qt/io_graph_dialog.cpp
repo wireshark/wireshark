@@ -23,7 +23,6 @@
 #include <ui_io_graph_dialog.h>
 
 #include "file.h"
-#include "cfile-int.h"
 
 #include <epan/stat_tap_ui.h>
 #include "epan/stats_tree_priv.h"

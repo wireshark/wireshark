@@ -23,7 +23,6 @@
 #include <ui_voip_calls_dialog.h>
 
 #include "file.h"
-#include "cfile-int.h"
 
 #include "epan/addr_resolv.h"
 #include "epan/dissectors/packet-h225.h"

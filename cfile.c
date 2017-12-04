@@ -17,7 +17,6 @@
 #include <wiretap/pcapng.h>
 
 #include "cfile.h"
-#include "cfile-int.h"
 
 void
 cap_file_init(capture_file *cf)

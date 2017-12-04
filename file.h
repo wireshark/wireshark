@@ -15,7 +15,6 @@
 
 #include <wiretap/wtap.h>
 #include <epan/epan.h>
-#include <epan/dfilter/dfilter.h>
 #include <epan/print.h>
 #include <ui/packet_range.h>
 

@@ -37,7 +37,6 @@
 #include <string.h>
 
 #include "epan/epan_dissect.h"
-#include "epan/column-info.h"
 #include "epan/packet.h"
 #include "epan/proto_data.h"
 #include "epan/to_str.h"

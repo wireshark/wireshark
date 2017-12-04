@@ -23,7 +23,6 @@
 #include <ui_protocol_hierarchy_dialog.h>
 
 #include "cfile.h"
-#include "cfile-int.h"
 
 #include "ui/proto_hier_stats.h"
 

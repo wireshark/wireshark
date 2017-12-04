@@ -35,8 +35,6 @@
 #include "proto_tree.h"
 #include "wireshark_application.h"
 
-#include "cfile-int.h"
-
 #include <ui/qt/utils/field_information.h>
 #include <QTreeWidgetItemIterator>
 

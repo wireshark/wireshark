@@ -21,7 +21,6 @@
 
 #include "packet_range_group_box.h"
 #include <ui_packet_range_group_box.h>
-#include "cfile-int.h"
 
 PacketRangeGroupBox::PacketRangeGroupBox(QWidget *parent) :
     QGroupBox(parent),

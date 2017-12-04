@@ -23,7 +23,6 @@
 #include <ui_expert_info_dialog.h>
 
 #include "file.h"
-#include "cfile-int.h"
 
 #include <epan/epan_dissect.h>
 #include <epan/expert.h>

@@ -32,7 +32,6 @@
 
 #include <errno.h>
 #include "file.h"
-#include "cfile-int.h"
 #include "wsutil/filesystem.h"
 #include "wsutil/nstime.h"
 #include "wsutil/str_util.h"

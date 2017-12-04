@@ -24,7 +24,6 @@
 #include "packet_list_model.h"
 
 #include "file.h"
-#include "cfile-int.h"
 
 #include <wsutil/nstime.h>
 #include <epan/column.h>
