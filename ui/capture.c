@@ -86,7 +86,7 @@ capture_callback_add(capture_callback_t func, gpointer user_data)
     cb->cb_fct = func;
     cb->user_data = user_data;
 
-    capture_callbacks = g_list_append(capture_callbacks, cb);
+    capture_callbacks = g_list_prepend(capture_callbacks, cb);
 }
 
 void
@@ -664,7 +664,7 @@ capture_stat_start(capture_options *capture_opts)
                 sc_item = (if_stat_cache_item_t *)g_malloc0(sizeof(if_stat_cache_item_t));
                 g_assert(device->if_info.name);
                 sc_item->name = g_strdup(device->if_info.name);
-                sc->cache_list = g_list_append(sc->cache_list, sc_item);
+                sc->cache_list = g_list_prepend(sc->cache_list, sc_item);
             }
         }
     } else {

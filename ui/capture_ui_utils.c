@@ -360,9 +360,12 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
                         if_string = g_strdup(if_info->name);
                     }
                 }
-                combo_list = g_list_append(combo_list, if_string);
+                combo_list = g_list_prepend(combo_list, if_string);
             }
         }/*for*/
+        if(combo_list){
+            combo_list = g_list_reverse(combo_list);
+        }
     }
     return combo_list;
 }
