@@ -100,6 +100,49 @@ enum ws_ip_conntrack_info {
 	WS_IP_CT_NUMBER,
 };
 
+enum ws_ip_conntrack_status {
+	WS_IPS_EXPECTED_BIT = 0,
+	WS_IPS_EXPECTED = (1 << WS_IPS_EXPECTED_BIT),
+	WS_IPS_SEEN_REPLY_BIT = 1,
+	WS_IPS_SEEN_REPLY = (1 << WS_IPS_SEEN_REPLY_BIT),
+	WS_IPS_ASSURED_BIT = 2,
+	WS_IPS_ASSURED = (1 << WS_IPS_ASSURED_BIT),
+	WS_IPS_CONFIRMED_BIT = 3,
+	WS_IPS_CONFIRMED = (1 << WS_IPS_CONFIRMED_BIT),
+	WS_IPS_SRC_NAT_BIT = 4,
+	WS_IPS_SRC_NAT = (1 << WS_IPS_SRC_NAT_BIT),
+	WS_IPS_DST_NAT_BIT = 5,
+	WS_IPS_DST_NAT = (1 << WS_IPS_DST_NAT_BIT),
+	WS_IPS_SEQ_ADJUST_BIT = 6,
+	WS_IPS_SEQ_ADJUST = (1 << WS_IPS_SEQ_ADJUST_BIT),
+	WS_IPS_SRC_NAT_DONE_BIT = 7,
+	WS_IPS_SRC_NAT_DONE = (1 << WS_IPS_SRC_NAT_DONE_BIT),
+	WS_IPS_DST_NAT_DONE_BIT = 8,
+	WS_IPS_DST_NAT_DONE = (1 << WS_IPS_DST_NAT_DONE_BIT),
+	WS_IPS_DYING_BIT = 9,
+	WS_IPS_DYING = (1 << WS_IPS_DYING_BIT),
+	WS_IPS_FIXED_TIMEOUT_BIT = 10,
+	WS_IPS_FIXED_TIMEOUT = (1 << WS_IPS_FIXED_TIMEOUT_BIT),
+	WS_IPS_TEMPLATE_BIT = 11,
+	WS_IPS_TEMPLATE = (1 << WS_IPS_TEMPLATE_BIT),
+	WS_IPS_UNTRACKED_BIT = 12,
+	WS_IPS_UNTRACKED = (1 << WS_IPS_UNTRACKED_BIT),
+	WS_IPS_HELPER_BIT = 13,
+	WS_IPS_HELPER = (1 << WS_IPS_HELPER_BIT),
+};
+
+enum nfexp_flags {
+	WS_NF_CT_EXPECT_PERMANENT   = (1 << 0),
+	WS_NF_CT_EXPECT_INACTIVE    = (1 << 1),
+	WS_NF_CT_EXPECT_USERSPACE   = (1 << 2),
+};
+
+/* from <linux/netfilter/nf_conntrack_tuple_common.h> */
+enum ws_ip_conntrack_dir {
+	WS_IP_CT_DIR_ORIGINAL       = 0,
+	WS_IP_CT_DIR_REPLY          = 1,
+};
+
 /* nfnetlink QUEUE subsystem types from <linux/netfilter/nfnetlink_queue.h> */
 enum ws_nfqnl_msg_types {
 	WS_NFQNL_MSG_PACKET         = 0,
@@ -153,6 +196,101 @@ enum ws_nfqnl_attr_config {
 	WS_NFQA_CFG_QUEUE_MAXLEN    = 3,
 	WS_NFQA_CFG_MASK            = 4,
 	WS_NFQA_CFG_FLAGS           = 5,
+};
+
+/* from <linux/netfilter/nfnetlink_conntrack.h> */
+enum ws_ctattr_tuple {
+	WS_CTA_TUPLE_UNSPEC         = 0,
+	WS_CTA_TUPLE_IP             = 1,
+	WS_CTA_TUPLE_PROTO          = 2,
+	WS_CTA_TUPLE_ZONE           = 3,
+};
+
+enum ws_ctattr_ip {
+	WS_CTA_IP_UNSPEC            = 0,
+	WS_CTA_IP_V4_SRC            = 1,
+	WS_CTA_IP_V4_DST            = 2,
+	WS_CTA_IP_V6_SRC            = 3,
+	WS_CTA_IP_V6_DST            = 4,
+};
+
+enum ws_ctattr_l4proto {
+	WS_CTA_PROTO_UNSPEC         = 0,
+	WS_CTA_PROTO_NUM            = 1,
+	WS_CTA_PROTO_SRC_PORT       = 2,
+	WS_CTA_PROTO_DST_PORT       = 3,
+	WS_CTA_PROTO_ICMP_ID        = 4,
+	WS_CTA_PROTO_ICMP_TYPE      = 5,
+	WS_CTA_PROTO_ICMP_CODE      = 6,
+	WS_CTA_PROTO_ICMPV6_ID      = 7,
+	WS_CTA_PROTO_ICMPV6_TYPE    = 8,
+	WS_CTA_PROTO_ICMPV6_CODE    = 9,
+};
+
+enum ws_ctnl_exp_msg_types {
+	WS_IPCTNL_MSG_EXP_NEW             = 0,
+	WS_IPCTNL_MSG_EXP_GET             = 1,
+	WS_IPCTNL_MSG_EXP_DELETE          = 2,
+	WS_IPCTNL_MSG_EXP_GET_STATS_CPU   = 3,
+};
+
+enum ws_ctattr_expect {
+	WS_CTA_EXPECT_UNSPEC        = 0,
+	WS_CTA_EXPECT_MASTER        = 1,
+	WS_CTA_EXPECT_TUPLE         = 2,
+	WS_CTA_EXPECT_MASK          = 3,
+	WS_CTA_EXPECT_TIMEOUT       = 4,
+	WS_CTA_EXPECT_ID            = 5,
+	WS_CTA_EXPECT_HELP_NAME     = 6,
+	WS_CTA_EXPECT_ZONE          = 7,
+	WS_CTA_EXPECT_FLAGS         = 8,
+	WS_CTA_EXPECT_CLASS         = 9,
+	WS_CTA_EXPECT_NAT           = 10,
+	WS_CTA_EXPECT_FN            = 11,
+};
+
+enum ws_ctattr_expect_nat {
+	WS_CTA_EXPECT_NAT_DIR       = 1,
+	WS_CTA_EXPECT_NAT_TUPLE     = 2,
+};
+
+enum ws_ctattr_type {
+	WS_CTA_UNSPEC               = 0,
+	WS_CTA_TUPLE_ORIG           = 1,
+	WS_CTA_TUPLE_REPLY          = 2,
+	WS_CTA_STATUS               = 3,
+	WS_CTA_PROTOINFO            = 4,
+	WS_CTA_HELP                 = 5,
+	WS_CTA_NAT_SRC              = 6,
+	WS_CTA_TIMEOUT              = 7,
+	WS_CTA_MARK                 = 8,
+	WS_CTA_COUNTERS_ORIG        = 9,
+	WS_CTA_COUNTERS_REPLY       = 10,
+	WS_CTA_USE                  = 11,
+	WS_CTA_ID                   = 12,
+	WS_CTA_NAT_DST              = 13,
+	WS_CTA_TUPLE_MASTER         = 14,
+	WS_CTA_SEQ_ADJ_ORIG         = 15,
+	WS_CTA_SEQ_ADJ_REPLY        = 16,
+	WS_CTA_SECMARK              = 17,
+	WS_CTA_ZONE                 = 18,
+	WS_CTA_SECCTX               = 19,
+	WS_CTA_TIMESTAMP            = 20,
+	WS_CTA_MARK_MASK            = 21,
+	WS_CTA_LABELS               = 22,
+	WS_CTA_LABELS_MASK          = 23,
+};
+
+enum ws_ctattr_help {
+	WS_CTA_HELP_UNSPEC          = 0,
+	WS_CTA_HELP_NAME            = 1,
+	WS_CTA_HELP_INFO            = 2,
+};
+
+enum ws_ctattr_seqadj {
+	WS_CTA_SEQADJ_CORRECTION_POS   = 1,
+	WS_CTA_SEQADJ_OFFSET_BEFORE    = 2,
+	WS_CTA_SEQADJ_OFFSET_AFTER     = 3,
 };
 
 /* from <linux/netfilter/ipset/ip_set.h> */
@@ -242,8 +380,18 @@ enum ws_ipset_ip_attr {
 static int proto_netlink_netfilter;
 
 static int ett_netlink_netfilter = -1;
+static int ett_nfct_attr = -1;
+static int ett_nfct_help_attr = -1;
+static int ett_nfct_seqadj_attr = -1;
+static int ett_nfct_status_attr = -1;
+static int ett_nfct_tuple_attr = -1;
+static int ett_nfct_tuple_ip_attr = -1;
+static int ett_nfct_tuple_proto_attr = -1;
 static int ett_nfq_config_attr = -1;
 static int ett_nfq_attr = -1;
+static int ett_nfexp_attr = -1;
+static int ett_nfexp_flags_attr = -1;
+static int ett_nfexp_nat_attr = -1;
 static int ett_ipset_attr = -1;
 static int ett_ipset_cadt_attr = -1;
 static int ett_ipset_adt_attr = -1;
@@ -275,6 +423,592 @@ static int dissect_netlink_netfilter_header(tvbuff_t *tvb, proto_tree *tree, int
 	offset += 2;
 
 	return offset;
+}
+
+/* tuple attribute, used by EXP and QUEUE */
+
+static const value_string nfct_tuple_attr_vals[] = {
+	{ WS_CTA_TUPLE_IP,              "IP address" },
+	{ WS_CTA_TUPLE_PROTO,           "L4 protocol info" },
+	{ WS_CTA_TUPLE_ZONE,            "Zone" },
+	{ 0, NULL }
+};
+
+static const value_string nfct_tuple_ip_attr_vals[] = {
+	{ WS_CTA_IP_V4_SRC,             "IPv4 source address" },
+	{ WS_CTA_IP_V4_DST,             "IPv4 destination address" },
+	{ WS_CTA_IP_V6_SRC,             "IPv6 source address" },
+	{ WS_CTA_IP_V6_DST,             "IPv6 destination address" },
+	{ 0, NULL }
+};
+
+static const value_string nfct_tuple_l4proto_attr_vals[] = {
+	{ WS_CTA_PROTO_NUM,             "IP protocol number" },
+	{ WS_CTA_PROTO_SRC_PORT,        "Source port" },
+	{ WS_CTA_PROTO_DST_PORT,        "Destination port" },
+	{ WS_CTA_PROTO_ICMP_ID,         "ICMPv4 ID" },
+	{ WS_CTA_PROTO_ICMP_TYPE,       "ICMPv4 type" },
+	{ WS_CTA_PROTO_ICMP_CODE,       "ICMPv4 code" },
+	{ WS_CTA_PROTO_ICMPV6_ID,       "ICMPv6 ID" },
+	{ WS_CTA_PROTO_ICMPV6_TYPE,     "ICMPv6 type" },
+	{ WS_CTA_PROTO_ICMPV6_CODE,     "ICMPv6 code" },
+	{ 0, NULL }
+};
+
+static header_field_info hfi_nfct_tuple_proto_num_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Protocol", "netlink-netfilter.nfct_tuple.proto.num", FT_UINT8, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_tuple_proto_src_port_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Port", "netlink-netfilter.nfct_tuple.proto.src_port", FT_UINT16, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_tuple_proto_dst_port_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Port", "netlink-netfilter.nfct_tuple.proto.dst_port", FT_UINT16, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_tuple_proto_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.nfct_tuple.proto", FT_UINT16, BASE_DEC,
+	  VALS(nfct_tuple_l4proto_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static int
+dissect_nfct_tuple_proto_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_ip type = (enum ws_ctattr_ip) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_CTA_PROTO_NUM:
+			proto_tree_add_item(tree, &hfi_nfct_tuple_proto_num_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_PROTO_SRC_PORT:
+			proto_tree_add_item(tree, &hfi_nfct_tuple_proto_src_port_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_PROTO_DST_PORT:
+			proto_tree_add_item(tree, &hfi_nfct_tuple_proto_dst_port_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
+static header_field_info hfi_nfct_tuple_ip_attr_ipv4 NETLINK_NETFILTER_HFI_INIT =
+	{ "IPv4 address", "netlink-netfilter.nfct_tuple.ip.ip_addr", FT_IPv4, BASE_NONE,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_tuple_ip_attr_ipv6 NETLINK_NETFILTER_HFI_INIT =
+	{ "IPv6 address", "netlink-netfilter.nfct_tuple.ip.ip6_addr", FT_IPv6, BASE_NONE,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_tuple_ip_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.nfct_tuple.ip", FT_UINT16, BASE_DEC,
+	  VALS(nfct_tuple_ip_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static int
+dissect_nfct_tuple_ip_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_ip type = (enum ws_ctattr_ip) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_CTA_IP_V4_SRC:
+		case WS_CTA_IP_V4_DST:
+			proto_tree_add_item(tree, &hfi_nfct_tuple_ip_attr_ipv4, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_IP_V6_SRC:
+		case WS_CTA_IP_V6_DST:
+			proto_tree_add_item(tree, &hfi_nfct_tuple_ip_attr_ipv6, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
+static header_field_info hfi_nfct_tuple_zone_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Zone", "netlink-netfilter.nfct_tuple.zone", FT_UINT16, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_tuple_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.nfct_tuple", FT_UINT16, BASE_DEC,
+	  VALS(nfct_tuple_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static int
+dissect_nfct_tuple_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_tuple type = (enum ws_ctattr_tuple) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_CTA_TUPLE_IP:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_tuple_ip_attr, ett_nfct_tuple_ip_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_tuple_ip_attrs);
+			return 0;
+
+		case WS_CTA_TUPLE_PROTO:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_tuple_proto_attr, ett_nfct_tuple_proto_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_tuple_proto_attrs);
+			return 0;
+
+		case WS_CTA_TUPLE_ZONE:
+			proto_tree_add_item(tree, &hfi_nfct_tuple_zone_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
+/* conntrack attributes, used by QUEUE and CT */
+
+static const value_string nfct_attr_vals[] = {
+	{ WS_CTA_TUPLE_ORIG,            "Original IP tuple" },
+	{ WS_CTA_TUPLE_REPLY,           "Reply IP tuple" },
+	{ WS_CTA_STATUS,                "Connection status" },
+	{ WS_CTA_PROTOINFO,             "Protocol-specific info" },
+	{ WS_CTA_HELP,                  "Helper" },
+	{ WS_CTA_NAT_SRC,               "SNAT setup" },
+	{ WS_CTA_TIMEOUT,               "Timeout" },
+	{ WS_CTA_MARK,                  "Mark" },
+	{ WS_CTA_COUNTERS_ORIG,         "COUNTERS_ORIG" },
+	{ WS_CTA_COUNTERS_REPLY,        "COUNTERS_REPLY" },
+	{ WS_CTA_USE,                   "Use count" },
+	{ WS_CTA_ID,                    "ID" },
+	{ WS_CTA_NAT_DST,               "DNAT setup" },
+	{ WS_CTA_TUPLE_MASTER,          "Master IP tuple" },
+	{ WS_CTA_SEQ_ADJ_ORIG,          "Sequence number adjustment (original direction)" },
+	{ WS_CTA_SEQ_ADJ_REPLY,         "Sequence number adjustment (reply direction)" },
+	{ WS_CTA_SECMARK,               "Security mark" },
+	{ WS_CTA_ZONE,                  "Zone" },
+	{ WS_CTA_SECCTX,                "Security context" },
+	{ WS_CTA_TIMESTAMP,             "Timestamp" },
+	{ WS_CTA_MARK_MASK,             "Mark mask" },
+	{ WS_CTA_LABELS,                "LABELS" },
+	{ WS_CTA_LABELS_MASK,           "LABELS_MASK" },
+	{ 0, NULL }
+};
+
+static const value_string nfct_help_attr_vals[] = {
+	{ WS_CTA_HELP_NAME,             "Helper name" },
+	{ WS_CTA_HELP_INFO,             "Helper info" },
+	{ 0, NULL }
+};
+
+static const value_string nfct_seqadj_attr_vals[] = {
+	{ WS_CTA_SEQADJ_CORRECTION_POS, "Correction position" },
+	{ WS_CTA_SEQADJ_OFFSET_BEFORE,  "Offset before" },
+	{ WS_CTA_SEQADJ_OFFSET_AFTER,   "Offset after" },
+	{ 0, NULL }
+};
+
+static header_field_info hfi_nfct_attr_timeout NETLINK_NETFILTER_HFI_INIT =
+	{ "Timeout", "netlink-netfilter.ct_attr.timeout", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_attr_id NETLINK_NETFILTER_HFI_INIT =
+	{ "ID", "netlink-netfilter.ct_attr.id", FT_UINT32, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+/* CTA_STATUS bitfield */
+static header_field_info hfi_nfct_attr_status_flag_expected NETLINK_NETFILTER_HFI_INIT =
+	{ "Expected", "netlink-netfilter.ct_attr.status.expected",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_EXPECTED,
+		"It is an expected connection", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_seen_reply NETLINK_NETFILTER_HFI_INIT =
+	{ "Seen reply", "netlink-netfilter.ct_attr.status.seen_reply",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_SEEN_REPLY,
+		"Packets going in both directions have been seen", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_assured NETLINK_NETFILTER_HFI_INIT =
+	{ "Assured", "netlink-netfilter.ct_attr.status.assured",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_ASSURED,
+		"Conntrack should never be early-expired", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_confirmed NETLINK_NETFILTER_HFI_INIT =
+	{ "Confirmed", "netlink-netfilter.ct_attr.status.confirmed",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_CONFIRMED,
+		"Connection is confirmed: originating packet has left box", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_src_nat NETLINK_NETFILTER_HFI_INIT =
+	{ "Source NAT", "netlink-netfilter.ct_attr.status.src_nat",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_SRC_NAT,
+		"Connection needs source NAT in orig dir.", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_dst_nat NETLINK_NETFILTER_HFI_INIT =
+	{ "Destination NAT", "netlink-netfilter.ct_attr.status.dst_nat",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_DST_NAT,
+		"Connection needs destination NAT in orig dir.", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_seq_adjust NETLINK_NETFILTER_HFI_INIT =
+	{ "Sequence adjust", "netlink-netfilter.ct_attr.status.seq_adjust",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_SEQ_ADJUST,
+		"Connection needs TCP sequence adjusted", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_src_nat_done NETLINK_NETFILTER_HFI_INIT =
+	{ "Source NAT done", "netlink-netfilter.ct_attr.status.src_nat_done",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_SRC_NAT_DONE,
+		"Source NAT has been initialized", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_dst_nat_done NETLINK_NETFILTER_HFI_INIT =
+	{ "Destination NAT done", "netlink-netfilter.ct_attr.status.dst_nat_done",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_DST_NAT_DONE,
+		"Destination NAT has been initialized", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_dying NETLINK_NETFILTER_HFI_INIT =
+	{ "Dying", "netlink-netfilter.ct_attr.status.dying",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_DYING,
+		"Connection is dying (removed from lists)", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_fixed_timeout NETLINK_NETFILTER_HFI_INIT =
+	{ "Fixed timeout", "netlink-netfilter.ct_attr.status.fixed_timeout",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_FIXED_TIMEOUT,
+		"Connection has fixed timeout", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_template NETLINK_NETFILTER_HFI_INIT =
+	{ "Template", "netlink-netfilter.ct_attr.status.template",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_TEMPLATE,
+		"Conntrack is a template", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_untracked NETLINK_NETFILTER_HFI_INIT =
+	{ "Untracked", "netlink-netfilter.ct_attr.status.untracked",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_UNTRACKED,
+		"Conntrack is a fake untracked entry.  Obsolete and not used anymore", HFILL };
+
+static header_field_info hfi_nfct_attr_status_flag_helper NETLINK_NETFILTER_HFI_INIT =
+	{ "Helper", "netlink-netfilter.ct_attr.status.helper",
+		FT_UINT32, BASE_DEC, NULL, WS_IPS_HELPER,
+		"Conntrack got a helper explicitly attached via CT target", HFILL };
+
+static const int *hfi_nfct_attr_status_flags[] = {
+	&hfi_nfct_attr_status_flag_helper.id,
+	&hfi_nfct_attr_status_flag_untracked.id,
+	&hfi_nfct_attr_status_flag_template.id,
+	&hfi_nfct_attr_status_flag_fixed_timeout.id,
+	&hfi_nfct_attr_status_flag_dying.id,
+	&hfi_nfct_attr_status_flag_dst_nat_done.id,
+	&hfi_nfct_attr_status_flag_src_nat_done.id,
+	&hfi_nfct_attr_status_flag_seq_adjust.id,
+	&hfi_nfct_attr_status_flag_dst_nat.id,
+	&hfi_nfct_attr_status_flag_src_nat.id,
+	&hfi_nfct_attr_status_flag_confirmed.id,
+	&hfi_nfct_attr_status_flag_assured.id,
+	&hfi_nfct_attr_status_flag_seen_reply.id,
+	&hfi_nfct_attr_status_flag_expected.id,
+};
+
+static header_field_info hfi_nfct_attr_status NETLINK_NETFILTER_HFI_INIT =
+	{ "Status", "netlink-netfilter.ct_attr.status", FT_UINT32, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_help_attr_help_name NETLINK_NETFILTER_HFI_INIT =
+	{ "Helper name", "netlink-netfilter.ct_help_attr.help_name", FT_STRINGZ, STR_UNICODE,
+	  NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_nfct_help_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Helper", "netlink-netfilter.ct_help_attr", FT_UINT16, BASE_DEC,
+	  VALS(nfct_help_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static int
+dissect_nfct_help_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_help type = (enum ws_ctattr_help) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_CTA_HELP_NAME:
+			proto_tree_add_item(tree, &hfi_nfct_help_attr_help_name, tvb, offset, len, ENC_UTF_8);
+			return 1;
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+static header_field_info hfi_nfct_seqadj_attr_correction_pos NETLINK_NETFILTER_HFI_INIT =
+	{ "Position", "netlink-netfilter.ct_seqadj_correction_pos", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_seqadj_attr_offset_before NETLINK_NETFILTER_HFI_INIT =
+	{ "Offset", "netlink-netfilter.ct_seqadj_offset_before", FT_INT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_seqadj_attr_offset_after NETLINK_NETFILTER_HFI_INIT =
+	{ "Offset", "netlink-netfilter.ct_seqadj_offset_after", FT_INT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfct_seqadj_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Adjustment", "netlink-netfilter.ct_seqadj_attr", FT_UINT16, BASE_DEC,
+	  VALS(nfct_seqadj_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static int
+dissect_nfct_seqadj_attrs(tvbuff_t *tvb, void *data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_seqadj type = (enum ws_ctattr_seqadj) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_CTA_SEQADJ_CORRECTION_POS:
+			proto_tree_add_item(tree, &hfi_nfct_seqadj_attr_correction_pos, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_SEQADJ_OFFSET_BEFORE:
+			proto_tree_add_item(tree, &hfi_nfct_seqadj_attr_offset_before, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_SEQADJ_OFFSET_AFTER:
+			proto_tree_add_item(tree, &hfi_nfct_seqadj_attr_offset_after, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nfct_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_type type = (enum ws_ctattr_type) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_CTA_STATUS:
+			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfct_attr_status.id,
+					       ett_nfct_status_attr, hfi_nfct_attr_status_flags, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_TIMEOUT:
+			proto_tree_add_item(tree, &hfi_nfct_attr_timeout, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_ID:
+			proto_tree_add_item(tree, &hfi_nfct_attr_id, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_HELP:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_help_attr, ett_nfct_help_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_help_attrs);
+			return 0;
+
+		case WS_CTA_SEQ_ADJ_ORIG:
+		case WS_CTA_SEQ_ADJ_REPLY:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_seqadj_attr, ett_nfct_seqadj_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_seqadj_attrs);
+			return 0;
+
+		case WS_CTA_TUPLE_ORIG:
+		case WS_CTA_TUPLE_REPLY:
+		case WS_CTA_TUPLE_MASTER:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_tuple_attr, ett_nfct_tuple_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_tuple_attrs);
+			return 0;
+
+		default:
+			return 0;
+	}
+}
+
+/* CT - main */
+
+static header_field_info hfi_nfct_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.ct.attr", FT_UINT16, BASE_DEC,
+	  VALS(nfct_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static int
+dissect_netfilter_ct(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
+{
+	offset = dissect_netlink_netfilter_header(tvb, tree, offset);
+	return dissect_netlink_attributes(tvb, &hfi_nfct_attr, ett_nfct_attr, info, info->data,
+					  tree, offset, -1, dissect_nfct_attrs);
+}
+
+/* EXP */
+
+static const value_string nfexp_type_vals[] = {
+	{ WS_IPCTNL_MSG_EXP_NEW,             "New" },
+	{ WS_IPCTNL_MSG_EXP_GET,             "Get" },
+	{ WS_IPCTNL_MSG_EXP_DELETE,          "Delete" },
+	{ WS_IPCTNL_MSG_EXP_GET_STATS_CPU,   "Get CPU stats" },
+	{ 0, NULL }
+};
+
+static const value_string nfexp_attr_vals[] = {
+	{ WS_CTA_EXPECT_MASTER,         "Master IP tuple" },
+	{ WS_CTA_EXPECT_TUPLE,          "IP tuple" },
+	{ WS_CTA_EXPECT_MASK,           "IP mask tuple" },
+	{ WS_CTA_EXPECT_TIMEOUT,        "Timeout" },
+	{ WS_CTA_EXPECT_ID,             "ID" },
+	{ WS_CTA_EXPECT_HELP_NAME,      "Helper name" },
+	{ WS_CTA_EXPECT_ZONE,           "Zone" },
+	{ WS_CTA_EXPECT_FLAGS,          "Flags" },
+	{ WS_CTA_EXPECT_CLASS,          "Class" },
+	{ WS_CTA_EXPECT_NAT,            "NAT" },
+	{ WS_CTA_EXPECT_FN,             "Expect function" },
+	{ 0, NULL }
+};
+
+static const value_string nfexp_nat_attr_vals[] = {
+	{ WS_CTA_EXPECT_NAT_DIR,        "Direction" },
+	{ WS_CTA_EXPECT_NAT_TUPLE,      "IP tuple" },
+	{ 0, NULL }
+};
+
+static const value_string nfexp_conntrack_dir_vals[] = {
+	{ WS_IP_CT_DIR_ORIGINAL,        "Original direction" },
+	{ WS_IP_CT_DIR_REPLY,           "Reply direction" },
+	{ 0, NULL }
+};
+
+static header_field_info hfi_nfexp_nat_attr_dir NETLINK_NETFILTER_HFI_INIT =
+	{ "Direction", "netlink-netfilter.nfexp.nat.dir", FT_UINT32, BASE_DEC,
+	  VALS(nfexp_conntrack_dir_vals), 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfexp_nat_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.nfexp.nat", FT_UINT16, BASE_DEC,
+	  VALS(nfexp_nat_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+static int
+dissect_nfexp_nat_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_expect type = (enum ws_ctattr_expect) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_CTA_EXPECT_NAT_DIR:
+			proto_tree_add_item(tree, &hfi_nfexp_nat_attr_dir, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_EXPECT_NAT_TUPLE:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_tuple_attr, ett_nfct_tuple_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_tuple_attrs);
+			return 0;
+
+		default:
+			return 0;
+	}
+}
+
+static header_field_info hfi_nfexp_attr_timeout NETLINK_NETFILTER_HFI_INIT =
+	{ "Timeout", "netlink-netfilter.nfexp.timeout", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfexp_attr_id NETLINK_NETFILTER_HFI_INIT =
+	{ "ID", "netlink-netfilter.nfexp.id", FT_UINT32, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfexp_attr_class NETLINK_NETFILTER_HFI_INIT =
+	{ "Class", "netlink-netfilter.nfexp.class", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfexp_attr_zone NETLINK_NETFILTER_HFI_INIT =
+	{ "Zone", "netlink-netfilter.nfexp.zone", FT_UINT16, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nfexp_attr_fn NETLINK_NETFILTER_HFI_INIT =
+	{ "Name", "netlink-netfilter.nfexp.fn", FT_STRINGZ, STR_UNICODE,
+	  NULL, 0x0, NULL, HFILL };
+
+/* CTA_EXPECT_FLAGS bitfield */
+static header_field_info hfi_nfexp_attr_flag_permanent NETLINK_NETFILTER_HFI_INIT =
+	{ "Permanent", "netlink-netfilter.nfexp.flags.permanent",
+		FT_UINT32, BASE_DEC, NULL, WS_NF_CT_EXPECT_PERMANENT,
+		NULL, HFILL };
+
+static header_field_info hfi_nfexp_attr_flag_inactive NETLINK_NETFILTER_HFI_INIT =
+	{ "Inactive", "netlink-netfilter.nfexp.flags.inactive",
+		FT_UINT32, BASE_DEC, NULL, WS_NF_CT_EXPECT_INACTIVE,
+		NULL, HFILL };
+
+static header_field_info hfi_nfexp_attr_flag_userspace NETLINK_NETFILTER_HFI_INIT =
+	{ "Userspace", "netlink-netfilter.nfexp.flags.userspace",
+		FT_UINT32, BASE_DEC, NULL, WS_NF_CT_EXPECT_USERSPACE,
+		NULL, HFILL };
+
+static const int *hfi_nfexp_attr_flags_bitfield[] = {
+	&hfi_nfexp_attr_flag_userspace.id,
+	&hfi_nfexp_attr_flag_inactive.id,
+	&hfi_nfexp_attr_flag_permanent.id,
+};
+
+static header_field_info hfi_nfexp_attr_flags NETLINK_NETFILTER_HFI_INIT =
+	{ "Flags", "netlink-netfilter.nfexp.flags", FT_UINT32, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static int
+dissect_nfexp_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_ctattr_expect type = (enum ws_ctattr_expect) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_CTA_EXPECT_TUPLE:
+		case WS_CTA_EXPECT_MASK:
+		case WS_CTA_EXPECT_MASTER:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_tuple_attr, ett_nfct_tuple_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_tuple_attrs);
+			return 0;
+
+		case WS_CTA_EXPECT_NAT:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfexp_nat_attr, ett_nfexp_nat_attr, info, info->data,
+								  tree, offset, len, dissect_nfexp_nat_attrs);
+			return 0;
+
+		case WS_CTA_EXPECT_TIMEOUT:
+			proto_tree_add_item(tree, &hfi_nfexp_attr_timeout, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_EXPECT_ID:
+			proto_tree_add_item(tree, &hfi_nfexp_attr_id, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_EXPECT_CLASS:
+			proto_tree_add_item(tree, &hfi_nfexp_attr_class, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_EXPECT_ZONE:
+			proto_tree_add_item(tree, &hfi_nfexp_attr_zone, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_CTA_EXPECT_FN:
+			proto_tree_add_item(tree, &hfi_nfexp_attr_fn, tvb, offset, len, ENC_UTF_8);
+			return 1;
+
+		case WS_CTA_EXPECT_FLAGS:
+			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfexp_attr_flags.id,
+					       ett_nfexp_flags_attr, hfi_nfexp_attr_flags_bitfield, ENC_BIG_ENDIAN);
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
+static header_field_info hfi_nfexp_attr NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.exp.attr", FT_UINT16, BASE_DEC,
+	  VALS(nfexp_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
+
+/* EXP - main */
+
+static int
+dissect_netfilter_exp(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
+{
+	//enum ws_ctnl_exp_msg_types type = (enum ws_ctnl_exp_msg_types) (info->data->type & 0xff);
+
+	offset = dissect_netlink_netfilter_header(tvb, tree, offset);
+	return dissect_netlink_attributes(tvb, &hfi_nfexp_attr, ett_nfexp_attr, info, info->data,
+					  tree, offset, -1, dissect_nfexp_attrs);
 }
 
 /* QUEUE */
@@ -476,7 +1210,7 @@ static header_field_info hfi_nfq_verdict_verdict NETLINK_NETFILTER_HFI_INIT =
 	  VALS(nfq_verdict_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nfq_verdict_id NETLINK_NETFILTER_HFI_INIT =
-	{ "Packet ID", "netlink-netfilter.queue.verdict.id", FT_UINT32, BASE_DEC,
+	{ "Verdict ID", "netlink-netfilter.queue.verdict.id", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nfq_packet_id NETLINK_NETFILTER_HFI_INIT =
@@ -539,10 +1273,11 @@ static header_field_info hfi_nfq_gid NETLINK_NETFILTER_HFI_INIT =
 	{ "GID", "netlink-netfilter.queue.gid", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
+
 static int
 dissect_nfq_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
 {
-	enum ws_nfqnl_attr_type type = (enum ws_nfqnl_attr_type) nla_type;
+	enum ws_nfqnl_attr_type type = (enum ws_nfqnl_attr_type) nla_type & NLA_TYPE_MASK;
 	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
 
 	switch (type) {
@@ -646,7 +1381,9 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int
 			break;
 
 		case WS_NFQA_CT:
-			/* TODO */
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, &hfi_nfct_attr, ett_nfct_attr, info, info->data,
+								  tree, offset, len, dissect_nfct_attrs);
 			break;
 
 		case WS_NFQA_CT_INFO:
@@ -1107,6 +1844,10 @@ static const value_string netlink_netfilter_subsystem_vals[] = {
 	{ 0, NULL }
 };
 
+static header_field_info hfi_nfexp_type NETLINK_NETFILTER_HFI_INIT =
+	{ "Type", "netlink-netfilter.exp_type", FT_UINT16, BASE_DEC,
+	  VALS(nfexp_type_vals), 0x00FF, NULL, HFILL };
+
 static header_field_info hfi_nfq_type NETLINK_NETFILTER_HFI_INIT =
 	{ "Type", "netlink-netfilter.queue_type", FT_UINT16, BASE_DEC,
 	  VALS(nfq_type_vals), 0x00FF, NULL, HFILL };
@@ -1140,6 +1881,10 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, data->encoding, NULL, NULL);
 	proto_tree_add_item(nlmsg_tree, &hfi_netlink_netfilter_subsys, tvb, 4, 2, data->encoding);
 	switch (data->type >> 8) {
+		case WS_NFNL_SUBSYS_CTNETLINK_EXP:
+			proto_tree_add_item(nlmsg_tree, &hfi_nfexp_type, tvb, 4, 2, data->encoding);
+			break;
+
 		case WS_NFNL_SUBSYS_QUEUE:
 			proto_tree_add_item(nlmsg_tree, &hfi_nfq_type, tvb, 4, 2, data->encoding);
 			break;
@@ -1159,6 +1904,14 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	info.hw_protocol = 0;
 
 	switch (data->type >> 8) {
+		case WS_NFNL_SUBSYS_CTNETLINK:
+			offset = dissect_netfilter_ct(tvb, &info, nlmsg_tree, offset);
+			break;
+
+		case WS_NFNL_SUBSYS_CTNETLINK_EXP:
+			offset = dissect_netfilter_exp(tvb, &info, nlmsg_tree, offset);
+			break;
+
 		case WS_NFNL_SUBSYS_QUEUE:
 			offset = dissect_netfilter_queue(tvb, &info, nlmsg_tree, offset);
 			break;
@@ -1189,7 +1942,53 @@ proto_register_netlink_netfilter(void)
 		&hfi_netlink_netfilter_family,
 		&hfi_netlink_netfilter_version,
 		&hfi_netlink_netfilter_resid,
+		&hfi_nfct_attr,
+		&hfi_nfct_attr_status,
+		&hfi_nfct_attr_status_flag_expected,
+		&hfi_nfct_attr_status_flag_seen_reply,
+		&hfi_nfct_attr_status_flag_assured,
+		&hfi_nfct_attr_status_flag_confirmed,
+		&hfi_nfct_attr_status_flag_src_nat,
+		&hfi_nfct_attr_status_flag_dst_nat,
+		&hfi_nfct_attr_status_flag_seq_adjust,
+		&hfi_nfct_attr_status_flag_src_nat_done,
+		&hfi_nfct_attr_status_flag_dst_nat_done,
+		&hfi_nfct_attr_status_flag_dying,
+		&hfi_nfct_attr_status_flag_fixed_timeout,
+		&hfi_nfct_attr_status_flag_template,
+		&hfi_nfct_attr_status_flag_untracked,
+		&hfi_nfct_attr_status_flag_helper,
+		&hfi_nfct_attr_timeout,
+		&hfi_nfct_attr_id,
+		&hfi_nfct_help_attr,
+		&hfi_nfct_help_attr_help_name,
+		&hfi_nfct_seqadj_attr,
+		&hfi_nfct_seqadj_attr_correction_pos,
+		&hfi_nfct_seqadj_attr_offset_before,
+		&hfi_nfct_seqadj_attr_offset_after,
+		&hfi_nfct_tuple_attr,
+		&hfi_nfct_tuple_ip_attr,
+		&hfi_nfct_tuple_ip_attr_ipv4,
+		&hfi_nfct_tuple_ip_attr_ipv6,
+		&hfi_nfct_tuple_proto_attr,
+		&hfi_nfct_tuple_proto_num_attr,
+		&hfi_nfct_tuple_proto_src_port_attr,
+		&hfi_nfct_tuple_proto_dst_port_attr,
 
+	/* EXP */
+		&hfi_nfexp_type,
+		&hfi_nfexp_attr,
+		&hfi_nfexp_attr_fn,
+		&hfi_nfexp_attr_timeout,
+		&hfi_nfexp_attr_id,
+		&hfi_nfexp_attr_class,
+		&hfi_nfexp_attr_zone,
+		&hfi_nfexp_attr_flags,
+		&hfi_nfexp_attr_flag_permanent,
+		&hfi_nfexp_attr_flag_inactive,
+		&hfi_nfexp_attr_flag_userspace,
+		&hfi_nfexp_nat_attr,
+		&hfi_nfexp_nat_attr_dir,
 	/* QUEUE */
 		&hfi_nfq_type,
 		&hfi_nfq_attr,
@@ -1241,8 +2040,18 @@ proto_register_netlink_netfilter(void)
 
 	static gint *ett[] = {
 		&ett_netlink_netfilter,
+		&ett_nfct_attr,
+		&ett_nfct_help_attr,
+		&ett_nfct_seqadj_attr,
+		&ett_nfct_status_attr,
+		&ett_nfct_tuple_attr,
+		&ett_nfct_tuple_ip_attr,
+		&ett_nfct_tuple_proto_attr,
 		&ett_nfq_config_attr,
 		&ett_nfq_attr,
+		&ett_nfexp_attr,
+		&ett_nfexp_flags_attr,
+		&ett_nfexp_nat_attr,
 		&ett_ipset_attr,
 		&ett_ipset_cadt_attr,
 		&ett_ipset_adt_attr,
