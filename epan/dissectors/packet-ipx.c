@@ -886,8 +886,8 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree	*rip_tree;
 	proto_item	*ti, *hidden_item;
 	guint16		operation, ticks;
-	int		cursor;
-	int		available_length;
+	guint		cursor;
+	guint		available_length;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1213,7 +1213,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti, *hidden_item;
-	int		cursor;
+	guint		cursor;
 	struct sap_query query;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX SAP");
@@ -1251,8 +1251,8 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		if (query.query_type == IPX_SAP_GENERAL_RESPONSE ||
 				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
 
-			int available_length = tvb_reported_length(tvb);
-			for (cursor =  2; (cursor + 64) <= available_length; cursor += 64) {
+			guint available_length = tvb_reported_length(tvb);
+			for (cursor =  2; cursor <= available_length; cursor += 64) {
 				const guint8 *server_name;
 
 				ti = proto_tree_add_item(sap_tree, hf_sap_server, tvb, cursor, 64, ENC_NA);
