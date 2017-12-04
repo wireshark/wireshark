@@ -68,7 +68,7 @@ scan_list(const char *file, GPtrArray *protos, GPtrArray *handoffs)
     char *contents, *arg;
     GError *err = NULL;
 
-    if (!g_file_get_contents(file, &contents, NULL, NULL)) {
+    if (!g_file_get_contents(file, &contents, NULL, &err)) {
         fprintf(stderr, "%s: %s\n", file, err->message);
         exit(1);
     }
