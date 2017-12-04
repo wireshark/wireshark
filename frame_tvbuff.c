@@ -39,7 +39,7 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	gchar *err_info;
 
 	/* sanity check, capture file was closed? */
-	if (cfile.wth != frame_tvb->wth)
+	if (cfile.frame_set_info.wth != frame_tvb->wth)
 		return FALSE;
 
 	/* XXX, what if phdr->caplen isn't equal to
@@ -208,8 +208,8 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.wth && cfile.wth->random_fh) {
-		frame_tvb->wth = cfile.wth;
+	if (cfile.frame_set_info.wth && cfile.frame_set_info.wth->random_fh) {
+		frame_tvb->wth = cfile.frame_set_info.wth;
 		frame_tvb->file_off = fd->file_off;
 		frame_tvb->offset = 0;
 	} else
@@ -309,8 +309,8 @@ file_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.wth && cfile.wth->random_fh) {
-		frame_tvb->wth = cfile.wth;
+	if (cfile.frame_set_info.wth && cfile.frame_set_info.wth->random_fh) {
+		frame_tvb->wth = cfile.frame_set_info.wth;
 		frame_tvb->file_off = fd->file_off;
 		frame_tvb->offset = 0;
 	} else

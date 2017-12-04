@@ -1344,7 +1344,7 @@ mark_all_displayed_frames(gboolean set)
 	guint32 framenum;
 	frame_data *fdata;
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = frame_data_sequence_find(cfile.frames, framenum);
+		fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_mark(set, fdata);
 	}
@@ -1371,7 +1371,7 @@ toggle_mark_all_displayed_frames(void)
 	guint32 framenum;
 	frame_data *fdata;
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = frame_data_sequence_find(cfile.frames, framenum);
+		fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_mark(!fdata->flags.marked, fdata);
 	}
@@ -1420,7 +1420,7 @@ ignore_all_displayed_frames(gboolean set)
 
 	/* XXX: we might need a progressbar here */
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = frame_data_sequence_find(cfile.frames, framenum);
+		fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_ignore(set, fdata);
 	}
@@ -1435,7 +1435,7 @@ packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 		/* Due to performance impact with large captures, don't check the filtered list for
 		an ignored frame; just check the first. If a ignored frame exists but isn't first and
 		the user wants to unignore all the displayed frames, they will just re-exec the shortcut. */
-		fdata = frame_data_sequence_find(cfile.frames, cfile.first_displayed);
+		fdata = frame_data_sequence_find(cfile.frame_set_info.frames, cfile.first_displayed);
 		if (fdata->flags.ignored==TRUE) {
 			ignore_all_displayed_frames(FALSE);
 		} else {
@@ -1452,7 +1452,7 @@ unignore_all_frames(void)
 
 	/* XXX: we might need a progressbar here */
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = frame_data_sequence_find(cfile.frames, framenum);
+		fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 		set_frame_ignore(FALSE, fdata);
 	}
 	redissect_packets();
@@ -1472,7 +1472,7 @@ untime_reference_all_frames(void)
 	guint32 framenum;
 	frame_data *fdata;
 	for (framenum = 1; framenum <= cfile.count && cfile.ref_time_count > 0; framenum++) {
-		fdata = frame_data_sequence_find(cfile.frames, framenum);
+		fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 		if (fdata->flags.ref_time == 1) {
 			set_frame_reftime(FALSE, fdata, cfile.current_row);
 		}
@@ -1570,7 +1570,7 @@ packet_list_return_all_comments(GtkTextBuffer *buffer)
 	for (framenum = 1; framenum <= cfile.count ; framenum++) {
 		char *pkt_comment;
 
-		fdata = frame_data_sequence_find(cfile.frames, framenum);
+		fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 		pkt_comment = cf_get_packet_comment(&cfile, fdata);
 		if (pkt_comment) {
 			buf_str = g_strdup_printf("Frame %u: %s \n\n",framenum, pkt_comment);

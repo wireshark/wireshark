@@ -298,7 +298,7 @@ const char *
 epan_get_user_comment(const epan_t *session, const frame_data *fd)
 {
 	if (session->get_user_comment)
-		return session->get_user_comment(session->cf, fd);
+		return session->get_user_comment(session->fs, fd);
 
 	return NULL;
 }
@@ -307,7 +307,7 @@ const char *
 epan_get_interface_name(const epan_t *session, guint32 interface_id)
 {
 	if (session->get_interface_name)
-		return session->get_interface_name(session->cf, interface_id);
+		return session->get_interface_name(session->fs, interface_id);
 
 	return NULL;
 }
@@ -316,7 +316,7 @@ const char *
 epan_get_interface_description(const epan_t *session, guint32 interface_id)
 {
 	if (session->get_interface_description)
-		return session->get_interface_description(session->cf, interface_id);
+		return session->get_interface_description(session->fs, interface_id);
 
 	return NULL;
 }
@@ -327,7 +327,7 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 	const nstime_t *abs_ts = NULL;
 
 	if (session->get_frame_ts)
-		abs_ts = session->get_frame_ts(session->cf, frame_num);
+		abs_ts = session->get_frame_ts(session->fs, frame_num);
 
 	if (!abs_ts)
 		ws_g_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);

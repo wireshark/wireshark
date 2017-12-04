@@ -16,6 +16,7 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/frame_data.h>
 #include <epan/frame_data_sequence.h>
+#include <epan/frame_set.h>
 #include <wiretap/wtap.h>
 
 #ifdef __cplusplus
@@ -47,7 +48,6 @@ struct _capture_file {
   guint32      drops;                /* Dropped packets */
   nstime_t     elapsed_time;         /* Elapsed time */
   int          snap;                 /* Maximum captured packet length; 0 if unknown */
-  wtap        *wth;                  /* Wiretap session */
   dfilter_t   *rfcode;               /* Compiled read filter program */
   dfilter_t   *dfcode;               /* Compiled display filter program */
   gchar       *dfilter;              /* Display filter string */
@@ -70,7 +70,7 @@ struct _capture_file {
   struct wtap_pkthdr phdr;           /* Packet header */
   Buffer       buf;                  /* Packet data */
   /* frames */
-  frame_data_sequence *frames;       /* Sequence of frames, if we're keeping that information */
+  frame_set    frame_set_info;       /* fjfff */
   guint32      first_displayed;      /* Frame number of first frame displayed */
   guint32      last_displayed;       /* Frame number of last frame displayed */
   column_info  cinfo;                /* Column formatting information */
@@ -80,13 +80,9 @@ struct _capture_file {
   epan_dissect_t *edt;               /* Protocol dissection for currently selected packet */
   field_info  *finfo_selected;       /* Field info for currently selected field */
   gpointer     window;               /* Top-level window associated with file */
-  GTree       *frames_user_comments; /* BST with user comments for frames (key = frame_data) */
   gulong       computed_elapsed;     /* Elapsed time to load the file (in msec). */
 
   guint32      cum_bytes;
-  const frame_data *ref;
-  frame_data  *prev_dis;
-  frame_data  *prev_cap;
 };
 
 #ifdef __cplusplus

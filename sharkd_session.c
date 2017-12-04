@@ -607,9 +607,9 @@ sharkd_session_process_status(void)
 		g_free(name);
 	}
 
-	if (cfile.wth)
+	if (cfile.frame_set_info.wth)
 	{
-		gint64 file_size = wtap_file_size(cfile.wth, NULL);
+		gint64 file_size = wtap_file_size(cfile.frame_set_info.wth, NULL);
 
 		if (file_size > 0)
 			printf(",\"filesize\":%" G_GINT64_FORMAT, file_size);
@@ -845,7 +845,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 	printf("[");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
-		frame_data *fdata = frame_data_sequence_find(cfile.frames, framenum);
+		frame_data *fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 
 		if (filter_data && !(filter_data[framenum / 8] & (1 << (framenum % 8))))
 			continue;
@@ -2967,7 +2967,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
-		frame_data *fdata = frame_data_sequence_find(cfile.frames, framenum);
+		frame_data *fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
 		gint64 msec_rel;
 		gint64 new_idx;
 

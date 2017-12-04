@@ -120,12 +120,12 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
   /* initialize the tally */
   if (cf->count != 0) {
-    first_frame = frame_data_sequence_find(cf->frames, 1);
+    first_frame = frame_data_sequence_find(cf->frame_set_info.frames, 1);
     st->start_time = nstime_to_sec(&first_frame->abs_ts);
     st->stop_time = nstime_to_sec(&first_frame->abs_ts);
 
     for (framenum = 1; framenum <= cf->count; framenum++) {
-      cur_frame = frame_data_sequence_find(cf->frames, framenum);
+      cur_frame = frame_data_sequence_find(cf->frame_set_info.frames, framenum);
       tally_frame_data(cur_frame, st);
     }
   }
@@ -145,7 +145,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->dfilter = cf->dfilter;
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
-  idb_info = wtap_file_get_idb_info(cf->wth);
+  idb_info = wtap_file_get_idb_info(cf->frame_set_info.wth);
   for (i = 0; i < idb_info->interface_data->len; i++) {
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, i);
     wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wtapng_if_descr);

@@ -99,11 +99,11 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	expert.h
 	export_object.h
 	exported_pdu.h
-	plugin_if.h
 	filter_expressions.h
 	follow.h
 	frame_data.h
 	frame_data_sequence.h
+	frame_set.h
 	funnel.h
 	garrayfix.h
 	geoip_db.h
@@ -127,6 +127,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	packet.h
 	packet_info.h
 	params.h
+	plugin_if.h
 	ppptypes.h
 	print.h
 	print_stream.h
@@ -203,11 +204,11 @@ set(LIBWIRESHARK_FILES
 	expert.c
 	export_object.c
 	exported_pdu.c
-	plugin_if.c
 	filter_expressions.c
 	follow.c
 	frame_data.c
 	frame_data_sequence.c
+	frame_set.c
 	funnel.c
 	geoip_db.c
 	golay.c
@@ -220,6 +221,7 @@ set(LIBWIRESHARK_FILES
 	oids.c
 	osi-utils.c
 	packet.c
+	plugin_if.c
 	print.c
 	print_stream.c
 	prefs.c

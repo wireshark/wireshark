@@ -67,11 +67,11 @@ LIBWIRESHARK_SRC = \
 	expert.c		\
 	export_object.c		\
 	exported_pdu.c		\
-	plugin_if.c		\
 	filter_expressions.c	\
 	follow.c		\
 	frame_data.c		\
 	frame_data_sequence.c	\
+	frame_set.c		\
 	funnel.c		\
 	geoip_db.c		\
 	golay.c			\
@@ -84,6 +84,7 @@ LIBWIRESHARK_SRC = \
 	oids.c			\
 	osi-utils.c		\
 	packet.c		\
+	plugin_if.c		\
 	prefs.c			\
 	print.c			\
 	print_stream.c		\
@@ -207,11 +208,11 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	expert.h		\
 	export_object.h		\
 	exported_pdu.h		\
-	plugin_if.h		\
 	filter_expressions.h	\
 	follow.h		\
 	frame_data.h		\
 	frame_data_sequence.h	\
+	frame_set.h		\
 	funnel.h		\
 	garrayfix.h		\
 	geoip_db.h		\
@@ -235,6 +236,7 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	packet.h		\
 	packet_info.h		\
 	params.h		\
+	plugin_if.h		\
 	ppptypes.h		\
 	print.h			\
 	print_stream.h		\

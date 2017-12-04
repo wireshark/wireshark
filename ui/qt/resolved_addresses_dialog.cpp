@@ -195,7 +195,7 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *c
     ui->plainTextEdit->setTabStopWidth(ui->plainTextEdit->fontMetrics().averageCharWidth() * 8);
 
     if (capture_file->isValid()) {
-        wtap* wth = capture_file->capFile()->wth;
+        wtap* wth = capture_file->capFile()->frame_set_info.wth;
         if (wth) {
             // might return null
             wtap_block_t nrb_hdr;

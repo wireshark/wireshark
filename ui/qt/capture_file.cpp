@@ -101,8 +101,8 @@ struct _packet_info *CaptureFile::packetInfo()
 
 int CaptureFile::timestampPrecision()
 {
-    if (capFile() && capFile()->wth) {
-        return wtap_file_tsprec(capFile()->wth);
+    if (capFile() && capFile()->frame_set_info.wth) {
+        return wtap_file_tsprec(capFile()->frame_set_info.wth);
     }
     return WTAP_TSPREC_UNKNOWN;
 }

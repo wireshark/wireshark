@@ -233,7 +233,7 @@ ph_stats_new(capture_file *cf)
     tot_bytes = 0;
 
     for (framenum = 1; framenum <= cf->count; framenum++) {
-        frame = frame_data_sequence_find(cf->frames, framenum);
+        frame = frame_data_sequence_find(cf->frame_set_info.frames, framenum);
 
         /* Create the progress bar if necessary.
            We check on every iteration of the loop, so that

@@ -2199,9 +2199,9 @@ main(int argc, char *argv[])
 
   g_free(cf_name);
 
-  if (cfile.frames != NULL) {
-    free_frame_data_sequence(cfile.frames);
-    cfile.frames = NULL;
+  if (cfile.frame_set_info.frames != NULL) {
+    free_frame_data_sequence(cfile.frame_set_info.frames);
+    cfile.frame_set_info.frames = NULL;
   }
 
   draw_tap_listeners(TRUE);
@@ -2343,19 +2343,19 @@ pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_pro
 }
 
 static const nstime_t *
-tshark_get_frame_ts(capture_file *cf, guint32 frame_num)
+tshark_get_frame_ts(frame_set *fs, guint32 frame_num)
 {
-  if (cf->ref && cf->ref->num == frame_num)
-    return &cf->ref->abs_ts;
+  if (fs->ref && fs->ref->num == frame_num)
+    return &fs->ref->abs_ts;
 
-  if (cf->prev_dis && cf->prev_dis->num == frame_num)
-    return &cf->prev_dis->abs_ts;
+  if (fs->prev_dis && fs->prev_dis->num == frame_num)
+    return &fs->prev_dis->abs_ts;
 
-  if (cf->prev_cap && cf->prev_cap->num == frame_num)
-    return &cf->prev_cap->abs_ts;
+  if (fs->prev_cap && fs->prev_cap->num == frame_num)
+    return &fs->prev_cap->abs_ts;
 
-  if (cf->frames) {
-     frame_data *fd = frame_data_sequence_find(cf->frames, frame_num);
+  if (fs->frames) {
+     frame_data *fd = frame_data_sequence_find(fs->frames, frame_num);
 
      return (fd) ? &fd->abs_ts : NULL;
   }
@@ -2368,10 +2368,10 @@ tshark_epan_new(capture_file *cf)
 {
   epan_t *epan = epan_new();
 
-  epan->cf = cf;
+  epan->fs = &cf->frame_set_info;
   epan->get_frame_ts = tshark_get_frame_ts;
-  epan->get_interface_name = cap_file_get_interface_name;
-  epan->get_interface_description = cap_file_get_interface_description;
+  epan->get_interface_name = frame_set_get_interface_name;
+  epan->get_interface_description = frame_set_get_interface_description;
   epan->get_user_comment = NULL;
 
   return epan;
@@ -2578,9 +2578,9 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
     /* we start a new capture file, close the old one (if we had one before) */
     if (cf->state != FILE_CLOSED) {
-      if (cf->wth != NULL) {
-        wtap_close(cf->wth);
-        cf->wth = NULL;
+      if (cf->frame_set_info.wth != NULL) {
+        wtap_close(cf->frame_set_info.wth);
+        cf->frame_set_info.wth = NULL;
       }
       cf->state = FILE_CLOSED;
     }
@@ -2683,19 +2683,19 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
        ("packet_details" is true). */
     edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
 
-    while (to_read-- && cf->wth) {
-      wtap_cleareof(cf->wth);
-      ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
+    while (to_read-- && cf->frame_set_info.wth) {
+      wtap_cleareof(cf->frame_set_info.wth);
+      ret = wtap_read(cf->frame_set_info.wth, &err, &err_info, &data_offset);
       reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
       if (ret == FALSE) {
         /* read from file failed, tell the capture child to stop */
         sync_pipe_stop(cap_session);
-        wtap_close(cf->wth);
-        cf->wth = NULL;
+        wtap_close(cf->frame_set_info.wth);
+        cf->frame_set_info.wth = NULL;
       } else {
         ret = process_packet_single_pass(cf, edt, data_offset,
-                                         wtap_phdr(cf->wth),
-                                         wtap_buf_ptr(cf->wth), tap_flags);
+                                         wtap_phdr(cf->frame_set_info.wth),
+                                         wtap_buf_ptr(cf->frame_set_info.wth), tap_flags);
       }
       if (ret != FALSE) {
         /* packet successfully read and gone through the "Read Filter" */
@@ -2799,8 +2799,8 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 
   report_counts();
 
-  if (cf != NULL && cf->wth != NULL) {
-    wtap_close(cf->wth);
+  if (cf != NULL && cf->frame_set_info.wth != NULL) {
+    wtap_close(cf->frame_set_info.wth);
     if (cf->is_tempfile) {
       ws_unlink(cf->filename);
     }
@@ -2908,10 +2908,10 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     prime_epan_dissect_with_postdissector_wanted_hfids(edt);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
-                                  &cf->ref, cf->prev_dis);
-    if (cf->ref == &fdlocal) {
+                                  &cf->frame_set_info.ref, cf->frame_set_info.prev_dis);
+    if (cf->frame_set_info.ref == &fdlocal) {
       ref_frame = fdlocal;
-      cf->ref = &ref_frame;
+      cf->frame_set_info.ref = &ref_frame;
     }
 
     epan_dissect_run(edt, cf->cd_t, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
@@ -2923,7 +2923,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 
   if (passed) {
     frame_data_set_after_dissect(&fdlocal, &cum_bytes);
-    cf->prev_cap = cf->prev_dis = frame_data_sequence_add(cf->frames, &fdlocal);
+    cf->frame_set_info.prev_cap = cf->frame_set_info.prev_dis = frame_data_sequence_add(cf->frame_set_info.frames, &fdlocal);
 
     /* If we're not doing dissection then there won't be any dependent frames.
      * More importantly, edt.pi.dependent_frames won't be initialized because
@@ -2933,7 +2933,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
      */
     if (edt && cf->dfcode) {
       if (dfilter_apply_edt(cf->dfcode, edt)) {
-        g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
+        g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frame_set_info.frames);
       }
     }
 
@@ -2993,10 +2993,10 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
       cinfo = NULL;
 
     frame_data_set_before_dissect(fdata, &cf->elapsed_time,
-                                  &cf->ref, cf->prev_dis);
-    if (cf->ref == fdata) {
+                                  &cf->frame_set_info.ref, cf->frame_set_info.prev_dis);
+    if (cf->frame_set_info.ref == fdata) {
       ref_frame = *fdata;
-      cf->ref = &ref_frame;
+      cf->frame_set_info.ref = &ref_frame;
     }
 
     if (dissect_color) {
@@ -3030,9 +3030,9 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         exit(2);
       }
     }
-    cf->prev_dis = fdata;
+    cf->frame_set_info.prev_dis = fdata;
   }
-  cf->prev_cap = fdata;
+  cf->frame_set_info.prev_cap = fdata;
 
   if (edt) {
     epan_dissect_reset(edt);
@@ -3064,27 +3064,27 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
   wtap_phdr_init(&phdr);
 
-  idb_inf = wtap_file_get_idb_info(cf->wth);
+  idb_inf = wtap_file_get_idb_info(cf->frame_set_info.wth);
 #ifdef PCAP_NG_DEFAULT
   if (idb_inf->interface_data->len > 1) {
     linktype = WTAP_ENCAP_PER_PACKET;
   } else {
-    linktype = wtap_file_encap(cf->wth);
+    linktype = wtap_file_encap(cf->frame_set_info.wth);
   }
 #else
-  linktype = wtap_file_encap(cf->wth);
+  linktype = wtap_file_encap(cf->frame_set_info.wth);
 #endif
   if (save_file != NULL) {
     /* Set up to write to the capture file. */
-    snapshot_length = wtap_snapshot_length(cf->wth);
+    snapshot_length = wtap_snapshot_length(cf->frame_set_info.wth);
     if (snapshot_length == 0) {
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
     tshark_debug("tshark: snapshot_length = %d", snapshot_length);
 
-    shb_hdrs = wtap_file_get_shb_for_new_file(cf->wth);
-    nrb_hdrs = wtap_file_get_nrb_for_new_file(cf->wth);
+    shb_hdrs = wtap_file_get_shb_for_new_file(cf->frame_set_info.wth);
+    nrb_hdrs = wtap_file_get_nrb_for_new_file(cf->frame_set_info.wth);
 
     /* If we don't have an application name add Tshark */
     if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
@@ -3151,7 +3151,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     tshark_debug("tshark: perform_two_pass_analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
 
     /* Allocate a frame_data_sequence for all the frames. */
-    cf->frames = new_frame_data_sequence();
+    cf->frame_set_info.frames = new_frame_data_sequence();
 
     if (do_dissection) {
       gboolean create_proto_tree;
@@ -3178,9 +3178,9 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
 
     tshark_debug("tshark: reading records for first pass");
-    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
-                                    wtap_buf_ptr(cf->wth))) {
+    while (wtap_read(cf->frame_set_info.wth, &err, &err_info, &data_offset)) {
+      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->frame_set_info.wth),
+                                    wtap_buf_ptr(cf->frame_set_info.wth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -3215,14 +3215,14 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
 
     /* Close the sequential I/O side, to free up memory it requires. */
-    wtap_sequential_close(cf->wth);
+    wtap_sequential_close(cf->frame_set_info.wth);
 
     /* Allow the protocol dissectors to free up memory that they
      * don't need after the sequential run-through of the packets. */
     postseq_cleanup_all_protocols();
 
-    cf->prev_dis = NULL;
-    cf->prev_cap = NULL;
+    cf->frame_set_info.prev_dis = NULL;
+    cf->frame_set_info.prev_cap = NULL;
     ws_buffer_init(&buf, 1500);
 
     tshark_debug("tshark: done with first pass");
@@ -3257,8 +3257,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
 
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
-      fdata = frame_data_sequence_find(cf->frames, framenum);
-      if (wtap_seek_read(cf->wth, fdata->file_off, &phdr, &buf, &err,
+      fdata = frame_data_sequence_find(cf->frame_set_info.frames, framenum);
+      if (wtap_seek_read(cf->frame_set_info.wth, fdata->file_off, &phdr, &buf, &err,
                          &err_info)) {
         tshark_debug("tshark: invoking process_packet_second_pass() for frame #%d", framenum);
         if (process_packet_second_pass(cf, edt, fdata, &phdr, &buf,
@@ -3338,21 +3338,21 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
     }
 
-    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+    while (wtap_read(cf->frame_set_info.wth, &err, &err_info, &data_offset)) {
       framenum++;
 
       tshark_debug("tshark: processing packet #%d", framenum);
 
       reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
 
-      if (process_packet_single_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
-                                     wtap_buf_ptr(cf->wth), tap_flags)) {
+      if (process_packet_single_pass(cf, edt, data_offset, wtap_phdr(cf->frame_set_info.wth),
+                                     wtap_buf_ptr(cf->frame_set_info.wth), tap_flags)) {
         /* Either there's no read filtering or this packet passed the
            filter, so, if we're writing to a capture file, write
            this packet out. */
         if (pdh != NULL) {
           tshark_debug("tshark: writing packet #%d to outfile", framenum);
-          if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err, &err_info)) {
+          if (!wtap_dump(pdh, wtap_phdr(cf->frame_set_info.wth), wtap_buf_ptr(cf->frame_set_info.wth), &err, &err_info)) {
             /* Error writing to a capture file */
             tshark_debug("tshark: error writing to a capture file (%d)", err);
             cfile_write_failure_message("TShark", cf->filename, save_file,
@@ -3445,8 +3445,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   }
 
 out:
-  wtap_close(cf->wth);
-  cf->wth = NULL;
+  wtap_close(cf->frame_set_info.wth);
+  cf->frame_set_info.wth = NULL;
 
   wtap_block_array_free(shb_hdrs);
   wtap_block_array_free(nrb_hdrs);
@@ -3508,10 +3508,10 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
       cinfo = NULL;
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &cf->ref, cf->prev_dis);
-    if (cf->ref == &fdata) {
+                                  &cf->frame_set_info.ref, cf->frame_set_info.prev_dis);
+    if (cf->frame_set_info.ref == &fdata) {
       ref_frame = fdata;
-      cf->ref = &ref_frame;
+      cf->frame_set_info.ref = &ref_frame;
     }
 
     if (dissect_color) {
@@ -3550,11 +3550,11 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
 
     /* this must be set after print_packet() [bug #8160] */
     prev_dis_frame = fdata;
-    cf->prev_dis = &prev_dis_frame;
+    cf->frame_set_info.prev_dis = &prev_dis_frame;
   }
 
   prev_cap_frame = fdata;
-  cf->prev_cap = &prev_cap_frame;
+  cf->frame_set_info.prev_cap = &prev_cap_frame;
 
   if (edt) {
     epan_dissect_reset(edt);
@@ -4031,7 +4031,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   epan_free(cf->epan);
   cf->epan = tshark_epan_new(cf);
 
-  cf->wth = wth;
+  cf->frame_set_info.wth = wth;
   cf->f_datalen = 0; /* not used, but set it anyway */
 
   /* Set the file name because we need it to set the follow stream filter.
@@ -4045,21 +4045,21 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  cf->cd_t      = wtap_file_type_subtype(cf->wth);
+  cf->cd_t      = wtap_file_type_subtype(cf->frame_set_info.wth);
   cf->open_type = type;
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
-  cf->snap      = wtap_snapshot_length(cf->wth);
+  cf->snap      = wtap_snapshot_length(cf->frame_set_info.wth);
   nstime_set_zero(&cf->elapsed_time);
-  cf->ref       = NULL;
-  cf->prev_dis  = NULL;
-  cf->prev_cap  = NULL;
+  cf->frame_set_info.ref = NULL;
+  cf->frame_set_info.prev_dis = NULL;
+  cf->frame_set_info.prev_cap = NULL;
 
   cf->state = FILE_READ_IN_PROGRESS;
 
-  wtap_set_cb_new_ipv4(cf->wth, add_ipv4_name);
-  wtap_set_cb_new_ipv6(cf->wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
+  wtap_set_cb_new_ipv4(cf->frame_set_info.wth, add_ipv4_name);
+  wtap_set_cb_new_ipv6(cf->frame_set_info.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
 
   return CF_OK;
 

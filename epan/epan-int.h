@@ -23,25 +23,16 @@
 #define __EPAN_INT_H__
 
 #include <epan/frame_data.h>
+#include <epan/frame_set.h>
 #include <wsutil/nstime.h>
 
-/*
- * XXX - this isn't part of libwireshark; using it in the API indicates
- * that perhaps it should be, in some fashion.
- *
- * Whether the structure definition of a capture_file should be part
- * of libwireshark, or part of the code that uses libwireshark, is
- * another matter.
- */
-#include "cfile.h"
-
 struct epan_session {
-	capture_file *cf;
+	frame_set *fs;
 
-	const nstime_t *(*get_frame_ts)(capture_file *cf, guint32 frame_num);
-	const char *(*get_interface_name)(capture_file *cf, guint32 interface_id);
-	const char *(*get_interface_description)(capture_file *cf, guint32 interface_id);
-	const char *(*get_user_comment)(capture_file *cf, const frame_data *fd);
+	const nstime_t *(*get_frame_ts)(frame_set *cf, guint32 frame_num);
+	const char *(*get_interface_name)(frame_set *fs, guint32 interface_id);
+	const char *(*get_interface_description)(frame_set *fs, guint32 interface_id);
+	const char *(*get_user_comment)(frame_set *fs, const frame_data *fd);
 };
 
 #endif
