@@ -1241,7 +1241,7 @@ static const value_string burst_tlv_vals[] = {
   {UCD_SCDMA_FRAMER_INT_STEP_SIZE,      "S-CDMA Framer Interleaving Step Size"},
   {UCD_TCM_ENABLED,                     "TCM Encoding"},
   {UCD_SUBC_INIT_RANG,                  "Subcarriers (Nir) Initial Ranging"},
-  {UCD_SUBC_FINE_RANG,                  "Subcarriers (Nfr) Initial Ranging"},
+  {UCD_SUBC_FINE_RANG,                  "Subcarriers (Nfr) Fine Ranging"},
   {UCD_OFDMA_PROFILE,                   "OFDMA Profile"},
   {UCD_OFDMA_IR_POWER_CONTROL,          "OFDMA Power Control (Ir)"},
   {0, NULL}
@@ -1933,7 +1933,7 @@ static const value_string docsis_dpd_subc_assign_value_str[] = {
 static const value_string docsis_dpd_subc_assign_modulation_str[] = {
   {0, "zero-bit loaded"},
   {1, "reserved"},
-  {2, "QPSK (for NPC profile only)"},
+  {2, "QPSK (for NCP profile only)"},
   {3, "reserved"},
   {4, "16-QAM"},
   {5, "reserved"},
@@ -1959,7 +1959,7 @@ static const value_string docsis_dpd_tlv_subc_assign_vector_oddness_str[] = {
 static const value_string docsis_dpd_tlv_subc_assign_vector_modulation_str[] = {
   {0, "zero-bit loaded"},
   {1, "continuous pilot"},
-  {2, "QPSK (for NPC profile only)"},
+  {2, "QPSK (for NCP profile only)"},
   {3, "reserved"},
   {4, "16-QAM"},
   {5, "reserved"},
