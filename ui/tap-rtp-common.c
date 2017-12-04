@@ -237,7 +237,7 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
             stream_info = g_new(rtp_stream_info_t,1);
             *stream_info = new_stream_info;  /* memberwise copy of struct */
-            tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, stream_info);
+            tapinfo->strinfo_list = g_list_prepend(tapinfo->strinfo_list, stream_info);
         }
 
         /* get RTP stats for the packet */
