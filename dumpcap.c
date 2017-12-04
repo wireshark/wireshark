@@ -1284,11 +1284,11 @@ static void *cap_thread_read(void *arg)
     capture_src *pcap_src;
 #ifdef _WIN32
     BOOL res;
-    DWORD b, last_err, bytes_read;
+    DWORD last_err, bytes_read;
 #else /* _WIN32 */
     size_t bytes_read;
-    int b;
 #endif /* _WIN32 */
+    ssize_t b;
 
     pcap_src = (capture_src *)arg;
     while (pcap_src->cap_pipe_err == PIPOK) {
@@ -1481,10 +1481,12 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, int errmsgl)
     int sel_ret;
     int fd = pcap_src->cap_pipe_fd;
 #ifdef _WIN32
-    DWORD b, sz, bytes_read = 0;
+    DWORD sz, bytes_read = 0;
 #else /* _WIN32 */
-    size_t b, sz, bytes_read = 0;
+    size_t sz, bytes_read = 0;
 #endif /* _WIN32 */
+    ssize_t b;
+
     sz = pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read;
     while (bytes_read < sz) {
         if (fd == -1) {
