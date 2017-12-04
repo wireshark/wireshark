@@ -52,7 +52,7 @@ void register_decode_as(decode_as_t* reg)
         dissector_table_allow_decode_as(decode_table);
     }
 
-    decode_as_list = g_list_append(decode_as_list, reg);
+    decode_as_list = g_list_prepend(decode_as_list, reg);
 }
 
 static void next_proto_prompt(packet_info *pinfo _U_, gchar *result)
