@@ -38,6 +38,7 @@
 #include "wireshark_application.h"
 
 #include <QClipboard>
+#include <QDate>
 #include <QDesktopServices>
 #include <QDir>
 #include <QListWidget>
@@ -46,10 +47,6 @@
 #include <QTreeWidgetItem>
 #include <QUrl>
 #include <QWidget>
-
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
-#include <QGraphicsBlurEffect>
-#endif
 
 #ifndef VERSION_FLAVOR
 #define VERSION_FLAVOR ""
@@ -200,12 +197,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
     updateRecentCaptures();
 
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
-    QGraphicsBlurEffect *blur = new QGraphicsBlurEffect(welcome_ui_->childContainer);
-    blur->setBlurRadius(2);
-    welcome_ui_->childContainer->setGraphicsEffect(blur);
-#endif
-
     splash_overlay_ = new SplashOverlay(this);
 }
 
@@ -247,7 +238,13 @@ void MainWelcome::interfaceListChanged()
 void MainWelcome::appInitialized()
 {
     // XXX Add a "check for updates" link?
-    QString full_release = tr("You are running Wireshark ");
+    QString full_release;
+    QDate today = QDate::currentDate();
+    if ((today.month() == 4 && today.day() == 1) || (today.month() == 7 && today.day() == 14)) {
+        full_release = tr("You are sniffing the glue that holds the Internet together using Wireshark ");
+    } else {
+        full_release = tr("You are running Wireshark ");
+    }
     full_release += get_ws_vcs_version_info();
     full_release += tr(".");
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -262,10 +259,6 @@ void MainWelcome::appInitialized()
     // also add a link to the download page.
 #endif
     welcome_ui_->fullReleaseLabel->setText(full_release);
-
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
-    welcome_ui_->childContainer->setGraphicsEffect(NULL);
-#endif
 
 #ifdef HAVE_LIBPCAP
     welcome_ui_->captureFilterComboBox->lineEdit()->setText(global_capture_opts.default_options.cfilter);

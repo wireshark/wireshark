@@ -47,7 +47,6 @@ void splash_update(register_action_e action, const char *message, void *) {
 SplashOverlay::SplashOverlay(QWidget *parent) :
     QWidget(parent),
     so_ui_(new Ui::SplashOverlay),
-    blurred_(false),
     last_action_(RA_NONE),
     register_cur_(0)
 {
@@ -64,16 +63,19 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
     elapsed_timer_.start();
 
     QColor bg = QColor(tango_aluminium_6);
-    bg.setAlphaF(0.4);
+    bg.setAlphaF(0.2);
     QPalette pal;
     pal.setColor(QPalette::Background, bg);
     setPalette(pal);
     setAutoFillBackground(true);
 
     setStyleSheet(QString(
+                      "QFrame#progressBand {"
+                      "  background: %1;"
+                      "}"
                       "QLabel {"
                       "  color: white;"
-                      "  background: rgba(0,0,0,0);"
+                      "  background: transparent;"
                       "}"
                       "QProgressBar {"
                       "  height: 1em;"
@@ -81,13 +83,14 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
                       "  border: 0.1em solid white;"
                       "  border-radius: 0.2em;"
                       "  color: white;"
-                      "  background: rgba(0,0,0,0);"
+                      "  background: transparent;"
                       "}"
                       "QProgressBar::chunk {"
                       "  width: 0.1em;"
                       "  background: rgba(255, 255, 255, 50%);"
                       "}"
-                      ));
+                      )
+                  .arg(QColor(tango_aluminium_4).name()));
 
     connect(wsApp, SIGNAL(splashUpdate(register_action_e,const char*)),
             this, SLOT(splashUpdate(register_action_e,const char*)));
