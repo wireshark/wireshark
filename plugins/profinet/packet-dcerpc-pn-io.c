@@ -2605,16 +2605,6 @@ static const value_string pn_io_peer_to_peer_boundary_value_bit2[] = {
     { 0, NULL }
 };
 
-static const range_string pn_io_mau_type_extension[] = {
-    { 0x0000, 0x0000, "No SubMAUType" },
-    { 0x0001, 0x00FF, "Reserved" },
-    { 0x0100, 0x0100, "POF" },
-    { 0x0101, 0xFFEF, "Reserved for SubMAUType" },
-    { 0xFFF0, 0xFFFF, "Reserved" },
-    { 0, 0, NULL }
-};
-
-
 static const value_string pn_io_port_state[] = {
     { 0x0000, "reserved" },
     { 0x0001, "up" },
