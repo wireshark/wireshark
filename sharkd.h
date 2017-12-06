@@ -22,6 +22,8 @@ int sharkd_retap(void);
 int sharkd_filter(const char *dftext, guint8 **result);
 int sharkd_dissect_columns(int framenum, column_info *cinfo, gboolean dissect_color);
 int sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto_tree *, struct epan_column_info *, const GSList *, void *), int dissect_bytes, int dissect_columns, int dissect_tree, void *data);
+const char *sharkd_get_user_comment(const frame_data *fd);
+int sharkd_set_user_comment(frame_data *fd, const gchar *new_comment);
 const char *sharkd_version(void);
 
 /* sharkd_daemon.c */

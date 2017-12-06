@@ -250,7 +250,7 @@ sharkd_epan_new(capture_file *cf)
   epan->get_frame_ts = sharkd_get_frame_ts;
   epan->get_interface_name = frame_set_get_interface_name;
   epan->get_interface_description = frame_set_get_interface_description;
-  epan->get_user_comment = NULL;
+  epan->get_user_comment = frame_set_get_user_comment;
 
   return epan;
 }
@@ -762,6 +762,19 @@ sharkd_filter(const char *dftext, guint8 **result)
   *result = result_bits;
 
   return framenum;
+}
+
+const char *
+sharkd_get_user_comment(const frame_data *fd)
+{
+  return frame_set_get_user_comment(&cfile.frame_set_info, fd);
+}
+
+int
+sharkd_set_user_comment(frame_data *fd, const gchar *new_comment)
+{
+  frame_set_set_user_comment(&cfile.frame_set_info, fd, new_comment);
+  return 0;
 }
 
 #include "version.h"

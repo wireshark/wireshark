@@ -28,5 +28,7 @@ typedef struct {
 
 WS_DLL_PUBLIC const char *frame_set_get_interface_name(frame_set *fs, guint32 interface_id);
 WS_DLL_PUBLIC const char *frame_set_get_interface_description(frame_set *fs, guint32 interface_id);
+WS_DLL_PUBLIC const char *frame_set_get_user_comment(frame_set *fs, const frame_data *fd);
+WS_DLL_PUBLIC void frame_set_set_user_comment(frame_set *fs, frame_data *fd, const char *new_comment);
 
 #endif /* frame_set.h */

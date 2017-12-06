@@ -111,8 +111,6 @@ static gboolean find_packet(capture_file *cf,
     match_result (*match_function)(capture_file *, frame_data *, void *),
     void *criterion, search_direction dir);
 
-static const char *cf_get_user_packet_comment(frame_set *fs, const frame_data *fd);
-
 static void cf_rename_failure_alert_box(const char *filename, int err);
 static void ref_time_packets(capture_file *cf);
 
@@ -242,12 +240,6 @@ ws_get_frame_ts(frame_set *fs, guint32 frame_num)
   return NULL;
 }
 
-static const char *
-ws_get_user_comment(frame_set *fs, const frame_data *fd)
-{
-  return cf_get_user_packet_comment(fs, fd);
-}
-
 static epan_t *
 ws_epan_new(capture_file *cf)
 {
@@ -257,7 +249,7 @@ ws_epan_new(capture_file *cf)
   epan->get_frame_ts = ws_get_frame_ts;
   epan->get_interface_name = frame_set_get_interface_name;
   epan->get_interface_description = frame_set_get_interface_description;
-  epan->get_user_comment = ws_get_user_comment;
+  epan->get_user_comment = frame_set_get_user_comment;
 
   return epan;
 }
@@ -3803,16 +3795,6 @@ cf_update_section_comment(capture_file *cf, gchar *comment)
   cf->unsaved_changes = TRUE;
 }
 
-static const char *
-cf_get_user_packet_comment(frame_set *fs, const frame_data *fd)
-{
-  if (fs->frames_user_comments)
-     return (const char *)g_tree_lookup(fs->frames_user_comments, fd);
-
-  /* g_warning? */
-  return NULL;
-}
-
 /*
  * Get the comment on a packet (record).
  * If the comment has been edited, it returns the result of the edit,
@@ -3825,7 +3807,7 @@ cf_get_packet_comment(capture_file *cf, const frame_data *fd)
 
   /* fetch user comment */
   if (fd->flags.has_user_comment)
-    return g_strdup(cf_get_user_packet_comment(&cf->frame_set_info, fd));
+    return g_strdup(frame_set_get_user_comment(&cf->frame_set_info, fd));
 
   /* fetch phdr comment */
   if (fd->flags.has_phdr_comment) {
@@ -3844,17 +3826,6 @@ cf_get_packet_comment(capture_file *cf, const frame_data *fd)
     return comment;
   }
   return NULL;
-}
-
-static int
-frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
-{
-  const frame_data *fdata1 = (const frame_data *) a;
-  const frame_data *fdata2 = (const frame_data *) b;
-
-  return (fdata1->num < fdata2->num) ? -1 :
-    (fdata1->num > fdata2->num) ? 1 :
-    0;
 }
 
 /*
@@ -3878,13 +3849,7 @@ cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gchar *new_co
   if (new_comment)
     cf->packet_comment_count++;
 
-  fd->flags.has_user_comment = TRUE;
-
-  if (!cf->frame_set_info.frames_user_comments)
-    cf->frame_set_info.frames_user_comments = g_tree_new_full(frame_cmp, NULL, NULL, g_free);
-
-  /* insert new packet comment */
-  g_tree_replace(cf->frame_set_info.frames_user_comments, fd, g_strdup(new_comment));
+  frame_set_set_user_comment(&cf->frame_set_info, fd, new_comment);
 
   expert_update_comment_count(cf->packet_comment_count);
 
@@ -3951,7 +3916,7 @@ save_record(capture_file *cf, frame_data *fdata,
   const char   *pkt_comment;
 
   if (fdata->flags.has_user_comment)
-    pkt_comment = cf_get_user_packet_comment(&cf->frame_set_info, fdata);
+    pkt_comment = frame_set_get_user_comment(&cf->frame_set_info, fdata);
   else
     pkt_comment = phdr->opt_comment;
 

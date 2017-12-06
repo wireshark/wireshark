@@ -870,8 +870,11 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 		}
 		printf("],\"num\":%u", framenum);
 
-		if (fdata->flags.has_phdr_comment)
-			printf(",\"ct\":true");
+		if (fdata->flags.has_user_comment || fdata->flags.has_phdr_comment)
+		{
+			if (!fdata->flags.has_user_comment || sharkd_get_user_comment(fdata) != NULL)
+				printf(",\"ct\":true");
+		}
 
 		if (fdata->flags.ignored)
 			printf(",\"i\":true");
@@ -2768,7 +2771,9 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 	printf("\"err\":0");
 
-	if (fdata->flags.has_phdr_comment)
+	if (fdata->flags.has_user_comment)
+		pkt_comment = sharkd_get_user_comment(fdata);
+	else if (fdata->flags.has_phdr_comment)
 		pkt_comment = pi->phdr->opt_comment;
 
 	if (pkt_comment)
@@ -3277,6 +3282,39 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 
 	printf("}\n");
 	return 0;
+}
+
+/**
+ * sharkd_session_process_setcomment()
+ *
+ * Process setcomment request
+ *
+ * Input:
+ *   (m) frame - frame number
+ *   (o) comment - user comment
+ *
+ * Output object with attributes:
+ *   (m) err   - error code: 0 succeed
+ */
+static void
+sharkd_session_process_setcomment(char *buf, const jsmntok_t *tokens, int count)
+{
+	const char *tok_frame   = json_find_attr(buf, tokens, count, "frame");
+	const char *tok_comment = json_find_attr(buf, tokens, count, "comment");
+
+	guint32 framenum;
+	frame_data *fdata;
+	int ret;
+
+	if (!tok_frame || !ws_strtou32(tok_frame, NULL, &framenum) || framenum == 0)
+		return;
+
+	fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+	if (!fdata)
+		return;
+
+	ret = sharkd_set_user_comment(fdata, tok_comment);
+	printf("{\"err\":%d}\n", ret);
 }
 
 /**
@@ -3911,6 +3949,8 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 			sharkd_session_process_intervals(buf, tokens, count);
 		else if (!strcmp(tok_req, "frame"))
 			sharkd_session_process_frame(buf, tokens, count);
+		else if (!strcmp(tok_req, "setcomment"))
+			sharkd_session_process_setcomment(buf, tokens, count);
 		else if (!strcmp(tok_req, "setconf"))
 			sharkd_session_process_setconf(buf, tokens, count);
 		else if (!strcmp(tok_req, "dumpconf"))
