@@ -118,7 +118,7 @@
 
 #define PACKET_LENGTH 65535
 
-#define SOCKET_RW_TIMEOUT_MS          500
+#define SOCKET_RW_TIMEOUT_MS         2000
 #define SOCKET_CONNECT_TIMEOUT_TRIES   10
 #define SOCKET_CONNECT_DELAY_US      1000 /* (1000us = 1ms) * SOCKET_CONNECT_TIMEOUT_TRIES (10) = 10ms worst-case  */
 
