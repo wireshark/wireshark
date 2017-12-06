@@ -23,6 +23,7 @@ option(BUILD_ciscodump     "Build ciscodump" ON)
 option(BUILD_randpktdump   "Build randpktdump" ON)
 option(BUILD_udpdump       "Build udpdump" ON)
 option(BUILD_sharkd        "Build sharkd" ON)
+option(BUILD_fuzzshark     "Build fuzzshark" ON)
 
 option(DISABLE_WERROR    "Do not treat warnings as errors" OFF)
 option(DISABLE_FRAME_LARGER_THAN_WARNING "Disable warning if the size of a function frame is large" OFF)

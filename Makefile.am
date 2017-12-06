@@ -45,11 +45,12 @@ bin_PROGRAMS = \
 	@dumpcap_bin@		\
 	@reordercap_bin@	\
 	@rawshark_bin@		\
-	@sharkd_bin@
+	@sharkd_bin@		\
+	@fuzzshark_bin@
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype \
 	editcap mergecap dftest randpkt text2pcap dumpcap reordercap \
-	rawshark sharkd
+	rawshark sharkd fuzzshark
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -452,6 +453,22 @@ wireshark_gtk_LDADD = \
 	$(GTK_LIBS)			\
 	@PORTAUDIO_LIBS@
 endif
+
+fuzzshark_SOURCES = \
+	tools/oss-fuzzshark/fuzzshark.c \
+	tools/oss-fuzzshark/StandaloneFuzzTargetMain.c \
+	version_info.c
+
+fuzzshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
+
+fuzzshark_LDFLAGS = $(AM_LDFLAGS)
+
+fuzzshark_LDADD = \
+	wiretap/libwiretap.la		\
+	epan/libwireshark.la		\
+	wsutil/libwsutil.la		\
+	@GLIB_LIBS@			\
+	${EPAN_EXTRA_LIBS}
 
 tshark_SOURCES = \
 	$(SHARK_COMMON_SRC)	\

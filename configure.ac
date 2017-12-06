@@ -1781,6 +1781,19 @@ fi
 AC_SUBST(tfshark_bin)
 AC_SUBST(tfshark_man)
 
+# Enable/disable fuzzshark
+AC_ARG_ENABLE(fuzzshark,
+  AC_HELP_STRING( [--enable-fuzzshark],
+		  [build fuzzshark @<:@default=yes@:>@]),
+    fuzzshark=$enableval,enable_fuzzshark=yes)
+
+if test "x$enable_fuzzshark" = "xyes" ; then
+	fuzzshark_bin="fuzzshark\$(EXEEXT)"
+else
+	fuzzshark_bin=""
+fi
+AC_SUBST(fuzzshark_bin)
+
 
 dnl Use pcap-ng by default
 AC_ARG_ENABLE(pcap-ng-default,
@@ -2991,6 +3004,7 @@ echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
 echo "                       Build sharkd : $enable_sharkd"
+echo "                    Build fuzzshark : $enable_fuzzshark"
 echo "                  Build androiddump : $enable_androiddump"
 echo "                      Build sshdump : $enable_sshdump"
 echo "                    Build ciscodump : $enable_ciscodump"

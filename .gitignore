@@ -79,6 +79,7 @@ dftest
 dumpcap
 editcap
 exntest
+fuzzshark
 install-sh
 libtool
 libtool.m4

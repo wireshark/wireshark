@@ -2563,6 +2563,22 @@ if(BUILD_randpkt)
 	install(TARGETS randpkt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+if(BUILD_fuzzshark)
+	set(fuzzshark_LIBS
+		${LIBEPAN_LIBS}
+	)
+	set(fuzzshark_FILES
+		tools/oss-fuzzshark/fuzzshark.c
+		tools/oss-fuzzshark/StandaloneFuzzTargetMain.c
+		version_info.c
+	)
+	add_executable(fuzzshark ${fuzzshark_FILES})
+	add_dependencies(fuzzshark version)
+	set_extra_executable_properties(fuzzshark "Executables")
+	target_link_libraries(fuzzshark ${fuzzshark_LIBS})
+	install(TARGETS fuzzshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
 if(BUILD_text2pcap)
 	set(text2pcap_LIBS
 		writecap
