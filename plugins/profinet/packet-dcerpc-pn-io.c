@@ -772,6 +772,9 @@ static int hf_pn_io_peer_to_peer_boundary_value_bit0 = -1;
 static int hf_pn_io_peer_to_peer_boundary_value_bit1 = -1;
 static int hf_pn_io_peer_to_peer_boundary_value_bit2 = -1;
 static int hf_pn_io_peer_to_peer_boundary_value_otherbits = -1;
+
+static int hf_pn_io_mau_type_extension = -1;
+
 /* static int hf_pn_io_packedframe_SFCRC = -1; */
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
@@ -844,6 +847,8 @@ static gint ett_pn_io_am_location = -1;
 
 static gint ett_pn_io_dcp_boundary = -1;
 static gint ett_pn_io_peer_to_peer_boundary = -1;
+
+static gint ett_pn_io_mau_type_extension = -1;
 
 #define PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH 4
 #define PD_SUB_FRAME_BLOCK_FRAME_ID_LENGTH 2
@@ -1014,8 +1019,9 @@ static const value_string pn_io_block_type[] = {
     { 0x0224, "Adjust PeerToPeerBoundary"},
     { 0x0225, "Adjust DCPBoundary"},
     { 0x0226, "Adjust PreambleLength"},
-    { 0x0227, "Adjust FastForwardingBoundary"},
+    { 0x0227, "CheckMAUType-Extension"},
     { 0x0228, "Reading real fiber optic diagnosis data"},
+    { 0x0229, "AdjustMAUType-Extension"},
     { 0x022A, "PDIRSubframeData"},
     { 0x022B, "SubframeBlock"},
     { 0x0230, "PDNCDataCheck"},
@@ -2604,6 +2610,16 @@ static const value_string pn_io_peer_to_peer_boundary_value_bit2[] = {
     { 0x01, "The Time ASE shall not send PATH_DELAY request frames (egress filter)." },
     { 0, NULL }
 };
+
+static const range_string pn_io_mau_type_extension[] = {
+    { 0x0000, 0x0000, "No SubMAUType" },
+    { 0x0001, 0x00FF, "Reserved" },
+    { 0x0100, 0x0100, "POF" },
+    { 0x0101, 0xFFEF, "Reserved for SubMAUType" },
+    { 0xFFF0, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
 
 static const value_string pn_io_port_state[] = {
     { 0x0000, "reserved" },
@@ -5549,6 +5565,25 @@ dissect_AdjustPreambleLength_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect the dissect_CheckMAUTypeExtension_block block */
+static int
+dissect_CheckMAUTypeExtension_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16 u16MauTypeExtension;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* MauTypeExtension */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_mau_type_extension, &u16MauTypeExtension);
+
+    return offset;
+}
+
 /* dissect the PDPortDataAdjust block */
 static int
 dissect_PDPortData_Adjust_block(tvbuff_t *tvb, int offset,
@@ -6642,6 +6677,32 @@ dissect_FiberOpticDiagnosisInfo_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect the AdjustMAUTypeExtension block */
+static int
+dissect_AdjustMAUTypeExtension_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16 u16MauTypeExtension;
+    guint16 u16AdjustProperties;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* MauTypeExtension */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_mau_type_extension, &u16MauTypeExtension);
+
+    /* Properties */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_adjust_properties, &u16AdjustProperties);
+
+    return offset;
+}
 
 /* dissect the PDPortFODataAdjust block */
 static int
@@ -10666,8 +10727,14 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0226):
         dissect_AdjustPreambleLength_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
+    case(0x0227):
+        dissect_CheckMAUTypeExtension_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0228):
         dissect_FiberOpticDiagnosisInfo_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0229):
+        dissect_AdjustMAUTypeExtension_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x022A):
         dissect_PDIRSubframeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -14928,6 +14995,11 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_mau_type_extension,
+    { "MAU Type Extension", "pn_io.mau_type_extension",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_mau_type_extension), 0x0,
+        NULL, HFILL }
+    },
     };
 
     static gint *ett[] = {
@@ -14998,7 +15070,8 @@ proto_register_pn_io (void)
         &ett_pn_io_line_delay,
         &ett_pn_io_counter_status,
         &ett_pn_io_dcp_boundary,
-        &ett_pn_io_peer_to_peer_boundary
+        &ett_pn_io_peer_to_peer_boundary,
+        &ett_pn_io_mau_type_extension
     };
 
     static ei_register_info ei[] = {
