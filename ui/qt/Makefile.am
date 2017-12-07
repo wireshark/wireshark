@@ -180,13 +180,14 @@ MOC_WIDGET_HDRS = \
 # Files that are utility classes with multi-purpose, but no widgets
 MOC_UTILS_HDRS = \
 	utils/color_utils.h				\
+	utils/data_printer.h				\
 	utils/field_information.h			\
 	utils/frame_information.h			\
-	utils/data_printer.h				\
-	utils/stock_icon.h				\
+	utils/proto_node.h				\
 	utils/qt_ui_utils.h				\
-	utils/wireshark_mime_data.h		\
-	utils/variant_pointer.h
+	utils/stock_icon.h				\
+	utils/variant_pointer.h				\
+	utils/wireshark_mime_data.h
 
 # Files for delegates and models
 MOC_MODELS_HDRS = \
@@ -206,6 +207,7 @@ MOC_MODELS_HDRS = \
 	models/packet_list_record.h			\
 	models/path_chooser_delegate.h			\
 	models/percent_bar_delegate.h			\
+	models/proto_tree_model.h			\
 	models/related_packet_delegate.h		\
 	models/timeline_delegate.h			\
 	models/sparkline_delegate.h			\
@@ -505,12 +507,13 @@ WIRESHARK_QT_WIDGET_SRC = \
 
 WIRESHARK_QT_UTILS_SRC = \
 	utils/color_utils.cpp				\
+	utils/data_printer.cpp				\
 	utils/field_information.cpp			\
 	utils/frame_information.cpp			\
-	utils/data_printer.cpp				\
+	utils/proto_node.cpp				\
+	utils/qt_ui_utils.cpp				\
 	utils/stock_icon.cpp				\
-	utils/wireshark_mime_data.cpp		\
-	utils/qt_ui_utils.cpp
+	utils/wireshark_mime_data.cpp
 
 WIRESHARK_QT_MODELS_SRCS = \
 	models/astringlist_list_model.cpp		\
@@ -529,6 +532,7 @@ WIRESHARK_QT_MODELS_SRCS = \
 	models/packet_list_record.cpp			\
 	models/path_chooser_delegate.cpp		\
 	models/percent_bar_delegate.cpp			\
+	models/proto_tree_model.cpp			\
 	models/related_packet_delegate.cpp		\
 	models/sparkline_delegate.cpp			\
 	models/timeline_delegate.cpp			\

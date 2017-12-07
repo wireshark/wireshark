@@ -4,19 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include "config.h"
@@ -148,13 +136,13 @@ ProtocolPreferencesMenu::ProtocolPreferencesMenu()
     setModule(NULL);
 }
 
-void ProtocolPreferencesMenu::setModule(const char *module_name)
+void ProtocolPreferencesMenu::setModule(const QString module_name)
 {
     QAction *action;
     int proto_id = -1;
 
-    if (module_name) {
-        proto_id = proto_get_id_by_filter_name(module_name);
+    if (!module_name.isEmpty()) {
+        proto_id = proto_get_id_by_filter_name(module_name.toUtf8().constData());
     }
 
     clear();
@@ -164,7 +152,7 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
     protocol_ = find_protocol_by_id(proto_id);
     const QString long_name = proto_get_protocol_long_name(protocol_);
     const QString short_name = proto_get_protocol_short_name(protocol_);
-    if (!module_name || proto_id < 0 || !protocol_) {
+    if (module_name.isEmpty() || proto_id < 0 || !protocol_) {
         action = addAction(tr("No protocol preferences available"));
         action->setDisabled(true);
         return;
@@ -174,8 +162,8 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
     connect(disable_action, SIGNAL(triggered(bool)), this, SLOT(disableProtocolTriggered()));
     disable_action->setDisabled(!proto_can_toggle_protocol(proto_id));
 
-    module_ = prefs_find_module(module_name);
-    if (!module_ || !prefs_is_registered_protocol(module_name)) {
+    module_ = prefs_find_module(module_name.toUtf8().constData());
+    if (!module_ || !prefs_is_registered_protocol(module_name.toUtf8().constData())) {
         action = addAction(tr("%1 has no preferences").arg(long_name));
         action->setDisabled(true);
         addSeparator();

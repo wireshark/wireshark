@@ -11,23 +11,33 @@
 
 #include <ui/qt/utils/field_information.h>
 
-FieldInformation::FieldInformation(field_info * fi, QObject * parent)
+FieldInformation::FieldInformation(field_info *fi, QObject * parent)
 :QObject(parent)
 {
     fi_ = fi;
     parent_fi_ = 0;
 }
 
+FieldInformation::FieldInformation(proto_node *node, QObject * parent)
+:QObject(parent)
+{
+    fi_ = NULL;
+    if (node) {
+        fi_ = node->finfo;
+    }
+    parent_fi_ = NULL;
+}
+
 bool FieldInformation::isValid()
 {
     bool ret = false;
 
-    if ( fi_ )
+    if ( fi_ && fi_->hfinfo )
     {
         if (fi_->hfinfo->blurb != 0 && fi_->hfinfo->blurb[0] != '\0') {
             ret = true;
         } else {
-            ret = ((QString().fromUtf8(fi_->hfinfo->name)).length() > 0 );
+            ret = QString((fi_->hfinfo->name)).length() > 0;
         }
     }
 
@@ -37,6 +47,15 @@ bool FieldInformation::isValid()
 void FieldInformation::setParentField(field_info * par_fi)
 {
     parent_fi_ = par_fi;
+}
+
+int FieldInformation::treeType()
+{
+    if (fi_) {
+        Q_ASSERT(fi_->tree_type >= 0 && fi_->tree_type < num_tree_types);
+        return fi_->tree_type;
+    }
+    return -1;
 }
 
 field_info * FieldInformation::fieldInfo() const
@@ -52,9 +71,12 @@ FieldInformation::HeaderInfo FieldInformation::headerInfo() const
     if ( fi_ && fi_->hfinfo )
     {
         header.isValid = true;
-        header.name = QString().fromUtf8(fi_->hfinfo->name);
-        header.description = QString().fromUtf8(fi_->hfinfo->blurb);
-        header.abbreviation = QString().fromUtf8(fi_->hfinfo->abbrev);
+        header.name = fi_->hfinfo->name;
+        header.description = fi_->hfinfo->blurb;
+        header.abbreviation = fi_->hfinfo->abbrev;
+        header.type = fi_->hfinfo->type;
+        header.parent = fi_->hfinfo->parent;
+        header.id = fi_->hfinfo->id;
     }
 
     return header;
@@ -71,6 +93,41 @@ bool FieldInformation::tvbContains(FieldInformation *child)
         return true;
 
     return false;
+}
+
+unsigned FieldInformation::flag(unsigned mask)
+{
+    if (fi_) {
+        return FI_GET_FLAG(fi_, mask);
+    }
+    return 0;
+}
+
+const QString FieldInformation::moduleName()
+{
+    QString module_name;
+    if (isValid()) {
+        if (headerInfo().parent == -1) {
+            module_name = fi_->hfinfo->abbrev;
+        } else {
+            module_name = proto_registrar_get_abbrev(headerInfo().parent);
+        }
+    }
+    return module_name;
+}
+
+QString FieldInformation::url()
+{
+    QString url;
+    if (flag(FI_URL) && headerInfo().isValid && IS_FT_STRING(fi_->hfinfo->type)) {
+        gchar *url_str;
+        url_str = fvalue_to_string_repr(NULL, &fi_->value, FTREPR_DISPLAY, fi_->hfinfo->display);
+        if (url_str) {
+            url = url_str;
+        }
+        wmem_free(NULL, url_str);
+    }
+    return url;
 }
 
 FieldInformation::Position FieldInformation::position() const

@@ -255,9 +255,7 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
     ByteViewText * byte_view_text = 0;
 
     if (selected) {
-        field_info *fi;
-
-        fi = selected->fieldInfo();
+        const field_info *fi = selected->fieldInfo();
 
         int idx = 0;
         if ( fi )

@@ -4,19 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <config.h>
@@ -2024,18 +2012,6 @@ void MainWindow::on_actionFilePrint_triggered()
 
 // Edit Menu
 
-void MainWindow::recursiveCopyProtoTreeItems(QTreeWidgetItem *item, QString &clip, int ident_level) {
-    if (!item->isExpanded()) return;
-
-    for (int i_item = 0; i_item < item->childCount(); i_item += 1) {
-        clip.append(QString("    ").repeated(ident_level));
-        clip.append(item->child(i_item)->text(0));
-        clip.append("\n");
-
-        recursiveCopyProtoTreeItems(item->child(i_item), clip, ident_level + 1);
-    }
-}
-
 // XXX This should probably be somewhere else.
 void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type)
 {
@@ -2066,20 +2042,11 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
         }
         break;
     case CopyAllVisibleItems:
-        for (int i_item = 0; i_item < proto_tree_->topLevelItemCount(); i_item += 1) {
-            clip.append(proto_tree_->topLevelItem(i_item)->text(0));
-            clip.append("\n");
-
-            recursiveCopyProtoTreeItems(proto_tree_->topLevelItem(i_item), clip, 1);
-        }
-
+        clip = proto_tree_->toString();
         break;
     case CopyAllVisibleSelectedTreeItems:
-        if (proto_tree_->selectedItems().count() > 0) {
-            clip.append(proto_tree_->currentItem()->text(0));
-            clip.append("\n");
-
-            recursiveCopyProtoTreeItems(proto_tree_->currentItem(), clip, 1);
+        if (proto_tree_->selectionModel()->hasSelection()) {
+            clip = proto_tree_->toString(proto_tree_->selectionModel()->selectedIndexes().first());
         }
         break;
     }

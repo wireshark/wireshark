@@ -31,6 +31,9 @@ public:
         QString description;
         QString abbreviation;
         bool isValid;
+        enum ftenum type;
+        int parent;
+        int id;
     };
 
     struct Position
@@ -40,6 +43,7 @@ public:
     };
 
     explicit FieldInformation(field_info * fi, QObject * parent = Q_NULLPTR);
+    explicit FieldInformation(proto_node * node, QObject * parent = Q_NULLPTR);
 
     bool isValid();
 
@@ -50,8 +54,12 @@ public:
     Position appendix() const;
 
     void setParentField(field_info * fi);
+    int treeType();
     FieldInformation * parentField() const;
     bool tvbContains(FieldInformation *);
+    unsigned flag(unsigned mask);
+    const QString moduleName();
+    QString url();
 
     QByteArray printableData();
 

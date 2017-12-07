@@ -4,29 +4,17 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <stdio.h>
 
 #include "proto_tree.h"
+#include <ui/qt/models/proto_tree_model.h>
 
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
-#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
@@ -35,10 +23,10 @@
 #include <QContextMenuEvent>
 #include <QDesktopServices>
 #include <QHeaderView>
-#include <QScrollBar>
-#include <QTreeWidgetItemIterator>
-#include <QUrl>
 #include <QItemSelectionModel>
+#include <QScrollBar>
+#include <QStack>
+#include <QUrl>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QWindow>
@@ -48,118 +36,9 @@
 // To do:
 // - Fix "apply as filter" behavior.
 
-/* Fill a single protocol tree item with its string value and set its color. */
-static void
-proto_tree_draw_node(proto_node *node, gpointer data)
-{
-    field_info   *fi = PNODE_FINFO(node);
-    QString       label;
-    gboolean      is_branch;
-
-    /* dissection with an invisible proto tree? */
-    g_assert(fi);
-
-    if (PROTO_ITEM_IS_HIDDEN(node) && !prefs.display_hidden_proto_items)
-        return;
-
-    // Fill in our label
-    /* was a free format label produced? */
-    if (fi->rep) {
-        label = fi->rep->representation;
-    }
-    else { /* no, make a generic label */
-        gchar label_str[ITEM_LABEL_LENGTH];
-        proto_item_fill_label(fi, label_str);
-        label = label_str;
-    }
-
-    if (node->first_child != NULL) {
-        is_branch = TRUE;
-        g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
-    }
-    else {
-        is_branch = FALSE;
-    }
-
-    if (PROTO_ITEM_IS_GENERATED(node)) {
-        if (PROTO_ITEM_IS_HIDDEN(node)) {
-            label = QString("<[%1]>").arg(label);
-        } else {
-            label = QString("[%1]").arg(label);
-        }
-    } else if (PROTO_ITEM_IS_HIDDEN(node)) {
-        label = QString("<%1>").arg(label);
-    }
-
-    QTreeWidgetItem *parentItem = (QTreeWidgetItem *)data;
-    QTreeWidgetItem *item;
-    ProtoTree *proto_tree = qobject_cast<ProtoTree *>(parentItem->treeWidget());
-
-    item = new QTreeWidgetItem(parentItem, 0);
-
-    // Set our colors.
-    QPalette pal = QApplication::palette();
-    if (fi->hfinfo) {
-        if(fi->hfinfo->type == FT_PROTOCOL) {
-            item->setData(0, Qt::BackgroundRole, pal.window());
-            item->setData(0, Qt::ForegroundRole, pal.windowText());
-        }
-
-        if((fi->hfinfo->type == FT_FRAMENUM) ||
-                (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
-            QFont font = item->font(0);
-
-            item->setData(0, Qt::ForegroundRole, pal.link());
-            font.setUnderline(true);
-            item->setData(0, Qt::FontRole, font);
-
-            if (fi->hfinfo->type == FT_FRAMENUM) {
-                ft_framenum_type_t framenum_type = (ft_framenum_type_t)GPOINTER_TO_INT(fi->hfinfo->strings);
-                proto_tree->emitRelatedFrame(fi->value.value.uinteger, framenum_type);
-            }
-        }
-    }
-
-    // XXX - Add routines to get our severity colors.
-    if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
-        switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
-        case(PI_COMMENT):
-            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_comment);
-            break;
-        case(PI_CHAT):
-            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_chat);
-            break;
-        case(PI_NOTE):
-            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_note);
-            break;
-        case(PI_WARN):
-            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_warn);
-            break;
-        case(PI_ERROR):
-            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_error);
-            break;
-        default:
-            g_assert_not_reached();
-        }
-        item->setData(0, Qt::ForegroundRole, ColorUtils::expert_color_foreground);
-    }
-
-    item->setText(0, label);
-    item->setData(0, Qt::UserRole, VariantPointer<field_info>::asQVariant(fi));
-
-    if (is_branch) {
-        if (tree_expanded(fi->tree_type)) {
-            item->setExpanded(true);
-        } else {
-            item->setExpanded(false);
-        }
-
-        proto_tree_children_foreach(node, proto_tree_draw_node, item);
-    }
-}
-
 ProtoTree::ProtoTree(QWidget *parent) :
-    QTreeWidget(parent),
+    QTreeView(parent),
+    proto_tree_model_(new ProtoTreeModel(this)),
     decode_as_(NULL),
     column_resize_timer_(0),
     cap_file_(NULL)
@@ -170,6 +49,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
     // too much we should add a custom delegate which handles SizeHintRole
     // similar to PacketListModel::data.
     setHeaderHidden(true);
+
+    setModel(proto_tree_model_);
 
     if (window()->findChild<QAction *>("actionViewExpandSubtrees")) {
         // Assume we're a child of the main window.
@@ -266,7 +147,6 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addAction(action);
         action = window()->findChild<QAction *>("actionContextFilterFieldReference");
         ctx_menu_.addAction(action);
-//    "     <menuitem name='ProtocolHelp' action='/ProtocolHelp'/>\n"
         ctx_menu_.addMenu(&proto_prefs_menu_);
         ctx_menu_.addSeparator();
         decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
@@ -278,12 +158,10 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.clear();
     }
 
-    connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-            this, SLOT(updateSelectionStatus(QTreeWidgetItem*)));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(expand(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(collapse(QModelIndex)));
-    connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
-            this, SLOT(itemDoubleClick(QTreeWidgetItem*, int)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(itemDoubleClicked(QModelIndex)));
 
     connect(&proto_prefs_menu_, SIGNAL(showProtocolPreferences(QString)),
             this, SIGNAL(showProtocolPreferences(QString)));
@@ -298,15 +176,14 @@ ProtoTree::ProtoTree(QWidget *parent) :
     viewport()->installEventFilter(this);
 }
 
+void ProtoTree::clear() {
+    proto_tree_model_->setRootNode(NULL);
+    updateContentWidth();
+}
+
 void ProtoTree::closeContextMenu()
 {
     ctx_menu_.close();
-}
-
-void ProtoTree::clear() {
-    updateSelectionStatus(NULL);
-    QTreeWidget::clear();
-    updateContentWidth();
 }
 
 void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
@@ -319,31 +196,22 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         conv_menu_.addAction(action);
     }
 
-    FieldInformation * finfo = 0;
-    field_info *fi = NULL;
-    const char *module_name = NULL;
-    if (selectedItems().count() > 0) {
-        fi = VariantPointer<field_info>::asPtr(selectedItems()[0]->data(0, Qt::UserRole));
-        if (fi && fi->hfinfo) {
-            if (fi->hfinfo->parent == -1) {
-                module_name = fi->hfinfo->abbrev;
-            } else {
-                module_name = proto_registrar_get_abbrev(fi->hfinfo->parent);
-            }
-        }
-        finfo = new FieldInformation(fi, this);
+    QModelIndex index;
+    if (selectionModel()->hasSelection()) {
+        index = selectedIndexes().first();
     }
-    proto_prefs_menu_.setModule(module_name);
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    proto_prefs_menu_.setModule(finfo.moduleName());
 
     foreach (QAction *action, copy_actions_) {
         action->setProperty("idataprintable_",
-                VariantPointer<IDataPrintable>::asQVariant((IDataPrintable *)finfo));
+                VariantPointer<IDataPrintable>::asQVariant((IDataPrintable *)&finfo));
     }
 
     decode_as_->setData(qVariantFromValue(true));
 
     // Set menu sensitivity and action data.
-    emit fieldSelected(finfo);
+    emit fieldSelected(&finfo);
     ctx_menu_.exec(event->globalPos());
     decode_as_->setData(QVariant());
 }
@@ -355,7 +223,7 @@ void ProtoTree::timerEvent(QTimerEvent *event)
         column_resize_timer_ = 0;
         resizeColumnToContents(0);
     } else {
-        QTreeWidget::timerEvent(event);
+        QTreeView::timerEvent(event);
     }
 }
 
@@ -393,11 +261,9 @@ void ProtoTree::setMonospaceFont(const QFont &mono_font)
     update();
 }
 
-void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {
-    clear();
+void ProtoTree::setRootNode(proto_node *root_node) {
     setFont(mono_font_);
-
-    proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, invisibleRootItem());
+    proto_tree_model_->setRootNode(root_node);
     updateContentWidth();
 }
 
@@ -407,76 +273,64 @@ void ProtoTree::emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_
 }
 
 // XXX We select the first match, which might not be the desired item.
-void ProtoTree::goToField(int hf_id)
+void ProtoTree::goToHfid(int hfid)
 {
-    if (hf_id < 0) return;
-
-    QTreeWidgetItemIterator iter(this);
-    while (*iter) {
-        field_info *fi = VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole));
-
-        if (fi && fi->hfinfo) {
-            if (fi->hfinfo->id == hf_id) {
-                setCurrentItem(*iter);
-                break;
-            }
-        }
-        ++iter;
+    QModelIndex index = proto_tree_model_->findFirstHfid(hfid);
+    if (index.isValid()) {
+        scrollTo(index);
+        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
     }
 }
 
-void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item)
+void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    if (item) {
-        field_info *fi;
-        QString item_info;
+    QTreeView::selectionChanged(selected, deselected);
+    if (selected.isEmpty()) return;
 
-        fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
-        if (!fi || !fi->hfinfo) return;
+    QModelIndex index = selected.indexes().first();
 
-        FieldInformation * finfo = new FieldInformation(fi, this);
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    if (!finfo.isValid()) return;
 
-        // Find and highlight the protocol bytes
-        QTreeWidgetItem * parent = item->parent();
-        while (parent && parent->parent()) {
-            parent = parent->parent();
-        }
-        if (parent) {
-            finfo->setParentField(VariantPointer<field_info>::asPtr(parent->data(0, Qt::UserRole)));
-        }
-
-        if ( finfo->isValid() )
-        {
-            saveSelectedField(item);
-            emit fieldSelected(finfo);
-        } // else the GTK+ version pushes an empty string as described below.
-        /*
-         * Don't show anything if the field name is zero-length;
-         * the pseudo-field for text-only items is such
-         * a field, and we don't want "Text (text)" showing up
-         * on the status line if you've selected such a field.
-         *
-         * XXX - there are zero-length fields for which we *do*
-         * want to show the field name.
-         *
-         * XXX - perhaps the name and abbrev field should be null
-         * pointers rather than null strings for that pseudo-field,
-         * but we'd have to add checks for null pointers in some
-         * places if we did that.
-         *
-         * Or perhaps text-only items should have -1 as the field
-         * index, with no pseudo-field being used, but that might
-         * also require special checks for -1 to be added.
-         */
-
+    // Find and highlight the protocol bytes
+    QModelIndex parent = index;
+    while (parent.isValid() && parent.parent().isValid()) {
+        parent = parent.parent();
     }
+    if (parent.isValid()) {
+        FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent).protoNode());
+        finfo.setParentField(parent_finfo.fieldInfo());
+    }
+
+    if ( finfo.isValid() )
+    {
+        saveSelectedField(index);
+        emit fieldSelected(&finfo);
+    }
+    // else the GTK+ version pushes an empty string as described below.
+    /*
+     * Don't show anything if the field name is zero-length;
+     * the pseudo-field for text-only items is such
+     * a field, and we don't want "Text (text)" showing up
+     * on the status line if you've selected such a field.
+     *
+     * XXX - there are zero-length fields for which we *do*
+     * want to show the field name.
+     *
+     * XXX - perhaps the name and abbrev field should be null
+     * pointers rather than null strings for that pseudo-field,
+     * but we'd have to add checks for null pointers in some
+     * places if we did that.
+     *
+     * Or perhaps text-only items should have -1 as the field
+     * index, with no pseudo-field being used, but that might
+     * also require special checks for -1 to be added.
+     */
 }
 
-void ProtoTree::expand(const QModelIndex & index) {
-    field_info *fi;
-
-    fi = VariantPointer<field_info>::asPtr(index.data(Qt::UserRole));
-    if (!fi) return;
+void ProtoTree::expand(const QModelIndex &index) {
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    if (!finfo.isValid()) return;
 
     if(prefs.gui_auto_scroll_on_expand) {
         ScrollHint scroll_hint = PositionAtTop;
@@ -492,209 +346,161 @@ void ProtoTree::expand(const QModelIndex & index) {
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
      * are thus presumably leaf nodes and cannot be expanded.
      */
-    if (fi->tree_type != -1) {
-        g_assert(fi->tree_type >= 0 &&
-                 fi->tree_type < num_tree_types);
-        tree_expanded_set(fi->tree_type, TRUE);
+    if (finfo.treeType() != -1) {
+        tree_expanded_set(finfo.treeType(), TRUE);
     }
 
-    updateContentWidth();
+    QTreeView::expand(index);
 }
 
-void ProtoTree::collapse(const QModelIndex & index) {
-    field_info *fi;
-
-    fi = VariantPointer<field_info>::asPtr(index.data(Qt::UserRole));
-    if (!fi) return;
+void ProtoTree::collapse(const QModelIndex &index) {
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    if (!finfo.isValid()) return;
 
     /*
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
      * are thus presumably leaf nodes and cannot be collapsed.
      */
-    if (fi->tree_type != -1) {
-        g_assert(fi->tree_type >= 0 &&
-                 fi->tree_type < num_tree_types);
-        tree_expanded_set(fi->tree_type, FALSE);
+    if (finfo.treeType() != -1) {
+        tree_expanded_set(finfo.treeType(), FALSE);
     }
-    updateContentWidth();
+    QTreeView::collapse(index);
 }
 
 void ProtoTree::expandSubtrees()
 {
-    QTreeWidgetItem *top_sel;
+    if (!selectionModel()->hasSelection()) return;
 
-    if (selectedItems().length() < 1) {
-        return;
-    }
+    QStack<QModelIndex> index_stack;
+    index_stack.push(selectionModel()->selectedIndexes().first());
 
-    top_sel = selectedItems()[0];
-
-    if (!top_sel) {
-        return;
-    }
-
-    while (top_sel->parent()) {
-        top_sel = top_sel->parent();
-    }
-
-    QTreeWidgetItemIterator iter(top_sel);
-    while (*iter) {
-        if ((*iter) != top_sel && (*iter)->parent() == NULL) {
-            // We found the next top-level item
-            break;
+    while (!index_stack.isEmpty()) {
+        QModelIndex index = index_stack.pop();
+        expand(index);
+        int row_count = proto_tree_model_->rowCount(index);
+        for (int row = row_count - 1; row >= 0; row--) {
+            QModelIndex child = proto_tree_model_->index(row, 0, index);
+            if (proto_tree_model_->hasChildren(child)) {
+                index_stack.push(child);
+            }
         }
-        (*iter)->setExpanded(true);
-        ++iter;
     }
+
     updateContentWidth();
 }
 
 void ProtoTree::expandAll()
 {
-    int i;
-    for(i=0; i < num_tree_types; i++) {
+    for(int i = 0; i < num_tree_types; i++) {
         tree_expanded_set(i, TRUE);
     }
-    QTreeWidget::expandAll();
+    QTreeView::expandAll();
     updateContentWidth();
 }
 
 void ProtoTree::collapseAll()
 {
-    int i;
-    for(i=0; i < num_tree_types; i++) {
+    for(int i = 0; i < num_tree_types; i++) {
         tree_expanded_set(i, FALSE);
     }
-    QTreeWidget::collapseAll();
+    QTreeView::collapseAll();
     updateContentWidth();
 }
 
-void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
-    field_info *fi;
+void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    if (!finfo.isValid()) return;
 
-    fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
-    if (!fi || !fi->hfinfo) return;
-
-    if (fi->hfinfo->type == FT_FRAMENUM) {
+    if (finfo.headerInfo().type == FT_FRAMENUM) {
         if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
             emit openPacketInNewWindow(true);
         } else {
-            emit goToPacket(fi->value.value.uinteger);
-        }
-    } else if (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
-        gchar *url;
-        url = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-        if(url){
-//            browser_open_url(url);
-            QDesktopServices::openUrl(QUrl(url));
-            wmem_free(NULL, url);
-        }
-    }
-}
-
-void ProtoTree::selectedFieldChanged(FieldInformation * finfo)
-{
-    if ( finfo )
-    {
-        field_info * fi = finfo->fieldInfo();
-
-        QTreeWidgetItemIterator iter(this);
-        while (*iter) {
-            if (fi == VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole))) {
-                setCurrentItem(*iter);
-                scrollToItem(*iter);
-                break;
-            }
-            ++iter;
-        }
-    }
-}
-
-// Finds position item at a level, counting only similar fields.
-static unsigned indexOfField(QTreeWidgetItem *item, header_field_info *hfi)
-{
-    QTreeWidgetItem *parent = item->parent();
-    unsigned pos = 0;
-    if (!parent) {
-        // In case multiple top-level layers are present for the same protocol,
-        // try to find its position (this will likely be the first match, zero).
-        QTreeWidget *tree = item->treeWidget();
-        for (int i = 0; i < tree->topLevelItemCount(); i++) {
-            QTreeWidgetItem *current = tree->topLevelItem(i);
-            if (current == item) {
-                return pos;
-            }
-            if (hfi == VariantPointer<field_info>::asPtr(current->data(0, Qt::UserRole))->hfinfo) {
-                pos++;
-            }
+            emit goToPacket(finfo.fieldInfo()->value.value.uinteger);
         }
     } else {
-        QTreeWidgetItemIterator iter(parent);
-        while (*iter) {
-            QTreeWidgetItem *current = *iter;
-            if (current == item) {
-                return pos;
-            }
-            if (hfi == VariantPointer<field_info>::asPtr(current->data(0, Qt::UserRole))->hfinfo) {
-                pos++;
-            }
-            ++iter;
+        QString url = finfo.url();
+        if (!url.isEmpty()) {
+            QDesktopServices::openUrl(QUrl(url));
         }
     }
-    // should not happen (child is not found at parent?!)
-    return 0;
 }
 
-// Assume about 2^8 items in tree and 2^24 different registered fields.
-// If there are more of each, then a collision may occur, but since the full
-// path is matched this is unlikely to be a problem.
-#define POS_SHIFT   24
-#define POS_MASK    (((unsigned)-1) << POS_SHIFT)
+void ProtoTree::selectedFieldChanged(FieldInformation *finfo)
+{
+    QModelIndex index = proto_tree_model_->findFieldInformation(finfo);
+    if (index.isValid()) {
+        scrollTo(index);
+        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    }
+}
 
 // Remember the currently focussed field based on:
 // - current hf_id (obviously)
 // - parent items (to avoid selecting a text item in a different tree)
-// - position within a tree if there are multiple items
-static QList<int> serializeAsPath(QTreeWidgetItem *item)
+// - the row of each item
+void ProtoTree::saveSelectedField(QModelIndex &index)
 {
-    QList<int> path;
-    do {
-        field_info *fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
-        unsigned pos = indexOfField(item, fi->hfinfo);
-        path.prepend((pos << POS_SHIFT) | (fi->hfinfo->id & ~POS_MASK));
-    } while ((item = item->parent()));
-    return path;
-}
-void ProtoTree::saveSelectedField(QTreeWidgetItem *item)
-{
-    selected_field_path_ = serializeAsPath(item);
+    selected_hfid_path_.clear();
+    while (index.isValid()) {
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+        if (!finfo.isValid()) break;
+        selected_hfid_path_.prepend(QPair<int,int>(index.row(), finfo.headerInfo().id));
+        index = index.parent();
+    }
 }
 
 // Try to focus a tree item which was previously also visible
 void ProtoTree::restoreSelectedField()
 {
-    if (selected_field_path_.isEmpty()) {
-        return;
-    }
-    int last_hf_id = selected_field_path_.last() & ~POS_MASK;
-    QTreeWidgetItemIterator iter(this);
-    while (*iter) {
-        field_info *fi = VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole));
-        if (last_hf_id == fi->hfinfo->id &&
-            serializeAsPath(*iter) == selected_field_path_) {
-            // focus the first item, but do not expand collapsed trees.
-            QTreeWidgetItem *item = *iter, *target = item;
-            do {
-                if (!item->isExpanded()) {
-                    target = item;
-                }
-            } while ((item = item->parent()));
-            setCurrentItem(target);
-            scrollToItem(target);
+    if (selected_hfid_path_.isEmpty()) return;
+
+    QModelIndex cur_index = QModelIndex();
+    QPair<int,int> path_entry;
+    foreach (path_entry, selected_hfid_path_) {
+        int row = path_entry.first;
+        int hf_id = path_entry.second;
+        cur_index = proto_tree_model_->index(row, 0, cur_index);
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(cur_index).protoNode());
+        if (!finfo.isValid() || finfo.headerInfo().id != hf_id) {
+            cur_index = QModelIndex();
             break;
         }
-        ++iter;
     }
+
+    if (cur_index.isValid()) {
+        scrollTo(cur_index);
+        selectionModel()->select(cur_index, QItemSelectionModel::ClearAndSelect);
+    }
+}
+
+const QString ProtoTree::toString(const QModelIndex &index) const
+{
+    QModelIndex cur_idx = index.isValid() ? index : proto_tree_model_->index(0, 0);
+    QString tree_string;
+    int indent_level = 0;
+
+    do {
+        tree_string.append(QString("    ").repeated(indent_level));
+        tree_string.append(cur_idx.data().toString());
+        tree_string.append("\n");
+        // Next child
+        if (isExpanded(cur_idx)) {
+            cur_idx = proto_tree_model_->index(0, 0, cur_idx);
+            indent_level++;
+            continue;
+        }
+        // Next sibling
+        QModelIndex sibling = proto_tree_model_->index(cur_idx.row() + 1, 0, cur_idx.parent());
+        if (sibling.isValid()) {
+            cur_idx = sibling;
+            continue;
+        }
+        // Next parent
+        cur_idx = proto_tree_model_->index(cur_idx.parent().row() + 1, 0, cur_idx.parent().parent());
+        indent_level--;
+    } while (cur_idx.isValid() && cur_idx != index && indent_level >= 0);
+
+    return tree_string;
 }
 
 void ProtoTree::setCaptureFile(capture_file *cf)
@@ -705,72 +511,77 @@ void ProtoTree::setCaptureFile(capture_file *cf)
 bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
 {
     if ( cap_file_ && event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove )
-        return QTreeWidget::eventFilter(obj, event);
+        return QTreeView::eventFilter(obj, event);
 
     /* Mouse was over scrollbar, ignoring */
     if ( qobject_cast<QScrollBar *>(obj) )
-        return QTreeWidget::eventFilter(obj, event);
+        return QTreeView::eventFilter(obj, event);
 
     if ( event->type() == QEvent::MouseButtonPress )
     {
         QMouseEvent * ev = (QMouseEvent *)event;
 
         if ( ev->buttons() & Qt::LeftButton )
-            dragStartPosition = ev->pos();
+            drag_start_position_ = ev->pos();
     }
     else if ( event->type() == QEvent::MouseMove )
     {
         QMouseEvent * ev = (QMouseEvent *)event;
 
-        if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
+        if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - drag_start_position_).manhattanLength()
                  > QApplication::startDragDistance())
         {
-            QTreeWidgetItem * item = itemAt(dragStartPosition);
-            if ( item )
+            QModelIndex idx = indexAt(drag_start_position_);
+            FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+            if ( finfo.isValid() )
             {
-                field_info * fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
-                if ( fi )
+                /* Hack to prevent QItemSelection taking the item which has been dragged over at start
+                 * of drag-drop operation. selectionModel()->blockSignals could have done the trick, but
+                 * it does not take in a QTreeWidget (maybe View) */
+                emit fieldSelected(&finfo);
+                selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect);
+
+                QString filter = QString(proto_construct_match_selected_string(finfo.fieldInfo(), cap_file_->edt));
+
+                if ( filter.length() > 0 )
                 {
-                    /* Hack to prevent QItemSelection taking the item which has been dragged over at start
-                     * of drag-drop operation. selectionModel()->blockSignals could have done the trick, but
-                     * it does not take in a QTreeWidget (maybe View) */
-                    QModelIndex idx = indexFromItem(item, 0);
-                    emit fieldSelected(new FieldInformation(fi, this));
-                    selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect);
+                    DisplayFilterMimeData * dfmd =
+                            new DisplayFilterMimeData(QString(finfo.headerInfo().name), QString(finfo.headerInfo().abbreviation), filter);
+                    QDrag * drag = new QDrag(this);
+                    drag->setMimeData(dfmd);
 
-                    QString filter = QString(proto_construct_match_selected_string(fi, cap_file_->edt));
+                    DragLabel * content = new DragLabel(dfmd->labelText(), this);
 
-                    if ( filter.length() > 0 )
-                    {
-                        DisplayFilterMimeData * dfmd =
-                                new DisplayFilterMimeData(QString(fi->hfinfo->name), QString(fi->hfinfo->abbrev), filter);
-                        QDrag * drag = new QDrag(this);
-                        drag->setMimeData(dfmd);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+                    qreal dpr = window()->windowHandle()->devicePixelRatio();
+                    QPixmap pixmap(content->size() * dpr);
+                    pixmap.setDevicePixelRatio(dpr);
+#else
+                    QPixmap pixmap(content->size());
+#endif
+                    content->render(&pixmap);
+                    drag->setPixmap(pixmap);
 
-                        DragLabel * content = new DragLabel(dfmd->labelText(), this);
+                    drag->exec(Qt::CopyAction);
 
-    #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-                        qreal dpr = window()->windowHandle()->devicePixelRatio();
-                        QPixmap pixmap(content->size() * dpr);
-                        pixmap.setDevicePixelRatio(dpr);
-    #else
-                        QPixmap pixmap(content->size());
-    #endif
-                        content->render(&pixmap);
-                        drag->setPixmap(pixmap);
-
-                        drag->exec(Qt::CopyAction);
-
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
     }
 
-    return QTreeWidget::eventFilter(obj, event);
+    return QTreeView::eventFilter(obj, event);
 }
 
+void ProtoTree::rowsInserted(const QModelIndex &parent, int start, int end)
+{
+    for (int row = start; row <= end; row++) {
+        QModelIndex index = proto_tree_model_->index(row, 0, parent);
+        if (proto_tree_model_->protoNodeFromIndex(index).isExpanded()) {
+            QTreeView::setExpanded(index, true);
+        }
+    }
+}
 
 /*
  * Editor modelines

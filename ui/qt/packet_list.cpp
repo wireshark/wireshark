@@ -4,19 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <ui/qt/packet_list.h>
@@ -513,7 +501,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     if (proto_tree_ && cap_file_->edt->tree) {
         packet_info *pi = &cap_file_->edt->pi;
         related_packet_delegate_.setCurrentFrame(pi->num);
-        proto_tree_->fillProtocolTree(cap_file_->edt->tree);
+        proto_tree_->setRootNode(cap_file_->edt->tree);
         conversation_t *conv = find_conversation_pinfo(pi, 0);
         if (conv) {
             related_packet_delegate_.setConversation(conv);
@@ -1256,7 +1244,7 @@ void PacketList::goToPacket(int packet) {
 void PacketList::goToPacket(int packet, int hf_id)
 {
     goToPacket(packet);
-    proto_tree_->goToField(hf_id);
+    proto_tree_->goToHfid(hf_id);
 }
 
 void PacketList::goNextHistoryPacket()

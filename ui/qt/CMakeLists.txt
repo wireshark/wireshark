@@ -50,14 +50,15 @@ set(WIRESHARK_WIDGET_HEADERS
 
 set(WIRESHARK_UTILS_HEADERS
 	utils/color_utils.h
+	utils/data_printer.h
 	utils/field_information.h
 	utils/frame_information.h
-	utils/data_printer.h
-	utils/stock_icon.h
+	utils/proto_node.h
 	utils/qt_ui_utils.h
+	utils/stock_icon.h
 	utils/tango_colors.h
-	utils/wireshark_mime_data.h
 	utils/variant_pointer.h
+	utils/wireshark_mime_data.h
 )
 
 set(WIRESHARK_MODEL_HEADERS
@@ -77,6 +78,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/packet_list_record.h
 	models/path_chooser_delegate.h
 	models/percent_bar_delegate.h
+	models/proto_tree_model.h
 	models/related_packet_delegate.h
 	models/timeline_delegate.h
 	models/sparkline_delegate.h
@@ -262,12 +264,13 @@ set(WIRESHARK_WIDGET_SRCS
 
 set(WIRESHARK_UTILS_SRCS
 	utils/color_utils.cpp
+	utils/data_printer.cpp
 	utils/field_information.cpp
 	utils/frame_information.cpp
-	utils/data_printer.cpp
+	utils/proto_node.cpp
+	utils/qt_ui_utils.cpp
 	utils/stock_icon.cpp
 	utils/wireshark_mime_data.cpp
-	utils/qt_ui_utils.cpp
 )
 
 set(WIRESHARK_MODEL_SRCS
@@ -287,6 +290,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/packet_list_record.cpp
 	models/path_chooser_delegate.cpp
 	models/percent_bar_delegate.cpp
+	models/proto_tree_model.cpp
 	models/related_packet_delegate.cpp
 	models/sparkline_delegate.cpp
 	models/sparkline_delegate.cpp
