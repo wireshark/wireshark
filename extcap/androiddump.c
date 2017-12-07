@@ -887,7 +887,7 @@ static void new_fake_interface_for_list_dlts(extcap_parameters * extcap_conf,
 static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *adb_server_ip, unsigned short *adb_server_tcp_port, const char *serial_number)
 {
     static const char *const adb_tcpdump_list = "shell:tcpdump -D";
-    static const char *const regex_ifaces = "\\d+\\.(?<iface>\\S+)\\s+?(?:(?:\\(.*\\))*)\\s*?\\[(?<flags>.*?)\\]";
+    static const char *const regex_ifaces = "\\d+\\.(?<iface>\\S+)(\\s+?(?:(?:\\(.*\\))*)(\\s*?\\[(?<flags>.*?)\\])?)?";
     static char recv_buffer[PACKET_LENGTH];
     char *response;
     gssize data_length;
@@ -897,6 +897,7 @@ static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *a
     GMatchInfo *match = NULL;
     char* tok;
     char iface_name[80];
+    gboolean flags_supported;
 
     sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
     if (sock == INVALID_SOCKET) {
@@ -919,6 +920,8 @@ static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *a
         return EXIT_CODE_GENERIC;
     }
 
+    flags_supported = (strstr(response, "[") != 0) && (strstr(response, "]") != 0);
+
     tok = strtok(response, "\n");
     while (tok != NULL) {
         g_regex_match(regex, tok, (GRegexMatchFlags)0, &match);
@@ -926,7 +929,7 @@ static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *a
             gchar *iface = g_match_info_fetch_named(match, "iface");
             gchar *flags = g_match_info_fetch_named(match, "flags");
 
-            if (strstr(flags, "Up")) {
+            if (!flags_supported || strstr(flags, "Up")) {
                 g_snprintf(iface_name, sizeof(iface_name), INTERFACE_ANDROID_TCPDUMP_FORMAT, iface);
                 new_interface(extcap_conf, iface_name, iface, serial_number, "Android tcpdump");
             }
