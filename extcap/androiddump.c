@@ -172,6 +172,7 @@ enum exit_code {
     EXIT_CODE_INVALID_SOCKET_9,
     EXIT_CODE_INVALID_SOCKET_10,
     EXIT_CODE_INVALID_SOCKET_11,
+    EXIT_CODE_INVALID_SOCKET_12,
     EXIT_CODE_GENERIC = -1
 };
 
@@ -800,7 +801,7 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
     }
 
     if (memcmp(buffer, "OKAY", 4)) {
-        g_warning("Error while receiving by ADB for <%s>", adb_service);
+        g_debug("Error while receiving by ADB for <%s>", adb_service);
 
         return EXIT_CODE_ERROR_WHILE_RECEIVING_ADB_PACKET_DATA;
     }
@@ -2303,7 +2304,8 @@ static int linktype_to_extcap_encap(const char* linktype)
 /*----------------------------------------------------------------------------*/
 static int capture_android_tcpdump(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
-    static const char                       *const adb_shell_tcpdump_format = "shell:tcpdump -n -s 0 -u -i %s -w -";
+    static const char                       *const adb_shell_tcpdump_format = "shell,raw:tcpdump -n -s 0 -u -i %s -w -";
+    static const char                       *const adb_shell_legacy_tcpdump_format = "shell:tcpdump -n -s 0 -u -i %s -w -";
     static const char                       *const regex_interface = INTERFACE_ANDROID_TCPDUMP "-(?<iface>.*?)-(?<serial>.*)";
     static const char                       *const regex_linktype = "tcpdump: listening on .*?, link-type (?<linktype>.*?) ";
     struct extcap_dumper                     extcap_dumper;
@@ -2325,6 +2327,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     GError                                  *err = NULL;
     GMatchInfo                              *match = NULL;
     char                                     tcpdump_cmd[80];
+    gboolean                                 pty_mode = FALSE;
 
     regex = g_regex_new(regex_interface, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
     if (!regex) {
@@ -2352,17 +2355,33 @@ static int capture_android_tcpdump(char *interface, char *fifo,
         return EXIT_CODE_INVALID_SOCKET_11;
     }
 
+    /* Try the new raw (non-PTY) shell protocol first */
     g_snprintf(tcpdump_cmd, sizeof(tcpdump_cmd), adb_shell_tcpdump_format, iface);
-    g_free(iface);
-    g_free(serial_number);
-
     result = adb_send(sock, tcpdump_cmd);
+    if (result) {
+        g_debug("Target does not support raw shell protocol");
+        closesocket(sock);
 
+        /* Fall back to the old PTY shell */
+        sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+        if (sock == INVALID_SOCKET) {
+            g_free(iface);
+            g_free(serial_number);
+            return EXIT_CODE_INVALID_SOCKET_12;
+        }
+
+        pty_mode = TRUE;
+        g_snprintf(tcpdump_cmd, sizeof(tcpdump_cmd), adb_shell_legacy_tcpdump_format, iface);
+        result = adb_send(sock, tcpdump_cmd);
+    }
     if (result) {
         g_warning("Error while setting adb transport");
         closesocket(sock);
         return EXIT_CODE_GENERIC;
     }
+
+    g_free(iface);
+    g_free(serial_number);
 
     regex = g_regex_new(regex_linktype, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
     if (!regex) {
@@ -2431,20 +2450,18 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     extcap_dumper = extcap_dumper_open(fifo, linktype_to_extcap_encap(linktype));
     g_free(linktype);
 
-    /*
-     * The data we are getting from the tcpdump stdoutput stream as the stdout is the text stream it is
-     * convertinng the 0A=0D0A; So we need to remove these extra character.
-     */
     filter_buffer_length=0;
     while (endless_loop) {
         gssize i = 0,read_offset,j=0;
-       /*Filter the received data to get rid of unwanted 0DOA*/
+
+        /*
+         * Before Android 7 adb runs tcpdump in a shell/pseudoterminal and the PTY layer on the target converts
+         * all \n to \r\n. In that case we need to undo this by changing all \r\n (0x0d0a) back to \n (0x0a).
+         */
         for (i = 0; i < (used_buffer_length - 1); i++) {
-#ifdef _WIN32
-            if (data[i] == 0x0d && data[i + 1] == 0x0a) {
+            if (pty_mode && data[i] == 0x0d && data[i + 1] == 0x0a) {
                 i++;
             }
-#endif
             filter_buffer[filter_buffer_length++] = data[i];
         }
 
