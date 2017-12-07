@@ -310,7 +310,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
         int slop = font_width_ / 2;
 
         if (build_x_pos) {
-            x_pos_to_column_.append(QVector<int>().fill(-1, slop));
+            x_pos_to_column_ += QVector<int>().fill(-1, slop);
         }
 
         for (int tvb_pos = offset; tvb_pos <= max_tvb_pos; tvb_pos++) {
@@ -318,7 +318,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             /* insert a space every separator_interval_ bytes */
             if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
                 line += ' ';
-                x_pos_to_column_.append(QVector<int>().fill(tvb_pos - offset - 1, font_width_));
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset - 1, font_width_);
             }
 
             switch (recent.gui_bytes_view) {
@@ -334,12 +334,12 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
                 break;
             }
             if (build_x_pos) {
-                x_pos_to_column_.append(QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size() + slop));
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size() + slop);
             }
         }
         line += QString(ascii_start - line.length(), ' ');
         if (build_x_pos) {
-            x_pos_to_column_.append(QVector<int>().fill(-1, fontMetrics().width(line) - x_pos_to_column_.size()));
+            x_pos_to_column_ += QVector<int>().fill(-1, fontMetrics().width(line) - x_pos_to_column_.size());
         }
 
         addHexFormatRange(fmt_list, proto_start_, proto_len_, offset, max_tvb_pos, ModeProtocol);
