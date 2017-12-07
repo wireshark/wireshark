@@ -681,7 +681,7 @@ dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tr
       to_read -= 4;
 
       dsi_length = tvb_strsize(tvb, offset);
-      ti = proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_doc_sequence_id, tvb, offset, dsi_length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_doc_sequence_id, tvb, offset, dsi_length, ENC_ASCII|ENC_NA);
       offset += dsi_length;
       to_read -= dsi_length;
 
