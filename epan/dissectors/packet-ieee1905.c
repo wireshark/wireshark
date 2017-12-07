@@ -73,6 +73,7 @@ static int hf_ieee1905_phy_rate = -1;
 static int hf_ieee1905_packets_received = -1;
 static int hf_ieee1905_rssi = -1;
 static int hf_ieee1905_data = -1;
+static int hf_ieee1905_extra_tlv_data = -1;
 static int hf_ieee1905_local_interface_count = -1;
 static int hf_ieee1905_media_type = -1;
 static int hf_ieee1905_media_spec_info_len = -1;
@@ -413,6 +414,7 @@ static gint ett_ieee1905_beacon_reported_flags = -1;
 
 static expert_field ei_ieee1905_malformed_tlv = EI_INIT;
 static expert_field ei_ieee1905_extraneous_data_after_eom = EI_INIT;
+static expert_field ei_ieee1905_extraneous_tlv_data = EI_INIT;
 
 #define TOPOLOGY_DISCOVERY_MESSAGE                     0x0000
 #define TOPOLOGY_NOTIFICATION_MESSAGE                  0x0001
@@ -3098,7 +3100,7 @@ dissect_unassociated_sta_link_metric_response(tvbuff_t *tvb, packet_info *pinfo 
  */
 static int
 dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, guint offset)
+        proto_tree *tree, guint offset, guint16 len)
 {
     guint8 mode = 0;
     guint8 steering_count = 0;
@@ -3111,6 +3113,7 @@ dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *pi = NULL;
     proto_tree *sta_list = NULL, *bssid_list = NULL;
     guint8 target_bssid_count = 0;
+    guint start_offset = offset;
 
     proto_tree_add_item(tree, hf_ieee1905_source_bss_bssid, tvb, offset,
                         6, ENC_NA);
@@ -3123,9 +3126,12 @@ dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
                            steering_flags, ENC_NA);
     offset++;
 
-    proto_tree_add_item(tree, hf_ieee1905_steering_req_op_window,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
+    /* If Request Mode is 1, this field is not present. */
+    if (!(mode & 0x80)) {
+        proto_tree_add_item(tree, hf_ieee1905_steering_req_op_window,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
 
     proto_tree_add_item(tree, hf_ieee1905_steering_btm_disass_timer,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3189,6 +3195,14 @@ dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
         }
     }
 
+    if ((offset - start_offset) < len) {
+        proto_item *ei = NULL;
+
+        ei = proto_tree_add_item(tree, hf_ieee1905_extra_tlv_data, tvb, offset,
+                             len - (offset - start_offset), ENC_NA);
+        expert_add_info(pinfo, ei, &ei_ieee1905_extraneous_tlv_data);
+        offset = start_offset + len; /* Skip the extras. */
+    }
     return offset;
 }
 
@@ -4308,7 +4322,7 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo _U_,
         break;
 
     case STEERING_REQUEST_TLV:
-        offset = dissect_steering_request(tvb, pinfo, tree, offset);
+        offset = dissect_steering_request(tvb, pinfo, tree, offset, tlv_len);
         break;
 
     case STEERING_BTM_REPORT_TLV:
@@ -5538,6 +5552,10 @@ proto_register_ieee1905(void)
           { "Response status", "ieee1905.beacon_metrics.status",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_extra_tlv_data,
+          { "Extraneous TLV data", "ieee1905.extra_tlv_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
         { &hf_ieee1905_data,
           { "Extraneous message data", "ieee1905.data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -5639,6 +5657,10 @@ proto_register_ieee1905(void)
       { &ei_ieee1905_extraneous_data_after_eom,
         { "ieee1905.tlv.extraneous_data", PI_PROTOCOL, PI_WARN,
           "Extraneous data after EOM TLV", EXPFILL }},
+
+      { &ei_ieee1905_extraneous_tlv_data,
+        { "ieee1905.tlv.extra_data", PI_PROTOCOL, PI_WARN,
+           "TLV has extra data", EXPFILL }},
     };
 
     expert_module_t *expert_ieee1905 = NULL;
