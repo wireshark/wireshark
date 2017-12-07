@@ -845,7 +845,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 	printf("[");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
-		frame_data *fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+		frame_data *fdata;
 
 		if (filter_data && !(filter_data[framenum / 8] & (1 << (framenum % 8))))
 			continue;
@@ -856,7 +856,9 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			continue;
 		}
 
-		sharkd_dissect_columns(framenum, cinfo, (fdata->color_filter == NULL));
+		fdata = sharkd_get_frame(framenum);
+
+		sharkd_dissect_columns(fdata, cinfo, (fdata->color_filter == NULL));
 
 		printf("%s{\"c\":[", frame_sepa);
 		for (col = 0; col < cinfo->num_cols; ++col)
@@ -2938,7 +2940,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 		guint64 bytes;
 	} st, st_total;
 
-	nstime_t *start_ts = NULL;
+	nstime_t *start_ts;
 
 	guint32 interval_ms = 1000; /* default: one per second */
 
@@ -2973,17 +2975,18 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 	printf("{\"intervals\":[");
 
+	start_ts = (cfile.count >= 1) ? &(sharkd_get_frame(1)->abs_ts) : NULL;
+
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
-		frame_data *fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+		frame_data *fdata;
 		gint64 msec_rel;
 		gint64 new_idx;
 
-		if (start_ts == NULL)
-			start_ts = &fdata->abs_ts;
-
 		if (filter_data && !(filter_data[framenum / 8] & (1 << (framenum % 8))))
 			continue;
+
+		fdata = sharkd_get_frame(framenum);
 
 		msec_rel = (fdata->abs_ts.secs - start_ts->secs) * (gint64) 1000 + (fdata->abs_ts.nsecs - start_ts->nsecs) / 1000000;
 		new_idx  = msec_rel / interval_ms;
@@ -3312,7 +3315,7 @@ sharkd_session_process_setcomment(char *buf, const jsmntok_t *tokens, int count)
 	if (!tok_frame || !ws_strtou32(tok_frame, NULL, &framenum) || framenum == 0)
 		return;
 
-	fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+	fdata = sharkd_get_frame(framenum);
 	if (!fdata)
 		return;
 

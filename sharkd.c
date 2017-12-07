@@ -530,6 +530,12 @@ sharkd_load_cap_file(void)
   return load_cap_file(&cfile, 0, 0);
 }
 
+frame_data *
+sharkd_get_frame(guint32 framenum)
+{
+  return frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+}
+
 int
 sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto_tree *, struct epan_column_info *, const GSList *, void *), int dissect_bytes, int dissect_columns, int dissect_tree, void *data)
 {
@@ -543,7 +549,7 @@ sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto
   int err;
   char *err_info = NULL;
 
-  fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+  fdata = sharkd_get_frame(framenum);
   if (fdata == NULL)
     return -1;
 
@@ -582,9 +588,8 @@ sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto
 
 /* based on packet_list_dissect_and_cache_record */
 int
-sharkd_dissect_columns(int framenum, column_info *cinfo, gboolean dissect_color)
+sharkd_dissect_columns(frame_data *fdata, column_info *cinfo, gboolean dissect_color)
 {
-  frame_data *fdata;
   epan_dissect_t edt;
   gboolean create_proto_tree;
   struct wtap_pkthdr phdr; /* Packet header */
@@ -592,12 +597,6 @@ sharkd_dissect_columns(int framenum, column_info *cinfo, gboolean dissect_color)
 
   int err;
   char *err_info = NULL;
-
-  fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
-  if (fdata == NULL) {
-    col_fill_in_error(cinfo, fdata, FALSE, TRUE/* fill_fd_columns */);
-    return -1; /* error reading the record */
-  }
 
   wtap_phdr_init(&phdr);
   ws_buffer_init(&buf, 1500);
@@ -676,7 +675,7 @@ sharkd_retap(void)
   reset_tap_listeners();
 
   for (framenum = 1; framenum <= cfile.count; framenum++) {
-    fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+    fdata = sharkd_get_frame(framenum);
 
     if (!wtap_seek_read(cfile.frame_set_info.wth, fdata->file_off, &phdr, &buf, &err, &err_info))
       break;
@@ -726,7 +725,7 @@ sharkd_filter(const char *dftext, guint8 **result)
   result_bits = (guint8 *) g_malloc(2 + (frames_count / 8));
 
   for (framenum = 1; framenum <= frames_count; framenum++) {
-    frame_data *fdata = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+    frame_data *fdata = sharkd_get_frame(framenum);
 
     if ((framenum & 7) == 0) {
       result_bits[(framenum / 8) - 1] = passed_bits;

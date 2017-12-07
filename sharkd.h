@@ -20,7 +20,8 @@ cf_status_t sharkd_cf_open(const char *fname, unsigned int type, gboolean is_tem
 int sharkd_load_cap_file(void);
 int sharkd_retap(void);
 int sharkd_filter(const char *dftext, guint8 **result);
-int sharkd_dissect_columns(int framenum, column_info *cinfo, gboolean dissect_color);
+frame_data *sharkd_get_frame(guint32 framenum);
+int sharkd_dissect_columns(frame_data *fdata, column_info *cinfo, gboolean dissect_color);
 int sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto_tree *, struct epan_column_info *, const GSList *, void *), int dissect_bytes, int dissect_columns, int dissect_tree, void *data);
 const char *sharkd_get_user_comment(const frame_data *fd);
 int sharkd_set_user_comment(frame_data *fd, const gchar *new_comment);
