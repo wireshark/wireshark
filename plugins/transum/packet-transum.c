@@ -753,7 +753,7 @@ gboolean is_dcerpc_req_pkt_type(guint32 pkt_type)
     return (wmem_map_lookup(dcerpc_req_pkt_type, GUINT_TO_POINTER(pkt_type)) != NULL);
 }
 
-gboolean is_dcerpc_stream(guint32 stream_no)
+static gboolean is_dcerpc_stream(guint32 stream_no)
 {
     return (wmem_map_lookup(dcerpc_streams, GUINT_TO_POINTER(stream_no)) != NULL);
 }
