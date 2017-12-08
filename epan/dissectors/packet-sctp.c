@@ -3266,7 +3266,7 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
       proto_name = proto_get_protocol_filter_name(proto_id);
       if(strcmp(proto_name, "data") != 0){
         if (have_tap_listener(exported_pdu_tap)){
-          export_sctp_data_chunk(pinfo,payload_tvb, proto_name);
+          export_sctp_data_chunk(pinfo, new_tvb, proto_name);
         }
       }
     }
