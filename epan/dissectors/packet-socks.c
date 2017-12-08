@@ -1088,23 +1088,12 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
         ti = proto_tree_add_item( tree, proto_socks, tvb, offset, -1, ENC_NA );
         socks_tree = proto_item_add_subtree(ti, ett_socks);
 
-        if (hash_info->server_port == pinfo->destport) {
-            if ( hash_info->version == 4) {
-                display_socks_v4(tvb, offset, pinfo, socks_tree, hash_info, state_info);
-            } else if ( hash_info->version == 5) {
-                client_display_socks_v5(tvb, offset, pinfo, socks_tree, hash_info, state_info);
-            }
-        } else {
-            if ( hash_info->version == 4) {
-                display_socks_v4(tvb, offset, pinfo, socks_tree, hash_info, state_info);
-            } else if ( hash_info->version == 5) {
-                server_display_socks_v5(tvb, offset, pinfo, socks_tree, hash_info, state_info);
-            }
-        }
-
         /* if past startup, add the faked stuff */
         if ( pinfo->num > hash_info->start_done_frame){
                         /*  add info to tree */
+            ti = proto_tree_add_uint( socks_tree, hf_socks_ver, tvb, offset, 0, hash_info->version);
+            PROTO_ITEM_SET_GENERATED(ti);
+
             ti = proto_tree_add_uint( socks_tree, hf_socks_cmd, tvb, offset, 0, hash_info->command);
             PROTO_ITEM_SET_GENERATED(ti);
 
@@ -1124,6 +1113,20 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
                 ( hash_info->command != TRACERT_COMMAND)){
                 ti = proto_tree_add_uint( socks_tree, hf_socks_dstport, tvb, offset, 0, hash_info->port);
                 PROTO_ITEM_SET_GENERATED(ti);
+            }
+        } else {
+            if (hash_info->server_port == pinfo->destport) {
+                if ( hash_info->version == 4) {
+                    display_socks_v4(tvb, offset, pinfo, socks_tree, hash_info, state_info);
+                } else if ( hash_info->version == 5) {
+                    client_display_socks_v5(tvb, offset, pinfo, socks_tree, hash_info, state_info);
+                }
+            } else {
+                if ( hash_info->version == 4) {
+                    display_socks_v4(tvb, offset, pinfo, socks_tree, hash_info, state_info);
+                } else if ( hash_info->version == 5) {
+                    server_display_socks_v5(tvb, offset, pinfo, socks_tree, hash_info, state_info);
+                }
             }
         }
 
