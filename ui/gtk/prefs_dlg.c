@@ -66,6 +66,8 @@
 #endif
 #endif
 
+#include "globals.h"
+
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_apply_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);

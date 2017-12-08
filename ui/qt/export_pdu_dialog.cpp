@@ -25,7 +25,6 @@
 #include "export_pdu_dialog.h"
 #include <ui_export_pdu_dialog.h>
 
-#include "globals.h"
 #include <wiretap/pcap-encap.h>
 
 #include <epan/tap.h>

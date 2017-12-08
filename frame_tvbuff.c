@@ -17,7 +17,6 @@
 #include <epan/tvbuff.h>
 
 #include "frame_tvbuff.h"
-#include "globals.h"
 
 #include "wiretap/wtap-int.h" /* for ->random_fh */
 
@@ -26,7 +25,7 @@ struct tvb_frame {
 
 	Buffer *buf;         /* Packet data */
 
-	wtap *wth;           /**< Wiretap session */
+	const struct packet_provider_data *prov;	/* provider of packet information */
 	gint64 file_off;     /**< File offset */
 
 	guint offset;
@@ -38,14 +37,10 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	int    err;
 	gchar *err_info;
 
-	/* sanity check, capture file was closed? */
-	if (cfile.provider.wth != frame_tvb->wth)
-		return FALSE;
-
 	/* XXX, what if phdr->caplen isn't equal to
 	 * frame_tvb->tvb.length + frame_tvb->offset?
 	 */
-	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
+	if (!wtap_seek_read(frame_tvb->prov->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
 		/* XXX - report error! */
 		switch (err) {
 			case WTAP_ERR_BAD_FILE:
@@ -165,7 +160,8 @@ static const struct tvb_ops tvb_frame_ops = {
 
 /* based on tvb_new_real_data() */
 tvbuff_t *
-frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
+frame_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
+    const guint8 *buf)
 {
 	struct tvb_frame *frame_tvb;
 	tvbuff_t *tvb;
@@ -208,12 +204,12 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.provider.wth && cfile.provider.wth->random_fh) {
-		frame_tvb->wth = cfile.provider.wth;
+	if (prov->wth && prov->wth->random_fh) {
+		frame_tvb->prov = prov;
 		frame_tvb->file_off = fd->file_off;
 		frame_tvb->offset = 0;
 	} else
-		frame_tvb->wth = NULL;
+		frame_tvb->prov = NULL;
 
 	frame_tvb->buf = NULL;
 
@@ -221,9 +217,10 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 }
 
 tvbuff_t *
-frame_tvbuff_new_buffer(const frame_data *fd, Buffer *buf)
+frame_tvbuff_new_buffer(const struct packet_provider_data *prov,
+    const frame_data *fd, Buffer *buf)
 {
-	return frame_tvbuff_new(fd, ws_buffer_start_ptr(buf));
+	return frame_tvbuff_new(prov, fd, ws_buffer_start_ptr(buf));
 }
 
 static tvbuff_t *
@@ -235,7 +232,7 @@ frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	struct tvb_frame *cloned_frame_tvb;
 
 	/* file not seekable */
-	if (!frame_tvb->wth)
+	if (!frame_tvb->prov)
 		return NULL;
 
 	abs_offset += frame_tvb->offset;
@@ -255,7 +252,7 @@ frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	cloned_tvb->ds_tvb = cloned_tvb;
 
 	cloned_frame_tvb = (struct tvb_frame *) cloned_tvb;
-	cloned_frame_tvb->wth = frame_tvb->wth;
+	cloned_frame_tvb->prov = frame_tvb->prov;
 	cloned_frame_tvb->file_off = frame_tvb->file_off;
 	cloned_frame_tvb->offset = abs_offset;
 	cloned_frame_tvb->buf = NULL;
@@ -266,7 +263,8 @@ frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 
 /* based on tvb_new_real_data() */
 tvbuff_t *
-file_tvbuff_new(const frame_data *fd, const guint8 *buf)
+file_tvbuff_new(const struct packet_provider_data *prov, const frame_data *fd,
+    const guint8 *buf)
 {
 	struct tvb_frame *frame_tvb;
 	tvbuff_t *tvb;
@@ -309,12 +307,12 @@ file_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.provider.wth && cfile.provider.wth->random_fh) {
-		frame_tvb->wth = cfile.provider.wth;
+	if (prov->wth && prov->wth->random_fh) {
+		frame_tvb->prov = prov;
 		frame_tvb->file_off = fd->file_off;
 		frame_tvb->offset = 0;
 	} else
-		frame_tvb->wth = NULL;
+		frame_tvb->prov = NULL;
 
 	frame_tvb->buf = NULL;
 
@@ -322,9 +320,10 @@ file_tvbuff_new(const frame_data *fd, const guint8 *buf)
 }
 
 tvbuff_t *
-file_tvbuff_new_buffer(const frame_data *fd, Buffer *buf)
+file_tvbuff_new_buffer(const struct packet_provider_data *prov,
+    const frame_data *fd, Buffer *buf)
 {
-	return frame_tvbuff_new(fd, ws_buffer_start_ptr(buf));
+	return frame_tvbuff_new(prov, fd, ws_buffer_start_ptr(buf));
 }
 
 /*

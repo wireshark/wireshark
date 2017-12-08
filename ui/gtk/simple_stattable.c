@@ -42,6 +42,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 typedef struct _gtk_simplestat_t {
 	GtkWidget *vbox;
 	GtkWidget *win;

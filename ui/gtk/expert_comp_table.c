@@ -51,6 +51,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 const char  *packet = "Packet:";
 
 enum

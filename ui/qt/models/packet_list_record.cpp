@@ -185,7 +185,9 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
      * XXX - need to catch an OutOfMemoryError exception and
      * attempt to recover from it.
      */
-    epan_dissect_run(&edt, cap_file->cd_t, &phdr, frame_tvbuff_new_buffer(fdata_, &buf), fdata_, cinfo);
+    epan_dissect_run(&edt, cap_file->cd_t, &phdr,
+                     frame_tvbuff_new_buffer(&cap_file->provider, fdata_, &buf),
+                     fdata_, cinfo);
 
     if (dissect_columns) {
         /* "Stringify" non frame_data vals */

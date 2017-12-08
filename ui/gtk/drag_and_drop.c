@@ -45,6 +45,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
 

@@ -47,6 +47,8 @@
 #include "ui/gtk/packet_win.h"
 #include "ui/gtk/stock_icons.h"
 
+#include "globals.h"
+
 #undef DEBUG
 
 /**************************************************/

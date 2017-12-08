@@ -28,11 +28,12 @@
 
 #include "epan/to_str.h"
 
-
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/stock_icons.h"
+
+#include "globals.h"
 
 static GtkWidget         *clist           = NULL;
 static GList             *last_list       = NULL;

@@ -26,7 +26,6 @@
 #include "config.h"
 #include <string.h>
 
-
 #include <epan/packet.h>
 #include <epan/stat_tap_ui.h>
 
@@ -38,6 +37,8 @@
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/gtkglobals.h"
+
+#include "globals.h"
 
 void register_tap_listener_flow_graph(void);
 

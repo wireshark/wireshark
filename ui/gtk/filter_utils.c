@@ -32,6 +32,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 void
 apply_selected_filter (guint callback_action, const char *filter)
 {

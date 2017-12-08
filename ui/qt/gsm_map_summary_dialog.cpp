@@ -30,7 +30,6 @@
 
 #include <glib.h>
 
-#include "globals.h"
 #include "summary.h"
 
 #include <epan/packet.h>

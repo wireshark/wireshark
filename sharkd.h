@@ -13,7 +13,6 @@
 #define __SHARKD_H
 
 #include <file.h>
-#include <globals.h>
 
 /* sharkd.c */
 cf_status_t sharkd_cf_open(const char *fname, unsigned int type, gboolean is_tempfile, int *err);

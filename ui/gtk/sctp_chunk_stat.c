@@ -27,7 +27,6 @@
 
 #include <string.h>
 
-
 #include <epan/to_str.h>
 #include <epan/value_string.h>
 #include <epan/tap.h>
@@ -40,6 +39,8 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/sctp_stat_gtk.h"
+
+#include "globals.h"
 
 void register_tap_listener_sctpstat(void);
 static void sctpstat_init(const char *opt_arg, void *userdata);

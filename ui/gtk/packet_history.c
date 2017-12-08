@@ -22,13 +22,12 @@
 
 #include "config.h"
 
-
 #include <gtk/gtk.h>
-
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/packet_history.h"
 
+#include "globals.h"
 
 static GList *history_current = NULL;
 static GList *history_list = NULL;

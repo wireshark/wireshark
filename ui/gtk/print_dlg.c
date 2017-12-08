@@ -35,6 +35,8 @@
 #include "ui/util.h"
 #include <wsutil/file_util.h>
 
+#include "globals.h"
+
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/gui_utils.h"

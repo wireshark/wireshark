@@ -301,7 +301,9 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
       cf->provider.ref = &ref_frame;
     }
 
-    epan_dissect_run(edt, cf->cd_t, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
+    epan_dissect_run(edt, cf->cd_t, whdr,
+                     frame_tvbuff_new(&cf->provider, &fdlocal, pd),
+                     &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
@@ -569,7 +571,9 @@ sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto
    * XXX - need to catch an OutOfMemoryError exception and
    * attempt to recover from it.
    */
-  epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
+  epan_dissect_run(&edt, cfile.cd_t, &phdr,
+                   frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
+                   fdata, cinfo);
 
   if (cinfo) {
     /* "Stringify" non frame_data vals */
@@ -621,7 +625,9 @@ sharkd_dissect_columns(frame_data *fdata, column_info *cinfo, gboolean dissect_c
    * XXX - need to catch an OutOfMemoryError exception and
    * attempt to recover from it.
    */
-  epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
+  epan_dissect_run(&edt, cfile.cd_t, &phdr,
+                   frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
+                   fdata, cinfo);
 
   if (cinfo) {
     /* "Stringify" non frame_data vals */
@@ -678,7 +684,9 @@ sharkd_retap(void)
     if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &phdr, &buf, &err, &err_info))
       break;
 
-    epan_dissect_run_with_taps(&edt, cfile.cd_t, &phdr, frame_tvbuff_new(fdata, ws_buffer_start_ptr(&buf)), fdata, cinfo);
+    epan_dissect_run_with_taps(&edt, cfile.cd_t, &phdr,
+                               frame_tvbuff_new(&cfile.provider, fdata, ws_buffer_start_ptr(&buf)),
+                               fdata, cinfo);
     epan_dissect_reset(&edt);
   }
 
@@ -736,7 +744,9 @@ sharkd_filter(const char *dftext, guint8 **result)
     /* frame_data_set_before_dissect */
     epan_dissect_prime_with_dfilter(&edt, dfcode);
 
-    epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, NULL);
+    epan_dissect_run(&edt, cfile.cd_t, &phdr,
+                     frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
+                     fdata, NULL);
 
     if (dfilter_apply_edt(dfcode, &edt))
       passed_bits |= (1 << (framenum % 8));

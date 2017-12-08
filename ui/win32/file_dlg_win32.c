@@ -19,7 +19,7 @@
 #include <richedit.h>
 #include <strsafe.h>
 
-#include "file.h"
+#include "globals.h"
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"

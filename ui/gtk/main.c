@@ -533,7 +533,8 @@ get_ip_address_list_from_packet_list_row(gpointer data)
         col_custom_prime_edt(&edt, &cfile.cinfo);
 
         epan_dissect_run(&edt, cfile.cd_t, &cfile.phdr,
-            frame_tvbuff_new_buffer(fdata, &cfile.buf), fdata, &cfile.cinfo);
+            frame_tvbuff_new_buffer(&cfile.provider, fdata, &cfile.buf),
+            fdata, &cfile.cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
         /* First check selected column */
@@ -574,7 +575,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
         col_custom_prime_edt(&edt, &cfile.cinfo);
 
         epan_dissect_run(&edt, cfile.cd_t, &cfile.phdr,
-                         frame_tvbuff_new_buffer(fdata, &cfile.buf),
+                         frame_tvbuff_new_buffer(&cfile.provider, fdata, &cfile.buf),
                          fdata, &cfile.cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 

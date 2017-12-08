@@ -39,6 +39,8 @@
 
 #include "frame_tvbuff.h"
 
+#include "globals.h"
+
 static sctp_assoc_info_t static_assoc;
 
 void
@@ -1001,7 +1003,9 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_with_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, cf->cd_t, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
+	epan_dissect_run(&edt, cf->cd_t, &cf->phdr,
+	    frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+	    fdata, NULL);
 
 	/* if it is not an sctp packet, show the dialog */
 	if (!dfilter_apply_edt(sfcode, &edt)) {

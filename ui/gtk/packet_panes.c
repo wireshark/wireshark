@@ -71,6 +71,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 #endif
 
+#include "globals.h"
 
 #define E_BYTE_VIEW_TREE_PTR      "byte_view_tree_ptr"
 #define E_BYTE_VIEW_TREE_VIEW_PTR "byte_view_tree_view_ptr"

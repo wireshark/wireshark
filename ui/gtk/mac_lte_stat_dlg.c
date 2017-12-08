@@ -44,6 +44,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 void register_tap_listener_mac_lte_stat(void);
 
 /**********************************************/

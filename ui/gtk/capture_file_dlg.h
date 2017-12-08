@@ -23,6 +23,8 @@
 #ifndef __CAPTURE_FILE_DLG_H__
 #define __CAPTURE_FILE_DLG_H__
 
+#include "cfile.h"
+
 /** @file
  *  "Open" / "Close" / "Save" / "Save As" / etc dialog boxes.
  *  @ingroup dialog_group

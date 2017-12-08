@@ -68,6 +68,8 @@
 
 #include "frame_tvbuff.h"
 
+#include "globals.h"
+
 #define BV_SIZE 75
 #define TV_SIZE 95
 
@@ -157,7 +159,9 @@ redissect_packet_window(gpointer object, gpointer user_data _U_)
 	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
 	epan_dissect_init(&(DataPtr->edt), cfile.epan, TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd), DataPtr->frame, NULL);
+	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->phdr,
+	    frame_tvbuff_new(&cfile.provider, DataPtr->frame, DataPtr->pd),
+	    DataPtr->frame, NULL);
 	add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 	proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 
@@ -226,7 +230,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 
 	epan_dissect_init(&(DataPtr->edt), cfile.epan, TRUE, TRUE);
 	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->phdr,
-	                 frame_tvbuff_new(DataPtr->frame, DataPtr->pd),
+	                 frame_tvbuff_new(&cfile.provider, DataPtr->frame, DataPtr->pd),
 			 DataPtr->frame, &cfile.cinfo);
 	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
 

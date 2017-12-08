@@ -61,6 +61,8 @@
 
 #include <wsutil/str_util.h>
 
+#include "globals.h"
+
 #define COLUMN_WIDTH_MIN 40
 #define MAX_COMMENTS_TO_FETCH 20000000 /* Arbitrary */
 

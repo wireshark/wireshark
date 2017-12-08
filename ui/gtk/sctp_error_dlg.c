@@ -32,6 +32,8 @@
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/stock_icons.h"
 
+#include "globals.h"
+
 static GtkWidget *sctp_error_dlg=NULL;
 static GtkWidget *clist = NULL;
 static GList *last_list = NULL;

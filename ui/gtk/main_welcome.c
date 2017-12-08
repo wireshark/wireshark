@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <errno.h>
 
 #include <gtk/gtk.h>
 
@@ -78,6 +79,8 @@
 #include <caputils/airpcap_loader.h>
 #include "airpcap_gui_utils.h"
 #endif
+
+#include "file.h"
 
 /* XXX */
 static GtkWidget *welcome_hb = NULL;

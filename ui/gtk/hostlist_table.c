@@ -56,6 +56,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 #define HOST_PTR_KEY "hostlist-pointer"
 #define NB_PAGES_KEY "notebook-pages"
 #define HL_DLG_HEIGHT 550

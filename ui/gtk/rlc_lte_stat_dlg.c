@@ -54,6 +54,7 @@
 
 #include "ui/recent.h"
 
+#include "globals.h"
 
 void register_tap_listener_rlc_lte_stat(void);
 

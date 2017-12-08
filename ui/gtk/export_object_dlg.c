@@ -35,6 +35,8 @@
 #include <ui/export_object_ui.h>
 #include <ui/simple_dialog.h>
 
+#include "globals.h"
+
 #include "dlg_utils.h"
 #include "file_dlg.h"
 #include "gui_utils.h"

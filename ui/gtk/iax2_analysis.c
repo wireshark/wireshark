@@ -79,6 +79,8 @@
 
 #include "frame_tvbuff.h"
 
+#include "globals.h"
+
 void register_tap_listener_iax2_analysis(void);
 
 enum
@@ -3568,7 +3570,8 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_with_dfilter(&edt, sfcode);
 	epan_dissect_run(&edt, cf->cd_t, &cf->phdr,
-	    frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
+	    frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+	    fdata, NULL);
 
 	/* if it is not an iax2 packet, show an error dialog */
 	if (!dfilter_apply_edt(sfcode, &edt)) {

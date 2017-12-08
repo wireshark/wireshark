@@ -61,7 +61,7 @@ void FrameInformation::loadFrameTree()
     col_custom_prime_edt(&edt_, &(cap_file_->capFile()->cinfo));
 
     epan_dissect_run(&edt_, cap_file_->capFile()->cd_t, &phdr_,
-                     frame_tvbuff_new(fi_, packet_data_),
+                     frame_tvbuff_new(&cap_file_->capFile()->provider, fi_, packet_data_),
                      fi_, &(cap_file_->capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, TRUE, TRUE);
 }

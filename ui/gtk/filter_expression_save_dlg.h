@@ -23,7 +23,6 @@
 #ifndef __FILTER_EXPRESSIONS_SAVE_DLG_H__
 #define __FILTER_EXPRESSIONS_SAVE_DLG_H__
 
-#include "globals.h"
 #include "epan/filter_expressions.h"
 
 enum {

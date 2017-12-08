@@ -23,7 +23,7 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#include "globals.h"
+#include "cfile.h"
 #include "capture_opts.h"
 
 /** @defgroup main_window_group Main window

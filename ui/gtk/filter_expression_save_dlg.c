@@ -41,6 +41,7 @@
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/gtk/help_dlg.h"
 
+#include "globals.h"
 #include "main.h"
 
 

@@ -89,6 +89,8 @@
 #include "ui/gtk/extcap_gtk.h"
 #endif
 
+#include "globals.h"
+
 /*
  * Symbolic names for column indices.
  */

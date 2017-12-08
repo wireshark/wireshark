@@ -1607,7 +1607,8 @@ void RtpAnalysisDialog::findStreams()
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
     epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->phdr,
-                     frame_tvbuff_new_buffer(fdata, &cap_file_.capFile()->buf), fdata, NULL);
+                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &cap_file_.capFile()->buf),
+                     fdata, NULL);
 
     /*
      * Packet must be an RTPv2 packet with an SSRC; we use the filter to

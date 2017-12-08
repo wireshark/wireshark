@@ -30,6 +30,9 @@
 
 #include <glib.h>
 
+#include <epan/tvbuff.h>
+#include <epan/packet_info.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

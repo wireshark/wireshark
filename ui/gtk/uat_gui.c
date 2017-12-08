@@ -68,6 +68,8 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/packet_win.h"
 
+#include "globals.h"
+
 # define BUTTON_SIZE_X -1
 # define BUTTON_SIZE_Y -1
 

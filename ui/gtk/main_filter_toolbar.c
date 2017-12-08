@@ -51,6 +51,8 @@
 #include "main_filter_toolbar.h"
 #include "filter_expression_save_dlg.h"
 
+#include "globals.h"
+
 #define MENU_BAR_PATH_FILE_OPEN                         "/Menubar/FileMenu/Open"
 #define MENU_BAR_PATH_EDIT_COPY_AS_FLT                  "/Menubar/EditMenu/Copy/AsFilter"
 #define MENU_BAR_PATH_ANALYZE_DISPLAY_FLT               "/Menubar/AnalyzeMenu/DisplayFilters"

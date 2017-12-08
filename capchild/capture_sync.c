@@ -75,7 +75,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include "globals.h"
 #include "file.h"
 
 #include "ui/capture.h"

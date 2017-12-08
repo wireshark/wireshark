@@ -29,7 +29,6 @@
 
 #include <epan/addr_resolv.h>
 
-
 #include <epan/stat_groups.h>
 
 #include "ui/simple_dialog.h"
@@ -48,6 +47,8 @@
 #include "ui/gtk/keys.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+
+#include "globals.h"
 
 #define COL_STR_LEN 16
 #define CONV_PTR_KEY "conversations-pointer"

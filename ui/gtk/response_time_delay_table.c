@@ -42,6 +42,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 enum
 {
 	TYPE_COLUMN,

@@ -50,6 +50,8 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/firewall_dlg.h"
 
+#include "globals.h"
+
 #define MAX_RULE_LEN 200
 
 /* Copied from packet_info struct */

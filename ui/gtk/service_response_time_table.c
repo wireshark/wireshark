@@ -45,6 +45,8 @@
 #include "epan/conversation.h"
 #include "epan/dissectors/packet-scsi.h"
 
+#include "globals.h"
+
 #define NANOSECS_PER_SEC 1000000000
 
 enum

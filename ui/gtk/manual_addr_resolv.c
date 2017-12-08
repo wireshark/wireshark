@@ -39,6 +39,8 @@
 #include "ui/gtk/packet_win.h"
 #include "simple_dialog.h"
 
+#include "globals.h"
+
 GtkWidget *man_addr_resolv_dlg = NULL;
 
 static void

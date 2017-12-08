@@ -20,7 +20,6 @@
 #include <glib.h>
 
 #include <math.h>
-#include "globals.h"
 
 #include <string.h>
 #include <epan/rtp_pt.h>

@@ -69,6 +69,8 @@
 #include <wsutil/glib-compat.h>
 #include <wsutil/strtoi.h>
 
+#include "globals.h"
+
 #include "sharkd.h"
 
 static gboolean

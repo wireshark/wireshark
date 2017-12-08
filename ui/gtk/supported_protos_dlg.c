@@ -27,16 +27,13 @@
 
 #include <gtk/gtk.h>
 
+#include <epan/proto.h>
 #include <epan/prefs.h>
-
-#include "../../globals.h"
 
 #include "ui/gtk/supported_protos_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/font_utils.h"
-
-
 
 static const char *proto_supported =
 "The following %d protocols (and packet types) are currently\n"

@@ -46,6 +46,7 @@
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/main_statusbar.h"
 
+#include "globals.h"
 
 void register_tap_listener_gtk_iostat(void);
 

@@ -51,6 +51,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 void register_tap_listener_gtkrpcstat(void);
 
 /* used to keep track of the statistics for an entire program interface */

@@ -37,6 +37,8 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/addr_resolution_dlg.h"
 
+#include "globals.h"
+
 static GtkWidget *addr_resolution_dlg_w = NULL;
 
 

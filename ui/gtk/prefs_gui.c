@@ -43,6 +43,7 @@
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/main_welcome.h"
 
+#include "globals.h"
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gboolean fileopen_dir_changed_cb(GtkWidget *myentry, GdkEvent *event _U_, gpointer parent_w _U_);

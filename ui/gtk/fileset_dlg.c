@@ -27,7 +27,7 @@
 #include "ui/gtk/fileset_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
 
-
+#include "globals.h"
 
 /*
  * Keep a static pointer to the current "File Set" window, if

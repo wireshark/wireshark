@@ -39,7 +39,6 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
-
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_stat_menu.h"
@@ -53,6 +52,8 @@
 #include "ui/gtk/filter_autocomplete.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+
+#include "globals.h"
 
 void register_tap_listener_gtkdcerpcstat(void);
 

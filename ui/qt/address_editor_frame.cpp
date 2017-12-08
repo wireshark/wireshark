@@ -83,7 +83,8 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
     epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->phdr,
-        frame_tvbuff_new_buffer(cap_file_->current_frame, &cap_file_->buf), cap_file_->current_frame, &cap_file_->cinfo);
+        frame_tvbuff_new_buffer(&cap_file_->provider, cap_file_->current_frame, &cap_file_->buf),
+        cap_file_->current_frame, &cap_file_->cinfo);
     epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
     /* First check selected column */

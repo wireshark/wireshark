@@ -26,8 +26,6 @@
 
 #include <gtk/gtk.h>
 
-
-
 #include <version_info.h>
 
 #include "../../file.h"
@@ -44,6 +42,8 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/packet_list.h"
+
+#include "globals.h"
 
 #define SUM_STR_MAX      1024
 #define FILTER_SNIP_LEN    50

@@ -11,19 +11,25 @@
 #ifndef __FRAME_TVBUFF_H__
 #define __FRAME_TVBUFF_H__
 
+#include "cfile.h"
+
+#include <wiretap/wtap.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#include <wiretap/wtap.h>
+extern tvbuff_t *frame_tvbuff_new(const struct packet_provider_data *prov,
+    const frame_data *fd, const guint8 *buf);
 
-extern tvbuff_t *frame_tvbuff_new(const frame_data *fd, const guint8 *buf);
+extern tvbuff_t *frame_tvbuff_new_buffer(const struct packet_provider_data *prov,
+    const frame_data *fd, Buffer *buf);
 
-extern tvbuff_t *frame_tvbuff_new_buffer(const frame_data *fd, Buffer *buf);
+extern tvbuff_t *file_tvbuff_new(const struct packet_provider_data *prov,
+    const frame_data *fd, const guint8 *buf);
 
-extern tvbuff_t *file_tvbuff_new(const frame_data *fd, const guint8 *buf);
-
-extern tvbuff_t *file_tvbuff_new_buffer(const frame_data *fd, Buffer *buf);
+extern tvbuff_t *file_tvbuff_new_buffer(const struct packet_provider_data *prov,
+    const frame_data *fd, Buffer *buf);
 
 #ifdef __cplusplus
 }

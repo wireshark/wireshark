@@ -40,6 +40,8 @@
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "globals.h"
+
 #define DEFAULT_PIXELS_PER_TICK 2
 #define MAX_PIXELS_PER_TICK     4
 #define AUTO_MAX_YSCALE         0

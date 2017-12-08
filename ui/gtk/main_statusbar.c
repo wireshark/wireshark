@@ -65,6 +65,8 @@
 #include "ui/gtk/menus.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 
+#include "globals.h"
+
 /*
  * The order below defines the priority of info bar contexts.
  */

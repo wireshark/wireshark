@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <errno.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #if GTK_CHECK_VERSION(3,0,0)

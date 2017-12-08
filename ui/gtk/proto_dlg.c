@@ -29,9 +29,11 @@
 # include <gdk/gdkkeysyms-compat.h>
 #endif
 
+#include <epan/packet.h>
 #include <epan/prefs.h>
-#include <wsutil/filesystem.h>
 #include <epan/disabled_protos.h>
+
+#include <wsutil/filesystem.h>
 
 #include "ui/util.h"
 
@@ -41,6 +43,8 @@
 #include "ui/gtk/proto_dlg.h"
 #include "ui/gtk/help_dlg.h"
 #include "simple_dialog.h"
+
+#include "globals.h"
 
 static gboolean set_proto_selection(GtkWidget *);
 static gboolean revert_proto_selection(void);

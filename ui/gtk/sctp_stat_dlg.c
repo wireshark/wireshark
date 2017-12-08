@@ -38,6 +38,8 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/stock_icons.h"
 
+#include "globals.h"
+
 static GtkWidget *sctp_stat_dlg = NULL;
 static GtkWidget *clist		= NULL;
 static GList	 *last_list	= NULL;

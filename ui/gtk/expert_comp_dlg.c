@@ -49,6 +49,8 @@
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/gtkglobals.h"
 
+#include "globals.h"
+
 void register_tap_listener_expert_comp(void);
 
 enum

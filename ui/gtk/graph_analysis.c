@@ -64,6 +64,8 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/stock_icons.h"
 
+#include "globals.h"
+
 /****************************************************************************/
 
 #define MAX_LABEL 50

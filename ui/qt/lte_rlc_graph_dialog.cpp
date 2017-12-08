@@ -40,8 +40,6 @@
 #include "wireshark_application.h"
 #include "simple_dialog.h"
 
-#include "globals.h"
-
 #include <epan/dissectors/packet-rlc-lte.h>
 
 #include <ui/tap-rlc-graph.h>

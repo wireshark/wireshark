@@ -27,7 +27,6 @@
 
 #include <gtk/gtk.h>
 
-
 #include "ui/main_statusbar.h"
 
 #include "ui/gtk/dlg_utils.h"
@@ -36,6 +35,8 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
+
+#include "globals.h"
 
 static GtkWidget *edit_or_add_pkt_comment_dlg = NULL;
 static GtkWidget *edit_or_add_capture_comment_dlg = NULL;

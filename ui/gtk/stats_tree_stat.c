@@ -62,6 +62,8 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
+#include "globals.h"
+
 void register_tap_listener_stats_tree_stat(void);
 
 struct _st_node_pres {
