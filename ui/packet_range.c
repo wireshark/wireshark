@@ -78,7 +78,7 @@ static void packet_range_calc(packet_range_t *range) {
      * the capture_file structure, updating them whenever we
      * filter the display, etc..
      */
-    if (range->cf->frame_set_info.frames != NULL) {
+    if (range->cf->provider.frames != NULL) {
         /* The next for-loop is used to obtain the amount of packets
          * to be processed and is used to present the information in
          * the Save/Print As widget.
@@ -89,7 +89,7 @@ static void packet_range_calc(packet_range_t *range) {
          */
 
         for(framenum = 1; framenum <= range->cf->count; framenum++) {
-            packet = frame_data_sequence_find(range->cf->frame_set_info.frames, framenum);
+            packet = frame_data_sequence_find(range->cf->provider.frames, framenum);
 
             if (range->cf->current_frame == packet) {
                 range->selected_packet = framenum;
@@ -134,7 +134,7 @@ static void packet_range_calc(packet_range_t *range) {
         }
 
         for(framenum = 1; framenum <= range->cf->count; framenum++) {
-            packet = frame_data_sequence_find(range->cf->frame_set_info.frames, framenum);
+            packet = frame_data_sequence_find(range->cf->provider.frames, framenum);
 
             if (framenum >= mark_low &&
                 framenum <= mark_high)
@@ -203,9 +203,9 @@ static void packet_range_calc_user(packet_range_t *range) {
      * help, but if the user specified about *half* the packets in
      * the range, that won't help, either.
      */
-    if (range->cf->frame_set_info.frames != NULL) {
+    if (range->cf->provider.frames != NULL) {
         for(framenum = 1; framenum <= range->cf->count; framenum++) {
-            packet = frame_data_sequence_find(range->cf->frame_set_info.frames, framenum);
+            packet = frame_data_sequence_find(range->cf->provider.frames, framenum);
 
             if (value_is_in_range(range->user_range, framenum)) {
                 range->user_range_cnt++;

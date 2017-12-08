@@ -111,7 +111,7 @@ failure_message_cont(const char *msg_format, va_list ap)
 }
 
 static const nstime_t *
-fuzzshark_get_frame_ts(frame_set *cf _U_, guint32 frame_num _U_)
+fuzzshark_get_frame_ts(struct packet_provider *prov _U_, guint32 frame_num _U_)
 {
 	static nstime_t empty;
 
@@ -121,7 +121,7 @@ fuzzshark_get_frame_ts(frame_set *cf _U_, guint32 frame_num _U_)
 static epan_t *
 fuzzshark_epan_new(void)
 {
-	epan_t *epan = epan_new();
+	epan_t *epan = epan_new(NULL);
 
 	epan->get_frame_ts = fuzzshark_get_frame_ts;
 	epan->get_interface_name = NULL;

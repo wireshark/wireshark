@@ -103,7 +103,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	follow.h
 	frame_data.h
 	frame_data_sequence.h
-	frame_set.h
 	funnel.h
 	garrayfix.h
 	geoip_db.h
@@ -208,7 +207,6 @@ set(LIBWIRESHARK_FILES
 	follow.c
 	frame_data.c
 	frame_data_sequence.c
-	frame_set.c
 	funnel.c
 	geoip_db.c
 	golay.c

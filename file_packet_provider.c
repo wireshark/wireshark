@@ -1,5 +1,5 @@
-/* frame_set.c
- * fdfdkfslf;ajkdf
+/* file_packet_provider.c
+ * Routines for a packet_provider for packets from a file.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -10,7 +10,7 @@
 
 #include <glib.h>
 
-#include <epan/frame_set.h>
+#include "cfile.h"
 
 static int
 frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
@@ -24,13 +24,13 @@ frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 }
 
 const char *
-frame_set_get_interface_name(frame_set *fs, guint32 interface_id)
+cap_file_provider_get_interface_name(struct packet_provider *prov, guint32 interface_id)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
   char* interface_name;
 
-  idb_info = wtap_file_get_idb_info(fs->wth);
+  idb_info = wtap_file_get_idb_info(prov->wth);
 
   if (interface_id < idb_info->interface_data->len)
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, interface_id);
@@ -47,13 +47,13 @@ frame_set_get_interface_name(frame_set *fs, guint32 interface_id)
 }
 
 const char *
-frame_set_get_interface_description(frame_set *fs, guint32 interface_id)
+cap_file_provider_get_interface_description(struct packet_provider *prov, guint32 interface_id)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
   char* interface_name;
 
-  idb_info = wtap_file_get_idb_info(fs->wth);
+  idb_info = wtap_file_get_idb_info(prov->wth);
 
   if (interface_id < idb_info->interface_data->len)
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, interface_id);
@@ -68,23 +68,23 @@ frame_set_get_interface_description(frame_set *fs, guint32 interface_id)
 }
 
 const char *
-frame_set_get_user_comment(frame_set *fs, const frame_data *fd)
+cap_file_provider_get_user_comment(struct packet_provider *prov, const frame_data *fd)
 {
-  if (fs->frames_user_comments)
-     return (const char *)g_tree_lookup(fs->frames_user_comments, fd);
+  if (prov->frames_user_comments)
+     return (const char *)g_tree_lookup(prov->frames_user_comments, fd);
 
   /* g_warning? */
   return NULL;
 }
 
 void
-frame_set_set_user_comment(frame_set *fs, frame_data *fd, const char *new_comment)
+cap_file_provider_set_user_comment(struct packet_provider *prov, frame_data *fd, const char *new_comment)
 {
-  if (!fs->frames_user_comments)
-    fs->frames_user_comments = g_tree_new_full(frame_cmp, NULL, NULL, g_free);
+  if (!prov->frames_user_comments)
+    prov->frames_user_comments = g_tree_new_full(frame_cmp, NULL, NULL, g_free);
 
   /* insert new packet comment */
-  g_tree_replace(fs->frames_user_comments, fd, g_strdup(new_comment));
+  g_tree_replace(prov->frames_user_comments, fd, g_strdup(new_comment));
 
   fd->flags.has_user_comment = TRUE;
 }

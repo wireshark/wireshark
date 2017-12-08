@@ -2633,7 +2633,7 @@ void MainWindow::openPacketDialog(bool from_reference)
         if (framenum == 0)
             return;
 
-        fdata = frame_data_sequence_find(capture_file_.capFile()->frame_set_info.frames, framenum);
+        fdata = frame_data_sequence_find(capture_file_.capFile()->provider.frames, framenum);
     } else {
         fdata = capture_file_.capFile()->current_frame;
     }

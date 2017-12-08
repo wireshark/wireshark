@@ -379,6 +379,7 @@ EXTCAP_COMMON_SRC = \
 # sources common for wireshark, tshark, and rawshark
 SHARK_COMMON_SRC = \
 	cfile.c			\
+	file_packet_provider.c	\
 	frame_tvbuff.c		\
 	sync_pipe_write.c
 

@@ -23,16 +23,15 @@
 #define __EPAN_INT_H__
 
 #include <epan/frame_data.h>
-#include <epan/frame_set.h>
 #include <wsutil/nstime.h>
 
 struct epan_session {
-	frame_set *fs;
+	struct packet_provider *prov;	/* packet provider for this session */
 
-	const nstime_t *(*get_frame_ts)(frame_set *cf, guint32 frame_num);
-	const char *(*get_interface_name)(frame_set *fs, guint32 interface_id);
-	const char *(*get_interface_description)(frame_set *fs, guint32 interface_id);
-	const char *(*get_user_comment)(frame_set *fs, const frame_data *fd);
+	const nstime_t *(*get_frame_ts)(struct packet_provider *prov, guint32 frame_num);
+	const char *(*get_interface_name)(struct packet_provider *prov, guint32 interface_id);
+	const char *(*get_interface_description)(struct packet_provider *prov, guint32 interface_id);
+	const char *(*get_user_comment)(struct packet_provider *prov, const frame_data *fd);
 };
 
 #endif

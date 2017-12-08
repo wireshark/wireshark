@@ -16,7 +16,6 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/frame_data.h>
 #include <epan/frame_data_sequence.h>
-#include <epan/frame_set.h>
 #include <wiretap/wtap.h>
 
 #ifdef __cplusplus
@@ -43,6 +42,18 @@ typedef enum {
   SD_FORWARD,
   SD_BACKWARD
 } search_direction;
+
+/*
+ * Packet provider for programs using a capture file.
+ */
+struct packet_provider {
+  wtap        *wth;                  /* Wiretap session */
+  const frame_data *ref;
+  frame_data  *prev_dis;
+  frame_data  *prev_cap;
+  frame_data_sequence *frames;       /* Sequence of frames, if we're keeping that information */
+  GTree       *frames_user_comments; /* BST with user comments for frames (key = frame_data) */
+};
 
 typedef struct _capture_file {
   epan_t      *epan;
@@ -90,8 +101,9 @@ typedef struct _capture_file {
   /* packet data */
   struct wtap_pkthdr phdr;           /* Packet header */
   Buffer       buf;                  /* Packet data */
+  /* packet provider */
+  struct packet_provider provider;
   /* frames */
-  frame_set    frame_set_info;       /* fjfff */
   guint32      first_displayed;      /* Frame number of first frame displayed */
   guint32      last_displayed;       /* Frame number of last frame displayed */
   column_info  cinfo;                /* Column formatting information */
@@ -107,6 +119,11 @@ typedef struct _capture_file {
 } capture_file;
 
 extern void cap_file_init(capture_file *cf);
+
+const char *cap_file_provider_get_interface_name(struct packet_provider *prov, guint32 interface_id);
+const char *cap_file_provider_get_interface_description(struct packet_provider *prov, guint32 interface_id);
+const char *cap_file_provider_get_user_comment(struct packet_provider *prov, const frame_data *fd);
+void cap_file_provider_set_user_comment(struct packet_provider *prov, frame_data *fd, const char *new_comment);
 
 #ifdef __cplusplus
 }

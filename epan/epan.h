@@ -38,6 +38,14 @@ typedef struct epan_dissect epan_dissect_t;
 struct epan_dfilter;
 struct epan_column_info;
 
+/*
+ * Opaque structure provided when an epan_t is created; it contains
+ * information needed to allow the user of libwireshark to provide
+ * time stamps, comments, and other information outside the packet
+ * data itself.
+ */
+struct packet_provider;
+
 /**
 	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
 
@@ -130,7 +138,7 @@ void epan_conversation_init(void);
  */
 typedef struct epan_session epan_t;
 
-WS_DLL_PUBLIC epan_t *epan_new(void);
+WS_DLL_PUBLIC epan_t *epan_new(struct packet_provider *prov);
 
 WS_DLL_PUBLIC const char *epan_get_user_comment(const epan_t *session, const frame_data *fd);
 

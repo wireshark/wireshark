@@ -607,9 +607,9 @@ sharkd_session_process_status(void)
 		g_free(name);
 	}
 
-	if (cfile.frame_set_info.wth)
+	if (cfile.provider.wth)
 	{
-		gint64 file_size = wtap_file_size(cfile.frame_set_info.wth, NULL);
+		gint64 file_size = wtap_file_size(cfile.provider.wth, NULL);
 
 		if (file_size > 0)
 			printf(",\"filesize\":%" G_GINT64_FORMAT, file_size);

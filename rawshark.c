@@ -1028,11 +1028,11 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     printf("%lu", (unsigned long int) cf->count);
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &cf->frame_set_info.ref, cf->frame_set_info.prev_dis);
+                                  &cf->provider.ref, cf->provider.prev_dis);
 
-    if (cf->frame_set_info.ref == &fdata) {
+    if (cf->provider.ref == &fdata) {
        ref_frame = fdata;
-       cf->frame_set_info.ref = &ref_frame;
+       cf->provider.ref = &ref_frame;
     }
 
     /* We only need the columns if we're printing packet info but we're
@@ -1042,10 +1042,10 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
 
     frame_data_set_after_dissect(&fdata, &cum_bytes);
     prev_dis_frame = fdata;
-    cf->frame_set_info.prev_dis = &prev_dis_frame;
+    cf->provider.prev_dis = &prev_dis_frame;
 
     prev_cap_frame = fdata;
-    cf->frame_set_info.prev_cap = &prev_cap_frame;
+    cf->provider.prev_cap = &prev_cap_frame;
 
     for(i = 0; i < n_rfilters; i++) {
         /* Run the read filter if we have one. */
@@ -1464,16 +1464,16 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 }
 
 static const nstime_t *
-raw_get_frame_ts(frame_set *fs, guint32 frame_num)
+raw_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
 {
-    if (fs->ref && fs->ref->num == frame_num)
-        return &fs->ref->abs_ts;
+    if (prov->ref && prov->ref->num == frame_num)
+        return &prov->ref->abs_ts;
 
-    if (fs->prev_dis && fs->prev_dis->num == frame_num)
-        return &fs->prev_dis->abs_ts;
+    if (prov->prev_dis && prov->prev_dis->num == frame_num)
+        return &prov->prev_dis->abs_ts;
 
-    if (fs->prev_cap && fs->prev_cap->num == frame_num)
-        return &fs->prev_cap->abs_ts;
+    if (prov->prev_cap && prov->prev_cap->num == frame_num)
+        return &prov->prev_cap->abs_ts;
 
     return NULL;
 }
@@ -1481,12 +1481,11 @@ raw_get_frame_ts(frame_set *fs, guint32 frame_num)
 static epan_t *
 raw_epan_new(capture_file *cf)
 {
-    epan_t *epan = epan_new();
+    epan_t *epan = epan_new(&cf->provider);
 
-    epan->fs = &cf->frame_set_info;
     epan->get_frame_ts = raw_get_frame_ts;
-    epan->get_interface_name = frame_set_get_interface_name;
-    epan->get_interface_description = frame_set_get_interface_description;
+    epan->get_interface_name = cap_file_provider_get_interface_name;
+    epan->get_interface_description = cap_file_provider_get_interface_description;
     epan->get_user_comment = NULL;
 
     return epan;
@@ -1504,7 +1503,7 @@ raw_cf_open(capture_file *cf, const char *fname)
     epan_free(cf->epan);
     cf->epan = raw_epan_new(cf);
 
-    cf->frame_set_info.wth = NULL;
+    cf->provider.wth = NULL;
     cf->f_datalen = 0; /* not used, but set it anyway */
 
     /* Set the file name because we need it to set the follow stream filter.
@@ -1525,9 +1524,9 @@ raw_cf_open(capture_file *cf, const char *fname)
     cf->drops     = 0;
     cf->snap      = 0;
     nstime_set_zero(&cf->elapsed_time);
-    cf->frame_set_info.ref = NULL;
-    cf->frame_set_info.prev_dis = NULL;
-    cf->frame_set_info.prev_cap = NULL;
+    cf->provider.ref = NULL;
+    cf->provider.prev_dis = NULL;
+    cf->provider.prev_cap = NULL;
 
     return CF_OK;
 }

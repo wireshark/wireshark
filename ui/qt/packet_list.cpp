@@ -1124,7 +1124,7 @@ QString PacketList::allPacketComments()
     if (!cap_file_) return buf_str;
 
     for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
-        fdata = frame_data_sequence_find(cap_file_->frame_set_info.frames, framenum);
+        fdata = frame_data_sequence_find(cap_file_->provider.frames, framenum);
 
         char *pkt_comment = cf_get_packet_comment(cap_file_, fdata);
 
@@ -1151,7 +1151,7 @@ void PacketList::deleteAllPacketComments()
         return;
 
     for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
-        fdata = frame_data_sequence_find(cap_file_->frame_set_info.frames, framenum);
+        fdata = frame_data_sequence_find(cap_file_->provider.frames, framenum);
 
         cf_set_user_packet_comment(cap_file_, fdata, NULL);
     }

@@ -1562,6 +1562,7 @@ endif()
 # sources common for wireshark, tshark, rawshark and sharkd
 set(SHARK_COMMON_SRC
 	cfile.c
+	file_packet_provider.c
 	frame_tvbuff.c
 	sync_pipe_write.c
 	version_info.c

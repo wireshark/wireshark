@@ -198,7 +198,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 			return;
 		}
 
-		fd = frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+		fd = frame_data_sequence_find(cfile.provider.frames, framenum);
 	}
 	else {
 		fd = cfile.current_frame;

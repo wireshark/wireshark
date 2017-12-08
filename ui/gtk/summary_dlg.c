@@ -274,7 +274,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_grid(grid, &row, "Packet size limit:", string_buff);
   }
 
-  shb_inf = wtap_file_get_shb(cfile.frame_set_info.wth);
+  shb_inf = wtap_file_get_shb(cfile.provider.wth);
 
   /* Capture file comment area */
   if (wtap_dump_can_write(cfile.linktypes, WTAP_COMMENT_PER_SECTION)) {
@@ -761,7 +761,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   g_snprintf(string_buff, SUM_STR_MAX, "Capture:\n");
   gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-  shb_inf = wtap_file_get_shb(cfile.frame_set_info.wth);
+  shb_inf = wtap_file_get_shb(cfile.provider.wth);
   if (shb_inf != NULL) {
     char *str;
 
@@ -896,7 +896,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
   /* Trace file comments from SHB */
-  shb_inf = wtap_file_get_shb(cfile.frame_set_info.wth);
+  shb_inf = wtap_file_get_shb(cfile.provider.wth);
   if (shb_inf != NULL) {
     char *opt_comment;
 

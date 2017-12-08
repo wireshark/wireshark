@@ -248,7 +248,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     out << section_tmpl_.arg(tr("Capture"));
     out << table_begin;
 
-    wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->frame_set_info.wth);
+    wtap_block_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->provider.wth);
     char *str;
 
     if (shb_inf != NULL) {
@@ -529,7 +529,7 @@ void CaptureFilePropertiesDialog::fillDetails()
         cursor.insertHtml(section_tmpl_.arg(tr("Packet Comments")));
 
         for (guint32 framenum = 1; framenum <= cap_file_.capFile()->count ; framenum++) {
-            frame_data *fdata = frame_data_sequence_find(cap_file_.capFile()->frame_set_info.frames, framenum);
+            frame_data *fdata = frame_data_sequence_find(cap_file_.capFile()->provider.frames, framenum);
             char *pkt_comment = cf_get_packet_comment(cap_file_.capFile(), fdata);
 
             if (pkt_comment) {

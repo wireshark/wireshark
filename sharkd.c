@@ -221,19 +221,19 @@ clean_exit:
 }
 
 static const nstime_t *
-sharkd_get_frame_ts(frame_set *fs, guint32 frame_num)
+sharkd_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
 {
-  if (fs->ref && fs->ref->num == frame_num)
-    return &fs->ref->abs_ts;
+  if (prov->ref && prov->ref->num == frame_num)
+    return &prov->ref->abs_ts;
 
-  if (fs->prev_dis && fs->prev_dis->num == frame_num)
-    return &fs->prev_dis->abs_ts;
+  if (prov->prev_dis && prov->prev_dis->num == frame_num)
+    return &prov->prev_dis->abs_ts;
 
-  if (fs->prev_cap && fs->prev_cap->num == frame_num)
-    return &fs->prev_cap->abs_ts;
+  if (prov->prev_cap && prov->prev_cap->num == frame_num)
+    return &prov->prev_cap->abs_ts;
 
-  if (fs->frames) {
-     frame_data *fd = frame_data_sequence_find(fs->frames, frame_num);
+  if (prov->frames) {
+     frame_data *fd = frame_data_sequence_find(prov->frames, frame_num);
 
      return (fd) ? &fd->abs_ts : NULL;
   }
@@ -244,13 +244,12 @@ sharkd_get_frame_ts(frame_set *fs, guint32 frame_num)
 static epan_t *
 sharkd_epan_new(capture_file *cf)
 {
-  epan_t *epan = epan_new();
+  epan_t *epan = epan_new(&cf->provider);
 
-  epan->fs = &cf->frame_set_info;
   epan->get_frame_ts = sharkd_get_frame_ts;
-  epan->get_interface_name = frame_set_get_interface_name;
-  epan->get_interface_description = frame_set_get_interface_description;
-  epan->get_user_comment = frame_set_get_user_comment;
+  epan->get_interface_name = cap_file_provider_get_interface_name;
+  epan->get_interface_description = cap_file_provider_get_interface_description;
+  epan->get_user_comment = cap_file_provider_get_user_comment;
 
   return epan;
 }
@@ -297,10 +296,10 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
     prime_epan_dissect_with_postdissector_wanted_hfids(edt);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
-                                  &cf->frame_set_info.ref, cf->frame_set_info.prev_dis);
-    if (cf->frame_set_info.ref == &fdlocal) {
+                                  &cf->provider.ref, cf->provider.prev_dis);
+    if (cf->provider.ref == &fdlocal) {
       ref_frame = fdlocal;
-      cf->frame_set_info.ref = &ref_frame;
+      cf->provider.ref = &ref_frame;
     }
 
     epan_dissect_run(edt, cf->cd_t, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
@@ -312,7 +311,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
 
   if (passed) {
     frame_data_set_after_dissect(&fdlocal, &cum_bytes);
-    cf->frame_set_info.prev_cap = cf->frame_set_info.prev_dis = frame_data_sequence_add(cf->frame_set_info.frames, &fdlocal);
+    cf->provider.prev_cap = cf->provider.prev_dis = frame_data_sequence_add(cf->provider.frames, &fdlocal);
 
     /* If we're not doing dissection then there won't be any dependent frames.
      * More importantly, edt.pi.dependent_frames won't be initialized because
@@ -322,7 +321,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
      */
     if (edt && cf->dfcode) {
       if (dfilter_apply_edt(cf->dfcode, edt)) {
-        g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frame_set_info.frames);
+        g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
       }
     }
 
@@ -350,7 +349,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
   {
     /* Allocate a frame_data_sequence for all the frames. */
-    cf->frame_set_info.frames = new_frame_data_sequence();
+    cf->provider.frames = new_frame_data_sequence();
 
     {
       gboolean create_proto_tree;
@@ -374,9 +373,9 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
 
-    while (wtap_read(cf->frame_set_info.wth, &err, &err_info, &data_offset)) {
-      if (process_packet(cf, edt, data_offset, wtap_phdr(cf->frame_set_info.wth),
-                         wtap_buf_ptr(cf->frame_set_info.wth))) {
+    while (wtap_read(cf->provider.wth, &err, &err_info, &data_offset)) {
+      if (process_packet(cf, edt, data_offset, wtap_phdr(cf->provider.wth),
+                         wtap_buf_ptr(cf->provider.wth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -395,14 +394,14 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     }
 
     /* Close the sequential I/O side, to free up memory it requires. */
-    wtap_sequential_close(cf->frame_set_info.wth);
+    wtap_sequential_close(cf->provider.wth);
 
     /* Allow the protocol dissectors to free up memory that they
      * don't need after the sequential run-through of the packets. */
     postseq_cleanup_all_protocols();
 
-    cf->frame_set_info.prev_dis = NULL;
-    cf->frame_set_info.prev_cap = NULL;
+    cf->provider.prev_dis = NULL;
+    cf->provider.prev_cap = NULL;
   }
 
   if (err != 0) {
@@ -428,7 +427,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   epan_free(cf->epan);
   cf->epan = sharkd_epan_new(cf);
 
-  cf->frame_set_info.wth = wth;
+  cf->provider.wth = wth;
   cf->f_datalen = 0; /* not used, but set it anyway */
 
   /* Set the file name because we need it to set the follow stream filter.
@@ -442,21 +441,21 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  cf->cd_t      = wtap_file_type_subtype(cf->frame_set_info.wth);
+  cf->cd_t      = wtap_file_type_subtype(cf->provider.wth);
   cf->open_type = type;
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
-  cf->snap      = wtap_snapshot_length(cf->frame_set_info.wth);
+  cf->snap      = wtap_snapshot_length(cf->provider.wth);
   nstime_set_zero(&cf->elapsed_time);
-  cf->frame_set_info.ref = NULL;
-  cf->frame_set_info.prev_dis = NULL;
-  cf->frame_set_info.prev_cap = NULL;
+  cf->provider.ref = NULL;
+  cf->provider.prev_dis = NULL;
+  cf->provider.prev_cap = NULL;
 
   cf->state = FILE_READ_IN_PROGRESS;
 
-  wtap_set_cb_new_ipv4(cf->frame_set_info.wth, add_ipv4_name);
-  wtap_set_cb_new_ipv6(cf->frame_set_info.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
+  wtap_set_cb_new_ipv4(cf->provider.wth, add_ipv4_name);
+  wtap_set_cb_new_ipv6(cf->provider.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
 
   return CF_OK;
 
@@ -533,7 +532,7 @@ sharkd_load_cap_file(void)
 frame_data *
 sharkd_get_frame(guint32 framenum)
 {
-  return frame_data_sequence_find(cfile.frame_set_info.frames, framenum);
+  return frame_data_sequence_find(cfile.provider.frames, framenum);
 }
 
 int
@@ -556,7 +555,7 @@ sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto
   wtap_phdr_init(&phdr);
   ws_buffer_init(&buf, 1500);
 
-  if (!wtap_seek_read(cfile.frame_set_info.wth, fdata->file_off, &phdr, &buf, &err, &err_info)) {
+  if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &phdr, &buf, &err, &err_info)) {
     ws_buffer_free(&buf);
     return -1; /* error reading the record */
   }
@@ -601,7 +600,7 @@ sharkd_dissect_columns(frame_data *fdata, column_info *cinfo, gboolean dissect_c
   wtap_phdr_init(&phdr);
   ws_buffer_init(&buf, 1500);
 
-  if (!wtap_seek_read(cfile.frame_set_info.wth, fdata->file_off, &phdr, &buf, &err, &err_info)) {
+  if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &phdr, &buf, &err, &err_info)) {
     col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
     ws_buffer_free(&buf);
     return -1; /* error reading the record */
@@ -677,7 +676,7 @@ sharkd_retap(void)
   for (framenum = 1; framenum <= cfile.count; framenum++) {
     fdata = sharkd_get_frame(framenum);
 
-    if (!wtap_seek_read(cfile.frame_set_info.wth, fdata->file_off, &phdr, &buf, &err, &err_info))
+    if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &phdr, &buf, &err, &err_info))
       break;
 
     epan_dissect_run_with_taps(&edt, cfile.cd_t, &phdr, frame_tvbuff_new(fdata, ws_buffer_start_ptr(&buf)), fdata, cinfo);
@@ -732,7 +731,7 @@ sharkd_filter(const char *dftext, guint8 **result)
       passed_bits = 0;
     }
 
-    if (!wtap_seek_read(cfile.frame_set_info.wth, fdata->file_off, &phdr, &buf, &err, &err_info))
+    if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &phdr, &buf, &err, &err_info))
       break;
 
     /* frame_data_set_before_dissect */
@@ -766,13 +765,13 @@ sharkd_filter(const char *dftext, guint8 **result)
 const char *
 sharkd_get_user_comment(const frame_data *fd)
 {
-  return frame_set_get_user_comment(&cfile.frame_set_info, fd);
+  return cap_file_provider_get_user_comment(&cfile.provider, fd);
 }
 
 int
 sharkd_set_user_comment(frame_data *fd, const gchar *new_comment)
 {
-  frame_set_set_user_comment(&cfile.frame_set_info, fd, new_comment);
+  cap_file_provider_set_user_comment(&cfile.provider, fd, new_comment);
   return 0;
 }
 
