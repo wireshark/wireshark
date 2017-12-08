@@ -11424,7 +11424,7 @@ void proto_register_asterix (void)
     asterix_prefs_module = prefs_register_protocol (proto_asterix, NULL);
 
     prefs_register_enum_preference (asterix_prefs_module, "i001_version", "I001 version", "Select the CAT001 version", &global_categories_version[1],  I001_versions, FALSE);
-    prefs_register_enum_preference (asterix_prefs_module, "i002_version", "I002 version", "Select the CAT001 version", &global_categories_version[2],  I002_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i002_version", "I002 version", "Select the CAT002 version", &global_categories_version[2],  I002_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i004_version", "I004 version", "Select the CAT004 version", &global_categories_version[4],  I004_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i008_version", "I008 version", "Select the CAT008 version", &global_categories_version[8],  I008_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i009_version", "I009 version", "Select the CAT009 version", &global_categories_version[9],  I009_versions, FALSE);
