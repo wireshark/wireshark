@@ -2799,7 +2799,6 @@ dissect_pmip6_opt_ipv4ha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     field_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_ipv4ha, ett_mip6_opt_ipv4ha, &ti, option_len, MIP6_IPV4HA_LEN);
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
     proto_tree_add_item(field_tree, hf_mip6_ipv4ha_p_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
