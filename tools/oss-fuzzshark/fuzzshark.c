@@ -30,7 +30,6 @@
 
 #include <glib.h>
 
-#include <epan/epan-int.h>
 #include <epan/epan.h>
 
 #include <wsutil/cmdarg_err.h>
@@ -111,7 +110,7 @@ failure_message_cont(const char *msg_format, va_list ap)
 }
 
 static const nstime_t *
-fuzzshark_get_frame_ts(struct packet_provider *prov _U_, guint32 frame_num _U_)
+fuzzshark_get_frame_ts(struct packet_provider_data *prov _U_, guint32 frame_num _U_)
 {
 	static nstime_t empty;
 
@@ -121,14 +120,14 @@ fuzzshark_get_frame_ts(struct packet_provider *prov _U_, guint32 frame_num _U_)
 static epan_t *
 fuzzshark_epan_new(void)
 {
-	epan_t *epan = epan_new(NULL);
+	static const struct packet_provider_funcs funcs = {
+		fuzzshark_get_frame_ts,
+		NULL,
+		NULL,
+		NULL
+	};
 
-	epan->get_frame_ts = fuzzshark_get_frame_ts;
-	epan->get_interface_name = NULL;
-	epan->get_interface_description = NULL;
-	epan->get_user_comment = NULL;
-
-	return epan;
+	return epan_new(NULL, &funcs);
 }
 
 static dissector_handle_t

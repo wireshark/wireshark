@@ -44,7 +44,6 @@
 #endif
 
 #include <glib.h>
-#include <epan/epan-int.h>
 #include <epan/epan.h>
 
 #include <wsutil/cmdarg_err.h>
@@ -1464,7 +1463,7 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 }
 
 static const nstime_t *
-raw_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
+raw_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
     if (prov->ref && prov->ref->num == frame_num)
         return &prov->ref->abs_ts;
@@ -1481,14 +1480,14 @@ raw_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
 static epan_t *
 raw_epan_new(capture_file *cf)
 {
-    epan_t *epan = epan_new(&cf->provider);
+    static const struct packet_provider_funcs funcs = {
+        raw_get_frame_ts,
+        cap_file_provider_get_interface_name,
+        cap_file_provider_get_interface_description,
+        NULL,
+    };
 
-    epan->get_frame_ts = raw_get_frame_ts;
-    epan->get_interface_name = cap_file_provider_get_interface_name;
-    epan->get_interface_description = cap_file_provider_get_interface_description;
-    epan->get_user_comment = NULL;
-
-    return epan;
+    return epan_new(&cf->provider, &funcs);
 }
 
 cf_status_t

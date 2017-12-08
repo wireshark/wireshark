@@ -1,5 +1,5 @@
-/* file_packet_provider.c
- * Routines for a packet_provider for packets from a file.
+/* file_packet_provider_data.c
+ * Routines for a packet_provider_data for packets from a file.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -24,7 +24,7 @@ frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 }
 
 const char *
-cap_file_provider_get_interface_name(struct packet_provider *prov, guint32 interface_id)
+cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 interface_id)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
@@ -47,7 +47,7 @@ cap_file_provider_get_interface_name(struct packet_provider *prov, guint32 inter
 }
 
 const char *
-cap_file_provider_get_interface_description(struct packet_provider *prov, guint32 interface_id)
+cap_file_provider_get_interface_description(struct packet_provider_data *prov, guint32 interface_id)
 {
   wtapng_iface_descriptions_t *idb_info;
   wtap_block_t wtapng_if_descr = NULL;
@@ -68,7 +68,7 @@ cap_file_provider_get_interface_description(struct packet_provider *prov, guint3
 }
 
 const char *
-cap_file_provider_get_user_comment(struct packet_provider *prov, const frame_data *fd)
+cap_file_provider_get_user_comment(struct packet_provider_data *prov, const frame_data *fd)
 {
   if (prov->frames_user_comments)
      return (const char *)g_tree_lookup(prov->frames_user_comments, fd);
@@ -78,7 +78,7 @@ cap_file_provider_get_user_comment(struct packet_provider *prov, const frame_dat
 }
 
 void
-cap_file_provider_set_user_comment(struct packet_provider *prov, frame_data *fd, const char *new_comment)
+cap_file_provider_set_user_comment(struct packet_provider_data *prov, frame_data *fd, const char *new_comment)
 {
   if (!prov->frames_user_comments)
     prov->frames_user_comments = g_tree_new_full(frame_cmp, NULL, NULL, g_free);

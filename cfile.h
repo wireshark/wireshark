@@ -46,7 +46,7 @@ typedef enum {
 /*
  * Packet provider for programs using a capture file.
  */
-struct packet_provider {
+struct packet_provider_data {
   wtap        *wth;                  /* Wiretap session */
   const frame_data *ref;
   frame_data  *prev_dis;
@@ -102,7 +102,7 @@ typedef struct _capture_file {
   struct wtap_pkthdr phdr;           /* Packet header */
   Buffer       buf;                  /* Packet data */
   /* packet provider */
-  struct packet_provider provider;
+  struct packet_provider_data provider;
   /* frames */
   guint32      first_displayed;      /* Frame number of first frame displayed */
   guint32      last_displayed;       /* Frame number of last frame displayed */
@@ -120,10 +120,10 @@ typedef struct _capture_file {
 
 extern void cap_file_init(capture_file *cf);
 
-const char *cap_file_provider_get_interface_name(struct packet_provider *prov, guint32 interface_id);
-const char *cap_file_provider_get_interface_description(struct packet_provider *prov, guint32 interface_id);
-const char *cap_file_provider_get_user_comment(struct packet_provider *prov, const frame_data *fd);
-void cap_file_provider_set_user_comment(struct packet_provider *prov, frame_data *fd, const char *new_comment);
+const char *cap_file_provider_get_interface_name(struct packet_provider_data *prov, guint32 interface_id);
+const char *cap_file_provider_get_interface_description(struct packet_provider_data *prov, guint32 interface_id);
+const char *cap_file_provider_get_user_comment(struct packet_provider_data *prov, const frame_data *fd);
+void cap_file_provider_set_user_comment(struct packet_provider_data *prov, frame_data *fd, const char *new_comment);
 
 #ifdef __cplusplus
 }

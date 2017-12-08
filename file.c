@@ -26,7 +26,6 @@
 #include <wiretap/merge.h>
 
 #include <epan/exceptions.h>
-#include <epan/epan-int.h>
 #include <epan/epan.h>
 #include <epan/column.h>
 #include <epan/packet.h>
@@ -223,7 +222,7 @@ static void compute_elapsed(capture_file *cf, GTimeVal *start_time)
 }
 
 static const nstime_t *
-ws_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
+ws_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
   if (prov->prev_dis && prov->prev_dis->num == frame_num)
     return &prov->prev_dis->abs_ts;
@@ -243,14 +242,14 @@ ws_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
 static epan_t *
 ws_epan_new(capture_file *cf)
 {
-  epan_t *epan = epan_new(&cf->provider);
+  static const struct packet_provider_funcs funcs = {
+    ws_get_frame_ts,
+    cap_file_provider_get_interface_name,
+    cap_file_provider_get_interface_description,
+    cap_file_provider_get_user_comment
+  };
 
-  epan->get_frame_ts = ws_get_frame_ts;
-  epan->get_interface_name = cap_file_provider_get_interface_name;
-  epan->get_interface_description = cap_file_provider_get_interface_description;
-  epan->get_user_comment = cap_file_provider_get_user_comment;
-
-  return epan;
+  return epan_new(&cf->provider, &funcs);
 }
 
 cf_status_t

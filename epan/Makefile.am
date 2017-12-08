@@ -282,7 +282,6 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	xdlc.h
 
 LIBWIRESHARK_INCLUDES_PRIVATE = \
-	epan-int.h		\
 	to_str-int.h
 
 subpkgincludedir = $(pkgincludedir)/epan

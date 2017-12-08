@@ -38,9 +38,12 @@
 #include <epan/exceptions.h>
 
 #include "epan.h"
-#include "epan-int.h"
+#include "epan/frame_data.h"
+
 #include "dfilter/dfilter.h"
 #include "epan_dissect.h"
+
+#include <wsutil/nstime.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -283,12 +286,19 @@ epan_cleanup(void)
 	wmem_cleanup();
 }
 
+struct epan_session {
+	struct packet_provider_data *prov;	/* packet provider data for this session */
+	struct packet_provider_funcs funcs;	/* functions using that data */
+};
+
 epan_t *
-epan_new(struct packet_provider *prov)
+epan_new(struct packet_provider_data *prov,
+    const struct packet_provider_funcs *funcs)
 {
 	epan_t *session = g_slice_new0(epan_t);
 
 	session->prov = prov;
+	session->funcs = *funcs;
 
 	/* XXX, it should take session as param */
 	init_dissection();
@@ -299,8 +309,8 @@ epan_new(struct packet_provider *prov)
 const char *
 epan_get_user_comment(const epan_t *session, const frame_data *fd)
 {
-	if (session->get_user_comment)
-		return session->get_user_comment(session->prov, fd);
+	if (session->funcs.get_user_comment)
+		return session->funcs.get_user_comment(session->prov, fd);
 
 	return NULL;
 }
@@ -308,8 +318,8 @@ epan_get_user_comment(const epan_t *session, const frame_data *fd)
 const char *
 epan_get_interface_name(const epan_t *session, guint32 interface_id)
 {
-	if (session->get_interface_name)
-		return session->get_interface_name(session->prov, interface_id);
+	if (session->funcs.get_interface_name)
+		return session->funcs.get_interface_name(session->prov, interface_id);
 
 	return NULL;
 }
@@ -317,8 +327,8 @@ epan_get_interface_name(const epan_t *session, guint32 interface_id)
 const char *
 epan_get_interface_description(const epan_t *session, guint32 interface_id)
 {
-	if (session->get_interface_description)
-		return session->get_interface_description(session->prov, interface_id);
+	if (session->funcs.get_interface_description)
+		return session->funcs.get_interface_description(session->prov, interface_id);
 
 	return NULL;
 }
@@ -328,8 +338,8 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 {
 	const nstime_t *abs_ts = NULL;
 
-	if (session->get_frame_ts)
-		abs_ts = session->get_frame_ts(session->prov, frame_num);
+	if (session->funcs.get_frame_ts)
+		abs_ts = session->funcs.get_frame_ts(session->prov, frame_num);
 
 	if (!abs_ts)
 		ws_g_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);

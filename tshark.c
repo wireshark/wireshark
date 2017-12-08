@@ -43,7 +43,6 @@
 #include <glib.h>
 
 #include <epan/exceptions.h>
-#include <epan/epan-int.h>
 #include <epan/epan.h>
 
 #include <wsutil/clopts_common.h>
@@ -2343,7 +2342,7 @@ pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_pro
 }
 
 static const nstime_t *
-tshark_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
+tshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
   if (prov->ref && prov->ref->num == frame_num)
     return &prov->ref->abs_ts;
@@ -2366,14 +2365,14 @@ tshark_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
 static epan_t *
 tshark_epan_new(capture_file *cf)
 {
-  epan_t *epan = epan_new(&cf->provider);
+  static const struct packet_provider_funcs funcs = {
+    tshark_get_frame_ts,
+    cap_file_provider_get_interface_name,
+    cap_file_provider_get_interface_description,
+    NULL,
+  };
 
-  epan->get_frame_ts = tshark_get_frame_ts;
-  epan->get_interface_name = cap_file_provider_get_interface_name;
-  epan->get_interface_description = cap_file_provider_get_interface_description;
-  epan->get_user_comment = NULL;
-
-  return epan;
+  return epan_new(&cf->provider, &funcs);
 }
 
 #ifdef HAVE_LIBPCAP

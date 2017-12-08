@@ -30,7 +30,6 @@
 #include <glib.h>
 
 #include <epan/exceptions.h>
-#include <epan/epan-int.h>
 #include <epan/epan.h>
 
 #include <wsutil/clopts_common.h>
@@ -1023,7 +1022,7 @@ clean_exit:
 }
 
 static const nstime_t *
-tfshark_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
+tfshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
   if (prov->ref && prov->ref->num == frame_num)
     return &prov->ref->abs_ts;
@@ -1044,7 +1043,7 @@ tfshark_get_frame_ts(struct packet_provider *prov, guint32 frame_num)
 }
 
 static const char *
-no_interface_name(struct packet_provider *prov _U_, guint32 interface_id _U_)
+no_interface_name(struct packet_provider_data *prov _U_, guint32 interface_id _U_)
 {
     return "";
 }
@@ -1052,13 +1051,14 @@ no_interface_name(struct packet_provider *prov _U_, guint32 interface_id _U_)
 static epan_t *
 tfshark_epan_new(capture_file *cf)
 {
-  epan_t *epan = epan_new(&cf->provider);
+  static const struct packet_provider_funcs funcs = {
+    tfshark_get_frame_ts,
+    no_interface_name,
+    NULL,
+    NULL,
+  };
 
-  epan->get_frame_ts = tfshark_get_frame_ts;
-  epan->get_interface_name = no_interface_name;
-  epan->get_user_comment = NULL;
-
-  return epan;
+  return epan_new(&cf->provider, &funcs);
 }
 
 static gboolean

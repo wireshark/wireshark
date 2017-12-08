@@ -44,7 +44,18 @@ struct epan_column_info;
  * time stamps, comments, and other information outside the packet
  * data itself.
  */
-struct packet_provider;
+struct packet_provider_data;
+
+/*
+ * Structure containing pointers to functions supplied by the user
+ * of libwireshark.
+ */
+struct packet_provider_funcs {
+	const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, guint32 frame_num);
+	const char *(*get_interface_name)(struct packet_provider_data *prov, guint32 interface_id);
+	const char *(*get_interface_description)(struct packet_provider_data *prov, guint32 interface_id);
+	const char *(*get_user_comment)(struct packet_provider_data *prov, const frame_data *fd);
+};
 
 /**
 	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
@@ -138,7 +149,8 @@ void epan_conversation_init(void);
  */
 typedef struct epan_session epan_t;
 
-WS_DLL_PUBLIC epan_t *epan_new(struct packet_provider *prov);
+WS_DLL_PUBLIC epan_t *epan_new(struct packet_provider_data *prov,
+    const struct packet_provider_funcs *funcs);
 
 WS_DLL_PUBLIC const char *epan_get_user_comment(const epan_t *session, const frame_data *fd);
 
