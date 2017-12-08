@@ -7,9 +7,9 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
-#include "ui/recent.h"
-
 #include <ui/qt/utils/data_printer.h>
+
+#include <ui/recent.h>
 
 #include <stdint.h>
 
