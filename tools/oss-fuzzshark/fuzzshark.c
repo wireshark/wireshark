@@ -265,7 +265,7 @@ fuzz_init(int argc _U_, char **argv)
 #elif defined(FUZZ_DISSECTOR_TARGET)
 # define FUZZ_EPAN 2
 	fprintf(stderr, "oss-fuzzshark: configured for dissector: %s\n", FUZZ_DISSECTOR_TARGET);
-	fuzz_handle = get_dissector_handle(FUZZ_DISSECTOR_TARGET);
+	fuzz_handle = get_dissector_handle(NULL, FUZZ_DISSECTOR_TARGET);
 
 #else
 # define FUZZ_EPAN 3
