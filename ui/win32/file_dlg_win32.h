@@ -12,6 +12,7 @@
 #define __FILE_DLG_WIN32_H__
 
 #include "ui/file_dialog.h"
+#include "ui/packet_range.h"
 
 #ifdef __cplusplus
 extern "C" {
