@@ -359,7 +359,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
                 line += ' ';
                 if (build_x_pos) {
-                    x_pos_to_column_.append(QVector<int>().fill(tvb_pos - offset - 1, font_width_ / 2));
+                    x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset - 1, font_width_ / 2);
                 }
             }
 
@@ -373,7 +373,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
                 line += UTF8_MIDDLE_DOT;
             }
             if (build_x_pos) {
-                x_pos_to_column_.append(QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size()));
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size());
             }
         }
         addAsciiFormatRange(fmt_list, proto_start_, proto_len_, offset, max_tvb_pos, ModeProtocol);
