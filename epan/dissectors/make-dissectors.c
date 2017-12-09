@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include <glib.h>
 #include <wsutil/glib-compat.h>
 
@@ -129,48 +128,55 @@ int main(int argc, char **argv)
     s = g_string_sized_new(STRING_RESERVED_SIZE);
 
     g_string_append(s,
-           "/*\n"
-           " * Do not modify this file. Changes will be overwritten.\n"
-           " *\n"
-           " * Generated automatically by the \"dissectors.c\" target using\n"
-           " * \"make-dissectors\".\n"
-           " */\n"
-           "\n"
-           "#include <dissectors.h>\n"
-           "\n");
+            "/*\n"
+            " * Do not modify this file. Changes will be overwritten.\n"
+            " *\n"
+            " * Generated automatically using \"make-dissectors\".\n"
+            " */\n"
+            "\n"
+            "#include <dissectors.h>\n"
+            "\n");
 
     g_string_append_printf(s,
-           "const gulong dissector_reg_proto_count = %d;\n"
-           "const gulong dissector_reg_handoff_count = %d;\n"
-           "\n",
+            "const gulong dissector_reg_proto_count = %d;\n"
+            "const gulong dissector_reg_handoff_count = %d;\n"
+            "\n",
             protos->len, handoffs->len);
 
     for (i = 0; i < protos->len; i++) {
-        g_string_append_printf(s, "void %s(void);\n", (char *)protos->pdata[i]);
+        g_string_append_printf(s,
+            "void %s(void);\n",
+            (char *)protos->pdata[i]);
     }
     g_string_append(s,
-           "\n"
-           "dissector_reg_t dissector_reg_proto[] = {\n");
+            "\n"
+            "dissector_reg_t dissector_reg_proto[] = {\n");
     for (i = 0; i < protos->len; i++) {
-        g_string_append_printf(s, "    { \"%s\", %s },\n", (char *)protos->pdata[i], (char *)protos->pdata[i]);
+        g_string_append_printf(s,
+            "    { \"%s\", %s },\n",
+            (char *)protos->pdata[i], (char *)protos->pdata[i]);
     }
     g_string_append(s,
-           "    { NULL, NULL }\n"
-           "};\n"
-           "\n");
+            "    { NULL, NULL }\n"
+            "};\n"
+            "\n");
 
     for (i = 0; i < handoffs->len; i++) {
-        g_string_append_printf(s, "void %s(void);\n", (char *)handoffs->pdata[i]);
+        g_string_append_printf(s,
+            "void %s(void);\n",
+            (char *)handoffs->pdata[i]);
     }
     g_string_append(s,
-           "\n"
-           "dissector_reg_t dissector_reg_handoff[] = {\n");
+            "\n"
+            "dissector_reg_t dissector_reg_handoff[] = {\n");
     for (i = 0; i < handoffs->len; i++) {
-        g_string_append_printf(s, "    { \"%s\", %s },\n", (char *)handoffs->pdata[i], (char *)handoffs->pdata[i]);
+        g_string_append_printf(s,
+            "    { \"%s\", %s },\n",
+            (char *)handoffs->pdata[i], (char *)handoffs->pdata[i]);
     }
     g_string_append(s,
-           "    { NULL, NULL }\n"
-           "};\n");
+            "    { NULL, NULL }\n"
+            "};\n");
 
     if (!g_file_set_contents(outfile, s->str, s->len, &err)) {
         fprintf(stderr, "%s: %s\n", outfile, err->message);
