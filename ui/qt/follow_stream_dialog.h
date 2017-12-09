@@ -134,6 +134,8 @@ private:
     bool                    save_as_;
     bool                    use_regex_find_;
     QFile                   file_;
+
+    bool                    terminating_;
 };
 
 #endif // FOLLOW_STREAM_DIALOG_H
