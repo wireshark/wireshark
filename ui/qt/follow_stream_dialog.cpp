@@ -83,7 +83,8 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     last_from_server_(0),
     turns_(0),
     save_as_(false),
-    use_regex_find_(false)
+    use_regex_find_(false),
+    terminating_(false)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 2 / 3, parent.height());
@@ -318,6 +319,8 @@ void FollowStreamDialog::filterOut()
 
 void FollowStreamDialog::close()
 {
+    terminating_ = true;
+
     // Update filter - Use:
     //     previous_filter if 'Close' (passed in follow() method)
     //     filter_out_filter_ if 'Filter Out This Stream' (built by appending !current_stream to previous_filter)
@@ -373,9 +376,12 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
     }
 }
 
-// Not sure why we have to do this manually.
 void FollowStreamDialog::on_buttonBox_rejected()
 {
+    // Ignore the close button if FollowStreamDialog::close() is running.
+    if (terminating_)
+        return;
+
     WiresharkDialog::reject();
 }
 
