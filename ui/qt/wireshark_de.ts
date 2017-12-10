@@ -61,7 +61,7 @@
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestätigungen</translation>
     </message>
     <message>
         <source>License</source>
@@ -69,11 +69,11 @@
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile(n) kopieren</translation>
     </message>
 </context>
 <context>
@@ -2043,19 +2043,19 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>Dateiname</translation>
+        <translation type="vanished">Dateiname</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation>Erstellt</translation>
+        <translation type="vanished">Erstellt</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation>Modifiziert</translation>
+        <translation type="vanished">Modifiziert</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>Größe</translation>
+        <translation type="vanished">Größe</translation>
     </message>
     <message>
         <source>No files in Set</source>
@@ -2067,7 +2067,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Open this capture file</source>
-        <translation>Diese Mitschnittdatei laden</translation>
+        <translation type="vanished">Diese Mitschnittdatei laden</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -4462,12 +4462,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <oldsource>Show packet separator on Packet List</oldsource>
-        <translation type="unfinished">Pakettrenner in Paketliste anzeigen</translation>
+        <translation>Einstellungen Paketliste:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Pakettrenner</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -4584,6 +4583,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Richtung der Verbindung wechseln (den entgegengesetzten Flow anzeigen).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4760,6 +4767,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Shift+X</source>
         <translation>Shift+X</translation>
+    </message>
+    <message>
+        <source>Switch direction (swap between UL and DL)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -5151,6 +5166,10 @@ text-decoration: underline;
             <numerusform>%n Schnittstelle anzeigt, %1 versteckt</numerusform>
             <numerusform>%n Schnittstellen anzeigt, %1 versteckt</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -11004,7 +11023,7 @@ text-decoration: underline;
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
-        <translation>Anordnung</translation>
+        <translation type="vanished">Anordnung</translation>
     </message>
     <message>
         <source>Initializing dissectors</source>

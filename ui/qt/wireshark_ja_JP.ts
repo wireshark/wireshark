@@ -2036,19 +2036,19 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Filename</source>
-        <translation>ファイル名</translation>
+        <translation type="vanished">ファイル名</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation>作成日</translation>
+        <translation type="vanished">作成日</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation>修正日</translation>
+        <translation type="vanished">修正日</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>サイズ</translation>
+        <translation type="vanished">サイズ</translation>
     </message>
     <message>
         <source>No files in Set</source>
@@ -2060,7 +2060,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open this capture file</source>
-        <translation>このキャプチャファイルを開く</translation>
+        <translation type="vanished">このキャプチャファイルを開く</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -4445,8 +4445,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <oldsource>Show packet separator on Packet List</oldsource>
-        <translation type="unfinished">パケット一覧のパケット行間仕切りを表示</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -4571,6 +4570,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Reset</source>
         <translation>リセット</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;接続の向きを切り替えます (反対側のフローを表示します)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4747,6 +4754,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Shift+X</source>
         <translation>Shift+X</translation>
+    </message>
+    <message>
+        <source>Switch direction (swap between UL and DL)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -5107,6 +5122,10 @@ a:hover {
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -10932,7 +10951,7 @@ a:hover {
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
-        <translation>フォーム</translation>
+        <translation type="vanished">フォーム</translation>
     </message>
     <message>
         <source>Initializing dissectors</source>

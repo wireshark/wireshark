@@ -2037,31 +2037,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filename</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Created</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No files in Set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No capture loaded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open this capture file</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -4525,6 +4505,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset Graph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4698,6 +4686,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Shift+X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch direction (swap between UL and DL)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5060,6 +5056,10 @@ a:hover {
             <numerusform>%n interface shown, %1 hidden</numerusform>
             <numerusform>%n interfaces shown, %1 hidden</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -10843,10 +10843,6 @@ a:hover {
 </context>
 <context>
     <name>SplashOverlay</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Initializing dissectors</source>
         <translation type="unfinished"></translation>

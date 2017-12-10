@@ -2041,19 +2041,19 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>Nom du fichier</translation>
+        <translation type="vanished">Nom du fichier</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation>Crée</translation>
+        <translation type="vanished">Crée</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation>Modifié</translation>
+        <translation type="vanished">Modifié</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>Taille</translation>
+        <translation type="vanished">Taille</translation>
     </message>
     <message>
         <source>No files in Set</source>
@@ -2065,7 +2065,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Open this capture file</source>
-        <translation>Ouvrir le fichier de capture</translation>
+        <translation type="vanished">Ouvrir le fichier de capture</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -4462,8 +4462,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <oldsource>Show packet separator on Packet List</oldsource>
-        <translation type="unfinished">Voir le séparateur de paquet dans la Liste de Paquets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -4583,6 +4582,15 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;
+Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished">Changer de direction</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4759,6 +4767,14 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Shift+X</source>
         <translation>Majuscule-X</translation>
+    </message>
+    <message>
+        <source>Switch direction (swap between UL and DL)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -5120,6 +5136,10 @@ a:hover {
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -10946,7 +10966,7 @@ a:hover {
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
-        <translation>Formulaire</translation>
+        <translation type="vanished">Formulaire</translation>
     </message>
     <message>
         <source>Initializing dissectors</source>

@@ -61,7 +61,7 @@
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Riconoscimenti</translation>
     </message>
     <message>
         <source>License</source>
@@ -69,11 +69,11 @@
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia righe</translation>
     </message>
 </context>
 <context>
@@ -2043,19 +2043,19 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>Nome del file</translation>
+        <translation type="vanished">Nome del file</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation>Creato</translation>
+        <translation type="vanished">Creato</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation>Modificato</translation>
+        <translation type="vanished">Modificato</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>Dimensione</translation>
+        <translation type="vanished">Dimensione</translation>
     </message>
     <message>
         <source>No files in Set</source>
@@ -2067,7 +2067,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Open this capture file</source>
-        <translation>Apri questo file di cattura</translation>
+        <translation type="vanished">Apri questo file di cattura</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -4461,12 +4461,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <oldsource>Show packet separator on Packet List</oldsource>
-        <translation type="unfinished">Mostra il separatore nelle elenco dei pacchetti</translation>
+        <translation>Impostazioni elenco pacchetti:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra il separatore dei pacchetti</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -4583,6 +4582,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Reset</source>
         <translation>Ripristina</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inverti la direzione della connessione (guarda il flusso opposto).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished">Inverti direzione</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4759,6 +4766,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Shift+X</source>
         <translation>Maiusc+X</translation>
+    </message>
+    <message>
+        <source>Switch direction (swap between UL and DL)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -5150,6 +5165,10 @@ a:hover {
             <numerusform>%n interfaccia mostrata, %1 nascosta</numerusform>
             <numerusform>%n interfacce mostrate, %1 nascoste</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -11003,7 +11022,7 @@ a:hover {
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
-        <translation>Modulo</translation>
+        <translation type="vanished">Modulo</translation>
     </message>
     <message>
         <source>Initializing dissectors</source>

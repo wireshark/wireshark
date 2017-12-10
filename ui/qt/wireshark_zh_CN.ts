@@ -2037,19 +2037,19 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Filename</source>
-        <translation>文件名</translation>
+        <translation type="vanished">文件名</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation>创建时间</translation>
+        <translation type="vanished">创建时间</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation>修改时间</translation>
+        <translation type="vanished">修改时间</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>大小</translation>
+        <translation type="vanished">大小</translation>
     </message>
     <message>
         <source>No files in Set</source>
@@ -2061,7 +2061,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open this capture file</source>
-        <translation>打开此捕获文件</translation>
+        <translation type="vanished">打开此捕获文件</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -4446,8 +4446,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <oldsource>Show packet separator on Packet List</oldsource>
-        <translation type="unfinished">在分组列表显示分组分隔器</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -4568,6 +4567,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Reset</source>
         <translation>复位</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;切换连接的方向（查看反向流）。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished">切换方向</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4744,6 +4751,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Shift+X</source>
         <translation>Shift+X</translation>
+    </message>
+    <message>
+        <source>Switch direction (swap between UL and DL)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -5134,6 +5149,10 @@ text-decoration: underline;
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -10981,7 +11000,7 @@ text-decoration: underline;
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
-        <translation>表单</translation>
+        <translation type="vanished">表单</translation>
     </message>
     <message>
         <source>Initializing dissectors</source>
