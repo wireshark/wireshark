@@ -6,19 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include "config.h"
@@ -113,18 +101,14 @@ scan_local_interfaces(void (*update_cb)(void))
     GString           *ip_str;
     interface_options *interface_opts;
     gboolean          found = FALSE;
-    static gboolean   running = FALSE;
     GHashTable        *selected_devices;
 
-    if (running) {
-        /* scan_local_interfaces internally calls update_cb to process UI events
-           to avoid stuck UI while running possibly slow operations. A side effect
-           of this is that new interface changes can be detected before completing
-           the last one.
-           This return avoids recursive scan_local_interfaces operation. */
-        return;
-    }
-    running = TRUE;
+    /* scan_local_interfaces internally calls update_cb to process UI events
+       to avoid stuck UI while running possibly slow operations. A side effect
+       of this is that new interface changes can be detected before completing
+       the last one.
+       This return avoids recursive scan_local_interfaces operation. */
+    if (!g_mutex_trylock(&global_capture_opts_mtx)) return;
 
     /*
      * Clear list of known interfaces (all_ifaces) that will be re-discovered on
@@ -391,16 +375,21 @@ scan_local_interfaces(void (*update_cb)(void))
     }
 
     g_hash_table_destroy(selected_devices);
-    running = FALSE;
+    g_mutex_unlock(&global_capture_opts_mtx);
 }
+
+// XXX Copied from register.c
+#define CB_WAIT_TIME (150 * 1000) // microseconds
+static GThread *local_if_thread;
+static GAsyncQueue *local_interface_done_q;
 
 /*
  * Get the global interface list.  Generate it if we haven't done so
  * already.  This can be quite time consuming the first time, so
  * record how long it takes in the info log.
  */
-void
-fill_in_local_interfaces(void(*update_cb)(void))
+static void *
+fill_in_local_interfaces_worker(void *arg _U_)
 {
     GTimeVal start_time;
     GTimeVal end_time;
@@ -413,7 +402,7 @@ fill_in_local_interfaces(void(*update_cb)(void))
 
     if (!initialized) {
         /* do the actual work */
-        scan_local_interfaces(update_cb);
+        scan_local_interfaces(NULL);
         initialized = TRUE;
     }
     /* log how long it took */
@@ -422,6 +411,28 @@ fill_in_local_interfaces(void(*update_cb)(void))
                        ((end_time.tv_usec - start_time.tv_usec) / 1e6));
 
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() ends, taking %.3fs", elapsed);
+    g_async_queue_push(local_interface_done_q, GINT_TO_POINTER(TRUE));
+    return NULL;
+}
+
+void
+fill_in_local_interfaces_start(void)
+{
+    if (!local_interface_done_q) {
+        g_mutex_init(&global_capture_opts_mtx);
+        local_interface_done_q = g_async_queue_new();
+    }
+    local_if_thread = g_thread_new("fill_in_local_interfaces_worker", &fill_in_local_interfaces_worker, NULL);
+}
+
+void
+fill_in_local_interfaces_wait(void(*update_cb)(void))
+{
+    while (!g_async_queue_timeout_pop(local_interface_done_q, CB_WAIT_TIME)) {
+        update_cb();
+    }
+    g_thread_join(local_if_thread);
+    local_if_thread = NULL;
 }
 
 void

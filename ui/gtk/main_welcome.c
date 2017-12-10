@@ -1276,7 +1276,6 @@ welcome_new(void)
     g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_VIEW, topic_capture_to_fill);
 
 #ifdef HAVE_LIBPCAP
-    fill_in_local_interfaces(main_window_update);
     fill_capture_box();
 
     /* capture help topic */

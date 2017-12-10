@@ -469,6 +469,18 @@ int main(int argc, char *qt_argv[])
     /* Assemble the run-time version information string */
     runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
+    /*
+     * Set the initial values in the capture options and fill in our
+     * interfaces. Options might be overwritten by preference settings
+     * and then again by the command line parameters. Interfaces might
+     * take a while to discover, so start discovering them as early as
+     * possible.
+     */
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
+    capture_opts_init(&global_capture_opts);
+#endif
+    fill_in_local_interfaces_start();
+
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -549,6 +561,7 @@ int main(int argc, char *qt_argv[])
                       rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
+
     wsApp->applyCustomColorsFromRecent();
 
     // Initialize our language
@@ -584,12 +597,6 @@ int main(int argc, char *qt_argv[])
     set_console_log_handler();
 #ifdef DEBUG_STARTUP_TIME
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
-#endif
-
-#ifdef HAVE_LIBPCAP
-    /* Set the initial values in the capture options. This might be overwritten
-       by preference settings and then again by the command line parameters. */
-    capture_opts_init(&global_capture_opts);
 #endif
 
     init_report_message(vfailure_alert_box, vwarning_alert_box,
@@ -696,10 +703,6 @@ int main(int argc, char *qt_argv[])
     if (global_commandline_info.dfilter != NULL)
         dfilter = QString(global_commandline_info.dfilter);
 
-    /* Removed thread code:
-     * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
-     */
-
     timestamp_set_type(recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type (recent.gui_seconds_format);
@@ -710,11 +713,14 @@ int main(int argc, char *qt_argv[])
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
-    fill_in_local_interfaces(main_window_update);
+    /* global_capture_opts_mtx isn't strictly necessary but it does make
+     * global_capture_opts' chain of custody a bit more obvious. */
+    fill_in_local_interfaces_wait(main_window_update);
+    g_mutex_lock(&global_capture_opts_mtx);
 
     if  (global_commandline_info.list_link_layer_types)
         caps_queries |= CAPS_QUERY_LINK_TYPES;
-     if (global_commandline_info.list_timestamp_types)
+    if (global_commandline_info.list_timestamp_types)
         caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
 
     if (global_commandline_info.start_capture || caps_queries) {
@@ -818,31 +824,22 @@ int main(int argc, char *qt_argv[])
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();
-////////
 
     packet_list_enable_color(recent.packet_list_colorize);
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: fetch recent color settings");
     packet_list_enable_color(TRUE);
 
-////////
-
-
-////////
     if (!color_filters_init(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
-
-////////
 
 #ifdef HAVE_LIBPCAP
     /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
     if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
         global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
     }
-#else /* HAVE_LIBPCAP */
-    ////////
 #endif /* HAVE_LIBPCAP */
 
     wsApp->allSystemsGo();
@@ -922,6 +919,7 @@ int main(int argc, char *qt_argv[])
             global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
         }
     }
+    g_mutex_unlock(&global_capture_opts_mtx);
 #endif /* HAVE_LIBPCAP */
 
     // UAT files used in configuration profiles which are used in Qt dialogs
