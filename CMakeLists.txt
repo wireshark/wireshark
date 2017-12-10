@@ -213,7 +213,7 @@ message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PRO
 
 include(UseLemon)
 include(UseMakePluginReg)
-include(UseMakeTapReg)
+include(UseMakeTaps)
 include(UseAsn2Wrs)
 
 # The following snippet has been taken from
@@ -1579,38 +1579,38 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(TSHARK_TAP_SRC
-	ui/cli/tap-camelsrt.c
-	ui/cli/tap-comparestat.c
-	ui/cli/tap-diameter-avp.c
-	ui/cli/tap-expert.c
-	ui/cli/tap-exportobject.c
-	ui/cli/tap-endpoints.c
-	ui/cli/tap-flow.c
-	ui/cli/tap-follow.c
-	ui/cli/tap-funnel.c
-	ui/cli/tap-gsm_astat.c
-	ui/cli/tap-hosts.c
-	ui/cli/tap-httpstat.c
-	ui/cli/tap-icmpstat.c
-	ui/cli/tap-icmpv6stat.c
-	ui/cli/tap-iostat.c
-	ui/cli/tap-iousers.c
-	ui/cli/tap-macltestat.c
-	ui/cli/tap-protocolinfo.c
-	ui/cli/tap-protohierstat.c
-	ui/cli/tap-rlcltestat.c
-	ui/cli/tap-rpcprogs.c
-	ui/cli/tap-rtd.c
-	ui/cli/tap-rtp.c
-	ui/cli/tap-rtspstat.c
-	ui/cli/tap-sctpchunkstat.c
-	ui/cli/tap-simple_stattable.c
-	ui/cli/tap-sipstat.c
-	ui/cli/tap-smbsids.c
-	ui/cli/tap-srt.c
-	ui/cli/tap-stats_tree.c
-	ui/cli/tap-sv.c
-	ui/cli/tap-wspstat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-camelsrt.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-comparestat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-diameter-avp.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-expert.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-exportobject.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-endpoints.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-flow.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-follow.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-funnel.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-gsm_astat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-hosts.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-httpstat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-icmpstat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-icmpv6stat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-iostat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-iousers.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-macltestat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-protocolinfo.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-protohierstat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-rlcltestat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-rpcprogs.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-rtd.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-rtp.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-rtspstat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-sctpchunkstat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-simple_stattable.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-sipstat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-smbsids.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-srt.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-stats_tree.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-sv.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-wspstat.c
 )
 
 set(INSTALL_DIRS
@@ -2438,7 +2438,6 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 endif()
 
 register_tap_files(tshark-tap-register.c
-	tshark-taps
 	${TSHARK_TAP_SRC}
 )
 

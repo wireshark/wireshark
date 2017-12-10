@@ -691,23 +691,8 @@ WIRESHARK_QT_SRC += \
 	extcap_options_dialog.cpp
 endif
 
-#
-# Build "wireshark-tap-register.c", which contains a function
-# "register_all_tap_listeners()"
-# that calls the register routines for all wireshark tap listeners.
-#
-# We do this by grepping through sources.
-#
-# Formatting conventions:  The name of the tap_listener_register_*
-# routines must start in column zero, or must be preceded only by
-# "void " starting in column zero, and must not be inside #if.
-#
-# The first argument is the directory in which the source files live.
-# All subsequent arguments are the files to scan.
-#
-wireshark-tap-register.c: $(WIRESHARK_QT_TAP_SRC) $(top_srcdir)/tools/make-tap-reg.py
-	@echo Making wireshark-tap-register.c
-	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_QT_TAP_SRC)
+wireshark-tap-register.c: $(WIRESHARK_QT_TAP_SRC) ../make-taps
+	$(AM_V_GEN)../make-taps $@ $(filter %.cpp,$^)
 
 libqtui_a_SOURCES = \
 	$(WIRESHARK_QT_SRC)		\
@@ -725,8 +710,6 @@ nodist_libqtui_a_SOURCES = \
 libqtui_a_DEPENDENCIES =
 
 CLEANFILES = \
-	wireshark-tap-register.c-tmp	\
-	wireshark-tap-register-cache.pkl \
 	*.moc.cpp			\
 	qrc_*.cpp			\
 	ui_*.h

@@ -72,6 +72,7 @@
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
 #endif
+#include "ui/taps.h"
 #include "ui/util.h"
 #include "ui/ws_ui_util.h"
 #include "ui/decode_as_utils.h"
@@ -933,7 +934,10 @@ main(int argc, char *argv[])
 #ifdef HAVE_EXTCAP
   extcap_register_preferences();
 #endif
-  register_all_tap_listeners();
+  /* Register all tap listeners. */
+  for (tap_reg_t *t = tap_reg_listener; t->cb_func != NULL; t++) {
+    t->cb_func();
+  }
   conversation_table_set_gui_info(init_iousers);
   hostlist_table_set_gui_info(init_hostlists);
   srt_table_iterate_tables(register_srt_tables, NULL);

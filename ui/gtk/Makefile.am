@@ -269,10 +269,6 @@ endif
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GTK_CFLAGS) \
 	$(PORTAUDIO_INCLUDES)
 
-CLEANFILES = \
-	wireshark-tap-register.c-tmp		\
-	wireshark-tap-register-cache.pkl
-
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)
 
@@ -314,23 +310,8 @@ nodist_libgtkui_a_SOURCES = \
 
 libgtkui_a_DEPENDENCIES =
 
-#
-# Build "wireshark-tap-register.c", which contains a function
-# "register_all_tap_listeners()"
-# that calls the register routines for all wireshark tap listeners.
-#
-# We do this by grepping through sources.
-#
-# Formatting conventions:  The name of the tap_listener_register_*
-# routines must start in column zero, or must be preceded only by
-# "void " starting in column zero, and must not be inside #if.
-#
-# The first argument is the directory in which the source files live.
-# All subsequent arguments are the files to scan.
-#
-wireshark-tap-register.c:  $(WIRESHARK_TAP_SRC) Makefile_custom.common $(top_srcdir)/tools/make-tap-reg.py
-	@echo Making wireshark-tap-register.c
-	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_TAP_SRC)
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-taps
+	$(AM_V_GEN)../make-taps $@ $(filter %.c,$^)
 
 wireshark-gresources.c: main.gresources.xml $(shell glib-compile-resources --sourcedir=$(top_srcdir) --generate-dependencies $(srcdir)/main.gresources.xml)
 	@echo Making $@

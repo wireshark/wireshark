@@ -63,8 +63,6 @@ WS_DLL_PUBLIC void register_all_protocols(register_cb cb, gpointer client_data);
  */
 WS_DLL_PUBLIC void register_all_protocol_handoffs(register_cb cb, gpointer client_data);
 
-WS_DLL_LOCAL void register_all_tap_listeners(void);
-
 WS_DLL_PUBLIC gulong register_count(void);
 
 #ifdef __cplusplus

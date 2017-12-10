@@ -43,7 +43,6 @@ epan/wslua/register_wslua.c
 epan/wslua/taps.txt
 epan/wslua/taps_wslua.c
 epan/ps.c
-ui/cli/tshark-tap-register-cache.pkl
 plugins/*/plugin.c
 plugins/mate/mate_parser.c
 version.h
@@ -54,7 +53,7 @@ wiretap/ascend.h
 wiretap/k12text.c
 wiretap/version_info.c
 wireshark-tap-register.c
-wireshark-tap-register-cache.pkl
+ui/make-taps
 ui/gtk/wireshark-gresources.c
 ui/gtk/wireshark-gresources.h
 
@@ -121,11 +120,8 @@ CPackSourceConfig.cmake
 lib/
 WiresharkConfig.cmake
 WiresharkConfigVersion.cmake
-epan/dissectors/_regc.tmp
-epan/dissectors/files.txt
 wireshark.pc
 run/
-tshark-tap-register-cache.pkl
 build.ninja
 rules.ninja
 .ninja_deps

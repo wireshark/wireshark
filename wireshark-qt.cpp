@@ -80,6 +80,7 @@
 #include "ui/dissect_opts.h"
 #include "ui/commandline.h"
 #include "ui/capture_ui_utils.h"
+#include "ui/taps.h"
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/utils/color_utils.h"
@@ -658,7 +659,10 @@ int main(int argc, char *qt_argv[])
     register_all_plugin_tap_listeners();
 #endif
 
-    register_all_tap_listeners();
+    /* Register all tap listeners. */
+    for (tap_reg_t *t = tap_reg_listener; t->cb_func != NULL; t++) {
+        t->cb_func();
+    }
     conversation_table_set_gui_info(init_conversation_table);
     hostlist_table_set_gui_info(init_endpoint_table);
     srt_table_iterate_tables(register_service_response_tables, NULL);

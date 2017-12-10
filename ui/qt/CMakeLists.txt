@@ -422,19 +422,19 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(WIRESHARK_QT_TAP_SRC
-	expert_info_dialog.cpp
-	funnel_statistics.cpp
-	gsm_map_summary_dialog.cpp
-	io_graph_dialog.cpp
-	lte_mac_statistics_dialog.cpp
-	lte_rlc_statistics_dialog.cpp
-	mtp3_summary_dialog.cpp
-	multicast_statistics_dialog.cpp
-	rtp_stream_dialog.cpp
-	sctp_all_assocs_dialog.cpp
-	sctp_assoc_analyse_dialog.cpp
-	stats_tree_dialog.cpp
-	wlan_statistics_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/expert_info_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/funnel_statistics.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gsm_map_summary_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/io_graph_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/lte_mac_statistics_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/lte_rlc_statistics_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/mtp3_summary_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/multicast_statistics_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rtp_stream_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sctp_all_assocs_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sctp_assoc_analyse_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/stats_tree_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/wlan_statistics_dialog.cpp
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
@@ -613,7 +613,6 @@ set_source_files_properties(
 add_definitions(${QT_DEFINITIONS})
 
 register_tap_files(wireshark-tap-register.c
-	taps
 	${WIRESHARK_QT_TAP_SRC}
 )
 

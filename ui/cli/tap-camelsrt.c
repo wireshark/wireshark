@@ -258,7 +258,7 @@ static stat_tap_ui camelsrt_ui = {
   NULL
 };
 
-void /* Next line mandatory */
+void
 register_tap_listener_camelsrt(void)
 {
   register_stat_tap_ui(&camelsrt_ui, NULL);

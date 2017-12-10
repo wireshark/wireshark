@@ -112,6 +112,7 @@
 #include "ui/util.h"
 #include "ui/dissect_opts.h"
 #include "ui/commandline.h"
+#include "ui/taps.h"
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
@@ -2236,7 +2237,10 @@ main(int argc, char *argv[])
     register_all_plugin_tap_listeners();
 #endif
 
-    register_all_tap_listeners();
+    /* Register all tap listeners. */
+    for (tap_reg_t *t = tap_reg_listener; t->cb_func != NULL; t++) {
+        t->cb_func();
+    }
     conversation_table_set_gui_info(init_conversation_table);
     hostlist_table_set_gui_info(init_hostlist_table);
     srt_table_iterate_tables(register_service_response_tables, NULL);

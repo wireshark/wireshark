@@ -193,31 +193,31 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(WIRESHARK_TAP_SRC
-	compare_stat.c
-	dcerpc_stat.c
-	expert_comp_dlg.c
-	flow_graph.c
-	funnel_stat.c
-	gsm_map_summary.c
-	iax2_analysis.c
-	io_stat.c
-	lbm_stream_dlg.c
-	mac_lte_stat_dlg.c
-	mcast_stream_dlg.c
-	mtp3_summary.c
-	rlc_lte_graph.c
-	rlc_lte_stat_dlg.c
-	rpc_stat.c
-	rtp_analysis.c
-	rtp_stream_dlg.c
-	sctp_assoc_analyse.c
-	sctp_chunk_stat.c
-	sctp_chunk_stat_dlg.c
-	sctp_stat_dlg.c
-	stats_tree_stat.c
-	tcp_graph.c
-	voip_calls_dlg.c
-	wlan_stat_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/compare_stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/dcerpc_stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/expert_comp_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/flow_graph.c
+	${CMAKE_CURRENT_SOURCE_DIR}/funnel_stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/gsm_map_summary.c
+	${CMAKE_CURRENT_SOURCE_DIR}/iax2_analysis.c
+	${CMAKE_CURRENT_SOURCE_DIR}/io_stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lbm_stream_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mac_lte_stat_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mcast_stream_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mtp3_summary.c
+	${CMAKE_CURRENT_SOURCE_DIR}/rlc_lte_graph.c
+	${CMAKE_CURRENT_SOURCE_DIR}/rlc_lte_stat_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/rpc_stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/rtp_analysis.c
+	${CMAKE_CURRENT_SOURCE_DIR}/rtp_stream_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/sctp_assoc_analyse.c
+	${CMAKE_CURRENT_SOURCE_DIR}/sctp_chunk_stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/sctp_chunk_stat_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/sctp_stat_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/stats_tree_stat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/tcp_graph.c
+	${CMAKE_CURRENT_SOURCE_DIR}/voip_calls_dlg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wlan_stat_dlg.c
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
@@ -263,7 +263,6 @@ if(WIN32)
 endif()
 
 register_tap_files(wireshark-tap-register.c
-	taps
 	${WIRESHARK_TAP_SRC}
 )
 
