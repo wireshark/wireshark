@@ -1238,7 +1238,7 @@ static void
 init_parser(void)
 {
 	/* specify what counts as character */
-	tvbparse_wanted_t *want_identifier = tvbparse_chars(-1, 1, 0,
+	tvbparse_wanted_t *want_identifier_str = tvbparse_chars(-1, 1, 0,
 		"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789", NULL, NULL, NULL);
 	/* this is the equal sign used in assignments */
 	tvbparse_wanted_t *want_equalsign = tvbparse_char(-1, "=", NULL, NULL, NULL);
@@ -1250,9 +1250,14 @@ init_parser(void)
 		NULL);
 	tvbparse_wanted_t *want_comma = tvbparse_until(-1, NULL, NULL, NULL,
 		tvbparse_char(-1, ",", NULL, NULL, NULL), TP_UNTIL_SPEND);
+	/* the following specifies an identifier */
+	tvbparse_wanted_t *want_identifier = tvbparse_set_seq(-1, NULL, NULL, NULL,
+		want_identifier_str,
+		tvbparse_some(-1, 0, 1, NULL, NULL, NULL, want_comma),
+		NULL);
 	/* the following specifies an assignment of the form identifier=value */
 	tvbparse_wanted_t *want_assignment = tvbparse_set_seq(-1, NULL, NULL, NULL,
-		want_identifier,
+		want_identifier_str,
 		want_equalsign,
 		tvbparse_some(-1, 0, 1, NULL, NULL, NULL, want_value),
 		tvbparse_some(-1, 0, 1, NULL, NULL, NULL, want_comma),
