@@ -23,24 +23,6 @@
 
 #include <wsutil/filesystem.h>
 
-/* open the info */
-void capture_info_open(capture_session *cap_session, info_data_t* cap_info)
-{
-    if (cap_info->counts.counts_hash != NULL)
-    {
-        /* Clean up any previous lists of packet counts */
-        g_hash_table_destroy(cap_info->counts.counts_hash);
-    }
-    cap_info->counts.counts_hash = g_hash_table_new_full( g_direct_hash, g_direct_equal, NULL, g_free );
-    cap_info->counts.other = 0;
-    cap_info->counts.total = 0;
-
-    cap_info->wtap = NULL;
-    cap_info->ui.counts = &cap_info->counts;
-
-    capture_info_ui_create(&cap_info->ui, cap_session);
-}
-
 
 static const char *
 cf_open_error_message(int err, gchar *err_info, gboolean for_writing,

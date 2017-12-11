@@ -49,8 +49,6 @@ typedef struct _info_data {
     capture_info      ui;         /* user interface data */
 } info_data_t;
 
-/* open the info - init values (wtap, counts), create dialog */
-extern void capture_info_open(capture_session *cap_session, info_data_t* cap_info);
 
 /* new file arrived - (eventually close old wtap), open wtap */
 extern gboolean capture_info_new_file(const char *new_filename, info_data_t* cap_info);
