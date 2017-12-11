@@ -2172,7 +2172,6 @@ main(int argc, char *argv[])
 
     capture_session_init(&global_capture_session, &cfile);
 #endif
-    fill_in_local_interfaces_start();
 
     init_report_message(vfailure_alert_box, vwarning_alert_box,
                         open_failure_alert_box, read_failure_alert_box,
@@ -2275,8 +2274,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     splash_update(RA_INTERFACES, NULL, (gpointer)splash_win);
 
-    fill_in_local_interfaces_wait(main_window_update);
-    g_mutex_lock(&global_capture_opts_mtx);
+    fill_in_local_interfaces(main_window_update);
 
     if  (global_commandline_info.list_link_layer_types)
         caps_queries |= CAPS_QUERY_LINK_TYPES;
@@ -2613,7 +2611,6 @@ main(int argc, char *argv[])
         if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
             global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
         }
-        g_mutex_unlock(&global_capture_opts_mtx);
 #else /* HAVE_LIBPCAP */
         show_main_window(FALSE);
         check_and_warn_user_startup(global_commandline_info.cf_name);

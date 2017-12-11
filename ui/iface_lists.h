@@ -2,7 +2,23 @@
  * Declarations of routines to manage the global list of interfaces and to
  * update widgets/windows displaying items from those lists
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef __IFACE_LISTS_H__
@@ -12,14 +28,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
-/*
- * Update the global interface list in the background. Create it if we
- * haven't done so already.
- */
-extern void fill_in_local_interfaces_start(void);
-#endif
-
 #ifdef HAVE_LIBPCAP
 /*
  * Used when sorting an interface list into alphabetical order by
@@ -28,14 +36,15 @@ extern void fill_in_local_interfaces_start(void);
 extern gint if_list_comparator_alph(const void *first_arg, const void *second_arg);
 
 /*
- * Update the global interface list in the foreground.
+ * Get the global interface list.  Generate it if we haven't
+ * done so already.
  */
-extern void scan_local_interfaces(void (*update_cb)(void));
+extern void fill_in_local_interfaces(void(*update_cb)(void));
 
 /*
- * Wait for the global interface list creation to finish.
+ * Update the global interface list.
  */
-extern void fill_in_local_interfaces_wait(void(*update_cb)(void));
+extern void scan_local_interfaces(void (*update_cb)(void));
 
 /*
  * Hide the interfaces
