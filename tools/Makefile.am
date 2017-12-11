@@ -66,7 +66,6 @@ EXTRA_DIST = \
 	make-plugin-reg.py				\
 	make-sminmpec.pl				\
 	make-services.py				\
-	make-tap-reg.py					\
 	make-usb.py					\
 	make_charset_table.c				\
 	msnchat						\
