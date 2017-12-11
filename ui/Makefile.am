@@ -133,6 +133,7 @@ WIRESHARK_UI_INCLUDES = \
 	tap-rtp-common.h	\
 	tap-sctp-analysis.h	\
 	tap-tcp-stream.h	\
+	taps.h			\
 	text_import.h		\
 	text_import_scanner.h	\
 	time_shift.h		\

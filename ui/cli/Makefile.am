@@ -26,20 +26,9 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS) \
 
 noinst_LIBRARIES = libcliui.a
 
-# Generated header files that we want in the distribution.
-GENERATED_HEADER_FILES =
-
-# Generated C source files that we want in the distribution.
-GENERATED_C_FILES = \
+# Generated files not in the distribution.
+NODIST_GENERATED_FILES = \
 	tshark-tap-register.c
-
-# All the generated files.
-GENERATED_FILES = \
-	$(GENERATED_HEADER_FILES) \
-	$(GENERATED_C_FILES)
-
-# Files that generate compileable files
-GENERATOR_FILES =
 
 # sources for TShark taps
 TSHARK_TAP_SRC = \
@@ -83,19 +72,16 @@ noinst_HEADERS = \
 
 # All sources that should be put in the source distribution tarball
 libcliui_a_SOURCES = \
-	$(TSHARK_TAP_SRC) \
-	$(noinst_HEADERS) \
-	$(GENERATED_HEADER_FILES) \
-	$(GENERATED_C_FILES)
+	$(TSHARK_TAP_SRC)
 
-libcliui_a_DEPENDENCIES =
+nodist_libcliui_a_SOURCES = \
+	$(NODIST_GENERATED_FILES)
 
 EXTRA_DIST = \
-	.editorconfig		\
-	$(GENERATOR_FILES)
+	.editorconfig
 
-MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)
+DISTCLEANFILES = \
+	$(NODIST_GENERATED_FILES)
 
 tshark-tap-register.c: $(TSHARK_TAP_SRC) ../make-taps
 	$(AM_V_GEN)../make-taps $@ $(filter %.c,$^)

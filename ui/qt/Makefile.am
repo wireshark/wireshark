@@ -121,11 +121,11 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_wireless_frame.h
 
 # Generated C source files that we want in the distribution.
-GENERATED_C_FILES = \
-	wireshark-tap-register.c
+GENERATED_C_FILES =
 
 # Generated C source files that we don't want in the distribution.
-NODIST_GENERATED_C_FILES =
+NODIST_GENERATED_C_FILES = \
+	wireshark-tap-register.c
 
 # Generated C++ source files that we want in the distribution.
 GENERATED_CPP_FILES =
@@ -706,8 +706,6 @@ nodist_libqtui_a_SOURCES = \
 	$(NODIST_GENERATED_C_FILES)	\
 	$(NODIST_GENERATED_CPP_FILES)	\
 	$(NODIST_GENERATED_HEADER_FILES)
-
-libqtui_a_DEPENDENCIES =
 
 CLEANFILES = \
 	*.moc.cpp			\

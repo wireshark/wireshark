@@ -23,11 +23,11 @@ include $(top_srcdir)/Makefile.am.inc
 include Makefile_custom.common
 
 # Generated C source files that we want in the distribution.
-GENERATED_FILES = \
-	wireshark-tap-register.c
+GENERATED_FILES =
 
 # Generated C source files that we don't want in the distribution.
-NODIST_GENERATED_FILES =
+NODIST_GENERATED_FILES = \
+	wireshark-tap-register.c
 
 # Files that generate compileable files
 GENERATOR_FILES = \
@@ -307,8 +307,6 @@ libgtkui_a_SOURCES = \
 nodist_libgtkui_a_SOURCES = \
 	$(NODIST_GENERATED_FILES)	\
 	$(BUILD_PIXBUF_CSOURCE)
-
-libgtkui_a_DEPENDENCIES =
 
 wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-taps
 	$(AM_V_GEN)../make-taps $@ $(filter %.c,$^)
