@@ -12,6 +12,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
+/*
+ * Update the global interface list in the background. Create it if we
+ * haven't done so already.
+ */
+extern void fill_in_local_interfaces_start(void);
+#endif
+
 #ifdef HAVE_LIBPCAP
 /*
  * Used when sorting an interface list into alphabetical order by
@@ -23,12 +31,6 @@ extern gint if_list_comparator_alph(const void *first_arg, const void *second_ar
  * Update the global interface list in the foreground.
  */
 extern void scan_local_interfaces(void (*update_cb)(void));
-
-/*
- * Update the global interface list in the background. Create it if we
- * haven't done so already.
- */
-extern void fill_in_local_interfaces_start(void);
 
 /*
  * Wait for the global interface list creation to finish.

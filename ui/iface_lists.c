@@ -414,17 +414,23 @@ fill_in_local_interfaces_worker(void *arg _U_)
     g_async_queue_push(local_interface_done_q, GINT_TO_POINTER(TRUE));
     return NULL;
 }
+#endif
 
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
 void
 fill_in_local_interfaces_start(void)
 {
+#ifdef HAVE_LIBPCAP
     if (!local_interface_done_q) {
         g_mutex_init(&global_capture_opts_mtx);
         local_interface_done_q = g_async_queue_new();
     }
     local_if_thread = g_thread_new("fill_in_local_interfaces_worker", &fill_in_local_interfaces_worker, NULL);
+#endif
 }
+#endif
 
+#ifdef HAVE_LIBPCAP
 void
 fill_in_local_interfaces_wait(void(*update_cb)(void))
 {

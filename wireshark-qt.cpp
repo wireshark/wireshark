@@ -96,6 +96,10 @@
 
 #include "caputils/capture-pcap-util.h"
 
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
+#include "ui/capture_globals.h"
+#endif
+
 #include <QMessageBox>
 
 #ifdef _WIN32

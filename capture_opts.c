@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
+#include "capture_opts.h"
+#endif
+
 #ifdef HAVE_LIBPCAP
 
 #include <string.h>
@@ -21,7 +25,6 @@
 
 #include <glib.h>
 
-#include "capture_opts.h"
 #include "ringbuffer.h"
 
 #include <wsutil/clopts_common.h>
@@ -34,8 +37,9 @@
 #include "ui/filter_files.h"
 
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
+#endif
 
-
+#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
 void
 capture_opts_init(capture_options *capture_opts)
 {
@@ -46,7 +50,9 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.descr           = NULL;
     capture_opts->default_options.cfilter         = NULL;
     capture_opts->default_options.has_snaplen     = FALSE;
+#ifdef HAVE_LIBPCAP
     capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE_STANDARD;
+#endif
     capture_opts->default_options.linktype        = -1; /* use interface default */
     capture_opts->default_options.promisc_mode    = TRUE;
     capture_opts->default_options.if_type         = IF_WIRED;
@@ -103,8 +109,9 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->has_file_interval               = FALSE;
     capture_opts->file_interval                   = 60;               /* 1 min */
     capture_opts->has_ring_num_files              = FALSE;
+#ifdef HAVE_LIBPCAP
     capture_opts->ring_num_files                  = RINGBUFFER_MIN_NUM_FILES;
-
+#endif
     capture_opts->has_autostop_files              = FALSE;
     capture_opts->autostop_files                  = 1;
     capture_opts->has_autostop_packets            = FALSE;
@@ -118,7 +125,9 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->output_to_pipe                  = FALSE;
     capture_opts->capture_child                   = FALSE;
 }
+#endif
 
+#ifdef HAVE_LIBPCAP
 void
 capture_opts_cleanup(capture_options *capture_opts)
 {
