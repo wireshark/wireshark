@@ -5313,14 +5313,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 				switch (hfinfo->type) {
 
-					case FT_NONE: /* Nothing to add */
-						if (offset_r == 0) {
-							result[0] = '\0';
-						} else if (result[offset_r-1] == ',') {
-							result[offset_r-1] = '\0';
-						}
-						break;
-
+					case FT_NONE:
 					case FT_PROTOCOL:
 						/* prevent multiple check marks by setting result directly */
 						g_strlcpy(result, UTF8_CHECK_MARK, size);
