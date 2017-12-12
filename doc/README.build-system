@@ -1,0 +1,21 @@
+Wireshark can be built using either CMake or autotools.
+
+CMake is supported on all platforms and required for building on Windows and
+macOS.
+
+Autotools is supported on UNIX and UNIX-like systems (other than macOS). Generally
+we prefer to require a portable make rather than writing portable makefiles[1].
+That means GNU Make. See also [2] for all the pitfalls involved in writing portable
+makefiles. However requiring very recent GNU Make versions is discouraged
+out of ease-of-use concerns. Currently Wireshark should build with any
+reasonably recent GNU Make version (released say in the last ten years).
+
+You are encouraged to report any autotools portability problems in the Wireshark
+bug tracker[3] but please be advised that vanilla POSIX make is generally not
+sufficiently powerful (or convenient) to build a large software project like
+Wireshark so GNU Make is the target implementation. In particular it is an
+explicit goal to support VPATH builds.
+
+[1]http://make.mad-scientist.net/papers/rules-of-makefiles/
+[2]https://www.gnu.org/savannah-checkouts/gnu/autoconf/manual/html_node/Portable-Make.html#Portable-Make
+[3]https://bugs.wireshark.org
