@@ -31,6 +31,7 @@
 #include <wsutil/bits_ctz.h>
 #include <wsutil/bits_count_ones.h>
 #include <wsutil/sign_ext.h>
+#include <wsutil/utf8_entities.h>
 
 #include <ftypes/ftypes-int.h>
 
@@ -5321,8 +5322,8 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						break;
 
 					case FT_PROTOCOL:
-						/* prevent multiple "yes" entries by setting result directly */
-						g_strlcpy(result, "Yes", size);
+						/* prevent multiple check marks by setting result directly */
+						g_strlcpy(result, UTF8_CHECK_MARK, size);
 						break;
 
 					case FT_UINT_BYTES:
