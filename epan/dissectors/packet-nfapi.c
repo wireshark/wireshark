@@ -11614,8 +11614,8 @@ void proto_register_nfapi(void)
 
 	static ei_register_info ei[] =
 	{
-		{ &ei_invalid_range, { "nfapi.invalid.range", PI_PROTOCOL, PI_WARN, NULL, EXPFILL } },
-		{ &ei_invalid_tlv_length, { "nfapi.invalid.tlv.length", PI_PROTOCOL, PI_ERROR, NULL, EXPFILL } },
+		{ &ei_invalid_range, { "nfapi.invalid.range", PI_PROTOCOL, PI_WARN, "Invalid range", EXPFILL } },
+		{ &ei_invalid_tlv_length, { "nfapi.invalid.tlv.length", PI_PROTOCOL, PI_ERROR, "Invalid TLV length", EXPFILL } },
 	};
 
 	expert_module_t* expert_nfapi;
