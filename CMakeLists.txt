@@ -464,7 +464,6 @@ else()
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
-		-Wcomma
 	)
 
 	#
@@ -517,6 +516,11 @@ else()
 		# -Wimplicit-function-declaration into an error by default.
 		#
 		-Werror=implicit
+		#
+		# The Qt headers in version 5.10 introduced a lot of
+		# "Possible misuse of comma operator here" warnings.
+		#
+		-Wcomma
 	)
 
 	set(CXX_WARN_FLAGS
@@ -528,6 +532,13 @@ else()
 		# errors on 64-bit systems so only enable this for version 5.9 and greater.
 		set(CXX_WARN_FLAGS ${CXX_WARN_FLAGS}
 			-Wshorten-64-to-32
+		)
+	endif()
+	if (Qt5Core_VERSION VERSION_LESS 5.10)
+		# The Qt headers in version 5.10 introduced a lot of
+		# "Possible misuse of comma operator here" warnings.
+		set(CXX_WARN_FLAGS ${CXX_WARN_FLAGS}
+			-Wcomma
 		)
 	endif()
 
