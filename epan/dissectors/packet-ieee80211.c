@@ -6796,12 +6796,15 @@ dissect_vendor_wifi_alliance_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static int
+dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+
+static int
 dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
                   gboolean request, int idx)
 {
   guint16     id, len;
   guint32     oui;
-  proto_item *item;
+  proto_item *item, *item_len;
   tvbuff_t *vendor_tvb;
   anqp_info_dissector_data_t anqp_info;
 
@@ -6821,7 +6824,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   }
   tree = proto_item_add_subtree(item, ett_gas_anqp);
   offset += 2;
-  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_length,
+  item_len = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_length,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
   len = tvb_get_letohs(tvb, offset);
   offset += 2;
@@ -6860,6 +6863,17 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
   case ANQP_INFO_VENUE_URL:
     dissect_venue_url_list(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_NEIGHBOR_REPORT:
+    {
+      tvbuff_t *report_tvb;
+      ieee80211_tagged_field_data_t field_data;
+
+      report_tvb = tvb_new_subset_length(tvb, offset, len);
+      field_data.item_tag = item;
+      field_data.item_tag_length = item_len;
+      dissect_neighbor_report(report_tvb, pinfo, tree, &field_data);
+    }
     break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
