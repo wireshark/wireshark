@@ -129,6 +129,7 @@ int main(int argc, char **argv) {
     assert(f);
     fseek(f, 0, SEEK_END);
     size_t len = ftell(f);
+    assert(len >= 0);
     fseek(f, 0, SEEK_SET);
     unsigned char *buf = (unsigned char*)g_malloc(len);
     size_t n_read = fread(buf, 1, len, f);
