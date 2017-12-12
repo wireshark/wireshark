@@ -1297,23 +1297,27 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define MRVL_MESH_MGMT_ACTION_RERR      2
 #define MRVL_MESH_MGMT_ACTION_PLDM      3
 
-#define ANQP_INFO_ANQP_QUERY_LIST 256
-#define ANQP_INFO_ANQP_CAPAB_LIST 257
-#define ANQP_INFO_VENUE_NAME_INFO 258
-#define ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO 259
-#define ANQP_INFO_NETWORK_AUTH_TYPE_INFO 260
-#define ANQP_INFO_ROAMING_CONSORTIUM_LIST 261
+#define ANQP_INFO_ANQP_QUERY_LIST                256
+#define ANQP_INFO_ANQP_CAPAB_LIST                257
+#define ANQP_INFO_VENUE_NAME_INFO                258
+#define ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO     259
+#define ANQP_INFO_NETWORK_AUTH_TYPE_INFO         260
+#define ANQP_INFO_ROAMING_CONSORTIUM_LIST        261
 #define ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO 262
-#define ANQP_INFO_NAI_REALM_LIST 263
-#define ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO 264
-#define ANQP_INFO_AP_GEOSPATIAL_LOCATION 265
-#define ANQP_INFO_AP_CIVIC_LOCATION 266
-#define ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI 267
-#define ANQP_INFO_DOMAIN_NAME_LIST 268
-#define ANQP_INFO_EMERGENCY_ALERT_ID_URI 269
-#define ANQP_INFO_TDLS_CAPAB_INFO 270
-#define ANQP_INFO_EMERGENCY_NAI 271
-#define ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST 56797
+#define ANQP_INFO_NAI_REALM_LIST                 263
+#define ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO     264
+#define ANQP_INFO_AP_GEOSPATIAL_LOCATION         265
+#define ANQP_INFO_AP_CIVIC_LOCATION              266
+#define ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI      267
+#define ANQP_INFO_DOMAIN_NAME_LIST               268
+#define ANQP_INFO_EMERGENCY_ALERT_ID_URI         269
+#define ANQP_INFO_TDLS_CAPAB_INFO                270
+#define ANQP_INFO_EMERGENCY_NAI                  271
+#define ANQP_INFO_NEIGHBOR_REPORT                272
+#define ANQP_INFO_VENUE_URL                      277
+#define ANQP_INFO_ADVICE_OF_CHARGE               278
+#define ANQP_INFO_LOCAL_CONTENT                  279
+#define ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST    56797
 
 /* ANQP information ID - IEEE Std 802.11u-2011 - Table 7-43bk */
 static const value_string anqp_info_id_vals[] = {
@@ -1335,6 +1339,10 @@ static const value_string anqp_info_id_vals[] = {
   {ANQP_INFO_EMERGENCY_ALERT_ID_URI, "Emergency Alert Identifier URI"},
   {ANQP_INFO_TDLS_CAPAB_INFO, "TDLS Capability information"},
   {ANQP_INFO_EMERGENCY_NAI, "Emergency NAI"},
+  {ANQP_INFO_NEIGHBOR_REPORT, "Neighbor Report"},
+  {ANQP_INFO_VENUE_URL, "Venue URL"},
+  {ANQP_INFO_ADVICE_OF_CHARGE, "Advice of Charge"},
+  {ANQP_INFO_LOCAL_CONTENT, "Local Content"},
   {ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST, "ANQP vendor-specific list"},
   {0, NULL}
 };
@@ -3141,6 +3149,9 @@ static int hf_ieee80211_3gpp_gc_num_plmns = -1;
 static int hf_ieee80211_3gpp_gc_plmn_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name = -1;
+static int hf_ieee80211_ff_anqp_venue_url_len = -1;
+static int hf_ieee80211_ff_anqp_venue_url_number = -1;
+static int hf_ieee80211_ff_anqp_venue_url = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_operating_class = -1;
@@ -6512,6 +6523,27 @@ dissect_domain_name_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   }
 }
 
+static void
+dissect_venue_url_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+  guint8 len;
+
+  while (offset < end) {
+    len = tvb_get_guint8(tvb, offset);
+    proto_item *pi = NULL;
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_url_len,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_url_number,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+    pi = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_url,
+                        tvb, offset, len - 1, ENC_ASCII|ENC_NA);
+    PROTO_ITEM_SET_URL(pi);
+    offset += len - 1;
+  }
+}
+
 #define HS20_ANQP_HS_QUERY_LIST 1
 #define HS20_ANQP_HS_CAPABILITY_LIST 2
 #define HS20_ANQP_OPERATOR_FRIENDLY_NAME 3
@@ -6825,6 +6857,9 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
   case ANQP_INFO_DOMAIN_NAME_LIST:
     dissect_domain_name_list(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_VENUE_URL:
+    dissect_venue_url_list(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
@@ -23566,6 +23601,21 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_anqp_domain_name,
      {"Domain Name", "wlan.fixed.anqp.domain_name_list.name",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_venue_url_len,
+     {"Length", "wlan.fixed.anqp.venue_url_list.len",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_venue_url_number,
+     {"Venue Number", "wlan.fixed.anqp.venue_url_list.venue_number",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_venue_url,
+     {"Venue URL", "wlan.fixed.anqp.venue_url_list.venue_url",
       FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
