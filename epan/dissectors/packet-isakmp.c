@@ -232,6 +232,19 @@ static int hf_isakmp_nonce = -1;
 
 static int hf_isakmp_notify_data_3gpp_backoff_timer_len = -1;
 
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_len = -1;
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_spare = -1;
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_element_len = -1;
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flags = -1;
+
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b1_police = -1;
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b2_ambulance = -1;
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b3_fire_brigade = -1;
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b4_marine_guard = -1;
+static int hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_rescue = -1;
+
+
+
 static attribute_common_fields hf_isakmp_ipsec_attr = { -1, -1, -1, -1, -1 };
 static int hf_isakmp_ipsec_attr_life_type = -1;
 static int hf_isakmp_ipsec_attr_life_duration_uint32 = -1;
@@ -381,6 +394,8 @@ static gint ett_isakmp_sa = -1;
 static gint ett_isakmp_attr = -1;
 static gint ett_isakmp_id = -1;
 static gint ett_isakmp_notify_data = -1;
+static gint ett_isakmp_notify_data_3gpp_emergency_call_numbers_main = -1;
+static gint ett_isakmp_notify_data_3gpp_emergency_call_numbers_element = -1;
 static gint ett_isakmp_ts = -1;
 /* For decrypted IKEv2 Encrypted payload*/
 static gint ett_isakmp_decrypted_data = -1;
@@ -1363,7 +1378,9 @@ static const range_string notifmsg_v2_3gpp_type[] = {
   { 41101,41101,      "DEVICE_IDENTITY" },
   { 41102,41111,      "Private Use - STATUS TYPES" },
   { 41112,41112,      "EMERGENCY_SUPPORT" },
-  { 41113,41287,      "Private Use - STATUS TYPES" },
+  { 41113,41133,      "Private Use - STATUS TYPES" },
+  { 41134,41134,      "EMERGENCY_CALL_NUMBERS" },
+  { 41135,41287,      "Private Use - STATUS TYPES" },
   { 41288,41288,      "NBIFOM_GENERIC_CONTAINER" },
   { 41289,41303,      "Private Use - STATUS TYPES" },
   { 41304,41304,      "PTI" },
@@ -4494,7 +4511,6 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   /* End Reassembly stuff for IKE2 fragmentation */
 }
 
-
 static void
 dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version)
 {
@@ -4689,6 +4705,86 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
         proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_backoff_timer_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         de_gc_timer3(tvb, tree, pinfo, offset, 1, NULL, 0);
+        break;
+      case 41134:
+        /* private status 3GPP EMERGENCY_CALL_NUMBERS*/
+        /* If Notify Data is not empty/missing */
+        if(length>0)
+        {
+          /* As specified in 3GPP TS 23.302 (Section 8.1.2.3) and TS 24.008 (Section 10.5.3.13) */
+          proto_tree *em_call_num_tree;
+          proto_item *em_call_num_item;
+
+          /* Main Payload Subtree */
+          em_call_num_item = proto_tree_add_item(tree,hf_text_only,tvb,offset,length,ENC_BIG_ENDIAN);
+          proto_item_set_text(em_call_num_item, "Emergency Call Numbers");
+          em_call_num_tree = proto_item_add_subtree(em_call_num_item, ett_isakmp_notify_data_3gpp_emergency_call_numbers_main);
+
+          /* Payload Octet 5 - Length of IE Contents */
+          proto_tree_add_item(em_call_num_tree, hf_isakmp_notify_data_3gpp_emergency_call_numbers_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset += 1;
+
+          /* Subtree for actual values */
+          proto_item *current_emergency_call_number_header;
+          proto_tree *current_emergency_call_number_tree;
+
+          proto_item *current_emergency_call_number_item;
+
+          while(offset<offset_end){
+            guint8 current_em_num_len = tvb_get_guint8(tvb,offset)+1; //Total length including octets 3 and 4 for proper highlighting
+
+            /* Header to main payload subtree */
+            current_emergency_call_number_header = proto_tree_add_item(em_call_num_tree,hf_text_only,tvb,offset,current_em_num_len,ENC_BIG_ENDIAN);
+            proto_item_set_text(current_emergency_call_number_header, "Emergency Number");
+
+            /* Subtree for elements*/
+            current_emergency_call_number_tree = proto_item_add_subtree(current_emergency_call_number_header, ett_isakmp_notify_data_3gpp_emergency_call_numbers_element);
+
+            /*IE Octet 3 Number of octets used to encode the Emergency Service Category Value and the Number digits. */
+            proto_tree_add_item(current_emergency_call_number_tree, hf_isakmp_notify_data_3gpp_emergency_call_numbers_element_len,tvb,offset,1,ENC_BIG_ENDIAN);
+            offset += 1;
+
+            /*IE Octet 4 |Spare=0|Spare=0|Spare=0|Emergency Service Category Value|
+             * Bits 1 to 5 are coded as bits 1 to 5 of octet 3 of the Service Category
+             * information element as specified in subclause 10.5.4.33. (TS 24.008)
+             */
+            static const int * isakmp_notify_data_3gpp_emergency_call_numbers_flags[] = {
+              &hf_isakmp_notify_data_3gpp_emergency_call_numbers_spare,
+              &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_rescue,
+              &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b4_marine_guard,
+              &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b3_fire_brigade,
+              &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b2_ambulance,
+              &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b1_police,
+              NULL
+            };
+            proto_tree_add_bitmask_with_flags(current_emergency_call_number_tree, tvb, offset, hf_isakmp_notify_data_3gpp_emergency_call_numbers_flags,
+                ett_isakmp_notify_data_3gpp_emergency_call_numbers_element, isakmp_notify_data_3gpp_emergency_call_numbers_flags,ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
+            offset += 1;
+
+            /*IE Octet 5 to j | Digit_N+1 | Digit_N | */
+            current_emergency_call_number_item = proto_tree_add_item(current_emergency_call_number_tree, hf_text_only,tvb,offset,current_em_num_len,ENC_BIG_ENDIAN);
+            proto_item_set_text(current_emergency_call_number_item, "Emergency Number: ");
+            int current_element_offset = 0;
+            current_em_num_len -= 2; //Not counting octets 3 and 4
+            //appending digits
+            while(current_element_offset<current_em_num_len){
+              //Digit 1
+              proto_item_append_text(current_emergency_call_number_item, "%d",
+                  tvb_get_guint8(tvb, offset+current_element_offset)&0x0F
+                  );
+              //Digit2
+              //(1111 XXXX indicates odd number of digits and bits 5 to 8 are spare)
+              if( (tvb_get_guint8(tvb, offset+current_element_offset)&0xF0) != 0xF0)
+                proto_item_append_text(current_emergency_call_number_item, "%d",
+                    (tvb_get_guint8(tvb, offset+current_element_offset)&0xF0)>>4
+                    );
+
+              current_element_offset += 1;
+            }
+            offset += current_em_num_len; //moving to the next number in the list
+          }
+        }
+        break;
       default:
         /* No Default Action */
         break;
@@ -4710,10 +4806,10 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
 
   if (isakmp_version == 1)
   {
-     proto_tree_add_item(tree, hf_isakmp_delete_protoid_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isakmp_delete_protoid_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
   }else if (isakmp_version == 2)
   {
-     proto_tree_add_item(tree, hf_isakmp_delete_protoid_v2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isakmp_delete_protoid_v2, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
 
   offset += 1;
@@ -4730,9 +4826,9 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
 
   if (spi_size > 0) {
     while (length > 0) {
-         proto_tree_add_item(tree, hf_isakmp_delete_spi, tvb, offset, spi_size, ENC_NA);
-         offset+=spi_size;
-         length-=spi_size;
+      proto_tree_add_item(tree, hf_isakmp_delete_spi, tvb, offset, spi_size, ENC_NA);
+      offset+=spi_size;
+      length-=spi_size;
     }
   }
 }
@@ -7069,6 +7165,45 @@ proto_register_isakmp(void)
       { "Length", "isakmp.notyfy.priv.3gpp.backoff_timer_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_len,
+      { "Total Length", "isakmp.notify.priv.3gpp.emergency_call_numbers_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_spare,
+      { "Spare", "isakmp.notify.priv.3gpp.emergency_call_numbers_spare",
+        FT_UINT8, BASE_DEC, NULL, 0xE0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_element_len,
+      { "Length", "isakmp.notify.priv.3gpp.emergency_call_numbers_element_len",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flags,
+      { "Service Category Value", "isakmp.notify.priv.3gpp.emergency_call_numbers_flags",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b1_police,
+      { "Police", "isakmp.notify.priv.3gpp.emergency_call_numbers_flag_b1_police",
+        FT_UINT8, BASE_DEC, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b2_ambulance,
+      { "Ambulance", "isakmp.notify.priv.3gpp.emergency_call_numbers_flag_b2_ambulance",
+        FT_UINT8, BASE_DEC, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b3_fire_brigade,
+      { "Fire Brigade", "isakmp.notify.priv.3gpp.emergency_call_numbers_flag_b3_fire_brigade",
+        FT_UINT8, BASE_DEC, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b4_marine_guard,
+	  { "Marine Guard", "isakmp.notify.priv.3gpp.emergency_call_numbers_b4_marine_guard",
+        FT_UINT8, BASE_DEC, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_emergency_call_numbers_flag_b5_mountain_rescue,
+      { "Mountain Rescue", "isakmp.notify.priv.3gpp.emergency_call_numbers_flag_b5_mountain_rescue",
+        FT_UINT8, BASE_DEC, NULL, 0x10,
+        NULL, HFILL }},
+
   };
 
 
@@ -7083,6 +7218,8 @@ proto_register_isakmp(void)
     &ett_isakmp_attr,
     &ett_isakmp_id,
     &ett_isakmp_notify_data,
+    &ett_isakmp_notify_data_3gpp_emergency_call_numbers_main,
+    &ett_isakmp_notify_data_3gpp_emergency_call_numbers_element,
     &ett_isakmp_ts,
     &ett_isakmp_decrypted_data,
     &ett_isakmp_decrypted_payloads
