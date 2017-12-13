@@ -82,6 +82,11 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
         return 0;
     }
 
+    if (!text[0]) {
+        luaL_argerror(L, WSLUA_ARG_ProtoExpert_new_TEXT, "Empty text");
+        return 0;
+    }
+
     switch (group) {
     case PI_CHECKSUM:
     case PI_SEQUENCE:

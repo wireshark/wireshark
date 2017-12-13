@@ -422,9 +422,7 @@ expert_register_field_array(expert_module_t *module, ei_register_info *exp, cons
 
 		/* Register with the header field info, so it's display filterable */
 		ptr->eiinfo.hf_info.p_id = &ptr->ids->hf;
-		if (ptr->eiinfo.summary && ptr->eiinfo.summary[0]) {
-			ptr->eiinfo.hf_info.hfinfo.name = ptr->eiinfo.summary;
-		}
+		ptr->eiinfo.hf_info.hfinfo.name = ptr->eiinfo.summary;
 		ptr->eiinfo.hf_info.hfinfo.abbrev = ptr->eiinfo.name;
 
 		proto_register_field_array(module->proto_id, &ptr->eiinfo.hf_info, 1);

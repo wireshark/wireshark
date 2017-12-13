@@ -73,7 +73,7 @@ typedef struct expert_field_info {
 } expert_field_info;
 
 #define EXPFILL 0, NULL, 0, \
-        {0, {"Expert Info", NULL, FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}}
+        {0, {NULL, NULL, FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}}
 
 typedef struct ei_register_info {
 	expert_field      *ids;         /**< written to by register() function */
