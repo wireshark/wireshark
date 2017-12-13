@@ -5134,7 +5134,7 @@ proto_register_ieee1905(void)
             FT_UINT8, BASE_HEX, VALS(channel_preference_prefs_vals), 0xF0, NULL, HFILL}},
         { &hf_ieee1905_channel_pref_reason,
           { "Reason code", "ieee1905.channel_pref.reason",
-            FT_UINT8, BASE_HEX, VALS(channel_preference_reason_vals), 0xF0, NULL, HFILL}},
+            FT_UINT8, BASE_HEX, VALS(channel_preference_reason_vals), 0x0F, NULL, HFILL}},
 
         { &hf_ieee1905_channel_preference_radio_id,
           { "Radio unique ID", "ieee1905.channel_pref.radio_id",
