@@ -213,7 +213,7 @@ static void sf_ios_ext_port(GString *rtxt, gchar *addr _U_, guint32 port, port_t
         IOS_DENY, RT_TCP_UDP, port);
 }
 
-static void sf_ipfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype _U_, gboolean inbound, gboolean deny) {
+static void sf_ipfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to any port = %u",
         IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, port);
 }
@@ -241,7 +241,7 @@ static void sf_netsh_port(GString *rtxt, gchar *addr _U_, guint32 port, port_typ
 }
 
 /* IPv4 + port */
-static void sf_ios_ext_ipv4_port(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
+static void sf_ios_ext_ipv4_port(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype, gboolean inbound, gboolean deny) {
     if (inbound)
         g_string_append_printf(rtxt, "access-list NUMBER %s %s host %s any eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
     else
