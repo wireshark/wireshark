@@ -166,7 +166,7 @@
 #define TDS_ECHO_PKT        12
 #define TDS_LOGOUT_CHN_PKT  13
 #define TDS_TRANS_MGR_PKT   14
-#define TDS_QUERY5_PKT      15  /* or "Normal tokenized request or response */
+#define TDS5_QUERY_PKT      15  /* or "Normal tokenized request or response */
 #define TDS_LOGIN7_PKT      16  /* or "Urgent tokenized request or response */
 #define TDS_SSPI_PKT        17
 #define TDS_PRELOGIN_PKT    18
@@ -217,7 +217,7 @@
 #define TDS_NBCROW_TOKEN          210  /* 0xD2    Introduced TDS 7.3        */
 #define TDS_ALTROW_TOKEN          211  /* 0xD3                              */
 #define TDS5_PARAMS_TOKEN         215  /* 0xD7    TDS 5.0 only              */
-#define TDS_CAP_TOKEN             226  /* 0xE2                              */
+#define TDS_CAPABILITY_TOKEN      226  /* 0xE2                              */
 #define TDS_ENVCHG_TOKEN          227  /* 0xE3                              */
 #define TDS_SESSIONSTATE_TOKEN    228  /* 0xE4    Introduced TDS 7.4        */
 #define TDS_EED_TOKEN             229  /* 0xE5                              */
@@ -231,6 +231,10 @@
 #define TDS_DONE_TOKEN            253  /* 0xFD                              */
 #define TDS_DONEPROC_TOKEN        254  /* 0xFE                              */
 #define TDS_DONEINPROC_TOKEN      255  /* 0xFF                              */
+
+/* Capabilty token fields (TDS5) */
+#define TDS_CAP_REQUEST                      1
+#define TDS_CAP_RESPONSE                     2
 
 /* TDS 7 Prelogin options */
 #define TDS7_PRELOGIN_OPTION_VERSION         0x00
@@ -427,6 +431,28 @@
 #define TDS_UNKNOWN_PLP_LEN G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFE)
 #define TDS_PLP_NULL        G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)
 
+/* Fixed field lengths */
+
+#define TDS_MAXNAME         30
+#define TDS_RPLEN           255
+#define TDS_PROGNLEN        10
+#define TDS_PKTLEN          6
+
+/* Encodings */
+
+#define TDS_INT2_BIG_ENDIAN    2
+#define TDS_INT2_LITTLE_ENDIAN 3
+#define TDS_INT4_BIG_ENDIAN    0
+#define TDS_INT4_LITTLE_ENDIAN 1
+#define TDS_FLT8_BIG_ENDIAN    4
+#define TDS_FLT8_VAX_D         5
+#define TDS_FLT8_LITTLE_ENDIAN 10
+#define TDS_FLT8_ND5000        11
+#define TDS_CHAR_ASCII         6
+#define TDS_CHAR_EBCDIC        7
+/* Artificial, for TDS 7 */
+#define TDS_CHAR_UTF16         120
+
 static const value_string tds_data_type_names[] = {
     /* FIXEDLENTYPE */
     {TDS_DATA_TYPE_NULL,            "NULLTYPE - Null (no data associated with this type)"},
@@ -489,6 +515,56 @@ void proto_register_tds(void);
 /* Bulk Load Update Text/Write Text */
 
 /* Federated Authentication Token */
+
+/* LOGIN fields */
+
+static int hf_tdslogin = -1;
+static int hf_tdslogin_hostname_length = -1;
+static int hf_tdslogin_hostname = -1;
+static int hf_tdslogin_username_length = -1;
+static int hf_tdslogin_username = -1;
+static int hf_tdslogin_password_length = -1;
+static int hf_tdslogin_password = -1;
+static int hf_tdslogin_hostprocess_length = -1;
+static int hf_tdslogin_hostprocess = -1;
+static int hf_tdslogin_appname_length = -1;
+static int hf_tdslogin_appname = -1;
+static int hf_tdslogin_servername_length = -1;
+static int hf_tdslogin_servername = -1;
+static int hf_tdslogin_remotepassword_length = -1;
+static int hf_tdslogin_rempw_servername_length = -1;
+static int hf_tdslogin_rempw_servername = -1;
+static int hf_tdslogin_rempw_password_length = -1;
+static int hf_tdslogin_rempw_password = -1;
+static int hf_tdslogin_option_int2 = -1;
+static int hf_tdslogin_option_int4 = -1;
+static int hf_tdslogin_option_char = -1;
+static int hf_tdslogin_option_float = -1;
+static int hf_tdslogin_option_date8 = -1;
+static int hf_tdslogin_option_usedb = -1;
+static int hf_tdslogin_option_bulk = -1;
+static int hf_tdslogin_option_server_to_server = -1;
+static int hf_tdslogin_option_server_to_server_loginack = -1;
+static int hf_tdslogin_option_conversation_type = -1;
+static int hf_tdslogin_proto_version = -1;
+static int hf_tdslogin_progname_length = -1;
+static int hf_tdslogin_progname = -1;
+static int hf_tdslogin_progvers = -1;
+static int hf_tdslogin_option2_noshort = -1;
+static int hf_tdslogin_option2_flt4 = -1;
+static int hf_tdslogin_option2_date4 = -1;
+static int hf_tdslogin_language = -1;
+static int hf_tdslogin_language_length = -1;
+static int hf_tdslogin_setlang = -1;
+static int hf_tdslogin_seclogin = -1;
+static int hf_tdslogin_secbulk = -1;
+static int hf_tdslogin_halogin = -1;
+static int hf_tdslogin_hasessionid = -1;
+static int hf_tdslogin_charset = -1;
+static int hf_tdslogin_charset_length = -1;
+static int hf_tdslogin_setcharset = -1;
+static int hf_tdslogin_packetsize = -1;
+static int hf_tdslogin_packetsize_length = -1;
 
 /* LOGIN7 Token */
 static int hf_tds7login_total_size = -1;
@@ -562,6 +638,160 @@ static int hf_tds_transmgr_payload = -1;
 /* ALTMETADATA token */
 
 /* ALTROW token */
+
+/* CAPABILITY token */
+static int hf_tds_capability = -1;
+static int hf_tds_capability_length = -1;
+static int hf_tds_capability_captype = -1;
+static int hf_tds_capability_caplen = -1;
+static int hf_tds_capability_req_lang = -1;
+static int hf_tds_capability_req_rpc = -1;
+static int hf_tds_capability_req_evt = -1;
+static int hf_tds_capability_req_mstmt = -1;
+static int hf_tds_capability_req_bcp = -1;
+static int hf_tds_capability_req_cursor = -1;
+static int hf_tds_capability_req_dynf = -1;
+static int hf_tds_capability_req_msg = -1;
+static int hf_tds_capability_req_param = -1;
+static int hf_tds_capability_data_int1 = -1;
+static int hf_tds_capability_data_int2 = -1;
+static int hf_tds_capability_data_int4 = -1;
+static int hf_tds_capability_data_bit = -1;
+static int hf_tds_capability_data_char = -1;
+static int hf_tds_capability_data_vchar = -1;
+static int hf_tds_capability_data_bin = -1;
+static int hf_tds_capability_data_vbin = -1;
+static int hf_tds_capability_data_mny8 = -1;
+static int hf_tds_capability_data_mny4 = -1;
+static int hf_tds_capability_data_date8 = -1;
+static int hf_tds_capability_data_date4 = -1;
+static int hf_tds_capability_data_flt4 = -1;
+static int hf_tds_capability_data_flt8 = -1;
+static int hf_tds_capability_data_num = -1;
+static int hf_tds_capability_data_text = -1;
+static int hf_tds_capability_data_image = -1;
+static int hf_tds_capability_data_dec = -1;
+static int hf_tds_capability_data_lchar = -1;
+static int hf_tds_capability_data_lbin = -1;
+static int hf_tds_capability_data_intn = -1;
+static int hf_tds_capability_data_datetimen = -1;
+static int hf_tds_capability_data_moneyn = -1;
+static int hf_tds_capability_csr_prev = -1;
+static int hf_tds_capability_csr_first = -1;
+static int hf_tds_capability_csr_last = -1;
+static int hf_tds_capability_csr_abs = -1;
+static int hf_tds_capability_csr_rel = -1;
+static int hf_tds_capability_csr_multi = -1;
+static int hf_tds_capability_con_oob = -1;
+static int hf_tds_capability_con_inband = -1;
+static int hf_tds_capability_con_logical = -1;
+static int hf_tds_capability_proto_text = -1;
+static int hf_tds_capability_proto_bulk = -1;
+static int hf_tds_capability_req_urgevt = -1;
+static int hf_tds_capability_data_sensitivity = -1;
+static int hf_tds_capability_data_boundary = -1;
+static int hf_tds_capability_proto_dynamic = -1;
+static int hf_tds_capability_proto_dynproc = -1;
+static int hf_tds_capability_data_fltn = -1;
+static int hf_tds_capability_data_bitn = -1;
+static int hf_tds_capability_data_int8 = -1;
+static int hf_tds_capability_data_void = -1;
+static int hf_tds_capability_dol_bulk = -1;
+static int hf_tds_capability_object_java1 = -1;
+static int hf_tds_capability_object_char = -1;
+static int hf_tds_capability_data_columnstatus = -1;
+static int hf_tds_capability_object_binary = -1;
+static int hf_tds_capability_widetable = -1;
+static int hf_tds_capability_data_uint2 = -1;
+static int hf_tds_capability_data_uint4 = -1;
+static int hf_tds_capability_data_uint8 = -1;
+static int hf_tds_capability_data_uintn = -1;
+static int hf_tds_capability_cur_implicit = -1;
+static int hf_tds_capability_data_nlbin = -1;
+static int hf_tds_capability_image_nchar = -1;
+static int hf_tds_capability_blob_nchar_16 = -1;
+static int hf_tds_capability_blob_nchar_8 = -1;
+static int hf_tds_capability_blob_nchar_scsu = -1;
+static int hf_tds_capability_data_date = -1;
+static int hf_tds_capability_data_time = -1;
+static int hf_tds_capability_data_interval = -1;
+static int hf_tds_capability_csr_scroll = -1;
+static int hf_tds_capability_csr_sensitive = -1;
+static int hf_tds_capability_csr_insensitive = -1;
+static int hf_tds_capability_csr_semisensitive = -1;
+static int hf_tds_capability_csr_keysetdriven = -1;
+static int hf_tds_capability_req_srvpktsize = -1;
+static int hf_tds_capability_data_unitext = -1;
+static int hf_tds_capability_cap_clusterfailover = -1;
+static int hf_tds_capability_data_sint1 = -1;
+static int hf_tds_capability_req_largeident = -1;
+static int hf_tds_capability_req_blob_nchar_16 = -1;
+static int hf_tds_capability_data_xml = -1;
+static int hf_tds_capability_req_curinfo3 = -1;
+static int hf_tds_capability_req_dbrpc2 = -1;
+static int hf_tds_capability_res_nomsg = -1;
+static int hf_tds_capability_res_noeed = -1;
+static int hf_tds_capability_res_noparam = -1;
+static int hf_tds_capability_data_noint1 = -1;
+static int hf_tds_capability_data_noint2 = -1;
+static int hf_tds_capability_data_noint4 = -1;
+static int hf_tds_capability_data_nobit = -1;
+static int hf_tds_capability_data_nochar = -1;
+static int hf_tds_capability_data_novchar = -1;
+static int hf_tds_capability_data_nobin = -1;
+static int hf_tds_capability_data_novbin = -1;
+static int hf_tds_capability_data_nomny8 = -1;
+static int hf_tds_capability_data_nomny4 = -1;
+static int hf_tds_capability_data_nodate8 = -1;
+static int hf_tds_capability_data_nodate4 = -1;
+static int hf_tds_capability_data_noflt4 = -1;
+static int hf_tds_capability_data_noflt8 = -1;
+static int hf_tds_capability_data_nonum = -1;
+static int hf_tds_capability_data_notext = -1;
+static int hf_tds_capability_data_noimage = -1;
+static int hf_tds_capability_data_nodec = -1;
+static int hf_tds_capability_data_nolchar = -1;
+static int hf_tds_capability_data_nolbin = -1;
+static int hf_tds_capability_data_nointn = -1;
+static int hf_tds_capability_data_nodatetimen = -1;
+static int hf_tds_capability_data_nomoneyn = -1;
+static int hf_tds_capability_con_nooob = -1;
+static int hf_tds_capability_con_noinband = -1;
+static int hf_tds_capability_proto_notext = -1;
+static int hf_tds_capability_proto_nobulk = -1;
+static int hf_tds_capability_data_nosensitivity = -1;
+static int hf_tds_capability_data_noboundary = -1;
+static int hf_tds_capability_res_notdsdebug = -1;
+static int hf_tds_capability_res_nostripblanks = -1;
+static int hf_tds_capability_data_noint8 = -1;
+static int hf_tds_capability_object_nojava1 = -1;
+static int hf_tds_capability_object_nochar = -1;
+static int hf_tds_capability_data_nocolumnstatus = -1;
+static int hf_tds_capability_object_nobinary = -1;
+static int hf_tds_capability_data_nouint2 = -1;
+static int hf_tds_capability_data_nouint4 = -1;
+static int hf_tds_capability_data_nouint8 = -1;
+static int hf_tds_capability_data_nouintn = -1;
+static int hf_tds_capability_no_widetables = -1;
+static int hf_tds_capability_data_nonlbin = -1;
+static int hf_tds_capability_image_nonchar = -1;
+static int hf_tds_capability_blob_nonchar_16 = -1;
+static int hf_tds_capability_blob_nonchar_8 = -1;
+static int hf_tds_capability_blob_nonchar_scsu = -1;
+static int hf_tds_capability_data_nodate = -1;
+static int hf_tds_capability_data_notime = -1;
+static int hf_tds_capability_data_nointerval = -1;
+static int hf_tds_capability_data_nounitext = -1;
+static int hf_tds_capability_data_nosint1 = -1;
+static int hf_tds_capability_no_largeident = -1;
+static int hf_tds_capability_no_blob_nchar_16 = -1;
+static int hf_tds_capability_no_srvpktsize = -1;
+static int hf_tds_capability_data_noxml = -1;
+static int hf_tds_capability_no_nint_return_value = -1;
+static int hf_tds_capability_res_noxnldata = -1;
+static int hf_tds_capability_res_suppress_fmt = -1;
+static int hf_tds_capability_res_suppress_doneinproc = -1;
+static int hf_tds_capability_res_force_rowfmt2 = -1;
 
 /* COLINFO token (TDS_COL_INFO_TOKEN) */
 static int hf_tds_colinfo = -1;
@@ -814,6 +1044,8 @@ static gint ett_tds_status = -1;
 static gint ett_tds_fragments = -1;
 static gint ett_tds_fragment = -1;
 static gint ett_tds_token = -1;
+static gint ett_tds_capability_req = -1;
+static gint ett_tds_capability_resp = -1;
 static gint ett_tds_all_headers = -1;
 static gint ett_tds_all_headers_header = -1;
 static gint ett_tds_type_info = -1;
@@ -825,6 +1057,10 @@ static gint ett_tds_rpc_parameter = -1;
 static gint ett_tds_rpc_parameter_status = -1;
 static gint ett_tds7_query = -1;
 static gint ett_tds7_prelogin = -1;
+static gint ett_tds_login = -1;
+static gint ett_tds_login_options = -1;
+static gint ett_tds_login_options2= -1;
+static gint ett_tds_login_rempw = -1;
 static gint ett_tds7_login = -1;
 static gint ett_tds7_hdr = -1;
 static gint ett_tds_col = -1;
@@ -875,6 +1111,10 @@ static dissector_handle_t gssapi_handle;
 typedef struct {
     gint tds7_version;
     gboolean tds_packets_in_order;
+    guint tds_major_version;
+    guint tds_encoding_int2;
+    guint tds_encoding_int4;
+    guint tds_encoding_char;
 } tds_conv_info_t;
 
 /* TDS protocol type preference */
@@ -893,6 +1133,14 @@ typedef struct {
 #define TDS_PROTOCOL_7_3A   0x730a
 #define TDS_PROTOCOL_7_3B   0x730b
 #define TDS_PROTOCOL_7_4    0x7400
+
+#define TDS_PROTO_MAJOR_4   4
+#define TDS_PROTO_MAJOR_5   5
+#define TDS_PROTO_MAJOR_7   7
+
+#define TDS_PROTO_IS_4(tds_info) ((tds_info)->tds_major_version == TDS_PROTO_MAJOR_4)
+#define TDS_PROTO_IS_5(tds_info) ((tds_info)->tds_major_version == TDS_PROTO_MAJOR_5)
+#define TDS_PROTO_IS_7(tds_info) ((tds_info)->tds_major_version == TDS_PROTO_MAJOR_7)
 
 static gint tds_protocol_type = TDS_PROTOCOL_NOT_SPECIFIED;
 
@@ -956,7 +1204,7 @@ static range_t *tds_tcp_ports = NULL;
 /* These correspond to the netlib packet type field */
 static const value_string packet_type_names[] = {
     {TDS_QUERY_PKT,       "SQL batch"},
-    {TDS_LOGIN_PKT,       "Pre-TDS7 login"},
+    {TDS_LOGIN_PKT,       "TDS4/5 login"},
     {TDS_RPC_PKT,         "Remote Procedure Call"},
     {TDS_RESP_PKT,        "Response"},
     {TDS_RAW_PKT,         "Unused"},
@@ -969,7 +1217,7 @@ static const value_string packet_type_names[] = {
     {TDS_ECHO_PKT,        "Unused"},
     {TDS_LOGOUT_CHN_PKT,  "Unused"},
     {TDS_TRANS_MGR_PKT,   "Transaction Manager Request"},
-    {TDS_QUERY5_PKT,      "TDS5 query"},
+    {TDS5_QUERY_PKT,      "TDS5 query"},
     {TDS_LOGIN7_PKT,      "TDS7 login"},
     {TDS_SSPI_PKT,        "SSPI message"},
     {TDS_PRELOGIN_PKT,    "TDS7 pre-login message"},
@@ -1024,8 +1272,8 @@ static const value_string token_names[] = {
     {TDS_LOGIN_ACK_TOKEN,       "Login Acknowledgement"},
     {TDS_KEY_TOKEN,             "TDS Key"},
     {TDS_ROW_TOKEN,             "Row"},
-    {TDS_CAP_TOKEN,             "Capabilities"},
-    {TDS_ENVCHG_TOKEN,         "Environment Change"},
+    {TDS_CAPABILITY_TOKEN,      "Capabilities"},
+    {TDS_ENVCHG_TOKEN,          "Environment Change"},
     {TDS_EED_TOKEN,             "Extended Error"},
     {TDS_AUTH_TOKEN,            "Authentication"},
     {TDS_RESULT_TOKEN,          "Results"},
@@ -1109,6 +1357,54 @@ static const value_string envchg_names[] = {
     {18, "RESETCONNECTION/RESETCONNECTIONSKIPTRAN Completion Acknowledgement"},
     {19, "Sends back name of user instance started per login request"},
     {20, "Sends routing information to client"},
+    {0, NULL}
+};
+
+static const value_string login_options[] = {
+    {TDS_INT4_BIG_ENDIAN, "Big-endian"},
+    {TDS_INT4_LITTLE_ENDIAN, "Little-endian"},
+    {TDS_INT2_BIG_ENDIAN, "Big-endian"},
+    {TDS_INT2_LITTLE_ENDIAN, "Little-endian"},
+    {TDS_FLT8_BIG_ENDIAN, "IEEE Big-endian"},
+    {TDS_FLT8_VAX_D, "VAX D"},
+    {TDS_CHAR_ASCII, "ASCII"},
+    {TDS_CHAR_EBCDIC, "EBCDIC"},
+    {8, "High integer first"},
+    {9, "Low integer first"},
+    {TDS_FLT8_LITTLE_ENDIAN, "IEEE Little-endian"},
+    {TDS_FLT8_ND5000, "ND5000"},
+    {12, "IEEE Big-endian"},
+    {13, "IEEE Little-endian"},
+    {14, "VAX F"},
+    {15, "ND5000 4"},
+    {16, "High integer first"},
+    {17, "Low integer first"},
+    {0, NULL}
+};
+
+static const value_string login_conversation_type[] = {
+    {0, "Client to server"},
+    {1, "Server to server"},
+    {2, "Server remote login"},
+    {4, "Internal RPC"},
+    {0, NULL}
+};
+
+static const value_string login_server_to_server[] = {
+    {0, "Server's Default SQL"},
+    {1, "Transact-SQL"},
+    {2, "ANSI SQL, version 1"},
+    {3, "ANSI SQL, version 2, level 1"},
+    {4, "ANSI SQL, version 2, level 2"},
+    {5, "Log in succeeded"},
+    {6, "Log in failed"},
+    {7, "Negotiate further"},
+    {0, NULL}
+};
+
+static const value_string tds_capability_type[] = {
+    {TDS_CAP_REQUEST, "Request capabilities"},
+    {TDS_CAP_RESPONSE, "Response capabilities"},
     {0, NULL}
 };
 
@@ -1291,6 +1587,12 @@ tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 token,
     return *len_field_val_p + *len_field_size_p + 1;
 }
 
+static guint
+tds_get_int2_encoding(tds_conv_info_t *tds_info)
+{
+    return (tds_info->tds_encoding_int2 == TDS_INT2_BIG_ENDIAN) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+}
+
 static void
 dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -1381,6 +1683,311 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree
     proto_tree_add_item(tree, hf_tds_lang_language_text, tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
+
+static const int *hf_req_0[9] = {
+    &hf_tds_capability_req_lang,
+    &hf_tds_capability_req_rpc,
+    &hf_tds_capability_req_evt,
+    &hf_tds_capability_req_mstmt,
+    &hf_tds_capability_req_bcp,
+    &hf_tds_capability_req_cursor,
+    &hf_tds_capability_req_dynf,
+    NULL, NULL}; /* Two nulls until I can figure out the types. */
+
+static const int *hf_req_1[9] = {
+    &hf_tds_capability_req_msg,
+    &hf_tds_capability_req_param,
+    &hf_tds_capability_data_int1,
+    &hf_tds_capability_data_int2,
+    &hf_tds_capability_data_int4,
+    &hf_tds_capability_data_bit,
+    &hf_tds_capability_data_char,
+    &hf_tds_capability_data_vchar,
+    NULL};
+
+static const int *hf_req_2[9] = {
+    &hf_tds_capability_data_bin,
+    &hf_tds_capability_data_vbin,
+    &hf_tds_capability_data_mny8,
+    &hf_tds_capability_data_mny4,
+    &hf_tds_capability_data_date8,
+    &hf_tds_capability_data_date4,
+    &hf_tds_capability_data_flt4,
+    &hf_tds_capability_data_flt8,
+    NULL};
+
+static const int *hf_req_3[9] = {
+    &hf_tds_capability_data_num,
+    &hf_tds_capability_data_text,
+    &hf_tds_capability_data_image,
+    &hf_tds_capability_data_dec,
+    &hf_tds_capability_data_lchar,
+    &hf_tds_capability_data_lbin,
+    &hf_tds_capability_data_intn,
+    &hf_tds_capability_data_datetimen,
+    NULL};
+
+static const int *hf_req_4[9] = {
+    &hf_tds_capability_data_moneyn,
+    &hf_tds_capability_csr_prev,
+    &hf_tds_capability_csr_first,
+    &hf_tds_capability_csr_last,
+    &hf_tds_capability_csr_abs,
+    &hf_tds_capability_csr_rel,
+    &hf_tds_capability_csr_multi,
+    &hf_tds_capability_con_oob,
+    NULL};
+
+static const int *hf_req_5[9] = {
+    &hf_tds_capability_con_inband,
+    &hf_tds_capability_con_logical,
+    &hf_tds_capability_proto_text,
+    &hf_tds_capability_proto_bulk,
+    &hf_tds_capability_req_urgevt,
+    &hf_tds_capability_data_sensitivity,
+    &hf_tds_capability_data_boundary,
+    &hf_tds_capability_proto_dynamic,
+    NULL};
+
+static const int *hf_req_6[9] = {
+    &hf_tds_capability_proto_dynproc,
+    &hf_tds_capability_data_fltn,
+    &hf_tds_capability_data_bitn,
+    &hf_tds_capability_data_int8,
+    &hf_tds_capability_data_void,
+    &hf_tds_capability_dol_bulk,
+    &hf_tds_capability_object_java1,
+    &hf_tds_capability_object_char,
+    NULL};
+
+static const int *hf_req_7[9] = {
+    &hf_tds_capability_object_binary,
+    &hf_tds_capability_data_columnstatus,
+    &hf_tds_capability_widetable,
+    &hf_tds_capability_data_uint2,
+    &hf_tds_capability_data_uint4,
+    &hf_tds_capability_data_uint8,
+    NULL,NULL, /* 56 and 60 reserved */
+    NULL};
+
+static const int *hf_req_8[9] = {
+    &hf_tds_capability_data_uintn,
+    &hf_tds_capability_cur_implicit,
+    &hf_tds_capability_data_nlbin,
+    &hf_tds_capability_image_nchar,
+    &hf_tds_capability_blob_nchar_16,
+    &hf_tds_capability_blob_nchar_8,
+    &hf_tds_capability_blob_nchar_scsu,
+    &hf_tds_capability_data_date,
+    NULL};
+
+static const int *hf_req_9[9] = {
+    &hf_tds_capability_data_time,
+    &hf_tds_capability_data_interval,
+    &hf_tds_capability_csr_scroll,
+    &hf_tds_capability_csr_sensitive,
+    &hf_tds_capability_csr_insensitive,
+    &hf_tds_capability_csr_semisensitive,
+    &hf_tds_capability_csr_keysetdriven,
+    &hf_tds_capability_req_srvpktsize,
+    NULL};
+
+static const int *hf_req_10[9] = {
+    &hf_tds_capability_data_unitext,
+    &hf_tds_capability_cap_clusterfailover,
+    &hf_tds_capability_data_sint1,
+    &hf_tds_capability_req_largeident,
+    &hf_tds_capability_req_blob_nchar_16,
+    &hf_tds_capability_data_xml,
+    &hf_tds_capability_req_curinfo3,
+    &hf_tds_capability_req_dbrpc2,
+    NULL};
+
+static const int *hf_resp_0[9] = {
+    &hf_tds_capability_res_nomsg,
+    &hf_tds_capability_res_noeed,
+    &hf_tds_capability_res_noparam,
+    &hf_tds_capability_data_noint1,
+    &hf_tds_capability_data_noint2,
+    &hf_tds_capability_data_noint4,
+    &hf_tds_capability_data_nobit,
+    NULL, /* 0 unused */
+    NULL};
+
+static const int *hf_resp_1[9] = {
+    &hf_tds_capability_data_nochar,
+    &hf_tds_capability_data_novchar,
+    &hf_tds_capability_data_nobin,
+    &hf_tds_capability_data_novbin,
+    &hf_tds_capability_data_nomny8,
+    &hf_tds_capability_data_nomny4,
+    &hf_tds_capability_data_nodate8,
+    &hf_tds_capability_data_nodate4,
+    NULL};
+
+static const int *hf_resp_2[9] = {
+    &hf_tds_capability_data_noflt4,
+    &hf_tds_capability_data_noflt8,
+    &hf_tds_capability_data_nonum,
+    &hf_tds_capability_data_notext,
+    &hf_tds_capability_data_noimage,
+    &hf_tds_capability_data_nodec,
+    &hf_tds_capability_data_nolchar,
+    &hf_tds_capability_data_nolbin,
+    NULL};
+
+static const int *hf_resp_3[9] = {
+    &hf_tds_capability_data_nointn,
+    &hf_tds_capability_data_nodatetimen,
+    &hf_tds_capability_data_nomoneyn,
+    &hf_tds_capability_con_nooob,
+    &hf_tds_capability_con_noinband,
+    &hf_tds_capability_proto_notext,
+    &hf_tds_capability_proto_nobulk,
+    &hf_tds_capability_data_nosensitivity,
+    NULL};
+
+static const int *hf_resp_4[9] = {
+    &hf_tds_capability_data_noboundary,
+    &hf_tds_capability_res_notdsdebug,
+    &hf_tds_capability_res_nostripblanks,
+    &hf_tds_capability_data_noint8,
+    &hf_tds_capability_object_nojava1,
+    &hf_tds_capability_object_nochar,
+    &hf_tds_capability_data_nocolumnstatus,
+    &hf_tds_capability_object_nobinary,
+    NULL};
+
+static const int *hf_resp_5[9] = {
+    &hf_tds_capability_data_nouint2,
+    &hf_tds_capability_data_nouint4,
+    &hf_tds_capability_data_nouint8,
+    &hf_tds_capability_data_nouintn,
+    &hf_tds_capability_no_widetables,
+    &hf_tds_capability_data_nonlbin,
+    &hf_tds_capability_image_nonchar,
+    NULL, /* 40 unused */
+    NULL};
+
+static const int *hf_resp_6[9] = {
+    &hf_tds_capability_blob_nonchar_16,
+    &hf_tds_capability_blob_nonchar_8,
+    &hf_tds_capability_blob_nonchar_scsu,
+    &hf_tds_capability_data_nodate,
+    &hf_tds_capability_data_notime,
+    &hf_tds_capability_data_nointerval,
+    &hf_tds_capability_data_nounitext,
+    &hf_tds_capability_data_nosint1,
+    NULL};
+
+static const int *hf_resp_7[9] = {
+    &hf_tds_capability_no_largeident,
+    &hf_tds_capability_no_blob_nchar_16,
+    &hf_tds_capability_no_srvpktsize,
+    &hf_tds_capability_data_noxml,
+    &hf_tds_capability_no_nint_return_value,
+    &hf_tds_capability_res_noxnldata,
+    &hf_tds_capability_res_suppress_fmt,
+    &hf_tds_capability_res_suppress_doneinproc,
+    NULL};
+
+static const int *hf_resp_8[9] = {
+    &hf_tds_capability_res_force_rowfmt2,
+    NULL, NULL, NULL, /* 65-67 reserved */
+    NULL, NULL, NULL, NULL, /* 68-71 reserved */
+    NULL};
+
+static const int *(* const hf_req_array[])[9] = {
+    &hf_req_0,
+    &hf_req_1,
+    &hf_req_2,
+    &hf_req_3,
+    &hf_req_4,
+    &hf_req_5,
+    &hf_req_6,
+    &hf_req_7,
+    &hf_req_8,
+    &hf_req_9,
+    &hf_req_10
+   };
+
+static const int *(* const hf_resp_array[])[9] = {
+    &hf_resp_0,
+    &hf_resp_1,
+    &hf_resp_2,
+    &hf_resp_3,
+    &hf_resp_4,
+    &hf_resp_5,
+    &hf_resp_6,
+    &hf_resp_7,
+    &hf_resp_8
+   };
+
+static guint
+dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
+                              proto_tree *tree, tds_conv_info_t *tds_info)
+{
+    guint len, cur;
+
+    proto_tree_add_item_ret_uint(tree, hf_tds_capability_length, tvb, offset, 2, tds_get_int2_encoding(tds_info), &len);
+    cur = 2;
+
+    while (cur < len) {
+        guint captype, caplen, cap;
+        proto_item *length_item;
+
+        proto_tree_add_item_ret_uint(tree, hf_tds_capability_captype, tvb,
+                                     offset + cur, 1, ENC_NA, &captype);
+        length_item = proto_tree_add_item_ret_uint(tree, hf_tds_capability_caplen, tvb,
+                                     offset + cur +1 , 1, ENC_NA, &caplen);
+        cur += 2;
+
+        if (caplen > (cur - len)) {
+            expert_add_info_format(pinfo, length_item, &ei_tds_token_length_invalid,
+                                   " Capability length %d", caplen);
+            caplen = cur - len;
+        }
+
+        for (cap=0; cap < caplen; cap++) {
+            const int **hf_array = NULL;
+            char name[ITEM_LABEL_LENGTH];
+            int ett;
+
+            switch (captype) {
+                case TDS_CAP_REQUEST:
+                    if (cap < array_length(hf_req_array)) {
+                        hf_array = (const int **) hf_req_array[cap];
+                        g_snprintf(name, ITEM_LABEL_LENGTH, "Req caps %d-%d: ",
+                                   cap*8, (cap + 1)*8 - 1);
+                        ett = ett_tds_capability_req;
+                    }
+                    break;
+                case TDS_CAP_RESPONSE:
+                    if (cap < array_length(hf_resp_array)) {
+                        hf_array = (const int **) hf_resp_array[cap];
+                        g_snprintf(name, ITEM_LABEL_LENGTH, "Resp caps %d-%d: ",
+                                   cap*8, (cap + 1)*8 - 1);
+                        ett = ett_tds_capability_resp;
+                    }
+                    break;
+                default:
+                    ;
+            }
+            if (hf_array) {
+                proto_tree_add_bitmask_text(tree, tvb,
+                                            offset + cur + (caplen - cap - 1), 1,
+                                            name, NULL,
+                                            ett, hf_array,
+                                            ENC_BIG_ENDIAN, BMT_NO_INT|BMT_NO_TFS);
+            }
+
+        }
+        cur += caplen;
+    }
+
+    return len;
+}
+
 static void
 dissect_tds_transmgr_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1403,7 +2010,7 @@ dissect_tds_transmgr_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
+dissect_tds5_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint offset;
     guint pos;
@@ -1599,6 +2206,224 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
             }
         }
     }
+}
+
+static guint
+dissect_tds45_login_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                         int hf, int hf_length, guint offset, const guint namesize,
+                         const char *name)
+{
+    guint len;
+    proto_item *length_item;
+
+    len = tvb_get_guint8(tvb,offset + namesize);
+    length_item = proto_tree_add_item(tree, hf_length,
+                                      tvb, offset+namesize, 1, ENC_NA);
+    if (len > namesize) {
+        expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length,
+                               "Invalid %s length (%d)", name, len);
+        len = namesize;
+    }
+    if (len > 0) {
+        proto_tree_add_item(tree, hf, tvb, offset, len, ENC_ASCII);
+    }
+    return offset + namesize + 1;
+
+}
+
+static guint
+dissect_tds45_remotepassword(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint rplen, cur, server_len, password_len;
+    proto_item *length_item;
+    proto_tree *rempw_tree;
+
+    rempw_tree = proto_tree_add_subtree(tree, tvb, offset, TDS_RPLEN + 1, ett_tds_login_rempw, NULL, "Remote password");
+
+    length_item = proto_tree_add_item_ret_uint(rempw_tree, hf_tdslogin_remotepassword_length, tvb,
+                                               offset + TDS_RPLEN, 1, ENC_NA, &rplen);
+    if (rplen > TDS_RPLEN) {
+        expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length,
+                               "Invalid %s length (%d)", "remote password field", rplen);
+        rplen = TDS_RPLEN;
+    }
+
+    cur = 0;
+    while (cur < rplen) {
+        length_item = proto_tree_add_item_ret_uint(rempw_tree, hf_tdslogin_rempw_servername_length, tvb,
+                                                   offset + cur, 1, ENC_NA, &server_len);
+        if (server_len > (rplen - cur) - 1) {
+            expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length,
+                                   "Invalid %s length (%d)", "remote password servername", server_len);
+            server_len = (rplen - cur) - 1;
+        }
+        if (server_len > 0) {
+            proto_tree_add_item(rempw_tree, hf_tdslogin_rempw_servername, tvb,
+                                offset + cur + 1, server_len, ENC_ASCII|ENC_NA);
+        }
+        length_item = proto_tree_add_item_ret_uint(rempw_tree, hf_tdslogin_rempw_password_length, tvb,
+                                                   offset + cur + 1 + server_len, 1, ENC_NA, &password_len);
+        if (password_len > (rplen - cur) - 1 - server_len - 1) {
+            expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length,
+                                   "Invalid %s length (%d)", "remote password password", password_len);
+            password_len = (rplen - cur) - 1 - server_len - 1;
+        }
+        if (password_len > 0) {
+            proto_tree_add_item(rempw_tree, hf_tdslogin_rempw_password, tvb,
+                                offset + cur + 1 + server_len + 1, password_len, ENC_ASCII|ENC_NA);
+        }
+        cur += (1 + server_len + 1 + password_len);
+    }
+
+    return offset + (TDS_RPLEN + 1);
+}
+
+static void
+dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
+{
+    guint offset, len;
+
+    proto_item *login_item;
+    proto_tree *login_tree, *login_options_tree, *login_options2_tree;
+    guint lval;
+
+    /* Get the protocol version */
+    tds_info->tds_major_version = tvb_get_guint8(tvb, 458);
+
+    /* create display subtree for the protocol */
+    offset = 0;
+    len = tvb_reported_length(tvb);
+    login_item = proto_tree_add_item(tree, hf_tdslogin, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+    login_tree = proto_item_add_subtree(login_item, ett_tds_login);
+    proto_item_set_text(login_item, (TDS_PROTO_IS_5(tds_info) ? "TDS 5 Login Packet" : "TDS 4 Login Packet"));
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_hostname, hf_tdslogin_hostname_length,
+                                      offset, TDS_MAXNAME, "hostname");
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_username, hf_tdslogin_username_length,
+                                      offset, TDS_MAXNAME, "username");
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_password, hf_tdslogin_password_length,
+                                      offset, TDS_MAXNAME, "password");
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_hostprocess, hf_tdslogin_hostprocess_length,
+                                      offset, TDS_MAXNAME, "host process id");
+
+    login_options_tree = proto_tree_add_subtree(login_tree, tvb, offset, 9,
+                                                ett_tds_login_options, NULL, "Login Options");
+
+    tds_info->tds_encoding_int2 = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(login_options_tree, hf_tdslogin_option_int2, tvb, offset, 1,
+                        tds_info->tds_encoding_int2 );
+    offset++;
+    tds_info->tds_encoding_int4 = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(login_options_tree, hf_tdslogin_option_int4, tvb, offset, 1,
+                        tds_info->tds_encoding_int2);
+    offset++;
+    tds_info->tds_encoding_char = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(login_options_tree, hf_tdslogin_option_char, tvb, offset, 1,
+                        tds_info->tds_encoding_char);
+    offset++;
+    proto_tree_add_item(login_options_tree, hf_tdslogin_option_float, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(login_options_tree, hf_tdslogin_option_date8, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(login_options_tree, hf_tdslogin_option_usedb, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(login_options_tree, hf_tdslogin_option_bulk, tvb, offset, 1, ENC_NA);
+    offset++;
+    lval = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(login_options_tree, hf_tdslogin_option_server_to_server, tvb, offset, 1, lval & 0x7f);
+    proto_tree_add_boolean(login_options_tree, hf_tdslogin_option_server_to_server_loginack, tvb, offset, 1, lval);
+    offset++;
+    proto_tree_add_item(login_options_tree, hf_tdslogin_option_conversation_type, tvb, offset, 1, ENC_NA);
+    offset++;
+    /* TDS 4 packet size */
+    offset += 4;
+    /* Spare */
+    offset += 3;
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_appname, hf_tdslogin_appname_length,
+                                      offset, TDS_MAXNAME, "appname");
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_servername, hf_tdslogin_servername_length,
+                                      offset, TDS_MAXNAME, "server name");
+
+    offset = dissect_tds45_remotepassword(tvb, pinfo, login_tree, offset);
+
+    proto_tree_add_item(login_tree, hf_tdslogin_proto_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_progname, hf_tdslogin_progname_length,
+                                      offset, TDS_PROGNLEN, "program name");
+
+    proto_tree_add_item(login_tree, hf_tdslogin_progvers, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    login_options2_tree = proto_tree_add_subtree(login_tree, tvb, offset, 3, ett_tds_login_options2, NULL, "Login Options 2");
+
+    proto_tree_add_item(login_options2_tree, hf_tdslogin_option2_noshort, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(login_options2_tree, hf_tdslogin_option2_flt4, tvb, offset, 1, ENC_NA );
+    offset++;
+    proto_tree_add_item(login_options2_tree, hf_tdslogin_option2_date4, tvb, offset, 1, ENC_NA );
+    offset++;
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_language, hf_tdslogin_language_length,
+                                      offset, TDS_MAXNAME, "language");
+
+    proto_tree_add_item(login_tree, hf_tdslogin_setlang, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    /* Two bytes of oldsecure unused, must be zero. */
+    offset += 2;
+
+    proto_tree_add_item(login_tree, hf_tdslogin_seclogin, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(login_tree, hf_tdslogin_secbulk, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(login_tree, hf_tdslogin_halogin, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(login_tree, hf_tdslogin_hasessionid, tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    /* secspare */
+    offset += 2;
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_charset, hf_tdslogin_charset_length,
+                                      offset, TDS_MAXNAME, "charset");
+
+    proto_tree_add_item(login_tree, hf_tdslogin_setcharset, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
+                                      hf_tdslogin_packetsize, hf_tdslogin_packetsize_length,
+                                      offset, TDS_PKTLEN, "packetsize");
+    /* Unused */
+    offset += 4;
+
+    if (len > offset) {
+        /* Check for capabilities token */
+        if (tvb_get_guint8(tvb, offset) == TDS_CAPABILITY_TOKEN) {
+            proto_item *token_item;
+            proto_tree *token_tree;
+            token_item = proto_tree_add_item(login_tree, hf_tds_capability, tvb, offset,
+                                             tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            token_tree = proto_item_add_subtree(token_item, ett_tds_type_varbyte);
+
+            offset += dissect_tds5_capability_token(tvb, pinfo, offset + 1, token_tree, tds_info);
+        }
+    }
+
 }
 
 static void
@@ -2454,28 +3279,47 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
         /* Use major version number to validate TDS 4/5 login
          * packet */
 
-        /* According to http://www.freetds.org/tds.html#login there are
-         * a bunch of strings at the beginning of the packet. We might
-         * be able to improve our accuracy by seeing if host_name_length,
-         * user_name_length, password_length, etc are all <= 30. */
-
         /* Login packet is first in stream and should not be fragmented...
-         * if it is we are screwed */
+         * if it is we are screwed
+         *
+         * Note that all of these offsets include the 8-byte netlib
+         * header. Therefore, they are 8 bytes larger than the ones that
+         * would be seen in dissect_tds45_login.
+         */
         if (bytes_avail < 467) return FALSE;
         tds_major = tvb_get_guint8(tvb, 466);
         if (tds_major != 4 && tds_major != 5) {
             return FALSE;
         }
+
         /*
-         * and one added by Microsoft in SQL Server 7
+         * Ensure that the strings at the front of the login packet
+         * have valid lengths.
          */
-    } else if (type==TDS_LOGIN7_PKT) {
+
+        /* Hostname */
+        if (tvb_get_guint8(tvb, 8 + TDS_MAXNAME) > TDS_MAXNAME)
+            return FALSE;
+        /* Username */
+        if (tvb_get_guint8(tvb, 39 + TDS_MAXNAME) > TDS_MAXNAME)
+            return FALSE;
+        /* Password */
+        if (tvb_get_guint8(tvb, 70 + TDS_MAXNAME) > TDS_MAXNAME)
+            return FALSE;
+        /* Client process id */
+        if (tvb_get_guint8(tvb, 101 + TDS_MAXNAME) > TDS_MAXNAME)
+            return FALSE;
+    }
+    /*
+     * and one added by Microsoft in SQL Server 7
+     */
+    else if (type==TDS_LOGIN7_PKT) {
         if (bytes_avail < 16) return FALSE;
         tds_major = tvb_get_guint8(tvb, 15);
         if (tds_major != 0x70 && tds_major != 0x80) {
             return FALSE;
         }
-    } else if (type==TDS_QUERY5_PKT) {
+    } else if (type==TDS5_QUERY_PKT) {
         if (bytes_avail < 9) return FALSE;
         /* if this is a TDS 5.0 query check the token */
         if (tvb_get_guint8(tvb, 8) != TDS_LANG_TOKEN) {
@@ -3670,6 +4514,7 @@ token_to_idx(guint8 token)
     /*case TDS7_ALTMETADATA_TOKEN: return hf_tds_altmetadata;*/
     /*case TDS_ALTROW_TOKEN: return hf_tds_altrow;*/
     /*case TDS_COL_NAME_TOKEN: return hf_tds_colname;*/
+    case TDS_CAPABILITY_TOKEN: return hf_tds_capability;
     case TDS_COL_INFO_TOKEN: return hf_tds_colinfo;
     case TDS7_COL_METADATA_TOKEN: return hf_tds_colmetadata;
     case TDS_DONE_TOKEN: return hf_tds_done;
@@ -4009,14 +4854,17 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case TDS_RESP_PKT:
                 dissect_tds_resp(next_tvb, pinfo, tds_tree, tds_info);
                 break;
+            case TDS_LOGIN_PKT:
+                dissect_tds45_login(next_tvb, pinfo, tds_tree, tds_info);
+                break;
             case TDS_LOGIN7_PKT:
                 dissect_tds7_login(next_tvb, pinfo, tds_tree, tds_info);
                 break;
             case TDS_QUERY_PKT:
                 dissect_tds_query_packet(next_tvb, pinfo, tds_tree, tds_info);
                 break;
-            case TDS_QUERY5_PKT:
-                dissect_tds_query5_packet(next_tvb, pinfo, tds_tree, tds_info);
+            case TDS5_QUERY_PKT:
+                dissect_tds5_query_packet(next_tvb, pinfo, tds_tree, tds_info);
                 break;
             case TDS_SSPI_PKT:
                 dissect_tds_nt(next_tvb, pinfo, tds_tree, offset - 8, -1);
@@ -4172,6 +5020,768 @@ proto_register_tds(void)
         /* ALTMETADATA token */
 
         /* ALTROW token */
+
+        /* CAPABILITY token */
+        { &hf_tds_capability,
+          { "Token - Capability", "tds.capabilty",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_length,
+          { "Token length", "tds.capability.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_captype,
+          { "Capability type", "tds.capability.captype",
+            FT_UINT8, BASE_DEC, VALS(tds_capability_type), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_caplen,
+          { "Capability len", "tds.capability.caplen",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_lang,
+          { "Language requests", "tds.capability.req.lang",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_rpc,
+          { "RPC requests", "tds.capability.req.rpc",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_evt,
+          { "RPC event notifications", "tds.capability.req.evt",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_mstmt,
+          { "Multiple commands per request", "tds.capability.req.mstmt",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_bcp,
+          { "Bulk copy requests", "tds.capability.req.bcp",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_cursor,
+          { "Cursor command requests", "tds.capability.req.cursor",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_dynf,
+          { "Dynamic SQL requests", "tds.capability.req.dynf",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_msg,
+          { "TDS_MSG requests", "tds.capability.req.msg",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_param,
+          { "TDS_DBRPC/TDS_PARAM requests", "tds.capability.req.param",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_int1,
+          { "Support 1-byte unsigned ints", "tds.capability.data.int1",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_int2,
+          { "Support 2-byte ints", "tds.capability.data.int2",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_int4,
+          { "Support 4-byte ints", "tds.capability.data.int4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_bit,
+          { "Support bits", "tds.capability.data.bit",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_char,
+          { "Support fixed-length character types", "tds.capability.data.char",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_vchar,
+          { "Support variable-length character types", "tds.capability.data.vchar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_bin,
+          { "Support fixed-length binary", "tds.capability.data.bin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_vbin,
+          { "Support variable-length binary", "tds.capability.data.vbin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_mny8,
+          { "Support 8-byte money", "tds.capability.data.mny8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_mny4,
+          { "Support 4-byte money", "tds.capability.data.mny4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_date8,
+          { "Support 8-byte datetime", "tds.capability.data.date8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_date4,
+          { "Support 4-byte datetime", "tds.capability.data.date4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_flt4,
+          { "Support 4-byte float", "tds.capability.data.flt4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_flt8,
+          { "Support 8-byte float", "tds.capability.data.flt8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_num,
+          { "Support numeric", "tds.capability.data.num",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_text,
+          { "Support text data", "tds.capability.data.text",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_image,
+          { "Support image data", "tds.capability.data.image",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_dec,
+          { "Support decimal", "tds.capability.data.dec",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_lchar,
+          { "Support long varible-length character types", "tds.capability.data.lchar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_lbin,
+          { "Support long varible-length binary types", "tds.capability.data.lbin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_intn,
+          { "Support nullable ints", "tds.capability.data.intn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_datetimen,
+          { "Support nullable datetime", "tds.capability.data.datetimen",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_moneyn,
+          { "Support nullable money", "tds.capability.data.moneyn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_prev,
+          { "Support fetch previous cursor", "tds.capability.csr.prev",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_first,
+          { "Support fetch first cursor", "tds.capability.csr.first",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_last,
+          { "Support fetch last cursor", "tds.capability.csr.last",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_abs,
+          { "Support fetch absolute cursor", "tds.capability.csr.abs",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_rel,
+          { "Support fetch relative cursor", "tds.capability.csr.rel",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_multi,
+          { "Support fetch multi-row cursor", "tds.capability.csr.multi",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_con_oob,
+          { "Support expedited attention", "tds.capability.con.oob",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_con_inband,
+          { "Support non-expedited attention", "tds.capability.con.inband",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_con_logical,
+          { "Support logical logout", "tds.capability.con.logout",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_proto_text,
+          { "Support tokenized text/image", "tds.capability.proto.text",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_proto_bulk,
+          { "Support tokenized bcp", "tds.capability.proto.bulk",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_urgevt,
+          { "Use new event notification", "tds.capability.req.urgevt",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_sensitivity,
+          { "Support sensitivity data", "tds.capability.data.sensitivity",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_boundary,
+          { "Support boundary data", "tds.capability.data.boundary",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_proto_dynamic,
+          { "Use DESCIN/DESCOUT dynamic protocol", "tds.capability.proto.dynamic",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_proto_dynproc,
+          { "Prepend \"create proc\" to dynamic prepares", "tds.capability.proto.dynproc",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_fltn,
+          { "Support nullable floats", "tds.capability.data.fltn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_bitn,
+          { "Support nullable bits", "tds.capability.data.bitn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_int8,
+          { "Support 8-byte ints", "tds.capability.data.int8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_void,
+          { "Undocumented TDS_DATA_VOID", "tds.capability.data.void",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_dol_bulk,
+          { "Undocumented TDS_DOL_VOID", "tds.capability.dol.bulk",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_object_java1,
+          { "Support serialized java objects", "tds.capability.object.java1",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_object_char,
+          { "Support streaming char data", "tds.capability.object.char",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_object_binary,
+          { "Support streaming binary data", "tds.capability.object.binary",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_columnstatus,
+          { "Add status field to ROW/PARAMS", "tds.capability.data.columnstatus",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_widetable,
+          { "Allow wide-table tokens", "tds.capability.widetable",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_uint2,
+          { "Support 2-byte unsigned ints", "tds.capability.data.uint2",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_uint4,
+          { "Support 4-byte unsigned ints", "tds.capability.data.uint4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_uint8,
+          { "Support 8-byte unsigned ints", "tds.capability.data.uint8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_uintn,
+          { "Support nullable unsigned ints", "tds.capability.data.uintn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_cur_implicit,
+          { "Support TDS_CUR_DOPT_IMPLICIT", "tds.capability.cur.implicit",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nlbin,
+          { "Support UTF-16 LONGBINARY", "tds.capability.data.nlbin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_image_nchar,
+          { "Support UTF-16 IMAGE", "tds.capability.image.nchar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_blob_nchar_16,
+          { "Support BLOB serialization 0", "tds.capability.blob.nchar_16",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_blob_nchar_8,
+          { "Support BLOB serialization 1", "tds.capability.blob.nchar_8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_blob_nchar_scsu,
+          { "Support BLOB serialization 2", "tds.capability.blob.nchar_scsu",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_date,
+          { "Support DATE", "tds.capability.data.date",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_time,
+          { "Support TIME", "tds.capability.data.time",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_interval,
+          { "Support INTERVAL", "tds.capability.data.interval",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_scroll,
+          { "Support scrollable cursor", "tds.capability.csr.scroll",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_sensitive,
+          { "Support sens. scr csr", "tds.capability.csr.sensitive",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_insensitive,
+          { "Support insens. scr csr", "tds.capability.csr.insensitive",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_semisensitive,
+          { "Support semisens. scr csr", "tds.capability.csr.semisensitive",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_csr_keysetdriven,
+          { "Support scr keyset driven csr", "tds.capability.csr.keysetdriven",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_srvpktsize,
+          { "Support server-spec. packet size", "tds.capability.req.srvpktsize",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_unitext,
+          { "Support UTF-16 text", "tds.capability.data.unitext",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_cap_clusterfailover,
+          { "Support cluster failover", "tds.capability.cap.clusterfailover",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_sint1,
+          { "Support signed 1-byte ints", "tds.capability.data.sint1",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_largeident,
+          { "Support large identifiers", "tds.capability.req.largeident",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_blob_nchar_16,
+          { "Support BLOB serialization 0 (new)", "tds.capability.req.blob_nchar_16",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_xml,
+          { "Support XML type", "tds.capability.data.xml",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_curinfo3,
+          { "Support TDS_CURINFO3 token", "tds.capability.req.curinfo3",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_req_dbrpc2,
+          { "Support TDS_DBRPC2 token", "tds.capability.req.dbrpc2",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_nomsg,
+          { "No sup. for TDS_MSG result", "tds.capability.res.nomsg",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_noeed,
+          { "No sup. for TDS_EED token", "tds.capability.res.noeed",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_noparam,
+          { "No sup. for TDS_PARAM return param", "tds.capability.res.noparam",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noint1,
+          { "No sup. for unsigned 1-byte ints", "tds.capability.data.noint1",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noint2,
+          { "No sup. for 2-byte ints", "tds.capability.data.noint2",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noint4,
+          { "No sup. for 4-byte ints", "tds.capability.data.noint4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nobit,
+          { "No sup. for BIT type", "tds.capability.data.nobit",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nochar,
+          { "No sup. for fixed-length char", "tds.capability.data.nochar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_novchar,
+          { "No sup. for variable-length char", "tds.capability.data.novchar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nobin,
+          { "No sup. for fixed-length binary", "tds.capability.data.nobin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_novbin,
+          { "No sup. for variable-length binary", "tds.capability.data.novbin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nomny8,
+          { "No sup. for 8-byte money", "tds.capability.data.nomny8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nomny4,
+          { "No sup. for 4-byte money", "tds.capability.data.nomny4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nodate8,
+          { "No sup. for 8-byte datetime", "tds.capability.data.nodate8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nodate4,
+          { "No sup. for 4-byte datetime", "tds.capability.data.nodate4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noflt4,
+          { "No sup. for 4-byte floats", "tds.capability.data.noflt4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noflt8,
+          { "No sup. for 8-byte floats", "tds.capability.data.noflt8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nonum,
+          { "No sup. for NUMERIC", "tds.capability.data.nonum",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_notext,
+          { "No sup. for TEXT", "tds.capability.data.notext",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noimage,
+          { "No sup. for IMAGE", "tds.capability.data.noimage",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nodec,
+          { "No sup. for DECIMAL", "tds.capability.data.nodec",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nolchar,
+          { "No sup. for long character types", "tds.capability.data.nolchar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nolbin,
+          { "No sup. for long binary types", "tds.capability.data.nolbin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nointn,
+          { "No sup. for nullable ints", "tds.capability.data.nointn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nodatetimen,
+          { "No sup. for nullable datetime", "tds.capability.data.nodatetimen",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nomoneyn,
+          { "No sup. for nullable money", "tds.capability.data.nomoneyn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_con_nooob,
+          { "No sup. for expedited attentions", "tds.capability.con.nooob",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_con_noinband,
+          { "No sup. for non-expedited attentions", "tds.capability.con.noinband",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_proto_notext,
+          { "No sup. for tokenized text/image", "tds.capability.proto.notext",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_proto_nobulk,
+          { "No sup. for tokenized BCP", "tds.capability.proto.nobulk",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nosensitivity,
+          { "No sup. for sensitivity", "tds.capability.data.nosensitivity",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noboundary,
+          { "No sup. for BOUNDARY", "tds.capability.data.noboundary",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_notdsdebug,
+          { "No sup. for TDS_DEBUG token", "tds.capability.res.notdsdebug",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_nostripblanks,
+          { "Do not strip blanks from CHAR", "tds.capability.res.nostripblanks",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noint8,
+          { "No sup. for 8-byte ints", "tds.capability.data.noint8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_object_nojava1,
+          { "No sup. for serialized Java objects", "tds.capability.object.nojava1",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_object_nochar,
+          { "No sup. for streaming char data", "tds.capability.object.nochar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nocolumnstatus,
+          { "No sup. for columnstatus byte", "tds.capability.data.nocolumnstatus",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_object_nobinary,
+          { "No sup. for streaming binary data", "tds.capability.object.nobinary",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nouint2,
+          { "No sup. for 2-byte unsigned ints", "tds.capability.data.nouint2",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nouint4,
+          { "No sup. for 4-byte unsigned ints", "tds.capability.data.nouint4",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nouint8,
+          { "No sup. for 8-byte unsigned ints", "tds.capability.data.nouint8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nouintn,
+          { "No sup. for nullable unsigned ints", "tds.capability.data.nouintn",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_no_widetables,
+          { "No sup. for wide-table tokens", "tds.capability.no_widetables",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nonlbin,
+          { "No sup. for LONGBINARY with UTF-16", "tds.capability.data.nonlbin",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_image_nonchar,
+          { "No sup. for IMAGE with UTF-16", "tds.capability.image.nonchar",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_blob_nonchar_16,
+          { "No sup. for BLOB subtype 0", "tds.capability.blob.nonchar_16",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_blob_nonchar_8,
+          { "No sup. for BLOB subtype 1", "tds.capability.blob.nonchar_8",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_blob_nonchar_scsu,
+          { "No sup. for BLOB subtype 2", "tds.capability.blob.nonchar_scsu",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nodate,
+          { "No sup. for DATE", "tds.capability.data.nodate",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_notime,
+          { "No sup. for TIME", "tds.capability.data.notime",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nointerval,
+          { "No sup. for INTERVAL", "tds.capability.data.nointerval",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nounitext,
+          { "No sup. for TEXT with UTF-16", "tds.capability.data.nounitext",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_nosint1,
+          { "No sup. for 1-byte signed ints", "tds.capability.data.nosint1",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_no_largeident,
+          { "No sup. for large identifiers", "tds.capability.no_largeident",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_no_blob_nchar_16,
+          { "No sup. for BLOB type 0 (replacement)", "tds.capability.no_blob_nchar_16",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_no_srvpktsize,
+          { "No sup. for server spec pkt size", "tds.capability.no_srvpktsize",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_data_noxml,
+          { "No sup. for XML data", "tds.capability.data.noxml",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_no_nint_return_value,
+          { "No sup. for non-int return value", "tds.capability.no_nint_return_value",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_noxnldata,
+          { "No req. for ROWFMT2 data", "tds.capability.res.noxnldata",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_suppress_fmt,
+          { "Srvr can suppress ROWFMT for DYNAMIC", "tds.capability.res.suppress_fmt",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_suppress_doneinproc,
+          { "Srvr can suppress DONEINPROC", "tds.capability.res.suppress_doneinproc",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_tds_capability_res_force_rowfmt2,
+          { "Force use of ROWFMT2", "tds.capability.res.force_rowfmt2",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }
+        },
 
         /* COLINFO token (TDS_COL_INFO_TOKEN) */
         { &hf_tds_colinfo,
@@ -4887,6 +6497,243 @@ proto_register_tds(void)
 
         /* Federated Authentication Token */
 
+        /* LOGIN Token */
+        { &hf_tdslogin,
+          { "Hostname length", "tds.login",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_hostname_length,
+          { "Hostname length", "tds.login.hostname_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_hostname,
+          { "Hostname", "tds.login.hostname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_username_length,
+          { "Username length", "tds.login.username_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_username,
+          { "Username", "tds.login.username",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_password_length,
+          { "Password length", "tds.login.password_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_password,
+          { "Password", "tds.login.password",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_hostprocess_length,
+          { "Host Process Id length", "tds.login.hostprocess_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_hostprocess,
+          { "Host Process Id", "tds.login.pid",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_int2,
+          { "Short (2-byte) integer format", "tds.login.option.int2",
+            FT_UINT8, BASE_DEC, VALS(login_options), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_int4,
+          { "Long (4-byte) integer format", "tds.login.option.int4",
+            FT_UINT8, BASE_DEC, VALS(login_options), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_char,
+          { "Character set", "tds.login.option.char",
+            FT_UINT8, BASE_DEC, VALS(login_options), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_float,
+          { "Double (8 byte) float format", "tds.login.option.float",
+            FT_UINT8, BASE_DEC, VALS(login_options), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_date8,
+          { "Long (8 byte) date format", "tds.login.option.date",
+            FT_UINT8, BASE_DEC, VALS(login_options), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_usedb,
+          { "Use DB", "tds.login.option.usedb",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_no_yes), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_bulk,
+          { "Bulk Copy", "tds.login.option.bulk",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_no_yes), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_server_to_server,
+          { "Server to server options", "tds.login.option.server_to_server",
+            FT_UINT8, BASE_DEC, VALS(login_server_to_server), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_server_to_server_loginack,
+          { "Server to server loginack", "tds.login.option.server_to_server_loginack",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option_conversation_type,
+          { "Conversation type", "tds.login.option.type",
+            FT_UINT8, BASE_DEC, VALS(login_conversation_type), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_appname_length,
+          { "Application name length", "tds.login.appname_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_appname,
+          { "Application name", "tds.login.appname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_servername_length,
+          { "Server name length", "tds.login.servername_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_servername,
+          { "Server name", "tds.login.servname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_remotepassword_length,
+          { "Remote password length", "tds.login.rempw_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_rempw_servername_length,
+          { "Remote password servername length", "tds.login.rempw_servername_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_rempw_servername,
+          { "Remote password server name", "tds.login.rempw_servername",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_rempw_password_length,
+          { "Remote password password length", "tds.login.rempw_password_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_rempw_password,
+          { "Remote password password", "tds.login.rempw_password",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_proto_version,
+          { "Protocol version", "tds.login.protoversion",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_progname_length,
+          { "Program name length", "tds.login.progname_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_progname,
+          { "Program name", "tds.login.progname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_progvers,
+          { "Program version", "tds.login.progversion",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option2_noshort,
+          { "Convert shorts to longs", "tds.login.option.noshort",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option2_flt4,
+          { "Single (4 byte) float format", "tds.login.option.flt4",
+            FT_UINT8, BASE_DEC, VALS(login_options), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_option2_date4,
+          { "Short (4 byte) date format", "tds.login.option.date4",
+            FT_UINT8, BASE_DEC, VALS(login_options), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_language,
+          { "Language", "tds.login.language",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_language_length,
+          { "Language name length", "tds.login.language_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_setlang,
+          { "Notify client of language changes", "tds.login.setlang",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_seclogin,
+          { "Secure login", "tds.login.seclogin",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_secbulk,
+          { "Secure bulk copy", "tds.login.secbulk",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_halogin,
+          { "High Availibility login", "tds.login.halogin",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_hasessionid,
+          { "High Availibility session id", "tds.login.hasessionid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_charset,
+          { "Character set", "tds.login.charset",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_charset_length,
+          { "Character set name length", "tds.login.charset_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_setcharset,
+          { "Notify client of character set changes", "tds.login.setcharset",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_packetsize,
+          { "Packet size", "tds.login.packetsize",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tdslogin_packetsize_length,
+          { "Packet size length", "tds.login.packetsize_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         /* LOGIN7 Token */
         { &hf_tds7login_total_size,
           { "Total Packet Length", "tds.7login.total_len",
@@ -5499,8 +7346,14 @@ proto_register_tds(void)
         &ett_tds_rpc_parameter_status,
         &ett_tds_prelogin_option,
         &ett_tds_token,
+        &ett_tds_capability_req,
+        &ett_tds_capability_resp,
         &ett_tds7_query,
         &ett_tds7_prelogin,
+        &ett_tds_login,
+        &ett_tds_login_options,
+        &ett_tds_login_options2,
+        &ett_tds_login_rempw,
         &ett_tds7_login,
         &ett_tds7_hdr,
         &ett_tds_col,
