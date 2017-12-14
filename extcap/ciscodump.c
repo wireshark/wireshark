@@ -172,7 +172,7 @@ static int wait_until_data(ssh_channel channel, const guint32 count)
 	return EXIT_SUCCESS;
 }
 
-static int parse_line(char* packet _U_, unsigned* offset, char* line, int status)
+static int parse_line(char* packet, unsigned* offset, char* line, int status)
 {
 	char** parts;
 	char** part;
