@@ -29,7 +29,7 @@ bool ExpertInfoProxyModel::lessThan(const QModelIndex &source_left, const QModel
         left_item = static_cast<ExpertPacketItem*>(source_left.parent().internalPointer());
         right_item = static_cast<ExpertPacketItem*>(source_right.parent().internalPointer());
     } else {
-        left_item = static_cast<ExpertPacketItem*>(source_left.internalPointer()),
+        left_item = static_cast<ExpertPacketItem*>(source_left.internalPointer());
         right_item = static_cast<ExpertPacketItem*>(source_right.internalPointer());
     }
 
