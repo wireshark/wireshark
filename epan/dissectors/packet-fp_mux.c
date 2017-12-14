@@ -244,7 +244,7 @@ static int dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 
-static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     gboolean ext_flag;
     guint8 length_field_size;
