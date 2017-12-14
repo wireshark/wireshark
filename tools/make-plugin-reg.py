@@ -83,7 +83,7 @@ for filename in filenames:
     file.close()
 
 # Make sure we actually processed something
-if len(regs['proto_reg']) < 1:
+if len(regs['proto_reg']) < 1 and len(regs['wtap_register']) < 1:
     print("No protocol registrations found")
     sys.exit(1)
 
