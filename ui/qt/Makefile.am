@@ -211,6 +211,7 @@ MOC_MODELS_HDRS = \
 	models/related_packet_delegate.h		\
 	models/timeline_delegate.h			\
 	models/sparkline_delegate.h			\
+	models/supported_protocols_model.h		\
 	models/uat_delegate.h				\
 	models/uat_model.h				\
 	models/url_link_delegate.h			\
@@ -535,6 +536,7 @@ WIRESHARK_QT_MODELS_SRCS = \
 	models/proto_tree_model.cpp			\
 	models/related_packet_delegate.cpp		\
 	models/sparkline_delegate.cpp			\
+	models/supported_protocols_model.cpp		\
 	models/timeline_delegate.cpp			\
 	models/uat_model.cpp				\
 	models/uat_delegate.cpp				\
