@@ -163,12 +163,19 @@ it's not strictly required:
 
 ===== Strings
 
-If you're using GLib string functions or plain old C character array idioms in
-Qt-only code you're probably doing something wrong. QStrings are generally
-*much* safer and easier to use. They also make translations easier.
+Wireshark's C code and GLib use UTF-8 encoded character arrays. Qt
+(specifically QString) uses UTF-16. You can convert a `char *` to a
+`QString` using simple assignment. You can convert a `QString` to a
+`const char *` using `qUtf8Printable`.
+
+If you're using GLib string functions or plain old C character array
+idioms in Qt-only code you're probably doing something wrong,
+particularly if you're manually allocating and releasing memory.
+QStrings are generally *much* safer and easier to use. They also make
+translations easier.
 
 If you need to pass strings between Qt and GLib you can use a number
-of convenience routines which  are defined in 'ui/qt/qt_ui_utils.h'.
+of convenience routines which are defined in 'ui/qt/qt_ui_utils.h'.
 
 If you're calling a function that returns wmem-allocated memory it might make
 more sense to add a wrapper function to 'qt_ui_utils' than to call wmem_free in

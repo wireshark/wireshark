@@ -59,6 +59,11 @@ struct epan_range;
 #define Q_NULLPTR NULL
 #endif
 
+// Introduced in Qt 5.4
+#ifndef qUtf8Printable
+#define qUtf8Printable(str) str.toUtf8().constData()
+#endif
+
 /** Create a glib-compatible copy of a QString.
  *
  * @param q_string A QString.

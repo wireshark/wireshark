@@ -109,7 +109,7 @@ public:
     void removeRecentItem(const QString &filename);
     QDir lastOpenDir();
     void setLastOpenDir(const char *dir_name);
-    void setLastOpenDir(QString *dir_str);
+    void setLastOpenDir(QString dir_str);
     void helpTopicAction(topic_action_e action);
     const QFont monospaceFont() const { return mono_font_; }
     void setMonospaceFont(const char *font_string);

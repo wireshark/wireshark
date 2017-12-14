@@ -1284,7 +1284,7 @@ void MainWindow::mergeCaptureFile()
         if (merge_dlg.merge(file_name)) {
             gchar *err_msg;
 
-            if (!dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
+            if (!dfilter_compile(qUtf8Printable(read_filter), &rfcode, &err_msg)) {
                 /* Not valid. Tell the user, and go back and run the file
                    selection box again once they dismiss the alert. */
                 // Similar to commandline_info.jfilter section in main().
@@ -1455,7 +1455,7 @@ bool MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
                closes the current file and then opens and reloads the saved file,
                so make a copy and free it later. */
             file_name = cf->filename;
-            status = cf_save_records(cf, file_name.toUtf8().constData(), cf->cd_t, cf->iscompressed,
+            status = cf_save_records(cf, qUtf8Printable(file_name), cf->cd_t, cf->iscompressed,
                                      discard_comments, dont_reopen);
             switch (status) {
 
@@ -1545,14 +1545,14 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 //#ifndef _WIN32
 //        /* If the file exists and it's user-immutable or not writable,
 //                       ask the user whether they want to override that. */
-//        if (!file_target_unwritable_ui(top_level, file_name.toUtf8().constData())) {
+//        if (!file_target_unwritable_ui(top_level, qUtf8Printable(file_name))) {
 //            /* They don't.  Let them try another file name or cancel. */
 //            continue;
 //        }
 //#endif
 
         /* Attempt to save the file */
-        status = cf_save_records(cf, file_name.toUtf8().constData(), file_type, compressed,
+        status = cf_save_records(cf, qUtf8Printable(file_name), file_type, compressed,
                                  discard_comments, dont_reopen);
         switch (status) {
 
@@ -1570,7 +1570,7 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
             cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
             updateForUnsavedChanges(); // we update the title bar to remove the *
             /* Add this filename to the list of recent files in the "Recent Files" submenu */
-            add_menu_recent_capture_file(file_name.toUtf8().constData());
+            add_menu_recent_capture_file(qUtf8Printable(file_name));
             return true;
 
         case CF_WRITE_ERROR:
@@ -1647,9 +1647,9 @@ void MainWindow::exportSelectedPackets() {
          * name and the read file name may be relative (if supplied on
          * the command line). From Joerg Mayer.
          */
-        if (files_identical(capture_file_.capFile()->filename, file_name.toUtf8().constData())) {
+        if (files_identical(capture_file_.capFile()->filename, qUtf8Printable(file_name))) {
             QMessageBox msg_box;
-            gchar *display_basename = g_filename_display_basename(file_name.toUtf8().constData());
+            gchar *display_basename = g_filename_display_basename(qUtf8Printable(file_name));
 
             msg_box.setIcon(QMessageBox::Critical);
             msg_box.setText(QString(tr("Unable to export to \"%1\".").arg(display_basename)));
@@ -1668,14 +1668,14 @@ void MainWindow::exportSelectedPackets() {
 //#ifndef _WIN32
 //        /* If the file exists and it's user-immutable or not writable,
 //                       ask the user whether they want to override that. */
-//        if (!file_target_unwritable_ui(top_level, file_name.toUtf8().constData())) {
+//        if (!file_target_unwritable_ui(top_level, qUtf8Printable(file_name))) {
 //            /* They don't.  Let them try another file name or cancel. */
 //            continue;
 //        }
 //#endif
 
         /* Attempt to save the file */
-        status = cf_export_specified_packets(capture_file_.capFile(), file_name.toUtf8().constData(), &range, file_type, compressed);
+        status = cf_export_specified_packets(capture_file_.capFile(), qUtf8Printable(file_name), &range, file_type, compressed);
         switch (status) {
 
         case CF_WRITE_OK:
@@ -1689,7 +1689,7 @@ void MainWindow::exportSelectedPackets() {
             if (discard_comments)
                 packet_list_queue_draw();
             /* Add this filename to the list of recent files in the "Recent Files" submenu */
-            add_menu_recent_capture_file(file_name.toUtf8().constData());
+            add_menu_recent_capture_file(qUtf8Printable(file_name));
             return;
 
         case CF_WRITE_ERROR:
@@ -2858,7 +2858,7 @@ void MainWindow::removeAdditionalToolbar(QString toolbarName)
         AdditionalToolBar *ifToolBar = dynamic_cast<AdditionalToolBar *>(tb);
 
         if (ifToolBar && ifToolBar->menuName().compare(toolbarName)) {
-            GList *entry = g_list_find_custom(recent.gui_additional_toolbars, ifToolBar->menuName().toStdString().c_str(), (GCompareFunc) strcmp);
+            GList *entry = g_list_find_custom(recent.gui_additional_toolbars, qUtf8Printable(ifToolBar->menuName()), (GCompareFunc) strcmp);
             if (entry) {
                 recent.gui_additional_toolbars = g_list_remove(recent.gui_additional_toolbars, entry->data);
             }

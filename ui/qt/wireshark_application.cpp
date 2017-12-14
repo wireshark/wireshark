@@ -220,7 +220,7 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
         /* get capture filename from the menu item label */
         cf_name = rii.previous()->filename;
         if (cf_name != NULL) {
-            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name.toUtf8().constData());
+            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", qUtf8Printable(cf_name));
         }
     }
 }
@@ -281,8 +281,8 @@ QDir WiresharkApplication::lastOpenDir() {
     return QDir(last_open_dir);
 }
 
-void WiresharkApplication::setLastOpenDir(QString *dir_str) {
-    setLastOpenDir(dir_str->toUtf8().constData());
+void WiresharkApplication::setLastOpenDir(QString dir_str) {
+    setLastOpenDir(qUtf8Printable(dir_str));
 }
 
 void WiresharkApplication::helpTopicAction(topic_action_e action)

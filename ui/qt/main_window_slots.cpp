@@ -223,7 +223,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
             goto finish;
         }
 
-        if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
+        if (dfilter_compile(qUtf8Printable(read_filter), &rfcode, &err_msg)) {
             cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
         } else {
             /* Not valid.  Tell the user, and go back and run the file
@@ -249,7 +249,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
 
         /* Try to open the capture file. This closes the current file if it succeeds. */
         CaptureFile::globalCapFile()->window = this;
-        if (cf_open(CaptureFile::globalCapFile(), cf_path.toUtf8().constData(), type, is_tempfile, &err) != CF_OK) {
+        if (cf_open(CaptureFile::globalCapFile(), qUtf8Printable(cf_path), type, is_tempfile, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,
                just leave it around so that the user can, after they
                dismiss the alert box popped up for the open error,
@@ -514,7 +514,7 @@ void MainWindow::layoutToolbars()
         AdditionalToolBar *iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
         if (iftoolbar) {
             bool visible = false;
-            if (g_list_find_custom(recent.gui_additional_toolbars, iftoolbar->menuName().toUtf8().constData(), (GCompareFunc) strcmp))
+            if (g_list_find_custom(recent.gui_additional_toolbars, qUtf8Printable(iftoolbar->menuName()), (GCompareFunc) strcmp))
                 visible = true;
 
             iftoolbar->setVisible(visible);
@@ -1909,23 +1909,23 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
 
         data_p = tvb_get_ptr(capture_file_.capFile()->finfo_selected->ds_tvb, 0, -1) +
                 capture_file_.capFile()->finfo_selected->start;
-        fd = ws_open(file_name.toUtf8().constData(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        fd = ws_open(qUtf8Printable(file_name), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
-            open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
+            open_failure_alert_box(qUtf8Printable(file_name), errno, TRUE);
             return;
         }
         if (ws_write(fd, data_p, capture_file_.capFile()->finfo_selected->length) < 0) {
-            write_failure_alert_box(file_name.toUtf8().constData(), errno);
+            write_failure_alert_box(qUtf8Printable(file_name), errno);
             ws_close(fd);
             return;
         }
         if (ws_close(fd) < 0) {
-            write_failure_alert_box(file_name.toUtf8().constData(), errno);
+            write_failure_alert_box(qUtf8Printable(file_name), errno);
             return;
         }
 
         /* Save the directory name for future file dialogs. */
-        wsApp->setLastOpenDir(&file_name);
+        wsApp->setLastOpenDir(file_name);
     }
 }
 
@@ -1982,9 +1982,9 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
         int fd;
 
         keylist = ssl_export_sessions();
-        fd = ws_open(file_name.toUtf8().constData(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        fd = ws_open(qUtf8Printable(file_name), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
-            open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
+            open_failure_alert_box(qUtf8Printable(file_name), errno, TRUE);
             g_free(keylist);
             return;
         }
@@ -1993,19 +1993,19 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
          * _write().  Presumably this string will be <= 4GiB long....
          */
         if (ws_write(fd, keylist, (unsigned int)strlen(keylist)) < 0) {
-            write_failure_alert_box(file_name.toUtf8().constData(), errno);
+            write_failure_alert_box(qUtf8Printable(file_name), errno);
             ws_close(fd);
             g_free(keylist);
             return;
         }
         if (ws_close(fd) < 0) {
-            write_failure_alert_box(file_name.toUtf8().constData(), errno);
+            write_failure_alert_box(qUtf8Printable(file_name), errno);
             g_free(keylist);
             return;
         }
 
         /* Save the directory name for future file dialogs. */
-        wsApp->setLastOpenDir(&file_name);
+        wsApp->setLastOpenDir(file_name);
         g_free(keylist);
     }
 }
@@ -4135,8 +4135,8 @@ void MainWindow::filterDropped(QString description, QString filter)
     if ( filter.length() == 0 )
         return;
 
-    filter_expression_new(description.toUtf8().constData(),
-            filter.toUtf8().constData(), description.toUtf8().constData(), TRUE);
+    filter_expression_new(qUtf8Printable(description),
+            qUtf8Printable(filter), qUtf8Printable(description), TRUE);
 
     uat_save(uat_get_table_by_name("Display expressions"), &err);
     g_free(err);
