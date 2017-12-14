@@ -43,66 +43,90 @@ void proto_register_coap(void);
 
 static dissector_table_t media_type_dissector_table;
 
-static int proto_coap = -1;
+static int proto_coap						= -1;
 
-static int hf_coap_version		= -1;
-static int hf_coap_ttype		= -1;
-static int hf_coap_token_len		= -1;
-static int hf_coap_token		= -1;
-static int hf_coap_code			= -1;
-static int hf_coap_mid			= -1;
-static int hf_coap_payload		= -1;
-static int hf_coap_payload_desc		= -1;
-static int hf_coap_payload_length	= -1;
-static int hf_coap_opt_name		= -1;
-static int hf_coap_opt_desc		= -1;
-static int hf_coap_opt_delta		= -1;
-static int hf_coap_opt_delta_ext	= -1;
-static int hf_coap_opt_length		= -1;
-static int hf_coap_opt_length_ext	= -1;
-static int hf_coap_opt_end_marker	= -1;
-static int hf_coap_opt_ctype		= -1;
-static int hf_coap_opt_max_age		= -1;
-static int hf_coap_opt_proxy_uri	= -1;
-static int hf_coap_opt_proxy_scheme	= -1;
-static int hf_coap_opt_size1		= -1;
-static int hf_coap_opt_etag		= -1;
-static int hf_coap_opt_uri_host		= -1;
-static int hf_coap_opt_location_path	= -1;
-static int hf_coap_opt_uri_port		= -1;
-static int hf_coap_opt_location_query	= -1;
-static int hf_coap_opt_uri_path		= -1;
-static int hf_coap_opt_uri_path_recon	= -1;
-static int hf_coap_opt_observe		= -1;
-static int hf_coap_opt_accept		= -1;
-static int hf_coap_opt_if_match		= -1;
-static int hf_coap_opt_block_number	= -1;
-static int hf_coap_opt_block_mflag	= -1;
-static int hf_coap_opt_block_size	= -1;
-static int hf_coap_opt_uri_query	= -1;
-static int hf_coap_opt_unknown		= -1;
+static int hf_coap_version					= -1;
+static int hf_coap_ttype					= -1;
+static int hf_coap_token_len					= -1;
+static int hf_coap_token					= -1;
+static int hf_coap_code						= -1;
+static int hf_coap_mid						= -1;
+static int hf_coap_payload					= -1;
+static int hf_coap_payload_desc					= -1;
+static int hf_coap_payload_length				= -1;
+static int hf_coap_opt_name					= -1;
+static int hf_coap_opt_desc					= -1;
+static int hf_coap_opt_delta					= -1;
+static int hf_coap_opt_delta_ext				= -1;
+static int hf_coap_opt_length					= -1;
+static int hf_coap_opt_length_ext				= -1;
+static int hf_coap_opt_end_marker				= -1;
+static int hf_coap_opt_ctype					= -1;
+static int hf_coap_opt_max_age					= -1;
+static int hf_coap_opt_proxy_uri				= -1;
+static int hf_coap_opt_proxy_scheme				= -1;
+static int hf_coap_opt_size1					= -1;
+static int hf_coap_opt_etag					= -1;
+static int hf_coap_opt_uri_host					= -1;
+static int hf_coap_opt_location_path				= -1;
+static int hf_coap_opt_uri_port					= -1;
+static int hf_coap_opt_location_query				= -1;
+static int hf_coap_opt_uri_path					= -1;
+static int hf_coap_opt_uri_path_recon				= -1;
+static int hf_coap_opt_observe					= -1;
+static int hf_coap_opt_accept					= -1;
+static int hf_coap_opt_if_match					= -1;
+static int hf_coap_opt_block_number				= -1;
+static int hf_coap_opt_block_mflag				= -1;
+static int hf_coap_opt_block_size				= -1;
+static int hf_coap_opt_uri_query				= -1;
+static int hf_coap_opt_unknown					= -1;
+static int hf_coap_opt_object_security_non_compressed		= -1;
+static int hf_coap_opt_object_security_expand			= -1;
+static int hf_coap_opt_object_security_signature		= -1;
+static int hf_coap_opt_object_security_kid_context_present	= -1;
+static int hf_coap_opt_object_security_kid_present		= -1;
+static int hf_coap_opt_object_security_piv_len			= -1;
+static int hf_coap_opt_object_security_piv			= -1;
+static int hf_coap_opt_object_security_kid_context_len		= -1;
+static int hf_coap_opt_object_security_kid_context		= -1;
+static int hf_coap_opt_object_security_kid			= -1;
 
-static int hf_coap_response_in		= -1;
-static int hf_coap_response_to		= -1;
-static int hf_coap_response_time	= -1;
+static int hf_coap_response_in					= -1;
+static int hf_coap_response_to					= -1;
+static int hf_coap_response_time				= -1;
 
-static gint ett_coap			= -1;
-static gint ett_coap_option		= -1;
-static gint ett_coap_payload		= -1;
+static gint ett_coap						= -1;
+static gint ett_coap_option					= -1;
+static gint ett_coap_payload					= -1;
 
-static expert_field ei_coap_invalid_option_number = EI_INIT;
-static expert_field ei_coap_invalid_option_range  = EI_INIT;
-static expert_field ei_coap_option_length_bad	  = EI_INIT;
+static expert_field ei_coap_invalid_option_number		= EI_INIT;
+static expert_field ei_coap_invalid_option_range		= EI_INIT;
+static expert_field ei_coap_option_length_bad			= EI_INIT;
+static expert_field ei_coap_option_object_security_bad		= EI_INIT;
 
 static dissector_handle_t coap_handle;
 
 /* CoAP's IANA-assigned port (UDP only) number */
-#define DEFAULT_COAP_PORT	5683
-#define DEFAULT_COAPS_PORT	5684
+#define DEFAULT_COAP_PORT					5683
+#define DEFAULT_COAPS_PORT					5684
 
 /* indicators whether those are to be showed or not */
-#define DEFAULT_COAP_CTYPE_VALUE	~0U
-#define DEFAULT_COAP_BLOCK_NUMBER	~0U
+#define DEFAULT_COAP_CTYPE_VALUE				~0U
+#define DEFAULT_COAP_BLOCK_NUMBER				~0U
+
+/* bitmasks */
+#define COAP_VERSION_MASK					0xC0
+#define COAP_TYPE_MASK						0x30
+#define COAP_TOKEN_LEN_MASK					0x0F
+#define COAP_BLOCK_MFLAG_MASK					0x08
+#define COAP_BLOCK_SIZE_MASK					0x07
+#define COAP_OBJECT_SECURITY_NON_COMPRESSED_MASK		0x80
+#define COAP_OBJECT_SECURITY_EXPAND_MASK			0x40
+#define COAP_OBJECT_SECURITY_SIGNATURE_MASK			0x20
+#define COAP_OBJECT_SECURITY_KID_CONTEXT_MASK			0x10
+#define COAP_OBJECT_SECURITY_KID_MASK				0x08
+#define COAP_OBJECT_SECURITY_PIVLEN_MASK			0x07
 
 /*
  * Transaction Type
@@ -134,6 +158,9 @@ static const value_string vals_code[] = {
 	{ 2, "POST" },
 	{ 3, "PUT" },
 	{ 4, "DELETE" },
+	{ 5, "FETCH" },		/* RFC8132 */
+	{ 6, "PATCH" },		/* RFC8132 */
+	{ 7, "iPATCH" },	/* RFC8132 */
 
 	/* response code */
 	{  65, "2.01 Created" },
@@ -150,9 +177,11 @@ static const value_string vals_code[] = {
 	{ 133, "4.05 Method Not Allowed" },
 	{ 134, "4.06 Not Acceptable" },
 	{ 136, "4.08 Request Entity Incomplete" },	/* core-block-10 */
+	{ 137, "4.09 Conflict" },			/* RFC8132 */
 	{ 140, "4.12 Precondition Failed" },
 	{ 141, "4.13 Request Entity Too Large" },
 	{ 143, "4.15 Unsupported Content-Format" },
+	{ 150, "4.22 Unprocessable Entity" },		/* RFC8132 */
 	{ 160, "5.00 Internal Server Error" },
 	{ 161, "5.01 Not Implemented" },
 	{ 162, "5.02 Bad Gateway" },
@@ -175,25 +204,26 @@ static const value_string vals_observe_options[] = {
  * No-Option must not be included in this structure, is handled in the function
  * of the dissector, especially.
  */
-#define COAP_OPT_IF_MATCH	 1
-#define COAP_OPT_URI_HOST	 3
-#define COAP_OPT_ETAG		 4
-#define COAP_OPT_IF_NONE_MATCH	 5
-#define COAP_OPT_OBSERVE	 6	/* core-observe-16 */
-#define COAP_OPT_URI_PORT	 7
-#define COAP_OPT_LOCATION_PATH	 8
-#define COAP_OPT_URI_PATH	11
-#define COAP_OPT_CONTENT_TYPE	12
-#define COAP_OPT_MAX_AGE	14
-#define COAP_OPT_URI_QUERY	15
-#define COAP_OPT_ACCEPT		17
-#define COAP_OPT_LOCATION_QUERY	20
-#define COAP_OPT_BLOCK2		23	/* core-block-10 */
-#define COAP_OPT_BLOCK_SIZE	28	/* core-block-10 */
-#define COAP_OPT_BLOCK1		27	/* core-block-10 */
-#define COAP_OPT_PROXY_URI	35
-#define COAP_OPT_PROXY_SCHEME	39
-#define COAP_OPT_SIZE1		60
+#define COAP_OPT_IF_MATCH		1
+#define COAP_OPT_URI_HOST		3
+#define COAP_OPT_ETAG			4
+#define COAP_OPT_IF_NONE_MATCH		5
+#define COAP_OPT_OBSERVE		6	/* core-observe-16 */
+#define COAP_OPT_URI_PORT		7
+#define COAP_OPT_LOCATION_PATH		8
+#define COAP_OPT_URI_PATH		11
+#define COAP_OPT_CONTENT_TYPE		12
+#define COAP_OPT_MAX_AGE		14
+#define COAP_OPT_URI_QUERY		15
+#define COAP_OPT_ACCEPT			17
+#define COAP_OPT_LOCATION_QUERY		20
+#define COAP_OPT_OBJECT_SECURITY	21	/* value used in OSCORE plugtests */
+#define COAP_OPT_BLOCK2			23	/* core-block-10 */
+#define COAP_OPT_BLOCK_SIZE		28	/* core-block-10 */
+#define COAP_OPT_BLOCK1			27	/* core-block-10 */
+#define COAP_OPT_PROXY_URI		35
+#define COAP_OPT_PROXY_SCHEME		39
+#define COAP_OPT_SIZE1			60
 
 static const value_string vals_opt_type[] = {
 	{ COAP_OPT_IF_MATCH,       "If-Match" },
@@ -208,6 +238,7 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_URI_QUERY,      "Uri-Query" },
 	{ COAP_OPT_ACCEPT,         "Accept" },
 	{ COAP_OPT_LOCATION_QUERY, "Location-Query" },
+	{ COAP_OPT_OBJECT_SECURITY,"Object-Security" },
 	{ COAP_OPT_PROXY_URI,      "Proxy-Uri" },
 	{ COAP_OPT_PROXY_SCHEME,   "Proxy-Scheme" },
 	{ COAP_OPT_SIZE1,          "Size1" },
@@ -223,25 +254,26 @@ struct coap_option_range_t {
 	gint min;
 	gint max;
 } coi[] = {
-	{ COAP_OPT_IF_MATCH,       0,   8 },
-	{ COAP_OPT_URI_HOST,       1, 255 },
-	{ COAP_OPT_ETAG,           1,   8 },
-	{ COAP_OPT_IF_NONE_MATCH,  0,   0 },
-	{ COAP_OPT_URI_PORT,       0,   2 },
-	{ COAP_OPT_LOCATION_PATH,  0, 255 },
-	{ COAP_OPT_URI_PATH,       0, 255 },
-	{ COAP_OPT_CONTENT_TYPE,   0,   2 },
-	{ COAP_OPT_MAX_AGE,        0,   4 },
-	{ COAP_OPT_URI_QUERY,      1, 255 },
-	{ COAP_OPT_ACCEPT,         0,   2 },
-	{ COAP_OPT_LOCATION_QUERY, 0, 255 },
-	{ COAP_OPT_PROXY_URI,      1,1034 },
-	{ COAP_OPT_PROXY_SCHEME,   1, 255 },
-	{ COAP_OPT_SIZE1,          0,   4 },
-	{ COAP_OPT_OBSERVE,        0,   3 },
-	{ COAP_OPT_BLOCK2,         0,   3 },
-	{ COAP_OPT_BLOCK1,         0,   3 },
-	{ COAP_OPT_BLOCK_SIZE,     0,   4 },
+	{ COAP_OPT_IF_MATCH,        0,   8 },
+	{ COAP_OPT_URI_HOST,        1, 255 },
+	{ COAP_OPT_ETAG,            1,   8 },
+	{ COAP_OPT_IF_NONE_MATCH,   0,   0 },
+	{ COAP_OPT_URI_PORT,        0,   2 },
+	{ COAP_OPT_LOCATION_PATH,   0, 255 },
+	{ COAP_OPT_URI_PATH,        0, 255 },
+	{ COAP_OPT_CONTENT_TYPE,    0,   2 },
+	{ COAP_OPT_MAX_AGE,         0,   4 },
+	{ COAP_OPT_URI_QUERY,       1, 255 },
+	{ COAP_OPT_ACCEPT,          0,   2 },
+	{ COAP_OPT_LOCATION_QUERY,  0, 255 },
+	{ COAP_OPT_OBJECT_SECURITY, 0, 255 },
+	{ COAP_OPT_PROXY_URI,       1,1034 },
+	{ COAP_OPT_PROXY_SCHEME,    1, 255 },
+	{ COAP_OPT_SIZE1,           0,   4 },
+	{ COAP_OPT_OBSERVE,         0,   3 },
+	{ COAP_OPT_BLOCK2,          0,   3 },
+	{ COAP_OPT_BLOCK1,          0,   3 },
+	{ COAP_OPT_BLOCK_SIZE,      0,   4 },
 };
 
 static const value_string vals_ctype[] = {
@@ -467,6 +499,105 @@ dissect_coap_opt_location_query(tvbuff_t *tvb, proto_item *head_item, proto_tree
 	proto_item_append_text(head_item, ": %s", str);
 }
 
+/* draft-ietf-core-object-security-07 */
+static void
+dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, packet_info *pinfo, coap_info *coinfo)
+{
+	const guint8 *kid = NULL;
+	const guint8 *kid_context = NULL;
+	const guint8 *piv = NULL;
+	gboolean non_compressed = FALSE;
+	gboolean expand = FALSE;
+	gboolean signature_present = FALSE;
+	gboolean kid_context_present = FALSE;
+	guint8 kid_context_len = 0;
+	gboolean kid_present = FALSE;
+	guint8 piv_len = 0;
+	guint8 flag_byte = 0;
+	gint8 kid_len = 0;
+
+	coinfo->object_security = TRUE;
+
+	if (opt_length == 0) { /* option length is zero, means flag byte is 0x00*/
+		/* add info to the head of the packet detail */
+		proto_item_append_text(head_item, ": 00 (no Flag Byte)");
+	} else {
+		flag_byte = tvb_get_guint8(tvb, offset);
+
+		proto_tree_add_item(subtree, hf_coap_opt_object_security_non_compressed, tvb, offset, 1, ENC_BIG_ENDIAN);
+		non_compressed = flag_byte & COAP_OBJECT_SECURITY_NON_COMPRESSED_MASK;
+
+		proto_tree_add_item(subtree, hf_coap_opt_object_security_expand, tvb, offset, 1, ENC_BIG_ENDIAN);
+		expand = flag_byte & COAP_OBJECT_SECURITY_EXPAND_MASK;
+
+		proto_tree_add_item(subtree, hf_coap_opt_object_security_signature, tvb, offset, 1, ENC_BIG_ENDIAN);
+		signature_present = flag_byte & COAP_OBJECT_SECURITY_SIGNATURE_MASK;
+
+		proto_tree_add_item(subtree, hf_coap_opt_object_security_kid_context_present, tvb, offset, 1, ENC_BIG_ENDIAN);
+		kid_context_present = flag_byte & COAP_OBJECT_SECURITY_KID_CONTEXT_MASK;
+
+		proto_tree_add_item(subtree, hf_coap_opt_object_security_kid_present, tvb, offset, 1, ENC_BIG_ENDIAN);
+		kid_present = flag_byte & COAP_OBJECT_SECURITY_KID_MASK;
+
+		proto_tree_add_item(subtree, hf_coap_opt_object_security_piv_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		piv_len = (flag_byte & COAP_OBJECT_SECURITY_PIVLEN_MASK) >> 0;
+
+		/* kid_len is what remains in the option after all other fields are parsed
+		we calculate kid_len by subtracting from option length as we parse individual fields */
+		kid_len = opt_length;
+
+		offset += 1;
+		kid_len -= 1;
+
+		if (non_compressed || expand || signature_present) {
+			/* how these bits are handled is not yet specified */
+			expert_add_info_format(pinfo, subtree, &ei_coap_option_object_security_bad, "Unsupported format");
+		}
+
+		if (piv_len > 0) {
+			proto_tree_add_item(subtree, hf_coap_opt_object_security_piv, tvb, offset, piv_len, ENC_NA);
+			piv = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, piv_len, ' ');
+
+			offset += piv_len;
+			kid_len -= piv_len;
+		} else {
+			piv = nullstr;
+		}
+
+		if (kid_context_present) {
+			proto_tree_add_item(subtree, hf_coap_opt_object_security_kid_context_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+			kid_context_len = tvb_get_guint8(tvb, offset);
+
+			offset += 1;
+			kid_len -= 1;
+
+			proto_tree_add_item(subtree, hf_coap_opt_object_security_kid_context, tvb, offset, kid_context_len, ENC_NA);
+			kid_context = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, kid_context_len, ' ');
+
+			offset += kid_context_len;
+			kid_len -= kid_context_len;
+		} else {
+			kid_context = nullstr;
+		}
+
+		if (kid_present) {
+			if(kid_len > 0) {
+				proto_tree_add_item(subtree, hf_coap_opt_object_security_kid, tvb, offset, kid_len, ENC_NA);
+				kid = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, kid_len, ' ');
+
+				offset += kid_len;
+			} else {
+				expert_add_info_format(pinfo, subtree, &ei_coap_option_object_security_bad, "Key ID flag is set but there are no remaining bytes to be processed");
+				kid = nullstr;
+			}
+		} else {
+			kid = nullstr;
+		}
+
+		proto_item_append_text(head_item, ": Key ID:%s, Key ID Context:%s, Partial IV:%s", kid, kid_context, piv);
+	}
+}
+
 static void
 dissect_coap_opt_proxy_uri(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
@@ -537,12 +668,12 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 	    tvb, offset, opt_length, coinfo->block_number);
 
 	/* More flag in the end of the option */
-	coinfo->block_mflag = val & 0x08;
+	coinfo->block_mflag = val & COAP_BLOCK_MFLAG_MASK;
 	proto_tree_add_uint(subtree, hf_coap_opt_block_mflag,
 	    tvb, offset + opt_length - 1, 1, coinfo->block_mflag);
 
 	/* block size */
-	encoded_block_size = val & 0x07;
+	encoded_block_size = val & COAP_BLOCK_SIZE_MASK;
 	block_esize = 1 << (encoded_block_size + 4);
 	proto_tree_add_uint_format(subtree, hf_coap_opt_block_size,
 	    tvb, offset + opt_length - 1, 1, encoded_block_size, "Block Size: %u (%u encoded)", block_esize, encoded_block_size);
@@ -753,6 +884,10 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		dissect_coap_opt_location_query(tvb, item, subtree, offset,
 		    opt_length);
 		break;
+	case COAP_OPT_OBJECT_SECURITY:
+		dissect_coap_opt_object_security(tvb, item, subtree, offset,
+		    opt_length, pinfo, coinfo);
+		break;
 	case COAP_OPT_URI_PATH:
 		dissect_coap_opt_uri_path(tvb, item, subtree, offset,
 		    opt_length, coinfo);
@@ -873,10 +1008,10 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_tree_add_item(coap_tree, hf_coap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	proto_tree_add_item(coap_tree, hf_coap_ttype, tvb, offset, 1, ENC_BIG_ENDIAN);
-	ttype = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
+	ttype = (tvb_get_guint8(tvb, offset) & COAP_TYPE_MASK) >> 4;
 
 	proto_tree_add_item(coap_tree, hf_coap_token_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	token_len = tvb_get_guint8(tvb, offset) & 0x0f;
+	token_len = tvb_get_guint8(tvb, offset) & COAP_TOKEN_LEN_MASK;
 
 	offset += 1;
 
@@ -908,6 +1043,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	coinfo->block_mflag  = 0;
 	coinfo->uri_str_strbuf   = wmem_strbuf_sized_new(wmem_packet_scope(), 0, 1024);
 	coinfo->uri_query_strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 0, 1024);
+	coinfo->object_security = FALSE;
 	coap_token_str = NULL;
 	if (token_len > 0)
 	{
@@ -1046,11 +1182,14 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		} else {
 			coap_ctype_str_dis = coinfo->ctype_str;
 		}
-
-		g_snprintf(str_payload, sizeof(str_payload),
-			"Payload Content-Format: %s%s, Length: %u",
-			coinfo->ctype_str, coinfo->ctype_value == DEFAULT_COAP_CTYPE_VALUE ?
-			" (no Content-Format)" : "", payload_length);
+		if (coinfo->object_security) {
+			g_snprintf(str_payload, sizeof(str_payload), "Encrypted OSCORE Data");
+		} else {
+			g_snprintf(str_payload, sizeof(str_payload),
+				"Payload Content-Format: %s%s, Length: %u",
+				coinfo->ctype_str, coinfo->ctype_value == DEFAULT_COAP_CTYPE_VALUE ?
+				" (no Content-Format)" : "", payload_length);
+		}
 
 		payload_item = proto_tree_add_string(coap_tree, hf_coap_payload,
 						     tvb, offset, payload_length,
@@ -1078,17 +1217,17 @@ proto_register_coap(void)
 	static hf_register_info hf[] = {
 		{ &hf_coap_version,
 		  { "Version", "coap.version",
-		    FT_UINT8, BASE_DEC, NULL, 0xc0,
+		    FT_UINT8, BASE_DEC, NULL, COAP_VERSION_MASK,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_ttype,
 		  { "Type", "coap.type",
-		    FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30,
+		    FT_UINT8, BASE_DEC, VALS(vals_ttype), COAP_TYPE_MASK,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_token_len,
 		  { "Token Length", "coap.token_len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0f,
+		    FT_UINT8, BASE_DEC, NULL, COAP_TOKEN_LEN_MASK,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_token,
@@ -1206,6 +1345,56 @@ proto_register_coap(void)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_coap_opt_object_security_non_compressed,
+		  { "Non-compressed COSE message", "coap.opt.object_security_non_compressed",
+		    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_NON_COMPRESSED_MASK,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_expand,
+		  { "Expanded Flag Byte", "coap.opt.object_security_expand",
+		    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_EXPAND_MASK,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_signature,
+		  { "Signature Present", "coap.opt.object_security_signature",
+		    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_SIGNATURE_MASK,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_kid_context_present,
+		  { "Key ID Context Present", "coap.opt.object_security_kid_context_present",
+		    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_KID_CONTEXT_MASK,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_kid_present,
+		  { "Key ID Present", "coap.opt.object_security_kid",
+		    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_KID_MASK,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_piv_len,
+		  { "Partial IV Length", "coap.opt.object_security_piv_len",
+		    FT_UINT8, BASE_DEC, NULL, COAP_OBJECT_SECURITY_PIVLEN_MASK,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_piv,
+		  { "Partial IV", "coap.opt.object_security_piv",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_kid_context_len,
+		  { "Key ID Context Length", "coap.opt.object_security_kid_context_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_kid_context,
+		  { "Partial IV", "coap.opt.object_security_kid_context",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_object_security_kid,
+		  { "Key ID", "coap.opt.object_security_kid",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
 		{ &hf_coap_opt_uri_path,
 		  { "Uri-Path", "coap.opt.uri_path",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1238,12 +1427,12 @@ proto_register_coap(void)
 		},
 		{ &hf_coap_opt_block_mflag,
 		  { "More Flag", "coap.opt.block_mflag",
-		    FT_UINT8, BASE_DEC, NULL, 0x08,
+		    FT_UINT8, BASE_DEC, NULL, COAP_BLOCK_MFLAG_MASK,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_opt_block_size,
 		  { "Encoded Block Size", "coap.opt.block_size",
-		    FT_UINT8, BASE_DEC, NULL, 0x07,
+		    FT_UINT8, BASE_DEC, NULL, COAP_BLOCK_SIZE_MASK,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_opt_uri_query,
@@ -1286,6 +1475,9 @@ proto_register_coap(void)
 		  { "coap.invalid_option_range", PI_MALFORMED, PI_WARN, "Invalid Option Range", EXPFILL }},
 		{ &ei_coap_option_length_bad,
 		  { "coap.option_length_bad", PI_MALFORMED, PI_WARN, "Option length bad", EXPFILL }},
+		{ &ei_coap_option_object_security_bad,
+		  { "coap.option.object_security", PI_MALFORMED, PI_WARN, "Invalid Object-Security Option Format", EXPFILL }},
+
 	};
 
 	expert_module_t *expert_coap;
