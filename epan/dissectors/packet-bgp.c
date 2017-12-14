@@ -7689,6 +7689,23 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 }
 
 /*
+ * Dissect a BGP CAPABILITY message.
+ */
+static void
+dissect_bgp_capability(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
+{
+    int offset = 0;
+    int mend;
+
+    mend = offset + tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
+    offset += BGP_HEADER_SIZE;
+    /* step through all of the capabilities */
+    while (offset < mend) {
+        offset = dissect_bgp_capability_item(tvb, tree, pinfo, offset, TRUE);
+    }
+}
+
+/*
  * Dissect a BGP NOTIFICATION message.
  */
 static void
@@ -7700,6 +7717,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     proto_item              *ti;
     guint8                  clen;
     guint8                  minor_cease;
+
 
     hlen =  tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     offset = BGP_MARKER_SIZE + 2 + 1;
@@ -7749,6 +7767,10 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
             offset += 1;
             proto_tree_add_item(tree, hf_bgp_notify_communication, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1, ENC_UTF_8|ENC_NA);
         /* otherwise just dump the hex data */
+        } else if ( major_error == BGP_MAJOR_ERROR_OPEN_MSG && minor_cease == 7 ) {
+            while (offset < hlen) {
+                offset = dissect_bgp_capability_item(tvb, tree, pinfo, offset, FALSE);
+            }
         } else {
             proto_tree_add_item(tree, hf_bgp_notify_data, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, ENC_NA);
         }
@@ -7866,23 +7888,6 @@ example 2
             p += advance;
 
         }
-    }
-}
-
-/*
- * Dissect a BGP CAPABILITY message.
- */
-static void
-dissect_bgp_capability(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
-{
-    int offset = 0;
-    int mend;
-
-    mend = offset + tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
-    offset += BGP_HEADER_SIZE;
-    /* step through all of the capabilities */
-    while (offset < mend) {
-        offset = dissect_bgp_capability_item(tvb, tree, pinfo, offset, TRUE);
     }
 }
 
