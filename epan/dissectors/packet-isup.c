@@ -1132,6 +1132,7 @@ static const value_string ansi_isup_message_type_value_acro[] = {
   { 0,                                  NULL}};
 static value_string_ext ansi_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(ansi_isup_message_type_value_acro);
 
+/* Table 5/Q.763 */
 const value_string isup_parameter_type_value[] = {
 /*   0 */  { PARAM_TYPE_END_OF_OPT_PARAMS,         "End of optional parameters"},
 /*   1 */  { PARAM_TYPE_CALL_REF,                  "Call Reference (national use)"},
@@ -1263,6 +1264,11 @@ const value_string isup_parameter_type_value[] = {
 /* 128 */  { 128,                                  "Not used"},
 /* 129 */  { 129,                                  "Not used"},
 /* 130 */  { 130,                                  "Not used"},
+/* 142 */  { 142,                                  "Forward CAT indicators"},   /* Q.763 Amendment 6(10/2009) */
+/* 143 */  { 143,                                  "Backward CAT indicators"},  /* Q.763 Amendment 6(10/2009) */
+/* 150 */  { 150,                                  "Automatic re-routing" },    /* Q.763 Amendment 3(04/2004) */
+/* 166 */  { 168,                                  "IEPS call information" },   /* Q.763 Amendment 4(01/2006) */
+/* 168 */  { 168,                                  "VED information" },         /* Q.763 Amendment 5(09/2006) */
 /* 192 */  { PARAM_TYPE_GENERIC_NR,                "Generic number"},
 /* 193 */  { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
   { 0,                                 NULL}};
@@ -2048,6 +2054,7 @@ static const value_string isup_calling_party_nature_of_address_ind_value[] = {
   { ISUP_CALLED_PARTY_NATURE_UNKNOWN,           "unknown (national use)"},
   { ISUP_CALLED_PARTY_NATURE_NATIONAL_NR,       "national (significant) number"},
   { ISUP_CALLED_PARTY_NATURE_INTERNATNL_NR,     "international number"},
+  { 5,                                          "PISN specific number"},
   { 0,                                 NULL}};
 
 static const value_string isup_charge_number_nature_of_address_ind_value[] = {
@@ -2121,12 +2128,13 @@ static const value_string isup_location_type_of_shape_value[] = {
 #define DATA_NUMBERING_PLAN                     3
 #define TELEX_NUMBERING_PLAN                    4
 static const value_string isup_numbering_plan_ind_value[] = {
-  { ISDN_NUMBERING_PLAN,     "ISDN (Telephony) numbering plan"},
-  { DATA_NUMBERING_PLAN,     "Data numbering plan (national use)"},
-  { TELEX_NUMBERING_PLAN,    "Telex numbering plan (national use)"},
-  { 5,                       "Reserved for national use"},
+  { 0,                       "Unknown (national use)"},
+  { ISDN_NUMBERING_PLAN,     "ISDN (Telephony) numbering plan ITU-T E.164"},
+  { DATA_NUMBERING_PLAN,     "Data numbering plan ITU-T X.121(national use)"},
+  { TELEX_NUMBERING_PLAN,    "Telex numbering plan ITU-T F.69(national use)"},
+  { 5,                       "Private numbering plan (national use)"},
   { 6,                       "Reserved for national use"},
-  { 0,                                 NULL}};
+  { 0,                        NULL}};
 
 #define ADDRESS_PRESETATION_ALLOWED      0
 #define ADDRESS_PRESETATION_RESTRICTED   1
