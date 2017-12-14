@@ -35,6 +35,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 #ifdef HAVE_SNAPPY
 #include <snappy-c.h>
 #endif
@@ -1462,6 +1463,7 @@ void
 proto_reg_handoff_mongo(void)
 {
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_MONGO, mongo_handle);
+  ssl_dissector_add(TCP_PORT_MONGO, mongo_handle);
 }
 /*
  * Editor modelines
