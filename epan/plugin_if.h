@@ -400,7 +400,7 @@ typedef enum
 } plugin_if_callback_t;
 
 
-typedef void (*plugin_if_gui_cb)(gconstpointer user_data);
+typedef void (*plugin_if_gui_cb)(GHashTable * data_set);
 
 WS_DLL_PUBLIC void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if_gui_cb callback);
 

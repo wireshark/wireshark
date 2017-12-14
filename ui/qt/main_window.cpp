@@ -113,12 +113,10 @@ void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *chil
     gbl_cur_main_window_->setPipeInputHandler(source, user_data, child_process, input_cb);
 }
 
-static void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
+static void plugin_if_mainwindow_apply_filter(GHashTable * data_set)
 {
-    if (!gbl_cur_main_window_ || !user_data)
+    if (!gbl_cur_main_window_ || !data_set)
         return;
-
-    GHashTable * data_set = (GHashTable *) user_data;
 
     if (g_hash_table_lookup_extended(data_set, "filter_string", NULL, NULL)) {
         QString filter((const char *)g_hash_table_lookup(data_set, "filter_string"));
@@ -126,12 +124,11 @@ static void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
     }
 }
 
-static void plugin_if_mainwindow_preference(gconstpointer user_data)
+static void plugin_if_mainwindow_preference(GHashTable * data_set)
 {
-    if (!gbl_cur_main_window_ || !user_data)
+    if (!gbl_cur_main_window_ || !data_set)
         return;
 
-    GHashTable * data_set = (GHashTable *) user_data;
     const char * module_name;
     const char * pref_name;
     const char * pref_value;
@@ -147,12 +144,11 @@ static void plugin_if_mainwindow_preference(gconstpointer user_data)
     }
 }
 
-static void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
+static void plugin_if_mainwindow_gotoframe(GHashTable * data_set)
 {
-    if (!gbl_cur_main_window_ || !user_data)
+    if (!gbl_cur_main_window_ || !data_set)
         return;
 
-    GHashTable * data_set = (GHashTable *) user_data;
     gpointer framenr;
 
     if (g_hash_table_lookup_extended(data_set, "frame_nr", NULL, &framenr)) {
@@ -163,12 +159,11 @@ static void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
 
 #ifdef HAVE_LIBPCAP
 
-static void plugin_if_mainwindow_get_ws_info(gconstpointer user_data)
+static void plugin_if_mainwindow_get_ws_info(GHashTable * data_set)
 {
-    if (!gbl_cur_main_window_ || !user_data)
+    if (!gbl_cur_main_window_ || !data_set)
         return;
 
-    GHashTable * data_set = (GHashTable *)user_data;
     ws_info_t *ws_info = NULL;
 
     if (!g_hash_table_lookup_extended(data_set, "ws_info", NULL, (void**)&ws_info))
@@ -241,12 +236,11 @@ static void plugin_if_mainwindow_get_ws_info(gconstpointer user_data)
 
 #endif /* HAVE_LIBPCAP */
 
-static void plugin_if_mainwindow_update_toolbars(gconstpointer user_data)
+static void plugin_if_mainwindow_update_toolbars(GHashTable * data_set)
 {
-    if (!gbl_cur_main_window_ || ! user_data)
+    if (!gbl_cur_main_window_ || ! data_set)
         return;
 
-    GHashTable * data_set = (GHashTable *)user_data;
     if (g_hash_table_lookup_extended(data_set, "toolbar_name", NULL, NULL)) {
         QString toolbarName((const char *)g_hash_table_lookup(data_set, "toolbar_name"));
         gbl_cur_main_window_->removeAdditionalToolbar(toolbarName);
@@ -1084,11 +1078,11 @@ void MainWindow::dropEvent(QDropEvent *event)
         return;
     }
 
-    char **in_filenames = (char **)g_malloc(sizeof(char*) * local_files.size());
+    char **in_filenames = (char **) g_malloc(sizeof(char*) * local_files.size());
     char *tmpname = NULL;
 
     for (int i = 0; i < local_files.size(); i++) {
-        in_filenames[i] = (char *) local_files.at(i).constData();
+        in_filenames[i] = const_cast<char *>(local_files.at(i).constData());
     }
 
     /* merge the files in chronological order */

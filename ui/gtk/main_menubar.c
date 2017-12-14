@@ -141,7 +141,7 @@ static void colorize_cb(GtkWidget *w, gpointer d);
 static void rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences,
         GtkUIManager *ui_menu, const char *path);
 
-static void plugin_if_menubar_preference(gconstpointer user_data);
+static void plugin_if_menubar_preference(GHashTable *dataSet);
 
 
 /*  As a general GUI guideline, we try to follow the Gnome Human Interface Guidelines, which can be found at:
@@ -5404,11 +5404,10 @@ ws_menubar_external_menus(void)
     }
 }
 
-void plugin_if_menubar_preference(gconstpointer user_data)
+void plugin_if_menubar_preference(GHashTable *dataSet)
 {
-    if ( user_data != NULL )
+    if ( dataSet != NULL )
     {
-        GHashTable * dataSet = (GHashTable *) user_data;
         const char * module_name;
         const char * pref_name;
         const char * pref_value;

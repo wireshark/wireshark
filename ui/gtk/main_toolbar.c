@@ -268,10 +268,9 @@ toolbar_auto_scroll_live_changed(gboolean auto_scroll_live_lcl) {
 #endif
 
 static void
-plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
+plugin_if_maintoolbar_goto_frame(GHashTable * data_set)
 {
-    if (user_data) {
-        GHashTable * data_set = (GHashTable *) user_data;
+    if (data_set) {
         gpointer framenr;
 
         if (g_hash_table_lookup_extended(data_set, "frame_nr", NULL, &framenr)) {
@@ -283,9 +282,8 @@ plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
 
 #ifdef HAVE_LIBPCAP
 
-static void plugin_if_maintoolbar_get_ws_info(gconstpointer user_data)
+static void plugin_if_maintoolbar_get_ws_info(GHashTable * data_set)
 {
-    GHashTable * data_set = (GHashTable *)user_data;
     ws_info_t *ws_info = NULL;
     capture_file *cf;
 
