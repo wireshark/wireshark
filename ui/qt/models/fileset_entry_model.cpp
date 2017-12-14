@@ -37,7 +37,7 @@ QVariant FilesetEntryModel::data(const QModelIndex &index, int role) const
     if ( ! index.isValid() || index.row() >= rowCount() )
         return QVariant();
 
-    fileset_entry *entry = static_cast<fileset_entry*>(index.internalPointer());
+    const fileset_entry *entry = static_cast<fileset_entry*>(index.internalPointer());
     if (role == Qt::DisplayRole && entry) {
         switch (index.column()) {
         case Name:
