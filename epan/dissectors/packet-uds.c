@@ -380,6 +380,8 @@ static gint ett_uds_cdtcs = -1;
 
 static int proto_uds = -1;
 
+static dissector_handle_t uds_handle;
+
 static
 guint8 masked_guint8_value(const guint8 value, const guint8 mask)
 {
@@ -1076,14 +1078,13 @@ proto_register_uds(void)
 
     proto_register_field_array(proto_uds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    uds_handle = register_dissector("uds", dissect_uds, proto_uds);
 }
 
 void
 proto_reg_handoff_uds(void)
 {
-    static dissector_handle_t uds_handle;
-
-    uds_handle = create_dissector_handle(dissect_uds, proto_uds);
     dissector_add_for_decode_as("iso15765.subdissector", uds_handle);
 }
 
