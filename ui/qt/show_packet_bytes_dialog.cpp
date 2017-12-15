@@ -225,9 +225,9 @@ void ShowPacketBytesDialog::useRegexFind(bool use_regex)
 {
     use_regex_find_ = use_regex;
     if (use_regex_find_)
-        ui->lFind->setText("Regex Find:");
+        ui->lFind->setText(tr("Regex Find:"));
     else
-        ui->lFind->setText("Find:");
+        ui->lFind->setText(tr("Find:"));
 }
 
 void ShowPacketBytesDialog::findText(bool go_back)

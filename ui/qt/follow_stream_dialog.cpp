@@ -242,9 +242,9 @@ void FollowStreamDialog::useRegexFind(bool use_regex)
 {
     use_regex_find_ = use_regex;
     if (use_regex_find_)
-        ui->lFind->setText("Regex Find:");
+        ui->lFind->setText(tr("Regex Find:"));
     else
-        ui->lFind->setText("Find:");
+        ui->lFind->setText(tr("Find:"));
 }
 
 void FollowStreamDialog::findText(bool go_back)
@@ -536,7 +536,7 @@ void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 
         tcf = ui->teStreamContent->currentCharFormat();
         tcf.setBackground(palette().window().color());
         tcf.setForeground(palette().windowText().color());
-        ui->teStreamContent->insertPlainText(tr("\n[Stream output truncated]"));
+        ui->teStreamContent->insertPlainText("\n" + tr("[Stream output truncated]"));
         ui->teStreamContent->moveCursor(QTextCursor::End);
     } else {
         ui->teStreamContent->verticalScrollBar()->setValue(cur_pos);
@@ -937,7 +937,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     wmem_free(NULL, port0);
     wmem_free(NULL, port1);
 
-    both_directions_string = QString("Entire conversation (%1)")
+    both_directions_string = tr("Entire conversation (%1)")
             .arg(gchar_free_to_qstring(format_size(
                                             follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
                     format_size_unit_bytes|format_size_prefix_si)));
