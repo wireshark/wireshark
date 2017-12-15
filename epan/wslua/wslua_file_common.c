@@ -45,6 +45,7 @@ void create_wth_priv(lua_State* L, wtap *wth) {
     file_priv_t *priv = (file_priv_t*)g_malloc(sizeof(file_priv_t));
 
     if (wth->priv != NULL) {
+        g_free(priv);
         luaL_error(L, "Cannot create wtap private data because there already is private data");
         return;
     }
@@ -121,6 +122,7 @@ void create_wdh_priv(lua_State* L, wtap_dumper *wdh) {
     file_priv_t *priv = (file_priv_t*)g_malloc(sizeof(file_priv_t));
 
     if (wdh->priv != NULL) {
+        g_free(priv);
         luaL_error(L, "Cannot create wtap_dumper private data because there already is private data");
         return;
     }

@@ -240,7 +240,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
         /* WSLUA_ERROR(new_tap,"tap registration error"); */
         lua_pushfstring(L,"Error while registering tap:\n%s",error->str);
         g_string_free(error,TRUE);
-        luaL_error(L,lua_tostring(L,-1));
+        return luaL_error(L,lua_tostring(L,-1));
     }
 
     if (all_fields) {

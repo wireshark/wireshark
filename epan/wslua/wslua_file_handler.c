@@ -635,10 +635,12 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     fh->is_writer = (strchr(type,'w') != NULL) ? TRUE : FALSE;
 
     if (fh->is_reader && wtap_has_open_info(short_name)) {
+        g_free(fh);
         return luaL_error(L, "FileHandler.new: '%s' short name already exists for a reader!", short_name);
     }
 
     if (fh->is_writer && wtap_short_string_to_file_type_subtype(short_name) > -1) {
+        g_free(fh);
         return luaL_error(L, "FileHandler.new: '%s' short name already exists for a writer!", short_name);
     }
 

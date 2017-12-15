@@ -265,6 +265,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     for (i = 1; i <= top; i++) {
         if (! lua_isstring(L,i)) {
             g_ptr_array_free(labels,TRUE);
+            g_free (dcbd);
             WSLUA_ERROR(new_dialog,"All fields must be strings");
             return 0;
         }
@@ -296,6 +297,7 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new `ProgDlg` progres
     if (ops->new_progress_window) {
         pd->pw = ops->new_progress_window(ops->ops_id, pd->title, pd->task, TRUE, &(pd->stopped));
     } else {
+        g_free (pd);
         WSLUA_ERROR(ProgDlg_new, "GUI not available");
         return 0;
     }
