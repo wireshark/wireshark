@@ -5642,31 +5642,16 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						wmem_free(NULL, str);
 						break;
 
-					case FT_IEEE_11073_SFLOAT:
-						str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, hfinfo->display);
-						g_snprintf(result+offset_r, size-offset_r,
-										"%s: %s",
-										hfinfo->name, str);
-						wmem_free(NULL, str);
-						offset_r = (int)strlen(result);
-						break;
-
-					case FT_IEEE_11073_FLOAT:
-						str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, hfinfo->display);
-						g_snprintf(result+offset_r, size-offset_r,
-										"%s: %s",
-										hfinfo->name, str);
-						offset_r = (int)strlen(result);
-						wmem_free(NULL, str);
-						break;
-
-					case FT_IPXNET: /*XXX really No column custom ?*/
-					case FT_PCRE:
 					default:
-						g_error("hfinfo->type %d (%s) not handled\n",
-								hfinfo->type,
-								ftype_name(hfinfo->type));
-						DISSECTOR_ASSERT_NOT_REACHED();
+						/* First try ftype string representation */
+						str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, hfinfo->display);
+						if (!str) {
+							/* Default to show as bytes */
+							bytes = (guint8 *)fvalue_get(&finfo->value);
+							str = bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
+						}
+						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+						wmem_free(NULL, str);
 						break;
 				}
 				i++;
