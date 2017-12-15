@@ -178,7 +178,7 @@ are required, besides the dissector source in 'packet-foo.c':
 
 * 'packet-foo.c' - Your dissector source.
 
-* 'plugin.rc.in' - Contains the DLL resource template for Windows.
+* 'plugin.rc.in' - Contains the DLL resource template for Windows. (optional)
 
 You can find a good example for these files in the gryphon plugin directory.
 'Makefile.am' has to be modified to reflect the relevant files and dissector

@@ -66,6 +66,5 @@ DISTCLEANFILES = \
 	plugin.c
 
 EXTRA_DIST = \
-	plugin.rc.in		\
 	README			\
 	CMakeLists.txt

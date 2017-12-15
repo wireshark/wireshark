@@ -20,11 +20,11 @@ contain at least the following files:
 CMakeLists.txt
 Makefile.am
 moduleinfo.h
-plugin.rc.in
 README
 
 The README can be brief but it should provide essential information relevant
 to developers and users. Optionally AUTHORS and ChangeLog files can be added.
+Optionally you can add your own plugin.rc.in.
 
 And of course the source and header files for your dissector.
 
@@ -59,7 +59,7 @@ for the plugin.
 
 Your plugins/foo/plugin.rc.in is the Windows resource template file used
 to add the plugin specific information as resources to the DLL.
-No modifications are needed here.
+If not provided the plugins/plugin.rc.in file will be used.
 
 3. Changes to existing Wireshark files
 

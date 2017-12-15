@@ -85,7 +85,6 @@ MAINTAINERCLEANFILES = \
 	$(GENERATED_HEADER_FILES)
 
 EXTRA_DIST = \
-	plugin.rc.in		\
 	wimaxasncp_dict.l	\
 	CMakeLists.txt
 
