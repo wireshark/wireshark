@@ -305,6 +305,9 @@ void FollowStreamDialog::helpButton()
 
 void FollowStreamDialog::backButton()
 {
+    if (terminating_)
+        return;
+
     output_filter_ = previous_filter_;
 
     close();
@@ -312,6 +315,9 @@ void FollowStreamDialog::backButton()
 
 void FollowStreamDialog::filterOut()
 {
+    if (terminating_)
+        return;
+
     output_filter_ = filter_out_filter_;
 
     close();
