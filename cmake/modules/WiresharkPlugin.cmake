@@ -4,9 +4,7 @@
 macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	if(WIN32)
 		# Create the Windows .rc file for the plugin.
-		# The values come from several files in the source, I can't see how to reuse them
-
-		set(PACKAGE ${_plugin})
+		set(MODULE_NAME ${_plugin})
 		set(MODULE_VERSION_MAJOR ${_ver_major})
 		set(MODULE_VERSION_MINOR ${_ver_minor})
 		set(MODULE_VERSION_MICRO ${_ver_micro})
@@ -14,13 +12,8 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 		set(MODULE_VERSION "${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}.${MODULE_VERSION_MICRO}.${MODULE_VERSION_EXTRA}")
 		set(RC_MODULE_VERSION "${MODULE_VERSION_MAJOR},${MODULE_VERSION_MINOR},${MODULE_VERSION_MICRO},${MODULE_VERSION_EXTRA}")
 
-		# This info is from Makefile.am
-		set(PLUGIN_NAME ${PACKAGE})
-
+		# XXX This is wrong
 		set(MSVC_VARIANT "${CMAKE_GENERATOR}")
-
-		# The rc.in requires a plain VERSION variable
-		set(VERSION ${PROJECT_VERSION})
 
 		# Create the plugin.rc file from the template
 		if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/plugin.rc.in)
