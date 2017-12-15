@@ -1525,8 +1525,7 @@ get_int64_value(proto_tree *tree, tvbuff_t *tvb, gint start, guint length, const
 {
 	guint64 value = get_uint64_value(tree, tvb, start, length, encoding);
 
-	switch(length)
-	{
+	switch (length) {
 		case 7:
 			value = ws_sign_ext64(value, 56);
 			break;
@@ -2546,7 +2545,7 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	switch (hfinfo->type){
+	switch (hfinfo->type) {
 	case FT_INT8:
 	case FT_INT16:
 	case FT_INT24:
@@ -2606,7 +2605,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	switch (hfinfo->type){
+	switch (hfinfo->type) {
 	case FT_CHAR:
 	case FT_UINT8:
 	case FT_UINT16:
@@ -2679,7 +2678,7 @@ ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, gint length,
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
-	switch (hfinfo->type){
+	switch (hfinfo->type) {
 	case FT_CHAR:
 	case FT_UINT8:
 	case FT_UINT16:
@@ -2738,7 +2737,7 @@ ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, gint length,
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
-	switch (hfinfo->type){
+	switch (hfinfo->type) {
 	case FT_INT8:
 	case FT_INT16:
 	case FT_INT24:
@@ -2799,7 +2798,7 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint enc
 
 	PROTO_REGISTRAR_GET_NTH(hf, hfinfo);
 
-	switch (hfinfo->type){
+	switch (hfinfo->type) {
 	case FT_STRING:
 		value = get_string_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
 		break;
@@ -3074,7 +3073,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	switch (hfinfo->type){
+	switch (hfinfo->type) {
 	case FT_STRING:
 		value = get_string_value(scope, tvb, start, length, lenretval, encoding);
 		break;
@@ -5675,8 +5674,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					case FT_BYTES:
 						bytes = (guint8 *)fvalue_get(&finfo->value);
 						if (bytes) {
-							switch(hfinfo->display)
-							{
+							switch (hfinfo->display) {
 							case SEP_DOT:
 								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
 								break;
@@ -5691,12 +5689,9 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 								break;
 							case BASE_NONE:
 							default:
-								if (prefs.display_byte_fields_with_spaces)
-								{
+								if (prefs.display_byte_fields_with_spaces) {
 									str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
-								}
-								else
-								{
+								} else {
 									str = bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
 								}
 								break;
@@ -6403,7 +6398,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 	} else {
 		proto_item *curr_item;
 		/* find previous and change it's next */
-		for(curr_item = tree->first_child; curr_item != NULL; curr_item = curr_item->next) {
+		for (curr_item = tree->first_child; curr_item != NULL; curr_item = curr_item->next) {
 			if (curr_item->next == item_to_move) {
 				break;
 			}
@@ -7327,7 +7322,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	 *  true_false_strings or a protocol_t struct
 	 */
 	if (hfinfo->strings != NULL) {
-		switch(hfinfo->type) {
+		switch (hfinfo->type) {
 		case FT_CHAR:
 		case FT_UINT8:
 		case FT_UINT16:
@@ -8092,8 +8087,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			bytes = (guint8 *)fvalue_get(&fi->value);
 			if (bytes) {
 				char* str = NULL;
-				switch(hfinfo->display)
-				{
+				switch (hfinfo->display) {
 				case SEP_DOT:
 					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '.');
 					break;
@@ -8108,12 +8102,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					break;
 				case BASE_NONE:
 				default:
-					if (prefs.display_byte_fields_with_spaces)
-					{
+					if (prefs.display_byte_fields_with_spaces) {
 						str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
-					}
-					else
-					{
+					} else {
 						str = bytes_to_str(NULL, bytes, fvalue_length(&fi->value));
 					}
 					break;
@@ -8207,7 +8198,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			}
 			break;
 
-		case FT_FLOAT: {
+		case FT_FLOAT:
+		{
 			double d_value = fvalue_get_floating(&fi->value);
 			if (hfinfo->display & BASE_UNIT_STRING) {
 				g_snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -8219,10 +8211,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					   "%s: %." G_STRINGIFY(FLT_DIG) "g",
 					   hfinfo->name, d_value);
 			}
-			}
 			break;
+		}
 
-		case FT_DOUBLE: {
+		case FT_DOUBLE:
+		{
 			double d_value = fvalue_get_floating(&fi->value);
 			if (hfinfo->display & BASE_UNIT_STRING) {
 				g_snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -8234,8 +8227,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					   "%s: %." G_STRINGIFY(DBL_DIG) "g",
 					   hfinfo->name, d_value);
 			}
-			}
 			break;
+		}
 
 		case FT_ABSOLUTE_TIME:
 			tmp = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&fi->value), (absolute_time_display_e)hfinfo->display, TRUE);
@@ -8301,12 +8294,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = 4;
 			addr.data = &ipv4;
 
-			if (hfinfo->display == BASE_NETMASK)
-			{
+			if (hfinfo->display == BASE_NETMASK) {
 				addr_str = (char*)address_to_str(NULL, &addr);
-			}
-			else
-			{
+			} else {
 				addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
 			}
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -8397,12 +8387,6 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_IEEE_11073_SFLOAT:
-			tmp = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, hfinfo->display);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-						"%s: %s",
-						hfinfo->name, tmp);
-			wmem_free(NULL, tmp);
-			break;
 		case FT_IEEE_11073_FLOAT:
 			tmp = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, hfinfo->display);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -9179,35 +9163,36 @@ hfinfo_number_value_format_display64(const header_field_info *hfinfo, int displa
 
 	*ptr = '\0';
 	/* Properly format value */
-		switch (FIELD_DISPLAY(display)) {
-			case BASE_DEC:
-				return isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
+	switch (FIELD_DISPLAY(display)) {
+		case BASE_DEC:
+			return isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
 
-			case BASE_DEC_HEX:
-				*(--ptr) = ')';
-				ptr = hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
-				*(--ptr) = '(';
-				*(--ptr) = ' ';
-				ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
-				return ptr;
+		case BASE_DEC_HEX:
+			*(--ptr) = ')';
+			ptr = hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
+			*(--ptr) = '(';
+			*(--ptr) = ' ';
+			ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
+			return ptr;
 
-			case BASE_OCT:
-				return oct64_to_str_back(ptr, value);
+		case BASE_OCT:
+			return oct64_to_str_back(ptr, value);
 
-			case BASE_HEX:
-				return hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
+		case BASE_HEX:
+			return hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
 
-			case BASE_HEX_DEC:
-				*(--ptr) = ')';
-				ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
-				*(--ptr) = '(';
-				*(--ptr) = ' ';
-				ptr = hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
-				return ptr;
+		case BASE_HEX_DEC:
+			*(--ptr) = ')';
+			ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
+			*(--ptr) = '(';
+			*(--ptr) = ' ';
+			ptr = hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
+			return ptr;
 
-			default:
-				g_assert_not_reached();
-		}
+		default:
+			g_assert_not_reached();
+	}
+
 	return ptr;
 }
 
@@ -11750,7 +11735,7 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 		return ti;
 	}
 
-	switch (hfinfo->type){
+	switch (hfinfo->type) {
 	case FT_UINT8:
 		len = 1;
 		break;
