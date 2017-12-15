@@ -32,7 +32,7 @@
 #include <epan/stats_tree.h>
 #include "pinfo_stats_tree.h"
 
-WS_DLL_PUBLIC_DEF const gchar plugin_version[] = "0.0.1";
+WS_DLL_PUBLIC_DEF const gchar plugin_version[] = PLUGIN_VERSION;
 WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 
 WS_DLL_PUBLIC_DEF void plugin_register(void)

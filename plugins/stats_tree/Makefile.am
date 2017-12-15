@@ -24,6 +24,8 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = stats_tree
 
+PLUGIN_VERSION = 0.0.1
+
 # Non-generated sources
 NONGENERATED_C_FILES = \
 	$(NONGENERATED_REGISTER_C_FILES) \

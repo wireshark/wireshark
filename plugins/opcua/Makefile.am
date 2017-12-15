@@ -25,6 +25,8 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = opcua
 
+PLUGIN_VERSION = 1.1.0
+
 BUILT_SOURCES = \
 	plugin.c
 
@@ -69,7 +71,6 @@ HEADER_FILES = \
 epan_plugin_LTLIBRARIES = opcua.la
 
 opcua_la_SOURCES = \
-	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 

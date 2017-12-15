@@ -24,6 +24,8 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = unistim
 
+PLUGIN_VERSION = 0.0.2
+
 BUILT_SOURCES = \
 	plugin.c
 
@@ -54,7 +56,6 @@ HEADER_FILES = \
 epan_plugin_LTLIBRARIES = unistim.la
 
 unistim_la_SOURCES = \
-	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 

@@ -24,6 +24,8 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = wimaxasncp
 
+PLUGIN_VERSION = 0.0.1
+
 BUILT_SOURCES = \
 	plugin.c \
 	$(LEMON_GENERATED_HEADER_FILES) \
@@ -64,7 +66,6 @@ HEADER_FILES = \
 epan_plugin_LTLIBRARIES = wimaxasncp.la
 
 wimaxasncp_la_SOURCES = \
-	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 

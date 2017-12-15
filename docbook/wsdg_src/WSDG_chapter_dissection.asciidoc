@@ -174,8 +174,6 @@ are required, besides the dissector source in 'packet-foo.c':
 
 * 'CMakeLists.txt' - Contains the CMake file and version info for this plugin.
 
-* 'moduleinfo.h' - Contains plugin version information.
-
 * 'packet-foo.c' - Your dissector source.
 
 * 'plugin.rc.in' - Contains the DLL resource template for Windows. (optional)

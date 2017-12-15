@@ -19,7 +19,6 @@ contain at least the following files:
 
 CMakeLists.txt
 Makefile.am
-moduleinfo.h
 README
 
 The README can be brief but it should provide essential information relevant
@@ -47,13 +46,7 @@ which exports plugin_register() for your dissector in the
 DISSECTOR_SRC variable.  All other supporting source files should be
 listed in the DISSECTOR_SUPPORT_SRC variable.
 The header files for your dissector, if any, must be listed in the
-DISSECTOR_INCLUDES variable.  The DISSECTOR_INCLUDES variable should not
-include moduleinfo.h.
-
-2.3 moduleinfo.h
-
-Your plugins/foo/moduleinfo.h file is used to set the version information
-for the plugin.
+DISSECTOR_INCLUDES variable.
 
 2.4 plugin.rc.in
 

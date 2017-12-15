@@ -24,6 +24,8 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = ethercat
 
+PLUGIN_VERSION = 0.1.1
+
 BUILT_SOURCES = \
 	plugin.c
 
@@ -56,7 +58,6 @@ HEADER_FILES = \
 epan_plugin_LTLIBRARIES = ethercat.la
 
 ethercat_la_SOURCES = \
-	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 

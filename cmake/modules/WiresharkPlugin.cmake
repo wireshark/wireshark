@@ -24,6 +24,9 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 		configure_file(${_plugin_rc_in} plugin.rc @ONLY)
 		set(HAVE_PLUGIN_RC TRUE)
 	endif()
+
+	set(PLUGIN_VERSION "${_ver_major}.${_ver_minor}.${_ver_micro}")
+	add_definitions(-DPLUGIN_VERSION=\"${PLUGIN_VERSION}\")
 endmacro()
 
 macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)

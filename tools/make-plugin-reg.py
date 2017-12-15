@@ -101,8 +101,6 @@ reg_code += """
 
 #include <gmodule.h>
 
-#include "moduleinfo.h"
-
 /* plugins are DLLs */
 #define WS_BUILD_DLL
 #include "ws_symbol_export.h"
@@ -122,7 +120,7 @@ for symbol in regs['wtap_register']:
     reg_code += "void wtap_register_%s(void);\n" % (symbol)
 
 reg_code += """
-WS_DLL_PUBLIC_DEF const gchar plugin_version[] = VERSION;
+WS_DLL_PUBLIC_DEF const gchar plugin_version[] = PLUGIN_VERSION;
 WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 
 WS_DLL_PUBLIC_DEF void plugin_register(void)

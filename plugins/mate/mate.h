@@ -28,7 +28,6 @@
 
 #include "config.h"
 
-#include "moduleinfo.h"
 #include <gmodule.h>
 
 #include <stdio.h>

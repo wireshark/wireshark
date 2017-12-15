@@ -24,6 +24,8 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = wimax
 
+PLUGIN_VERSION = 1.2.0
+
 BUILT_SOURCES = \
 	plugin.c
 
@@ -94,7 +96,6 @@ HEADER_FILES = \
 epan_plugin_LTLIBRARIES = wimax.la
 
 wimax_la_SOURCES = \
-	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 

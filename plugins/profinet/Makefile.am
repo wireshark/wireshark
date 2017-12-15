@@ -24,6 +24,8 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = profinet
 
+PLUGIN_VERSION = 0.2.4
+
 BUILT_SOURCES = \
 	plugin.c
 
@@ -55,7 +57,6 @@ HEADER_FILES = \
 epan_plugin_LTLIBRARIES = profinet.la
 
 profinet_la_SOURCES = \
-	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
