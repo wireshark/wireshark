@@ -52,7 +52,7 @@ void FieldInformation::setParentField(field_info * par_fi)
 int FieldInformation::treeType()
 {
     if (fi_) {
-        Q_ASSERT(fi_->tree_type >= 0 && fi_->tree_type < num_tree_types);
+        Q_ASSERT(fi_->tree_type >= -1 && fi_->tree_type < num_tree_types);
         return fi_->tree_type;
     }
     return -1;
