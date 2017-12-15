@@ -739,12 +739,18 @@ void WiresharkApplication::itemStatusFinished(const QString filename, qint64 siz
     recent_item_status *ri;
 
     foreach (ri, recent_captures_) {
-        if (filename == ri->filename && (size != ri->size || accessible != ri->accessible)) {
-            ri->size = size;
-            ri->accessible = accessible;
-            ri->in_thread = false;
+        if (filename == ri->filename) {
+            bool do_emit = isInitialized() == false;
+            if (size != ri->size || accessible != ri->accessible) {
+                ri->size = size;
+                ri->accessible = accessible;
+                ri->in_thread = false;
+                do_emit = true;
+            }
 
-            emit updateRecentCaptureStatus(filename, size, accessible);
+            if (do_emit) {
+                emit updateRecentCaptureStatus(filename, size, accessible);
+            }
         }
     }
 }
