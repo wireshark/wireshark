@@ -106,7 +106,7 @@ int ProtoNode::row()
 
 bool ProtoNode::isExpanded() const
 {
-    if (node_ && node_->finfo && tree_expanded(node_->finfo->tree_type)) {
+    if (node_ && node_->finfo && node_->first_child && tree_expanded(node_->finfo->tree_type)) {
         return true;
     }
     return false;
