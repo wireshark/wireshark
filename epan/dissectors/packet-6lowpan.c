@@ -1277,134 +1277,132 @@ dissect_6lowpan_6loRH(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
             proto_item_append_text(loRH_tree, " %s", val_to_str_const(loRHE_type, lowpan_patterns_rh_type, "Unknown"));
 
-            if (tree) {
-                switch (loRHE_class){
-                    case (LOWPAN_PATTERN_6LORHE):/*Elective Routing Header*/
-                        condition = 1 ;
-                        if (loRHE_type >= 15) { /* BIER implementation */
-                            proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhe_size, tvb, offset, 2, loRH_flags & LOWPAN_PATTERN_6LORHE_LENGTH);
-                            proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2, loRHE_type);
-                            offset += 2 ;
-                            if (loRHE_type == 15) {
+            switch (loRHE_class){
+                case (LOWPAN_PATTERN_6LORHE):/*Elective Routing Header*/
+                    condition = 1 ;
+                    if (loRHE_type >= 15) { /* BIER implementation */
+                        proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhe_size, tvb, offset, 2, loRH_flags & LOWPAN_PATTERN_6LORHE_LENGTH);
+                        proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2, loRHE_type);
+                        offset += 2 ;
+                        if (loRHE_type == 15) {
+                            for (int i=0; i<loRHE_unitnums; i++) {
+                                proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                offset += 4;
+                            }
+                        }
+                    }
+                    else if (loRHE_type == LOWPAN_IP_IN_IP_6LORH) {
+                        memset(&ipv6.ip6h_src, 0, sizeof(ipv6.ip6h_src));
+                        proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_length, tvb, offset, 2,
+                                            loRH_flags & LOWPAN_PATTERN_6LORHE_LENGTH);
+                        proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2,
+                                            loRHE_type);
+                        proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_hoplimit, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+
+                        if (loRHE_length > 1) {
+                            for (int i = 0; i < 16; ++i) {
+                                ipv6.ip6h_src.bytes[i] = tvb_get_guint8(tvb, offset + 3 + i);
+                            }
+                            proto_tree_add_ipv6(loRH_tree, hf_6lowpan_6lorhc_address_src, tvb, offset + 3, 16,
+                                                &ipv6.ip6h_src);
+                        }
+                        offset += 2 + loRHE_length;
+                    }
+                    break; /* case LOWPAN_PATTERN_6LORHE */
+
+                case (LOWPAN_PATTERN_6LORHC): /*Critical Routing Header*/
+                    condition = 1 ;
+                    if (loRHE_type == 5){
+                        proto_tree_add_bitmask_list (loRH_tree, tvb, offset, 2, bits_RHC, ENC_NA);
+                        proto_tree_add_item         (loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        switch (IK){
+                            case  BITS_IK_0:
+                                proto_tree_add_item             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank2, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+                                offset += 3;
+                                break;
+                            case BITS_IK_1:
+                                proto_tree_add_item             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank1, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                break;
+                            case BITS_IK_2:
+                                rpl_instance = 0x00;
+                                proto_tree_add_uint             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 0, rpl_instance);
+                                proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank2, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                break;
+                            case BITS_IK_3:
+                                rpl_instance = 0x00;
+                                proto_tree_add_uint             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 0, rpl_instance);
+                                proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset +=1;
+                                break;
+                            }
+                        }
+                    else if (loRHE_type <= 4){
+                        memset(&ipv6.ip6h_src, 0, sizeof(ipv6.ip6h_src));
+                        proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhc_size, tvb, offset, 2, loRH_flags & LOWPAN_PATTERN_6LORHE_LENGTH);
+                        proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2, loRHE_type);
+                        offset += 2 ;
+                        switch (loRHE_type){
+                            case IPV6_ADDR_COMPRESSED_1_BYTE: /* IPv6 address compressed to 1 byte */
                                 for (int i=0; i<loRHE_unitnums; i++) {
-                                    proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
-                                    offset += 4;
-                                }
-                            }
-                        }
-                        else if (loRHE_type == LOWPAN_IP_IN_IP_6LORH) {
-                            memset(&ipv6.ip6h_src, 0, sizeof(ipv6.ip6h_src));
-                            proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_length, tvb, offset, 2,
-                                                loRH_flags & LOWPAN_PATTERN_6LORHE_LENGTH);
-                            proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2,
-                                                loRHE_type);
-                            proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_hoplimit, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-
-                            if (loRHE_length > 1) {
-                                for (int i = 0; i < 16; ++i) {
-                                    ipv6.ip6h_src.bytes[i] = tvb_get_guint8(tvb, offset + 3 + i);
-                                }
-                                proto_tree_add_ipv6(loRH_tree, hf_6lowpan_6lorhc_address_src, tvb, offset + 3, 16,
-                                                    &ipv6.ip6h_src);
-                            }
-                            offset += 2 + loRHE_length;
-                        }
-                        break; /* case LOWPAN_PATTERN_6LORHE */
-
-                    case (LOWPAN_PATTERN_6LORHC): /*Critical Routing Header*/
-                        condition = 1 ;
-                        if (loRHE_type == 5){
-                            proto_tree_add_bitmask_list (loRH_tree, tvb, offset, 2, bits_RHC, ENC_NA);
-                            proto_tree_add_item         (loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-                            switch (IK){
-                                case  BITS_IK_0:
-                                    proto_tree_add_item             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                    proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank2, tvb, offset+1, 2, ENC_BIG_ENDIAN);
-                                    offset += 3;
-                                    break;
-                                case BITS_IK_1:
-                                    proto_tree_add_item             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                    proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank1, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                                    offset += 2;
-                                    break;
-                                case BITS_IK_2:
-                                    rpl_instance = 0x00;
-                                    proto_tree_add_uint             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 0, rpl_instance);
-                                    proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank2, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                    offset += 2;
-                                    break;
-                                case BITS_IK_3:
-                                    rpl_instance = 0x00;
-                                    proto_tree_add_uint             (loRH_tree, hf_6lowpan_rpl_instance, tvb, offset, 0, rpl_instance);
-                                    proto_tree_add_item             (loRH_tree, hf_6lowpan_sender_rank1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    for (int j = 0; j < 1; j++){
+                                        ipv6.ip6h_src.bytes[15-j] = tvb_get_guint8(tvb, offset);
+                                    }
+                                    proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop0, tvb, offset, 1, &ipv6.ip6h_src);
                                     offset +=1;
-                                    break;
                                 }
-                            }
-                        else if (loRHE_type <= 4){
-                            memset(&ipv6.ip6h_src, 0, sizeof(ipv6.ip6h_src));
-                            proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhc_size, tvb, offset, 2, loRH_flags & LOWPAN_PATTERN_6LORHE_LENGTH);
-                            proto_tree_add_uint             (loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2, loRHE_type);
-                            offset += 2 ;
-                            switch (loRHE_type){
-                                case IPV6_ADDR_COMPRESSED_1_BYTE: /* IPv6 address compressed to 1 byte */
-                                    for (int i=0; i<loRHE_unitnums; i++) {
-                                        for (int j = 0; j < 1; j++){
-                                            ipv6.ip6h_src.bytes[15-j] = tvb_get_guint8(tvb, offset);
-                                        }
-                                        proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop0, tvb, offset, 1, &ipv6.ip6h_src);
+                                break;
+
+                            case IPV6_ADDR_COMPRESSED_2_BYTE: /* IPv6 address compressed to 2 bytes */
+                                for (int i=0; i<loRHE_unitnums; i++) {
+                                    for (int j = 0; j < 2; ++j){
+                                        ipv6.ip6h_src.bytes[15-1+j] = tvb_get_guint8(tvb, offset);
                                         offset +=1;
                                     }
-                                    break;
+                                    proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop1, tvb, offset - 2, 2, &ipv6.ip6h_src);
+                                }
+                                break;
 
-                                case IPV6_ADDR_COMPRESSED_2_BYTE: /* IPv6 address compressed to 2 bytes */
-                                    for (int i=0; i<loRHE_unitnums; i++) {
-                                        for (int j = 0; j < 2; ++j){
-                                            ipv6.ip6h_src.bytes[15-1+j] = tvb_get_guint8(tvb, offset);
-                                            offset +=1;
-                                        }
-                                        proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop1, tvb, offset - 2, 2, &ipv6.ip6h_src);
+                            case IPV6_ADDR_COMPRESSED_4_BYTE: /* IPv6 address compressed to 4 bytes */
+                                for (int i=0; i<loRHE_unitnums; i++) {
+                                    for (int j = 0; j < 4; j++){
+                                        ipv6.ip6h_src.bytes[15-3+j] = tvb_get_guint8(tvb, offset);
+                                        offset +=1;
                                     }
-                                    break;
+                                    proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop2, tvb, offset - 4, 4, &ipv6.ip6h_src);
+                                }
+                                break;
 
-                                case IPV6_ADDR_COMPRESSED_4_BYTE: /* IPv6 address compressed to 4 bytes */
-                                    for (int i=0; i<loRHE_unitnums; i++) {
-                                        for (int j = 0; j < 4; j++){
-                                            ipv6.ip6h_src.bytes[15-3+j] = tvb_get_guint8(tvb, offset);
-                                            offset +=1;
-                                        }
-                                        proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop2, tvb, offset - 4, 4, &ipv6.ip6h_src);
+                            case IPV6_ADDR_COMPRESSED_8_BYTE: /* IPv6 address compressed to 8 bytes */
+                                for (int i=0; i<loRHE_unitnums; i++) {
+                                    for (int j = 0; j < 8; j++){
+                                        ipv6.ip6h_src.bytes[15-7+j] = tvb_get_guint8(tvb, offset);
+                                        offset +=1;
                                     }
-                                    break;
+                                    proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop3, tvb, offset - 8, 8, &ipv6.ip6h_src);
+                                }
+                                break;
+                            case IPV6_ADDR_COMPRESSED_16_BYTE: /* IPv6 address compressed to 16 bytes */
+                                for (int i=0; i<loRHE_unitnums; i++) {
+                                    for (int j = 0; j < 16; j++){
+                                        ipv6.ip6h_src.bytes[j] = tvb_get_guint8(tvb, offset);
+                                        offset +=1;
+                                    }
+                                    proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop4, tvb, offset - 16, 16, &ipv6.ip6h_src);
+                                }
+                                break; /**/
+                            } /* switch loRHE_type */
+                        } /* else if (loRHE_type <= 4) */
+                    break; /* case LOWPAN_PATTERN_6LORHC */
 
-                                case IPV6_ADDR_COMPRESSED_8_BYTE: /* IPv6 address compressed to 8 bytes */
-                                    for (int i=0; i<loRHE_unitnums; i++) {
-                                        for (int j = 0; j < 8; j++){
-                                            ipv6.ip6h_src.bytes[15-7+j] = tvb_get_guint8(tvb, offset);
-                                            offset +=1;
-                                        }
-                                        proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop3, tvb, offset - 8, 8, &ipv6.ip6h_src);
-                                    }
-                                    break;
-                                case IPV6_ADDR_COMPRESSED_16_BYTE: /* IPv6 address compressed to 16 bytes */
-                                    for (int i=0; i<loRHE_unitnums; i++) {
-                                        for (int j = 0; j < 16; j++){
-                                            ipv6.ip6h_src.bytes[j] = tvb_get_guint8(tvb, offset);
-                                            offset +=1;
-                                        }
-                                        proto_tree_add_ipv6(tree, hf_6lowpan_6lorhc_address_hop4, tvb, offset - 16, 16, &ipv6.ip6h_src);
-                                    }
-                                    break; /**/
-                                } /* switch loRHE_type */
-                            } /* else if (loRHE_type <= 4) */
-                        break; /* case LOWPAN_PATTERN_6LORHC */
-
-                        default:
-                            condition -= 1 ;
-                            break;
-                    }  /* switch loRHE_class */
-                } /* if tree*/
+                    default:
+                        condition -= 1 ;
+                        break;
+                }  /* switch loRHE_class */
             loRH_flags  = tvb_get_ntohs(tvb, offset);
             loRHE_class = (loRH_flags & LOWPAN_PATTERN_6LORHE_CLASS) >> 13;
 
