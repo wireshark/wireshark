@@ -299,7 +299,6 @@ struct _wslua_filehandler {
 struct _wslua_dir {
     GDir* dir;
     char* ext;
-    GError** dummy;
 };
 
 struct _wslua_progdlg {

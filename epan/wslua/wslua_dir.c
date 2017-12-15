@@ -208,19 +208,17 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
     }
 
     dir = (Dir)g_malloc(sizeof(struct _wslua_dir));
-    dir->dir = g_dir_open(dirname_clean, 0, dir->dummy);
+    dir->dir = g_dir_open(dirname_clean, 0, NULL);
     g_free(dirname_clean);
-    dir->ext = g_strdup(extension);
-    dir->dummy = (GError **)g_malloc(sizeof(GError *));
-    *(dir->dummy) = NULL;
 
     if (dir->dir == NULL) {
-        g_free(dir->dummy);
         g_free(dir);
 
         WSLUA_ARG_ERROR(Dir_open,PATHNAME,"could not open directory");
         return 0;
     }
+
+    dir->ext = g_strdup(extension);
 
     pushDir(L,dir);
     WSLUA_RETURN(1); /* the `Dir` object. */
@@ -347,7 +345,6 @@ static int Dir__gc(lua_State* L) {
         g_dir_close(dir->dir);
     }
 
-    g_free(dir->dummy);
     g_free(dir->ext);
     g_free(dir);
 
