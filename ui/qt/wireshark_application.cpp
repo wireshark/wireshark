@@ -98,6 +98,7 @@
 #include <qmath.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QFontDatabase>
 #include <QMimeDatabase>
 #include <QThreadPool>
 #endif
@@ -131,6 +132,16 @@ private:
     {
         QMimeDatabase mime_db;
         mime_db.mimeTypeForData(QByteArray());
+    }
+};
+
+// Populating the font database can be slow as well.
+class FontDatabaseInitThread : public QRunnable
+{
+private:
+    void run()
+    {
+        QFontDatabase font_db;
     }
 };
 #endif
@@ -751,6 +762,8 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     MimeDatabaseInitThread *mime_db_init_thread = new(MimeDatabaseInitThread);
     QThreadPool::globalInstance()->start(mime_db_init_thread);
+    FontDatabaseInitThread *font_db_init_thread = new (FontDatabaseInitThread);
+    QThreadPool::globalInstance()->start(font_db_init_thread);
 #endif
 
     Q_INIT_RESOURCE(about);
