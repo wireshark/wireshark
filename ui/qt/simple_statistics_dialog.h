@@ -49,6 +49,9 @@ private:
     static void tapReset(void *sd_ptr);
     static void tapDraw(void *sd_ptr);
 
+    // How each item (SimpleStatisticsTreeWidgetItem) will be exported
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *) const;
+
     ~SimpleStatisticsDialog();
 
 private slots:
