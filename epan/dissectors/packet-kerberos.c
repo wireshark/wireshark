@@ -346,7 +346,7 @@ static int hf_kerberos_TicketFlags_pre_authent = -1;
 static int hf_kerberos_TicketFlags_hw_authent = -1;
 static int hf_kerberos_TicketFlags_transited_policy_checked = -1;
 static int hf_kerberos_TicketFlags_ok_as_delegate = -1;
-static int hf_kerberos_TicketFlags_anonymous_14 = -1;
+static int hf_kerberos_TicketFlags_unused = -1;
 static int hf_kerberos_TicketFlags_enc_pa_rep = -1;
 static int hf_kerberos_TicketFlags_anonymous = -1;
 static int hf_kerberos_KDCOptions_reserved = -1;
@@ -361,12 +361,24 @@ static int hf_kerberos_KDCOptions_renewable = -1;
 static int hf_kerberos_KDCOptions_unused9 = -1;
 static int hf_kerberos_KDCOptions_unused10 = -1;
 static int hf_kerberos_KDCOptions_opt_hardware_auth = -1;
-static int hf_kerberos_KDCOptions_request_anonymous = -1;
-static int hf_kerberos_KDCOptions_canonicalize = -1;
+static int hf_kerberos_KDCOptions_unused12 = -1;
+static int hf_kerberos_KDCOptions_unused13 = -1;
 static int hf_kerberos_KDCOptions_constrained_delegation = -1;
+static int hf_kerberos_KDCOptions_canonicalize = -1;
+static int hf_kerberos_KDCOptions_request_anonymous = -1;
+static int hf_kerberos_KDCOptions_unused17 = -1;
+static int hf_kerberos_KDCOptions_unused18 = -1;
+static int hf_kerberos_KDCOptions_unused19 = -1;
+static int hf_kerberos_KDCOptions_unused20 = -1;
+static int hf_kerberos_KDCOptions_unused21 = -1;
+static int hf_kerberos_KDCOptions_unused22 = -1;
+static int hf_kerberos_KDCOptions_unused23 = -1;
+static int hf_kerberos_KDCOptions_unused24 = -1;
+static int hf_kerberos_KDCOptions_unused25 = -1;
 static int hf_kerberos_KDCOptions_disable_transited_check = -1;
 static int hf_kerberos_KDCOptions_renewable_ok = -1;
 static int hf_kerberos_KDCOptions_enc_tkt_in_skey = -1;
+static int hf_kerberos_KDCOptions_unused29 = -1;
 static int hf_kerberos_KDCOptions_renew = -1;
 static int hf_kerberos_KDCOptions_validate = -1;
 
@@ -2707,7 +2719,7 @@ static const asn_namedbit TicketFlags_bits[] = {
   { 11, &hf_kerberos_TicketFlags_hw_authent, -1, -1, "hw-authent", NULL },
   { 12, &hf_kerberos_TicketFlags_transited_policy_checked, -1, -1, "transited-policy-checked", NULL },
   { 13, &hf_kerberos_TicketFlags_ok_as_delegate, -1, -1, "ok-as-delegate", NULL },
-  { 14, &hf_kerberos_TicketFlags_anonymous_14, -1, -1, "anonymous-14", NULL },
+  { 14, &hf_kerberos_TicketFlags_unused, -1, -1, "unused", NULL },
   { 15, &hf_kerberos_TicketFlags_enc_pa_rep, -1, -1, "enc-pa-rep", NULL },
   { 16, &hf_kerberos_TicketFlags_anonymous, -1, -1, "anonymous", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
@@ -3128,12 +3140,24 @@ static const asn_namedbit KDCOptions_bits[] = {
   {  9, &hf_kerberos_KDCOptions_unused9, -1, -1, "unused9", NULL },
   { 10, &hf_kerberos_KDCOptions_unused10, -1, -1, "unused10", NULL },
   { 11, &hf_kerberos_KDCOptions_opt_hardware_auth, -1, -1, "opt-hardware-auth", NULL },
-  { 14, &hf_kerberos_KDCOptions_request_anonymous, -1, -1, "request-anonymous", NULL },
+  { 12, &hf_kerberos_KDCOptions_unused12, -1, -1, "unused12", NULL },
+  { 13, &hf_kerberos_KDCOptions_unused13, -1, -1, "unused13", NULL },
+  { 14, &hf_kerberos_KDCOptions_constrained_delegation, -1, -1, "constrained-delegation", NULL },
   { 15, &hf_kerberos_KDCOptions_canonicalize, -1, -1, "canonicalize", NULL },
-  { 16, &hf_kerberos_KDCOptions_constrained_delegation, -1, -1, "constrained-delegation", NULL },
+  { 16, &hf_kerberos_KDCOptions_request_anonymous, -1, -1, "request-anonymous", NULL },
+  { 17, &hf_kerberos_KDCOptions_unused17, -1, -1, "unused17", NULL },
+  { 18, &hf_kerberos_KDCOptions_unused18, -1, -1, "unused18", NULL },
+  { 19, &hf_kerberos_KDCOptions_unused19, -1, -1, "unused19", NULL },
+  { 20, &hf_kerberos_KDCOptions_unused20, -1, -1, "unused20", NULL },
+  { 21, &hf_kerberos_KDCOptions_unused21, -1, -1, "unused21", NULL },
+  { 22, &hf_kerberos_KDCOptions_unused22, -1, -1, "unused22", NULL },
+  { 23, &hf_kerberos_KDCOptions_unused23, -1, -1, "unused23", NULL },
+  { 24, &hf_kerberos_KDCOptions_unused24, -1, -1, "unused24", NULL },
+  { 25, &hf_kerberos_KDCOptions_unused25, -1, -1, "unused25", NULL },
   { 26, &hf_kerberos_KDCOptions_disable_transited_check, -1, -1, "disable-transited-check", NULL },
   { 27, &hf_kerberos_KDCOptions_renewable_ok, -1, -1, "renewable-ok", NULL },
   { 28, &hf_kerberos_KDCOptions_enc_tkt_in_skey, -1, -1, "enc-tkt-in-skey", NULL },
+  { 29, &hf_kerberos_KDCOptions_unused29, -1, -1, "unused29", NULL },
   { 30, &hf_kerberos_KDCOptions_renew, -1, -1, "renew", NULL },
   { 31, &hf_kerberos_KDCOptions_validate, -1, -1, "validate", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
@@ -5467,8 +5491,8 @@ void proto_register_kerberos(void) {
       { "ok-as-delegate", "kerberos.ok-as-delegate",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
-    { &hf_kerberos_TicketFlags_anonymous_14,
-      { "anonymous-14", "kerberos.anonymous-14",
+    { &hf_kerberos_TicketFlags_unused,
+      { "unused", "kerberos.unused",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_kerberos_TicketFlags_enc_pa_rep,
@@ -5527,17 +5551,61 @@ void proto_register_kerberos(void) {
       { "opt-hardware-auth", "kerberos.opt-hardware-auth",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_kerberos_KDCOptions_request_anonymous,
-      { "request-anonymous", "kerberos.request-anonymous",
+    { &hf_kerberos_KDCOptions_unused12,
+      { "unused12", "kerberos.unused12",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused13,
+      { "unused13", "kerberos.unused13",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_constrained_delegation,
+      { "constrained-delegation", "kerberos.constrained-delegation",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_kerberos_KDCOptions_canonicalize,
       { "canonicalize", "kerberos.canonicalize",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
-    { &hf_kerberos_KDCOptions_constrained_delegation,
-      { "constrained-delegation", "kerberos.constrained-delegation",
+    { &hf_kerberos_KDCOptions_request_anonymous,
+      { "request-anonymous", "kerberos.request-anonymous",
         FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused17,
+      { "unused17", "kerberos.unused17",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused18,
+      { "unused18", "kerberos.unused18",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused19,
+      { "unused19", "kerberos.unused19",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused20,
+      { "unused20", "kerberos.unused20",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused21,
+      { "unused21", "kerberos.unused21",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused22,
+      { "unused22", "kerberos.unused22",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused23,
+      { "unused23", "kerberos.unused23",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused24,
+      { "unused24", "kerberos.unused24",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused25,
+      { "unused25", "kerberos.unused25",
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_kerberos_KDCOptions_disable_transited_check,
       { "disable-transited-check", "kerberos.disable-transited-check",
@@ -5550,6 +5618,10 @@ void proto_register_kerberos(void) {
     { &hf_kerberos_KDCOptions_enc_tkt_in_skey,
       { "enc-tkt-in-skey", "kerberos.enc-tkt-in-skey",
         FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_kerberos_KDCOptions_unused29,
+      { "unused29", "kerberos.unused29",
+        FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_kerberos_KDCOptions_renew,
       { "renew", "kerberos.renew",

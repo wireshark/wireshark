@@ -354,7 +354,7 @@ TicketFlags ::= BIT STRING {
 	hw-authent(11),
 	transited-policy-checked(12),
 	ok-as-delegate(13),
-	anonymous-14(14),
+	unused(14),
 	enc-pa-rep(15),
 	anonymous(16)
 }
@@ -372,12 +372,24 @@ KDCOptions ::= BIT STRING {
 	unused9(9),
 	unused10(10),
 	opt-hardware-auth(11), -- taken from KerberosV5Spec2.asn
-	request-anonymous(14),
+	unused12(12),
+	unused13(13),
+	constrained-delegation(14), -- ms extension (aka cname-in-addl-tkt)
 	canonicalize(15),
-	constrained-delegation(16), -- ms extension
+	request-anonymous(16),
+	unused17(17),
+	unused18(18),
+	unused19(19),
+	unused20(20),
+	unused21(21),
+	unused22(22),
+	unused23(23),
+	unused24(24),
+	unused25(25),
 	disable-transited-check(26),
 	renewable-ok(27),
 	enc-tkt-in-skey(28),
+	unused29(29),
 	renew(30),
 	validate(31)
 }
