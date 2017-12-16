@@ -36,6 +36,7 @@
 #include <QMenu>
 #include <QRubberBand>
 
+#include <wsutil/utf8_entities.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 #include "simple_dialog.h"
@@ -44,7 +45,6 @@
 
 #include <ui/tap-rlc-graph.h>
 
-// TODO:
 
 const QRgb graph_color_ack =         tango_sky_blue_4;    // Blue for ACK lines
 const QRgb graph_color_nack =        tango_scarlet_red_3; // Red for NACKs
@@ -112,7 +112,6 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     if (!channelKnown) {
         completeGraph();
     }
-
 }
 
 // Destructor
@@ -178,9 +177,15 @@ void LteRlcGraphDialog::completeGraph(bool may_be_empty)
     tracer_->setVisible(false);
     toggleTracerStyle(true);
 
+    // Change label on save/export button.
+    QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
+    save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
+
     connect(rp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));
     connect(rp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(rp, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseReleased(QMouseEvent*)));
+    disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    this->setResult(QDialog::Accepted);
 
     // Extract the data that the graph can use.
     fillGraph();
@@ -839,6 +844,46 @@ void LteRlcGraphDialog::on_otherDirectionButton_clicked()
 {
     on_actionSwitchDirection_triggered();
 }
+
+// Prompt for filename/format to save graph to.
+// N.B. Copied from tcp_stream_dialog.cpp
+void LteRlcGraphDialog::on_buttonBox_accepted()
+{
+    QString file_name, extension;
+    QDir path(wsApp->lastOpenDir());
+    QString pdf_filter = tr("Portable Document Format (*.pdf)");
+    QString png_filter = tr("Portable Network Graphics (*.png)");
+    QString bmp_filter = tr("Windows Bitmap (*.bmp)");
+    // Gaze upon my beautiful graph with lossy artifacts!
+    QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
+    QString filter = QString("%1;;%2;;%3;;%4")
+            .arg(pdf_filter)
+            .arg(png_filter)
+            .arg(bmp_filter)
+            .arg(jpeg_filter);
+
+    file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+                                             path.canonicalPath(), filter, &extension);
+
+    if (file_name.length() > 0) {
+        bool save_ok = false;
+        if (extension.compare(pdf_filter) == 0) {
+            save_ok = ui->rlcPlot->savePdf(file_name);
+        } else if (extension.compare(png_filter) == 0) {
+            save_ok = ui->rlcPlot->savePng(file_name);
+        } else if (extension.compare(bmp_filter) == 0) {
+            save_ok = ui->rlcPlot->saveBmp(file_name);
+        } else if (extension.compare(jpeg_filter) == 0) {
+            save_ok = ui->rlcPlot->saveJpg(file_name);
+        }
+        // else error dialog?
+        if (save_ok) {
+            path = QDir(file_name);
+            wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
+        }
+    }
+}
+
 
 // No need to register tap listeners here.  This is done
 // in calls to the common functions in ui/tap-rlc-graph.c

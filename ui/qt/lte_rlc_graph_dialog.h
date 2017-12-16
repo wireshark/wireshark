@@ -121,6 +121,8 @@ private slots:
     void on_actionGoToPacket_triggered();
     void on_actionCrosshairs_triggered();
     void on_actionSwitchDirection_triggered();
+
+    void on_buttonBox_accepted();
 };
 
 #endif // LTE_RLC_GRAPH_DIALOG_H
