@@ -45,6 +45,12 @@ void get_resource_usage(double *user_time, double *sys_time);
 WS_DLL_PUBLIC
 void log_resource_usage(gboolean reset_delta, const char *format, ...);
 
+/**
+ * Fetch the number of microseconds since midnight (0 hour), January 1, 1970.
+ */
+WS_DLL_PUBLIC
+guint64 create_timestamp(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -256,6 +256,33 @@ get_wireshark_runtime_info(GString *str)
 #endif
 }
 
+void
+g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
+{
+    GLogLevelFlags log_level = G_LOG_LEVEL_DEBUG;
+
+    switch (type) {
+    case QtDebugMsg:
+    default:
+        break;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+    case QtInfoMsg:
+        log_level = G_LOG_LEVEL_INFO;
+        break;
+#endif
+    case QtWarningMsg:
+        log_level = G_LOG_LEVEL_WARNING;
+        break;
+    case QtCriticalMsg:
+        log_level = G_LOG_LEVEL_CRITICAL;
+        break;
+    case QtFatalMsg:
+        log_level = G_LOG_FLAG_FATAL;
+        break;
+    }
+    g_log(LOG_DOMAIN_MAIN, log_level, "%s", qUtf8Printable(msg));
+}
+
 #ifdef HAVE_LIBPCAP
 /*  Check if there's something important to tell the user during startup.
  *  We want to do this *after* showing the main window so that any windows
@@ -582,6 +609,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
     set_console_log_handler();
+    qInstallMessageHandler(g_log_message_handler);
 #ifdef DEBUG_STARTUP_TIME
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif

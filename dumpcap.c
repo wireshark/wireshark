@@ -94,6 +94,7 @@
 #include "wsutil/os_version_info.h"
 #include "wsutil/str_util.h"
 #include "wsutil/inet_addr.h"
+#include "wsutil/time_util.h"
 
 #include "caputils/ws80211_utils.h"
 
@@ -423,58 +424,6 @@ static void report_capture_error(const char *error_msg, const char *secondary_er
 static void report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg);
 
 #define MSG_MAX_LENGTH 4096
-
-/* Copied from pcapio.c pcapng_write_interface_statistics_block()*/
-static guint64
-create_timestamp(void) {
-    guint64  timestamp;
-#ifdef _WIN32
-    FILETIME now;
-#else
-    struct timeval now;
-#endif
-
-#ifdef _WIN32
-    /*
-     * Current time, represented as 100-nanosecond intervals since
-     * January 1, 1601, 00:00:00 UTC.
-     *
-     * I think DWORD might be signed, so cast both parts of "now"
-     * to guint32 so that the sign bit doesn't get treated specially.
-     *
-     * Windows 8 provides GetSystemTimePreciseAsFileTime which we
-     * might want to use instead.
-     */
-    GetSystemTimeAsFileTime(&now);
-    timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
-                (guint32)now.dwLowDateTime;
-
-    /*
-     * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
-     * intervals.
-     */
-    timestamp /= 10;
-
-    /*
-     * Subtract difference, in microseconds, between January 1, 1601
-     * 00:00:00 UTC and January 1, 1970, 00:00:00 UTC.
-     */
-    timestamp -= G_GUINT64_CONSTANT(11644473600000000);
-#else
-    /*
-     * Current time, represented as seconds and microseconds since
-     * January 1, 1970, 00:00:00 UTC.
-     */
-    gettimeofday(&now, NULL);
-
-    /*
-     * Convert to delta in microseconds.
-     */
-    timestamp = (guint64)(now.tv_sec) * 1000000 +
-                (guint64)(now.tv_usec);
-#endif
-    return timestamp;
-}
 
 static void
 print_usage(FILE *output)

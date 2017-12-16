@@ -26,6 +26,7 @@
 
 
 #include "epan/prefs.h"
+#include "wsutil/time_util.h"
 
 #include "console.h"
 
@@ -91,9 +92,11 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         /* create a "timestamp" */
         time(&curr);
         today = localtime(&curr);
+        guint64 microseconds = create_timestamp();
         if (today != NULL) {
-                fprintf(stderr, "%02d:%02d:%02d %8s %s %s\n",
+                fprintf(stderr, "%02d:%02d:%02d.%03" G_GUINT64_FORMAT " %8s %s %s\n",
                         today->tm_hour, today->tm_min, today->tm_sec,
+                        microseconds % 1000000 / 1000,
                         log_domain != NULL ? log_domain : "",
                         level, message);
         } else {
