@@ -289,6 +289,20 @@ void SimpleStatisticsDialog::fillTree()
     removeTapListeners();
 }
 
+// This is how an item is represented for exporting.
+QList<QVariant> SimpleStatisticsDialog::treeItemData(QTreeWidgetItem *it) const
+{
+    // Cast up to our type.
+    SimpleStatisticsTreeWidgetItem *rit = dynamic_cast<SimpleStatisticsTreeWidgetItem*>(it);
+    if (rit) {
+        return rit->rowData();
+    }
+    else {
+        return QList<QVariant>();
+    }
+}
+
+
 SimpleStatisticsDialog::~SimpleStatisticsDialog()
 {
     stu_->refcount--;
