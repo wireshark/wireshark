@@ -68,6 +68,7 @@ class ExpertInfoModel : public QAbstractItemModel
 
 public:
     ExpertInfoModel(CaptureFile& capture_file, QObject *parent = 0);
+    virtual ~ExpertInfoModel();
 
     enum ExpertColumn {
         colSeverity = 0,

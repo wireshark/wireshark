@@ -127,6 +127,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
 ExpertInfoDialog::~ExpertInfoDialog()
 {
     delete ui;
+    delete proxyModel_;
+    delete expert_info_model_;
 }
 
 void ExpertInfoDialog::clearAllData()

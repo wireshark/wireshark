@@ -29,6 +29,12 @@ ExpertPacketItem::ExpertPacketItem(expert_info_t& expert_info, column_info *cinf
 
 ExpertPacketItem::~ExpertPacketItem()
 {
+    for (int row = 0; row < childItems_.count(); row++)
+    {
+        delete childItems_.value(row);
+    }
+
+    childItems_.clear();
 }
 
 QString ExpertPacketItem::groupKey(bool group_by_summary, int severity, int group, QString protocol, int expert_hf)
@@ -90,6 +96,11 @@ ExpertInfoModel::ExpertInfoModel(CaptureFile& capture_file, QObject *parent) :
     group_by_summary_(true),
     root_(createRootItem())
 {
+}
+
+ExpertInfoModel::~ExpertInfoModel()
+{
+    delete root_;
 }
 
 void ExpertInfoModel::clear()
