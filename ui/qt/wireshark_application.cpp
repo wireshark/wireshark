@@ -4,19 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 // warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
@@ -82,25 +70,25 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QColorDialog>
 #include <QDesktopServices>
 #include <QDir>
 #include <QEvent>
 #include <QFileOpenEvent>
-#include <QFontMetrics>
 #include <QFontInfo>
+#include <QFontMetrics>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMainWindow>
 #include <QMutableListIterator>
 #include <QSocketNotifier>
+#include <QThreadPool>
 #include <QUrl>
-#include <QColorDialog>
 #include <qmath.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QFontDatabase>
 #include <QMimeDatabase>
-#include <QThreadPool>
 #endif
 
 #ifdef _MSC_VER
@@ -254,7 +242,7 @@ extern "C" void software_update_shutdown_request_callback(void) {
 // Check each recent item in a separate thread so that we don't hang while
 // calling stat(). This is called periodically because files and entire
 // volumes can disappear and reappear at any time.
-void WiresharkApplication::refreshRecentCaptures(void) {
+void WiresharkApplication::refreshRecentCaptures() {
     recent_item_status *ri;
     RecentFileStatus *rf_status;
 
@@ -270,8 +258,7 @@ void WiresharkApplication::refreshRecentCaptures(void) {
 
         connect(rf_status, SIGNAL(statusFound(QString, qint64, bool)),
                 this, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::QueuedConnection);
-        connect(rf_status, SIGNAL(finished()), rf_status, SLOT(deleteLater()));
-        rf_status->start();
+        QThreadPool::globalInstance()->start(rf_status);
     }
 }
 
@@ -739,18 +726,12 @@ void WiresharkApplication::itemStatusFinished(const QString filename, qint64 siz
     recent_item_status *ri;
 
     foreach (ri, recent_captures_) {
-        if (filename == ri->filename) {
-            bool do_emit = isInitialized() == false;
-            if (size != ri->size || accessible != ri->accessible) {
-                ri->size = size;
-                ri->accessible = accessible;
-                ri->in_thread = false;
-                do_emit = true;
-            }
+        if (filename == ri->filename && (size != ri->size || accessible != ri->accessible)) {
+            ri->size = size;
+            ri->accessible = accessible;
+            ri->in_thread = false;
 
-            if (do_emit) {
-                emit updateRecentCaptureStatus(filename, size, accessible);
-            }
+            emit updateRecentCaptureStatus(filename, size, accessible);
         }
     }
 }
