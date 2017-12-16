@@ -669,7 +669,7 @@ static const value_string tag_num_vals[] = {
   { TAG_ECPAC_POLICY,                         "ECPAC Policy" },
   { TAG_CLUSTER_TIME_OFFSET,                  "Cluster Time Offset" },
   { TAG_ANTENNA_SECTOR_ID,                    "Antenna Sector ID" },
-  { TAG_VHT_CAPABILITY,                       "VHT Capabilities (IEEE Std 802.11ac/D3.1)" },
+  { TAG_VHT_CAPABILITY,                       "VHT Capabilities" },
   { TAG_VHT_OPERATION,                        "VHT Operation (IEEE Std 802.11ac/D3.1)" },
   { TAG_EXT_BSS_LOAD,                         "Extended BSS Load" },
   { TAG_WIDE_BW_CHANNEL_SWITCH,               "Wide Bandwidth Channel Switch" },
@@ -3998,7 +3998,7 @@ static int hf_ieee80211_vht_max_ampdu = -1;
 static int hf_ieee80211_vht_link_adaptation_cap = -1;
 static int hf_ieee80211_vht_rx_pattern = -1;
 static int hf_ieee80211_vht_tx_pattern = -1;
-static int hf_ieee80211_vht_reserv = -1;
+static int hf_ieee80211_vht_ext_nss_bw_support = -1;
 
 static int hf_ieee80211_vht_mcsset = -1;
 
@@ -11927,7 +11927,7 @@ dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     &hf_ieee80211_vht_link_adaptation_cap,
     &hf_ieee80211_vht_rx_pattern,
     &hf_ieee80211_vht_tx_pattern,
-    &hf_ieee80211_vht_reserv,
+    &hf_ieee80211_vht_ext_nss_bw_support,
     NULL
   };
 
@@ -24717,7 +24717,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_short_gi_for_80,
-     {"Short GI for 80MHz", "wlan.vht.capabilities.short80",
+     {"Short GI for 80MHz/TVHT_MODE_4C", "wlan.vht.capabilities.short80",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000020,
       NULL, HFILL }},
 
@@ -24737,17 +24737,17 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_su_beamformer_cap,
-     {"SU Beam-former Capable", "wlan.vht.capabilities.subeamformer",
+     {"SU Beamformer Capable", "wlan.vht.capabilities.subeamformer",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000800,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_su_beamformee_cap,
-     {"SU Beam-formee Capable", "wlan.vht.capabilities.subeamformee",
+     {"SU Beamformee Capable", "wlan.vht.capabilities.subeamformee",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00001000,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_beamformer_antennas,
-     {"Compressed Steering Number of Beamformer Antennas Supported", "wlan.vht.capabilities.beamformerants",
+     {"Beamformee STS Capability", "wlan.vht.capabilities.beamformee_sts_cap",
       FT_UINT32, BASE_HEX, VALS(num_plus_one_3bit_flag), 0x0000e000,
       NULL, HFILL }},
 
@@ -24757,27 +24757,27 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_mu_beamformer_cap,
-     {"MU Beam-former Capable", "wlan.vht.capabilities.mubeamformer",
+     {"MU Beamformer Capable", "wlan.vht.capabilities.mubeamformer",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00080000,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_mu_beamformee_cap,
-     {"MU Beam-formee Capable", "wlan.vht.capabilities.mubeamformee",
+     {"MU Beamformee Capable", "wlan.vht.capabilities.mubeamformee",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00100000,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_txop_ps,
-     {"VHT TXOP PS", "wlan.vht.capabilities.vhttxopps",
+     {"TXOP PS", "wlan.vht.capabilities.vhttxopps",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00200000,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_var_htc_field,
-     {"+HTC-VHT Capable (VHT variant HT Control field)", "wlan.vht.capabilities.vhthtc",
+     {"+HTC-VHT Capable", "wlan.vht.capabilities.vhthtc",
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00400000,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_max_ampdu,
-     {"Max A-MPDU Length", "wlan.vht.capabilities.maxampdu",
+     {"Max A-MPDU Length Exponent", "wlan.vht.capabilities.maxampdu",
       FT_UINT32, BASE_HEX, VALS(vht_max_ampdu_flag), 0x03800000,
       "In Octets unit", HFILL }},
 
@@ -24796,9 +24796,9 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x20000000,
       NULL, HFILL }},
 
-    {&hf_ieee80211_vht_reserv,
-     {"Reserved", "wlan.vht.reserved",
-      FT_BOOLEAN, 32, NULL, 0xc0000000,
+    {&hf_ieee80211_vht_ext_nss_bw_support,
+     {"Extended NSS BW Support", "wlan.vht.capabilities.ext_nss_bw_support",
+      FT_UINT32, BASE_HEX, NULL, 0xc0000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_mcsset,
