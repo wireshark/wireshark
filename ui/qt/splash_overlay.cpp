@@ -40,6 +40,11 @@
 // Uncomment to slow the update progress
 //#define THROTTLE_STARTUP 1
 
+/*
+ * Update frequency for the splash screen, given in milliseconds.
+ */
+const int info_update_freq_ = 65; // ~15 fps
+
 void splash_update(register_action_e action, const char *message, void *) {
     emit wsApp->registerUpdate(action, message);
 }
@@ -177,8 +182,10 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
 
     so_ui_->progressBar->setValue(register_cur_);
 
-    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
-    elapsed_timer_.restart();
+    if (elapsed_timer_.elapsed() > info_update_freq_) {
+        wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+        elapsed_timer_.restart();
+    }
 }
 
 /*
