@@ -253,11 +253,7 @@ void WiresharkApplication::refreshRecentCaptures() {
         if (ri->in_thread) {
             continue;
         }
-
         rf_status = new RecentFileStatus(ri->filename, this);
-
-        connect(rf_status, SIGNAL(statusFound(QString, qint64, bool)),
-                this, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::QueuedConnection);
         QThreadPool::globalInstance()->start(rf_status);
     }
 }

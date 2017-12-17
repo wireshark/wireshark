@@ -12,6 +12,14 @@
 RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
         QObject(parent), filename_(filename)
 {
+    // We're a QObject, which means that we emit a destroyed signal,
+    // which might happen at the wrong time when automatic deletion is
+    // enabled. This will trigger an assert in debug builds (bug 14279).
+    setAutoDelete(false);
+    // Qt::BlockingQueuedConnection shouldn't be necessary but it doesn't
+    // hurt either.
+    connect(this, SIGNAL(statusFound(QString, qint64, bool)),
+            parent, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::BlockingQueuedConnection);
 }
 
 QString RecentFileStatus::getFilename() const {
@@ -26,6 +34,7 @@ void RecentFileStatus::run() {
     } else {
         emit statusFound(filename_, 0, false);
     }
+    deleteLater();
 }
 
 /*

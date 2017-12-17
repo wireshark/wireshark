@@ -17,7 +17,7 @@ class RecentFileStatus : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    RecentFileStatus(const QString filename, QObject *parent = 0);
+    RecentFileStatus(const QString filename, QObject *parent);
 
     QString getFilename() const;
 
