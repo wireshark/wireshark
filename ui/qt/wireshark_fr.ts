@@ -1775,23 +1775,19 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Severity</source>
-        <translation>Sévérité</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Sévérité</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation>Groupe</translation>
+        <translation type="vanished">Groupe</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protocole</translation>
+        <translation type="vanished">Protocole</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation>Compteur</translation>
+        <translation type="vanished">Compteur</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1864,7 +1860,15 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Endpoint expert failed to set filter</source>
-        <translation>L&apos;expert endpoint n&apos;a pas pu appliquer le filtre</translation>
+        <translation type="vanished">L&apos;expert endpoint n&apos;a pas pu appliquer le filtre</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture file closed.</source>
@@ -1885,10 +1889,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>Filtre d&apos;affichage: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Packet</source>
-        <translation type="unfinished">Paquet</translation>
     </message>
 </context>
 <context>
@@ -2040,32 +2040,12 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Dossier:</translation>
     </message>
     <message>
-        <source>Filename</source>
-        <translation type="vanished">Nom du fichier</translation>
-    </message>
-    <message>
-        <source>Created</source>
-        <translation type="vanished">Crée</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation type="vanished">Modifié</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">Taille</translation>
-    </message>
-    <message>
         <source>No files in Set</source>
         <translation>Pas de fichier dans le lot</translation>
     </message>
     <message>
         <source>No capture loaded</source>
         <translation>Aucune capture chargée</translation>
-    </message>
-    <message>
-        <source>Open this capture file</source>
-        <translation type="vanished">Ouvrir le fichier de capture</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -2352,13 +2332,17 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Cliquez pour sélectionner</translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Stream Content As</source>
         <translation>Enregistrer Contenu du Flux Comme</translation>
     </message>
     <message>
         <source>
 [Stream output truncated]</source>
-        <translation>
+        <translation type="vanished">
 [Sortie flux tronquée]</translation>
     </message>
     <message>
@@ -2382,12 +2366,20 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Entire conversation (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow %1 Stream (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
         <translation>Erreur pour la création du filtre pour ce flux.</translation>
+    </message>
+    <message>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
@@ -4793,6 +4785,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Graphique LTE RLC - aucun canal sélectionné </translation>
     </message>
     <message>
+        <source>Save As</source>
+        <translation type="unfinished">Enregistrer sous</translation>
+    </message>
+    <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4815,6 +4811,26 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Cliquez pour sélectionner une partie du graphique.</translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished">Portable Document Format (*.pdf)</translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">Format d&apos;2change de Fichier JPEG </translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
     </message>
 </context>
 <context>
@@ -10947,6 +10963,10 @@ a:hover {
         </translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Selected Packet Bytes As</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10964,10 +10984,6 @@ a:hover {
 </context>
 <context>
     <name>SplashOverlay</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Formulaire</translation>
-    </message>
     <message>
         <source>Initializing dissectors</source>
         <translation>Initialisation dissecteurs</translation>
@@ -11037,19 +11053,19 @@ a:hover {
     </message>
     <message>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation type="vanished">Nom</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Filtre</translation>
+        <translation type="vanished">Filtre</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Type</translation>
+        <translation type="vanished">Type</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation type="vanished">Description</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

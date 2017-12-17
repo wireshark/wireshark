@@ -1771,26 +1771,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Severity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1860,7 +1840,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1881,10 +1865,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packet</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2329,12 +2309,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save Stream Content As</source>
+        <source>Regex Find:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-[Stream output truncated]</source>
+        <source>Save Stream Content As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2358,11 +2337,19 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Entire conversation (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow %1 Stream (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[Stream output truncated]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4713,6 +4700,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Save As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4734,6 +4725,26 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10826,6 +10837,10 @@ a:hover {
         </translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Selected Packet Bytes As</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10908,22 +10923,6 @@ a:hover {
     <name>SupportedProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

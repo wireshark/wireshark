@@ -1770,23 +1770,19 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Severity</source>
-        <translation>重要度</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">重要度</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation>グループ</translation>
+        <translation type="vanished">グループ</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>プロトコル</translation>
+        <translation type="vanished">プロトコル</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation>数量</translation>
+        <translation type="vanished">数量</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1859,7 +1855,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Endpoint expert failed to set filter</source>
-        <translation>フィルタを設定するのに失敗した端末のエキスパート情報</translation>
+        <translation type="vanished">フィルタを設定するのに失敗した端末のエキスパート情報</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture file closed.</source>
@@ -1880,10 +1884,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>表示フィルタ: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Packet</source>
-        <translation type="unfinished">パケット</translation>
     </message>
 </context>
 <context>
@@ -2035,32 +2035,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>ディレクトリ:</translation>
     </message>
     <message>
-        <source>Filename</source>
-        <translation type="vanished">ファイル名</translation>
-    </message>
-    <message>
-        <source>Created</source>
-        <translation type="vanished">作成日</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation type="vanished">修正日</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">サイズ</translation>
-    </message>
-    <message>
         <source>No files in Set</source>
         <translation>セットにファイルがありません</translation>
     </message>
     <message>
         <source>No capture loaded</source>
         <translation>何もキャプチャが読み込まれていません</translation>
-    </message>
-    <message>
-        <source>Open this capture file</source>
-        <translation type="vanished">このキャプチャファイルを開く</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -2341,13 +2321,17 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>クリックして選択します</translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Stream Content As</source>
         <translation>としてストリーム内容を保存</translation>
     </message>
     <message>
         <source>
 [Stream output truncated]</source>
-        <translation>[ストリーム出力が省略されました]</translation>
+        <translation type="vanished">[ストリーム出力が省略されました]</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -2370,12 +2354,20 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>パケット %1 を選択したか確認してください</translation>
     </message>
     <message>
+        <source>Entire conversation (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow %1 Stream (%2)</source>
         <translation>%1 ストリーム (%2)を追跡</translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
         <translation>このストリームのフィルタ作成エラー</translation>
+    </message>
+    <message>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
@@ -4780,6 +4772,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>LTE RLCグラフ - チャンネルが選択されていません</translation>
     </message>
     <message>
+        <source>Save As</source>
+        <translation type="unfinished">として保存</translation>
+    </message>
+    <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
         <translation>%1 %2 (%3s シーケンス %4 長さ %5)</translation>
     </message>
@@ -4802,6 +4798,26 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>クリックしてグラフの割合を選びます</translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished">PDF形式 (*.pdf)</translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">PNG形式 (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">JPEG形式 (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished">としてグラフを保存</translation>
     </message>
 </context>
 <context>
@@ -10932,6 +10948,10 @@ a:hover {
         </translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Selected Packet Bytes As</source>
         <translation>として選択したパケットバイト列を保存</translation>
     </message>
@@ -10949,10 +10969,6 @@ a:hover {
 </context>
 <context>
     <name>SplashOverlay</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">フォーム</translation>
-    </message>
     <message>
         <source>Initializing dissectors</source>
         <translation>ダイセクターを初期化中</translation>
@@ -11022,19 +11038,19 @@ a:hover {
     </message>
     <message>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation type="vanished">名前</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>フィルタ</translation>
+        <translation type="vanished">フィルタ</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>種別</translation>
+        <translation type="vanished">種別</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>記述</translation>
+        <translation type="vanished">記述</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

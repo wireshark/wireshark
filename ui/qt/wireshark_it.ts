@@ -1777,23 +1777,23 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Severity</source>
-        <translation>Gravità</translation>
+        <translation type="vanished">Gravità</translation>
     </message>
     <message>
         <source>Summary</source>
-        <translation>Riepilogo</translation>
+        <translation type="vanished">Riepilogo</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation>Gruppo</translation>
+        <translation type="vanished">Gruppo</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protocollo</translation>
+        <translation type="vanished">Protocollo</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation>Conteggio</translation>
+        <translation type="vanished">Conteggio</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1866,7 +1866,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Endpoint expert failed to set filter</source>
-        <translation>Il terminatore esperto non è riuscito a impostare il filtro</translation>
+        <translation type="vanished">Il terminatore esperto non è riuscito a impostare il filtro</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture file closed.</source>
@@ -1890,7 +1898,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation>Pacchetto</translation>
+        <translation type="vanished">Pacchetto</translation>
     </message>
 </context>
 <context>
@@ -2042,32 +2050,12 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Directory:</translation>
     </message>
     <message>
-        <source>Filename</source>
-        <translation type="vanished">Nome del file</translation>
-    </message>
-    <message>
-        <source>Created</source>
-        <translation type="vanished">Creato</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation type="vanished">Modificato</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">Dimensione</translation>
-    </message>
-    <message>
         <source>No files in Set</source>
         <translation>Nessun file nel gruppo</translation>
     </message>
     <message>
         <source>No capture loaded</source>
         <translation>Nessuna cattura caricata</translation>
-    </message>
-    <message>
-        <source>Open this capture file</source>
-        <translation type="vanished">Apri questo file di cattura</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -2354,13 +2342,17 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation> Fai clic per selezionare.</translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Stream Content As</source>
         <translation>Salva il contenuto del flusso come</translation>
     </message>
     <message>
         <source>
 [Stream output truncated]</source>
-        <translation>[Flusso di output troncato]</translation>
+        <translation type="vanished">[Flusso di output troncato]</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -2383,12 +2375,20 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Assicurati di aver selezionato un pacchetto %1.</translation>
     </message>
     <message>
+        <source>Entire conversation (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow %1 Stream (%2)</source>
         <translation>Segui flusso %1 (%2)</translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
         <translation>Errore nella creazione di un filtro per questo flusso.</translation>
+    </message>
+    <message>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
@@ -4585,11 +4585,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inverti la direzione della connessione (guarda il flusso opposto).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inverti la direzione della connessione (visualizza il flusso opposto).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished">Inverti direzione</translation>
+        <translation>Inverti direzione</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4769,11 +4769,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Switch direction (swap between UL and DL)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverti direzione (scambia tra invio e ricezione)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -4790,6 +4790,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>LTE RLC Graph - no channel selected</source>
         <translation>Grafico RLC LTE - nessun canale selezionato</translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Salva come</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -4814,6 +4818,26 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>Fai clic per selezionare una porzione del grafico.</translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished">Portable Document Format (*.pdf)</translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5168,7 +5192,7 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>Stai annusando la colla che tiene insieme Internet con Wireshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -11003,6 +11027,10 @@ a:hover {
         </translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Selected Packet Bytes As</source>
         <translation>Salva byte del pacchetto selezionato come</translation>
     </message>
@@ -11020,10 +11048,6 @@ a:hover {
 </context>
 <context>
     <name>SplashOverlay</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Modulo</translation>
-    </message>
     <message>
         <source>Initializing dissectors</source>
         <translation>Inizializzazione dei decodificatori in corso</translation>
@@ -11093,19 +11117,19 @@ a:hover {
     </message>
     <message>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation type="vanished">Nome</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Filtro</translation>
+        <translation type="vanished">Filtro</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Tipo</translation>
+        <translation type="vanished">Tipo</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Descrizione</translation>
+        <translation type="vanished">Descrizione</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

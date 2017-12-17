@@ -1771,23 +1771,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Severity</source>
-        <translation>严重程度</translation>
+        <translation type="vanished">严重程度</translation>
     </message>
     <message>
         <source>Summary</source>
-        <translation>摘要</translation>
+        <translation type="vanished">摘要</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation>组</translation>
+        <translation type="vanished">组</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>协议</translation>
+        <translation type="vanished">协议</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation>计数</translation>
+        <translation type="vanished">计数</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1860,7 +1860,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Endpoint expert failed to set filter</source>
-        <translation>专家端点设置过滤器失败</translation>
+        <translation type="vanished">专家端点设置过滤器失败</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture file closed.</source>
@@ -1884,7 +1892,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Packet</source>
-        <translation>分组</translation>
+        <translation type="vanished">分组</translation>
     </message>
 </context>
 <context>
@@ -2036,32 +2044,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>目录:</translation>
     </message>
     <message>
-        <source>Filename</source>
-        <translation type="vanished">文件名</translation>
-    </message>
-    <message>
-        <source>Created</source>
-        <translation type="vanished">创建时间</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation type="vanished">修改时间</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">大小</translation>
-    </message>
-    <message>
         <source>No files in Set</source>
         <translation>集合中没有文件</translation>
     </message>
     <message>
         <source>No capture loaded</source>
         <translation>未加载捕获</translation>
-    </message>
-    <message>
-        <source>Open this capture file</source>
-        <translation type="vanished">打开此捕获文件</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -2342,13 +2330,17 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>点击选择。</translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Stream Content As</source>
         <translation>保存流的内容为</translation>
     </message>
     <message>
         <source>
 [Stream output truncated]</source>
-        <translation>[流量输出截断]</translation>
+        <translation type="vanished">[流量输出截断]</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -2371,12 +2363,20 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>请确保您已选中一个 %1 分组。</translation>
     </message>
     <message>
+        <source>Entire conversation (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow %1 Stream (%2)</source>
         <translation>追踪 %1 流 (%2)</translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
         <translation>为这个流创建过滤器时出错。</translation>
+    </message>
+    <message>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
@@ -4777,6 +4777,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>LTE RLC 图表 - 没有选择信道</translation>
     </message>
     <message>
+        <source>Save As</source>
+        <translation type="unfinished">另存为</translation>
+    </message>
+    <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
         <translation>%1 %2 (%3s seq %4 len %5)</translation>
     </message>
@@ -4799,6 +4803,26 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Click to select a portion of the graph.</source>
         <translation>点击选择图形的一部分。</translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished">便携式文档格式 (*.pdf)</translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished">便携式网络图形格式 (*.png)</translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished">Windows 位图 (*.bmp)</translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10981,6 +11005,10 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save Selected Packet Bytes As</source>
         <translation>选中分组的字节另存为</translation>
     </message>
@@ -10998,10 +11026,6 @@ text-decoration: underline;
 </context>
 <context>
     <name>SplashOverlay</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">表单</translation>
-    </message>
     <message>
         <source>Initializing dissectors</source>
         <translation>正在初始化解析器</translation>
@@ -11071,19 +11095,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>Name</source>
-        <translation>名称</translation>
+        <translation type="vanished">名称</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>过滤器</translation>
+        <translation type="vanished">过滤器</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>类型</translation>
+        <translation type="vanished">类型</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>描述</translation>
+        <translation type="vanished">描述</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
