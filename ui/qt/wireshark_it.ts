@@ -3030,18 +3030,18 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="128"/>
+        <location filename="follow_stream_dialog.cpp" line="129"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
         <translation>Filtra questo flusso</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="131"/>
+        <location filename="follow_stream_dialog.cpp" line="132"/>
         <source>Print</source>
         <translation>Stampa</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="134"/>
+        <location filename="follow_stream_dialog.cpp" line="135"/>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>Salva come</translation>
@@ -3061,57 +3061,57 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="118"/>
+        <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>ASCII</source>
         <translation>ASCII</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="119"/>
+        <location filename="follow_stream_dialog.cpp" line="120"/>
         <source>C Arrays</source>
         <translation>Array C</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="120"/>
+        <location filename="follow_stream_dialog.cpp" line="121"/>
         <source>EBCDIC</source>
         <translation>EBCDIC</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="121"/>
+        <location filename="follow_stream_dialog.cpp" line="122"/>
         <source>Hex Dump</source>
         <translation>Dump Esadecimale</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="122"/>
+        <location filename="follow_stream_dialog.cpp" line="123"/>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="123"/>
+        <location filename="follow_stream_dialog.cpp" line="124"/>
         <source>UTF-16</source>
         <translation>UTF-16</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="124"/>
+        <location filename="follow_stream_dialog.cpp" line="125"/>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="125"/>
+        <location filename="follow_stream_dialog.cpp" line="126"/>
         <source>Raw</source>
         <translation>Grezzo</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="137"/>
+        <location filename="follow_stream_dialog.cpp" line="138"/>
         <source>Back</source>
         <translation>Indietro</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="181"/>
+        <location filename="follow_stream_dialog.cpp" line="182"/>
         <source>Packet %1. </source>
         <translation>Pacchetto %1. </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="184"/>
+        <location filename="follow_stream_dialog.cpp" line="185"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%n pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
@@ -3119,7 +3119,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="187"/>
+        <location filename="follow_stream_dialog.cpp" line="188"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%n pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
@@ -3127,7 +3127,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="190"/>
+        <location filename="follow_stream_dialog.cpp" line="191"/>
         <source>%Ln turn(s).</source>
         <translation>
             <numerusform>%n turno.</numerusform>
@@ -3135,65 +3135,79 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="193"/>
+        <location filename="follow_stream_dialog.cpp" line="194"/>
         <source> Click to select.</source>
         <translation> Fai clic per selezionare.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="275"/>
+        <location filename="follow_stream_dialog.cpp" line="245"/>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.cpp" line="276"/>
         <source>Save Stream Content As</source>
         <translation>Salva il contenuto del flusso come</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="533"/>
         <source>
 [Stream output truncated]</source>
-        <translation>[Flusso di output troncato]</translation>
+        <translation type="vanished">[Flusso di output troncato]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="809"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
         <source>No capture file.</source>
         <translation>Nessun file di cattura.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="809"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>Assicurati di avere un file di cattura aperto.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="815"/>
         <location filename="follow_stream_dialog.cpp" line="821"/>
+        <location filename="follow_stream_dialog.cpp" line="827"/>
         <source>Error following stream.</source>
         <translation>Errore seguendo il flusso.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="815"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Capture file invalid.</source>
         <translation>File di cattura non valido.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="821"/>
+        <location filename="follow_stream_dialog.cpp" line="827"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>Assicurati di aver selezionato un pacchetto %1.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="938"/>
+        <location filename="follow_stream_dialog.cpp" line="940"/>
+        <source>Entire conversation (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.cpp" line="944"/>
         <source>Follow %1 Stream (%2)</source>
         <translation>Segui flusso %1 (%2)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="843"/>
+        <location filename="follow_stream_dialog.cpp" line="849"/>
         <source>Error creating filter for this stream.</source>
         <translation>Errore nella creazione di un filtro per questo flusso.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="844"/>
+        <location filename="follow_stream_dialog.cpp" line="539"/>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.cpp" line="850"/>
         <source>A transport or network layer header is needed.</source>
         <translation>È necessaria un&apos;intestazione di livello trasporto o rete.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="875"/>
-        <location filename="follow_stream_dialog.cpp" line="887"/>
+        <location filename="follow_stream_dialog.cpp" line="881"/>
+        <location filename="follow_stream_dialog.cpp" line="893"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%n flusso.</numerusform>
@@ -3201,7 +3215,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="958"/>
+        <location filename="follow_stream_dialog.cpp" line="964"/>
         <source>File closed.</source>
         <translation>File chiuso.</translation>
     </message>
@@ -3228,6 +3242,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="109"/>
+        <location filename="follow_stream_dialog.cpp" line="247"/>
         <source>Find:</source>
         <translation>Trova:</translation>
     </message>
@@ -14371,6 +14386,7 @@ a:hover {
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.ui" line="109"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="230"/>
         <source>Find:</source>
         <translation>Trova:</translation>
     </message>
@@ -14489,6 +14505,11 @@ a:hover {
             <numerusform>Visualizzazione di %Ln byte.</numerusform>
             <numerusform>Visualizzazione di %Ln byte.</numerusform>
         </translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="228"/>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="305"/>

@@ -3026,18 +3026,18 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="128"/>
+        <location filename="follow_stream_dialog.cpp" line="129"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
         <translation>このストリームを除外します</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="131"/>
+        <location filename="follow_stream_dialog.cpp" line="132"/>
         <source>Print</source>
         <translation>印刷</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="134"/>
+        <location filename="follow_stream_dialog.cpp" line="135"/>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>として保存</translation>
@@ -3055,143 +3055,157 @@ PLEASE NOTE: One option MUST be selected.</source>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="118"/>
+        <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>ASCII</source>
         <translation>ASCII形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="119"/>
+        <location filename="follow_stream_dialog.cpp" line="120"/>
         <source>C Arrays</source>
         <translation>C言語配列形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="120"/>
+        <location filename="follow_stream_dialog.cpp" line="121"/>
         <source>EBCDIC</source>
         <translation>EBCDIC形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="121"/>
+        <location filename="follow_stream_dialog.cpp" line="122"/>
         <source>Hex Dump</source>
         <translation>16進数ダンプ形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="122"/>
+        <location filename="follow_stream_dialog.cpp" line="123"/>
         <source>UTF-8</source>
         <translation>UTF-8形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="123"/>
+        <location filename="follow_stream_dialog.cpp" line="124"/>
         <source>UTF-16</source>
         <translation>UTF-16形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="124"/>
+        <location filename="follow_stream_dialog.cpp" line="125"/>
         <source>YAML</source>
         <translation>YAML形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="125"/>
+        <location filename="follow_stream_dialog.cpp" line="126"/>
         <source>Raw</source>
         <translation>Raw(無加工)形式</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="137"/>
+        <location filename="follow_stream_dialog.cpp" line="138"/>
         <source>Back</source>
         <translation>戻る</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="181"/>
+        <location filename="follow_stream_dialog.cpp" line="182"/>
         <source>Packet %1. </source>
         <translation>パケット %1</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="184"/>
+        <location filename="follow_stream_dialog.cpp" line="185"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;クライアント&lt;/span&gt; パケット, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="187"/>
+        <location filename="follow_stream_dialog.cpp" line="188"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;サーバ&lt;/span&gt; パケット, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="190"/>
+        <location filename="follow_stream_dialog.cpp" line="191"/>
         <source>%Ln turn(s).</source>
         <translation>
             <numerusform>%Ln ターン</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="193"/>
+        <location filename="follow_stream_dialog.cpp" line="194"/>
         <source> Click to select.</source>
         <translation>クリックして選択します</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="275"/>
+        <location filename="follow_stream_dialog.cpp" line="245"/>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.cpp" line="276"/>
         <source>Save Stream Content As</source>
         <translation>としてストリーム内容を保存</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="533"/>
         <source>
 [Stream output truncated]</source>
-        <translation>[ストリーム出力が省略されました]</translation>
+        <translation type="vanished">[ストリーム出力が省略されました]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="809"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
         <source>No capture file.</source>
         <translation>キャプチャファイルがありません</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="809"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>キャプチャファイルを開いていないか確認してください</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="815"/>
         <location filename="follow_stream_dialog.cpp" line="821"/>
+        <location filename="follow_stream_dialog.cpp" line="827"/>
         <source>Error following stream.</source>
         <translation>ストリーム追跡のエラー</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="815"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Capture file invalid.</source>
         <translation>キャプチャファイルが無効です</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="821"/>
+        <location filename="follow_stream_dialog.cpp" line="827"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>パケット %1 を選択したか確認してください</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="938"/>
+        <location filename="follow_stream_dialog.cpp" line="940"/>
+        <source>Entire conversation (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.cpp" line="944"/>
         <source>Follow %1 Stream (%2)</source>
         <translation>%1 ストリーム (%2)を追跡</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="843"/>
+        <location filename="follow_stream_dialog.cpp" line="849"/>
         <source>Error creating filter for this stream.</source>
         <translation>このストリームのフィルタ作成エラー</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="844"/>
+        <location filename="follow_stream_dialog.cpp" line="539"/>
+        <source>[Stream output truncated]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.cpp" line="850"/>
         <source>A transport or network layer header is needed.</source>
         <translation>トランスポート層かネットワーク層のヘッダーが必要です。</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="875"/>
-        <location filename="follow_stream_dialog.cpp" line="887"/>
+        <location filename="follow_stream_dialog.cpp" line="881"/>
+        <location filename="follow_stream_dialog.cpp" line="893"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln 全ストリーム</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="958"/>
+        <location filename="follow_stream_dialog.cpp" line="964"/>
         <source>File closed.</source>
         <translation>ファイルを閉じました。</translation>
     </message>
@@ -3218,6 +3232,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="109"/>
+        <location filename="follow_stream_dialog.cpp" line="247"/>
         <source>Find:</source>
         <translation>検索:</translation>
     </message>
@@ -14359,6 +14374,7 @@ a:hover {
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.ui" line="109"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="230"/>
         <source>Find:</source>
         <translation>検索:</translation>
     </message>
@@ -14475,6 +14491,11 @@ a:hover {
         <translation>
             <numerusform>%Ln バイトを表示中</numerusform>
         </translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="228"/>
+        <source>Regex Find:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="305"/>
