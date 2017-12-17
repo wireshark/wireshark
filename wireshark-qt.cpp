@@ -119,6 +119,8 @@
 #include <QTextCodec>
 #endif
 
+#include <ui/qt/utils/qt_ui_utils.h>
+
 #define INVALID_OPTION 1
 #define INIT_FAILED 2
 #define INVALID_CAPABILITY 2
