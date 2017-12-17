@@ -346,6 +346,7 @@ static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
 static expert_field ei_ipv6_opt_deprecated = EI_INIT;
 static expert_field ei_ipv6_hopopts_not_first = EI_INIT;
 static expert_field ei_ipv6_plen_exceeds_framing = EI_INIT;
+static expert_field ei_ipv6_plen_zero = EI_INIT;
 static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
 static expert_field ei_ipv6_invalid_header = EI_INIT;
 static expert_field ei_ipv6_opt_header_mismatch = EI_INIT;
@@ -550,6 +551,9 @@ static gboolean ipv6_exthdr_under_root = FALSE;
 
 /* Hide extension header generated field for length */
 static gboolean ipv6_exthdr_hide_len_oct_field = FALSE;
+
+/* Assume TSO and correct zero-length IP packets */
+static gboolean ipv6_tso_supported = FALSE;
 
 /*
  * defragmentation of IPv6
@@ -2308,13 +2312,28 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item_ret_uint(ipv6_tree, hf_ipv6_flow, tvb,
                         offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN, &ip6_flow);
 
-    ti_ipv6_plen = proto_tree_add_item(ipv6_tree, hf_ipv6_plen, tvb,
-                        offset + IP6H_CTL_PLEN, 2, ENC_BIG_ENDIAN);
     ipv6_pinfo->ip6_plen = tvb_get_guint16(tvb, offset + IP6H_CTL_PLEN, ENC_BIG_ENDIAN);
+
+    ip6_nxt = tvb_get_guint8(tvb, offset + IP6H_CTL_NXT);
+
+    if (ipv6_tso_supported && ipv6_pinfo->ip6_plen == 0 && ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
+        ipv6_pinfo->ip6_plen = tvb_reported_length(tvb) - IPv6_HDR_SIZE;
+        pi = proto_tree_add_uint_format_value(ipv6_tree, hf_ipv6_plen, tvb, offset + IP6H_CTL_PLEN, 2,
+          ipv6_pinfo->ip6_plen,
+          "%u bytes (reported as 0, presumed to be because of \"TCP segmentation offload\" (TSO))",
+          ipv6_pinfo->ip6_plen);
+        PROTO_ITEM_SET_GENERATED(pi);
+    } else {
+            ti_ipv6_plen = proto_tree_add_item(ipv6_tree, hf_ipv6_plen, tvb,
+                                offset + IP6H_CTL_PLEN, 2, ENC_BIG_ENDIAN);
+            if (ipv6_pinfo->ip6_plen == 0 && ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
+                expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_plen_zero);
+            }
+    }
+
     ipv6_pinfo->frag_plen = ipv6_pinfo->ip6_plen;
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_nxt, tvb, offset + IP6H_CTL_NXT, 1, ENC_NA);
-    ip6_nxt = tvb_get_guint8(tvb, offset + IP6H_CTL_NXT);
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, tvb,
                         offset + IP6H_CTL_HLIM, 1, ENC_BIG_ENDIAN);
@@ -3421,6 +3440,10 @@ proto_register_ipv6(void)
             { "ipv6.plen_exceeds_framing", PI_PROTOCOL, PI_WARN,
                 "IPv6 payload length does not match expected framing length", EXPFILL }
         },
+        { &ei_ipv6_plen_zero,
+            { "ipv6.plen_zero", PI_PROTOCOL, PI_CHAT,
+                "IPv6 payload length equals 0 (maybe because of \"TCP segmentation offload\" (TSO))", EXPFILL }
+        },
         { &ei_ipv6_bogus_ipv6_version,
             { "ipv6.bogus_ipv6_version", PI_MALFORMED, PI_ERROR,
                 "Bogus IP version", EXPFILL }
@@ -3592,6 +3615,11 @@ proto_register_ipv6(void)
                                    "Use a single field for IPv6 extension header length",
                                    "If enabled the Length field in octets will be hidden",
                                    &ipv6_exthdr_hide_len_oct_field);
+
+    prefs_register_bool_preference(ipv6_module, "tso_support",
+                                    "Support packet-capture from IPv6 TSO-enabled hardware",
+                                    "Whether to correct for TSO-enabled (TCP segmentation offload) hardware "
+                                    "captures, such as spoofing the IPv6 packet length", &ipv6_tso_supported);
 
     ipv6_handle = register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     reassembly_table_register(&ipv6_reassembly_table,
