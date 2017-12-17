@@ -2689,8 +2689,8 @@ AH_BOTTOM([#include <ws_diag_control.h>])
 dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE
 
-sinclude(plugins/Custom.m4) dnl
-ifdef(_CUSTOM_AC_OUTPUT_,, define(_CUSTOM_AC_OUTPUT_, )) dnl
+m4_sinclude(plugins/Custom.m4) dnl
+m4_ifndef(_CUSTOM_PLUGIN_CONFIG_FILES_, m4_define(_CUSTOM_PLUGIN_CONFIG_FILES_)) dnl
 
 sinclude(epan/dissectors/asn1/Custom.m4) dnl
 ifdef(_CUSTOM_ASN1_AC_OUTPUT_,, define(_CUSTOM_ASN1_AC_OUTPUT_, )) dnl
@@ -2855,6 +2855,7 @@ AC_CONFIG_FILES(
   plugins/wimax/Makefile
   plugins/wimaxasncp/Makefile
   plugins/wimaxmacphy/Makefile
+  _CUSTOM_PLUGIN_CONFIG_FILES_
   randpkt_core/doxygen.cfg
   randpkt_core/Makefile
   tools/Makefile
@@ -2863,7 +2864,6 @@ AC_CONFIG_FILES(
   writecap/Makefile
   writecap/doxygen.cfg
   wsutil/Makefile
-  _CUSTOM_AC_OUTPUT_
 )
 
 AC_OUTPUT

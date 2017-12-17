@@ -418,7 +418,6 @@ wireshark_common_ldadd = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	$(plugin_ldadd)			\
 	@PCAP_LIBS@			\
 	$(EPAN_EXTRA_LIBS)		\
 	@LIBNL_LIBS@
@@ -490,7 +489,6 @@ tshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	${EPAN_EXTRA_LIBS}
@@ -511,7 +509,6 @@ tfshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	${EPAN_EXTRA_LIBS}
@@ -532,7 +529,6 @@ rawshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	${EPAN_EXTRA_LIBS}
@@ -561,7 +557,6 @@ sharkd_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	${EPAN_EXTRA_LIBS}
@@ -683,7 +678,6 @@ dftest_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	epan/libwireshark.la		\
-	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	${EPAN_EXTRA_LIBS}
