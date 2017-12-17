@@ -20,7 +20,7 @@
 
 #include "protocol_preferences_menu.h"
 
-#include "enabled_protocols_dialog.h"
+#include <ui/qt/models/enabled_protocols_model.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "uat_dialog.h"
 #include "wireshark_application.h"
@@ -244,14 +244,7 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
 
 void ProtocolPreferencesMenu::disableProtocolTriggered()
 {
-    EnabledProtocolsDialog enable_proto_dialog(this);
-    enable_proto_dialog.selectProtocol(protocol_);
-    hide();
-    enable_proto_dialog.exec();
-
-    // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on macOS.
-    wsApp->flushAppSignals();
+    EnabledProtocolsModel::disableProtocol(protocol_);
 }
 
 void ProtocolPreferencesMenu::modulePreferencesTriggered()

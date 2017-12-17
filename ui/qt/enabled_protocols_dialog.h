@@ -24,14 +24,11 @@
 
 #include "geometry_state_dialog.h"
 #include "wireshark_dialog.h"
+#include <ui/qt/models/enabled_protocols_model.h>
 
 namespace Ui {
 class EnabledProtocolsDialog;
 }
-
-struct _protocol;
-
-class QAbstractButton;
 
 class EnabledProtocolsDialog : public GeometryStateDialog
 {
@@ -39,8 +36,7 @@ class EnabledProtocolsDialog : public GeometryStateDialog
 
 public:
     explicit EnabledProtocolsDialog(QWidget *parent);
-    ~EnabledProtocolsDialog();
-    void selectProtocol(struct _protocol *protocol);
+    virtual ~EnabledProtocolsDialog();
 
 private slots:
     void on_invert_button__clicked();
@@ -48,18 +44,14 @@ private slots:
     void on_disable_all_button__clicked();
     void on_search_line_edit__textChanged(const QString &search_re);
     void on_buttonBox_accepted();
-#if 0
-    void on_buttonBox_clicked(QAbstractButton *button);
-#endif
     void on_buttonBox_helpRequested();
+    void fillTree();
 
 private:
     Ui::EnabledProtocolsDialog *ui;
 
-    static void addHeuristicItem(gpointer data, gpointer user_data);
-    bool applyChanges();
-    void writeChanges();
-
+    EnabledProtocolsModel* enabled_protocols_model_;
+    EnabledProtocolsProxyModel* proxyModel_;
 };
 
 #endif // ENABLED_PROTOCOLS_DIALOG_H

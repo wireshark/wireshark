@@ -195,6 +195,7 @@ MOC_MODELS_HDRS = \
 	models/cache_proxy_model.h			\
 	models/decode_as_delegate.h			\
 	models/decode_as_model.h			\
+	models/enabled_protocols_model.h			\
 	models/expert_info_model.h			\
 	models/expert_info_proxy_model.h		\
 	models/fileset_entry_model.h			\
@@ -521,6 +522,7 @@ WIRESHARK_QT_MODELS_SRCS = \
 	models/cache_proxy_model.cpp			\
 	models/decode_as_delegate.cpp			\
 	models/decode_as_model.cpp			\
+	models/enabled_protocols_model.cpp			\
 	models/expert_info_model.cpp			\
 	models/expert_info_proxy_model.cpp		\
 	models/fileset_entry_model.cpp			\
