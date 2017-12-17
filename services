@@ -770,6 +770,7 @@ alpes             463/udp # alpes [Alain_Durand] [Alain_Durand]
 kpasswd           464/tcp # kpasswd [Theodore_Ts_o] [Theodore_Ts_o]
 kpasswd           464/udp # kpasswd [Theodore_Ts_o] [Theodore_Ts_o]
 urd               465/tcp # URL Rendesvous Directory for SSM [Toerless_Eckert] [Toerless_Eckert]
+submissions       465/tcp # Message Submission over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC-ietf-uta-email-deep-12]
 igmpv3lite        465/udp # IGMP over UDP for SSM [Toerless_Eckert] [Toerless_Eckert]
 digital-vrc       466/tcp # digital-vrc [Peter_Higginson] [Peter_Higginson]
 digital-vrc       466/udp # digital-vrc [Peter_Higginson] [Peter_Higginson]
@@ -1410,9 +1411,9 @@ nas               991/tcp # Netnews Administration System [Vera_Heinau][Heiko_Sc
 nas               991/udp # Netnews Administration System [Vera_Heinau][Heiko_Schlichting] [Vera_Heinau][Heiko_Schlichting] 2017-02-10 [RFC4707]
 telnets           992/tcp # telnet protocol over TLS/SSL
 telnets           992/udp # telnet protocol over TLS/SSL
-imaps             993/tcp # imap4 protocol over TLS/SSL
+imaps             993/tcp # IMAP over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC-ietf-uta-email-deep-12]
 imaps             993/udp # imap4 protocol over TLS/SSL
-pop3s             995/tcp # pop3 protocol over TLS/SSL (was spop3) [Gordon_Mangione] [Gordon_Mangione]
+pop3s             995/tcp # POP3 over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC-ietf-uta-email-deep-12]
 pop3s             995/udp # pop3 protocol over TLS/SSL (was spop3) [Gordon_Mangione] [Gordon_Mangione]
 vsinet            996/tcp # vsinet [Rob_Juergens] [Rob_Juergens]
 vsinet            996/udp # vsinet [Rob_Juergens] [Rob_Juergens]
@@ -11308,7 +11309,7 @@ rwp             30100/tcp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Ba
 rwp             30100/sctp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Baklanovsky] 2015-05-20
 kingdomsonline  30260/tcp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
 kingdomsonline  30260/udp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
-gs-realtime     30400/tcp # GroundStar RealTime System [INFORM_GmbH] [Benjamin_Schleinzer] 2017-08-10
+gs-realtime     30400/tcp # GroundStar RealTime System [INFORM_GmbH] [Detlef_Hilger] 2017-08-10 2017-12-13
 samsung-disc    30832/udp # Samsung Convergence Discovery Protocol [Samsung_2] [Young_Ki_Kim] 2013-05-29
 ovobs           30999/tcp # OpenView Service Desk Client [Service_Desk_Product] [Service_Desk_Product] 2006-05
 ovobs           30999/udp # OpenView Service Desk Client [Service_Desk_Product] [Service_Desk_Product] 2006-05
@@ -11383,6 +11384,7 @@ speedtrace      33334/tcp # SpeedTrace TraceAgent [Holger_Heinrich] [Holger_Hein
 speedtrace-disc 33334/udp # SpeedTrace TraceAgent Discovery [Holger_Heinrich] [Holger_Heinrich] 2012-02-01
 traceroute      33434/tcp # traceroute use [IANA] [IANA]
 traceroute      33434/udp # traceroute use [IANA] [IANA]
+mtrace          33435/udp # IP Multicast Traceroute [Hitoshi_Asaeda] [Hitoshi_Asaeda] 2017-12-13 [draft-ietf-mboned-mtrace-v2]
 snip-slave      33656/tcp # SNIP Slave [Dr_Chris_Tucker] [Dr_Chris_Tucker] 2005-08
 snip-slave      33656/udp # SNIP Slave [Dr_Chris_Tucker] [Dr_Chris_Tucker] 2005-08
 turbonote-2     34249/tcp # TurboNote Relay Server Default Port [Peter_Hyde] [Peter_Hyde]
