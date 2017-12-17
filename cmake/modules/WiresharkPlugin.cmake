@@ -22,7 +22,7 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 			set(_plugin_rc_in ${CMAKE_SOURCE_DIR}/plugins/plugin.rc.in)
 		endif()
 		configure_file(${_plugin_rc_in} plugin.rc @ONLY)
-		set(HAVE_PLUGIN_RC TRUE)
+		set(PLUGIN_RC_FILE ${CMAKE_CURRENT_BINARY_DIR}/plugin.rc)
 	endif()
 
 	set(PLUGIN_VERSION "${_ver_major}.${_ver_minor}.${_ver_micro}")
@@ -32,7 +32,7 @@ endmacro()
 macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 	add_library(${_plugin} MODULE
 		${PLUGIN_FILES}
-		$<$<BOOL:${HAVE_PLUGIN_RC}>:${CMAKE_CURRENT_BINARY_DIR}/plugin.rc>
+		${PLUGIN_RC_FILE}
 	)
 
 	set_target_properties(${_plugin} PROPERTIES
