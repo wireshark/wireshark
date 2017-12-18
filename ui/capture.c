@@ -144,20 +144,22 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, info_
         /* spawn/exec of the capture child, without waiting for any response from it */
         capture_callback_invoke(capture_cb_capture_prepared, cap_session);
 
-        if(capture_opts->show_info)
+        if (capture_opts->show_info) {
             if (cap_data->counts.counts_hash != NULL)
             {
                 /* Clean up any previous lists of packet counts */
                 g_hash_table_destroy(cap_data->counts.counts_hash);
             }
-        cap_data->counts.counts_hash = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
-        cap_data->counts.other = 0;
-        cap_data->counts.total = 0;
 
-        cap_data->wtap = NULL;
-        cap_data->ui.counts = &cap_data->counts;
+            cap_data->counts.counts_hash = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+            cap_data->counts.other = 0;
+            cap_data->counts.total = 0;
 
-        capture_info_ui_create(&cap_data->ui, cap_session);
+            cap_data->wtap = NULL;
+            cap_data->ui.counts = &cap_data->counts;
+
+            capture_info_ui_create(&cap_data->ui, cap_session);
+        }
     }
 
     return ret;
