@@ -92,6 +92,7 @@ IEEE 1905.1a
 Bluetooth Mesh
 TWAMP and OWAMP
 ActiveMQ Artemis Core Protocol
+IEEE 802.3br Frame Preemption Protocol
 --sort-and-group--
 
 === Updated Protocol Support

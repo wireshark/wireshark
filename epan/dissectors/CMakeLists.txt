@@ -989,6 +989,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-foundry.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fp_hint.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fp_mux.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-fpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fractalgeneratorprotocol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-frame.c

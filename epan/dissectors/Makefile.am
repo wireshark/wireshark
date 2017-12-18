@@ -615,6 +615,7 @@ DISSECTOR_SRC = \
 	packet-foundry.c	\
 	packet-fp_hint.c	\
 	packet-fp_mux.c	    \
+	packet-fpp.c		\
 	packet-fr.c		\
 	packet-fractalgeneratorprotocol.c	\
 	packet-frame.c		\

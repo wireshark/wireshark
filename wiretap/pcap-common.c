@@ -467,6 +467,9 @@ static const struct {
 	/* Nordic BLE Sniffer */
 	{ 272,		WTAP_ENCAP_NORDIC_BLE },
 
+	/* mPackets as specified by 802.3br */
+	{ 274,		WTAP_ENCAP_ETHERNET_MPACKET },
+
 	/*
 	 * To repeat:
 	 *
