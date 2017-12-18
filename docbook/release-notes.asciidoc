@@ -12,6 +12,9 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
+* Some keyboard shortcut mix-up has been resolved by assigning new shortcuts
+  to Edit -> Copy methods.
+
 The following bugs have been fixed:
 
 * ws-salink:2018-01[]

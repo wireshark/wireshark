@@ -1295,12 +1295,15 @@
     <string>Copy this item's description</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Shift+D</string>
+    <string notr="true">Ctrl+Alt+Shift+D</string>
    </property>
   </action>
   <action name="actionCopyAllVisibleItems">
    <property name="text">
     <string>All Visible Items</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+A</string>
    </property>
   </action>
   <action name="actionCopyAllVisibleSelectedTreeItems">
@@ -1316,7 +1319,7 @@
     <string>Copy this item's field name</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Shift+F</string>
+    <string notr="true">Ctrl+Alt+Shift+F</string>
    </property>
   </action>
   <action name="actionEditCopyValue">
@@ -1327,7 +1330,7 @@
     <string>Copy this item's value</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Shift+V</string>
+    <string notr="true">Ctrl+Alt+Shift+V</string>
    </property>
   </action>
   <action name="actionEditCopyAsFilter">
