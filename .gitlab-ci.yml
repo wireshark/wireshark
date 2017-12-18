@@ -1,17 +1,20 @@
 image: ubuntu:16.04
 before_script:
-  - apt update -qq
-  - apt install software-properties-common -y
-  - add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - apt update -qq
-  - apt install ninja-build -y
+  - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" > /etc/apt/sources.list.d/clang6.list
+  - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main" > /etc/apt/sources.list.d/clang5.list
+  - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main" > /etc/apt/sources.list.d/clang4.list
+  - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
+  - echo "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu xenial main" > /etc/apt/sources.list.d/gcc.list
+  - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1E9377A2BA9EF27F
+  - apt-get update -qq
+  - apt-get install ninja-build -y
   - ./tools/debian-setup.sh --install-optional -y
   - mkdir build
   - cd build
 gcc-4:
   retry: 1
   script:
-    - apt install gcc-4.9 g++-4.9 -y
+    - apt-get install gcc-4.9 g++-4.9 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9 ..
     - ninja
 gcc-4-noextcap:
@@ -29,7 +32,7 @@ gcc-4-nopcap:
 gcc-5:
   retry: 1
   script:
-    - apt install gcc-5 g++-5 -y
+    - apt-get install gcc-5 g++-5 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5 ..
     - ninja
 gcc-5-noextcap:
@@ -47,7 +50,7 @@ gcc-5-nopcap:
 gcc-6:
   retry: 1
   script:
-    - apt install gcc-6 g++-6 -y
+    - apt-get install gcc-6 g++-6 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=g++-6 ..
     - ninja
 gcc-6-noextcap:
@@ -65,72 +68,66 @@ gcc-6-nopcap:
 gcc-7:
   retry: 1
   script:
-    - apt install gcc-7 g++-7 -y
+    - apt-get install gcc-7 g++-7 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
     - ninja
 gcc-7-noextcap:
   retry: 1
   script:
-    - apt install gcc-7 g++-7 -y
+    - apt-get install gcc-7 g++-7 -y
     - cmake -GNinja -DENABLE_EXTCAP=OFF -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
     - ninja
 gcc-7-nopcap:
   retry: 1
   script:
-    - apt install gcc-7 g++-7 -y
+    - apt-get install gcc-7 g++-7 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
     - ninja
 clang-3.5:
   retry: 1
   script:
-    - apt install clang-3.5 -y
+    - apt-get install clang-3.5 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.5 -DCMAKE_CXX_COMPILER=clang++-3.5 ..
     - ninja
 clang-3.6:
   retry: 1
   script:
-    - apt install clang-3.6 -y
+    - apt-get install clang-3.6 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.6 -DCMAKE_CXX_COMPILER=clang++-3.6 ..
     - ninja
 clang-3.7:
   retry: 1
   script:
-    - apt install clang-3.7 -y
+    - apt-get install clang-3.7 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.7 -DCMAKE_CXX_COMPILER=clang++-3.7 ..
     - ninja
 clang-3.8:
   retry: 1
   script:
-    - apt install clang-3.8 -y
+    - apt-get install clang-3.8 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.8 -DCMAKE_CXX_COMPILER=clang++-3.8 ..
     - ninja
 clang-3.9:
   retry: 1
   script:
-    - apt install clang-3.9 -y
+    - apt-get install clang-3.9 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.9 -DCMAKE_CXX_COMPILER=clang++-3.9 ..
     - ninja
 clang-4.0:
   retry: 1
   script:
-    - apt install clang-4.0 -y
+    - apt-get install clang-4.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-4.0 -DCMAKE_CXX_COMPILER=clang++-4.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
 clang-5.0:
   retry: 1
   script:
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main" > /etc/apt/sources.list.d/clang5.list
-    - curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-    - apt update -qq
-    - apt install clang-5.0 -y
+    - apt-get install clang-5.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-5.0 -DCMAKE_CXX_COMPILER=clang++-5.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
 clang-6.0:
   retry: 1
   script:
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" > /etc/apt/sources.list.d/clang6.list
-    - curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-    - apt update -qq
-    - apt install clang-6.0 -y
+    - apt-get install clang-6.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
