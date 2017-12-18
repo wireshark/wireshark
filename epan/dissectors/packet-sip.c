@@ -196,6 +196,7 @@ static gint hf_sip_via_ttl                = -1;
 static gint hf_sip_via_comp               = -1;
 static gint hf_sip_via_sigcomp_id         = -1;
 static gint hf_sip_via_oc                 = -1;
+static gint hf_sip_via_oc_val             = -1;
 static gint hf_sip_via_oc_algo            = -1;
 static gint hf_sip_via_oc_validity        = -1;
 static gint hf_sip_via_oc_seq             = -1;
@@ -2762,6 +2763,15 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                             next_tvb = tvb_new_subset_length_caplen(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
 
                             call_dissector (sip_via_branch_handle, next_tvb, pinfo, tree);
+                        }
+                        else if (g_ascii_strcasecmp(param_name, "oc") == 0) {
+                            proto_item *ti;
+                            char *value = tvb_get_string_enc(wmem_packet_scope(), tvb, parameter_name_end + 1,
+                                current_offset - parameter_name_end - 1, ENC_UTF_8 | ENC_NA);
+                            ti = proto_tree_add_uint(tree, hf_sip_via_oc_val, tvb,
+                                parameter_name_end + 1, current_offset - parameter_name_end - 1,
+                                (guint32)strtoul(value, NULL, 10));
+                            PROTO_ITEM_SET_GENERATED(ti);
                         }
                     }
                     else
@@ -6824,6 +6834,11 @@ void proto_register_sip(void)
         { &hf_sip_via_oc,
         { "Overload Control",  "sip.Via.oc",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sip_via_oc_val,
+        { "Overload Control Value",  "sip.Via.oc_val",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_sip_via_oc_validity,
