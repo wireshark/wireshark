@@ -672,6 +672,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(main_ui_->actionViewExpandSubtrees, SIGNAL(triggered()),
             proto_tree_, SLOT(expandSubtrees()));
+    connect(main_ui_->actionViewCollapseSubtrees, SIGNAL(triggered()),
+            proto_tree_, SLOT(collapseSubtrees()));
     connect(main_ui_->actionViewExpandAll, SIGNAL(triggered()),
             proto_tree_, SLOT(expandAll()));
     connect(main_ui_->actionViewCollapseAll, SIGNAL(triggered()),

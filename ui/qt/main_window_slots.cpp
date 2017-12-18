@@ -1451,6 +1451,7 @@ void MainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     main_ui_->actionFileExportPacketBytes->setEnabled(have_packet_bytes);
 
     main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
+    main_ui_->actionViewCollapseSubtrees->setEnabled(have_subtree);
 
     main_ui_->actionGoGoToLinkedPacket->setEnabled(is_framenum);
 

@@ -60,6 +60,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         QAction *action;
 
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
+        ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseSubtrees"));
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
         ctx_menu_.addSeparator();
@@ -377,6 +378,28 @@ void ProtoTree::expandSubtrees()
     while (!index_stack.isEmpty()) {
         QModelIndex index = index_stack.pop();
         expand(index);
+        int row_count = proto_tree_model_->rowCount(index);
+        for (int row = row_count - 1; row >= 0; row--) {
+            QModelIndex child = proto_tree_model_->index(row, 0, index);
+            if (proto_tree_model_->hasChildren(child)) {
+                index_stack.push(child);
+            }
+        }
+    }
+
+    updateContentWidth();
+}
+
+void ProtoTree::collapseSubtrees()
+{
+    if (!selectionModel()->hasSelection()) return;
+
+    QStack<QModelIndex> index_stack;
+    index_stack.push(selectionModel()->selectedIndexes().first());
+
+    while (!index_stack.isEmpty()) {
+        QModelIndex index = index_stack.pop();
+        collapse(index);
         int row_count = proto_tree_model_->rowCount(index);
         for (int row = row_count - 1; row >= 0; row--) {
             QModelIndex child = proto_tree_model_->index(row, 0, index);
