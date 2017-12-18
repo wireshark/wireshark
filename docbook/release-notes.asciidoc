@@ -21,6 +21,9 @@ used for troubleshooting, analysis, development and education.
 
 * Application startup time has been reduced.
 
+* Some keyboard shortcut mix-up has been resolved by assigning new shortcuts
+  to Edit -> Copy methods.
+
 * The installation step for Wireshark will now install headers required to
   build plugins. A pkg-config file is provided to help with this
   (see doc/plugins.example for details). Note you must still rebuild all
