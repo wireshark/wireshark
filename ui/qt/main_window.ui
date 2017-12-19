@@ -1172,7 +1172,7 @@
     <string>Export Packet &amp;Bytes…</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+H</string>
+    <string notr="true">Ctrl+Shift+X</string>
    </property>
   </action>
   <action name="actionFileExportSSLSessionKeys">
