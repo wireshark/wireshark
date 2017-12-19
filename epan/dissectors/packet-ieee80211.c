@@ -3965,11 +3965,17 @@ static int hf_ieee80211_tag_extended_capabilities_b45 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b46 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b47 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b48 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b49 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b50 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b51 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b52 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b53 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b54 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b55 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b61 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b62 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b63 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b64 = -1;
-static int hf_ieee80211_tag_extended_capabilities_o7 = -1;
 static int hf_ieee80211_tag_extended_capabilities_o8 = -1;
 static int hf_ieee80211_tag_extended_capabilities_o9 = -1;
 
@@ -11723,7 +11729,13 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   };
   static const int *ieee80211_tag_extended_capabilities_byte7[] = {
     &hf_ieee80211_tag_extended_capabilities_b48,
-    &hf_ieee80211_tag_extended_capabilities_o7,
+    &hf_ieee80211_tag_extended_capabilities_b49,
+    &hf_ieee80211_tag_extended_capabilities_b50,
+    &hf_ieee80211_tag_extended_capabilities_b51,
+    &hf_ieee80211_tag_extended_capabilities_b52,
+    &hf_ieee80211_tag_extended_capabilities_b53,
+    &hf_ieee80211_tag_extended_capabilities_b54,
+    &hf_ieee80211_tag_extended_capabilities_b55,
     NULL
   };
 
@@ -26194,24 +26206,23 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0xF8,
       NULL, HFILL  }},
 
-    /* Table 8-103-Capabilities field */
+    /* IEEE Std 802.11 2016 */
+    /* Table 9-135-Extended Capabilities field */
     {&hf_ieee80211_tag_extended_capabilities,
      {"Extended Capabilities", "wlan.extcap",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    /* P802.11n/D6.0 */
     /* Extended Capability octet 1 */
     {&hf_ieee80211_tag_extended_capabilities_b0,
      {"20/40 BSS Coexistence Management Support", "wlan.extcap.b0",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
       "HT Information Exchange Support", HFILL }},
 
-    /* P802.11p/D4.0 */
     {&hf_ieee80211_tag_extended_capabilities_b1,
-     {"On-demand beacon", "wlan.extcap.b1",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
-      NULL, HFILL }},
+     {"Reserved (was On-demand beacon)", "wlan.extcap.b1",
+      FT_UINT8, BASE_HEX, NULL, 0x02,
+      "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b2,
      {"Extended Channel Switching", "wlan.extcap.b2",
@@ -26219,10 +26230,9 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b3,
-     {"WAVE indication", "wlan.extcap.b3",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
-      NULL, HFILL }},
-    /*End: P802.11p/D4.0 */
+     {"Reserved (was WAVE indication)", "wlan.extcap.b3",
+      FT_UINT8, BASE_HEX, NULL, 0x08,
+      "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b4,
      {"PSMP Capability", "wlan.extcap.b4",
@@ -26294,7 +26304,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b17,
-     {"WNM-Sleep Mode", "wlan.extcap.b17",
+     {"WNM Sleep Mode", "wlan.extcap.b17",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
       NULL, HFILL }},
 
@@ -26351,7 +26361,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b28,
-     {"Peer U-APSD Buffer STA Support", "wlan.extcap.b28",
+     {"TPU Buffer STA Support", "wlan.extcap.b28",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
       NULL, HFILL }},
 
@@ -26398,7 +26408,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b37,
-     {"TDLS support", "wlan.extcap.b37",
+     {"TDLS Support", "wlan.extcap.b37",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
       NULL, HFILL }},
 
@@ -26435,7 +26445,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b46,
-     {"WNM-Notification", "wlan.extcap.b46",
+     {"WNM Notification", "wlan.extcap.b46",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
       NULL, HFILL }},
 
@@ -26450,10 +26460,40 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
       "The SSID in this BSS is interpreted using UTF-8 encoding", HFILL }},
 
-    {&hf_ieee80211_tag_extended_capabilities_o7,
-     {"Reserved", "wlan.extcap.o7",
-      FT_UINT8, BASE_HEX, NULL, 0xfe,
-      "Must be zero", HFILL }},
+    {&hf_ieee80211_tag_extended_capabilities_b49,
+     {"QMFActivated", "wlan.extcap.b49",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b50,
+     {"QMFReconfigurationActivated", "wlan.extcap.b50",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b51,
+     {"Robust AV Streaming", "wlan.extcap.b51",
+      FT_BOOLEAN, 8, NULL, 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b52,
+     {"Advanced GCR", "wlan.extcap.b52",
+      FT_BOOLEAN, 8, NULL, 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b53,
+     {"Mesh GCR", "wlan.extcap.b53",
+      FT_BOOLEAN, 8, NULL, 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b54,
+     {"SCS", "wlan.extcap.b54",
+      FT_BOOLEAN, 8, NULL, 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b55,
+     {"QLoad Report", "wlan.extcap.b55",
+      FT_BOOLEAN, 8, NULL, 0x80,
+      NULL, HFILL }},
 
     /* Extended Capability octet 8 */
     {&hf_ieee80211_tag_extended_capabilities_b61,
