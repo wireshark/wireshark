@@ -30,6 +30,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/clickable_label.h
 	widgets/display_filter_combo.h
 	widgets/display_filter_edit.h
+	widgets/dissector_tables_view.h
 	widgets/drag_drop_toolbar.h
 	widgets/drag_label.h
 	widgets/editor_color_dialog.h
@@ -66,6 +67,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/cache_proxy_model.h
 	models/decode_as_delegate.h
 	models/decode_as_model.h
+	models/dissector_tables_model.h
 	models/enabled_protocols_model.h
 	models/expert_info_model.h
 	models/expert_info_proxy_model.h
@@ -246,6 +248,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/clickable_label.cpp
 	widgets/display_filter_combo.cpp
 	widgets/display_filter_edit.cpp
+	widgets/dissector_tables_view.cpp
 	widgets/drag_drop_toolbar.cpp
 	widgets/drag_label.cpp
 	widgets/editor_color_dialog.cpp
@@ -280,6 +283,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/cache_proxy_model.cpp
 	models/decode_as_delegate.cpp
 	models/decode_as_model.cpp
+	models/dissector_tables_model.cpp
 	models/enabled_protocols_model.cpp
 	models/expert_info_model.cpp
 	models/expert_info_proxy_model.cpp

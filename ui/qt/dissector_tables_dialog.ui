@@ -15,21 +15,25 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="tableTreeWidget">
+    <widget class="DissectorTablesTreeView" name="tableTree">
      <property name="uniformRowHeights">
       <bool>true</bool>
      </property>
-     <column>
-      <property name="text">
-       <string>Table Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Short Name</string>
-      </property>
-     </column>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Search:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="search_line_edit_"/>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -43,6 +47,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+   <customwidget>
+     <class>DissectorTablesTreeView</class>
+     <extends>QTreeView</extends>
+     <header>widgets/dissector_tables_view.h</header>
+   </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -4,29 +4,14 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef DISSECTOR_TABLES_DIALOG_H
 #define DISSECTOR_TABLES_DIALOG_H
 
-#include <glib.h>
-
-#include <epan/ftypes/ftypes.h>
-
 #include "geometry_state_dialog.h"
+#include <ui/qt/models/dissector_tables_model.h>
 
 namespace Ui {
 class DissectorTablesDialog;
@@ -43,19 +28,14 @@ public:
     ~DissectorTablesDialog();
 
 private slots:
-    void on_tableTreeWidget_itemSelectionChanged();
+    void on_search_line_edit__textChanged(const QString &search_re);
+    void fillTree();
 
 private:
     Ui::DissectorTablesDialog *ui;
-    QList<QTreeWidgetItem *> string_dissectors_;
-    QList<QTreeWidgetItem *> integer_dissectors_;
-    QList<QTreeWidgetItem *> custom_dissectors_;
-    QList<QTreeWidgetItem *> heuristic_dissectors_;
 
-    static void gatherTableNames(const char *short_name, const char *table_name, gpointer dlg_ptr);
-    static void gatherProtocolDecodes(const char *, ftenum_t selector_type, gpointer key, gpointer value, gpointer list_ptr);
-    static void gatherHeurTableNames(const char *table_name, struct heur_dissector_list *list, gpointer dlg_ptr);
-    static void gatherHeurProtocolDecodes(const char *, struct heur_dtbl_entry *dtbl_entry, gpointer list_ptr);
+    DissectorTablesModel* dissector_tables_model_;
+    DissectorTablesProxyModel* proxyModel_;
 };
 
 #endif // DISSECTOR_TABLES_DIALOG_H
