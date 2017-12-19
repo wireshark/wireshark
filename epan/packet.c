@@ -5,19 +5,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include "config.h"
@@ -1624,8 +1612,8 @@ dissector_reset_string(const char *name, const gchar *pattern)
    the dissector with the arguments supplied, and return length of dissected data,
    otherwise return 0. */
 int
-dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
-		     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissector_try_string_new(dissector_table_t sub_dissectors, const gchar *string,
+		     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data)
 {
 	dtbl_entry_t            *dtbl_entry;
 	struct dissector_handle *handle;
@@ -1656,7 +1644,7 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		 */
 		saved_match_string = pinfo->match_string;
 		pinfo->match_string = string;
-		len = call_dissector_work(handle, tvb, pinfo, tree, TRUE, data);
+		len = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, data);
 		pinfo->match_string = saved_match_string;
 
 		/*
@@ -1675,6 +1663,13 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		return len;
 	}
 	return 0;
+}
+
+int
+dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
+		     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	return dissector_try_string_new(sub_dissectors, string, tvb, pinfo, tree, TRUE, data);
 }
 
 /* Look for a given value in a given string dissector table and, if found,

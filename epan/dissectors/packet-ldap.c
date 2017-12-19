@@ -15,19 +15,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 /*
@@ -345,7 +333,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 195 "./asn1/ldap/packet-ldap-template.c"
+#line 183 "./asn1/ldap/packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -417,7 +405,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 207 "./asn1/ldap/packet-ldap-template.c"
+#line 195 "./asn1/ldap/packet-ldap-template.c"
 
 static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
 static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
@@ -2369,7 +2357,7 @@ dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
     proto_tree_add_item (tree, *hf_id, next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
 
   /* if we have an attribute type that isn't binary see if there is a better dissector */
-  else if(!attr_type || !next_tvb || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree, NULL)) {
+  else if(!attr_type || !next_tvb || !dissector_try_string_new(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree, FALSE, NULL)) {
     offset = old_offset;
 
     /* do the default thing */
@@ -3827,7 +3815,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 913 "./asn1/ldap/packet-ldap-template.c"
+#line 901 "./asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -5638,7 +5626,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2155 "./asn1/ldap/packet-ldap-template.c"
+#line 2143 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5712,7 +5700,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2169 "./asn1/ldap/packet-ldap-template.c"
+#line 2157 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5900,7 +5888,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2340 "./asn1/ldap/packet-ldap-template.c"
+#line 2328 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }

@@ -5,19 +5,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __PACKET_H__
@@ -302,6 +290,12 @@ WS_DLL_PUBLIC void dissector_reset_string(const char *name, const gchar *pattern
    bytes consumed, otherwise return 0. */
 WS_DLL_PUBLIC int dissector_try_string(dissector_table_t sub_dissectors,
     const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+
+/* Look for a given string in a given dissector table and, if found, call
+   the dissector with the arguments supplied, and return the number of
+   bytes consumed, otherwise return 0. */
+WS_DLL_PUBLIC int dissector_try_string_new(dissector_table_t sub_dissectors,
+    const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name,void *data);
 
 /** Look for a given value in a given string dissector table and, if found,
  * return the current dissector handle for that value.
