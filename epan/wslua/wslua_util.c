@@ -160,7 +160,7 @@ static int wslua_log(lua_State* L, GLogLevelFlags log_level) {
         lua_pop(L, 1);  /* pop result */
     }
 
-    g_log(LOG_DOMAIN_LUA, log_level, "%s\n", str->str);
+    wslua_logger(LOG_DOMAIN_LUA, log_level, "%s\n", str->str);
     g_string_free(str,TRUE);
 
     return 0;

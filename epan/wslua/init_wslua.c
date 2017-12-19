@@ -53,6 +53,7 @@ static lua_State* L = NULL;
 packet_info* lua_pinfo;
 struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
+wslua_logger_t wslua_logger;
 int lua_dissectors_table_ref = LUA_NOREF;
 int lua_heur_dissectors_table_ref = LUA_NOREF;
 
@@ -879,16 +880,10 @@ void wslua_init(register_cb cb, gpointer client_data) {
     if (first_time) {
         ws_lua_ei = ei;
         ws_lua_ei_len = array_length(ei);
-
-        /* set up the logger */
-        g_log_set_handler(LOG_DOMAIN_LUA, (GLogLevelFlags)(G_LOG_LEVEL_CRITICAL|
-                      G_LOG_LEVEL_WARNING|
-                      G_LOG_LEVEL_MESSAGE|
-                      G_LOG_LEVEL_INFO|
-                      G_LOG_LEVEL_DEBUG),
-                      ops ? ops->logger : basic_logger,
-                      NULL);
     }
+
+    /* set up the logger */
+    wslua_logger = ops ? ops->logger : basic_logger;
 
     if (!L) {
         L = lua_newstate(wslua_allocf, NULL);

@@ -67,6 +67,9 @@
 #define WSLUA_PREFS_CHANGED "prefs_changed"
 #define LOG_DOMAIN_LUA "wslua"
 
+typedef void (*wslua_logger_t)(const gchar *, GLogLevelFlags, const gchar *, gpointer);
+extern wslua_logger_t wslua_logger;
+
 /* type conversion macros - lua_Number is a double, so casting isn't kosher; and
    using Lua's already-available lua_tointeger() and luaL_checkinteger() might be different
    on different machines; so use these instead please! */
