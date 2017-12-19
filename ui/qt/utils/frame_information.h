@@ -51,7 +51,7 @@ public:
     frame_data * frameData() const;
     int frameNum() const;
 
-    QByteArray printableData();
+    const QByteArray printableData();
 
 private:
 

@@ -174,7 +174,7 @@ FieldInformation::Position FieldInformation::appendix() const
     return pos;
 }
 
-QByteArray FieldInformation::printableData()
+const QByteArray FieldInformation::printableData()
 {
     QByteArray data;
 

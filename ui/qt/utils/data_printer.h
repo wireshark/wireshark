@@ -23,7 +23,7 @@ class IDataPrintable
 public:
     virtual ~IDataPrintable() {}
 
-    virtual QByteArray printableData() = 0;
+    virtual const QByteArray printableData() = 0;
 };
 
 class DataPrinter : public QObject
@@ -51,8 +51,8 @@ public:
     static int hexChars();
 
 private:
-    QString hexTextDump(QByteArray printData, bool append_text);
-    void binaryDump(QByteArray printData);
+    QString hexTextDump(const QByteArray printData, bool append_text);
+    void binaryDump(const QByteArray printData);
 
     int byteLineLength_;
 };

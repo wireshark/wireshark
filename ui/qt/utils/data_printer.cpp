@@ -25,7 +25,7 @@ DataPrinter::DataPrinter(QObject * parent)
 
 void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * printable)
 {
-    QByteArray printData = printable->printableData();
+    const QByteArray printData = printable->printableData();
 
     QString clipboard_text;
 
@@ -40,7 +40,7 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
         break;
     case DP_HexStream:
         for (int i = 0; i < printData.length(); i++)
-            clipboard_text += QString("%1").arg(printData[i], 2, 16, QChar('0'));
+            clipboard_text += QString("%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
         break;
     case DP_EscapedString:
         // Beginning quote
@@ -54,7 +54,7 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
             if (i % 16 == 0 && i != 0 && i != printData.length() - 1) {
                 clipboard_text += QString("\" \\\n\"");
             }
-            clipboard_text += QString("\\x%1").arg(printData[i], 2, 16, QChar('0'));
+            clipboard_text += QString("\\x%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
         }
         // End quote
         clipboard_text += QString("\"\n");
@@ -77,7 +77,7 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
     }
 }
 
-void DataPrinter::binaryDump(QByteArray printData)
+void DataPrinter::binaryDump(const QByteArray printData)
 {
     if (!printData.isEmpty()) {
         QMimeData *mime_data = new QMimeData;
@@ -110,7 +110,7 @@ int DataPrinter::hexChars()
     return (row_width * chars_per_byte) + ((row_width - 1) / separatorInterval());
 }
 
-QString DataPrinter::hexTextDump(QByteArray printData, bool showText)
+QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
 {
     QString clipboard_text;
 

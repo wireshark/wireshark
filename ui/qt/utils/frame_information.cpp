@@ -96,7 +96,7 @@ int FrameInformation::frameNum() const
     return fi_->num;
 }
 
-QByteArray FrameInformation::printableData()
+const QByteArray FrameInformation::printableData()
 {
     QByteArray data;
 

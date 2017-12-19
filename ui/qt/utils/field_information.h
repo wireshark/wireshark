@@ -61,7 +61,7 @@ public:
     const QString moduleName();
     QString url();
 
-    QByteArray printableData();
+    const QByteArray printableData();
 
 private:
 
