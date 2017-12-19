@@ -142,7 +142,7 @@ else:
         reg_code += "    plug_%s.register_wtap_module = wtap_register_%s;\n" % (symbol, symbol)
         reg_code += "    wtap_register_plugin(&plug_%s);\n" % (symbol)
 
-reg_code += "};\n"
+reg_code += "}\n"
 
 try:
     print(('Updating ' + final_filename))
