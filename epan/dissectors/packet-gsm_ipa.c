@@ -59,7 +59,7 @@ void proto_reg_handoff_gsm_ipa(void);
  * REGISTERED OR NOT.                                                   *
  ************************************************************************
  */
-#define IPA_TCP_PORTS "3002,3003,3006,4249,4250,5000"
+#define IPA_TCP_PORTS "3002,3003,3006,4222,4249,4250,5000"
 
 static dissector_handle_t ipa_tcp_handle;
 static dissector_handle_t ipa_udp_handle;
@@ -152,6 +152,7 @@ static const value_string ipa_osmo_proto_vals[] = {
 	{ 0x01,		"MGCP" },
 	{ 0x02,		"LAC" },
 	{ 0x03,		"SMSC" },
+	{ 0x05,		"GSUP" },
 	{ 0,		NULL }
 };
 
