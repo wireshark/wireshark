@@ -1,4 +1,4 @@
-/* astringlist_list_model.cpp
+/* supported_protocols_model.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
