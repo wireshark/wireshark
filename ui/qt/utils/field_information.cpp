@@ -66,17 +66,26 @@ field_info * FieldInformation::fieldInfo() const
 FieldInformation::HeaderInfo FieldInformation::headerInfo() const
 {
     HeaderInfo header;
-    header.isValid = false;
 
     if ( fi_ && fi_->hfinfo )
     {
-        header.isValid = true;
         header.name = fi_->hfinfo->name;
         header.description = fi_->hfinfo->blurb;
         header.abbreviation = fi_->hfinfo->abbrev;
+        header.isValid = true;
         header.type = fi_->hfinfo->type;
         header.parent = fi_->hfinfo->parent;
         header.id = fi_->hfinfo->id;
+    }
+    else
+    {
+        header.name = "";
+        header.description = "";
+        header.abbreviation = "";
+        header.isValid = false;
+        header.type = FT_NONE;
+        header.parent = 0;
+        header.id = 0;
     }
 
     return header;
