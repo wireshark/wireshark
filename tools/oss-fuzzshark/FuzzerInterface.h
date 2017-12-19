@@ -1,4 +1,4 @@
-/* based on http://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer/standalone/StandaloneFuzzTargetMain.c r311407 (22 Aug 2017) */
+/* based on http://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer/FuzzerInterface.h r321218 (20 Dec 2017) */
 
 /* http://llvm.org/svn/llvm-project/compiler-rt/trunk/LICENSE.TXT follows */
 
@@ -94,8 +94,7 @@ other licenses gives permission to use the names of the LLVM Team or the
 University of Illinois to endorse or promote products derived from this
 Software.
 */
-
-/*===- StandaloneFuzzTargetMain.c - standalone main() for fuzz targets. ---===//
+//===- FuzzerInterface.h - Interface header for the Fuzzer ------*- C++ -* ===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -103,40 +102,62 @@ Software.
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-// This main() function can be linked to a fuzz target (i.e. a library
-// that exports LLVMFuzzerTestOneInput() and possibly LLVMFuzzerInitialize())
-// instead of libFuzzer. This main() function will not perform any fuzzing
-// but will simply feed all input files one by one to the fuzz target.
-//
-// Use this file to provide reproducers for bugs when linking against libFuzzer
-// or other fuzzing engine is undesirable.
-//===----------------------------------------------------------------------===*/
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+// Define the interface between libFuzzer and the library being tested.
+//===----------------------------------------------------------------------===//
 
-#include <glib.h>
-#include <wsutil/file_util.h>
+// NOTE: the libFuzzer interface is thin and in the majority of cases
+// you should not include this file into your target. In 95% of cases
+// all you need is to define the following function in your file:
+// extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size);
 
-#include "FuzzerInterface.h"
+// WARNING: keep the interface in C.
 
-int main(int argc, char **argv) {
-  fprintf(stderr, "StandaloneFuzzTargetMain: running %d inputs\n", argc - 1);
-  LLVMFuzzerInitialize(&argc, &argv);
-  for (int i = 1; i < argc; i++) {
-    fprintf(stderr, "Running: %s\n", argv[i]);
-    FILE *f = ws_fopen(argv[i], "r");
-    assert(f);
-    fseek(f, 0, SEEK_END);
-    long len = ftell(f);
-    assert(len >= 0);
-    fseek(f, 0, SEEK_SET);
-    unsigned char *buf = (unsigned char*)g_malloc((size_t)len);
-    size_t n_read = fread(buf, 1, len, f);
-    assert(n_read == (size_t)len);
-    fclose(f);
-    LLVMFuzzerTestOneInput(buf, len);
-    g_free(buf);
-    fprintf(stderr, "Done:    %s: (%zd bytes)\n", argv[i], n_read);
-  }
-}
+#ifndef LLVM_FUZZER_INTERFACE_H
+#define LLVM_FUZZER_INTERFACE_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+// Mandatory user-provided target function.
+// Executes the code under test with [Data, Data+Size) as the input.
+// libFuzzer will invoke this function *many* times with different inputs.
+// Must return 0.
+int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size);
+
+// Optional user-provided initialization function.
+// If provided, this function will be called by libFuzzer once at startup.
+// It may read and modify argc/argv.
+// Must return 0.
+int LLVMFuzzerInitialize(int *argc, char ***argv);
+
+// Optional user-provided custom mutator.
+// Mutates raw data in [Data, Data+Size) inplace.
+// Returns the new size, which is not greater than MaxSize.
+// Given the same Seed produces the same mutation.
+size_t LLVMFuzzerCustomMutator(uint8_t *Data, size_t Size, size_t MaxSize,
+                               unsigned int Seed);
+
+// Optional user-provided custom cross-over function.
+// Combines pieces of Data1 & Data2 together into Out.
+// Returns the new size, which is not greater than MaxOutSize.
+// Should produce the same mutation given the same Seed.
+size_t LLVMFuzzerCustomCrossOver(const uint8_t *Data1, size_t Size1,
+                                 const uint8_t *Data2, size_t Size2,
+                                 uint8_t *Out, size_t MaxOutSize,
+                                 unsigned int Seed);
+
+// Experimental, may go away in future.
+// libFuzzer-provided function to be used inside LLVMFuzzerCustomMutator.
+// Mutates raw data in [Data, Data+Size) inplace.
+// Returns the new size, which is not greater than MaxSize.
+size_t LLVMFuzzerMutate(uint8_t *Data, size_t Size, size_t MaxSize);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
+
+#endif  // LLVM_FUZZER_INTERFACE_H

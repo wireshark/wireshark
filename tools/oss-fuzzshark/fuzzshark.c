@@ -52,6 +52,8 @@
 #include <wsutil/plugins.h>
 #endif
 
+#include "FuzzerInterface.h"
+
 #define EPAN_INIT_FAIL 2
 
 static column_info fuzz_cinfo;
@@ -279,7 +281,7 @@ clean_exit:
 
 #ifdef FUZZ_EPAN
 int
-LLVMFuzzerTestOneInput(guint8 *buf, size_t real_len)
+LLVMFuzzerTestOneInput(const guint8 *buf, size_t real_len)
 {
 	static guint32 framenum = 0;
 	epan_dissect_t *edt = fuzz_edt;

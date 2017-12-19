@@ -720,6 +720,7 @@ pkginclude_HEADERS = \
 
 # this target needed for distribution only
 noinst_HEADERS = \
+	tools/oss-fuzzshark/FuzzerInterface.h \
 	capture_info.h		\
 	capture_opts.h		\
 	capture_stop_conditions.h	\
