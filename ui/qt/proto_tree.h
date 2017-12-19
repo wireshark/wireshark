@@ -77,7 +77,6 @@ public slots:
     void expand(const QModelIndex & index);
     void collapse(const QModelIndex & index);
     void expandSubtrees();
-    void collapseSubtrees();
     void expandAll();
     void collapseAll();
     void itemDoubleClick(QTreeWidgetItem *item, int column);

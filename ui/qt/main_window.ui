@@ -369,7 +369,6 @@
     <addaction name="menuZoom"/>
     <addaction name="separator"/>
     <addaction name="actionViewExpandSubtrees"/>
-    <addaction name="actionViewCollapseSubtrees"/>
     <addaction name="actionViewExpandAll"/>
     <addaction name="actionViewCollapseAll"/>
     <addaction name="separator"/>
@@ -1066,20 +1065,6 @@
    </property>
    <property name="shortcut">
     <string notr="true">Shift+Right</string>
-   </property>
-  </action>
-  <action name="actionViewCollapseSubtrees">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Collapse Subtrees</string>
-   </property>
-   <property name="toolTip">
-    <string>Collapse the current packet detail</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Shift+Left</string>
    </property>
   </action>
   <action name="actionViewExpandAll">
