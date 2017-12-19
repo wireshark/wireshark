@@ -85,6 +85,7 @@ ISOBUS
 LoRaTap
 LoRaWAN
 Lustre Network
+Lustre Filesystem
 Network Functional Application Platform Interface (NFAPI) Protocol
 NXP 802.15.4 Sniffer Protocol
 PFCP (Packet Forwarding Control Protocol)

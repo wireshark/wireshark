@@ -891,6 +891,7 @@ DISSECTOR_SRC = \
 	packet-lsc.c		\
 	packet-lsd.c		\
 	packet-ltp.c		\
+	packet-lustre.c		\
 	packet-lwapp.c		\
 	packet-lwm.c		\
 	packet-lwm2mtlv.c	\

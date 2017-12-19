@@ -1268,6 +1268,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lsc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lsd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ltp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-lustre.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lwapp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lwm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lwm2mtlv.c
