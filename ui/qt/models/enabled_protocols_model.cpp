@@ -451,7 +451,14 @@ bool EnabledProtocolsProxyModel::lessThan(const QModelIndex &left, const QModelI
     EnabledProtocolItem* right_item = static_cast<EnabledProtocolItem*>(right.internalPointer());
 
     if ((left_item != NULL) && (right_item != NULL)) {
-        int compare_ret = left_item->name().compare(right_item->name(), Qt::CaseInsensitive);
+
+        int compare_ret = 0;
+
+        if (left.column() == EnabledProtocolsModel::colProtocol )
+            compare_ret = left_item->name().compare(right_item->name(), Qt::CaseInsensitive);
+        else if ( left.column() == EnabledProtocolsModel::colDescription )
+            compare_ret = left_item->description().compare(right_item->description(), Qt::CaseInsensitive);
+
         if (compare_ret < 0)
             return true;
     }
