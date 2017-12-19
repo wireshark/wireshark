@@ -200,6 +200,7 @@ static gint hf_sip_via_oc_val             = -1;
 static gint hf_sip_via_oc_algo            = -1;
 static gint hf_sip_via_oc_validity        = -1;
 static gint hf_sip_via_oc_seq             = -1;
+static gint hf_sip_oc_seq_timestamp       = -1;
 
 static gint hf_sip_rack_rseq_no           = -1;
 static gint hf_sip_rack_cseq_no           = -1;
@@ -2754,15 +2755,15 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                     if (equals_found)
                     {
                         proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
-                                            parameter_name_end+1, current_offset-parameter_name_end-1,
-                                            ENC_UTF_8|ENC_NA);
+                            parameter_name_end + 1, current_offset - parameter_name_end - 1,
+                            ENC_UTF_8 | ENC_NA);
 
-                        if (sip_via_branch_handle && g_ascii_strcasecmp (param_name, "branch") == 0)
+                        if (sip_via_branch_handle && g_ascii_strcasecmp(param_name, "branch") == 0)
                         {
                             tvbuff_t *next_tvb;
                             next_tvb = tvb_new_subset_length_caplen(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
 
-                            call_dissector (sip_via_branch_handle, next_tvb, pinfo, tree);
+                            call_dissector(sip_via_branch_handle, next_tvb, pinfo, tree);
                         }
                         else if (g_ascii_strcasecmp(param_name, "oc") == 0) {
                             proto_item *ti;
@@ -2772,6 +2773,24 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                                 parameter_name_end + 1, current_offset - parameter_name_end - 1,
                                 (guint32)strtoul(value, NULL, 10));
                             PROTO_ITEM_SET_GENERATED(ti);
+                        }
+                        else if (g_ascii_strcasecmp(param_name, "oc-seq") == 0) {
+                            proto_item *ti;
+                            nstime_t ts;
+                            int dec_p_off = tvb_find_guint8(tvb, parameter_name_end + 1, - 1, '.');
+                            char *value;
+
+                            if(dec_p_off > 0){
+                                value = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                                    parameter_name_end + 1, dec_p_off - parameter_name_end, ENC_UTF_8 | ENC_NA);
+                                ts.secs = (guint32)strtoul(value, NULL, 10);
+                                value = tvb_get_string_enc(wmem_packet_scope(), tvb,
+                                    dec_p_off + 1, current_offset - parameter_name_end - 1, ENC_UTF_8 | ENC_NA);
+                                ts.nsecs = (guint32)strtoul(value, NULL, 10) * 1000;
+                                ti = proto_tree_add_time(tree, hf_sip_oc_seq_timestamp, tvb,
+                                    parameter_name_end + 1, current_offset - parameter_name_end - 1, &ts);
+                                PROTO_ITEM_SET_GENERATED(ti);
+                            }
                         }
                     }
                     else
@@ -6849,6 +6868,12 @@ void proto_register_sip(void)
         { &hf_sip_via_oc_seq,
         { "Overload Control Sequence",  "sip.Via.oc_seq",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sip_oc_seq_timestamp,
+        { "Overload Control Sequence Time Stamp",
+            "sip.Via.oc_seq.ts",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_sip_via_oc_algo,
