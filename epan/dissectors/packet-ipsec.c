@@ -578,12 +578,7 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
   gboolean found = FALSE;
 
   ipv6_len = (int) strlen(ipv6_address);
-  if(ipv6_len  == 0)
-    {
-      /* Found a suffix */
-      found = TRUE;
-    }
-  else
+  if(ipv6_len  != 0)
     {
       while ( (cpt_suffix < IPSEC_STRLEN_IPV6) && (ipv6_len - cpt -1 >= 0) && (found == FALSE))
         {
