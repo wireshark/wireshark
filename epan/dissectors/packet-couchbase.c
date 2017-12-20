@@ -45,6 +45,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+#ifdef HAVE_SNAPPY
+#include <snappy-c.h>
+#endif
 
 #include "packet-tcp.h"
 #include "packet-ssl.h"
@@ -429,6 +432,7 @@ static int hf_xattrs = -1;
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
 static expert_field ef_warn_shall_not_have_key = EI_INIT;
+static expert_field ef_compression_error = EI_INIT;
 
 static expert_field ei_value_missing = EI_INIT;
 static expert_field ef_warn_must_have_extras = EI_INIT;
@@ -1839,6 +1843,36 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+#ifdef HAVE_SNAPPY
+      if (datatype & DT_SNAPPY) {
+        size_t orig_size = 0;
+        snappy_status ret;
+        guchar *decompressed_buffer = NULL;
+        tvbuff_t* compressed_tvb = NULL;
+
+        ret = snappy_uncompressed_length(tvb_get_ptr(tvb, offset, -1),
+                                         tvb_captured_length_remaining(tvb, offset),
+                                         &orig_size);
+        if (ret == SNAPPY_OK) {
+          decompressed_buffer = (guchar*)wmem_alloc(pinfo->pool, orig_size);
+          ret = snappy_uncompress(tvb_get_ptr(tvb, offset, -1),
+                                  tvb_captured_length_remaining(tvb, offset),
+                                  decompressed_buffer,
+                                  &orig_size);
+          if (ret == SNAPPY_OK) {
+            compressed_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, (guint32)orig_size, (guint32)orig_size);
+            add_new_data_source(pinfo, compressed_tvb, "Decompressed Data");
+            if (datatype & DT_JSON) {
+              call_dissector(json_handle, compressed_tvb, pinfo, tree);
+            }
+          } else {
+            expert_add_info_format(pinfo, ti, &ef_compression_error, "Error uncompressing snappy data");
+          }
+        } else {
+            expert_add_info_format(pinfo, ti, &ef_compression_error, "Error uncompressing snappy data");
+        }
+      }
+#endif
     }
   }
 
@@ -2258,7 +2292,8 @@ proto_register_couchbase(void)
     { &ef_warn_unknown_opcode, { "couchbase.warn.unknown_opcode", PI_UNDECODED, PI_WARN, "Unknown opcode", EXPFILL }},
     { &ef_note_status_code, { "couchbase.note.status_code", PI_RESPONSE_CODE, PI_NOTE, "Status", EXPFILL }},
     { &ef_separator_not_found, { "couchbase.warn.separator_not_found", PI_UNDECODED, PI_WARN, "Separator not found", EXPFILL }},
-    { &ef_illegal_value, { "couchbase.warn.illegal_value", PI_UNDECODED, PI_WARN, "Illegal value for command", EXPFILL }}
+    { &ef_illegal_value, { "couchbase.warn.illegal_value", PI_UNDECODED, PI_WARN, "Illegal value for command", EXPFILL }},
+    { &ef_compression_error, { "couchbase.error.compression", PI_UNDECODED, PI_WARN, "Compression error", EXPFILL }}
   };
 
   static gint *ett[] = {
