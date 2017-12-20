@@ -19,7 +19,7 @@
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,0,0,0,0,0,0,0,0,2,0">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,0,0,0,0,2,0,0,0,0,0">
    <property name="topMargin">
     <number>0</number>
    </property>
@@ -67,7 +67,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>20</height>
+       <height>5</height>
       </size>
      </property>
     </spacer>
@@ -112,7 +112,7 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>59</width>
+       <width>20</width>
        <height>5</height>
       </size>
      </property>
