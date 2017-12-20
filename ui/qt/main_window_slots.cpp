@@ -1447,7 +1447,7 @@ void MainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
     main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
     main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
 
-    main_ui_->actionContextShowPacketBytes->setEnabled(have_packet_bytes);
+    main_ui_->actionAnalyzeShowPacketBytes->setEnabled(have_packet_bytes);
     main_ui_->actionFileExportPacketBytes->setEnabled(have_packet_bytes);
 
     main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
@@ -1918,7 +1918,7 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
     }
 }
 
-void MainWindow::on_actionContextShowPacketBytes_triggered()
+void MainWindow::on_actionAnalyzeShowPacketBytes_triggered()
 {
     ShowPacketBytesDialog *spbd = new ShowPacketBytesDialog(*this, capture_file_);
     spbd->show();

@@ -137,7 +137,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(action);
         copy_actions_ << action;
 
-        action = window()->findChild<QAction *>("actionContextShowPacketBytes");
+        action = window()->findChild<QAction *>("actionAnalyzeShowPacketBytes");
         ctx_menu_.addAction(action);
         action = window()->findChild<QAction *>("actionFileExportPacketBytes");
         ctx_menu_.addAction(action);

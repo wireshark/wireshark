@@ -448,6 +448,7 @@
     <addaction name="menuSCTP"/>
     <addaction name="menuFollow"/>
     <addaction name="separator"/>
+    <addaction name="actionAnalyzeShowPacketBytes"/>
     <addaction name="actionAnalyzeExpertInfo"/>
    </widget>
    <widget class="QMenu" name="menuStatistics">
@@ -1465,6 +1466,9 @@
    </property>
    <property name="toolTip">
     <string>Create a packet list column from the selected field.</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+I</string>
    </property>
   </action>
   <action name="actionEditFindPacket">
@@ -2931,9 +2935,12 @@
     <string notr="true">Ctrl+Shift+E</string>
    </property>
   </action>
-  <action name="actionContextShowPacketBytes">
+  <action name="actionAnalyzeShowPacketBytes">
    <property name="text">
     <string>Show Packet Bytes…</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+O</string>
    </property>
   </action>
   <action name="actionContextWikiProtocolPage">
