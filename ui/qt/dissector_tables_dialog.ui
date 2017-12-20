@@ -31,7 +31,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="search_line_edit_"/>
+      <widget class="QLineEdit" name="txtSearchLine"/>
      </item>
     </layout>
    </item>
@@ -48,11 +48,11 @@
   </layout>
  </widget>
  <customwidgets>
-   <customwidget>
-     <class>DissectorTablesTreeView</class>
-     <extends>QTreeView</extends>
-     <header>widgets/dissector_tables_view.h</header>
-   </customwidget>
+  <customwidget>
+   <class>DissectorTablesTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/dissector_tables_view.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>

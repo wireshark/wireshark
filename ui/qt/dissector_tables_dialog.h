@@ -10,14 +10,12 @@
 #ifndef DISSECTOR_TABLES_DIALOG_H
 #define DISSECTOR_TABLES_DIALOG_H
 
-#include "geometry_state_dialog.h"
+#include <ui/qt/geometry_state_dialog.h>
 #include <ui/qt/models/dissector_tables_model.h>
 
 namespace Ui {
 class DissectorTablesDialog;
 }
-
-class QTreeWidgetItem;
 
 class DissectorTablesDialog : public GeometryStateDialog
 {
@@ -28,13 +26,11 @@ public:
     ~DissectorTablesDialog();
 
 private slots:
-    void on_search_line_edit__textChanged(const QString &search_re);
-    void fillTree();
+    void on_txtSearchLine_textChanged(const QString &search_re);
 
 private:
     Ui::DissectorTablesDialog *ui;
 
-    DissectorTablesModel* dissector_tables_model_;
     DissectorTablesProxyModel* proxyModel_;
 };
 

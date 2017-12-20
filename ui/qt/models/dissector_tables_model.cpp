@@ -140,6 +140,7 @@ DissectorTablesModel::DissectorTablesModel(QObject *parent) :
     QAbstractItemModel(parent),
     root_(new DissectorTablesItem(QString("ROOT"), QString("ROOT"), NULL))
 {
+    populate();
 }
 
 DissectorTablesModel::~DissectorTablesModel()
@@ -149,7 +150,7 @@ DissectorTablesModel::~DissectorTablesModel()
 
 int DissectorTablesModel::rowCount(const QModelIndex &parent) const
 {
-   DissectorTablesItem *parent_item;
+    DissectorTablesItem *parent_item;
     if (parent.column() > 0)
         return 0;
 
@@ -405,12 +406,10 @@ bool DissectorTablesProxyModel::lessThan(const QModelIndex &left, const QModelIn
 
 bool DissectorTablesProxyModel::filterAcceptItem(DissectorTablesItem& item) const
 {
-    QRegExp regex(filter_, Qt::CaseInsensitive);
-
-    if (item.tableName().contains(regex))
+    if ( filter_.isEmpty() )
         return true;
 
-    if (item.shortName().contains(regex))
+    if (item.tableName().contains(filter_, Qt::CaseInsensitive) || item.shortName().contains(filter_, Qt::CaseInsensitive))
         return true;
 
     DissectorTablesItem *child_item;
@@ -429,14 +428,12 @@ bool DissectorTablesProxyModel::filterAcceptsRow(int sourceRow, const QModelInde
     QModelIndex nameIdx = sourceModel()->index(sourceRow, DissectorTablesModel::colTableName, sourceParent);
     DissectorTablesItem* item = static_cast<DissectorTablesItem*>(nameIdx.internalPointer());
     if (item == NULL)
+        return false;
+
+    if (filterAcceptItem(*item))
         return true;
 
-    if (!filter_.isEmpty()) {
-        if (filterAcceptItem(*item))
-            return true;
-    }
-
-    return true;
+    return false;
 }
 
 void DissectorTablesProxyModel::setFilter(const QString& filter)
