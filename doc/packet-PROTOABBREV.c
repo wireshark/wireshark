@@ -214,7 +214,7 @@ proto_register_PROTOABBREV(void)
     /* Setup protocol expert items */
     static ei_register_info ei[] = {
         { &ei_PROTOABBREV_EXPERTABBREV,
-          { "PROTOABBREV.EXPERTABBREV", PI_SEVERITY, PI_GROUP,
+          { "PROTOABBREV.EXPERTABBREV", PI_GROUP, PI_SEVERITY,
             "EXPERTDESCR", EXPFILL }
         }
     };
