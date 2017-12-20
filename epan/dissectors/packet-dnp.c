@@ -2175,12 +2175,18 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             }
 
             /* Get the timestamp */
-            if (al_obj & 0x02)
+            switch(al_obj)
             {
+              case AL_OBJ_BOE_TIME:   /* Binary Command Event with time (Obj:13, Var:02) */
+              case AL_OBJ_AOC_32EVTT:   /* 32-bit Analog Command Event with time (Obj:43, Var:03) */
+              case AL_OBJ_AOC_16EVTT:   /* 16-bit Analog Command Event with time (Obj:43, Var:04) */
+              case AL_OBJ_AOC_FLTEVTT:   /* 32-bit Floating Point Analog Command Event with time (Obj:43, Var:07) */
+              case AL_OBJ_AOC_DBLEVTT:   /* 64-bit Floating Point Analog Command Event with time (Obj:43, Var:08) */
                 dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
                 proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
                 proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                 data_pos += 6;
+                break;
             }
 
             proto_item_set_len(point_item, data_pos - offset);
