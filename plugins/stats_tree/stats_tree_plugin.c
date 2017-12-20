@@ -35,7 +35,9 @@
 WS_DLL_PUBLIC_DEF const gchar plugin_version[] = PLUGIN_VERSION;
 WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 
-WS_DLL_PUBLIC_DEF void plugin_register(void)
+WS_DLL_PUBLIC void plugin_register(void);
+
+void plugin_register(void)
 {
 	static tap_plugin plug;
 
