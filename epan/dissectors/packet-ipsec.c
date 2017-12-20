@@ -631,7 +631,6 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
               suffix[IPSEC_STRLEN_IPV6 -1 -cpt_suffix] = '0';
               cpt_suffix ++;
             }
-          cpt_seg = 0;
         }
 
     }
