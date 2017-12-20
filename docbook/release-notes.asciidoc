@@ -121,6 +121,7 @@ New Radio Radio Resource Control protocol
 New Radio Radio Link Control protocol
 NR (5G) MAC protocol
 NXP 802.15.4 Sniffer Protocol
+Object Security for Constrained RESTful Environments (OSCORE)
 PFCP (Packet Forwarding Control Protocol)
 Protobuf (Protocol Buffers)
 QUIC (IETF)
