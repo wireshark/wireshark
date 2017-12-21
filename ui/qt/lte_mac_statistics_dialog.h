@@ -78,6 +78,8 @@ private:
 
     unsigned  getFrameCount();
 
+    QList<QVariant> treeItemData(QTreeWidgetItem *item) const;
+
 private slots:
     virtual void fillTree();
     void updateHeaderLabels();

@@ -66,6 +66,26 @@ enum {
     mac_dlsch_byte_count_row_type
 };
 
+// Calculate and return a bandwidth figure, in Mbs
+static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time,
+                           guint32 bytes)
+{
+    // Can only calculate bandwidth if have time delta
+    if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
+        double elapsed_ms = (((double)stop_time->secs - (double)start_time->secs) * 1000) +
+                           (((double)stop_time->nsecs - (double)start_time->nsecs) / 1000000);
+
+        // Only really meaningful if have a few frames spread over time...
+        // For now at least avoid dividing by something very close to 0.0
+        if (elapsed_ms < 2.0) {
+           return 0.0f;
+        }
+        return ((bytes * 8) / elapsed_ms) / 1000;
+    }
+    else {
+        return 0.0f;
+    }
+}
 
 
 // Channels (by LCID) data node. Used for UL/DL frames/bytes.
@@ -151,6 +171,13 @@ public:
         }
 
         return filter_expr;
+    }
+
+    // Not showing anything for individual channels.  Headings are different than from UEs, and
+    // trying to show both would be too confusing.
+    QList<QVariant> rowData() const
+    {
+        return QList<QVariant>();
     }
 
 private:
@@ -296,27 +323,6 @@ public:
         setExpanded(false);
     }
 
-
-    // Calculate and return a bandwidth figure, in Mbs
-    double calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 bytes)
-    {
-        // Can only calculate bandwidth if have time delta
-        if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
-            double elapsed_ms = (((double)stop_time->secs - (double)start_time->secs) * 1000) +
-                               (((double)stop_time->nsecs - (double)start_time->nsecs) / 1000000);
-
-            // Only really meaningful if have a few frames spread over time...
-            // For now at least avoid dividing by something very close to 0.0
-            if (elapsed_ms < 2.0) {
-               return 0.0f;
-            }
-            return ((bytes * 8) / elapsed_ms) / 1000;
-        }
-        else {
-            return 0.0f;
-        }
-    }
-
     // Draw this UE.
     void draw() {
         // Fixed fields (rnti, type, ueid) won't change during lifetime of UE entry.
@@ -403,6 +409,32 @@ public:
         }
 
         return filter_expr;
+    }
+
+    // Return the UE-specific fields.
+    QList<QVariant> rowData() const
+    {
+        QList<QVariant> row_data;
+
+        // Key fields
+        row_data << rnti_ << (type_ == C_RNTI ? QObject::tr("C-RNTI") : QObject::tr("SPS-RNTI")) << ueid_;
+
+        // UL
+        row_data << ul_frames_ << ul_bytes_
+                 << calculate_bw(&ul_time_start_, &ul_time_stop_, ul_bytes_)
+                 << QVariant::fromValue<double>(ul_raw_bytes_ ?
+                                                    (((float)ul_padding_bytes_ / (float)ul_raw_bytes_) * 100.0) :
+                                                    0.0)
+                 << ul_retx_;
+
+        // DL
+        row_data << dl_frames_ << dl_bytes_
+                 << calculate_bw(&dl_time_start_, &dl_time_stop_, dl_bytes_)
+                 << QVariant::fromValue<double>(dl_raw_bytes_ ?
+                                                    (((float)dl_padding_bytes_ / (float)dl_raw_bytes_) * 100.0) :
+                                                    0.0)
+                 << dl_crc_failed_ << dl_retx_;
+        return row_data;
     }
 
 private:
@@ -840,6 +872,23 @@ void LteMacStatisticsDialog::captureFileClosing()
 void LteMacStatisticsDialog::filterUpdated(QString filter)
 {
     displayFilter_ = filter;
+}
+
+// Get the item for the row, depending upon the type of tree item.
+QList<QVariant> LteMacStatisticsDialog::treeItemData(QTreeWidgetItem *item) const
+{
+    // Cast up to our type.
+    MacULDLTreeWidgetItem *channel_item = dynamic_cast<MacULDLTreeWidgetItem*>(item);
+    if (channel_item) {
+        return channel_item->rowData();
+    }
+    MacUETreeWidgetItem *ue_item = dynamic_cast<MacUETreeWidgetItem*>(item);
+    if (ue_item) {
+        return ue_item->rowData();
+    }
+
+    // Need to return something..
+    return QList<QVariant>();
 }
 
 
