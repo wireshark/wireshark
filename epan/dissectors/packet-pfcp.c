@@ -168,18 +168,21 @@ static int hf_pfcp_b2_event = -1;
 static int hf_pfcp_subsequent_time_threshold = -1;
 static int hf_pfcp_inactivity_detection_time = -1;
 static int hf_pfcp_monitoring_time = -1;
+
 static int hf_pfcp_reporting_triggers = -1;
-static int hf_pfcp_b10_envcl = -1;
-static int hf_pfcp_b9_timqu = -1;
-static int hf_pfcp_b8_volqu = -1;
-static int hf_pfcp_b7_liusa = -1;
-static int hf_pfcp_b6_droth = -1;
-static int hf_pfcp_b5_stopt = -1;
-static int hf_pfcp_b4_start = -1;
-static int hf_pfcp_b3_quhti = -1;
-static int hf_pfcp_b2_timth = -1;
-static int hf_pfcp_b1_volth = -1;
-static int hf_pfcp_b0_perio = -1;
+static int hf_pfcp_reporting_triggers_b15_liusa = -1;
+static int hf_pfcp_reporting_triggers_b14_droth = -1;
+static int hf_pfcp_reporting_triggers_b13_stopt = -1;
+static int hf_pfcp_reporting_triggers_b12_start = -1;
+static int hf_pfcp_reporting_triggers_b11_quhti = -1;
+static int hf_pfcp_reporting_triggers_b10_timth = -1;
+static int hf_pfcp_reporting_triggers_b9_volth = -1;
+static int hf_pfcp_reporting_triggers_b8_perio = -1;
+static int hf_pfcp_reporting_triggers_b7_b3_spare = -1;
+static int hf_pfcp_reporting_triggers_b2_envcl = -1;
+static int hf_pfcp_reporting_triggers_b1_timqu = -1;
+static int hf_pfcp_reporting_triggers_b0_volqu = -1;
+
 static int hf_pfcp_volume_threshold = -1;
 static int hf_pfcp_b2_dlvol = -1;
 static int hf_pfcp_b1_ulvol = -1;
@@ -235,12 +238,24 @@ static int hf_pfcp_sequence_number = -1;
 static int hf_pfcp_metric = -1;
 static int hf_pfcp_timer_unit = -1;
 static int hf_pfcp_timer_value = -1;
+
 static int hf_pfcp_usage_report_trigger = -1;
-static int hf_pfcp_b7_immer = -1;
-static int hf_pfcp_b10_liusa = -1;
-static int hf_pfcp_b11_termr = -1;
-static int hf_pfcp_b12_monit = -1;
-static int hf_pfcp_b13_envcl = -1;
+static int hf_pfcp_usage_report_trigger_b15_immer = -1;
+static int hf_pfcp_usage_report_trigger_b14_droth = -1;
+static int hf_pfcp_usage_report_trigger_b13_stopt = -1;
+static int hf_pfcp_usage_report_trigger_b12_start = -1;
+static int hf_pfcp_usage_report_trigger_b11_quhti = -1;
+static int hf_pfcp_usage_report_trigger_b10_timth = -1;
+static int hf_pfcp_usage_report_trigger_b9_volth = -1;
+static int hf_pfcp_usage_report_trigger_b8_perio = -1;
+static int hf_pfcp_usage_report_trigger_b7_b6_spare = -1;
+static int hf_pfcp_usage_report_trigger_b5_envcl = -1;
+static int hf_pfcp_usage_report_trigger_b4_monit = -1;
+static int hf_pfcp_usage_report_trigger_b3_termr = -1;
+static int hf_pfcp_usage_report_trigger_b2_liusa = -1;
+static int hf_pfcp_usage_report_trigger_b1_timqu = -1;
+static int hf_pfcp_usage_report_trigger_b0_volqu = -1;
+
 static int hf_pfcp_volume_measurement = -1;
 static int hf_pfcp_vol_meas_tovol = -1;
 static int hf_pfcp_vol_meas_ulvol = -1;
@@ -1174,21 +1189,22 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     int offset = 0;
 
     static const int * pfcp_reporting_triggers_flags[] = {
-        &hf_pfcp_b10_envcl,
-        &hf_pfcp_b9_timqu,
-        &hf_pfcp_b8_volqu,
-        &hf_pfcp_b7_liusa,
-        &hf_pfcp_b6_droth,
-        &hf_pfcp_b5_stopt,
-        &hf_pfcp_b4_start,
-        &hf_pfcp_b3_quhti,
-        &hf_pfcp_b2_timth,
-        &hf_pfcp_b1_volth,
-        &hf_pfcp_b0_perio,
+		&hf_pfcp_reporting_triggers_b15_liusa,
+		&hf_pfcp_reporting_triggers_b14_droth,
+		&hf_pfcp_reporting_triggers_b13_stopt,
+		&hf_pfcp_reporting_triggers_b12_start,
+		&hf_pfcp_reporting_triggers_b11_quhti,
+		&hf_pfcp_reporting_triggers_b10_timth,
+		&hf_pfcp_reporting_triggers_b9_volth,
+		&hf_pfcp_reporting_triggers_b8_perio,
+		&hf_pfcp_reporting_triggers_b7_b3_spare,
+		&hf_pfcp_reporting_triggers_b2_envcl,
+		&hf_pfcp_reporting_triggers_b1_timqu,
+		&hf_pfcp_reporting_triggers_b0_volqu,
         NULL
     };
-    /* Octet 5  LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO */
-    /* Octet 6  SPARE   SPARE   SPARE   SPARE   SPARE   ENVCL   TIMQU   VOLQU */
+    /* Octet 5 [Bits 15-08] LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO */
+    /* Octet 6 [Bits 07-00] SPARE   SPARE   SPARE   SPARE   SPARE   ENVCL   TIMQU   VOLQU */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_reporting_triggers,
         ett_pfcp_reporting_triggers, pfcp_reporting_triggers_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 2;
@@ -1893,20 +1909,22 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     int offset = 0;
 
     static const int * pfcp_usage_report_trigger_flags[] = {
-        &hf_pfcp_b13_envcl,
-        &hf_pfcp_b12_monit,
-        &hf_pfcp_b11_termr,
-        &hf_pfcp_b10_liusa,
-        &hf_pfcp_b9_timqu,
-        &hf_pfcp_b8_volqu,
-        &hf_pfcp_b7_immer,
-        &hf_pfcp_b6_droth,
-        &hf_pfcp_b5_stopt,
-        &hf_pfcp_b4_start,
-        &hf_pfcp_b3_quhti,
-        &hf_pfcp_b2_timth,
-        &hf_pfcp_b1_volth,
-        &hf_pfcp_b0_perio,
+
+        &hf_pfcp_usage_report_trigger_b15_immer,
+        &hf_pfcp_usage_report_trigger_b14_droth,
+        &hf_pfcp_usage_report_trigger_b13_stopt,
+        &hf_pfcp_usage_report_trigger_b12_start,
+        &hf_pfcp_usage_report_trigger_b11_quhti,
+        &hf_pfcp_usage_report_trigger_b10_timth,
+        &hf_pfcp_usage_report_trigger_b9_volth,
+        &hf_pfcp_usage_report_trigger_b8_perio,
+        &hf_pfcp_usage_report_trigger_b7_b6_spare,
+        &hf_pfcp_usage_report_trigger_b5_envcl,
+        &hf_pfcp_usage_report_trigger_b4_monit,
+        &hf_pfcp_usage_report_trigger_b3_termr,
+        &hf_pfcp_usage_report_trigger_b2_liusa,
+        &hf_pfcp_usage_report_trigger_b1_timqu,
+        &hf_pfcp_usage_report_trigger_b0_volqu,
         NULL
     };
     /* Octet 5  IMMER   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO*/
@@ -4406,61 +4424,149 @@ proto_register_pfcp(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_b0_perio,
-        { "PERIO (Periodic Reporting)", "pfcp.reporting_triggers_flags.perio",
+	{ &hf_pfcp_reporting_triggers_b0_volqu,
+        { "VOLQU (Volume Quota)", "pfcp.reporting_triggers_flags.volqu",
             FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
-        { &hf_pfcp_b1_volth,
-        { "VOLTH (Volume Threshold)", "pfcp.reporting_triggers_flags.volth",
+        { &hf_pfcp_reporting_triggers_b1_timqu,
+        { "TIMQU (Time Quota)", "pfcp.reporting_triggers_flags.timqu",
             FT_BOOLEAN, 16, NULL, 0x0002,
             NULL, HFILL }
         },
-        { &hf_pfcp_b2_timth,
-        { "TIMTH (Time Threshold)", "pfcp.reporting_triggers_flags.timth",
+        { &hf_pfcp_reporting_triggers_b2_envcl,
+        { "ENVCL (Envelope Closure)", "pfcp.reporting_triggers_flags.envcl",
             FT_BOOLEAN, 16, NULL, 0x0004,
             NULL, HFILL }
         },
-        { &hf_pfcp_b3_quhti,
-        { "QUHTI (Quota Holding Time)", "pfcp.reporting_triggers_flags.quhti",
-            FT_BOOLEAN, 16, NULL, 0x0008,
+        { &hf_pfcp_reporting_triggers_b7_b3_spare,
+        { "Spare", "pfcp.reporting_triggers_flags.spare",
+            FT_UINT16, BASE_DEC, NULL, 0x00F8,
             NULL, HFILL }
         },
-        { &hf_pfcp_b4_start,
-        { "START (Start of Traffic)", "pfcp.reporting_triggers_flags.start",
-            FT_BOOLEAN, 16, NULL, 0x0010,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b5_stopt,
-        { "STOPT (Stop of Traffic)", "pfcp.reporting_triggers_flags.stopt",
-            FT_BOOLEAN, 16, NULL, 0x0020,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b6_droth,
-        { "DROTH (Dropped DL Traffic Threshold)", "pfcp.reporting_triggers_flags.droth",
-            FT_BOOLEAN, 16, NULL, 0x0040,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b7_liusa,
-        { "LIUSA (Linked Usage Reporting)", "pfcp.reporting_triggers_flags.liusa",
-            FT_BOOLEAN, 16, NULL, 0x0080,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b8_volqu,
-        { "VOLQU (Volume Quota)", "pfcp.reporting_triggers_flags.volqu",
+        { &hf_pfcp_reporting_triggers_b8_perio,
+        { "PERIO (Periodic Reporting)", "pfcp.reporting_triggers_flags.perio",
             FT_BOOLEAN, 16, NULL, 0x0100,
             NULL, HFILL }
         },
-        { &hf_pfcp_b9_timqu,
-        { "TIMQU (Time Quota)", "pfcp.reporting_triggers_flags.timqu",
+        { &hf_pfcp_reporting_triggers_b9_volth,
+        { "VOLTH (Volume Threshold)", "pfcp.reporting_triggers_flags.volth",
             FT_BOOLEAN, 16, NULL, 0x0200,
             NULL, HFILL }
         },
-        { &hf_pfcp_b10_envcl,
-        { "ENVCL (Envelope Closure)", "pfcp.reporting_triggers_flags.envcl",
+        { &hf_pfcp_reporting_triggers_b10_timth,
+		{ "TIMTH (Time Threshold)", "pfcp.reporting_triggers_flags.timth",
             FT_BOOLEAN, 16, NULL, 0x0400,
             NULL, HFILL }
         },
+        { &hf_pfcp_reporting_triggers_b11_quhti,
+        { "QUHTI (Quota Holding Time)", "pfcp.reporting_triggers_flags.quhti",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_triggers_b12_start,
+        { "START (Start of Traffic)", "pfcp.reporting_triggers_flags.start",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_triggers_b13_stopt,
+        { "STOPT (Stop of Traffic)", "pfcp.reporting_triggers_flags.stopt",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_triggers_b14_droth,
+        { "DROTH (Dropped DL Traffic Threshold)", "pfcp.reporting_triggers_flags.droth",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_triggers_b15_liusa,
+        { "LIUSA (Linked Usage Reporting)", "pfcp.reporting_triggers_flags.liusa",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_usage_report_trigger,
+        { "Flags", "pfcp.usage_report_trigger",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_usage_report_trigger_b0_volqu,
+        { "VOLQU (Volume Quota)", "pfcp.usage_report_trigger_flags.volqu",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b1_timqu,
+        { "TIMQU (Time Quota)", "pfcp.usage_report_trigger_flags.timqu",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b2_liusa,
+		{ "LIUSA (Linked Usage Reporting)", "pfcp.usage_report_trigger_flags.liusa",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b3_termr,
+        { "TERMR (Termination Report)", "pfcp.usage_report_trigger.term",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b4_monit,
+        { "MONIT (Monitoring Time)", "pfcp.usage_report_trigger.monit",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b5_envcl,
+        { "ENVCL (Envelope Closure)", "pfcp.usage_report_trigger_flags.envcl",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b7_b6_spare,
+        { "Spare", "pfcp.reporting_triggers_flags.spare",
+            FT_UINT16, BASE_DEC, NULL, 0x00C0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b8_perio,
+        { "PERIO (Periodic Reporting)", "pfcp.usage_report_trigger_flags.perio",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b9_volth,
+        { "VOLTH (Volume Threshold)", "pfcp.usage_report_trigger_flags.volth",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b10_timth,
+        { "TIMTH (Time Threshold)", "pfcp.usage_report_trigger_flags.timth",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b11_quhti,
+        { "QUHTI (Quota Holding Time)", "pfcp.usage_report_trigger_flags.quhti",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b12_start,
+        { "START (Start of Traffic)", "pfcp.usage_report_trigger_flags.start",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b13_stopt,
+        { "STOPT (Stop of Traffic)", "pfcp.usage_report_trigger_flags.stopt",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b14_droth,
+        { "DROTH (Dropped DL Traffic Threshold)", "pfcp.usage_report_trigger_flags.droth",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_usage_report_trigger_b15_immer,
+        { "IMMER (Immediate Report)", "pfcp.usage_report_trigger.immer",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+
         { &hf_pfcp_volume_threshold,
         { "Flags", "pfcp.volume_threshold",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -4720,36 +4826,6 @@ proto_register_pfcp(void)
         { &hf_pfcp_timer_value,
         { "Timer value", "pfcp.timer_value",
             FT_UINT8, BASE_DEC, NULL, 0x1f,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_usage_report_trigger,
-        { "Flags", "pfcp.usage_report_trigger",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b7_immer,
-        { "IMMER (Immediate Report)", "pfcp.usage_report_trigger.immer",
-            FT_BOOLEAN, 16, NULL, 0x0080,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b10_liusa,
-        { "LIUSA (Linked Usage Reporting)", "pfcp.usage_report_trigger.liusa",
-            FT_BOOLEAN, 16, NULL, 0x0200,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b11_termr,
-        { "TERMR (Termination Report)", "pfcp.usage_report_trigger.term",
-            FT_BOOLEAN, 16, NULL, 0x0400,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b12_monit,
-        { "MONIT (Monitoring Time)", "pfcp.usage_report_trigger.monit",
-            FT_BOOLEAN, 16, NULL, 0x0800,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_b13_envcl,
-        { "ENVCL (Envelope Closure)", "pfcp.usage_report_trigger.envcl",
-            FT_BOOLEAN, 16, NULL, 0x1000,
             NULL, HFILL }
         },
         { &hf_pfcp_volume_measurement,
