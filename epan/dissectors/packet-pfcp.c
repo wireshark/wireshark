@@ -4774,7 +4774,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_cp_function_features,
         { "Flags", "pfcp.cp_function_features",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_b0_load,
