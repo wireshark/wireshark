@@ -8,8 +8,11 @@
  */
 
 #include <ui/qt/utils/data_printer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <ui/recent.h>
+
+#include <wsutil/utf8_entities.h>
 
 #include <stdint.h>
 
@@ -164,6 +167,82 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
     return clipboard_text;
 }
 
+DataPrinter * DataPrinter::instance()
+{
+    static DataPrinter * inst = Q_NULLPTR;
+    if ( inst == Q_NULLPTR )
+        inst = new DataPrinter();
+    return inst;
+}
+
+QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
+{
+    QActionGroup * actions = new QActionGroup(copyClass);
+
+    if ( ! data && ! dynamic_cast<IDataPrintable *>(copyClass) )
+        return actions;
+
+    DataPrinter * dpi = DataPrinter::instance();
+
+    if ( data )
+        actions->setProperty("idataprintable", VariantPointer<QObject>::asQVariant(data));
+    else
+        actions->setProperty("idataprintable", VariantPointer<QObject>::asQVariant(copyClass));
+
+    // Mostly duplicated from main_window.ui
+    QAction * action = new QAction(tr("Copy Bytes as Hex + ASCII Dump"), dpi);
+    action->setProperty("printertype", DataPrinter::DP_HexDump);
+    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
+    actions->addAction(action);
+
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Hex Dump"), dpi);
+    action->setProperty("printertype", DataPrinter::DP_HexOnly);
+    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
+    actions->addAction(action);
+
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Printable Text"), dpi);
+    action->setProperty("printertype", DataPrinter::DP_PrintableText);
+    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
+    actions->addAction(action);
+
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as a Hex Stream"), dpi);
+    action->setProperty("printertype", DataPrinter::DP_HexStream);
+    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
+    actions->addAction(action);
+
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Raw Binary"), dpi);
+    action->setProperty("printertype", DataPrinter::DP_Binary);
+    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
+    actions->addAction(action);
+
+    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Escaped String"), dpi);
+    action->setProperty("printertype", DataPrinter::DP_EscapedString);
+    connect(action, SIGNAL(triggered(bool)), dpi, SLOT(copyIDataBytes(bool)));
+    actions->addAction(action);
+
+    return actions;
+}
+
+void DataPrinter::copyIDataBytes(bool /* state */)
+{
+    if ( ! dynamic_cast<QAction*>(sender()) )
+        return;
+
+    QAction * sendingAction = dynamic_cast<QAction *>(sender());
+    if ( ! sendingAction->actionGroup() || ! sendingAction->actionGroup()->property("idataprintable").isValid() )
+        return;
+
+    QObject * dataObject = VariantPointer<QObject>::asPtr(sendingAction->actionGroup()->property("idataprintable"));
+    if ( ! dataObject || ! dynamic_cast<IDataPrintable *>(dataObject) )
+        return;
+
+    int dump_type = sendingAction->property("printertype").toInt();
+
+    if (dump_type >= 0 && dump_type <= DataPrinter::DP_Binary) {
+        DataPrinter printer;
+        printer.toClipboard((DataPrinter::DumpType) dump_type, dynamic_cast<IDataPrintable *>(dataObject));
+    }
+}
 
 /*
  * Editor modelines

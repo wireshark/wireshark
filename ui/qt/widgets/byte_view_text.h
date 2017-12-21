@@ -23,14 +23,17 @@
 #include <QTextLayout>
 #include <QVector>
 
+#include <ui/qt/utils/data_printer.h>
+
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 
-class ByteViewText : public QAbstractScrollArea
+class ByteViewText : public QAbstractScrollArea, public IDataPrintable
 {
     Q_OBJECT
-public:
+    Q_INTERFACES(IDataPrintable)
 
-    explicit ByteViewText(QByteArray data, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII, QWidget *parent = 0);
+public:
+    explicit ByteViewText(const QByteArray &data, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII, QWidget *parent = 0);
     ~ByteViewText();
 
     virtual QSize minimumSizeHint() const;
@@ -38,22 +41,16 @@ public:
     void setFormat(bytes_view_type format);
     bool isEmpty() const;
 
-    QByteArray viewData();
-
 signals:
     void byteHovered(int pos);
     void byteSelected(int pos);
 
 public slots:
-    void reset();
-
     void setMonospaceFont(const QFont &mono_font);
 
     void markProtocol(int start, int length);
     void markField(int start, int length);
     void markAppendix(int start, int length);
-
-    void moveToOffset(int pos);
 
 protected:
     virtual void paintEvent(QPaintEvent *);
@@ -77,7 +74,7 @@ private:
     } HighlightMode;
 
     QTextLayout *layout_;
-    QByteArray data_;
+    const QByteArray data_;
 
     void drawLine(QPainter *painter, const int offset, const int row_y);
     bool addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int start, int length, HighlightMode mode);
@@ -94,6 +91,7 @@ private:
     int hexPixels();
     int asciiPixels();
     int totalPixels();
+    const QByteArray printableData() { return data_; }
 
     static const int separator_interval_;
 
@@ -127,6 +125,7 @@ private:
     QVector<int> x_pos_to_column_;
 
 private slots:
+    void copyBytes(bool);
     void setHexDisplayFormat(QAction *action);
     void setCharacterEncoding(QAction *action);
 

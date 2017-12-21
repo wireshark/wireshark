@@ -18,7 +18,6 @@
 #include "ui/recent.h"
 
 #include <ui/qt/utils/data_printer.h>
-#include <ui/qt/utils/variant_pointer.h>
 
 #include <QActionGroup>
 #include <QMouseEvent>
@@ -37,10 +36,12 @@
 
 Q_DECLARE_METATYPE(bytes_view_type)
 Q_DECLARE_METATYPE(packet_char_enc)
+Q_DECLARE_METATYPE(DataPrinter::DumpType)
 
-ByteViewText::ByteViewText(QByteArray data, packet_char_enc encoding, QWidget *parent) :
+ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWidget *parent) :
     QAbstractScrollArea(parent),
     layout_(new QTextLayout()),
+    data_(data),
     encoding_(encoding),
     hovered_byte_offset_(-1),
     marked_byte_offset_(-1),
@@ -57,7 +58,6 @@ ByteViewText::ByteViewText(QByteArray data, packet_char_enc encoding, QWidget *p
     font_width_(0),
     line_height_(0)
 {
-    data_ = data;
     layout_->setCacheEnabled(true);
 
     offset_normal_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35);
@@ -82,6 +82,10 @@ void ByteViewText::createContextMenu()
 {
     QActionGroup * format_actions_ = new QActionGroup(this);
     QAction *action;
+
+    QActionGroup * copyEntries = DataPrinter::copyActions(this);
+    ctx_menu_.addActions(copyEntries->actions());
+    ctx_menu_.addSeparator();
 
     action = format_actions_->addAction(tr("Show bytes as hexadecimal"));
     action->setData(qVariantFromValue(BYTES_HEX));
@@ -119,16 +123,6 @@ void ByteViewText::createContextMenu()
     connect(encoding_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setCharacterEncoding(QAction*)));
 }
 
-void ByteViewText::reset()
-{
-    data_.clear();
-}
-
-QByteArray ByteViewText::viewData()
-{
-    return data_;
-}
-
 bool ByteViewText::isEmpty() const
 {
     return data_.isEmpty();
@@ -154,13 +148,6 @@ void ByteViewText::markField(int start, int length)
     scrollToByte(start);
     viewport()->update();
 }
-
-void ByteViewText::moveToOffset(int pos)
-{
-    scrollToByte(pos);
-    viewport()->update();
-}
-
 
 void ByteViewText::markAppendix(int start, int length)
 {
@@ -564,6 +551,21 @@ int ByteViewText::asciiPixels()
 int ByteViewText::totalPixels()
 {
     return offsetPixels() + hexPixels() + asciiPixels();
+}
+
+void ByteViewText::copyBytes(bool)
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+    if (!action) {
+        return;
+    }
+
+    int dump_type = action->data().toInt();
+
+    if (dump_type <= DataPrinter::DP_Binary) {
+        DataPrinter printer;
+        printer.toClipboard((DataPrinter::DumpType) dump_type, this);
+    }
 }
 
 // We do chunky (per-character) scrolling because it makes some of the

@@ -16,7 +16,7 @@
 #include <config.h>
 
 #include <QObject>
-
+#include <QActionGroup>
 
 class IDataPrintable
 {
@@ -49,6 +49,12 @@ public:
     static int separatorInterval() { return 8; }
     // The number of hexadecimal characters per line
     static int hexChars();
+
+    static QActionGroup * copyActions(QObject * copyClass, QObject * data = Q_NULLPTR);
+    static DataPrinter * instance();
+
+protected slots:
+    void copyIDataBytes(bool);
 
 private:
     QString hexTextDump(const QByteArray printData, bool append_text);
