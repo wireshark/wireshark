@@ -672,10 +672,18 @@ epl_wmem_iarray_insert(epl_wmem_iarray_t *iarr, guint32 where, range_admin_t *da
 	g_array_append_vals(iarr->arr, data, 1);
 }
 
+static int u32cmp(guint32 a, guint32 b)
+{
+	if (a < b) return -1;
+	if (a > b) return +1;
+
+	return 0;
+}
+
 static int
 epl_wmem_iarray_cmp(const void *a, const void *b)
 {
-	return *(const guint32*)a - *(const guint32*)b;
+	return u32cmp(*(const guint32*)a, *(const guint32*)b);
 }
 
 /** Makes array suitable for searching */
@@ -716,7 +724,7 @@ find_in_range(const void *_a, const void *_b)
 	if (a->low <= b->high && b->low <= a->high) /* overlap */
 		return 0;
 
-	return a->low - b->low;
+	return u32cmp(a->low, b->low);
 }
 
 static void*
