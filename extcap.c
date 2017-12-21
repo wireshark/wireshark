@@ -1645,14 +1645,17 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
     {
         int_iter = (extcap_interface *)walker->data;
 
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Interface found %s\n", int_iter->call);
+        if (int_iter->call != NULL)
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Interface found %s\n", int_iter->call);
 
         /* Help is not necessarily stored with the interface, but rather with the version string.
          * As the version string allways comes in front of the interfaces, this ensures, that it get's
          * properly stored with the interface */
         if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Extcap [%s] ", int_iter->call);
+            if (int_iter->call != NULL)
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Extcap [%s] ", int_iter->call);
+
             /* Only initialize values if none are set. Need to check only one element here */
             if ( ! element->version )
             {
@@ -1686,8 +1689,8 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
                 continue;
             }
 
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Interface [%s] \"%s\" ",
-                  int_iter->call, int_iter->display);
+            if ((int_iter->call != NULL) && (int_iter->display))
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Interface [%s] \"%s\" ", int_iter->call, int_iter->display);
 
             int_iter->extcap_path = g_strdup(cb_info.extcap);
 
