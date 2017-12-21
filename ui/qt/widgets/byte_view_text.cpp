@@ -33,7 +33,6 @@
 //   and ASCII/EBCDIC.
 // - Add a UTF-8 and possibly UTF-xx option to the ASCII display.
 // - Add "copy bytes as" context menu items.
-// - Add back hover.
 // - Move more common metrics to DataPrinter.
 
 Q_DECLARE_METATYPE(bytes_view_type)
@@ -44,7 +43,7 @@ ByteViewText::ByteViewText(QByteArray data, packet_char_enc encoding, QWidget *p
     layout_(new QTextLayout()),
     encoding_(encoding),
     hovered_byte_offset_(-1),
-    hovered_byte_lock_(false),
+    marked_byte_offset_(-1),
     proto_start_(0),
     proto_len_(0),
     field_start_(0),
@@ -241,17 +240,24 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
         return;
     }
 
-    hovered_byte_lock_ = !hovered_byte_lock_;
-    emit byteSelected(byteOffsetAtPixel(event->pos()));
+    if (marked_byte_offset_ < 0) {
+        marked_byte_offset_ = byteOffsetAtPixel(event->pos());
+        hovered_byte_offset_ = -1;
+    } else {
+        marked_byte_offset_ = -1;
+        mouseMoveEvent(event);
+    }
+    emit byteSelected(marked_byte_offset_);
 }
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)
 {
-    if (hovered_byte_lock_) {
+    if (marked_byte_offset_ >= 0) {
         return;
     }
 
-    emit byteHovered(byteOffsetAtPixel(event->pos()));
+    hovered_byte_offset_ = byteOffsetAtPixel(event->pos());
+    emit byteHovered(hovered_byte_offset_);
 
     viewport()->update();
 }
@@ -347,8 +353,11 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             offset_mode = ModeOffsetField;
         }
         addHexFormatRange(fmt_list, field_a_start_, field_a_len_, offset, max_tvb_pos, ModeField);
+        if (marked_byte_offset_ >= offset && marked_byte_offset_ <= max_tvb_pos) {
+            addHexFormatRange(fmt_list, marked_byte_offset_, 1, offset, max_tvb_pos, ModeMarked);
+        }
         if (hovered_byte_offset_ >= offset && hovered_byte_offset_ <= max_tvb_pos) {
-            addHexFormatRange(fmt_list, hovered_byte_offset_, hovered_byte_offset_ + 1, offset, max_tvb_pos, ModeField);
+            addHexFormatRange(fmt_list, hovered_byte_offset_, 1, offset, max_tvb_pos, ModeHover);
         }
     }
 
@@ -370,6 +379,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             if (g_ascii_isprint(c)) {
                 line += c;
             } else {
+                // XXX Should we soften the text color as well?
                 line += UTF8_MIDDLE_DOT;
             }
             if (build_x_pos) {
@@ -381,8 +391,11 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             offset_mode = ModeOffsetField;
         }
         addAsciiFormatRange(fmt_list, field_a_start_, field_a_len_, offset, max_tvb_pos, ModeField);
+        if (marked_byte_offset_ >= offset && marked_byte_offset_ <= max_tvb_pos) {
+            addAsciiFormatRange(fmt_list, marked_byte_offset_, 1, offset, max_tvb_pos, ModeMarked);
+        }
         if (hovered_byte_offset_ >= offset && hovered_byte_offset_ <= max_tvb_pos) {
-            addAsciiFormatRange(fmt_list, hovered_byte_offset_, hovered_byte_offset_ + 1, offset, max_tvb_pos, ModeField);
+            addAsciiFormatRange(fmt_list, hovered_byte_offset_, 1, offset, max_tvb_pos, ModeHover);
         }
     }
 
@@ -427,8 +440,16 @@ bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int
         format_range.format.setForeground(offset_field_fg_);
         break;
     case ModeHover:
-        format_range.format.setForeground(ColorUtils::byteViewHoverColor(false));
-        format_range.format.setBackground(ColorUtils::byteViewHoverColor(true));
+        // QTextCharFormat doesn't appear to let us draw a complete border.
+        // This is the next best thing.
+        format_range.format.setFontUnderline(true);
+        format_range.format.setFontOverline(true);
+        break;
+    case ModeMarked:
+        // XXX Should we get rid of byteViewMarkColor and just draw an
+        // overline + underline instead?
+        format_range.format.setForeground(ColorUtils::byteViewMarkColor(false));
+        format_range.format.setBackground(ColorUtils::byteViewMarkColor(true));
         break;
     }
     fmt_list << format_range;

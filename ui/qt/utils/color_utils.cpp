@@ -38,17 +38,17 @@ const QColor ColorUtils::expert_color_error      = QColor ( 0xff, 0x5c, 0x5c ); 
 const QColor ColorUtils::expert_color_foreground = QColor ( 0x00, 0x00, 0x00 );        /* Black */
 const QColor ColorUtils::hidden_proto_item       = QColor ( 0x44, 0x44, 0x44 );        /* Gray */
 
-const QRgb ColorUtils::byte_view_hover_bg_ = tango_butter_2;
-const QRgb ColorUtils::byte_view_hover_fg_ = tango_sky_blue_5;
+const QRgb ColorUtils::byte_view_mark_bg_ = tango_butter_2;
+const QRgb ColorUtils::byte_view_mark_fg_ = tango_sky_blue_5;
 
 ColorUtils::ColorUtils(QObject *parent) :
     QObject(parent)
 {
 }
 
-QColor ColorUtils::byteViewHoverColor(bool background)
+QColor ColorUtils::byteViewMarkColor(bool background)
 {
-	return QColor(background ? byte_view_hover_bg_ : byte_view_hover_fg_);
+    return QColor(background ? byte_view_mark_bg_ : byte_view_mark_fg_);
 }
 
 //

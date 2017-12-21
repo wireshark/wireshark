@@ -71,7 +71,8 @@ private:
         ModeProtocol,
         ModeOffsetNormal,
         ModeOffsetField,
-        ModeHover
+        ModeHover,
+        ModeMarked
     } HighlightMode;
 
     QTextLayout *layout_;
@@ -106,7 +107,7 @@ private:
 
     // Data highlight
     int hovered_byte_offset_;
-    bool hovered_byte_lock_;
+    int marked_byte_offset_;
     int proto_start_;
     int proto_len_;
     int field_start_;
