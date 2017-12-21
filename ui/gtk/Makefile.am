@@ -323,15 +323,15 @@ imagedir = $(top_srcdir)/image
 
 pixbuf_csource_data = \
 	expert_chat_pb_data				\
-	$(imagedir)/toolbar/14x14/x-expert-chat.png	\
+	$(imagedir)/stock_icons/14x14/x-expert-chat.png	\
 	expert_error_pb_data				\
-	$(imagedir)/toolbar/14x14/x-expert-error.png	\
+	$(imagedir)/stock_icons/14x14/x-expert-error.png	\
 	expert_none_pb_data				\
-	$(imagedir)/toolbar/14x14/x-expert-none.png	\
+	$(imagedir)/stock_icons/14x14/x-expert-none.png	\
 	expert_note_pb_data				\
-	$(imagedir)/toolbar/14x14/x-expert-note.png	\
+	$(imagedir)/stock_icons/14x14/x-expert-note.png	\
 	expert_warn_pb_data				\
-	$(imagedir)/toolbar/14x14/x-expert-warn.png	\
+	$(imagedir)/stock_icons/14x14/x-expert-warn.png	\
 	expert_ok_pb_data				\
 	$(imagedir)/expert_ok.png			\
 	capture_comment_add_pb_data			\
@@ -365,25 +365,25 @@ pixbuf_csource_data = \
 	gnome_emblem_web_24_pb_data			\
 	$(imagedir)/toolbar/gnome_emblem_web_24.png	\
 	toolbar_wireshark_file_16_pb_data		\
-	$(imagedir)/toolbar/16x16/x-capture-file-save.png \
+	$(imagedir)/stock_icons/16x16/x-capture-file-save.png \
 	toolbar_wireshark_file_24_pb_data		\
-	$(imagedir)/toolbar/24x24/x-capture-file-save.png \
+	$(imagedir)/stock_icons/24x24/x-capture-file-save.png \
 	capture_options_alt1_16_pb_data			\
-	$(imagedir)/toolbar/16x16/x-capture-options.png \
+	$(imagedir)/stock_icons/16x16/x-capture-options.png \
 	capture_options_alt1_24_pb_data			\
-	$(imagedir)/toolbar/24x24/x-capture-options.png \
+	$(imagedir)/stock_icons/24x24/x-capture-options.png \
 	capture_restart_16_pb_data			\
-	$(imagedir)/toolbar/16x16/x-capture-restart.png \
+	$(imagedir)/stock_icons/16x16/x-capture-restart.png \
 	capture_restart_24_pb_data			\
-	$(imagedir)/toolbar/24x24/x-capture-restart.png \
+	$(imagedir)/stock_icons/24x24/x-capture-restart.png \
 	capture_start_16_pb_data			\
-	$(imagedir)/toolbar/16x16/x-capture-start.png	\
+	$(imagedir)/stock_icons/16x16/x-capture-start.png	\
 	capture_start_24_pb_data			\
-	$(imagedir)/toolbar/24x24/x-capture-start.png	\
+	$(imagedir)/stock_icons/24x24/x-capture-start.png	\
 	capture_stop_16_pb_data				\
-	$(imagedir)/toolbar/16x16/x-capture-stop.png	\
+	$(imagedir)/stock_icons/16x16/x-capture-stop.png	\
 	capture_stop_24_pb_data				\
-	$(imagedir)/toolbar/24x24/x-capture-stop.png	\
+	$(imagedir)/stock_icons/24x24/x-capture-stop.png	\
 	layout_1_pb_data 				\
 	$(imagedir)/layout_1.png			\
 	layout_2_pb_data				\

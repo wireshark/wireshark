@@ -70,7 +70,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             " }"
 
             "QComboBox::down-arrow {"
-            "  image: url(:/icons/toolbar/14x14/x-filter-dropdown.png);"
+            "  image: url(:/stock_icons/14x14/x-filter-dropdown.png);"
             " }"
 
             "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"

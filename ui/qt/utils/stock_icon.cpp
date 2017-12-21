@@ -58,8 +58,7 @@
 #include <QPainter>
 #include <QStyle>
 
-// XXX We're using icons in more than just the toolbar.
-static const QString path_pfx_ = ":/icons/toolbar/";
+static const QString path_pfx_ = ":/stock_icons/";
 
 // Map FreeDesktop icon names to Qt standard pixmaps.
 static QMap<QString, QStyle::StandardPixmap> icon_name_to_standard_pixmap_;

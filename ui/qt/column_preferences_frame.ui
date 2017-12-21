@@ -57,7 +57,7 @@
      <item>
       <widget class="QToolButton" name="newToolButton">
        <property name="icon">
-        <iconset resource="../../image/toolbar.qrc">
+        <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
        </property>
       </widget>
@@ -65,7 +65,7 @@
      <item>
       <widget class="QToolButton" name="deleteToolButton">
        <property name="icon">
-        <iconset resource="../../image/toolbar.qrc">
+        <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
        </property>
       </widget>
@@ -88,7 +88,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../image/toolbar.qrc"/>
+  <include location="../../image/stock_icons.qrc"/>
  </resources>
  <connections/>
 </ui>

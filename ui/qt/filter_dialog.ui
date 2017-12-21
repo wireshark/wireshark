@@ -51,7 +51,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/toolbar.qrc">
+        <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
        </property>
       </widget>
@@ -62,7 +62,7 @@
         <string>Remove this filter.</string>
        </property>
        <property name="icon">
-        <iconset resource="../../image/toolbar.qrc">
+        <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
        </property>
       </widget>
@@ -76,7 +76,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/toolbar.qrc">
+        <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
        </property>
       </widget>
@@ -135,7 +135,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../image/toolbar.qrc"/>
+  <include location="../../image/stock_icons.qrc"/>
  </resources>
  <connections>
   <connection>

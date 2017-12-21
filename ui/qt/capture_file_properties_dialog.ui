@@ -60,8 +60,5 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../image/toolbar.qrc"/>
- </resources>
  <connections/>
 </ui>

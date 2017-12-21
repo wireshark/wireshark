@@ -43,23 +43,23 @@
         <file>image/toolbar/capture_interfaces_24.png</file>
         <file>image/toolbar/gnome_emblem_web_24.png</file>
 
-        <file>image/toolbar/14x14/x-expert-chat.png</file>
-        <file>image/toolbar/14x14/x-expert-error.png</file>
-        <file>image/toolbar/14x14/x-expert-none.png</file>
-        <file>image/toolbar/14x14/x-expert-note.png</file>
-        <file>image/toolbar/14x14/x-expert-warn.png</file>
+        <file>image/stock_icons/14x14/x-expert-chat.png</file>
+        <file>image/stock_icons/14x14/x-expert-error.png</file>
+        <file>image/stock_icons/14x14/x-expert-none.png</file>
+        <file>image/stock_icons/14x14/x-expert-note.png</file>
+        <file>image/stock_icons/14x14/x-expert-warn.png</file>
         <file>image/expert_ok.png</file>
 
-        <file>image/toolbar/16x16/x-capture-file-save.png</file>
-        <file>image/toolbar/16x16/x-capture-options.png</file>
-        <file>image/toolbar/16x16/x-capture-restart.png</file>
-        <file>image/toolbar/16x16/x-capture-start.png</file>
-        <file>image/toolbar/16x16/x-capture-stop.png</file>
+        <file>image/stock_icons/16x16/x-capture-file-save.png</file>
+        <file>image/stock_icons/16x16/x-capture-options.png</file>
+        <file>image/stock_icons/16x16/x-capture-restart.png</file>
+        <file>image/stock_icons/16x16/x-capture-start.png</file>
+        <file>image/stock_icons/16x16/x-capture-stop.png</file>
 
-        <file>image/toolbar/24x24/x-capture-file-save.png</file>
-        <file>image/toolbar/24x24/x-capture-options.png</file>
-        <file>image/toolbar/24x24/x-capture-restart.png</file>
-        <file>image/toolbar/24x24/x-capture-start.png</file>
-        <file>image/toolbar/24x24/x-capture-stop.png</file>
+        <file>image/stock_icons/24x24/x-capture-file-save.png</file>
+        <file>image/stock_icons/24x24/x-capture-options.png</file>
+        <file>image/stock_icons/24x24/x-capture-restart.png</file>
+        <file>image/stock_icons/24x24/x-capture-start.png</file>
+        <file>image/stock_icons/24x24/x-capture-stop.png</file>
     </gresource>
 </gresources>

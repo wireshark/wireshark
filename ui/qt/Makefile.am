@@ -456,7 +456,7 @@ QRC_FILES = \
 	../../image/about.qrc			\
 	../../image/languages/languages.qrc	\
 	../../image/layout.qrc			\
-	../../image/toolbar.qrc			\
+	../../image/stock_icons.qrc		\
 	../../image/wsicon.qrc
 
 #
@@ -469,7 +469,7 @@ QRC_SRC = \
 	qrc_about.cpp		\
 	qrc_languages.cpp	\
 	qrc_layout.cpp		\
-	qrc_toolbar.cpp		\
+	qrc_stock_icons.cpp	\
 	qrc_wsicon.cpp		\
 	qrc_i18n.cpp
 
@@ -795,8 +795,8 @@ qrc_languages.cpp: ../../image/languages/languages.qrc
 qrc_i18n.cpp: i18n.qrc
 	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name i18n -o $@ $<
 
-qrc_toolbar.cpp: ../../image/toolbar.qrc
-	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name toolbar -o $@ $<
+qrc_stock_icons.cpp: ../../image/stock_icons.qrc
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name stock_icons -o $@ $<
 
 qrc_wsicon.cpp: ../../image/wsicon.qrc
 	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name wsicon -o $@ $<

@@ -547,9 +547,6 @@
    </widget>
   </widget>
  </widget>
- <resources>
-  <include location="../../image/toolbar.qrc"/>
- </resources>
  <connections>
   <connection>
    <sender>pushButton_2</sender>

@@ -2037,7 +2037,7 @@ add_page(gchar *name, gchar *text, gboolean error)
   gtk_list_store_append (GTK_LIST_STORE(model), &iter);
   if (error) {
 #ifdef HAVE_GDK_GRESOURCE
-    icon = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-error.png");
+    icon = pixbuf_to_widget("/org/wireshark/image/stock_icons/14x14/x-expert-error.png");
 #else
     icon = pixbuf_to_widget(expert_error_pb_data);
 #endif

@@ -913,7 +913,7 @@
   </action>
   <action name="actionHelpWebsite">
    <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
+    <iconset resource="../../image/stock_icons.qrc">
      <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
    </property>
    <property name="text">
@@ -932,7 +932,7 @@
   </action>
   <action name="actionHelpWiki">
    <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
+    <iconset resource="../../image/stock_icons.qrc">
      <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
    </property>
    <property name="text">
@@ -957,7 +957,7 @@
   </action>
   <action name="actionHelpAsk">
    <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
+    <iconset resource="../../image/stock_icons.qrc">
      <normaloff>:/menu/help/wsicon-ask.png</normaloff>:/menu/help/wsicon-ask.png</iconset>
    </property>
    <property name="text">
@@ -2945,7 +2945,7 @@
   </action>
   <action name="actionNewDisplayFilterExpression">
    <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
+    <iconset resource="../../image/stock_icons.qrc">
      <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
    </property>
    <property name="text">
@@ -3031,7 +3031,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../image/toolbar.qrc"/>
+  <include location="../../image/stock_icons.qrc"/>
  </resources>
  <connections>
   <connection>

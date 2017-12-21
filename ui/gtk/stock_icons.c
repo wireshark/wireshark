@@ -333,24 +333,24 @@ void stock_icons_init(void) {
               "/org/wireshark/image/toolbar/capture_interfaces_24.png" }
         },
         { WIRESHARK_STOCK_CAPTURE_OPTIONS,
-            { "/org/wireshark/image/toolbar/16x16/x-capture-options.png",
-              "/org/wireshark/image/toolbar/24x24/x-capture-options.png" }
+            { "/org/wireshark/image/stock_icons/16x16/x-capture-options.png",
+              "/org/wireshark/image/stock_icons/24x24/x-capture-options.png" }
         },
         { WIRESHARK_STOCK_CAPTURE_RESTART,
-            { "/org/wireshark/image/toolbar/16x16/x-capture-restart.png",
-              "/org/wireshark/image/toolbar/24x24/x-capture-restart.png" }
+            { "/org/wireshark/image/stock_icons/16x16/x-capture-restart.png",
+              "/org/wireshark/image/stock_icons/24x24/x-capture-restart.png" }
         },
         { WIRESHARK_STOCK_CAPTURE_START,
-            { "/org/wireshark/image/toolbar/16x16/x-capture-start.png",
-              "/org/wireshark/image/toolbar/24x24/x-capture-start.png" }
+            { "/org/wireshark/image/stock_icons/16x16/x-capture-start.png",
+              "/org/wireshark/image/stock_icons/24x24/x-capture-start.png" }
         },
         { WIRESHARK_STOCK_CAPTURE_STOP,
-            { "/org/wireshark/image/toolbar/16x16/x-capture-stop.png",
-              "/org/wireshark/image/toolbar/24x24/x-capture-stop.png" }
+            { "/org/wireshark/image/stock_icons/16x16/x-capture-stop.png",
+              "/org/wireshark/image/stock_icons/24x24/x-capture-stop.png" }
         },
         { WIRESHARK_STOCK_SAVE,
-            { "/org/wireshark/image/toolbar/16x16/x-capture-file-save.png",
-              "/org/wireshark/image/toolbar/24x24/x-capture-file-save.png" }
+            { "/org/wireshark/image/stock_icons/16x16/x-capture-file-save.png",
+              "/org/wireshark/image/stock_icons/24x24/x-capture-file-save.png" }
         },
         { WIRESHARK_STOCK_WIKI,
             { "/org/wireshark/image/toolbar/gnome_emblem_web_16.png",

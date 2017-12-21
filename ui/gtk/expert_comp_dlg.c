@@ -838,7 +838,7 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
 #ifdef HAVE_GDK_GRESOURCE
-        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-error.png");
+        image = pixbuf_to_widget("/org/wireshark/image/stock_icons/14x14/x-expert-error.png");
 #else
         image = pixbuf_to_widget(expert_error_pb_data);
 #endif
@@ -856,7 +856,7 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
 #ifdef HAVE_GDK_GRESOURCE
-        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-warn.png");
+        image = pixbuf_to_widget("/org/wireshark/image/stock_icons/14x14/x-expert-warn.png");
 #else
         image = pixbuf_to_widget(expert_warn_pb_data);
 #endif
@@ -875,7 +875,7 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
 #ifdef HAVE_GDK_GRESOURCE
-        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-note.png");
+        image = pixbuf_to_widget("/org/wireshark/image/stock_icons/14x14/x-expert-note.png");
 #else
         image = pixbuf_to_widget(expert_note_pb_data);
 #endif
@@ -893,7 +893,7 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
 #ifdef HAVE_GDK_GRESOURCE
-        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-chat.png");
+        image = pixbuf_to_widget("/org/wireshark/image/stock_icons/14x14/x-expert-chat.png");
 #else
         image = pixbuf_to_widget(expert_chat_pb_data);
 #endif

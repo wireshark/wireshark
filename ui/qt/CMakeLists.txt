@@ -593,7 +593,7 @@ set(WIRESHARK_QT_QRC
 	../../image/about.qrc
 	../../image/languages/languages.qrc
 	../../image/layout.qrc
-	../../image/toolbar.qrc
+	../../image/stock_icons.qrc
 	../../image/wsicon.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
