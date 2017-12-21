@@ -3910,7 +3910,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       return !ferror(stdout);
     }
     if (print_details) {
-      write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, stdout, dissect_color);
+      write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, &cf->cinfo, stdout, dissect_color);
       printf("\n");
       return !ferror(stdout);
     }
@@ -3934,7 +3934,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_expanded,
                             print_hex, protocolfilter, protocolfilter_flags,
-                            edt, node_children_grouper, stdout);
+                            edt, &cf->cinfo, node_children_grouper, stdout);
       return !ferror(stdout);
     }
     break;
@@ -3945,14 +3945,14 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_none, TRUE,
                             protocolfilter, protocolfilter_flags,
-                            edt, node_children_grouper, stdout);
+                            edt, &cf->cinfo, node_children_grouper, stdout);
       return !ferror(stdout);
     }
     break;
 
   case WRITE_EK:
     write_ek_proto_tree(output_fields, print_summary, print_hex, protocolfilter,
-                        protocolfilter_flags, edt, stdout);
+                        protocolfilter_flags, edt, &cf->cinfo, stdout);
     return !ferror(stdout);
   }
 

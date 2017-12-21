@@ -310,7 +310,7 @@ static gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
 }
 
 void
-write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh, gboolean use_color)
+write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color)
 {
     write_pdml_data data;
     const color_filter_t *cfp;
@@ -345,7 +345,7 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
                                     &data);
     } else {
         /* Write out specified fields */
-        write_specified_fields(FORMAT_XML, fields, edt, NULL, fh);
+        write_specified_fields(FORMAT_XML, fields, edt, cinfo, fh);
     }
 
     fprintf(fh, "</packet>\n\n");
@@ -356,6 +356,7 @@ write_ek_proto_tree(output_fields_t* fields,
                     gboolean print_summary, gboolean print_hex,
                     gchar **protocolfilter,
                     pf_flags protocolfilter_flags, epan_dissect_t *edt,
+                    column_info *cinfo,
                     FILE *fh)
 {
     write_json_data data;
@@ -395,7 +396,7 @@ write_ek_proto_tree(output_fields_t* fields,
             proto_tree_write_node_ek(edt->tree, &data);
         } else {
             /* Write out specified fields */
-            write_specified_fields(FORMAT_EK, fields, edt, NULL, fh);
+            write_specified_fields(FORMAT_EK, fields, edt, cinfo, fh);
         }
 
         fputs("}", fh);
@@ -703,6 +704,7 @@ write_json_proto_tree(output_fields_t* fields,
                       print_dissections_e print_dissections,
                       gboolean print_hex, gchar **protocolfilter,
                       pf_flags protocolfilter_flags, epan_dissect_t *edt,
+                      column_info *cinfo,
                       proto_node_children_grouper_func node_children_grouper,
                       FILE *fh)
 {
@@ -747,7 +749,7 @@ write_json_proto_tree(output_fields_t* fields,
 
         write_json_proto_node_children(edt->tree, &data);
     } else {
-        write_specified_fields(FORMAT_JSON, fields, edt, NULL, fh);
+        write_specified_fields(FORMAT_JSON, fields, edt, cinfo, fh);
     }
 
     fputs("\n", fh);
@@ -2437,21 +2439,22 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
 
-    switch (format) {
-    case FORMAT_CSV:
-        if (fields->includes_col_fields) {
-            for (col = 0; col < cinfo->num_cols; col++) {
-                /* Prepend COLUMN_FIELD_FILTER as the field name */
-                col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
-                field_index = g_hash_table_lookup(fields->field_indicies, col_name);
-                g_free(col_name);
+    /* Add columns to fields */
+    if (fields->includes_col_fields) {
+        for (col = 0; col < cinfo->num_cols; col++) {
+            /* Prepend COLUMN_FIELD_FILTER as the field name */
+            col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
+            field_index = g_hash_table_lookup(fields->field_indicies, col_name);
+            g_free(col_name);
 
-                if (NULL != field_index) {
-                    format_field_values(fields, field_index, g_strdup(cinfo->columns[col].col_data));
-                }
+            if (NULL != field_index) {
+                format_field_values(fields, field_index, g_strdup(cinfo->columns[col].col_data));
             }
         }
+    }
 
+    switch (format) {
+    case FORMAT_CSV:
         for(i = 0; i < fields->fields->len; ++i) {
             if (0 != i) {
                 fputc(fields->separator, fh);

@@ -94,7 +94,7 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
 WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
-WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh, gboolean use_color);
+WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
 // Implementations of proto_node_children_grouper_func
@@ -110,6 +110,7 @@ WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
                                          gchar **protocolfilter,
                                          pf_flags protocolfilter_flags,
                                          epan_dissect_t *edt,
+                                         column_info *cinfo,
                                          proto_node_children_grouper_func node_children_grouper,
                                          FILE *fh);
 WS_DLL_PUBLIC void write_json_finale(FILE *fh);
@@ -119,7 +120,8 @@ WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,
                                        gboolean print_hex_data,
                                        gchar **protocolfilter,
                                        pf_flags protocolfilter_flags,
-                                       epan_dissect_t *edt, FILE *fh);
+                                       epan_dissect_t *edt,
+                                       column_info *cinfo, FILE *fh);
 
 WS_DLL_PUBLIC void write_psml_preamble(column_info *cinfo, FILE *fh);
 WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh, gboolean use_color);
