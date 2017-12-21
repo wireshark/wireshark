@@ -2547,16 +2547,15 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         ett_pfcp_ue_ip_address_flags, pfcp_ue_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &ue_ip_address_flags);
     offset += 1;
 
-    /* IPv6 address (if present)*/
-    if ((ue_ip_address_flags & 0x1) == 1) {
-        proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6, tvb, offset, 16, ENC_NA);
-        offset += 16;
-    }
-
     /* IPv4 address (if present)*/
     if ((ue_ip_address_flags & 0x2) == 2) {
         proto_tree_add_item(tree, hf_pfcp_ue_ip_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
+    }
+    /* IPv6 address (if present)*/
+    if ((ue_ip_address_flags & 0x1) == 1) {
+        proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
     }
 
     if (offset < length) {
