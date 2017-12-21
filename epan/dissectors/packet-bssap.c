@@ -1659,6 +1659,10 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
         break;
     case BSSAP_UPLINK_TUNNEL_REQUEST:           /*  17.1.23 */
+        /* IMSI IMSI 18.4.10 M TLV 6-10 */
+        if (check_ie(tvb, pinfo, tree, &offset, BSSAP_IMSI))
+            offset = dissect_bssap_imsi(tvb, bssap_tree, pinfo, offset);
+
         /* SGSN number 18.4.22 M TLV 5-11 */
         if (check_ie(tvb, pinfo, tree, &offset, BSSAP_SGSN_NUMBER))
             offset = dissect_bssap_sgsn_number(tvb, bssap_tree, offset);
