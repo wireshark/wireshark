@@ -363,6 +363,9 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
 
     // ASCII
     if (show_ascii_) {
+        bool in_non_printable = false;
+        int np_start;
+        int np_len;
         for (int tvb_pos = offset; tvb_pos <= max_tvb_pos; tvb_pos++) {
             /* insert a space every separator_interval_ bytes */
             if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
@@ -378,13 +381,26 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
 
             if (g_ascii_isprint(c)) {
                 line += c;
+                if (in_non_printable) {
+                    in_non_printable = false;
+                    addAsciiFormatRange(fmt_list, np_start, np_len, offset, max_tvb_pos, ModeNonPrintable);
+                }
             } else {
-                // XXX Should we soften the text color as well?
                 line += UTF8_MIDDLE_DOT;
+                if (!in_non_printable) {
+                    in_non_printable = true;
+                    np_start = tvb_pos;
+                    np_len = 1;
+                } else {
+                    np_len++;
+                }
             }
             if (build_x_pos) {
                 x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size());
             }
+        }
+        if (in_non_printable) {
+            addAsciiFormatRange(fmt_list, np_start, np_len, offset, max_tvb_pos, ModeNonPrintable);
         }
         addAsciiFormatRange(fmt_list, proto_start_, proto_len_, offset, max_tvb_pos, ModeProtocol);
         if (addAsciiFormatRange(fmt_list, field_start_, field_len_, offset, max_tvb_pos, ModeField)) {
@@ -450,6 +466,9 @@ bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int
         // overline + underline instead?
         format_range.format.setForeground(ColorUtils::byteViewMarkColor(false));
         format_range.format.setBackground(ColorUtils::byteViewMarkColor(true));
+        break;
+    case ModeNonPrintable:
+        format_range.format.setForeground(offset_normal_fg_);
         break;
     }
     fmt_list << format_range;

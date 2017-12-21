@@ -72,7 +72,8 @@ private:
         ModeOffsetNormal,
         ModeOffsetField,
         ModeHover,
-        ModeMarked
+        ModeMarked,
+        ModeNonPrintable
     } HighlightMode;
 
     QTextLayout *layout_;
