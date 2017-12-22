@@ -1934,6 +1934,10 @@ static int hf_artnet_time_sync = -1;
 
 /* ArtTrigger */
 static int hf_artnet_trigger = -1;
+static int hf_artnet_trigger_oemcode = -1;
+static int hf_artnet_trigger_key = -1;
+static int hf_artnet_trigger_subkey = -1;
+static int hf_artnet_trigger_data = -1;
 
 /* ArtDirectory */
 static int hf_artnet_directory = -1;
@@ -3046,6 +3050,26 @@ dissect_artnet_time_sync(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 static guint
 dissect_artnet_trigger(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 {
+  proto_tree_add_item(tree, hf_artnet_filler, tvb,
+                      offset, 2, ENC_NA);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_trigger_oemcode, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_artnet_trigger_key, tvb,
+                      offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_trigger_subkey, tvb,
+                      offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_trigger_data, tvb,
+                      offset, 512, ENC_NA);
+  offset += 512;
+
   return offset;
 }
 
@@ -5179,6 +5203,30 @@ proto_register_artnet(void) {
         "artnet.trigger",
         FT_NONE, BASE_NONE, NULL, 0,
         "Art-Net ArtTrigger packet", HFILL }},
+
+    { &hf_artnet_trigger_oemcode,
+      { "OEM Code",
+        "artnet.trigger.oemcode",
+        FT_UINT16, BASE_HEX, 0, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_trigger_key,
+      { "Key",
+        "artnet.trigger.key",
+        FT_UINT8, BASE_HEX_DEC, 0, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_trigger_subkey,
+      { "SubKey",
+        "artnet.trigger.subkey",
+        FT_UINT8, BASE_HEX_DEC, 0, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_trigger_data,
+      { "Data",
+        "artnet.trigger.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     /* ArtDirectory */
     { &hf_artnet_directory,
