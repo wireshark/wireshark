@@ -407,6 +407,7 @@ void SequenceDialog::on_buttonBox_accepted()
             } else {
                 save_ok = false;
             }
+            fclose(outfile);
         }
         // else error dialog?
         if (save_ok) {
