@@ -3249,7 +3249,7 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
     }
     if ((upiri_flags_val & 0x20) == 32) {
         /* k to (l)   Network Instance */
-        proto_tree_add_item(tree, hf_pfcp_upiri_network_instance, tvb, offset, length, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_upiri_network_instance, tvb, offset, length - offset, ENC_NA);
         offset = length;
     }
 
@@ -5180,7 +5180,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_upiri_teidri,
         { "TEID Range Indication", "pfcp.upiri.teidri",
-            FT_UINT64, BASE_DEC, NULL, 0x1C,
+            FT_UINT8, BASE_DEC, NULL, 0x1C,
             NULL, HFILL }
         },
         { &hf_pfcp_upiri_teid_range,
