@@ -1070,9 +1070,15 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 #ifdef _WIN32
                 win32_readfrompipe((HANDLE)_get_osfhandle(userdata->extcap_stderr_rd), STDERR_BUFFER_SIZE, buffer);
 #else
-                if (read(userdata->extcap_stderr_rd, buffer, sizeof(gchar) * STDERR_BUFFER_SIZE) <= 0)
+                ssize_t buffer_len;
+                buffer_len = read(userdata->extcap_stderr_rd, buffer, sizeof(gchar) * STDERR_BUFFER_SIZE);
+                if (buffer_len <= 0)
                 {
                     buffer[0] = '\0';
+                }
+                else
+                {
+                    buffer[buffer_len] = '\0';
                 }
 #endif
                 if (strlen(buffer) > 0)
