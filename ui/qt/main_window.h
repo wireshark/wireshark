@@ -287,24 +287,13 @@ public slots:
     void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *);
     void captureCaptureUpdateFinished(capture_session *);
-    void captureCaptureFixedStarted(capture_session *);
     void captureCaptureFixedFinished(capture_session *cap_session);
-    void captureCaptureStopping(capture_session *);
     void captureCaptureFailed(capture_session *);
 
     void captureFileOpened();
-    void captureFileReadStarted() { captureFileReadStarted(tr("Loading")); }
     void captureFileReadFinished();
-    void captureFileReloadStarted() { captureFileReadStarted(tr("Reloading")); }
-    void captureFileRescanStarted() { setMenusForCaptureFile(true); captureFileReadStarted(tr("Rescanning")); }
-    void captureFileRetapStarted();
-    void captureFileRetapFinished();
-    void captureFileMergeStarted();
-    void captureFileMergeFinished();
-    void captureFileFlushTapsData();
     void captureFileClosing();
     void captureFileClosed();
-    void captureFileSaveStarted(const QString &file_path);
 
     void filterExpressionsChanged();
     static gboolean filter_expression_add_action(const void *key, void *value, void *user_data);
@@ -317,6 +306,9 @@ public slots:
     int uatRowIndexForFilterExpression(QString label, QString expression);
 
 private slots:
+
+    void captureEventHandler(CaptureEvent * ev);
+
     // Manually connected slots (no "on_<object>_<signal>").
 
     void initViewColorizeMenu();

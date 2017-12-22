@@ -30,6 +30,8 @@
 
 #include <QAction>
 
+#include <ui/qt/capture_file.h>
+
 // Actions for "Export Objects" menu items.
 
 class ExportObjectAction : public QAction
@@ -41,8 +43,7 @@ public:
     register_eo_t* exportObject() {return eo_;}
 
 public slots:
-    void captureFileOpened();
-    void captureFileClosed();
+    void captureFileEvent(CaptureEvent *e);
 
 private:
     register_eo_t *eo_;

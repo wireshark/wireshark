@@ -39,6 +39,44 @@ capture_file cfile;
 
 #include <QFileInfo>
 #include <QTimer>
+#include <QDebug>
+
+CaptureEvent::CaptureEvent(Context ctx, EventType evt) :
+    _ctx(ctx),
+    _evt(evt),
+    _session(Q_NULLPTR)
+{
+    qDebug() << "CaptureEvent [" << ctx <<"]: " << evt;
+}
+
+CaptureEvent::CaptureEvent(Context ctx, EventType evt, QString file) :
+    _ctx(ctx),
+    _evt(evt),
+    _filePath(file),
+    _session(Q_NULLPTR)
+{
+    qDebug() << "CaptureEvent [" << ctx <<"]: " << evt << " :: File: " << file;
+}
+
+CaptureEvent::CaptureEvent(Context ctx, EventType evt, capture_session * session) :
+    _ctx(ctx),
+    _evt(evt),
+    _session(session)
+{
+    qDebug() << "CaptureEvent [" << ctx <<"]: " << evt << " with session";
+}
+
+CaptureEvent::Context CaptureEvent::captureContext() const
+{ return _ctx; }
+
+CaptureEvent::EventType CaptureEvent::eventType() const
+{ return _evt; }
+
+QString CaptureEvent::filePath() const
+{ return _filePath; }
+
+capture_session * CaptureEvent::capSession() const
+{ return _session; }
 
 // To do:
 // - Add getters and (if needed) setters:
@@ -161,7 +199,7 @@ void CaptureFile::captureCallback(gint event, capture_session *cap_session, gpoi
     CaptureFile *capture_file = static_cast<CaptureFile *>(user_data);
     if (!capture_file) return;
 
-    capture_file->captureEvent(event, cap_session);
+    capture_file->captureSessionEvent(event, cap_session);
 }
 #endif
 
@@ -169,65 +207,51 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
 {
     switch(event) {
     case(cf_cb_file_opened):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
         cap_file_ = (capture_file *) data;
-        fileName();
-        emit captureFileOpened();
+        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Opened));
         break;
     case(cf_cb_file_closing):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
         file_state_ = tr(" [closing]");
-        emit captureFileClosing();
+        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Closing));
         break;
     case(cf_cb_file_closed):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
         file_state_ = tr(" [closed]");
-        emit captureFileClosed();
+        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Closed));
         cap_file_ = NULL;
         file_name_ = no_capture_file_;
         file_state_ = QString();
         break;
     case(cf_cb_file_read_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
-        emit captureFileReadStarted();
+        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Started));
         break;
     case(cf_cb_file_read_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
-        emit captureFileReadFinished();
+        emit captureEvent(new CaptureEvent(CaptureEvent::File, CaptureEvent::Finished));
         break;
     case(cf_cb_file_reload_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload started");
-        emit captureFileReloadStarted();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Reload, CaptureEvent::Started));
         break;
     case(cf_cb_file_reload_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
-        emit captureFileReloadFinished();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Reload, CaptureEvent::Finished));
         break;
     case(cf_cb_file_rescan_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan started");
-        emit captureFileRescanStarted();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Rescan, CaptureEvent::Started));
         break;
     case(cf_cb_file_rescan_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan finished");
-        emit captureFileRescanFinished();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Rescan, CaptureEvent::Finished));
         break;
     case(cf_cb_file_retap_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Retap started");
-        emit captureFileRetapStarted();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Retap, CaptureEvent::Started));
         break;
     case(cf_cb_file_retap_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Retap finished");
         /* Flush any pending tapped packet before emitting captureFileRetapFinished() */
-        emit captureFileFlushTapsData();
-        emit captureFileRetapFinished();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Retap, CaptureEvent::Finished));
+        emit captureEvent(new CaptureEvent(CaptureEvent::Retap, CaptureEvent::Flushed));
         break;
     case(cf_cb_file_merge_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Merge started");
-        emit captureFileMergeStarted();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Merge, CaptureEvent::Started));
         break;
     case(cf_cb_file_merge_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Merge finished");
-        emit captureFileMergeFinished();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Merge, CaptureEvent::Finished));
         break;
 
     case(cf_cb_file_fast_save_finished):
@@ -243,18 +267,17 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
 
     case(cf_cb_file_save_started):
     {
-        const QString file_path = (const char *) data;
-        captureFileSaveStarted(file_path);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Started, QString((const char *)data)));
         break;
     }
     case(cf_cb_file_save_finished):
-        emit captureFileSaveFinished();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Finished));
         break;
     case(cf_cb_file_save_failed):
-        emit captureFileSaveFailed();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Failed));
         break;
     case(cf_cb_file_save_stopped):
-        emit captureFileSaveStopped();
+        emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Stopped));
         break;
 
     case cf_cb_file_export_specified_packets_started:
@@ -265,13 +288,13 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         break;
 
     default:
-        g_warning("CaptureFile::captureFileCallback: event %u unknown", event);
-        g_assert_not_reached();
+        qWarning() << "CaptureFile::captureFileCallback: event " << event << " unknown";
+        Q_ASSERT(false);
         break;
     }
 }
 
-void CaptureFile::captureEvent(int event, capture_session *cap_session)
+void CaptureFile::captureSessionEvent(int event, capture_session *cap_session)
 {
 #ifndef HAVE_LIBPCAP
     Q_UNUSED(event)
@@ -279,46 +302,37 @@ void CaptureFile::captureEvent(int event, capture_session *cap_session)
 #else
     switch(event) {
     case(capture_cb_capture_prepared):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
-        emit captureCapturePrepared(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Capture, CaptureEvent::Prepared, cap_session));
         cap_file_ = cap_session->cf;
         break;
     case(capture_cb_capture_update_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
-        emit captureCaptureUpdateStarted(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Update, CaptureEvent::Started, cap_session));
         break;
     case(capture_cb_capture_update_continue):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");
-        emit captureCaptureUpdateContinue(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Update, CaptureEvent::Continued, cap_session));
         break;
     case(capture_cb_capture_update_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
-        emit captureCaptureUpdateFinished(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Update, CaptureEvent::Finished, cap_session));
         break;
     case(capture_cb_capture_fixed_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
-        emit captureCaptureFixedStarted(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Started, cap_session));
         break;
     case(capture_cb_capture_fixed_continue):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
-        emit captureCaptureFixedContinue(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Continued, cap_session));
         break;
     case(capture_cb_capture_fixed_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
-        emit captureCaptureFixedFinished(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Fixed, CaptureEvent::Finished, cap_session));
         break;
     case(capture_cb_capture_stopping):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
         /* Beware: this state won't be called, if the capture child
              * closes the capturing on it's own! */
-        emit captureCaptureStopping(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Capture, CaptureEvent::Stopping, cap_session));
         break;
     case(capture_cb_capture_failed):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");
-        emit captureCaptureFailed(cap_session);
+        emit captureEvent(new CaptureEvent(CaptureEvent::Capture, CaptureEvent::Failed, cap_session));
         break;
     default:
-        g_warning("main_capture_callback: event %u unknown", event);
+        qWarning() << "main_capture_callback: event " << event << " unknown";
     }
 #endif // HAVE_LIBPCAP
 }

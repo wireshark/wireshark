@@ -30,6 +30,8 @@ struct _e_prefs;
 class QAction;
 class QSocketNotifier;
 
+class CaptureEvent;
+
 // Recent items:
 // - Read from prefs
 // - Add from open file
@@ -196,12 +198,12 @@ signals:
 public slots:
     void clearRecentCaptures();
     void refreshRecentCaptures();
-    void captureFileReadStarted();
-    void captureStarted();
-    void captureFinished();
-    void updateTaps();
+
+    void captureEventHandler(CaptureEvent *);
 
 private slots:
+    void updateTaps();
+
     void cleanup();
     void ifChangeEventsAvailable();
     void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);

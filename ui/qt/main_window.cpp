@@ -521,76 +521,12 @@ MainWindow::MainWindow(QWidget *parent) :
     setTabOrder(df_combo_box_->lineEdit(), packet_list_);
     setTabOrder(packet_list_, proto_tree_);
 
-    connect(&capture_file_, SIGNAL(captureCapturePrepared(capture_session *)),
-            this, SLOT(captureCapturePrepared(capture_session *)));
-    connect(&capture_file_, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
-            this, SLOT(captureCaptureUpdateStarted(capture_session *)));
-    connect(&capture_file_, SIGNAL(captureCaptureUpdateFinished(capture_session *)),
-            this, SLOT(captureCaptureUpdateFinished(capture_session *)));
-    connect(&capture_file_, SIGNAL(captureCaptureFixedStarted(capture_session *)),
-            this, SLOT(captureCaptureFixedStarted(capture_session *)));
-    connect(&capture_file_, SIGNAL(captureCaptureFixedContinue(capture_session *)),
-            main_ui_->statusBar, SLOT(updateCaptureFixedStatistics(capture_session*)));
-    connect(&capture_file_, SIGNAL(captureCaptureFixedFinished(capture_session *)),
-            this, SLOT(captureCaptureFixedFinished(capture_session *)));
-    connect(&capture_file_, SIGNAL(captureCaptureStopping(capture_session *)),
-            this, SLOT(captureCaptureStopping(capture_session *)));
-    connect(&capture_file_, SIGNAL(captureCaptureFailed(capture_session *)),
-            this, SLOT(captureCaptureFailed(capture_session *)));
-    connect(&capture_file_, SIGNAL(captureCaptureUpdateContinue(capture_session*)),
-            main_ui_->statusBar, SLOT(updateCaptureStatistics(capture_session*)));
-
-    connect(&capture_file_, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
-            wsApp, SLOT(captureStarted()));
-    connect(&capture_file_, SIGNAL(captureCaptureUpdateFinished(capture_session *)),
-            wsApp, SLOT(captureFinished()));
-    connect(&capture_file_, SIGNAL(captureCaptureFixedStarted(capture_session *)),
-            wsApp, SLOT(captureStarted()));
-    connect(&capture_file_, SIGNAL(captureCaptureFixedFinished(capture_session *)),
-            wsApp, SLOT(captureFinished()));
-
-    connect(&capture_file_, SIGNAL(captureFileOpened()),
-            this, SLOT(captureFileOpened()));
-    connect(&capture_file_, SIGNAL(captureFileReadStarted()),
-            this, SLOT(captureFileReadStarted()));
-    connect(&capture_file_, SIGNAL(captureFileReadFinished()),
-            this, SLOT(captureFileReadFinished()));
-    connect(&capture_file_, SIGNAL(captureFileReloadStarted()),
-            this, SLOT(captureFileReloadStarted()));
-    connect(&capture_file_, SIGNAL(captureFileReloadFinished()),
-            this, SLOT(captureFileReadFinished()));
-    connect(&capture_file_, SIGNAL(captureFileRescanStarted()),
-            this, SLOT(captureFileRescanStarted()));
-    connect(&capture_file_, SIGNAL(captureFileRescanFinished()),
-            this, SLOT(captureFileReadFinished()));
-    connect(&capture_file_, SIGNAL(captureFileRetapStarted()),
-            this, SLOT(captureFileRetapStarted()));
-    connect(&capture_file_, SIGNAL(captureFileRetapFinished()),
-            this, SLOT(captureFileRetapFinished()));
-    connect(&capture_file_, SIGNAL(captureFileMergeStarted()),
-            this, SLOT(captureFileMergeStarted()));
-    connect(&capture_file_, SIGNAL(captureFileMergeFinished()),
-            this, SLOT(captureFileMergeFinished()));
-    connect(&capture_file_, SIGNAL(captureFileFlushTapsData()),
-            this, SLOT(captureFileFlushTapsData()));
-    connect(&capture_file_, SIGNAL(captureFileClosing()),
-            this, SLOT(captureFileClosing()));
-    connect(&capture_file_, SIGNAL(captureFileClosed()),
-            this, SLOT(captureFileClosed()));
-
-    connect(&capture_file_, SIGNAL(captureFileSaveStarted(QString)),
-            this, SLOT(captureFileSaveStarted(QString)));
-    connect(&capture_file_, SIGNAL(captureFileSaveFinished()),
-            main_ui_->statusBar, SLOT(popFileStatus()));
-    connect(&capture_file_, SIGNAL(captureFileSaveFailed()),
-            main_ui_->statusBar, SLOT(popFileStatus()));
-    connect(&capture_file_, SIGNAL(captureFileSaveStopped()),
-            main_ui_->statusBar, SLOT(popFileStatus()));
-
-    connect(&capture_file_, SIGNAL(captureFileReadStarted()),
-            wsApp, SLOT(captureFileReadStarted()));
-    connect(&capture_file_, SIGNAL(captureFileReadFinished()),
-            wsApp, SLOT(updateTaps()));
+    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent *)),
+            this, SLOT(captureEventHandler(CaptureEvent *)));
+    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent *)),
+            wsApp, SLOT(captureEventHandler(CaptureEvent *)));
+    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent *)),
+            main_ui_->statusBar, SLOT(captureEventHandler(CaptureEvent *)));
 
     connect(wsApp, SIGNAL(columnsChanged()),
             packet_list_, SLOT(columnsChanged()));
@@ -2174,8 +2110,7 @@ gboolean MainWindow::addExportObjectsMenuItem(const void *, void *value, void *u
     //initially disable until a file is loaded (then file signals will take over)
     export_action->setEnabled(false);
 
-    connect(&window->capture_file_, SIGNAL(captureFileOpened()), export_action, SLOT(captureFileOpened()));
-    connect(&window->capture_file_, SIGNAL(captureFileClosed()), export_action, SLOT(captureFileClosed()));
+    connect(&window->capture_file_, SIGNAL(captureEvent(CaptureEvent *)), export_action, SLOT(captureFileEvent(CaptureEvent *)));
     connect(export_action, SIGNAL(triggered()), window, SLOT(applyExportObject()));
     return FALSE;
 }

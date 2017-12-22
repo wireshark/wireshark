@@ -103,6 +103,8 @@ public slots:
     void updateCaptureStatistics(capture_session * cap_session);
     void updateCaptureFixedStatistics(capture_session * cap_session);
 
+    void captureEventHandler(CaptureEvent *ev);
+
 private slots:
     void pushPacketStatus(const QString &message);
     void popPacketStatus();

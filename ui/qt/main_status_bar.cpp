@@ -40,6 +40,7 @@
 #include "profile_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/capture_file.h>
 
 #include <QAction>
 #include <QHBoxLayout>
@@ -641,6 +642,47 @@ void MainStatusBar::manageProfile()
     if (pa) {
         ProfileDialog cp_dialog;
         cp_dialog.execAction(static_cast<ProfileDialog::ProfileAction>(pa->data().toInt()));
+    }
+}
+
+void MainStatusBar::captureEventHandler(CaptureEvent * ev)
+{
+    switch(ev->captureContext())
+    {
+    case CaptureEvent::Update:
+        switch ( ev->eventType() )
+        {
+        case CaptureEvent::Continued:
+            updateCaptureStatistics(ev->capSession());
+            break;
+        default:
+            break;
+        }
+        break;
+    case CaptureEvent::Fixed:
+        switch ( ev->eventType() )
+        {
+        case CaptureEvent::Continued:
+            updateCaptureFixedStatistics(ev->capSession());
+            break;
+        default:
+            break;
+        }
+        break;
+    case CaptureEvent::Save:
+        switch ( ev->eventType() )
+        {
+        case CaptureEvent::Finished:
+        case CaptureEvent::Failed:
+        case CaptureEvent::Stopped:
+            popFileStatus();
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
     }
 }
 

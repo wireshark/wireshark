@@ -41,14 +41,15 @@ ExportObjectAction::ExportObjectAction(QObject *parent, register_eo_t *eo) :
     }
 }
 
-void ExportObjectAction::captureFileOpened()
+void ExportObjectAction::captureFileEvent(CaptureEvent *e)
 {
-    setEnabled(true);
-}
-
-void ExportObjectAction::captureFileClosed()
-{
-    setEnabled(false);
+    if ( e->captureContext() == CaptureEvent::File )
+    {
+        if ( e->eventType() == CaptureEvent::Opened )
+            setEnabled(true);
+        else if ( e->eventType() == CaptureEvent::Closed )
+            setEnabled(false);
+    }
 }
 
 /*

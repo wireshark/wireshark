@@ -68,6 +68,8 @@
 #  include <QSettings>
 #endif /* _WIN32 */
 
+#include <ui/qt/capture_file.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QColorDialog>
@@ -681,29 +683,10 @@ bool WiresharkApplication::event(QEvent *event)
     return QApplication::event(event);
 }
 
-void WiresharkApplication::captureStarted()
-{
-    active_captures_++;
-    emit captureActive(active_captures_);
-}
-
-void WiresharkApplication::captureFinished()
-{
-    active_captures_--;
-    emit captureActive(active_captures_);
-}
-
 void WiresharkApplication::clearRecentCaptures() {
     qDeleteAll(recent_captures_);
     recent_captures_.clear();
     emit updateRecentCaptureStatus(NULL, 0, false);
-}
-
-void WiresharkApplication::captureFileReadStarted()
-{
-    // Doesn't appear to do anything. Logic probably needs to be in file.c.
-    QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
-    QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 2, this, SLOT(updateTaps()));
 }
 
 void WiresharkApplication::cleanup()
@@ -1346,6 +1329,46 @@ void WiresharkApplication::softwareUpdateShutdownRequest() {
     emit softwareUpdateQuit();
 }
 #endif
+
+void WiresharkApplication::captureEventHandler(CaptureEvent * ev)
+{
+    switch(ev->captureContext())
+    {
+    case CaptureEvent::Update:
+    case CaptureEvent::Fixed:
+        switch ( ev->eventType() )
+        {
+        case CaptureEvent::Started:
+            active_captures_++;
+            emit captureActive(active_captures_);
+            break;
+        case CaptureEvent::Finished:
+            active_captures_--;
+            emit captureActive(active_captures_);
+            break;
+        default:
+            break;
+        }
+        break;
+    case CaptureEvent::File:
+        switch ( ev->eventType() )
+        {
+        case CaptureEvent::Started:
+            // Doesn't appear to do anything. Logic probably needs to be in file.c.
+            QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
+            QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 2, this, SLOT(updateTaps()));
+            break;
+        case CaptureEvent::Finished:
+            updateTaps();
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+}
 
 /*
  * Editor modelines
