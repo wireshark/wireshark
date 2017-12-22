@@ -585,7 +585,6 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 				proto_tree_add_item(subtree, hf_coap_opt_object_security_kid, tvb, offset, kid_len, ENC_NA);
 				kid = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, kid_len, ' ');
 
-				offset += kid_len;
 			} else {
 				expert_add_info_format(pinfo, subtree, &ei_coap_option_object_security_bad, "Key ID flag is set but there are no remaining bytes to be processed");
 				kid = nullstr;
