@@ -3663,9 +3663,9 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
             /* Bit 8 of Octet 1 is set, this indicates that the IE is defined by a vendor and the Enterprise ID is present */
             proto_tree_add_item(ie_tree, hf_pfcp_enterprice_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+
             /* give the whole IE to the subdissector */
-            ie_tvb = tvb_new_subset_length(tvb, offset-6, length);
+            ie_tvb = tvb_new_subset_length(tvb, offset-4, length);
             dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, ie_tree, FALSE, ti);
             offset += length;
         } else {
