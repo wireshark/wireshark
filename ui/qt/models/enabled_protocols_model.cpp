@@ -276,6 +276,7 @@ QVariant EnabledProtocolsModel::data(const QModelIndex &index, int role) const
         default:
             break;
         }
+        break;
     case Qt::CheckStateRole:
         switch ((enum EnabledProtocolsColumn)index.column())
         {
@@ -284,6 +285,7 @@ QVariant EnabledProtocolsModel::data(const QModelIndex &index, int role) const
         default:
             break;
         }
+        break;
     }
     return QVariant();
 }
