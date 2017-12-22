@@ -2007,7 +2007,7 @@ dissect_pfcp_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     }
 
     while (num_csid > 0) {
-        proto_tree_add_item(tree, hf_pfcp_fq_csid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_fq_csid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         num_csid--;
     }
