@@ -1765,7 +1765,7 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
             if (length > 1) {
                 name_len = tvb_get_guint8(tvb, offset);
                 /* NOTE 1: The FQDN field in the IE is not encoded as a dotted string as commonly used in DNS master zone files. */
-                if (name_len < 0x20) {
+                if (name_len < 0x40) {
                     fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 2, ENC_ASCII);
                     for (;;) {
                         if (name_len >= length - 2)
