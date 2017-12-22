@@ -364,8 +364,8 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     // ASCII
     if (show_ascii_) {
         bool in_non_printable = false;
-        int np_start;
-        int np_len;
+        int np_start = 0;
+        int np_len = 0;
         for (int tvb_pos = offset; tvb_pos <= max_tvb_pos; tvb_pos++) {
             /* insert a space every separator_interval_ bytes */
             if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
