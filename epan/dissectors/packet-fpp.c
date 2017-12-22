@@ -374,9 +374,9 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 				conversation_add_proto_data(conv, proto_fpp, ctx);
 			}
 
-			frag_data = fragment_add_check(&fpp_reassembly_table,
-											tvb, FPP_PREAMBLE_LENGTH, pinfo, 1, NULL,
-											0, frag_size, TRUE);
+			fragment_add_check(&fpp_reassembly_table,
+								tvb, FPP_PREAMBLE_LENGTH, pinfo, 1, NULL,
+								0, frag_size, TRUE);
 
 			set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, 8);
 			set_address_tvb(&pinfo->dst, AT_ETHER, 6, tvb, 8);
@@ -415,9 +415,9 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 
 			fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, 0);
 			if (fpp_pdata) {
-				frag_data = fragment_add_check(&fpp_reassembly_table,
-												tvb, FPP_PREAMBLE_LENGTH, pinfo, 1, NULL,
-												fpp_pdata->offset, frag_size, TRUE);
+				fragment_add_check(&fpp_reassembly_table,
+									tvb, FPP_PREAMBLE_LENGTH, pinfo, 1, NULL,
+									fpp_pdata->offset, frag_size, TRUE);
 			} else {
 				drop_fragments(pinfo);
 			}
