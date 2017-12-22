@@ -386,7 +386,6 @@ void RpcServiceResponseTimeDialog::fillTree()
 {
     void *tap_data = NULL;
     const QString program_name = program_combo_->currentText();
-    gchar *program_name_cptr = qstring_strdup(program_name);
     guint32 max_procs = 0;
 
     switch (dlg_type_) {
@@ -397,8 +396,8 @@ void RpcServiceResponseTimeDialog::fillTree()
         guid_key *dkey = dce_name_to_uuid_key_[program_name];
         dcerpcstat_tap_data_t *dtap_data = g_new0(dcerpcstat_tap_data_t, 1);
         dtap_data->uuid = dkey->guid;
-        dtap_data->prog = program_name_cptr;
         dtap_data->ver = (guint16) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
+        dtap_data->prog = dcerpc_get_proto_name(&dtap_data->uuid, dtap_data->ver);
 
         dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), dtap_data->ver);
         for (int i = 0; procs[i].name; i++) {
@@ -414,8 +413,8 @@ void RpcServiceResponseTimeDialog::fillTree()
         if (!onc_name_to_program_.contains(program_name)) return;
 
         rpcstat_tap_data_t *otap_data = g_new0(rpcstat_tap_data_t, 1);
-        otap_data->prog = program_name_cptr;
         otap_data->program = onc_name_to_program_[program_name];
+        otap_data->prog = rpc_prog_name(otap_data->program);
         otap_data->version = (guint32) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
 
         onc_rpc_num_procedures_ = -1;
@@ -431,8 +430,6 @@ void RpcServiceResponseTimeDialog::fillTree()
     set_srt_table_param_data(srt_, tap_data);
 
     ServiceResponseTimeDialog::fillTree();
-    g_free(program_name_cptr);
-    g_free(tap_data);
 }
 
 /*
