@@ -54,6 +54,8 @@ static int hf_quic_short_cid_flag = -1;
 static int hf_quic_short_kp_flag = -1;
 static int hf_quic_short_packet_type = -1;
 static int hf_quic_cleartext_protected_payload = -1;
+static int hf_quic_initial_payload = -1;
+static int hf_quic_handshake_payload = -1;
 static int hf_quic_protected_payload = -1;
 
 static int hf_quic_frame = -1;
@@ -131,6 +133,7 @@ const value_string quic_version_vals[] = {
     { 0xff000005, "draft-05" },
     { 0xff000006, "draft-06" },
     { 0xff000007, "draft-07" },
+    { 0xff000008, "draft-08" },
     { 0, NULL }
 };
 
@@ -148,19 +151,26 @@ static const value_string quic_short_packet_type_vals[] = {
     { 0x01, "1 octet" },
     { 0x02, "2 octet" },
     { 0x03, "4 octet" },
+    { 0x1F, "1 octet" },
+    { 0x1E, "2 octet" },
+    { 0x1D, "4 octet" },
     { 0, NULL }
 };
 
 static const value_string quic_long_packet_type_vals[] = {
-    { 0x01, "Version Negotiation" },
-    { 0x02, "Client Initial" },
-    { 0x03, "Server Stateless Retry" },
-    { 0x04, "Server Cleartext" },
-    { 0x05, "Client Cleartext" },
-    { 0x06, "0-RTT Protected" },
-    { 0x07, "1-RTT Protected (key phase 0)" },
-    { 0x08, "1-RTT Protected (key phase 1)" },
-    { 0x09, "Public Reset" },
+    { 0x01, "Version Negotiation" }, /* Removed in draft-08 by a check of Version (=0x00000000)*/
+    { 0x02, "Client Initial" }, /* Replaced in draft-08 by 0x7F (Initial) */
+    { 0x03, "Server Stateless Retry" }, /* Replaced in draft-08 by 0x7E (Retry) */
+    { 0x04, "Server Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
+    { 0x05, "Client Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
+    { 0x06, "0-RTT Protected" },  /* Replaced in draft-08 by 0x7C (0-RTT Protected) */
+    { 0x07, "1-RTT Protected (key phase 0)" }, /* Removed in draft-07 */
+    { 0x08, "1-RTT Protected (key phase 1)" }, /* Removed in draft-07 */
+    { 0x09, "Public Reset" }, /* Removed in draft-06*/
+    { 0x7F, "Initial" },
+    { 0x7E, "Retry" },
+    { 0x7D, "Handshake" },
+    { 0x7C, "0-RTT Protected" },
     { 0, NULL }
 };
 
@@ -400,12 +410,15 @@ static guint32 get_len_packet_number(guint8 short_packet_type){
 
     switch(short_packet_type & SH_PT){
         case 1:
+        case 0x1F:
             return 1;
         break;
         case 2:
+        case 0x1E:
             return 2;
         break;
         case 3:
+        case 0x1D:
             return 4;
         break;
         default:
@@ -937,11 +950,20 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
     offset += 8;
 
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
-    offset += 4;
+    if(long_packet_type < 0x09) { /*Before draft-08 */
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
+        offset += 4;
 
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &quic_info->version);
-    offset += 4;
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &quic_info->version);
+        offset += 4;
+    } else {
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &quic_info->version);
+        offset += 4;
+        /* Add version check (0x00000000) it is not a Negociation Packet */
+
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
+        offset += 4;
+    }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s, PKN: %u, CID: 0x%" G_GINT64_MODIFIER "x", val_to_str(long_packet_type, quic_long_packet_type_vals, "Unknown Packet Type"), pkn, cid);
 
@@ -1020,8 +1042,19 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
 #endif /* !HAVE_LIBGCRYPT_AEAD */
         }
-    } else {
+    /* Initial (>= draft-08) */
+    } else if (long_packet_type == 0x7F) {
 
+        proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
+        offset += tvb_reported_length_remaining(tvb, offset);
+
+    /* Handshake (>= draft-08) */
+    } else if  (long_packet_type == 0x7D ) {
+
+        proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
+        offset += tvb_reported_length_remaining(tvb, offset);
+
+    } else {
         /* 0-RTT (0x06)/ 1-RTT Key Phase 0 (0x07), 1-RTT Key Phase 1 (0x08) Protected Payload */
         proto_tree_add_item(quic_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
         offset += tvb_reported_length_remaining(tvb, offset);
@@ -1158,6 +1191,16 @@ proto_register_quic(void)
         },
         { &hf_quic_cleartext_protected_payload,
           { "Cleartext Protected Payload", "quic.cleartext_protected_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_initial_payload,
+          { "Initial Payload", "quic.initial_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_handshake_payload,
+          { "Handshake Payload", "quic.handshake_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
