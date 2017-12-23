@@ -854,10 +854,12 @@ static gboolean
 quic_derive_cleartext_secrets(guint64 cid,
                               guint8 **client_cleartext_secret,
                               guint8 **server_cleartext_secret,
+                              quic_info_data_t *quic_info,
                               const gchar **error)
 {
+
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-07#section-5.2.1
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-08#section-5.2.1
      *
      * quic_version_1_salt = afc824ec5fc77eca1e9d36f37fb2d46518c36639
      *
@@ -866,11 +868,11 @@ quic_derive_cleartext_secrets(guint64 cid,
      *
      * client_cleartext_secret =
      *                    HKDF-Expand-Label(cleartext_secret,
-     *                                      "QUIC client cleartext Secret",
+     *                                      "QUIC client handshake secret",
      *                                      "", Hash.length)
      * server_cleartext_secret =
      *                    HKDF-Expand-Label(cleartext_secret,
-     *                                      "QUIC server cleartext Secret",
+     *                                      "QUIC server handshake secret",
      *                                      "", Hash.length)
      * Hash for cleartext packets is SHA-256 (output size 32).
      */
@@ -883,6 +885,14 @@ quic_derive_cleartext_secrets(guint64 cid,
     guint8          secret_bytes[HASH_SHA2_256_LENGTH];
     StringInfo      secret = { (guchar *) &secret_bytes, HASH_SHA2_256_LENGTH };
     guint8          cid_bytes[8];
+    const gchar     *client_label = "QUIC client handshake secret";
+    const gchar     *server_label = "QUIC server handshake secret";
+
+    /* draft-07 uses "cleartext Secret" instead of "handshake secret" in labels */
+    if(quic_info->version == 0xFF000007) {
+       client_label = "QUIC client cleartext Secret";
+       server_label = "QUIC server cleartext Secret";
+    }
 
     phton64(cid_bytes, cid);
     err = hkdf_extract(GCRY_MD_SHA256, quic_version_1_salt, sizeof(quic_version_1_salt),
@@ -892,13 +902,13 @@ quic_derive_cleartext_secrets(guint64 cid,
         return FALSE;
     }
 
-    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, "QUIC client cleartext Secret",
+    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, client_label,
                                  "", HASH_SHA2_256_LENGTH, client_cleartext_secret)) {
         *error = "Key expansion (client) failed";
         return FALSE;
     }
 
-    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, "QUIC server cleartext Secret",
+    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, server_label,
                                  "", HASH_SHA2_256_LENGTH, server_cleartext_secret)) {
         wmem_free(NULL, client_cleartext_secret);
         *client_cleartext_secret = NULL;
@@ -918,7 +928,7 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
     StringInfo      server_secret = { NULL, HASH_SHA2_256_LENGTH };
 
     /* TODO extract from packet/conversation */
-    if (!quic_derive_cleartext_secrets(cid, &client_secret.data, &server_secret.data, error)) {
+    if (!quic_derive_cleartext_secrets(cid, &client_secret.data, &server_secret.data, quic_info, error)) {
         /* TODO handle error (expert info) */
         return FALSE;
     }
@@ -1044,8 +1054,35 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         }
     /* Initial (>= draft-08) */
     } else if (long_packet_type == 0x7F) {
+        tls13_cipher *cipher = NULL;
+        const gchar *error = NULL;
+        tvbuff_t *decrypted_tvb;
+        proto_item *ti;
 
-        proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
+        ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
+        /* Create new decryption context based on the Client Connection
+         * ID from the Client Initial packet. */
+        if (!quic_create_cleartext_decoders(cid, &error, quic_info)) {
+            expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
+             return offset;
+        }
+
+        cipher = quic_info->client_cleartext_cipher;
+
+        if (cipher) {
+            /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
+            DISSECTOR_ASSERT(offset == QUIC_LONG_HEADER_LENGTH);
+
+            decrypted_tvb = quic_decrypt_message(cipher, tvb, pinfo, QUIC_LONG_HEADER_LENGTH, pkn, &error);
+            if (decrypted_tvb) {
+                guint decrypted_offset = 0;
+                while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0){
+                    decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, quic_tree, decrypted_offset, quic_info);
+                }
+            } else {
+                expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to decrypt handshake: %s", error);
+            }
+        }
         offset += tvb_reported_length_remaining(tvb, offset);
 
     /* Handshake (>= draft-08) */
