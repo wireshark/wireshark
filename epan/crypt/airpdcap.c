@@ -2264,7 +2264,11 @@ AirPDcapTDLSDeriveKey(
     gcry_mac_write(cmac_handle, &data[offset_fte], 4);
     gcry_mac_write(cmac_handle, zeros, 16);
     gcry_mac_write(cmac_handle, &data[offset_fte + 20], data[offset_fte + 1] + 2 - 20);
-    gcry_mac_read(cmac_handle, mic, &cmac_len);
+    if (gcry_mac_read(cmac_handle, mic, &cmac_len) != GPG_ERR_NO_ERROR) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "MAC read error", AIRPDCAP_DEBUG_LEVEL_3);
+        gcry_mac_close(cmac_handle);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
     if (memcmp(mic, &data[offset_fte + 4], 16)) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "MIC verification failed", AIRPDCAP_DEBUG_LEVEL_3);
         gcry_mac_close(cmac_handle);
