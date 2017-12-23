@@ -524,7 +524,7 @@ public:
     void draw() {
         // Fixed fields only drawn once from constructor so don't redraw here.
 
-        /* Calculate bandwidth */
+        /* Calculate bandwidths */
         double UL_bw = calculate_bw(&stats_.UL_time_start,
                                     &stats_.UL_time_stop,
                                     stats_.UL_total_bytes);
@@ -548,7 +548,7 @@ public:
         setText(col_dl_nacks_,   QString::number(stats_.DL_total_nacks));
         setText(col_dl_missing_, QString::number(stats_.DL_total_missing));
 
-        // Call draw() for each channel present.
+        // Call draw() for each channel for this UE.
         if (CCCH_stats_ != NULL) {
             CCCH_stats_->draw();
         }
@@ -620,10 +620,7 @@ public:
 
         // Key fields.
         // After the UEId field, there are 2 unused columns for UE entries.
-        // There appears to be an issue with TapParameterDialog where
-        // it shows 2 few column headings (sending in blank values as below
-        // doesn't help..).
-        row_data << ueid_; /* << QList<QVariant>() << QList<QVariant>() ;*/
+        row_data << ueid_ << QString("") << QString("");
 
         // UL
         row_data << stats_.UL_frames << stats_.UL_total_bytes
@@ -654,8 +651,8 @@ private:
 
 // Only the first 3 columns headings differ between UE and channel rows.
 static const QString ue_col_0_title_ = QObject::tr("UE Id");
-static const QString ue_col_1_title_ = "";
-static const QString ue_col_2_title_ = "";
+static const QString ue_col_1_title_ = QObject::tr("");
+static const QString ue_col_2_title_ = QObject::tr("");
 
 static const QString channel_col_0_title_ = QObject::tr("Name");
 static const QString channel_col_1_title_ = QObject::tr("Mode");
@@ -912,11 +909,15 @@ void LteRlcStatisticsDialog::updateItemSelectionChanged()
 
 void LteRlcStatisticsDialog::updateHeaderLabels()
 {
-    if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+    if (statsTreeWidget()->selectedItems().count() > 0 &&
+        statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+
+        // UE column headings.
         statsTreeWidget()->headerItem()->setText(col_ueid_, channel_col_0_title_);
         statsTreeWidget()->headerItem()->setText(col_mode_, channel_col_1_title_);
         statsTreeWidget()->headerItem()->setText(col_priority_, channel_col_2_title_);
     } else {
+        // Channel column headings.
         statsTreeWidget()->headerItem()->setText(col_ueid_, ue_col_0_title_);
         statsTreeWidget()->headerItem()->setText(col_mode_, ue_col_1_title_);
         statsTreeWidget()->headerItem()->setText(col_priority_, ue_col_2_title_);

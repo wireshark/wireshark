@@ -251,19 +251,19 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
     switch (format) {
     case ST_FORMAT_PLAIN:
     {
+        // Iterating over trees.
         QTreeWidgetItemIterator width_it(it);
         QString plain_header;
         while (*width_it) {
-            QList<QVariant> tid = treeItemData((*width_it));
-            int col = 0;
-            foreach (QVariant var, tid) {
+            // Iterating over items within this tree.
+            for (int col=0; col < ui->statsTreeWidget->columnCount(); col++) {
                 if (col_widths.size() <= col) {
                     col_widths.append(ui->statsTreeWidget->headerItem()->text(col).length());
                 }
+                QVariant var = ui->statsTreeWidget->headerItem()->data(col, Qt::DisplayRole);
                 if (var.type() == QVariant::String) {
                     col_widths[col] = qMax(col_widths[col], itemDataToPlain(var).length());
                 }
-                col++;
             }
             ++width_it;
         }
