@@ -432,9 +432,8 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
 
 bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int start, int length, HighlightMode mode)
 {
-    if (length < 1 || mode == ModeNormal) {
+    if (length < 1)
         return false;
-    }
 
     QTextLayout::FormatRange format_range;
     format_range.start = start;
@@ -442,7 +441,7 @@ bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int
     format_range.format.setProperty(QTextFormat::LineHeight, line_height_);
     switch (mode) {
     case ModeNormal:
-        break;
+        return false;
     case ModeField:
         format_range.format.setBackground(palette().highlight());
         break;
