@@ -66,6 +66,8 @@ private:
 
     virtual const QString filterExpression();
 
+    QList<QVariant> treeItemData(QTreeWidgetItem *item) const;
+
 private slots:
     virtual void fillTree();
     void updateItemSelectionChanged();

@@ -64,26 +64,22 @@ enum {
 };
 
 /* Calculate and return a bandwidth figure, in Mbs */
-static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 bytes)
+static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time, guint32 bytes)
 {
     /* Can only calculate bandwidth if have time delta */
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
-        float elapsed_ms = (((float)stop_time->secs - (float)start_time->secs) * 1000) +
-                           (((float)stop_time->nsecs - (float)start_time->nsecs) / 1000000);
+        double elapsed_ms = (((double)stop_time->secs - (double)start_time->secs) * 1000) +
+                            (((double)stop_time->nsecs - (double)start_time->nsecs) / 1000000);
 
         /* Only really meaningful if have a few frames spread over time...
            For now at least avoid dividing by something very close to 0.0 */
         if (elapsed_ms < 2.0) {
            return 0.0f;
         }
-        float bw = ((bytes * 8) / elapsed_ms) / 1000;
-        if (bw < 0.0001) {
-            // Very small values aren't interesting/useful, and would rather see 0 than scientific notation.
-            return 0.0f;
-        }
-        else {
-            return bw;
-        }
+
+        // N.B. very small values will display as scientific notation, but rather that than show 0
+        // when there is some traffic..
+        return ((bytes * 8) / elapsed_ms) / 1000;
     }
     else {
         return 0.0f;
@@ -240,12 +236,12 @@ public:
     // Draw channel entry.
     void draw() {
         // Calculate bandwidth.
-        float UL_bw = calculate_bw(&stats_.UL_time_start,
-                                   &stats_.UL_time_stop,
-                                   stats_.UL_bytes);
-        float DL_bw = calculate_bw(&stats_.DL_time_start,
-                                   &stats_.DL_time_stop,
-                                   stats_.DL_bytes);
+        double UL_bw = calculate_bw(&stats_.UL_time_start,
+                                    &stats_.UL_time_stop,
+                                    stats_.UL_bytes);
+        double DL_bw = calculate_bw(&stats_.DL_time_start,
+                                    &stats_.DL_time_stop,
+                                    stats_.DL_bytes);
 
         // Priority
         setText(col_priority_,   QString::number(priority_));
@@ -336,6 +332,11 @@ public:
 
     bool     hasULData() const { return stats_.UL_has_data != 0; }
     bool     hasDLData() const { return stats_.DL_has_data != 0; }
+
+    QList<QVariant> rowData() const
+    {
+        return QList<QVariant>();
+    }
 
 private:
     unsigned ueid_;
@@ -524,12 +525,12 @@ public:
         // Fixed fields only drawn once from constructor so don't redraw here.
 
         /* Calculate bandwidth */
-        float UL_bw = calculate_bw(&stats_.UL_time_start,
-                                   &stats_.UL_time_stop,
-                                   stats_.UL_total_bytes);
-        float DL_bw = calculate_bw(&stats_.DL_time_start,
-                                   &stats_.DL_time_stop,
-                                   stats_.DL_total_bytes);
+        double UL_bw = calculate_bw(&stats_.UL_time_start,
+                                    &stats_.UL_time_stop,
+                                    stats_.UL_total_bytes);
+        double DL_bw = calculate_bw(&stats_.DL_time_start,
+                                    &stats_.DL_time_stop,
+                                    stats_.DL_total_bytes);
 
         // Uplink.
         setText(col_ul_frames_,  QString::number(stats_.UL_frames));
@@ -611,6 +612,33 @@ public:
         }
 
         return filter_expr;
+    }
+
+    QList<QVariant> rowData() const
+    {
+        QList<QVariant> row_data;
+
+        // Key fields.
+        // After the UEId field, there are 2 unused columns for UE entries.
+        // There appears to be an issue with TapParameterDialog where
+        // it shows 2 few column headings (sending in blank values as below
+        // doesn't help..).
+        row_data << ueid_; /* << QList<QVariant>() << QList<QVariant>() ;*/
+
+        // UL
+        row_data << stats_.UL_frames << stats_.UL_total_bytes
+                 << calculate_bw(&stats_.UL_time_start,
+                                 &stats_.UL_time_stop,
+                                 stats_.UL_total_bytes)
+                 << stats_.UL_total_acks << stats_.UL_total_nacks << stats_.UL_total_missing;
+
+        // DL
+        row_data << stats_.DL_frames << stats_.DL_total_bytes
+                 << calculate_bw(&stats_.DL_time_start,
+                                 &stats_.DL_time_stop,
+                                 stats_.DL_total_bytes)
+                 << stats_.DL_total_acks << stats_.DL_total_nacks << stats_.DL_total_missing;
+        return row_data;
     }
 
 private:
@@ -942,6 +970,22 @@ void LteRlcStatisticsDialog::filterUpdated(QString filter)
     displayFilter_ = filter;
 }
 
+// Get the item for the row, depending upon the type of tree item.
+QList<QVariant> LteRlcStatisticsDialog::treeItemData(QTreeWidgetItem *item) const
+{
+    // Cast up to our type.
+    RlcChannelTreeWidgetItem *channel_item = dynamic_cast<RlcChannelTreeWidgetItem*>(item);
+    if (channel_item) {
+        return channel_item->rowData();
+    }
+    RlcUeTreeWidgetItem *ue_item = dynamic_cast<RlcUeTreeWidgetItem*>(item);
+    if (ue_item) {
+        return ue_item->rowData();
+    }
+
+    // Need to return something..
+    return QList<QVariant>();
+}
 
 
 // Stat command + args

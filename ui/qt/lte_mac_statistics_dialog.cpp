@@ -80,6 +80,9 @@ static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time
         if (elapsed_ms < 2.0) {
            return 0.0f;
         }
+
+        // N.B. very small values will display as scientific notation, but rather that than show 0
+        // when there is some traffic..
         return ((bytes * 8) / elapsed_ms) / 1000;
     }
     else {
@@ -341,7 +344,7 @@ public:
         setText(col_ul_mb_s_, QString::number(UL_bw));
         setData(col_ul_padding_percent_, Qt::UserRole,
                 QVariant::fromValue<double>(ul_raw_bytes_ ?
-                                                (((float)ul_padding_bytes_ / (float)ul_raw_bytes_) * 100.0) :
+                                                (((double)ul_padding_bytes_ / (double)ul_raw_bytes_) * 100.0) :
                                                 0.0));
         setText(col_ul_retx_, QString::number(ul_retx_));
 
@@ -351,7 +354,7 @@ public:
 
         setData(col_dl_padding_percent_, Qt::UserRole,
                 QVariant::fromValue<double>(dl_raw_bytes_ ?
-                                                (((float)dl_padding_bytes_ / (float)dl_raw_bytes_) * 100.0) :
+                                                (((double)dl_padding_bytes_ / (double)dl_raw_bytes_) * 100.0) :
                                                 0.0));
         setText(col_dl_crc_failed_, QString::number(dl_crc_failed_));
         setText(col_dl_retx_, QString::number(dl_retx_));
@@ -423,7 +426,7 @@ public:
         row_data << ul_frames_ << ul_bytes_
                  << calculate_bw(&ul_time_start_, &ul_time_stop_, ul_bytes_)
                  << QVariant::fromValue<double>(ul_raw_bytes_ ?
-                                                    (((float)ul_padding_bytes_ / (float)ul_raw_bytes_) * 100.0) :
+                                                    (((double)ul_padding_bytes_ / (double)ul_raw_bytes_) * 100.0) :
                                                     0.0)
                  << ul_retx_;
 
@@ -431,7 +434,7 @@ public:
         row_data << dl_frames_ << dl_bytes_
                  << calculate_bw(&dl_time_start_, &dl_time_stop_, dl_bytes_)
                  << QVariant::fromValue<double>(dl_raw_bytes_ ?
-                                                    (((float)dl_padding_bytes_ / (float)dl_raw_bytes_) * 100.0) :
+                                                    (((double)dl_padding_bytes_ / (double)dl_raw_bytes_) * 100.0) :
                                                     0.0)
                  << dl_crc_failed_ << dl_retx_;
         return row_data;
