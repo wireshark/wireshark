@@ -74,13 +74,6 @@ static int msg_type _U_;
 /* through this API, which ensures that they will not overwrite each other!! */
 /*****************************************************************************/
 
-enum nas_sys_info_gsm_map {
-  RRC_NAS_SYS_UNKNOWN,
-  RRC_NAS_SYS_INFO_CS,
-  RRC_NAS_SYS_INFO_PS,
-  RRC_NAS_SYS_INFO_CN_COMMON
-};
-
 typedef struct umts_rrc_private_data_t
 {
   guint32 s_rnc_id; /* The S-RNC ID part of a U-RNTI */
@@ -94,6 +87,7 @@ typedef struct umts_rrc_private_data_t
   guint32 rbid;
   guint32 rlc_ciphering_sqn; /* Sequence number where ciphering starts in a given bearer */
   rrc_ciphering_info* ciphering_info;
+  enum rrc_ue_state rrc_state_indicator;
 } umts_rrc_private_data_t;
 
 
@@ -240,6 +234,18 @@ static void private_data_set_ciphering_info(asn1_ctx_t *actx, rrc_ciphering_info
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->ciphering_info = ciphering_info;
+}
+
+static enum rrc_ue_state private_data_get_rrc_state_indicator(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->rrc_state_indicator;
+}
+
+static void private_data_set_rrc_state_indicator(asn1_ctx_t *actx, enum rrc_ue_state rrc_state_indicator)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->rrc_state_indicator = rrc_state_indicator;
 }
 
 /*****************************************************************************/
@@ -393,6 +399,23 @@ get_or_create_cipher_info(fp_info *fpinf, rlc_info *rlcinf) {
     g_tree_insert(rrc_ciph_info_tree, GINT_TO_POINTER((gint)rlcinf->ueid[fpinf->cur_tb]), cipher_info);
   }
   return cipher_info;
+}
+
+/* Try to find the NBAP C-RNC Context and, if found, pair it with a given U-RNTI */
+static void
+rrc_try_map_urnti_to_crncc(guint32 u_rnti, asn1_ctx_t *actx)
+{
+  guint32 scrambling_code, crnc_context;
+  /* Getting the user's Uplink Scrambling Code*/
+  scrambling_code = private_data_get_scrambling_code(actx);
+  if (u_rnti != 0 && scrambling_code != 0) {
+    /* Looking for the C-RNC Context mapped to this Scrambling Code */
+    crnc_context = GPOINTER_TO_UINT(wmem_tree_lookup32(nbap_scrambling_code_crncc_map,scrambling_code));
+    if (crnc_context != 0) {
+      /* Mapping the U-RNTI to the C-RNC context*/
+      wmem_tree_insert32(nbap_crncc_urnti_map,crnc_context,GUINT_TO_POINTER(u_rnti));
+    }
+  }
 }
 
 #include "packet-rrc-fn.c"

@@ -205,12 +205,52 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY CellUpdateConfirm-CCCH
+  fp_info  *fpinf = NULL;
+  rlc_info *rlcinf = NULL;
+  guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm-CCCH");
 %(DEFAULT_BODY)s
+  if(actx->pinfo->fd->flags.visited) {
+    return offset;
+  }
+
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
+
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf == NULL || rlcinf == NULL){
+      return offset;
+  }
+
+  /* If UE is moving to CELL_DCH we need to map it's U-RNTI to the new CRNC context in NBAP */
+  if (private_data_get_rrc_state_indicator(actx) == RRC_UE_STATE_CELL_DCH) {
+    u_rnti = private_data_get_current_u_rnti(actx);
+    rrc_try_map_urnti_to_crncc(u_rnti, actx);
+  }
 
 #.FN_BODY CellUpdateConfirm
+  fp_info  *fpinf = NULL;
+  rlc_info *rlcinf = NULL;
+  guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm");
 %(DEFAULT_BODY)s
+  if(actx->pinfo->fd->flags.visited) {
+    return offset;
+  }
+
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
+
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf == NULL || rlcinf == NULL){
+      return offset;
+  }
+
+  /* If UE is moving to CELL_DCH we need to map it's U-RNTI to the new CRNC context in NBAP */
+  if (private_data_get_rrc_state_indicator(actx) == RRC_UE_STATE_CELL_DCH) {
+    u_rnti = rlcinf->ueid[fpinf->cur_tb]; /* Hopefully a U-RNTI, might be C-RNTI */
+    rrc_try_map_urnti_to_crncc(u_rnti, actx);
+  }
 
 #.FN_BODY CounterCheck
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheck");
@@ -317,8 +357,29 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY PhysicalChannelReconfiguration
+  fp_info  *fpinf = NULL;
+  rlc_info *rlcinf = NULL;
+  guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfiguration");
 %(DEFAULT_BODY)s
+  if(actx->pinfo->fd->flags.visited) {
+    return offset;
+  }
+
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
+
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf == NULL || rlcinf == NULL){
+      return offset;
+  }
+
+  /* If we receive this message on FACH and UE is moving to CELL_DCH */
+  /* we need to map it's U-RNTI to the new CRNC context in NBAP */
+  if (fpinf->channel == CHANNEL_FACH_FDD && private_data_get_rrc_state_indicator(actx) == RRC_UE_STATE_CELL_DCH) {
+    u_rnti = rlcinf->ueid[fpinf->cur_tb]; /* Hopefully a U-RNTI, might be C-RNTI */
+    rrc_try_map_urnti_to_crncc(u_rnti, actx);
+  }
 
 #.FN_BODY PhysicalChannelReconfigurationComplete
   col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfigurationComplete");
@@ -337,8 +398,29 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerReconfiguration
+  fp_info  *fpinf = NULL;
+  rlc_info *rlcinf = NULL;
+  guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfiguration");
 %(DEFAULT_BODY)s
+  if(actx->pinfo->fd->flags.visited) {
+    return offset;
+  }
+
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
+
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf == NULL || rlcinf == NULL){
+      return offset;
+  }
+
+  /* If we receive this message on FACH and UE is moving to CELL_DCH */
+  /* we need to map it's U-RNTI to the new CRNC context in NBAP */
+  if (fpinf->channel == CHANNEL_FACH_FDD && private_data_get_rrc_state_indicator(actx) == RRC_UE_STATE_CELL_DCH) {
+    u_rnti = rlcinf->ueid[fpinf->cur_tb]; /* Hopefully a U-RNTI, might be C-RNTI */
+    rrc_try_map_urnti_to_crncc(u_rnti, actx);
+  }
 
 #.FN_BODY RadioBearerReconfigurationComplete
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfigurationComplete");
@@ -393,20 +475,16 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionSetup
-  guint32 scrambling_code, new_u_rnti, crnc_context;
+  guint32 new_u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 %(DEFAULT_BODY)s
-  /* Mapping the U-RNTI assigned to the user to its Uplink Scrambling Code*/
-  scrambling_code = private_data_get_scrambling_code(actx);
-  new_u_rnti = private_data_get_new_u_rnti(actx);
-  if (new_u_rnti != 0 && scrambling_code != 0 && !actx->pinfo->fd->flags.visited) {
-    /* Looking for the C-RNC Context mapped to this Scrambling Code */
-    crnc_context = GPOINTER_TO_UINT(wmem_tree_lookup32(nbap_scrambling_code_crncc_map,scrambling_code));
-    if (crnc_context != 0) {
-      /* Mapping the U-RNTI found in this message to the C-RNC context*/
-      wmem_tree_insert32(nbap_crncc_urnti_map,crnc_context,GUINT_TO_POINTER(new_u_rnti));
-    }
+  if (actx->pinfo->fd->flags.visited) {
+    return offset;
   }
+
+  /* Trying to map the U-RNTI assigned to the user to CRNC Context from NBAP*/
+  new_u_rnti = private_data_get_new_u_rnti(actx);
+  rrc_try_map_urnti_to_crncc(new_u_rnti, actx);
 
 #.FN_BODY RRCConnectionSetupComplete
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
@@ -485,8 +563,29 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransportChannelReconfiguration
+  fp_info  *fpinf = NULL;
+  rlc_info *rlcinf = NULL;
+  guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfiguration");
 %(DEFAULT_BODY)s
+  if(actx->pinfo->fd->flags.visited) {
+    return offset;
+  }
+
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
+
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf == NULL || rlcinf == NULL){
+      return offset;
+  }
+
+  /* If we receive this message on FACH and UE is moving to CELL_DCH */
+  /* we need to map it's U-RNTI to the new CRNC context in NBAP */
+  if (fpinf->channel == CHANNEL_FACH_FDD && private_data_get_rrc_state_indicator(actx) == RRC_UE_STATE_CELL_DCH) {
+    u_rnti = rlcinf->ueid[fpinf->cur_tb]; /* Hopefully a U-RNTI, might be C-RNTI */
+    rrc_try_map_urnti_to_crncc(u_rnti, actx);
+  }
 
 #.FN_BODY TransportChannelReconfigurationComplete
   col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfigurationComplete");
@@ -1098,6 +1197,14 @@ guint32 scrambling_code;
 %(DEFAULT_BODY)s
 private_data_set_scrambling_code(actx,scrambling_code);
 
+#.FN_BODY RRC-StateIndicator VAL_PTR = &state_dec
+gint32 state_dec = -1;
+%(DEFAULT_BODY)s
+if(state_dec >= 0 && state_dec <= 3) {
+  state_dec++; /* Encoded values are 0-based, Values in the enum are 1-based*/
+  private_data_set_rrc_state_indicator(actx,(enum rrc_ue_state)state_dec);
+}
+
 #.FN_BODY CellIdentity VAL_PTR = &cell_id_tvb
   tvbuff_t * cell_id_tvb = NULL;
   proto_item *temp_ti;
@@ -1214,7 +1321,7 @@ private_data_set_scrambling_code(actx,scrambling_code);
   rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
 
   /*If FP info or RLC info is missing , skip all this*/
-  if(fpinf == NULL || rlcinf== NULL){
+  if(fpinf == NULL || rlcinf == NULL){
       return offset;
   }
   /*Retrieve the start value for the two ciphering domains*/
@@ -1257,7 +1364,7 @@ private_data_set_scrambling_code(actx,scrambling_code);
 %(DEFAULT_BODY)s
 
   /*If FP info or RLC info is missing , skip all this*/
-  if(fpinf == NULL || rlcinf== NULL){
+  if(fpinf == NULL || rlcinf == NULL){
     return offset;
   }
 
