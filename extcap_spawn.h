@@ -36,7 +36,6 @@ GPid extcap_spawn_async ( extcap_userdata * userdata, GPtrArray * args );
 
 #ifdef _WIN32
 gboolean extcap_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid);
-void win32_readfrompipe(HANDLE read_pipe, gint32 max_buffer, gchar * buffer);
 #endif
 
 #endif

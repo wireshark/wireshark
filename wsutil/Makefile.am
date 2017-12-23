@@ -86,6 +86,7 @@ WSUTIL_PUBLIC_INCLUDES = \
 	ws_cpuid.h		\
 	ws_mempbrk.h		\
 	ws_mempbrk_int.h	\
+	ws_pipe.h		\
 	ws_printf.h		\
 	wsjsmn.h		\
 	wsgcrypt.h		\
@@ -164,6 +165,7 @@ libwsutil_la_SOURCES = \
 	type_util.c		\
 	unicode-utils.c		\
 	ws_mempbrk.c		\
+	ws_pipe.c		\
 	wsgcrypt.c		\
 	wsjsmn.c		\
 	xtea.c

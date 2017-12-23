@@ -100,7 +100,7 @@
 #include <process.h>    /* For spawning child process */
 #endif
 
-
+#include <wsutil/ws_pipe.h>
 
 #ifdef _WIN32
 static void create_dummy_signal_pipe();
@@ -1524,37 +1524,12 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
     return offset;
 }
 
-static gboolean pipe_data_available(int pipe_fd) {
-#ifdef _WIN32 /* PeekNamedPipe */
-    HANDLE hPipe = (HANDLE) _get_osfhandle(pipe_fd);
-    DWORD bytes_avail;
-
-    if (hPipe == INVALID_HANDLE_VALUE)
-        return FALSE;
-
-    if (! PeekNamedPipe(hPipe, NULL, 0, NULL, &bytes_avail, NULL))
-        return FALSE;
-
-    if (bytes_avail > 0)
-        return TRUE;
-    return FALSE;
-#else /* select */
-    fd_set rfds;
-    struct timeval timeout;
-
-    FD_ZERO(&rfds);
-    FD_SET(pipe_fd, &rfds);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-
-    if (select(pipe_fd+1, &rfds, NULL, NULL, &timeout) > 0)
-        return TRUE;
-
-    return FALSE;
-#endif
-}
-
-/* Read a line from a pipe, similar to fgets */
+/*
+ * Read a line from a pipe; similar to fgets, but doesn't block.
+ *
+ * XXX - just stops reading if there's nothing to be read right now;
+ * that could conceivably mean that you don't get a complete line.
+ */
 int
 sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
     ssize_t newly;
@@ -1562,7 +1537,7 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
 
     while(offset < max - 1) {
         offset++;
-        if (! pipe_data_available(pipe_fd))
+        if (! ws_pipe_data_available(pipe_fd))
             break;
         newly = ws_read(pipe_fd, &bytes[offset], 1);
         if (newly == 0) {

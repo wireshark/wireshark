@@ -42,6 +42,7 @@
 #include <wsutil/glib-compat.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_pipe.h>
 #include <wsutil/tempfile.h>
 
 #include "capture_opts.h"
@@ -944,46 +945,6 @@ extcap_has_toolbar(const char *ifname)
     return FALSE;
 }
 
-/* taken from capchild/capture_sync.c */
-static gboolean pipe_data_available(int pipe_fd)
-{
-#ifdef _WIN32 /* PeekNamedPipe */
-    HANDLE hPipe = (HANDLE) _get_osfhandle(pipe_fd);
-    DWORD bytes_avail;
-
-    if (hPipe == INVALID_HANDLE_VALUE)
-    {
-        return FALSE;
-    }
-
-    if (! PeekNamedPipe(hPipe, NULL, 0, NULL, &bytes_avail, NULL))
-    {
-        return FALSE;
-    }
-
-    if (bytes_avail > 0)
-    {
-        return TRUE;
-    }
-    return FALSE;
-#else /* select */
-    fd_set rfds;
-    struct timeval timeout;
-
-    FD_ZERO(&rfds);
-    FD_SET(pipe_fd, &rfds);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-
-    if (select(pipe_fd + 1, &rfds, NULL, NULL, &timeout) > 0)
-    {
-        return TRUE;
-    }
-
-    return FALSE;
-#endif
-}
-
 void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 {
     interface_options *interface_opts;
@@ -1064,23 +1025,10 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
         userdata = (extcap_userdata *) interface_opts->extcap_userdata;
         if (userdata)
         {
-            if (userdata->extcap_stderr_rd > 0 && pipe_data_available(userdata->extcap_stderr_rd))
+            if (userdata->extcap_stderr_rd > 0 && ws_pipe_data_available(userdata->extcap_stderr_rd))
             {
-                buffer = (gchar *)g_malloc0(sizeof(gchar) * STDERR_BUFFER_SIZE + 1);
-#ifdef _WIN32
-                win32_readfrompipe((HANDLE)_get_osfhandle(userdata->extcap_stderr_rd), STDERR_BUFFER_SIZE, buffer);
-#else
-                ssize_t buffer_len;
-                buffer_len = read(userdata->extcap_stderr_rd, buffer, sizeof(gchar) * STDERR_BUFFER_SIZE);
-                if (buffer_len <= 0)
-                {
-                    buffer[0] = '\0';
-                }
-                else
-                {
-                    buffer[buffer_len] = '\0';
-                }
-#endif
+                buffer = (gchar *)g_malloc0(STDERR_BUFFER_SIZE + 1);
+                ws_read_string_from_pipe(ws_get_pipe_handle(userdata->extcap_stderr_rd), buffer, STDERR_BUFFER_SIZE + 1);
                 if (strlen(buffer) > 0)
                 {
                     userdata->extcap_stderr = g_strdup_printf("%s", buffer);
