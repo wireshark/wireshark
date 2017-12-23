@@ -153,6 +153,7 @@ static const value_string u_types[] = {
 #define M_EP_TD_1  38    /* event of protection equipment with time tag CP56Time2a 				*/
 #define M_EP_TE_1  39    /* packed start events of protection equipment with time tag CP56Time2a 		*/
 #define M_EP_TF_1  40    /* packed output circuit information of protection equipment with time tag CP56Time2a 	*/
+#define S_IT_TC_1  41    /* integrated totals containing time tagged security statistics			*/
 #define C_SC_NA_1  45    /* single command 									*/
 #define C_DC_NA_1  46    /* double command 									*/
 #define C_RC_NA_1  47    /* regulating step command 								*/
@@ -168,6 +169,19 @@ static const value_string u_types[] = {
 #define C_SE_TC_1  63    /* set point command, short floating-point number with time tag CP56Time2a 		*/
 #define C_BO_TA_1  64    /* bitstring of 32 bits with time tag CP56Time2a 					*/
 #define M_EI_NA_1  70    /* end of initialization 								*/
+#define S_CH_NA_1  81    /* authentication challenge								*/
+#define S_RP_NA_1  82    /* authentication reply								*/
+#define S_AR_NA_1  83    /* aggressive mode authentication request session key status request			*/
+#define S_KR_NA_1  84    /* session key status request								*/
+#define S_KS_NA_1  85    /* session key status									*/
+#define S_KC_NA_1  86    /* session key change									*/
+#define S_ER_NA_1  87    /* authentication error								*/
+#define S_US_NA_1  90    /* user status change									*/
+#define S_UQ_NA_1  91    /* update key change request								*/
+#define S_UR_NA_1  92    /* update key change reply								*/
+#define S_UK_NA_1  93    /* update key change symmetric								*/
+#define S_UA_NA_1  94    /* update key change asymmetric							*/
+#define S_UC_NA_1  95    /* update key change confirmation							*/
 #define C_IC_NA_1  100    /* interrogation command 								*/
 #define C_CI_NA_1  101    /* counter interrogation command 							*/
 #define C_RD_NA_1  102    /* read command 									*/
@@ -208,6 +222,7 @@ static const value_string asdu_types [] = {
 	{  M_EP_TD_1,		"M_EP_TD_1" },
 	{  M_EP_TE_1,		"M_EP_TE_1" },
 	{  M_EP_TF_1,		"M_EP_TF_1" },
+	{  S_IT_TC_1,		"S_IT_TC_1" },
 	{  C_SC_NA_1,		"C_SC_NA_1" },
 	{  C_DC_NA_1,		"C_DC_NA_1" },
 	{  C_RC_NA_1,		"C_RC_NA_1" },
@@ -223,6 +238,19 @@ static const value_string asdu_types [] = {
 	{  C_SE_TC_1,		"C_SE_TC_1" },
 	{  C_BO_TA_1,		"C_BO_TA_1" },
 	{  M_EI_NA_1,		"M_EI_NA_1" },
+	{  S_CH_NA_1,		"S_CH_NA_1" },
+	{  S_RP_NA_1,		"S_RP_NA_1" },
+	{  S_AR_NA_1,		"S_AR_NA_1" },
+	{  S_KR_NA_1,		"S_KR_NA_1" },
+	{  S_KS_NA_1,		"S_KS_NA_1" },
+	{  S_KC_NA_1,		"S_KC_NA_1" },
+	{  S_ER_NA_1,		"S_ER_NA_1" },
+	{  S_US_NA_1,		"S_US_NA_1" },
+	{  S_UQ_NA_1,		"S_UQ_NA_1" },
+	{  S_UR_NA_1,		"S_UR_NA_1" },
+	{  S_UK_NA_1,		"S_UK_NA_1" },
+	{  S_UA_NA_1,		"S_UA_NA_1" },
+	{  S_UC_NA_1,		"S_UC_NA_1" },
 	{  C_IC_NA_1,		"C_IC_NA_1" },
 	{  C_CI_NA_1,		"C_CI_NA_1" },
 	{  C_RD_NA_1,		"C_RD_NA_1" },
@@ -266,6 +294,7 @@ static const value_string asdu_lngtypes [] = {
 	{  M_EP_TD_1,		"event of protection equipment with time tag CP56Time2a" },
 	{  M_EP_TE_1,		"packed start events of protection equipment with time tag CP56Time2a" },
 	{  M_EP_TF_1,		"packed output circuit information of protection equipment with time tag CP56Time2a" },
+	{  S_IT_TC_1,		"integrated totals containing time tagged security statistics" },
 	{  C_SC_NA_1,		"single command" },
 	{  C_DC_NA_1,		"double command" },
 	{  C_RC_NA_1,		"regulating step command" },
@@ -281,6 +310,19 @@ static const value_string asdu_lngtypes [] = {
 	{  C_SE_TC_1,		"set point command, short floating-point number with time tag CP56Time2a" },
 	{  C_BO_TA_1,		"bitstring of 32 bits with time tag CP56Time2a" },
 	{  M_EI_NA_1,		"end of initialization" },
+	{  S_CH_NA_1,		"authentication challenge" },
+	{  S_RP_NA_1,		"authentication reply" },
+	{  S_AR_NA_1,		"aggressive mode authentication request session key status request" },
+	{  S_KR_NA_1,		"session key status request" },
+	{  S_KS_NA_1,		"session key status" },
+	{  S_KC_NA_1,		"session key change" },
+	{  S_ER_NA_1,		"authentication error" },
+	{  S_US_NA_1,		"user status change" },
+	{  S_UQ_NA_1,		"update key change request" },
+	{  S_UR_NA_1,		"update key change reply" },
+	{  S_UK_NA_1,		"update key change symmetric" },
+	{  S_UA_NA_1,		"update key change asymmetric" },
+	{  S_UC_NA_1,		"update key change confirmation" },
 	{  C_IC_NA_1,		"interrogation command" },
 	{  C_CI_NA_1,		"counter interrogation command" },
 	{  C_RD_NA_1,		"read command" },
@@ -329,6 +371,7 @@ static const td_asdu_length asdu_length [] = {
 	{  M_EP_TD_1,	10 },
 	{  M_EP_TE_1,	11 },
 	{  M_EP_TF_1,	11 },
+	{  S_IT_TC_1,    0 },
 	{  C_SC_NA_1,	 1 },
 	{  C_DC_NA_1,	 1 },
 	{  C_RC_NA_1,	 1 },
@@ -344,6 +387,19 @@ static const td_asdu_length asdu_length [] = {
 	{  C_SE_TC_1,	12 },
 	{  C_BO_TA_1,	11 },
 	{  M_EI_NA_1,	 1 },
+	{  S_CH_NA_1,    0 },
+	{  S_RP_NA_1,    0 },
+	{  S_AR_NA_1,    0 },
+	{  S_KR_NA_1,    0 },
+	{  S_KS_NA_1,    0 },
+	{  S_KC_NA_1,    0 },
+	{  S_ER_NA_1,    0 },
+	{  S_US_NA_1,    0 },
+	{  S_UQ_NA_1,    0 },
+	{  S_UR_NA_1,    0 },
+	{  S_UK_NA_1,    0 },
+	{  S_UA_NA_1,    0 },
+	{  S_UC_NA_1,    0 },
 	{  C_IC_NA_1,	 1 },
 	{  C_CI_NA_1,	 1 },
 	{  C_RD_NA_1,	 0 },
@@ -379,6 +435,9 @@ static const td_asdu_length asdu_length [] = {
 #define Retrem          11
 #define Retloc          12
 #define File            13
+#define Auth            14
+#define Seskey          15
+#define Usrkey          16
 #define Inrogen         20
 #define Inro1           21
 #define Inro2           22
@@ -420,6 +479,9 @@ static const value_string causetx_types [] = {
 	{ Retrem          ,"Retrem" },
 	{ Retloc          ,"Retloc" },
 	{ File            ,"File" },
+	{ Auth            ,"Auth" },
+	{ Seskey          ,"Seskey" },
+	{ Usrkey          ,"Usrkey" },
 	{ Inrogen         ,"Inrogen" },
 	{ Inro1           ,"Inro1" },
 	{ Inro2           ,"Inro2" },
