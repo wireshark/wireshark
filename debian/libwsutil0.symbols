@@ -43,6 +43,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  create_profiles_dir@Base 2.5.0
  create_tempdir@Base 1.12.0~rc1
  create_tempfile@Base 1.12.0~rc1
+ create_timestamp@Base 2.5.0
  crypt_des_ecb@Base 2.3.0
  data_file_url@Base 2.3.0
  decrypt_xtea_ecb@Base 2.5.0
@@ -176,6 +177,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_inet_pton6@Base 2.1.2
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
+ ws_pipe_data_available@Base 2.5.0
+ ws_read_string_from_pipe@Base 2.5.0
  ws_strtoi16@Base 2.3.0
  ws_strtoi32@Base 2.3.0
  ws_strtoi64@Base 2.3.0

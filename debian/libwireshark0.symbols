@@ -470,6 +470,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_try_payload@Base 2.5.0
  dissector_try_payload_new@Base 2.5.0
  dissector_try_string@Base 1.9.1
+ dissector_try_string_new@Base 2.5.0
  dissector_try_uint@Base 1.9.1
  dissector_try_uint_new@Base 1.12.0~rc1
  draw_tap_listeners@Base 1.9.1
@@ -533,6 +534,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_load_settings@Base 2.3.0
  epan_memmem@Base 1.9.1
  epan_new@Base 1.12.0~rc1
+ epan_register_plugin@Base 2.5.0
  epan_strcasestr@Base 1.9.1
  escape_string@Base 1.9.1
  escape_string_len@Base 1.9.1
@@ -1016,6 +1018,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_range_add_value@Base 2.3.0
  prefs_range_remove_value@Base 2.3.0
  prefs_register_bool_preference@Base 1.9.1
+ prefs_register_codec@Base 2.5.0
  prefs_register_directory_preference@Base 1.9.1
  prefs_register_enum_preference@Base 1.9.1
  prefs_register_filename_preference@Base 1.9.1
@@ -1280,9 +1283,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
  read_prefs_file@Base 1.9.1
- reassembly_table_register@Base 2.3.0
  reassembly_table_destroy@Base 1.9.1
  reassembly_table_init@Base 1.9.1
+ reassembly_table_register@Base 2.3.0
+ register_all_plugin_tap_listeners@Base 2.5.0
  register_all_protocol_handoffs@Base 1.9.1
  register_all_protocols@Base 1.9.1
  register_ber_oid_dissector@Base 2.1.0
@@ -1302,6 +1306,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_depend_dissector@Base 2.1.0
  register_dissector@Base 2.1.0
  register_dissector_table@Base 1.9.1
+ register_dissector_with_data@Base 2.5.0
  register_export_object@Base 2.3.0
  register_export_pdu_tap@Base 1.99.0
  register_follow_stream@Base 2.1.0
