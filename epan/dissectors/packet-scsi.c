@@ -85,7 +85,6 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
-#include <epan/srt_table.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include "packet-scsi.h"
@@ -1006,7 +1005,7 @@ scsistat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
     return 1;
 }
 
-static guint
+guint
 scsistat_param(register_srt_t* srt, const char* opt_arg, char** err)
 {
     int pos = 0;

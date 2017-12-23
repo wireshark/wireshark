@@ -55,8 +55,11 @@ protected:
     // gtk:service_response_table.h:init_srt_table
     void addSrtTable(const struct _srt_stat_table *srt_table);
 
+
+    virtual void provideParameterData() {}
+
 protected slots:
-    virtual void fillTree();
+    void fillTree();
 
 private:
     // Callbacks for register_tap_listener

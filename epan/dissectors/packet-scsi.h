@@ -23,7 +23,12 @@
 #ifndef __PACKET_SCSI_H_
 #define __PACKET_SCSI_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/exceptions.h>
+#include <epan/srt_table.h>
 
 /* Structure containing itl nexus data :
  * The itlq nexus is a structure containing data specific
@@ -315,6 +320,12 @@ extern value_string_ext scsi_asc_val_ext;
 #define SET_SCSI_DATA_END(offset_arg)		\
 	try_end_data_offset=offset_arg;
 
+
+WS_DLL_PUBLIC guint scsistat_param(register_srt_t* srt, const char* opt_arg, char** err);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
 

@@ -143,6 +143,7 @@ set(WIRESHARK_QT_HEADERS
 	rtp_audio_stream.h
 	rtp_player_dialog.h
 	rtp_stream_dialog.h
+	scsi_service_response_time_dialog.h
 	sctp_all_assocs_dialog.h
 	sctp_assoc_analyse_dialog.h
 	sctp_chunk_statistics_dialog.h
@@ -320,6 +321,7 @@ set(WIRESHARK_QT_SRC
 	rtp_audio_stream.cpp
 	rtp_player_dialog.cpp
 	rtp_stream_dialog.cpp
+	scsi_service_response_time_dialog.cpp
 	sctp_all_assocs_dialog.cpp
 	sctp_assoc_analyse_dialog.cpp
 	sctp_chunk_statistics_dialog.cpp
