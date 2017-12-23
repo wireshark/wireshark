@@ -382,7 +382,7 @@ void RpcServiceResponseTimeDialog::fillVersionCombo()
     }
 }
 
-void RpcServiceResponseTimeDialog::fillTree()
+void RpcServiceResponseTimeDialog::provideParameterData()
 {
     void *tap_data = NULL;
     const QString program_name = program_combo_->currentText();
@@ -428,8 +428,6 @@ void RpcServiceResponseTimeDialog::fillTree()
     }
 
     set_srt_table_param_data(srt_, tap_data);
-
-    ServiceResponseTimeDialog::fillTree();
 }
 
 /*

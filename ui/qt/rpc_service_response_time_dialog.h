@@ -55,12 +55,12 @@ public:
     void setOncRpcProgramAndVersion(int program, int version);
     void setRpcNameAndVersion(const QString &program_name, int version);
 
+protected:
+    virtual void provideParameterData();
+
 public slots:
     void dceRpcProgramChanged(const QString &program_name);
     void oncRpcProgramChanged(const QString &program_name);
-
-protected slots:
-    virtual void fillTree();
 
 private:
     RpcFamily dlg_type_;

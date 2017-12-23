@@ -28,6 +28,7 @@
 #include <ui/service_response_time.h>
 
 #include "rpc_service_response_time_dialog.h"
+#include "scsi_service_response_time_dialog.h"
 #include "wireshark_application.h"
 
 #include <QTreeWidget>
@@ -65,6 +66,8 @@ gboolean register_service_response_tables(const void *, void *value, void*)
     } else if (strcmp(short_name, "RPC") == 0) {
         short_name = "ONC-RPC";
         tpd_creator = RpcServiceResponseTimeDialog::createOncRpcSrtDialog;
+    } else if (strcmp(short_name, "SCSI") == 0) {
+        tpd_creator = ScsiServiceResponseTimeDialog::createScsiSrtDialog;
     }
 
     cfg_str_to_srt_[cfg_abbr] = srt;
@@ -283,6 +286,8 @@ void ServiceResponseTimeDialog::fillTree()
     }
     srt_data_.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
     srt_data_.user_data = this;
+
+    provideParameterData();
 
     srt_table_dissector_init(srt_, srt_data_.srt_array, NULL, NULL);
 
