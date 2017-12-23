@@ -339,6 +339,7 @@ WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
     setFixedHeight(TIMELINE_HEIGHT);
     first_packet = 1;
     setMouseTracking(true);
+    capfile = NULL;
 
     radio_packet_list = NULL;
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
