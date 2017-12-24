@@ -3972,12 +3972,31 @@ static int hf_ieee80211_tag_extended_capabilities_b52 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b53 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b54 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b55 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b56 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b57 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b58 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b59 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b60 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b61 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b62 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b63 = -1;
-static int hf_ieee80211_tag_extended_capabilities_b64 = -1;
-static int hf_ieee80211_tag_extended_capabilities_o8 = -1;
-static int hf_ieee80211_tag_extended_capabilities_o9 = -1;
+/* Used for the two-byte ext-cap field when present */
+static int hf_ieee80211_tag_extended_capabilities_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b56_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b57_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b58_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b59_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b60_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b61_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b62_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_max_num_msdus = -1;
+static int hf_ieee80211_tag_extended_capabilities_b65_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b66_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b67_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b68_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b69_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b70_2 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b71_2 = -1;
 
 static int hf_ieee80211_tag_cisco_ccx1_unknown = -1;
 static int hf_ieee80211_tag_cisco_ccx1_name = -1;
@@ -5061,7 +5080,7 @@ static gint ett_tag_ex_cap5 = -1;
 static gint ett_tag_ex_cap6 = -1;
 static gint ett_tag_ex_cap7 = -1;
 static gint ett_tag_ex_cap8 = -1;
-static gint ett_tag_ex_cap9 = -1;
+static gint ett_tag_ex_cap89 = -1;
 
 static gint ett_tag_rm_cap1 = -1;
 static gint ett_tag_rm_cap2 = -1;
@@ -11662,7 +11681,6 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   proto_item *ti_ex_cap;
-  proto_tree *ex_cap_tree;
   static const int *ieee80211_tag_extended_capabilities_byte1[] = {
     &hf_ieee80211_tag_extended_capabilities_b0,
     &hf_ieee80211_tag_extended_capabilities_b1,
@@ -11739,6 +11757,36 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     NULL
   };
 
+  static const int *ieee80211_tag_extended_capabilities_byte8[] = {
+    &hf_ieee80211_tag_extended_capabilities_b56,
+    &hf_ieee80211_tag_extended_capabilities_b57,
+    &hf_ieee80211_tag_extended_capabilities_b58,
+    &hf_ieee80211_tag_extended_capabilities_b59,
+    &hf_ieee80211_tag_extended_capabilities_b60,
+    &hf_ieee80211_tag_extended_capabilities_b61,
+    &hf_ieee80211_tag_extended_capabilities_b62,
+    &hf_ieee80211_tag_extended_capabilities_b63,
+    NULL
+  };
+
+  static const int *ieee80211_tag_extended_capabilities_bytes89[] = {
+    &hf_ieee80211_tag_extended_capabilities_b56_2,
+    &hf_ieee80211_tag_extended_capabilities_b57_2,
+    &hf_ieee80211_tag_extended_capabilities_b58_2,
+    &hf_ieee80211_tag_extended_capabilities_b59_2,
+    &hf_ieee80211_tag_extended_capabilities_b60_2,
+    &hf_ieee80211_tag_extended_capabilities_b61_2,
+    &hf_ieee80211_tag_extended_capabilities_b62_2,
+    &hf_ieee80211_tag_extended_capabilities_max_num_msdus,
+    &hf_ieee80211_tag_extended_capabilities_b65_2,
+    &hf_ieee80211_tag_extended_capabilities_b66_2,
+    &hf_ieee80211_tag_extended_capabilities_b67_2,
+    &hf_ieee80211_tag_extended_capabilities_b68_2,
+    &hf_ieee80211_tag_extended_capabilities_b69_2,
+    &hf_ieee80211_tag_extended_capabilities_b70_2,
+    &hf_ieee80211_tag_extended_capabilities_b71_2,
+    NULL
+  };
 
   if (tag_len < 1)
   {
@@ -11816,39 +11864,25 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   proto_item_append_text(ti_ex_cap, " (octet 7)");
   offset += 1;
 
-  /* Extended Capability octet 8 */
+  /* Extended Capability octet 8 & 9 since two bits cross the boundary */
   if (offset >= tag_len) {
     return offset;
   }
-  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-  proto_item_append_text(ti_ex_cap, " (octet 8)");
-  ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap8);
-  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b61, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b62, tvb, offset, 1, ENC_NA);
 
-  /* Std802.11ac-2013, b63-64 indicate the Max Number of MSDUs in AMSDU. */
-  ti_ex_cap = proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b63, tvb, offset, 1, ENC_NA);
-  if (offset+1 < tag_len) {
-
-    proto_item_append_text(ti_ex_cap, " (b63-64 Max Number of MSDUs in AMSDU: %s)",
-      val_to_str((tvb_get_guint8(tvb, offset) & 0x80) + ((tvb_get_guint8(tvb, offset+1) & 0x1) << 1),
-                  vht_max_mpdu_in_amsdu, "Unknown:%d"));
+  /* If only the first of the two bytes is present, do the best we can */
+  if (offset == tag_len - 1) {
+    ti_ex_cap = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_extended_capabilities,
+                                    ett_tag_ex_cap8, ieee80211_tag_extended_capabilities_byte8,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    proto_item_append_text(ti_ex_cap, " (octet 8)");
+    offset += 1;
+  } else { /* Both bytes are there */
+    ti_ex_cap = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_extended_capabilities_2,
+                                    ett_tag_ex_cap89, ieee80211_tag_extended_capabilities_bytes89,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    proto_item_append_text(ti_ex_cap, " (octets 8 & 9)");
+    offset += 2;
   }
-
-  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_o8, tvb, offset, 1, ENC_NA);
-  offset += 1;
-
-  /* Extended Capability octet 9 */
-  if (offset >= tag_len) {
-    return offset;
-  }
-  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-  proto_item_append_text(ti_ex_cap, " (octet 9)");
-  ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap9);
-  ti_ex_cap = proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b64, tvb, offset, 1, ENC_NA);
-  proto_item_append_text(ti_ex_cap, " (b63-64 Max Number of MSDUs in AMSDU)");
-  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_o9, tvb, offset, 1, ENC_NA);
-  offset += 1;
 
   return offset;
 }
@@ -26496,6 +26530,31 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     /* Extended Capability octet 8 */
+    {&hf_ieee80211_tag_extended_capabilities_b56,
+     {"Alternate EDCA", "wlan.extcap.b56",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b57,
+     {"Unprotected TXOP Negotiation", "wlan.extcap.b57",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b58,
+     {"Protected TXOP Negotiation", "wlan.extcap.b58",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b59,
+     {"Reserved", "wlan.extcap.b59",
+      FT_UINT8, BASE_HEX, NULL, 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b60,
+     {"Protected QLoad Report", "wlan.extcap.b61",
+      FT_BOOLEAN, 8, NULL, 0x10,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_extended_capabilities_b61,
      {"TDLS Wider Bandwidth", "wlan.extcap.b61",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
@@ -26511,21 +26570,86 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0x80,
       "Part 1 (bit63)", HFILL }},
 
-    {&hf_ieee80211_tag_extended_capabilities_o8,
-     {"Reserved", "wlan.extcap.o8",
-      FT_UINT8, BASE_HEX, NULL, 0x1f,
-      "Must be zero", HFILL }},
+    /* Extended Capability octets 8 & 9 */
+    {&hf_ieee80211_tag_extended_capabilities_2,
+     {"Extended Capabilities", "wlan.extcap",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
 
-    /* Extended Capability octet 9 */
-    {&hf_ieee80211_tag_extended_capabilities_b64,
-     {"Max Number Of MSDUs In A-MSDU64", "wlan.extcap.b64",
-      FT_UINT8, BASE_DEC, NULL, 0x01,
-      "Part 2 (bit64)", HFILL }},
+    {&hf_ieee80211_tag_extended_capabilities_b56_2,
+     {"Alternate EDCA", "wlan.extcap.b56",
+      FT_BOOLEAN, 16, NULL, 0x01,
+      NULL, HFILL }},
 
-    {&hf_ieee80211_tag_extended_capabilities_o9,
-     {"Reserved", "wlan.extcap.o9",
-      FT_UINT8, BASE_HEX, NULL, 0xfe,
-      "Must be zero", HFILL }},
+    {&hf_ieee80211_tag_extended_capabilities_b57_2,
+     {"Unprotected TXOP Negotiation", "wlan.extcap.b57",
+      FT_BOOLEAN, 16, NULL, 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b58_2,
+     {"Protected TXOP Negotiation", "wlan.extcap.b58",
+      FT_BOOLEAN, 16, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b59_2,
+     {"Reserved", "wlan.extcap.b59",
+      FT_UINT16, BASE_HEX, NULL, 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b60_2,
+     {"Protected QLoad Report", "wlan.extcap.b61",
+      FT_BOOLEAN, 16, NULL, 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b61_2,
+     {"TDLS Wider Bandwidth", "wlan.extcap.b61",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b62_2,
+     {"Operating Mode Notification", "wlan.extcap.b62",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_max_num_msdus,
+     {"Max Number Of MSDUs In A-MSDU", "wlan.extcap.b63",
+      FT_UINT16, BASE_DEC, NULL, 0x0180,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b65_2,
+     {"Channel Schedule Management", "wlan.extcap.b65",
+      FT_BOOLEAN, 16, NULL, 0x0200,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b66_2,
+     {"Geodatabase Inband Enabling Signal", "wlan.extcap.b66",
+      FT_BOOLEAN, 16, NULL, 0x0400,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b67_2,
+     {"Network Channel Control", "wlan.extcap.b67",
+      FT_BOOLEAN, 16, NULL, 0x0800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b68_2,
+     {"White Space Map", "wlan.extcap.b68",
+      FT_BOOLEAN, 16, NULL, 0x1000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b69_2,
+     {"Channel Availability Query", "wlan.extcap.b69",
+      FT_BOOLEAN, 16, NULL, 0x2000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b70_2,
+     {"Fine Timing Measurement Responder", "wlan.extcap.b70",
+      FT_BOOLEAN, 16, NULL, 0x4000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b71_2,
+     {"Fine Timing Measurement Initiator", "wlan.extcap.b71",
+      FT_BOOLEAN, 16, NULL, 0x8000,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_cisco_ccx1_unknown,
      {"Unknown", "wlan.cisco.ccx1.unknown",
@@ -28524,7 +28648,7 @@ proto_register_ieee80211(void)
     &ett_tag_ex_cap6,
     &ett_tag_ex_cap7,
     &ett_tag_ex_cap8,
-    &ett_tag_ex_cap9,
+    &ett_tag_ex_cap89,
 
     &ett_tag_rm_cap1,
     &ett_tag_rm_cap2,
