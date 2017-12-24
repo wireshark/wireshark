@@ -534,6 +534,11 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
  * https://developers.google.cn/protocol-buffers/docs/encoding
  */
 #define ENC_VARINT_PROTOBUF      0x00000002
+/*
+ * Decodes a variable-length integer used in QUIC protocol
+ * See https://tools.ietf.org/html/draft-ietf-quic-transport-08#section-8.1
+ */
+#define ENC_VARINT_QUIC          0x00000004
 
 /* For cases where a string encoding contains hex, bit-or one or more
  * of these for the allowed separator(s), as well as with ENC_STR_HEX.

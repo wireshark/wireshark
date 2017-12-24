@@ -157,7 +157,7 @@ static gint dissect_netsync_cmd_error( tvbuff_t *tvb,  gint offset, proto_tree *
 {
 	guint64 len = 0;
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_error_msg, tvb,
 				offset, (gint)len, ENC_ASCII|ENC_NA );
@@ -176,13 +176,13 @@ static gint dissect_netsync_cmd_hello(tvbuff_t *tvb,  gint offset, proto_tree *t
 {
 	guint64 len = 0;
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_hello_keyname, tvb,
 				offset, (gint)len, ENC_ASCII|ENC_NA );
 	offset += (gint)len;
 
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_hello_key, tvb,
 				offset, (gint)len, ENC_NA );
 	offset += (gint)len;
@@ -203,7 +203,7 @@ static gint dissect_netsync_cmd_anonymous(tvbuff_t *tvb,  gint offset, proto_tre
 				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_anonymous_collection, tvb,
 				offset, (gint)len, ENC_ASCII|ENC_NA );
 	offset += (gint)len;
@@ -225,7 +225,7 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += 1;
 
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_collection, tvb,
 				offset, (gint)len, ENC_ASCII|ENC_NA );
 	offset += (gint)len;
@@ -246,7 +246,7 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_sig, tvb,
 				offset, (gint)len, ENC_NA );
 	offset += (gint)len;
@@ -259,7 +259,7 @@ static gint dissect_netsync_cmd_confirm(tvbuff_t *tvb,  gint offset, proto_tree 
 {
 	guint64 len = 0;
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_confirm_sig, tvb,
 				offset, (gint)len, ENC_NA );
 	offset += (gint)len;
@@ -344,7 +344,7 @@ static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tr
 				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_data_payload, tvb,
 				offset, (gint)len, ENC_NA );
 	offset += (gint)len;
@@ -373,7 +373,7 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
-	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len );
+	offset += tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &len, ENC_VARINT_PROTOBUF );
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_payload, tvb,
 				offset, (gint)len, ENC_NA );
 	offset += (gint)len;
@@ -404,7 +404,7 @@ get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 	/* skip version and command */
 	offset += 2;
 
-	size_bytes = tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &size );
+	size_bytes = tvb_get_varint( tvb, offset, FT_VARINT_MAX_LEN, &size, ENC_VARINT_PROTOBUF );
 
 	/* the calculated size if for the data only, this doesn't
 	 * include the version (1 byte), command (1 byte),

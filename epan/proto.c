@@ -2054,7 +2054,7 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 		return;
 
 	if ((hfinfo->type == FT_STRINGZ) ||
-		((encoding & ENC_VARINT_PROTOBUF) && (IS_FT_UINT(hfinfo->type) ||  IS_FT_UINT(hfinfo->type)))) {
+		((encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) && (IS_FT_UINT(hfinfo->type) ||  IS_FT_UINT(hfinfo->type)))) {
 		/* If we're fetching until the end of the TVB, only validate
 		 * that the offset is within range.
 		 */
@@ -2121,8 +2121,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_UINT24:
 		case FT_UINT32:
 			if (encoding & ENC_VARINT_PROTOBUF) {
-				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64);
+				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
 				new_fi->flags |= FI_VARINT;
+				value = (guint32)value64;
+			} else if (encoding & ENC_VARINT_QUIC) {
+				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
 				value = (guint32)value64;
 			} else {
 				/*
@@ -2143,8 +2146,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_UINT64:
 
 			if (encoding & ENC_VARINT_PROTOBUF) {
-				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64);
+				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
 				new_fi->flags |= FI_VARINT;
+			} else if (encoding & ENC_VARINT_QUIC) {
+				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
 			} else {
 				/*
 				 * Map all other non-zero values to little-endian for
@@ -2618,9 +2623,9 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	}
 	/* I believe it's ok if this is called with a NULL tree */
 	/* XXX - modify if we ever support EBCDIC FT_CHAR */
-	if (encoding & ENC_VARINT_PROTOBUF) {
+	if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) {
 		guint64 temp64;
-		tvb_get_varint(tvb, start, length, &temp64);
+		tvb_get_varint(tvb, start, length, &temp64, encoding);
 		value = (guint32)temp64;
 	} else {
 		value = get_uint_value(tree, tvb, start, length, encoding);
@@ -2904,8 +2909,8 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
 	/* I believe it's ok if this is called with a NULL tree */
-	if (encoding & ENC_VARINT_PROTOBUF) {
-		tvb_get_varint(tvb, start, length, &value);
+	if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) {
+		tvb_get_varint(tvb, start, length, &value, encoding);
 	} else {
 		value = get_uint64_value(tree, tvb, start, length, encoding);
 	}
@@ -2962,7 +2967,7 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
 
-	length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value);
+	length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value, encoding);
 
 	if (retval) {
 		*retval = value;
@@ -5174,7 +5179,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		 * of the string", and if the tvbuff if short, we just
 		 * throw an exception.
 		 *
-		 * For ENC_VARINT_PROTOBUF, it means "find the end of the string",
+		 * For ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC, it means "find the end of the string",
 		 * and if the tvbuff if short, we just throw an exception.
 		 *
 		 * It's not valid for any other type of field.  For those
@@ -5192,6 +5197,22 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 				 */
 				*item_length = *length;
 				return;
+			} else if (encoding & ENC_VARINT_QUIC) {
+				switch (tvb_get_guint8(tvb, start) >> 6)
+				{
+				case 0: /* 0b00 => 1 byte length (6 bits Usable) */
+					*item_length = 1;
+					break;
+				case 1: /* 0b01 => 2 bytes length (14 bits Usable) */
+					*item_length = 2;
+					break;
+				case 2: /* 0b10 => 4 bytes length (30 bits Usable) */
+					*item_length = 4;
+					break;
+				case 3: /* 0b11 => 8 bytes length (62 bits Usable) */
+					*item_length = 8;
+					break;
+				}
 			}
 		}
 
@@ -5305,7 +5326,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 	case FT_INT48:
 	case FT_INT56:
 	case FT_INT64:
-		if (encoding & ENC_VARINT_PROTOBUF) {
+		if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) {
 			if (length < -1) {
 				report_type_length_mismatch(NULL, "a FT_[U]INT", length, TRUE);
 			}
@@ -5313,7 +5334,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 				guint64 dummy;
 				/* This can throw an exception */
 				/* XXX - do this without fetching the varint? */
-				length = tvb_get_varint(tvb, start, FT_VARINT_MAX_LEN, &dummy);
+				length = tvb_get_varint(tvb, start, FT_VARINT_MAX_LEN, &dummy, encoding);
 				if (length == 0) {
 					THROW(ReportedBoundsError);
 				}

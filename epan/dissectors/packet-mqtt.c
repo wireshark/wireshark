@@ -588,7 +588,7 @@ static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
   guint64 msg_len;
   guint len_offset;
 
-  len_offset = tvb_get_varint(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), FT_VARINT_MAX_LEN, &msg_len);
+  len_offset = tvb_get_varint(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), FT_VARINT_MAX_LEN, &msg_len, ENC_VARINT_PROTOBUF);
 
   /* Explicitly downcast the value, because the length can never be more than 4 bytes */
   return (guint)(msg_len + len_offset + MQTT_HDR_SIZE_BEFORE_LEN);
@@ -753,7 +753,7 @@ static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint
   proto_item *ti;
   guint64 vbi;
 
-  const guint mqtt_prop_offset = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &vbi);
+  const guint mqtt_prop_offset = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &vbi, ENC_VARINT_PROTOBUF);
   /* Property Length field can be stored in uint32 */
   const guint mqtt_prop_len = (gint)vbi;
 
@@ -925,7 +925,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     conversation_add_proto_data(conv, proto_mqtt, mqtt);
   }
 
-  mqtt_len_offset = tvb_get_varint(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), FT_VARINT_MAX_LEN, &msg_len);
+  mqtt_len_offset = tvb_get_varint(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), FT_VARINT_MAX_LEN, &msg_len, ENC_VARINT_PROTOBUF);
 
   /* Explicit downcast, typically maximum length of message could be 4 bytes */
   mqtt_msg_len = (gint) msg_len;

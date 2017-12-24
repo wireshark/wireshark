@@ -908,7 +908,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
     if (efp_length == LENGTH_ULEB128) {
         guint64 value;
 
-        efp_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value);
+        efp_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value, ENC_VARINT_PROTOBUF);
     } else if (efp_length == LENGTH_LEB128) {
         gint64 value;
 
@@ -920,7 +920,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
 
 
     if (fde_count_length == LENGTH_ULEB128) {
-        fde_count_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &fde_count);
+        fde_count_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &fde_count, ENC_VARINT_PROTOBUF);
     } else if (fde_count_length == LENGTH_LEB128) {
         gint64 value;
 
@@ -953,7 +953,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
     if (table_entry_length == LENGTH_ULEB128) {
         guint64 value;
 
-        table_entry_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value);
+        table_entry_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value, ENC_VARINT_PROTOBUF);
     } else if (table_entry_length == LENGTH_LEB128) {
         gint64 value;
 

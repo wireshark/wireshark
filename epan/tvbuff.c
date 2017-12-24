@@ -3649,20 +3649,45 @@ tvb_get_ds_tvb(tvbuff_t *tvb)
 }
 
 guint
-tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value)
+tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const guint encoding)
 {
-	guint i;
-	guint64 b; /* current byte */
 	*value = 0;
 
-	for (i = 0; ((i < FT_VARINT_MAX_LEN) && (i < maxlen)); ++i) {
-		b = tvb_get_guint8(tvb, offset++);
-		*value |= ((b & 0x7F) << (i * 7)); /* add lower 7 bits to val */
+	if (encoding & ENC_VARINT_PROTOBUF) {
+		guint i;
+		guint64 b; /* current byte */
 
-		if (b < 0x80) {
-			/* end successfully becauseof last byte's msb(most significant bit) is zero */
-			return i + 1;
+		for (i = 0; ((i < FT_VARINT_MAX_LEN) && (i < maxlen)); ++i) {
+			b = tvb_get_guint8(tvb, offset++);
+			*value |= ((b & 0x7F) << (i * 7)); /* add lower 7 bits to val */
+
+			if (b < 0x80) {
+				/* end successfully becauseof last byte's msb(most significant bit) is zero */
+				return i + 1;
+			}
 		}
+	} else if (encoding & ENC_VARINT_QUIC) {
+
+		/* calculate variable length */
+		*value = tvb_get_guint8(tvb, offset);
+		switch((*value) >> 6) {
+		case 0: /* 0b00 => 1 byte length (6 bits Usable) */
+			(*value) &= 0x3F;
+			return 1;
+		case 1: /* 0b01 => 2 bytes length (14 bits Usable) */
+			*value = tvb_get_ntohs(tvb, offset) & 0x3FFF;
+			return 2;
+		case 2: /* 0b10 => 4 bytes length (30 bits Usable) */
+			*value = tvb_get_ntohl(tvb, offset) & 0x3FFFFFFF;
+			return 4;
+		case 3: /* 0b11 => 8 bytes length (62 bits Usable) */
+			*value = tvb_get_ntoh64(tvb, offset) & G_GUINT64_CONSTANT(0x3FFFFFFFFFFFFFFF);
+			return 8;
+		default: /* No Possible */
+			g_assert_not_reached();
+			break;
+		}
+
 	}
 
 	return 0; /* 10 bytes scanned, but no bytes' msb is zero */

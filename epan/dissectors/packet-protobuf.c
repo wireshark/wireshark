@@ -225,7 +225,7 @@ dissect_packed_repeated_field_values(proto_tree *value_tree, tvbuff_t *tvb, guin
 
     /* add varints into the packed-repeated subtree */
     while (offset < max_offset) {
-        sub_value_length = tvb_get_varint(tvb, offset, max_offset - offset, &sub_value);
+        sub_value_length = tvb_get_varint(tvb, offset, max_offset - offset, &sub_value, ENC_VARINT_PROTOBUF);
         if (sub_value_length == 0) {
             /* not a valid packed repeated field */
             return 0;
@@ -408,7 +408,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     field_tree = proto_tree_add_subtree(protobuf_tree,  tvb, *offset, 0, ett_protobuf_field, &ti_field, "Field");
 
     /* parsing Tag */
-    tag_length = tvb_get_varint(tvb, *offset, maxlen, &tag_value);
+    tag_length = tvb_get_varint(tvb, *offset, maxlen, &tag_value, ENC_VARINT_PROTOBUF);
 
     if (tag_length == 0) { /* not found a valid varint */
         expert_add_info(pinfo, ti_field, &ei_protobuf_failed_parse_tag);
@@ -426,7 +426,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     {
     case PROTOBUF_WIRETYPE_VARINT: /* varint, format: tag + varint */
         /* get value length and real value */
-        value_length = tvb_get_varint(tvb, *offset, maxlen - tag_length, &value_uint64);
+        value_length = tvb_get_varint(tvb, *offset, maxlen - tag_length, &value_uint64, ENC_VARINT_PROTOBUF);
         if (value_length == 0) {
             expert_add_info(pinfo, ti_wire, &ei_protobuf_failed_parse_field);
             return FALSE;
@@ -446,7 +446,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
 
     case PROTOBUF_WIRETYPE_LENGTH_DELIMITED: /* Length-delimited, format: tag + length(varint) + bytes_value */
         /* this time value_uint64 is the length of following value bytes */
-        value_length_size = tvb_get_varint(tvb, *offset, maxlen - tag_length, &value_uint64);
+        value_length_size = tvb_get_varint(tvb, *offset, maxlen - tag_length, &value_uint64, ENC_VARINT_PROTOBUF);
         if (value_length_size == 0) {
             expert_add_info(pinfo, ti_field, &ei_protobuf_failed_parse_length_delimited_field);
             return FALSE;
