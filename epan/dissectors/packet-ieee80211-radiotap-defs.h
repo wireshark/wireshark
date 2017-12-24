@@ -185,6 +185,12 @@ struct ieee80211_radiotap_header {
  *	Contains the AMPDU information for the subframe.
  *
  * IEEE80211_RADIOTAP_HE		u16, u16, u16, u16, u16, u16 unitless
+ *
+ *	Contains some information for HE frames.
+ *	NOTE: this is a suggested field, not an assigned field, so
+ *	the type value and format of this field is subject to change,
+ *	although an experimental Linux patch uses bit 23 and the
+ *	current format on radiotap.org.
  */
 enum ieee80211_radiotap_type {
 	IEEE80211_RADIOTAP_TSFT = 0,
@@ -219,7 +225,7 @@ enum ieee80211_radiotap_type {
 };
 
 /* not (yet) defined Radiotap present flag */
-/* Bit 23 to 28 are not defined (in binary : 0001 1111 1000 0000 0000 0000 0000 0000 */
+/* Bit 24 to 28 are not defined (in binary : 0001 1111 0000 0000 0000 0000 0000 0000 */
 #define IEEE80211_RADIOTAP_NOTDEFINED 0x1F000000
 
 /* Channel flags. */

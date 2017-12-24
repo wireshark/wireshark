@@ -902,6 +902,11 @@ static const value_string he_midamble_periodicity_vals[] = {
 	{ 0, NULL }
 };
 
+/*
+ * NOTE: this is a suggested field, not a defined field, and its bit
+ * assignment and format are subject to change, although an experimental
+ * Linux patch uses bit 23 and the current format on radiotap.org.
+ */
 static void
 dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	int offset)
