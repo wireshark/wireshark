@@ -2761,12 +2761,14 @@ tls13_hkdf_label_prefix(guint8 tls13_draft_version)
 }
 
 /*
- * Computes HKDF-Expand-Label(Secret, Label, "", Length) with a custom label
- * prefix.
+ * Computes HKDF-Expand-Label(Secret, Label, Hash(context_value), Length) with a
+ * custom label prefix. If "context_hash" is NULL, then an empty context is
+ * used. Otherwise it must have the same length as the hash algorithm output.
  */
 gboolean
-tls13_hkdf_expand_label(int md, const StringInfo *secret,
+tls13_hkdf_expand_label_context(int md, const StringInfo *secret,
                         const char *label_prefix, const char *label,
+                        const guint8 *context_hash, guint8 context_length,
                         guint16 out_len, guchar **out)
 {
     /* draft-ietf-tls-tls13-23:
@@ -2798,8 +2800,10 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret,
     g_byte_array_append(info, label_prefix, label_prefix_length);
     g_byte_array_append(info, label, label_length);
 
-    const guint8 context_length = 0;
     g_byte_array_append(info, &context_length, 1);
+    if (context_length) {
+        g_byte_array_append(info, context_hash, context_length);
+    }
 
     *out = (guchar *)wmem_alloc(NULL, out_len);
     err = hkdf_expand(md, secret->data, secret->data_len, info->data, info->len, *out, out_len);
@@ -2813,6 +2817,14 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret,
     }
 
     return TRUE;
+}
+
+gboolean
+tls13_hkdf_expand_label(int md, const StringInfo *secret,
+                        const char *label_prefix, const char *label,
+                        guint16 out_len, guchar **out)
+{
+    return tls13_hkdf_expand_label_context(md, secret, label_prefix, label, NULL, 0, out_len, out);
 }
 /* HMAC and the Pseudorandom function }}} */
 
@@ -4701,6 +4713,8 @@ ssl_common_init(ssl_master_key_map_t *mk_map,
     mk_map->tls13_server_handshake = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->tls13_client_appdata = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->tls13_server_appdata = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tls13_early_exporter = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tls13_exporter = g_hash_table_new(ssl_hash, ssl_equal);
     ssl_data_alloc(decrypted_data, 32);
     ssl_data_alloc(compressed_data, 32);
 }
@@ -4719,6 +4733,8 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
     g_hash_table_destroy(mk_map->tls13_server_handshake);
     g_hash_table_destroy(mk_map->tls13_client_appdata);
     g_hash_table_destroy(mk_map->tls13_server_appdata);
+    g_hash_table_destroy(mk_map->tls13_early_exporter);
+    g_hash_table_destroy(mk_map->tls13_exporter);
 
     g_free(decrypted_data->data);
     g_free(compressed_data->data);
@@ -5136,6 +5152,8 @@ ssl_compile_keyfile_regex(void)
         "|SERVER_HANDSHAKE_TRAFFIC_SECRET (?<server_handshake>" OCTET "{32})"
         "|CLIENT_TRAFFIC_SECRET_0 (?<client_appdata>" OCTET "{32})"
         "|SERVER_TRAFFIC_SECRET_0 (?<server_appdata>" OCTET "{32})"
+        "|EARLY_EXPORTER_SECRET (?<early_exporter>" OCTET "{32})"
+        "|EXPORTER_SECRET (?<exporter>" OCTET "{32})"
         ") (?<derived_secret>" OCTET "+)";
 #undef OCTET
     static GRegex *regex = NULL;
@@ -5198,6 +5216,8 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         { "server_handshake",   mk_map->tls13_server_handshake },
         { "client_appdata",     mk_map->tls13_client_appdata },
         { "server_appdata",     mk_map->tls13_server_appdata },
+        { "early_exporter",     mk_map->tls13_early_exporter },
+        { "exporter",           mk_map->tls13_exporter },
     };
     /* no need to try if no key log file is configured. */
     if (!ssl_keylog_filename || !*ssl_keylog_filename) {
@@ -5237,6 +5257,8 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
      *   - "SERVER_HANDSHAKE_TRAFFIC_SECRET xxxx yyyy"
      *   - "CLIENT_TRAFFIC_SECRET_0 xxxx yyyy"
      *   - "SERVER_TRAFFIC_SECRET_0 xxxx yyyy"
+     *   - "EARLY_EXPORTER_SECRET xxxx yyyy"
+     *   - "EXPORTER_SECRET xxxx yyyy"
      *     Where xxxx is the client_random from the ClientHello (hex-encoded)
      *     Where yyyy is the secret (hex-encoded) derived from the early,
      *     handshake or master secrets. (This format is introduced with TLS 1.3

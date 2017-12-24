@@ -517,6 +517,8 @@ typedef struct {
     GHashTable *tls13_server_handshake;
     GHashTable *tls13_client_appdata;
     GHashTable *tls13_server_appdata;
+    GHashTable *tls13_early_exporter;
+    GHashTable *tls13_exporter;
 } ssl_master_key_map_t;
 
 gint ssl_get_keyex_alg(gint cipher);
@@ -1081,6 +1083,12 @@ tls13_dissect_hnd_key_update(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 extern guint32
 tls_dissect_sct_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      guint32 offset, guint32 offset_end, guint16 version);
+
+extern gboolean
+tls13_hkdf_expand_label_context(int md, const StringInfo *secret,
+                        const char *label_prefix, const char *label,
+                        const guint8 *context, guint8 context_length,
+                        guint16 out_len, guchar **out);
 
 extern gboolean
 tls13_hkdf_expand_label(int md, const StringInfo *secret,

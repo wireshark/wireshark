@@ -3846,6 +3846,100 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
     return ret;
 }
 
+/* TLS Exporters {{{ */
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+/**
+ * Computes the TLS 1.3 Exporter value
+ * (https://tools.ietf.org/html/draft-ietf-tls-tls13-27#section-7.5).
+ *
+ * "secret" is the [early_]exporter_master_secret. On success, TRUE is returned
+ * and the key is returned via "out" (free with "wmem_free(NULL, out)").
+ */
+static gboolean
+tls13_exporter_common(int algo, const StringInfo *secret, const char *label, guint8 *context,
+                      guint context_length, guint key_length, guchar **out)
+{
+    /*  TLS-Exporter(label, context_value, key_length) =
+     *      HKDF-Expand-Label(Derive-Secret(Secret, label, ""),
+     *                        "exporter", Hash(context_value), key_length)
+     *
+     *  Derive-Secret(Secret, Label, Messages) =
+     *      HKDF-Expand-Label(Secret, Label,
+     *                        Transcript-Hash(Messages), Hash.length)
+     */
+    gcry_error_t    err;
+    gcry_md_hd_t    hd;
+    const char     *hash_value;
+    StringInfo      derived_secret = { NULL, 0 };
+    // QUIC -09 currently uses draft 23, so no need to support older TLS drafts
+    const char *label_prefix = "tls13 ";
+
+    err = gcry_md_open(&hd, algo, 0);
+    if (err) {
+        return FALSE;
+    }
+
+    /* Calculate Derive-Secret(Secret, label, ""). */
+    hash_value = gcry_md_read(hd, 0);   /* Empty Messages */
+    guint8 hash_len = (guint8) gcry_md_get_algo_dlen(algo);
+    derived_secret.data_len = hash_len;
+    if (!tls13_hkdf_expand_label_context(algo, secret, label_prefix, label, hash_value, hash_len, derived_secret.data_len, &derived_secret.data)) {
+        gcry_md_close(hd);
+        return FALSE;
+    }
+
+    /* HKDF-Expand-Label(..., "exporter", Hash(context_value), key_length) */
+    gcry_md_write(hd, context, context_length);
+    hash_value = gcry_md_read(hd, 0);
+    tls13_hkdf_expand_label_context(algo, &derived_secret, label_prefix, "exporter", hash_value, hash_len, key_length, out);
+    wmem_free(NULL, derived_secret.data);
+    gcry_md_close(hd);
+
+    return TRUE;
+}
+
+/**
+ * Exports keying material using "[early_]exporter_master_secret". See
+ * tls13_exporter_common for more details.
+ */
+gboolean
+tls13_exporter(packet_info *pinfo, gboolean is_early,
+               const char *label, guint8 *context,
+               guint context_length, guint key_length, guchar **out)
+{
+    int hash_algo = 0;
+    GHashTable *key_map;
+    const StringInfo *secret;
+
+    if (!tls_get_cipher_info(pinfo, NULL, NULL, &hash_algo)) {
+        return FALSE;
+    }
+
+    /* Lookup EXPORTER_SECRET based on client_random from conversation */
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return FALSE;
+    }
+
+    void *conv_data = conversation_get_proto_data(conv, proto_ssl);
+    if (conv_data == NULL) {
+        return FALSE;
+    }
+
+    SslDecryptSession *ssl_session = (SslDecryptSession *)conv_data;
+    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+    key_map = is_early ? ssl_master_key_map.tls13_early_exporter
+                       : ssl_master_key_map.tls13_exporter;
+    secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl_session->client_random);
+    if (!secret) {
+        return FALSE;
+    }
+
+    return tls13_exporter_common(hash_algo, secret, label, context, context_length, key_length, out);
+}
+#endif
+/* }}} */
+
 
 /* UAT */
 

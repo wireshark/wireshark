@@ -28,4 +28,13 @@ WS_DLL_PUBLIC void ssl_set_master_secret(guint32 frame_num, address *addr_srv, a
                                   const guchar *_client_random, const guchar *_server_random,
                                   guint32 client_seq, guint32 server_seq);
 
+/**
+ * Computes the TLS 1.3 "TLS-Exporter(label, context_value, key_length)" value.
+ * On success, the secret is in "out" (free with "wmem_free(NULL, out)").
+ */
+gboolean
+tls13_exporter(packet_info *pinfo, gboolean is_early,
+               const char *label, guint8 *context,
+               guint context_length, guint key_length, guchar **out);
+
 #endif  /* __PACKET_SSL_H__ */
