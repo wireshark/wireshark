@@ -2322,6 +2322,8 @@ static const value_string ht_rx_stbc_flag[] = {
   {0x00, NULL}
 };
 
+#if 0
+/* Hidden since not used */
   /* IEEE Stc 802.11ac-2013 8.4.2.29 Extended Capabilities element*/
 static const value_string vht_max_mpdu_in_amsdu[] = {
     {0x00, "No limit"},
@@ -2330,6 +2332,8 @@ static const value_string vht_max_mpdu_in_amsdu[] = {
     {0x03, "8"},
     {0, NULL}
 };
+#endif
+
 
   /* IEEE Stc 802.11ac/D3.1 */
 
