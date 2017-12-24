@@ -847,7 +847,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       proto_tree_add_item(mip_tree, hf_mip_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
       offset += 8;
 
-    } /* if tree */
+    } else {
+      offset += 24;
+    }
     break;
   case MIP_REGISTRATION_REPLY:
     col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -884,7 +886,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       /* Identifier - assumed to be an NTP time here */
       proto_tree_add_item(mip_tree, hf_mip_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
       offset += 8;
-    } /* if tree */
+    } else {
+      offset += 20;
+    }
     break;
   case MIP_NATT_TUNNEL_DATA:
     col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel Data: Next Header=%u",
@@ -906,8 +910,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       /* reserved */
       proto_tree_add_item(mip_tree, hf_mip_nattt_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-    } /* if tree */
-    else {
+    } else {
       offset += 4;
     }
     /* encapsulated payload */
@@ -960,7 +963,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       /* revocation identifier */
       proto_tree_add_item(mip_tree, hf_mip_revid, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-    } /* if tree */
+    } else {
+      offset += 20;
+    }
     break;
   case MIP_REGISTRATION_REVOCATION_ACK:
       col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Revocation Ack: HoA=%s",
@@ -995,7 +1000,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       /* revocation identifier */
       proto_tree_add_item(mip_tree, hf_mip_revid, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-    } /* if tree */
+    } else {
+      offset += 12;
+    }
     break;
   } /* End switch */
 
