@@ -1658,55 +1658,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Table Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Short Name</source>
+        <source>Search:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>String Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Integer Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Heuristic Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Selector Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dissector</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Table Type</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1714,14 +1670,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5598,6 +5546,14 @@ a:hover {
     </message>
     <message>
         <source>Go to the previous packet in your selection history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10278,6 +10234,21 @@ a:hover {
     </message>
     <message>
         <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCSI Service Response Times</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -1656,12 +1656,16 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>ダイアログ</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation type="unfinished">検索:</translation>
+    </message>
+    <message>
         <source>Table Name</source>
-        <translation>表の名前</translation>
+        <translation type="vanished">表の名前</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation>短い名前</translation>
+        <translation type="vanished">短い名前</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
@@ -1669,43 +1673,43 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>String Tables</source>
-        <translation>文字列の表</translation>
+        <translation type="vanished">文字列の表</translation>
     </message>
     <message>
         <source>Integer Tables</source>
-        <translation>整数の表</translation>
+        <translation type="vanished">整数の表</translation>
     </message>
     <message>
         <source>Custom Tables</source>
-        <translation>カスタム表</translation>
+        <translation type="vanished">カスタム表</translation>
     </message>
     <message>
         <source>Heuristic Tables</source>
-        <translation>ヒューリスティック表</translation>
+        <translation type="vanished">ヒューリスティック表</translation>
     </message>
     <message>
         <source>Selector Name</source>
-        <translation>セレクタ名</translation>
+        <translation type="vanished">セレクタ名</translation>
     </message>
     <message>
         <source>String</source>
-        <translation>文字列</translation>
+        <translation type="vanished">文字列</translation>
     </message>
     <message>
         <source>Dissector</source>
-        <translation>ダイセクター</translation>
+        <translation type="vanished">ダイセクター</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>ポート</translation>
+        <translation type="vanished">ポート</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>プロトコル</translation>
+        <translation type="vanished">プロトコル</translation>
     </message>
     <message>
         <source>Table Type</source>
-        <translation>表の種別</translation>
+        <translation type="vanished">表の種別</translation>
     </message>
 </context>
 <context>
@@ -1716,11 +1720,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>プロトコル</translation>
+        <translation type="vanished">プロトコル</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>記述</translation>
+        <translation type="vanished">記述</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1767,22 +1771,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Severity</source>
-        <translation type="vanished">重要度</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">グループ</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">プロトコル</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">数量</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1852,10 +1840,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Expert Information</source>
         <translation>エキスパート情報</translation>
-    </message>
-    <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">フィルタを設定するのに失敗した端末のエキスパート情報</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -2327,11 +2311,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Save Stream Content As</source>
         <translation>としてストリーム内容を保存</translation>
-    </message>
-    <message>
-        <source>
-[Stream output truncated]</source>
-        <translation type="vanished">[ストリーム出力が省略されました]</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -5669,6 +5648,14 @@ a:hover {
     </message>
     <message>
         <source>Go to the previous packet in your selection history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10397,6 +10384,21 @@ a:hover {
     </message>
 </context>
 <context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
@@ -11035,22 +11037,6 @@ a:hover {
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名前</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">フィルタ</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">種別</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">記述</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

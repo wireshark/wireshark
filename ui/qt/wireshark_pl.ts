@@ -1662,12 +1662,16 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Okno</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation type="unfinished">Szukaj:</translation>
+    </message>
+    <message>
         <source>Table Name</source>
-        <translation>Nazwa Tabeli</translation>
+        <translation type="vanished">Nazwa Tabeli</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation>Krótka Nazwa</translation>
+        <translation type="vanished">Krótka Nazwa</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
@@ -1675,43 +1679,43 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>String Tables</source>
-        <translation>Tabele Stringów</translation>
+        <translation type="vanished">Tabele Stringów</translation>
     </message>
     <message>
         <source>Integer Tables</source>
-        <translation>Tabele Liczbowe</translation>
+        <translation type="vanished">Tabele Liczbowe</translation>
     </message>
     <message>
         <source>Custom Tables</source>
-        <translation>Tabele Niestandardowe</translation>
+        <translation type="vanished">Tabele Niestandardowe</translation>
     </message>
     <message>
         <source>Heuristic Tables</source>
-        <translation>Tabela Heurystyczna</translation>
+        <translation type="vanished">Tabela Heurystyczna</translation>
     </message>
     <message>
         <source>Selector Name</source>
-        <translation>Selektor</translation>
+        <translation type="vanished">Selektor</translation>
     </message>
     <message>
         <source>String</source>
-        <translation>String</translation>
+        <translation type="vanished">String</translation>
     </message>
     <message>
         <source>Dissector</source>
-        <translation>Dekoder</translation>
+        <translation type="vanished">Dekoder</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Port</translation>
+        <translation type="vanished">Port</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protokół</translation>
+        <translation type="vanished">Protokół</translation>
     </message>
     <message>
         <source>Table Type</source>
-        <translation>Typ Tabeli</translation>
+        <translation type="vanished">Typ Tabeli</translation>
     </message>
 </context>
 <context>
@@ -1722,11 +1726,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protokół</translation>
+        <translation type="vanished">Protokół</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Opis</translation>
+        <translation type="vanished">Opis</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1773,26 +1777,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Dialog</source>
         <translation>Okno</translation>
-    </message>
-    <message>
-        <source>Severity</source>
-        <translation type="vanished">Istotność</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">Podsumowanie</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">Grupa</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokół</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">Wystąpienia</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1864,10 +1848,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Informacja ekspercka</translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">Krańcowemu punktowi eksperckiemu nie udało się ustawić filtru.</translation>
-    </message>
-    <message>
         <source>Collapse All</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1894,10 +1874,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>Filtr wyświetlania: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Packet</source>
-        <translation type="vanished">Pakiet</translation>
     </message>
 </context>
 <context>
@@ -2353,11 +2329,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Save Stream Content As</source>
         <translation>Zapisz zawartość strumiania jako</translation>
-    </message>
-    <message>
-        <source>
-[Stream output truncated]</source>
-        <translation type="vanished">Obcięto dane strumiania</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -5722,6 +5693,14 @@ text-decoration: underline;
     </message>
     <message>
         <source>Go to the previous packet in your selection history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10451,6 +10430,21 @@ text-decoration: underline;
     </message>
 </context>
 <context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
@@ -11120,22 +11114,6 @@ text-decoration: underline;
     <message>
         <source>Dialog</source>
         <translation>Okno</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nazwa</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filtr</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Typ</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Opis</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

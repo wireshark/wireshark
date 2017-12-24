@@ -1661,12 +1661,16 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Dialogue</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Table Name</source>
-        <translation>Nom de Table</translation>
+        <translation type="vanished">Nom de Table</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation>Nom Court</translation>
+        <translation type="vanished">Nom Court</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
@@ -1674,43 +1678,43 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>String Tables</source>
-        <translation>Tables de Chaines</translation>
+        <translation type="vanished">Tables de Chaines</translation>
     </message>
     <message>
         <source>Integer Tables</source>
-        <translation>Tables d&apos;Entiers</translation>
+        <translation type="vanished">Tables d&apos;Entiers</translation>
     </message>
     <message>
         <source>Custom Tables</source>
-        <translation>Tables personnalisées</translation>
+        <translation type="vanished">Tables personnalisées</translation>
     </message>
     <message>
         <source>Heuristic Tables</source>
-        <translation>Tables Heuristiques</translation>
+        <translation type="vanished">Tables Heuristiques</translation>
     </message>
     <message>
         <source>Selector Name</source>
-        <translation>Nom du Sélecteur</translation>
+        <translation type="vanished">Nom du Sélecteur</translation>
     </message>
     <message>
         <source>String</source>
-        <translation>Chaine de Caractères</translation>
+        <translation type="vanished">Chaine de Caractères</translation>
     </message>
     <message>
         <source>Dissector</source>
-        <translation>Dissecteur</translation>
+        <translation type="vanished">Dissecteur</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Port</translation>
+        <translation type="vanished">Port</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protocole</translation>
+        <translation type="vanished">Protocole</translation>
     </message>
     <message>
         <source>Table Type</source>
-        <translation>Type de Table</translation>
+        <translation type="vanished">Type de Table</translation>
     </message>
 </context>
 <context>
@@ -1721,11 +1725,11 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protocole</translation>
+        <translation type="vanished">Protocole</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation type="vanished">Description</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1772,22 +1776,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Dialog</source>
         <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>Severity</source>
-        <translation type="vanished">Sévérité</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">Groupe</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protocole</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">Compteur</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1857,10 +1845,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Expert Information</source>
         <translation>Information Expert</translation>
-    </message>
-    <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">L&apos;expert endpoint n&apos;a pas pu appliquer le filtre</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -2338,12 +2322,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Save Stream Content As</source>
         <translation>Enregistrer Contenu du Flux Comme</translation>
-    </message>
-    <message>
-        <source>
-[Stream output truncated]</source>
-        <translation type="vanished">
-[Sortie flux tronquée]</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -5683,6 +5661,14 @@ a:hover {
     </message>
     <message>
         <source>Go to the previous packet in your selection history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10408,6 +10394,21 @@ a:hover {
     </message>
 </context>
 <context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
@@ -11050,22 +11051,6 @@ a:hover {
     <message>
         <source>Dialog</source>
         <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nom</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filtre</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Type</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Description</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

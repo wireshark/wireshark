@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2017-12-16)
+# (last updated 2017-12-22)
 
 0	Reserved
 1	NxNetworks
@@ -583,7 +583,7 @@
 573	SECTRA AB
 574	ONEAC Corporation
 575	Tree Technologies
-576	General Dynamics C4 Systems
+576	General Dynamics Mission Systems
 577	Geneva Software, Inc.
 578	Interlink Computer Sciences, Inc.
 579	Bridge Information Systems, Inc.
@@ -37895,7 +37895,7 @@
 38064	SSL Corp
 38065	Media Alliance, CJSC
 38066	SC Romastru Trading SRL
-38067	APPRO International, Inc.
+38067	Cray Inc	# formerly 'APPRO International, Inc.'
 38068	Centrastate Medical Center, Inc.
 38069	Cetis, Inc.
 38070	Anode
@@ -50613,7 +50613,7 @@
 50796	Clienia Management AG
 50797	Salzgitter AG
 50798	Aporeto Inc.
-50799	Uet
+50799	SlashNext	# formerly 'Uet'
 50800	Domanski Zakrzewski Palinka sp. k.
 50801	cqcatr 重庆信息通信研究院 (Chongqing Information and Communication Research Institute)
 50802	556607-9975
@@ -50973,3 +50973,30 @@
 51157	WAVE Project
 51158	ANMD
 51159	珠海安联锐视科技股份有限公司 (Zhuhai Allianz Sharp Technology Co., Ltd.)
+51160	FoamPartner
+51161	Signet Bank AS
+51162	asTech
+51163	KC Corp
+51164	Beijing Sunyainfo Technologics Co.,Ltd.
+51165	Taubman Engineering
+51166	Game Creek Video
+51167	NTW Netzwerk Telekommunikation Datentechnik
+51168	Cetwin System Solutions
+51169	Inlandsfrakt AB
+51170	LGB
+51171	Sveden Trä AB
+51172	DEPO Electronics Ltd.
+51173	Scientific Florida
+51174	SOOSAN INT Co., Ltd.
+51175	Sony Business Solutions Corporation
+51176	Cloudching
+51177	Gemeinschaftswerk der Evangelischen Publizistik (GEP) gem. GmbH
+51178	Universitaet Ulm Institut fuer Epidemiologie und Med. Biometrie
+51179	Mashroat
+51180	Ministry of Finans of the Republic of Uzbekistan
+51181	Telespazio s.p.a.
+51182	BALIN ADVERTISING LTD.
+51183	JR Butler Inc
+51184	MacAulay-Brown, Inc.
+51185	Oekumenisches Hainich Klinikum gGmbH
+51186	T-MOBILE POLSKA S.A.

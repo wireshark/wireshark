@@ -4570,8 +4570,8 @@ dccm		5679/tcp/udp	# Direct Cable Connect Manager
 auriga-router	5680/tcp/udp	# Auriga Router Service
 ncxcp		5681/tcp/udp	# Net-coneX Control Protocol
 brightcore	5682/udp	# BrightCore control & data transfer exchange
-coap		5683/udp	# Constrained Application Protocol
-coaps		5684/udp	# DTLS-secured CoAP
+coap		5683/tcp/udp	# Constrained Application Protocol (CoAP)
+coaps		5684/tcp/udp	# Constrained Application Protocol (CoAP)
 gog-multiplayer	5687/udp	# GOG multiplayer game protocol
 ggz		5688/tcp/udp	# GGZ Gaming Zone
 qmvideo		5689/tcp/udp	# QM video network management protocol

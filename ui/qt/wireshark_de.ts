@@ -1663,12 +1663,16 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Dialog</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation type="unfinished">Suchen:</translation>
+    </message>
+    <message>
         <source>Table Name</source>
-        <translation>Tabellenname</translation>
+        <translation type="vanished">Tabellenname</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation>Kurzname</translation>
+        <translation type="vanished">Kurzname</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
@@ -1676,43 +1680,43 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>String Tables</source>
-        <translation>Zeichenkette Tabelle</translation>
+        <translation type="vanished">Zeichenkette Tabelle</translation>
     </message>
     <message>
         <source>Integer Tables</source>
-        <translation>Integer Tabelle</translation>
+        <translation type="vanished">Integer Tabelle</translation>
     </message>
     <message>
         <source>Custom Tables</source>
-        <translation>Custom Tables</translation>
+        <translation type="vanished">Custom Tables</translation>
     </message>
     <message>
         <source>Heuristic Tables</source>
-        <translation>Heuristik Tabelle</translation>
+        <translation type="vanished">Heuristik Tabelle</translation>
     </message>
     <message>
         <source>Selector Name</source>
-        <translation>Selektorname</translation>
+        <translation type="vanished">Selektorname</translation>
     </message>
     <message>
         <source>String</source>
-        <translation>Zeichenkette</translation>
+        <translation type="vanished">Zeichenkette</translation>
     </message>
     <message>
         <source>Dissector</source>
-        <translation>Dissector</translation>
+        <translation type="vanished">Dissector</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Port</translation>
+        <translation type="vanished">Port</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protokoll</translation>
+        <translation type="vanished">Protokoll</translation>
     </message>
     <message>
         <source>Table Type</source>
-        <translation>Tabellentyp</translation>
+        <translation type="vanished">Tabellentyp</translation>
     </message>
 </context>
 <context>
@@ -1723,11 +1727,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protokoll</translation>
+        <translation type="vanished">Protokoll</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Beschreibung</translation>
+        <translation type="vanished">Beschreibung</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1774,26 +1778,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Severity</source>
-        <translation type="vanished">Schweregrad</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">Zusammenfassung</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">Gruppe</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokoll</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">Anzahl</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1865,16 +1849,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Experteninformationen</translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">Endpunkteexperte konnte einen Filter nicht setzen</translation>
-    </message>
-    <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles einklappen</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles aufklappen</translation>
     </message>
     <message>
         <source>Capture file closed.</source>
@@ -1895,10 +1875,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>Anzeigefilter: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Packet</source>
-        <translation type="vanished">Paket</translation>
     </message>
 </context>
 <context>
@@ -2343,17 +2319,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Regex Suchen:</translation>
     </message>
     <message>
         <source>Save Stream Content As</source>
         <translation>Stream Inhalt speichern als</translation>
-    </message>
-    <message>
-        <source>
-[Stream output truncated]</source>
-        <translation type="vanished">
-[Streamausgabe gekürzt]</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -2377,7 +2347,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamte Verbindung (%1)</translation>
     </message>
     <message>
         <source>Follow %1 Stream (%2)</source>
@@ -2389,7 +2359,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Streamausgabe gekürzt]</translation>
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
@@ -4794,7 +4764,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">Speichern als</translation>
+        <translation>Speichern als</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -4822,23 +4792,23 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">Portable Document Format (*.pdf)</translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+        <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished">Graph speichern als</translation>
+        <translation>Graph speichern als</translation>
     </message>
 </context>
 <context>
@@ -5722,6 +5692,14 @@ text-decoration: underline;
     <message>
         <source>Go to the previous packet in your selection history</source>
         <translation>Gehe zum vorherigen Paket in der ausgewählten Historie</translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Go to Packet…</source>
@@ -10450,6 +10428,21 @@ text-decoration: underline;
     </message>
 </context>
 <context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
@@ -11029,7 +11022,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Regex Suchen:</translation>
     </message>
     <message>
         <source>Save Selected Packet Bytes As</source>
@@ -11115,22 +11108,6 @@ text-decoration: underline;
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Name</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filter</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Typ</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Beschreibung</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
