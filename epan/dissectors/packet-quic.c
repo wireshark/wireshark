@@ -65,9 +65,13 @@ static int hf_quic_frame_type_stream_f = -1;
 static int hf_quic_frame_type_stream_ss = -1;
 static int hf_quic_frame_type_stream_oo = -1;
 static int hf_quic_frame_type_stream_d = -1;
+static int hf_quic_frame_type_stream_fin = -1;
+static int hf_quic_frame_type_stream_len = -1;
+static int hf_quic_frame_type_stream_off = -1;
 static int hf_quic_stream_stream_id = -1;
 static int hf_quic_stream_offset = -1;
 static int hf_quic_stream_data_len = -1;
+static int hf_quic_stream_length = -1;
 static int hf_quic_stream_data = -1;
 
 static int hf_quic_frame_type_ack = -1;
@@ -187,10 +191,18 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_STREAM_ID_BLOCKED 0x0a
 #define FT_NEW_CONNECTION_ID 0x0b
 #define FT_STOP_SENDING     0x0c
-#define FT_ACK_MIN          0xa0
-#define FT_ACK_MAX          0xbf
-#define FT_STREAM_MIN       0xc0
-#define FT_STREAM_MAX       0xff
+#define FT_STREAM_10        0x10
+#define FT_STREAM_11        0x11
+#define FT_STREAM_12        0x12
+#define FT_STREAM_13        0x13
+#define FT_STREAM_14        0x14
+#define FT_STREAM_15        0x15
+#define FT_STREAM_16        0x16
+#define FT_STREAM_17        0x17
+#define FT_ACK_MIN          0xa0 /* <= draft-07 */
+#define FT_ACK_MAX          0xbf /* <= draft-07 */
+#define FT_STREAM_MIN       0xc0 /* <= draft-07 */
+#define FT_STREAM_MAX       0xff /* <= draft-07 */
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -206,11 +218,13 @@ static const range_string quic_frame_type_vals[] = {
     { 0x0a, 0x0a,   "STREAM_ID_BLOCKED" },
     { 0x0b, 0x0b,   "NEW_CONNECTION_ID" },
     { 0x0c, 0x0c,   "STOP_SENDING" },
-    { 0xa0, 0xbf,   "ACK" },
-    { 0xc0, 0xff,   "STREAM" },
+    { 0x10, 0x17,   "STREAM" },
+    { 0xa0, 0xbf,   "ACK" }, /* <= draft-07 */
+    { 0xc0, 0xff,   "STREAM" },  /* <= draft-07 */
     { 0,    0,        NULL },
 };
 
+/* <= draft-07 */
 #define FTFLAGS_STREAM_STREAM 0xC0
 #define FTFLAGS_STREAM_F    0x20
 #define FTFLAGS_STREAM_SS   0x18
@@ -258,6 +272,11 @@ static const value_string len_ack_block_vals[] = {
     { 3, "8 Bytes" },
     { 0, NULL }
 };
+
+/* >= draft-08 */
+#define FTFLAGS_STREAM_FIN 0x01
+#define FTFLAGS_STREAM_LEN 0x02
+#define FTFLAGS_STREAM_OFF 0x04
 
 /* draft05-06 */
 #define QUIC_OLD_NO_ERROR                   0x80000000
@@ -441,7 +460,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
     if(frame_type >= FT_STREAM_MIN && frame_type <= FT_STREAM_MAX) {
         guint32 len_stream = 0, len_offset = 0, len_data = 0, data_len = 0;
-        guint32 stream_id;
+        guint64 stream_id;
         proto_item *ti_stream;
 
         ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
@@ -457,10 +476,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
         }
         offset += 1;
 
-        ti_stream = proto_tree_add_item_ret_uint(ft_tree, hf_quic_stream_stream_id, tvb, offset, len_stream, ENC_BIG_ENDIAN, &stream_id);
+        ti_stream = proto_tree_add_item_ret_uint64(ft_tree, hf_quic_stream_stream_id, tvb, offset, len_stream, ENC_BIG_ENDIAN, &stream_id);
         offset += len_stream;
 
-        proto_item_append_text(ti_ft, " Stream ID: %u", stream_id);
+        proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u", stream_id);
 
         if (len_offset) {
             proto_tree_add_item(ft_tree, hf_quic_stream_offset, tvb, offset, len_offset, ENC_BIG_ENDIAN);
@@ -565,7 +584,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             }
         }
 
-    } else { /* it is not STREAM or ACK Frame*/
+    } else { /* it is not STREAM or ACK Frame (<= draft-07)*/
         offset += 1;
         switch(frame_type){
             case FT_PADDING:{
@@ -756,6 +775,57 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 }
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
 
+            }
+            break;
+            case FT_STREAM_10:
+            case FT_STREAM_11:
+            case FT_STREAM_12:
+            case FT_STREAM_13:
+            case FT_STREAM_14:
+            case FT_STREAM_15:
+            case FT_STREAM_16:
+            case FT_STREAM_17: {
+                guint64 stream_id, length;
+                guint32 lenvar;
+                proto_item *ti_stream;
+
+                offset -= 1;
+
+                ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
+                proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_fin, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_len, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_off, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                ti_stream = proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
+                offset += lenvar;
+
+                proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u", stream_id);
+
+                if (frame_type & FTFLAGS_STREAM_OFF) {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+                }
+
+                if (frame_type & FTFLAGS_STREAM_LEN) {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_length, tvb, offset, -1, ENC_VARINT_QUIC, &length, &lenvar);
+                    offset += lenvar;
+                } else {
+                   length = tvb_reported_length_remaining(tvb, offset);
+                }
+
+                proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
+
+                if (stream_id == 0) { /* Special Stream */
+                    tvbuff_t *next_tvb;
+
+                    proto_item_append_text(ti_stream, " (Cryptographic handshake)");
+                    col_set_writable(pinfo->cinfo, -1, FALSE);
+                    next_tvb = tvb_new_subset_length(tvb, offset, (int)length);
+                    call_dissector(ssl_handle, next_tvb, pinfo, ft_tree);
+                    col_set_writable(pinfo->cinfo, -1, TRUE);
+                }
+                offset += (int)length;
             }
             break;
             default:
@@ -1265,6 +1335,7 @@ proto_register_quic(void)
             NULL, HFILL }
         },
 
+        /* >= draft-07 */
         { &hf_quic_frame_type_stream,
           { "Stream", "quic.frame_type.stream",
             FT_UINT8, BASE_HEX, NULL, FTFLAGS_STREAM_STREAM,
@@ -1291,9 +1362,26 @@ proto_register_quic(void)
             NULL, HFILL }
         },
 
+        /* >= draft-08*/
+        { &hf_quic_frame_type_stream_fin,
+          { "Fin", "quic.frame_type.stream.fin",
+            FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM_FIN,
+            NULL, HFILL }
+        },
+        { &hf_quic_frame_type_stream_len,
+          { "Len(gth)", "quic.frame_type.stream.len",
+            FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM_LEN,
+            NULL, HFILL }
+        },
+        { &hf_quic_frame_type_stream_off,
+          { "Off(set)", "quic.frame_type.stream.off",
+            FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM_OFF,
+            NULL, HFILL }
+        },
+
         { &hf_quic_stream_stream_id,
           { "Stream ID", "quic.stream.stream_id",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_quic_stream_offset,
@@ -1304,6 +1392,11 @@ proto_register_quic(void)
         { &hf_quic_stream_data_len,
           { "Data Length", "quic.stream.data_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_stream_length,
+          { "Length", "quic.stream.length",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_quic_stream_data,
