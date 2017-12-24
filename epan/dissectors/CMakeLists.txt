@@ -1865,7 +1865,8 @@ set(ALL_DISSECTOR_SRC
 )
 
 add_executable(make-dissectors make-dissectors.c)
-target_link_libraries(make-dissectors ${GLIB2_LIBRARIES})
+# wsutil is only required for glib-compat.c
+target_link_libraries(make-dissectors ${GLIB2_LIBRARIES} wsutil)
 
 #
 # We pass the arguments to make-dissectors in a file to avoid limitations

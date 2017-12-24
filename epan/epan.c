@@ -191,6 +191,20 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 {
 	volatile gboolean status = TRUE;
 
+	/*
+	 * proto_init -> register_all_protocols -> g_async_queue_new which
+	 * requires threads to be initialized. This happens automatically with
+	 * GLib 2.32, before that g_thread_init must be called. But only since
+	 * GLib 2.24, multiple invocations are allowed. Check for an earlier
+	 * invocation just in case.
+	 */
+#if !GLIB_CHECK_VERSION(2,31,0)
+#   if !GLIB_CHECK_VERSION(2,24,0)
+	if (!g_thread_get_initialized())
+#   endif
+		g_thread_init(NULL);
+#endif
+
 	/* initialize memory allocation subsystem */
 	wmem_init();
 

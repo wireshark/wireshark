@@ -28,7 +28,6 @@ WS_DLL_PUBLIC GPtrArray* g_ptr_array_new_full(guint reserved_size, GDestroyNotif
 WS_DLL_PUBLIC gpointer g_async_queue_timeout_pop(GAsyncQueue *queue, guint64 timeout);
 #endif /* !GLIB_CHECK_VERSION(2,31,18) */
 
-// joinable = TRUE, error = NULL
 #if !GLIB_CHECK_VERSION(2,31,0)
 WS_DLL_PUBLIC GThread *g_thread_new (const gchar *name, GThreadFunc func, gpointer data);
 #endif /* !GLIB_CHECK_VERSION(2,31,0) */

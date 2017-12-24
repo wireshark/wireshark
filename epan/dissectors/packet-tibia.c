@@ -554,7 +554,7 @@ register_gameserv_addr(struct tibia_convo *convo, guint32 ipaddr, guint16 port)
         alloc_address_wmem(NULL, &entry->addr, AT_IPv4, sizeof ipaddr, &ipaddr);
         entry->port = port;
         entry->privkey = NULL;
-        if (!g_hash_table_contains(rsakeys, entry)) {
+        if (g_hash_table_lookup(rsakeys, entry) == NULL) {
             entry->privkey = convo->privkey;
             g_hash_table_insert(rsakeys, entry, entry->privkey);
         } else {

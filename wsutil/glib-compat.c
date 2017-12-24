@@ -120,9 +120,17 @@ g_async_queue_timeout_pop(GAsyncQueue *queue,
 
 
 #if !GLIB_CHECK_VERSION(2,31,0)
-GThread *g_thread_new(const gchar *name _U_, GThreadFunc func, gpointer data)
+GThread *g_thread_new(const gchar *name, GThreadFunc func, gpointer data)
 {
-    return g_thread_create(func, data, TRUE, NULL);
+    GError *error = NULL;
+    GThread *thread;
+
+    thread = g_thread_create(func, data, TRUE, &error);
+
+    if G_UNLIKELY (thread == NULL)
+        g_error ("creating thread '%s': %s", name ? name : "", error->message);
+
+    return thread;
 }
 #endif /* GLIB_CHECK_VERSION(2,31,0)*/
 

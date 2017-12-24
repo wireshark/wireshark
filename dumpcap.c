@@ -120,6 +120,9 @@
 #endif
 #endif
 
+/* for g_thread_new */
+#include "wsutil/glib-compat.h"
+
 #ifdef DEBUG_CHILD_DUMPCAP
 FILE *debug_log;   /* for logging debug messages to  */
                    /*  a file if DEBUG_CHILD_DUMPCAP */
@@ -2044,11 +2047,7 @@ pcapng_pipe_open_live(int fd,
     }
 #ifdef _WIN32
     else {
-#if GLIB_CHECK_VERSION(2,31,0)
         g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
-#else
-        g_thread_create(&cap_thread_read, pcap_src, FALSE, NULL);
-#endif
 
         bh->block_type = type;
         pcap_src->cap_pipe_buf = (char *) &bh->block_total_length;
