@@ -468,7 +468,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
     } else if (frame_type >= FT_ACK_MIN && frame_type <= FT_ACK_MAX ){
         guint32 len_largest_acknowledged = 0, len_ack_block = 0;
-        guint8 num_blocks = 0, num_ts;
+        guint8 num_blocks = 0, num_ts = 0;
 
         ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
         proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack, tvb, offset, 1, ENC_NA);
