@@ -2638,7 +2638,7 @@ static int      hf_pie_ntop_radius_acct_session_id      = -1;
 static int      hf_pie_ntop_radius_acct_status_type     = -1;
 static int      hf_pie_ntop_radius_acct_in_octects      = -1;
 static int      hf_pie_ntop_radius_acct_out_octects     = -1;
-static int      hf_pie_ntop_radus_acct_in_pkts          = -1;
+static int      hf_pie_ntop_radius_acct_in_pkts         = -1;
 static int      hf_pie_ntop_radius_acct_out_pkts        = -1;
 static int      hf_pie_ntop_imap_login                  = -1;
 
@@ -7693,7 +7693,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case (NTOP_BASE + 254):           /* RADIUS_ACCT_IN_PKTS */
         case ((VENDOR_NTOP << 16) | 254): /* RADIUS_ACCT_IN_PKTS */
-            ti = proto_tree_add_item(pdutree, hf_pie_ntop_radius_acct_out_pkts,
+            ti = proto_tree_add_item(pdutree, hf_pie_ntop_radius_acct_in_pkts,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
@@ -13964,8 +13964,8 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
         /* ntop, 35632 / 254 */
-        {&hf_pie_ntop_radus_acct_in_pkts,
-         {"RADIUS Accounting Input Packets", "cflow.pie.ntop.radus_acct_in_pkts",
+        {&hf_pie_ntop_radius_acct_in_pkts,
+         {"RADIUS Accounting Input Packets", "cflow.pie.ntop.radius_acct_in_pkts",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
