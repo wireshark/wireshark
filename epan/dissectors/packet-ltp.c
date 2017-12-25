@@ -439,8 +439,8 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 
 static int
 dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, int frame_offset) {
-	guint64 rpt_sno;
-	guint64 chkp_sno;
+	gint64 rpt_sno;
+	gint64 chkp_sno;
 	guint64 upper_bound;
 	guint64 lower_bound;
 	int rcpt_clm_cnt;
@@ -469,19 +469,19 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 
 	/* Extract the report segment info */
 	rpt_sno = evaluate_sdnv_64(tvb, frame_offset, &rpt_sno_size);
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_sno, tvb, frame_offset + segment_offset, rpt_sno_size, rpt_sno);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_sno, tvb, frame_offset + segment_offset, rpt_sno_size, (guint64)rpt_sno);
 	segment_offset += rpt_sno_size;
 
 	chkp_sno = evaluate_sdnv_64(tvb, frame_offset + segment_offset, &chkp_sno_size);
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_chkp, tvb, frame_offset + segment_offset, chkp_sno_size, chkp_sno);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_chkp, tvb, frame_offset + segment_offset, chkp_sno_size, (guint64)chkp_sno);
 	segment_offset += chkp_sno_size;
 
 	upper_bound = evaluate_sdnv(tvb, frame_offset + segment_offset, &upper_bound_size);
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_ub, tvb, frame_offset + segment_offset, upper_bound_size, upper_bound);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_ub, tvb, frame_offset + segment_offset, upper_bound_size, (guint64)upper_bound);
 	segment_offset += upper_bound_size;
 
 	lower_bound = evaluate_sdnv(tvb, frame_offset + segment_offset, &lower_bound_size);
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_lb, tvb, frame_offset + segment_offset, lower_bound_size, lower_bound);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_lb, tvb, frame_offset + segment_offset, lower_bound_size, (guint64)lower_bound);
 	segment_offset += lower_bound_size;
 
 	rcpt_clm_cnt = evaluate_sdnv(tvb, frame_offset + segment_offset, &rcpt_clm_cnt_size);
@@ -527,7 +527,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 
 static int
 dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset){
-	guint64 rpt_sno;
+	gint64 rpt_sno;
 
 	int rpt_sno_size;
 	int segment_offset = 0;
@@ -536,6 +536,7 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset)
 
 	/* Extracing receipt serial number info */
 	rpt_sno = evaluate_sdnv_64(tvb,frame_offset, &rpt_sno_size);
+	/* XXX - verify that this does not overflow */
 	segment_offset += rpt_sno_size;
 
 	if((unsigned)(frame_offset + segment_offset) > tvb_captured_length(tvb)){
@@ -546,7 +547,7 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset)
 	ltp_rpt_ack_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, segment_offset,
 												ett_rpt_ack_segm, NULL, "Report Ack Segment");
 
-	proto_tree_add_uint64(ltp_rpt_ack_tree, hf_ltp_rpt_ack_sno, tvb, frame_offset,rpt_sno_size, rpt_sno);
+	proto_tree_add_uint64(ltp_rpt_ack_tree, hf_ltp_rpt_ack_sno, tvb, frame_offset,rpt_sno_size, (guint64)rpt_sno);
 	return segment_offset;
 }
 
@@ -680,7 +681,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	gint    hdr_extn_cnt;
 	gint    trl_extn_cnt;
 
-	guint64 engine_id;
+	gint64 engine_id;
 	guint64 session_num;
 	int engine_id_size;
 	int session_num_size;
@@ -731,7 +732,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	ltp_session_tree = proto_tree_add_subtree(ltp_header_tree, tvb, frame_offset, header_offset+1, ett_hdr_session, NULL, "Session ID");
 
 
-	proto_tree_add_uint64(ltp_session_tree,hf_ltp_session_orig,tvb,frame_offset,engine_id_size,engine_id);
+	proto_tree_add_uint64(ltp_session_tree,hf_ltp_session_orig,tvb,frame_offset,engine_id_size,(guint64)engine_id);
 	frame_offset+=engine_id_size;
 	proto_tree_add_uint64(ltp_session_tree,hf_ltp_session_no, tvb, frame_offset,session_num_size,session_num);
 	frame_offset+=session_num_size;
