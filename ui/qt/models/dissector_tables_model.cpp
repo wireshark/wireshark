@@ -19,31 +19,6 @@ static const char* INTEGER_TABLE_NAME = "Integer Tables";
 static const char* STRING_TABLE_NAME = "String Tables";
 static const char* HEURISTIC_TABLE_NAME = "Heuristic Tables";
 
-class DissectorTablesItem
-{
-public:
-    DissectorTablesItem(QString tableName, QString shortName, DissectorTablesItem* parent);
-    virtual ~DissectorTablesItem();
-
-    QString tableName() const {return tableName_;}
-    QString shortName() const {return shortName_;}
-
-    void appendChild(DissectorTablesItem* child);
-    DissectorTablesItem* child(int row) const;
-    int childCount() const;
-    int row() const;
-
-    DissectorTablesItem* parentItem() const {return parent_; }
-
-    virtual bool lessThan(DissectorTablesItem &right) const;
-
-protected:
-    QString tableName_;
-    QString shortName_;
-    DissectorTablesItem* parent_;
-    QList<QVariant> childItems_;
-};
-
 class IntegerTablesItem : public DissectorTablesItem
 {
 public:
@@ -58,43 +33,14 @@ protected:
 
 
 DissectorTablesItem::DissectorTablesItem(QString tableName, QString shortName, DissectorTablesItem* parent) :
+    ModelHelperTreeItem<DissectorTablesItem>(parent),
     tableName_(tableName),
-    shortName_(shortName),
-    parent_(parent)
+    shortName_(shortName)
 {
 }
 
 DissectorTablesItem::~DissectorTablesItem()
 {
-    for (int row = 0; row < childItems_.count(); row++)
-    {
-        delete VariantPointer<DissectorTablesItem>::asPtr(childItems_.value(row));
-    }
-
-    childItems_.clear();
-}
-
-void DissectorTablesItem::appendChild(DissectorTablesItem* child)
-{
-    childItems_.prepend(VariantPointer<DissectorTablesItem>::asQVariant(child));
-}
-
-DissectorTablesItem* DissectorTablesItem::child(int row) const
-{
-    return VariantPointer<DissectorTablesItem>::asPtr(childItems_.value(row));
-}
-
-int DissectorTablesItem::childCount() const
-{
-    return childItems_.count();
-}
-
-int DissectorTablesItem::row() const
-{
-    if (parent_)
-        return parent_->childItems_.indexOf(VariantPointer<DissectorTablesItem>::asQVariant((DissectorTablesItem*)this));
-
-    return 0;
 }
 
 bool DissectorTablesItem::lessThan(DissectorTablesItem &right) const

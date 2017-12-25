@@ -12,10 +12,25 @@
 
 #include <config.h>
 
-#include <QAbstractItemModel>
+#include <ui/qt/models/tree_model_helpers.h>
+
 #include <QSortFilterProxyModel>
 
-class DissectorTablesItem;
+class DissectorTablesItem : public ModelHelperTreeItem<DissectorTablesItem>
+{
+public:
+    DissectorTablesItem(QString tableName, QString shortName, DissectorTablesItem* parent);
+    virtual ~DissectorTablesItem();
+
+    QString tableName() const {return tableName_;}
+    QString shortName() const {return shortName_;}
+
+    virtual bool lessThan(DissectorTablesItem &right) const;
+
+protected:
+    QString tableName_;
+    QString shortName_;
+};
 
 class DissectorTablesModel : public QAbstractItemModel
 {

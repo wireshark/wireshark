@@ -12,12 +12,34 @@
 
 #include <config.h>
 
+#include <ui/qt/models/tree_model_helpers.h>
+
 #include <epan/proto.h>
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 
-class EnabledProtocolItem;
+class EnabledProtocolItem : public ModelHelperTreeItem<EnabledProtocolItem>
+{
+public:
+    EnabledProtocolItem(QString name, QString description, bool enabled, EnabledProtocolItem* parent);
+    virtual ~EnabledProtocolItem();
+
+    QString name() const {return name_;}
+    QString description() const {return description_;}
+    bool enabled() const {return enabled_;}
+    void setEnabled(bool enable) {enabled_ = enable;}
+
+    bool applyValue();
+
+protected:
+    virtual void applyValuePrivate(gboolean value) = 0;
+
+    QString name_;
+    QString description_;
+    bool enabled_;
+    bool enabledInit_;      //value that model starts with to determine change
+};
 
 class EnabledProtocolsModel : public QAbstractItemModel
 {

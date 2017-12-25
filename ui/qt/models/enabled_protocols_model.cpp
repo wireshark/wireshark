@@ -16,37 +16,6 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include "wireshark_application.h"
 
-class EnabledProtocolItem
-{
-public:
-    EnabledProtocolItem(QString name, QString description, bool enabled, EnabledProtocolItem* parent);
-    virtual ~EnabledProtocolItem();
-
-    QString name() const {return name_;}
-    QString description() const {return description_;}
-    bool enabled() const {return enabled_;}
-    void setEnabled(bool enable) {enabled_ = enable;}
-
-    void appendChild(EnabledProtocolItem* child);
-    EnabledProtocolItem* child(int row) const;
-    int childCount() const;
-    int row() const;
-
-    EnabledProtocolItem* parentItem() const {return parent_; }
-
-    bool applyValue();
-
-protected:
-    virtual void applyValuePrivate(gboolean value) = 0;
-
-    QString name_;
-    QString description_;
-    bool enabled_;
-    bool enabledInit_;      //value that model starts with to determine change
-    EnabledProtocolItem* parent_;
-    QList<QVariant> childItems_;
-};
-
 class ProtocolTreeItem : public EnabledProtocolItem
 {
 public:
@@ -92,47 +61,17 @@ private:
 
 
 EnabledProtocolItem::EnabledProtocolItem(QString name, QString description, bool enabled, EnabledProtocolItem* parent) :
+    ModelHelperTreeItem<EnabledProtocolItem>(parent),
     name_(name),
     description_(description),
     enabled_(enabled),
-    enabledInit_(enabled),
-    parent_(parent)
+    enabledInit_(enabled)
 {
 }
 
 EnabledProtocolItem::~EnabledProtocolItem()
 {
-    for (int row = 0; row < childItems_.count(); row++)
-    {
-        delete VariantPointer<EnabledProtocolItem>::asPtr(childItems_.value(row));
-    }
-
-    childItems_.clear();
 }
-
-void EnabledProtocolItem::appendChild(EnabledProtocolItem* child)
-{
-    childItems_.prepend(VariantPointer<EnabledProtocolItem>::asQVariant(child));
-}
-
-EnabledProtocolItem* EnabledProtocolItem::child(int row) const
-{
-    return VariantPointer<EnabledProtocolItem>::asPtr(childItems_.value(row));
-}
-
-int EnabledProtocolItem::childCount() const
-{
-    return childItems_.count();
-}
-
-int EnabledProtocolItem::row() const
-{
-    if (parent_)
-        return parent_->childItems_.indexOf(VariantPointer<EnabledProtocolItem>::asQVariant((EnabledProtocolItem*)this));
-
-    return 0;
-}
-
 
 bool EnabledProtocolItem::applyValue()
 {

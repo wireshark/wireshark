@@ -12,12 +12,13 @@
 
 #include <config.h>
 
+#include <ui/qt/models/tree_model_helpers.h>
+
 #include <epan/proto.h>
 
-#include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 
-class SupportedProtocolsItem
+class SupportedProtocolsItem : public ModelHelperTreeItem<SupportedProtocolsItem>
 {
 public:
     SupportedProtocolsItem(protocol_t* proto, const char *name, const char* filter, ftenum_t ftype, const char* descr, SupportedProtocolsItem* parent);
@@ -29,16 +30,7 @@ public:
     QString filter() const { return filter_; }
     QString description() const { return descr_; }
 
-    void appendChild(SupportedProtocolsItem* child);
-    SupportedProtocolsItem* child(int row);
-    int childCount() const;
-    int row() const;
-    SupportedProtocolsItem* parentItem() {return parent_; }
-
 private:
-    SupportedProtocolsItem* parent_;
-    QList<SupportedProtocolsItem*> childItems_;
-
     protocol_t* proto_;
     QString name_;
     QString filter_;

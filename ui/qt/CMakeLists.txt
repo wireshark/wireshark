@@ -88,6 +88,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/sparkline_delegate.h
 	models/supported_protocols_model.h
 	models/timeline_delegate.h
+	models/tree_model_helpers.h
 	models/uat_delegate.h
 	models/uat_model.h
 	models/url_link_delegate.h

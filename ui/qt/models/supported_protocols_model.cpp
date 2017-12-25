@@ -16,7 +16,7 @@
 #include <ui/qt/models/supported_protocols_model.h>
 
 SupportedProtocolsItem::SupportedProtocolsItem(protocol_t* proto, const char *name, const char* filter, ftenum_t ftype, const char* descr, SupportedProtocolsItem* parent)
-    : parent_(parent),
+    : ModelHelperTreeItem<SupportedProtocolsItem>(parent),
     proto_(proto),
     name_(name),
     filter_(filter),
@@ -27,35 +27,6 @@ SupportedProtocolsItem::SupportedProtocolsItem(protocol_t* proto, const char *na
 
 SupportedProtocolsItem::~SupportedProtocolsItem()
 {
-    for (int row = 0; row < childItems_.count(); row++)
-    {
-        delete childItems_.value(row);
-    }
-
-    childItems_.clear();
-}
-
-void SupportedProtocolsItem::appendChild(SupportedProtocolsItem* child)
-{
-    childItems_.prepend(child);
-}
-
-SupportedProtocolsItem* SupportedProtocolsItem::child(int row)
-{
-    return childItems_.value(row);
-}
-
-int SupportedProtocolsItem::childCount() const
-{
-    return childItems_.count();
-}
-
-int SupportedProtocolsItem::row() const
-{
-    if (parent_)
-        return parent_->childItems_.indexOf(const_cast<SupportedProtocolsItem*>(this));
-
-    return 0;
 }
 
 
