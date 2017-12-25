@@ -910,7 +910,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
         *err_framenum = 0;
     } else {
         *err_fileno = (guint)(in_file - in_files);
-        *err_framenum = in_file ? in_file->packet_num : 0;
+        *err_framenum = in_file->packet_num;
     }
 
     return status;
