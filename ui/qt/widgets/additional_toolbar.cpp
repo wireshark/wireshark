@@ -213,8 +213,7 @@ toolbar_boolean_cb(gpointer item, gpointer item_data, gpointer user_data)
         return;
 
     QCheckBox * widget = (QCheckBox *)(item_data);
-    if ( ! widget )
-        return;
+
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
     if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
@@ -286,8 +285,7 @@ toolbar_string_cb(gpointer item, gpointer item_data, gpointer user_data)
         return;
 
     ApplyLineEdit * edit = (ApplyLineEdit *)(item_data);
-    if ( ! edit )
-        return;
+
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
     if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
