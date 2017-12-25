@@ -4895,7 +4895,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 				}
 				else if(sod_index == error)
 				{
-					name = obj ? obj->info.name :val_to_str_ext_const(((guint32)(idx<<16)), &sod_index_names, "User Defined");
+					name = val_to_str_ext_const(((guint32)(idx<<16)), &sod_index_names, "User Defined");
 					proto_item_append_text(psf_entry," (%s)", name);
 				}
 				else
