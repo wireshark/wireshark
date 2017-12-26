@@ -31,15 +31,13 @@
 #include <file.h>
 #include <frame_tvbuff.h>
 
-#include <epan/epan.h>
 #include <epan/epan_dissect.h>
-#include <epan/packet.h>
 #include <epan/tap.h>
 
 /* Return TRUE if the 2 sets of parameters refer to the same channel. */
-int compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
-                        guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
-                        gboolean frameIsControl)
+gboolean compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
+                             guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
+                             gboolean frameIsControl)
 {
     /* Same direction, data - OK. */
     if (!frameIsControl) {
@@ -64,7 +62,7 @@ int compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1,
 
 /* This is the tap function used to identify a list of channels found in the current frame.  It is only used for the single,
    currently selected frame. */
-static int
+static gboolean
 tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     int       n;
@@ -77,8 +75,8 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
         rlc_lte_tap_info *stored = th->rlchdrs[n];
 
         if (compare_rlc_headers(stored->ueid, stored->channelType, stored->channelId, stored->rlcMode, stored->direction,
-                            header->ueid, header->channelType, header->channelId, header->rlcMode, header->direction,
-                            header->isControlPDU)) {
+                                header->ueid, header->channelType, header->channelId, header->rlcMode, header->direction,
+                                header->isControlPDU)) {
             is_unique = FALSE;
             break;
         }
@@ -99,7 +97,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
         th->num_hdrs++;
     }
 
-    return 0;
+    return FALSE; /* i.e. no immediate redraw requested */
 }
 
 /* Return an array of tap_info structs that were found while dissecting the current frame
@@ -177,25 +175,25 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     hdrs->channelId = th.rlchdrs[0]->channelId;
     hdrs->rlcMode = th.rlchdrs[0]->rlcMode;
     hdrs->isControlPDU = th.rlchdrs[0]->isControlPDU;
+    /* Flip direction if have control PDU */
     hdrs->direction = !hdrs->isControlPDU ? th.rlchdrs[0]->direction : !th.rlchdrs[0]->direction;
 
     return th.rlchdrs[0];
 }
 
 /* This is the tapping function to update stats when dissecting the whole packet list */
-int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+static gboolean rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     struct rlc_graph *graph  = (struct rlc_graph *)pct;
     const rlc_lte_tap_info *rlchdr = (const rlc_lte_tap_info*)vip;
 
-    /* See if this one matches current channel */
+    /* See if this one matches graph's channel */
     if (compare_rlc_headers(graph->ueid,   graph->channelType,  graph->channelId,  graph->rlcMode,   graph->direction,
                             rlchdr->ueid,  rlchdr->channelType, rlchdr->channelId, rlchdr->rlcMode,  rlchdr->direction,
                             rlchdr->isControlPDU)) {
 
+        /* It matches.  Copy segment details out of tap struct */
         struct rlc_segment *segment = (struct rlc_segment *)g_malloc(sizeof(struct rlc_segment));
-
-        /* It matches.  Add to end of segment list */
         segment->next = NULL;
         segment->num = pinfo->num;
         segment->rel_secs = (guint32) pinfo->rel_ts.secs;
@@ -225,7 +223,7 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
             }
         }
 
-        /* Add to list */
+        /* Add segment to end of list */
         if (graph->segments) {
             /* Add to end of existing last element */
             graph->last_segment->next = segment;
@@ -238,7 +236,7 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
         graph->last_segment = segment;
     }
 
-    return 0;
+    return FALSE; /* i.e. no immediate redraw requested */
 }
 
 /* If don't have a channel, try to get one from current frame, then read all frames looking for data
@@ -248,8 +246,6 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
 {
     struct rlc_segment current;
     GString    *error_string;
-
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "rlc_graph_segment_list_get()");
 
     if (!cf || !g) {
         /* Really shouldn't happen */
