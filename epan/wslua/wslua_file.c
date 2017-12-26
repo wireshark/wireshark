@@ -192,7 +192,7 @@ static int File_read_line(lua_State *L, FILE_T ft) {
     length = (gint)(file_tell(ft) - pos_before);
 
     /* ...but don't want to include newline in line length */
-    if (linebuff[length-1] == '\n') {
+    if (length > 0 && linebuff[length-1] == '\n') {
         length--;
         /* Nor do we want '\r' (as will be written when log is created on windows) */
         if (length > 0 && linebuff[length - 1] == '\r') {
