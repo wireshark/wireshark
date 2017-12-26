@@ -242,7 +242,8 @@ is_earlier(nstime_t *l, nstime_t *r) /* XXX, move to nstime.c */
  * @param err wiretap error, if failed
  * @param err_info wiretap error string, if failed
  * @return pointer to merge_in_file_t for file from which that packet
- * came, or NULL on error or EOF
+ * came or on which we got a read error, or NULL if we're at EOF on
+ * all files
  */
 static merge_in_file_t *
 merge_read_packet(int in_file_count, merge_in_file_t in_files[],
@@ -320,7 +321,8 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
  * @param err wiretap error, if failed
  * @param err_info wiretap error string, if failed
  * @return pointer to merge_in_file_t for file from which that packet
- * came, or NULL on error or EOF
+ * came or on which we got a read error, or NULL if we're at EOF on
+ * all files
  */
 static merge_in_file_t *
 merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
@@ -1064,7 +1066,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
         }
 
         if (in_file == NULL) {
-            /* EOF */
+            /* We're at EOF on all input files */
             break;
         }
 
