@@ -73,7 +73,18 @@ capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cp
   if (!BYTES_ARE_IN_FRAME(0, len, BSD_ENC_HDRLEN))
     return FALSE;
 
-  af = pntoh32(pd);
+  memcpy((char *)&af, (const char *)&pd[0], sizeof(af));
+  if ((af & 0xFFFF0000) != 0) {
+    /*
+     * BSD AF_ types will always have the upper 16 bits as 0, so if any
+     * of them are non-zero, the af field must be byte-swapped, and
+     * will, at least in DLT_ENC headers, always have at least one of
+     * the lower 16 bits not being 0 (it won't be AF_UNSPEC, which is
+     * 0), so if the af field is byte-swapped, at least one of the
+     * upper 16 bits will be 0.
+     */
+    af = GUINT32_SWAP_LE_BE(af);
+  }
   return try_capture_dissector("enc", af, pd, BSD_ENC_HDRLEN, len, cpinfo, pseudo_header);
 }
 
@@ -87,6 +98,7 @@ static int
 dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct enchdr  ench;
+  guint          writer_encoding;
   tvbuff_t      *next_tvb;
   proto_tree    *enc_tree;
   proto_item    *ti;
@@ -102,7 +114,31 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENC");
 
+  /*
+   * Initially assume the file was written by a host with our byte order.
+   */
+  writer_encoding = ENC_HOST_ENDIAN;
   ench.af = tvb_get_h_guint32(tvb, 0);
+  if ((ench.af & 0xFFFF0000) != 0) {
+    /*
+     * BSD AF_ types will always have the upper 16 bits as 0, so if any
+     * of them are non-zero, the af field must be byte-swapped, and
+     * will, at least in DLT_ENC headers, always have at least one of
+     * the lower 16 bits not being 0 (it won't be AF_UNSPEC, which is
+     * 0), so if the af field is byte-swapped, at least one of the
+     * upper 16 bits will be 0.
+     */
+    ench.af = GUINT32_SWAP_LE_BE(ench.af);
+
+    /*
+     * It was written by a host with the *opposite* byte order.
+     */
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+    writer_encoding = ENC_BIG_ENDIAN;
+#else
+    writer_encoding = ENC_LITTLE_ENDIAN;
+#endif
+  }
   ench.spi = tvb_get_ntohl(tvb, 4);
 
   if (tree) {
@@ -113,9 +149,9 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                         ench.spi);
     enc_tree = proto_item_add_subtree(ti, ett_enc);
 
-    proto_tree_add_item(enc_tree, hf_enc_af, tvb, 0, 4, ENC_HOST_ENDIAN);
+    proto_tree_add_item(enc_tree, hf_enc_af, tvb, 0, 4, writer_encoding);
     proto_tree_add_item(enc_tree, hf_enc_spi, tvb, 4, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_bitmask(enc_tree, tvb, 8, hf_enc_flags, ett_enc_flag, flags, ENC_HOST_ENDIAN);
+    proto_tree_add_bitmask(enc_tree, tvb, 8, hf_enc_flags, ett_enc_flag, flags, writer_encoding);
   }
 
   /* Set the tvbuff for the payload after the header */
