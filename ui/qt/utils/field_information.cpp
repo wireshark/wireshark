@@ -93,7 +93,7 @@ FieldInformation::HeaderInfo FieldInformation::headerInfo() const
 
 FieldInformation * FieldInformation::parentField() const
 {
-    return new FieldInformation(parent_fi_);
+    return new FieldInformation(parent_fi_, parent());
 }
 
 bool FieldInformation::tvbContains(FieldInformation *child)

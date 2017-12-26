@@ -262,7 +262,7 @@ void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSele
 
     QModelIndex index = selected.indexes().first();
 
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode(), this);
     if (!finfo.isValid()) return;
 
     // Find and highlight the protocol bytes
@@ -423,10 +423,12 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
 void ProtoTree::selectedFieldChanged(FieldInformation *finfo)
 {
     QModelIndex index = proto_tree_model_->findFieldInformation(finfo);
-    if (index.isValid()) {
-        scrollTo(index);
-        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    if (!index.isValid() || finfo->parent() == this) {
+        // We only want valid, inbound signals.
+        return;
     }
+    scrollTo(index);
+    selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
 // Remember the currently focussed field based on:

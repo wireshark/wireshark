@@ -477,8 +477,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     packet_list_ = new PacketList(&master_split_);
     main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
-    connect(packet_list_, SIGNAL(fieldSelected(FieldInformation *)),
-            this, SIGNAL(fieldSelected(FieldInformation *)));
     connect(packet_list_, SIGNAL(frameSelected(int)),
             this, SIGNAL(frameSelected(int)));
     connect(this, SIGNAL(frameSelected(int)),
@@ -498,10 +496,15 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(fieldSelected(FieldInformation *)));
     connect(this, SIGNAL(fieldSelected(FieldInformation *)),
             proto_tree_, SLOT(selectedFieldChanged(FieldInformation *)));
-    connect(this, SIGNAL(fieldHighlight(FieldInformation *)),
-            main_ui_->statusBar, SLOT(highlightedFieldChanged(FieldInformation *)));
+    connect(packet_list_, SIGNAL(fieldSelected(FieldInformation *)),
+            this, SIGNAL(fieldSelected(FieldInformation *)));
+    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
+            this, SLOT(setMenusForSelectedTreeRow(FieldInformation *)));
     connect(this, SIGNAL(fieldSelected(FieldInformation *)),
             main_ui_->statusBar, SLOT(selectedFieldChanged(FieldInformation *)));
+
+    connect(this, SIGNAL(fieldHighlight(FieldInformation *)),
+            main_ui_->statusBar, SLOT(highlightedFieldChanged(FieldInformation *)));
     connect(wsApp, SIGNAL(captureActive(int)), this, SIGNAL(captureActive(int)));
 
     createByteViewDialog();
@@ -643,12 +646,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(packet_list_->packetListModel(), SIGNAL(popProgressStatus()),
             main_ui_->statusBar, SLOT(popProgressStatus()));
 
-    connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
-            this, SIGNAL(fieldSelected(FieldInformation *)));
-    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
-            main_ui_->statusBar, SLOT(selectedFieldChanged(FieldInformation *)));
-    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
-            this, SLOT(setMenusForSelectedTreeRow(FieldInformation *)));
     connect(proto_tree_, SIGNAL(openPacketInNewWindow(bool)),
             this, SLOT(openPacketDialog(bool)));
     connect(proto_tree_, SIGNAL(showProtocolPreferences(QString)),

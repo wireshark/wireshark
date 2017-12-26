@@ -255,6 +255,10 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
     ByteViewText * byte_view_text = 0;
 
     if (selected) {
+        if (selected->parent() == this) {
+            // We only want inbound signals.
+            return;
+        }
         const field_info *fi = selected->fieldInfo();
 
         int idx = 0;
