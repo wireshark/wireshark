@@ -18,7 +18,10 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="objectTree">
+    <widget class="ExportObjectsTreeView" name="objectTree">
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
      <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
@@ -31,31 +34,6 @@
      <property name="expandsOnDoubleClick">
       <bool>false</bool>
      </property>
-     <column>
-      <property name="text">
-       <string>Packet</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Hostname</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Content Type</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Size</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Filename</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
@@ -130,6 +108,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ExportObjectsTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/export_objects_view.h</header>
+  </customwidget>
+ </customwidgets>
  <connections>
   <connection>
    <sender>buttonBox</sender>

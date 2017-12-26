@@ -2869,7 +2869,11 @@ void MainWindow::applyExportObject()
     if (!export_action)
         return;
 
-    new ExportObjectDialog(*this, capture_file_, export_action->exportObject());
+    ExportObjectDialog* export_dialog = new ExportObjectDialog(*this, capture_file_, export_action->exportObject());
+
+    connect(export_dialog->getExportObjectView(), SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+
 }
 
 // XXX We could probably create the analyze and prepare actions
