@@ -404,10 +404,10 @@ void SequenceDialog::on_buttonBox_accepted()
             if (outfile != NULL) {
                 sequence_analysis_dump_to_file(outfile, info_->sainfo(), 0);
                 save_ok = true;
+                fclose(outfile);
             } else {
                 save_ok = false;
             }
-            fclose(outfile);
         }
         // else error dialog?
         if (save_ok) {
