@@ -488,8 +488,6 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_scsi_smc_byte_count_of_report_available, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
         while (bytecnt != 0) {
-            if (bytecnt < 1)
-                break;
             elem_type = tvb_get_guint8 (tvb, offset);
             proto_tree_add_item(tree, hf_scsi_smc_element_type_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
