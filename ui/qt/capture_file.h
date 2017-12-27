@@ -48,7 +48,7 @@ public:
         Rescan =   0x0200 | File,
         Save =     0x0400 | File,
         Retap =    0x0800 | File,
-        Merge =    0x1000 | File,
+        Merge =    0x1000 | File
     };
 
     enum EventType {
