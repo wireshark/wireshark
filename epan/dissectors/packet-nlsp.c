@@ -793,12 +793,6 @@ dissect_lsp_ext_routes_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, 
 			   int length)
 {
 	while (length > 0) {
-		if (length < 1) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
-			    "Short external routes entry");
-			return;
-		}
-
 		proto_tree_add_item(tree, hf_nlsp_ext_routes_hops, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		length -= 1;
