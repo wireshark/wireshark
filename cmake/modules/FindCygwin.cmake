@@ -52,6 +52,7 @@ if (WIN32)
       "C:/Cygwin"
       "C:/Cygwin64"
       "C:/tools/cygwin"
+      "C:/tools/cygwin64"
       "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygwin\\setup;rootdir]"
       "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/;native]"
   )
