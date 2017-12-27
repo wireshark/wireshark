@@ -71,7 +71,7 @@ private:
 
     // Common stats.
     mac_lte_common_stats commonStats_;
-    bool commonStatsCurrent_;          // TODO: may not be worth it.
+    bool commonStatsCurrent_;          // Set when changes have not yet been drawn
     void updateCommonStats(const struct mac_lte_tap_info *mlt_info);
     void drawCommonStats();
     void clearCommonStats();

@@ -28,17 +28,14 @@
 #include <epan/dissectors/packet-rlc-lte.h>
 
 #include <QFormLayout>
-#include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QPushButton>
 
-#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 #include "ui/recent.h"
 
-// TODO: have lost the ability to filter on only UL or DL of a channel.
-// - can we override the context menu inherited from TapParameterDialog?
+// TODO: have never tested in a live capture.
 
 enum {
     col_ueid_,
@@ -68,8 +65,8 @@ static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time
 {
     /* Can only calculate bandwidth if have time delta */
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
-        double elapsed_ms = (((double)stop_time->secs - (double)start_time->secs) * 1000) +
-                            (((double)stop_time->nsecs - (double)start_time->nsecs) / 1000000);
+        double elapsed_ms = (((double)stop_time->secs -  start_time->secs) * 1000) +
+                            (((double)stop_time->nsecs - start_time->nsecs) / 1000000);
 
         /* Only really meaningful if have a few frames spread over time...
            For now at least avoid dividing by something very close to 0.0 */
@@ -89,7 +86,6 @@ static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time
 
 // Stats kept for one channel.
 typedef struct rlc_channel_stats {
-    guint8   inUse;
     guint8   rlcMode;
     guint8   priority;
     guint16  channelType;
@@ -193,6 +189,7 @@ public:
 
         if (tap_info->priority != 0) {
             priority_ = tap_info->priority;
+            // TODO: update the column string!
         }
 
         if (tap_info->direction == DIRECTION_UPLINK) {
@@ -235,7 +232,7 @@ public:
 
     // Draw channel entry.
     void draw() {
-        // Calculate bandwidth.
+        // Calculate bandwidths.
         double UL_bw = calculate_bw(&stats_.UL_time_start,
                                     &stats_.UL_time_stop,
                                     stats_.UL_bytes);
@@ -335,6 +332,7 @@ public:
 
     QList<QVariant> rowData() const
     {
+        // Don't output anything for channel entries when exporting to text.
         return QList<QVariant>();
     }
 
@@ -524,7 +522,7 @@ public:
     void draw() {
         // Fixed fields only drawn once from constructor so don't redraw here.
 
-        /* Calculate bandwidths */
+        /* Calculate bandwidths. */
         double UL_bw = calculate_bw(&stats_.UL_time_start,
                                     &stats_.UL_time_stop,
                                     stats_.UL_total_bytes);
@@ -650,6 +648,7 @@ private:
 
 
 // Only the first 3 columns headings differ between UE and channel rows.
+
 static const QString ue_col_0_title_ = QObject::tr("UE Id");
 static const QString ue_col_1_title_ = QObject::tr("");
 static const QString ue_col_2_title_ = QObject::tr("");
@@ -784,6 +783,7 @@ void LteRlcStatisticsDialog::tapReset(void *ws_dlg_ptr)
 }
 
 // Process the tap info from a dissected RLC PDU.
+// Returns TRUE if a redraw is needed.
 gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *rlc_lte_tap_info_ptr)
 {
     // Look up dialog.
@@ -795,7 +795,7 @@ gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 
     ws_dlg->incFrameCount();
 
-    // Look for this UE (linear search...).
+    // Look for this UE (TODO: avoid linear search if have lots of UEs in capture...)
     RlcUeTreeWidgetItem *ue_ti = NULL;
     for (int i = 0; i < ws_dlg->statsTreeWidget()->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = ws_dlg->statsTreeWidget()->topLevelItem(i);
@@ -826,7 +826,9 @@ void LteRlcStatisticsDialog::tapDraw(void *ws_dlg_ptr)
 {
     // Look up UE.
     LteRlcStatisticsDialog *ws_dlg = static_cast<LteRlcStatisticsDialog *>(ws_dlg_ptr);
-    if (!ws_dlg) return;
+    if (!ws_dlg) {
+        return;
+    }
 
     // Draw each UE.
     for (int i = 0; i < ws_dlg->statsTreeWidget()->topLevelItemCount(); i++) {

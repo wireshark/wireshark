@@ -28,13 +28,12 @@
 #include <epan/dissectors/packet-mac-lte.h>
 
 #include <QFormLayout>
-#include <QTreeWidget>
 #include <QTreeWidgetItem>
 
 #include <ui/qt/models/percent_bar_delegate.h>
-#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
+// TODO: have never tested in a live capture.
 
 // Whole-UE headings.
 enum {
@@ -46,6 +45,7 @@ enum {
     col_ul_bytes_,
     col_ul_mb_s_,
     col_ul_padding_percent_,
+    /* col_ul_crc_failed_, */
     col_ul_retx_,
     // DL-specific
     col_dl_frames_,
@@ -72,8 +72,8 @@ static double calculate_bw(const nstime_t *start_time, const nstime_t *stop_time
 {
     // Can only calculate bandwidth if have time delta
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
-        double elapsed_ms = (((double)stop_time->secs - (double)start_time->secs) * 1000) +
-                           (((double)stop_time->nsecs - (double)start_time->nsecs) / 1000000);
+        double elapsed_ms = (((double)stop_time->secs -  start_time->secs) * 1000) +
+                            (((double)stop_time->nsecs - start_time->nsecs) / 1000000);
 
         // Only really meaningful if have a few frames spread over time...
         // For now at least avoid dividing by something very close to 0.0
@@ -134,6 +134,8 @@ public:
     void draw()
     {
         // Show current value of counter for each LCID.
+        // N.B. fields that are set as % using percent_bar_delegate.h
+        // for UE headings don't display here...
         for (int n=0; n < 11; n++) {
             setText(col_type_+n, QString("").sprintf("%u", lcids[n]));
         }
@@ -485,9 +487,9 @@ static const QStringList mac_whole_ue_row_labels = QStringList()
         << QObject::tr("DL ReTX");
 
 static const QStringList mac_channel_counts_labels = QStringList()
-        << QObject::tr("") << QObject::tr("CCCH") << QObject::tr("LCID 1") << QObject::tr("LCID 2")
-        << QObject::tr("LCID 3") << QObject::tr("LCID 4") << QObject::tr("LCID 5")
-        << QObject::tr("LCID 6")
+        << QObject::tr("") << QObject::tr("CCCH")
+        << QObject::tr("LCID 1") << QObject::tr("LCID 2") << QObject::tr("LCID 3")
+        << QObject::tr("LCID 4") << QObject::tr("LCID 5") << QObject::tr("LCID 6")
         << QObject::tr("LCID 7") << QObject::tr("LCID 8") << QObject::tr("LCID 9")
         << QObject::tr("LCID 10")
         // 'Blank out' UE-level fields
@@ -712,7 +714,9 @@ void LteMacStatisticsDialog::clearCommonStats()
 void LteMacStatisticsDialog::tapReset(void *ws_dlg_ptr)
 {
     LteMacStatisticsDialog *ws_dlg = static_cast<LteMacStatisticsDialog *>(ws_dlg_ptr);
-    if (!ws_dlg) return;
+    if (!ws_dlg) {
+        return;
+    }
 
     ws_dlg->statsTreeWidget()->clear();
     ws_dlg->clearCommonStats();
@@ -720,6 +724,7 @@ void LteMacStatisticsDialog::tapReset(void *ws_dlg_ptr)
 
 //---------------------------------------------------------------------------------------
 // Process tap info from a new packet.
+// Returns TRUE if a redraw is needed.
 gboolean LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *mac_lte_tap_info_ptr)
 {
     // Look up dialog and tap info.
@@ -734,7 +739,7 @@ gboolean LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 
     // Nothing more to do if tap entry isn't for a UE.
     if ((mlt_info->rntiType != C_RNTI) && (mlt_info->rntiType != SPS_RNTI)) {
-        return TRUE;
+        return FALSE;
     }
 
     // Look for an existing UE to match this tap info.
@@ -845,6 +850,7 @@ void LteMacStatisticsDialog::updateHeaderLabels()
         // Whole-UE labels
         statsTreeWidget()->setHeaderLabels(mac_whole_ue_row_labels);
     } else if (statsTreeWidget()->selectedItems().count() > 0) {
+        // ULDL labels
         switch (statsTreeWidget()->selectedItems()[0]->type()) {
             case mac_ulsch_packet_count_row_type:
             case mac_ulsch_byte_count_row_type:
