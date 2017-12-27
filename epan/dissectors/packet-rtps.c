@@ -3149,7 +3149,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
   /* Bitfield print */
   if (bitfield != 0xffff && name != NULL && is_pointer == 0) {
     proto_tree_add_string_format(tree, hf_rtps_bitfield, tvb, offset_begin, (offset-offset_begin), type_name,
-                  "%s%s %s:%d;%s", indent_string, type_name, name ? name : "",
+                  "%s%s %s:%d;%s", indent_string, type_name, name,
                   bitfield, is_key ? KEY_COMMENT : "");
     return retVal;
   }
