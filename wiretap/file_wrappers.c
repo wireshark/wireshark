@@ -60,6 +60,8 @@
  *      XZ format: http://tukaani.org/xz/
  *
  *      Bzip2 format: http://bzip.org/
+ *
+ *      Lzip format: http://www.nongnu.org/lzip/
  */
 
 /*
