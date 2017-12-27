@@ -64,6 +64,11 @@ struct erf_anchor_mapping {
   gchar *comment;
 };
 
+static const guint erf_header_size = (guint)sizeof(erf_header_t);
+static const guint erf_mc_header_size = (guint)sizeof(erf_mc_header_t);
+static const guint erf_eth_hdr_size = (guint)sizeof(erf_eth_header_t);
+
+
 static gboolean erf_read_header(wtap *wth, FILE_T fh,
                                 struct wtap_pkthdr *phdr,
                                 erf_header_t *erf_header,
@@ -382,6 +387,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
   guint32          packet_size;
   guint16          rlen;
   guint64          erf_ext_header;
+  guint            erf_ext_header_size = (guint)sizeof(erf_ext_header);
   guint8           type;
 
   memset(&prevts, 0, sizeof(prevts));
@@ -401,7 +407,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 
   for (i = 0; i < records_for_erf_check; i++) {  /* records_for_erf_check */
 
-    if (!wtap_read_bytes_or_eof(wth->fh,&header,sizeof(header),err,err_info)) {
+    if (!wtap_read_bytes_or_eof(wth->fh,&header,erf_header_size,err,err_info)) {
       if (*err == 0) {
         /* EOF - all records have been successfully checked, accept the file */
         break;
@@ -429,7 +435,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       return WTAP_OPEN_NOT_MINE;
     }
 
-    packet_size = rlen - (guint32)sizeof(header);
+    packet_size = rlen - erf_header_size;
     if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
       /*
        * Probably a corrupt capture file or a file that's not an ERF file
@@ -477,14 +483,16 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
     /* Read over the extension headers */
     type = header.type;
     while (type & 0x80){
-      if (!wtap_read_bytes(wth->fh,&erf_ext_header,sizeof(erf_ext_header),err,err_info)) {
+      if (!wtap_read_bytes(wth->fh,&erf_ext_header,erf_ext_header_size,err,err_info)) {
         if (*err == WTAP_ERR_SHORT_READ) {
           /* Extension header missing, not an ERF file */
           return WTAP_OPEN_NOT_MINE;
         }
         return WTAP_OPEN_ERROR;
       }
-      packet_size -= (guint32)sizeof(erf_ext_header);
+      if (packet_size < erf_ext_header_size)
+        return WTAP_OPEN_NOT_MINE;
+      packet_size -= erf_ext_header_size;
       memcpy(&type, &erf_ext_header, sizeof(type));
     }
 
@@ -499,39 +507,36 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       case ERF_TYPE_MC_AAL2:
       case ERF_TYPE_COLOR_MC_HDLC_POS:
       case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
-        if (!wtap_read_bytes(wth->fh,&mc_hdr,sizeof(mc_hdr),err,err_info)) {
+        if (!wtap_read_bytes(wth->fh,&mc_hdr,erf_mc_header_size,err,err_info)) {
           if (*err == WTAP_ERR_SHORT_READ) {
             /* Subheader missing, not an ERF file */
             return WTAP_OPEN_NOT_MINE;
           }
           return WTAP_OPEN_ERROR;
         }
-        packet_size -= (guint32)sizeof(mc_hdr);
+        if (packet_size < erf_mc_header_size)
+          return WTAP_OPEN_NOT_MINE;
+        packet_size -= erf_mc_header_size;
         break;
       case ERF_TYPE_ETH:
       case ERF_TYPE_COLOR_ETH:
       case ERF_TYPE_DSM_COLOR_ETH:
       case ERF_TYPE_COLOR_HASH_ETH:
-        if (!wtap_read_bytes(wth->fh,&eth_hdr,sizeof(eth_hdr),err,err_info)) {
+        if (!wtap_read_bytes(wth->fh,&eth_hdr,erf_ext_header_size,err,err_info)) {
           if (*err == WTAP_ERR_SHORT_READ) {
             /* Subheader missing, not an ERF file */
             return WTAP_OPEN_NOT_MINE;
           }
           return WTAP_OPEN_ERROR;
         }
-        packet_size -= (guint32)sizeof(eth_hdr);
+        if (packet_size < erf_ext_header_size)
+          return WTAP_OPEN_NOT_MINE;
+        packet_size -= erf_ext_header_size;
         break;
       default:
         break;
     }
 
-    if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
-      /*
-       * Probably a corrupt capture file or a file that's not an ERF file
-       * but that passed earlier tests.
-       */
-      return WTAP_OPEN_NOT_MINE;
-    }
     if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
       if (*err != WTAP_ERR_SHORT_READ) {
         /* A real error */
@@ -952,7 +957,7 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
         case ERF_TYPE_DSM_COLOR_ETH:
         case ERF_TYPE_COLOR_HASH_ETH:
           memcpy(&erf_subhdr[0], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
-          subhdr_size += (int)sizeof(struct erf_eth_hdr);
+          subhdr_size += erf_eth_hdr_size;
           break;
         default:
           break;
