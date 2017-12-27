@@ -563,7 +563,6 @@ static expert_field ei_rtps_locator_port = EI_INIT;
 static expert_field ei_rtps_more_samples_available = EI_INIT;
 static expert_field ei_rtps_parameter_not_decoded = EI_INIT;
 static expert_field ei_rtps_sm_octets_to_next_header_not_zero = EI_INIT;
-static expert_field ei_rtps_unsupported_non_builtin_param_seq    = EI_INIT;
 
 /***************************************************************************/
 /* Preferences                                                             */
@@ -12147,8 +12146,7 @@ void proto_register_rtps(void) {
      { &ei_rtps_sm_octets_to_next_header_not_zero, { "rtps.sm.octetsToNextHeader.not_zero", PI_PROTOCOL, PI_WARN, "Should be ZERO", EXPFILL }},
      { &ei_rtps_extra_bytes, { "rtps.extra_bytes", PI_MALFORMED, PI_ERROR, "Don't know how to decode those extra bytes: %d", EXPFILL }},
      { &ei_rtps_missing_bytes, { "rtps.missing_bytes", PI_MALFORMED, PI_ERROR, "Not enough bytes to decode", EXPFILL }},
-     { &ei_rtps_more_samples_available, { "rtps.more_samples_available", PI_PROTOCOL, PI_NOTE, "More samples available. Configure this limit from preferences dialog", EXPFILL }},
-     { &ei_rtps_unsupported_non_builtin_param_seq, { "rtps.unsupported_non_builtin_param_seq", PI_PROTOCOL, PI_WARN, "Unsupported non-builtin parameter sequence", EXPFILL }},
+     { &ei_rtps_more_samples_available, { "rtps.more_samples_available", PI_PROTOCOL, PI_NOTE, "More samples available. Configure this limit from preferences dialog", EXPFILL }}
   };
 
   module_t *rtps_module;
