@@ -80,6 +80,7 @@ static int hf_mq_pcf_bytestring = -1;
 static int hf_mq_pcf_int64 = -1;
 static int hf_mq_pcf_int64list = -1;
 
+static expert_field ei_mq_pcf_hdrlne = EI_INIT;
 static expert_field ei_mq_pcf_prmln0 = EI_INIT;
 static expert_field ei_mq_pcf_MaxInt = EI_INIT;
 static expert_field ei_mq_pcf_MaxStr = EI_INIT;
@@ -164,6 +165,7 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
     char    strPrm[256];
     guint32 uTyp;
     guint32 uLen = 0;
+    guint32 uMax = 0;
     guint32 uPrm;
     guint32 uCnt;
     guint32 uCCS;
@@ -174,6 +176,7 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
 
     const char sMaxLst[] = " Max # of List reached. DECODE interrupted   (actual %u of %u)";
     const char sPrmLn0[] = " MQPrm[%3u] has a zero length. DECODE Failed (MQPrm Count: %u)";
+    const char sHdrLne[] = " MQPrm[%3u] PCF Header not enough remaining bytes in pdu. DECODE Failed (MQPrm Count: %u)";
     const char sMaxPrm[] = " Max # of Parm reached. DECODE interrupted   (actual %u of %u)";
     const char sPrmCnt[] = " Cnt=-1 and Length(%u) < 16. DECODE interrupted for elem %u";
 
@@ -204,6 +207,13 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
     for (u = 0; u < uCount && u < mq_pcf_maxprm; u++)
     {
         tOfs = offset;
+        uMax = (guint)tvb_reported_length_remaining(tvb, tOfs);
+        if (uMax < 12)
+        {
+            proto_tree_add_expert_format(tree, pinfo, &ei_mq_pcf_hdrlne, tvb, offset, 12, sHdrLne, u + 1, uCount);
+            u = uCount;
+            break;
+        }
         uTyp = tvb_get_guint32(tvb, offset    , bLittleEndian);
         uLen = tvb_get_guint32(tvb, offset + 4, bLittleEndian);
         if (uLen == 0)
@@ -212,6 +222,9 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
             u = uCount;
             break;
         }
+        /* Try to decode as much as possible value */
+        uLen = MIN(uLen, uMax);
+
         uPrm = tvb_get_guint32(tvb, offset + 8, bLittleEndian);
         uLenF = 12;
 
@@ -676,6 +689,7 @@ void proto_register_mqpcf(void)
     static ei_register_info ei[] =
     {
         { &ei_mq_pcf_prmln0, { "mqpcf.parm.len0"     , PI_MALFORMED, PI_ERROR, "MQPCF Parameter length is 0", EXPFILL }},
+        { &ei_mq_pcf_hdrlne, { "mqpcf.parm.hdrlenerr", PI_MALFORMED, PI_ERROR, "MQPCF Header not enough bytes in pdu", EXPFILL}},
         { &ei_mq_pcf_MaxInt, { "mqpcf.parm.IntList"  , PI_UNDECODED, PI_WARN , "MQPCF Parameter Integer list exhausted", EXPFILL }},
         { &ei_mq_pcf_MaxStr, { "mqpcf.parm.StrList"  , PI_UNDECODED, PI_WARN , "MQPCF Parameter String list exhausted", EXPFILL }},
         { &ei_mq_pcf_MaxI64, { "mqpcf.parm.Int64List", PI_UNDECODED, PI_WARN , "MQPCF Parameter Int64 list exhausted", EXPFILL }},

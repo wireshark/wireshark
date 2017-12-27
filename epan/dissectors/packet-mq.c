@@ -194,6 +194,8 @@ static int hf_mq_id_ThreadId = -1;
 static int hf_mq_id_TraceId = -1;
 static int hf_mq_id_ProdId = -1;
 static int hf_mq_id_mqmid = -1;
+static int hf_mq_id_pal = -1;
+static int hf_mq_id_r = -1;
 
 /* Initial Data Capability Flag 1 */
 static int hf_mq_id_icf1_msgseq = -1;
@@ -960,7 +962,7 @@ static gint ett_mq_xa_tmflags = -1;
 static gint ett_mq_xa_xid = -1;
 static gint ett_mq_xa_info = -1;
 static gint ett_mq_charv = -1;
-static gint ett_mq_reaasemb = -1;
+static gint ett_mq_reassemb = -1;
 static gint ett_mq_notif = -1;
 
 static gint ett_mq_structid = -1;
@@ -977,6 +979,8 @@ static gboolean mq_desegment = TRUE;
 static gboolean mq_reassembly = TRUE;
 
 static gboolean mq_in_reassembly = FALSE;
+
+static guint32  mq_AsyMsgRsn;
 
 static reassembly_table mq_reassembly_table;
 
@@ -2311,15 +2315,20 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 {
     guint8 iFAPLvl;
     gint   iSize;
+    gint   iPktSz;
 
+    iPktSz = tvb_reported_length_remaining(tvb, offset);
     iFAPLvl = tvb_get_guint8(tvb, offset + 4);
 
     if (iFAPLvl < 4)
         iSize = 44;
-    else if (iFAPLvl < 10)
+    else if (iFAPLvl < 9)
         iSize = 102;
-    else
+    else if (iFAPLvl < 11)
         iSize = 208;
+    else
+        iSize = 240;
+    iSize = MIN(iSize, iPktSz);
 
     if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
     {
@@ -2331,7 +2340,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", CHL=%s", sChannel);
         }
-        if (iFAPLvl >= 4)
+        if (iSize > 48)
         {
             guint8 *sQMgr;
             sQMgr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 48, p_mq_parm->mq_str_enc);
@@ -2362,7 +2371,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
             proto_tree_add_item(mq_tree, hf_mq_id_SeqWrapVal , tvb, offset + 20,  4, p_mq_parm->mq_int_enc);
             proto_tree_add_item(mq_tree, hf_mq_id_channel    , tvb, offset + 24, 20, p_mq_parm->mq_str_enc);
 
-            if (iFAPLvl >= 4)
+            if (iSize > 44)
             {
                 /* ID Capability flags 2 */
                 proto_tree_add_bitmask(mq_tree, tvb, offset + 44, hf_mq_id_icf2, ett_mq_id_icf2, pf_flds_icf2, ENC_BIG_ENDIAN);
@@ -2372,28 +2381,36 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
                 proto_tree_add_item(mq_tree, hf_mq_id_qmgrname  , tvb, offset +  48, 48, p_mq_parm->mq_str_enc);
                 proto_tree_add_item(mq_tree, hf_mq_id_HBInterval, tvb, offset +  96,  4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_id_EFLLength , tvb, offset + 100,  2, p_mq_parm->mq_int_enc);
-                if (iFAPLvl >= 10)
+                if (iSize > 102)
                 {
                     /* Error flags 2*/
                     proto_tree_add_bitmask(mq_tree, tvb, offset + 102, hf_mq_id_ief2, ett_mq_id_ief2, pf_flds_ief2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(mq_tree, hf_mq_id_Reserved1 , tvb, offset + 103,  1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(mq_tree, hf_mq_id_Reserved1, tvb, offset + 103, 1, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(mq_tree, hf_mq_id_HdrCprsLst, tvb, offset + 104,  2, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_HdrCprsLst, tvb, offset + 104, 2, p_mq_parm->mq_int_enc);
                     proto_tree_add_item(mq_tree, hf_mq_id_MsgCprsLst, tvb, offset + 106, 16, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_Reserved2 , tvb, offset + 122,  2, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_SSLKeyRst , tvb, offset + 124,  4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_ConvBySkt , tvb, offset + 128,  4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_Reserved2, tvb, offset + 122, 2, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_SSLKeyRst, tvb, offset + 124, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_ConvBySkt, tvb, offset + 128, 4, p_mq_parm->mq_int_enc);
 
                     /* ID Capability flags 3 */
                     proto_tree_add_bitmask(mq_tree, tvb, offset + 132, hf_mq_id_icf3, ett_mq_id_icf3, pf_flds_icf3, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(mq_tree, tvb, offset + 133, hf_mq_id_Eicf3, ett_mq_id_eicf3, pf_flds_icf3, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(mq_tree, hf_mq_id_Reserved3, tvb, offset + 134,  2, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_ProcessId, tvb, offset + 136,  4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_ThreadId , tvb, offset + 140,  4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_TraceId  , tvb, offset + 144,  4, p_mq_parm->mq_int_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_ProdId   , tvb, offset + 148, 12, p_mq_parm->mq_str_enc);
-                    proto_tree_add_item(mq_tree, hf_mq_id_mqmid    , tvb, offset + 160, 48, p_mq_parm->mq_str_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_Reserved3, tvb, offset + 134, 2, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_ProcessId, tvb, offset + 136, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_ThreadId, tvb, offset + 140, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_TraceId, tvb, offset + 144, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_ProdId, tvb, offset + 148, 12, p_mq_parm->mq_str_enc);
+                }
+                if (iSize > 160)
+                {
+                    proto_tree_add_item(mq_tree, hf_mq_id_mqmid, tvb, offset + 160, 48, p_mq_parm->mq_str_enc);
+                }
+                if (iSize > 208)
+                {
+                    proto_tree_add_item(mq_tree, hf_mq_id_pal, tvb, offset + 208, 20, p_mq_parm->mq_str_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_id_r, tvb, offset + 228, 12, p_mq_parm->mq_str_enc);
                 }
             }
         }
@@ -2574,8 +2591,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (!mq_in_reassembly)
             {
+                col_clear_fence(pinfo->cinfo, COL_INFO);
                 col_clear(pinfo->cinfo, COL_INFO);
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%-17s", val_to_str_ext(p_mq_parm->mq_opcode, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", " %-17s", val_to_str_ext(p_mq_parm->mq_opcode, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
             }
 
@@ -3055,24 +3073,29 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     }
                     else if (p_mq_parm->mq_opcode == MQ_TST_ASYNC_MESSAGE)
                     {
+                        gint  iReasnCode = 0;
                         gint  iSegmIndex;
                         gint  iGlbMsgIdx;
                         gint  iPadLen;
-                        gint  iSegLength;
+
                         gint8 iStrLen;
                         gint  iHdl;
                         gint  iHdrL;
 
                         iHdl       = tvb_get_guint32(tvb, offset +  4, p_mq_parm->mq_int_enc);
                         iGlbMsgIdx = tvb_get_guint32(tvb, offset + 12, p_mq_parm->mq_int_enc);
-                        iSegLength = tvb_get_guint32(tvb, offset + 16, p_mq_parm->mq_int_enc);
                         iSegmIndex = tvb_get_guint16(tvb, offset + 20, p_mq_parm->mq_int_enc);
+
+                        if (p_mq_parm->mq_ctlf1 & MQ_TCF_FIRST)
+                        {
+                            iReasnCode = tvb_get_guint32(tvb, offset + 24, p_mq_parm->mq_int_enc);
+                        }
 
                         if (iSegmIndex == 0)
                         {
                             iStrLen = tvb_get_guint8(tvb, offset + 54);
-                            iPadLen = (2+1+iStrLen) % 4;
-                            iPadLen = (iPadLen) ? 4-iPadLen : 0;
+                            iPadLen = (2 + 1 + iStrLen) % 4;
+                            iPadLen = (iPadLen) ? 4 - iPadLen : 0;
                         }
                         else
                         {
@@ -3085,8 +3108,10 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (!mq_in_reassembly)
                         {
                             dissect_mq_addCR_colinfo(pinfo, p_mq_parm);
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
-                                iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
+                            col_append_fstr(pinfo->cinfo, COL_INFO,
+                                            " Hdl=0x%04x GlbMsgIdx=%d, Full Message, RC=%d(0x%x) - %s",
+                                            iHdl, iGlbMsgIdx, iReasnCode, iReasnCode,
+                                            val_to_str_ext(iReasnCode, GET_VALS_EXTP(mqrc), "Unknown (0x%02x)"));
                         }
 
                         mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iHdrL, ett_mq_msg, NULL, MQ_TEXT_ASYMSG);
@@ -3114,7 +3139,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 
                         iSizePayload = tvb_reported_length_remaining(tvb, offset);
-                        bPayload = (iSizePayload>0);
+                        bPayload = (iSizePayload > 0);
                     }
                     else if ((p_mq_parm->mq_opcode == MQ_TST_SPI || p_mq_parm->mq_opcode == MQ_TST_SPI_REPLY) && capLen >= 12)
                     {
@@ -3871,6 +3896,7 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                 if (iSegmIndex == 0)
                 {
+                    mq_AsyMsgRsn = tvb_get_guint32(tvb, iHdrL + 24, iEnco);
                     uStrL = tvb_get_guint8(tvb, iHdrL + 54);
                     uPadL = ((((2+1+uStrL)/4)+1)*4)-(2+1+uStrL);
                 }
@@ -3883,15 +3909,18 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                 /*
                   if it is the 1st Segment, it means we are
-                  of the beginning of a reassembling. We must take the whole segment (with tSHM, and headers)
+                  of the beginning of a reassembling. We must take the whole segment (with TSHM, and headers)
                 */
                 iBegL = (bSeg1st) ? 0 : iNxtP;
 
-                if (iSegL <= iBegL) {
+                if (iSegL <= iBegL)
+                {
                     /* negative or null fragment length - something is wrong; skip reassembly */
                     fd_head = NULL;
                     reassembly_error = TRUE;
-                } else {
+                }
+                else
+                {
                     fd_head = fragment_add_seq_next(&mq_reassembly_table,
                         tvb, iBegL,
                         pinfo, iConnectionId, NULL,
@@ -3901,44 +3930,59 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 if (tree)
                 {
                     proto_item *ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, ENC_NA);
-                    if (bMore)
-                    {
-                        proto_item_append_text(ti, " [%s of a Reassembled MQ Segment]",
-                            val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
-                        dissect_mq_addCR_colinfo(pinfo, &mq_parm);
-                        proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
-                            iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
-                    }
-                    else
-                    {
-                        proto_item_append_text(ti, " %s",
-                            val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
-                        dissect_mq_addCR_colinfo(pinfo, &mq_parm);
-                        proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
-                            iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
-                    }
+
+                    proto_item_append_text(ti, " [%s of a Reassembled MQ Segment]",
+                                           val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
+                    dissect_mq_addCR_colinfo(pinfo, &mq_parm);
+                    proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+                                           iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
+
                     if (reassembly_error)
                     {
                         expert_add_info_format(pinfo, ti, &ei_mq_reassembly_error,
                                                "Wrong fragment length (%d) - skipping reassembly", iSegL - iBegL);
                     }
-                    mq_tree = proto_item_add_subtree(ti, ett_mq_reaasemb);
+                    mq_tree = proto_item_add_subtree(ti, ett_mq_reassemb);
                 }
                 else
                 {
                     mq_tree = tree;
                 }
 
-                if (fd_head != NULL && pinfo->num == fd_head->reassembled_in)
+                if (fd_head != NULL && pinfo->num == fd_head->reassembled_in && !bMore)
                 {
                     tvbuff_t *next_tvb;
 
                     /* Reassembly finished */
                     if (fd_head->next != NULL)
                     {
-                        /* 2 or more fragments */
+                        proto_item *ti;
+
+                        /* dissect the last(s) MQ segment received */
+                        /* Reassembly in progress, so no decode */
+
+                        mq_in_reassembly = TRUE;
+                        dissect_mq_pdu(tvb, pinfo, mq_tree);
+                        mq_in_reassembly = FALSE;
+
+                        /*
+                        2 or more fragments.
+                        Build Up the full pdu to be dissected correwctly
+                        */
                         next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                         add_new_data_source(pinfo, next_tvb, "Reassembled MQ");
+
+                        /* Create the tree element for the full reassembled MQ Msg */
+                        ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, ENC_NA);
+                        proto_item_append_text(ti, "%s",
+                                               val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
+                        dissect_mq_addCR_colinfo(pinfo, &mq_parm);
+                        proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, Full, Len=%d, RC=%d(0x%x) - %s",
+                                               iHdl, iGlbMsgIdx,
+                                               tvb_reported_length_remaining(next_tvb, 0),
+                                               mq_AsyMsgRsn, mq_AsyMsgRsn,
+                                               val_to_str_ext(mq_AsyMsgRsn, GET_VALS_EXTP(mqrc), "Unknown (0x%02x)"));
+                        mq_tree = proto_item_add_subtree(ti, ett_mq_reassemb);
                     }
                     else
                     {
@@ -3952,12 +3996,11 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 {
                     mq_in_reassembly = TRUE;
                     /* Reassembly in progress */
-                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
                     col_add_fstr(pinfo->cinfo, COL_INFO, "[%s of a Reassembled MQ Segment]",
-                        val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
+                                 val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                     dissect_mq_addCR_colinfo(pinfo, &mq_parm);
-                    col_add_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
-                        iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+                                    iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
                     dissect_mq_pdu(tvb, pinfo, mq_tree);
                     return tvb_reported_length(tvb);
                 }
@@ -4142,6 +4185,8 @@ void proto_register_mq(void)
         { &hf_mq_id_TraceId    , {"TraceId...", "mq.id.traceid", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "ID Trace Identifier", HFILL }},
         { &hf_mq_id_ProdId     , {"ProdId....", "mq.id.prodid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "ID Product Identifier", HFILL }},
         { &hf_mq_id_mqmid      , {"MQM ID....", "mq.id.mqmid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "ID MQM ID", HFILL }},
+        { &hf_mq_id_pal        , {"PAL.......", "mq.id.pal", FT_BYTES, BASE_NONE, NULL, 0x0, "ID PAL", HFILL}},
+        { &hf_mq_id_r          , {"R.........", "mq.id.r", FT_BYTES, BASE_NONE, NULL, 0x0, "ID R", HFILL}},
 
         { &hf_mq_id_icf1_msgseq  , {"Message sequence", "mq.id.icf.msgseq"  , FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_MSG_SEQ, "ID ICF Message sequence", HFILL }},
         { &hf_mq_id_icf1_convcap , {"Conversion capable", "mq.id.icf.convcap" , FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_CONVERSION_CAPABLE, "ID ICF Conversion capable", HFILL }},
@@ -4309,7 +4354,7 @@ void proto_register_mq(void)
         { &hf_mq_msgasy_SegLength, {"SegLength", "mq.msgasy.seglength", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGASYNC Segment Length", HFILL }},
         { &hf_mq_msgasy_SegmIndex, {"SegmIndex", "mq.msgasy.segmindex", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "MSGASYNC Segment Index", HFILL }},
         { &hf_mq_msgasy_SeleIndex, {"SeleIndex", "mq.msgasy.seleindex", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "MSGASYNC Selection Index", HFILL }},
-        { &hf_mq_msgasy_ReasonCod, {"ReasonCod", "mq.msgasy.reasoncod", FT_UINT32, BASE_HEX    , NULL, 0x0, "MSGASYNC Reason Code", HFILL }},
+        { &hf_mq_msgasy_ReasonCod, {"ReasonCod", "mq.msgasy.reasoncod", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(mqrc), 0x0, "MSGASYNC Reason Code", HFILL }},
         { &hf_mq_msgasy_ActMsgLen, {"ActMsgLen", "mq.msgasy.actmsglen", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGASYNC Actual Message Length", HFILL }},
         { &hf_mq_msgasy_TotMsgLen, {"TotMsgLen", "mq.msgasy.totmsglen", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGASYNC Total Message Length", HFILL }},
         { &hf_mq_msgasy_MsgToken , {"MsgToken.", "mq.msgasy.msgtoken" , FT_BYTES , BASE_NONE   , NULL, 0x0, "MSGASYNC Mesasage Token", HFILL }},
@@ -4708,7 +4753,7 @@ void proto_register_mq(void)
         &ett_mq_xa_info,
         &ett_mq_charv,
         &ett_mq_rfh_ValueName,
-        &ett_mq_reaasemb,
+        &ett_mq_reassemb,
         &ett_mq_structid
     };
 

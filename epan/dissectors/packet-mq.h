@@ -4979,6 +4979,7 @@ typedef struct _mq_parm_t
 #define MQ_MQCHT_CLUSRCVR                 8
 #define MQ_MQCHT_CLUSSDR                  9
 #define MQ_MQCHT_MQTT                     10
+#define MQ_MQCHT_AMQP                     11
 
 /* Channel Compression */
 #define MQ_MQCOMPRESS_NOT_AVAILABLE       (-1)
@@ -5041,6 +5042,11 @@ typedef struct _mq_parm_t
  /* Transmission queue types */
 #define MQ_MQCLXQ_SCTQ                    0
 #define MQ_MQCLXQ_CHANNEL                 1
+
+#define MQ_MQZAET_NONE                    0
+#define MQ_MQZAET_PRINCIPAL               1
+#define MQ_MQZAET_GROUP                   2
+#define MQ_MQZAET_UNKNOWN                 3
 
 #endif
 
