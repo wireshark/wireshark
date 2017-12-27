@@ -67,6 +67,7 @@ signals:
     void goToPacket(int packet_num);
 
 protected slots:
+    void captureEvent(CaptureEvent *e);
     virtual void updateWidgets();
 
 private slots:

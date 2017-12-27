@@ -425,6 +425,12 @@ RtpAnalysisDialog::~RtpAnalysisDialog()
     delete rev_tempfile_;
 }
 
+void RtpAnalysisDialog::captureFileClosing()
+{
+    updateWidgets();
+    WiresharkDialog::captureFileClosing();
+}
+
 void RtpAnalysisDialog::updateWidgets()
 {
     bool enable_tab = false;

@@ -66,8 +66,7 @@ private:
 
 private slots:
     void retapPackets();
-    void retapStarted();
-    void retapFinished();
+    void captureEvent(CaptureEvent *e);
 
     void updateWidgets();
 

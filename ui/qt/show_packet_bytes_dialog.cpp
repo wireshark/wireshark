@@ -102,7 +102,6 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     connect(save_as_button_, SIGNAL(clicked()), this, SLOT(saveAs()));
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
-    connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
 
     setStartAndEnd(0, finfo_->length);
     updateFieldBytes(true);

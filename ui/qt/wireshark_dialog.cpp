@@ -51,10 +51,8 @@ WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
     setWindowIcon(wsApp->normalIcon());
     setWindowTitleFromSubtitle();
 
-    connect(&cap_file_, SIGNAL(captureFileRetapStarted()), this, SLOT(beginRetapPackets()));
-    connect(&cap_file_, SIGNAL(captureFileRetapFinished()), this, SLOT(endRetapPackets()));
-    connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
-    connect(&cap_file_, SIGNAL(captureFileClosed()), this, SLOT(captureFileClosed()));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
+            this, SLOT(captureEvent(CaptureEvent *)));
 }
 
 void WiresharkDialog::accept()
@@ -127,6 +125,42 @@ bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, 
 
     tap_listeners_ << tap_data;
     return true;
+}
+
+void WiresharkDialog::captureEvent(CaptureEvent *e)
+{
+    switch (e->captureContext())
+    {
+    case CaptureEvent::Retap:
+        switch (e->eventType())
+        {
+        case CaptureEvent::Started:
+            beginRetapPackets();
+            break;
+        case CaptureEvent::Finished:
+            endRetapPackets();
+            break;
+        default:
+            break;
+        }
+        break;
+    case CaptureEvent::File:
+        switch (e->eventType())
+        {
+        case CaptureEvent::Closing:
+            captureFileClosing();
+            break;
+        case CaptureEvent::Closed:
+            captureFileClosed();
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+
 }
 
 void WiresharkDialog::endRetapPackets()

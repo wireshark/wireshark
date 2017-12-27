@@ -477,7 +477,8 @@ void IOGraphDialog::createIOGraph(int currentRow)
 
     connect(this, SIGNAL(recalcGraphData(capture_file *, bool)), iog, SLOT(recalcGraphData(capture_file *, bool)));
     connect(this, SIGNAL(reloadValueUnitFields()), iog, SLOT(reloadValueUnitField()));
-    connect(&cap_file_, SIGNAL(captureFileClosing()), iog, SLOT(captureFileClosing()));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
+            iog, SLOT(captureEvent(CaptureEvent *)));
     connect(iog, SIGNAL(requestRetap()), this, SLOT(scheduleRetap()));
     connect(iog, SIGNAL(requestRecalc()), this, SLOT(scheduleRecalc()));
     connect(iog, SIGNAL(requestReplot()), this, SLOT(scheduleReplot()));
@@ -1965,9 +1966,13 @@ void IOGraph::scaleGraphData(DataMap &map, int scalar)
     }
 }
 
-void IOGraph::captureFileClosing()
+void IOGraph::captureEvent(CaptureEvent *e)
 {
-    remove_tap_listener(this);
+    if ((e->captureContext() == CaptureEvent::File) &&
+            (e->eventType() == CaptureEvent::Closing))
+    {
+         remove_tap_listener(this);
+    }
 }
 
 void IOGraph::reloadValueUnitField()

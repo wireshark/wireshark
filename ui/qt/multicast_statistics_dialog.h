@@ -54,7 +54,7 @@ private slots:
     void updateWidgets();
     void updateMulticastParameters();
     virtual void fillTree();
-    void captureFileClosing();
+    void captureEvent(CaptureEvent *e);
 };
 
 #endif // MULTICASTSTATISTICSDIALOG_H

@@ -115,11 +115,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
     ctx_menu_.addAction(expand);
     connect(expand, SIGNAL(triggered()), this, SLOT(expandTree()));
 
-
-    connect(&cap_file_, SIGNAL(captureFileRetapStarted()),
-            this, SLOT(retapStarted()));
-    connect(&cap_file_, SIGNAL(captureFileRetapFinished()),
-            this, SLOT(retapFinished()));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
+            this, SLOT(captureEvent(CaptureEvent *)));
     setDisplayFilter();
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 }
@@ -167,15 +164,23 @@ void ExpertInfoDialog::retapPackets()
     cap_file_.retapPackets();
 }
 
-void ExpertInfoDialog::retapStarted()
+void ExpertInfoDialog::captureEvent(CaptureEvent *e)
 {
-    ui->limitCheckBox->setEnabled(false);
-    ui->groupBySummaryCheckBox->setEnabled(false);
-}
-
-void ExpertInfoDialog::retapFinished()
-{
-    updateWidgets();
+    if (e->captureContext() == CaptureEvent::Retap)
+    {
+        switch (e->eventType())
+        {
+        case CaptureEvent::Started:
+            ui->limitCheckBox->setEnabled(false);
+            ui->groupBySummaryCheckBox->setEnabled(false);
+            break;
+        case CaptureEvent::Finished:
+            updateWidgets();
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void ExpertInfoDialog::updateWidgets()

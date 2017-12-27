@@ -49,9 +49,6 @@ public:
     // XXX Unlike the entire QWidget API, parent is mandatory here.
     explicit WiresharkDialog(QWidget &parent, CaptureFile &capture_file);
 
-signals:
-
-public slots:
     /**
      * @brief Mark the start of a code block that retaps packets. If the user
      * closes the dialog while tapping, the dialog will not be destroyed until
@@ -128,7 +125,6 @@ protected:
      */
     bool dialogClosed() { return dialog_closed_; }
 
-protected slots:
     /**
      * @brief Called when the capture file is about to close. This can be
      * used to enable or disable widgets according to the state of
@@ -136,6 +132,9 @@ protected slots:
      */
     virtual void captureFileClosing();
     virtual void captureFileClosed();
+
+protected slots:
+    void captureEvent(CaptureEvent *e);
 
 private:
     void setWindowTitleFromSubtitle();

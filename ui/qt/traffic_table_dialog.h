@@ -175,8 +175,7 @@ private slots:
     void on_displayFilterCheckBox_toggled(bool checked);
     void setTabText(QWidget *tree, const QString &text);
     void toggleTable();
-    void retapStarted();
-    void retapFinished();
+    void captureEvent(CaptureEvent *e);
 
     void copyAsCsv();
     void copyAsYaml();
