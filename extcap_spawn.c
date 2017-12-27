@@ -77,8 +77,7 @@ gboolean extcap_spawn_sync ( gchar * dirname, gchar * command, gint argc, gchar 
     gchar * local_output = NULL;
 #ifdef _WIN32
 
-#define BUFFER_SIZE 4096
-    gchar buffer[BUFFER_SIZE];
+#define BUFFER_SIZE 16384
 
     GString *winargs = g_string_sized_new(200);
     gchar *quoted_arg;
@@ -157,9 +156,13 @@ gboolean extcap_spawn_sync ( gchar * dirname, gchar * command, gint argc, gchar 
 
     if (CreateProcess(NULL, wcommandline, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
+        gchar* buffer;
+
         WaitForSingleObject(processInfo.hProcess, INFINITE);
+        buffer = (gchar*)g_malloc(BUFFER_SIZE);
         win32_readfrompipe(child_stdout_rd, BUFFER_SIZE, buffer);
         local_output = g_strdup_printf("%s", buffer);
+        g_free(buffer);
 
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
