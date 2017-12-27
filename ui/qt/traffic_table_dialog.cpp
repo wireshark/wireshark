@@ -324,7 +324,7 @@ void TrafficTableDialog::copyAsCsv()
         foreach (QVariant v, curTreeRowData(row)) {
             if (!v.isValid()) {
                 rdsl << "\"\"";
-            } else if ((int) v.type() == (int) QMetaType::QString) {
+            } else if (v.type() == QVariant::String) {
                 rdsl << QString("\"%1\"").arg(v.toString());
             } else {
                 rdsl << v.toString();

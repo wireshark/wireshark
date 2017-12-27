@@ -1540,7 +1540,7 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
             foreach (QVariant v, ra_ti->rowData()) {
                 if (!v.isValid()) {
                     values << "\"\"";
-                } else if ((int) v.type() == (int) QMetaType::QString) {
+                } else if (v.type() == QVariant::String) {
                     values << QString("\"%1\"").arg(v.toString());
                 } else {
                     values << v.toString();

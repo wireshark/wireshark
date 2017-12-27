@@ -343,7 +343,7 @@ void ProtocolHierarchyDialog::on_actionCopyAsCsv_triggered()
         foreach (QVariant v, protoHierRowData(item)) {
             if (!v.isValid()) {
                 separated_value << "\"\"";
-            } else if ((int) v.type() == (int) QMetaType::QString) {
+            } else if (v.type() == QVariant::String) {
                 separated_value << QString("\"%1\"").arg(v.toString());
             } else {
                 separated_value << v.toString();
