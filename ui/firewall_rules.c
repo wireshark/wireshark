@@ -154,127 +154,128 @@ gboolean firewall_product_does_inbound(size_t product_idx)
 
 
 /* MAC */
-#define IPFW_DENY (deny ? "deny" : "allow")
-#define IPFW_IN (inbound ? "in" : "out")
+#define IPFW_RULE(deny) ((deny) ? "deny" : "allow")
+#define IPFW_DIR(inbound) ((inbound) ? "in" : "out")
 static void sf_ipfw_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "add %s MAC %s any %s",
-        IPFW_DENY, addr, IPFW_IN);
+        IPFW_RULE(deny), addr, IPFW_DIR(inbound));
 }
 
-#define NF_DROP (deny ? "DROP" : "ACCEPT")
-#define NF_INPUT (inbound ? "INPUT" : "OUTPUT")
+#define NF_RULE(deny) ((deny) ? "DROP" : "ACCEPT")
+#define NF_DIR(inbound) ((inbound) ? "INPUT" : "OUTPUT")
 static void sf_netfilter_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 --mac-source %s --jump %s",
-        NF_INPUT, addr, NF_DROP);
+        NF_DIR(inbound), addr, NF_RULE(deny));
 }
 
 /* IPv4 */
-#define IOS_DENY (deny ? "deny" : "permit")
+#define IOS_RULE(deny) ((deny) ? "deny" : "permit")
 static void sf_ios_std_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound _U_, gboolean deny) {
-    g_string_append_printf(rtxt, "access-list NUMBER %s host %s", IOS_DENY, addr);
+    g_string_append_printf(rtxt, "access-list NUMBER %s host %s", IOS_RULE(deny), addr);
 }
 
 static void sf_ios_ext_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     if (inbound)
-        g_string_append_printf(rtxt, "access-list NUMBER %s ip host %s any", IOS_DENY, addr);
+        g_string_append_printf(rtxt, "access-list NUMBER %s ip host %s any", IOS_RULE(deny), addr);
     else
-        g_string_append_printf(rtxt, "access-list NUMBER %s ip any host %s", IOS_DENY, addr);
+        g_string_append_printf(rtxt, "access-list NUMBER %s ip any host %s", IOS_RULE(deny), addr);
 }
 
-#define IPFILTER_DENY (deny ? "block" : "pass")
-#define IPFILTER_IN (inbound ? "in" : "out")
+#define IPFILTER_RULE(deny) ((deny) ? "block" : "pass")
+#define IPFILTER_DIR(inbound) ((inbound) ? "in" : "out")
+
 static void sf_ipfilter_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "%s %s on le0 from %s to any",
-        IPFILTER_DENY, IPFILTER_IN, addr);
+        IPFILTER_RULE(deny), IPFILTER_DIR(inbound), addr);
 }
 
 static void sf_ipfw_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "add %s ip from %s to any %s",
-        IPFW_DENY, addr, IPFW_IN);
+        IPFW_RULE(deny), addr, IPFW_DIR(inbound));
 }
 
-#define NF_ADDR_DIR (inbound ? "--source" : "--destination")
+#define NF_ADDR_DIR(inbound) ((inbound) ? "--source" : "--destination")
 static void sf_netfilter_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 %s %s/32 --jump %s",
-        NF_INPUT, NF_ADDR_DIR, addr, NF_DROP);
+        NF_DIR(inbound), NF_ADDR_DIR(inbound), addr, NF_RULE(deny));
 }
 
-#define PF_DENY (deny ? "block" : "pass")
-#define PF_IN (inbound ? "in" : "out")
+#define PF_RULE(deny) ((deny) ? "block" : "pass")
+#define PF_DIR(inbound) ((inbound) ? "in" : "out")
 static void sf_pf_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "%s %s quick on $ext_if from %s to any",
-        PF_DENY, PF_IN, addr);
+        PF_RULE(deny), PF_DIR(inbound), addr);
 }
 
 /* Port */
-#define RT_TCP_UDP (ptype == PT_TCP ? "tcp" : "udp")
+#define RT_TCP_UDP(ptype) ((ptype) == PT_TCP ? "tcp" : "udp")
 static void sf_ios_ext_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
     g_string_append_printf(rtxt, "access-list NUMBER %s %s any any eq %u",
-        IOS_DENY, RT_TCP_UDP, port);
+        IOS_RULE(deny), RT_TCP_UDP(ptype), port);
 }
 
 static void sf_ipfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to any port = %u",
-        IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, port);
+        IPFILTER_RULE(deny), IPFILTER_DIR(inbound), RT_TCP_UDP(ptype), port);
 }
 
 static void sf_ipfw_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "add %s %s from any to any %u %s",
-        IPFW_DENY, RT_TCP_UDP, port, IPFW_IN);
+        IPFW_RULE(deny), RT_TCP_UDP(ptype), port, IPFW_DIR(inbound));
 }
 
-#define NF_PORT_DIR (inbound ? "--source-port" : "--destination-port")
+#define NF_PORT_DIR(inbound) ((inbound) ? "--source-port" : "--destination-port")
 static void sf_netfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 --protocol %s %s %u --jump %s",
-            NF_INPUT, RT_TCP_UDP, NF_PORT_DIR, port, NF_DROP);
+            NF_DIR(inbound), RT_TCP_UDP(ptype), NF_PORT_DIR(inbound), port, NF_RULE(deny));
 }
 
 static void sf_pf_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "%s %s quick on $ext_if proto %s from any to any port %u",
-        PF_DENY, PF_IN, RT_TCP_UDP, port);
+        PF_RULE(deny), PF_DIR(inbound), RT_TCP_UDP(ptype), port);
 }
 
-#define NETSH_DENY (deny ? "DISABLE" : "ENABLE")
+#define NETSH_RULE(deny) ((deny) ? "DISABLE" : "ENABLE")
 static void sf_netsh_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
     g_string_append_printf(rtxt, "add portopening %s %u Wireshark %s",
-        RT_TCP_UDP, port, NETSH_DENY);
+        RT_TCP_UDP(ptype), port, NETSH_RULE(deny));
 }
 
 /* IPv4 + port */
 static void sf_ios_ext_ipv4_port(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype, gboolean inbound, gboolean deny) {
     if (inbound)
-        g_string_append_printf(rtxt, "access-list NUMBER %s %s host %s any eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
+        g_string_append_printf(rtxt, "access-list NUMBER %s %s host %s any eq %u", IOS_RULE(deny), RT_TCP_UDP(ptype), addr, port);
     else
-        g_string_append_printf(rtxt, "access-list NUMBER %s %s any host %s eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
+        g_string_append_printf(rtxt, "access-list NUMBER %s %s any host %s eq %u", IOS_RULE(deny), RT_TCP_UDP(ptype), addr, port);
 }
 
 static void sf_ipfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     if (inbound)
         g_string_append_printf(rtxt, "%s %s on le0 proto %s from %s to any port = %u",
-            IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, addr, port);
+            IPFILTER_RULE(deny), IPFILTER_DIR(inbound), RT_TCP_UDP(ptype), addr, port);
     else
         g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to %s port = %u",
-            IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, addr, port);
+            IPFILTER_RULE(deny), IPFILTER_DIR(inbound), RT_TCP_UDP(ptype), addr, port);
 }
 
 static void sf_ipfw_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "add %s %s from %s to any %u %s",
-        IPFW_DENY, RT_TCP_UDP, addr, port, IPFW_IN);
+        IPFW_RULE(deny), RT_TCP_UDP(ptype), addr, port, IPFW_DIR(inbound));
 }
 
 static void sf_pf_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "%s %s quick on $ext_if proto %s from %s to any port %u",
-        PF_DENY, PF_IN, RT_TCP_UDP, addr, port);
+        PF_RULE(deny), PF_DIR(inbound), RT_TCP_UDP(ptype), addr, port);
 }
 
 static void sf_netfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 --protocol %s %s %s/32 %s %u --jump %s",
-        NF_INPUT, RT_TCP_UDP, NF_ADDR_DIR, addr, NF_PORT_DIR, port, NF_DROP);
+        NF_DIR(inbound), RT_TCP_UDP(ptype), NF_ADDR_DIR(inbound), addr, NF_PORT_DIR(inbound), port, NF_RULE(deny));
 }
 
 static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
     g_string_append_printf(rtxt, "add portopening %s %u Wireshark %s %s",
-        RT_TCP_UDP, port, NETSH_DENY, addr);
+        RT_TCP_UDP(ptype), port, NETSH_RULE(deny), addr);
 }
 
 
