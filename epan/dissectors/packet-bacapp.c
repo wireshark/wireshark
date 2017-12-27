@@ -2286,6 +2286,72 @@ static guint
 fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *label,
     const value_string *src);
 
+static guint
+fFaultParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fEventNotificationSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fLightingCommand(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable);
+
+static guint
+fTimerStateChangeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fHostNPort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable);
+
+static guint
+fBDTEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable);
+
+static guint
+fFDTEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable);
+
+static guint
+fRouterEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fVMACEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fValueSource(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fAssignedLandingCalls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fLandingCallStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fLandingDoorStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fCOVMultipleSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fNameValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fNameValueCollection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fAuthenticationFactor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fAuthenticationFactorFormat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fAuthenticationPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fAccessRule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fChannelValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *label);
+
+static guint
+fPropertyAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
 /**
  * register_bacapp
  */
@@ -2376,17 +2442,17 @@ BACnetMaxAPDULengthAccepted [] = {
 
 static const value_string
 BACnetRejectReason [] = {
-    {0, "other"},
-    {1, "buffer-overflow"},
-    {2, "inconsistent-parameters"},
-    {3, "invalid-parameter-data-type"},
-    {4, "invalid-tag"},
-    {5, "missing-required-parameter"},
-    {6, "parameter-out-of-range"},
-    {7, "too-many-arguments"},
-    {8, "undefined-enumeration"},
-    {9, "unrecognized-service"},
-    {0, NULL}
+    { 0, "other"},
+    { 1, "buffer-overflow"},
+    { 2, "inconsistent-parameters"},
+    { 3, "invalid-parameter-data-type"},
+    { 4, "invalid-tag"},
+    { 5, "missing-required-parameter"},
+    { 6, "parameter-out-of-range"},
+    { 7, "too-many-arguments"},
+    { 8, "undefined-enumeration"},
+    { 9, "unrecognized-service"},
+    { 0, NULL}
 };
 
 static const value_string
@@ -2399,6 +2465,7 @@ BACnetRestartReason [] = {
     { 5, "hardware-watchdog"},
     { 6, "software-watchdog"},
     { 7, "suspended"},
+    { 8, "activate-changes"},
     { 0, NULL}
 };
 
@@ -2494,6 +2561,14 @@ BACnetAccessEvent [] = {
 };
 
 static const value_string
+BACnetAcknowledgedTransitions[] = {
+    { 0, "to-offnormal" },
+    { 1, "to-fault" },
+    { 2, "to-normal" },
+    { 0, NULL }
+};
+
+static const value_string
 BACnetFileAccessMethod [] = {
     { 0, "record-access"},
     { 1, "stream-access"},
@@ -2539,7 +2614,59 @@ BACnetAbortReason [] = {
     { 2, "invalid-apdu-in-this-state"},
     { 3, "preempted-by-higher-priority-task"},
     { 4, "segmentation-not-supported"},
+    { 5, "security-error"},
+    { 6, "insufficient-security"},
+    { 7, "window-size-out-of-range"},
+    { 8, "application-exceeded-reply-time"},
+    { 9, "out-of-resources"},
+    { 10, "tsm-timeout"},
+    { 11, "apdu-too-long"},
     { 0, NULL}
+};
+
+static const value_string
+BACnetIpMode [] = {
+    { 0, "normal"},
+    { 1, "foreign"},
+    { 2, "bbmd"},
+    { 0,  NULL}
+};
+
+static const value_string
+BACnetNetworkPortCommand [] = {
+    { 0, "idle"},
+    { 1, "discard-changes"},
+    { 2, "renew-fd-registration"},
+    { 3, "restart-slave-discovery"},
+    { 4, "renew-dhcp"},
+    { 5, "restart-autonegotiation"},
+    { 6, "disconnect"},
+    { 7, "restart-port"},
+    { 0,  NULL}
+};
+
+static const value_string
+BACnetNetworkNumberQuality [] = {
+    { 0, "unknown"},
+    { 1, "learned"},
+    { 2, "learned-configured"},
+    { 3, "configured"},
+    { 0,  NULL}
+};
+
+static const value_string
+BACnetNetworkType [] = {
+    { 0, "ethernet" },
+    { 1, "arcnet" },
+    { 2, "mstp" },
+    { 3, "ptp" },
+    { 4, "lontalk" },
+    { 5, "bacnet-ipv4" },
+    { 6, "zigbee" },
+    { 7, "virtual" },
+    { 8, "non-bacnet" },
+    { 9, "bacnet-ipv6" },
+    { 0,  NULL}
 };
 
 static const value_string
@@ -2583,15 +2710,6 @@ BACnetLifeSafetyOperation [] = {
    procedures and constraints described in Clause 23. */
 };
 
-#if 0
-static const value_string
-BACnetLimitEnable [] = {
-    { 0, "lowLimitEnable"},
-    { 1, "highLimitEnable"},
-    { 0, NULL}
-};
-#endif
-
 static const value_string
 BACnetLifeSafetyState [] = {
     {  0, "quiet"},
@@ -2625,7 +2743,218 @@ BACnetLifeSafetyState [] = {
 };
 
 static const value_string
-BACnetConfirmedServiceChoice [] = {
+BACnetLimitEnable[] = {
+    { 0, "low-limit" },
+    { 1, "high-limit" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetTimerState [] = {
+    { 0, "idle"},
+    { 1, "running"},
+    { 2, "expired"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetTimerTransition [] = {
+    { 0, "none"},
+    { 1, "idle-to-running"},
+    { 2, "running-to-idle"},
+    { 3, "running-to-running"},
+    { 4, "running-to-expired"},
+    { 5, "forced-to-expired"},
+    { 6, "expired-to-idle"},
+    { 7, "expired-to-running"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetEscalatorFault [] = {
+    { 0, "controller-fault"},
+    { 1, "drive-and-motor-fault"},
+    { 2, "mechanical-component-fault"},
+    { 3, "overspeed-fault"},
+    { 4, "power-supply-fault"},
+    { 5, "safety-device-fault"},
+    { 6, "controller-supply-fault"},
+    { 7, "drive-temperature-exceeded"},
+    { 8, "comb-plate-fault"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetEscalatorMode [] = {
+    { 0, "unknown"},
+    { 1, "stop"},
+    { 2, "up"},
+    { 3, "down"},
+    { 4, "inspection"},
+    { 5, "out-of-service"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetEscalatorOperationDirection [] = {
+    { 0, "unknown"},
+    { 1, "stopped"},
+    { 2, "up-rated-speed"},
+    { 3, "up-reduced-speed"},
+    { 4, "down-rated-speed"},
+    { 5, "down-reduced-speed"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetLiftCarDirection [] = {
+    { 0, "unknown"},
+    { 1, "none"},
+    { 2, "stopped"},
+    { 3, "up"},
+    { 4, "down"},
+    { 5, "up-and-down"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetLiftCarDoorCommand [] = {
+    { 0, "none"},
+    { 1, "open"},
+    { 2, "close"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetLiftCarDriveStatus [] = {
+    { 0, "unknown"},
+    { 1, "stationary"},
+    { 2, "braking"},
+    { 3, "accelerate"},
+    { 4, "decelerate"},
+    { 5, "rated-speed"},
+    { 6, "single-floor-jump"},
+    { 7, "two-floor-jump"},
+    { 8, "three-floor-jump"},
+    { 9, "multi-floor-jump"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetLiftCarMode [] = {
+    { 0, "unknown"},
+    { 1, "normal"},
+    { 2, "vip"},
+    { 3, "homing"},
+    { 4, "parking"},
+    { 5, "attendant-control"},
+    { 6, "firefighter-control"},
+    { 7, "emergency-power"},
+    { 8, "inspection"},
+    { 9, "cabinet-recall"},
+    { 10, "earthquake-operation"},
+    { 11, "fire-operation"},
+    { 12, "out-of-service"},
+    { 13, "occupant-evacuation"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetLiftFault [] = {
+    { 0, "controller-fault"},
+    { 1, "drive-and-motor-fault"},
+    { 2, "governor-and-safety-gear-fault"},
+    { 3, "lift-shaft-device-fault"},
+    { 4, "power-supply-fault"},
+    { 5, "safety-interlock-fault"},
+    { 6, "door-closing-fault"},
+    { 7, "door-opening-fault"},
+    { 8, "car-stopped-outside-landing-zone"},
+    { 9, "call-button-stuck"},
+    { 10, "start-failure"},
+    { 11, "controller-supply-fault"},
+    { 12, "self-test-failure"},
+    { 13, "runtime-limit-exceeded"},
+    { 14, "position-lost"},
+    { 15, "drive-temperature-exceeded"},
+    { 16, "load-measurement-fault"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetLiftGroupMode [] = {
+    { 0, "unknown"},
+    { 1, "normal"},
+    { 2, "down-peak"},
+    { 3, "two-way"},
+    { 4, "four-way"},
+    { 5, "emergency-power"},
+    { 6, "up-peak"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetProtocolLevel [] = {
+    { 0, "physical"},
+    { 1, "protocol"},
+    { 2, "bacnet-application"},
+    { 3, "non-bacnet-application"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetRelationship [] = {
+    { 0, "unknown"},
+    { 1, "default"},
+    { 2, "contains"},
+    { 3, "contained-by"},
+    { 4, "uses"},
+    { 5, "used-by"},
+    { 6, "commands"},
+    { 7, "commanded-by"},
+    { 8, "adjusts"},
+    { 9, "adjusted-by"},
+    { 10, "ingress"},
+    { 11, "egress"},
+    { 12, "supplies-air"},
+    { 13, "receives-air"},
+    { 14, "supplies-hot-air"},
+    { 15, "receives-hot-air"},
+    { 16, "supplies-cool-air"},
+    { 17, "receives-cool-air"},
+    { 18, "supplies-power"},
+    { 19, "receives-power"},
+    { 20, "supplies-gas"},
+    { 21, "receives-gas"},
+    { 22, "supplies-water"},
+    { 23, "receives-water"},
+    { 24, "supplies-hot-water"},
+    { 25, "receives-hot-water"},
+    { 26, "supplies-cool-water"},
+    { 27, "receives-cool-water"},
+    { 28, "supplies-steam"},
+    { 29, "receives-steam"},
+    { 0, NULL}
+};
+
+static const value_string
+BACnetLightingOperation[] = {
+    { 0, "none" },
+    { 1, "fade-to" },
+    { 2, "ramp-to" },
+    { 3, "step-up" },
+    { 4, "step-down" },
+    { 5, "step-on" },
+    { 6, "step-off" },
+    { 7, "warn" },
+    { 8, "warn-off" },
+    { 9, "warn-relinquish" },
+    { 10, "stop" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetConfirmedServiceChoice[] = {
     {  0, "acknowledgeAlarm"},
     {  1, "confirmedCOVNotification"},
     {  2, "confirmedEventNotification"},
@@ -2656,7 +2985,8 @@ BACnetConfirmedServiceChoice [] = {
     { 27, "lifeSafetyOperation"},
     { 28, "subscribeCOVProperty"},
     { 29, "getEventInformation"},
-    { 30, "reserved by ASHRAE"},
+    { 30, "subscribeCovPropertyMultiple"},
+    { 31, "confirmedCovNotificationMultiple"},
     { 0,  NULL}
 };
 
@@ -2677,8 +3007,25 @@ BACnetReliability [] = {
     { 12, "communication-failure"},
     { 13, "member-fault"},
     { 14, "monitored-object-fault" },
-    { 15, "tripped" },
+    { 15, "tripped"},
+    { 16, "lamp-failure"},
+    { 17, "activation-failure"},
+    { 18, "renew-dhcp-failure"},
+    { 19, "renew-fd-registration-failure"},
+    { 20, "restart-auto-negotiation-failure"},
+    { 21, "restart-failure"},
+    { 22, "proprietary-command-failure"},
+    { 23, "faults-listed"},
+  { 24, "referenced-object-fault"},
     { 0,  NULL}
+};
+
+static const value_string
+BACnetRouterStatus[] = {
+    { 0, "available" },
+    { 1, "busy" },
+    { 2, "disconnected" },
+    { 0, NULL }
 };
 
 static const value_string
@@ -2693,25 +3040,10 @@ BACnetUnconfirmedServiceChoice [] = {
     { 7, "who-Has"},
     { 8, "who-Is"},
     { 9, "utcTimeSynchronization"},
+    { 10, "writeGroup"},
+    { 11, "unconfirmedCovNotificationMultiple"},
     { 0, NULL}
 };
-
-#if 0
-static const value_string
-BACnetUnconfirmedServiceRequest [] = {
-    { 0, "i-Am-Request"},
-    { 1, "i-Have-Request"},
-    { 2, "unconfirmedCOVNotification-Request"},
-    { 3, "unconfirmedEventNotification-Request"},
-    { 4, "unconfirmedPrivateTransfer-Request"},
-    { 5, "unconfirmedTextMessage-Request"},
-    { 6, "timeSynchronization-Request"},
-    { 7, "who-Has-Request"},
-    { 8, "who-Is-Request"},
-    { 9, "utcTimeSynchonization-Request"},
-    { 0, NULL}
-};
-#endif
 
 static const value_string
 BACnetObjectType [] = {
@@ -2746,7 +3078,7 @@ BACnetObjectType [] = {
     { 28, "load-control"},
     { 29, "structured-view"},
     { 30, "access-door"},     /* 30-37 added with addanda 135-2008j */
-    /* value 31 is unassigned */
+    { 31, "timer"},
     { 32, "access-credential"},
     { 33, "access-point"},
     { 34, "access-rights"},
@@ -2766,6 +3098,15 @@ BACnetObjectType [] = {
     { 48, "positive-integer-value"},
     { 49, "time-pattern-value"},
     { 50, "time-value"},
+    { 51, "notification-forwarder"},
+    { 52, "alert-enrollment"},
+    { 53, "channel"},
+    { 54, "lighting-output"},
+    { 55, "reserved-obj-type-55"},
+    { 56, "network-port"},
+    { 57, "elevator-group"},
+    { 58, "escalator"},
+    { 59, "lift"},
     { 0,  NULL}
 /* Enumerated values 0-127 are reserved for definition by ASHRAE.
    Enumerated values 128-1023 may be used by others subject to
@@ -3011,6 +3352,30 @@ BACnetEngineeringUnits [] = {
     { 234, "pH"},
     { 235, "grams-per-square-meter"},
     { 236, "minutes-per-degree-kelvin"},
+    { 237, "ohm-meter-squared-per-meter"},
+    { 238, "ampere-seconds"},
+    { 239, "volt-ampere-hours"},
+    { 240, "kilovolt-ampere-hours"},
+    { 241, "megavolt-ampere-hours"},
+    { 242, "volt-ampere-hours-reactive"},
+    { 243, "kilovolt-ampere-hours-reactive"},
+    { 244, "megavolt-ampere-hours-reactive"},
+    { 245, "volt-square-hours"},
+    { 246, "ampere-square-hours"},
+    { 247, "joule-per-hours"},
+    { 248, "cubic-feet-per-day"},
+    { 249, "cubic-meters-per-day"},
+    { 250, "watt-hours-per-cubic-meter"},
+    { 251, "joules-per-cubic-meter"},
+    { 252, "mole-percent"},
+    { 253, "pascal-seconds"},
+    { 254, "million-standard-cubic-feet-per-minute"},
+    { 255, "unassigned-unit-value-255"},
+    { 47808, "standard-cubic-feet-per-day"},
+    { 47809, "million-standard-cubic-feet-per-day"},
+    { 47810, "thousand-cubic-feet-per-day"},
+    { 47811, "thousand-standard-cubic-feet-per-day"},
+    { 47812, "pounds-mass-per-day"},
     { 0,   NULL}
 /* Enumerated values 0-255 are reserved for definition by ASHRAE.
    Enumerated values 256-65535 may be used by others subject to
@@ -3070,6 +3435,28 @@ BACnetErrorCode [] = {
     {  48, "duplicate-name"},
     {  49, "duplicate-object-id"},
     {  50, "property-is-not-an-array"},
+    {  51, "abort - buffer - overflow" },
+    {  52, "abort - invalid - apdu - in - this - state" },
+    {  53, "abort - preempted - by - higher - priority - task" },
+    {  54, "abort - segmentation - not - supported" },
+    {  55, "abort - proprietary" },
+    {  56, "abort - other" },
+    {  57, "reject - invalid - tag" },
+    {  58, "reject - network - down" },
+    {  59, "reject - buffer - overflow" },
+    {  60, "reject - inconsistent - parameters" },
+    {  61, "reject - invalid - parameter - data - type" },
+    {  62, "reject - invalid - tag" },
+    {  63, "reject - missing - required - parameter" },
+    {  64, "reject - parameter - out - of - range" },
+    {  65, "reject - too - many - arguments" },
+    {  66, "reject - undefined - enumeration" },
+    {  67, "reject - unrecognized - service" },
+    {  68, "reject - proprietary" },
+    {  69, "reject - other" },
+    {  70, "unknown - device" },
+    {  71, "unknown - route" },
+    {  72, "value - not - initialized" },
     {  73, "invalid-event-state"},
     {  74, "no-alarm-configured"},
     {  75, "log-buffer-full"},
@@ -3134,6 +3521,8 @@ BACnetErrorCode [] = {
     { 134, "value-too-long"},
     { 135, "abort-insufficient-security"},
     { 136, "abort-security-error"},
+    { 137, "duplicate-entry"},
+    { 138, "invalid-value-in-this-state"},
     { 0,   NULL}
 /* Enumerated values 0-255 are reserved for definition by ASHRAE.
    Enumerated values 256-65535 may be used by others subject to the
@@ -3403,7 +3792,7 @@ BACnetPropertyIdentifier [] = {
     { 267, "days-remaining"},
     { 268, "entry-points"},
     { 269, "exit-points"},
-    { 270, "expiry-time"},
+    { 270, "expiration-time"},
     { 271, "extended-time-enable"},
     { 272, "failed-attempt-events"},
     { 273, "failed-attempts"},
@@ -3480,6 +3869,146 @@ BACnetPropertyIdentifier [] = {
     { 349, "covu-period"},
     { 350, "covu-recipients"},
     { 351, "event-message-texts"},
+    { 352, "event-message-texts-config"},
+    { 353, "event-detection-enable"},
+    { 354, "event-algorithm-inhibit"},
+    { 355, "event-algorithm-inhibit-ref"},
+    { 356, "time-delay-normal"},
+    { 357, "reliability-evaluation-inhibit"},
+    { 358, "fault-parameters"},
+    { 359, "fault-type"},
+    { 360, "local-forwarding-only"},
+    { 361, "process-identifier-filter"},
+    { 362, "subscribed-recipients"},
+    { 363, "port-filter"},
+    { 364, "authorization-exemptions"},
+    { 365, "allow-group-delay-inhibit"},
+    { 366, "channel-number"},
+    { 367, "control-groups"},
+    { 368, "execution-delay"},
+    { 369, "last-priority"},
+    { 370, "write-status"},
+    { 371, "property-list"},
+    { 372, "serial-number"},
+    { 373, "blink-warn-enable"},
+    { 374, "default-fade-time"},
+    { 375, "default-ramp-rate"},
+    { 376, "default-step-increment"},
+    { 377, "egress-time"},
+    { 378, "in-progress"},
+    { 379, "instantaneous-power"},
+    { 380, "lighting-command"},
+    { 381, "lighting-command-default-priority"},
+    { 382, "max-actual-value"},
+    { 383, "min-actual-value"},
+    { 384, "power"},
+    { 385, "transition"},
+    { 386, "egress-active"},
+    { 387, "interface-value"},
+    { 388, "fault-high-limit"},
+    { 389, "fault-low-limit"},
+    { 390, "low-diff-limit"},
+    { 391, "strike-count"},
+    { 392, "time-of-strike-count-reset"},
+    { 393, "default-timeout"},
+    { 394, "initial-timeout"},
+    { 395, "last-state-change"},
+    { 396, "state-change-values"},
+    { 397, "timer-running"},
+    { 398, "timer-state"},
+    { 399, "apdu-length"},
+    { 400, "bacnet-ip-address"},
+    { 401, "bacnet-ip-default-gateway"},
+    { 402, "bacnet-ip-dhcp-enable"},
+    { 403, "bacnet-ip-dhcp-lease-time"},
+    { 404, "bacnet-ip-dhcp-lease-time-remaining"},
+    { 405, "bacnet-ip-dhcp-server"},
+    { 406, "bacnet-ip-dns-server"},
+    { 407, "bacnet-ip-global-address"},
+    { 408, "bacnet-ip-mode"},
+    { 409, "bacnet-ip-multicast-address"},
+    { 410, "bacnet-ip-nat-traversal"},
+    { 411, "bacnet-ip-subnet-mask"},
+    { 412, "bacnet-ip-udp-port"},
+    { 413, "bbmd-accept-fd-registrations"},
+    { 414, "bbmd-broadcast-distribution-table"},
+    { 415, "bbmd-foreign-device-table"},
+    { 416, "changes-pending"},
+    { 417, "command"},
+    { 418, "fd-bbmd-address"},
+    { 419, "fd-subscription-lifetime"},
+    { 420, "link-speed"},
+    { 421, "link-speeds"},
+    { 422, "link-speed-autonegotiate"},
+    { 423, "mac-address"},
+    { 424, "network-interface-name"},
+    { 425, "network-number"},
+    { 426, "network-number-quality"},
+    { 427, "network-type"},
+    { 428, "routing-table"},
+    { 429, "virtual-mac-address-table"},
+    { 430, "command-time-array"},
+    { 431, "current-command-priority"},
+    { 432, "last-command-time"},
+    { 433, "value-source"},
+    { 434, "value-source-array"},
+    { 435, "bacnet-ipv6-mode"},
+    { 436, "ipv6-address"},
+    { 437, "ipv6-prefix-length"},
+    { 438, "bacnet-ipv6-udp-port"},
+    { 439, "ipv6-default-gateway"},
+    { 440, "bacnet-ipv6-multicast-address"},
+    { 441, "ipv6-dns-server"},
+    { 442, "ipv6-auto-addressing-enable"},
+    { 443, "ipv6-dhcp-lease-time"},
+    { 444, "ipv6-dhcp-lease-time-remaining"},
+    { 445, "ipv6-dhcp-server"},
+    { 446, "ipv6-zone-index"},
+    { 447, "assigned-landing-calls"},
+    { 448, "car-assigned-direction"},
+    { 449, "car-door-command"},
+    { 450, "car-door-status"},
+    { 451, "car-door-text"},
+    { 452, "car-door-zone"},
+    { 453, "car-drive-status"},
+    { 454, "car-load"},
+    { 455, "car-load-units"},
+    { 456, "car-mode"},
+    { 457, "car-moving-direction"},
+    { 458, "car-position"},
+    { 459, "elevator-group"},
+    { 460, "energy-meter"},
+    { 461, "energy-meter-ref"},
+    { 462, "escalator-mode"},
+    { 463, "fault-signals"},
+    { 464, "floor-text"},
+    { 465, "group-id"},
+    { 466, "enumeration value 466 is unassigned"},
+    { 467, "group-mode"},
+    { 468, "higher-deck"},
+    { 469, "installation-id"},
+    { 470, "landing-calls"},
+    { 471, "landing-call-control"},
+    { 472, "landing-door-status"},
+    { 473, "lower-deck"},
+    { 474, "machine-room-id"},
+    { 475, "making-car-call"},
+    { 476, "next-stopping-floor"},
+    { 477, "operation-direction"},
+    { 478, "passenger-alarm"},
+    { 479, "power-mode"},
+    { 480, "registered-car-call"},
+    { 481, "active-cov-multiple-subscriptions"},
+    { 482, "protocol-level"},
+    { 483, "reference-port"},
+    { 484, "deployed-profile-location"},
+    { 485, "profile-location"},
+    { 486, "tags"},
+    { 487, "subordinate-node-types"},
+    { 488, "subordinate-tags"},
+    { 489, "subordinate-relationship"},
+    { 490, "default-subordinate-relationship"},
+    { 491, "represents"},
     { 0,   NULL}
 /* Enumerated values 0-511 are reserved for definition by ASHRAE.
    Enumerated values 512-4194303 may be used by others subject to
@@ -3645,6 +4174,9 @@ weekofmonth [] = {
     {   4, "days numbered 22-28" },
     {   5, "days numbered 29-31" },
     {   6, "last 7 days of this month" },
+    {   7, "any of 7 days prior to last 7 days of this month" },
+    {   8, "any of 7 days prior to last 14 days of this month" },
+    {   9, "any of 7 days prior to last 21 days of this month" },
     { 255, "any week of this month" },
     { 0,   NULL }
 };
@@ -3713,6 +4245,8 @@ BACnetEventType [] = {
     { 18, "change-of-status-flags"},
     { 19, "change-of-reliability" },
     { 20, "none" },
+    { 21, "change-of-discrete-value"},
+    { 22, "change-of-timer"},
     { 0,  NULL }
 /* Enumerated values 0-63 are reserved for definition by ASHRAE.
    Enumerated values 64-65535 may be used by others subject to
@@ -3803,6 +4337,10 @@ BACnetServicesSupported [] = {
     { 37, "lifeSafetyOperation"},
     { 38, "subscribeCOVProperty"},
     { 39, "getEventInformation"},
+    { 40, "write-group"},
+    { 41, "subscribe-cov-property-multiple"},
+    { 42, "confirmed-cov-notification-multiple"},
+    { 43, "unconfirmed-cov-notification-multiple"},
     { 0,  NULL}
 };
 
@@ -3837,7 +4375,6 @@ BACnetPropertyStates [] = {
     { 26, "security-level"},
     { 27, "shed-state"},
     { 28, "silenced-state"},
-    /* context tag 29 reserved for future addenda */
     { 29, "unknown-29"},
     { 30, "access-event"},
     { 31, "zone-occupancy-state"},
@@ -3846,6 +4383,18 @@ BACnetPropertyStates [] = {
     { 34, "authentication-status"},
     { 35, "unknown-35"},
     { 36, "backup-state"},
+    { 37, "write-status"},
+    { 38, "lighting-in-progress"},
+    { 39, "lighting-operation"},
+    { 40, "lighting-transition"},
+    { 41, "signed-value"},
+    { 42, "unknown-42"},
+    { 43, "timer-state"},
+    { 44, "timer-transition"},
+    { 45, "bacnet-ip-mode"},
+    { 46, "network-port-command"},
+    { 47, "network-type"},
+    { 48, "network-number-quality"},
     { 0, NULL}
 /* Tag values 0-63 are reserved for definition by ASHRAE.
    Tag values of 64-254 may be used by others to accommodate
@@ -3892,11 +4441,12 @@ static const value_string
 BACnetReinitializedStateOfDevice [] = {
     { 0, "coldstart"},
     { 1, "warmstart"},
-    { 2, "startbackup"},
-    { 3, "endbackup"},
-    { 4, "startrestore"},
-    { 5, "endrestore"},
-    { 6, "abortrestore"},
+    { 2, "start-backup"},
+    { 3, "end-backup"},
+    { 4, "start-restore"},
+    { 5, "end-restore"},
+    { 6, "abort-restore"},
+    { 7, "activate-changes"},
     { 0, NULL}
 };
 
@@ -3936,6 +4486,19 @@ BACnetShedState[] = {
 };
 
 static const value_string
+BACnetFaultType[] = {
+  { 0, "none" },
+  { 1, "fault-characterstring" },
+  { 2, "fault-extended" },
+  { 3, "fault-life-safety" },
+  { 4, "fault-state" },
+  { 5, "fault-status-flags" },
+  { 6, "fault-out-of-range" },
+  { 7, "fault-listed" },
+  { 0, NULL }
+};
+
+static const value_string
 BACnetNodeType [] = {
     { 0, "unknown" },
     { 1, "system" },
@@ -3949,6 +4512,16 @@ BACnetNodeType [] = {
     { 9, "property" },
     { 10, "functional" },
     { 11, "other" },
+    { 12, "subsystem" },
+    { 13, "building" },
+    { 14, "floor" },
+    { 15, "section" },
+    { 16, "module" },
+    { 17, "tree" },
+    { 18, "member" },
+    { 19, "protocol" },
+    { 20, "room" },
+    { 21, "zone" },
     { 0, NULL }
 };
 
@@ -3965,7 +4538,23 @@ BACnetDoorStatus [] = {
     { 0, "closed" },
     { 1, "opened" },
     { 2, "unknown" },
+    { 3, "door-fault" },
+    { 4, "unused" },
+    { 5, "none" },
+    { 6, "closing" },
+    { 7, "opening" },
+    { 8, "safety-locked" },
+    { 9, "limited-opened" },
     { 0, NULL }
+};
+
+static const value_string
+BACnetDoorValue[] = {
+  { 0, "lock" },
+  { 1, "unlock" },
+  { 2, "pulse-unlock" },
+  { 3, "extended-pulse-unlock" },
+  { 0, NULL }
 };
 
 static const value_string
@@ -4000,6 +4589,15 @@ BACnetDoorAlarmState [] = {
 };
 
 static const value_string
+BACnetBaseDeviceSecurityPolicy [] = {
+    { 0, "plain-non-trusted"},
+    { 1, "plain-trusted"},
+    { 2, "signed-trusted"},
+    { 3, "encrypted-trusted"},
+    { 0, NULL }
+};
+
+static const value_string
 BACnetAccumulatorStatus [] = {
     { 0, "normal" },
     { 1, "starting" },
@@ -4011,942 +4609,1050 @@ BACnetAccumulatorStatus [] = {
 
 /* These values are (manually) transferred from
  * http://www.bacnet.org/VendorID/BACnet Vendor IDs.htm
- * Version: "As of September 16, 2013"
+ * Version: "As of December 07, 2017"
  */
 
 static const value_string
 BACnetVendorIdentifiers [] = {
-    {   0, "ASHRAE" },
-    {   1, "NIST" },
-    {   2, "The Trane Company" },
-    {   3, "McQuay International" },
-    {   4, "PolarSoft" },
-    {   5, "Johnson Controls, Inc." },
-    {   6, "American Auto-Matrix" },
-    {   7, "Siemens Schweiz AG (Formerly: Landis & Staefa Division Europe)" },
-    {   8, "Delta Controls" },
-    {   9, "Siemens Schweiz AG" },
-    {  10, "Schneider Electric" },
-    {  11, "TAC" },
-    {  12, "Orion Analysis Corporation" },
-    {  13, "Teletrol Systems Inc." },
-    {  14, "Cimetrics Technology" },
-    {  15, "Cornell University" },
-    {  16, "United Technologies Carrier" },
-    {  17, "Honeywell Inc." },
-    {  18, "Alerton / Honeywell" },
-    {  19, "TAC AB" },
-    {  20, "Hewlett-Packard Company" },
-    {  21, "Dorsette's Inc." },
-    {  22, "Siemens Schweiz AG (Formerly: Cerberus AG)" },
-    {  23, "York Controls Group" },
-    {  24, "Automated Logic Corporation" },
-    {  25, "CSI Control Systems International" },
-    {  26, "Phoenix Controls Corporation" },
-    {  27, "Innovex Technologies, Inc." },
-    {  28, "KMC Controls, Inc." },
-    {  29, "Xn Technologies, Inc." },
-    {  30, "Hyundai Information Technology Co., Ltd." },
-    {  31, "Tokimec Inc." },
-    {  32, "Simplex" },
-    {  33, "North Building Technologies Limited" },
-    {  34, "Notifier" },
-    {  35, "Reliable Controls Corporation" },
-    {  36, "Tridium Inc." },
-    {  37, "Sierra Monitor Corporation/FieldServer Technologies" },
-    {  38, "Silicon Energy" },
-    {  39, "Kieback & Peter GmbH & Co KG" },
-    {  40, "Anacon Systems, Inc." },
-    {  41, "Systems Controls & Instruments, LLC" },
-    {  42, "Acuity Brands Lighting, Inc." },
-    {  43, "Micropower Manufacturing" },
-    {  44, "Matrix Controls" },
-    {  45, "METALAIRE" },
-    {  46, "ESS Engineering" },
-    {  47, "Sphere Systems Pty Ltd." },
-    {  48, "Walker Technologies Corporation" },
-    {  49, "H I Solutions, Inc." },
-    {  50, "MBS GmbH" },
-    {  51, "SAMSON AG" },
-    {  52, "Badger Meter Inc." },
-    {  53, "DAIKIN Industries Ltd." },
-    {  54, "NARA Controls Inc." },
-    {  55, "Mammoth Inc." },
-    {  56, "Liebert Corporation" },
-    {  57, "SEMCO Incorporated" },
-    {  58, "Air Monitor Corporation" },
-    {  59, "TRIATEK, LLC" },
-    {  60, "NexLight" },
-    {  61, "Multistack" },
-    {  62, "TSI Incorporated" },
-    {  63, "Weather-Rite, Inc." },
-    {  64, "Dunham-Bush" },
-    {  65, "Reliance Electric" },
-    {  66, "LCS Inc." },
-    {  67, "Regulator Australia PTY Ltd." },
-    {  68, "Touch-Plate Lighting Controls" },
-    {  69, "Amann GmbH" },
-    {  70, "RLE Technologies" },
-    {  71, "Cardkey Systems" },
-    {  72, "SECOM Co., Ltd." },
-    {  73, "ABB Gebaeudetechnik AG Bereich NetServ" },
-    {  74, "KNX Association cvba" },
-    {  75, "Institute of Electrical Installation Engineers of Japan (IEIEJ)" },
-    {  76, "Nohmi Bosai, Ltd." },
-    {  77, "Carel S.p.A." },
-    {  78, "UTC Fire & Security Espana, S.L." },
-    {  79, "Hochiki Corporation" },
-    {  80, "Fr. Sauter AG" },
-    {  81, "Matsushita Electric Works, Ltd." },
-    {  82, "Mitsubishi Electric Corporation, Inazawa Works" },
-    {  83, "Mitsubishi Heavy Industries, Ltd." },
-    {  84, "Xylem, Inc." },
-    {  85, "Yamatake Building Systems Co., Ltd." },
-    {  86, "The Watt Stopper, Inc." },
-    {  87, "Aichi Tokei Denki Co., Ltd." },
-    {  88, "Activation Technologies, LLC" },
-    {  89, "Saia-Burgess Controls, Ltd." },
-    {  90, "Hitachi, Ltd." },
-    {  91, "Novar Corp./Trend Control Systems Ltd." },
-    {  92, "Mitsubishi Electric Lighting Corporation" },
-    {  93, "Argus Control Systems, Ltd." },
-    {  94, "Kyuki Corporation" },
-    {  95, "Richards-Zeta Building Intelligence, Inc." },
-    {  96, "Scientech R&D, Inc." },
-    {  97, "VCI Controls, Inc." },
-    {  98, "Toshiba Corporation" },
-    {  99, "Mitsubishi Electric Corporation Air Conditioning & Refrigeration Systems Works" },
-    { 100, "Custom Mechanical Equipment, LLC" },
-    { 101, "ClimateMaster" },
-    { 102, "ICP Panel-Tec, Inc." },
-    { 103, "D-Tek Controls" },
-    { 104, "NEC Engineering, Ltd." },
-    { 105, "PRIVA BV" },
-    { 106, "Meidensha Corporation" },
-    { 107, "JCI Systems Integration Services" },
-    { 108, "Freedom Corporation" },
-    { 109, "Neuberger Gebaeudeautomation GmbH" },
-    { 110, "eZi Controls" },
-    { 111, "Leviton Manufacturing" },
-    { 112, "Fujitsu Limited" },
-    { 113, "Emerson Network Power" },
-    { 114, "S. A. Armstrong, Ltd." },
-    { 115, "Visonet AG" },
-    { 116, "M&M Systems, Inc." },
-    { 117, "Custom Software Engineering" },
-    { 118, "Nittan Company, Limited" },
-    { 119, "Elutions Inc. (Wizcon Systems SAS)" },
-    { 120, "Pacom Systems Pty., Ltd." },
-    { 121, "Unico, Inc." },
-    { 122, "Ebtron, Inc." },
-    { 123, "Scada Engine" },
-    { 124, "AC Technology Corporation" },
-    { 125, "Eagle Technology" },
-    { 126, "Data Aire, Inc." },
-    { 127, "ABB, Inc." },
-    { 128, "Transbit Sp. z o. o." },
-    { 129, "Toshiba Carrier Corporation" },
-    { 130, "Shenzhen Junzhi Hi-Tech Co., Ltd." },
-    { 131, "Tokai Soft" },
-    { 132, "Blue Ridge Technologies" },
-    { 133, "Veris Industries" },
-    { 134, "Centaurus Prime" },
-    { 135, "Sand Network Systems" },
-    { 136, "Regulvar, Inc." },
-    { 137, "AFDtek Division of Fastek International Inc." },
-    { 138, "PowerCold Comfort Air Solutions, Inc." },
-    { 139, "I Controls" },
-    { 140, "Viconics Electronics, Inc." },
-    { 141, "Yaskawa America, Inc." },
-    { 142, "DEOS control systems GmbH" },
-    { 143, "Digitale Mess- und Steuersysteme AG" },
-    { 144, "Fujitsu General Limited" },
-    { 145, "Project Engineering S.r.l." },
-    { 146, "Sanyo Electric Co., Ltd." },
-    { 147, "Integrated Information Systems, Inc." },
-    { 148, "Temco Controls, Ltd." },
-    { 149, "Airtek International Inc." },
-    { 150, "Advantech Corporation" },
-    { 151, "Titan Products, Ltd." },
-    { 152, "Regel Partners" },
-    { 153, "National Environmental Product" },
-    { 154, "Unitec Corporation" },
-    { 155, "Kanden Engineering Company" },
-    { 156, "Messner Gebaeudetechnik GmbH" },
-    { 157, "Integrated.CH" },
-    { 158, "Price Industries" },
-    { 159, "SE-Elektronic GmbH" },
-    { 160, "Rockwell Automation" },
-    { 161, "Enflex Corp." },
-    { 162, "ASI Controls" },
-    { 163, "SysMik GmbH Dresden" },
-    { 164, "HSC Regelungstechnik GmbH" },
-    { 165, "Smart Temp Australia Pty.  Ltd." },
-    { 166, "Cooper Controls" },
-    { 167, "Duksan Mecasys Co., Ltd." },
-    { 168, "Fuji IT Co., Ltd." },
-    { 169, "Vacon Plc" },
-    { 170, "Leader Controls" },
-    { 171, "Cylon Controls, Ltd." },
-    { 172, "Compas" },
-    { 173, "Mitsubishi Electric Building Techno-Service Co., Ltd." },
-    { 174, "Building Control Integrators" },
-    { 175, "ITG Worldwide (M) Sdn Bhd" },
-    { 176, "Lutron Electronics Co., Inc." },
-    { 177, "Cooper-Atkins Corporation" },
-    { 178, "LOYTEC Electronics GmbH" },
-    { 179, "ProLon" },
-    { 180, "Mega Controls Limited" },
-    { 181, "Micro Control Systems, Inc." },
-    { 182, "Kiyon, Inc." },
-    { 183, "Dust Networks" },
-    { 184, "Advanced Building Automation Systems" },
-    { 185, "Hermos AG" },
-    { 186, "CEZIM" },
-    { 187, "Softing" },
-    { 188, "Lynxspring, Inc." },
-    { 189, "Schneider Toshiba Inverter Europe" },
-    { 190, "Danfoss Drives A/S" },
-    { 191, "Eaton Corporation" },
-    { 192, "Matyca S.A." },
-    { 193, "Botech AB" },
-    { 194, "Noveo, Inc." },
-    { 195, "AMEV" },
-    { 196, "Yokogawa Electric Corporation" },
-    { 197, "GFR Gesellschaft fuer Regelungstechnik" },
-    { 198, "Exact Logic" },
-    { 199, "Mass Electronics Pty Ltd dba Innotech Control Systems Australia" },
-    { 200, "Kandenko Co., Ltd." },
-    { 201, "DTF, Daten-Technik Fries" },
-    { 202, "Klimasoft, Ltd." },
-    { 203, "Toshiba Schneider Inverter Corporation" },
-    { 204, "Control Applications, Ltd." },
-    { 205, "KDT Systems Co., Ltd." },
-    { 206, "Onicon Incorporated" },
-    { 207, "Automation Displays, Inc." },
-    { 208, "Control Solutions, Inc." },
-    { 209, "Remsdaq Limited" },
-    { 210, "NTT Facilities, Inc." },
-    { 211, "VIPA GmbH" },
-    { 212, "TSC21 Association of Japan" },
-    { 213, "Strato Automation" },
-    { 214, "HRW Limited" },
-    { 215, "Lighting Control & Design, Inc." },
-    { 216, "Mercy Electronic and Electrical Industries" },
-    { 217, "Samsung SDS Co., Ltd" },
-    { 218, "Impact Facility Solutions, Inc." },
-    { 219, "Aircuity" },
-    { 220, "Control Techniques, Ltd." },
-    { 221, "OpenGeneral Pty., Ltd." },
-    { 222, "WAGO Kontakttechnik GmbH & Co. KG" },
-    { 223, "Cerus Industrial" },
-    { 224, "Chloride Power Protection Company" },
-    { 225, "Computrols, Inc." },
-    { 226, "Phoenix Contact GmbH & Co. KG" },
-    { 227, "Grundfos Management A/S" },
-    { 228, "Ridder Drive Systems" },
-    { 229, "Soft Device SDN BHD" },
-    { 230, "Integrated Control Technology Limited" },
-    { 231, "AIRxpert Systems, Inc." },
-    { 232, "Microtrol Limited" },
-    { 233, "Red Lion Controls" },
-    { 234, "Digital Electronics Corporation" },
-    { 235, "Ennovatis GmbH" },
-    { 236, "Serotonin Software Technologies, Inc." },
-    { 237, "LS Industrial Systems Co., Ltd." },
-    { 238, "Square D Company" },
-    { 239, "S Squared Innovations, Inc." },
-    { 240, "Aricent Ltd." },
-    { 241, "EtherMetrics, LLC" },
-    { 242, "Industrial Control Communications, Inc." },
-    { 243, "Paragon Controls, Inc." },
-    { 244, "A. O. Smith Corporation" },
-    { 245, "Contemporary Control Systems, Inc." },
-    { 246, "Intesis Software SL" },
-    { 247, "Ingenieurgesellschaft N. Hartleb mbH" },
-    { 248, "Heat-Timer Corporation" },
-    { 249, "Ingrasys Technology, Inc." },
-    { 250, "Costerm Building Automation" },
-    { 251, "WILO SE" },
-    { 252, "Embedia Technologies Corp." },
-    { 253, "Technilog" },
-    { 254, "HR Controls Ltd. & Co. KG" },
-    { 255, "Lennox International, Inc." },
-    { 256, "RK-Tec Rauchklappen-Steuerungssysteme GmbH & Co. KG" },
-    { 257, "Thermomax, Ltd." },
-    { 258, "ELCON Electronic Control, Ltd." },
-    { 259, "Larmia Control AB" },
-    { 260, "BACnet Stack at SourceForge" },
-    { 261, "G4S Security Services A/S" },
-    { 262, "Exor International S.p.A." },
-    { 263, "Cristal Controles" },
-    { 264, "Regin AB" },
-    { 265, "Dimension Software, Inc." },
-    { 266, "SynapSense Corporation" },
-    { 267, "Beijing Nantree Electronic Co., Ltd." },
-    { 268, "Camus Hydronics Ltd." },
-    { 269, "Kawasaki Heavy Industries, Ltd." },
-    { 270, "Critical Environment Technologies" },
-    { 271, "ILSHIN IBS Co., Ltd." },
-    { 272, "ELESTA Energy Control AG" },
-    { 273, "KROPMAN Installatietechniek" },
-    { 274, "Baldor Electric Company" },
-    { 275, "INGA mbH" },
-    { 276, "GE Consumer & Industrial" },
-    { 277, "Functional Devices, Inc." },
-    { 278, "ESAC" },
-    { 279, "M-System Co., Ltd." },
-    { 280, "Yokota Co., Ltd." },
-    { 281, "Hitranse Technology Co., LTD" },
-    { 282, "Vigilent Corporation" },
-    { 283, "Kele, Inc." },
-    { 284, "Opera Electronics, Inc." },
-    { 285, "Gentec" },
-    { 286, "Embedded Science Labs, LLC" },
-    { 287, "Parker Hannifin Corporation" },
-    { 288, "MaCaPS International Limited" },
-    { 289, "Link4 Corporation" },
-    { 290, "Romutec Steuer-u. Regelsysteme GmbH" },
-    { 291, "Pribusin, Inc." },
-    { 292, "Advantage Controls" },
-    { 293, "Critical Room Control" },
-    { 294, "LEGRAND" },
-    { 295, "Tongdy Control Technology Co., Ltd." },
-    { 296, "ISSARO Integrierte Systemtechnik" },
-    { 297, "Pro-Dev Industries" },
-    { 298, "DRI-STEEM" },
-    { 299, "Creative Electronic GmbH" },
-    { 300, "Swegon AB" },
-    { 301, "Jan Brachacek" },
-    { 302, "Hitachi Appliances, Inc." },
-    { 303, "Real Time Automation, Inc." },
-    { 304, "ITEC Hankyu-Hanshin Co." },
-    { 305, "Cyrus E&M Engineering Co., Ltd." },
-    { 306, "Badger Meter" },
-    { 307, "Cirrascale Corporation" },
-    { 308, "Elesta GmbH Building Automation" },
-    { 309, "Securiton" },
-    { 310, "OSlsoft, Inc." },
-    { 311, "Hanazeder Electronic GmbH" },
-    { 312, "Honeywell Security Deutschland, Novar GmbH" },
-    { 313, "Siemens Industry, Inc." },
-    { 314, "ETM Professional Control GmbH" },
-    { 315, "Meitav-tec, Ltd." },
-    { 316, "Janitza Electronics GmbH" },
-    { 317, "MKS Nordhausen" },
-    { 318, "De Gier Drive Systems B.V." },
-    { 319, "Cypress Envirosystems" },
-    { 320, "SMARTron s.r.o." },
-    { 321, "Verari Systems, Inc." },
-    { 322, "K-W Electronic Service, Inc." },
-    { 323, "ALFA-SMART Energy Management" },
-    { 324, "Telkonet, Inc." },
-    { 325, "Securiton GmbH" },
-    { 326, "Cemtrex, Inc." },
-    { 327, "Performance Technologies, Inc." },
-    { 328, "Xtralis (Aust) Pty Ltd" },
-    { 329, "TROX GmbH" },
-    { 330, "Beijing Hysine Technology Co., Ltd" },
-    { 331, "RCK Controls, Inc." },
-    { 332, "Distech Controls SAS" },
-    { 333, "Novar/Honeywell" },
-    { 334, "The S4 Group, Inc." },
-    { 335, "Schneider Electric" },
-    { 336, "LHA Systems" },
-    { 337, "GHM engineering Group, Inc." },
-    { 338, "Cllimalux S.A." },
-    { 339, "VAISALA Oyj" },
-    { 340, "COMPLEX (Beijing) Technology, Co., LTD." },
-    { 341, "SCADAmetrics" },
-    { 342, "POWERPEG NSI Limited" },
-    { 343, "BACnet Interoperability Testing Services, Inc." },
-    { 344, "Teco a.s." },
-    { 345, "Plexus Technology, Inc." },
-    { 346, "Energy Focus, Inc." },
-    { 347, "Powersmiths International Corp." },
-    { 348, "Nichibei Co., Ltd." },
-    { 349, "HKC Technology Ltd." },
-    { 350, "Ovation Networks, Inc." },
-    { 351, "Setra Systems" },
-    { 352, "AVG Automation" },
-    { 353, "ZXC Ltd." },
-    { 354, "Byte Sphere" },
-    { 355, "Generiton Co., Ltd." },
-    { 356, "Holter Regelarmaturen GmbH & Co. KG" },
-    { 357, "Bedford Instruments, LLC" },
-    { 358, "Standair Inc." },
-    { 359, "WEG Automation - R&D" },
-    { 360, "Prolon Control Systems ApS" },
-    { 361, "Inneasoft" },
-    { 362, "ConneXSoft GmbH" },
-    { 363, "CEAG Notlichtsysteme GmbH" },
-    { 364, "Distech Controls Inc." },
-    { 365, "Industrial Technology Research Institute" },
-    { 366, "ICONICS, Inc." },
-    { 367, "IQ Controls s.c." },
-    { 368, "OJ Electronics A/S" },
-    { 369, "Rolbit Ltd." },
-    { 370, "Synapsys Solutions Ltd." },
-    { 371, "ACME Engineering Prod. Ltd." },
-    { 372, "Zener Electric Pty, Ltd." },
-    { 373, "Selectronix, Inc." },
-    { 374, "Gorbet & Banerjee, LLC." },
-    { 375, "IME" },
-    { 376, "Stephen H. Dawson Computer Service" },
-    { 377, "Accutrol, LLC" },
-    { 378, "Schneider Elektronik GmbH" },
-    { 379, "Alpha-Inno Tec GmbH" },
-    { 380, "ADMMicro, Inc." },
-    { 381, "Greystone Energy Systems, Inc." },
-    { 382, "CAP Technologie" },
-    { 383, "KeRo Systems" },
-    { 384, "Domat Control System s.r.o." },
-    { 385, "Efektronics Pty. Ltd." },
-    { 386, "Hekatron Vertriebs GmbH" },
-    { 387, "Securiton AG" },
-    { 388, "Carlo Gavazzi Controls SpA" },
-    { 389, "Chipkin Automation Systems" },
-    { 390, "Savant Systems, LLC" },
-    { 391, "Simmtronic Lighting Controls" },
-    { 392, "Abelko Innovation AB" },
-    { 393, "Seresco Technologies Inc." },
-    { 394, "IT Watchdogs" },
-    { 395, "Automation Assist Japan Corp." },
-    { 396, "Thermokon Sensortechnik GmbH" },
-    { 397, "EGauge Systems, LLC" },
-    { 398, "Quantum Automation (ASIA) PTE, Ltd." },
-    { 399, "Toshiba Lighting & Technology Corp." },
-    { 400, "SPIN Engenharia de Automacao Ltda." },
-    { 401, "Logistics Systems & Software Services India PVT. Ltd." },
-    { 402, "Delta Controls Integration Products" },
-    { 403, "Focus Media" },
-    { 404, "LUMEnergi Inc." },
-    { 405, "Kara Systems" },
-    { 406, "RF Code, Inc." },
-    { 407, "Fatek Automation Corp." },
-    { 408, "JANDA Software Company, LLC" },
-    { 409, "Open System Solutions Limited" },
-    { 410, "Intelec Systems PTY Ltd." },
-    { 411, "Ecolodgix, LLC" },
-    { 412, "Douglas Lighting Controls" },
-    { 413, "iSAtech GmbH" },
-    { 414, "AREAL" },
-    { 415, "Beckhoff Automation GmbH" },
-    { 416, "IPAS GmbH" },
-    { 417, "KE2 Therm Solutions" },
-    { 418, "Base2Products" },
-    { 419, "DTL Controls, LLC" },
-    { 420, "INNCOM International, Inc." },
-    { 421, "BTR Netcom GmbH" },
-    { 422, "Greentrol Automation, Inc" },
-    { 423, "BELIMO Automation AG" },
-    { 424, "Samsung Heavy Industries Co, Ltd" },
-    { 425, "Triacta Power Technologies, Inc." },
-    { 426, "Globestar Systems" },
-    { 427, "MLB Advanced Media, LP" },
-    { 428, "SWG Stuckmann Wirtschaftliche Gebaeudesysteme GmbH" },
-    { 429, "SensorSwitch" },
-    { 430, "Multitek Power Limited" },
-    { 431, "Aquametro AG" },
-    { 432, "LG Electronics Inc." },
-    { 433, "Electronic Theatre Controls, Inc." },
-    { 434, "Mitsubishi Electric Corporation Nagoya Works" },
-    { 435, "Delta Electronics, Inc." },
-    { 436, "Elma Kurtalj, Ltd." },
-    { 437, "ADT Fire and Security Sp. A.o.o." },
-    { 438, "Nedap Security Management" },
-    { 439, "ESC Automation Inc." },
-    { 440, "DSP4YOU Ltd." },
-    { 441, "GE Sensing and Inspection Technologies" },
-    { 442, "Embedded Systems SIA" },
-    { 443, "BEFEGA GmbH" },
-    { 444, "Baseline Inc." },
-    { 445, "M2M Systems Integrators" },
-    { 446, "OEMCtrl" },
-    { 447, "Clarkson Controls Limited" },
-    { 448, "Rogerwell Control System Limited" },
-    { 449, "SCL Elements" },
-    { 450, "Hitachi Ltd." },
-    { 451, "Newron System SA" },
-    { 452, "BEVECO Gebouwautomatisering BV" },
-    { 453, "Streamside Solutions" },
-    { 454, "Yellowstone Soft" },
-    { 455, "Oztech Intelligent Systems Pty Ltd." },
-    { 456, "Novelan GmbH" },
-    { 457, "Flexim Americas Corporation" },
-    { 458, "ICP DAS Co., Ltd." },
-    { 459, "CARMA Industries Inc." },
-    { 460, "Log-One Ltd." },
-    { 461, "TECO Electric & Machinery Co., Ltd." },
-    { 462, "ConnectEx, Inc." },
-    { 463, "Turbo DDC Suedwest" },
-    { 464, "Quatrosense Environmental Ltd." },
-    { 465, "Fifth Light Technology Ltd." },
-    { 466, "Scientific Solutions, Ltd." },
-    { 467, "Controller Area Network Solutions (M) Sdn Bhd" },
-    { 468, "RESOL - Elektronische Regelungen GmbH" },
-    { 469, "RPBUS LLC" },
-    { 470, "BRS Sistemas Eletronicos" },
-    { 471, "WindowMaster A/S" },
-    { 472, "Sunlux Technologies Ltd." },
-    { 473, "Measurlogic" },
-    { 474, "Frimat GmbH" },
-    { 475, "Spirax Sarco" },
-    { 476, "Luxtron" },
-    { 477, "Raypak Inc" },
-    { 478, "Air Monitor Corporation" },
-    { 479, "Regler Och Webbteknik Sverige (ROWS)" },
-    { 480, "Intelligent Lighting Controls Inc." },
-    { 481, "Sanyo Electric Industry Co., Ltd" },
-    { 482, "E-Mon Energy Monitoring Products" },
-    { 483, "Digital Control Systems" },
-    { 484, "ATI Airtest Technologies, Inc." },
-    { 485, "SCS SA" },
-    { 486, "HMS Industrial Networks AB" },
-    { 487, "Shenzhen Universal Intellisys Co Ltd" },
-    { 488, "EK Intellisys Sdn Bhd" },
-    { 489, "SysCom" },
-    { 490, "Firecom, Inc." },
-    { 491, "ESA Elektroschaltanlagen Grimma GmbH" },
-    { 492, "Kumahira Co Ltd" },
-    { 493, "Hotraco" },
-    { 494, "SABO Elektronik GmbH" },
-    { 495, "Equip'Trans" },
-    { 496, "TCS Basys Controls" },
-    { 497, "FlowCon International A/S" },
-    { 498, "ThyssenKrupp Elevator Americas" },
-    { 499, "Abatement Technologies" },
-    { 500, "Continental Control Systems, LLC" },
-    { 501, "WISAG Automatisierungstechnik GmbH & Co KG" },
-    { 502, "EasyIO" },
-    { 503, "EAP-Electric GmbH" },
-    { 504, "Hardmeier" },
-    { 505, "Mircom Group of Companies" },
-    { 506, "Quest Controls" },
-    { 507, "Mestek, Inc" },
-    { 508, "Pulse Energy" },
-    { 509, "Tachikawa Corporation" },
-    { 510, "University of Nebraska-Lincoln" },
-    { 511, "Redwood Systems" },
-    { 512, "PASStec Industrie-Elektronik GmbH" },
-    { 513, "NgEK, Inc." },
-    { 514, "t-mac Technologies" },
-    { 515, "Jireh Energy Tech Co., Ltd." },
-    { 516, "Enlighted Inc." },
-    { 517, "El-Piast Sp. Z o.o" },
-    { 518, "NetxAutomation Software GmbH" },
-    { 519, "Invertek Drives" },
-    { 520, "Deutschmann Automation GmbH & Co. KG" },
-    { 521, "EMU Electronic AG" },
-    { 522, "Phaedrus Limited" },
-    { 523, "Sigmatek GmbH & Co KG" },
-    { 524, "Marlin Controls" },
-    { 525, "Circutor, SA" },
-    { 526, "UTC Fire & Security" },
-    { 527, "DENT Instruments, Inc." },
-    { 528, "FHP Manufacturing Company - Bosch Group" },
-    { 529, "GE Intelligent Platforms" },
-    { 530, "Inner Range Pty Ltd" },
-    { 531, "GLAS Energy Technology" },
-    { 532, "MSR-Electronic-GmbH" },
-    { 533, "Energy Control Systems, Inc." },
-    { 534, "EMT Controls" },
-    { 535, "Daintree Networks Inc." },
-    { 536, "EURO ICC d.o.o" },
-    { 537, "TE Connectivity Energy" },
-    { 538, "GEZE GmbH" },
-    { 539, "NEC Corporation" },
-    { 540, "Ho Cheung International Company Limited" },
-    { 541, "Sharp Manufacturing Systems Corporation" },
-    { 542, "DOT CONTROLS a.s." },
-    { 543, "BeaconMedaes" },
-    { 544, "Midea Commercial Aircon" },
-    { 545, "WattMaster Controls" },
-    { 546, "Kamstrup A/S" },
-    { 547, "CA Computer Automation GmbH" },
-    { 548, "Laars Heating Systems Company" },
-    { 549, "Hitachi Systems, Ltd." },
-    { 550, "Fushan AKE Electronic Engineering Co., Ltd." },
-    { 551, "Toshiba International Corporation" },
-    { 552, "Starman Systems, LLC" },
-    { 553, "Samsung Techwin Co., Ltd." },
-    { 554, "ISAS-Integrated Switchgear and Systems P/L" },
-    { 556, "Obvius" },
-    { 557, "Marek Guzik" },
-    { 558, "Vortek Instruments, LLC" },
-    { 559, "Universal Lighting Technologies" },
-    { 560, "Myers Power Products, Inc." },
-    { 561, "Vector Controls GmbH" },
-    { 562, "Crestron Electronics, Inc." },
-    { 563, "A&E Controls Limited" },
-    { 564, "Projektomontaza A.D." },
-    { 565, "Freeaire Refrigeration" },
-    { 566, "Aqua Cooler Pty Limited" },
-    { 567, "Basic Controls" },
-    { 568, "GE Measurement and Control Solutions Advanced Sensors" },
-    { 569, "EQUAL Networks" },
-    { 570, "Millennial Net" },
-    { 571, "APLI Ltd" },
-    { 572, "Electro Industries/GaugeTech" },
-    { 573, "SangMyung University" },
-    { 574, "Coppertree Analytics, Inc." },
-    { 575, "CoreNetiX GmbH" },
-    { 576, "Acutherm" },
-    { 577, "Dr. Riedel Automatisierungstechnik GmbH" },
-    { 578, "Shina System Co., Ltd" },
-    { 579, "Iqapertus" },
-    { 580, "PSE Technology" },
-    { 581, "BA Systems" },
-    { 582, "BTICINO" },
-    { 583, "Monico, Inc." },
-    { 584, "iCue" },
-    { 585, "tekmar Control Systems Ltd." },
-    { 586, "Control Technology Corporation" },
-    { 587, "GFAE GmbH" },
-    { 588, "BeKa Software GmbH" },
-    { 589, "Isoil Industria SpA" },
-    { 590, "Home Systems Consulting SpA" },
-    { 591, "Socomec" },
-    { 592, "Everex Communications, Inc." },
-    { 593, "Ceiec Electric Technology" },
-    { 594, "Atrila GmbH" },
-    { 595, "WingTechs" },
-    { 596, "Shenzhen Mek Intellisys Pte Ltd." },
-    { 597, "Nestfield Co., Ltd." },
-    { 598, "Swissphone Telecom AG" },
-    { 599, "PNTECH JSC" },
-    { 600, "Horner APG, LLC" },
-    { 601, "PVI Industries, LLC" },
-    { 602, "Ela-compil" },
-    { 603, "Pegasus Automation International LLC" },
-    { 604, "Wight Electronic Services Ltd." },
-    { 605, "Marcom" },
-    { 606, "Exhausto A/S" },
-    { 607, "Dwyer Instruments, Inc." },
-    { 608, "Link GmbH" },
-    { 609, "Oppermann Regelgerate GmbH" },
-    { 610, "NuAire, Inc." },
-    { 611, "Nortec Humidity, Inc." },
-    { 612, "Bigwood Systems, Inc." },
-    { 613, "Enbala Power Networks" },
-    { 614, "Inter Energy Co., Ltd." },
-    { 615, "ETC" },
-    { 616, "COMELEC S.A.R.L" },
-    { 617, "Pythia Technologies" },
-    { 618, "TrendPoint Systems, Inc." },
-    { 619, "AWEX" },
-    { 620, "Eurevia" },
-    { 621, "Kongsberg E-lon AS" },
-    { 622, "FlaktWoods" },
-    { 623, "E + E Elektronik GES M.B.H." },
-    { 624, "ARC Informatique" },
-    { 625, "SKIDATA AG" },
-    { 626, "WSW Solutions" },
-    { 627, "Trefon Electronic GmbH" },
-    { 628, "Dongseo System" },
-    { 629, "Kanontec Intelligence Technology Co., Ltd." },
-    { 630, "EVCO S.p.A." },
-    { 631, "Accuenergy (CANADA) Inc." },
-    { 632, "SoftDEL" },
-    { 633, "Orion Energy Systems, Inc." },
-    { 634, "Roboticsware" },
-    { 635, "DOMIQ Sp. z o.o." },
-    { 636, "Solidyne" },
-    { 637, "Elecsys Corporation" },
-    { 638, "Conditionaire International Pty. Limited" },
-    { 639, "Quebec, Inc." },
-    { 640, "Homerun Holdings" },
-    { 641, "Murata Americas" },
-    { 642, "Comptek" },
-    { 643, "Westco Systems, Inc." },
-    { 644, "Advancis Software & Services GmbH" },
-    { 645, "Intergrid, LLC" },
-    { 646, "Markerr Controls, Inc." },
-    { 647, "Toshiba Elevator and Building Systems Corporation" },
-    { 648, "Spectrum Controls, Inc." },
-    { 649, "Mkservice" },
-    { 650, "Fox Thermal Instruments" },
-    { 651, "SyxthSense Ltd" },
-    { 652, "DUHA System S R.O." },
-    { 653, "NIBE" },
-    { 654, "Melink Corporation" },
-    { 655, "Fritz-Haber-Institut" },
-    { 656, "MTU Onsite Energy GmbH, Gas Power Systems" },
-    { 657, "Omega Engineering, Inc." },
-    { 658, "Avelon" },
-    { 659, "Ywire Technologies, Inc." },
-    { 660, "M.R. Engineering Co., Ltd." },
-    { 661, "Lochinvar, LLC" },
-    { 662, "Sontay Limited" },
-    { 663, "GRUPA Slawomir Chelminski" },
-    { 664, "Arch Meter Corporation" },
-    { 665, "Senva, Inc." },
-    { 667, "FM-Tec" },
-    { 668, "Systems Specialists, Inc." },
-    { 669, "SenseAir" },
-    { 670, "AB IndustrieTechnik Srl" },
-    { 671, "Cortland Research, LLC" },
-    { 672, "MediaView" },
-    { 673, "VDA Elettronica" },
-    { 674, "CSS, Inc." },
-    { 675, "Tek-Air Systems, Inc." },
-    { 676, "ICDT" },
-    { 677, "The Armstrong Monitoring Corporation" },
-    { 678, "DIXELL S.r.l" },
-    { 679, "Lead System, Inc." },
-    { 680, "ISM EuroCenter S.A." },
-    { 681, "TDIS" },
-    { 682, "Trade FIDES" },
-    { 683, "Knuerr GmbH (Emerson Network Power)" },
-    { 684, "Resource Data Management" },
-    { 685, "Abies Technology, Inc." },
-    { 686, "Amalva" },
-    { 687, "MIRAE Electrical Mfg. Co., Ltd." },
-    { 688, "HunterDouglas Architectural Projects Scandinavia ApS" },
-    { 689, "RUNPAQ Group Co., Ltd" },
-    { 690, "Unicard SA" },
-    { 691, "IE Technologies" },
-    { 692, "Ruskin Manufacturing" },
-    { 693, "Calon Associates Limited" },
-    { 694, "Contec Co., Ltd." },
-    { 695, "iT GmbH" },
-    { 696, "Autani Corporation" },
-    { 697, "Christian Fortin" },
-    { 698, "HDL" },
-    { 699, "IPID Sp. Z.O.O Limited" },
-    { 700, "Fuji Electric Co., Ltd" },
-    { 701, "View, Inc." },
-    { 702, "Samsung S1 Corporation" },
-    { 703, "New Lift" },
-    { 704, "VRT Systems" },
-    { 705, "Motion Control Engineering, Inc." },
-    { 706, "Weiss Klimatechnik GmbH" },
-    { 707, "Elkon" },
-    { 708, "Eliwell Controls S.r.l." },
-    { 709, "Japan Computer Technos Corp" },
-    { 710, "Rational Network ehf" },
-    { 711, "Magnum Energy Solutions, LLC" },
-    { 712, "MelRok" },
-    { 713, "VAE Group" },
-    { 714, "LGCNS" },
-    { 715, "Berghof Automationstechnik GmbH" },
-    { 716, "Quark Communications, Inc." },
-    { 717, "Sontex" },
-    { 718, "mivune AG" },
-    { 719, "Panduit" },
-    { 720, "Smart Controls, LLC" },
-    { 721, "Compu-Aire, Inc." },
-    { 722, "Sierra" },
-    { 723, "ProtoSense Technologies" },
-    { 724, "Eltrac Technologies Pvt Ltd" },
-    { 725, "Bektas Invisible Controls GmbH" },
-    { 726, "Entelec" },
-    { 727, "INNEXIV" },
-    { 728, "Covenant" },
-    { 729, "Davitor AB" },
-    { 730, "TongFang Technovator" },
-    { 731, "Building Robotics, Inc." },
-    { 732, "HSS-MSR UG" },
-    { 733, "FramTack LLC" },
-    { 734, "B. L. Acoustics, Ltd." },
-    { 735, "Traxxon Rock Drills, Ltd" },
-    { 736, "Franke" },
-    { 737, "Wurm GmbH & Co" },
-    { 738, "AddENERGIE" },
-    { 739, "Mirle Automation Corporation" },
-    { 740, "Ibis Networks" },
-    { 741, "ID-KARTA s.r.o." },
-    { 742, "Anaren, Inc." },
-    { 743, "Span, Incorporated" },
-    { 744, "Bosch Thermotechnology Corp" },
-    { 745, "DRC Technology S.A." },
-    { 746, "Shanghai Energy Building Technology Co, Ltd" },
-    { 747, "Fraport AG" },
-    { 748, "Flowgroup" },
-    { 749, "Skytron Energy, GmbH" },
-    { 750, "ALTEL Wicha, Golda Sp. J." },
-    { 751, "Drupal" },
-    { 752, "Axiomatic Technology, Ltd" },
-    { 753, "Bohnke + Partner" },
-    { 754, "Function 1" },
-    { 755, "Optergy Pty, Ltd" },
-    { 756, "LSI Virticus" },
-    { 757, "Konzeptpark GmbH" },
-    { 758, "Hubbell Building Automation, Inc." },
-    { 759, "eCurv, Inc." },
-    { 760, "Agnosys GmbH" },
-    { 761, "Shanghai Sunfull Automation Co., LTD" },
-    { 762, "Kurz Instruments, Inc." },
-    { 763, "Cias Elettronica S.r.l." },
-    { 764, "Multiaqua, Inc." },
-    { 765, "BlueBox" },
-    { 766, "Sensidyne" },
-    { 767, "Viessmann Elektronik GmbH" },
-    { 768, "ADFweb.com srl" },
-    { 769, "Gaylord Industries" },
-    { 770, "Majur Ltd." },
-    { 771, "Shanghai Huilin Technology Co., Ltd." },
-    { 772, "Exotronic" },
-    { 773, "Safecontrol spol s.r.o." },
-    { 774, "Amatis" },
-    { 775, "Universal Electric Corporation" },
-    { 776, "iBACnet" },
-    { 778, "Smartrise Engineering, Inc." },
-    { 779, "Miratron, Inc." },
-    { 780, "SmartEdge" },
-    { 781, "Mitsubishi Electric Australia Pty Ltd" },
-    { 782, "Triangle Research International Ptd Ltd" },
-    { 783, "Produal Oy" },
-    { 784, "Milestone Systems A/S" },
-    { 785, "Trustbridge" },
-    { 786, "Feedback Solutions" },
-    { 787, "IES" },
-    { 788, "GE Critical Power" },
-    { 789, "Riptide IO" },
-    { 790, "Messerschmitt Systems AG" },
-    { 791, "Dezem Energy Controlling" },
-    { 792, "MechoSystems" },
-    { 793, "evon GmbH" },
-    { 794, "CS Lab GmbH" },
-    { 795, "8760 Enterprises, Inc." },
-    { 796, "Touche Controls" },
-    { 797, "Ontrol Teknik Malzeme San. ve Tic. A.S." },
-    { 798, "Uni Control System Sp. Z o.o." },
-    { 799, "Weihai Ploumeter Co., Ltd" },
-    { 800, "Elcom International Pvt. Ltd" },
-    { 801, "Philips Lighting" },
-    { 802, "AutomationDirect" },
-    { 803, "Paragon Robotics" },
-    { 804, "SMT System & Modules Technology AG" },
-    { 805, "OS Technology Service and Trading Co., LTD" },
-    { 806, "CMR Controls Ltd" },
-    { 807, "Innovari, Inc." },
-    { 808, "ABB Control Products" },
-    { 809, "Gesellschaft fur Gebaeudeautomation mbH" },
-    { 810, "RODI Systems Corp." },
-    { 811, "Nextek Power Systems" },
-    { 812, "Creative Lighting" },
-    { 813, "WaterFurnace International" },
-    { 814, "Mercury Security" },
-    { 815, "Hisense (Shandong) Air-Conditioning Co., Ltd." },
-    { 816, "Layered Solutions, Inc." },
-    { 817, "Leegood Automatic System, Inc." },
-    { 818, "Shanghai Restar Technology Co., Ltd." },
-    { 819, "Reimann Ingenieurbuero" },
-    { 820, "LynTec" },
-    { 821, "HTP" },
-    { 822, "Elkor Technologies, Inc." },
-    { 823, "Bentrol Pty Ltd" },
-    { 824, "Team-Control Oy" },
-    { 825, "NextDevice, LLC" },
-    { 826, "GLOBAL CONTROL 5 Sp. z o.o." },
-    { 827, "King I Electronics Co., Ltd" },
-    { 828, "SAMDAV" },
-    { 829, "Next Gen Industries Pvt. Ltd." },
-    { 830, "Entic LLC" },
-    { 831, "ETAP" },
-    { 832, "Moralle Electronics Limited" },
-    { 833, "Leicom AG" },
-    { 834, "Watts Regulator Company" },
-    { 835, "S.C. Orbtronics S.R.L." },
-    { 836, "Gaussan Technologies" },
-    { 837, "WEBfactory GmbH" },
-    { 838, "Ocean Controls" },
-    { 839, "Messana  Air-Ray Conditioning s.r.l." },
-    { 840, "Hangzhou BATOWN Technology Co. Ltd." },
-    { 841, "Reasonable Controls" },
-    { 842, "Servisys, Inc." },
-    { 843, "halstrup-walcher GmbH" },
-    { 844, "SWG Automation Fuzhou Limited" },
-    { 845, "KSB Aktiengesellschaft" },
-    { 846, "Hybryd Sp. z o.o." },
-    { 847, "Helvatron AG" },
-    { 848, "Oderon Sp. Z.O.O." },
-    { 849, "miko" },
-    { 850, "Exodraft" },
-    { 851, "Hochhuth GmbH" },
-    { 852, "Integrated System Technologies Ltd." },
-    { 853, "Shanghai Cellcons Controls Co., Ltd" },
-    { 854, "Emme Controls, LLC" },
-    { 855, "Field Diagnostic Services, Inc." },
-    { 856, "Ges Teknik A.S." },
-    { 857, "Global Power Products, Inc." },
-    { 858, "Option NV" },
-    { 859, "BV-Control AG" },
-    { 860, "Sigren Engineering AG" },
-    { 861, "Shanghai Jaltone Technology Co., Ltd." },
-    { 862, "MaxLine Solutions Ltd" },
-    { 863, "Kron Instrumentos Eletricos Ltda" },
-    { 864, "Thermo Matrix" },
-    { 865, "Infinite Automation Systems, Inc." },
-    { 866, "Vantage" },
-    { 867, "Elecon Measurements Pvt Ltd" },
-    { 868, "TBA" },
-    { 869, "Carnes Company" },
-    { 870, "Harman Professional" },
-    { 871, "Nenutec Asia Pacific Pte Ltd" },
-    { 872, "Gia NV" },
-    { 873, "Kepware Tehnologies" },
-    { 874, "Temperature Electronics Ltd" },
-    { 875, "Packet Power" },
-    { 876, "Project Haystack Corporation" },
-    { 877, "DEOS Controls Americas Inc." },
-    { 878, "Senseware Inc" },
-    { 879, "MST Systemtechnik AG" },
-    { 880, "Lonix Ltd" },
-    { 881, "GMC-I Messtechnik GmbH" },
-    { 882, "Aviosys International Inc." },
-    { 883, "Efficient Building Automation Corp." },
-    { 884, "Accutron Instruments Inc." },
-    { 885, "Vermont Energy Control Systems LLC" },
-    { 886, "DCC Dynamics" },
-    { 887, "Brueck Electronic GmbH" },
-    { 889, "NGBS Hungary Ltd." },
-    { 890, "ILLUM Technology, LLC" },
-    { 891, "Delta Controls Germany Limited" },
-    { 892, "S+T Service & Technique S.A." },
-    { 893, "SimpleSoft" },
-    { 894, "Candi Controls, Inc." },
-    { 895, "EZEN Solution Inc." },
-    { 896, "Fujitec Co. Ltd." },
-    { 897, "Terralux" },
-    { 898, "Annicom" },
-    { 899, "Bihl+Wiedemann GmbH" },
-    { 900, "Daper, Inc." },
-    { 901, "Schueco International KG" },
-    { 902, "Otis Elevator Company" },
-    { 903, "Fidelix Oy" },
-    { 904, "RAM GmbH Mess- und Regeltechnik" },
-    { 905, "WEMS" },
-    { 906, "Ravel Electronics Pvt Ltd" },
-    { 907, "OmniMagni" },
-    { 908, "Echelon" },
-    { 909, "Intellimeter Canada, Inc." },
-    { 910, "Bithouse Oy" },
-    { 912, "BuildPulse" },
-    { 913, "Shenzhen 1000 Building Automation Co. Ltd" },
-    { 914, "AED Engineering GmbH" },
-    { 915, "Guentner GmbH & Co. KG" },
-    { 916, "KNXlogic" },
-    { 917, "CIM Environmental Group" },
-    { 918, "Flow Control" },
-    { 919, "Lumen Cache, Inc." },
-    { 920, "Ecosystem" },
-    { 921, "Potter Electric Signal Company, LLC" },
-    { 922, "Tyco Fire & Security S.p.A." },
-    { 923, "Watanabe Electric Industry Co., Ltd." },
-    { 924, "Causam Energy" },
-    { 925, "W-tec AG" },
-    { 926, "IMI Hydronic Engineering International SA" },
-    { 927, "ARIGO Software" },
-    { 928, "MSA Safety" },
-    { 929, "Smart Solucoes Ltda - MERCATO" },
-    { 930, "PIATRA Engineering" },
-    { 931, "ODIN Automation Systems, LLC" },
-    { 932, "Belparts NV" },
-    { 933, "UAB, SALDA" },
-    { 934, "Alre-IT Regeltechnik GmbH" },
-    { 0, NULL }
+    {    0, "ASHRAE" },
+    {    1, "NIST" },
+    {    2, "The Trane Company" },
+    {    3, "McQuay International" },
+    {    4, "PolarSoft" },
+    {    5, "Johnson Controls, Inc." },
+    {    6, "American Auto-Matrix" },
+    {    7, "Siemens Schweiz AG (Formerly: Landis & Staefa Division Europe)" },
+    {    8, "Delta Controls" },
+    {    9, "Siemens Schweiz AG" },
+    {   10, "Schneider Electric" },
+    {   11, "TAC" },
+    {   12, "Orion Analysis Corporation" },
+    {   13, "Teletrol Systems Inc." },
+    {   14, "Cimetrics Technology" },
+    {   15, "Cornell University" },
+    {   16, "United Technologies Carrier" },
+    {   17, "Honeywell Inc." },
+    {   18, "Alerton / Honeywell" },
+    {   19, "TAC AB" },
+    {   20, "Hewlett-Packard Company" },
+    {   21, "Dorsette's Inc." },
+    {   22, "Siemens Schweiz AG (Formerly: Cerberus AG)" },
+    {   23, "York Controls Group" },
+    {   24, "Automated Logic Corporation" },
+    {   25, "CSI Control Systems International" },
+    {   26, "Phoenix Controls Corporation" },
+    {   27, "Innovex Technologies, Inc." },
+    {   28, "KMC Controls, Inc." },
+    {   29, "Xn Technologies, Inc." },
+    {   30, "Hyundai Information Technology Co., Ltd." },
+    {   31, "Tokimec Inc." },
+    {   32, "Simplex" },
+    {   33, "North Building Technologies Limited" },
+    {   34, "Notifier" },
+    {   35, "Reliable Controls Corporation" },
+    {   36, "Tridium Inc." },
+    {   37, "Sierra Monitor Corporation/FieldServer Technologies" },
+    {   38, "Silicon Energy" },
+    {   39, "Kieback & Peter GmbH & Co KG" },
+    {   40, "Anacon Systems, Inc." },
+    {   41, "Systems Controls & Instruments, LLC" },
+    {   42, "Acuity Brands Lighting, Inc." },
+    {   43, "Micropower Manufacturing" },
+    {   44, "Matrix Controls" },
+    {   45, "METALAIRE" },
+    {   46, "ESS Engineering" },
+    {   47, "Sphere Systems Pty Ltd." },
+    {   48, "Walker Technologies Corporation" },
+    {   49, "H I Solutions, Inc." },
+    {   50, "MBS GmbH" },
+    {   51, "SAMSON AG" },
+    {   52, "Badger Meter Inc." },
+    {   53, "DAIKIN Industries Ltd." },
+    {   54, "NARA Controls Inc." },
+    {   55, "Mammoth Inc." },
+    {   56, "Liebert Corporation" },
+    {   57, "SEMCO Incorporated" },
+    {   58, "Air Monitor Corporation" },
+    {   59, "TRIATEK, LLC" },
+    {   60, "NexLight" },
+    {   61, "Multistack" },
+    {   62, "TSI Incorporated" },
+    {   63, "Weather-Rite, Inc." },
+    {   64, "Dunham-Bush" },
+    {   65, "Reliance Electric" },
+    {   66, "LCS Inc." },
+    {   67, "Regulator Australia PTY Ltd." },
+    {   68, "Touch-Plate Lighting Controls" },
+    {   69, "Amann GmbH" },
+    {   70, "RLE Technologies" },
+    {   71, "Cardkey Systems" },
+    {   72, "SECOM Co., Ltd." },
+    {   73, "ABB Gebaeudetechnik AG Bereich NetServ" },
+    {   74, "KNX Association cvba" },
+    {   75, "Institute of Electrical Installation Engineers of Japan (IEIEJ)" },
+    {   76, "Nohmi Bosai, Ltd." },
+    {   77, "Carel S.p.A." },
+    {   78, "UTC Fire & Security Espana, S.L." },
+    {   79, "Hochiki Corporation" },
+    {   80, "Fr. Sauter AG" },
+    {   81, "Matsushita Electric Works, Ltd." },
+    {   82, "Mitsubishi Electric Corporation, Inazawa Works" },
+    {   83, "Mitsubishi Heavy Industries, Ltd." },
+    {   84, "Xylem, Inc." },
+    {   85, "Yamatake Building Systems Co., Ltd." },
+    {   86, "The Watt Stopper, Inc." },
+    {   87, "Aichi Tokei Denki Co., Ltd." },
+    {   88, "Activation Technologies, LLC" },
+    {   89, "Saia-Burgess Controls, Ltd." },
+    {   90, "Hitachi, Ltd." },
+    {   91, "Novar Corp./Trend Control Systems Ltd." },
+    {   92, "Mitsubishi Electric Lighting Corporation" },
+    {   93, "Argus Control Systems, Ltd." },
+    {   94, "Kyuki Corporation" },
+    {   95, "Richards-Zeta Building Intelligence, Inc." },
+    {   96, "Scientech R&D, Inc." },
+    {   97, "VCI Controls, Inc." },
+    {   98, "Toshiba Corporation" },
+    {   99, "Mitsubishi Electric Corporation Air Conditioning & Refrigeration Systems Works" },
+    {  100, "Custom Mechanical Equipment, LLC" },
+    {  101, "ClimateMaster" },
+    {  102, "ICP Panel-Tec, Inc." },
+    {  103, "D-Tek Controls" },
+    {  104, "NEC Engineering, Ltd." },
+    {  105, "PRIVA BV" },
+    {  106, "Meidensha Corporation" },
+    {  107, "JCI Systems Integration Services" },
+    {  108, "Freedom Corporation" },
+    {  109, "Neuberger Gebaeudeautomation GmbH" },
+    {  110, "eZi Controls" },
+    {  111, "Leviton Manufacturing" },
+    {  112, "Fujitsu Limited" },
+    {  113, "Emerson Network Power" },
+    {  114, "S. A. Armstrong, Ltd." },
+    {  115, "Visonet AG" },
+    {  116, "M&M Systems, Inc." },
+    {  117, "Custom Software Engineering" },
+    {  118, "Nittan Company, Limited" },
+    {  119, "Elutions Inc. (Wizcon Systems SAS)" },
+    {  120, "Pacom Systems Pty., Ltd." },
+    {  121, "Unico, Inc." },
+    {  122, "Ebtron, Inc." },
+    {  123, "Scada Engine" },
+    {  124, "AC Technology Corporation" },
+    {  125, "Eagle Technology" },
+    {  126, "Data Aire, Inc." },
+    {  127, "ABB, Inc." },
+    {  128, "Transbit Sp. z o. o." },
+    {  129, "Toshiba Carrier Corporation" },
+    {  130, "Shenzhen Junzhi Hi-Tech Co., Ltd." },
+    {  131, "Tokai Soft" },
+    {  132, "Blue Ridge Technologies" },
+    {  133, "Veris Industries" },
+    {  134, "Centaurus Prime" },
+    {  135, "Sand Network Systems" },
+    {  136, "Regulvar, Inc." },
+    {  137, "AFDtek Division of Fastek International Inc." },
+    {  138, "PowerCold Comfort Air Solutions, Inc." },
+    {  139, "I Controls" },
+    {  140, "Viconics Electronics, Inc." },
+    {  141, "Yaskawa America, Inc." },
+    {  142, "DEOS control systems GmbH" },
+    {  143, "Digitale Mess- und Steuersysteme AG" },
+    {  144, "Fujitsu General Limited" },
+    {  145, "Project Engineering S.r.l." },
+    {  146, "Sanyo Electric Co., Ltd." },
+    {  147, "Integrated Information Systems, Inc." },
+    {  148, "Temco Controls, Ltd." },
+    {  149, "Airtek International Inc." },
+    {  150, "Advantech Corporation" },
+    {  151, "Titan Products, Ltd." },
+    {  152, "Regel Partners" },
+    {  153, "National Environmental Product" },
+    {  154, "Unitec Corporation" },
+    {  155, "Kanden Engineering Company" },
+    {  156, "Messner Gebaeudetechnik GmbH" },
+    {  157, "Integrated.CH" },
+    {  158, "Price Industries" },
+    {  159, "SE-Elektronic GmbH" },
+    {  160, "Rockwell Automation" },
+    {  161, "Enflex Corp." },
+    {  162, "ASI Controls" },
+    {  163, "SysMik GmbH Dresden" },
+    {  164, "HSC Regelungstechnik GmbH" },
+    {  165, "Smart Temp Australia Pty.  Ltd." },
+    {  166, "Cooper Controls" },
+    {  167, "Duksan Mecasys Co., Ltd." },
+    {  168, "Fuji IT Co., Ltd." },
+    {  169, "Vacon Plc" },
+    {  170, "Leader Controls" },
+    {  171, "Cylon Controls, Ltd." },
+    {  172, "Compas" },
+    {  173, "Mitsubishi Electric Building Techno-Service Co., Ltd." },
+    {  174, "Building Control Integrators" },
+    {  175, "ITG Worldwide (M) Sdn Bhd" },
+    {  176, "Lutron Electronics Co., Inc." },
+    {  177, "Cooper-Atkins Corporation" },
+    {  178, "LOYTEC Electronics GmbH" },
+    {  179, "ProLon" },
+    {  180, "Mega Controls Limited" },
+    {  181, "Micro Control Systems, Inc." },
+    {  182, "Kiyon, Inc." },
+    {  183, "Dust Networks" },
+    {  184, "Advanced Building Automation Systems" },
+    {  185, "Hermos AG" },
+    {  186, "CEZIM" },
+    {  187, "Softing" },
+    {  188, "Lynxspring, Inc." },
+    {  189, "Schneider Toshiba Inverter Europe" },
+    {  190, "Danfoss Drives A/S" },
+    {  191, "Eaton Corporation" },
+    {  192, "Matyca S.A." },
+    {  193, "Botech AB" },
+    {  194, "Noveo, Inc." },
+    {  195, "AMEV" },
+    {  196, "Yokogawa Electric Corporation" },
+    {  197, "GFR Gesellschaft fuer Regelungstechnik" },
+    {  198, "Exact Logic" },
+    {  199, "Mass Electronics Pty Ltd dba Innotech Control Systems Australia" },
+    {  200, "Kandenko Co., Ltd." },
+    {  201, "DTF, Daten-Technik Fries" },
+    {  202, "Klimasoft, Ltd." },
+    {  203, "Toshiba Schneider Inverter Corporation" },
+    {  204, "Control Applications, Ltd." },
+    {  205, "KDT Systems Co., Ltd." },
+    {  206, "Onicon Incorporated" },
+    {  207, "Automation Displays, Inc." },
+    {  208, "Control Solutions, Inc." },
+    {  209, "Remsdaq Limited" },
+    {  210, "NTT Facilities, Inc." },
+    {  211, "VIPA GmbH" },
+    {  212, "TSC21 Association of Japan" },
+    {  213, "Strato Automation" },
+    {  214, "HRW Limited" },
+    {  215, "Lighting Control & Design, Inc." },
+    {  216, "Mercy Electronic and Electrical Industries" },
+    {  217, "Samsung SDS Co., Ltd" },
+    {  218, "Impact Facility Solutions, Inc." },
+    {  219, "Aircuity" },
+    {  220, "Control Techniques, Ltd." },
+    {  221, "OpenGeneral Pty., Ltd." },
+    {  222, "WAGO Kontakttechnik GmbH & Co. KG" },
+    {  223, "Cerus Industrial" },
+    {  224, "Chloride Power Protection Company" },
+    {  225, "Computrols, Inc." },
+    {  226, "Phoenix Contact GmbH & Co. KG" },
+    {  227, "Grundfos Management A/S" },
+    {  228, "Ridder Drive Systems" },
+    {  229, "Soft Device SDN BHD" },
+    {  230, "Integrated Control Technology Limited" },
+    {  231, "AIRxpert Systems, Inc." },
+    {  232, "Microtrol Limited" },
+    {  233, "Red Lion Controls" },
+    {  234, "Digital Electronics Corporation" },
+    {  235, "Ennovatis GmbH" },
+    {  236, "Serotonin Software Technologies, Inc." },
+    {  237, "LS Industrial Systems Co., Ltd." },
+    {  238, "Square D Company" },
+    {  239, "S Squared Innovations, Inc." },
+    {  240, "Aricent Ltd." },
+    {  241, "EtherMetrics, LLC" },
+    {  242, "Industrial Control Communications, Inc." },
+    {  243, "Paragon Controls, Inc." },
+    {  244, "A. O. Smith Corporation" },
+    {  245, "Contemporary Control Systems, Inc." },
+    {  246, "Intesis Software SL" },
+    {  247, "Ingenieurgesellschaft N. Hartleb mbH" },
+    {  248, "Heat-Timer Corporation" },
+    {  249, "Ingrasys Technology, Inc." },
+    {  250, "Costerm Building Automation" },
+    {  251, "WILO SE" },
+    {  252, "Embedia Technologies Corp." },
+    {  253, "Technilog" },
+    {  254, "HR Controls Ltd. & Co. KG" },
+    {  255, "Lennox International, Inc." },
+    {  256, "RK-Tec Rauchklappen-Steuerungssysteme GmbH & Co. KG" },
+    {  257, "Thermomax, Ltd." },
+    {  258, "ELCON Electronic Control, Ltd." },
+    {  259, "Larmia Control AB" },
+    {  260, "BACnet Stack at SourceForge" },
+    {  261, "G4S Security Services A/S" },
+    {  262, "Exor International S.p.A." },
+    {  263, "Cristal Controles" },
+    {  264, "Regin AB" },
+    {  265, "Dimension Software, Inc." },
+    {  266, "SynapSense Corporation" },
+    {  267, "Beijing Nantree Electronic Co., Ltd." },
+    {  268, "Camus Hydronics Ltd." },
+    {  269, "Kawasaki Heavy Industries, Ltd." },
+    {  270, "Critical Environment Technologies" },
+    {  271, "ILSHIN IBS Co., Ltd." },
+    {  272, "ELESTA Energy Control AG" },
+    {  273, "KROPMAN Installatietechniek" },
+    {  274, "Baldor Electric Company" },
+    {  275, "INGA mbH" },
+    {  276, "GE Consumer & Industrial" },
+    {  277, "Functional Devices, Inc." },
+    {  278, "ESAC" },
+    {  279, "M-System Co., Ltd." },
+    {  280, "Yokota Co., Ltd." },
+    {  281, "Hitranse Technology Co., LTD" },
+    {  282, "Vigilent Corporation" },
+    {  283, "Kele, Inc." },
+    {  284, "Opera Electronics, Inc." },
+    {  285, "Gentec" },
+    {  286, "Embedded Science Labs, LLC" },
+    {  287, "Parker Hannifin Corporation" },
+    {  288, "MaCaPS International Limited" },
+    {  289, "Link4 Corporation" },
+    {  290, "Romutec Steuer-u. Regelsysteme GmbH" },
+    {  291, "Pribusin, Inc." },
+    {  292, "Advantage Controls" },
+    {  293, "Critical Room Control" },
+    {  294, "LEGRAND" },
+    {  295, "Tongdy Control Technology Co., Ltd." },
+    {  296, "ISSARO Integrierte Systemtechnik" },
+    {  297, "Pro-Dev Industries" },
+    {  298, "DRI-STEEM" },
+    {  299, "Creative Electronic GmbH" },
+    {  300, "Swegon AB" },
+    {  301, "Jan Brachacek" },
+    {  302, "Hitachi Appliances, Inc." },
+    {  303, "Real Time Automation, Inc." },
+    {  304, "ITEC Hankyu-Hanshin Co." },
+    {  305, "Cyrus E&M Engineering Co., Ltd." },
+    {  306, "Badger Meter" },
+    {  307, "Cirrascale Corporation" },
+    {  308, "Elesta GmbH Building Automation" },
+    {  309, "Securiton" },
+    {  310, "OSlsoft, Inc." },
+    {  311, "Hanazeder Electronic GmbH" },
+    {  312, "Honeywell Security Deutschland, Novar GmbH" },
+    {  313, "Siemens Industry, Inc." },
+    {  314, "ETM Professional Control GmbH" },
+    {  315, "Meitav-tec, Ltd." },
+    {  316, "Janitza Electronics GmbH" },
+    {  317, "MKS Nordhausen" },
+    {  318, "De Gier Drive Systems B.V." },
+    {  319, "Cypress Envirosystems" },
+    {  320, "SMARTron s.r.o." },
+    {  321, "Verari Systems, Inc." },
+    {  322, "K-W Electronic Service, Inc." },
+    {  323, "ALFA-SMART Energy Management" },
+    {  324, "Telkonet, Inc." },
+    {  325, "Securiton GmbH" },
+    {  326, "Cemtrex, Inc." },
+    {  327, "Performance Technologies, Inc." },
+    {  328, "Xtralis (Aust) Pty Ltd" },
+    {  329, "TROX GmbH" },
+    {  330, "Beijing Hysine Technology Co., Ltd" },
+    {  331, "RCK Controls, Inc." },
+    {  332, "Distech Controls SAS" },
+    {  333, "Novar/Honeywell" },
+    {  334, "The S4 Group, Inc." },
+    {  335, "Schneider Electric" },
+    {  336, "LHA Systems" },
+    {  337, "GHM engineering Group, Inc." },
+    {  338, "Cllimalux S.A." },
+    {  339, "VAISALA Oyj" },
+    {  340, "COMPLEX (Beijing) Technology, Co., LTD." },
+    {  341, "SCADAmetrics" },
+    {  342, "POWERPEG NSI Limited" },
+    {  343, "BACnet Interoperability Testing Services, Inc." },
+    {  344, "Teco a.s." },
+    {  345, "Plexus Technology, Inc." },
+    {  346, "Energy Focus, Inc." },
+    {  347, "Powersmiths International Corp." },
+    {  348, "Nichibei Co., Ltd." },
+    {  349, "HKC Technology Ltd." },
+    {  350, "Ovation Networks, Inc." },
+    {  351, "Setra Systems" },
+    {  352, "AVG Automation" },
+    {  353, "ZXC Ltd." },
+    {  354, "Byte Sphere" },
+    {  355, "Generiton Co., Ltd." },
+    {  356, "Holter Regelarmaturen GmbH & Co. KG" },
+    {  357, "Bedford Instruments, LLC" },
+    {  358, "Standair Inc." },
+    {  359, "WEG Automation - R&D" },
+    {  360, "Prolon Control Systems ApS" },
+    {  361, "Inneasoft" },
+    {  362, "ConneXSoft GmbH" },
+    {  363, "CEAG Notlichtsysteme GmbH" },
+    {  364, "Distech Controls Inc." },
+    {  365, "Industrial Technology Research Institute" },
+    {  366, "ICONICS, Inc." },
+    {  367, "IQ Controls s.c." },
+    {  368, "OJ Electronics A/S" },
+    {  369, "Rolbit Ltd." },
+    {  370, "Synapsys Solutions Ltd." },
+    {  371, "ACME Engineering Prod. Ltd." },
+    {  372, "Zener Electric Pty, Ltd." },
+    {  373, "Selectronix, Inc." },
+    {  374, "Gorbet & Banerjee, LLC." },
+    {  375, "IME" },
+    {  376, "Stephen H. Dawson Computer Service" },
+    {  377, "Accutrol, LLC" },
+    {  378, "Schneider Elektronik GmbH" },
+    {  379, "Alpha-Inno Tec GmbH" },
+    {  380, "ADMMicro, Inc." },
+    {  381, "Greystone Energy Systems, Inc." },
+    {  382, "CAP Technologie" },
+    {  383, "KeRo Systems" },
+    {  384, "Domat Control System s.r.o." },
+    {  385, "Efektronics Pty. Ltd." },
+    {  386, "Hekatron Vertriebs GmbH" },
+    {  387, "Securiton AG" },
+    {  388, "Carlo Gavazzi Controls SpA" },
+    {  389, "Chipkin Automation Systems" },
+    {  390, "Savant Systems, LLC" },
+    {  391, "Simmtronic Lighting Controls" },
+    {  392, "Abelko Innovation AB" },
+    {  393, "Seresco Technologies Inc." },
+    {  394, "IT Watchdogs" },
+    {  395, "Automation Assist Japan Corp." },
+    {  396, "Thermokon Sensortechnik GmbH" },
+    {  397, "EGauge Systems, LLC" },
+    {  398, "Quantum Automation (ASIA) PTE, Ltd." },
+    {  399, "Toshiba Lighting & Technology Corp." },
+    {  400, "SPIN Engenharia de Automacao Ltda." },
+    {  401, "Logistics Systems & Software Services India PVT. Ltd." },
+    {  402, "Delta Controls Integration Products" },
+    {  403, "Focus Media" },
+    {  404, "LUMEnergi Inc." },
+    {  405, "Kara Systems" },
+    {  406, "RF Code, Inc." },
+    {  407, "Fatek Automation Corp." },
+    {  408, "JANDA Software Company, LLC" },
+    {  409, "Open System Solutions Limited" },
+    {  410, "Intelec Systems PTY Ltd." },
+    {  411, "Ecolodgix, LLC" },
+    {  412, "Douglas Lighting Controls" },
+    {  413, "iSAtech GmbH" },
+    {  414, "AREAL" },
+    {  415, "Beckhoff Automation GmbH" },
+    {  416, "IPAS GmbH" },
+    {  417, "KE2 Therm Solutions" },
+    {  418, "Base2Products" },
+    {  419, "DTL Controls, LLC" },
+    {  420, "INNCOM International, Inc." },
+    {  421, "BTR Netcom GmbH" },
+    {  422, "Greentrol Automation, Inc" },
+    {  423, "BELIMO Automation AG" },
+    {  424, "Samsung Heavy Industries Co, Ltd" },
+    {  425, "Triacta Power Technologies, Inc." },
+    {  426, "Globestar Systems" },
+    {  427, "MLB Advanced Media, LP" },
+    {  428, "SWG Stuckmann Wirtschaftliche Gebaeudesysteme GmbH" },
+    {  429, "SensorSwitch" },
+    {  430, "Multitek Power Limited" },
+    {  431, "Aquametro AG" },
+    {  432, "LG Electronics Inc." },
+    {  433, "Electronic Theatre Controls, Inc." },
+    {  434, "Mitsubishi Electric Corporation Nagoya Works" },
+    {  435, "Delta Electronics, Inc." },
+    {  436, "Elma Kurtalj, Ltd." },
+    {  437, "ADT Fire and Security Sp. A.o.o." },
+    {  438, "Nedap Security Management" },
+    {  439, "ESC Automation Inc." },
+    {  440, "DSP4YOU Ltd." },
+    {  441, "GE Sensing and Inspection Technologies" },
+    {  442, "Embedded Systems SIA" },
+    {  443, "BEFEGA GmbH" },
+    {  444, "Baseline Inc." },
+    {  445, "M2M Systems Integrators" },
+    {  446, "OEMCtrl" },
+    {  447, "Clarkson Controls Limited" },
+    {  448, "Rogerwell Control System Limited" },
+    {  449, "SCL Elements" },
+    {  450, "Hitachi Ltd." },
+    {  451, "Newron System SA" },
+    {  452, "BEVECO Gebouwautomatisering BV" },
+    {  453, "Streamside Solutions" },
+    {  454, "Yellowstone Soft" },
+    {  455, "Oztech Intelligent Systems Pty Ltd." },
+    {  456, "Novelan GmbH" },
+    {  457, "Flexim Americas Corporation" },
+    {  458, "ICP DAS Co., Ltd." },
+    {  459, "CARMA Industries Inc." },
+    {  460, "Log-One Ltd." },
+    {  461, "TECO Electric & Machinery Co., Ltd." },
+    {  462, "ConnectEx, Inc." },
+    {  463, "Turbo DDC Suedwest" },
+    {  464, "Quatrosense Environmental Ltd." },
+    {  465, "Fifth Light Technology Ltd." },
+    {  466, "Scientific Solutions, Ltd." },
+    {  467, "Controller Area Network Solutions (M) Sdn Bhd" },
+    {  468, "RESOL - Elektronische Regelungen GmbH" },
+    {  469, "RPBUS LLC" },
+    {  470, "BRS Sistemas Eletronicos" },
+    {  471, "WindowMaster A/S" },
+    {  472, "Sunlux Technologies Ltd." },
+    {  473, "Measurlogic" },
+    {  474, "Frimat GmbH" },
+    {  475, "Spirax Sarco" },
+    {  476, "Luxtron" },
+    {  477, "Raypak Inc" },
+    {  478, "Air Monitor Corporation" },
+    {  479, "Regler Och Webbteknik Sverige (ROWS)" },
+    {  480, "Intelligent Lighting Controls Inc." },
+    {  481, "Sanyo Electric Industry Co., Ltd" },
+    {  482, "E-Mon Energy Monitoring Products" },
+    {  483, "Digital Control Systems" },
+    {  484, "ATI Airtest Technologies, Inc." },
+    {  485, "SCS SA" },
+    {  486, "HMS Industrial Networks AB" },
+    {  487, "Shenzhen Universal Intellisys Co Ltd" },
+    {  488, "EK Intellisys Sdn Bhd" },
+    {  489, "SysCom" },
+    {  490, "Firecom, Inc." },
+    {  491, "ESA Elektroschaltanlagen Grimma GmbH" },
+    {  492, "Kumahira Co Ltd" },
+    {  493, "Hotraco" },
+    {  494, "SABO Elektronik GmbH" },
+    {  495, "Equip'Trans" },
+    {  496, "TCS Basys Controls" },
+    {  497, "FlowCon International A/S" },
+    {  498, "ThyssenKrupp Elevator Americas" },
+    {  499, "Abatement Technologies" },
+    {  500, "Continental Control Systems, LLC" },
+    {  501, "WISAG Automatisierungstechnik GmbH & Co KG" },
+    {  502, "EasyIO" },
+    {  503, "EAP-Electric GmbH" },
+    {  504, "Hardmeier" },
+    {  505, "Mircom Group of Companies" },
+    {  506, "Quest Controls" },
+    {  507, "Mestek, Inc" },
+    {  508, "Pulse Energy" },
+    {  509, "Tachikawa Corporation" },
+    {  510, "University of Nebraska-Lincoln" },
+    {  511, "Redwood Systems" },
+    {  512, "PASStec Industrie-Elektronik GmbH" },
+    {  513, "NgEK, Inc." },
+    {  514, "t-mac Technologies" },
+    {  515, "Jireh Energy Tech Co., Ltd." },
+    {  516, "Enlighted Inc." },
+    {  517, "El-Piast Sp. Z o.o" },
+    {  518, "NetxAutomation Software GmbH" },
+    {  519, "Invertek Drives" },
+    {  520, "Deutschmann Automation GmbH & Co. KG" },
+    {  521, "EMU Electronic AG" },
+    {  522, "Phaedrus Limited" },
+    {  523, "Sigmatek GmbH & Co KG" },
+    {  524, "Marlin Controls" },
+    {  525, "Circutor, SA" },
+    {  526, "UTC Fire & Security" },
+    {  527, "DENT Instruments, Inc." },
+    {  528, "FHP Manufacturing Company - Bosch Group" },
+    {  529, "GE Intelligent Platforms" },
+    {  530, "Inner Range Pty Ltd" },
+    {  531, "GLAS Energy Technology" },
+    {  532, "MSR-Electronic-GmbH" },
+    {  533, "Energy Control Systems, Inc." },
+    {  534, "EMT Controls" },
+    {  535, "Daintree Networks Inc." },
+    {  536, "EURO ICC d.o.o" },
+    {  537, "TE Connectivity Energy" },
+    {  538, "GEZE GmbH" },
+    {  539, "NEC Corporation" },
+    {  540, "Ho Cheung International Company Limited" },
+    {  541, "Sharp Manufacturing Systems Corporation" },
+    {  542, "DOT CONTROLS a.s." },
+    {  543, "BeaconMedaes" },
+    {  544, "Midea Commercial Aircon" },
+    {  545, "WattMaster Controls" },
+    {  546, "Kamstrup A/S" },
+    {  547, "CA Computer Automation GmbH" },
+    {  548, "Laars Heating Systems Company" },
+    {  549, "Hitachi Systems, Ltd." },
+    {  550, "Fushan AKE Electronic Engineering Co., Ltd." },
+    {  551, "Toshiba International Corporation" },
+    {  552, "Starman Systems, LLC" },
+    {  553, "Samsung Techwin Co., Ltd." },
+    {  554, "ISAS-Integrated Switchgear and Systems P/L" },
+    {  555, "reserved by ASHRAE" },
+    {  556, "Obvius" },
+    {  557, "Marek Guzik" },
+    {  558, "Vortek Instruments, LLC" },
+    {  559, "Universal Lighting Technologies" },
+    {  560, "Myers Power Products, Inc." },
+    {  561, "Vector Controls GmbH" },
+    {  562, "Crestron Electronics, Inc." },
+    {  563, "A&E Controls Limited" },
+    {  564, "Projektomontaza A.D." },
+    {  565, "Freeaire Refrigeration" },
+    {  566, "Aqua Cooler Pty Limited" },
+    {  567, "Basic Controls" },
+    {  568, "GE Measurement and Control Solutions Advanced Sensors" },
+    {  569, "EQUAL Networks" },
+    {  570, "Millennial Net" },
+    {  571, "APLI Ltd" },
+    {  572, "Electro Industries/GaugeTech" },
+    {  573, "SangMyung University" },
+    {  574, "Coppertree Analytics, Inc." },
+    {  575, "CoreNetiX GmbH" },
+    {  576, "Acutherm" },
+    {  577, "Dr. Riedel Automatisierungstechnik GmbH" },
+    {  578, "Shina System Co., Ltd" },
+    {  579, "Iqapertus" },
+    {  580, "PSE Technology" },
+    {  581, "BA Systems" },
+    {  582, "BTICINO" },
+    {  583, "Monico, Inc." },
+    {  584, "iCue" },
+    {  585, "tekmar Control Systems Ltd." },
+    {  586, "Control Technology Corporation" },
+    {  587, "GFAE GmbH" },
+    {  588, "BeKa Software GmbH" },
+    {  589, "Isoil Industria SpA" },
+    {  590, "Home Systems Consulting SpA" },
+    {  591, "Socomec" },
+    {  592, "Everex Communications, Inc." },
+    {  593, "Ceiec Electric Technology" },
+    {  594, "Atrila GmbH" },
+    {  595, "WingTechs" },
+    {  596, "Shenzhen Mek Intellisys Pte Ltd." },
+    {  597, "Nestfield Co., Ltd." },
+    {  598, "Swissphone Telecom AG" },
+    {  599, "PNTECH JSC" },
+    {  600, "Horner APG, LLC" },
+    {  601, "PVI Industries, LLC" },
+    {  602, "Ela-compil" },
+    {  603, "Pegasus Automation International LLC" },
+    {  604, "Wight Electronic Services Ltd." },
+    {  605, "Marcom" },
+    {  606, "Exhausto A/S" },
+    {  607, "Dwyer Instruments, Inc." },
+    {  608, "Link GmbH" },
+    {  609, "Oppermann Regelgerate GmbH" },
+    {  610, "NuAire, Inc." },
+    {  611, "Nortec Humidity, Inc." },
+    {  612, "Bigwood Systems, Inc." },
+    {  613, "Enbala Power Networks" },
+    {  614, "Inter Energy Co., Ltd." },
+    {  615, "ETC" },
+    {  616, "COMELEC S.A.R.L" },
+    {  617, "Pythia Technologies" },
+    {  618, "TrendPoint Systems, Inc." },
+    {  619, "AWEX" },
+    {  620, "Eurevia" },
+    {  621, "Kongsberg E-lon AS" },
+    {  622, "FlaktWoods" },
+    {  623, "E + E Elektronik GES M.B.H." },
+    {  624, "ARC Informatique" },
+    {  625, "SKIDATA AG" },
+    {  626, "WSW Solutions" },
+    {  627, "Trefon Electronic GmbH" },
+    {  628, "Dongseo System" },
+    {  629, "Kanontec Intelligence Technology Co., Ltd." },
+    {  630, "EVCO S.p.A." },
+    {  631, "Accuenergy (CANADA) Inc." },
+    {  632, "SoftDEL" },
+    {  633, "Orion Energy Systems, Inc." },
+    {  634, "Roboticsware" },
+    {  635, "DOMIQ Sp. z o.o." },
+    {  636, "Solidyne" },
+    {  637, "Elecsys Corporation" },
+    {  638, "Conditionaire International Pty. Limited" },
+    {  639, "Quebec, Inc." },
+    {  640, "Homerun Holdings" },
+    {  641, "Murata Americas" },
+    {  642, "Comptek" },
+    {  643, "Westco Systems, Inc." },
+    {  644, "Advancis Software & Services GmbH" },
+    {  645, "Intergrid, LLC" },
+    {  646, "Markerr Controls, Inc." },
+    {  647, "Toshiba Elevator and Building Systems Corporation" },
+    {  648, "Spectrum Controls, Inc." },
+    {  649, "Mkservice" },
+    {  650, "Fox Thermal Instruments" },
+    {  651, "SyxthSense Ltd" },
+    {  652, "DUHA System S R.O." },
+    {  653, "NIBE" },
+    {  654, "Melink Corporation" },
+    {  655, "Fritz-Haber-Institut" },
+    {  656, "MTU Onsite Energy GmbH, Gas Power Systems" },
+    {  657, "Omega Engineering, Inc." },
+    {  658, "Avelon" },
+    {  659, "Ywire Technologies, Inc." },
+    {  660, "M.R. Engineering Co., Ltd." },
+    {  661, "Lochinvar, LLC" },
+    {  662, "Sontay Limited" },
+    {  663, "GRUPA Slawomir Chelminski" },
+    {  664, "Arch Meter Corporation" },
+    {  665, "Senva, Inc." },
+    {  666, "reserved by ASHRAE" },
+    {  667, "FM-Tec" },
+    {  668, "Systems Specialists, Inc." },
+    {  669, "SenseAir" },
+    {  670, "AB IndustrieTechnik Srl" },
+    {  671, "Cortland Research, LLC" },
+    {  672, "MediaView" },
+    {  673, "VDA Elettronica" },
+    {  674, "CSS, Inc." },
+    {  675, "Tek-Air Systems, Inc." },
+    {  676, "ICDT" },
+    {  677, "The Armstrong Monitoring Corporation" },
+    {  678, "DIXELL S.r.l" },
+    {  679, "Lead System, Inc." },
+    {  680, "ISM EuroCenter S.A." },
+    {  681, "TDIS" },
+    {  682, "Trade FIDES" },
+    {  683, "Knuerr GmbH (Emerson Network Power)" },
+    {  684, "Resource Data Management" },
+    {  685, "Abies Technology, Inc." },
+    {  686, "Amalva" },
+    {  687, "MIRAE Electrical Mfg. Co., Ltd." },
+    {  688, "HunterDouglas Architectural Projects Scandinavia ApS" },
+    {  689, "RUNPAQ Group Co., Ltd" },
+    {  690, "Unicard SA" },
+    {  691, "IE Technologies" },
+    {  692, "Ruskin Manufacturing" },
+    {  693, "Calon Associates Limited" },
+    {  694, "Contec Co., Ltd." },
+    {  695, "iT GmbH" },
+    {  696, "Autani Corporation" },
+    {  697, "Christian Fortin" },
+    {  698, "HDL" },
+    {  699, "IPID Sp. Z.O.O Limited" },
+    {  700, "Fuji Electric Co., Ltd" },
+    {  701, "View, Inc." },
+    {  702, "Samsung S1 Corporation" },
+    {  703, "New Lift" },
+    {  704, "VRT Systems" },
+    {  705, "Motion Control Engineering, Inc." },
+    {  706, "Weiss Klimatechnik GmbH" },
+    {  707, "Elkon" },
+    {  708, "Eliwell Controls S.r.l." },
+    {  709, "Japan Computer Technos Corp" },
+    {  710, "Rational Network ehf" },
+    {  711, "Magnum Energy Solutions, LLC" },
+    {  712, "MelRok" },
+    {  713, "VAE Group" },
+    {  714, "LGCNS" },
+    {  715, "Berghof Automationstechnik GmbH" },
+    {  716, "Quark Communications, Inc." },
+    {  717, "Sontex" },
+    {  718, "mivune AG" },
+    {  719, "Panduit" },
+    {  720, "Smart Controls, LLC" },
+    {  721, "Compu-Aire, Inc." },
+    {  722, "Sierra" },
+    {  723, "ProtoSense Technologies" },
+    {  724, "Eltrac Technologies Pvt Ltd" },
+    {  725, "Bektas Invisible Controls GmbH" },
+    {  726, "Entelec" },
+    {  727, "INNEXIV" },
+    {  728, "Covenant" },
+    {  729, "Davitor AB" },
+    {  730, "TongFang Technovator" },
+    {  731, "Building Robotics, Inc." },
+    {  732, "HSS-MSR UG" },
+    {  733, "FramTack LLC" },
+    {  734, "B. L. Acoustics, Ltd." },
+    {  735, "Traxxon Rock Drills, Ltd" },
+    {  736, "Franke" },
+    {  737, "Wurm GmbH & Co" },
+    {  738, "AddENERGIE" },
+    {  739, "Mirle Automation Corporation" },
+    {  740, "Ibis Networks" },
+    {  741, "ID-KARTA s.r.o." },
+    {  742, "Anaren, Inc." },
+    {  743, "Span, Incorporated" },
+    {  744, "Bosch Thermotechnology Corp" },
+    {  745, "DRC Technology S.A." },
+    {  746, "Shanghai Energy Building Technology Co, Ltd" },
+    {  747, "Fraport AG" },
+    {  748, "Flowgroup" },
+    {  749, "Skytron Energy, GmbH" },
+    {  750, "ALTEL Wicha, Golda Sp. J." },
+    {  751, "Drupal" },
+    {  752, "Axiomatic Technology, Ltd" },
+    {  753, "Bohnke + Partner" },
+    {  754, "Function 1" },
+    {  755, "Optergy Pty, Ltd" },
+    {  756, "LSI Virticus" },
+    {  757, "Konzeptpark GmbH" },
+    {  758, "Hubbell Building Automation, Inc." },
+    {  759, "eCurv, Inc." },
+    {  760, "Agnosys GmbH" },
+    {  761, "Shanghai Sunfull Automation Co., LTD" },
+    {  762, "Kurz Instruments, Inc." },
+    {  763, "Cias Elettronica S.r.l." },
+    {  764, "Multiaqua, Inc." },
+    {  765, "BlueBox" },
+    {  766, "Sensidyne" },
+    {  767, "Viessmann Elektronik GmbH" },
+    {  768, "ADFweb.com srl" },
+    {  769, "Gaylord Industries" },
+    {  770, "Majur Ltd." },
+    {  771, "Shanghai Huilin Technology Co., Ltd." },
+    {  772, "Exotronic" },
+    {  773, "Safecontrol spol s.r.o." },
+    {  774, "Amatis" },
+    {  775, "Universal Electric Corporation" },
+    {  776, "iBACnet" },
+    {  777, "reserved by ASHRAE" },
+    {  778, "Smartrise Engineering, Inc." },
+    {  779, "Miratron, Inc." },
+    {  780, "SmartEdge" },
+    {  781, "Mitsubishi Electric Australia Pty Ltd" },
+    {  782, "Triangle Research International Ptd Ltd" },
+    {  783, "Produal Oy" },
+    {  784, "Milestone Systems A/S" },
+    {  785, "Trustbridge" },
+    {  786, "Feedback Solutions" },
+    {  787, "IES" },
+    {  788, "GE Critical Power" },
+    {  789, "Riptide IO" },
+    {  790, "Messerschmitt Systems AG" },
+    {  791, "Dezem Energy Controlling" },
+    {  792, "MechoSystems" },
+    {  793, "evon GmbH" },
+    {  794, "CS Lab GmbH" },
+    {  795, "8760 Enterprises, Inc." },
+    {  796, "Touche Controls" },
+    {  797, "Ontrol Teknik Malzeme San. ve Tic. A.S." },
+    {  798, "Uni Control System Sp. Z o.o." },
+    {  799, "Weihai Ploumeter Co., Ltd" },
+    {  800, "Elcom International Pvt. Ltd" },
+    {  801, "Philips Lighting" },
+    {  802, "AutomationDirect" },
+    {  803, "Paragon Robotics" },
+    {  804, "SMT System & Modules Technology AG" },
+    {  805, "OS Technology Service and Trading Co., LTD" },
+    {  806, "CMR Controls Ltd" },
+    {  807, "Innovari, Inc." },
+    {  808, "ABB Control Products" },
+    {  809, "Gesellschaft fur Gebaeudeautomation mbH" },
+    {  810, "RODI Systems Corp." },
+    {  811, "Nextek Power Systems" },
+    {  812, "Creative Lighting" },
+    {  813, "WaterFurnace International" },
+    {  814, "Mercury Security" },
+    {  815, "Hisense (Shandong) Air-Conditioning Co., Ltd." },
+    {  816, "Layered Solutions, Inc." },
+    {  817, "Leegood Automatic System, Inc." },
+    {  818, "Shanghai Restar Technology Co., Ltd." },
+    {  819, "Reimann Ingenieurbuero" },
+    {  820, "LynTec" },
+    {  821, "HTP" },
+    {  822, "Elkor Technologies, Inc." },
+    {  823, "Bentrol Pty Ltd" },
+    {  824, "Team-Control Oy" },
+    {  825, "NextDevice, LLC" },
+    {  826, "GLOBAL CONTROL 5 Sp. z o.o." },
+    {  827, "King I Electronics Co., Ltd" },
+    {  828, "SAMDAV" },
+    {  829, "Next Gen Industries Pvt. Ltd." },
+    {  830, "Entic LLC" },
+    {  831, "ETAP" },
+    {  832, "Moralle Electronics Limited" },
+    {  833, "Leicom AG" },
+    {  834, "Watts Regulator Company" },
+    {  835, "S.C. Orbtronics S.R.L." },
+    {  836, "Gaussan Technologies" },
+    {  837, "WEBfactory GmbH" },
+    {  838, "Ocean Controls" },
+    {  839, "Messana  Air-Ray Conditioning s.r.l." },
+    {  840, "Hangzhou BATOWN Technology Co. Ltd." },
+    {  841, "Reasonable Controls" },
+    {  842, "Servisys, Inc." },
+    {  843, "halstrup-walcher GmbH" },
+    {  844, "SWG Automation Fuzhou Limited" },
+    {  845, "KSB Aktiengesellschaft" },
+    {  846, "Hybryd Sp. z o.o." },
+    {  847, "Helvatron AG" },
+    {  848, "Oderon Sp. Z.O.O." },
+    {  849, "miko" },
+    {  850, "Exodraft" },
+    {  851, "Hochhuth GmbH" },
+    {  852, "Integrated System Technologies Ltd." },
+    {  853, "Shanghai Cellcons Controls Co., Ltd" },
+    {  854, "Emme Controls, LLC" },
+    {  855, "Field Diagnostic Services, Inc." },
+    {  856, "Ges Teknik A.S." },
+    {  857, "Global Power Products, Inc." },
+    {  858, "Option NV" },
+    {  859, "BV-Control AG" },
+    {  860, "Sigren Engineering AG" },
+    {  861, "Shanghai Jaltone Technology Co., Ltd." },
+    {  862, "MaxLine Solutions Ltd" },
+    {  863, "Kron Instrumentos Eletricos Ltda" },
+    {  864, "Thermo Matrix" },
+    {  865, "Infinite Automation Systems, Inc." },
+    {  866, "Vantage" },
+    {  867, "Elecon Measurements Pvt Ltd" },
+    {  868, "TBA" },
+    {  869, "Carnes Company" },
+    {  870, "Harman Professional" },
+    {  871, "Nenutec Asia Pacific Pte Ltd" },
+    {  872, "Gia NV" },
+    {  873, "Kepware Tehnologies" },
+    {  874, "Temperature Electronics Ltd" },
+    {  875, "Packet Power" },
+    {  876, "Project Haystack Corporation" },
+    {  877, "DEOS Controls Americas Inc." },
+    {  878, "Senseware Inc" },
+    {  879, "MST Systemtechnik AG" },
+    {  880, "Lonix Ltd" },
+    {  881, "GMC-I Messtechnik GmbH" },
+    {  882, "Aviosys International Inc." },
+    {  883, "Efficient Building Automation Corp." },
+    {  884, "Accutron Instruments Inc." },
+    {  885, "Vermont Energy Control Systems LLC" },
+    {  886, "DCC Dynamics" },
+    {  887, "Brueck Electronic GmbH" },
+    {  888, "reserved by ASHRAE" },
+    {  889, "NGBS Hungary Ltd." },
+    {  890, "ILLUM Technology, LLC" },
+    {  891, "Delta Controls Germany Limited" },
+    {  892, "S+T Service & Technique S.A." },
+    {  893, "SimpleSoft" },
+    {  894, "Candi Controls, Inc." },
+    {  895, "EZEN Solution Inc." },
+    {  896, "Fujitec Co. Ltd." },
+    {  897, "Terralux" },
+    {  898, "Annicom" },
+    {  899, "Bihl+Wiedemann GmbH" },
+    {  900, "Daper, Inc." },
+    {  901, "Schueco International KG" },
+    {  902, "Otis Elevator Company" },
+    {  903, "Fidelix Oy" },
+    {  904, "RAM GmbH Mess- und Regeltechnik" },
+    {  905, "WEMS" },
+    {  906, "Ravel Electronics Pvt Ltd" },
+    {  907, "OmniMagni" },
+    {  908, "Echelon" },
+    {  909, "Intellimeter Canada, Inc." },
+    {  910, "Bithouse Oy" },
+    {  912, "BuildPulse" },
+    {  913, "Shenzhen 1000 Building Automation Co. Ltd" },
+    {  914, "AED Engineering GmbH" },
+    {  915, "Guentner GmbH & Co. KG" },
+    {  916, "KNXlogic" },
+    {  917, "CIM Environmental Group" },
+    {  918, "Flow Control" },
+    {  919, "Lumen Cache, Inc." },
+    {  920, "Ecosystem" },
+    {  921, "Potter Electric Signal Company, LLC" },
+    {  922, "Tyco Fire & Security S.p.A." },
+    {  923, "Watanabe Electric Industry Co., Ltd." },
+    {  924, "Causam Energy" },
+    {  925, "W-tec AG" },
+    {  926, "IMI Hydronic Engineering International SA" },
+    {  927, "ARIGO Software" },
+    {  928, "MSA Safety" },
+    {  929, "Smart Solucoes Ltda - MERCATO" },
+    {  930, "PIATRA Engineering" },
+    {  931, "ODIN Automation Systems, LLC" },
+    {  932, "Belparts NV" },
+    {  933, "UAB, SALDA" },
+    {  934, "Alre-IT Regeltechnik GmbH" },
+    {  935, "Ingenieurbuero H. Lertes GmbH & Co. KG" },
+    {  936, "Breathing Buildings" },
+    {  937, "eWON SA" },
+    {  938, "Cav. Uff. Giacomo Cimberio S.p.A" },
+    {  939, "PKE Electronics AG" },
+    {  940, "Allen" },
+    {  941, "Kastle Systems" },
+    {  942, "Logical Electro-Mechanical (EM) Systems, Inc." },
+    {  943, "ppKinetics Instruments, LLC" },
+    {  944, "Cathexis Technologies" },
+    {  945, "Sylop Limited" },
+    {  946, "Brauns Control GmbH" },
+    {  947, "Omron Corporation" },
+    {  948, "Wildeboer Bauteile Gmbh" },
+    {  949, "Shanghai Biens Technologies Ltd:" },
+    {  950, "Beijing HZHY Technology Co., Ltd;" },
+    {  951, "Building Clouds" },
+    {  952, "The University of Sheffield-Department of Electronic and Electrical Engineering" },
+    {  953, "Fabtronics Australia Pty Ltd" },
+    {  954, "SLAT" },
+    {  955, "Software Motor Corporation" },
+    {  956, "Armstrong International Inc." },
+    {  957, "Steril-Aire, Inc." },
+    {  958, "Infinique" },
+    {  959, "Arcom" },
+    {  960, "Argo Performance, Ltd" },
+    {  961, "Dialight" },
+    {  962, "Ideal Technical Solutions" },
+    {  963, "Neurobat AG" },
+    {  964, "Neyer Software Consulting LLC" },
+    {  965, "SCADA Technology Development Co., Ltd." },
+    {  966, "Demand Logic Limited" },
+    {  967, "GWA Group Limited" },
+    {  968, "Occitaline" },
+    {  969, "NAO Digital Co., Ltd." },
+    {  970, "Shenzhen Chanslink Network Technology Co., Ltd." },
+    {  971, "Samsung Electronics Co., Ltd." },
+    {  972, "Mesa Laboratories, Inc." },
+    {  973, "Fischer" },
+    {  974, "OpSys Solutions Ltd." },
+    {  975, "Advanced Devices Limited" },
+    {  976, "Condair" },
+    {  977, "INELCOM Ingenieria Electronica Comercial S.A." },
+    {  978, "GridPoint, Inc." },
+    {  979, "ADF Technologies Sdn Bhd" },
+    {  980, "EPM, Inc." },
+    {  981, "Lighting Controls Ltd." },
+    {  982, "Perix Controls Ltd." },
+    {  983, "AERCO International, Inc." },
+    {  984, "KONE Inc." },
+    {  985, "Ziehl - Abegg SE" },
+    {  986, "Robot, S.A.Bernat Pons" },
+    {  987, "Optigo Networks, Inc." },
+    {  988, "Openmotics BVBA" },
+    {  989, "Metropolitan Industries, Inc." },
+    {  990, "Huawei Technologies Co., Ltd." },
+    {  991, "OSRAM Sylvania, Inc." },
+    {  992, "Vanti" },
+    {  993, "Cree, Inc." },
+    {  994, "Richmond Heights SDN BHD" },
+    {  995, "Payne - Sparkman Lighting Mangement" },
+    {  996, "Ashcroft" },
+    {  997, "Jet Controls Corp" },
+    {  998, "Zumtobel Lighting GmbH" },
+    {  999, "reserved by ASHRAE" },
+    { 1000, "Ekon GmbH" },
+    { 1001, "Molex GmbH" },
+    { 1002, "Maco Lighting Pty Ltd." },
+    { 1003, "Axecon Corp." },
+    { 1004, "Tensor plc" },
+    { 1005, "Kaseman Environmental Control Equipment(Shanghai) Limited" },
+    { 1006, "AB Axis Industries" },
+    { 1007, "Netix Controls" },
+    { 1008, "Eldridge Products, Inc." },
+    { 1009, "Micronics" },
+    { 1010, "Fortecho Solutions Ltd." },
+    { 1011, "Sellers Manufacturing Company" },
+    { 1012, "Rite - Hite Doors, Inc." },
+    { 1013, "Violet Defense LLC" },
+    { 1014, "Simna" },
+    { 1015, "Multi - Energie Best Inc." },
+    { 1016, "Mega System Technologies, Inc." },
+    { 1017, "Rheem" },
+    { 1018, "Ing.Punzenberger COPA - DATA GmbH" },
+    { 1019, "MEC Electronics GmbH" },
+    { 1020, "Taco Comfort Solutions" },
+    { 1021, "Alexander Maier GmbH" },
+    { 1022, "Ecorithm, Inc." },
+    { 1023, "Accurro Ltd." },
+    { 1024, "ROMTECK Australia Pty Ltd." },
+    { 1025, "Splash Monitoring Limited" },
+    { 1026, "Light Application" },
+    { 1027, "Logical Building Automation" },
+    { 1028, "Exilight Oy" },
+    { 1029, "Hager Electro SAS" },
+    { 1030, "KLIF Co. LTD." },
+    { 1031, "HygroMatik" },
+    { 1032, "Daniel Mousseau Programmation & Electronique" },
+    { 1033, "Aerionics Inc." },
+    { 1034, "M2S Electronique Ltee" },
+    { 1035, "Automation Components, Inc." },
+    { 1036, "Niobrara Research & Development Corporation" },
+    { 1037, "Netcom Sicherheitstechnik GmbH" },
+    { 1038, "Lumel S.A." },
+    {    0, NULL }
 };
 static value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
 
@@ -6124,15 +6830,15 @@ fObjectIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     object_id   = tvb_get_ntohl(tvb, offset+tag_length);
     object_type = object_id_type(object_id);
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_length + 4,
-        ett_bacapp_tag, NULL, "ObjectIdentifier: %s, %u",
-        val_to_split_str(object_type,
-            128,
-            BACnetObjectType,
-            ASHRAE_Reserved_Fmt,
-            Vendor_Proprietary_Fmt),
-        object_id_instance(object_id));
+            ett_bacapp_tag, NULL, "ObjectIdentifier: %s, %u",
+            val_to_split_str(object_type,
+                128,
+                BACnetObjectType,
+                ASHRAE_Reserved_Fmt,
+                Vendor_Proprietary_Fmt),
+            object_id_instance(object_id));
 
-     col_append_fstr(pinfo->cinfo, COL_INFO, "%s,%u ",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s,%u ",
             val_to_split_str(object_type,
                 128,
                 BACnetObjectType,
@@ -6234,23 +6940,23 @@ fCOVSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
         switch (tag_no) {
 
         case 0: /* recipient */
-                /* beginning of new item in list */
-                tree = proto_tree_add_subtree_format(orgtree, tvb, offset, 1,
-                    ett_bacapp_value, NULL, "Subscription %d",itemno);    /* add tree label and indent */
-                itemno = itemno + 1;
+            /* beginning of new item in list */
+            tree = proto_tree_add_subtree_format(orgtree, tvb, offset, 1,
+                ett_bacapp_value, NULL, "Subscription %d",itemno);    /* add tree label and indent */
+            itemno = itemno + 1;
 
-                subtree = proto_tree_add_subtree(tree, tvb, offset, 1,
-                    ett_bacapp_value, NULL, "Recipient");    /* add tree label and indent */
-                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt); /* show context open */
-                offset  = fRecipientProcess(tvb, pinfo, subtree, offset);
-                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);  /* show context close */
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1,
+                ett_bacapp_value, NULL, "Recipient");    /* add tree label and indent */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt); /* show context open */
+            offset  = fRecipientProcess(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);  /* show context close */
             break;
         case 1: /* MonitoredPropertyReference */
-                subtree = proto_tree_add_subtree(tree, tvb, offset, 1,
-                    ett_bacapp_value, NULL, "Monitored Property Reference");
-                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                offset  = fBACnetObjectPropertyReference(tvb, pinfo, subtree, offset);
-                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1,
+                ett_bacapp_value, NULL, "Monitored Property Reference");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset  = fBACnetObjectPropertyReference(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 2: /* IssueConfirmedNotifications - boolean */
             offset = fBooleanTag(tvb, pinfo, tree, offset, "Issue Confirmed Notifications: ");
@@ -6376,6 +7082,56 @@ fActionList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 }
 
 static guint
+fPropertyAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+  guint       lastoffset = 0;
+  guint8      tag_no, tag_info;
+  guint32     lvt;
+
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    lastoffset = offset;
+    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+    if (tag_is_closing(tag_info)) {
+        break;
+    }
+
+    switch (tag_no) {
+    case 0: /* objectIdentifier */
+        offset = fObjectIdentifier(tvb, pinfo, tree, offset);
+        break;
+    case 1: /* propertyIdentifier */
+        offset = fPropertyIdentifier(tvb, pinfo, tree, offset);
+        break;
+    case 2: /* propertyArrayIndex */
+        offset = fPropertyArrayIndex(tvb, pinfo, tree, offset);
+        break;
+    case 3: /* deviceIdentifier */
+        offset = fObjectIdentifier(tvb, pinfo, tree, offset);
+        break;
+    case 4: /* propertyValue */
+        offset = fPropertyValue(tvb, pinfo, tree, offset, tag_info);
+        break;
+    case 5: /* propertyAccessError */
+        if (tag_is_opening(tag_info)) {
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            offset = fError(tvb, pinfo, tree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+        }
+        else {
+            expert_add_info(pinfo, tree, &ei_bacapp_bad_tag);
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (offset == lastoffset) break;    /* nothing happened, exit loop */
+  }
+
+  return offset;
+}
+
+static guint
 fPropertyIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8       tag_no, tag_info;
@@ -6430,6 +7186,31 @@ fPropertyArrayIndex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
     return offset+tag_len+lvt;
+}
+
+static guint
+fChannelValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *label)
+{
+  guint8      tag_no, tag_info;
+  guint32     lvt;
+
+  if (tvb_reported_length_remaining(tvb, offset) > 0) {
+      fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+      if (tag_is_opening(tag_info)) {
+          offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+          offset = fLightingCommand(tvb, pinfo, tree, offset, "lighting-command: ");
+          offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+      } else {
+          if (tag_info) {
+              offset = fContextTaggedValue(tvb, pinfo, tree, offset, label);
+          }
+          else {
+              offset = fApplicationTypes(tvb, pinfo, tree, offset, label);
+          }
+      }
+  }
+
+  return offset;
 }
 
 static guint
@@ -6541,9 +7322,20 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
     numberOfBytes = lvt-1; /* Ignore byte for unused bit count */
     offset += offs;
     unused  = tvb_get_guint8(tvb, offset); /* get the unused Bits */
+
+    memset(bf_arr, 0, 256);
+    skip = 0;
+    for (i = 0; i < numberOfBytes; i++) {
+        tmp = tvb_get_guint8(tvb, (offset)+i + 1);
+        if (i == numberOfBytes - 1) { skip = unused; }
+        for (j = 0; j < 8 - skip; j++) {
+            bf_arr[MIN(255, (i * 8) + j)] = tmp & (1 << (7 - j)) ? 'T' : 'F';
+        }
+    }
+
     subtree = proto_tree_add_subtree_format(tree, tvb, start, offs+lvt,
                                   ett_bacapp_tag, NULL,
-                                  "%s(Bit String)", label);
+                                  "%s(Bit String) (%s)", label, bf_arr);
 
     fTagHeaderTree(tvb, pinfo, subtree, start, &tag_no, &tag_info, &lvt);
     proto_tree_add_item(subtree, hf_bacapp_unused_bits, tvb, offset, 1, ENC_NA);
@@ -6923,20 +7715,100 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
         /* Application Tags */
         switch (propertyIdentifier) {
+        case 0: /* acked-transitions */
+        case 35: /* event-enable */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar,
+            BACnetAcknowledgedTransitions);
+            break;
         case 2: /* action */
-            /* loop object is application tagged,
-                command object is context tagged */
-            if (tag_is_context_specific(tag_info)) {
-                /* BACnetActionList */
-                offset = fActionList(tvb, pinfo, tree, offset);
-            } else {
-                /* BACnetAction */
-                offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar,
-                    BACnetAction);
+                /* loop object is application tagged,
+                    command object is context tagged */
+                if (tag_is_context_specific(tag_info)) {
+                    /* BACnetActionList */
+                    offset = fActionList(tvb, pinfo, tree, offset);
+                } else {
+                    /* BACnetAction */
+                    offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar,
+                        BACnetAction);
+                }
+                break;
+        case 7: /* alarm-values*/
+            switch (object_type) {
+            case 21: /* life-point */
+            case 22: /* life-zone */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
+              break;
+            case 30: /* access-door */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetDoorAlarmState);
+              break;
+            case 31: /* timer */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetTimerState);
+              break;
+            case 36: /* access-zone */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessEvent);
+              break;
+            case 39: /* bitstring-value */
+            default:
+              if (tag_info) {
+                if (tag_is_opening(tag_info)) {
+                  ++depth;
+                  offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                }
+                else if (tag_is_closing(tag_info)) {
+                  --depth;
+                  offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                }
+                else {
+                  offset = fContextTaggedValue(tvb, pinfo, tree, offset, ar);
+                }
+              }
+              else {
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+              }
+              break;
+            }
+            break;
+        case 39: /* fault-values */
+            switch (object_type) {
+            case 21: /* life-point */
+            case 22: /* life-zone */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
+              break;
+            case 30: /* access-door */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetDoorAlarmState);
+              break;
+            case 31: /* timer */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetTimerState);
+              break;
+            case 36: /* access-zone */
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessEvent);
+              break;
+            case 39: /* bitstring-value */
+            default:
+              if (tag_info) {
+                if (tag_is_opening(tag_info)) {
+                  ++depth;
+                  offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                }
+                else if (tag_is_closing(tag_info)) {
+                  --depth;
+                  offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                }
+                else {
+                  offset = fContextTaggedValue(tvb, pinfo, tree, offset, ar);
+                }
+              }
+              else {
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+              }
+              break;
             }
             break;
         case 30: /* BACnetAddressBinding */
             offset = fAddressBinding(tvb, pinfo, tree, offset);
+            break;
+        case 52: /* limit-enable */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLimitEnable);
             break;
         case 54: /* list of object property reference */
             offset = fLOPR(tvb, pinfo, tree, offset);
@@ -6969,6 +7841,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                 BACnetDeviceStatus);
             break;
         case 117: /* units */
+        case 455: /* car-load-units */
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar,
                 BACnetEngineeringUnits);
             break;
@@ -6994,6 +7867,11 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             break;
         case 19:  /* controlled-variable-reference */
         case 60:  /* manipulated-variable-reference */
+        case 78:  /* object-property-reference */
+        case 181: /* input-reference */
+        case 355: /* event-algorithm-inhibit-reference */
+            offset = fObjectPropertyReference(tvb, pinfo, tree, offset);
+            break;
         case 132: /* log-device-object-property */
             offset = fDeviceObjectPropertyReference(tvb, pinfo, tree, offset);
             break;
@@ -7027,6 +7905,19 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             break;
         case 159: /* member-of */
         case 165: /* zone-members */
+        case 211: /* subordinate-list */
+        case 246: /* access-doors */
+        case 249: /* access-event-credential */
+        case 252: /* accompaniment */
+        case 265: /* credentials */
+        case 266: /* credentials-in-zone */
+        case 277: /* last-credential-added */
+        case 279: /* last-credential-removed */
+        case 286: /* members */
+        case 320: /* zone-from */
+        case 321: /* zone-to */
+        case 461: /* energy-meter-ref */
+        case 491: /* represents */
             offset = fDeviceObjectReference(tvb, pinfo, tree, offset);
             break;
         case 196: /* last-restart-reason */
@@ -7044,13 +7935,12 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             offset = fCalendarEntry(tvb, pinfo, tree, offset);
             break;
         case 116: /* time-sychronization-recipients */
+        case 206: /* utc-time-synchronization-recipients */
+        case 202: /* restart-notification-recipients */
             offset = fRecipient(tvb, pinfo, tree, offset);
             break;
         case 83: /* event-parameters */
             offset = fEventParameter(tvb, pinfo, tree, offset);
-            break;
-        case 211: /* subordinate-list */
-            offset = fDeviceObjectReference(tvb, pinfo, tree, offset);
             break;
         case 130: /* event-time-stamp */
             if (propertyArrayIndex == 0) {
@@ -7077,6 +7967,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetNodeType);
             break;
         case 231: /* door-status */
+        case 450: /* car-door-status */
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetDoorStatus);
             break;
         case 233: /* lock-status */
@@ -7098,6 +7989,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetProgramError);
             break;
         case 160: /* mode */
+        case 175: /* accepted-modes */
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyMode);
             break;
         case 163: /* silenced */
@@ -7107,6 +7999,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyOperation);
             break;
         case 164: /* tracking-value */
+        case 166: /* life-safety-alarm-values */
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
             break;
         case 41: /* file-access-method */
@@ -7118,33 +8011,290 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         case 187:  /* scale */
             offset = fScale(tvb, pinfo, tree, offset);
             break;
+        case 189: /* update-time */
+            if (object_type == 37)
+                offset = fTimeStamp(tvb, pinfo, tree, offset, ar);
+            else
+                offset = fDateTime(tvb, pinfo, tree, offset, ar);
+            break;
         case 184: /* logging-record */
             offset = fLoggingRecord(tvb, pinfo, tree, offset);
+            break;
+        case 203: /* time-of-device-restart */
+          offset = fTimeStamp(tvb, pinfo, tree, offset, ar);
+          break;
+        case 226: /* door-alarm-state */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetDoorAlarmState);
             break;
         case 228: /* door-members */
             offset = fDoorMembers(tvb, pinfo, tree, offset);
             break;
-        case 181: /* input-reference */
-            offset = fObjectPropertyReference(tvb, pinfo, tree, offset);
-            break;
-        case 78: /* object-property-reference */
-            offset = fObjectPropertyReference(tvb, pinfo, tree, offset);
-            break;
         case 234: /* masked-alarm-values */
-            offset = fSequenceOfEnums(tvb, pinfo, tree, offset, "masked-alarm-value: ", BACnetDoorAlarmState);
+            offset = fSequenceOfEnums(tvb, pinfo, tree, offset, ar, BACnetDoorAlarmState);
             break;
-        case 53:    /* list-of-group-members */
+        case 248: /* access-event-authentication-factor */
+            offset = fAuthenticationFactor(tvb, pinfo, tree, offset);
+            break;
+        case 53:  /* list-of-group-members */
             save_object_type = object_type;
             offset = fListOfGroupMembers(tvb, pinfo, tree, offset);
             object_type = save_object_type;
             break;
-        case 85:    /* present-value */
+        case 288: /* negative-access-rules */
+        case 302: /* positive-access-rules */
+            offset = fAccessRule(tvb, pinfo, tree, offset);
+            break;
+        case 304: /* suppoprted-formats */
+            offset = fAuthenticationFactorFormat(tvb, pinfo, tree, offset);
+            break;
+        case 327: /* base-device-security-policy */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetBaseDeviceSecurityPolicy);
+            break;
+        case 371: /* property-list */
+            offset = fSequenceOfEnums(tvb, pinfo, tree, offset, ar, BACnetPropertyIdentifier);
+            break;
+        case 358: /* fault-parameters */
+            offset = fFaultParameter(tvb, pinfo, tree, offset);
+            break;
+        case 359: /* fault type */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetFaultType);
+            break;
+        case 362: /* subscribed-recipients */
+            offset = fEventNotificationSubscription(tvb, pinfo, tree, offset);
+            break;
+        case 380: /* lighting-command */
+            offset = fLightingCommand(tvb, pinfo, tree, offset, ar);
+            break;
+        case 16:  /* change-of-state-time */
+        case 71:  /* modification-date */
+        case 114: /* time-of-active-time-reset */
+        case 115: /* time-of-state-count-reset */
+        case 142: /* start-time */
+        case 143: /* stop-time */
+        case 149: /* maximum-value-time-stamp */
+        case 150: /* minimum-value-time-stamp */
+        case 179: /* count-change-time */
+        case 192: /* value-change-time */
+        case 254: /* activation-time */
+        case 270: /* expiration-time */
+        case 278: /* last-credential-added-time */
+        case 280: /* last-credential-removed-time */
+        case 281: /* last-use-time */
+        case 392: /* time-of-strike-count-reset */
+            offset = fDateTime(tvb, pinfo, tree, offset, ar);
+            break;
+        case 258: /* authentication-policy-list */
+            offset = fAuthenticationPolicy(tvb, pinfo, tree, offset);
+            break;
+        case 395: /* last-state-change */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetTimerTransition);
+            break;
+        case 396: /* state-change-values */
+            offset = fTimerStateChangeValue(tvb, pinfo, tree, offset);
+            break;
+        case 398: /* timer-state */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetTimerState);
+            break;
+        case 407: /* bacnet-ip-global-address */
+        case 418: /* fd-bbmd-address */
+            offset = fHostNPort(tvb, pinfo, tree, offset, ar);
+            break;
+        case 408: /* bacnet-ip-mode */
+        case 435: /* bacnet-ipv6-mode */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetIpMode);
+            break;
+        case 414: /* bmd-broadcast-distribution-table */
+            offset = fBDTEntry(tvb, pinfo, tree, offset, ar);
+            break;
+        case 415: /* bbmd-foreign-device-table */
+            offset = fFDTEntry(tvb, pinfo, tree, offset, ar);
+            break;
+        case 417: /* command */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetNetworkPortCommand);
+            break;
+        case 426: /* network-number-quality */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetNetworkNumberQuality);
+            break;
+        case 427: /* network-type */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetNetworkType);
+            break;
+        case 428: /* routing-table */
+            offset = fRouterEntry(tvb, pinfo, tree, offset);
+            break;
+        case 429: /* virtual-mac-address-table */
+            offset = fVMACEntry(tvb, pinfo, tree, offset);
+            break;
+        case 430: /* command-time-array */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fTimeStamp(tvb, pinfo, tree, offset, ar);
+            }
+            break;
+        case 432: /* last-command-time */
+            offset = fTimeStamp(tvb, pinfo, tree, offset, ar);
+            break;
+        case 433: /* value-source */
+            offset = fValueSource(tvb, pinfo, tree, offset);
+            break;
+        case 434: /* value-source-array */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fValueSource(tvb, pinfo, tree, offset);
+            }
+            break;
+        case 447: /* assigned-landing-calls */
+            offset = fAssignedLandingCalls(tvb, pinfo, tree, offset);
+            break;
+        case 448: /* car-assigned-direction */
+        case 457: /* car-moving-direction */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLiftCarDirection);
+            break;
+        case 449: /* car-door-command */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLiftCarDoorCommand);
+            break;
+        case 453: /* car-drive-status */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLiftCarDriveStatus);
+            break;
+        case 456: /* car-mode */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLiftCarMode);
+            break;
+        case 462: /* escalator-mode */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetEscalatorMode);
+            break;
+        case 463: /* fault-signals */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                if (object_type == 59) /* lift object */
+                    offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLiftFault);
+                else
+                    offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetEscalatorFault);
+            }
+            break;
+        case 467: /* group-mode */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLiftGroupMode);
+            break;
+        case 470: /* landing-calls */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fLandingCallStatus(tvb, pinfo, tree, offset);
+            }
+            break;
+        case 471: /* landing-call-control */
+            offset = fLandingCallStatus(tvb, pinfo, tree, offset);
+            break;
+        case 472: /* landing-door-status */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fLandingDoorStatus(tvb, pinfo, tree, offset);
+            }
+            break;
+        case 477: /* "operation-direction */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetEscalatorOperationDirection);
+            break;
+        case 481: /* active-cov-multiple-subscriptions */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fCOVMultipleSubscription(tvb, pinfo, tree, offset);
+            }
+            break;
+        case 482: /* protocol-level */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetProtocolLevel);
+            break;
+        case 486: /* tags */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fNameValue(tvb, pinfo, tree, offset);
+            }
+            break;
+        case 487: /* subordinate-node-types */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetNodeType);
+            }
+            break;
+        case 488: /* subordinate-tags */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fNameValueCollection(tvb, pinfo, tree, offset);
+            }
+            break;
+        case 489: /* subordinate-relationship */
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetRelationship);
+            }
+            break;
+        case 490: /* default-subordinate-relationship */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetRelationship);
+            break;
+
+        case 85:  /* present-value */
             if ( object_type == 11 )    /* group object handling of present-value */
             {
                 offset = fReadAccessResult(tvb, pinfo, tree, offset);
                 break;
             }
-            /* intentionally fall through */ /* here so don't reorder this case statement */
+            else if (object_type == 30)  /* access-door object */
+            {
+              offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetDoorValue);
+              break;
+            }
+            else if (object_type == 21)  /* life-point */
+            {
+              offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
+              break;
+            }
+            else if (object_type == 22)  /* life-zone */
+            {
+              offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
+              break;
+            }
+            else if (object_type == 53) /* channel object */
+            {
+              offset = fChannelValue(tvb, pinfo, tree, offset, ar);
+              break;
+            }
+            else if (object_type == 37) /* crederntial-data-input */
+            {
+              offset = fAuthenticationFactor(tvb, pinfo, tree, offset);
+              break;
+            }
+            else if (object_type == 26) /* global-group */
+            {
+              offset = fPropertyAccessResult(tvb, pinfo, tree, offset);
+              break;
+            }
+            /* intentially fall through here so don't reorder this case statement */
         default:
             if (tag_info) {
                 if (tag_is_opening(tag_info)) {
@@ -7164,7 +8314,6 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         if (offset == lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
-
 }
 
 static guint
@@ -7270,6 +8419,183 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             break;
         case 5: /* covIncrement */
             offset = fRealTag(tvb, pinfo, tree, offset, "COV Increment: ");
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
+}
+
+static guint
+fSubscribeCOVPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint       lastoffset = 0, len;
+    guint8      tag_no, tag_info;
+    guint32     lvt;
+    proto_tree *subtree = tree;
+    proto_tree *subsubtree = tree;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            offset += len;
+            subtree = tree;
+            continue;
+        }
+
+        switch (tag_no) {
+        case 0: /* ProcessId */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "subscriber Process Id: ");
+            break;
+        case 1: /* issueConfirmedNotifications */
+            offset = fBooleanTag(tvb, pinfo, tree, offset, "issue Confirmed Notifications: ");
+            break;
+        case 2: /* life time */
+            offset = fTimeSpan(tvb, pinfo, tree, offset, "life time");
+            break;
+        case 3: /* notification delay */
+            offset = fTimeSpan(tvb, pinfo, tree, offset, "notification delay");
+            break;
+        case 4: /* list-of-cov-subscription-specifications */
+            if (tag_is_opening(tag_info)) {
+                subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "list-of-cov-subscription-specifications: ");
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                        offset += len;
+                        subtree = tree;
+                        break;
+                    }
+
+                    switch (tag_no) {
+                    case 0: /* monitored-object-identifier */
+                        offset = fObjectIdentifier(tvb, pinfo, subtree, offset);
+                        break;
+                    case 1: /* list-of-cov-references */
+                      if (tag_is_opening(tag_info)) {
+                          subsubtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "list-of-cov-references: ");
+                          offset += fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+
+                          while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+                              lastoffset = offset;
+                              len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                              if (tag_is_closing(tag_info)) {
+                                  fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+                                  offset += len;
+                                  break;
+                              }
+
+                              switch (tag_no) {
+                              case 0: /* monitored-property */
+                                  if (tag_is_opening(tag_info)) {
+                                      offset += fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+                                      offset = fBACnetPropertyReference(tvb, pinfo, subsubtree, offset, 1);
+                                      offset += fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+                                  }
+                                  else {
+                                      expert_add_info(pinfo, subsubtree, &ei_bacapp_bad_tag);
+                                  }
+                                  break;
+                              case 1: /* cov-increment */
+                                  offset = fRealTag(tvb, pinfo, subsubtree, offset, "COV Increment: ");
+                                  break;
+                              case 2: /* timestamped */
+                                  offset = fBooleanTag(tvb, pinfo, subsubtree, offset, "timestamped: ");
+                                  break;
+                              default:
+                                  return offset;
+                            }
+                            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                        }
+                      }
+                      else {
+                          expert_add_info(pinfo, subsubtree, &ei_bacapp_bad_tag);
+                      }
+                      break;
+                    default:
+                      return offset;
+                    }
+                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                }
+            }
+            else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
+            }
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
+}
+
+static guint
+fSubscribeCOVPropertyMultipleError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint       lastoffset = 0, len;
+    guint8      tag_no, tag_info;
+    guint32     lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+            offset += len;
+            break;
+        }
+
+        switch (tag_no) {
+        case 0: /* normal error */
+            if (tag_is_opening(tag_info)) {
+                offset = fContextTaggedError(tvb, pinfo, tree, offset);
+            }
+            else {
+                offset = fError(tvb, pinfo, tree, offset);
+            }
+            break;
+        case 1: /* first-failed-subscription */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+                lastoffset = offset;
+                len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                    offset += len;
+                    break;
+                }
+
+                switch (tag_no) {
+                case 0: /* monitored-object-identifier */
+                    offset = fObjectIdentifier(tvb, pinfo, tree, offset);
+                    break;
+                case 1: /* monitored-property-reference */
+                    if (tag_is_opening(tag_info)) {
+                        offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                        offset = fBACnetPropertyReference(tvb, pinfo, tree, offset, 1);
+                        offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                    }
+                    else {
+                        expert_add_info(pinfo, tree, &ei_bacapp_bad_tag);
+                    }
+                    break;
+                case 2: /* error-type */
+                    offset = fContextTaggedError(tvb, pinfo, tree, offset);
+                    break;
+                default:
+                    return offset;
+                }
+                if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            }
             break;
         default:
             return offset;
@@ -7394,6 +8720,86 @@ fTimeSynchronizationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return offset;
 
     return fDateTime(tvb, pinfo, tree, offset, NULL);
+}
+
+static guint
+fWriteGroupRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint       lastoffset = 0, len;
+    guint8      tag_no, tag_info;
+    guint32     lvt;
+    proto_tree *subtree = tree;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            offset += len;
+            subtree = tree;
+            continue;
+        }
+
+        switch (tag_no) {
+        case 0: /* group-number */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "Group number: ");
+            break;
+        case 1: /* write-priority */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "Priority: ");
+            break;
+        case 2: /* change-list */
+            if (tag_is_opening(tag_info)) {
+                subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "change-list: ");
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                        offset += len;
+                        subtree = tree;
+                        break;
+                    }
+
+                    switch (tag_no) {
+                    case 0: /* channel */
+                        if (tag_info) {
+                            /* context tagged */
+                            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "Channel: ");
+                        } else {
+                            /* application tagged */
+                            offset = fChannelValue(tvb, pinfo, subtree, offset, "Value: ");
+                        }
+                        break;
+                    case 1: /* overriding-priority */
+                        if (tag_info) {
+                            /* context tagged */
+                            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "Overriding priority: ");
+                        } else {
+                            /* application tagged */
+                            offset = fChannelValue(tvb, pinfo, subtree, offset, "Value: ");
+                        }
+                        break;
+                    default: /* channel-value (application tagged, or opening/closing context-0 tagged) */
+                        offset = fChannelValue(tvb, pinfo, subtree, offset, "Value: ");
+                        break;
+                    }
+                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                }
+            }
+            else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
+            }
+            break;
+        case 3: /* inhibit-delay */
+            offset = fBooleanTag(tvb, pinfo, tree, offset, "Inhibit delay: ");
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
 }
 
 static guint
@@ -8059,13 +9465,32 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
                 offset = fVendorIdentifier(tvb, pinfo, subtree, offset);
                 break;
             case 1:
-                offset = fUnsignedTag(tvb, pinfo, subtree, offset,
-                    "extended-event-type: ");
+                offset = fUnsignedTag(tvb, pinfo, subtree, offset, "extended-event-type: ");
                 break;
             case 2: /* parameters */
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                offset  = fApplicationTypes(tvb, pinfo, subtree, offset, "parameters: ");
-                offset  = fDeviceObjectPropertyValue(tvb, pinfo, subtree, offset);
+
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info))
+                    {
+                        break;
+                    }
+
+                    if (tag_is_opening(tag_info))
+                    {
+                        offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                        offset = fDeviceObjectPropertyValue(tvb, pinfo, subtree, offset);
+                        offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                    }
+                    else
+                    {
+                        offset = fApplicationTypes(tvb, pinfo, subtree, offset, "parameters: ");
+                    }
+                    if (offset == lastoffset)
+                        break;     /* nothing happened, exit loop */
+                }
+
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 lastoffset = offset;
                 break;
@@ -8272,6 +9697,60 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
                break;     /* nothing happened, exit loop */
         }
         break;
+    case 20: /* context tag [20] is not used */
+        break;
+    case 21: /* change-of-discrete-value */
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0: /* new-value */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset  = fApplicationTypes(tvb, pinfo, subtree, offset, "new-value: ");
+                offset  = fDeviceObjectPropertyValue(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 1: /* status-flags */
+                offset = fBitStringTagVS(tvb, pinfo, subtree, offset,
+                    "status-flags: ", BACnetStatusFlags);
+                break;
+            default:
+                break;
+            }
+            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        }
+        break;
+    case 22: /* change-of-timer */
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0: /* new-state */
+                offset = fEnumeratedTagSplit(tvb, pinfo, subtree, offset,
+                    "new-state: ", BACnetTimerState, 256);
+                break;
+            case 1: /* status-flags */
+                offset = fBitStringTagVS(tvb, pinfo, subtree, offset,
+                    "status-flags: ", BACnetStatusFlags);
+                break;
+            case 2: /* update-time */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset  = fDateTime(tvb, pinfo, subtree, offset, "update-time: ");
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 3: /* last-state-change (OPTIONAL) */
+                offset = fEnumeratedTagSplit(tvb, pinfo, subtree, offset,
+                    "new-state: ", BACnetTimerTransition, 256);
+                break;
+            case 4: /* initial-timeout (OPTIONAL) */
+                offset  = fUnsignedTag(tvb, pinfo, subtree, offset, "initial-timeout: ");
+                break;
+            default:
+                break;
+            }
+            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        }
+        break;
 
         /* todo: add new parameters here ... */
     default:
@@ -8458,14 +9937,11 @@ fEventParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
             }
         }
         break;
-        /*  deprectated
-            case 6:
-            offset = fBACnetPropertyValue (tvb, pinfo, tree, offset);
-            break;
-        */
-
+    case 6: /* complex-event-type */
+        /* deprecated */
+        offset = fBACnetPropertyValue (tvb, pinfo, tree, offset);
+        break;
     case 7: /* buffer-ready */
-#if 0
         /* deprecated */
         while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
             lastoffset = offset;
@@ -8481,7 +9957,6 @@ fEventParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
                 return offset;
             }
         }
-#endif
         break;
     case 8: /* change-of-life-safety */
         while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
@@ -8534,13 +10009,12 @@ fEventParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
                 offset = fVendorIdentifier(tvb, pinfo, tree, offset);
                 break;
             case 1:
-                offset = fUnsignedTag(tvb, pinfo, tree, offset,
-                                       "extended-event-type: ");
+                offset = fUnsignedTag(tvb, pinfo, tree, offset, "extended-event-type: ");
                 break;
             case 2: /* parameters */
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
-                offset  = fApplicationTypes(tvb, pinfo, tree, offset, "parameters: ");
-                offset  = fDeviceObjectPropertyValue(tvb, pinfo, tree, offset);
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, "parameters: ");
+                offset = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
                 lastoffset = offset;
                 break;
@@ -8718,12 +10192,833 @@ fEventParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
             }
         }
         break;
-        /* todo: add new event-parameter cases here */
-    default:
+    case 19: /* has been intentionally omitted. It parallels the change-of-reliability event type */
+        break;
+    case 20: /* none */
+        /* no closing tag expected only context tag here */
+        return offset;
+    case 21: /* change-of-discrete-value */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fTimeSpan(tvb, pinfo, subtree, offset, "Time Delay");
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case 22: /* change-of-timer */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0: /* time-delay */
+                offset = fTimeSpan(tvb, pinfo, subtree, offset, "Time Delay");
+                break;
+            case 1: /* alarm-values */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        break;
+                    }
+                offset = fEnumeratedTag(tvb, pinfo, subtree, offset,
+                                                  "alarm value: ", BACnetTimerState);
+                }
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 2: /* update-time-reference */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset = fDeviceObjectPropertyReference(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    /* todo: add new event-parameter cases here */
+  default:
         break;
     }
 
     /* Closing tag for parameter choice */
+    offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+    return offset;
+}
+
+static guint
+fFaultParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint       lastoffset = offset;
+    guint8      tag_no, tag_info;
+    guint32     lvt;
+    proto_tree *subtree = tree;
+
+    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+      ett_bacapp_value, NULL, "fault parameters (%d) %s",
+      tag_no, val_to_str_const(tag_no, BACnetFaultType, "invalid type"));
+
+    /* Opening tag for parameter choice */
+    offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+
+    switch (tag_no) {
+    case 0: /* none */
+        /* no closing tag expected only context tag here */
+        return offset;
+    case 1: /* fault-characterstring */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0: /* SEQUENCE OF CharacterString */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        break;
+                    }
+                    offset = fCharacterString(tvb, pinfo, subtree, offset, "fault value: ");
+                }
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case 2: /* fault-extended */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fVendorIdentifier(tvb, pinfo, subtree, offset);
+                break;
+            case 1:
+                offset = fUnsignedTag(tvb, pinfo, subtree, offset, "extended-fault-type: ");
+                break;
+            case 2: /* parameters */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset = fApplicationTypes(tvb, pinfo, subtree, offset, "parameters: ");
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                lastoffset = offset;
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case 3: /* fault-life-safety */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        break;
+                    }
+                    offset = fEnumeratedTag(tvb, pinfo, subtree, offset,
+                      "fault value: ", BACnetLifeSafetyState);
+                }
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 1:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset = fDeviceObjectPropertyReference(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case 4: /* fault-state */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+            if (tag_is_closing(tag_info)) {
+                break;
+            }
+            switch (tag_no) {
+            case 0: /* SEQUENCE OF BACnetPropertyStates */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        break;
+                    }
+                    offset = fBACnetPropertyStates(tvb, pinfo, subtree, offset);
+                }
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case 5: /* fault-status-flags */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset = fDeviceObjectPropertyReference(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case 6: /* fault-out-of-range */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+            if (tag_is_closing(tag_info)) {
+                break;
+            }
+            offset = fApplicationTypes(tvb, pinfo, subtree, offset, "min-normal-value: ");
+            offset = fApplicationTypes(tvb, pinfo, subtree, offset, "max-normal-value: ");
+        }
+        break;
+    case 7: /* fault-listed */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset = fDeviceObjectPropertyReference(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                break;
+          }
+        }
+      break;
+    default:
+      break;
+    }
+
+    /* Closing tag for parameter choice */
+    offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+    return offset;
+}
+
+static guint
+fEventNotificationSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint       lastoffset = 0;
+    guint8      tag_no, tag_info;
+    guint32     lvt;
+    proto_tree *subtree;
+    guint       itemno = 1;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+        switch (tag_no) {
+        case 0: /* recipient  */
+            tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+              ett_bacapp_value, NULL, "Subscription %d", itemno);    /* add tree label and indent */
+            itemno = itemno + 1;
+
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1,
+              ett_bacapp_value, NULL, "Recipient: ");    /* add tree label and indent */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt); /* show context open */
+            offset = fRecipient(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);  /* show context close */
+            break;
+        case 1: /* process-identifier  */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "Process Identifier: ");
+            break;
+        case 2: /* issue-confirmed-notifications  */
+            offset = fBooleanTag(tvb, pinfo, tree, offset, "Issue Confirmed Notifications: ");
+            break;
+        case 3: /* time-remaining  */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "Time Remaining: ");
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static guint
+fLightingCommand(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+      ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+        switch (tag_no) {
+        case 0: /* operation */
+            offset = fEnumeratedTag(tvb, pinfo, subtree, offset, "operation: ", BACnetLightingOperation);
+            break;
+        case 1: /* target-level */
+            offset = fRealTag(tvb, pinfo, subtree, offset, "target-level: ");
+            break;
+        case 2: /* ramp-rate */
+            offset = fRealTag(tvb, pinfo, subtree, offset, "ramp-rate: ");
+            break;
+        case 3: /* step-increment */
+            offset = fRealTag(tvb, pinfo, subtree, offset, "step-increment: ");
+            break;
+        case 4: /* fade-time */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "fade-time: ");
+            break;
+        case 5: /* priority */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "priority: ");
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static guint
+fTimerStateChangeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+        if (tag_is_context_specific(tag_info)){
+            switch (tag_no) {
+            case 0: /* no-value */
+                offset = fNullTag(tvb, pinfo, tree, offset, "no-value: ");
+                break;
+            case 1: /* constructed-value */
+                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                offset = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
+                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 2: /* date-time */
+                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                offset = fDateTime(tvb, pinfo, tree, offset, "date-time: ");
+                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 3: /* lighting-command */
+                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                offset = fLightingCommand(tvb, pinfo, tree, offset, "lighting-command: ");
+                offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                return offset;
+            }
+        }
+        else {
+            offset = fApplicationTypes(tvb, pinfo, tree, offset, NULL);
+        }
+    }
+    return offset;
+}
+
+static guint
+fHostAddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        switch (tag_no) {
+        case 0: /* none */
+            offset = fNullTag(tvb, pinfo, tree, offset, "no-value: ");
+            break;
+        case 1: /* ip-address */
+            offset = fOctetString(tvb, pinfo, tree, offset, "ip-address: ", lvt);
+            break;
+        case 2: /* internet name (see RFC 1123) */
+            offset = fCharacterString(tvb, pinfo, tree, offset, "name: ");
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static guint
+fHostNPort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+        ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+        switch (tag_no) {
+        case 0: /* host */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fHostAddress(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 1: /* port */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "port: ");
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static guint
+fBDTEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* bbmd-address */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fHostNPort(tvb, pinfo, subtree, offset, "bbmd-address: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 1: /* bbmd-mask */
+            offset = fOctetString(tvb, pinfo, subtree, offset, "bbmd-mask: ", lvt);
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static guint
+fFDTEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *lable)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* bacnetip-address */
+            offset = fOctetString(tvb, pinfo, subtree, offset, "bacnetip-address: ", lvt);
+            break;
+        case 1: /* time-to-live */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "time-to-live: ");
+            break;
+        case 2: /* remaining-time-to-live */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "remaining-time-to-live: ");
+            break;
+        default:
+            return offset;
+        }
+    }
+
+  return offset;
+}
+
+static guint
+fRouterEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        switch (tag_no) {
+        case 0: /* network number */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "network number: ");
+            break;
+        case 1: /* MAC address */
+            offset = fOctetString(tvb, pinfo, tree, offset, "MAC address: ", lvt);
+            break;
+        case 2: /* status */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "status: ", BACnetRouterStatus);
+            break;
+        case 3: /* performance index */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "performance index: ");
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static guint
+fVMACEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        switch (tag_no) {
+        case 0: /* virtual mac address */
+            offset = fOctetString(tvb, pinfo, tree, offset, "virtual MAC address: ", lvt);
+            break;
+        case 1: /* native mac address */
+            offset = fOctetString(tvb, pinfo, tree, offset, "native MAC address: ", lvt);
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+  }
+
+  return offset;
+}
+
+static guint
+fValueSource(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        switch (tag_no) {
+        case 0: /* null */
+            offset = fNullTag(tvb, pinfo, tree, offset, "no-value: ");
+            break;
+        case 1: /* object reference */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDeviceObjectReference(tvb, pinfo, tree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* address */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAddress(tvb, pinfo, tree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            return offset;
+        }
+    }
+
+  return offset;
+}
+
+static guint
+fAssignedLandingCalls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        switch (tag_no) {
+        case 0: /* floor number */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "floor number: ");
+            break;
+        case 1: /* direction */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "direction: ", BACnetLiftCarDirection);
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+    return offset;
+}
+
+static guint
+fLandingCallStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        switch (tag_no) {
+        case 0: /* floor number */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "floor number: ");
+            break;
+        case 1: /* direction */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "direction: ", BACnetLiftCarDirection);
+            break;
+        case 2: /* destination */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "destination: ");
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static guint
+fLandingDoorStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        switch (tag_no) {
+        case 0: /* floor number */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "floor number: ");
+            break;
+        case 1: /* door status */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "door status: ", BACnetDoorStatus);
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+    return offset;
+}
+
+static guint
+fCOVMultipleSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        switch (tag_no) {
+        case 0: /* recipient */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            offset = fRecipientProcess(tvb, pinfo, tree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 1: /* issue-confirmed-notifications */
+            offset = fBooleanTag(tvb, pinfo, tree, offset, "issue confirmed notifications: ");
+            break;
+        case 2: /* time-remaining */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "time remaining: ");
+            break;
+        case 3: /* max-notification-delay */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "max notification delay: ");
+            break;
+        case 4: /* list-of-cov-subscription-specifications */
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                lastoffset = offset;
+                /* check the tag.  A closing tag means we are done */
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    break;
+                }
+                switch (tag_no) {
+                case 0: /* monitored-object-identifier */
+                    offset = fObjectIdentifier(tvb, pinfo, tree, offset);
+                    break;
+                case 1: /* list-of-cov-references */
+                    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                    lastoffset = offset;
+                    /* check the tag.  A closing tag means we are done */
+                    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        break;
+                    }
+                    switch (tag_no) {
+                    case 0: /* monitored-property */
+                        offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                        offset = fBACnetPropertyReference(tvb, pinfo, tree, offset, 0);
+                        offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                        break;
+                    case 1: /* cov-increment */
+                        offset = fRealTag(tvb, pinfo, tree, offset, "cov-increment: ");
+                        break;
+                    case 2: /* timestamped */
+                        offset = fBooleanTag(tvb, pinfo, tree, offset, "timestamped: ");
+                        break;
+                    default:
+                        return offset;
+                    }
+                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                    }
+                    break;
+                default:
+                    return offset;
+                }
+                if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            }
+            break;
+        default:
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static guint
+fNameValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        if (tag_is_context_specific(tag_info)) {
+            switch (tag_no) {
+            case 0: /* name */
+            offset = fCharacterString(tvb, pinfo, tree, offset, "name: ");
+            break;
+            case 1: /* date+time value */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, tree, offset, "value: ");
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            break;
+            default: /* abstract syntax and type */
+            /* DMR Should be fAbstractNSyntax, but that's where we came from! */
+            offset = fApplicationTypes(tvb, pinfo, tree, offset, "value: ");
+            break;
+            }
+        }
+        else {
+            /* DMR Should be fAbstractNSyntax, but that's where we came from! */
+            offset = fApplicationTypes(tvb, pinfo, tree, offset, "value: ");
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
+}
+
+static guint
+fNameValueCollection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+            ett_bacapp_value, NULL, "%s", "name-value-collection: ");
+
+    offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+
+        offset = fNameValue(tvb, pinfo, subtree, offset);
+    }
+
     offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
     return offset;
 }
@@ -8793,7 +11088,7 @@ fLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             switch (fTagNo(tvb, offset)) {
             case 0: /* logStatus */    /* Changed this to BitString per BACnet Spec. */
-                offset = fBitStringTagVS(tvb, pinfo, tree, offset, "log status:", BACnetLogStatus);
+                offset = fBitStringTagVS(tvb, pinfo, tree, offset, "log status: ", BACnetLogStatus);
                 break;
             case 1:
                 offset = fBooleanTag(tvb, pinfo, tree, offset, "boolean-value: ");
@@ -8836,7 +11131,7 @@ fLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
             break;
         case 2:
             /* Changed this to BitString per BACnet Spec. */
-            offset = fBitStringTagVS(tvb, pinfo, tree, offset, "Status Flags:", BACnetStatusFlags);
+            offset = fBitStringTagVS(tvb, pinfo, tree, offset, "Status Flags: ", BACnetStatusFlags);
             break;
         default:
             return offset;
@@ -8866,7 +11161,7 @@ fLogMultipleRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             switch (fTagNo(tvb, offset)) {
             case 0: /* logStatus */    /* Changed this to BitString per BACnet Spec. */
-                offset = fBitStringTagVS(tvb, pinfo, tree, offset, "log status:", BACnetLogStatus);
+                offset = fBitStringTagVS(tvb, pinfo, tree, offset, "log status: ", BACnetLogStatus);
                 break;
             case 1: /* log-data: SEQUENCE OF CHOICE */
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
@@ -9009,17 +11304,140 @@ fUnconfirmedEventNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 static guint
-fConfirmedCOVNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+fConfirmedCOVNotificationMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint       lastoffset = 0, len;
     guint8      tag_no, tag_info;
     guint32     lvt;
-    proto_tree *subtree    = tree;
+    proto_tree *subtree = tree;
+    proto_tree *subsubtree = tree;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         if (tag_is_closing(tag_info)) {
+            offset += len;
+            subtree = tree;
+            continue;
+        }
+
+        switch (tag_no) {
+        case 0: /* ProcessId */
+            offset = fProcessId(tvb, pinfo, tree, offset);
+            break;
+        case 1: /* initiating DeviceId */
+            offset = fObjectIdentifier(tvb, pinfo, tree, offset);
+            break;
+        case 2: /* time remaining */
+            offset = fTimeSpan(tvb, pinfo, tree, offset, "Time remaining: ");
+            break;
+        case 3: /* timestamp */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, tree, offset, "Timestamp: ");
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 4: /* list-of-cov-notifications */
+            if (tag_is_opening(tag_info)) {
+                /* new subtree for list-of-cov-notifications */
+                subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "list-of-cov-notifications: ");
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        /* end for list-of-cov-notifications */
+                        fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                        offset += len;
+                        subtree = tree;
+                        break;
+                    }
+
+                    switch (tag_no) {
+                    case 0: /* monitored-object-identifier */
+                        offset = fObjectIdentifier(tvb, pinfo, subtree, offset);
+                        break;
+                    case 1: /* list-of-values */
+                        if (tag_is_opening(tag_info)) {
+                            /* new subtree for list-of-values */
+                            subsubtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "list-of-values: ");
+                            offset += fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+
+                            while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+                            lastoffset = offset;
+                            len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                            if (tag_is_closing(tag_info)) {
+                                /* end of list-of-values */
+                                fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+                                offset += len;
+                                break;
+                            }
+
+                            switch (tag_no) {
+                            case 0: /* PropertyIdentifier */
+                                offset = fPropertyIdentifier(tvb, pinfo, subsubtree, offset);
+                                break;
+                            case 1: /* propertyArrayIndex */
+                                offset = fPropertyArrayIndex(tvb, pinfo, subsubtree, offset);
+                                break;
+                            case 2: /* property-value */
+                                offset = fPropertyValue(tvb, pinfo, subsubtree, offset, tag_info);
+                                break;
+                            case 3: /* time-of-change */
+                                offset = fTime(tvb, pinfo, subsubtree, offset, "time of change: ");
+                                break;
+                            default:
+                                /* wrong tag encoding */
+                                return offset;
+                            }
+                            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                            }
+                        }
+                        else {
+                            /* wrong tag encoding */
+                            expert_add_info(pinfo, subsubtree, &ei_bacapp_bad_tag);
+                        }
+                        break;
+                    default:
+                        /* wrong tag encoding */
+                        return offset;
+                    }
+                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                }
+            }
+            else {
+                /* wrong tag encoding */
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
+            }
+            break;
+        default:
+            /* wrong tag encoding */
+            return offset;
+        }
+        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
+}
+
+static guint
+fUnconfirmedCOVNotificationMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    return fConfirmedCOVNotificationMultipleRequest(tvb, pinfo, tree, offset);
+}
+
+static guint
+fConfirmedCOVNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint       lastoffset = 0, len;
+    guint8      tag_no, tag_info;
+    guint32     lvt;
+    proto_tree *subtree = tree;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             offset += len;
             subtree = tree;
             continue;
@@ -9036,15 +11454,16 @@ fConfirmedCOVNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset = fObjectIdentifier(tvb, pinfo, subtree, offset);
             break;
         case 3: /* time remaining */
-            offset = fTimeSpan(tvb, pinfo, tree, offset, "Time remaining");
+            offset = fTimeSpan(tvb, pinfo, tree, offset, "Time remaining: ");
             break;
         case 4: /* List of Values */
             if (tag_is_opening(tag_info)) {
-                subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "list of Values");
-                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                offset  = fBACnetPropertyValue(tvb, pinfo, subtree, offset);
-            } else {
-                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
+            subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "list of Values: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fBACnetPropertyValue(tvb, pinfo, subtree, offset);
+            }
+            else {
+            expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
             break;
         default:
@@ -9496,6 +11915,133 @@ fAuthenticateAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 }
 
 static guint
+fAuthenticationFactor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        /* quit loop if we spot a closing tag */
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+
+        switch (tag_no) {
+        case 0: /* format-type */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "formet-type: ", NULL);
+            break;
+        case 1: /* format-class */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "format-class: ");
+            break;
+        case 2: /* value */
+            offset = fOctetString(tvb, pinfo, tree, offset, "value: ", lvt);
+            break;
+        default:
+            break;
+        }
+
+        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static guint
+fAuthenticationFactorFormat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        /* quit loop if we spot a closing tag */
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+
+        switch (tag_no) {
+        case 0: /* format-type */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "formet-type: ", NULL);
+            break;
+        case 1: /* vendor-id */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "vendor-id: ");
+            break;
+        case 2: /* vendor-format */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "vendor-format: ");
+            break;
+        default:
+            break;
+        }
+
+        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static guint
+fAuthenticationPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        /* quit loop if we spot a closing tag */
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+
+        switch (tag_no) {
+        case 0: /* policy */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+                lastoffset = offset;
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                /* quit loop if we spot a closing tag */
+                if (tag_is_closing(tag_info)) {
+                    offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                    break;
+                }
+
+                switch (tag_no) {
+                case 0: /* credential-data-input */
+                    offset = fDeviceObjectReference(tvb, pinfo, tree, offset);
+                    break;
+                case 1: /* index */
+                    offset = fUnsignedTag(tvb, pinfo, tree, offset, "index: ");
+                    break;
+                default:
+                    break;
+                }
+
+                if (offset == lastoffset) break;    /* nothing happened, exit loop */
+            }
+            break;
+        case 1: /* order-enforced */
+            offset = fBooleanTag(tvb, pinfo, tree, offset, "order-enforced: ");
+            break;
+        case 2: /* timeout */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "timeout: ");
+            break;
+        default:
+            break;
+        }
+
+        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static guint
 fRequestKeyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     offset = fObjectIdentifier(tvb, pinfo, tree, offset); /* Requesting Device Identifier */
@@ -9667,8 +12213,9 @@ fPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
             break;
         case 1: /* propertyArrayIndex */
             offset = fPropertyArrayIndex(tvb, pinfo, tree, offset);
-            if (list != 0) break; /* Continue decoding if this may be a list */
-            break;
+            if (list != 0)
+                break; /* Continue decoding if this may be a list */
+            /* FALLTHROUGH */
         default:
             lastoffset = offset; /* Set loop end condition */
             break;
@@ -9700,7 +12247,7 @@ fBACnetObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         case 1: /* PropertyIdentifier and propertyArrayIndex */
             offset = fPropertyReference(tvb, pinfo, tree, offset, 1, 0);
             col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
-            break;
+            /* FALLTHROUGH */
         default:
             lastoffset = offset; /* Set loop end condition */
             break;
@@ -9792,12 +12339,18 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 static guint
 fDeviceObjectReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
+    guint8 tag_no, tag_info;
+    guint32 lvt;
     guint lastoffset = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
-
-        switch (fTagNo(tvb, offset)) {
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        /* quit loop if we spot an un-matched closing tag */
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+        switch (tag_no) {
         case 0: /* deviceIdentifier - OPTIONAL */
             offset = fObjectIdentifier(tvb, pinfo, tree, offset);
             break;
@@ -10017,7 +12570,21 @@ fReadAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         /* maybe a listOfReadAccessResults if we spot a closing tag here */
         if (tag_is_closing(tag_info)) {
             offset += len;
-            if ((tag_no == 4 || tag_no == 5) && (subtree != tree)) subtree = subtree->parent; /* Value and error have extra subtree */
+            if ((tag_no == 4 || tag_no == 5) && (subtree != tree))
+                subtree = subtree->parent; /* Value and error have extra subtree */
+
+        if (tag_no == 1) {
+            /* closing list of results for this objectSpecifier */
+            fTagHeaderTree(tvb, pinfo, subtree, offset - len, &tag_no, &tag_info, &lvt);
+            /* look if another objectSpecifier follows here */
+            if (tvb_reported_length_remaining(tvb, offset) <= 0)
+                return offset; /* nothing more to decode left */
+
+            fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+            if (tag_no != 0 || tag_info != 12)
+                return offset; /* no objectSpecifier */
+            }
+
             continue;
         }
 
@@ -10042,7 +12609,9 @@ fReadAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 /* Error Code follows */
                 offset  = fError(tvb, pinfo, subtree, offset);
-            } else {
+                fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            }
+            else {
                 expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
             break;
@@ -10224,6 +12793,47 @@ fAccessMethod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 }
 
 static guint
+fAccessRule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        /* quit loop if we spot a closing tag */
+        if (tag_is_closing(tag_info)) {
+            break;
+        }
+
+        switch (tag_no) {
+        case 0: /* time-range-specifier */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "time-range-specifier: ", NULL);
+            break;
+        case 1: /* time-range */
+            offset = fDeviceObjectPropertyReference(tvb, pinfo, tree, offset);
+            break;
+        case 2: /* location-specifier */
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "location-specifier: ", NULL);
+            break;
+        case 3: /* location */
+            offset = fDeviceObjectReference(tvb, pinfo, tree, offset);
+            break;
+        case 4: /* enable */
+            offset = fBooleanTag(tvb, pinfo, tree, offset, "enable: ");
+            break;
+        default:
+            break;
+        }
+
+        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static guint
 fAtomicReadFileRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8      tag_no, tag_info;
@@ -10381,6 +12991,12 @@ fConfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     case 29:
         offset = fGetEventInformationRequest(tvb, pinfo, tree, offset);
         break;
+    case 30:
+        offset = fSubscribeCOVPropertyMultipleRequest(tvb, pinfo, tree, offset);
+        break;
+    case 31:
+        offset = fConfirmedCOVNotificationMultipleRequest(tvb, pinfo, tree, offset);
+        break;
     default:
         return offset;
     }
@@ -10537,7 +13153,6 @@ fUnconfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     case 5: /* unconfirmedTextMessage */
         offset = fUnconfirmedTextMessageRequest(tvb, pinfo, tree, offset);
         break;
-    case 206: /* utc-time-synchronization-recipients */
     case 6: /* timeSynchronization */
         offset = fTimeSynchronizationRequest(tvb, pinfo, tree, offset);
         break;
@@ -10549,6 +13164,12 @@ fUnconfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case 9: /* utcTimeSynchronization */
         offset = fUTCTimeSynchronizationRequest(tvb, pinfo, tree, offset);
+        break;
+    case 10:
+        offset = fWriteGroupRequest(tvb, pinfo, tree, offset);
+        break;
+    case 11:
+        offset = fUnconfirmedCOVNotificationMultipleRequest(tvb, pinfo, tree, offset);
         break;
     default:
         break;
@@ -10850,7 +13471,9 @@ static guint
 fBACnetError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint service)
 {
     switch (service) {
-    case 8:  /* no break here !!!! */
+    case 8:
+        offset = fChangeListError(tvb, pinfo, tree, offset);
+        break;
     case 9:
         offset = fChangeListError(tvb, pinfo, tree, offset);
         break;
@@ -10866,9 +13489,13 @@ fBACnetError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, 
     case 22:
         offset = fVTCloseError(tvb, pinfo, tree, offset);
         break;
+    case 30:
+        offset = fSubscribeCOVPropertyMultipleError(tvb, pinfo, tree, offset);
+        break;
     default:
-        return fError(tvb, pinfo, tree, offset);
-    }
+        offset = fError(tvb, pinfo, tree, offset);
+        break;
+  }
     return offset;
 }
 
@@ -11419,37 +14046,37 @@ proto_register_bacapp(void)
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         {&hf_msg_fragments,
-         {"Message fragments", "bacapp.fragments",
-          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Message fragments", "bacapp.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_fragment,
-         {"Message fragment", "bacapp.fragment",
-          FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Message fragment", "bacapp.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_fragment_overlap,
-         {"Message fragment overlap", "bacapp.fragment.overlap",
-          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Message fragment overlap", "bacapp.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_fragment_overlap_conflicts,
-         {"Message fragment overlapping with conflicting data",
-          "bacapp.fragment.overlap.conflicts",
-          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Message fragment overlapping with conflicting data",
+            "bacapp.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_fragment_multiple_tails,
-         {"Message has multiple tail fragments",
-          "bacapp.fragment.multiple_tails",
-          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Message has multiple tail fragments",
+            "bacapp.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_fragment_too_long_fragment,
-         {"Message fragment too long", "bacapp.fragment.too_long_fragment",
-          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Message fragment too long", "bacapp.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_fragment_error,
-         {"Message defragmentation error", "bacapp.fragment.error",
-          FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Message defragmentation error", "bacapp.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_fragment_count,
-         {"Message fragment count", "bacapp.fragment.count",
-          FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+          { "Message fragment count", "bacapp.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_reassembled_in,
-         {"Reassembled in", "bacapp.reassembled.in",
-          FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+          { "Reassembled in", "bacapp.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         {&hf_msg_reassembled_length,
-         {"Reassembled BACapp length", "bacapp.reassembled.length",
-          FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } }
+          { "Reassembled BACapp length", "bacapp.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } }
     };
     static gint *ett[] = {
         &ett_bacapp,

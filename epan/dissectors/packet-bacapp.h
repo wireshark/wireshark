@@ -20,8 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __PACKET_BACNET_H__
-#define __PACKET_BACNET_H__
+#ifndef __PACKET_BACAPP_H__
+#define __PACKET_BACAPP_H__
 
 #define BACINFO_SERVICE         0
 #define BACINFO_INVOKEID        1

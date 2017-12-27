@@ -1494,6 +1494,7 @@ DISSECTOR_INCLUDES = \
 	packet-atm.h		\
 	packet-atn-ulcs.h	\
 	packet-bacapp.h		\
+	packet-bacnet.h		\
 	packet-ber.h		\
 	packet-bfd.h		\
 	packet-bgp.h		\
