@@ -6450,18 +6450,20 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                                     proto_tree *tree, guint32 offset, guint32 offset_end,
                                                     guint8 hnd_type, SslDecryptSession *ssl _U_)
 {
-    guint32 quic_length, parameter_length, supported_versions_length, next_offset;
+    guint32 quic_length, parameter_length, supported_versions_length, next_offset, version;
 
-    /* https://tools.ietf.org/html/draft-ietf-quic-transport-04#section-7.3
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-08#section-7.4
      *  uint32 QuicVersion;
      *  enum {
      *     initial_max_stream_data(0),
      *     initial_max_data(1),
-     *     initial_max_stream_id(2),
+     *     initial_max_stream_id_bidi(2),
      *     idle_timeout(3),
      *     truncate_connection_id(4),
      *     max_packet_size(5),
      *     stateless_reset_token(6),
+     *     ack_delay_exponent(7),
+     *     initial_max_stream_id_uni(8),
      *     (65535)
      *  } TransportParameterId;
      *
@@ -6473,28 +6475,37 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *  struct {
      *      select (Handshake.msg_type) {
      *          case client_hello:
-     *              QuicVersion negotiated_version;
      *              QuicVersion initial_version;
      *
      *         case encrypted_extensions:
-     *              QuicVersion supported_versions<2..2^8-4>;
+     *              QuicVersion negotiated_version;
+     *              QuicVersion supported_versions<4..2^8-4>;
      *      };
      *      TransportParameter parameters<30..2^16-1>;
      *  } TransportParameters;
      */
     switch (hnd_type) {
     case SSL_HND_CLIENT_HELLO:
-        proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
-                            tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+        version = tvb_get_ntohl(tvb, offset);
+        if(version <= 0xff000007){ /* No longer negotiated_version on Client Hello with >= draft-07 */
+            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        }
         proto_tree_add_item(tree, hf->hf.hs_ext_quictp_initial_version,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     case SSL_HND_ENCRYPTED_EXTENSIONS:
-        /* QuicVersion supported_versions<2..2^8-4>;*/
+        version = tvb_get_ntohl(tvb, offset);
+        if(version > 0xff000007){ /* Now negotiated_version on Encrypted Extensions (>= draft-08) */
+            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        }
+        /* QuicVersion supported_versions<4..2^8-4>;*/
         if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &supported_versions_length,
-                            hf->hf.hs_ext_quictp_supported_versions_len, 2, G_MAXUINT8-3)) {
+                            hf->hf.hs_ext_quictp_supported_versions_len, 4, G_MAXUINT8-3)) {
             return offset_end;
         }
         offset += 1;
