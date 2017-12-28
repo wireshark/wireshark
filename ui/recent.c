@@ -489,7 +489,13 @@ capture_remote_combo_add_recent(const gchar *s)
 
   if (valp) {
     /* Found value 2, this is the port number */
-    rh->remote_port = (gchar *)g_strdup ((const gchar *)valp->data);
+    if (!strcmp((const char*)valp->data, "0")) {
+      /* Port 0 isn't valid, so leave port blank */
+      rh->remote_port = (gchar *)g_strdup ("");
+    }
+    else {
+      rh->remote_port = (gchar *)g_strdup ((const gchar *)valp->data);
+    }
     valp = valp->next;
   } else {
     /* Did not find a port number */

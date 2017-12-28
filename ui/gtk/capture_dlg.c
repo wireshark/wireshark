@@ -270,6 +270,9 @@ select_link_type_cb(GtkWidget *w, gpointer data);
 
 #ifdef HAVE_PCAP_REMOTE
 static void
+populate_existing_remotes(gpointer key, gpointer value, gpointer user_data);
+
+static void
 capture_remote_cb(GtkWidget *w, gboolean focus_username);
 
 static void
@@ -1425,6 +1428,47 @@ insert_new_rows(GList *rlist)
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
+static void
+populate_existing_remotes(gpointer key, gpointer value, gpointer user_data _U_)
+{
+  const gchar *host = (const gchar *)key;
+  struct remote_host *remote_host = (struct remote_host *)value;
+  GList     *if_list;
+  int        err;
+  gchar     *err_str;
+
+  g_free(global_remote_opts.remote_host_opts.remote_host);
+  g_free(global_remote_opts.remote_host_opts.remote_port);
+  g_free(global_remote_opts.remote_host_opts.auth_username);
+  g_free(global_remote_opts.remote_host_opts.auth_password);
+  global_remote_opts.src_type = CAPTURE_IFREMOTE;
+  global_remote_opts.remote_host_opts.remote_host = g_strdup(host);
+  global_remote_opts.remote_host_opts.remote_port = g_strdup(remote_host->remote_port);
+  global_remote_opts.remote_host_opts.auth_type = remote_host->auth_type;
+  global_remote_opts.remote_host_opts.auth_username = g_strdup(remote_host->auth_username);
+  global_remote_opts.remote_host_opts.auth_password = g_strdup(remote_host->auth_password);
+  global_remote_opts.remote_host_opts.datatx_udp = FALSE;
+  global_remote_opts.remote_host_opts.nocap_rpcap = TRUE;
+  global_remote_opts.remote_host_opts.nocap_local = FALSE;
+#ifdef HAVE_PCAP_SETSAMPLING
+  global_remote_opts.sampling_method = CAPTURE_SAMP_NONE;
+  global_remote_opts.sampling_param = 0;
+#endif
+
+  if_list = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
+                                      global_remote_opts.remote_host_opts.remote_port,
+                                      global_remote_opts.remote_host_opts.auth_type,
+                                      global_remote_opts.remote_host_opts.auth_username,
+                                      global_remote_opts.remote_host_opts.auth_password,
+                                      &err, &err_str);
+  if (if_list != NULL) {
+    /* New remote interface */
+    insert_new_rows(if_list);
+    refresh_non_local_interface_lists();
+  }
+}
+
+
 /* Retrieve the list of remote interfaces according to selected
  * options and re-fill interface name combobox */
 static void
@@ -4360,6 +4404,7 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
   gtk_container_add(GTK_CONTAINER(remote_sc), remote_l);
   gtk_widget_show(remote_l);
 
+  recent_remote_host_list_foreach(populate_existing_remotes, NULL);
   fill_remote_list();
 
   bbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
