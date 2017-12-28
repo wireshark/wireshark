@@ -98,6 +98,10 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
     FILE* fp = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
+    if (!pref) {
+        g_log(NULL, G_LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
+        return;
+    }
     uat_t *uat = prefs_get_uat_value(pref);
     gchar* fname = uat_get_actual_filename(uat,TRUE);
     bool init = false;
@@ -213,6 +217,10 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
     FILE* fp;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
+    if (!pref) {
+        g_log(NULL, G_LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
+        return;
+    }
 
     uat_t *uat = prefs_get_uat_value(pref);
 
@@ -286,12 +294,17 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     gchar* err = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
+    if (!pref) {
+        g_log(NULL, G_LOG_LEVEL_ERROR, "Can't find preference sctp/statistics_chunk_types");
+        return;
+    }
+
     uat_t *uat = prefs_get_uat_value(pref);
     uat_clear(uat);
 
     if (!uat_load(uat, &err)) {
         /* XXX - report this through the GUI */
-        printf("Error loading table '%s': %s", uat->name,err);
+        g_log(NULL, G_LOG_LEVEL_WARNING, "Error loading table '%s': %s", uat->name, err);
         g_free(err);
     }
 
