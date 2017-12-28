@@ -116,7 +116,7 @@ static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr
 
 /************************************************************/
 /* Private helper functions                                 */
-static gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
+static gboolean read_new_line(FILE_T fh, gint *length,
                               gchar *buf, size_t bufsize, int *err,
                               gchar **err_info);
 static gboolean parse_line(char *linebuff, gint line_length,
@@ -170,7 +170,6 @@ static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer use
 wtap_open_return_val
 catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
 {
-    gint64  offset = 0;
     time_t  timestamp;
     guint32 usecs;
     gint firstline_length = 0;
@@ -185,7 +184,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     /********************************************************************/
     /* First line needs to contain at least as many characters as magic */
 
-    if (!read_new_line(wth->fh, &offset, &firstline_length, linebuff,
+    if (!read_new_line(wth->fh, &firstline_length, linebuff,
                        sizeof linebuff, err, err_info)) {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return WTAP_OPEN_ERROR;
@@ -224,7 +223,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     /* Second line contains file timestamp                     */
     /* Store this offset in in file_externals                  */
 
-    if (!read_new_line(wth->fh, &offset, &(file_externals->secondline_length),
+    if (!read_new_line(wth->fh, &(file_externals->secondline_length),
                        linebuff, sizeof linebuff, err, err_info)) {
         g_free(file_externals);
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
@@ -338,7 +337,6 @@ static gboolean
 catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                       gint64 *data_offset)
 {
-    gint64 offset = file_tell(wth->fh);
     long dollar_offset, before_time_offset, after_time_offset;
     packet_direction_t direction;
     int encap;
@@ -352,7 +350,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
         int line_length, seconds, useconds, data_chars;
         int is_comment = FALSE;
         int is_sprint = FALSE;
-        gint64 this_offset = offset;
+        gint64 this_offset;
         static gchar linebuff[MAX_LINE_LENGTH+1];
         gchar aal_header_chars[AAL_HEADER_CHARS];
         gchar context_name[MAX_CONTEXT_NAME];
@@ -361,14 +359,11 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
         gchar variant_name[MAX_VARIANT_DIGITS+1];
         gchar outhdr_name[MAX_OUTHDR_NAME+1];
 
-        /* Are looking for first packet after 2nd line */
-        if (file_tell(wth->fh) == 0) {
-            this_offset += (file_externals->firstline_length+1+
-                            file_externals->secondline_length+1);
-        }
+        /* Get starting offset of the line we're about to read */
+        this_offset = file_tell(wth->fh);
 
         /* Read a new line from file into linebuff */
-        if (!read_new_line(wth->fh, &offset, &line_length, linebuff,
+        if (!read_new_line(wth->fh, &line_length, linebuff,
                            sizeof linebuff, err, err_info)) {
             if (*err != 0)
                 return FALSE;  /* error */
@@ -455,7 +450,6 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                            struct wtap_pkthdr *phdr, Buffer *buf,
                            int *err, gchar **err_info)
 {
-    gint64 offset = 0;
     int length;
     long dollar_offset, before_time_offset, after_time_offset;
     static gchar linebuff[MAX_LINE_LENGTH+1];
@@ -484,7 +478,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (!read_new_line(wth->random_fh, &offset, &length, linebuff,
+    if (!read_new_line(wth->random_fh, &length, linebuff,
                       sizeof linebuff, err, err_info)) {
         return FALSE;
     }
@@ -795,7 +789,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /* - return TRUE if this read is successful                           */
 /**********************************************************************/
 static gboolean
-read_new_line(FILE_T fh, gint64 *offset, gint *length,
+read_new_line(FILE_T fh, gint *length,
               gchar *linebuff, size_t linebuffsize, int *err, gchar **err_info)
 {
     /* Read in a line */
@@ -809,7 +803,6 @@ read_new_line(FILE_T fh, gint64 *offset, gint *length,
 
     /* Set length (avoiding strlen()) and offset.. */
     *length = (gint)(file_tell(fh) - pos_before);
-    *offset = *offset + *length;
 
     /* ...but don't want to include newline in line length */
     if (*length > 0 && linebuff[*length-1] == '\n') {
