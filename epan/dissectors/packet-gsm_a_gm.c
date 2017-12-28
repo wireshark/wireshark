@@ -63,7 +63,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 14.5.0 Release 14)
+ *   (3GPP TS 24.008 version 14.6.0 Release 14)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -557,6 +557,8 @@ static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_ul_time_unit = -1;
 static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate = -1;
 static int hf_gsm_a_gm_sm_pco_3gpp_data_off_ue_status = -1;
 static int hf_gsm_a_gm_sm_pco_sel_bearer_ctrl_mode = -1;
+static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_ul_time_unit = -1;
+static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
 static int hf_gsm_a_gm_ti_value = -1;
@@ -4404,6 +4406,7 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0016, 0x0016, "APN rate control support indicator" },
 	{ 0x0017, 0x0017, "3GPP PS data off UE status" },
 	{ 0x0018, 0x0018, "Reliable Data Service request indicator" },
+	{ 0x0019, 0x0019, "Additional APN rate control for exception data support indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4432,6 +4435,7 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0016, 0x0016, "APN rate control parameters" },
 	{ 0x0017, 0x0017, "3GPP PS data off support indication" },
 	{ 0x0018, 0x0018, "Reliable Data Service accepted indicator" },
+	{ 0x0019, 0x0019, "Additional APN rate control for exception data parameters" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4629,6 +4633,15 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0017:
 				if (link_dir == P2P_DIR_UL && e_len >= 1) {
 					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_3gpp_data_off_ue_status, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x0019:
+				if (link_dir == P2P_DIR_DL) {
+					proto_tree_add_bits_item(pco_tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 5, ENC_BIG_ENDIAN);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_ul_time_unit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+					if (e_len >= 3) {
+						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 2, ENC_BIG_ENDIAN);
+					}
 				}
 				break;
 			default:
@@ -9136,6 +9149,16 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_pco_3gpp_data_off_ue_status,
 		  { "3GPP PS data off UE status", "gsm_a.gm.sm.pco.3gpp_data_off_ue_status",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_pco_3gpp_data_off_ue_status_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_ul_time_unit,
+		  { "Uplink time unit", "gsm_a.gm.sm.pco.add_apn_rate_ctrl_params.ul_time_unit",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_apn_rate_ctrl_ul_time_unit_vals), 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate,
+		  { "Additional uplink rate for exception data", "gsm_a.gm.sm.pco.add_apn_rate_ctrl_params.max_ul_rate",
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_message_messages, 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */
