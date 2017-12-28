@@ -421,7 +421,12 @@ recent_print_remote_host (gpointer key _U_, gpointer value, gpointer user)
     fprintf (rf, RECENT_KEY_REMOTE_HOST ": %s,%s,%d\n", ri->remote_host, ri->remote_port, ri->auth_type);
 }
 
-void
+/**
+ * Write the contents of the remote_host_list to the 'recent' file.
+ *
+ * @param rf File to write to.
+ */
+static void
 capture_remote_combo_recent_write_all(FILE *rf)
 {
     if (remote_host_list && g_hash_table_size (remote_host_list) > 0) {
@@ -448,7 +453,13 @@ recent_get_remote_host(const gchar *host)
     return (struct remote_host *)g_hash_table_lookup(remote_host_list, host);
 }
 
-gboolean
+/**
+ * Fill the remote_host_list with the entries stored in the 'recent' file.
+ *
+ * @param s String to be filled from the 'recent' file.
+ * @return True, if the list was written successfully, False otherwise.
+ */
+static gboolean
 capture_remote_combo_add_recent(const gchar *s)
 {
     GList *vals = prefs_get_string_list (s);

@@ -244,21 +244,6 @@ extern void recent_free_remote_host_list(void);
  */
 extern void recent_add_remote_host(gchar *host, struct remote_host *rh);
 
-/**
- * Fill the remote_host_list with the entries stored in the 'recent' file.
- *
- * @param s String to be filled from the 'recent' file.
- * @return True, if the list was written successfully, False otherwise.
- */
-extern gboolean capture_remote_combo_add_recent(const gchar *s);
-
-/**
- * Write the contents of the remote_host_list to the 'recent' file.
- *
- * @param rf File to write to.
- */
-extern void capture_remote_combo_recent_write_all(FILE *rf);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

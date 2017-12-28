@@ -57,23 +57,6 @@ extern gboolean dfilter_combo_add_recent(const gchar *dftext);
  */
 extern void dfilter_recent_combo_write_all(FILE *rf);
 
-#ifdef HAVE_PCAP_REMOTE
-/** Write all remote hosts to the recent file
- *
- * @param rf recent file
- */
-void
-capture_remote_combo_recent_write_all(FILE *rf);
-
-/** Add a new remote host from the recent file
- *
- * @param s string with hostname,port,auth_type
- * @return TRUE if correctly added
- */
-gboolean
-capture_remote_combo_add_recent(const gchar *s);
-#endif
-
 /** Write all packet list geometry values to the recent file.
  *
  *  @param rf recent file handle from caller
