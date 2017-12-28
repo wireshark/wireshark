@@ -293,6 +293,8 @@ static guint16 find_nvme_qid(packet_info *pinfo)
     conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->src,
                              ENDPOINT_IBQP, conv_data->src_qp, conv_data->src_qp,
                              NO_ADDR_B|NO_PORT_B);
+    if (!conv)
+        return 0;
     conv_data = get_conversion_data(conv);
     if (!conv_data)
         return 0;
