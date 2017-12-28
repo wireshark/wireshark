@@ -15220,7 +15220,11 @@ proto_reg_handoff_btatt(void)
             continue;
         }
 
-        if ((bluetooth_uuid_vals[i_array].value & 0xFF00) == 0x2700) {
+        // Skip Units (0x27xx) and Members (0xFDxx and 0xFExx)
+        if (((bluetooth_uuid_vals[i_array].value & 0xFF00) == 0x2700) ||
+            ((bluetooth_uuid_vals[i_array].value & 0xFF00) == 0xFD00) ||
+            ((bluetooth_uuid_vals[i_array].value & 0xFF00) == 0xFE00))
+        {
             continue;
         }
 
