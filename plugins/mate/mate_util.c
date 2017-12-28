@@ -1450,8 +1450,11 @@ static LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, cons
 	desc = g_strdup_vprintf(fmt, list);
 	va_end( list );
 
-
-	err = g_strdup_printf("Error Loading LoAL from file: in %s at line: %i, %s",loal->name,linenum,desc);
+	if (loal) {
+		err = g_strdup_printf("Error Loading LoAL from file: in %s at line: %i, %s",loal->name,linenum,desc);
+	} else {
+		err = g_strdup_printf("Error Loading LoAL at line: %i, %s",linenum,desc);
+	}
 	ret = new_loal(err);
 
 	g_free(desc);
