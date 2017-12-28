@@ -111,8 +111,13 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
     } else {
         fp = ws_fopen(fname,"r");
 
-        if (!fp && errno == ENOENT) {
-            init = true;
+        if (!fp) {
+            if (errno == ENOENT) {
+                init = true;
+            } else {
+                g_log(NULL, G_LOG_LEVEL_ERROR, "Can't open %s: %s", fname, g_strerror(errno));
+                return;
+            }
         }
     }
     g_free (fname);
