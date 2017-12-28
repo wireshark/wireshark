@@ -690,7 +690,7 @@ sharkd_session_process_analyse(void)
 
 	printf(",\"protocols\":[");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
-		sharkd_dissect_request(framenum, &sharkd_session_process_analyse_cb, 0, 0, 0, &analyser);
+		sharkd_dissect_request(framenum, (framenum != 1) ? 1 : 0, framenum - 1, &sharkd_session_process_analyse_cb, 0, 0, 0, &analyser);
 	printf("]");
 
 	if (analyser.first_time)
@@ -785,6 +785,7 @@ sharkd_session_create_columns(column_info *cinfo, const char *buf, const jsmntok
  *   (o) filter - filter to be used
  *   (o) skip=N   - skip N frames
  *   (o) limit=N  - show only N frames
+ *   (o) refs  - list (comma separated) with sorted time reference frame numbers.
  *
  * Output array of frames with attributes:
  *   (m) c   - array of column data
@@ -802,13 +803,15 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 	const char *tok_column = json_find_attr(buf, tokens, count, "column0");
 	const char *tok_skip   = json_find_attr(buf, tokens, count, "skip");
 	const char *tok_limit  = json_find_attr(buf, tokens, count, "limit");
+	const char *tok_refs   = json_find_attr(buf, tokens, count, "refs");
 
 	const guint8 *filter_data = NULL;
 
 	const char *frame_sepa = "";
 	int col;
 
-	guint32 framenum;
+	guint32 framenum, prev_dis_num = 0;
+	guint32 current_ref_frame = 0, next_ref_frame = G_MAXUINT32;
 	guint32 skip;
 	guint32 limit;
 
@@ -844,10 +847,17 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			return;
 	}
 
+	if (tok_refs)
+	{
+		if (!ws_strtou32(tok_refs, &tok_refs, &next_ref_frame))
+			return;
+	}
+
 	printf("[");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
 		frame_data *fdata;
+		guint32 ref_frame = (framenum != 1) ? 1 : 0;
 
 		if (filter_data && !(filter_data[framenum / 8] & (1 << (framenum % 8))))
 			continue;
@@ -855,12 +865,37 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 		if (skip)
 		{
 			skip--;
+			prev_dis_num = framenum;
 			continue;
 		}
 
-		fdata = sharkd_get_frame(framenum);
+		if (tok_refs)
+		{
+			if (framenum >= next_ref_frame)
+			{
+				current_ref_frame = next_ref_frame;
 
-		sharkd_dissect_columns(fdata, cinfo, (fdata->color_filter == NULL));
+				if (*tok_refs != ',')
+					next_ref_frame = G_MAXUINT32;
+
+				while (*tok_refs == ',' && framenum >= next_ref_frame)
+				{
+					current_ref_frame = next_ref_frame;
+
+					if (!ws_strtou32(tok_refs + 1, &tok_refs, &next_ref_frame))
+					{
+						fprintf(stderr, "sharkd_session_process_frames() wrong format for refs: %s\n", tok_refs);
+						break;
+					}
+				}
+			}
+
+			if (current_ref_frame)
+				ref_frame = current_ref_frame;
+		}
+
+		fdata = sharkd_get_frame(framenum);
+		sharkd_dissect_columns(fdata, ref_frame, prev_dis_num, cinfo, (fdata->color_filter == NULL));
 
 		printf("%s{\"c\":[", frame_sepa);
 		for (col = 0; col < cinfo->num_cols; ++col)
@@ -894,6 +929,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 		printf("}");
 		frame_sepa = ",";
+		prev_dis_num = framenum;
 
 		if (limit && --limit == 0)
 			break;
@@ -3032,6 +3068,8 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
  *
  * Input:
  *   (m) frame - requested frame number
+ *   (o) ref_frame - time reference frame number
+ *   (o) prev_frame - previously displayed frame number
  *   (o) proto - set if output frame tree
  *   (o) columns - set if output frame columns
  *   (o) bytes - set if output frame bytes
@@ -3064,16 +3102,26 @@ static void
 sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
 {
 	const char *tok_frame = json_find_attr(buf, tokens, count, "frame");
+	const char *tok_ref_frame = json_find_attr(buf, tokens, count, "ref_frame");
+	const char *tok_prev_frame = json_find_attr(buf, tokens, count, "prev_frame");
 	int tok_proto   = (json_find_attr(buf, tokens, count, "proto") != NULL);
 	int tok_bytes   = (json_find_attr(buf, tokens, count, "bytes") != NULL);
 	int tok_columns = (json_find_attr(buf, tokens, count, "columns") != NULL);
 
-	guint32 framenum;
+	guint32 framenum, ref_frame_num, prev_dis_num;
 
 	if (!tok_frame || !ws_strtou32(tok_frame, NULL, &framenum) || framenum == 0)
 		return;
 
-	sharkd_dissect_request(framenum, &sharkd_session_process_frame_cb, tok_bytes, tok_columns, tok_proto, NULL);
+	ref_frame_num = (framenum != 1) ? 1 : 0;
+	if (tok_ref_frame && (!ws_strtou32(tok_ref_frame, NULL, &ref_frame_num) || ref_frame_num > framenum))
+		return;
+
+	prev_dis_num = framenum - 1;
+	if (tok_prev_frame && (!ws_strtou32(tok_prev_frame, NULL, &prev_dis_num) || prev_dis_num >= framenum))
+		return;
+
+	sharkd_dissect_request(framenum, ref_frame_num, prev_dis_num, &sharkd_session_process_frame_cb, tok_bytes, tok_columns, tok_proto, NULL);
 }
 
 /**

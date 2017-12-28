@@ -523,7 +523,7 @@ sharkd_get_frame(guint32 framenum)
 }
 
 int
-sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto_tree *, struct epan_column_info *, const GSList *, void *), int dissect_bytes, int dissect_columns, int dissect_tree, void *data)
+sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis_num, sharkd_dissect_func_t cb, int dissect_bytes, int dissect_columns, int dissect_tree, void *data)
 {
   frame_data *fdata;
   column_info *cinfo = (dissect_columns) ? &cfile.cinfo : NULL;
@@ -557,6 +557,9 @@ sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto
    * XXX - need to catch an OutOfMemoryError exception and
    * attempt to recover from it.
    */
+  fdata->flags.ref_time = (framenum == frame_ref_num);
+  fdata->frame_ref_num = frame_ref_num;
+  fdata->prev_dis_num = prev_dis_num;
   epan_dissect_run(&edt, cfile.cd_t, &phdr,
                    frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
                    fdata, cinfo);
@@ -576,7 +579,7 @@ sharkd_dissect_request(unsigned int framenum, void (*cb)(epan_dissect_t *, proto
 
 /* based on packet_list_dissect_and_cache_record */
 int
-sharkd_dissect_columns(frame_data *fdata, column_info *cinfo, gboolean dissect_color)
+sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_dis_num, column_info *cinfo, gboolean dissect_color)
 {
   epan_dissect_t edt;
   gboolean create_proto_tree;
@@ -611,6 +614,9 @@ sharkd_dissect_columns(frame_data *fdata, column_info *cinfo, gboolean dissect_c
    * XXX - need to catch an OutOfMemoryError exception and
    * attempt to recover from it.
    */
+  fdata->flags.ref_time = (fdata->num == frame_ref_num);
+  fdata->frame_ref_num = frame_ref_num;
+  fdata->prev_dis_num = prev_dis_num;
   epan_dissect_run(&edt, cfile.cd_t, &phdr,
                    frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
                    fdata, cinfo);
@@ -670,6 +676,9 @@ sharkd_retap(void)
     if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &phdr, &buf, &err, &err_info))
       break;
 
+    fdata->flags.ref_time = FALSE;
+    fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
+    fdata->prev_dis_num = framenum - 1;
     epan_dissect_run_with_taps(&edt, cfile.cd_t, &phdr,
                                frame_tvbuff_new(&cfile.provider, fdata, ws_buffer_start_ptr(&buf)),
                                fdata, cinfo);
@@ -690,7 +699,7 @@ sharkd_filter(const char *dftext, guint8 **result)
 {
   dfilter_t  *dfcode = NULL;
 
-  guint32 framenum;
+  guint32 framenum, prev_dis_num = 0;
   guint32 frames_count;
   Buffer buf;
   struct wtap_pkthdr phdr;
@@ -730,12 +739,17 @@ sharkd_filter(const char *dftext, guint8 **result)
     /* frame_data_set_before_dissect */
     epan_dissect_prime_with_dfilter(&edt, dfcode);
 
+    fdata->flags.ref_time = FALSE;
+    fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
+    fdata->prev_dis_num = prev_dis_num;
     epan_dissect_run(&edt, cfile.cd_t, &phdr,
                      frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
                      fdata, NULL);
 
-    if (dfilter_apply_edt(dfcode, &edt))
+    if (dfilter_apply_edt(dfcode, &edt)) {
       passed_bits |= (1 << (framenum % 8));
+      prev_dis_num = framenum;
+    }
 
     /* if passed or ref -> frame_data_set_after_dissect */
 
