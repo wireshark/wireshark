@@ -588,7 +588,7 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
     else
         sp->replot();
     // Throughput and Window Scale graphs can hide base_graph_
-    if (base_graph_ && base_graph_->visible())
+    if (base_graph_->visible())
         tracer_->setGraph(base_graph_);
 
     // XXX QCustomPlot doesn't seem to draw any sort of focus indicator.
