@@ -147,6 +147,8 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
             if (line[0] == '#')
                 continue;
             token = strtok(line, ",");
+            if (!token)
+                continue;
             /* Get rid of the quotation marks */
             QString ch = QString(token).mid(1, (int)strlen(token)-2);
             g_strlcpy(id, qPrintable(ch), sizeof id);
