@@ -649,13 +649,6 @@ private slots:
 
     void externalMenuItem_triggered();
 
-    void on_actionContextCopyBytesHexTextDump_triggered();
-    void on_actionContextCopyBytesHexDump_triggered();
-    void on_actionContextCopyBytesPrintableText_triggered();
-    void on_actionContextCopyBytesHexStream_triggered();
-    void on_actionContextCopyBytesBinary_triggered();
-    void on_actionContextCopyBytesEscapedString_triggered();
-
     void on_actionAnalyzeShowPacketBytes_triggered();
 
     void on_actionContextWikiProtocolPage_triggered();

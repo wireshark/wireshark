@@ -126,7 +126,7 @@
      <widget class="FilterExpressionFrame" name="filterExpressionFrame"/>
     </item>
     <item>
-     <widget class="WirelessTimeline" name="wirelessTimelineWidget"/>
+     <widget class="WirelessTimeline" name="wirelessTimelineWidget" native="true"/>
     </item>
     <item>
      <widget class="QStackedWidget" name="mainStack">
@@ -144,7 +144,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -354,7 +354,7 @@
     <addaction name="actionViewFilterToolbar"/>
     <addaction name="actionViewWirelessToolbar"/>
     <addaction name="menuInterfaceToolbars"/>
-    <addaction name="menuAdditionalToolbars" />
+    <addaction name="menuAdditionalToolbars"/>
     <addaction name="actionViewStatusBar"/>
     <addaction name="separator"/>
     <addaction name="actionViewFullScreen"/>
@@ -2550,46 +2550,6 @@
     <string>Show the currently supported protocols and display filter fields</string>
    </property>
   </action>
-  <action name="actionContextCopyBytesHexTextDump">
-   <property name="text">
-    <string>Bytes as Hex + ASCII Dump</string>
-   </property>
-   <property name="toolTip">
-    <string>Copy packet bytes as a hex and ASCII dump.</string>
-   </property>
-  </action>
-  <action name="actionContextCopyBytesHexDump">
-   <property name="text">
-    <string>…as Hex Dump</string>
-   </property>
-   <property name="toolTip">
-    <string>Copy packet bytes as a hex dump.</string>
-   </property>
-  </action>
-  <action name="actionContextCopyBytesPrintableText">
-   <property name="text">
-    <string>…as Printable Text</string>
-   </property>
-   <property name="toolTip">
-    <string>Copy only the printable text in the packet.</string>
-   </property>
-  </action>
-  <action name="actionContextCopyBytesHexStream">
-   <property name="text">
-    <string>…as a Hex Stream</string>
-   </property>
-   <property name="toolTip">
-    <string>Copy packet bytes as a stream of hex.</string>
-   </property>
-  </action>
-  <action name="actionContextCopyBytesBinary">
-   <property name="text">
-    <string>…as Raw Binary</string>
-   </property>
-   <property name="toolTip">
-    <string>Copy packet bytes as application/octet-stream MIME data.</string>
-   </property>
-  </action>
   <action name="actionTelephonyGsmMapSummary">
    <property name="text">
     <string>MAP Summary</string>
@@ -3004,14 +2964,6 @@
    </property>
    <property name="toolTip">
     <string>Create firewall ACL rules</string>
-   </property>
-  </action>
-  <action name="actionContextCopyBytesEscapedString">
-   <property name="text">
-    <string>…as Escaped String</string>
-   </property>
-   <property name="toolTip">
-    <string>Copy packet bytes as a Escaped string</string>
    </property>
   </action>
   <action name="actionViewFullScreen">

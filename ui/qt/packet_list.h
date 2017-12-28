@@ -113,7 +113,6 @@ private:
     QMenu colorize_menu_;
     ProtocolPreferencesMenu proto_prefs_menu_;
     QAction *decode_as_;
-    QList<QAction *> copy_actions_;
     int ctx_column_;
     QByteArray column_state_;
     OverlayScrollBar *overlay_sb_;

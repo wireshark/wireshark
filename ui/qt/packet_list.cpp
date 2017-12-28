@@ -241,9 +241,6 @@ PacketList::PacketList(QWidget *parent) :
     cur_history_(-1),
     in_history_(false)
 {
-    QMenu *main_menu_item, *submenu;
-    QAction *action;
-
     setItemsExpandable(false);
     setRootIsDecorated(false);
     setSortingEnabled(true);
@@ -256,113 +253,6 @@ PacketList::PacketList(QWidget *parent) :
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
     sortByColumn(-1, Qt::AscendingOrder);
-
-    // XXX We might want to reimplement setParent() and fill in the context
-    // menu there.
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditTimeShift"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
-
-    ctx_menu_.addSeparator();
-
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
-    ctx_menu_.addSeparator();
-
-    main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
-
-    main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
-
-    const char *conv_menu_name = "menuConversationFilter";
-    main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
-    conv_menu_.setTitle(main_menu_item->title());
-    conv_menu_.setObjectName(conv_menu_name);
-    ctx_menu_.addMenu(&conv_menu_);
-
-    const char *colorize_menu_name = "menuColorizeConversation";
-    main_menu_item = window()->findChild<QMenu *>(colorize_menu_name);
-    colorize_menu_.setTitle(main_menu_item->title());
-    colorize_menu_.setObjectName(colorize_menu_name);
-    ctx_menu_.addMenu(&colorize_menu_);
-
-    main_menu_item = window()->findChild<QMenu *>("menuSCTP");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
-
-    main_menu_item = window()->findChild<QMenu *>("menuFollow");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
-
-    ctx_menu_.addSeparator();
-
-    main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-
-    action = submenu->addAction(tr("Summary as Text"));
-    action->setData(copy_summary_text_);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as CSV"));
-    action->setData(copy_summary_csv_);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as YAML"));
-    action->setData(copy_summary_yaml_);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    submenu->addSeparator();
-
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
-    submenu->addSeparator();
-
-    action = window()->findChild<QAction *>("actionContextCopyBytesHexTextDump");
-    submenu->addAction(action);
-    copy_actions_ << action;
-    action = window()->findChild<QAction *>("actionContextCopyBytesHexDump");
-    submenu->addAction(action);
-    copy_actions_ << action;
-    action = window()->findChild<QAction *>("actionContextCopyBytesPrintableText");
-    submenu->addAction(action);
-    copy_actions_ << action;
-    action = window()->findChild<QAction *>("actionContextCopyBytesHexStream");
-    submenu->addAction(action);
-    copy_actions_ << action;
-    action = window()->findChild<QAction *>("actionContextCopyBytesBinary");
-    submenu->addAction(action);
-    copy_actions_ << action;
-    action = window()->findChild<QAction *>("actionContextCopyBytesEscapedString");
-    submenu->addAction(action);
-    copy_actions_ << action;
-
-    ctx_menu_.addSeparator();
-    ctx_menu_.addMenu(&proto_prefs_menu_);
-    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
-    ctx_menu_.addAction(decode_as_);
-    // "Print" not ported intentionally
-    action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
-    ctx_menu_.addAction(action);
 
     initHeaderContextMenu();
 
@@ -564,15 +454,97 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     FrameInformation * frameData =
             new FrameInformation(new CaptureFile(this, cap_file_), packet_list_model_->getRowFdata(ctxIndex.row()));
 
-    foreach (QAction *action, copy_actions_) {
-        if ( frameData->isValid() )
-        {
-            action->setProperty("idataprintable_",
-                    VariantPointer<IDataPrintable>::asQVariant((IDataPrintable*)frameData));
-        }
+    ctx_menu_.clear();
+    // XXX We might want to reimplement setParent() and fill in the context
+    // menu there.
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditTimeShift"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
 
-        action->setData(QVariant());
-    }
+    ctx_menu_.addSeparator();
+
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
+    ctx_menu_.addSeparator();
+
+    QMenu *main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
+    QMenu *submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
+
+    main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
+
+    const char *conv_menu_name = "menuConversationFilter";
+    main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
+    conv_menu_.setTitle(main_menu_item->title());
+    conv_menu_.setObjectName(conv_menu_name);
+    ctx_menu_.addMenu(&conv_menu_);
+
+    const char *colorize_menu_name = "menuColorizeConversation";
+    main_menu_item = window()->findChild<QMenu *>(colorize_menu_name);
+    colorize_menu_.setTitle(main_menu_item->title());
+    colorize_menu_.setObjectName(colorize_menu_name);
+    ctx_menu_.addMenu(&colorize_menu_);
+
+    main_menu_item = window()->findChild<QMenu *>("menuSCTP");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
+
+    main_menu_item = window()->findChild<QMenu *>("menuFollow");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
+
+    ctx_menu_.addSeparator();
+
+    main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+
+    QAction * action = submenu->addAction(tr("Summary as Text"));
+    action->setData(copy_summary_text_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as CSV"));
+    action->setData(copy_summary_csv_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as YAML"));
+    action->setData(copy_summary_yaml_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    submenu->addSeparator();
+
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
+    submenu->addSeparator();
+
+    QActionGroup * copyEntries = DataPrinter::copyActions(this, frameData);
+    submenu->addActions(copyEntries->actions());
+
+    ctx_menu_.addSeparator();
+    ctx_menu_.addMenu(&proto_prefs_menu_);
+    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
+    ctx_menu_.addAction(decode_as_);
+    // "Print" not ported intentionally
+    action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
+    ctx_menu_.addAction(action);
 
     decode_as_->setData(qVariantFromValue(true));
     ctx_column_ = columnAt(event->x());
