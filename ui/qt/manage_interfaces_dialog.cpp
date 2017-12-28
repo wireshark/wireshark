@@ -33,6 +33,8 @@
 #ifdef HAVE_PCAP_REMOTE
 #include "ui/qt/remote_capture_dialog.h"
 #include "ui/qt/remote_settings_dialog.h"
+#include "caputils/capture-pcap-util.h"
+#include "ui/recent.h"
 #endif
 #include "ui/iface_lists.h"
 #include "ui/preference_utils.h"
@@ -55,6 +57,7 @@
 #include <QLineEdit>
 #include <QStandardItemModel>
 #include <QTreeWidgetItemIterator>
+#include <QMessageBox>
 
 // To do:
 // - Check the validity of pipes and remote interfaces and provide feedback
@@ -80,6 +83,57 @@ enum {
     tab_pipe_,
     tab_remote_
 };
+
+#ifdef HAVE_PCAP_REMOTE
+static void populateExistingRemotes(gpointer key, gpointer value, gpointer user_data)
+{
+    ManageInterfacesDialog *dialog = (ManageInterfacesDialog*)user_data;
+    const gchar *host = (const gchar *)key;
+    struct remote_host *remote_host = (struct remote_host *)value;
+    remote_options global_remote_opts;
+    int err;
+    gchar *err_str;
+
+    global_remote_opts.src_type = CAPTURE_IFREMOTE;
+    global_remote_opts.remote_host_opts.remote_host = g_strdup(host);
+    global_remote_opts.remote_host_opts.remote_port = g_strdup(remote_host->remote_port);
+    global_remote_opts.remote_host_opts.auth_type = remote_host->auth_type;
+    global_remote_opts.remote_host_opts.auth_username = g_strdup(remote_host->auth_username);
+    global_remote_opts.remote_host_opts.auth_password = g_strdup(remote_host->auth_password);
+    global_remote_opts.remote_host_opts.datatx_udp  = FALSE;
+    global_remote_opts.remote_host_opts.nocap_rpcap = TRUE;
+    global_remote_opts.remote_host_opts.nocap_local = FALSE;
+#ifdef HAVE_PCAP_SETSAMPLING
+    global_remote_opts.sampling_method = CAPTURE_SAMP_NONE;
+    global_remote_opts.sampling_param  = 0;
+#endif
+    GList *rlist = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
+                                              global_remote_opts.remote_host_opts.remote_port,
+                                              global_remote_opts.remote_host_opts.auth_type,
+                                              global_remote_opts.remote_host_opts.auth_username,
+                                              global_remote_opts.remote_host_opts.auth_password,
+                                              &err, &err_str);
+    if (rlist == NULL) {
+        switch (err) {
+        case 0:
+            QMessageBox::warning(dialog, QObject::tr("Error"), QObject::tr("No remote interfaces found."));
+            break;
+        case CANT_GET_INTERFACE_LIST:
+            QMessageBox::critical(dialog, QObject::tr("Error"), err_str);
+            break;
+        case DONT_HAVE_PCAP:
+            QMessageBox::critical(dialog, QObject::tr("Error"), QObject::tr("PCAP not found"));
+            break;
+        default:
+            QMessageBox::critical(dialog, QObject::tr("Error"), QObject::tr("Unknown error"));
+            break;
+        }
+        return;
+    }
+
+    emit dialog->remoteAdded(rlist, &global_remote_opts);
+}
+#endif /* HAVE_PCAP_REMOTE */
 
 ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -152,6 +206,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     connect(this, SIGNAL(remoteAdded(GList*, remote_options*)), this, SLOT(addRemoteInterfaces(GList*, remote_options*)));
     connect(this, SIGNAL(remoteSettingsChanged(interface_t *)), this, SLOT(setRemoteSettings(interface_t *)));
     connect(ui->remoteList, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(remoteSelectionChanged(QTreeWidgetItem*, int)));
+    recent_remote_host_list_foreach(populateExistingRemotes, this);
 #endif
 
     ui->tabWidget->setCurrentIndex(tab_local_);
