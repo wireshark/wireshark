@@ -185,6 +185,7 @@ MOC_UTILS_HDRS = \
 	utils/data_printer.h				\
 	utils/field_information.h			\
 	utils/frame_information.h			\
+	utils/idata_printable.h				\
 	utils/proto_node.h				\
 	utils/qt_ui_utils.h				\
 	utils/stock_icon.h				\

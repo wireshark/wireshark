@@ -24,6 +24,7 @@
 #include <QVector>
 
 #include <ui/qt/utils/data_printer.h>
+#include <ui/qt/utils/idata_printable.h>
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 

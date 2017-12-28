@@ -17,8 +17,6 @@
 #include "wireshark_application.h"
 #include "ui/recent.h"
 
-#include <ui/qt/utils/data_printer.h>
-
 #include <QActionGroup>
 #include <QMouseEvent>
 #include <QPainter>

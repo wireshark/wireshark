@@ -18,13 +18,7 @@
 #include <QObject>
 #include <QActionGroup>
 
-class IDataPrintable
-{
-public:
-    virtual ~IDataPrintable() {}
-
-    virtual const QByteArray printableData() = 0;
-};
+#include <ui/qt/utils/idata_printable.h>
 
 class DataPrinter : public QObject
 {
@@ -62,10 +56,6 @@ private:
 
     int byteLineLength_;
 };
-
-#define IDataPrintable_iid "org.wireshark.Qt.UI.IDataPrintable"
-
-Q_DECLARE_INTERFACE(IDataPrintable, IDataPrintable_iid)
 
 #endif // DATA_PRINTER_H
 
