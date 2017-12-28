@@ -576,7 +576,7 @@ conv_item_t *ConversationDialog::currentConversation()
     }
 
     ConversationTreeWidgetItem *ctwi = dynamic_cast<ConversationTreeWidgetItem *>(cur_tree->selectedItems()[0]);
-    return ctwi->convItem();
+    return (ctwi ? ctwi->convItem() : NULL);
 }
 
 // ConversationTreeWidget
@@ -782,14 +782,16 @@ void ConversationTreeWidget::updateItems() {
     for (int i = 0; i < topLevelItemCount(); i++) {
         ConversationTreeWidgetItem *ctwi = dynamic_cast<ConversationTreeWidgetItem *>(topLevelItem(i));
 
-        double item_rel_start = nstime_to_sec(&(ctwi->convItem()->start_time));
-        if (item_rel_start < min_rel_start_time_) {
-            min_rel_start_time_ = item_rel_start;
-        }
+        if (ctwi) {
+            double item_rel_start = nstime_to_sec(&(ctwi->convItem()->start_time));
+            if (item_rel_start < min_rel_start_time_) {
+                min_rel_start_time_ = item_rel_start;
+            }
 
-        double item_rel_stop = nstime_to_sec(&(ctwi->convItem()->stop_time));
-        if (item_rel_stop > max_rel_stop_time_) {
-            max_rel_stop_time_ = item_rel_stop;
+            double item_rel_stop = nstime_to_sec(&(ctwi->convItem()->stop_time));
+            if (item_rel_stop > max_rel_stop_time_) {
+                max_rel_stop_time_ = item_rel_stop;
+            }
         }
     }
 
