@@ -122,8 +122,11 @@ gboolean extcap_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **ar
 
         WaitForSingleObject(processInfo.hProcess, INFINITE);
         buffer = (gchar*)g_malloc(BUFFER_SIZE);
-        ws_read_string_from_pipe(child_stdout_rd, buffer, BUFFER_SIZE);
-        local_output = g_strdup_printf("%s", buffer);
+        status = ws_read_string_from_pipe(child_stdout_rd, buffer, BUFFER_SIZE);
+        if (status)
+        {
+            local_output = g_strdup_printf("%s", buffer);
+        }
         g_free(buffer);
 
         CloseHandle(child_stdout_rd);
@@ -133,7 +136,6 @@ gboolean extcap_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **ar
 
         CloseHandle(processInfo.hProcess);
         CloseHandle(processInfo.hThread);
-        status = TRUE;
     }
     else
         status = FALSE;
