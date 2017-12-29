@@ -4284,11 +4284,12 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
 
   if (save_format == cf->cd_t && compressed == cf->iscompressed
       && !discard_comments && !cf->unsaved_changes
-      && !(addr_lists && wtap_dump_has_name_resolution(save_format))) {
-    /* We're saving in the format it's already in, and we're
-       not discarding comments, and there are no changes we have
-       in memory that aren't saved to the file, and we have no name
-       resolution blocks to write, so we can just move or copy the raw data. */
+      && (wtap_addrinfo_list_empty(addr_lists) || !wtap_dump_has_name_resolution(save_format))) {
+    /* We're saving in the format it's already in, and we're not discarding
+       comments, and there are no changes we have in memory that aren't saved
+       to the file, and we have no name resolution information to write or
+       the file format we're saving in doesn't support writing name
+       resolution information, so we can just move or copy the raw data. */
 
     if (cf->is_tempfile) {
       /* The file being saved is a temporary file from a live

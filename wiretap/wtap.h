@@ -1932,6 +1932,8 @@ WS_DLL_PUBLIC
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 struct addrinfo;
 WS_DLL_PUBLIC
+gboolean wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists);
+WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
 gboolean wtap_dump_get_needs_reload(wtap_dumper *wdh);

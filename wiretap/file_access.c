@@ -2608,6 +2608,14 @@ wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
 }
 
 gboolean
+wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists)
+{
+	return (addrinfo_lists == NULL) ||
+	    ((addrinfo_lists->ipv4_addr_list == NULL) &&
+	     (addrinfo_lists->ipv6_addr_list == NULL));
+}
+
+gboolean
 wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 {
 	if (!wdh || wdh->file_type_subtype < 0 || wdh->file_type_subtype >= wtap_num_file_types_subtypes

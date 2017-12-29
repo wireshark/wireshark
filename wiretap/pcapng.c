@@ -3376,7 +3376,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     hashipv6_t *ipv6_hash_list_entry;
     int i;
 
-    if ((!wdh->addrinfo_lists) || ((!wdh->addrinfo_lists->ipv4_addr_list)&&(!wdh->addrinfo_lists->ipv6_addr_list))) {
+    if (wtap_addrinfo_list_empty(wdh->addrinfo_lists)) {
         /*
          * No name/address pairs to write.
          * XXX - what if we have options?
