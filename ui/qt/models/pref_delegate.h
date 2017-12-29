@@ -14,7 +14,6 @@
 #include <config.h>
 
 #include <ui/qt/models/pref_models.h>
-#include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <QStyledItemDelegate>
 #include <QModelIndex>
@@ -36,19 +35,17 @@ private:
     PrefsItem* indexToPref(const QModelIndex &index) const;
 };
 
-//Utility class for range preferences
-class RangeSyntaxLineEdit : public SyntaxLineEdit
-{
-    Q_OBJECT
-public:
-    explicit RangeSyntaxLineEdit(QWidget *parent = 0);
-    void setMaxRange(unsigned int max) {maxRange_ = max;}
-
-public slots:
-    void checkRange(QString range);
-
-private:
-    unsigned int maxRange_;
-};
-
 #endif // PREF_DELEGATE_H
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

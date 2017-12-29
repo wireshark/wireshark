@@ -46,9 +46,15 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/overlay_scroll_bar.h
 	widgets/pref_module_view.h
 	widgets/qcustomplot.h
+	widgets/range_syntax_lineedit.h
 	widgets/stock_icon_tool_button.h
 	widgets/syntax_line_edit.h
 	widgets/tabnav_tree_view.h
+)
+
+set(WIRESHARK_MANAGER_HEADERS
+	manager/preference_manager.h
+	manager/wireshark_preference.h
 )
 
 set(WIRESHARK_UTILS_HEADERS
@@ -272,9 +278,15 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/overlay_scroll_bar.cpp
 	widgets/pref_module_view.cpp
 	widgets/qcustomplot.cpp
+	widgets/range_syntax_lineedit.cpp
 	widgets/stock_icon_tool_button.cpp
 	widgets/syntax_line_edit.cpp
 	widgets/tabnav_tree_view.cpp
+)
+
+set(WIRESHARK_MANAGER_SRCS
+	manager/preference_manager.cpp
+	manager/wireshark_preference.cpp
 )
 
 set(WIRESHARK_UTILS_SRCS
@@ -660,16 +672,20 @@ source_group("ui\\Utils Headers Files" FILES ${WIRESHARK_UTILS_HEADERS})
 source_group("ui\\Utils Source" FILES ${WIRESHARK_UTILS_SRCS})
 source_group("ui\\Models Headers" FILES ${WIRESHARK_MODEL_HEADERS})
 source_group("ui\\Models Source" FILES ${WIRESHARK_MODEL_SRCS})
+source_group("ui\\Manager Headers" FILES ${WIRESHARK_MANAGER_HEADERS})
+source_group("ui\\Manager Source" FILES ${WIRESHARK_MANAGER_SRCS})
 
 add_library(qtui STATIC
 	#Included so that Visual Studio can properly put header files in solution
 	${WIRESHARK_QT_HEADERS}
 	${WIRESHARK_WIDGET_HEADERS}
+	${WIRESHARK_MANAGER_HEADERS}
 	${WIRESHARK_UTILS_HEADERS}
 	${WIRESHARK_MODEL_HEADERS}
 
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_WIDGET_SRCS}
+	${WIRESHARK_MANAGER_SRCS}
 	${WIRESHARK_UTILS_SRCS}
 	${WIRESHARK_MODEL_SRCS}
 

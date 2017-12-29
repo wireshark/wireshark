@@ -175,10 +175,17 @@ MOC_WIDGET_HDRS = \
 	widgets/label_stack.h				\
 	widgets/overlay_scroll_bar.h			\
 	widgets/pref_module_view.h			\
+	widgets/range_syntax_lineedit.h			\
 	widgets/syntax_line_edit.h			\
 	widgets/stock_icon_tool_button.h		\
 	widgets/tabnav_tree_view.h			\
 	widgets/qcustomplot.h
+
+
+# Files that are general manager classes with
+MOC_MANAGER_HDRS = \
+	manager/preference_manager.h			\
+	manager/wireshark_preference.h
 
 # Files that are utility classes with multi-purpose, but no widgets
 MOC_UTILS_HDRS = \
@@ -351,6 +358,7 @@ MOC_HDRS = \
 	wireshark_dialog.h				\
 	wlan_statistics_dialog.h			\
 	$(MOC_WIDGET_HDRS)				\
+	$(MOC_MANAGER_HDRS)				\
 	$(MOC_UTILS_HDRS)				\
 	$(MOC_MODELS_HDRS)
 
@@ -516,9 +524,15 @@ WIRESHARK_QT_WIDGET_SRC = \
 	widgets/overlay_scroll_bar.cpp			\
 	widgets/pref_module_view.cpp			\
 	widgets/stock_icon_tool_button.cpp		\
+	widgets/range_syntax_lineedit.cpp		\
 	widgets/syntax_line_edit.cpp			\
 	widgets/tabnav_tree_view.cpp			\
 	widgets/qcustomplot.cpp
+
+# Files that are general manager classes with
+WIRESHARK_QT_MANAGER_SRC = \
+	manager/preference_manager.cpp			\
+	manager/wireshark_preference.cpp
 
 WIRESHARK_QT_UTILS_SRC = \
 	utils/color_utils.cpp				\
@@ -676,6 +690,7 @@ WIRESHARK_QT_SRC = \
 	wireshark_dialog.cpp				\
 	$(WIRESHARK_QT_WIDGET_SRC)			\
 	$(WIRESHARK_QT_UTILS_SRC)			\
+	$(WIRESHARK_QT_MANAGER_SRC)			\
 	${WIRESHARK_QT_MODELS_SRCS}
 
 WIRESHARK_QT_TAP_SRC = \
