@@ -128,7 +128,7 @@ p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int pro
   temp.proto_data = NULL;
 
   if (scope == pinfo->pool) {
-    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
+    item = g_slist_find_custom(pinfo->proto_data, &temp, p_compare);
     proto_list = &pinfo->proto_data;
   } else {
     item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
