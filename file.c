@@ -4559,6 +4559,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         }
       }
 #else
+      /* Windows - copy the file to its new location. */
       how_to_save = SAVE_WITH_COPY;
 #endif
     } else {
@@ -4694,6 +4695,14 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
     }
   }
 
+  /* If this was a temporary file, and we didn't do the save by doing
+     a move, so the tempoary file is still around under its old name,
+     remove it. */
+  if (cf->is_tempfile) {
+    /* If this fails, there's not much we can do, so just ignore errors. */
+    ws_unlink(cf->filename);
+  }
+
   cf_callback_invoke(cf_cb_file_save_finished, NULL);
   cf->unsaved_changes = FALSE;
 
@@ -4712,7 +4721,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       break;
 
     case SAVE_WITH_COPY:
-      /* We just copied the file, s all the information other than
+      /* We just copied the file, so all the information other than
          the wtap structure, the filename, and the "is temporary"
          status applies to the new file; just update that. */
       wtap_close(cf->wth);
