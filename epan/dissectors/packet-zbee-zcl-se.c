@@ -254,13 +254,318 @@ proto_reg_handoff_zbee_zcl_keep_alive(void)
 
 /* Attributes */
 #define zbee_zcl_price_attr_names_VALUE_STRING_LIST(XXX) \
+/* Tier Label (Delivered) Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_PRICE_LABEL,              0x0000, "Tier 1 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_PRICE_LABEL,              0x0001, "Tier 2 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_PRICE_LABEL,              0x0002, "Tier 3 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_PRICE_LABEL,              0x0003, "Tier 4 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_PRICE_LABEL,              0x0004, "Tier 5 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_PRICE_LABEL,              0x0005, "Tier 6 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_PRICE_LABEL,              0x0006, "Tier 7 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_PRICE_LABEL,              0x0007, "Tier 8 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_PRICE_LABEL,              0x0008, "Tier 9 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_PRICE_LABEL,             0x0009, "Tier 10 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_PRICE_LABEL,             0x000A, "Tier 11 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_PRICE_LABEL,             0x000B, "Tier 12 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_PRICE_LABEL,             0x000C, "Tier 13 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_PRICE_LABEL,             0x000D, "Tier 14 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_PRICE_LABEL,             0x000E, "Tier 15 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_16_PRICE_LABEL,             0x000F, "Tier 16 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_17_PRICE_LABEL,             0x0010, "Tier 17 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_18_PRICE_LABEL,             0x0011, "Tier 18 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_19_PRICE_LABEL,             0x0012, "Tier 19 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_20_PRICE_LABEL,             0x0013, "Tier 20 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_21_PRICE_LABEL,             0x0014, "Tier 21 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_22_PRICE_LABEL,             0x0015, "Tier 22 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_23_PRICE_LABEL,             0x0016, "Tier 23 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_24_PRICE_LABEL,             0x0017, "Tier 24 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_25_PRICE_LABEL,             0x0018, "Tier 25 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_26_PRICE_LABEL,             0x0019, "Tier 26 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_27_PRICE_LABEL,             0x001A, "Tier 27 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_28_PRICE_LABEL,             0x001B, "Tier 28 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_29_PRICE_LABEL,             0x001C, "Tier 29 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_30_PRICE_LABEL,             0x001D, "Tier 30 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_31_PRICE_LABEL,             0x001E, "Tier 31 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_32_PRICE_LABEL,             0x001F, "Tier 32 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_33_PRICE_LABEL,             0x0020, "Tier 33 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_34_PRICE_LABEL,             0x0021, "Tier 34 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_35_PRICE_LABEL,             0x0022, "Tier 35 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_36_PRICE_LABEL,             0x0023, "Tier 36 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_37_PRICE_LABEL,             0x0024, "Tier 37 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_38_PRICE_LABEL,             0x0025, "Tier 38 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_39_PRICE_LABEL,             0x0026, "Tier 39 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_40_PRICE_LABEL,             0x0027, "Tier 40 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_41_PRICE_LABEL,             0x0028, "Tier 41 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_42_PRICE_LABEL,             0x0029, "Tier 42 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_43_PRICE_LABEL,             0x002A, "Tier 43 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_44_PRICE_LABEL,             0x002B, "Tier 44 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_45_PRICE_LABEL,             0x002C, "Tier 45 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_46_PRICE_LABEL,             0x002D, "Tier 46 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_47_PRICE_LABEL,             0x002E, "Tier 47 Price Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_48_PRICE_LABEL,             0x002F, "Tier 48 Price Label" ) \
 /* Block Threshold (Delivered) Set */ \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_1_THRESHOLD,               0x0100, "Block 1 Threshold" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_2_THRESHOLD,               0x0101, "Block 2 Threshold" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_3_THRESHOLD,               0x0102, "Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_4_THRESHOLD,               0x0103, "Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_5_THRESHOLD,               0x0104, "Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_6_THRESHOLD,               0x0105, "Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_7_THRESHOLD,               0x0106, "Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_8_THRESHOLD,               0x0107, "Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_9_THRESHOLD,               0x0108, "Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_10_THRESHOLD,              0x0109, "Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_11_THRESHOLD,              0x010A, "Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_12_THRESHOLD,              0x010B, "Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_13_THRESHOLD,              0x010C, "Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_14_THRESHOLD,              0x010D, "Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_15_THRESHOLD,              0x010E, "Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_THRESHOLD_COUNT,           0x010F, "Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_1_THRESHOLD,        0x0110, "Tier 1 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_2_THRESHOLD,        0x0111, "Tier 1 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_3_THRESHOLD,        0x0112, "Tier 1 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_4_THRESHOLD,        0x0113, "Tier 1 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_5_THRESHOLD,        0x0114, "Tier 1 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_6_THRESHOLD,        0x0115, "Tier 1 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_7_THRESHOLD,        0x0116, "Tier 1 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_8_THRESHOLD,        0x0117, "Tier 1 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_9_THRESHOLD,        0x0118, "Tier 1 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_10_THRESHOLD,       0x0119, "Tier 1 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_11_THRESHOLD,       0x011A, "Tier 1 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_12_THRESHOLD,       0x011B, "Tier 1 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_13_THRESHOLD,       0x011C, "Tier 1 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_14_THRESHOLD,       0x011D, "Tier 1 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_15_THRESHOLD,       0x011E, "Tier 1 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_THRESHOLD_COUNT,    0x011F, "Tier 1 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_1_THRESHOLD,        0x0120, "Tier 2 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_2_THRESHOLD,        0x0121, "Tier 2 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_3_THRESHOLD,        0x0122, "Tier 2 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_4_THRESHOLD,        0x0123, "Tier 2 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_5_THRESHOLD,        0x0124, "Tier 2 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_6_THRESHOLD,        0x0125, "Tier 2 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_7_THRESHOLD,        0x0126, "Tier 2 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_8_THRESHOLD,        0x0127, "Tier 2 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_9_THRESHOLD,        0x0128, "Tier 2 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_10_THRESHOLD,       0x0129, "Tier 2 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_11_THRESHOLD,       0x012A, "Tier 2 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_12_THRESHOLD,       0x012B, "Tier 2 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_13_THRESHOLD,       0x012C, "Tier 2 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_14_THRESHOLD,       0x012D, "Tier 2 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_15_THRESHOLD,       0x012E, "Tier 2 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_THRESHOLD_COUNT,    0x012F, "Tier 2 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_1_THRESHOLD,        0x0130, "Tier 3 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_2_THRESHOLD,        0x0131, "Tier 3 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_3_THRESHOLD,        0x0132, "Tier 3 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_4_THRESHOLD,        0x0133, "Tier 3 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_5_THRESHOLD,        0x0134, "Tier 3 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_6_THRESHOLD,        0x0135, "Tier 3 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_7_THRESHOLD,        0x0136, "Tier 3 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_8_THRESHOLD,        0x0137, "Tier 3 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_9_THRESHOLD,        0x0138, "Tier 3 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_10_THRESHOLD,       0x0139, "Tier 3 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_11_THRESHOLD,       0x013A, "Tier 3 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_12_THRESHOLD,       0x013B, "Tier 3 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_13_THRESHOLD,       0x013C, "Tier 3 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_14_THRESHOLD,       0x013D, "Tier 3 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_15_THRESHOLD,       0x013E, "Tier 3 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_THRESHOLD_COUNT,    0x013F, "Tier 3 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_1_THRESHOLD,        0x0140, "Tier 4 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_2_THRESHOLD,        0x0141, "Tier 4 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_3_THRESHOLD,        0x0142, "Tier 4 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_4_THRESHOLD,        0x0143, "Tier 4 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_5_THRESHOLD,        0x0144, "Tier 4 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_6_THRESHOLD,        0x0145, "Tier 4 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_7_THRESHOLD,        0x0146, "Tier 4 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_8_THRESHOLD,        0x0147, "Tier 4 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_9_THRESHOLD,        0x0148, "Tier 4 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_10_THRESHOLD,       0x0149, "Tier 4 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_11_THRESHOLD,       0x014A, "Tier 4 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_12_THRESHOLD,       0x014B, "Tier 4 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_13_THRESHOLD,       0x014C, "Tier 4 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_14_THRESHOLD,       0x014D, "Tier 4 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_15_THRESHOLD,       0x014E, "Tier 4 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_THRESHOLD_COUNT,    0x014F, "Tier 4 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_1_THRESHOLD,        0x0150, "Tier 5 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_2_THRESHOLD,        0x0151, "Tier 5 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_3_THRESHOLD,        0x0152, "Tier 5 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_4_THRESHOLD,        0x0153, "Tier 5 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_5_THRESHOLD,        0x0154, "Tier 5 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_6_THRESHOLD,        0x0155, "Tier 5 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_7_THRESHOLD,        0x0156, "Tier 5 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_8_THRESHOLD,        0x0157, "Tier 5 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_9_THRESHOLD,        0x0158, "Tier 5 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_10_THRESHOLD,       0x0159, "Tier 5 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_11_THRESHOLD,       0x015A, "Tier 5 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_12_THRESHOLD,       0x015B, "Tier 5 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_13_THRESHOLD,       0x015C, "Tier 5 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_14_THRESHOLD,       0x015D, "Tier 5 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_15_THRESHOLD,       0x015E, "Tier 5 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_THRESHOLD_COUNT,    0x015F, "Tier 5 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_1_THRESHOLD,        0x0160, "Tier 6 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_2_THRESHOLD,        0x0161, "Tier 6 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_3_THRESHOLD,        0x0162, "Tier 6 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_4_THRESHOLD,        0x0163, "Tier 6 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_5_THRESHOLD,        0x0164, "Tier 6 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_6_THRESHOLD,        0x0165, "Tier 6 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_7_THRESHOLD,        0x0166, "Tier 6 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_8_THRESHOLD,        0x0167, "Tier 6 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_9_THRESHOLD,        0x0168, "Tier 6 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_10_THRESHOLD,       0x0169, "Tier 6 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_11_THRESHOLD,       0x016A, "Tier 6 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_12_THRESHOLD,       0x016B, "Tier 6 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_13_THRESHOLD,       0x016C, "Tier 6 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_14_THRESHOLD,       0x016D, "Tier 6 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_15_THRESHOLD,       0x016E, "Tier 6 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_THRESHOLD_COUNT,    0x016F, "Tier 6 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_1_THRESHOLD,        0x0170, "Tier 7 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_2_THRESHOLD,        0x0171, "Tier 7 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_3_THRESHOLD,        0x0172, "Tier 7 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_4_THRESHOLD,        0x0173, "Tier 7 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_5_THRESHOLD,        0x0174, "Tier 7 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_6_THRESHOLD,        0x0175, "Tier 7 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_7_THRESHOLD,        0x0176, "Tier 7 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_8_THRESHOLD,        0x0177, "Tier 7 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_9_THRESHOLD,        0x0178, "Tier 7 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_10_THRESHOLD,       0x0179, "Tier 7 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_11_THRESHOLD,       0x017A, "Tier 7 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_12_THRESHOLD,       0x017B, "Tier 7 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_13_THRESHOLD,       0x017C, "Tier 7 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_14_THRESHOLD,       0x017D, "Tier 7 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_15_THRESHOLD,       0x017E, "Tier 7 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_THRESHOLD_COUNT,    0x017F, "Tier 7 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_1_THRESHOLD,        0x0180, "Tier 8 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_2_THRESHOLD,        0x0181, "Tier 8 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_3_THRESHOLD,        0x0182, "Tier 8 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_4_THRESHOLD,        0x0183, "Tier 8 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_5_THRESHOLD,        0x0184, "Tier 8 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_6_THRESHOLD,        0x0185, "Tier 8 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_7_THRESHOLD,        0x0186, "Tier 8 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_8_THRESHOLD,        0x0187, "Tier 8 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_9_THRESHOLD,        0x0188, "Tier 8 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_10_THRESHOLD,       0x0189, "Tier 8 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_11_THRESHOLD,       0x018A, "Tier 8 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_12_THRESHOLD,       0x018B, "Tier 8 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_13_THRESHOLD,       0x018C, "Tier 8 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_14_THRESHOLD,       0x018D, "Tier 8 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_15_THRESHOLD,       0x018E, "Tier 8 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_THRESHOLD_COUNT,    0x018F, "Tier 8 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_1_THRESHOLD,        0x0190, "Tier 9 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_2_THRESHOLD,        0x0191, "Tier 9 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_3_THRESHOLD,        0x0192, "Tier 9 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_4_THRESHOLD,        0x0193, "Tier 9 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_5_THRESHOLD,        0x0194, "Tier 9 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_6_THRESHOLD,        0x0195, "Tier 9 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_7_THRESHOLD,        0x0196, "Tier 9 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_8_THRESHOLD,        0x0197, "Tier 9 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_9_THRESHOLD,        0x0198, "Tier 9 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_10_THRESHOLD,       0x0199, "Tier 9 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_11_THRESHOLD,       0x019A, "Tier 9 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_12_THRESHOLD,       0x019B, "Tier 9 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_13_THRESHOLD,       0x019C, "Tier 9 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_14_THRESHOLD,       0x019D, "Tier 9 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_15_THRESHOLD,       0x019E, "Tier 9 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_THRESHOLD_COUNT,    0x019F, "Tier 9 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_1_THRESHOLD,       0x01A0, "Tier 10 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_2_THRESHOLD,       0x01A1, "Tier 10 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_3_THRESHOLD,       0x01A2, "Tier 10 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_4_THRESHOLD,       0x01A3, "Tier 10 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_5_THRESHOLD,       0x01A4, "Tier 10 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_6_THRESHOLD,       0x01A5, "Tier 10 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_7_THRESHOLD,       0x01A6, "Tier 10 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_8_THRESHOLD,       0x01A7, "Tier 10 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_9_THRESHOLD,       0x01A8, "Tier 10 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_10_THRESHOLD,      0x01A9, "Tier 10 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_11_THRESHOLD,      0x01AA, "Tier 10 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_12_THRESHOLD,      0x01AB, "Tier 10 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_13_THRESHOLD,      0x01AC, "Tier 10 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_14_THRESHOLD,      0x01AD, "Tier 10 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_15_THRESHOLD,      0x01AE, "Tier 10 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_THRESHOLD_COUNT,   0x01AF, "Tier 10 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_1_THRESHOLD,       0x01B0, "Tier 11 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_2_THRESHOLD,       0x01B1, "Tier 11 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_3_THRESHOLD,       0x01B2, "Tier 11 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_4_THRESHOLD,       0x01B3, "Tier 11 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_5_THRESHOLD,       0x01B4, "Tier 11 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_6_THRESHOLD,       0x01B5, "Tier 11 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_7_THRESHOLD,       0x01B6, "Tier 11 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_8_THRESHOLD,       0x01B7, "Tier 11 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_9_THRESHOLD,       0x01B8, "Tier 11 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_10_THRESHOLD,      0x01B9, "Tier 11 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_11_THRESHOLD,      0x01BA, "Tier 11 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_12_THRESHOLD,      0x01BB, "Tier 11 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_13_THRESHOLD,      0x01BC, "Tier 11 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_14_THRESHOLD,      0x01BD, "Tier 11 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_15_THRESHOLD,      0x01BE, "Tier 11 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_THRESHOLD_COUNT,   0x01BF, "Tier 11 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_1_THRESHOLD,       0x01C0, "Tier 12 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_2_THRESHOLD,       0x01C1, "Tier 12 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_3_THRESHOLD,       0x01C2, "Tier 12 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_4_THRESHOLD,       0x01C3, "Tier 12 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_5_THRESHOLD,       0x01C4, "Tier 12 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_6_THRESHOLD,       0x01C5, "Tier 12 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_7_THRESHOLD,       0x01C6, "Tier 12 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_8_THRESHOLD,       0x01C7, "Tier 12 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_9_THRESHOLD,       0x01C8, "Tier 12 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_10_THRESHOLD,      0x01C9, "Tier 12 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_11_THRESHOLD,      0x01CA, "Tier 12 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_12_THRESHOLD,      0x01CB, "Tier 12 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_13_THRESHOLD,      0x01CC, "Tier 12 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_14_THRESHOLD,      0x01CD, "Tier 12 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_15_THRESHOLD,      0x01CE, "Tier 12 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_THRESHOLD_COUNT,   0x01CF, "Tier 12 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_1_THRESHOLD,       0x01D0, "Tier 13 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_2_THRESHOLD,       0x01D1, "Tier 13 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_3_THRESHOLD,       0x01D2, "Tier 13 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_4_THRESHOLD,       0x01D3, "Tier 13 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_5_THRESHOLD,       0x01D4, "Tier 13 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_6_THRESHOLD,       0x01D5, "Tier 13 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_7_THRESHOLD,       0x01D6, "Tier 13 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_8_THRESHOLD,       0x01D7, "Tier 13 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_9_THRESHOLD,       0x01D8, "Tier 13 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_10_THRESHOLD,      0x01D9, "Tier 13 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_11_THRESHOLD,      0x01DA, "Tier 13 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_12_THRESHOLD,      0x01DB, "Tier 13 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_13_THRESHOLD,      0x01DC, "Tier 13 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_14_THRESHOLD,      0x01DD, "Tier 13 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_15_THRESHOLD,      0x01DE, "Tier 13 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_THRESHOLD_COUNT,   0x01DF, "Tier 13 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_1_THRESHOLD,       0x01E0, "Tier 14 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_2_THRESHOLD,       0x01E1, "Tier 14 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_3_THRESHOLD,       0x01E2, "Tier 14 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_4_THRESHOLD,       0x01E3, "Tier 14 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_5_THRESHOLD,       0x01E4, "Tier 14 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_6_THRESHOLD,       0x01E5, "Tier 14 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_7_THRESHOLD,       0x01E6, "Tier 14 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_8_THRESHOLD,       0x01E7, "Tier 14 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_9_THRESHOLD,       0x01E8, "Tier 14 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_10_THRESHOLD,      0x01E9, "Tier 14 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_11_THRESHOLD,      0x01EA, "Tier 14 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_12_THRESHOLD,      0x01EB, "Tier 14 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_13_THRESHOLD,      0x01EC, "Tier 14 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_14_THRESHOLD,      0x01ED, "Tier 14 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_15_THRESHOLD,      0x01EE, "Tier 14 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_THRESHOLD_COUNT,   0x01EF, "Tier 14 Block Threshold Count" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_1_THRESHOLD,       0x01F0, "Tier 15 Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_2_THRESHOLD,       0x01F1, "Tier 15 Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_3_THRESHOLD,       0x01F2, "Tier 15 Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_4_THRESHOLD,       0x01F3, "Tier 15 Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_5_THRESHOLD,       0x01F4, "Tier 15 Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_6_THRESHOLD,       0x01F5, "Tier 15 Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_7_THRESHOLD,       0x01F6, "Tier 15 Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_8_THRESHOLD,       0x01F7, "Tier 15 Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_9_THRESHOLD,       0x01F8, "Tier 15 Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_10_THRESHOLD,      0x01F9, "Tier 15 Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_11_THRESHOLD,      0x01FA, "Tier 15 Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_12_THRESHOLD,      0x01FB, "Tier 15 Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_13_THRESHOLD,      0x01FC, "Tier 15 Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_14_THRESHOLD,      0x01FD, "Tier 15 Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_15_THRESHOLD,      0x01FE, "Tier 15 Block 15 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_THRESHOLD_COUNT,   0x01FF, "Tier 15 Block Threshold Count" ) \
 /* Block Period (Delivered) Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_START_OF_BLOCK_PERIOD,           0x0200, "Start of Block Period" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_PERIOD_DURATION,           0x0201, "Block Period Duration" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_THRESHOLD_MULTIPLIER,            0x0202, "Threshold Multiplier" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_THRESHOLD_DIVISOR,               0x0203, "Threshold Divisor" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_PERIOD_DURATION_TYPE,      0x0204, "Block Period Duration Type" ) \
 /* Commodity */ \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_COMMODITY_TYPE,                  0x0300, "Commodity Type" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_STANDING_CHARGE,                 0x0301, "Standing Charge" ) \
@@ -274,19 +579,714 @@ proto_reg_handoff_zbee_zcl_keep_alive(void)
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_2_PRICE,           0x0401, "No Tier Block 2 Price" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_3_PRICE,           0x0402, "No Tier Block 3 Price" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_4_PRICE,           0x0403, "No Tier Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_5_PRICE,           0x0404, "No Tier Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_6_PRICE,           0x0405, "No Tier Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_7_PRICE,           0x0406, "No Tier Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_8_PRICE,           0x0407, "No Tier Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_9_PRICE,           0x0408, "No Tier Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_10_PRICE,          0x0409, "No Tier Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_11_PRICE,          0x040A, "No Tier Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_12_PRICE,          0x040B, "No Tier Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_13_PRICE,          0x040C, "No Tier Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_14_PRICE,          0x040D, "No Tier Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_15_PRICE,          0x040E, "No Tier Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_16_PRICE,          0x040F, "No Tier Block 16 Price" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_1_PRICE,            0x0410, "Tier 1 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_2_PRICE,            0x0411, "Tier 1 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_3_PRICE,            0x0412, "Tier 1 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_4_PRICE,            0x0413, "Tier 1 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_5_PRICE,            0x0414, "Tier 1 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_6_PRICE,            0x0415, "Tier 1 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_7_PRICE,            0x0416, "Tier 1 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_8_PRICE,            0x0417, "Tier 1 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_9_PRICE,            0x0418, "Tier 1 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_10_PRICE,           0x0419, "Tier 1 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_11_PRICE,           0x041A, "Tier 1 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_12_PRICE,           0x041B, "Tier 1 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_13_PRICE,           0x041C, "Tier 1 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_14_PRICE,           0x041D, "Tier 1 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_15_PRICE,           0x041E, "Tier 1 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_16_PRICE,           0x041F, "Tier 1 Block 16 Price" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_1_PRICE,            0x0420, "Tier 2 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_2_PRICE,            0x0421, "Tier 2 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_3_PRICE,            0x0422, "Tier 2 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_4_PRICE,            0x0423, "Tier 2 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_5_PRICE,            0x0424, "Tier 2 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_6_PRICE,            0x0425, "Tier 2 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_7_PRICE,            0x0426, "Tier 2 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_8_PRICE,            0x0427, "Tier 2 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_9_PRICE,            0x0428, "Tier 2 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_10_PRICE,           0x0429, "Tier 2 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_11_PRICE,           0x042A, "Tier 2 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_12_PRICE,           0x042B, "Tier 2 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_13_PRICE,           0x042C, "Tier 2 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_14_PRICE,           0x042D, "Tier 2 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_15_PRICE,           0x042E, "Tier 2 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_16_PRICE,           0x042F, "Tier 2 Block 16 Price" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_1_PRICE,            0x0430, "Tier 3 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_2_PRICE,            0x0431, "Tier 3 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_3_PRICE,            0x0432, "Tier 3 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_4_PRICE,            0x0433, "Tier 3 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_5_PRICE,            0x0434, "Tier 3 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_6_PRICE,            0x0435, "Tier 3 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_7_PRICE,            0x0436, "Tier 3 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_8_PRICE,            0x0437, "Tier 3 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_9_PRICE,            0x0438, "Tier 3 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_10_PRICE,           0x0439, "Tier 3 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_11_PRICE,           0x043A, "Tier 3 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_12_PRICE,           0x043B, "Tier 3 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_13_PRICE,           0x043C, "Tier 3 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_14_PRICE,           0x043D, "Tier 3 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_15_PRICE,           0x043E, "Tier 3 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_16_PRICE,           0x043F, "Tier 3 Block 16 Price" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_1_PRICE,            0x0440, "Tier 4 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_2_PRICE,            0x0441, "Tier 4 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_3_PRICE,            0x0442, "Tier 4 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_4_PRICE,            0x0443, "Tier 4 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_5_PRICE,            0x0444, "Tier 4 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_6_PRICE,            0x0445, "Tier 4 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_7_PRICE,            0x0446, "Tier 4 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_8_PRICE,            0x0447, "Tier 4 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_9_PRICE,            0x0448, "Tier 4 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_10_PRICE,           0x0449, "Tier 4 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_11_PRICE,           0x044A, "Tier 4 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_12_PRICE,           0x044B, "Tier 4 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_13_PRICE,           0x044C, "Tier 4 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_14_PRICE,           0x044D, "Tier 4 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_15_PRICE,           0x044E, "Tier 4 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_16_PRICE,           0x044F, "Tier 4 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_1_PRICE,            0x0450, "Tier 5 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_2_PRICE,            0x0451, "Tier 5 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_3_PRICE,            0x0452, "Tier 5 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_4_PRICE,            0x0453, "Tier 5 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_5_PRICE,            0x0454, "Tier 5 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_6_PRICE,            0x0455, "Tier 5 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_7_PRICE,            0x0456, "Tier 5 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_8_PRICE,            0x0457, "Tier 5 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_9_PRICE,            0x0458, "Tier 5 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_10_PRICE,           0x0459, "Tier 5 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_11_PRICE,           0x045A, "Tier 5 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_12_PRICE,           0x045B, "Tier 5 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_13_PRICE,           0x045C, "Tier 5 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_14_PRICE,           0x045D, "Tier 5 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_15_PRICE,           0x045E, "Tier 5 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_5_BLOCK_16_PRICE,           0x045F, "Tier 5 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_1_PRICE,            0x0460, "Tier 6 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_2_PRICE,            0x0461, "Tier 6 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_3_PRICE,            0x0462, "Tier 6 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_4_PRICE,            0x0463, "Tier 6 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_5_PRICE,            0x0464, "Tier 6 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_6_PRICE,            0x0465, "Tier 6 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_7_PRICE,            0x0466, "Tier 6 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_8_PRICE,            0x0467, "Tier 6 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_9_PRICE,            0x0468, "Tier 6 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_10_PRICE,           0x0469, "Tier 6 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_11_PRICE,           0x046A, "Tier 6 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_12_PRICE,           0x046B, "Tier 6 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_13_PRICE,           0x046C, "Tier 6 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_14_PRICE,           0x046D, "Tier 6 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_15_PRICE,           0x046E, "Tier 6 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_6_BLOCK_16_PRICE,           0x046F, "Tier 6 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_1_PRICE,            0x0470, "Tier 7 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_2_PRICE,            0x0471, "Tier 7 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_3_PRICE,            0x0472, "Tier 7 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_4_PRICE,            0x0473, "Tier 7 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_5_PRICE,            0x0474, "Tier 7 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_6_PRICE,            0x0475, "Tier 7 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_7_PRICE,            0x0476, "Tier 7 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_8_PRICE,            0x0477, "Tier 7 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_9_PRICE,            0x0478, "Tier 7 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_10_PRICE,           0x0479, "Tier 7 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_11_PRICE,           0x047A, "Tier 7 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_12_PRICE,           0x047B, "Tier 7 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_13_PRICE,           0x047C, "Tier 7 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_14_PRICE,           0x047D, "Tier 7 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_15_PRICE,           0x047E, "Tier 7 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_7_BLOCK_16_PRICE,           0x047F, "Tier 7 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_1_PRICE,            0x0480, "Tier 8 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_2_PRICE,            0x0481, "Tier 8 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_3_PRICE,            0x0482, "Tier 8 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_4_PRICE,            0x0483, "Tier 8 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_5_PRICE,            0x0484, "Tier 8 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_6_PRICE,            0x0485, "Tier 8 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_7_PRICE,            0x0486, "Tier 8 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_8_PRICE,            0x0487, "Tier 8 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_9_PRICE,            0x0488, "Tier 8 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_10_PRICE,           0x0489, "Tier 8 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_11_PRICE,           0x048A, "Tier 8 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_12_PRICE,           0x048B, "Tier 8 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_13_PRICE,           0x048C, "Tier 8 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_14_PRICE,           0x048D, "Tier 8 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_15_PRICE,           0x048E, "Tier 8 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_8_BLOCK_16_PRICE,           0x048F, "Tier 8 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_1_PRICE,            0x0490, "Tier 9 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_2_PRICE,            0x0491, "Tier 9 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_3_PRICE,            0x0492, "Tier 9 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_4_PRICE,            0x0493, "Tier 9 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_5_PRICE,            0x0494, "Tier 9 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_6_PRICE,            0x0495, "Tier 9 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_7_PRICE,            0x0496, "Tier 9 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_8_PRICE,            0x0497, "Tier 9 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_9_PRICE,            0x0498, "Tier 9 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_10_PRICE,           0x0499, "Tier 9 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_11_PRICE,           0x049A, "Tier 9 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_12_PRICE,           0x049B, "Tier 9 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_13_PRICE,           0x049C, "Tier 9 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_14_PRICE,           0x049D, "Tier 9 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_15_PRICE,           0x049E, "Tier 9 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_9_BLOCK_16_PRICE,           0x049F, "Tier 9 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_1_PRICE,           0x04A0, "Tier 10 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_2_PRICE,           0x04A1, "Tier 10 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_3_PRICE,           0x04A2, "Tier 10 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_4_PRICE,           0x04A3, "Tier 10 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_5_PRICE,           0x04A4, "Tier 10 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_6_PRICE,           0x04A5, "Tier 10 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_7_PRICE,           0x04A6, "Tier 10 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_8_PRICE,           0x04A7, "Tier 10 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_9_PRICE,           0x04A8, "Tier 10 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_10_PRICE,          0x04A9, "Tier 10 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_11_PRICE,          0x04AA, "Tier 10 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_12_PRICE,          0x04AB, "Tier 10 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_13_PRICE,          0x04AC, "Tier 10 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_14_PRICE,          0x04AD, "Tier 10 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_15_PRICE,          0x04AE, "Tier 10 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_10_BLOCK_16_PRICE,          0x04AF, "Tier 10 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_1_PRICE,           0x04B0, "Tier 11 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_2_PRICE,           0x04B1, "Tier 11 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_3_PRICE,           0x04B2, "Tier 11 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_4_PRICE,           0x04B3, "Tier 11 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_5_PRICE,           0x04B4, "Tier 11 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_6_PRICE,           0x04B5, "Tier 11 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_7_PRICE,           0x04B6, "Tier 11 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_8_PRICE,           0x04B7, "Tier 11 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_9_PRICE,           0x04B8, "Tier 11 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_10_PRICE,          0x04B9, "Tier 11 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_11_PRICE,          0x04BA, "Tier 11 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_12_PRICE,          0x04BB, "Tier 11 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_13_PRICE,          0x04BC, "Tier 11 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_14_PRICE,          0x04BD, "Tier 11 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_15_PRICE,          0x04BE, "Tier 11 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_11_BLOCK_16_PRICE,          0x04BF, "Tier 11 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_1_PRICE,           0x04C0, "Tier 12 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_2_PRICE,           0x04C1, "Tier 12 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_3_PRICE,           0x04C2, "Tier 12 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_4_PRICE,           0x04C3, "Tier 12 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_5_PRICE,           0x04C4, "Tier 12 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_6_PRICE,           0x04C5, "Tier 12 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_7_PRICE,           0x04C6, "Tier 12 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_8_PRICE,           0x04C7, "Tier 12 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_9_PRICE,           0x04C8, "Tier 12 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_10_PRICE,          0x04C9, "Tier 12 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_11_PRICE,          0x04CA, "Tier 12 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_12_PRICE,          0x04CB, "Tier 12 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_13_PRICE,          0x04CC, "Tier 12 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_14_PRICE,          0x04CD, "Tier 12 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_15_PRICE,          0x04CE, "Tier 12 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_12_BLOCK_16_PRICE,          0x04CF, "Tier 12 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_1_PRICE,           0x04D0, "Tier 13 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_2_PRICE,           0x04D1, "Tier 13 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_3_PRICE,           0x04D2, "Tier 13 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_4_PRICE,           0x04D3, "Tier 13 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_5_PRICE,           0x04D4, "Tier 13 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_6_PRICE,           0x04D5, "Tier 13 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_7_PRICE,           0x04D6, "Tier 13 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_8_PRICE,           0x04D7, "Tier 13 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_9_PRICE,           0x04D8, "Tier 13 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_10_PRICE,          0x04D9, "Tier 13 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_11_PRICE,          0x04DA, "Tier 13 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_12_PRICE,          0x04DB, "Tier 13 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_13_PRICE,          0x04DC, "Tier 13 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_14_PRICE,          0x04DD, "Tier 13 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_15_PRICE,          0x04DE, "Tier 13 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_13_BLOCK_16_PRICE,          0x04DF, "Tier 13 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_1_PRICE,           0x04E0, "Tier 14 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_2_PRICE,           0x04E1, "Tier 14 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_3_PRICE,           0x04E2, "Tier 14 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_4_PRICE,           0x04E3, "Tier 14 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_5_PRICE,           0x04E4, "Tier 14 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_6_PRICE,           0x04E5, "Tier 14 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_7_PRICE,           0x04E6, "Tier 14 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_8_PRICE,           0x04E7, "Tier 14 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_9_PRICE,           0x04E8, "Tier 14 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_10_PRICE,          0x04E9, "Tier 14 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_11_PRICE,          0x04EA, "Tier 14 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_12_PRICE,          0x04EB, "Tier 14 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_13_PRICE,          0x04EC, "Tier 14 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_14_PRICE,          0x04ED, "Tier 14 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_15_PRICE,          0x04EE, "Tier 14 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_14_BLOCK_16_PRICE,          0x04EF, "Tier 14 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_1_PRICE,           0x04F0, "Tier 15 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_2_PRICE,           0x04F1, "Tier 15 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_3_PRICE,           0x04F2, "Tier 15 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_4_PRICE,           0x04F3, "Tier 15 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_5_PRICE,           0x04F4, "Tier 15 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_6_PRICE,           0x04F5, "Tier 15 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_7_PRICE,           0x04F6, "Tier 15 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_8_PRICE,           0x04F7, "Tier 15 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_9_PRICE,           0x04F8, "Tier 15 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_10_PRICE,          0x04F9, "Tier 15 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_11_PRICE,          0x04FA, "Tier 15 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_12_PRICE,          0x04FB, "Tier 15 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_13_PRICE,          0x04FC, "Tier 15 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_14_PRICE,          0x04FD, "Tier 15 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_15_PRICE,          0x04FE, "Tier 15 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_15_BLOCK_16_PRICE,          0x04FF, "Tier 15 Block 16 Price" ) \
+/* Extended Price Information (Delivered) Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_16,                   0x050F, "Price Tier 16" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_17,                   0x0510, "Price Tier 17" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_18,                   0x0511, "Price Tier 18" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_19,                   0x0512, "Price Tier 19" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_20,                   0x0513, "Price Tier 20" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_21,                   0x0514, "Price Tier 21" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_22,                   0x0515, "Price Tier 22" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_23,                   0x0516, "Price Tier 23" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_24,                   0x0517, "Price Tier 24" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_25,                   0x0518, "Price Tier 25" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_26,                   0x0519, "Price Tier 26" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_27,                   0x051A, "Price Tier 27" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_28,                   0x051B, "Price Tier 28" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_29,                   0x051C, "Price Tier 29" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_30,                   0x051D, "Price Tier 30" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_31,                   0x051E, "Price Tier 31" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_32,                   0x051F, "Price Tier 32" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_33,                   0x0520, "Price Tier 33" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_34,                   0x0521, "Price Tier 34" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_35,                   0x0522, "Price Tier 35" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_36,                   0x0523, "Price Tier 36" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_37,                   0x0524, "Price Tier 37" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_38,                   0x0525, "Price Tier 38" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_39,                   0x0526, "Price Tier 39" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_40,                   0x0527, "Price Tier 40" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_41,                   0x0528, "Price Tier 41" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_42,                   0x0529, "Price Tier 42" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_43,                   0x052A, "Price Tier 43" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_44,                   0x052B, "Price Tier 44" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_45,                   0x052C, "Price Tier 45" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_46,                   0x052D, "Price Tier 46" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_47,                   0x052E, "Price Tier 47" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TIER_48,                   0x052F, "Price Tier 48" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CPP_1_PRICE,                     0x05FE, "CPP 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CPP_2_PRICE,                     0x05FF, "CPP 2 Price" ) \
 /* Tariff Information Set (Delivered) */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TARIFF_LABEL,                    0x0610, "Tariff Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NUMBER_OF_PRICE_TIERS_IN_USE,    0x0611, "Number of Price Tiers in Use" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NUMBER_OF_BLOCK_THRES_IN_USE,    0x0612, "Number of Block Thresholds in Use" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_BLOCK_MODE,                 0x0613, "Tier Block Mode" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_UNIT_OF_MEASURE,                 0x0615, "Unit of Measure" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_CURRENCY,                        0x0616, "Currency" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TRAILING_DIGIT,            0x0617, "Price Trailing Digit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TARIFF_RESOLUTION_PERIOD,        0x0619, "Tariff Resolution Period" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CO2,                             0x0620, "CO2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CO2_UNIT,                        0x0621, "CO2 Unit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CO2_TRAILING_DIGIT,              0x0622, "CO2 Trailing Digit" ) \
+/* Billing Information (Delivered) Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CURRENT_BILLING_PERIOD_START,    0x0700, "Current Billing Period Start" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CURRENT_BILLING_PERIOD_DURATION, 0x0701, "Current Billing Period Duration" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_LAST_BILLING_PERIOD_START,       0x0702, "Last Billing Period Start" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_LAST_BILLING_PERIOD_DURATION,    0x0703, "Last Billing Period Duration" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_LAST_BILLING_PERIOD_CON_BILL,    0x0704, "Last Billing Period Consolidated Bill" ) \
+/* Credit Payment Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_DUE_DATE,         0x0800, "Credit Payment Due Date" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_STATUS,           0x0801, "Credit Payment Status" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_OVER_DUE_AMOUNT,  0x0802, "Credit Payment Over Due Amount" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PAYMENT_DISCOUNT,                0x080A, "Payment Discount" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PAYMENT_DISCOUNT_PERIOD,         0x080B, "Payment Discount Period" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_1,                0x0810, "Credit Payment #1" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_DATE_1,           0x0811, "Credit Payment Date #1" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_REF_1,            0x0812, "Credit Payment Ref #1" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_2,                0x0820, "Credit Payment #2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_DATE_2,           0x0821, "Credit Payment Date #2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_REF_2,            0x0822, "Credit Payment Ref #2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_3,                0x0830, "Credit Payment #3" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_DATE_3,           0x0831, "Credit Payment Date #3" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_REF_3,            0x0832, "Credit Payment Ref #3" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_4,                0x0840, "Credit Payment #4" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_DATE_4,           0x0841, "Credit Payment Date #4" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_REF_4,            0x0842, "Credit Payment Ref #4" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_5,                0x0850, "Credit Payment #5" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_DATE_5,           0x0851, "Credit Payment Date #5" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CREDIT_PAYMENT_REF_5,            0x0852, "Credit Payment Ref #5" ) \
+/* Received Tier Label Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_1_PRICE_LABEL,     0x8000, "Received Tier 1 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_2_PRICE_LABEL,     0x8001, "Received Tier 2 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_3_PRICE_LABEL,     0x8002, "Received Tier 3 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_4_PRICE_LABEL,     0x8003, "Received Tier 4 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_5_PRICE_LABEL,     0x8004, "Received Tier 5 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_6_PRICE_LABEL,     0x8005, "Received Tier 6 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_7_PRICE_LABEL,     0x8006, "Received Tier 7 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_8_PRICE_LABEL,     0x8007, "Received Tier 8 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_9_PRICE_LABEL,     0x8008, "Received Tier 9 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_10_PRICE_LABEL,    0x8009, "Received Tier 10 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_11_PRICE_LABEL,    0x800A, "Received Tier 11 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_12_PRICE_LABEL,    0x800B, "Received Tier 12 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_13_PRICE_LABEL,    0x800C, "Received Tier 13 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_14_PRICE_LABEL,    0x800D, "Received Tier 14 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_15_PRICE_LABEL,    0x800E, "Received Tier 15 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_16_PRICE_LABEL,    0x800F, "Received Tier 16 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_17_PRICE_LABEL,    0x8010, "Received Tier 17 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_18_PRICE_LABEL,    0x8011, "Received Tier 18 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_19_PRICE_LABEL,    0x8012, "Received Tier 19 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_20_PRICE_LABEL,    0x8013, "Received Tier 20 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_21_PRICE_LABEL,    0x8014, "Received Tier 21 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_22_PRICE_LABEL,    0x8015, "Received Tier 22 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_23_PRICE_LABEL,    0x8016, "Received Tier 23 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_24_PRICE_LABEL,    0x8017, "Received Tier 24 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_25_PRICE_LABEL,    0x8018, "Received Tier 25 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_26_PRICE_LABEL,    0x8019, "Received Tier 26 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_27_PRICE_LABEL,    0x801A, "Received Tier 27 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_28_PRICE_LABEL,    0x801B, "Received Tier 28 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_29_PRICE_LABEL,    0x801C, "Received Tier 29 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_30_PRICE_LABEL,    0x801D, "Received Tier 30 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_31_PRICE_LABEL,    0x801E, "Received Tier 31 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_32_PRICE_LABEL,    0x801F, "Received Tier 32 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_33_PRICE_LABEL,    0x8020, "Received Tier 33 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_34_PRICE_LABEL,    0x8021, "Received Tier 34 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_35_PRICE_LABEL,    0x8022, "Received Tier 35 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_36_PRICE_LABEL,    0x8023, "Received Tier 36 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_37_PRICE_LABEL,    0x8024, "Received Tier 37 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_38_PRICE_LABEL,    0x8025, "Received Tier 38 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_39_PRICE_LABEL,    0x8026, "Received Tier 39 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_40_PRICE_LABEL,    0x8027, "Received Tier 40 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_41_PRICE_LABEL,    0x8028, "Received Tier 41 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_42_PRICE_LABEL,    0x8029, "Received Tier 42 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_43_PRICE_LABEL,    0x802A, "Received Tier 43 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_44_PRICE_LABEL,    0x802B, "Received Tier 44 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_45_PRICE_LABEL,    0x802C, "Received Tier 45 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_46_PRICE_LABEL,    0x802D, "Received Tier 46 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_47_PRICE_LABEL,    0x802E, "Received Tier 47 Price label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_48_PRICE_LABEL,    0x802F, "Received Tier 48 Price label" ) \
+/* Received Block Threshold Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_1_THRESHOLD,      0x8100, "Received Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_2_THRESHOLD,      0x8101, "Received Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_3_THRESHOLD,      0x8102, "Received Block 3 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_4_THRESHOLD,      0x8103, "Received Block 4 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_5_THRESHOLD,      0x8104, "Received Block 5 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_6_THRESHOLD,      0x8105, "Received Block 6 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_7_THRESHOLD,      0x8106, "Received Block 7 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_8_THRESHOLD,      0x8107, "Received Block 8 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_9_THRESHOLD,      0x8108, "Received Block 9 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_10_THRESHOLD,     0x8109, "Received Block 10 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_11_THRESHOLD,     0x810A, "Received Block 11 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_12_THRESHOLD,     0x810B, "Received Block 12 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_13_THRESHOLD,     0x810C, "Received Block 13 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_14_THRESHOLD,     0x810D, "Received Block 14 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_15_THRESHOLD,     0x810E, "Received Block 15 Threshold" ) \
+/* Received Block Period Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_START_OF_BLOCK_PERIOD,  0x8200, "Received Start of Block Period" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_BLOCK_PERIOD_DURATION,  0x8201, "Received Block Period Duration" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_THRESHOLD_MULTIPLIER,   0x8202, "Received Threshold Multiplier" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_THRESHOLD_DIVISOR,      0x8203, "Received Threshold Divisor" ) \
+/* Received Block Price Information Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_1_PRICE,        0x8400, "Rx No Tier Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_2_PRICE,        0x8401, "Rx No Tier Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_3_PRICE,        0x8402, "Rx No Tier Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_4_PRICE,        0x8403, "Rx No Tier Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_5_PRICE,        0x8404, "Rx No Tier Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_6_PRICE,        0x8405, "Rx No Tier Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_7_PRICE,        0x8406, "Rx No Tier Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_8_PRICE,        0x8407, "Rx No Tier Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_9_PRICE,        0x8408, "Rx No Tier Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_10_PRICE,       0x8409, "Rx No Tier Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_11_PRICE,       0x840A, "Rx No Tier Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_12_PRICE,       0x840B, "Rx No Tier Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_13_PRICE,       0x840C, "Rx No Tier Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_14_PRICE,       0x840D, "Rx No Tier Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_15_PRICE,       0x840E, "Rx No Tier Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NO_TIER_BLOCK_16_PRICE,       0x840F, "Rx No Tier Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_1_PRICE,         0x8410, "Rx Tier 1 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_2_PRICE,         0x8411, "Rx Tier 1 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_3_PRICE,         0x8412, "Rx Tier 1 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_4_PRICE,         0x8413, "Rx Tier 1 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_5_PRICE,         0x8414, "Rx Tier 1 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_6_PRICE,         0x8415, "Rx Tier 1 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_7_PRICE,         0x8416, "Rx Tier 1 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_8_PRICE,         0x8417, "Rx Tier 1 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_9_PRICE,         0x8418, "Rx Tier 1 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_10_PRICE,        0x8419, "Rx Tier 1 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_11_PRICE,        0x841A, "Rx Tier 1 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_12_PRICE,        0x841B, "Rx Tier 1 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_13_PRICE,        0x841C, "Rx Tier 1 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_14_PRICE,        0x841D, "Rx Tier 1 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_15_PRICE,        0x841E, "Rx Tier 1 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_1_BLOCK_16_PRICE,        0x841F, "Rx Tier 1 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_1_PRICE,         0x8420, "Rx Tier 2 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_2_PRICE,         0x8421, "Rx Tier 2 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_3_PRICE,         0x8422, "Rx Tier 2 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_4_PRICE,         0x8423, "Rx Tier 2 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_5_PRICE,         0x8424, "Rx Tier 2 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_6_PRICE,         0x8425, "Rx Tier 2 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_7_PRICE,         0x8426, "Rx Tier 2 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_8_PRICE,         0x8427, "Rx Tier 2 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_9_PRICE,         0x8428, "Rx Tier 2 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_10_PRICE,        0x8429, "Rx Tier 2 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_11_PRICE,        0x842A, "Rx Tier 2 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_12_PRICE,        0x842B, "Rx Tier 2 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_13_PRICE,        0x842C, "Rx Tier 2 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_14_PRICE,        0x842D, "Rx Tier 2 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_15_PRICE,        0x842E, "Rx Tier 2 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_2_BLOCK_16_PRICE,        0x842F, "Rx Tier 2 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_1_PRICE,         0x8430, "Rx Tier 3 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_2_PRICE,         0x8431, "Rx Tier 3 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_3_PRICE,         0x8432, "Rx Tier 3 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_4_PRICE,         0x8433, "Rx Tier 3 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_5_PRICE,         0x8434, "Rx Tier 3 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_6_PRICE,         0x8435, "Rx Tier 3 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_7_PRICE,         0x8436, "Rx Tier 3 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_8_PRICE,         0x8437, "Rx Tier 3 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_9_PRICE,         0x8438, "Rx Tier 3 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_10_PRICE,        0x8439, "Rx Tier 3 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_11_PRICE,        0x843A, "Rx Tier 3 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_12_PRICE,        0x843B, "Rx Tier 3 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_13_PRICE,        0x843C, "Rx Tier 3 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_14_PRICE,        0x843D, "Rx Tier 3 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_15_PRICE,        0x843E, "Rx Tier 3 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_3_BLOCK_16_PRICE,        0x843F, "Rx Tier 3 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_1_PRICE,         0x8440, "Rx Tier 4 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_2_PRICE,         0x8441, "Rx Tier 4 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_3_PRICE,         0x8442, "Rx Tier 4 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_4_PRICE,         0x8443, "Rx Tier 4 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_5_PRICE,         0x8444, "Rx Tier 4 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_6_PRICE,         0x8445, "Rx Tier 4 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_7_PRICE,         0x8446, "Rx Tier 4 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_8_PRICE,         0x8447, "Rx Tier 4 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_9_PRICE,         0x8448, "Rx Tier 4 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_10_PRICE,        0x8449, "Rx Tier 4 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_11_PRICE,        0x844A, "Rx Tier 4 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_12_PRICE,        0x844B, "Rx Tier 4 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_13_PRICE,        0x844C, "Rx Tier 4 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_14_PRICE,        0x844D, "Rx Tier 4 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_15_PRICE,        0x844E, "Rx Tier 4 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_4_BLOCK_16_PRICE,        0x844F, "Rx Tier 4 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_1_PRICE,         0x8450, "Rx Tier 5 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_2_PRICE,         0x8451, "Rx Tier 5 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_3_PRICE,         0x8452, "Rx Tier 5 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_4_PRICE,         0x8453, "Rx Tier 5 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_5_PRICE,         0x8454, "Rx Tier 5 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_6_PRICE,         0x8455, "Rx Tier 5 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_7_PRICE,         0x8456, "Rx Tier 5 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_8_PRICE,         0x8457, "Rx Tier 5 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_9_PRICE,         0x8458, "Rx Tier 5 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_10_PRICE,        0x8459, "Rx Tier 5 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_11_PRICE,        0x845A, "Rx Tier 5 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_12_PRICE,        0x845B, "Rx Tier 5 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_13_PRICE,        0x845C, "Rx Tier 5 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_14_PRICE,        0x845D, "Rx Tier 5 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_15_PRICE,        0x845E, "Rx Tier 5 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_5_BLOCK_16_PRICE,        0x845F, "Rx Tier 5 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_1_PRICE,         0x8460, "Rx Tier 6 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_2_PRICE,         0x8461, "Rx Tier 6 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_3_PRICE,         0x8462, "Rx Tier 6 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_4_PRICE,         0x8463, "Rx Tier 6 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_5_PRICE,         0x8464, "Rx Tier 6 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_6_PRICE,         0x8465, "Rx Tier 6 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_7_PRICE,         0x8466, "Rx Tier 6 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_8_PRICE,         0x8467, "Rx Tier 6 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_9_PRICE,         0x8468, "Rx Tier 6 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_10_PRICE,        0x8469, "Rx Tier 6 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_11_PRICE,        0x846A, "Rx Tier 6 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_12_PRICE,        0x846B, "Rx Tier 6 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_13_PRICE,        0x846C, "Rx Tier 6 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_14_PRICE,        0x846D, "Rx Tier 6 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_15_PRICE,        0x846E, "Rx Tier 6 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_6_BLOCK_16_PRICE,        0x846F, "Rx Tier 6 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_1_PRICE,         0x8470, "Rx Tier 7 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_2_PRICE,         0x8471, "Rx Tier 7 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_3_PRICE,         0x8472, "Rx Tier 7 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_4_PRICE,         0x8473, "Rx Tier 7 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_5_PRICE,         0x8474, "Rx Tier 7 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_6_PRICE,         0x8475, "Rx Tier 7 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_7_PRICE,         0x8476, "Rx Tier 7 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_8_PRICE,         0x8477, "Rx Tier 7 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_9_PRICE,         0x8478, "Rx Tier 7 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_10_PRICE,        0x8479, "Rx Tier 7 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_11_PRICE,        0x847A, "Rx Tier 7 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_12_PRICE,        0x847B, "Rx Tier 7 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_13_PRICE,        0x847C, "Rx Tier 7 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_14_PRICE,        0x847D, "Rx Tier 7 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_15_PRICE,        0x847E, "Rx Tier 7 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_7_BLOCK_16_PRICE,        0x847F, "Rx Tier 7 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_1_PRICE,         0x8480, "Rx Tier 8 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_2_PRICE,         0x8481, "Rx Tier 8 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_3_PRICE,         0x8482, "Rx Tier 8 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_4_PRICE,         0x8483, "Rx Tier 8 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_5_PRICE,         0x8484, "Rx Tier 8 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_6_PRICE,         0x8485, "Rx Tier 8 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_7_PRICE,         0x8486, "Rx Tier 8 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_8_PRICE,         0x8487, "Rx Tier 8 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_9_PRICE,         0x8488, "Rx Tier 8 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_10_PRICE,        0x8489, "Rx Tier 8 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_11_PRICE,        0x848A, "Rx Tier 8 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_12_PRICE,        0x848B, "Rx Tier 8 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_13_PRICE,        0x848C, "Rx Tier 8 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_14_PRICE,        0x848D, "Rx Tier 8 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_15_PRICE,        0x848E, "Rx Tier 8 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_8_BLOCK_16_PRICE,        0x848F, "Rx Tier 8 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_1_PRICE,         0x8490, "Rx Tier 9 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_2_PRICE,         0x8491, "Rx Tier 9 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_3_PRICE,         0x8492, "Rx Tier 9 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_4_PRICE,         0x8493, "Rx Tier 9 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_5_PRICE,         0x8494, "Rx Tier 9 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_6_PRICE,         0x8495, "Rx Tier 9 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_7_PRICE,         0x8496, "Rx Tier 9 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_8_PRICE,         0x8497, "Rx Tier 9 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_9_PRICE,         0x8498, "Rx Tier 9 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_10_PRICE,        0x8499, "Rx Tier 9 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_11_PRICE,        0x849A, "Rx Tier 9 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_12_PRICE,        0x849B, "Rx Tier 9 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_13_PRICE,        0x849C, "Rx Tier 9 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_14_PRICE,        0x849D, "Rx Tier 9 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_15_PRICE,        0x849E, "Rx Tier 9 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_9_BLOCK_16_PRICE,        0x849F, "Rx Tier 9 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_1_PRICE,        0x84A0, "Rx Tier 10 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_2_PRICE,        0x84A1, "Rx Tier 10 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_3_PRICE,        0x84A2, "Rx Tier 10 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_4_PRICE,        0x84A3, "Rx Tier 10 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_5_PRICE,        0x84A4, "Rx Tier 10 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_6_PRICE,        0x84A5, "Rx Tier 10 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_7_PRICE,        0x84A6, "Rx Tier 10 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_8_PRICE,        0x84A7, "Rx Tier 10 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_9_PRICE,        0x84A8, "Rx Tier 10 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_10_PRICE,       0x84A9, "Rx Tier 10 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_11_PRICE,       0x84AA, "Rx Tier 10 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_12_PRICE,       0x84AB, "Rx Tier 10 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_13_PRICE,       0x84AC, "Rx Tier 10 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_14_PRICE,       0x84AD, "Rx Tier 10 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_15_PRICE,       0x84AE, "Rx Tier 10 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_10_BLOCK_16_PRICE,       0x84AF, "Rx Tier 10 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_1_PRICE,        0x84B0, "Rx Tier 11 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_2_PRICE,        0x84B1, "Rx Tier 11 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_3_PRICE,        0x84B2, "Rx Tier 11 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_4_PRICE,        0x84B3, "Rx Tier 11 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_5_PRICE,        0x84B4, "Rx Tier 11 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_6_PRICE,        0x84B5, "Rx Tier 11 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_7_PRICE,        0x84B6, "Rx Tier 11 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_8_PRICE,        0x84B7, "Rx Tier 11 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_9_PRICE,        0x84B8, "Rx Tier 11 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_10_PRICE,       0x84B9, "Rx Tier 11 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_11_PRICE,       0x84BA, "Rx Tier 11 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_12_PRICE,       0x84BB, "Rx Tier 11 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_13_PRICE,       0x84BC, "Rx Tier 11 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_14_PRICE,       0x84BD, "Rx Tier 11 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_15_PRICE,       0x84BE, "Rx Tier 11 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_11_BLOCK_16_PRICE,       0x84BF, "Rx Tier 11 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_1_PRICE,        0x84C0, "Rx Tier 12 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_2_PRICE,        0x84C1, "Rx Tier 12 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_3_PRICE,        0x84C2, "Rx Tier 12 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_4_PRICE,        0x84C3, "Rx Tier 12 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_5_PRICE,        0x84C4, "Rx Tier 12 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_6_PRICE,        0x84C5, "Rx Tier 12 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_7_PRICE,        0x84C6, "Rx Tier 12 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_8_PRICE,        0x84C7, "Rx Tier 12 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_9_PRICE,        0x84C8, "Rx Tier 12 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_10_PRICE,       0x84C9, "Rx Tier 12 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_11_PRICE,       0x84CA, "Rx Tier 12 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_12_PRICE,       0x84CB, "Rx Tier 12 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_13_PRICE,       0x84CC, "Rx Tier 12 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_14_PRICE,       0x84CD, "Rx Tier 12 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_15_PRICE,       0x84CE, "Rx Tier 12 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_12_BLOCK_16_PRICE,       0x84CF, "Rx Tier 12 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_1_PRICE,        0x84D0, "Rx Tier 13 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_2_PRICE,        0x84D1, "Rx Tier 13 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_3_PRICE,        0x84D2, "Rx Tier 13 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_4_PRICE,        0x84D3, "Rx Tier 13 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_5_PRICE,        0x84D4, "Rx Tier 13 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_6_PRICE,        0x84D5, "Rx Tier 13 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_7_PRICE,        0x84D6, "Rx Tier 13 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_8_PRICE,        0x84D7, "Rx Tier 13 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_9_PRICE,        0x84D8, "Rx Tier 13 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_10_PRICE,       0x84D9, "Rx Tier 13 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_11_PRICE,       0x84DA, "Rx Tier 13 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_12_PRICE,       0x84DB, "Rx Tier 13 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_13_PRICE,       0x84DC, "Rx Tier 13 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_14_PRICE,       0x84DD, "Rx Tier 13 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_15_PRICE,       0x84DE, "Rx Tier 13 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_13_BLOCK_16_PRICE,       0x84DF, "Rx Tier 13 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_1_PRICE,        0x84E0, "Rx Tier 14 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_2_PRICE,        0x84E1, "Rx Tier 14 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_3_PRICE,        0x84E2, "Rx Tier 14 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_4_PRICE,        0x84E3, "Rx Tier 14 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_5_PRICE,        0x84E4, "Rx Tier 14 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_6_PRICE,        0x84E5, "Rx Tier 14 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_7_PRICE,        0x84E6, "Rx Tier 14 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_8_PRICE,        0x84E7, "Rx Tier 14 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_9_PRICE,        0x84E8, "Rx Tier 14 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_10_PRICE,       0x84E9, "Rx Tier 14 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_11_PRICE,       0x84EA, "Rx Tier 14 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_12_PRICE,       0x84EB, "Rx Tier 14 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_13_PRICE,       0x84EC, "Rx Tier 14 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_14_PRICE,       0x84ED, "Rx Tier 14 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_15_PRICE,       0x84EE, "Rx Tier 14 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_14_BLOCK_16_PRICE,       0x84EF, "Rx Tier 14 Block 16 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_1_PRICE,        0x84F0, "Rx Tier 15 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_2_PRICE,        0x84F1, "Rx Tier 15 Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_3_PRICE,        0x84F2, "Rx Tier 15 Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_4_PRICE,        0x84F3, "Rx Tier 15 Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_5_PRICE,        0x84F4, "Rx Tier 15 Block 5 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_6_PRICE,        0x84F5, "Rx Tier 15 Block 6 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_7_PRICE,        0x84F6, "Rx Tier 15 Block 7 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_8_PRICE,        0x84F7, "Rx Tier 15 Block 8 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_9_PRICE,        0x84F8, "Rx Tier 15 Block 9 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_10_PRICE,       0x84F9, "Rx Tier 15 Block 10 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_11_PRICE,       0x84FA, "Rx Tier 15 Block 11 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_12_PRICE,       0x84FB, "Rx Tier 15 Block 12 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_13_PRICE,       0x84FC, "Rx Tier 15 Block 13 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_14_PRICE,       0x84FD, "Rx Tier 15 Block 14 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_15_PRICE,       0x84FE, "Rx Tier 15 Block 15 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_TIER_15_BLOCK_16_PRICE,       0x84FF, "Rx Tier 15 Block 16 Price" ) \
+/* Received Extended Price Information Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_16,          0x850F, "Received Price Tier 16" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_17,          0x8510, "Received Price Tier 17" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_18,          0x8511, "Received Price Tier 18" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_19,          0x8512, "Received Price Tier 19" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_20,          0x8513, "Received Price Tier 20" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_21,          0x8514, "Received Price Tier 21" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_22,          0x8515, "Received Price Tier 22" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_23,          0x8516, "Received Price Tier 23" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_24,          0x8517, "Received Price Tier 24" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_25,          0x8518, "Received Price Tier 25" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_26,          0x8519, "Received Price Tier 26" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_27,          0x851A, "Received Price Tier 27" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_28,          0x851B, "Received Price Tier 28" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_29,          0x851C, "Received Price Tier 29" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_30,          0x851D, "Received Price Tier 30" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_31,          0x851E, "Received Price Tier 31" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_32,          0x851F, "Received Price Tier 32" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_33,          0x8520, "Received Price Tier 33" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_34,          0x8521, "Received Price Tier 34" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_35,          0x8522, "Received Price Tier 35" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_36,          0x8523, "Received Price Tier 36" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_37,          0x8524, "Received Price Tier 37" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_38,          0x8525, "Received Price Tier 38" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_39,          0x8526, "Received Price Tier 39" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_40,          0x8527, "Received Price Tier 40" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_41,          0x8528, "Received Price Tier 41" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_42,          0x8529, "Received Price Tier 42" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_43,          0x852A, "Received Price Tier 43" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_44,          0x852B, "Received Price Tier 44" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_45,          0x852C, "Received Price Tier 45" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_46,          0x852D, "Received Price Tier 46" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_47,          0x852E, "Received Price Tier 47" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_PRICE_TIER_48,          0x852F, "Received Price Tier 48" ) \
+/* Received Tariff Information Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TARIFF_LABEL,           0x8610, "Received Tariff label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NUM_OF_PRICE_TIERS_IN_USE,    0x8611, "Received Number of Tariff Tiers in Use" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_NUM_OF_BLOCK_THRES_IN_USE,    0x8612, "Received Number of Block Thresholds in Use" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TIER_BLOCK_MODE,        0x8613, "Received Tier Block Mode" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_TARIFF_RES_PERIOD,      0x8615, "Received tariff Resolution Period" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_CO2,                    0x8625, "Received CO2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_CO2_UNIT,               0x8626, "Received CO2 Unit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RECEIVED_CO2_TRAILING_DIGIT,     0x8627, "Received CO2 Trailing Digit" ) \
+/* Received Billing Information Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_CURRENT_BILLING_PERIOD_START, 0x8700, "Received Current Billing Period Start" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_CURRENT_BILLING_PERIOD_DUR,   0x8701, "Received Current Billing Period Duration" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_LAST_BILLING_PERIOD_START,    0x8702, "Received Last Billing Period Start" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_RX_LAST_BILLING_PERIOD_CON_BILL, 0x8704, "Received Last Billing Period Consolidated Bill" ) \
 /* Smart Energy */ \
     XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_PRICE,           0xFFFE, "Attribute Reporting Status" )
 
 VALUE_STRING_ENUM(zbee_zcl_price_attr_names);
 VALUE_STRING_ARRAY(zbee_zcl_price_attr_names);
+static value_string_ext zbee_zcl_price_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_price_attr_names);
 
 /* Server Commands Received */
 #define zbee_zcl_price_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -2056,7 +3056,7 @@ proto_register_zbee_zcl_price(void)
     static hf_register_info hf[] = {
 
         { &hf_zbee_zcl_price_attr_id,
-            { "Attribute", "zbee_zcl_se.price.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_price_attr_names),
+            { "Attribute", "zbee_zcl_se.price.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_price_attr_names_ext,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_attr_reporting_status,                         /* common to all SE clusters */
