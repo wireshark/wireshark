@@ -764,10 +764,6 @@ static const value_string sec_pol[] = {
   { 0x7, "Extended, Mission Defined"         },
   { 0,   NULL } };
 
-#define MAX_NATIONAL_VALUES 56
-/* Will be built in build_national_strings() */
-static value_string nat_pol_id[MAX_NATIONAL_VALUES+1];
-
 /* For name we use the ISO 3166-1 Alfa-3 value for the country,
  * for description we use the Country Name and
  * for value we use the DMP value for National Policy Identifier.
@@ -831,6 +827,10 @@ static const enum_val_t dmp_national_values[] = {
   { "weu",  "Western European Union (WEU)", 0x3E },
   { NULL, NULL, 0 }
 };
+
+#define MAX_NATIONAL_VALUES array_length(dmp_national_values)
+/* Will be built in build_national_strings() */
+static value_string nat_pol_id[MAX_NATIONAL_VALUES];
 
 static const value_string ext_sec_cat[] = {
   { 0x0, "Not present"                  },
@@ -1026,20 +1026,15 @@ static gchar *dmp_national_sec_class (guint nation, guint dmp_sec_class)
 
 static void build_national_strings (void)
 {
-  gint i = 0;
+  guint i = 0;
 
   /*
   ** We use values from dmp_national_values to build value_string for nat_pol_id.
   */
-  while (dmp_national_values[i].name) {
-    if (i < MAX_NATIONAL_VALUES) {
-      nat_pol_id[i].value  = dmp_national_values[i].value;
-      nat_pol_id[i].strptr = dmp_national_values[i].description;
-    }
-    i++;
+  for (i = 0; i < MAX_NATIONAL_VALUES; i++) {
+    nat_pol_id[i].value  = dmp_national_values[i].value;
+    nat_pol_id[i].strptr = dmp_national_values[i].description;
   }
-  nat_pol_id[i].value = 0;
-  nat_pol_id[i].strptr = NULL;
 }
 
 static const gchar *get_nat_pol_id_short (gint nation)
