@@ -1776,7 +1776,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pi
 	return clear_tvb;
 
 on_gcry_error:
-	*error = (const gchar *)gpg_strerror(err);
+	*error = (const gchar *)gcry_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
 }
@@ -1841,7 +1841,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_i
 	return clear_tvb;
 
 on_gcry_error:
-	*error = (const gchar *)gpg_strerror(err);
+	*error = (const gchar *)gcry_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
 }
