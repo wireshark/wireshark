@@ -2332,27 +2332,13 @@ void MainWindow::on_actionEditConfigurationProfiles_triggered()
     cp_dialog.exec();
 }
 
-void MainWindow::showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane)
+void MainWindow::showPreferencesDialog(QString pane_name)
 {
     PreferencesDialog pref_dialog(this);
 
     saveWindowGeometry();  // Save in case the layout panes are rearranged
 
-    pref_dialog.setPane(start_pane);
-    pref_dialog.exec();
-
-    // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on macOS.
-    wsApp->flushAppSignals();
-}
-
-void MainWindow::showPreferencesDialog(QString module_name)
-{
-    PreferencesDialog pref_dialog(this);
-
-    saveWindowGeometry();  // Save in case the layout panes are rearranged
-
-    pref_dialog.setPane(module_name);
+    pref_dialog.setPane(pane_name);
     pref_dialog.exec();
 
     // Emitting PacketDissectionChanged directly from a QDialog can cause
@@ -2362,7 +2348,7 @@ void MainWindow::showPreferencesDialog(QString module_name)
 
 void MainWindow::on_actionEditPreferences_triggered()
 {
-    showPreferencesDialog();
+    showPreferencesDialog(PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME);
 }
 
 // View Menu
@@ -4059,7 +4045,7 @@ void MainWindow::filterToolbarCustomMenuHandler(const QPoint& pos)
 
 void MainWindow::filterToolbarShowPreferences()
 {
-    emit showPreferencesDialog(PreferencesDialog::ppFilterExpressions);
+    emit showPreferencesDialog(PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME);
 }
 
 int MainWindow::uatRowIndexForFilterExpression(QString label, QString expression)

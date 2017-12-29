@@ -47,6 +47,7 @@
 #include <ui/qt/utils/data_printer.h>
 #include <ui/qt/utils/frame_information.h>
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/models/pref_models.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -1362,7 +1363,7 @@ void PacketList::headerMenuTriggered()
         recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_RIGHT : COLUMN_XALIGN_DEFAULT);
         break;
     case caColumnPreferences:
-        emit showColumnPreferences(PreferencesDialog::ppColumn);
+        emit showColumnPreferences(PrefsModel::COLUMNS_PREFERENCE_TREE_NAME);
         break;
     case caEditColumn:
         emit editColumn(header_ctx_column_);

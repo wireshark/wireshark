@@ -372,8 +372,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(pushFilterSyntaxWarning(const QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     connect(df_edit, SIGNAL(filterPackets(QString,bool)), this, SLOT(filterPackets(QString,bool)));
-    connect(df_edit, SIGNAL(showPreferencesDialog(PreferencesDialog::PreferencesPane)),
-            this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
+    connect(df_edit, SIGNAL(showPreferencesDialog(QString)),
+            this, SLOT(showPreferencesDialog(QString)));
     connect(wsApp, SIGNAL(preferencesChanged()), df_edit, SLOT(checkFilter()));
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
@@ -572,8 +572,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(showPreferencesDialog(QString)));
     connect(main_ui_->preferenceEditorFrame, SIGNAL(showProtocolPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
-    connect(main_ui_->filterExpressionFrame, SIGNAL(showPreferencesDialog(PreferencesDialog::PreferencesPane)),
-            this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
+    connect(main_ui_->filterExpressionFrame, SIGNAL(showPreferencesDialog(QString)),
+            this, SLOT(showPreferencesDialog(QString)));
     connect(main_ui_->filterExpressionFrame, SIGNAL(filterExpressionsChanged()),
             this, SLOT(filterExpressionsChanged()));
 
@@ -622,8 +622,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(frameSelected(int)));
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
-    connect(packet_list_, SIGNAL(showColumnPreferences(PreferencesDialog::PreferencesPane)),
-            this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
+    connect(packet_list_, SIGNAL(showColumnPreferences(QString)),
+            this, SLOT(showPreferencesDialog(QString)));
     connect(packet_list_, SIGNAL(showProtocolPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
     connect(packet_list_, SIGNAL(editProtocolPreference(preference*,pref_module*)),

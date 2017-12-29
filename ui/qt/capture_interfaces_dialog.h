@@ -35,8 +35,6 @@
 
 typedef struct if_stat_cache_s if_stat_cache_t;
 
-#include "preferences_dialog.h"
-
 namespace Ui {
 class CaptureInterfacesDialog;
 }

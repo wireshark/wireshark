@@ -22,9 +22,9 @@
 #ifndef CAPTURE_PREFERENCES_FRAME_H
 #define CAPTURE_PREFERENCES_FRAME_H
 
-#include "preferences_dialog.h"
-
 #include <QFrame>
+
+#include <epan/prefs.h>
 
 namespace Ui {
 class CapturePreferencesFrame;

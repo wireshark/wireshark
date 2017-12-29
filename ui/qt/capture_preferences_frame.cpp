@@ -28,6 +28,7 @@
 #endif
 
 #include "capture_preferences_frame.h"
+#include <ui/qt/models/pref_models.h>
 #include <ui_capture_preferences_frame.h>
 #include "wireshark_application.h"
 

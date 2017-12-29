@@ -44,6 +44,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/interface_toolbar_lineedit.h
 	widgets/label_stack.h
 	widgets/overlay_scroll_bar.h
+	widgets/pref_module_view.h
 	widgets/qcustomplot.h
 	widgets/stock_icon_tool_button.h
 	widgets/syntax_line_edit.h
@@ -84,6 +85,8 @@ set(WIRESHARK_MODEL_HEADERS
 	models/packet_list_record.h
 	models/path_chooser_delegate.h
 	models/percent_bar_delegate.h
+	models/pref_delegate.h
+	models/pref_models.h
 	models/proto_tree_model.h
 	models/related_packet_delegate.h
 	models/sparkline_delegate.h
@@ -267,6 +270,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/interface_toolbar_lineedit.cpp
 	widgets/label_stack.cpp
 	widgets/overlay_scroll_bar.cpp
+	widgets/pref_module_view.cpp
 	widgets/qcustomplot.cpp
 	widgets/stock_icon_tool_button.cpp
 	widgets/syntax_line_edit.cpp
@@ -304,6 +308,8 @@ set(WIRESHARK_MODEL_SRCS
 	models/packet_list_record.cpp
 	models/path_chooser_delegate.cpp
 	models/percent_bar_delegate.cpp
+	models/pref_delegate.cpp
+	models/pref_models.cpp
 	models/proto_tree_model.cpp
 	models/related_packet_delegate.cpp
 	models/sparkline_delegate.cpp

@@ -46,7 +46,7 @@
 #include <ui/qt/widgets/display_filter_combo.h>
 #include "filter_action.h"
 #include "follow_stream_dialog.h"
-#include "preferences_dialog.h"
+#include <ui/qt/models/pref_models.h>
 
 class AccordionFrame;
 class ByteViewTab;
@@ -452,8 +452,7 @@ private slots:
     void on_actionEditPacketComment_triggered();
     void on_actionDeleteAllPacketComments_triggered();
     void on_actionEditConfigurationProfiles_triggered();
-    void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane = PreferencesDialog::ppAppearance);
-    void showPreferencesDialog(QString module_name);
+    void showPreferencesDialog(QString pane_name);
     void on_actionEditPreferences_triggered();
 
     void showHideMainWidgets(QAction *action);

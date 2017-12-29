@@ -22,7 +22,7 @@
 #ifndef LAYOUT_PREFERENCES_FRAME_H
 #define LAYOUT_PREFERENCES_FRAME_H
 
-#include "preferences_dialog.h"
+#include <epan/prefs.h>
 
 #include <QFrame>
 #include <QAbstractButton>

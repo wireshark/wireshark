@@ -174,6 +174,7 @@ MOC_WIDGET_HDRS = \
 	widgets/interface_toolbar_lineedit.h		\
 	widgets/label_stack.h				\
 	widgets/overlay_scroll_bar.h			\
+	widgets/pref_module_view.h			\
 	widgets/syntax_line_edit.h			\
 	widgets/stock_icon_tool_button.h		\
 	widgets/tabnav_tree_view.h			\
@@ -213,6 +214,8 @@ MOC_MODELS_HDRS = \
 	models/packet_list_record.h			\
 	models/path_chooser_delegate.h			\
 	models/percent_bar_delegate.h			\
+	models/pref_delegate.h			\
+	models/pref_models.h			\
 	models/proto_tree_model.h			\
 	models/related_packet_delegate.h		\
 	models/sparkline_delegate.h			\
@@ -511,6 +514,7 @@ WIRESHARK_QT_WIDGET_SRC = \
 	widgets/interface_toolbar_lineedit.cpp		\
 	widgets/label_stack.cpp				\
 	widgets/overlay_scroll_bar.cpp			\
+	widgets/pref_module_view.cpp			\
 	widgets/stock_icon_tool_button.cpp		\
 	widgets/syntax_line_edit.cpp			\
 	widgets/tabnav_tree_view.cpp			\
@@ -546,6 +550,8 @@ WIRESHARK_QT_MODELS_SRCS = \
 	models/packet_list_record.cpp			\
 	models/path_chooser_delegate.cpp		\
 	models/percent_bar_delegate.cpp			\
+	models/pref_delegate.cpp			\
+	models/pref_models.cpp			\
 	models/proto_tree_model.cpp			\
 	models/related_packet_delegate.cpp		\
 	models/sparkline_delegate.cpp			\
