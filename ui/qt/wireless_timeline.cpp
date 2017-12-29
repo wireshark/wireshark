@@ -339,6 +339,13 @@ WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
     setFixedHeight(TIMELINE_HEIGHT);
     first_packet = 1;
     setMouseTracking(true);
+    start_x = 0;
+    last_x = 0;
+    packet_list = NULL;
+    start_tsf = 0;
+    end_tsf = 0;
+    first = NULL;
+    last = NULL;
     capfile = NULL;
 
     radio_packet_list = NULL;
