@@ -542,7 +542,7 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 #define ENC_SEP_NONE    0x00010000
 #define ENC_SEP_COLON   0x00020000
 #define ENC_SEP_DASH    0x00040000
-#define ENC_SEP_DOT   0x00080000
+#define ENC_SEP_DOT     0x00080000
 #define ENC_SEP_SPACE   0x00100000
 /* a convenience macro for the above */
 #define ENC_SEP_MASK    0x001F0000
