@@ -6003,6 +6003,8 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    cip_simple_request_info_t connection_path;
    cip_safety_epath_info_t safety_fwdopen;
 
+   memset(&safety_fwdopen, 0x0, sizeof(safety_fwdopen));
+
    dissect_cip_cm_timeout(cmd_tree, tvb, offset);
    O2TConnID = tvb_get_letohl( tvb, offset+2 );
    proto_tree_add_item( cmd_tree, hf_cip_cm_ot_connid, tvb, offset+2, 4, ENC_LITTLE_ENDIAN);
