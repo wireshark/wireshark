@@ -7696,6 +7696,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     guint   lastoffset = 0, depth = 0;
     char    ar[256];
     guint32 save_object_type;
+    gboolean do_default_handling;
 
     if (propertyIdentifier >= 0) {
         g_snprintf(ar, sizeof(ar), "%s: ",
@@ -7712,6 +7713,8 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         if (tag_is_closing(tag_info)) { /* closing tag, but not for me */
             if (depth <= 0) return offset;
         }
+
+        do_default_handling = FALSE;
 
         /* Application Tags */
         switch (propertyIdentifier) {
@@ -8262,40 +8265,41 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             if ( object_type == 11 )    /* group object handling of present-value */
             {
                 offset = fReadAccessResult(tvb, pinfo, tree, offset);
-                break;
             }
             else if (object_type == 30)  /* access-door object */
             {
-              offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetDoorValue);
-              break;
+                offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetDoorValue);
             }
             else if (object_type == 21)  /* life-point */
             {
-              offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
-              break;
+                offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
             }
             else if (object_type == 22)  /* life-zone */
             {
-              offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
-              break;
+                offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetLifeSafetyState);
             }
             else if (object_type == 53) /* channel object */
             {
-              offset = fChannelValue(tvb, pinfo, tree, offset, ar);
-              break;
+                offset = fChannelValue(tvb, pinfo, tree, offset, ar);
             }
             else if (object_type == 37) /* crederntial-data-input */
             {
-              offset = fAuthenticationFactor(tvb, pinfo, tree, offset);
-              break;
+                offset = fAuthenticationFactor(tvb, pinfo, tree, offset);
             }
             else if (object_type == 26) /* global-group */
             {
-              offset = fPropertyAccessResult(tvb, pinfo, tree, offset);
-              break;
+                offset = fPropertyAccessResult(tvb, pinfo, tree, offset);
             }
-            /* intentially fall through here so don't reorder this case statement */
+            else
+            {
+                do_default_handling = TRUE;
+            }
+            break;
         default:
+            do_default_handling = TRUE;
+            break;
+        }
+        if (do_default_handling) {
             if (tag_info) {
                 if (tag_is_opening(tag_info)) {
                     ++depth;
@@ -8309,7 +8313,6 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             } else {
                 offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
             }
-            break;
         }
         if (offset == lastoffset) break;     /* nothing happened, exit loop */
     }
