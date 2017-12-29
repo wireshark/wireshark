@@ -230,7 +230,7 @@ websocket_init_z_stream_context(gint8 wbits)
  * Otherwise FALSE is returned.
  */
 static gboolean
-websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff_t **uncompressed_tvb)
+websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff_t **uncompressed_tvb, guint32 key)
 {
   /*
    * Decompression a message: append "0x00 0x00 0xff 0xff" to the end of
@@ -279,7 +279,7 @@ websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff
       pkt_info->decompr_len = decompr_len;
       *uncompressed_tvb = tvb_new_real_data(decompr_payload, decompr_len, decompr_len);
     }
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_websocket, 0, pkt_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_websocket, key, pkt_info);
     return TRUE;
   } else {
     /* decompression failed */
@@ -326,7 +326,7 @@ dissect_websocket_control_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void
-dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *pl_tree, guint8 opcode, websocket_conv_t *websocket_conv, gboolean pmc _U_)
+dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *pl_tree, guint8 opcode, websocket_conv_t *websocket_conv, gboolean pmc _U_, gint raw_offset)
 {
   proto_item         *ti;
   dissector_handle_t  handle = NULL;
@@ -357,18 +357,18 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       }
 
       if (z_strm) {
-        uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed);
+        uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
       } else {
         /* no context take over, initialize a new context */
         z_strm = wmem_new0(wmem_packet_scope(), z_stream);
         if (inflateInit2(z_strm, wbits) == Z_OK) {
-          uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed);
+          uncompress_ok = websocket_uncompress(tvb, pinfo, z_strm, &uncompressed, raw_offset);
         }
         inflateEnd(z_strm);
       }
     } else {
       websocket_packet_t *pkt_info =
-          (websocket_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_websocket, 0);
+          (websocket_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_websocket, raw_offset);
       if (pkt_info) {
         uncompress_ok = TRUE;
         if (pkt_info->decompr_len > 0) {
@@ -473,7 +473,7 @@ websocket_parse_extensions(websocket_conv_t *websocket_conv, const char *str)
 }
 
 static void
-dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode, websocket_conv_t *websocket_conv, gboolean pmc)
+dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode, websocket_conv_t *websocket_conv, gboolean pmc, gint raw_offset)
 {
   const guint         offset = 0, length = tvb_reported_length(tvb);
   proto_item         *ti;
@@ -503,7 +503,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
   if (opcode & 8) { /* Control frames have MSB set. */
     dissect_websocket_control_frame(tvb_appdata, pinfo, pl_tree, opcode);
   } else {
-    dissect_websocket_data_frame(tvb_appdata, pinfo, tree, pl_tree, opcode, websocket_conv, pmc);
+    dissect_websocket_data_frame(tvb_appdata, pinfo, tree, pl_tree, opcode, websocket_conv, pmc, raw_offset);
   }
 }
 
@@ -614,7 +614,7 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     } else {
       tvb_payload = tvb_new_subset_length_caplen(tvb, payload_offset, payload_length, payload_length);
     }
-    dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode, websocket_conv, pmc);
+    dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode, websocket_conv, pmc, tvb_raw_offset(tvb));
   }
 
   return tvb_captured_length(tvb);
