@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>LBTRU Transport Statistics</string>
+   <string>LBT-RU Transport Statistics</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>

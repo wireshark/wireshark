@@ -1005,7 +1005,7 @@ lte_rlc_statistics_init(const char *args, void*) {
 
 static stat_tap_ui lte_rlc_statistics_ui = {
     REGISTER_STAT_GROUP_TELEPHONY_LTE,
-    "RLC Statistics",
+    QT_TR_NOOP("RLC Statistics"),
     "rlc-lte,stat",
     lte_rlc_statistics_init,
     0,

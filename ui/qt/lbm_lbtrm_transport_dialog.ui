@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>LBTRM Transport Statistics</string>
+   <string>LBT-RM Transport Statistics</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
@@ -188,12 +188,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>NCF</string>
+                 <string extracomment="Nak ConFirmation">NCF</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>SM</string>
+                 <string extracomment="Session Message">SM</string>
                 </property>
                </item>
               </widget>
@@ -694,6 +694,7 @@
    <header>widgets/display_filter_edit.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
