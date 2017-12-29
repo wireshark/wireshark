@@ -3708,6 +3708,7 @@ dissect_RS_IdentificationInfo(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     dcerpc_info di; /* fake dcerpc_info struct */
+    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
     guint64     u64AMDeviceIdentificationDeviceSubID;
     guint64     u64AMDeviceIdentificationDeviceID;
     guint64     u64AMDeviceIdentificationVendorID;
@@ -3715,6 +3716,8 @@ dissect_RS_IdentificationInfo(tvbuff_t *tvb, int offset,
 
     proto_item *sub_item;
     proto_tree *sub_tree;
+
+    di.call_data = &dcv;
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_am_device_identification, tvb, offset, 8, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_am_device_identification);
@@ -4622,6 +4625,7 @@ dissect_AM_device_identification(tvbuff_t *tvb, int offset,
 packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     dcerpc_info di; /* fake dcerpc_info struct */
+    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
     guint64     u64AMDeviceIdentificationDeviceSubID;
     guint64     u64AMDeviceIdentificationDeviceID;
     guint64     u64AMDeviceIdentificationVendorID;
@@ -4629,6 +4633,8 @@ packet_info *pinfo, proto_tree *tree, guint8 *drep)
 
     proto_item *sub_item;
     proto_tree *sub_tree;
+
+    di.call_data = &dcv;
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_am_device_identification, tvb, offset, 8, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_am_device_identification);
