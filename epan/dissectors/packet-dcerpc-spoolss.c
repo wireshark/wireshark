@@ -781,13 +781,11 @@ SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	value_name = NULL;
  	offset = dissect_ndr_cvstring(
  		tvb, offset, pinfo, tree, di, drep, sizeof(guint16),
-		hf_printerdata_value, TRUE, NULL);
+		hf_printerdata_value, TRUE, &value_name);
 	/* GetPrinterData() stores the printerdata in se_data */
 	if(!pinfo->fd->flags.visited){
-		if(!dcv->se_data){
-			if(value_name){
-				dcv->se_data = wmem_strdup(wmem_file_scope(), value_name);
-			}
+		if(!dcv->se_data && value_name){
+			dcv->se_data = wmem_strdup(wmem_file_scope(), value_name);
 		}
 	}
 
