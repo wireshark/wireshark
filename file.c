@@ -4586,7 +4586,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
   /* If this was a temporary file, and we didn't do the save by doing
      a move, so the tempoary file is still around under its old name,
      remove it. */
-  if (cf->is_tempfile) {
+  if (cf->is_tempfile && how_to_save != SAVE_WITH_MOVE) {
     /* If this fails, there's not much we can do, so just ignore errors. */
     ws_unlink(cf->filename);
   }
