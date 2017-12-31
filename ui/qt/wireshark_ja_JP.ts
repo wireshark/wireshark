@@ -1660,56 +1660,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished">検索:</translation>
     </message>
     <message>
-        <source>Table Name</source>
-        <translation type="vanished">表の名前</translation>
-    </message>
-    <message>
-        <source>Short Name</source>
-        <translation type="vanished">短い名前</translation>
-    </message>
-    <message>
         <source>Dissector Tables</source>
         <translation>ダイセクター表</translation>
-    </message>
-    <message>
-        <source>String Tables</source>
-        <translation type="vanished">文字列の表</translation>
-    </message>
-    <message>
-        <source>Integer Tables</source>
-        <translation type="vanished">整数の表</translation>
-    </message>
-    <message>
-        <source>Custom Tables</source>
-        <translation type="vanished">カスタム表</translation>
-    </message>
-    <message>
-        <source>Heuristic Tables</source>
-        <translation type="vanished">ヒューリスティック表</translation>
-    </message>
-    <message>
-        <source>Selector Name</source>
-        <translation type="vanished">セレクタ名</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="vanished">文字列</translation>
-    </message>
-    <message>
-        <source>Dissector</source>
-        <translation type="vanished">ダイセクター</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">ポート</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">プロトコル</translation>
-    </message>
-    <message>
-        <source>Table Type</source>
-        <translation type="vanished">表の種別</translation>
     </message>
 </context>
 <context>
@@ -1717,14 +1669,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">プロトコル</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">記述</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1915,23 +1859,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Packet</source>
-        <translation>パケット</translation>
+        <translation type="vanished">パケット</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation>ホスト名</translation>
+        <translation type="vanished">ホスト名</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation>コンテントタイプ</translation>
+        <translation type="vanished">コンテントタイプ</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>サイズ</translation>
+        <translation type="vanished">サイズ</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>ファイル名</translation>
+        <translation type="vanished">ファイル名</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3571,8 +3515,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
-        <source>LBTRM Transport Statistics</source>
-        <translation>LBTRM転送統計</translation>
+        <source>LBT-RM Transport Statistics</source>
+        <oldsource>LBTRM Transport Statistics</oldsource>
+        <translation type="unfinished">LBTRM転送統計</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3676,10 +3621,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>NCF</source>
+        <extracomment>Nak ConFirmation</extracomment>
         <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
+        <extracomment>Session Message</extracomment>
         <translation>SM</translation>
     </message>
     <message>
@@ -3854,8 +3801,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
-        <source>LBTRU Transport Statistics</source>
-        <translation>LBTRUトランスポート統計</translation>
+        <source>LBT-RU Transport Statistics</source>
+        <oldsource>LBTRU Transport Statistics</oldsource>
+        <translation type="unfinished">LBTRUトランスポート統計</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -6303,14 +6251,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a Escaped string</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6692,43 +6632,43 @@ a:hover {
     </message>
     <message>
         <source>Bytes as Hex + ASCII Dump</source>
-        <translation>16進数およびASCIIダンプ形式</translation>
+        <translation type="vanished">16進数およびASCIIダンプ形式</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation>16進数およびASCIIダンプ形式としてパケットバイト列をコピーします</translation>
+        <translation type="vanished">16進数およびASCIIダンプ形式としてパケットバイト列をコピーします</translation>
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation>16進数ダンプ形式として…</translation>
+        <translation type="vanished">16進数ダンプ形式として…</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation>16進数ダンプとしてパケットバイト列をコピーします</translation>
+        <translation type="vanished">16進数ダンプとしてパケットバイト列をコピーします</translation>
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>印刷可能なテキストとして…</translation>
+        <translation type="vanished">印刷可能なテキストとして…</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>パケット内の印刷可能なテキストだけをコピー</translation>
+        <translation type="vanished">パケット内の印刷可能なテキストだけをコピー</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation>16進数ストリームとして…</translation>
+        <translation type="vanished">16進数ストリームとして…</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation>16進数ストリームとしてパケットバイト列をコピーします</translation>
+        <translation type="vanished">16進数ストリームとしてパケットバイト列をコピーします</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>Raw(無加工)バイナリ形式として...</translation>
+        <translation type="vanished">Raw(無加工)バイナリ形式として...</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation>MIME形式データ(application/octet-stream)としてパケットバイト列をコピーします</translation>
+        <translation type="vanished">MIME形式データ(application/octet-stream)としてパケットバイト列をコピーします</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -8493,6 +8433,22 @@ a:hover {
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">エラー</translation>
+    </message>
+    <message>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished">リモートインターフェースは見つかりませんでした</translation>
+    </message>
+    <message>
+        <source>PCAP not found</source>
+        <translation type="unfinished">PCAPは見つかりません</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -1664,59 +1664,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished">Suchen:</translation>
-    </message>
-    <message>
-        <source>Table Name</source>
-        <translation type="vanished">Tabellenname</translation>
-    </message>
-    <message>
-        <source>Short Name</source>
-        <translation type="vanished">Kurzname</translation>
+        <translation>Suchen:</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
         <translation>Dissector Tabelle</translation>
-    </message>
-    <message>
-        <source>String Tables</source>
-        <translation type="vanished">Zeichenkette Tabelle</translation>
-    </message>
-    <message>
-        <source>Integer Tables</source>
-        <translation type="vanished">Integer Tabelle</translation>
-    </message>
-    <message>
-        <source>Custom Tables</source>
-        <translation type="vanished">Custom Tables</translation>
-    </message>
-    <message>
-        <source>Heuristic Tables</source>
-        <translation type="vanished">Heuristik Tabelle</translation>
-    </message>
-    <message>
-        <source>Selector Name</source>
-        <translation type="vanished">Selektorname</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="vanished">Zeichenkette</translation>
-    </message>
-    <message>
-        <source>Dissector</source>
-        <translation type="vanished">Dissector</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">Port</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokoll</translation>
-    </message>
-    <message>
-        <source>Table Type</source>
-        <translation type="vanished">Tabellentyp</translation>
     </message>
 </context>
 <context>
@@ -1724,14 +1676,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokoll</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Beschreibung</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1922,23 +1866,23 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation>Paket</translation>
+        <translation type="vanished">Paket</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation>Hostname</translation>
+        <translation type="vanished">Hostname</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation>Content-Type</translation>
+        <translation type="vanished">Content-Type</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>Größe</translation>
+        <translation type="vanished">Größe</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>Dateiname</translation>
+        <translation type="vanished">Dateiname</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3585,8 +3529,9 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
-        <source>LBTRM Transport Statistics</source>
-        <translation>LBTRM Transport Statistik</translation>
+        <source>LBT-RM Transport Statistics</source>
+        <oldsource>LBTRM Transport Statistics</oldsource>
+        <translation type="unfinished">LBTRM Transport Statistik</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3690,10 +3635,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>NCF</source>
+        <extracomment>Nak ConFirmation</extracomment>
         <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
+        <extracomment>Session Message</extracomment>
         <translation>SM</translation>
     </message>
     <message>
@@ -3868,8 +3815,9 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
-        <source>LBTRU Transport Statistics</source>
-        <translation>LBTRU Transportstatistik</translation>
+        <source>LBT-RU Transport Statistics</source>
+        <oldsource>LBTRU Transport Statistics</oldsource>
+        <translation type="unfinished">LBTRU Transportstatistik</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -5695,11 +5643,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>Teilbauch einklappen</translation>
     </message>
     <message>
         <source>Collapse the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>Details für das aktuelle Paket einklappen</translation>
     </message>
     <message>
         <source>Go to Packet…</source>
@@ -6347,11 +6295,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>...als Zeichenkette mit Escape-Sequenzen</translation>
+        <translation type="vanished">...als Zeichenkette mit Escape-Sequenzen</translation>
     </message>
     <message>
         <source>Copy packet bytes as a Escaped string</source>
-        <translation>Paketbytes als Zeichenkette mit Escape-Sequezen kopieren</translation>
+        <translation type="vanished">Paketbytes als Zeichenkette mit Escape-Sequezen kopieren</translation>
     </message>
     <message>
         <source>&amp;Full Screen</source>
@@ -6735,43 +6683,43 @@ text-decoration: underline;
     </message>
     <message>
         <source>Bytes as Hex + ASCII Dump</source>
-        <translation>Bytes als Hex + ASCII Dump</translation>
+        <translation type="vanished">Bytes als Hex + ASCII Dump</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation>Paketbytes als Hex und ASCII Dump kopieren</translation>
+        <translation type="vanished">Paketbytes als Hex und ASCII Dump kopieren</translation>
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation>...als Hex Dump</translation>
+        <translation type="vanished">...als Hex Dump</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation>Paketbytes als Hex Dump kopieren</translation>
+        <translation type="vanished">Paketbytes als Hex Dump kopieren</translation>
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>...als druckbaren Text</translation>
+        <translation type="vanished">...als druckbaren Text</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Nur den druckbaren Text im Paket kopieren.</translation>
+        <translation type="vanished">Nur den druckbaren Text im Paket kopieren.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation>... als Hex Stream</translation>
+        <translation type="vanished">... als Hex Stream</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation>Paketbytes als Hexstream kopieren.</translation>
+        <translation type="vanished">Paketbytes als Hexstream kopieren.</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>...als Rohdaten</translation>
+        <translation type="vanished">...als Rohdaten</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation>Paketbytes als application/octet-stream MIME Daten kopieren.</translation>
+        <translation type="vanished">Paketbytes als application/octet-stream MIME Daten kopieren.</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -8538,6 +8486,22 @@ text-decoration: underline;
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+    <message>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished">Keine entfernte Schnittstelle gefunden.</translation>
+    </message>
+    <message>
+        <source>PCAP not found</source>
+        <translation type="unfinished">Kein PCAP gefunden</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10431,15 +10395,15 @@ text-decoration: underline;
     <name>ScsiServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Ein Kommando auswählen und bei Bedarf einen Filter eingeben. Danach Anwenden.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSI Service Antwortzeit</translation>
     </message>
 </context>
 <context>

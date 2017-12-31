@@ -1665,56 +1665,8 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Table Name</source>
-        <translation type="vanished">Nom de Table</translation>
-    </message>
-    <message>
-        <source>Short Name</source>
-        <translation type="vanished">Nom Court</translation>
-    </message>
-    <message>
         <source>Dissector Tables</source>
         <translation>Tables de dissecteur</translation>
-    </message>
-    <message>
-        <source>String Tables</source>
-        <translation type="vanished">Tables de Chaines</translation>
-    </message>
-    <message>
-        <source>Integer Tables</source>
-        <translation type="vanished">Tables d&apos;Entiers</translation>
-    </message>
-    <message>
-        <source>Custom Tables</source>
-        <translation type="vanished">Tables personnalisées</translation>
-    </message>
-    <message>
-        <source>Heuristic Tables</source>
-        <translation type="vanished">Tables Heuristiques</translation>
-    </message>
-    <message>
-        <source>Selector Name</source>
-        <translation type="vanished">Nom du Sélecteur</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="vanished">Chaine de Caractères</translation>
-    </message>
-    <message>
-        <source>Dissector</source>
-        <translation type="vanished">Dissecteur</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">Port</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protocole</translation>
-    </message>
-    <message>
-        <source>Table Type</source>
-        <translation type="vanished">Type de Table</translation>
     </message>
 </context>
 <context>
@@ -1722,14 +1674,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Dialog</source>
         <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protocole</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Description</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1920,23 +1864,23 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation>Paquet</translation>
+        <translation type="vanished">Paquet</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation>Nom d&apos;hôte</translation>
+        <translation type="vanished">Nom d&apos;hôte</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation>Type de contenu</translation>
+        <translation type="vanished">Type de contenu</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>Taille</translation>
+        <translation type="vanished">Taille</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>Nom du fichier</translation>
+        <translation type="vanished">Nom du fichier</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3585,8 +3529,9 @@ NOTE: Une option DOIT être sélectionnée.</translation>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
-        <source>LBTRM Transport Statistics</source>
-        <translation>Statistiques de Transport LBTRM</translation>
+        <source>LBT-RM Transport Statistics</source>
+        <oldsource>LBTRM Transport Statistics</oldsource>
+        <translation type="unfinished">Statistiques de Transport LBTRM</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3690,10 +3635,12 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>NCF</source>
+        <extracomment>Nak ConFirmation</extracomment>
         <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
+        <extracomment>Session Message</extracomment>
         <translation>SM</translation>
     </message>
     <message>
@@ -3868,8 +3815,9 @@ NOTE: Une option DOIT être sélectionnée.</translation>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
-        <source>LBTRU Transport Statistics</source>
-        <translation>Statistiques de Transport LBTRU</translation>
+        <source>LBT-RU Transport Statistics</source>
+        <oldsource>LBTRU Transport Statistics</oldsource>
+        <translation type="unfinished">Statistiques de Transport LBTRU</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -6316,14 +6264,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a Escaped string</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6705,43 +6645,19 @@ a:hover {
     </message>
     <message>
         <source>Bytes as Hex + ASCII Dump</source>
-        <translation>Octets en Hex + ASCII Dump</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Octets en Hex + ASCII Dump</translation>
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation>...en Hex Dump</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex dump.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">...en Hex Dump</translation>
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>...en Texte Imprimable</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as a Hex Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">...en Texte Imprimable</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>...en Binaire Brut</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">...en Binaire Brut</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -8509,6 +8425,22 @@ a:hover {
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Erreur</translation>
+    </message>
+    <message>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished">Aucune interface distante trouvée.</translation>
+    </message>
+    <message>
+        <source>PCAP not found</source>
+        <translation type="unfinished">PCAP non trouvé</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -1860,26 +1860,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hostname</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Content Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filename</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Searching for objects</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3495,7 +3475,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
-        <source>LBTRM Transport Statistics</source>
+        <source>LBT-RM Transport Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3600,10 +3580,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>NCF</source>
+        <extracomment>Nak ConFirmation</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SM</source>
+        <extracomment>Session Message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3778,7 +3760,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
-        <source>LBTRU Transport Statistics</source>
+        <source>LBT-RU Transport Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6201,14 +6183,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a Escaped string</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6586,46 +6560,6 @@ a:hover {
     </message>
     <message>
         <source>Show or hide the packet bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bytes as Hex + ASCII Dump</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as Hex Dump</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex dump.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as Printable Text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as a Hex Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as Raw Binary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8390,6 +8324,22 @@ a:hover {
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PCAP not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

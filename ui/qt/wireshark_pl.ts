@@ -1666,56 +1666,8 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation type="unfinished">Szukaj:</translation>
     </message>
     <message>
-        <source>Table Name</source>
-        <translation type="vanished">Nazwa Tabeli</translation>
-    </message>
-    <message>
-        <source>Short Name</source>
-        <translation type="vanished">Krótka Nazwa</translation>
-    </message>
-    <message>
         <source>Dissector Tables</source>
         <translation>Tabele Dekoderów</translation>
-    </message>
-    <message>
-        <source>String Tables</source>
-        <translation type="vanished">Tabele Stringów</translation>
-    </message>
-    <message>
-        <source>Integer Tables</source>
-        <translation type="vanished">Tabele Liczbowe</translation>
-    </message>
-    <message>
-        <source>Custom Tables</source>
-        <translation type="vanished">Tabele Niestandardowe</translation>
-    </message>
-    <message>
-        <source>Heuristic Tables</source>
-        <translation type="vanished">Tabela Heurystyczna</translation>
-    </message>
-    <message>
-        <source>Selector Name</source>
-        <translation type="vanished">Selektor</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="vanished">String</translation>
-    </message>
-    <message>
-        <source>Dissector</source>
-        <translation type="vanished">Dekoder</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">Port</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokół</translation>
-    </message>
-    <message>
-        <source>Table Type</source>
-        <translation type="vanished">Typ Tabeli</translation>
     </message>
 </context>
 <context>
@@ -1723,14 +1675,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Dialog</source>
         <translation>Okno</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokół</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">Opis</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1921,23 +1865,23 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation>Pakiet</translation>
+        <translation type="vanished">Pakiet</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation>Nazwa hosta</translation>
+        <translation type="vanished">Nazwa hosta</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation>Typ zawartości</translation>
+        <translation type="vanished">Typ zawartości</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>Rozmiar</translation>
+        <translation type="vanished">Rozmiar</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>Nazwa pliku</translation>
+        <translation type="vanished">Nazwa pliku</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3584,8 +3528,9 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
-        <source>LBTRM Transport Statistics</source>
-        <translation>Statystyki tranportu LBTRM</translation>
+        <source>LBT-RM Transport Statistics</source>
+        <oldsource>LBTRM Transport Statistics</oldsource>
+        <translation type="unfinished">Statystyki tranportu LBTRM</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3689,10 +3634,12 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>NCF</source>
+        <extracomment>Nak ConFirmation</extracomment>
         <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
+        <extracomment>Session Message</extracomment>
         <translation>SM</translation>
     </message>
     <message>
@@ -3867,8 +3814,9 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
-        <source>LBTRU Transport Statistics</source>
-        <translation>Statystyki tranportu LBTRU</translation>
+        <source>LBT-RU Transport Statistics</source>
+        <oldsource>LBTRU Transport Statistics</oldsource>
+        <translation type="unfinished">Statystyki tranportu LBTRU</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -6348,14 +6296,6 @@ text-decoration: underline;
         <translation>Stwórz reguły ACL zapory ogniowej</translation>
     </message>
     <message>
-        <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a Escaped string</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6737,43 +6677,43 @@ text-decoration: underline;
     </message>
     <message>
         <source>Bytes as Hex + ASCII Dump</source>
-        <translation>Bajty jako Hex + ASCII Dump</translation>
+        <translation type="vanished">Bajty jako Hex + ASCII Dump</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation>Kopiuj bajty pakietu jako Hex i ASCII Dump.</translation>
+        <translation type="vanished">Kopiuj bajty pakietu jako Hex i ASCII Dump.</translation>
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation>…jako Hex Dump</translation>
+        <translation type="vanished">…jako Hex Dump</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation>Kopiuj bajty pakietu jako Hex Dump.</translation>
+        <translation type="vanished">Kopiuj bajty pakietu jako Hex Dump.</translation>
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>…drukowalny tekst</translation>
+        <translation type="vanished">…drukowalny tekst</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Kopiuj tylko drukowalny tekst z pakietu.</translation>
+        <translation type="vanished">Kopiuj tylko drukowalny tekst z pakietu.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation>…jako strumień Hex</translation>
+        <translation type="vanished">…jako strumień Hex</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation>Kopiuj bajty pakietu jako strumień Hex.</translation>
+        <translation type="vanished">Kopiuj bajty pakietu jako strumień Hex.</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>…jako strumień binarny</translation>
+        <translation type="vanished">…jako strumień binarny</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation>Kopiuj bajty pakietu jako typ MIME application/octet-stream.</translation>
+        <translation type="vanished">Kopiuj bajty pakietu jako typ MIME application/octet-stream.</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -8540,6 +8480,22 @@ text-decoration: underline;
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>Filtr %1 nie jest poprawnym filtrem wyświetlania. (%2).</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished">Nie znaleziono zdalnych interfejsów.</translation>
+    </message>
+    <message>
+        <source>PCAP not found</source>
+        <translation type="unfinished">PCAP nie znaleziony</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

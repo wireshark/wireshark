@@ -1661,56 +1661,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Table Name</source>
-        <translation type="vanished">表名</translation>
-    </message>
-    <message>
-        <source>Short Name</source>
-        <translation type="vanished">短名称</translation>
-    </message>
-    <message>
         <source>Dissector Tables</source>
         <translation>解析器表</translation>
-    </message>
-    <message>
-        <source>String Tables</source>
-        <translation type="vanished">字符串表</translation>
-    </message>
-    <message>
-        <source>Integer Tables</source>
-        <translation type="vanished">整数表</translation>
-    </message>
-    <message>
-        <source>Custom Tables</source>
-        <translation type="vanished">自定义表</translation>
-    </message>
-    <message>
-        <source>Heuristic Tables</source>
-        <translation type="vanished">启发式表</translation>
-    </message>
-    <message>
-        <source>Selector Name</source>
-        <translation type="vanished">选择器名称</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="vanished">字符串</translation>
-    </message>
-    <message>
-        <source>Dissector</source>
-        <translation type="vanished">解析器</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">端口</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">协议</translation>
-    </message>
-    <message>
-        <source>Table Type</source>
-        <translation type="vanished">表类型</translation>
     </message>
 </context>
 <context>
@@ -1718,14 +1670,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">协议</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="vanished">描述</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
@@ -1916,23 +1860,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Packet</source>
-        <translation>分组</translation>
+        <translation type="vanished">分组</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation>主机名</translation>
+        <translation type="vanished">主机名</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation>内容类型</translation>
+        <translation type="vanished">内容类型</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>大小</translation>
+        <translation type="vanished">大小</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation>文件名</translation>
+        <translation type="vanished">文件名</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3572,8 +3516,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
-        <source>LBTRM Transport Statistics</source>
-        <translation>LBTRM 传输层统计</translation>
+        <source>LBT-RM Transport Statistics</source>
+        <oldsource>LBTRM Transport Statistics</oldsource>
+        <translation type="unfinished">LBTRM 传输层统计</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3677,10 +3622,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>NCF</source>
+        <extracomment>Nak ConFirmation</extracomment>
         <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
+        <extracomment>Session Message</extracomment>
         <translation>SM</translation>
     </message>
     <message>
@@ -3855,8 +3802,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
-        <source>LBTRU Transport Statistics</source>
-        <translation>LBTRU传输层统计</translation>
+        <source>LBT-RU Transport Statistics</source>
+        <oldsource>LBTRU Transport Statistics</oldsource>
+        <translation type="unfinished">LBTRU传输层统计</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -6331,11 +6279,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>…为转义字符串</translation>
+        <translation type="vanished">…为转义字符串</translation>
     </message>
     <message>
         <source>Copy packet bytes as a Escaped string</source>
-        <translation>复制分组字节为转义字符串。</translation>
+        <translation type="vanished">复制分组字节为转义字符串。</translation>
     </message>
     <message>
         <source>&amp;Full Screen</source>
@@ -6719,43 +6667,43 @@ text-decoration: underline;
     </message>
     <message>
         <source>Bytes as Hex + ASCII Dump</source>
-        <translation>字节为 Hex + ASCII 转储</translation>
+        <translation type="vanished">字节为 Hex + ASCII 转储</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation>复制分组字节为 Hex 和 ASCII 转储。</translation>
+        <translation type="vanished">复制分组字节为 Hex 和 ASCII 转储。</translation>
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation>…为 Hex 转储</translation>
+        <translation type="vanished">…为 Hex 转储</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation>复制分组字节为 Hex 转储。</translation>
+        <translation type="vanished">复制分组字节为 Hex 转储。</translation>
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation>为纯文本</translation>
+        <translation type="vanished">为纯文本</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>只复制分组中的可打印文本。</translation>
+        <translation type="vanished">只复制分组中的可打印文本。</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation>…为一个 Hex 流</translation>
+        <translation type="vanished">…为一个 Hex 流</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation>复制分组字节为 Hex 流。</translation>
+        <translation type="vanished">复制分组字节为 Hex 流。</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>…为原始二进制</translation>
+        <translation type="vanished">…为原始二进制</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation>复制分组字节为 application/octet-stream MIME 数据。</translation>
+        <translation type="vanished">复制分组字节为 application/octet-stream MIME 数据。</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -8520,6 +8468,22 @@ text-decoration: underline;
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>筛选器表达式 %1 不是有效的显示筛选器 (%2)。</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">错误</translation>
+    </message>
+    <message>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished">远程接口没有发现。</translation>
+    </message>
+    <message>
+        <source>PCAP not found</source>
+        <translation type="unfinished">PCAP没有发现</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
