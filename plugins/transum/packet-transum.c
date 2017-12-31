@@ -1224,7 +1224,7 @@ proto_register_transum(void)
         { &hf_tsum_rsp_search,
         { "Rsp Search Counts", "transum.rsp_search",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "rrpd_list search total for the reponse packets", HFILL }
+        "rrpd_list search total for the response packets", HFILL }
         }
 
     };
