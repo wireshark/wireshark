@@ -3859,7 +3859,7 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			printf(",\"mime\":");
 			json_puts_string(mime);
 			printf(",\"data\":");
-			json_print_base64(eo_entry->payload_data, eo_entry->payload_len);
+			json_print_base64(eo_entry->payload_data, (size_t)(eo_entry->payload_len));
 			printf("}\n");
 		}
 	}
