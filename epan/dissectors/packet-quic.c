@@ -128,6 +128,7 @@ static dissector_handle_t ssl_handle;
 
 typedef struct quic_info_data {
     guint32 version;
+    guint16 server_port;
     tls13_cipher *client_cleartext_cipher;
     tls13_cipher *server_cleartext_cipher;
 } quic_info_data_t;
@@ -1128,10 +1129,17 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
         ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
 
+        /* Initial Packet is always send by client */
+        if(pinfo->destport != 443) {
+            quic_info->server_port = pinfo->destport;
+        }
+
 #ifdef HAVE_LIBGCRYPT_AEAD
         tls13_cipher *cipher = NULL;
         const gchar *error = NULL;
         tvbuff_t *decrypted_tvb;
+
+        cipher = quic_info->client_cleartext_cipher;
 
         /* Create new decryption context based on the Client Connection
          * ID from the Client Initial packet. */
@@ -1139,8 +1147,6 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
              return offset;
         }
-
-        cipher = quic_info->client_cleartext_cipher;
 
         if (cipher) {
             /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
@@ -1163,8 +1169,38 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     /* Handshake (>= draft-08) */
     } else if  (long_packet_type == 0x7D ) {
+        proto_item *ti;
 
-        proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
+        ti = proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+        tls13_cipher *cipher = NULL;
+        const gchar *error = NULL;
+        tvbuff_t *decrypted_tvb;
+
+        if(pinfo->destport == quic_info->server_port) {
+            cipher = quic_info->client_cleartext_cipher;
+        } else {
+            cipher = quic_info->server_cleartext_cipher;
+        }
+
+        if (cipher) {
+            /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
+            DISSECTOR_ASSERT(offset == QUIC_LONG_HEADER_LENGTH);
+
+            decrypted_tvb = quic_decrypt_message(cipher, tvb, pinfo, QUIC_LONG_HEADER_LENGTH, pkn, &error);
+            if (decrypted_tvb) {
+                guint decrypted_offset = 0;
+                while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0){
+                    decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, quic_tree, decrypted_offset, quic_info);
+                }
+            } else {
+                expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to decrypt handshake: %s", error);
+            }
+        }
+#else /* !HAVE_LIBGCRYPT_AEAD */
+        expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
+#endif /* !HAVE_LIBGCRYPT_AEAD */
         offset += tvb_reported_length_remaining(tvb, offset);
 
     } else {
@@ -1235,6 +1271,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!quic_info) {
         quic_info = wmem_new0(wmem_file_scope(), quic_info_data_t);
         quic_info->version = 0;
+        quic_info->server_port = 443;
         conversation_add_proto_data(conv, proto_quic, quic_info);
     }
 
