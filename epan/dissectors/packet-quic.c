@@ -608,9 +608,18 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             }
             break;
             case FT_RST_STREAM:{
-                guint32 stream_id, error_code;
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN, &stream_id);
-                offset += 4;
+                guint64 stream_id;
+                guint32 error_code, len_streamid = 0, len_finaloffset = 0;
+
+                if(quic_info-> version <= 0xFF000007) {
+                    proto_tree_add_item_ret_uint64(ft_tree, hf_quic_frame_type_rsts_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN, &stream_id);
+                    offset += 4;
+                    len_streamid = 4;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rsts_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
+                    offset += len_streamid;
+                }
+
                 if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
                     proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
                     offset += 4;
@@ -618,14 +627,22 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                     proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
                     offset += 2;
                 }
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_rsts_final_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
 
-                proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", stream_id, val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
+                if(quic_info-> version <= 0xFF000007) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_rsts_final_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    offset += 8;
+                    len_finaloffset = 8;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rsts_final_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finaloffset);
+                    offset += len_finaloffset;
+                }
+
+                proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
+
                 if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
                     proto_item_set_len(ti_ft, 1 + 4 + 4 + 8);
                 } else {
-                    proto_item_set_len(ti_ft, 1 + 4 + 2 + 8);
+                    proto_item_set_len(ti_ft, 1 + len_streamid + 2 + len_finaloffset);
                 }
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "RST STREAM, ");
@@ -633,7 +650,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             }
             break;
             case FT_CONNECTION_CLOSE:{
-                guint32 len_reason, error_code;
+                guint32 len_reasonphrase, error_code;
+                guint64 len_reason = 0;
 
                 if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
                     proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_old_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
@@ -642,68 +660,108 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                     proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
                     offset += 2;
                 }
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len_reason);
-                offset += 2;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
-                offset += len_reason;
+                if (quic_info->version <= 0xff000007) {
+                    proto_tree_add_item_ret_uint64(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len_reason);
+                    offset += 2;
+                    len_reasonphrase = 2;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, -1, ENC_VARINT_QUIC, &len_reason, &len_reasonphrase);
+                    offset += len_reasonphrase;
+                }
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
+                offset += (guint32)len_reason;
 
                 proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_old_error_code_vals_ext, "Unknown (%d)"));
                 if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
-                    proto_item_set_len(ti_ft, 1 + 4 + 2 + len_reason);
+                    proto_item_set_len(ti_ft, 1 + 4 + 2 + (guint32)len_reason);
                 } else {
-                    proto_item_set_len(ti_ft, 1 + 2 + 2 + len_reason);
+                    proto_item_set_len(ti_ft, 1 + 2 + len_reasonphrase + (guint32)len_reason);
                 }
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Connection Close");
 
             }
             break;
             case FT_APPLICATION_CLOSE:{
-                guint32 len_reason, error_code;
+                guint32 len_reasonphrase, error_code;
+                guint64 len_reason;
 
                 proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ac_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
                 offset += 2;
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ac_reason_phrase_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len_reason);
-                offset += 2;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ac_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
-                offset += len_reason;
+                if (quic_info->version <= 0xff000007) {
+                    proto_tree_add_item_ret_uint64(ft_tree, hf_quic_frame_type_ac_reason_phrase_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len_reason);
+                    offset += 2;
+                    len_reasonphrase = 2;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ac_reason_phrase_length, tvb, offset, -1, ENC_VARINT_QUIC, &len_reason, &len_reasonphrase);
+                    offset += len_reasonphrase;
+                }
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ac_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
+                offset += (guint32)len_reason;
 
                 proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
-                proto_item_set_len(ti_ft, 1 + 2 + 2 + len_reason);
+                proto_item_set_len(ti_ft, 1 + 2+ len_reasonphrase + (guint32)len_reason);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Application Close");
 
             }
             break;
             case FT_MAX_DATA:{
+                guint32 len_maximumdata;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_md_maximum_data, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
+                if (quic_info->version <= 0xff000007) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_md_maximum_data, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    offset += 8;
+                    len_maximumdata = 8;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_md_maximum_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumdata);
+                    offset += len_maximumdata;
+                }
 
-                proto_item_set_len(ti_ft, 1 + 8);
+                proto_item_set_len(ti_ft, 1 + len_maximumdata);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Max Data");
 
             }
             break;
             case FT_MAX_STREAM_DATA:{
+                guint32 len_streamid, len_maximumstreamdata;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_msd_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_msd_maximum_stream_data, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
+                if (quic_info->version <= 0xff000007) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_msd_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    len_streamid = 4;
 
-                proto_item_set_len(ti_ft, 1 + 4 + 8);
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_msd_maximum_stream_data, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    offset += 8;
+                    len_maximumstreamdata = 8;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_msd_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+                    offset += len_streamid;
+
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_msd_maximum_stream_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumstreamdata);
+                    offset += len_maximumstreamdata;
+                }
+
+                proto_item_set_len(ti_ft, 1 + len_streamid + len_maximumstreamdata);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Max Stream Data");
 
             }
             break;
             case FT_MAX_STREAM_ID:{
+                guint32 len_streamid;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_msi_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                if (quic_info->version <= 0xff000007) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_msi_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    len_streamid = 4;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_msi_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+                   offset += len_streamid;
 
-                proto_item_set_len(ti_ft, 1 + 4);
+                }
+
+                proto_item_set_len(ti_ft, 1 + len_streamid);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Max Stream ID");
 
@@ -728,11 +786,18 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             }
             break;
             case FT_STREAM_BLOCKED:{
+                guint32 len_streamid;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_sb_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                if (quic_info->version <= 0xff000007) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_sb_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    len_streamid = 4;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sb_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+                   offset += len_streamid;
+                }
 
-                proto_item_set_len(ti_ft, 1 + 4);
+                proto_item_set_len(ti_ft, 1 + len_streamid);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream Blocked");
 
@@ -748,9 +813,15 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             }
             break;
             case FT_NEW_CONNECTION_ID:{
-
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                guint32 len_sequence;
+                if (quic_info-> version <= 0xff000007) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    len_sequence = 2;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
+                   offset += len_sequence;
+                }
 
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
@@ -758,27 +829,34 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_stateless_reset_token, tvb, offset, 16, ENC_NA);
                 offset += 16;
 
-                proto_item_set_len(ti_ft, 1 + 2 + 8 + 16);
+                proto_item_set_len(ti_ft, 1 + len_sequence + 8 + 16);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "New Connection ID");
 
             }
             break;
             case FT_STOP_SENDING:{
+                guint32 len_streamid;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                if(quic_info->version <= 0xff000007) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    len_streamid = 4;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+                   offset += len_streamid;
+                }
 
                 if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
                     proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
 
-                    proto_item_set_len(ti_ft, 1 + 4 + 4);
+                    proto_item_set_len(ti_ft, 1 + len_streamid + 4);
                 } else {
                     proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
-                    proto_item_set_len(ti_ft, 1 + 4 + 2);
+                    proto_item_set_len(ti_ft, 1 + len_streamid + 2);
                 }
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
 
@@ -1584,7 +1662,7 @@ proto_register_quic(void)
         /* RST_STREAM */
         { &hf_quic_frame_type_rsts_stream_id,
             { "Stream ID", "quic.frame_type.rsts.stream_id",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Stream ID of the stream being terminated", HFILL }
         },
         { &hf_quic_frame_type_rsts_error_code,
@@ -1615,7 +1693,7 @@ proto_register_quic(void)
         },
         { &hf_quic_frame_type_cc_reason_phrase_length,
             { "Reason phrase Length", "quic.frame_type.cc.reason_phrase.length",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Specifying the length of the reason phrase", HFILL }
         },
         { &hf_quic_frame_type_cc_reason_phrase,
@@ -1631,7 +1709,7 @@ proto_register_quic(void)
         },
         { &hf_quic_frame_type_ac_reason_phrase_length,
             { "Reason phrase Length", "quic.frame_type.ac.reason_phrase.length",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Specifying the length of the reason phrase", HFILL }
         },
         { &hf_quic_frame_type_ac_reason_phrase,
@@ -1648,7 +1726,7 @@ proto_register_quic(void)
         /* MAX_STREAM_DATA */
         { &hf_quic_frame_type_msd_stream_id,
             { "Stream ID", "quic.frame_type.msd.stream_id",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "The stream ID of the stream that is affected", HFILL }
         },
         { &hf_quic_frame_type_msd_maximum_stream_data,
@@ -1659,19 +1737,19 @@ proto_register_quic(void)
         /* MAX_STREAM_ID */
         { &hf_quic_frame_type_msi_stream_id,
             { "Stream ID", "quic.frame_type.msi.stream_id",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "ID of the maximum peer-initiated stream ID for the connection", HFILL }
         },
         /* STREAM_BLOCKED */
         { &hf_quic_frame_type_sb_stream_id,
             { "Stream ID", "quic.frame_type.sb.stream_id",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the stream which is flow control blocked", HFILL }
         },
         /* NEW_CONNECTION_ID */
         { &hf_quic_frame_type_nci_sequence,
             { "Sequence", "quic.frame_type.nci.sequence",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Increases by 1 for each connection ID that is provided by the server", HFILL }
         },
         { &hf_quic_frame_type_nci_connection_id,
@@ -1687,7 +1765,7 @@ proto_register_quic(void)
         /* STOP_SENDING */
         { &hf_quic_frame_type_ss_stream_id,
             { "Stream ID", "quic.frame_type.ss.stream_id",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Stream ID of the stream being ignored", HFILL }
         },
         { &hf_quic_frame_type_ss_error_code,
