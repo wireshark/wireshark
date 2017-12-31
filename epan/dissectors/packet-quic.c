@@ -82,6 +82,10 @@ static int hf_quic_frame_type_ack_num_blocks = -1;
 static int hf_quic_frame_type_ack_num_ts = -1;
 static int hf_quic_frame_type_ack_largest_acknowledged = -1;
 static int hf_quic_frame_type_ack_ack_delay = -1;
+static int hf_quic_frame_type_ack_ack_block_count = -1;
+static int hf_quic_frame_type_ack_fab = -1;
+static int hf_quic_frame_type_ack_gap = -1;
+static int hf_quic_frame_type_ack_ack_block = -1;
 static int hf_quic_frame_type_ack_fabl = -1;
 static int hf_quic_frame_type_ack_gap2nb = -1;
 static int hf_quic_frame_type_ack_ack_block_length = -1;
@@ -192,6 +196,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_STREAM_ID_BLOCKED 0x0a
 #define FT_NEW_CONNECTION_ID 0x0b
 #define FT_STOP_SENDING     0x0c
+#define FT_ACK              0x0e
 #define FT_STREAM_10        0x10
 #define FT_STREAM_11        0x11
 #define FT_STREAM_12        0x12
@@ -219,6 +224,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x0a, 0x0a,   "STREAM_ID_BLOCKED" },
     { 0x0b, 0x0b,   "NEW_CONNECTION_ID" },
     { 0x0c, 0x0c,   "STOP_SENDING" },
+    { 0x0e, 0x0e,   "ACK" },
     { 0x10, 0x17,   "STREAM" },
     { 0xa0, 0xbf,   "ACK" }, /* <= draft-07 */
     { 0xc0, 0xff,   "STREAM" },  /* <= draft-07 */
@@ -776,6 +782,38 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 }
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
 
+            }
+            break;
+            case FT_ACK: {
+                guint64 ack_block_count;
+                guint32 lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
+                offset += lenvar;
+
+                /* ACK Block */
+                /* First ACK Block Length */
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                /* Repeated "Ack Block Count" */
+                while(ack_block_count){
+
+                    /* Gap To Next Block */
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    ack_block_count--;
+                }
             }
             break;
             case FT_STREAM_10:
@@ -1478,21 +1516,41 @@ proto_register_quic(void)
             "Representing the largest packet number the peer is acknowledging in this packet", HFILL }
         },
         { &hf_quic_frame_type_ack_ack_delay,
-          { "Ack Delay", "quic.frame_type.ack.ack_delay",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "ACK Delay", "quic.frame_type.ack.ack_delay",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             "The time from when the largest acknowledged packet, as indicated in the Largest Acknowledged field, was received by this peer to when this ACK was sent", HFILL }
         },
-        { &hf_quic_frame_type_ack_fabl,
-          { "First ACK Block Length", "quic.frame_type.ack.fabl",
+        { &hf_quic_frame_type_ack_ack_block_count,
+          { "ACK Block Count", "quic.frame_type.ack.ack_block_count",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "The number of Additional ACK Block (and Gap) fields after the First ACK Block", HFILL }
+        },
+        { &hf_quic_frame_type_ack_fab,
+          { "First ACK Block", "quic.frame_type.ack.fab",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicates the number of contiguous additional packets being acknowledged starting at the Largest Acknowledged", HFILL }
         },
-        { &hf_quic_frame_type_ack_gap2nb,
+        { &hf_quic_frame_type_ack_gap,
+          { "Gap", "quic.frame_type.ack.gap",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Indicating the number of contiguous unacknowledged packets preceding the packet number one lower than the smallest in the preceding ACK Block", HFILL }
+        },
+        { &hf_quic_frame_type_ack_ack_block,
+          { "ACK Block", "quic.frame_type.ack.ack_block",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Indicating the number of contiguous acknowledged packets preceding the largest packet number, as determined by the preceding Gap", HFILL }
+        },
+        { &hf_quic_frame_type_ack_fabl, /* <= draft-07 */
+          { "First ACK Block Length", "quic.frame_type.ack.fabl",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Indicates the number of contiguous packets preceding the Largest Acknowledged that are being acknowledged", HFILL }
+        },
+        { &hf_quic_frame_type_ack_gap2nb, /* <= draft-07 */
           { "Gap To Next Block", "quic.frame_type.ack.gap2nb",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Specifying the number of contiguous missing packets from the end of the previous ACK block to the start of the next", HFILL }
         },
-        { &hf_quic_frame_type_ack_ack_block_length,
+        { &hf_quic_frame_type_ack_ack_block_length, /* <= draft-07 */
           { "ACK Block Length", "quic.frame_type.ack.ack_block_length",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicates the number of contiguous packets being acknowledged starting after the end of the previous gap", HFILL }
