@@ -210,7 +210,7 @@ static const value_string nfapi_phy_state_vals[] = {
 
 
 /* These are definitions where data 0 & 1 represent/provide a string name*/
-static const true_false_string  nfapi_csi_report_type_strname = {
+static const true_false_string nfapi_csi_report_type_strname = {
 	"Periodic",
 	"Aperiodic",
 };
@@ -403,7 +403,7 @@ static const value_string resource_allocation_type_vals[] = {
 	{ 3, "type 2 1C" },
 	{ 4, "type 2 6-1A" },
 	{ 5, "type UEModeB" },
-	{ 6, "NB index" },
+	{ 6, "NB Index" },
 	{ 0, NULL }
 };
 
@@ -730,7 +730,7 @@ static const value_string csi_request_vals[] = {
 static const value_string tdd_harq_mode_vals[] = {
 	{ 0, "Format 1a/1b BUNDLING" },
 	{ 1, "Format 1a/1b MULTIPLEXING" },
-	{ 2, "Format 1a/1b  SPECIAL BUNDLING" },
+	{ 2, "Format 1a/1b SPECIAL BUNDLING" },
 	{ 3, "Channel Selection" },
 	{ 4, "Format 3" },
 	{ 5, "Format 4" },
@@ -2063,7 +2063,7 @@ static void dissect_pb_value(ptvcursor_t * ptvc, packet_info* pinfo)
 
 	if (test_value > 3)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink power allocation index [0..3]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink power allocation Index [0..3]");
 	}
 }
 
@@ -2205,7 +2205,7 @@ static void dissect_prach_configuration_index_value(ptvcursor_t * ptvc, packet_i
 
 	if (test_value > 63)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach configuration index [0..63]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach configuration Index [0..63]");
 	}
 }
 static void dissect_prach_root_sequence_index_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2215,7 +2215,7 @@ static void dissect_prach_root_sequence_index_value(ptvcursor_t * ptvc, packet_i
 
 	if (test_value > 837)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach root sequency index [0..837]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach root sequency Index [0..837]");
 	}
 }
 static void dissect_prach_zero_correlation_zone_configuration_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2507,7 +2507,7 @@ static void dissect_emtc_prach_cat_m_root_sequence_index_value(ptvcursor_t * ptv
 
 	if (test_value > 837)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach cat-m root sequence index value [0..837]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach cat-m root sequence Index value [0..837]");
 	}
 }
 static void dissect_emtc_prach_cat_m_zero_correlation_zone_configuration_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2547,7 +2547,7 @@ static void dissect_emtc_prach_ce_level_0_configuration_offset_value(ptvcursor_t
 
 	if (test_value > 63)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #0 configuration index value [0..63]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #0 configuration Index value [0..63]");
 	}
 }
 static void dissect_emtc_prach_ce_level_0_frequency_offset_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2619,7 +2619,7 @@ static void dissect_emtc_prach_ce_level_1_configuration_offset_value(ptvcursor_t
 
 	if (test_value > 63)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #1 configuration index value [0..63]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #1 configuration Index value [0..63]");
 	}
 }
 static void dissect_emtc_prach_ce_level_1_frequency_offset_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2691,7 +2691,7 @@ static void dissect_emtc_prach_ce_level_2_configuration_offset_value(ptvcursor_t
 
 	if (test_value > 63)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #2 configuration index value [0..63]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #2 configuration Index value [0..63]");
 	}
 }
 static void dissect_emtc_prach_ce_level_2_frequency_offset_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -2763,7 +2763,7 @@ static void dissect_emtc_prach_ce_level_3_configuration_offset_value(ptvcursor_t
 
 	if (test_value > 63)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #2 configuration index value [0..63]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach ce level #2 configuration Index value [0..63]");
 	}
 }
 static void dissect_emtc_prach_ce_level_3_frequency_offset_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -3137,7 +3137,7 @@ static void dissect_dl_config_request_body_value(ptvcursor_t * ptvc, packet_info
 	guint32 test_value, number_of_dcis_value, number_of_pdus_value;
 
 	// Number of PDCCH OFDM symbols
-	item  = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_pdcch_ofdm_symbols, 1, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_pdcch_ofdm_symbols, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 4)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid number of pdcch ofdm symbols value [0..4]");
@@ -3146,7 +3146,7 @@ static void dissect_dl_config_request_body_value(ptvcursor_t * ptvc, packet_info
 	// Number of DCIs
 	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_dci, 1, ENC_BIG_ENDIAN, &number_of_dcis_value);
 
-	// Number of  PDUs
+	// Number of PDUs
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_pdus, 2, ENC_BIG_ENDIAN, &number_of_pdus_value);
 	if (number_of_pdus_value > 514)
 	{
@@ -3200,7 +3200,7 @@ static void dissect_dl_config_request_dl_dci_pdu_rel8_value(ptvcursor_t * ptvc, 
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_cce_idx, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 88)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cce index value [0..88]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cce Index value [0..88]");
 	}
 
 	// Aggregation level
@@ -3337,7 +3337,7 @@ static void dissect_dl_config_request_dl_dci_pdu_rel8_value(ptvcursor_t * ptvc, 
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_transport_block_size_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 31)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid transport block size index value [0..31]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid transport block size Index value [0..31]");
 	}
 
 	// Downlink power offset
@@ -3358,14 +3358,14 @@ static void dissect_dl_config_request_dl_dci_pdu_rel8_value(ptvcursor_t * ptvc, 
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_preamble_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 63)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid preamble index value [0..63]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid preamble Index value [0..63]");
 	}
 
 	// PRACH mask index
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_prach_mask_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 15)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach mask index value [0..15]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach mask Index value [0..15]");
 	}
 
 	// RNTI type
@@ -3537,7 +3537,7 @@ static void dissect_codebook_index_value(ptvcursor_t * ptvc, packet_info* pinfo)
 	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_codebook_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 15)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid codebook index value [0..15]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid codebook Index value [0..15]");
 	}
 }
 static void dissect_bf_vector_value(ptvcursor_t * ptvc, packet_info* pinfo _U_)
@@ -3550,7 +3550,7 @@ static void dissect_bf_vector_type_value(ptvcursor_t * ptvc, packet_info* pinfo)
 
 	ptvcursor_add(ptvc, hf_nfapi_bf_vector_subband_index, 1, ENC_BIG_ENDIAN);
 	ptvcursor_add_ret_uint(ptvc, hf_nfapi_bf_vector_num_antennas, 1, ENC_BIG_ENDIAN, &count);
-	dissect_array_value(ptvc, pinfo, "Antennas",  ett_nfapi_bf_vector_antennas, count, dissect_bf_vector_value);
+	dissect_array_value(ptvc, pinfo, "Antennas", ett_nfapi_bf_vector_antennas, count, dissect_bf_vector_value);
 }
 static void dissect_dl_config_request_dlsch_pdu_rel8_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
@@ -3567,7 +3567,7 @@ static void dissect_dl_config_request_dlsch_pdu_rel8_value(ptvcursor_t * ptvc, p
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_rnti, 2, ENC_BIG_ENDIAN, &test_value);
 	if (!(test_value >= 1 /* && rnti_value <= 65535)*/))
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid codebook index value [1..65535]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid codebook Index value [1..65535]");
 	}
 
 	// Resource allocation type
@@ -4078,7 +4078,7 @@ static void dissect_csi_rs_bf_vector_value(ptvcursor_t * ptvc, packet_info* pinf
 	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_csi_rs_resource_index, 1, ENC_BIG_ENDIAN, &count);
 	if (count > 7)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid csi-rs resource index value [0..7]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid csi-rs resource Index value [0..7]");
 	}
 
 	// todo : how to work out the antenna port count for the bfValue
@@ -4230,7 +4230,7 @@ static void dissect_dl_config_request_mpdpcch_pdu_rel13_value(ptvcursor_t * ptvc
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_ecce_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 22)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ecce index value [0..22]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ecce Index value [0..22]");
 	}
 
 	// Aggregation level
@@ -4377,18 +4377,18 @@ static void dissect_dl_config_request_mpdpcch_pdu_rel13_value(ptvcursor_t * ptvc
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid tpc value [0..3]");
 	}
 
-	// Downlink assignment index Length
+	// Downlink assignment Index Length
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_downlink_assignment_index_length, 1, ENC_BIG_ENDIAN, &test_value);
 	if (!(test_value == 0 || test_value == 2 || test_value == 4))
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink assignment index length value [0, 2, 4]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink assignment Index length value [0, 2, 4]");
 	}
 
 	// Downlink assignment index
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_downlink_assignment_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 15)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink assignment index value [0..15]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink assignment Index value [0..15]");
 	}
 
 	// Allocate PRACH flag
@@ -4402,14 +4402,14 @@ static void dissect_dl_config_request_mpdpcch_pdu_rel13_value(ptvcursor_t * ptvc
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_preamble_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 63)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid preamble index value [0..63]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid preamble Index value [0..63]");
 	}
 
 	// PRACH mask index
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_prach_mask_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 15)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach mask index value [0..15]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach mask Index value [0..15]");
 	}
 
 	// Starting CE Level
@@ -4482,7 +4482,7 @@ static void dissect_ul_config_pdu(ptvcursor_t * ptvc, packet_info* pinfo)
 	guint pdu_end = (ptvcursor_current_offset(ptvc) + size - 2);
 	dissect_tlv_list(ptvc, pinfo, pdu_end);
 }
-static void  dissect_ul_config_request_body_value(ptvcursor_t * ptvc, packet_info* pinfo)
+static void dissect_ul_config_request_body_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
 	proto_item* item;
 	guint32 test_value, num_pdu;
@@ -4541,7 +4541,7 @@ static void dissect_ul_config_ulsch_pdu_rel8_value(ptvcursor_t * ptvc, packet_in
 
 	// Modulation type
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_modulation, 1, ENC_BIG_ENDIAN, &test_value);
-	if (!(test_value == 2 || test_value == 4 || test_value ==  6))
+	if (!(test_value == 2 || test_value == 4 || test_value == 6))
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid modulation type value [2, 4, 6]");
 	}
@@ -4645,7 +4645,7 @@ static void dissect_ul_config_ulsch_pdu_rel10_value(ptvcursor_t * ptvc, packet_i
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_codebook_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 23)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid codebook index value [0..23]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid codebook Index value [0..23]");
 	}
 
 	// Disable sequence hopping flag
@@ -4989,7 +4989,7 @@ static void dissect_ul_config_cqi_info_rel8_value(ptvcursor_t * ptvc, packet_inf
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_pucch_index, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1184)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch index value [0..1184]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch Index value [0..1184]");
 	}
 
 	// DL CQI/PMI Size
@@ -5011,7 +5011,7 @@ static void dissect_ul_config_cqi_info_rel10_value(ptvcursor_t * ptvc, packet_in
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_pucch_index_p1, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1184)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch index p1 value [0..1184]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch Index p1 value [0..1184]");
 	}
 }
 static void dissect_ul_config_cqi_info_rel13_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -5047,7 +5047,7 @@ static void dissect_ul_config_cqi_info_rel13_value(ptvcursor_t * ptvc, packet_in
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_cdm_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cdm index value [0..1]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cdm Index value [0..1]");
 	}
 
 	// N srs
@@ -5064,7 +5064,7 @@ static void dissect_ul_config_sr_info_rel8_value(ptvcursor_t * ptvc, packet_info
 	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_pucch_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 2047)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch index value [0..2047]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch Index value [0..2047]");
 	}
 }
 static void dissect_ul_config_sr_info_rel10_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -5083,7 +5083,7 @@ static void dissect_ul_config_sr_info_rel10_value(ptvcursor_t * ptvc, packet_inf
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_pucch_index_p1, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 2047)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch index p1 value [0..2047]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid pucch Index p1 value [0..2047]");
 	}
 }
 static void dissect_ul_config_harq_info_uci_rel10_tdd_value(ptvcursor_t * ptvc, packet_info* pinfo)
@@ -5201,7 +5201,7 @@ static void dissect_ul_config_harq_info_uci_rel9_later_fdd_value(ptvcursor_t * p
 			expert_add_info_format(pinfo, harq_size_item, &ei_invalid_range, "Invalid harq size value [1..10] (Format 1a/1b/3)");
 		}
 	}
-	else if (ack_nack_mode_value == 3 ||  ack_nack_mode_value == 4)
+	else if (ack_nack_mode_value == 3 || ack_nack_mode_value == 4)
 	{
 		if (harq_size_value != 0)
 		{
@@ -5341,7 +5341,7 @@ static void dissect_ul_config_harq_info_uci_rel13_fdd_tdd_value(ptvcursor_t * pt
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_cdm_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cdm index value [0..1]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cdm Index value [0..1]");
 	}
 
 	// N srs
@@ -5458,7 +5458,7 @@ static void dissect_hi_dci0_request_body_value(ptvcursor_t * ptvc, packet_info* 
 	// Number of DCI
 	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_dci_pdus, 1, ENC_BIG_ENDIAN, &num_pdu);
 
-	// Number of  HI
+	// Number of HI
 	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_hi_pdus, 1, ENC_BIG_ENDIAN, &test_value);
 	num_pdu += test_value;
 
@@ -5542,7 +5542,7 @@ static void dissect_hi_dci0_dci_ul_rel8_value(ptvcursor_t * ptvc, packet_info* p
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_cce_idx, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 88)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cce index value [0..88]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid cce Index value [0..88]");
 	}
 
 	// Aggregation level
@@ -5634,14 +5634,14 @@ static void dissect_hi_dci0_dci_ul_rel8_value(ptvcursor_t * ptvc, packet_info* p
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_ul_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 3)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ul index value [0..3]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ul Index value [0..3]");
 	}
 
 	// DL assignment index
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_dl_assignment_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (!(test_value >= 1 && test_value <= 4))
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid dl assignment index value [1..4]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid dl assignment Index value [1..4]");
 	}
 
 	// TPC bitmap
@@ -5823,7 +5823,7 @@ static void dissect_hi_dci0_mdpcch_dci_ul_rel13_value(ptvcursor_t * ptvc, packet
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_ecce_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 22)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ecce index value [0..22]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ecce Index value [0..22]");
 	}
 
 	// Aggregation level
@@ -5967,7 +5967,7 @@ static void dissect_hi_dci0_mdpcch_dci_ul_rel13_value(ptvcursor_t * ptvc, packet
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_ul_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 3)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ul index value [0..3]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid ul Index value [0..3]");
 	}
 
 	// DAI presence flag
@@ -7043,7 +7043,7 @@ static void dissect_lbt_dl_config_request_body_value(ptvcursor_t * ptvc, packet_
 {
 	guint32 num_pdu;
 
-	// Number of  PDUs
+	// Number of PDUs
 	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_pdus, 2, ENC_BIG_ENDIAN, &num_pdu);
 	if (!(num_pdu >= 1 && num_pdu <= 2))
 	{
@@ -7072,7 +7072,7 @@ static void dissect_lbt_indication_message_body_value(ptvcursor_t * ptvc, packet
 {
 	guint32 num_pdu;
 
-	// Number of  PDUs
+	// Number of PDUs
 	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_pdus, 2, ENC_BIG_ENDIAN, &num_pdu);
 	if (!(num_pdu >= 1 && num_pdu <= 2))
 	{
@@ -7431,7 +7431,7 @@ static void dissect_si_periodicity_value(ptvcursor_t * ptvc, packet_info* pinfo)
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_si_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 32)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid si index value [0..32]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid si Index value [0..32]");
 	}
 }
 
@@ -7584,8 +7584,8 @@ static const tlv_t configuration_tags[] =
 	{ 0x0025, NULL, NULL },
 	{ 0x0026, NULL, NULL },
 	{ 0x0027, NULL, NULL },
-	{ 0x0028, "PRACH config - Configuration index", dissect_prach_configuration_index_value },
-	{ 0x0029, "PRACH config - Root sequence index", dissect_prach_root_sequence_index_value },
+	{ 0x0028, "PRACH config - Configuration Index", dissect_prach_configuration_index_value },
+	{ 0x0029, "PRACH config - Root sequence Index", dissect_prach_root_sequence_index_value },
 	{ 0x002A, "PRACH config - Zero correlation zone configuration", dissect_prach_zero_correlation_zone_configuration_value },
 	{ 0x002B, "PRACH config - High speed flag", dissect_prach_high_speed_flag_value },
 	{ 0x002C, "PRACH config - Frequency offset", dissect_prach_frequency_offset_value },
@@ -7665,32 +7665,32 @@ static const tlv_t configuration_tags[] =
 	{ 0x0076, NULL, NULL },
 	{ 0x0077, NULL, NULL },
 	{ 0x0078, "eMTC config - PBCH Repetitions enable R13", dissect_emtc_pbch_repeitions_enabled_r13_value },
-	{ 0x0079, "eMTC config - PRACH CAT-M Root sequence index", dissect_emtc_prach_cat_m_root_sequence_index_value },
+	{ 0x0079, "eMTC config - PRACH CAT-M Root sequence Index", dissect_emtc_prach_cat_m_root_sequence_index_value },
 	{ 0x007A, "eMTC config - PRACH CAT-M Zero correlation zone configuration", dissect_emtc_prach_cat_m_zero_correlation_zone_configuration_value },
 	{ 0x007B, "eMTC config - PRACH CAT-M High speed flag", dissect_emtc_prach_cat_m_high_speed_flag_value },
 	{ 0x007C, "eMTC config - PRACH CE level #0 Enable", dissect_emtc_prach_ce_level_0_enabled_value },
-	{ 0x007D, "eMTC config - PRACH CE level #0 Configuration index", dissect_emtc_prach_ce_level_0_configuration_offset_value },
+	{ 0x007D, "eMTC config - PRACH CE level #0 Configuration Index", dissect_emtc_prach_ce_level_0_configuration_offset_value },
 	{ 0x007E, "eMTC config - PRACH CE level #0 Frequency offset", dissect_emtc_prach_ce_level_0_frequency_offset_value },
 	{ 0x007F, "eMTC config - PRACH CE level #0 Number of repetitions per attempt", dissect_emtc_preach_ce_level_0_num_of_repeitions_per_attempt_value },
 	{ 0x0080, "eMTC config - CE level #0 Starting subframe periodicity", dissect_emtc_ce_level_0_starting_subframe_periodicity_value },
 	{ 0x0081, "eMTC config - PRACH CE level #0 Hopping Enable", dissect_emtc_preach_ce_level_0_hopping_enabled_value },
 	{ 0x0082, "eMTC config - PRACH CE level #0 Hopping Offset", dissect_emtc_preach_ce_level_0_hopping_offset_value },
 	{ 0x0083, "eMTC config - PRACH CE level #1 Enable", dissect_emtc_prach_ce_level_1_enabled_value },
-	{ 0x0084, "eMTC config - PRACH CE level #1 Configuration index", dissect_emtc_prach_ce_level_1_configuration_offset_value },
+	{ 0x0084, "eMTC config - PRACH CE level #1 Configuration Index", dissect_emtc_prach_ce_level_1_configuration_offset_value },
 	{ 0x0085, "eMTC config - PRACH CE level #1 Frequency offset", dissect_emtc_prach_ce_level_1_frequency_offset_value },
 	{ 0x0086, "eMTC config - PRACH CE level #1 Number of repetitions per attempt", dissect_emtc_preach_ce_level_1_num_of_repeitions_per_attempt_value },
 	{ 0x0087, "eMTC config - CE level #1 Starting subframe periodicity", dissect_emtc_ce_level_1_starting_subframe_periodicity_value },
 	{ 0x0088, "eMTC config - PRACH CE level #1 Hopping Enable", dissect_emtc_preach_ce_level_1_hopping_enabled_value },
 	{ 0x0089, "eMTC config - PRACH CE level #1 Hopping Offset", dissect_emtc_preach_ce_level_1_hopping_offset_value },
 	{ 0x008A, "eMTC config - PRACH CE level #2 Enable", dissect_emtc_prach_ce_level_2_enabled_value },
-	{ 0x008B, "eMTC config - PRACH CE level #2 Configuration index", dissect_emtc_prach_ce_level_2_configuration_offset_value },
+	{ 0x008B, "eMTC config - PRACH CE level #2 Configuration Index", dissect_emtc_prach_ce_level_2_configuration_offset_value },
 	{ 0x008C, "eMTC config - PRACH CE level #2 Frequency offset", dissect_emtc_prach_ce_level_2_frequency_offset_value },
 	{ 0x008D, "eMTC config - PRACH CE level #2 Number of repetitions per attempt", dissect_emtc_preach_ce_level_2_num_of_repeitions_per_attempt_value },
 	{ 0x008E, "eMTC config - CE level #2 Starting subframe periodicity", dissect_emtc_ce_level_2_starting_subframe_periodicity_value },
 	{ 0x008F, "eMTC config - PRACH CE level #2 Hopping Enable", dissect_emtc_preach_ce_level_2_hopping_enabled_value },
 	{ 0x0090, "eMTC config - PRACH CE level #2 Hopping Offset", dissect_emtc_preach_ce_level_2_hopping_offset_value },
 	{ 0x0091, "eMTC config - PRACH CE level #3 Enable", dissect_emtc_prach_ce_level_3_enabled_value },
-	{ 0x0092, "eMTC config - PRACH CE level #3 Configuration index", dissect_emtc_prach_ce_level_3_configuration_offset_value },
+	{ 0x0092, "eMTC config - PRACH CE level #3 Configuration Index", dissect_emtc_prach_ce_level_3_configuration_offset_value },
 	{ 0x0093, "eMTC config - PRACH CE level #3 Frequency offset", dissect_emtc_prach_ce_level_3_frequency_offset_value },
 	{ 0x0094, "eMTC config - PRACH CE level #3 Number of repetitions per attempt", dissect_emtc_preach_ce_level_3_num_of_repeitions_per_attempt_value },
 	{ 0x0095, "eMTC config - CE level #3 Starting subframe periodicity", dissect_emtc_ce_level_3_starting_subframe_periodicity_value },
@@ -8151,7 +8151,7 @@ static void dissect_rx_indication_body_value(ptvcursor_t * ptvc, packet_info* pi
 
 		}
 
-		// pop the last pdu index.
+		// pop the last pdu index
 		ptvcursor_pop_subtree(ptvc);
 
 		ptvcursor_pop_subtree(ptvc);
@@ -9005,7 +9005,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_root_sequence_index,
 			{ "Root sequence Index", "nfapi.root.sequence.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"PRACH Root sequence index", HFILL }
+			"PRACH Root sequence Index", HFILL }
 		},
 		{ &hf_nfapi_zero_correlation_zone_configuration,
 			{ "Zero correlation zone configuration", "nfapi.zero.correlation.zone.configuration",
@@ -9133,9 +9133,9 @@ void proto_register_nfapi(void)
 			"Enable / Disable PBCH repetitions", HFILL }
 		},
 		{ &hf_nfapi_prach_cat_m_root_sequence_index,
-			{ "PRACH CAT-M Root sequence index", "nfapi.prach.cat_m.root.squence.index",
+			{ "PRACH CAT-M Root sequence Index", "nfapi.prach.cat_m.root.squence.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"PRACH Root sequence index", HFILL }
+			"PRACH Root sequence Index", HFILL }
 		},
 		{ &hf_nfapi_prach_cat_m_zero_correlation_zone_configuration,
 			{ "PRACH CAT-M Zero correlation zone configuration", "nfapi.prach.cat_m.zero.correlation.zone.configuration",
@@ -9153,7 +9153,7 @@ void proto_register_nfapi(void)
 			"Enable \\ Disable CE level #0.", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_0_configuration_index,
-			{ "PRACH CE level #0 Configuration index", "nfapi.prach.ce.level.0.configuration.index",
+			{ "PRACH CE level #0 Configuration Index", "nfapi.prach.ce.level.0.configuration.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Provides information about the location and format of the PRACH", HFILL }
 		},
@@ -9188,7 +9188,7 @@ void proto_register_nfapi(void)
 			"Enable \\ Disable CE level #1", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_1_configuration_index,
-			{ "PRACH CE level #1 Configuration index", "nfapi.prach.ce.level.1.configuration.index",
+			{ "PRACH CE level #1 Configuration Index", "nfapi.prach.ce.level.1.configuration.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Provides information about the location and format of the PRACH", HFILL }
 		},
@@ -9223,7 +9223,7 @@ void proto_register_nfapi(void)
 			"Enable \\ Disable CE level #2", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_2_configuration_index,
-			{ "PRACH CE level #2 Configuration index", "nfapi.prach.ce.level.2.configuration.index",
+			{ "PRACH CE level #2 Configuration Index", "nfapi.prach.ce.level.2.configuration.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Provides information about the location and format of the PRACH", HFILL }
 		},
@@ -9258,7 +9258,7 @@ void proto_register_nfapi(void)
 			"Enable \\ Disable CE level #3.", HFILL }
 		},
 		{ &hf_nfapi_prach_ce_level_3_configuration_index,
-			{ "PRACH CE level #3 Configuration index", "nfapi.prach.ce.level.3.configuration.index",
+			{ "PRACH CE level #3 Configuration Index", "nfapi.prach.ce.level.3.configuration.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Provides information about the location and format of the PRACH.", HFILL }
 		},
@@ -9436,7 +9436,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_pnf_phy_config_index,
 			{ "PNF Phy Config Index", "nfapi.pnf.phy.config.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"The unique index number of the PHY to permit the PNF to identify the PHY in the PNF_CONFIG.Request", HFILL }
+			"The unique Index number of the PHY to permit the PNF to identify the PHY in the PNF_CONFIG.Request", HFILL }
 		},
 		{ &hf_nfapi_number_of_rfs,
 			{ "Number of RFs", "nfapi.pnf.rf.number.rf",
@@ -9451,7 +9451,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_rf_config_index,
 			{ "RF Config Index", "nfapi.rf_config_index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"The index number defined in the PNF RF struct that the PHY can support",
+			"The Index number defined in the PNF RF struct that the PHY can support",
 			HFILL }
 		},
 		{ &hf_nfapi_number_of_rf_exclusions,
@@ -9807,7 +9807,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_pdu_index,
 			{ "PDU Index", "nfapi.pdu.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"The PDU index parameter specified for each PDU", HFILL }
+			"The PDU Index parameter specified for each PDU", HFILL }
 		},
 		{ &hf_nfapi_rnti,
 			{ "RNTI", "nfapi.rnti",
@@ -9871,7 +9871,7 @@ void proto_register_nfapi(void)
 			"codebooks used for PMI.If value = 1 then a single PMI value is supplied which should be used over all RB", HFILL }
 		},
 		{ &hf_nfapi_codebook_index,
-			{ "Codebook index", "nfapi.number.of.codebook.index",
+			{ "Codebook Index", "nfapi.number.of.codebook.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Only valid when transmission scheme = 3, 4, 5. Defines the codebook used.", HFILL }
 		},
@@ -9886,7 +9886,7 @@ void proto_register_nfapi(void)
 			"The ratio of PDSCH EPRE to cell-specific RS EPRE among PDSCH REs in all the OFDM symbols not containing cell-specific RS in dB.", HFILL }
 		},
 		{ &hf_nfapi_delta_power_offset_index,
-			{ "Delta Power offset index", "nfapi.delta.power.offset.index",
+			{ "Delta Power offset Index", "nfapi.delta.power.offset.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Delta power offset, value: 0..1", HFILL }
 		},
@@ -10034,7 +10034,7 @@ void proto_register_nfapi(void)
 			{ "altCQI-Table-r12", "nfapi.alt.cqi.table.r12",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"altCQI-Table-r12 is indicative of using an alternative MCS table for UEs supporting 256QAM."
-			"This is taken into account  for calculation of soft buffer size for the transport block", HFILL }
+			"This is taken into account for calculation of soft buffer size for the transport block", HFILL }
 		},
 		{ &hf_nfapi_max_layers,
 			{ "MaxLayers", "nfapi.max.layers",
@@ -10049,7 +10049,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_dwpts_symbols,
 			{ "DwPTS Symbols", "nfapi.dwpts.symbols",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Valid if DCI format 1C is being used to signal LAA end partial SF. Indicates the number of starting symbols according to 36.213 Table  13-A-1", HFILL }
+			"Valid if DCI format 1C is being used to signal LAA end partial SF. Indicates the number of starting symbols according to 36.213 Table 13-A-1", HFILL }
 		},
 		{ &hf_nfapi_initial_lbt_sf,
 			{ "Initial LBT SF", "nfapi.initial.lbt.sf",
@@ -10069,7 +10069,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_initial_transmission_sf,
 			{ "Initial transmission SF (io)", "nfapi.init.tx.sf.io",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Absolute Sub-Frame  of the initial transmission", HFILL }
+			"Absolute Sub-Frame of the initial transmission", HFILL }
 		},
 		{ &hf_nfapi_req13_drms_table_flag,
 			{ "Rel-13-DMRS-tabe flag", "nfapi.r13.drms.table.flag",
@@ -10077,7 +10077,7 @@ void proto_register_nfapi(void)
 			"Indicates if Release 13 DMRS table is used.", HFILL }
 		},
 		{ &hf_nfapi_csi_rs_resource_index,
-			{ "CSI-RS resource index", "nfapi.csi.rs.resource.index",
+			{ "CSI-RS resource Index", "nfapi.csi.rs.resource.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Index of the CSI-RS resource. This is included to link bfValues to CSI-RS resources included in Release 10 parameters.", HFILL }
 		},
@@ -10092,9 +10092,9 @@ void proto_register_nfapi(void)
 			"Indicates CDM type for CSI-RS. See [36.211] section 6.10.5.2. Valid for Class A", HFILL }
 		},
 		{ &hf_nfapi_edpcch_prb_index,
-			{ "EPDCCH PRB index", "nfapi.edpcch.prb.index",
+			{ "EPDCCH PRB Index", "nfapi.edpcch.prb.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"PRB index", HFILL }
+			"PRB Index", HFILL }
 		},
 		{ &hf_nfapi_epdcch_resource_assignment_flag,
 			{ "EPDCCH Resource assignment flag", "nfapi.epdcch.resource.assignment.flag",
@@ -10104,7 +10104,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_epdcch_id,
 			{ "EPDCCH ID", "nfapi.epdcch.id",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"EPDCCH index- used for the scrambler initiation The DMRS scrambling sequence initialization parameter defined in[11] section 6.10.3A.1", HFILL }
+			"EPDCCH Index- used for the scrambler initiation The DMRS scrambling sequence initialization parameter defined in[11] section 6.10.3A.1", HFILL }
 		},
 		{ &hf_nfapi_epdcch_start_symbol,
 			{ "EPDCCH Start Symbol", "nfapi.epdcch.start.symbol",
@@ -10134,7 +10134,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_resource_block_assignment,
 			{ "Resource Block Assignment", "nfapi.resource.block.assignement",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Combinational index r", HFILL }
+			"Combinational Index r", HFILL }
 		},
 		{ &hf_nfapi_start_symbol,
 			{ "Start symbol", "nfapi.start.symbol",
@@ -10142,9 +10142,9 @@ void proto_register_nfapi(void)
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_ecce_index,
-			{ "ECCE index", "nfapi.ecce.index",
+			{ "ECCE Index", "nfapi.ecce.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"CCE index used to send the DCI", HFILL }
+			"ECCE Index used to send the DCI", HFILL }
 		},
 		{ &hf_nfapi_ce_mode,
 			{ "CE Mode", "nfapi.ce.mode",
@@ -10187,9 +10187,9 @@ void proto_register_nfapi(void)
 			"Indicates the number of MPDCCH repetitions", HFILL }
 		},
 		{ &hf_nfapi_downlink_assignment_index_length,
-			{ "Downlink assignment index Length", "nfapi.dl.assignement.index.length",
+			{ "Downlink assignment Index Length", "nfapi.dl.assignement.index.length",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Length of Downlink assignment index field in units of bits.", HFILL }
+			"Length of Downlink assignment Index field in units of bits.", HFILL }
 		},
 		{ &hf_nfapi_starting_ce_level,
 			{ "Starting CE Level", "nfapi.starting.ce.level",
@@ -10247,9 +10247,9 @@ void proto_register_nfapi(void)
 			"Format of the UL DCI", HFILL }
 		},
 		{ &hf_nfapi_cce_idx,
-			{ "CCE index", "nfapi.cce.index",
+			{ "CCE Index", "nfapi.cce.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"CCE index used to send the DCI", HFILL }
+			"CCE Index used to send the DCI", HFILL }
 		},
 		{ &hf_nfapi_aggregation_level,
 			{ "Aggregation level", "nfapi.aggregation.level",
@@ -10294,7 +10294,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_tpmi,
 			{ "TPMI", "nfapi.tpmi",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"The codebook index to be used for precoding", HFILL }
+			"The codebook Index to be used for precoding", HFILL }
 		},
 		{ &hf_nfapi_pmi,
 			{ "PMI", "nfapi.pmi",
@@ -10312,9 +10312,9 @@ void proto_register_nfapi(void)
 			"Tx power control command for PUCCH", HFILL }
 		},
 		{ &hf_nfapi_downlink_assignment_index,
-			{ "Downlink assignment index", "nfapi.downlink.assignment.index",
+			{ "Downlink assignment Index", "nfapi.downlink.assignment.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"The downlink assignment index. In release 8-11 this is only used in TDD mode, "
+			"The downlink assignment Index. In release 8-11 this is only used in TDD mode, "
 			"value ignored for FDD. In release 12 or later a field indicating the structure "
 			"type of the primary cell is used to determine if this is valid with size 2 bits."
 			"In release 13 or later a field indicating codebooksizeDetermination - r13 = 0 is "
@@ -10326,7 +10326,7 @@ void proto_register_nfapi(void)
 			"Used in virtual resource block distribution", HFILL }
 		},
 		{ &hf_nfapi_transport_block_size_index,
-			{ "Transport block size index", "nfapi.transport.block.size.index",
+			{ "Transport block size Index", "nfapi.transport.block.size.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"The transport block size", HFILL }
 		},
@@ -10341,14 +10341,14 @@ void proto_register_nfapi(void)
 			"Indicates that PRACH procedure is initiated", HFILL }
 		},
 		{ &hf_nfapi_preamble_index,
-			{ "Preamble index", "nfapi.preamable.index",
+			{ "Preamble Index", "nfapi.preamable.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"The preamble index to be used on the PRACH", HFILL }
+			"The preamble Index to be used on the PRACH", HFILL }
 		},
 		{ &hf_nfapi_prach_mask_index,
-			{ "PRACH mask index", "nfapi.prach.mask.index",
+			{ "PRACH mask Index", "nfapi.prach.mask.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"The mask index to be used on the PRACH", HFILL }
+			"The mask Index to be used on the PRACH", HFILL }
 		},
 		{ &hf_nfapi_rnti_type,
 			{ "RNTI type", "nfapi.rnti.type",
@@ -10442,7 +10442,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_ul_dl_configuration_index,
 			{ "UL/DL configuration indication", "nfapi.ul.dl.configuration.indication",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"UL/DL configuration index", HFILL }
+			"UL/DL configuration Index", HFILL }
 		},
 		{ &hf_nfapi_laa_end_partial_sf_flag,
 			{ "LAA end partial SF flag", "nfapi.laa.end.partial.sf.flag",
@@ -10459,7 +10459,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_codebooksize_determination_r13,
 			{ "Codebook Size Determination R13", "nfapi.codebook.size.determination.r13",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Indicates if the downlink assignment index parameter (DAI) is 4 bits", HFILL }
+			"Indicates if the downlink assignment Index parameter (DAI) is 4 bits", HFILL }
 		},
 		{ &hf_nfapi_rel13_drms_table_flag,
 			{ "Rel-13-DMRS-tabe flag", "nfapi.drms.table.flag.r13",
@@ -10474,7 +10474,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_time_resource_pattern,
 			{ "Time resource pattern", "nfapi.time.resource.pattern",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"7-bits describing the time resource pattern index", HFILL }
+			"7-bits describing the time resource pattern Index", HFILL }
 		},
 		{ &hf_nfapi_mpdcch_transmission_type,
 			{ "MPDCCH transmission type", "nfapi.mpdcch.transmission.type",
@@ -10504,7 +10504,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_dai_presence_flag,
 			{ "DAI presence flag", "nfapi.dia.presence.flag",
 			FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
-			"Indicates if DL assignment index field is present in the DCI", HFILL }
+			"Indicates if DL assignment Index field is present in the DCI", HFILL }
 		},
 		{ &hf_nfapi_total_dci_length_include_padding,
 			{ "Total DCI length including padding", "nfapi.total.dci.length.including.padding",
@@ -10539,7 +10539,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_pucch_index,
 			{ "PUCCH Index", "nfapi.pucch.index",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"The PUCCH index value", HFILL }
+			"The PUCCH Index value", HFILL }
 		},
 		{ &hf_nfapi_size,
 			{ "Size", "nfapi.size",
@@ -10629,7 +10629,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_initial_sf_io,
 			{ "Initial transmission SF (io)", "nfapi.initial.sf.io",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Absolute Sub-Frame  of the initial transmission", HFILL }
+			"Absolute Sub-Frame of the initial transmission", HFILL }
 		},
 		{ &hf_nfapi_empty_symbols_due_to_retunning,
 			{ "Empy symbols due to re-tunning", "nfapi.empty.symbols.due.to.retunning",
@@ -10814,7 +10814,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_pucch_index_p1,
 			{ "PUCCH Index P1", "nfapi.pucch.index.p1",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"The PUCCH index value   for antenna port P1", HFILL }
+			"The PUCCH Index value for antenna port P1", HFILL }
 		},
 		{ &hf_nfapi_n_pucch_1_0,
 			{ "N PUCCH 1 0", "nfapi.n.pucch.1.0",
@@ -10922,12 +10922,12 @@ void proto_register_nfapi(void)
 			"Aperiodic CQI request flag", HFILL }
 		},
 		{ &hf_nfapi_ul_index,
-			{ "UL index", "nfapi.ul_index",
+			{ "UL Index", "nfapi.ul_index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Valid for TDD mode only", HFILL }
 		},
 		{ &hf_nfapi_dl_assignment_index,
-			{ "DL Assignment index", "nfapi.dl_assignment_index",
+			{ "DL Assignment Index", "nfapi.dl_assignment_index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Valid for TDD mode only.", HFILL }
 		},
@@ -11014,7 +11014,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_pb,
 			{ "P-B", "nfapi.pb.allocation",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Refers to downlink power allocation. Value is an index into the referenced table.", HFILL }
+			"Refers to downlink power allocation. Value is an Index into the referenced table.", HFILL }
 		},
 		{ &hf_nfapi_timing_info_last_sfn_sf,
 			{ "Last SFN/SF", "nfapi.timing.info.last.sfn.sf",
@@ -11429,7 +11429,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_si_index,
 			{ "SI Index", "nfapi.si.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"The index of this SIB in the SIB1 SchedulingInfoList:", HFILL }
+			"The Index of this SIB in the SIB1 SchedulingInfoList:", HFILL }
 		},
 		{ &hf_nfapi_number_of_si_periodicity,
 			{ "Number of SI Periodicity", "nfapi.number.of.si.periodicity",
