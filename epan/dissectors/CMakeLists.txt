@@ -1415,6 +1415,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-rdma.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nwmtp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nwp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nxp_802154_sniffer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nfapi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-oampdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-obd-ii.c

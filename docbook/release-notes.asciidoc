@@ -94,6 +94,7 @@ TWAMP and OWAMP
 ActiveMQ Artemis Core Protocol
 IEEE 802.3br Frame Preemption Protocol
 Lustre Network
+NXP 802.15.4 Sniffer Protocol
 --sort-and-group--
 
 === Updated Protocol Support
