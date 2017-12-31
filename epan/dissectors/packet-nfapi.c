@@ -4381,7 +4381,7 @@ static void dissect_dl_config_request_mpdpcch_pdu_rel13_value(ptvcursor_t * ptvc
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_downlink_assignment_index_length, 1, ENC_BIG_ENDIAN, &test_value);
 	if (!(test_value == 0 || test_value == 2 || test_value == 4))
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink assignmnet index value [0, 2, 4]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid downlink assignment index length value [0, 2, 4]");
 	}
 
 	// Downlink assignment index
