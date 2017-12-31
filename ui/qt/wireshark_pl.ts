@@ -2403,26 +2403,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Okno</translation>
     </message>
     <message>
-        <source>Severity</source>
-        <translation type="vanished">Istotność</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">Podsumowanie</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">Grupa</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokół</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">Wystąpienia</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.ui" line="30"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
@@ -2510,10 +2490,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Informacja ekspercka</translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">Krańcowemu punktowi eksperckiemu nie udało się ustawić filtru.</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.cpp" line="111"/>
         <source>Collapse All</source>
         <translation type="unfinished"></translation>
@@ -2549,10 +2525,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>Filtr wyświetlania: &quot;%1&quot;</translation>
     </message>
-    <message>
-        <source>Packet</source>
-        <translation type="vanished">Pakiet</translation>
-    </message>
 </context>
 <context>
     <name>ExpertInfoProxyModel</name>
@@ -2564,17 +2536,17 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="198"/>
         <source>Severity</source>
-        <translation type="unfinished">Istotność</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
         <source>Summary</source>
-        <translation type="unfinished">Podsumowanie</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
         <source>Group</source>
-        <translation type="unfinished">Grupa</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="204"/>
@@ -2584,7 +2556,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="206"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wystąpień</translation>
     </message>
 </context>
 <context>
@@ -13822,6 +13794,24 @@ text-decoration: underline;
         <location filename="sctp_graph_dialog.cpp" line="457"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
+    </message>
+</context>
+<context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

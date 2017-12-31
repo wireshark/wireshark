@@ -2401,26 +2401,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>ダイアログ</translation>
     </message>
     <message>
-        <source>Severity</source>
-        <translation type="vanished">重要度</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">概要</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">グループ</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">プロトコル</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">数量</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.ui" line="30"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
@@ -2508,10 +2488,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>エキスパート情報</translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">フィルタを設定するのに失敗した端末のエキスパート情報</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.cpp" line="111"/>
         <source>Collapse All</source>
         <translation type="unfinished"></translation>
@@ -2547,10 +2523,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>表示フィルタ: &quot;%1&quot;</translation>
     </message>
-    <message>
-        <source>Packet</source>
-        <translation type="vanished">パケット</translation>
-    </message>
 </context>
 <context>
     <name>ExpertInfoProxyModel</name>
@@ -2562,17 +2534,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="198"/>
         <source>Severity</source>
-        <translation type="unfinished">重要度</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
         <source>Summary</source>
-        <translation type="unfinished">概要</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
         <source>Group</source>
-        <translation type="unfinished">グループ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="204"/>
@@ -2582,7 +2554,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="206"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">カウント</translation>
     </message>
 </context>
 <context>
@@ -13826,6 +13798,24 @@ a:hover {
         <location filename="sctp_graph_dialog.cpp" line="457"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
+    </message>
+</context>
+<context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

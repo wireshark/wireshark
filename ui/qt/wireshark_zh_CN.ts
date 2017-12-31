@@ -2398,26 +2398,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>对话框</translation>
     </message>
     <message>
-        <source>Severity</source>
-        <translation type="vanished">严重程度</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">摘要</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">组</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">协议</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">计数</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.ui" line="30"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
@@ -2505,10 +2485,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>专家信息</translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">专家端点设置过滤器失败</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.cpp" line="111"/>
         <source>Collapse All</source>
         <translation type="unfinished"></translation>
@@ -2544,10 +2520,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>显示过滤器：“%1”</translation>
     </message>
-    <message>
-        <source>Packet</source>
-        <translation type="vanished">分组</translation>
-    </message>
 </context>
 <context>
     <name>ExpertInfoProxyModel</name>
@@ -2559,17 +2531,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="198"/>
         <source>Severity</source>
-        <translation type="unfinished">严重程度</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
         <source>Summary</source>
-        <translation type="unfinished">摘要</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
         <source>Group</source>
-        <translation type="unfinished">组</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="204"/>
@@ -13806,6 +13778,24 @@ text-decoration: underline;
         <location filename="sctp_graph_dialog.cpp" line="457"/>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
+    </message>
+</context>
+<context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

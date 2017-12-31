@@ -2402,22 +2402,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Dialogue</translation>
     </message>
     <message>
-        <source>Severity</source>
-        <translation type="vanished">Sévérité</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">Groupe</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protocole</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">Compteur</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.ui" line="30"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Un indice.&lt;/i&gt;&lt;/small&gt;</translation>
@@ -2505,10 +2489,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Information Expert</translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">L&apos;expert endpoint n&apos;a pas pu appliquer le filtre</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.cpp" line="111"/>
         <source>Collapse All</source>
         <translation type="unfinished"></translation>
@@ -2555,7 +2535,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="198"/>
         <source>Severity</source>
-        <translation type="unfinished">Sévérité</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
@@ -2565,7 +2545,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
         <source>Group</source>
-        <translation type="unfinished">Groupe</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="204"/>
@@ -13779,6 +13759,24 @@ a:hover {
         <location filename="sctp_graph_dialog.cpp" line="457"/>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
+    </message>
+</context>
+<context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -2404,26 +2404,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Finestra</translation>
     </message>
     <message>
-        <source>Severity</source>
-        <translation type="vanished">Gravità</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">Riepilogo</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="vanished">Gruppo</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protocollo</translation>
-    </message>
-    <message>
-        <source>Count</source>
-        <translation type="vanished">Conteggio</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.ui" line="30"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Un suggerimento.&lt;/i&gt;&lt;/small&gt;</translation>
@@ -2511,18 +2491,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Informazioni per esperti</translation>
     </message>
     <message>
-        <source>Endpoint expert failed to set filter</source>
-        <translation type="vanished">Il terminatore esperto non è riuscito a impostare il filtro</translation>
-    </message>
-    <message>
         <location filename="expert_info_dialog.cpp" line="111"/>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Contrai tutti</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.cpp" line="115"/>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Espandi tutti</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.cpp" line="194"/>
@@ -2550,42 +2526,38 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>Filtro di visualizzazione: &quot;%1&quot;</translation>
     </message>
-    <message>
-        <source>Packet</source>
-        <translation type="vanished">Pacchetto</translation>
-    </message>
 </context>
 <context>
     <name>ExpertInfoProxyModel</name>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="196"/>
         <source>Packet</source>
-        <translation type="unfinished">Pacchetto</translation>
+        <translation>Pacchetto</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="198"/>
         <source>Severity</source>
-        <translation type="unfinished">Gravità</translation>
+        <translation>Gravità</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
         <source>Summary</source>
-        <translation type="unfinished">Riepilogo</translation>
+        <translation>Riepilogo</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
         <source>Group</source>
-        <translation type="unfinished">Gruppo</translation>
+        <translation>Gruppo</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="204"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protocollo</translation>
+        <translation>Protocollo</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="206"/>
         <source>Count</source>
-        <translation type="unfinished">Conteggio</translation>
+        <translation>Numero</translation>
     </message>
 </context>
 <context>
@@ -13836,6 +13808,24 @@ a:hover {
         <location filename="sctp_graph_dialog.cpp" line="457"/>
         <source>Save Graph As</source>
         <translation>Salva il Grafico Come</translation>
+    </message>
+</context>
+<context>
+    <name>ScsiServiceResponseTimeDialog</name>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
+        <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
+        <source>SCSI Service Response Times</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
