@@ -26,6 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/ws_printf.h> /* ws_g_warning */
 #include <wsutil/wsgcrypt.h>
 #include <epan/expert.h>
 #include <stdio.h>
@@ -109,6 +110,7 @@ static int ett_btmesh_transp_pdu = -1;
 static int ett_btmesh_transp_ctrl_msg = -1;
 
 static expert_field ei_btmesh_not_decoded_yet = EI_INIT;
+static expert_field ei_btmesh_decrypt_failed = EI_INIT;
 
 static const value_string btmesh_ctl_vals[] = {
     { 0, "Access Message" },
@@ -757,7 +759,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         cry_error = gcry_cipher_setkey(cipher_hd, record->encryptionkey, 16);
         if (cry_error) {
-            g_warning("gcry_cipher_setkey failed");
+            ws_g_warning("gcry_cipher_setkey failed\n");
             gcry_cipher_close(cipher_hd);
             return offset;
         }
@@ -765,7 +767,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* Load nonce */
         cry_error = gcry_cipher_setiv(cipher_hd, &networknonce, 13);
         if (cry_error) {
-            g_warning("gcry_cipher_setiv failed");
+            ws_g_warning("gcry_cipher_setiv failed\n");
             gcry_cipher_close(cipher_hd);
             return offset;
         }
@@ -777,7 +779,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         cry_error = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths));
         if (cry_error) {
-            g_warning("gcry_cipher_ctl failed %s enc_data_len %u",
+            ws_g_warning("gcry_cipher_ctl failed %s enc_data_len %u\n",
                 gcry_strerror(cry_error),
                 enc_data_len);
             gcry_cipher_close(cipher_hd);
@@ -788,7 +790,8 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* Decrypt */
         cry_error = gcry_cipher_decrypt(cipher_hd, decrypted_data, enc_data_len, tvb_get_ptr(tvb, enc_offset, enc_data_len), enc_data_len);
         if (cry_error) {
-            g_warning("gcry_cipher_decrypt failed %s", gcry_strerror(cry_error));
+            expert_add_info(pinfo, item, &ei_btmesh_decrypt_failed);
+            ws_g_warning("gcry_cipher_decrypt failed %s\n", gcry_strerror(cry_error));
             gcry_cipher_close(cipher_hd);
             return offset;
         }
@@ -1182,6 +1185,7 @@ proto_register_btmesh(void)
 
     static ei_register_info ei[] = {
         { &ei_btmesh_not_decoded_yet,{ "btmesh.not_decoded_yet", PI_PROTOCOL, PI_NOTE, "Not decoded yet", EXPFILL } },
+        { &ei_btmesh_decrypt_failed,{ "btmesh.decryption_failed", PI_PROTOCOL, PI_WARN, "Decryption failed", EXPFILL } },
     };
 
     expert_module_t* expert_btmesh;
