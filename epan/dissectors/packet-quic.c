@@ -1054,12 +1054,15 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         }
     /* Initial (>= draft-08) */
     } else if (long_packet_type == 0x7F) {
-        tls13_cipher *cipher = NULL;
-        const gchar *error = NULL;
-        tvbuff_t *decrypted_tvb;
         proto_item *ti;
 
         ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+        tls13_cipher *cipher = NULL;
+        const gchar *error = NULL;
+        tvbuff_t *decrypted_tvb;
+
         /* Create new decryption context based on the Client Connection
          * ID from the Client Initial packet. */
         if (!quic_create_cleartext_decoders(cid, &error, quic_info)) {
@@ -1083,6 +1086,9 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
                 expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to decrypt handshake: %s", error);
             }
         }
+#else /* !HAVE_LIBGCRYPT_AEAD */
+            expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
+#endif /* !HAVE_LIBGCRYPT_AEAD */
         offset += tvb_reported_length_remaining(tvb, offset);
 
     /* Handshake (>= draft-08) */
