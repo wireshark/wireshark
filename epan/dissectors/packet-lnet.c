@@ -387,13 +387,10 @@ dissect_csum(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int offset, g
 {
     guint32 csum;
     proto_item *ti;
-    gboolean error = FALSE;
 
     csum = tvb_get_letohl(tvb, offset);
     // @@ convert this to proto_tree_add_checksum()
     switch (lnd_type) {
-    default:
-        error = TRUE;
     case SOCKLND:
         ti = proto_tree_add_item(tree, hf_lnet_ib_csum, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         break;
@@ -401,11 +398,12 @@ dissect_csum(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int offset, g
     case O2IBLND:
         ti = proto_tree_add_item(tree, hf_lnet_ksm_csum, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         break;
-    }
 
-    if (error)
-        expert_add_info_format(pinfo, ti, &ei_lnet_type, "Checksum for unprocessed type: %s",
+    default:
+        expert_add_info_format(pinfo, NULL, &ei_lnet_type, "Checksum for unprocessed type: %s",
                                val_to_str(lnd_type, lndnames, "Unknown(%d)"));
+        break;
+    }
 
     if (csum == 0)
         proto_item_append_text(ti, " (DISABLED)");
