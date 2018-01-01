@@ -330,6 +330,12 @@ static const value_string mip_extensions[] = {
 	{0, NULL}
 };
 
+static const value_string icmp_ext_class_str[] = {
+	{1, "MPLS Label Stack Class"},
+	{2, "Interface Information Object"},
+	{0, NULL}
+};
+
 /* RFC 5837 ICMP extension - Interface Information Object
  * Interface Role
  */
@@ -891,8 +897,8 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 
 		/* Class */
 		class_num = tvb_get_guint8(tvb, offset + 2);
-		proto_tree_add_uint(ext_object_tree, hf_icmp_ext_class,
-				    tvb, offset + 2, 1, class_num);
+		proto_tree_add_item(ext_object_tree, hf_icmp_ext_class,
+				    tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
 		/* C-Type */
 		c_type = tvb_get_guint8(tvb, offset + 3);
@@ -1899,8 +1905,8 @@ void proto_register_icmp(void)
 		  NULL, HFILL}},
 
 		{&hf_icmp_ext_class,
-		 {"Class", "icmp.ext.class", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		 {"Class", "icmp.ext.class", FT_UINT8, BASE_DEC,
+		 VALS(icmp_ext_class_str), 0x0, NULL, HFILL}},
 
 		{&hf_icmp_ext_c_type,
 		 {"C-Type", "icmp.ext.ctype", FT_UINT8, BASE_DEC, NULL,
