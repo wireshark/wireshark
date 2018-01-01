@@ -2420,7 +2420,7 @@ dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_con
                                              tvb_reported_length_remaining(tvb, offset), ENC_NA);
             token_tree = proto_item_add_subtree(token_item, ett_tds_type_varbyte);
 
-            offset += dissect_tds5_capability_token(tvb, pinfo, offset + 1, token_tree, tds_info);
+            /*offset += */dissect_tds5_capability_token(tvb, pinfo, offset + 1, token_tree, tds_info);
         }
     }
 
