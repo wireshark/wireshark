@@ -90,12 +90,7 @@ dissect_nxp_802154_sniffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     ieee802154_tvb = tvb_new_subset_length(tvb, offset, tvb_captured_length(tvb) - offset);
-    if(ieee802154_handle != NULL){
-        call_dissector(ieee802154_handle, ieee802154_tvb, pinfo, tree);
-    }else{
-        call_data_dissector(ieee802154_tvb, pinfo, tree);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "No 802.15.4 dissector!");
-    }
+    call_dissector(ieee802154_handle, ieee802154_tvb, pinfo, tree);
 
     return tvb_captured_length(tvb);
 }
