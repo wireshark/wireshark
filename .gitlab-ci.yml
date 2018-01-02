@@ -7,8 +7,7 @@ before_script:
   - echo "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu xenial main" > /etc/apt/sources.list.d/gcc.list
   - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1E9377A2BA9EF27F
   - apt-get update -qq
-  - apt-get install ninja-build -y
-  - ./tools/debian-setup.sh --install-optional -y
+  - ./tools/debian-setup.sh --install-optional ninja-build -y
   - mkdir build
   - cd build
 gcc-4:
