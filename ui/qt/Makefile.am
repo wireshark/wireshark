@@ -775,7 +775,7 @@ SUFFIXES = .moc.cpp
 #	$(MOC) $< -o $@
 #
 .h.moc.cpp:
-	$(AM_V_MOC)$(MOC) $(MOC_OPTIONS) -I.. -I../.. -o $@ $<
+	$(AM_V_MOC)$(MOC) $(MOC_OPTIONS) -I.. -I../.. $(INCLUDEDIRS) -o $@ $<
 
 qrc_about.cpp: ../../image/about.qrc
 	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name about -o $@ $<
