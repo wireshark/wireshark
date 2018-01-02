@@ -14,6 +14,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <glib.h>
+
 #ifdef _WIN32
 #include <windows.h>
 #include <io.h>
@@ -30,3 +32,16 @@ WS_DLL_PUBLIC gboolean ws_read_string_from_pipe(ws_pipe_handle read_pipe,
     gchar *buffer, size_t buffer_size);
 
 #endif /* __WS_PIPE_H__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
