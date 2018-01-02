@@ -9,26 +9,14 @@
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  * Copyright 2011, Anders Broman <anders.broman@ericsson.com>, Johan Wahl <johan.wahl@ericsson.com>
+ * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from packet-cops.c
+ * SPDX-License-Identifier: GPL-2.0+
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -4665,7 +4653,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 static void
 dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset, guint meth_len, gint linelen)
 {
-    char    *value;
+    const guint8    *value;
     guint   parameter_len = meth_len;
     uri_offset_info uri_offsets;
 
@@ -4678,14 +4666,13 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
      */
 
     /* get method string*/
-    value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, parameter_len, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item_ret_string(tree, hf_sip_Method, tvb, offset, parameter_len, ENC_ASCII | ENC_NA,
+        wmem_packet_scope(), &value);
 
     /* Copy request method for telling tap */
     stat_info->request_method = value;
 
     if (tree) {
-        proto_tree_add_string(tree, hf_sip_Method, tvb, offset, parameter_len, value);
-
         /* build Request-URI tree*/
         offset=offset + parameter_len+1;
         sip_uri_offset_init(&uri_offsets);

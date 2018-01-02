@@ -26,7 +26,7 @@
 
 typedef struct _sip_info_value_t
 {
-    gchar    *request_method;
+    const guint8    *request_method;
     guint     response_code;
     gboolean  resend;
     guint32   setup_time;
