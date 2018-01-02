@@ -107,7 +107,7 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
         if (buffer_bytes_remaining == 0)
         {
             /* The string won't fit in the buffer. */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Buffer too small (%ld).", buffer_size);
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Buffer too small (%zd).", buffer_size);
             buffer[buffer_size - 1] = '\0';
             return FALSE;
         }
