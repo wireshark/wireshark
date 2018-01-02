@@ -981,6 +981,8 @@ static gboolean mq_reassembly = TRUE;
 static gboolean mq_in_reassembly = FALSE;
 
 static guint32  mq_AsyMsgRsn;
+static guint32  mq_AsyMsgAct;
+static guint32  mq_AsyMsgTot;
 
 static reassembly_table mq_reassembly_table;
 
@@ -3897,6 +3899,8 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 if (iSegmIndex == 0)
                 {
                     mq_AsyMsgRsn = tvb_get_guint32(tvb, iHdrL + 24, iEnco);
+                    mq_AsyMsgAct = tvb_get_guint32(tvb, iHdrL + 28, iEnco);
+                    mq_AsyMsgTot = tvb_get_guint32(tvb, iHdrL + 32, iEnco);
                     uStrL = tvb_get_guint8(tvb, iHdrL + 54);
                     uPadL = ((((2+1+uStrL)/4)+1)*4)-(2+1+uStrL);
                 }
@@ -3931,8 +3935,12 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 {
                     proto_item *ti = proto_tree_add_item(tree, proto_mq, tvb, 0, -1, ENC_NA);
 
-                    proto_item_append_text(ti, " [%s of a Reassembled MQ Segment]",
-                                           val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
+                    if (fd_head && !fd_head->next && mq_AsyMsgAct == mq_AsyMsgTot)
+                        proto_item_append_text(ti, " [%s of a Full MQ Segment]",
+                                               val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
+                    else
+                        proto_item_append_text(ti, " [%s of a Reassembled MQ Segment]",
+                                               val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                     dissect_mq_addCR_colinfo(pinfo, &mq_parm);
                     proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
                                            iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
