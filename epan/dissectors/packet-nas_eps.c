@@ -1,25 +1,13 @@
 /* packet-nas_eps.c
  * Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
  *
- * Copyright 2008 - 2010, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2008 - 2017, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  *
  * References: 3GPP TS 24.301 V14.5.0 (2017-09)
  */
@@ -99,6 +87,7 @@ static int hf_nas_eps_emm_cs_lcs = -1;
 static int hf_nas_eps_emm_epc_lcs = -1;
 static int hf_nas_eps_emm_emc_bs = -1;
 static int hf_nas_eps_emm_ims_vops = -1;
+static int hf_nas_eps_emm_restrict_dcnr = -1;
 static int hf_nas_eps_emm_restrict_ec = -1;
 static int hf_nas_eps_emm_epco = -1;
 static int hf_nas_eps_emm_hc_cp_ciot = -1;
@@ -186,6 +175,7 @@ static int hf_nas_eps_emm_up_ciot_cap = -1;
 static int hf_nas_eps_emm_cp_ciot_cap = -1;
 static int hf_nas_eps_emm_prose_relay_cap = -1;
 static int hf_nas_eps_emm_prose_dc_cap = -1;
+static int hf_nas_eps_dcnr_cap = -1;
 static int hf_nas_eps_cp_backoff_cap = -1;
 static int hf_nas_eps_restrict_ec_cap = -1;
 static int hf_nas_eps_v2x_pc5_cap = -1;
@@ -1243,8 +1233,8 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  */
 static const value_string nas_eps_emm_cs_lcs_vals[] = {
     { 0,    "no information about support of location services via CS domain is available"},
-    { 1,    "location services via CS domain not supported"},
-    { 2,    "location services via CS domain supported"},
+    { 1,    "location services via CS domain supported"},
+    { 2,    "location services via CS domain not supported"},
     { 3,    "reserved"},
     { 0, NULL }
 };
@@ -1257,6 +1247,7 @@ de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
+    /* CP CIoT  ERw/oPDN    ESR PS  CS-LCS  EPC-LCS EMC BS  IMS VoPS */
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_cp_ciot, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_er_wo_pdn, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1272,8 +1263,10 @@ de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
     if (len >= 2) {
-        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-        bit_offset += 3;
+        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+        bit_offset += 2;
+        proto_tree_add_bits_item(tree, hf_nas_eps_emm_restrict_dcnr, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
         proto_tree_add_bits_item(tree, hf_nas_eps_emm_restrict_ec, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         proto_tree_add_bits_item(tree, hf_nas_eps_emm_epco, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1891,46 +1884,98 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 {
     guint32 curr_offset;
 
+    static const int * oct3_flags[] = {
+        &hf_nas_eps_emm_eea0,
+        &hf_nas_eps_emm_128eea1,
+        &hf_nas_eps_emm_128eea2,
+        &hf_nas_eps_emm_eea3,
+        &hf_nas_eps_emm_eea4,
+        &hf_nas_eps_emm_eea5,
+        &hf_nas_eps_emm_eea6,
+        &hf_nas_eps_emm_eea7,
+        NULL
+    };
+
+    static const int * oct4_flags[] = {
+        &hf_nas_eps_emm_eia0,
+        &hf_nas_eps_emm_128eia1,
+        &hf_nas_eps_emm_128eia2,
+        &hf_nas_eps_emm_eia3,
+        &hf_nas_eps_emm_eia4,
+        &hf_nas_eps_emm_eia5,
+        &hf_nas_eps_emm_eia6,
+        &hf_nas_eps_emm_eia7,
+        NULL
+    };
+
+    static const int * oct5_flags[] = {
+        &hf_nas_eps_emm_uea0,
+        &hf_nas_eps_emm_uea1,
+        &hf_nas_eps_emm_uea2,
+        &hf_nas_eps_emm_uea3,
+        &hf_nas_eps_emm_uea4,
+        &hf_nas_eps_emm_uea5,
+        &hf_nas_eps_emm_uea6,
+        &hf_nas_eps_emm_uea7,
+        NULL
+    };
+
+    static const int * oct6_flags[] = {
+        &hf_nas_eps_emm_ucs2_supp,
+        &hf_nas_eps_emm_uia1,
+        &hf_nas_eps_emm_uia2,
+        &hf_nas_eps_emm_uia3,
+        &hf_nas_eps_emm_uia4,
+        &hf_nas_eps_emm_uia5,
+        &hf_nas_eps_emm_uia6,
+        &hf_nas_eps_emm_uia7,
+        NULL
+    };
+
+    static const int * oct7_flags[] = {
+        &hf_nas_eps_emm_prose_dd_cap,
+        &hf_nas_eps_emm_prose_cap,
+        &hf_nas_eps_emm_h245_ash_cap,
+        &hf_nas_eps_emm_acc_csfb_cap,
+        &hf_nas_eps_emm_lpp_cap,
+        &hf_nas_eps_emm_lcs_cap,
+        &hf_nas_eps_emm_1xsrvcc_cap,
+        &hf_nas_eps_emm_nf_cap,
+        NULL
+    };
+
+    static const int * oct8_flags[] = {
+        &hf_nas_eps_emm_epco_cap,
+        &hf_nas_eps_emm_hc_cp_ciot_cap,
+        &hf_nas_eps_emm_er_wo_pdn_cap,
+        &hf_nas_eps_emm_s1u_data_cap,
+        &hf_nas_eps_emm_up_ciot_cap,
+        &hf_nas_eps_emm_cp_ciot_cap,
+        &hf_nas_eps_emm_prose_relay_cap,
+        &hf_nas_eps_emm_prose_dc_cap,
+        NULL
+    };
+
+    static const int * oct9_flags[] = {
+        &hf_nas_eps_dcnr_cap,
+        &hf_nas_eps_cp_backoff_cap,
+        &hf_nas_eps_restrict_ec_cap,
+        &hf_nas_eps_v2x_pc5_cap,
+        &hf_nas_eps_multiple_drb_cap,
+        NULL
+    };
+
     curr_offset = offset;
 
 
     /* EPS encryption algorithms supported (octet 3) */
-    /* EPS encryption algorithm EEA0 supported (octet 3, bit 8) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eea0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA1 supported (octet 3, bit 7) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm EEA4 supported (octet 3, bit 4) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm EEA5 supported (octet 3, bit 3) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm EEA6 supported (octet 3, bit 2) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm EEA7 supported (octet 3, bit 1) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    /* EEA0    128-EEA1    128-EEA2    128-EEA3    EEA4    EEA5    EEA6    EEA7 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct3_flags, ENC_NA);
     curr_offset++;
 
-
     /* EPS integrity algorithms supported (octet 4) */
-    /* EPS integrity algorithm EIA0 supported (octet 4, bit 8) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS integrity algorithm 128-EIA3 supported (octet 4, bit 5) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eia3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS integrity algorithm EIA4 supported (octet 4, bit 4) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eia4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS integrity algorithm EIA5 supported (octet 4, bit 3) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eia5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS integrity algorithm EIA6 supported (octet 4, bit 2) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eia6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS integrity algorithm EIA7 supported (octet 4, bit 1) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    /* EIA0    128-EIA1    128-EIA2    128-EIA3    EIA4    EIA5    EIA6    EIA7 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
     curr_offset++;
 
 
@@ -1939,105 +1984,44 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     /* UMTS encryption algorithms supported (octet 5)
-     * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
+     * UEA0    UEA1    UEA2    UEA3    UEA4    UEA5    UEA6    UEA7 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct5_flags, ENC_NA);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    /* Octet 6 */
+    /* UCS2    UIA1    UIA2    UIA3    UIA4    UIA5    UIA6    UIA7 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct6_flags, ENC_NA);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    /* Octet 7
+     * ProSe-dd ProSe    H.245-ASH    ACC-CSFB    LPP    LCS    1xSR VCC    NF
      */
-    /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 8) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA1 supported (octet 5, bit 7) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA2 supported (octet 5, bit 6) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA3 supported (octet 5, bit 5) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA4 supported (octet 5, bit 4) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA5 supported (octet 5, bit 3) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA6 supported (octet 5, bit 2) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA7 supported (octet 5, bit 1) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct7_flags, ENC_NA);
     curr_offset++;
 
     if ((curr_offset - offset) >= len)
         return (len);
 
-    /* UCS2 support (UCS2) (octet 6, bit 8)
-     * This information field indicates the likely treatment of UCS2 encoded character strings
-     * by the UE.
+    /* Octet 8
+     * ePCO    HC-CP CIoT    ERw/oPDN    S1-U data    UP CIoT    CP CIoT    Prose-relay    ProSe-dc
      */
-    proto_tree_add_item(tree, hf_nas_eps_emm_ucs2_supp, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithms supported (octet 6) */
-    /* UMTS integrity algorithm UIA1 supported (octet 6, bit 7) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA2 supported (octet 6, bit 6) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA3 supported (octet 6, bit 5) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA4 supported (octet 6, bit 4) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA5 supported (octet 6, bit 3) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA6 supported (octet 6, bit 2) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA7 supported (octet 6, bit 1) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct8_flags, ENC_NA);
     curr_offset++;
 
     if ((curr_offset - offset) >= len)
         return (len);
 
-    /* ProSe-dd capability (octet 7, bit 8) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_prose_dd_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* ProSe capability (octet 7, bit 7) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_prose_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* H.245-ASH capability (octet 7, bit 6) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_h245_ash_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* ACC-CSFB capability (octet 7, bit 5) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_acc_csfb_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* LPP capability (octet 7, bit 4) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_lpp_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* LCS capability (octet 7, bit 3) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_lcs_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* 1xSRVCC capability (octet 7, bit 2) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_1xsrvcc_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* NF capability (octet 7, bit 1) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_nf_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    curr_offset++;
-
-    if ((curr_offset - offset) >= len)
-        return (len);
-
-    /* ePCO capability (octet 8, bit 8) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_epco_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* HC-CP CIoT capability (octet 8, bit 7) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_hc_cp_ciot_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* ERw/oPDN capability (octet 8, bit 6) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_er_wo_pdn_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* S1-U data capability (octet 8, bit 5) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_s1u_data_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UP CIoT capability (octet 8, bit 4) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_up_ciot_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* CP CIoT capability (octet 8, bit 3) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_cp_ciot_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* ProSe-relay capability (octet 8, bit 2) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_prose_relay_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* ProSe-dc capability (octet 8, bit 1) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_prose_dc_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    curr_offset++;
-
-    if ((curr_offset - offset) >= len)
-        return (len);
-
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
-    /* CP backoff capability (octet 9, bit 4) */
-    proto_tree_add_item(tree, hf_nas_eps_cp_backoff_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* RestrictEC capability (octet 9, bit 3) */
-    proto_tree_add_item(tree, hf_nas_eps_restrict_ec_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* V2X PC5 capability (octet 9, bit 2) */
-    proto_tree_add_item(tree, hf_nas_eps_v2x_pc5_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* multipleDRB capability (octet 9, bit 1) */
-    proto_tree_add_item(tree, hf_nas_eps_multiple_drb_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    /* Octet 9
+     * 0 Spare    0 Spare    0 Spare    DCNR    CP backoff    RestrictEC    V2X PC5    multipleDRB
+     */
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct9_flags, ENC_NA);
     curr_offset++;
 
     while ((curr_offset - offset) < len) {
@@ -6167,6 +6151,11 @@ proto_register_nas_eps(void)
         FT_BOOLEAN ,BASE_NONE, TFS(&tfs_restricted_not_restricted), 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_restrict_dcnr,
+        { "Restriction on the use of dual connectivity with NR","nas_eps.emm.restrict_dcnr",
+        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_restricted_not_restricted), 0x0,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_epco,
         { "Extended protocol configuration options","nas_eps.emm.epco",
         FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
@@ -6597,6 +6586,11 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_prose_dc_cap,
         { "ProSe direct communication","nas_eps.emm.prose_dc_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_dcnr_cap,
+        { "Dual connectivity with NR","nas_eps.emm.dcnr_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
         NULL, HFILL }
     },
     { &hf_nas_eps_cp_backoff_cap,
