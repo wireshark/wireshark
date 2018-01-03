@@ -34,6 +34,7 @@
 
 #include <version_info.h>
 #include <wsutil/report_message.h>
+#include <wsutil/glib-compat.h>
 
 #include <epan/exceptions.h>
 
