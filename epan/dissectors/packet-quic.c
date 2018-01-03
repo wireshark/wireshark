@@ -110,7 +110,10 @@ static int hf_quic_frame_type_md_maximum_data = -1;
 static int hf_quic_frame_type_msd_stream_id = -1;
 static int hf_quic_frame_type_msd_maximum_stream_data = -1;
 static int hf_quic_frame_type_msi_stream_id = -1;
+static int hf_quic_frame_type_blocked_offset = -1;
 static int hf_quic_frame_type_sb_stream_id = -1;
+static int hf_quic_frame_type_sb_offset = -1;
+static int hf_quic_frame_type_sib_stream_id = -1;
 static int hf_quic_frame_type_nci_sequence = -1;
 static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
@@ -777,37 +780,55 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             }
             break;
             case FT_BLOCKED:{
+                guint32 len_offset;
 
-                /* No Payload */
+                if (quic_info->version <= 0xff000007) {
+                    /* No Payload */
+                    len_offset = 0;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_blocked_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
+                   offset += len_offset;
+                }
 
-                proto_item_set_len(ti_ft, 1);
+                proto_item_set_len(ti_ft, 1 + len_offset);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Blocked");
             }
             break;
             case FT_STREAM_BLOCKED:{
-                guint32 len_streamid;
+                guint32 len_streamid, len_offset;
 
                 if (quic_info->version <= 0xff000007) {
                     proto_tree_add_item(ft_tree, hf_quic_frame_type_sb_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                     len_streamid = 4;
+                    len_offset = 0;
                 } else {
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sb_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
                    offset += len_streamid;
+
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sb_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
+                   offset += len_offset;
                 }
 
-                proto_item_set_len(ti_ft, 1 + len_streamid);
+                proto_item_set_len(ti_ft, 1 + len_streamid + len_offset);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream Blocked");
 
             }
             break;
             case FT_STREAM_ID_BLOCKED:{
+                guint32 len_streamid;
 
-                /* No Payload */
+                if (quic_info->version <= 0xff000007) {
+                    /* No Payload */
+                    len_streamid = 0;
+                } else {
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sib_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+                   offset += len_streamid;
+                }
 
-                proto_item_set_len(ti_ft, 1);
+                proto_item_set_len(ti_ft, 1 + len_streamid);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream ID Blocked");
             }
@@ -1740,11 +1761,28 @@ proto_register_quic(void)
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "ID of the maximum peer-initiated stream ID for the connection", HFILL }
         },
+        /* BLOCKED */
+        { &hf_quic_frame_type_blocked_offset,
+            { "Offset", "quic.frame_type.sb.offset",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Indicating the connection-level offset at which the blocking occurred", HFILL }
+        },
         /* STREAM_BLOCKED */
         { &hf_quic_frame_type_sb_stream_id,
             { "Stream ID", "quic.frame_type.sb.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the stream which is flow control blocked", HFILL }
+        },
+        { &hf_quic_frame_type_sb_offset,
+            { "Offset", "quic.frame_type.sb.offset",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Indicating the offset of the stream at which the blocking occurred", HFILL }
+        },
+        /* STREAM_ID_BLOCKED */
+        { &hf_quic_frame_type_sib_stream_id,
+            { "Stream ID", "quic.frame_type.sib.stream_id",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Indicating the highest stream ID that the sender was permitted to open", HFILL }
         },
         /* NEW_CONNECTION_ID */
         { &hf_quic_frame_type_nci_sequence,
