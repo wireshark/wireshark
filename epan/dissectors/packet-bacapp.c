@@ -1899,9 +1899,6 @@ fPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 static guint
 fBACnetPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 list);
 
-/* static guint
-fBACnetObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset); */
-
 static guint
 fLOPR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
@@ -2352,6 +2349,13 @@ fChannelValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
 static guint
 fPropertyAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
+static guint
+fNetworkSecurityPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fSecurityKeySet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+
 /**
  * register_bacapp
  */
@@ -2558,6 +2562,154 @@ BACnetAccessEvent [] = {
 /* Enumerated values 0-512 are reserved for definition by ASHRAE.
    Enumerated values 512-65535 may be used by others subject to
    procedures and constraints described in Clause 23. */
+};
+
+static const value_string
+BACnetAccessZoneOccupancyState[] = {
+    { 0, "normal"},
+    { 1, "below-lower-limit"},
+    { 2, "at-lower-limit"},
+    { 3, "at-upper-limit"},
+    { 4, "above-upper-limit"},
+    { 5, "disabled"},
+    { 6, "not-supported"},
+    { 0,  NULL}
+};
+
+static const value_string
+BACnetAccessPassbackMode[] = {
+    { 0, "passback-off" },
+    { 1, "hard-passback" },
+    { 2, "soft-passback" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAccessCredentialDisableReason[] = {
+    { 0, "disabled" },
+    { 1, "disabled-needs-provisioning" },
+    { 2, "disabled-unassigned" },
+    { 3, "disabled-not-yet-active" },
+    { 4, "disabled-expired" },
+    { 5, "disabled-lockout" },
+    { 6, "disabled-max-days" },
+    { 7, "disabled-max-uses" },
+    { 8, "disabled-inactivity" },
+    { 9, "disabled-manual" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAccessUserType[] = {
+    { 0, "asset" },
+    { 1, "group" },
+    { 2, "person" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetWriteStatus[] = {
+    { 0, "idle" },
+    { 1, "in-progress" },
+    { 2, "successful" },
+    { 3, "failed" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetLightingTransition[] = {
+    { 0, "none" },
+    { 1, "fade" },
+    { 2, "ramp" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetSecurityLevel[] = {
+    { 0, "incapable" },
+    { 1, "plain" },
+    { 2, "signed" },
+    { 3, "encrypted" },
+    { 4, "signed-end-to-end" },
+    { 5, "encrypted-end-to-end" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAccessCredentialDisable[] = {
+    { 0, "none" },
+    { 1, "disable" },
+    { 2, "disable-manual" },
+    { 3, "disable-lockout" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthenticationStatus[] = {
+    { 0, "not-ready" },
+    { 1, "ready" },
+    { 2, "disabled" },
+    { 3, "waiting-for-authentication-factor" },
+    { 4, "waiting-for-accompaniment" },
+    { 5, "waiting-for-verification" },
+    { 6, "in-progress" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthorizationMode[] = {
+    { 0, "authorize" },
+    { 1, "grant-active" },
+    { 2, "deny-all" },
+    { 3, "verification-required" },
+    { 4, "authorization-delayed" },
+    { 5, "none" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthorizationExemption[] = {
+    { 0, "passback" },
+    { 1, "occupancy-check" },
+    { 2, "access-rights" },
+    { 3, "lockout" },
+    { 4, "deny" },
+    { 5, "verification" },
+    { 6, "authorization-delay" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetLightingInProgress[] = {
+    { 0, "idle" },
+    { 1, "fade-active" },
+    { 2, "ramp-active" },
+    { 3, "not-controlled" },
+    { 4, "other" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetBinaryLightingPV[] = {
+    { 0, "off" },
+    { 1, "on" },
+    { 2, "warn" },
+    { 3, "warn-off" },
+    { 4, "warn-relinquish" },
+    { 5, "stop" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetBackupState[] = {
+    { 0, "idle"},
+    { 1, "preparing-for-backup"},
+    { 2, "preparing-for-restore"},
+    { 3, "performing-a-backup"},
+    { 4, "performing-a-restore"},
+    { 5, "backup-failure"},
+    { 6, "restore-failure"},
+    { 0,  NULL}
 };
 
 static const value_string
@@ -3003,7 +3155,7 @@ BACnetReliability [] = {
     {  8, "process-error"},
     {  9, "multi-state-fault"},
     { 10, "configuration-error"},
-    /* enumeration value 11 is reserved for a future addendum */
+    { 11, "reserved for a future addendum"},
     { 12, "communication-failure"},
     { 13, "member-fault"},
     { 14, "monitored-object-fault" },
@@ -3016,7 +3168,7 @@ BACnetReliability [] = {
     { 21, "restart-failure"},
     { 22, "proprietary-command-failure"},
     { 23, "faults-listed"},
-  { 24, "referenced-object-fault"},
+    { 24, "referenced-object-fault"},
     { 0,  NULL}
 };
 
@@ -4589,7 +4741,7 @@ BACnetDoorAlarmState [] = {
 };
 
 static const value_string
-BACnetBaseDeviceSecurityPolicy [] = {
+BACnetSecurityPolicy [] = {
     { 0, "plain-non-trusted"},
     { 1, "plain-trusted"},
     { 2, "signed-trusted"},
@@ -7058,9 +7210,11 @@ fActionList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         lastoffset = offset;
         len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         if (tag_is_closing(tag_info)) {
-            subtree = tree;
             if ( tag_no != 0 ) /* don't eat the closing property tag, just return */
                 return offset;
+            /* print closing tag of action list too */
+            fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            subtree = tree;
             offset += len;
             continue;
         }
@@ -7748,7 +7902,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
               offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetTimerState);
               break;
             case 36: /* access-zone */
-              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessEvent);
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessZoneOccupancyState);
               break;
             case 39: /* bitstring-value */
             default:
@@ -7771,6 +7925,9 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
               break;
             }
             break;
+        case 37: /* event-type */
+          offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetEventType);
+          break;
         case 39: /* fault-values */
             switch (object_type) {
             case 21: /* life-point */
@@ -7784,7 +7941,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
               offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetTimerState);
               break;
             case 36: /* access-zone */
-              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessEvent);
+              offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessZoneOccupancyState);
               break;
             case 39: /* bitstring-value */
             default:
@@ -7808,6 +7965,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             }
             break;
         case 30: /* BACnetAddressBinding */
+        case 331: /* last-key-server */
             offset = fAddressBinding(tvb, pinfo, tree, offset);
             break;
         case 52: /* limit-enable */
@@ -8024,8 +8182,8 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             offset = fLoggingRecord(tvb, pinfo, tree, offset);
             break;
         case 203: /* time-of-device-restart */
-          offset = fTimeStamp(tvb, pinfo, tree, offset, ar);
-          break;
+            offset = fTimeStamp(tvb, pinfo, tree, offset, ar);
+            break;
         case 226: /* door-alarm-state */
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetDoorAlarmState);
             break;
@@ -8038,10 +8196,40 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         case 248: /* access-event-authentication-factor */
             offset = fAuthenticationFactor(tvb, pinfo, tree, offset);
             break;
+        case 261: /* authorization-mode */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAuthorizationMode);
+            break;
         case 53:  /* list-of-group-members */
             save_object_type = object_type;
             offset = fListOfGroupMembers(tvb, pinfo, tree, offset);
             object_type = save_object_type;
+            break;
+        case 296: /* occupancy-state */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessZoneOccupancyState);
+            break;
+        case 300: /* passback-mode */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessPassbackMode);
+            break;
+        case 303: /* reason-for-disable */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessCredentialDisableReason);
+            break;
+        case 318: /* user-type */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAccessUserType);
+            break;
+        case 330: /* key-sets */
+            offset = fSecurityKeySet(tvb, pinfo, tree, offset);
+            break;
+        case 332: /* network-access-security-policies */
+            offset = fNetworkSecurityPolicy(tvb, pinfo, tree, offset);
+            break;
+        case 338: /* backup-and-restore-state */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetBackupState);
+            break;
+        case 370: /* write-status */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetWriteStatus);
+            break;
+        case 385: /* transition */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLightingTransition);
             break;
         case 288: /* negative-access-rules */
         case 302: /* positive-access-rules */
@@ -8051,7 +8239,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             offset = fAuthenticationFactorFormat(tvb, pinfo, tree, offset);
             break;
         case 327: /* base-device-security-policy */
-            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetBaseDeviceSecurityPolicy);
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetSecurityLevel);
             break;
         case 371: /* property-list */
             offset = fSequenceOfEnums(tvb, pinfo, tree, offset, ar, BACnetPropertyIdentifier);
@@ -8064,6 +8252,12 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             break;
         case 362: /* subscribed-recipients */
             offset = fEventNotificationSubscription(tvb, pinfo, tree, offset);
+            break;
+        case 364: /* authorization-exemptions */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetAuthorizationExemption);
+            break;
+        case 378: /* in-progress */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLightingInProgress);
             break;
         case 380: /* lighting-command */
             offset = fLightingCommand(tvb, pinfo, tree, offset, ar);
@@ -8290,6 +8484,10 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             {
                 offset = fPropertyAccessResult(tvb, pinfo, tree, offset);
             }
+            else if (object_type == 28) /* loac-control */
+            {
+                offset = fEnumeratedTag(tvb, pinfo, tree, offset, ar, BACnetShedState);
+            }
             else
             {
                 do_default_handling = TRUE;
@@ -8416,6 +8614,7 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "monitoredPropertyIdentifier");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fBACnetPropertyReference(tvb, pinfo, subtree, offset, 1);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             } else {
                 expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
@@ -9042,57 +9241,78 @@ fLifeSafetyOperationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 typedef struct _value_string_enum {
-    const value_string *valstr;
+  guint8 tag_no;
+  const value_string *valstr;
 } value_string_enum;
 
 static const value_string_enum
 BACnetPropertyStatesEnums[] = {
-    { NULL },
-    {BACnetBinaryPV },
-    {BACnetEventType },
-    {BACnetPolarity },
-    {BACnetProgramRequest },
-    {BACnetProgramState },
-    {BACnetProgramError },
-    {BACnetReliability },
-    {BACnetEventState },
-    {BACnetDeviceStatus },
-    {BACnetEngineeringUnits },
-    { NULL },
-    {BACnetLifeSafetyMode },
-    {BACnetLifeSafetyState },
-    {BACnetRestartReason },
-    {BACnetDoorAlarmState },
-    {BACnetAction },
-    {BACnetDoorSecuredStatus },
-    {BACnetDoorStatus },
-    { NULL }, /* {BACnetDoorValue }, */
-    {BACnetFileAccessMethod },
-    {BACnetLockStatus },
-    {BACnetLifeSafetyOperation },
-    {BACnetMaintenance },
-    {BACnetNodeType },
-    {BACnetNotifyType },
-    { NULL }, /* {BACnetSecurityLevel }, */
-    {BACnetShedState },
-    {BACnetSilencedState },
-    { NULL },
-    { NULL }, /* {BACnetAccessEvent }, */
-    { NULL }, /* {BACnetZoneOccupancyState }, */
-    { NULL }, /* {BACnetAccessCredentialDisableReason }, */
-    { NULL }, /* {BACnetAccessCredentialDisable }, */
-    { NULL }, /* {BACnetAuthenticationStatus }, */
-    { NULL },
-    { NULL }, /* {BACnetBackupState }, */
+    {   1, BACnetBinaryPV },
+    {   2, BACnetEventType },
+    {   3, BACnetPolarity },
+    {   4, BACnetProgramRequest },
+    {   5, BACnetProgramState },
+    {   6, BACnetProgramError },
+    {   7, BACnetReliability },
+    {   8, BACnetEventState },
+    {   9, BACnetDeviceStatus },
+    {  10, BACnetEngineeringUnits },
+    {  12, BACnetLifeSafetyMode },
+    {  13, BACnetLifeSafetyState },
+    {  14, BACnetRestartReason },
+    {  15, BACnetDoorAlarmState },
+    {  16, BACnetAction },
+    {  17, BACnetDoorSecuredStatus },
+    {  18, BACnetDoorStatus },
+    {  19, BACnetDoorValue },
+    {  20, BACnetFileAccessMethod },
+    {  21, BACnetLockStatus },
+    {  22, BACnetLifeSafetyOperation },
+    {  23, BACnetMaintenance },
+    {  24, BACnetNodeType },
+    {  25, BACnetNotifyType },
+    {  26, BACnetSecurityLevel },
+    {  27, BACnetShedState },
+    {  28, BACnetSilencedState },
+    {  30, BACnetAccessEvent },
+    {  31, BACnetAccessZoneOccupancyState },
+    {  32, BACnetAccessCredentialDisableReason },
+    {  33, BACnetAccessCredentialDisable },
+    {  34, BACnetAuthenticationStatus },
+    {  36, BACnetBackupState },
+    {  37, BACnetWriteStatus },
+    {  38, BACnetLightingInProgress },
+    {  39, BACnetLightingOperation },
+    {  40, BACnetLightingTransition },
+    {  42, BACnetBinaryLightingPV },
+    {  43, BACnetTimerState },
+    {  44, BACnetTimerTransition },
+    {  45, BACnetIpMode },
+    {  46, BACnetNetworkPortCommand },
+    {  47, BACnetNetworkType },
+    {  48, BACnetNetworkNumberQuality },
+    {  49, BACnetEscalatorOperationDirection },
+    {  50, BACnetEscalatorFault },
+    {  51, BACnetEscalatorMode },
+    {  52, BACnetLiftCarDirection },
+    {  53, BACnetLiftCarDoorCommand },
+    {  54, BACnetLiftCarDriveStatus },
+    {  55, BACnetLiftCarMode },
+    {  56, BACnetLiftGroupMode },
+    {  57, BACnetLiftFault },
+    {  58, BACnetProtocolLevel }
 };
-#define BACnetPropertyStatesEnums_Size 36
+#define BACnetPropertyStatesEnums_Size \
+    (sizeof(BACnetPropertyStatesEnums) / sizeof(BACnetPropertyStatesEnums[0]))
 
 static guint
 fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8       tag_no, tag_info;
     guint32      lvt;
+    guint32      idx;
     const gchar* label;
+    const value_string_enum* valstrenum;
 
     fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     label = wmem_strdup_printf(wmem_packet_scope(), "%s: ",
@@ -9106,8 +9326,18 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         offset = fUnsignedTag(tvb, pinfo, tree, offset, label);
         break;
     default:
-        if ( (tag_no > BACnetPropertyStatesEnums_Size) ||
-            VALS(BACnetPropertyStatesEnums[tag_no].valstr) == NULL)
+        valstrenum = NULL;
+
+        for (idx = 0; idx < BACnetPropertyStatesEnums_Size; idx++) {
+            valstrenum = &BACnetPropertyStatesEnums[idx];
+            if (valstrenum->tag_no == tag_no &&
+                valstrenum->valstr != NULL) {
+                break;
+            }
+            valstrenum = NULL;
+        }
+
+        if (valstrenum == NULL)
         {
             offset = fEnumeratedTag(tvb, pinfo, tree, offset, label, NULL);
             /* don't use Abstract type here because it is context tagged and therefore we don't know app type */
@@ -9115,7 +9345,7 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         else
         {
             offset = fEnumeratedTagSplit(tvb, pinfo, tree, offset, label,
-                    VALS(BACnetPropertyStatesEnums[tag_no].valstr), 64);
+                    VALS(valstrenum->valstr), 64);
         }
         break;
     }
@@ -11751,6 +11981,7 @@ fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
                 subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "listOfElements");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
+                fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             } else {
                 expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
             }
@@ -12410,6 +12641,116 @@ fSpecialEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offs
         }
         if (offset == lastoffset) break;     /* nothing happened, exit loop */
     }
+    return offset;
+}
+
+static guint
+fNetworkSecurityPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+    proto_tree *subtree;
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_tag, NULL, "network security policy");
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+        switch (tag_no) {
+        case 0: /* port-id */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "port-id: ");
+            break;
+        case 1: /* security-level */
+            offset  = fEnumeratedTag(tvb, pinfo, subtree, offset,
+                "security-level: ", BACnetSecurityPolicy);
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static guint
+fKeyIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+        switch (tag_no) {
+        case 0: /* algorithm */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "algorithm: ");
+            break;
+        case 1: /* key-id */
+            offset = fUnsignedTag(tvb, pinfo, tree, offset, "key-id: ");
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static guint
+fSecurityKeySet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint   lastoffset = 0;
+    guint8  tag_no, tag_info;
+    guint32 lvt;
+    proto_tree *subtree;
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_tag, NULL, "security keyset");
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+        switch (tag_no) {
+        case 0: /* key-revision */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "key-revision: ");
+            break;
+        case 1: /* activation-time */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, subtree, offset, "activation-time: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* expiration-time */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, subtree, offset, "expiration-time: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 3: /* key-ids */
+            if (tag_is_opening(tag_info)) {
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset = fKeyIdentifier(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
+            }
+            break;
+        default:
+            return offset;
+        }
+    }
+
     return offset;
 }
 
