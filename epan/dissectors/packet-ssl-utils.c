@@ -6550,6 +6550,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         }
         offset += 2;
         proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);
+        proto_item_set_len(parameter_tree, 4 + parameter_length);
 
         proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_value,
                             tvb, offset, parameter_length, ENC_NA);
