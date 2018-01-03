@@ -47,6 +47,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 14.4.0 Release 14)
  *
+ *   Reference [13]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 15.1.0 Release 15)
+ *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
  *
@@ -1219,6 +1225,7 @@ typedef enum
     DE_PD_PRO_ADDR,                 /* Packet Data Protocol Address */
     DE_QOS,                         /* Quality Of Service */
     DE_RE_ATTEMPT_IND,              /* Re-attempt indicator */
+    DE_EXT_QOS,                     /* [13] Extended quality of service */
     DE_SM_CAUSE,                    /* SM Cause */
     DE_SM_CAUSE_2,                  /* SM Cause 2 */
     DE_LINKED_TI,                   /* Linked TI */
