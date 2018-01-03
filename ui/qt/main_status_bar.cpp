@@ -649,6 +649,7 @@ void MainStatusBar::captureEventHandler(CaptureEvent * ev)
 {
     switch(ev->captureContext())
     {
+#ifdef HAVE_LIBPCAP
     case CaptureEvent::Update:
         switch ( ev->eventType() )
         {
@@ -669,6 +670,7 @@ void MainStatusBar::captureEventHandler(CaptureEvent * ev)
             break;
         }
         break;
+#endif
     case CaptureEvent::Save:
         switch ( ev->eventType() )
         {

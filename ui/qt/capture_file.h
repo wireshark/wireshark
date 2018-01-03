@@ -40,9 +40,11 @@ class CaptureEvent : public QObject
     Q_OBJECT
 public:
     enum Context {
+#ifdef HAVE_LIBPCAP
         Capture =  0x0001,
         Update =   0x0100 | Capture,
         Fixed =    0x0200 | Capture,
+#endif
         File =     0x0002,
         Reload =   0x0100 | File,
         Rescan =   0x0200 | File,

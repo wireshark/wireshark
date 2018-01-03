@@ -1334,6 +1334,7 @@ void WiresharkApplication::captureEventHandler(CaptureEvent * ev)
 {
     switch(ev->captureContext())
     {
+#ifdef HAVE_LIBPCAP
     case CaptureEvent::Update:
     case CaptureEvent::Fixed:
         switch ( ev->eventType() )
@@ -1350,6 +1351,7 @@ void WiresharkApplication::captureEventHandler(CaptureEvent * ev)
             break;
         }
         break;
+#endif
     case CaptureEvent::File:
         switch ( ev->eventType() )
         {
