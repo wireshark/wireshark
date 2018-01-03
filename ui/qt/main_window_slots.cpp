@@ -795,10 +795,11 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         switch ( ev->eventType() )
         {
         case CaptureEvent::Started:
-            setMenusForCaptureFile(true); captureFileReadStarted(tr("Rescanning"));
+            setMenusForCaptureFile(true);
+            captureFileReadStarted(tr("Rescanning"));
             break;
         case CaptureEvent::Finished:
-            thaw();
+            captureFileReadFinished();
             break;
         default:
             break;
