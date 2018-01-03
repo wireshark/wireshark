@@ -1476,6 +1476,8 @@ gboolean
 profile_exists(const gchar *profilename, gboolean global)
 {
     gchar *path = NULL, *global_path;
+    if (!profilename)
+        return FALSE;
     if (global) {
         global_path = get_global_profiles_dir();
         path = g_strdup_printf ("%s%s%s", global_path,
