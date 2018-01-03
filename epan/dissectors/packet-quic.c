@@ -51,6 +51,7 @@ static int hf_quic_connection_id = -1;
 static int hf_quic_packet_number = -1;
 static int hf_quic_version = -1;
 static int hf_quic_short_cid_flag = -1;
+static int hf_quic_short_ocid_flag = -1;
 static int hf_quic_short_kp_flag = -1;
 static int hf_quic_short_packet_type = -1;
 static int hf_quic_cleartext_protected_payload = -1;
@@ -155,7 +156,8 @@ static const value_string quic_short_long_header_vals[] = {
     { 0, NULL }
 };
 
-#define SH_CID  0x40
+#define SH_CID  0x40 /* <= draft-07*/
+#define SH_OCID 0x40
 #define SH_KP   0x20
 #define SH_PT   0x1F
 
@@ -1351,21 +1353,32 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 }
 
 static int
-dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_){
+dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info){
     guint8 short_flags;
     guint64 cid = 0;
     guint32 pkn_len, pkn;
 
     short_flags = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(quic_tree, hf_quic_short_cid_flag, tvb, offset, 1, ENC_NA);
+    if (quic_info->version <= 0xff000007) {
+        proto_tree_add_item(quic_tree, hf_quic_short_cid_flag, tvb, offset, 1, ENC_NA);
+    } else {
+        proto_tree_add_item(quic_tree, hf_quic_short_ocid_flag, tvb, offset, 1, ENC_NA);
+    }
     proto_tree_add_item(quic_tree, hf_quic_short_kp_flag, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(quic_tree, hf_quic_short_packet_type, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     /* Connection ID */
-    if (short_flags & SH_CID){
-        proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
-        offset += 8;
+    if (quic_info->version <= 0xff000007) {
+        if (short_flags & SH_CID){
+            proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
+            offset += 8;
+        }
+    } else {
+        if ((short_flags & SH_OCID) == 0){
+            proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
+            offset += 8;
+        }
     }
     /* Packet Number */
     pkn_len = get_len_packet_number(short_flags);
@@ -1461,9 +1474,14 @@ proto_register_quic(void)
             FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_quic_short_cid_flag,
+        { &hf_quic_short_cid_flag, /* <= draft-07 */
           { "Connection ID Flag", "quic.short.cid_flag",
             FT_BOOLEAN, 8, NULL, SH_CID,
+            NULL, HFILL }
+        },
+        { &hf_quic_short_ocid_flag,
+          { "Omit Connection ID Flag", "quic.short.ocid_flag",
+            FT_BOOLEAN, 8, NULL, SH_OCID,
             NULL, HFILL }
         },
         { &hf_quic_short_kp_flag,
