@@ -50,6 +50,8 @@ static int hf_quic_long_packet_type = -1;
 static int hf_quic_connection_id = -1;
 static int hf_quic_packet_number = -1;
 static int hf_quic_version = -1;
+static int hf_quic_supported_version = -1;
+static int hf_quic_vn_unused = -1;
 static int hf_quic_short_cid_flag = -1;
 static int hf_quic_short_ocid_flag = -1;
 static int hf_quic_short_kp_flag = -1;
@@ -142,6 +144,7 @@ typedef struct quic_info_data {
 } quic_info_data_t;
 
 const value_string quic_version_vals[] = {
+    { 0x00000000, "Version Negotiation" },
     { 0xff000004, "draft-04" },
     { 0xff000005, "draft-05" },
     { 0xff000006, "draft-06" },
@@ -1179,7 +1182,6 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     } else {
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &quic_info->version);
         offset += 4;
-        /* Add version check (0x00000000) it is not a Negociation Packet */
 
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
         offset += 4;
@@ -1398,6 +1400,31 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     return offset;
 }
 
+static int
+dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_){
+    guint64 cid;
+
+    proto_tree_add_item(quic_tree, hf_quic_vn_unused, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Connection ID */
+    proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "CID: 0x%" G_GINT64_MODIFIER "x", cid);
+    offset += 8;
+
+    /* Version */
+    proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* Supported Version */
+    while(tvb_reported_length_remaining(tvb, offset) > 0){
+        proto_tree_add_item(quic_tree, hf_quic_supported_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
+
 
 static int
 dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1406,7 +1433,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *quic_tree;
     guint       offset = 0;
-    guint32     header_form;
+    guint32     header_form, version;
     conversation_t  *conv;
     quic_info_data_t  *quic_info;
 
@@ -1431,6 +1458,12 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, tvb, offset, 1, ENC_NA, &header_form);
     if(header_form) {
+        version = tvb_get_ntohl(tvb, offset + 1 + 8);
+        if (version == 0x00000000) { /* Version Negotiation ? */
+                col_set_str(pinfo->cinfo, COL_INFO, "VN, ");
+                offset = dissect_quic_version_negotiation(tvb, pinfo, quic_tree, offset, quic_info);
+            return offset;
+        }
         col_set_str(pinfo->cinfo, COL_INFO, "LH, ");
         offset = dissect_quic_long_header(tvb, pinfo, quic_tree, offset, quic_info);
     } else {
@@ -1472,6 +1505,16 @@ proto_register_quic(void)
         { &hf_quic_version,
           { "Version", "quic.version",
             FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_supported_version,
+          { "Supported Version", "quic.supported_version",
+            FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_vn_unused, /* <= draft-07 */
+          { "Unused", "quic.vn.unused",
+            FT_UINT8, BASE_HEX, NULL, 0x7F,
             NULL, HFILL }
         },
         { &hf_quic_short_cid_flag, /* <= draft-07 */
