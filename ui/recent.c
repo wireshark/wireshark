@@ -44,6 +44,7 @@
 #define RECENT_GUI_SECONDS_FORMAT             "gui.seconds_format"
 #define RECENT_GUI_ZOOM_LEVEL                 "gui.zoom_level"
 #define RECENT_GUI_BYTES_VIEW                 "gui.bytes_view"
+#define RECENT_GUI_BYTES_ENCODING             "gui.bytes_encoding"
 #define RECENT_GUI_GEOMETRY_MAIN_X            "gui.geometry_main_x"
 #define RECENT_GUI_GEOMETRY_MAIN_Y            "gui.geometry_main_y"
 #define RECENT_GUI_GTK_GEOMETRY_MAIN_X        "gui.gtk.geometry_main_x"
@@ -105,6 +106,19 @@ static const value_string ts_precision_values[] = {
 static const value_string ts_seconds_values[] = {
     { TS_SECONDS_DEFAULT,      "SECONDS"      },
     { TS_SECONDS_HOUR_MIN_SEC, "HOUR_MIN_SEC" },
+    { 0, NULL }
+};
+
+static const value_string bytes_view_type_values[] = {
+    { BYTES_HEX,    "HEX"  },
+    { BYTES_BITS,   "BITS" },
+    { 0, NULL }
+};
+
+static const value_string bytes_encoding_type_values[] = {
+    { BYTES_ENC_FROM_PACKET,    "FROM_PACKET"  },
+    { BYTES_ENC_ASCII,          "ASCII"  },
+    { BYTES_ENC_EBCDIC,         "EBCDIC"  },
     { 0, NULL }
 };
 
@@ -824,10 +838,13 @@ write_profile_recent(void)
     fprintf(rf, RECENT_GUI_ZOOM_LEVEL ": %d\n",
             recent.gui_zoom_level);
 
-    fprintf(rf, "\n# Bytes view.\n");
-    fprintf(rf, "# A decimal number.\n");
-    fprintf(rf, RECENT_GUI_BYTES_VIEW ": %d\n",
+    write_recent_enum(rf, "Bytes view display type",
+            RECENT_GUI_BYTES_VIEW, bytes_view_type_values,
             recent.gui_bytes_view);
+
+    write_recent_enum(rf, "Bytes view text encoding",
+            RECENT_GUI_BYTES_ENCODING, bytes_encoding_type_values,
+            recent.gui_bytes_encoding);
 
     fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
     fprintf(rf, "# Decimal number.\n");
@@ -1027,10 +1044,11 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
             return PREFS_SET_SYNTAX_ERR;      /* number was bad */
         recent.gui_zoom_level = (gint)num;
     } else if (strcmp(key, RECENT_GUI_BYTES_VIEW) == 0) {
-        num = strtol(value, &p, 0);
-        if (p == value || *p != '\0')
-            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
-        recent.gui_bytes_view = (bytes_view_type)num;
+        recent.gui_bytes_view =
+            (bytes_view_type)str_to_val(value, bytes_view_type_values, BYTES_HEX);
+    } else if (strcmp(key, RECENT_GUI_BYTES_ENCODING) == 0) {
+        recent.gui_bytes_encoding =
+            (bytes_encoding_type)str_to_val(value, bytes_encoding_type_values, BYTES_ENC_FROM_PACKET);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
         parse_recent_boolean(value, &recent.gui_geometry_main_maximized);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
@@ -1284,6 +1302,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_seconds_format        = TS_SECONDS_DEFAULT;
     recent.gui_zoom_level            = 0;
     recent.gui_bytes_view            = BYTES_HEX;
+    recent.gui_bytes_encoding        = BYTES_ENC_FROM_PACKET;
 
     /* pane size of zero will autodetect */
     recent.gui_geometry_main_upper_pane   = 0;

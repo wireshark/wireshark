@@ -56,6 +56,12 @@ typedef enum {
     BYTES_BITS
 } bytes_view_type;
 
+typedef enum {
+    BYTES_ENC_FROM_PACKET, // frame_data packet_char_enc
+    BYTES_ENC_ASCII,
+    BYTES_ENC_EBCDIC
+} bytes_encoding_type;
+
 /** Recent settings. */
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
@@ -72,6 +78,7 @@ typedef struct recent_settings_tag {
     ts_seconds_type gui_seconds_format;
     gint        gui_zoom_level;
     bytes_view_type gui_bytes_view;
+    bytes_encoding_type gui_bytes_encoding;
 
     gint        gui_geometry_main_x;
     gint        gui_geometry_main_y;

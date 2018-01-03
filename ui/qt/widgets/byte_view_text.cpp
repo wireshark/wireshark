@@ -26,14 +26,12 @@
 #include <QTextLayout>
 
 // To do:
-// - Add recent settings and context menu items to show/hide the offset,
-//   and ASCII/EBCDIC.
+// - Add recent settings and context menu items to show/hide the offset.
 // - Add a UTF-8 and possibly UTF-xx option to the ASCII display.
-// - Add "copy bytes as" context menu items.
 // - Move more common metrics to DataPrinter.
 
 Q_DECLARE_METATYPE(bytes_view_type)
-Q_DECLARE_METATYPE(packet_char_enc)
+Q_DECLARE_METATYPE(bytes_encoding_type)
 Q_DECLARE_METATYPE(DataPrinter::DumpType)
 
 ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWidget *parent) :
@@ -78,47 +76,53 @@ ByteViewText::~ByteViewText()
 
 void ByteViewText::createContextMenu()
 {
-    QActionGroup * format_actions_ = new QActionGroup(this);
     QAction *action;
 
-    QActionGroup * copyEntries = DataPrinter::copyActions(this);
-    ctx_menu_.addActions(copyEntries->actions());
+    QActionGroup * copy_actions = DataPrinter::copyActions(this);
+    ctx_menu_.addActions(copy_actions->actions());
     ctx_menu_.addSeparator();
 
-    action = format_actions_->addAction(tr("Show bytes as hexadecimal"));
+    QActionGroup * format_actions = new QActionGroup(this);
+    action = format_actions->addAction(tr("Show bytes as hexadecimal"));
     action->setData(qVariantFromValue(BYTES_HEX));
     action->setCheckable(true);
     if (recent.gui_bytes_view == BYTES_HEX) {
         action->setChecked(true);
     }
-    action = format_actions_->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as bits"));
+    action = format_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as bits"));
     action->setData(qVariantFromValue(BYTES_BITS));
     action->setCheckable(true);
     if (recent.gui_bytes_view == BYTES_BITS) {
         action->setChecked(true);
     }
 
-    ctx_menu_.addActions(format_actions_->actions());
-    connect(format_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setHexDisplayFormat(QAction*)));
+    ctx_menu_.addActions(format_actions->actions());
+    connect(format_actions, SIGNAL(triggered(QAction*)), this, SLOT(setHexDisplayFormat(QAction*)));
 
     ctx_menu_.addSeparator();
 
-    QActionGroup * encoding_actions_ = new QActionGroup(this);
-    action = encoding_actions_->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as ASCII"));
-    action->setData(qVariantFromValue(PACKET_CHAR_ENC_CHAR_ASCII));
+    QActionGroup * encoding_actions = new QActionGroup(this);
+    action = encoding_actions->addAction(tr("Show text based on packet"));
+    action->setData(qVariantFromValue(BYTES_ENC_FROM_PACKET));
     action->setCheckable(true);
-    if (encoding_ == PACKET_CHAR_ENC_CHAR_ASCII) {
+    if (recent.gui_bytes_encoding == BYTES_ENC_FROM_PACKET) {
         action->setChecked(true);
     }
-    action = encoding_actions_->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as EBCDIC"));
-    action->setData(qVariantFromValue(PACKET_CHAR_ENC_CHAR_EBCDIC));
+    action = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as ASCII"));
+    action->setData(qVariantFromValue(BYTES_ENC_ASCII));
     action->setCheckable(true);
-    if (encoding_ == PACKET_CHAR_ENC_CHAR_EBCDIC) {
+    if (recent.gui_bytes_encoding == BYTES_ENC_ASCII) {
+        action->setChecked(true);
+    }
+    action = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as EBCDIC"));
+    action->setData(qVariantFromValue(BYTES_ENC_EBCDIC));
+    action->setCheckable(true);
+    if (recent.gui_bytes_encoding == BYTES_ENC_EBCDIC) {
         action->setChecked(true);
     }
 
-    ctx_menu_.addActions(encoding_actions_->actions());
-    connect(encoding_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setCharacterEncoding(QAction*)));
+    ctx_menu_.addActions(encoding_actions->actions());
+    connect(encoding_actions, SIGNAL(triggered(QAction*)), this, SLOT(setCharacterEncoding(QAction*)));
 }
 
 bool ByteViewText::isEmpty() const
@@ -351,6 +355,8 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
         bool in_non_printable = false;
         int np_start = 0;
         int np_len = 0;
+        guchar c;
+
         for (int tvb_pos = offset; tvb_pos <= max_tvb_pos; tvb_pos++) {
             /* insert a space every separator_interval_ bytes */
             if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
@@ -360,9 +366,11 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
                 }
             }
 
-            guchar c = (encoding_ == PACKET_CHAR_ENC_CHAR_EBCDIC) ?
-                        EBCDIC_to_ASCII1(data_[tvb_pos]) :
-                        data_[tvb_pos];
+            if (recent.gui_bytes_encoding != BYTES_ENC_EBCDIC && encoding_ == PACKET_CHAR_ENC_CHAR_ASCII) {
+                c = data_[tvb_pos];
+            } else {
+                c = EBCDIC_to_ASCII1(data_[tvb_pos]);
+            }
 
             if (g_ascii_isprint(c)) {
                 line += c;
@@ -614,7 +622,7 @@ void ByteViewText::setCharacterEncoding(QAction *action)
         return;
     }
 
-    encoding_ = action->data().value<packet_char_enc>();
+    recent.gui_bytes_encoding = action->data().value<bytes_encoding_type>();
     viewport()->update();
 }
 
