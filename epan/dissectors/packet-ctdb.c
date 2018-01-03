@@ -939,10 +939,11 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		ctdb_control=(ctdb_control_t *)wmem_tree_lookup32_array(ctdb_controls, &tkey[0]);
 	}
 
-
-	cd=find_control_dissector(ctdb_control->opcode, TRUE);
-	if (cd) {
-		cd(pinfo, tree, tvb, data_offset, 0, endianess);
+	if (ctdb_control) {
+		cd=find_control_dissector(ctdb_control->opcode, TRUE);
+		if (cd) {
+			cd(pinfo, tree, tvb, data_offset, 0, endianess);
+		}
 	}
 
 	ctdb_display_control(pinfo, tree, tvb, ctdb_control);
