@@ -417,16 +417,16 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_data_tmpl.arg(marked_str)
         << table_row_end;
 
-    // Average packets per second
+    // Average packet size
     captured_str = displayed_str = marked_str = n_a;
     if (summary.packet_count > 0) {
-            captured_str = QString("%1").arg(summary.bytes/summary.packet_count + 0.5, 1, 'f', 1);
+            captured_str = QString::number((guint64) ((double)summary.bytes/summary.packet_count + 0.5));
     }
     if (summary.filtered_count > 0) {
-            displayed_str = QString("%1").arg(summary.filtered_bytes/summary.filtered_count + 0.5, 1, 'f', 1);
+            displayed_str = QString::number((guint64) ((double)summary.filtered_bytes/summary.filtered_count + 0.5));
     }
     if (summary.marked_count > 0) {
-            marked_str = QString("%1").arg(summary.marked_bytes/summary.marked_count + 0.5, 1, 'f', 1);
+            marked_str = QString::number((guint64) ((double)summary.marked_bytes/summary.marked_count + 0.5));
     }
     out << table_row_begin
         << table_data_tmpl.arg(tr("Average packet size, B"))
