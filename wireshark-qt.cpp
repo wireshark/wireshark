@@ -258,7 +258,7 @@ get_wireshark_runtime_info(GString *str)
 #endif
 }
 
-void
+static void
 g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
     GLogLevelFlags log_level = G_LOG_LEVEL_DEBUG;
