@@ -753,10 +753,10 @@ void MainWindow::captureCaptureFailed(capture_session *) {
 
 void MainWindow::captureEventHandler(CaptureEvent * ev)
 {
-    if ( ev->captureContext() == CaptureEvent::File )
-    {
-        switch ( ev->eventType() )
-        {
+    switch (ev->captureContext()) {
+
+    case CaptureEvent::File:
+        switch (ev->eventType()) {
         case CaptureEvent::Opened:
             captureFileOpened();
             break;
@@ -775,11 +775,10 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         default:
             break;
         }
-    }
-    else if ( ev->captureContext() == CaptureEvent::Reload )
-    {
-        switch ( ev->eventType() )
-        {
+        break;
+
+    case CaptureEvent::Reload:
+        switch (ev->eventType()) {
         case CaptureEvent::Started:
             captureFileReadStarted(tr("Reloading"));
             break;
@@ -789,11 +788,10 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         default:
             break;
         }
-    }
-    else if ( ev->captureContext() == CaptureEvent::Rescan )
-    {
-        switch ( ev->eventType() )
-        {
+        break;
+
+    case CaptureEvent::Rescan:
+        switch (ev->eventType()) {
         case CaptureEvent::Started:
             setMenusForCaptureFile(true);
             captureFileReadStarted(tr("Rescanning"));
@@ -804,11 +802,10 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         default:
             break;
         }
-    }
-    else if ( ev->captureContext() == CaptureEvent::Retap )
-    {
-        switch ( ev->eventType() )
-        {
+        break;
+
+    case CaptureEvent::Retap:
+        switch (ev->eventType()) {
         case CaptureEvent::Started:
             freeze();
             break;
@@ -821,11 +818,10 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         default:
             break;
         }
-    }
-    else if ( ev->captureContext() == CaptureEvent::Merge )
-    {
-        switch ( ev->eventType() )
-        {
+        break;
+
+    case CaptureEvent::Merge:
+        switch (ev->eventType()) {
         case CaptureEvent::Started:
             main_ui_->statusBar->popFileStatus();
             main_ui_->statusBar->pushFileStatus(tr("Merging files"), QString());
@@ -836,25 +832,25 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         default:
             break;
         }
-    }
-    else if ( ev->captureContext() == CaptureEvent::Save )
-    {
-        QFileInfo file_info(ev->filePath());
-        switch ( ev->eventType() )
-        {
+        break;
+
+    case CaptureEvent::Save:
+        switch (ev->eventType()) {
         case CaptureEvent::Started:
+        {
+            QFileInfo file_info(ev->filePath());
             main_ui_->statusBar->popFileStatus();
             main_ui_->statusBar->pushFileStatus(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.baseName()));
             break;
+        }
         default:
             break;
         }
-    }
+        break;
+
 #ifdef HAVE_LIBPCAP
-    else if ( ev->captureContext() == CaptureEvent::Capture )
-    {
-        switch ( ev->eventType() )
-        {
+    case CaptureEvent::Capture:
+        switch (ev->eventType()) {
         case CaptureEvent::Prepared:
             captureCapturePrepared(ev->capSession());
             break;
@@ -867,11 +863,10 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         default:
             break;
         }
-    }
-    else if ( ev->captureContext() == CaptureEvent::Update )
-    {
-        switch ( ev->eventType() )
-        {
+        break;
+
+    case CaptureEvent::Update:
+        switch (ev->eventType()) {
         case CaptureEvent::Started:
             captureCaptureUpdateStarted(ev->capSession());
             break;
@@ -881,19 +876,19 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         default:
             break;
         }
-    }
-    else if ( ev->captureContext() == CaptureEvent::Fixed )
-    {
-        switch ( ev->eventType() )
-        {
+        break;
+
+    case CaptureEvent::Fixed:
+        switch (ev->eventType()) {
         case CaptureEvent::Finished:
             captureCaptureFixedFinished(ev->capSession());
             break;
         default:
             break;
         }
-    }
+        break;
 #endif
+    }
 }
 
 void MainWindow::captureFileOpened() {
