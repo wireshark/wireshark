@@ -1430,6 +1430,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_OMIT_CONNECTION_ID, "omit_connection_id" },
     { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
+    { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
     { 0, NULL }
 };
 
@@ -6594,6 +6595,12 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_stateless_reset_token,
                                     tvb, offset, 16, ENC_BIG_ENDIAN);
                 offset += 16;
+            break;
+            case SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_ack_delay_exponent,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                /*TODO display multiplier (x8) and expert info about invaluid value (> 20) ? */
+                offset += 1;
             break;
             default:
                 offset += parameter_length;
