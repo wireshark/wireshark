@@ -4,19 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include "config.h"
@@ -41,6 +29,7 @@
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/tango_colors.h>
 #include <ui/qt/capture_file.h>
+#include <ui/qt/widgets/clickable_label.h>
 
 #include <QAction>
 #include <QHBoxLayout>
@@ -99,8 +88,6 @@ static const int icon_size = 14; // px
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
     cap_file_(NULL),
-    edit_action_(NULL),
-    delete_action_(NULL),
     #ifdef HAVE_LIBPCAP
     ready_msg_(tr("Ready to load or capture")),
     #else
@@ -112,7 +99,6 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QSplitter *splitter = new QSplitter(this);
     QWidget *info_progress = new QWidget(this);
     QHBoxLayout *info_progress_hb = new QHBoxLayout(info_progress);
-    QAction *action;
 
 #if defined(Q_OS_WIN)
     // Handles are the same color as widgets, at least on Windows 7.
@@ -178,34 +164,17 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     info_status_.pushText(ready_msg_, STATUS_CTX_MAIN);
     packets_bar_update();
 
-    action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
-    action->setData(ProfileDialog::ShowProfiles);
-    connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-    ctx_menu_.addSeparator();
-    action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS));
-    action->setData(ProfileDialog::NewProfile);
-    connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-    edit_action_ = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
-    edit_action_->setData(ProfileDialog::EditCurrentProfile);
-    connect(edit_action_, SIGNAL(triggered()), this, SLOT(manageProfile()));
-    delete_action_ = ctx_menu_.addAction(tr("Delete"));
-    delete_action_->setData(ProfileDialog::DeleteCurrentProfile);
-    connect(delete_action_, SIGNAL(triggered()), this, SLOT(manageProfile()));
-    ctx_menu_.addSeparator();
-    profile_menu_.setTitle(tr("Switch to"));
-    ctx_menu_.addMenu(&profile_menu_);
-
 #ifdef QWINTASKBARPROGRESS_H
     progress_frame_.enableTaskbarUpdates(true);
 #endif
 
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(pushProfileName()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setProfileName()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
     connect(wsApp, SIGNAL(profileNameChanged(const gchar *)),
-            this, SLOT(pushProfileName()));
-    connect(&profile_status_, SIGNAL(mousePressedAt(QPoint,Qt::MouseButton)),
+            this, SLOT(setProfileName()));
+    connect(&profile_status_, SIGNAL(clickedAt(QPoint,Qt::MouseButton)),
             this, SLOT(showProfileMenu(QPoint,Qt::MouseButton)));
 
     connect(&progress_frame_, SIGNAL(stopLoading()),
@@ -278,7 +247,7 @@ void MainStatusBar::changeEvent(QEvent *event)
         info_status_.popText(STATUS_CTX_MAIN);
         info_status_.pushText(ready_msg_, STATUS_CTX_MAIN);
         showCaptureStatistics();
-        pushProfileName();
+        setProfileName();
     }
     QStatusBar::changeEvent(event);
 }
@@ -415,25 +384,9 @@ void MainStatusBar::popPacketStatus() {
     packet_status_.popText(STATUS_CTX_MAIN);
 }
 
-void MainStatusBar::pushProfileStatus(const QString &message) {
-    profile_status_.pushText(message, STATUS_CTX_MAIN);
-}
-
-void MainStatusBar::pushProfileName()
+void MainStatusBar::setProfileName()
 {
-    const gchar *cur_profile = get_profile_name();
-    QString status = tr("Profile: ") + cur_profile;
-
-    popProfileStatus();
-    pushProfileStatus(status);
-
-    if (profile_exists(cur_profile, FALSE) && strcmp (cur_profile, DEFAULT_PROFILE) != 0) {
-        edit_action_->setEnabled(true);
-        delete_action_->setEnabled(true);
-    } else {
-        edit_action_->setEnabled(false);
-        delete_action_->setEnabled(false);
-    }
+    profile_status_.setText(tr("Profile: %1").arg(get_profile_name()));
 }
 
 void MainStatusBar::pushBusyStatus(const QString &message, const QString &messagetip)
@@ -448,10 +401,6 @@ void MainStatusBar::popBusyStatus()
     info_status_.popText(STATUS_CTX_PROGRESS);
     info_status_.setToolTip(QString());
     progress_frame_.hide();
-}
-
-void MainStatusBar::popProfileStatus() {
-    profile_status_.popText(STATUS_CTX_MAIN);
 }
 
 void MainStatusBar::pushProgressStatus(const QString &message, bool animate, bool terminate_is_stop, gboolean *stop_flag)
@@ -584,7 +533,8 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
     init_profile_list();
     fl_entry = current_profile_list();
 
-    profile_menu_.clear();
+    QMenu profile_menu_;
+
     while (fl_entry && fl_entry->data) {
         profile = (profile_def *) fl_entry->data;
         if (!profile->is_global || !profile_exists(profile->name, false)) {
@@ -606,6 +556,32 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
     if (button == Qt::LeftButton) {
         profile_menu_.exec(global_pos);
     } else {
+
+        bool enable_edit = false;
+        const char * cur_profile = get_profile_name();
+        if (profile_exists(cur_profile, FALSE) && strcmp (cur_profile, DEFAULT_PROFILE) != 0)
+            enable_edit = true;
+
+        profile_menu_.setTitle(tr("Switch to"));
+        QMenu ctx_menu_;
+        QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ShowProfiles);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        ctx_menu_.addSeparator();
+        action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS));
+        action->setProperty("dialog_action_", (int)ProfileDialog::NewProfile);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        action = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
+        action->setProperty("dialog_action_", (int)ProfileDialog::EditCurrentProfile);
+        action->setEnabled(enable_edit);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        action = ctx_menu_.addAction(tr("Delete"));
+        action->setProperty("dialog_action_", (int)ProfileDialog::DeleteCurrentProfile);
+        action->setEnabled(enable_edit);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        ctx_menu_.addSeparator();
+
+        ctx_menu_.addMenu(&profile_menu_);
         ctx_menu_.exec(global_pos);
     }
 }
@@ -641,7 +617,9 @@ void MainStatusBar::manageProfile()
 
     if (pa) {
         ProfileDialog cp_dialog;
-        cp_dialog.execAction(static_cast<ProfileDialog::ProfileAction>(pa->data().toInt()));
+
+        int profileAction = pa->property("dialog_action_").toInt();
+        cp_dialog.execAction(static_cast<ProfileDialog::ProfileAction>(profileAction));
     }
 }
 
