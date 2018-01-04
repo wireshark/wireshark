@@ -44,7 +44,6 @@
 #include <QListWidget>
 #include <QMenu>
 #include <QResizeEvent>
-#include <QTreeWidgetItem>
 #include <QUrl>
 #include <QWidget>
 

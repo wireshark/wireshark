@@ -34,7 +34,6 @@
 #include <QMap>
 #include <QAbstractButton>
 
-class QTreeWidgetItem;
 class QComboBox;
 
 namespace Ui {

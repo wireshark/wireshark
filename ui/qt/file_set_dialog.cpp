@@ -28,7 +28,6 @@
 #include <QDateTime>
 #include <QFontMetrics>
 #include <QFont>
-#include <QTreeWidgetItem>
 #include <QUrl>
 
 // To do:

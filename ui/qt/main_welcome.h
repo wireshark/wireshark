@@ -26,7 +26,6 @@
 
 class QListWidget;
 class QListWidgetItem;
-class QTreeWidgetItem;
 class QMenu;
 
 #include "splash_overlay.h"

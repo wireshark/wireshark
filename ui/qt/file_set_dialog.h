@@ -21,8 +21,6 @@
 
 #include <QItemSelection>
 
-class QTreeWidgetItem;
-
 namespace Ui {
 class FileSetDialog;
 }
