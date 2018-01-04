@@ -196,6 +196,8 @@ int main(int argc, char **argv)
 
     printf("Found %u registrations and %u handoffs.\n",
                 count_protos, count_handoffs);
+
+    return 0;
 }
 
 /*
