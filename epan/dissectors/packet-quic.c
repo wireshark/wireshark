@@ -113,6 +113,8 @@ static int hf_quic_frame_type_md_maximum_data = -1;
 static int hf_quic_frame_type_msd_stream_id = -1;
 static int hf_quic_frame_type_msd_maximum_stream_data = -1;
 static int hf_quic_frame_type_msi_stream_id = -1;
+static int hf_quic_frame_type_ping_length = -1;
+static int hf_quic_frame_type_ping_data = -1;
 static int hf_quic_frame_type_blocked_offset = -1;
 static int hf_quic_frame_type_sb_stream_id = -1;
 static int hf_quic_frame_type_sb_offset = -1;
@@ -776,10 +778,19 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             }
             break;
             case FT_PING:{
+                guint len_ping;
 
-                /* No Payload */
+                if (quic_info->version <= 0xff000007) {
+                    /* No Payload */
+                    len_ping = 0;
+                } else {
+                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ping_length, tvb, offset, 1, ENC_BIG_ENDIAN, &len_ping);
+                    offset += 1;
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ping_data, tvb, offset, len_ping, ENC_NA);
+                    offset += len_ping;
+                }
 
-                proto_item_set_len(ti_ft, 1);
+                proto_item_set_len(ti_ft, 1 + 1 + len_ping);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "PING");
             }
@@ -1821,6 +1832,17 @@ proto_register_quic(void)
             { "Stream ID", "quic.frame_type.msi.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "ID of the maximum peer-initiated stream ID for the connection", HFILL }
+        },
+        /* PING */
+        { &hf_quic_frame_type_ping_length,
+            { "Length", "quic.frame_type.ping.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Describes the length of the Data field", HFILL }
+        },
+        { &hf_quic_frame_type_ping_data,
+            { "Data", "quic.frame_type.ping.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Contains arbitrary data", HFILL }
         },
         /* BLOCKED */
         { &hf_quic_frame_type_blocked_offset,
