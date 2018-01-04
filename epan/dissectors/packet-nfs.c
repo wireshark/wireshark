@@ -164,6 +164,7 @@ static int hf_nfs4_fh_pd_share = -1;
 static int hf_nfs4_fh_pd_flags = -1;
 static int hf_nfs4_fh_pd_flags_reserved = -1;
 static int hf_nfs4_fh_pd_flags_version = -1;
+static int hf_nfs4_fh_pd_container = -1;
 static int hf_nfs4_fh_pd_inum = -1;
 static int hf_nfs_full_name = -1;
 static int hf_nfs_name = -1;
@@ -2067,13 +2068,14 @@ dissect_fhandle_data_DCACHE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 	return tvb_captured_length(tvb);
 }
 
-#define PD_VERSION_MASK  0xFF000000
-#define PD_RESERVED_MASK 0x00FFFFFF
+#define PD_VERSION_MASK  0xF0000000
+#define PD_RESERVED_MASK 0x0FFFFFFF
 
 static int
 dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
+	guint32 version;
 
 	static const int *fh_flags[] = {
 		&hf_nfs4_fh_pd_flags_version,
@@ -2084,9 +2086,21 @@ dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 	if (!tree)
 		return tvb_captured_length(tvb);
 
+
+	version = (tvb_get_letohl(tvb, offset + 4) & PD_VERSION_MASK) >> 28;
+	if (version > 1) {
+		return 0;
+	}
+
 	proto_tree_add_item(tree, hf_nfs4_fh_pd_share, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_bitmask(tree, tvb, offset + 4, hf_nfs4_fh_pd_flags, ett_nfs4_fh_pd_flags, fh_flags, ENC_NA);
-	proto_tree_add_item(tree, hf_nfs4_fh_pd_inum, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, offset + 4, hf_nfs4_fh_pd_flags, ett_nfs4_fh_pd_flags, fh_flags, ENC_LITTLE_ENDIAN);
+
+	if (version == 0) {
+		proto_tree_add_item(tree, hf_nfs4_fh_pd_inum, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+	} else if (version == 1) {
+		proto_tree_add_item(tree, hf_nfs4_fh_pd_container, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_nfs4_fh_pd_inum, tvb, offset + 16, 8, ENC_LITTLE_ENDIAN);
+	}
 
 	return tvb_captured_length(tvb);
 }
@@ -11765,6 +11779,9 @@ proto_register_nfs(void)
 		{ &hf_nfs4_fh_pd_flags_version, {
 			"version", "nfs.fh.pd.flags.version", FT_UINT32, BASE_DEC,
 			NULL, PD_VERSION_MASK, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_container, {
+			"container", "nfs.fh.pd.container", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs4_fh_pd_inum, {
 			"inum", "nfs.fh.pd.inum", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
