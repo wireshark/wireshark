@@ -81,6 +81,7 @@ const unit_name_string units_nanoseconds = { "ns", NULL };
 const unit_name_string units_nanometers = { "nm", NULL };
 const unit_name_string units_degree_degrees = { " degree", " degrees" };
 const unit_name_string units_degree_celsius = { UTF8_DEGREE_SIGN "C", NULL };
+const unit_name_string units_degree_bearing = { UTF8_DEGREE_SIGN, NULL };
 const unit_name_string units_decibels = { "dB", NULL };
 const unit_name_string units_dbm = { "dBm", NULL };
 const unit_name_string units_dbi = { "dBi", NULL };

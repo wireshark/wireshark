@@ -34,6 +34,7 @@
 #include <epan/decode_as.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+#include <epan/unit_strings.h>
 
 #include "packet-bluetooth.h"
 #include "packet-btatt.h"
@@ -1011,6 +1012,75 @@ static int hf_gatt_nordic_dfu_control_point_image_type = -1;
 static int hf_gatt_nordic_dfu_control_point_number_of_packets = -1;
 static int hf_gatt_nordic_dfu_control_point_request_opcode = -1;
 static int hf_gatt_nordic_dfu_control_point_response_value = -1;
+static int hf_gatt_microbit_accelerometer_data = -1;
+static int hf_gatt_microbit_accelerometer_x = -1;
+static int hf_gatt_microbit_accelerometer_y = -1;
+static int hf_gatt_microbit_accelerometer_z = -1;
+static int hf_gatt_microbit_accelerometer_period = -1;
+static int hf_gatt_microbit_magnetometer_data = -1;
+static int hf_gatt_microbit_magnetometer_x = -1;
+static int hf_gatt_microbit_magnetometer_y = -1;
+static int hf_gatt_microbit_magnetometer_z = -1;
+static int hf_gatt_microbit_magnetometer_period = -1;
+static int hf_gatt_microbit_magnetometer_bearing = -1;
+static int hf_gatt_microbit_button_a_state = -1;
+static int hf_gatt_microbit_button_b_state = -1;
+static int hf_gatt_microbit_pin_data = -1;
+static int hf_gatt_microbit_pin_number = -1;
+static int hf_gatt_microbit_pin_value = -1;
+static int hf_gatt_microbit_pin_ad_config = -1;
+static int hf_gatt_microbit_ad_pin0 = -1;
+static int hf_gatt_microbit_ad_pin1 = -1;
+static int hf_gatt_microbit_ad_pin2 = -1;
+static int hf_gatt_microbit_ad_pin3 = -1;
+static int hf_gatt_microbit_ad_pin4 = -1;
+static int hf_gatt_microbit_ad_pin5 = -1;
+static int hf_gatt_microbit_ad_pin6 = -1;
+static int hf_gatt_microbit_ad_pin7 = -1;
+static int hf_gatt_microbit_ad_pin8 = -1;
+static int hf_gatt_microbit_ad_pin9 = -1;
+static int hf_gatt_microbit_ad_pin10 = -1;
+static int hf_gatt_microbit_ad_pin11 = -1;
+static int hf_gatt_microbit_ad_pin12 = -1;
+static int hf_gatt_microbit_ad_pin13 = -1;
+static int hf_gatt_microbit_ad_pin14 = -1;
+static int hf_gatt_microbit_ad_pin15 = -1;
+static int hf_gatt_microbit_ad_pin16 = -1;
+static int hf_gatt_microbit_ad_pin17 = -1;
+static int hf_gatt_microbit_ad_pin18 = -1;
+static int hf_gatt_microbit_ad_pin19 = -1;
+static int hf_gatt_microbit_pin_io_config = -1;
+static int hf_gatt_microbit_io_pin0 = -1;
+static int hf_gatt_microbit_io_pin1 = -1;
+static int hf_gatt_microbit_io_pin2 = -1;
+static int hf_gatt_microbit_io_pin3 = -1;
+static int hf_gatt_microbit_io_pin4 = -1;
+static int hf_gatt_microbit_io_pin5 = -1;
+static int hf_gatt_microbit_io_pin6 = -1;
+static int hf_gatt_microbit_io_pin7 = -1;
+static int hf_gatt_microbit_io_pin8 = -1;
+static int hf_gatt_microbit_io_pin9 = -1;
+static int hf_gatt_microbit_io_pin10 = -1;
+static int hf_gatt_microbit_io_pin11 = -1;
+static int hf_gatt_microbit_io_pin12 = -1;
+static int hf_gatt_microbit_io_pin13 = -1;
+static int hf_gatt_microbit_io_pin14 = -1;
+static int hf_gatt_microbit_io_pin15 = -1;
+static int hf_gatt_microbit_io_pin16 = -1;
+static int hf_gatt_microbit_io_pin17 = -1;
+static int hf_gatt_microbit_io_pin18 = -1;
+static int hf_gatt_microbit_io_pin19 = -1;
+static int hf_gatt_microbit_pwm_control = -1;
+static int hf_gatt_microbit_led_matrix = -1;
+static int hf_gatt_microbit_led_text = -1;
+static int hf_gatt_microbit_scrolling_delay = -1;
+static int hf_gatt_microbit_microbit_requirements = -1;
+static int hf_gatt_microbit_microbit_event = -1;
+static int hf_gatt_microbit_client_requirements = -1;
+static int hf_gatt_microbit_client_event = -1;
+static int hf_gatt_microbit_dfu_control = -1;
+static int hf_gatt_microbit_temperature_value = -1;
+static int hf_gatt_microbit_temperature_period = -1;
 static int hf_btatt_valid_range_lower_inclusive_value = -1;
 static int hf_btatt_valid_range_upper_inclusive_value = -1;
 static int hf_request_in_frame = -1;
@@ -1789,6 +1859,54 @@ static const int *hfx_btatt_plx_features_supported_features[] = {
     NULL
 };
 
+static const int *hfx_btgatt_microbit_ad_pins[] = {
+    &hf_gatt_microbit_ad_pin0,
+    &hf_gatt_microbit_ad_pin1,
+    &hf_gatt_microbit_ad_pin2,
+    &hf_gatt_microbit_ad_pin3,
+    &hf_gatt_microbit_ad_pin4,
+    &hf_gatt_microbit_ad_pin5,
+    &hf_gatt_microbit_ad_pin6,
+    &hf_gatt_microbit_ad_pin7,
+    &hf_gatt_microbit_ad_pin8,
+    &hf_gatt_microbit_ad_pin9,
+    &hf_gatt_microbit_ad_pin10,
+    &hf_gatt_microbit_ad_pin11,
+    &hf_gatt_microbit_ad_pin12,
+    &hf_gatt_microbit_ad_pin13,
+    &hf_gatt_microbit_ad_pin14,
+    &hf_gatt_microbit_ad_pin15,
+    &hf_gatt_microbit_ad_pin16,
+    &hf_gatt_microbit_ad_pin17,
+    &hf_gatt_microbit_ad_pin18,
+    &hf_gatt_microbit_ad_pin19,
+    NULL
+};
+
+static const int *hfx_btgatt_microbit_io_pins[] = {
+    &hf_gatt_microbit_io_pin0,
+    &hf_gatt_microbit_io_pin1,
+    &hf_gatt_microbit_io_pin2,
+    &hf_gatt_microbit_io_pin3,
+    &hf_gatt_microbit_io_pin4,
+    &hf_gatt_microbit_io_pin5,
+    &hf_gatt_microbit_io_pin6,
+    &hf_gatt_microbit_io_pin7,
+    &hf_gatt_microbit_io_pin8,
+    &hf_gatt_microbit_io_pin9,
+    &hf_gatt_microbit_io_pin10,
+    &hf_gatt_microbit_io_pin11,
+    &hf_gatt_microbit_io_pin12,
+    &hf_gatt_microbit_io_pin13,
+    &hf_gatt_microbit_io_pin14,
+    &hf_gatt_microbit_io_pin15,
+    &hf_gatt_microbit_io_pin16,
+    &hf_gatt_microbit_io_pin17,
+    &hf_gatt_microbit_io_pin18,
+    &hf_gatt_microbit_io_pin19,
+    NULL
+};
+
 /* Initialize the subtree pointers */
 static gint ett_btatt = -1;
 static gint ett_btatt_list = -1;
@@ -1797,6 +1915,11 @@ static gint ett_btatt_opcode = -1;
 static gint ett_btatt_handle = -1;
 static gint ett_btatt_characteristic_properties = -1;
 static gint ett_btgatt = -1;
+static gint ett_btgatt_microbit_accelerometer = -1;
+static gint ett_btgatt_microbit_magnetometer = -1;
+static gint ett_btgatt_microbit_pin_data = -1;
+static gint ett_btgatt_microbit_pin_ad_config = -1;
+static gint ett_btgatt_microbit_pin_io_config = -1;
 
 static expert_field ei_btatt_uuid_format_unknown = EI_INIT;
 static expert_field ei_btatt_handle_too_few = EI_INIT;
@@ -3477,6 +3600,12 @@ static const value_string regulatory_certification_data_list_item_body_structure
     {0, NULL }
 };
 
+static const value_string btgatt_microbit_button_state_vals[] = {
+    { 0x00, "Not Pressed" },
+    { 0x01, "Pressed" },
+    { 0x02, "Long Press" },
+    {0, NULL }
+};
 
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
@@ -3498,6 +3627,15 @@ static const true_false_string weight_measurement_flags_measurement_units_tfs = 
     "Imperial (lb & in)",
     "SI (kg & m)" };
 
+static const true_false_string microbit_ad_tfs = {
+    "Analogue",
+    "Digital"
+};
+
+static const true_false_string microbit_io_tfs = {
+    "Input",
+    "Output"
+};
 
 union request_parameters_union {
     void *data;
@@ -10323,7 +10461,6 @@ dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto
     return offset;
 }
 
-
 static int
 dissect_btgatt_nordic_dfu_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
@@ -10335,6 +10472,358 @@ dissect_btgatt_nordic_dfu_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_item(tree, hf_gatt_nordic_dfu_packet, tvb, 0, tvb_captured_length(tvb), ENC_NA);
 
     return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_accelerometer_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    gdouble x_axis, y_axis, z_axis;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    x_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+
+    sub_item = proto_tree_add_item(tree, hf_gatt_microbit_accelerometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_accelerometer);
+
+    proto_item_append_text(sub_item, " (X: %f, Y: %f, Z: %f)", x_axis, y_axis, z_axis);
+    proto_tree_add_double(sub_tree, hf_gatt_microbit_accelerometer_x, tvb, offset, 2, x_axis);
+    offset += 2;
+    proto_tree_add_double(sub_tree, hf_gatt_microbit_accelerometer_y, tvb, offset, 2, y_axis);
+    offset += 2;
+    proto_tree_add_double(sub_tree, hf_gatt_microbit_accelerometer_z, tvb, offset, 2, z_axis);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_accelerometer_period(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_accelerometer_period, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_magnetometer_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    gdouble x_axis, y_axis, z_axis;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    x_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+
+    sub_item = proto_tree_add_item(tree, hf_gatt_microbit_magnetometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_magnetometer);
+
+    proto_item_append_text(sub_item, " (X: %f, Y: %f, Z: %f)", x_axis, y_axis, z_axis);
+    proto_tree_add_double(sub_tree, hf_gatt_microbit_magnetometer_x, tvb, offset, 2, x_axis);
+    offset += 2;
+    proto_tree_add_double(sub_tree, hf_gatt_microbit_magnetometer_y, tvb, offset, 2, y_axis);
+    offset += 2;
+    proto_tree_add_double(sub_tree, hf_gatt_microbit_magnetometer_z, tvb, offset, 2, z_axis);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_magnetometer_period(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_magnetometer_period, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_magnetometer_bearing(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_magnetometer_bearing, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_button_a_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_button_a_state, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_button_b_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_button_b_state, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_pin_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    gint offset = 0;
+    gint num_pins;
+    guint32 number, value;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    num_pins = tvb_captured_length(tvb) / 2;
+    for (gint i = 0; i < num_pins; i++) {
+        sub_item = proto_tree_add_item(tree, hf_gatt_microbit_pin_data, tvb, offset, 2, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_pin_data);
+
+        proto_tree_add_item_ret_uint(sub_tree, hf_gatt_microbit_pin_number, tvb, offset, 1, ENC_NA, &number);
+        offset++;
+
+        /* The micro:bit has a 10 bit ADC but values are compressed to 8 bits with a loss of resolution. */
+        value = tvb_get_guint8(tvb, offset) * 4;
+        proto_tree_add_uint(sub_tree, hf_gatt_microbit_pin_value, tvb, offset, 1, value);
+        offset++;
+
+        proto_item_set_text(sub_item, "Pin %u: %u", number, value);
+    }
+
+    return offset;
+}
+
+static int dissect_btgatt_microbit_pin_ad_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    sub_item = proto_tree_add_item(tree, hf_gatt_microbit_pin_ad_config, tvb, 0, 3, ENC_LITTLE_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_pin_ad_config);
+
+    proto_tree_add_bitmask_list(sub_tree, tvb, 0, 3, hfx_btgatt_microbit_ad_pins, ENC_LITTLE_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+static int dissect_btgatt_microbit_pin_io_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    sub_item = proto_tree_add_item(tree, hf_gatt_microbit_pin_io_config, tvb, 0, 3, ENC_LITTLE_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_pin_io_config);
+
+    proto_tree_add_bitmask_list(sub_tree, tvb, 0, 3, hfx_btgatt_microbit_io_pins, ENC_LITTLE_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_pwm_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_pwm_control, tvb, 0, tvb_captured_length(tvb), ENC_UTF_8);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_led_matrix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_led_matrix, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_led_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_led_text, tvb, 0, tvb_captured_length(tvb), ENC_NA | ENC_UTF_8);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_scrolling_delay(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_scrolling_delay, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_microbit_requirements(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_microbit_requirements, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_microbit_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_microbit_event, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_client_requirements(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_client_requirements, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_client_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_client_event, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_btgatt_microbit_dfu_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_dfu_control, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_temperature_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_temperature_value, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static int
+dissect_btgatt_microbit_temperature_period(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+    btatt_data_t *att_data = (btatt_data_t *) data;
+    gint offset = 0;
+
+    if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+        return -1;
+
+    proto_tree_add_item(tree, hf_gatt_microbit_temperature_period, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
 }
 
 void
@@ -15296,12 +15785,362 @@ proto_register_btgatt(void)
             {"Response Value", "btgatt.nordic.dfu.control_point.response_value",
             FT_UINT8, BASE_DEC, VALS(nordic_dfu_control_point_response_value_vals), 0x0,
             NULL, HFILL}
+        },
+        {&hf_gatt_microbit_accelerometer_data,
+            {"Accelerometer Data", "btgatt.microbit.accelerometer.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_accelerometer_x,
+            {"X axis", "btgatt.microbit.accelerometer.x",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Accelerometer X axis", HFILL}
+        },
+        {&hf_gatt_microbit_accelerometer_y,
+            {"Y axis", "btgatt.microbit.accelerometer.y",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Accelerometer Y axis", HFILL}
+        },
+        {&hf_gatt_microbit_accelerometer_z,
+            {"Z axis", "btgatt.microbit.accelerometer.z",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Accelerometer Z axis", HFILL}
+        },
+        {&hf_gatt_microbit_accelerometer_period,
+            {"Accelerometer Period", "btgatt.microbit.accelerometer.period",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_magnetometer_data,
+            {"Magnetometer Data", "btgatt.microbit.magnetometer.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_magnetometer_x,
+            {"X axis", "btgatt.microbit.magnetometer.x",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Magnetometer X axis", HFILL}
+        },
+        {&hf_gatt_microbit_magnetometer_y,
+            {"Y axis", "btgatt.microbit.magnetometer.y",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Magnetometer Y axis", HFILL}
+        },
+        {&hf_gatt_microbit_magnetometer_z,
+            {"Z axis", "btgatt.microbit.magnetometer.z",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Magnetometer Z axis", HFILL}
+        },
+        {&hf_gatt_microbit_magnetometer_period,
+            {"Magnetometer Period", "btgatt.microbit.magnetometer.period",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_magnetometer_bearing,
+            {"Magnetometer Bearing", "btgatt.microbit.magnetometer.bearing",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_degree_bearing, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_button_a_state,
+            {"Button A", "btgatt.microbit.button.a",
+            FT_UINT8, BASE_DEC, VALS(btgatt_microbit_button_state_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_button_b_state,
+            {"Button B", "btgatt.microbit.button.b",
+            FT_UINT8, BASE_DEC, VALS(btgatt_microbit_button_state_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_pin_data,
+            {"Pin Data", "btgatt.microbit.pin_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_pin_number,
+            {"Pin Number", "btgatt.microbit.pin_data.number",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_pin_value,
+            {"Pin Value", "btgatt.microbit.pin_data.value",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_pin_ad_config,
+            {"Pin AD Configuration", "btgatt.microbit.pin_ad_config.value",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin0,
+            {"Pin 0", "btgatt.microbit.pin_ad_config.pin0",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000001,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin1,
+            {"Pin 1", "btgatt.microbit.pin_ad_config.pin1",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000002,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin2,
+            {"Pin 2", "btgatt.microbit.pin_ad_config.pin2",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000004,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin3,
+            {"Pin 3", "btgatt.microbit.pin_ad_config.pin3",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000008,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin4,
+            {"Pin 4", "btgatt.microbit.pin_ad_config.pin4",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000010,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin5,
+            {"Pin 5", "btgatt.microbit.pin_ad_config.pin5",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000020,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin6,
+            {"Pin 6", "btgatt.microbit.pin_ad_config.pin6",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000040,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin7,
+            {"Pin 7", "btgatt.microbit.pin_ad_config.pin7",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000080,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin8,
+            {"Pin 8", "btgatt.microbit.pin_ad_config.pin8",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000100,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin9,
+            {"Pin 9", "btgatt.microbit.pin_ad_config.pin9",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000200,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin10,
+            {"Pin 10", "btgatt.microbit.pin_ad_config.pin10",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000400,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin11,
+            {"Pin 11", "btgatt.microbit.pin_ad_config.pin11",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x000800,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin12,
+            {"Pin 12", "btgatt.microbit.pin_ad_config.pin12",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x001000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin13,
+            {"Pin 13", "btgatt.microbit.pin_ad_config.pin13",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x002000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin14,
+            {"Pin 14", "btgatt.microbit.pin_ad_config.pin14",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x004000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin15,
+            {"Pin 15", "btgatt.microbit.pin_ad_config.pin15",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x008000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin16,
+            {"Pin 16", "btgatt.microbit.pin_ad_config.pin16",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x010000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin17,
+            {"Pin 17", "btgatt.microbit.pin_ad_config.pin17",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x020000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin18,
+            {"Pin 18", "btgatt.microbit.pin_ad_config.pin18",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x040000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_ad_pin19,
+            {"Pin 19", "btgatt.microbit.pin_ad_config.pin19",
+            FT_BOOLEAN, 20, TFS(&microbit_ad_tfs), 0x080000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_pin_io_config,
+            {"Pin IO Configuration", "btgatt.microbit.pin_io_config.value",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin0,
+            {"Pin 0", "btgatt.microbit.pin_io_config.pin0",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000001,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin1,
+            {"Pin 1", "btgatt.microbit.pin_io_config.pin1",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000002,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin2,
+            {"Pin 2", "btgatt.microbit.pin_io_config.pin2",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000004,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin3,
+            {"Pin 3", "btgatt.microbit.pin_io_config.pin3",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000008,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin4,
+            {"Pin 4", "btgatt.microbit.pin_io_config.pin4",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000010,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin5,
+            {"Pin 5", "btgatt.microbit.pin_io_config.pin5",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000020,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin6,
+            {"Pin 6", "btgatt.microbit.pin_io_config.pin6",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000040,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin7,
+            {"Pin 7", "btgatt.microbit.pin_io_config.pin7",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000080,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin8,
+            {"Pin 8", "btgatt.microbit.pin_io_config.pin8",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000100,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin9,
+            {"Pin 9", "btgatt.microbit.pin_io_config.pin9",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000200,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin10,
+            {"Pin 10", "btgatt.microbit.pin_io_config.pin10",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000400,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin11,
+            {"Pin 11", "btgatt.microbit.pin_io_config.pin11",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x000800,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin12,
+            {"Pin 12", "btgatt.microbit.pin_io_config.pin12",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x001000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin13,
+            {"Pin 13", "btgatt.microbit.pin_io_config.pin13",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x002000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin14,
+            {"Pin 14", "btgatt.microbit.pin_io_config.pin14",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x004000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin15,
+            {"Pin 15", "btgatt.microbit.pin_io_config.pin15",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x008000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin16,
+            {"Pin 16", "btgatt.microbit.pin_io_config.pin16",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x010000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin17,
+            {"Pin 17", "btgatt.microbit.pin_io_config.pin17",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x020000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin18,
+            {"Pin 18", "btgatt.microbit.pin_io_config.pin18",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x040000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_io_pin19,
+            {"Pin 19", "btgatt.microbit.pin_io_config.pin19",
+            FT_BOOLEAN, 20, TFS(&microbit_io_tfs), 0x080000,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_pwm_control,
+            {"PWM Control", "btgatt.microbit.pwm_control",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_led_matrix,
+            {"LED Matrix", "btgatt.microbit.led_matrix",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_led_text,
+            {"LED Text", "btgatt.microbit.led_text",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_scrolling_delay,
+            {"Scrolling Delay", "btgatt.microbit.scrolling_delay",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_microbit_requirements,
+            {"MicroBit Requirements", "btgatt.microbit.microbit_requirements",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_microbit_event,
+            {"MicroBit Event", "btgatt.microbit.microbit_event",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_client_requirements,
+            {"Client Requirements", "btgatt.microbit.client_requirements",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_client_event,
+            {"Client Event", "btgatt.microbit.client_event",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_dfu_control,
+            {"DFU Control", "btgatt.microbit.dfu_control",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_temperature_value,
+            {"Temperature", "btgatt.microbit.temperature.value",
+            FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_degree_celsius, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gatt_microbit_temperature_period,
+            {"Temperature Period", "btgatt.microbit.temperature.period",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
+            NULL, HFILL}
         }
     };
 
 
     static gint *ett[] = {
-        &ett_btgatt
+        &ett_btgatt,
+        &ett_btgatt_microbit_accelerometer,
+        &ett_btgatt_microbit_magnetometer,
+        &ett_btgatt_microbit_pin_data,
+        &ett_btgatt_microbit_pin_ad_config,
+        &ett_btgatt_microbit_pin_io_config,
     };
 
     proto_btgatt = proto_register_protocol("Bluetooth GATT Attribute Protocol", "BT GATT", "btgatt");
@@ -15327,6 +16166,37 @@ proto_reg_handoff_btgatt(void)
         { "00001530-1212-efde-1523-785feabcd123", "Nordic DFU Service",       NULL },
         { "00001531-1212-efde-1523-785feabcd123", "Nordic DFU Control Point", dissect_btgatt_nordic_dfu_control_point },
         { "00001532-1212-efde-1523-785feabcd123", "Nordic DFU Packet",        dissect_btgatt_nordic_dfu_packet },
+
+        /* BBC micro:bit profile - https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html */
+        { "e95d0753-251d-470a-a062-fa1922dfa9a8", "micro:bit Accelerometer Service", NULL },
+        { "e95dca4b-251d-470a-a062-fa1922dfa9a8", "micro:bit Accelerometer Data",    dissect_btgatt_microbit_accelerometer_data },
+        { "e95dfb24-251d-470a-a062-fa1922dfa9a8", "micro:bit Accelerometer Period",  dissect_btgatt_microbit_accelerometer_period },
+        { "e95df2d8-251d-470a-a062-fa1922dfa9a8", "micro:bit Magnetometer Service",  NULL },
+        { "e95dfb11-251d-470a-a062-fa1922dfa9a8", "micro:bit Magnetometer Data",     dissect_btgatt_microbit_magnetometer_data },
+        { "e95d386c-251d-470a-a062-fa1922dfa9a8", "micro:bit Magnetometer Period",   dissect_btgatt_microbit_magnetometer_period },
+        { "e95d9715-251d-470a-a062-fa1922dfa9a8", "micro:bit Magnetometer Bearing",  dissect_btgatt_microbit_magnetometer_bearing },
+        { "e95d9882-251d-470a-a062-fa1922dfa9a8", "micro:bit Button Service",        NULL },
+        { "e95dda90-251d-470a-a062-fa1922dfa9a8", "micro:bit Button A State",        dissect_btgatt_microbit_button_a_state },
+        { "e95dda91-251d-470a-a062-fa1922dfa9a8", "micro:bit Button B State",        dissect_btgatt_microbit_button_b_state },
+        { "e95d127b-251d-470a-a062-fa1922dfa9a8", "micro:bit IO Pin Service",        NULL },
+        { "e95d8d00-251d-470a-a062-fa1922dfa9a8", "micro:bit Pin Data",              dissect_btgatt_microbit_pin_data },
+        { "e95d5899-251d-470a-a062-fa1922dfa9a8", "micro:bit Pin AD Configuration",  dissect_btgatt_microbit_pin_ad_config },
+        { "e95db9fe-251d-470a-a062-fa1922dfa9a8", "micro:bit Pin IO Configuration",  dissect_btgatt_microbit_pin_io_config },
+        { "e95dd822-251d-470a-a062-fa1922dfa9a8", "micro:bit PWM Control",           dissect_btgatt_microbit_pwm_control },
+        { "e95dd91d-251d-470a-a062-fa1922dfa9a8", "micro:bit LED Service",           NULL },
+        { "e95d7b77-251d-470a-a062-fa1922dfa9a8", "micro:bit LED Matrix State",      dissect_btgatt_microbit_led_matrix },
+        { "e95d93ee-251d-470a-a062-fa1922dfa9a8", "micro:bit LED Text",              dissect_btgatt_microbit_led_text },
+        { "e95d0d2d-251d-470a-a062-fa1922dfa9a8", "micro:bit Scrolling Delay",       dissect_btgatt_microbit_scrolling_delay },
+        { "e95d93af-251d-470a-a062-fa1922dfa9a8", "micro:bit Event Service",         NULL },
+        { "e95db84c-251d-470a-a062-fa1922dfa9a8", "micro:bit MicroBit Requirements", dissect_btgatt_microbit_microbit_requirements },
+        { "e95d9775-251d-470a-a062-fa1922dfa9a8", "micro:bit MicroBit Event",        dissect_btgatt_microbit_microbit_event },
+        { "e95d23c4-251d-470a-a062-fa1922dfa9a8", "micro:bit Client Requirements",   dissect_btgatt_microbit_client_requirements },
+        { "e95d5404-251d-470a-a062-fa1922dfa9a8", "micro:bit Client Event",          dissect_btgatt_microbit_client_event },
+        { "e95d93b0-251d-470a-a062-fa1922dfa9a8", "micro:bit DFU Control Service",   NULL },
+        { "e95d93b1-251d-470a-a062-fa1922dfa9a8", "micro:bit DFU Control",           dissect_btgatt_microbit_dfu_control },
+        { "e95d6100-251d-470a-a062-fa1922dfa9a8", "micro:bit Temperature Service",   NULL },
+        { "e95d9250-251d-470a-a062-fa1922dfa9a8", "micro:bit Temperature",           dissect_btgatt_microbit_temperature_value },
+        { "e95d1b25-251d-470a-a062-fa1922dfa9a8", "micro:bit Temperature Period",    dissect_btgatt_microbit_temperature_period },
 
         { NULL, NULL, NULL },
     };

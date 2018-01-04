@@ -73,6 +73,7 @@ WS_DLL_PUBLIC const unit_name_string units_nanoseconds; //only seconds abbreviat
 WS_DLL_PUBLIC const unit_name_string units_nanometers;
 WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
 WS_DLL_PUBLIC const unit_name_string units_degree_celsius;
+WS_DLL_PUBLIC const unit_name_string units_degree_bearing;
 WS_DLL_PUBLIC const unit_name_string units_decibels;
 WS_DLL_PUBLIC const unit_name_string units_dbm;
 WS_DLL_PUBLIC const unit_name_string units_dbi;
