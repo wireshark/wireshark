@@ -87,6 +87,9 @@ void EnabledProtocolsDialog::on_disable_all_button__clicked()
 void EnabledProtocolsDialog::on_search_line_edit__textChanged(const QString &search_re)
 {
     proxyModel_->setFilter(search_re);
+    /* If items are filtered out, then filtered back in, the tree remains collapsed
+       Force an expansion */
+    ui->protocol_tree_->expandAll();
 }
 
 void EnabledProtocolsDialog::on_buttonBox_accepted()

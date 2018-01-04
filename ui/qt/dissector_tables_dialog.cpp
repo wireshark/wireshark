@@ -46,6 +46,9 @@ DissectorTablesDialog::~DissectorTablesDialog()
 void DissectorTablesDialog::on_txtSearchLine_textChanged(const QString &search_re)
 {
     proxyModel_->setFilter(search_re);
+    /* If items are filtered out, then filtered back in, the tree remains collapsed
+       Force an expansion */
+    ui->tableTree->expandToDepth(0);
 }
 
 /*
