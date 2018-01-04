@@ -90,15 +90,15 @@ for FILE in $CHECK_FILES; do
     #Check if checkfiltername is good
     ./tools/checkfiltername.pl $FILE    || exit_status=1
 
+    # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
+    git diff-index --check --cached ${COMMIT_ID} $FILE || exit_status=1
+
 done
 
 if [ "x$DIAMETER_FILES" != x ]
 then
     ./tools/validate-diameter-xml.sh > /dev/null || exit_status=1
 fi
-
-# If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
-git diff-index --check --cached ${COMMIT_ID}    || exit_status=1
 
 exit $exit_status
 
