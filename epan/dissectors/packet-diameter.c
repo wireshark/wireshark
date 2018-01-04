@@ -503,13 +503,12 @@ static int
 dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
-	guint8 prefix_len, prefix_len_bytes;
+	guint32 prefix_len, prefix_len_bytes;
 	proto_item *pi;
 
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
-	pi = proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item_ret_uint(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN, &prefix_len);
 
-	prefix_len = tvb_get_guint8(tvb, 1);
 	if (prefix_len > 128) {
 		expert_add_info(pinfo, pi, &ei_diameter_invalid_ipv6_prefix_len);
 	}
@@ -732,22 +731,23 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	proto_item_set_text(avp_item,"AVP: %s(%u) l=%u f=%s", code_str, code, len, avpflags_str[flags_bits_idx]);
 
 	/* Flags */
-	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_flags,tvb,offset,1,ENC_BIG_ENDIAN);
 	{
-		proto_tree *flags_tree = proto_item_add_subtree(pi,ett_diameter_avp_flags);
-		proto_tree_add_item(flags_tree,hf_diameter_avp_flags_vendor_specific,tvb,offset,1,ENC_BIG_ENDIAN);
-		proto_tree_add_item(flags_tree,hf_diameter_avp_flags_mandatory,tvb,offset,1,ENC_BIG_ENDIAN);
-		proto_tree_add_item(flags_tree,hf_diameter_avp_flags_protected,tvb,offset,1,ENC_BIG_ENDIAN);
-		pi = proto_tree_add_item(flags_tree,hf_diameter_avp_flags_reserved3,tvb,offset,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x10) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-		pi = proto_tree_add_item(flags_tree,hf_diameter_avp_flags_reserved4,tvb,offset,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x08) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-		pi = proto_tree_add_item(flags_tree,hf_diameter_avp_flags_reserved5,tvb,offset,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x04) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-		proto_tree_add_item(flags_tree,hf_diameter_avp_flags_reserved6,tvb,offset,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x02) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-		proto_tree_add_item(flags_tree,hf_diameter_avp_flags_reserved7,tvb,offset,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x01) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
+		static const int * diameter_avp_flags[] = {
+			&hf_diameter_avp_flags_vendor_specific,
+			&hf_diameter_avp_flags_mandatory,
+			&hf_diameter_avp_flags_protected,
+			&hf_diameter_avp_flags_reserved3,
+			&hf_diameter_avp_flags_reserved4,
+			&hf_diameter_avp_flags_reserved5,
+			&hf_diameter_avp_flags_reserved6,
+			&hf_diameter_avp_flags_reserved7,
+			NULL
+		};
+
+		pi = proto_tree_add_bitmask_with_flags(avp_tree, tvb, offset, hf_diameter_avp_flags,
+			ett_diameter_avp_flags, diameter_avp_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+		if (flags_bits & 0x1f) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
+
 	}
 	offset += 1;
 
@@ -848,10 +848,10 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 	gint len = tvb_reported_length(tvb);
 	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb, 0, len, ENC_BIG_ENDIAN);
 	proto_tree *pt = proto_item_add_subtree(pi,t->ett);
-	guint32 addr_type = tvb_get_ntohs(tvb,0);
+	guint32 addr_type;
 	len = len-2;
 
-	proto_tree_add_item(pt,t->hf_address_type,tvb,0,2,ENC_NA);
+    proto_tree_add_item_ret_uint(pt, t->hf_address_type, tvb, 0, 2, ENC_NA, &addr_type);
 	switch (addr_type ) {
 		case 1:
 			if (len != 4) {
@@ -1207,17 +1207,16 @@ static const int *diameter_flags_fields[] = {
 static int
 dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 first_word  = tvb_get_ntohl(tvb,0);
-	guint32 version = (first_word & 0xff000000) >> 24;
-	guint32 flags_bits = (tvb_get_ntohl(tvb,4) & 0xff000000) >> 24;
-	int packet_len = first_word & 0x00ffffff;
+	guint32 version;
+	guint64 flags_bits;
+	int packet_len;
 	proto_item *pi, *cmd_item, *app_item, *version_item;
 	proto_tree *diam_tree;
 	diam_ctx_t *c = (diam_ctx_t *)wmem_alloc0(wmem_packet_scope(), sizeof(diam_ctx_t));
 	int offset;
 	value_string *cmd_vs;
 	const char *cmd_str;
-	guint32 cmd = tvb_get_ntoh24(tvb,5);
+	guint32 cmd;
 	guint32 hop_by_hop_id, end_to_end_id;
 	conversation_t *conversation;
 	diameter_conv_info_t *diameter_conv_info;
@@ -1231,8 +1230,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	if (hf_diameter_code == -1)
 		proto_registrar_get_byname("diameter.code");
 
-	diam_sub_dis_inf->application_id = tvb_get_ntohl(tvb,8);
-
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
 
 	if (have_tap_listener(exported_pdu_tap)){
@@ -1245,25 +1242,29 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	c->tree = diam_tree;
 	c->pinfo = pinfo;
 
-	version_item = proto_tree_add_item(diam_tree,hf_diameter_version,tvb,0,1,ENC_BIG_ENDIAN);
-	proto_tree_add_item(diam_tree,hf_diameter_length,tvb,1,3,ENC_BIG_ENDIAN);
+	version_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_version, tvb, 0, 1, ENC_BIG_ENDIAN, &version);
+	proto_tree_add_item_ret_uint(diam_tree, hf_diameter_length, tvb, 1, 3, ENC_BIG_ENDIAN, &packet_len);
 
-	pi = proto_tree_add_bitmask(diam_tree, tvb, 4, hf_diameter_flags, ett_diameter_flags, diameter_flags_fields, ENC_BIG_ENDIAN);
-	if (flags_bits & 0x0f) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
+	pi = proto_tree_add_bitmask_ret_uint64(diam_tree, tvb, 4, hf_diameter_flags, ett_diameter_flags, diameter_flags_fields, ENC_BIG_ENDIAN, &flags_bits);
+	flags_bits = flags_bits >> 24;
+	if (flags_bits & 0x0f) {
+		expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
+	}
 
-	cmd_item = proto_tree_add_item(diam_tree,hf_diameter_code,tvb,5,3,ENC_BIG_ENDIAN);
+	cmd_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_code, tvb, 5, 3, ENC_BIG_ENDIAN, &cmd);
 
 	switch (version) {
 		case DIAMETER_V16: {
-			guint32 vendorid = tvb_get_ntohl(tvb,8);
+			guint32 vendorid;
 			diam_vnd_t *vendor;
 
+			proto_tree_add_item_ret_uint(diam_tree, hf_diameter_vendor_id, tvb, 8, 4, ENC_BIG_ENDIAN, &vendorid);
+			diam_sub_dis_inf->application_id = vendorid;
 			if (! ( vendor = (diam_vnd_t *)wmem_tree_lookup32(dictionary.vnds,vendorid) ) ) {
 				vendor = &unknown_vendor;
 			}
 
 			cmd_vs = VND_CMD_VS(vendor);
-			proto_tree_add_item(diam_tree, hf_diameter_vendor_id,tvb,8,4,ENC_BIG_ENDIAN);
 
 			c->version_rfc = FALSE;
 			break;
@@ -1272,7 +1273,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 			cmd_vs = (value_string *)(void *)all_cmds->data;
 
-			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id, tvb, 8, 4, ENC_BIG_ENDIAN);
+			app_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_application_id, tvb, 8, 4,
+				ENC_BIG_ENDIAN, &diam_sub_dis_inf->application_id);
 
 			if (try_val_to_str_ext(diam_sub_dis_inf->application_id, dictionary.applications) == NULL) {
 				proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
@@ -1294,22 +1296,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 	cmd_str = val_to_str_const(cmd, cmd_vs, "Unknown");
 
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-		     "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
-		     cmd_str,
-		     ((flags_bits>>4)&0x08) ? " Request" : " Answer",
-		     cmd,
-		     msgflags_str[((flags_bits>>4)&0x0f)],
-		     c->version_rfc ? "appl" : "vend",
-		     c->version_rfc ? val_to_str_ext_const(diam_sub_dis_inf->application_id, dictionary.applications, "Unknown") :
-				      val_to_str_const(diam_sub_dis_inf->application_id, vnd_short_vs, "Unknown"),
-		     diam_sub_dis_inf->application_id,
-		     tvb_get_ntohl(tvb,12),
-		     tvb_get_ntohl(tvb,16));
-
-	col_append_str(pinfo->cinfo, COL_INFO, " | ");
-	col_set_fence(pinfo->cinfo, COL_INFO);
-
 	/* Append name to command item, warn if unknown */
 	proto_item_append_text(cmd_item," %s", cmd_str);
 	if (strcmp(cmd_str, "Unknown") == 0) {
@@ -1318,10 +1304,25 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 
-	hop_by_hop_id = tvb_get_ntohl(tvb, 12);
-	proto_tree_add_item(diam_tree,hf_diameter_hopbyhopid,tvb,12,4,ENC_BIG_ENDIAN);
-	end_to_end_id = tvb_get_ntohl(tvb, 16);
-	proto_tree_add_item(diam_tree,hf_diameter_endtoendid,tvb,16,4,ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(diam_tree, hf_diameter_hopbyhopid, tvb, 12, 4, ENC_BIG_ENDIAN, &hop_by_hop_id);
+	proto_tree_add_item_ret_uint(diam_tree, hf_diameter_endtoendid, tvb, 16, 4, ENC_BIG_ENDIAN, &end_to_end_id);
+
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+			 "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
+			 cmd_str,
+			 ((flags_bits>>4)&0x08) ? " Request" : " Answer",
+			 cmd,
+			 msgflags_str[((flags_bits>>4)&0x0f)],
+			 c->version_rfc ? "appl" : "vend",
+			 c->version_rfc ? val_to_str_ext_const(diam_sub_dis_inf->application_id, dictionary.applications, "Unknown") :
+					  val_to_str_const(diam_sub_dis_inf->application_id, vnd_short_vs, "Unknown"),
+			 diam_sub_dis_inf->application_id,
+			 hop_by_hop_id,
+			 end_to_end_id);
+
+	col_append_str(pinfo->cinfo, COL_INFO, " | ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
+
 
 	/* Conversation tracking stuff */
 	/*
