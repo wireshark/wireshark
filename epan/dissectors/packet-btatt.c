@@ -9622,9 +9622,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 hfx_btatt_error_code = hf_btatt_error_code;
             }
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s, Handle: 0x%04x",
-                        val_to_str_const(error_code, error_vals, "<unknown>"),
-                        handle);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+                        val_to_str_const(error_code, error_vals, "<unknown>"));
 
         col_append_info_by_handle(pinfo, handle, bluetooth_data);
 
@@ -9708,8 +9707,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset += 2;
 
                     proto_item_append_text(sub_item, ", Handle: 0x%04x, UUID: %s",
-                            tvb_get_letohs(tvb, offset - 4),
-                            print_uuid(&uuid));
+                            handle, print_uuid(&uuid));
 
                     save_handle(pinfo, uuid, handle, ATTRIBUTE_TYPE_OTHER, bluetooth_data);
 
@@ -9729,8 +9727,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset += 16;
 
                     proto_item_append_text(sub_item, ", Handle: 0x%04x, UUID: %s",
-                            tvb_get_letohs(tvb, offset - 4),
-                            print_uuid(&uuid));
+                            handle, print_uuid(&uuid));
 
                     save_handle(pinfo, uuid, handle, ATTRIBUTE_TYPE_OTHER, bluetooth_data);
 
