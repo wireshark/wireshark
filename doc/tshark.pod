@@ -1669,11 +1669,12 @@ Change the interface's timestamp method.
 
 =item --color
 
-Enable coloring of packets according to standard Wireshark color filters.  This
-is currently implemented via 24-bit "true color" terminal escape sequences that
-are not supported by all terminal emulators.  See
-L<https://wiki.wireshark.org/ColoringRules> for more information on configuring
-color filters.
+Enable coloring of packets according to standard Wireshark color
+filters. On Windows colors are limited to the standard console
+character attribute colors. Other platforms require a terminal that
+handles 24-bit "true color" terminal escape sequences. See
+L<https://wiki.wireshark.org/ColoringRules> for more information on
+configuring color filters.
 
 =item --no-duplicate-keys
 

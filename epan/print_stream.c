@@ -7,19 +7,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include "config.h"
@@ -41,6 +29,11 @@
 
 #define TERM_SGR_RESET "\x1B[0m"  /* SGR - reset */
 #define TERM_CSI_EL    "\x1B[K"   /* EL - Erase in Line (to end of line) */
+
+typedef struct {
+    gboolean  to_file;
+    FILE     *fh;
+} output_text;
 
 static void
 print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
@@ -157,8 +150,15 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
 }
 
 static void
-print_color_eol(FILE *fh)
+print_color_eol(print_stream_t *self)
 {
+    output_text *output = (output_text *)self->data;
+    FILE *fh = output->fh;
+#ifdef _WIN32
+    SetConsoleTextAttribute((HANDLE)_get_osfhandle(_fileno(fh)), self->csb_attrs);
+    fprintf(fh, "\n");
+#else // UN*X
+
     /*
      * Emit CSI EL to extend current background color all the way to EOL,
      * otherwise we get a ragged right edge of color wherever the newline
@@ -166,6 +166,7 @@ print_color_eol(FILE *fh)
      * works.
      */
     fprintf(fh, "%s\n%s", TERM_CSI_EL, TERM_SGR_RESET);
+#endif
 }
 
 static FILE *
@@ -240,11 +241,6 @@ destroy_print_stream(print_stream_t *self)
     return (self && self->ops && self->ops->destroy) ? (self->ops->destroy)(self) : TRUE;
 }
 
-typedef struct {
-    gboolean  to_file;
-    FILE     *fh;
-} output_text;
-
 #define MAX_INDENT    160
 
 /* returns TRUE if the print succeeded, FALSE if there was an error */
@@ -297,7 +293,7 @@ print_line_color_text(print_stream_t *self, int indent, const char *line, const 
         }
 
         if (emit_color)
-            print_color_eol(output->fh);
+            print_color_eol(self);
         else
             putc('\n', output->fh);
     }
@@ -367,6 +363,10 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
         stream->to_codeset = charset;
     }
 #else
+    CONSOLE_SCREEN_BUFFER_INFO csb_info;
+    GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(_fileno(fh)), &csb_info);
+    stream->csb_attrs = csb_info.wAttributes;
+
     stream->to_codeset = "UTF-16LE";
 #endif
 
