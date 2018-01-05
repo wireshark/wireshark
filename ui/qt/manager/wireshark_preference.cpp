@@ -32,8 +32,8 @@ QWidget * WiresharkPreference::editor(QWidget * /*parent*/, const QStyleOptionVi
     return Q_NULLPTR;
 }
 
-void WiresharkPreference::setData(QWidget */*editor*/, const QModelIndex &/*index*/) {}
-void WiresharkPreference::setModelData(QWidget */*editor*/, QAbstractItemModel */*model*/, const QModelIndex &/*index*/) {}
+void WiresharkPreference::setData(QWidget * /*editor*/, const QModelIndex &/*index*/) {}
+void WiresharkPreference::setModelData(QWidget * /*editor*/, QAbstractItemModel * /*model*/, const QModelIndex &/*index*/) {}
 
 void WiresharkPreference::setPrefsItem(PrefsItem * item)
 {
