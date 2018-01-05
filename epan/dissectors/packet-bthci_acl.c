@@ -683,7 +683,7 @@ proto_register_bthci_acl(void)
     expert_register_field_array(bthci_acl_expert_module, ei, array_length(ei));
 
     /* Register configuration preferences */
-    bthci_acl_module = prefs_register_protocol(proto_bthci_acl, NULL);
+    bthci_acl_module = prefs_register_protocol_subtree("Bluetooth", proto_bthci_acl, NULL);
     prefs_register_bool_preference(bthci_acl_module, "hci_acl_reassembly",
         "Reassemble ACL Fragments",
         "Whether the ACL dissector should reassemble fragmented PDUs",

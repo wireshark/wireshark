@@ -420,7 +420,7 @@ proto_register_btmcap(void)
     expert_btmcap = expert_register_protocol(proto_btmcap);
     expert_register_field_array(expert_btmcap, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btmcap, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btmcap, NULL);
     prefs_register_static_text_preference(module, "mcap.version",
             "Bluetooth Protocol MCAP version: 1.0",
             "Version of protocol supported by this dissector.");

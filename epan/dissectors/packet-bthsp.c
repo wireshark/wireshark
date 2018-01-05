@@ -1126,7 +1126,7 @@ proto_register_bthsp(void)
     proto_register_field_array(proto_bthsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    module = prefs_register_protocol(proto_bthsp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bthsp, NULL);
     prefs_register_static_text_preference(module, "hsp.version",
             "Bluetooth Profile HSP version: 1.2",
             "Version of profile supported by this dissector.");

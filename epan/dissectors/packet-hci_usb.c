@@ -371,7 +371,7 @@ proto_register_hci_usb(void)
     proto_register_subtree_array(ett, array_length(ett));
     hci_usb_handle = register_dissector("hci_usb", dissect_hci_usb, proto_hci_usb);
 
-    module = prefs_register_protocol(proto_hci_usb, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_hci_usb, NULL);
     prefs_register_static_text_preference(module, "bthci_usb.version",
             "Bluetooth HCI USB Transport from Core 4.0",
             "Version of protocol supported by this dissector.");

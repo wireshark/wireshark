@@ -3156,7 +3156,7 @@ proto_register_btavrcp(void)
     expert_btavrcp = expert_register_protocol(proto_btavrcp);
     expert_register_field_array(expert_btavrcp, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btavrcp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btavrcp, NULL);
     prefs_register_static_text_preference(module, "avrcp.version",
             "Bluetooth Profile AVRCP version: 1.5",
             "Version of profile supported by this dissector.");

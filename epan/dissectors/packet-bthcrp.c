@@ -645,7 +645,7 @@ proto_register_bthcrp(void)
     expert_bthcrp = expert_register_protocol(proto_bthcrp);
     expert_register_field_array(expert_bthcrp, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_bthcrp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bthcrp, NULL);
     prefs_register_static_text_preference(module, "hcrp.version",
             "Bluetooth Profile HCRP version: 1.2",
             "Version of profile supported by this dissector.");

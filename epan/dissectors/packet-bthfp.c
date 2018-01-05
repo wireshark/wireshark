@@ -2944,7 +2944,7 @@ proto_register_bthfp(void)
     proto_register_field_array(proto_bthfp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    module = prefs_register_protocol(proto_bthfp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bthfp, NULL);
     prefs_register_static_text_preference(module, "hfp.version",
             "Bluetooth Profile HFP version: 1.7",
             "Version of profile supported by this dissector.");

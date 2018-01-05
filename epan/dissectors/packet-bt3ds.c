@@ -170,7 +170,7 @@ proto_register_bt3ds(void)
     expert_bt3ds = expert_register_protocol(proto_bt3ds);
     expert_register_field_array(expert_bt3ds, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_bt3ds, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bt3ds, NULL);
     prefs_register_static_text_preference(module, "3ds.version",
             "Bluetooth Profile 3DS version: 1.0",
             "Version of profile supported by this dissector.");

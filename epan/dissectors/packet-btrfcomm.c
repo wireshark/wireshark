@@ -1142,7 +1142,7 @@ proto_register_btrfcomm(void)
 
     rfcomm_dlci_dissector_table = register_dissector_table("btrfcomm.dlci", "BT RFCOMM Directed Channel", proto_btrfcomm, FT_UINT16, BASE_DEC);
 
-    module = prefs_register_protocol(proto_btrfcomm, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btrfcomm, NULL);
     prefs_register_static_text_preference(module, "rfcomm.version",
             "Bluetooth Protocol RFCOMM version: 1.1", "Version of protocol supported by this dissector.");
 

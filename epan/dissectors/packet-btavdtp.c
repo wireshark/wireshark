@@ -2730,7 +2730,7 @@ proto_register_btavdtp(void)
     proto_register_field_array(proto_btavdtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    module = prefs_register_protocol(proto_btavdtp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btavdtp, NULL);
     prefs_register_static_text_preference(module, "avdtp.version",
             "Bluetooth Protocol AVDTP version: 1.3",
             "Version of protocol supported by this dissector.");
@@ -3147,7 +3147,7 @@ proto_register_bta2dp(void)
 
     bta2dp_handle = register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
 
-    module = prefs_register_protocol(proto_bta2dp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bta2dp, NULL);
     prefs_register_static_text_preference(module, "a2dp.version",
             "Bluetooth Profile A2DP version: 1.3",
             "Version of profile supported by this dissector.");
@@ -3387,7 +3387,7 @@ proto_register_btvdp(void)
     expert_btavdtp = expert_register_protocol(proto_btvdp);
     expert_register_field_array(expert_btavdtp, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btvdp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btvdp, NULL);
     prefs_register_static_text_preference(module, "vdp.version",
             "Bluetooth Profile VDP version: 1.1",
             "Version of profile supported by this dissector.");

@@ -1271,7 +1271,7 @@ proto_register_btmesh(void)
     expert_btmesh = expert_register_protocol(proto_btmesh);
     expert_register_field_array(expert_btmesh, ei, array_length(ei));
 
-    btmesh_module = prefs_register_protocol(proto_btmesh, NULL);
+    btmesh_module = prefs_register_protocol_subtree("Bluetooth", proto_btmesh, NULL);
 
     btmesh_uat = uat_new("BTMesh Network keys",
         sizeof(uat_btmesh_record_t),    /* record size */

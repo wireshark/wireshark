@@ -715,7 +715,7 @@ proto_register_btsap(void)
     expert_btsap = expert_register_protocol(proto_btsap);
     expert_register_field_array(expert_btsap, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btsap, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btsap, NULL);
     prefs_register_static_text_preference(module, "sap.version",
             "Bluetooth Profile SAP version: 1.1",
             "Version of protocol supported by this dissector.");

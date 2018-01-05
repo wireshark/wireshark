@@ -304,7 +304,7 @@ proto_register_hci_mon(void)
 
     adapter_to_disconnect_in_frame = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    module = prefs_register_protocol(proto_hci_mon, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_hci_mon, NULL);
     prefs_register_static_text_preference(module, "bthci_mon.version",
             "Bluetooth Linux Monitor Transport introduced in BlueZ 5.x",
             "Version of protocol supported by this dissector.");

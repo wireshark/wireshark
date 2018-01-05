@@ -472,7 +472,7 @@ proto_register_btavctp(void)
     expert_btavctp = expert_register_protocol(proto_btavctp);
     expert_register_field_array(expert_btavctp, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btavctp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btavctp, NULL);
     prefs_register_static_text_preference(module, "avctp.version",
             "Bluetooth Protocol AVCTP version: 1.4",
             "Version of protocol supported by this dissector.");

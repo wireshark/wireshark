@@ -629,7 +629,7 @@ proto_register_btbnep(void)
     expert_btbnep = expert_register_protocol(proto_btbnep);
     expert_register_field_array(expert_btbnep, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btbnep, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btbnep, NULL);
     prefs_register_static_text_preference(module, "bnep.version",
             "Bluetooth Protocol BNEP version: 1.0",
             "Version of protocol supported by this dissector.");

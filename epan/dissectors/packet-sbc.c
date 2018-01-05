@@ -416,7 +416,7 @@ proto_register_sbc(void)
 
     register_dissector("sbc", dissect_sbc, proto_sbc);
 
-    module = prefs_register_protocol(proto_sbc, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_sbc, NULL);
     prefs_register_static_text_preference(module, "a2dp.version",
             "Bluetooth Audio Codec SBC version based on A2DP 1.3",
             "Version of codec supported by this dissector.");

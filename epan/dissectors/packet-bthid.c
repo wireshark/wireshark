@@ -408,7 +408,7 @@ proto_register_bthid(void)
     expert_bthid = expert_register_protocol(proto_bthid);
     expert_register_field_array(expert_bthid, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_bthid, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bthid, NULL);
     prefs_register_static_text_preference(module, "hid.version",
             "Bluetooth Profile HID version: 1.1",
             "Version of profile supported by this dissector.");

@@ -2920,8 +2920,8 @@ proto_register_bluetooth(void)
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
 
-    proto_bluetooth = proto_register_protocol("Bluetooth",
-            "Bluetooth", "bluetooth");
+    proto_bluetooth = proto_register_protocol("Bluetooth", "Bluetooth", "bluetooth");
+    prefs_register_protocol(proto_bluetooth, NULL);
 
     register_dissector("bluetooth_ubertooth", dissect_bluetooth_ubertooth, proto_bluetooth);
 

@@ -7230,7 +7230,7 @@ proto_register_bthci_cmd(void)
 
     bthci_cmds = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    module = prefs_register_protocol(proto_bthci_cmd, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bthci_cmd, NULL);
     prefs_register_static_text_preference(module, "hci_cmd.version",
             "Bluetooth HCI version: 4.0 (Core)",
             "Version of protocol supported by this dissector.");

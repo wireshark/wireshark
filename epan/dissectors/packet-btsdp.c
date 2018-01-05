@@ -6514,7 +6514,7 @@ proto_register_btsdp(void)
 
     service_infos = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    module = prefs_register_protocol(proto_btsdp, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btsdp, NULL);
     prefs_register_static_text_preference(module, "bnep.version",
             "Bluetooth Protocol SDP version from Core 4.0",
             "Version of protocol supported by this dissector.");

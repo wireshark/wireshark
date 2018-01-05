@@ -7997,7 +7997,7 @@ proto_register_bthci_evt(void)
     expert_bthci_evt = expert_register_protocol(proto_bthci_evt);
     expert_register_field_array(expert_bthci_evt, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_bthci_evt, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_bthci_evt, NULL);
     prefs_register_static_text_preference(module, "hci_evt.version",
             "Bluetooth HCI version: 4.0 (Core) + Addendum 4",
             "Version of protocol supported by this dissector.");

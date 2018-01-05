@@ -15671,7 +15671,7 @@ proto_register_btatt(void)
     fragments = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     handle_to_uuid = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    module = prefs_register_protocol(proto_btatt, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btatt, NULL);
     prefs_register_static_text_preference(module, "att.version",
             "Bluetooth Protocol ATT version from Core 4.0",
             "Version of protocol supported by this dissector.");

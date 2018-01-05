@@ -2060,7 +2060,7 @@ proto_register_btle(void)
     expert_module = expert_register_protocol(proto_btle);
     expert_register_field_array(expert_module, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btle, NULL);
+    module = prefs_register_protocol_subtree("Bluetooth", proto_btle, NULL);
     prefs_register_static_text_preference(module, "version",
             "Bluetooth LE LL version: 5.0 (Core)",
             "Version of protocol supported by this dissector.");
