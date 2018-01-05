@@ -1,6 +1,6 @@
 -- SBC-AP-IEs.asn
 --
--- Taken from 3GPP TS 29.168 V9.3.0 (2010-12)
+-- Taken from 3GPP TS 29.168 V14.2.0 (2017-12)
 -- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
 --
 -- 4.4.5	Information Element Definitions
@@ -27,7 +27,14 @@ IMPORTS
 	maxnoofCellID,
 	maxnoofEmergencyAreaID,
 
-	id-TypeOfError
+	id-TypeOfError,
+ 	maxnoofCellinEAI,
+	maxnoofCellinTAI,
+	maxnoofeNBIds,
+	maxnoofRestartTAIs,
+	maxnoofRestartEAIs,
+	maxnoofRestartedCells,
+	maxnoofFailedCells
 
 FROM SBC-AP-Constants
 
@@ -47,7 +54,59 @@ FROM SBC-AP-Containers;
 
 -- B
 
+Broadcast-Scheduled-Area-List ::= SEQUENCE {
+	cellId-Broadcast-List           CellId-Broadcast-List           OPTIONAL,
+    tAI-Broadcast-List              TAI-Broadcast-List              OPTIONAL,
+    emergencyAreaID-Broadcast-List  EmergencyAreaID-Broadcast-List  OPTIONAL,
+	iE-Extensions			   ProtocolExtensionContainer {{Broadcast-Scheduled-Area-List-ExtIEs}} OPTIONAL,
+    ...
+}
+
+Broadcast-Scheduled-Area-List-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Broadcast-Cancelled-Area-List ::= SEQUENCE {
+	cellID-Cancelled-List			CellID-Cancelled-List			OPTIONAL,
+	tAI-Cancelled-List				TAI-Cancelled-List				OPTIONAL,
+	emergencyAreaID-Cancelled-List	EmergencyAreaID-Cancelled-List	OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer {{Broadcast-Cancelled-Area-List-ExtIEs}} OPTIONAL,
+	...
+}
+
+Broadcast-Cancelled-Area-List-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Broadcast-Empty-Area-List	::= SEQUENCE (SIZE (1.. maxnoofeNBIds)) OF Global-ENB-ID
+
+
 -- C
+
+CancelledCellinEAI ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CancelledCellinEAI-Item
+
+CancelledCellinEAI-Item ::= SEQUENCE {
+	eCGI					EUTRAN-CGI,
+	numberOfBroadcasts		NumberOfBroadcasts,
+	iE-Extensions			ProtocolExtensionContainer { {CancelledCellinEAI-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellinEAI-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+CancelledCellinTAI ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CancelledCellinTAI-Item
+
+CancelledCellinTAI-Item ::= SEQUENCE{
+	eCGI				EUTRAN-CGI,
+	numberOfBroadcasts	NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CancelledCellinTAI-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellinTAI-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 Cause 					::= INTEGER {
 	message-accepted									(0),
@@ -71,6 +130,30 @@ Cause 					::= INTEGER {
 	abstract-syntax-error-falsely-constructed-message	(18)
 } (0..255)
 
+CellId-Broadcast-List ::= SEQUENCE (SIZE(1..maxnoofCellID)) OF CellId-Broadcast-List-Item
+
+CellId-Broadcast-List-Item ::= SEQUENCE {
+	eCGI				EUTRAN-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {CellId-Broadcast-List-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellId-Broadcast-List-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellID-Cancelled-List ::= SEQUENCE (SIZE(1..maxnoofCellID)) OF CellID-Cancelled-Item
+
+CellID-Cancelled-Item ::= SEQUENCE {
+	eCGI				EUTRAN-CGI,
+	numberOfBroadcasts	NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CellID-Cancelled-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellID-Cancelled-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 CellIdentity			::= BIT STRING (SIZE (28))
 
@@ -80,7 +163,7 @@ Criticality-Diagnostics			::= SEQUENCE {
 	procedureCode			ProcedureCode			OPTIONAL,
 	triggeringMessage		TriggeringMessage		OPTIONAL,
 	procedureCriticality		Criticality			OPTIONAL,
-	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List 	OPTIONAL,
+	iE-CriticalityDiagnostics		CriticalityDiagnostics-IE-List 	OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} } OPTIONAL,
 	...
 }
@@ -112,9 +195,35 @@ Data-Coding-Scheme			::= BIT STRING (SIZE (8))
 
 ECGIList					::= SEQUENCE (SIZE(1..maxnoofCellID)) OF EUTRAN-CGI
 
-Emergency-Area-ID-List		::=	SEQUENCE (SIZE(1..maxnoofEmerAreaIDs)) OF Emergency-Area-ID
+Emergency-Area-ID-List		::=	SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF Emergency-Area-ID
 
-Emergency-Area-ID			::=	OCTET STRING (SIZE (3))
+Emergency-Area-ID			::=	OCTET STRING (SIZE (3)) 
+
+EmergencyAreaID-Broadcast-List ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaID-Broadcast-List-Item
+
+EmergencyAreaID-Broadcast-List-Item ::= SEQUENCE {
+	emergencyAreaID			Emergency-Area-ID,
+	scheduledCellinEAI		ScheduledCellinEAI,
+	iE-Extensions			ProtocolExtensionContainer { {EmergencyAreaID-Broadcast-List-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+EmergencyAreaID-Broadcast-List-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EmergencyAreaID-Cancelled-List ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaID-Cancelled-Item
+
+EmergencyAreaID-Cancelled-Item ::= SEQUENCE {
+	emergencyAreaID			Emergency-Area-ID,
+	cancelledCellinEAI		CancelledCellinEAI,
+	iE-Extensions			ProtocolExtensionContainer { {EmergencyAreaID-Cancelled-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+EmergencyAreaID-Cancelled-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 EUTRAN-CGI ::= SEQUENCE {
 	pLMNidentity			PLMNidentity,
@@ -129,10 +238,31 @@ EUTRAN-CGI-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
 
 Extended-Repetition-Period ::= INTEGER (4096..131071)
 
+ENB-ID ::= CHOICE {
+	macroENB-ID			BIT STRING (SIZE(20)),
+	homeENB-ID			BIT STRING (SIZE(28)),
+	...,
+	short-macroENB-ID 	BIT STRING (SIZE(18)),
+	long-macroENB-ID	BIT STRING (SIZE(21))
+}
+
 
 -- F
 
+Failed-Cell-List			::= SEQUENCE (SIZE(1..maxnoofFailedCells)) OF EUTRAN-CGI  
+
 -- G
+
+Global-ENB-ID ::= SEQUENCE {
+	pLMNidentity			PLMNidentity,
+	eNB-ID					ENB-ID,
+	iE-Extensions			ProtocolExtensionContainer { {GlobalENB-ID-ExtIEs} }		OPTIONAL,
+	...
+}
+
+GlobalENB-ID-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- H
 
@@ -149,6 +279,15 @@ List-of-TAIs			::= SEQUENCE (SIZE (1..maxNrOfTAIs)) OF
 	tai					TAI
 }
 
+List-of-TAIs-Restart	::= SEQUENCE (SIZE (1..maxnoofRestartTAIs)) OF
+	SEQUENCE {
+	tai					TAI
+}
+
+
+List-of-EAIs-Restart	::= SEQUENCE (SIZE(1..maxnoofRestartEAIs)) OF Emergency-Area-ID
+
+
 -- M
 
 Message-Identifier ::= BIT STRING (SIZE (16))
@@ -158,18 +297,20 @@ Message-Identifier ::= BIT STRING (SIZE (16))
 Number-of-Broadcasts-Requested		::= INTEGER (0..65535)
 
 -- For Number-of-Broadcasts-Requested = 0 and Repetition-Period = 0, then eNB action is no broadcast
---  for ETWS and CMAS.
+--  for ETWS Secondary and CMAS.
 --
 -- For Number-of-Broadcasts-Requested = 1 and Repetition-Period = 0, then eNB action is broadcast
 -- only once for ETWS and CMAS.
 --
 -- For Number-of-Broadcasts-Requested = 0 and Repetition-Period > 0, then eNB action is no broadcast
--- for the ETWS, and broadcast until further notice for the CMAS.
+-- for the ETWS Secondary, and broadcast until further notice for the CMAS.
 --
 -- For Number-of-Broadcasts-Requested > 0 and Repetition-Period > 0, then eNB action is normal
 -- broadcast.
 -- All other combinations of Number-of-Broadcasts-Requested and Repetition-Period are considered
--- invalid.
+-- invalid. 
+
+NumberOfBroadcasts ::= INTEGER (0..65535)
 
 -- O 
 Omc-Id						::=	OCTET STRING (SIZE (1..20))
@@ -192,15 +333,73 @@ Repetition-Period			::= INTEGER (0..4096)
 -- maximum value of the repetition period defined in ASN.1 remains at 4096.
 -- If the value of the Repetition Period IE received in the WRITE-REPLACE WARNING REQUEST message is 
 -- set to 4096, the MME shall set the Repetition Period IE to the maximum value 4095 supported on   
--- the S1-MME interface as defined in [7] before forwarding to the selected eNBs.  
+-- the S1-MME interface as defined in [7] before forwarding to the selected eNBs. 
 
+Restarted-Cell-List			::= SEQUENCE (SIZE(1.. maxnoofRestartedCells)) OF EUTRAN-CGI  
+ 
 -- S
+
+ScheduledCellinEAI ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF ScheduledCellinEAI-Item
+
+ScheduledCellinEAI-Item ::= SEQUENCE {
+	eCGI					EUTRAN-CGI,
+	iE-Extensions			ProtocolExtensionContainer { {ScheduledCellinEAI-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ScheduledCellinEAI-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ScheduledCellinTAI ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF ScheduledCellinTAI-Item
+
+ScheduledCellinTAI-Item ::= SEQUENCE{
+	eCGI				EUTRAN-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {ScheduledCellinTAI-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ScheduledCellinTAI-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Send-Write-Replace-Warning-Indication ::= ENUMERATED {true}
+
+Send-Stop-Warning-Indication ::= ENUMERATED {true}
 
 Serial-Number				::= BIT STRING (SIZE (16))
 
+Stop-All-Indicator ::= ENUMERATED {true}
+
 -- T
 
-TAC ::= OCTET STRING (SIZE (2))
+TAC ::= OCTET STRING (SIZE (2)) 
+
+TAI-Broadcast-List ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAI-Broadcast-List-Item
+
+TAI-Broadcast-List-Item ::= SEQUENCE {
+	tAI					TAI,
+	scheduledCellinTAI	ScheduledCellinTAI,
+	iE-Extensions		ProtocolExtensionContainer { {TAI-Broadcast-List-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAI-Broadcast-List-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAI-Cancelled-List ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAI-Cancelled-List-Item
+
+TAI-Cancelled-List-Item ::= SEQUENCE {
+	tAI					TAI,
+	cancelledCellinTAI	CancelledCellinTAI,
+	iE-Extensions		ProtocolExtensionContainer { {TAI-Cancelled-List-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAI-Cancelled-List-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 TAI-List-for-Warning	::= SEQUENCE (SIZE(1.. maxnoofTAIforWarning)) OF TAI
 
@@ -223,6 +422,8 @@ TypeOfError ::= ENUMERATED {
 }
 
 -- U
+-- Ws change, not used?
+-- Unknown-Tracking-Area-List		::= SEQUENCE (SIZE(1.. maxNrOfTAIs)) OF TAI
 
 -- V
 

@@ -1,6 +1,6 @@
 -- SBC-AP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 29.168 V9.3.0 (2010-12)
+-- Taken from 3GPP TS 29.168 V14.2.0 (2017-12)
 -- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
 --
 -- 4.4.3	Elementary Procedure Definitions
@@ -34,12 +34,21 @@ FROM SBC-AP-CommonDataTypes
 	Write-Replace-Warning-Request,
 	Write-Replace-Warning-Response,
 	Stop-Warning-Request,
-	Stop-Warning-Response 
-
+	Stop-Warning-Response,
+	Error-Indication,
+	Write-Replace-Warning-Indication,
+	Stop-Warning-Indication,
+	PWS-Restart-Indication,
+	PWS-Failure-Indication
 FROM SBC-AP-PDU-Contents
 
 	id-Write-Replace-Warning, 
-	id-Stop-Warning
+	id-Stop-Warning,
+	id-Error-Indication,
+	id-Write-Replace-Warning-Indication,
+	id-Stop-Warning-Indication,
+	id-PWS-Restart-Indication,
+	id-PWS-Failure-Indication
 FROM SBC-AP-Constants;
 
 -- **************************************************************
@@ -107,14 +116,19 @@ SBC-AP-ELEMENTARY-PROCEDURES SBC-AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 SBC-AP-ELEMENTARY-PROCEDURES-CLASS-1 SBC-AP-ELEMENTARY-PROCEDURE ::= {
-	Write-Replace-Warning,
-	Stop-Warning			,
+	write-Replace-Warning 		|
+	stop-Warning			,
 	...
 }
 
 SBC-AP-ELEMENTARY-PROCEDURES-CLASS-2 SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	error-Indication	|
+	write-Replace-Warning-Indication	|
+	stop-Warning-Indication	|
+	pws-Restart-Indication |
+	pws-Failure-Indication,
 	...
-}
+	}
 
 write-Replace-Warning SBC-AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	Write-Replace-Warning-Request
@@ -132,4 +146,35 @@ stop-Warning SBC-AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY			reject
 }
 
+error-Indication SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	Error-Indication
+	PROCEDURE CODE		id-Error-Indication
+	CRITICALITY			ignore
+}
+
+write-Replace-Warning-Indication SBC-AP-ELEMENTARY-PROCEDURE	::= {
+	INITIATING MESSAGE	Write-Replace-Warning-Indication
+	PROCEDURE CODE		id-Write-Replace-Warning-Indication
+	CRITICALITY			ignore
+}
+
+stop-Warning-Indication SBC-AP-ELEMENTARY-PROCEDURE	::= {
+	INITIATING MESSAGE	Stop-Warning-Indication
+	PROCEDURE CODE		id-Stop-Warning-Indication
+	CRITICALITY			ignore
+}
+
+pws-Restart-Indication SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	PWS-Restart-Indication
+	PROCEDURE CODE		id-PWS-Restart-Indication
+	CRITICALITY			ignore
+}
+
+pws-Failure-Indication SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	PWS-Failure-Indication
+	PROCEDURE CODE		id-PWS-Failure-Indication
+	CRITICALITY			ignore
+}
+
 END
+

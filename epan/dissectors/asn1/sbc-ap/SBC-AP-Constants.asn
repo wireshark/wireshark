@@ -1,6 +1,6 @@
 -- SBC-AP-Constants.asn
 --
--- Taken from 3GPP TS 29.168 V9.3.0 (2010-12)
+-- Taken from 3GPP TS 29.168 V14.2.0 (2017-12)
 -- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
 --
 -- 4.4.7	Constant Definitions
@@ -26,8 +26,12 @@ BEGIN
 -- **************************************************************
 
 id-Write-Replace-Warning 			INTEGER ::= 0 
-id-Stop-Warning 					INTEGER ::= 1
-
+id-Stop-Warning 					INTEGER ::= 1 
+id-Error-Indication 				INTEGER ::= 2
+id-Write-Replace-Warning-Indication	INTEGER ::= 3
+id-Stop-Warning-Indication			INTEGER ::= 4
+id-PWS-Restart-Indication			INTEGER ::= 5 
+id-PWS-Failure-Indication			INTEGER ::= 6
 
 -- **************************************************************
 --
@@ -57,7 +61,18 @@ id-Warning-Type					INTEGER ::= 18
 id-Omc-Id 						INTEGER ::= 19 
 id-Concurrent-Warning-Message-Indicator INTEGER ::= 20 
 id-Extended-Repetition-Period	INTEGER ::= 21
-
+id-Unknown-Tracking-Area-List	INTEGER ::= 22 
+id-Broadcast-Scheduled-Area-List	INTEGER ::= 23
+id-Send-Write-Replace-Warning-Indication INTEGER ::= 24
+id-Broadcast-Cancelled-Area-List		INTEGER ::= 25
+id-Send-Stop-Warning-Indication		INTEGER ::= 26
+id-Stop-All-Indicator			INTEGER ::= 27 
+id-Global-ENB-ID					INTEGER ::= 28
+id-Broadcast-Empty-Area-List		INTEGER ::= 29
+id-Restarted-Cell-List			INTEGER ::= 30
+id-List-of-TAIs-Restart			INTEGER ::= 31
+id-List-of-EAIs-Restart			INTEGER ::= 32 
+id-Failed-Cell-List				INTEGER ::= 33
 
 
 -- **************************************************************
@@ -73,13 +88,19 @@ id-Extended-Repetition-Period	INTEGER ::= 21
 -- **************************************************************
 
 maxNrOfErrors				INTEGER ::= 256 
-maxnoofCellID				INTEGER	::= 65535
+maxnoofCellID				INTEGER	::= 65535 
+maxnoofCellinEAI			INTEGER ::= 65535
+maxnoofCellinTAI			INTEGER ::= 65535
 maxNrOfTAIs					INTEGER ::= 65535
-maxnoofgencyEmerAreaID		INTEGER	::= 65535
+maxnoofEmergencyAreaID		INTEGER	::= 65535
 maxnoofTAIforWarning		INTEGER ::= 65535
 
 maxProtocolExtensions 			INTEGER ::= 65535
-maxProtocolIEs				INTEGER ::= 65535
--- WS fix
-maxnoofEmerAreaIDs			INTEGER ::= 65535
+maxProtocolIEs				INTEGER ::= 65535 
+maxnoofeNBIds				INTEGER ::= 256
+maxnoofRestartedCells		INTEGER ::= 256
+maxnoofRestartTAIs			INTEGER ::= 2048
+maxnoofRestartEAIs			INTEGER ::= 256 
+maxnoofFailedCells			INTEGER ::= 256
+
 END
