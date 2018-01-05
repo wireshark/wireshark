@@ -34,8 +34,17 @@ typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     gchar          *name;         /* plugin name */
     const gchar    *version;      /* plugin version */
-    const gchar    *type;         /* type of plugin */
+    const gchar    *type_dir;     /* filesystem name (where it resides). */
+    const gchar    *type_name;    /* user-facing name (what it does). Should these be capitalized? */
 } plugin;
+
+#define TYPE_DIR_EPAN       "epan"
+#define TYPE_DIR_WIRETAP    "wiretap"
+#define TYPE_DIR_CODECS     "codecs"
+
+#define TYPE_NAME_DISSECTOR "dissector"
+#define TYPE_NAME_FILE_TYPE "file type"
+#define TYPE_NAME_CODEC     "codec"
 
 /* array of plugins */
 static GPtrArray *plugins_array = NULL;
@@ -58,7 +67,7 @@ compare_plugins(gconstpointer a, gconstpointer b)
 }
 
 static void
-plugins_scan_dir(GPtrArray **plugins_ptr, const char *dirpath, const char *type_name, gboolean build_dir)
+plugins_scan_dir(GPtrArray **plugins_ptr, const char *dirpath, plugin_type_e type, gboolean build_dir)
 {
     GDir          *dir;
     const char    *name;            /* current file name */
@@ -148,10 +157,31 @@ DIAG_ON(pedantic)
         new_plug->handle = handle;
         new_plug->name = g_strdup(name);
         new_plug->version = plug_version;
-        if (build_dir)
-            new_plug->type = "[build]";
-        else
-            new_plug->type = type_name;
+        new_plug->type_dir = "[build]";
+        switch (type) {
+        case WS_PLUGIN_EPAN:
+            if (!build_dir) {
+                new_plug->type_dir = TYPE_DIR_EPAN;
+            }
+            // XXX This isn't true for stats_tree and TRANSUM.
+            new_plug->type_name = TYPE_NAME_DISSECTOR;
+            break;
+        case WS_PLUGIN_WIRETAP:
+            if (!build_dir) {
+                new_plug->type_dir = TYPE_DIR_WIRETAP;
+            }
+            new_plug->type_name = TYPE_NAME_FILE_TYPE;
+            break;
+        case WS_PLUGIN_CODEC:
+            if (!build_dir) {
+                new_plug->type_dir = TYPE_DIR_CODECS;
+            }
+            new_plug->type_name = TYPE_NAME_CODEC;
+            break;
+        default:
+            g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
+            break;
+        }
 
         /* Add it to the list of plugins. */
         if (*plugins_ptr == NULL)
@@ -167,7 +197,7 @@ DIAG_ON(pedantic)
  * Scan the buildir for plugins.
  */
 static void
-scan_plugins_build_dir(GPtrArray **plugins_ptr, const char *type_name)
+scan_plugins_build_dir(GPtrArray **plugins_ptr, plugin_type_e type)
 {
     const char *plugin_dir;
     const char *name;
@@ -179,7 +209,7 @@ scan_plugins_build_dir(GPtrArray **plugins_ptr, const char *type_name)
     if ((dir = ws_dir_open(plugin_dir, 0, NULL)) == NULL)
         return;
 
-    plugins_scan_dir(plugins_ptr, plugin_dir, type_name, TRUE);
+    plugins_scan_dir(plugins_ptr, plugin_dir, type, TRUE);
     while ((file = ws_dir_read_name(dir)) != NULL)
     {
         name = ws_dir_get_name(file);
@@ -202,7 +232,7 @@ scan_plugins_build_dir(GPtrArray **plugins_ptr, const char *type_name)
             g_free(plugin_dir_path);
             plugin_dir_path = g_build_filename(plugin_dir, name, (gchar *)NULL);
         }
-        plugins_scan_dir(plugins_ptr, plugin_dir_path, type_name, TRUE);
+        plugins_scan_dir(plugins_ptr, plugin_dir_path, type, TRUE);
         g_free(plugin_dir_path);
     }
     ws_dir_close(dir);
@@ -212,10 +242,27 @@ scan_plugins_build_dir(GPtrArray **plugins_ptr, const char *type_name)
  * Scan for plugins.
  */
 plugins_t *
-plugins_init(const char *type_name)
+plugins_init(plugin_type_e type)
 {
     if (!g_module_supported())
         return NULL; /* nothing to do */
+
+    const char *type_dir;
+
+    switch (type) {
+    case WS_PLUGIN_EPAN:
+            type_dir = TYPE_DIR_EPAN;
+        break;
+    case WS_PLUGIN_WIRETAP:
+        type_dir = TYPE_DIR_WIRETAP;
+        break;
+    case WS_PLUGIN_CODEC:
+        type_dir = TYPE_DIR_CODECS;
+        break;
+    default:
+        g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
+        break;
+    }
 
     gchar *dirpath;
     GPtrArray *plugins = NULL;
@@ -234,12 +281,12 @@ plugins_init(const char *type_name)
      */
     if (running_in_build_directory())
     {
-        scan_plugins_build_dir(&plugins, type_name);
+        scan_plugins_build_dir(&plugins, type);
     }
     else
     {
-        dirpath = g_build_filename(get_plugins_dir_with_version(), type_name, (gchar *)NULL);
-        plugins_scan_dir(&plugins, dirpath, type_name, FALSE);
+        dirpath = g_build_filename(get_plugins_dir_with_version(), type_dir, (gchar *)NULL);
+        plugins_scan_dir(&plugins, dirpath, type, FALSE);
         g_free(dirpath);
     }
 
@@ -253,8 +300,8 @@ plugins_init(const char *type_name)
      */
     if (!started_with_special_privs())
     {
-        dirpath = g_build_filename(get_plugins_pers_dir_with_version(), type_name, (gchar *)NULL);
-        plugins_scan_dir(&plugins, dirpath, type_name, FALSE);
+        dirpath = g_build_filename(get_plugins_pers_dir_with_version(), type_dir, (gchar *)NULL);
+        plugins_scan_dir(&plugins, dirpath, type, FALSE);
         g_free(dirpath);
     }
 
@@ -271,7 +318,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
 
     for (guint i = 0; i < plugins_array->len; i++) {
         plugin *plug = (plugin *)plugins_array->pdata[i];
-        callback(plug->name, plug->version, plug->type, g_module_name(plug->handle), callback_data);
+        callback(plug->name, plug->version, plug->type_name, g_module_name(plug->handle), callback_data);
     }
 }
 

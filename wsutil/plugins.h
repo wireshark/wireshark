@@ -24,7 +24,13 @@ typedef void (*plugin_register_func)(void);
 
 typedef void plugins_t;
 
-WS_DLL_PUBLIC plugins_t *plugins_init(const char *type_name);
+typedef enum {
+    WS_PLUGIN_EPAN,
+    WS_PLUGIN_WIRETAP,
+    WS_PLUGIN_CODEC
+} plugin_type_e;
+
+WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type);
 
 typedef void (*plugin_description_callback)(const char *name, const char *version,
                                             const char *types, const char *filename,

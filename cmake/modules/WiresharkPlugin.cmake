@@ -41,15 +41,20 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 		FOLDER "Plugins"
 	)
 
-	# LIBRARY_OUTPUT_DIRECTORY alone appears to be sufficient.
-	set_target_properties(${_plugin} PROPERTIES
-		#ARCHIVE_OUTPUT_DIRECTORY ${PLUGIN_DIR}
-		LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}
-		#RUNTIME_OUTPUT_DIRECTORY ${PLUGIN_DIR}
+	if(ENABLE_APPLICATION_BUNDLE)
+		set_target_properties(${_plugin} PROPERTIES
+			LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
+		)
+	else()
+		# Why don't we just write to ${PLUGIN_DIR}/${_subfolder}
+		# everywhere?
+		set_target_properties(${_plugin} PROPERTIES
+			LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}
 	)
+endif()
 
 	# Try to force output to ${PLUGIN_DIR} without the configuration
-	# type appended. Needed for CPack on Windows.
+	# type appended. Needed on Windows.
 	foreach(_config_type ${CMAKE_CONFIGURATION_TYPES})
 		string(TOUPPER ${_config_type} _config_upper)
 		set_target_properties(${_plugin} PROPERTIES
