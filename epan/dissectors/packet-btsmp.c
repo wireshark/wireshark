@@ -223,7 +223,7 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     value = tvb_get_guint8(tvb, offset);
 
     if (value & 0x01) {
-        col_append_sep_str(pinfo->cinfo, COL_INFO, "", "LTK");
+        col_append_str(pinfo->cinfo, COL_INFO, "LTK");
         next = TRUE;
     }
     if (value & 0x02) {
@@ -238,8 +238,12 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "Linkkey");
         next = TRUE;
     }
-    if (value & 0xF0)
+    if (value & 0xF0) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "Reserved");
+    }
+    if (!next) {
+        col_append_str(pinfo->cinfo, COL_INFO, "<none>");
+    }
 
     return offset + 1;
 }
