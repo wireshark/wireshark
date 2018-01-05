@@ -1246,7 +1246,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree_add_item_ret_uint(diam_tree, hf_diameter_length, tvb, 1, 3, ENC_BIG_ENDIAN, &packet_len);
 
 	pi = proto_tree_add_bitmask_ret_uint64(diam_tree, tvb, 4, hf_diameter_flags, ett_diameter_flags, diameter_flags_fields, ENC_BIG_ENDIAN, &flags_bits);
-	flags_bits = flags_bits >> 24;
 	if (flags_bits & 0x0f) {
 		expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
 	}
