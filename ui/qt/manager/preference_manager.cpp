@@ -16,7 +16,11 @@
 
 PreferenceFactory::~PreferenceFactory() {}
 
-QMap<int, PreferenceFactory *> PreferenceManager::factories;
+QMap<int, PreferenceFactory *> & PreferenceManager::factories()
+{
+    static QMap<int, PreferenceFactory *> inst = QMap<int, PreferenceFactory *>();
+    return inst;
+}
 
 PreferenceManager::PreferenceManager(QObject * parent)
     : QObject(parent)
@@ -25,7 +29,7 @@ PreferenceManager::PreferenceManager(QObject * parent)
 PreferenceManager::~PreferenceManager()
 {
     /* As this is a singleton, this is the point, where we can clear the registry */
-    PreferenceManager::factories.clear();
+    PreferenceManager::factories().clear();
 }
 
 PreferenceManager * PreferenceManager::instance()
@@ -41,10 +45,10 @@ void PreferenceManager::registerType(int pref, PreferenceFactory * factory)
 {
     Q_ASSERT(pref >= 0);
 
-    if ( PreferenceManager::factories.contains(pref) || ! factory )
+    if ( PreferenceManager::factories().contains(pref) || ! factory )
         return;
 
-    PreferenceManager::factories[pref] = factory;
+    PreferenceManager::factories()[pref] = factory;
 }
 
 WiresharkPreference * PreferenceManager::getPreference(PrefsItem * pref)
@@ -53,11 +57,11 @@ WiresharkPreference * PreferenceManager::getPreference(PrefsItem * pref)
         return Q_NULLPTR;
 
     int key = pref->getPrefType();
-    if ( ! PreferenceManager::factories.contains(key) )
+    if ( ! PreferenceManager::factories().contains(key) )
         return Q_NULLPTR;
 
     /* All actions are parented with this manager, to clear the objects together with the manager */
-    WiresharkPreference * wspref = qobject_cast<WiresharkPreference *>(PreferenceManager::factories[key]->create(this));
+    WiresharkPreference * wspref = qobject_cast<WiresharkPreference *>(PreferenceManager::factories()[key]->create(this));
     if ( wspref )
         wspref->setPrefsItem(pref);
 

@@ -39,7 +39,7 @@ protected:
     explicit PreferenceManager(QObject * parent = Q_NULLPTR);
 
 private:
-    static QMap<int, PreferenceFactory*> factories;
+    static QMap<int, PreferenceFactory*> & factories();
 };
 
 class PreferenceFactory : public QObject
