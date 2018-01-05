@@ -111,6 +111,10 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
                                 ));
 #endif
 
+#ifdef Q_OS_MAC
+    profile_status_.setAttribute(Qt::WA_MacSmallSize, true);
+#endif
+
     QString button_ss =
             "QToolButton {"
             "  border: none;"
