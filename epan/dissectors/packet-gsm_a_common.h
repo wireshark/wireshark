@@ -1466,6 +1466,8 @@ typedef enum
     DE_EMM_NON_3GPP_NW_PROV_POL, /* 9.9.3.49 Non-3GPP NW provided policies, See subclause 10.5.5.37 in 3GPP TS 24.008 */
     DE_EMM_HASH_MME,            /* 9.9.3.50 HashMME */
     DE_EMM_REPLAYED_NAS_MSG_CONT, /* 9.9.3.51 Replayed NAS message container */
+    DE_EMM_NETWORK_POLICY,      /* 9.9.3.52 Network policy */
+    DE_EMM_UE_ADD_SEC_CAP,      /* 9.9.3.53 UE additional security capability */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;

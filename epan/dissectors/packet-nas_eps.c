@@ -9,11 +9,12 @@
  *
  * SPDX-License-Identifier: GPL-2.0+
  *
- * References: 3GPP TS 24.301 V14.5.0 (2017-09)
+ * References: 3GPP TS 24.301 V15.1.0 (2017-12)
  */
 
 #include "config.h"
 
+#include <math.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -184,33 +185,65 @@ static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg = -1;
 static int hf_nas_eps_emm_ss_code = -1;
 static int hf_nas_eps_emm_lcs_ind = -1;
 static int hf_nas_eps_emm_gen_msg_cont_type = -1;
-static int hf_nas_eps_emm_apn_ambr_ul = -1;
-static int hf_nas_eps_emm_apn_ambr_dl = -1;
-static int hf_nas_eps_emm_apn_ambr_ul_ext = -1;
-static int hf_nas_eps_emm_apn_ambr_dl_ext = -1;
-static int hf_nas_eps_emm_apn_ambr_ul_ext2 = -1;
-static int hf_nas_eps_emm_apn_ambr_dl_ext2 = -1;
-static int hf_nas_eps_emm_apn_ambr_ul_total = -1;
-static int hf_nas_eps_emm_apn_ambr_dl_total = -1;
+static int hf_nas_eps_esm_apn_ambr_ul = -1;
+static int hf_nas_eps_esm_apn_ambr_dl = -1;
+static int hf_nas_eps_esm_apn_ambr_ul_ext = -1;
+static int hf_nas_eps_esm_apn_ambr_dl_ext = -1;
+static int hf_nas_eps_esm_apn_ambr_ul_ext2 = -1;
+static int hf_nas_eps_esm_apn_ambr_dl_ext2 = -1;
+static int hf_nas_eps_esm_apn_ambr_ul_total = -1;
+static int hf_nas_eps_esm_apn_ambr_dl_total = -1;
 static int hf_nas_eps_emm_guti_type = -1;
 static int hf_nas_eps_hash_mme = -1;
 static int hf_nas_eps_replayed_nas_msg_cont = -1;
+static int hf_nas_eps_redir_policy = -1;
+static int hf_nas_eps_emm_5g_ea0 = -1;
+static int hf_nas_eps_emm_128_5g_ea1 = -1;
+static int hf_nas_eps_emm_128_5g_ea2 = -1;
+static int hf_nas_eps_emm_128_5g_ea3 = -1;
+static int hf_nas_eps_emm_5g_ea4 = -1;
+static int hf_nas_eps_emm_5g_ea5 = -1;
+static int hf_nas_eps_emm_5g_ea6 = -1;
+static int hf_nas_eps_emm_5g_ea7 = -1;
+static int hf_nas_eps_emm_5g_ea8 = -1;
+static int hf_nas_eps_emm_5g_ea9 = -1;
+static int hf_nas_eps_emm_5g_ea10 = -1;
+static int hf_nas_eps_emm_5g_ea11 = -1;
+static int hf_nas_eps_emm_5g_ea12 = -1;
+static int hf_nas_eps_emm_5g_ea13 = -1;
+static int hf_nas_eps_emm_5g_ea14 = -1;
+static int hf_nas_eps_emm_5g_ea15 = -1;
+static int hf_nas_eps_emm_5g_ia0 = -1;
+static int hf_nas_eps_emm_128_5g_ia1 = -1;
+static int hf_nas_eps_emm_128_5g_ia2 = -1;
+static int hf_nas_eps_emm_128_5g_ia3 = -1;
+static int hf_nas_eps_emm_5g_ia4 = -1;
+static int hf_nas_eps_emm_5g_ia5 = -1;
+static int hf_nas_eps_emm_5g_ia6 = -1;
+static int hf_nas_eps_emm_5g_ia7 = -1;
+static int hf_nas_eps_emm_5g_ia8 = -1;
+static int hf_nas_eps_emm_5g_ia9 = -1;
+static int hf_nas_eps_emm_5g_ia10 = -1;
+static int hf_nas_eps_emm_5g_ia11 = -1;
+static int hf_nas_eps_emm_5g_ia12 = -1;
+static int hf_nas_eps_emm_5g_ia13 = -1;
+static int hf_nas_eps_emm_5g_ia14 = -1;
+static int hf_nas_eps_emm_5g_ia15 = -1;
 static int hf_nas_eps_emm_detach_req_UL = -1;
 static int hf_nas_eps_emm_detach_req_DL = -1;
 static int hf_nas_eps_emm_switch_off = -1;
 static int hf_nas_eps_emm_detach_type_UL = -1;
 static int hf_nas_eps_emm_detach_type_DL = -1;
 
-static int hf_nas_eps_qci = -1;
-static int hf_nas_eps_mbr_ul = -1;
-static int hf_nas_eps_mbr_dl = -1;
-static int hf_nas_eps_gbr_ul = -1;
-static int hf_nas_eps_gbr_dl = -1;
-static int hf_nas_eps_embr_ul = -1;
-static int hf_nas_eps_embr_dl = -1;
-static int hf_nas_eps_egbr_ul = -1;
-static int hf_nas_eps_egbr_dl = -1;
-
+static int hf_nas_eps_esm_qci = -1;
+static int hf_nas_eps_esm_mbr_ul = -1;
+static int hf_nas_eps_esm_mbr_dl = -1;
+static int hf_nas_eps_esm_gbr_ul = -1;
+static int hf_nas_eps_esm_gbr_dl = -1;
+static int hf_nas_eps_esm_embr_ul = -1;
+static int hf_nas_eps_esm_embr_dl = -1;
+static int hf_nas_eps_esm_egbr_ul = -1;
+static int hf_nas_eps_esm_egbr_dl = -1;
 static int hf_nas_eps_esm_cause = -1;
 static int hf_nas_eps_esm_eit = -1;
 static int hf_nas_eps_esm_notif_ind = -1;
@@ -265,6 +298,16 @@ static int hf_nas_eps_esm_hdr_compr_config_status_ebi10 = -1;
 static int hf_nas_eps_esm_hdr_compr_config_status_ebi9 = -1;
 static int hf_nas_eps_esm_hdr_compr_config_status_ebi8 = -1;
 static int hf_nas_eps_esm_serv_plmn_rate_ctrl_val = -1;
+static int hf_nas_eps_esm_ext_apn_ambr_dl_unit = -1;
+static int hf_nas_eps_esm_ext_apn_ambr_dl = -1;
+static int hf_nas_eps_esm_ext_apn_ambr_ul_unit = -1;
+static int hf_nas_eps_esm_ext_apn_ambr_ul = -1;
+static int hf_nas_eps_esm_ext_mbr_unit = -1;
+static int hf_nas_eps_esm_ext_mbr_ul = -1;
+static int hf_nas_eps_esm_ext_mbr_dl = -1;
+static int hf_nas_eps_esm_ext_gbr_unit = -1;
+static int hf_nas_eps_esm_ext_gbr_ul = -1;
+static int hf_nas_eps_esm_ext_gbr_dl = -1;
 
 static int hf_nas_eps_active_flg = -1;
 static int hf_nas_eps_ctrl_plane_serv_type = -1;
@@ -758,6 +801,8 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_NON_3GPP_NW_PROV_POL, "Non-3GPP NW provided policies" },          /* 9.9.3.49 Non-3GPP NW provided policies */
     { DE_EMM_HASH_MME, "HashMME" },                                            /* 9.9.3.50 HashMME */
     { DE_EMM_REPLAYED_NAS_MSG_CONT, "Replayed NAS message container" },        /* 9.9.3.51 Replayed NAS message container */
+    { DE_EMM_NETWORK_POLICY, "Network policy" },                               /* 9.9.3.52 Network policy */
+    { DE_EMM_UE_ADD_SEC_CAP, "UE additional security capability" },            /* 9.9.3.53 UE additional security capability */
     { 0, NULL }
 };
 value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
@@ -837,6 +882,8 @@ typedef enum
     DE_EMM_NON_3GPP_NW_PROV_POL /* 9.9.3.49 Non-3GPP NW provided policies */
     DE_EMM_HASH_MME,            /* 9.9.3.50 HashMME */
     DE_EMM_REPLAYED_NAS_MSG_CONT, /* 9.9.3.51 Replayed NAS message container */
+    DE_EMM_NETWORK_POLICY,      /* 9.9.3.52 Network policy */
+    DE_EMM_UE_ADD_SEC_CAP,      /* 9.9.3.53 UE additional security capability */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -878,7 +925,7 @@ de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 static const value_string nas_eps_emm_pnb_ciot_vals[] = {
     { 0x0, "No additional information"},
     { 0x1, "Control-plane CIoT EPS optimization"},
-    { 0x2, "User-plane CIoT EPS optimization"},
+    { 0x2, "S1-U data transfer"},
     { 0x3, "Reserved"},
     { 0, NULL }
 };
@@ -2409,6 +2456,100 @@ de_emm_replayed_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 
 /*
+ * 9.9.3.52 Network policy
+ */
+static const true_false_string nas_eps_redir_policy_vals = {
+    "Unsecured redirection to GERAN not allowed",
+    "Unsecured redirection to GERAN allowed"
+};
+
+static guint16
+de_emm_network_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3)+4, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_nas_eps_redir_policy, tvb, offset, 1, ENC_NA);
+
+    return 1;
+}
+
+/*
+ * 9.9.3.53 UE additional security capability
+ */
+static guint16
+de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    static const int * oct3_flags[] = {
+        &hf_nas_eps_emm_5g_ea0,
+        &hf_nas_eps_emm_128_5g_ea1,
+        &hf_nas_eps_emm_128_5g_ea2,
+        &hf_nas_eps_emm_128_5g_ea3,
+        &hf_nas_eps_emm_5g_ea4,
+        &hf_nas_eps_emm_5g_ea5,
+        &hf_nas_eps_emm_5g_ea6,
+        &hf_nas_eps_emm_5g_ea7,
+        NULL
+    };
+
+    static const int * oct4_flags[] = {
+        &hf_nas_eps_emm_5g_ea8,
+        &hf_nas_eps_emm_5g_ea9,
+        &hf_nas_eps_emm_5g_ea10,
+        &hf_nas_eps_emm_5g_ea11,
+        &hf_nas_eps_emm_5g_ea12,
+        &hf_nas_eps_emm_5g_ea13,
+        &hf_nas_eps_emm_5g_ea14,
+        &hf_nas_eps_emm_5g_ea15,
+        NULL
+    };
+
+    static const int * oct5_flags[] = {
+        &hf_nas_eps_emm_5g_ia0,
+        &hf_nas_eps_emm_128_5g_ia1,
+        &hf_nas_eps_emm_128_5g_ia2,
+        &hf_nas_eps_emm_128_5g_ia3,
+        &hf_nas_eps_emm_5g_ia4,
+        &hf_nas_eps_emm_5g_ia5,
+        &hf_nas_eps_emm_5g_ia6,
+        &hf_nas_eps_emm_5g_ia7,
+        NULL
+    };
+
+    static const int * oct6_flags[] = {
+        &hf_nas_eps_emm_5g_ia8,
+        &hf_nas_eps_emm_5g_ia9,
+        &hf_nas_eps_emm_5g_ia10,
+        &hf_nas_eps_emm_5g_ia11,
+        &hf_nas_eps_emm_5g_ia12,
+        &hf_nas_eps_emm_5g_ia13,
+        &hf_nas_eps_emm_5g_ia14,
+        &hf_nas_eps_emm_5g_ia15,
+        NULL
+    };
+
+    curr_offset = offset;
+
+    /* 5GS encryption algorithms supported (octet 3) */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct3_flags, ENC_NA);
+    curr_offset++;
+
+    /* 5GS encryption algorithms supported (octet 4) */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
+    curr_offset++;
+
+    /* 5GS integrity algorithms supported (octet 5) */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct5_flags, ENC_NA);
+    curr_offset++;
+
+    /* 5GS integrity algorithms supported (octet 6) */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct6_flags, ENC_NA);
+    curr_offset++;
+
+    return len;
+}
+
+/*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
 
@@ -2435,12 +2576,12 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* APN-AMBR for downlink    octet 3 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_apn_ambr_dl, tvb, curr_offset, 1, octet,
                        "Reserved");
     } else {
         bitrate = calc_bitrate(octet);
         dl_total = bitrate;
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_dl, tvb, curr_offset, 1, octet,
                        "%u kbps", bitrate);
     }
     curr_offset++;
@@ -2448,12 +2589,12 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* APN-AMBR for uplink  octet 4 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_apn_ambr_ul, tvb, curr_offset, 1, octet,
                        "Reserved");
     } else {
         bitrate = calc_bitrate(octet);
         ul_total = bitrate;
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_ul, tvb, curr_offset, 1, octet,
                        "%u kbps", bitrate);
     }
     curr_offset++;
@@ -2462,20 +2603,20 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* APN-AMBR for downlink (extended) octet 5 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the APN-AMBR for downlink");
     } else {
         bitrate = calc_bitrate_ext(octet);
         dl_total = (octet > 0x4a) ? bitrate*1000 : bitrate;
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
                        "%u %s", bitrate, (octet > 0x4a) ? "Mbps" : "kbps");
     }
     if (len < 5) {
         /* APN-AMBR for downlink (extended-2) is not present; display total now */
         if (dl_total >= 1000) {
-            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%.3f Mbps", (gfloat)dl_total / 1000);
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%.3f Mbps", (gfloat)dl_total / 1000);
         } else {
-            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%u kbps", dl_total);
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%u kbps", dl_total);
         }
     }
     curr_offset++;
@@ -2484,20 +2625,20 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* APN-AMBR for uplink (extended)   octet 6 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the APN-AMBR for uplink");
     } else {
         bitrate = calc_bitrate_ext(octet);
         ul_total = (octet > 0x4a) ? bitrate*1000 : bitrate;
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
                        "%u %s", bitrate, (octet > 0x4a) ? "Mbps" : "kbps");
     }
     if (len < 6) {
         /* APN-AMBR for uplink (extended-2) is not present; display total now */
         if (ul_total >= 1000) {
-            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%.3f Mbps", (gfloat)ul_total / 1000);
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%.3f Mbps", (gfloat)ul_total / 1000);
         } else {
-            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%u kbps", ul_total);
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%u kbps", ul_total);
         }
     }
     curr_offset++;
@@ -2506,28 +2647,28 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* APN-AMBR for downlink (extended-2)   octet 7 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if ((octet == 0)||(octet == 0xff)) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the APN-AMBR for downlink and APN-AMBR for downlink (extended)");
     } else {
         dl_total += octet*256*1000;
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
                        "%u Mbps", (octet* 256));
     }
-    proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%.3f Mbps", (gfloat)dl_total / 1000);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%.3f Mbps", (gfloat)dl_total / 1000);
     curr_offset++;
     if ((curr_offset - offset) >= len)
         return(len);
     /* APN-AMBR for uplink (extended-2) octet 8 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if ((octet == 0)||(octet == 0xff)) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the APN-AMBR for uplink and APN-AMBR for uplink (extended)");
     } else {
         ul_total += octet*256*1000;
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
                        "%u Mbps", (octet* 256));
     }
-    proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%.3f Mbps", (gfloat)ul_total / 1000);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%.3f Mbps", (gfloat)ul_total / 1000);
     curr_offset++;
 
     return(len);
@@ -2578,17 +2719,17 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset = offset;
 
     /* QCI octet 3 */
-    proto_tree_add_item(tree, hf_nas_eps_qci, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_esm_qci, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     if ((curr_offset - offset) >= len)
         return(len);
     /* Maximum bit rate for uplink octet 4 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_mbr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_mbr_ul, tvb, curr_offset, 1, octet,
                        "UE->NW Subscribed maximum bit rate for uplink/ NW->UE Reserved");
     } else {
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_mbr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_mbr_ul, tvb, curr_offset, 1, octet,
                        "%u kbps", calc_bitrate(octet));
     }
     curr_offset++;
@@ -2597,10 +2738,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Maximum bit rate for downlink octet 5 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_mbr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_mbr_dl, tvb, curr_offset, 1, octet,
                        "UE->NW Subscribed maximum bit rate for downlink/ NW->UE Reserved");
     } else {
-        proto_tree_add_uint_format_value(tree, hf_nas_eps_mbr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_mbr_dl, tvb, curr_offset, 1, octet,
                        "%u kbps", calc_bitrate(octet));
     }
     curr_offset++;
@@ -2608,7 +2749,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return(len);
     /* Guaranteed bit rate for uplink octet 6 */
     octet = tvb_get_guint8(tvb,curr_offset);
-    proto_tree_add_uint_format_value(tree, hf_nas_eps_gbr_ul, tvb, curr_offset, 1, octet,
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_gbr_ul, tvb, curr_offset, 1, octet,
                    "%u kbps", calc_bitrate(octet));
 
     curr_offset++;
@@ -2616,7 +2757,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return(len);
     /* Guaranteed bit rate for downlink octet 7 */
     octet = tvb_get_guint8(tvb,curr_offset);
-    proto_tree_add_uint_format_value(tree, hf_nas_eps_gbr_dl, tvb, curr_offset, 1, octet,
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_gbr_dl, tvb, curr_offset, 1, octet,
                    "%u kbps", calc_bitrate(octet));
 
     curr_offset++;
@@ -2625,10 +2766,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Maximum bit rate for uplink (extended) octet 8 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_ul, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the maximum bit rate for uplink in octet 4");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_ul, tvb, curr_offset, 1, octet,
                        "Maximum bit rate for uplink (extended) : %u %s",
                        calc_bitrate_ext(octet),
                        (octet > 0x4a) ? "Mbps" : "kbps");
@@ -2639,10 +2780,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Maximum bit rate for downlink (extended) octet 9 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_dl, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the maximum bit rate for downlink in octet 5");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_dl, tvb, curr_offset, 1, octet,
                        "Maximum bit rate for downlink (extended) : %u %s",
                        calc_bitrate_ext(octet),
                        (octet > 0x4a) ? "Mbps" : "kbps");
@@ -2653,10 +2794,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Guaranteed bit rate for uplink (extended) octet 10 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_ul, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the guaranteed bit rate for uplink in octet 6");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_ul, tvb, curr_offset, 1, octet,
                        "Guaranteed bit rate for uplink (extended) : %u %s",
                        calc_bitrate_ext(octet),
                        (octet > 0x4a) ? "Mbps" : "kbps");
@@ -2667,10 +2808,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Guaranteed bit rate for downlink (extended) octet 11 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_dl, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the guaranteed bit rate for downlink in octet 7");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_dl, tvb, curr_offset, 1, octet,
                        "Guaranteed bit rate for downlink (extended) : %u %s",
                        calc_bitrate_ext(octet),
                        (octet > 0x4a) ? "Mbps" : "kbps");
@@ -2681,10 +2822,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Maximum bit rate for uplink (extended-2) octet 12 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_ul, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the maximum bit rate for uplink in octet 4 and octet 8");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_ul, tvb, curr_offset, 1, octet,
                        "Maximum bit rate for uplink (extended-2) : %u Mbps",
                        calc_bitrate_ext2(octet));
     }
@@ -2692,10 +2833,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Maximum bit rate for downlink (extended-2) octet 13 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_dl, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the maximum bit rate for downlink in octet 5 and octet 9");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_embr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_embr_dl, tvb, curr_offset, 1, octet,
                        "Maximum bit rate for downlink (extended-2) : %u Mbps",
                        calc_bitrate_ext2(octet));
     }
@@ -2703,10 +2844,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Guaranteed bit rate for uplink (extended-2) octet 14 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_ul, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the guaranteed bit rate for uplink in octet 6 and octet 10");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_ul, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_ul, tvb, curr_offset, 1, octet,
                        "Guaranteed bit rate for uplink (extended-2) : %u Mbps",
                        calc_bitrate_ext2(octet));
     }
@@ -2714,10 +2855,10 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Guaranteed bit rate for downlink (extended-2) octet 15 */
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_dl, tvb, curr_offset, 1, octet,
                        "Use the value indicated by the guaranteed bit rate for downlink in octet 7 and octet 11");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_egbr_dl, tvb, curr_offset, 1, octet,
+        proto_tree_add_uint_format(tree, hf_nas_eps_esm_egbr_dl, tvb, curr_offset, 1, octet,
                        "Guaranteed bit rate for downlink (extended-2) : %u Mbps",
                        calc_bitrate_ext2(octet));
     }
@@ -3361,6 +3502,175 @@ de_esm_serv_plmn_rate_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     return len;
 }
 
+/*
+ * 9.9.4.29 Extended APN aggregate maximum bit rate
+ */
+static const range_string nas_eps_ext_apn_ambr_unit_vals[] = {
+    { 0x00, 0x02, "Not used" },
+    { 0x03, 0x03, "Multiple of 4 Mbps" },
+    { 0x04, 0x04, "Multiple of 16 Mbps" },
+    { 0x05, 0x05, "Multiple of 64 Mbps" },
+    { 0x06, 0x06, "Multiple of 256 Mbps" },
+    { 0x07, 0x07, "Multiple of 1 Gbps" },
+    { 0x08, 0x08, "Multiple of 4 Gbps" },
+    { 0x09, 0x09, "Multiple of 16 Gbps" },
+    { 0x0a, 0x0a, "Multiple of 64 Gbps" },
+    { 0x0b, 0x0b, "Multiple of 256 Gbps" },
+    { 0x0c, 0x0c, "Multiple of 1 Tbps" },
+    { 0x0d, 0x0d, "Multiple of 4 Tbps" },
+    { 0x0e, 0x0e, "Multiple of 16 Tbps" },
+    { 0x0f, 0x0f, "Multiple of 64 Tbps" },
+    { 0x10, 0x10, "Multiple of 256 Tbps" },
+    { 0x11, 0x11, "Multiple of 1 Pbps" },
+    { 0x12, 0x12, "Multiple of 4 Pbps" },
+    { 0x13, 0x13, "Multiple of 16 Pbps" },
+    { 0x14, 0x14, "Multiple of 64 Pbps" },
+    { 0x15, 0xff, "Multiple of 256 Pbps" },
+    { 0, 0, NULL }
+};
+
+guint32 get_ext_ambr_unit(guint32 byte, const char **unit_str)
+{
+    guint32 mult;
+
+    if (byte <= 0x02) {
+        mult = 0;
+        *unit_str = "";
+    } else if (byte <= 0x06) {
+        mult = (guint32)pow(4, byte-0x02);
+        *unit_str = "Mbps";
+    } else if (byte <= 0x0b) {
+        mult = (guint32)pow(4, byte-0x07);
+        *unit_str = "Gbps";
+    } else if (byte <= 0x10) {
+        mult = (guint32)pow(4, byte-0x0c);
+        *unit_str = "Tbps";
+    } else if (byte <= 0x15) {
+        mult = (guint32)pow(4, byte-0x11);
+        *unit_str = "Pbps";
+    } else {
+        mult = 256;
+        *unit_str = "Pbps";
+    }
+    return mult;
+}
+
+static guint16
+de_esm_ext_apn_agr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                          guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset, byte, mult, ambr_val;
+    const char *unit_str;
+
+    curr_offset = offset;
+    proto_tree_add_item_ret_uint(tree, hf_nas_eps_esm_ext_apn_ambr_dl_unit, tvb, curr_offset, 1, ENC_NA, &byte);
+    curr_offset++;
+    mult = get_ext_ambr_unit(byte, &unit_str);
+    ambr_val = tvb_get_ntohs(tvb, curr_offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_ext_apn_ambr_dl, tvb, curr_offset, 2,
+                                     ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
+    curr_offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_nas_eps_esm_ext_apn_ambr_ul_unit, tvb, curr_offset, 1, ENC_NA, &byte);
+    curr_offset++;
+    mult = get_ext_ambr_unit(byte, &unit_str);
+    ambr_val = tvb_get_ntohs(tvb, curr_offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_ext_apn_ambr_ul, tvb, curr_offset, 2,
+                                     ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
+
+    return len;
+}
+
+/*
+ * 9.9.4.29 Extended EPS quality of service
+ */
+static const range_string nas_eps_ext_eps_qos_unit_vals[] = {
+    { 0x00, 0x00, "Not used" },
+    { 0x01, 0x01, "Multiple of 200 kbps" },
+    { 0x02, 0x02, "Multiple of 1 Mbps" },
+    { 0x03, 0x03, "Multiple of 4 Mbps" },
+    { 0x04, 0x04, "Multiple of 16 Mbps" },
+    { 0x05, 0x05, "Multiple of 64 Mbps" },
+    { 0x06, 0x06, "Multiple of 256 Mbps" },
+    { 0x07, 0x07, "Multiple of 1 Gbps" },
+    { 0x08, 0x08, "Multiple of 4 Gbps" },
+    { 0x09, 0x09, "Multiple of 16 Gbps" },
+    { 0x0a, 0x0a, "Multiple of 64 Gbps" },
+    { 0x0b, 0x0b, "Multiple of 256 Gbps" },
+    { 0x0c, 0x0c, "Multiple of 1 Tbps" },
+    { 0x0d, 0x0d, "Multiple of 4 Tbps" },
+    { 0x0e, 0x0e, "Multiple of 16 Tbps" },
+    { 0x0f, 0x0f, "Multiple of 64 Tbps" },
+    { 0x10, 0x10, "Multiple of 256 Tbps" },
+    { 0x11, 0x11, "Multiple of 1 Pbps" },
+    { 0x12, 0x12, "Multiple of 4 Pbps" },
+    { 0x13, 0x13, "Multiple of 16 Pbps" },
+    { 0x14, 0x14, "Multiple of 64 Pbps" },
+    { 0x15, 0xff, "Multiple of 256 Pbps" },
+    { 0, 0, NULL }
+};
+
+guint32 get_ext_eps_qos_unit(guint32 byte, const char **unit_str)
+{
+    guint32 mult;
+
+    if (byte == 0x00) {
+        mult = 0;
+        *unit_str = "";
+    } else if (byte == 0x01) {
+        mult = 200;
+        *unit_str = "kbps";
+    } else if (byte <= 0x06) {
+        mult = (guint32)pow(4, byte-0x02);
+        *unit_str = "Mbps";
+    } else if (byte <= 0x0b) {
+        mult = (guint32)pow(4, byte-0x07);
+        *unit_str = "Gbps";
+    } else if (byte <= 0x10) {
+        mult = (guint32)pow(4, byte-0x0c);
+        *unit_str = "Tbps";
+    } else if (byte <= 0x15) {
+        mult = (guint32)pow(4, byte-0x11);
+        *unit_str = "Pbps";
+    } else {
+        mult = 256;
+        *unit_str = "Pbps";
+    }
+    return mult;
+}
+
+static guint16
+de_esm_ext_eps_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                   guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset, byte, mult, val;
+    const char *unit_str;
+
+    curr_offset = offset;
+    proto_tree_add_item_ret_uint(tree, hf_nas_eps_esm_ext_mbr_unit, tvb, curr_offset, 1, ENC_NA, &byte);
+    curr_offset++;
+    mult = get_ext_eps_qos_unit(byte, &unit_str);
+    val = tvb_get_ntohs(tvb, curr_offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_ext_mbr_ul, tvb, curr_offset,
+                                     2, val, "%u %s (%u)", val * mult, unit_str, val);
+    curr_offset += 2;
+    val = tvb_get_ntohs(tvb, curr_offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_ext_mbr_dl, tvb, curr_offset,
+                                     2,val, "%u %s (%u)", val * mult, unit_str, val);
+    curr_offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_nas_eps_esm_ext_gbr_unit, tvb, curr_offset, 1, ENC_NA, &byte);
+    curr_offset++;
+    mult = get_ext_eps_qos_unit(byte, &unit_str);
+    val = tvb_get_ntohs(tvb, curr_offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_ext_gbr_ul, tvb, curr_offset,
+                                     2, val, "%u %s (%u)", val * mult, unit_str, val);
+    curr_offset += 2;
+    val = tvb_get_ntohs(tvb, curr_offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_esm_ext_gbr_dl, tvb, curr_offset,
+                                     2, val, "%u %s (%u)", val * mult, unit_str, val);
+
+    return len;
+}
+
 guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
     /* 9.9.3    EPS Mobility Management (EMM) information elements */
     de_emm_add_upd_res,         /* 9.9.3.0A Additional update result */
@@ -3423,6 +3733,8 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,                       /* 9.9.3.49 Non-3GPP NW provided policies */
     de_emm_hash_mme,            /* 9.9.3.50 HashMME */
     de_emm_replayed_nas_msg_cont, /* 9.9.3.51 Replayed NAS message container */
+    de_emm_network_policy,      /* 9.9.3.52 Network policy */
+    de_emm_ue_add_sec_cap,      /* 9.9.3.53 UE additional security capability */
     NULL,   /* NONE */
 };
 
@@ -3460,6 +3772,8 @@ typedef enum
     DE_ESM_EXT_PCO,                 /* 9.9.4.26 Extended protocol configuration options */
     DE_ESM_HDR_COMPR_CONFIG_STATUS, /* 9.9.4.27 Header compression configuration status */
     DE_ESM_SERV_PLMN_RATE_CTRL,     /* 9.9.4.28 Serving PLMN rate control */
+    DE_ESM_EXT_APN_AGR_MAX_BR,      /* 9.9.4.29 Extended APN aggregate maximum bit rate */
+    DE_ESM_EXT_EPS_QOS,             /* 9.9.4.30 Extended EPS quality of service */
     DE_ESM_NONE                     /* NONE */
 }
 nas_esm_elem_idx_t;
@@ -3496,6 +3810,8 @@ static const value_string nas_esm_elem_strings[] = {
     { DE_ESM_EXT_PCO, "Extended protocol configuration options" },                /* 9.9.4.26 Extended protocol configuration options */
     { DE_ESM_HDR_COMPR_CONFIG_STATUS, "Header compression configuration status" },/* 9.9.4.27 Header compression configuration status */
     { DE_ESM_SERV_PLMN_RATE_CTRL, "Serving PLMN rate control" },                  /* 9.9.4.28 Serving PLMN rate control */
+    { DE_ESM_EXT_APN_AGR_MAX_BR, "Extended APN aggregate maximum bit rate" },     /* 9.9.4.29 Extended APN aggregate maximum bit rate */
+    { DE_ESM_EXT_EPS_QOS, "Extended EPS quality of service" },                    /* 9.9.4.30 Extended EPS quality of service */
     { 0, NULL }
 };
 value_string_ext nas_esm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_esm_elem_strings);
@@ -3535,6 +3851,8 @@ guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     de_esm_ext_pco,                 /* 9.9.4.26 Extended protocol configuration options */
     de_esm_hdr_compr_config_status, /* 9.9.4.27 Header compression configuration status */
     de_esm_serv_plmn_rate_ctrl,     /* 9.9.4.28 Serving PLMN rate control */
+    de_esm_ext_apn_agr_max_br,      /* 9.9.4.29 Extended APN aggregate maximum bit rate */
+    de_esm_ext_eps_qos,             /* 9.9.4.30 Extended EPS quality of service */
     NULL,   /* NONE */
 };
 
@@ -3608,6 +3926,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
+    /* X-   Network policy Network policy 9.9.3.52 O TV 1 */
+    /*ELEM_OPT_TV_SHORT(0xX0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);*/
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3738,6 +4058,8 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+    /* XX   UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
+    /*ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);*/
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4200,6 +4522,8 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     ELEM_OPT_TV(0x56, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - NonceMME");
     /* 4F   HashMME     HashMME 9.9.3.50  O   TLV  10 */
     ELEM_OPT_TLV(0x4F, NAS_PDU_TYPE_EMM, DE_EMM_HASH_MME, NULL);
+    /* XX   Replayed UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
+    /*ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, " - Replayed UE additional security capability");*/
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4374,6 +4698,8 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
+    /* X-   Network policy Network policy 9.9.3.52 O TV 1 */
+    /*ELEM_OPT_TV_SHORT(0xX0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);*/
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4490,6 +4816,8 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+    /* XX   UE additional security capability UE additional security capability 9.9.3.53 O TLV 8 */
+    /*ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);*/
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4745,6 +5073,8 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
+    /* 5C   Extended EPS QoS Extended EPS quality of service 9.9.4.30 O TLV 12 */
+    ELEM_OPT_TLV(0x5C, NAS_PDU_TYPE_ESM, DE_ESM_EXT_EPS_QOS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4851,6 +5181,10 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
     /* 6E   Serving PLMN rate control  Serving PLMN rate control 9.9.4.28 O  TLV  4 */
     ELEM_OPT_TLV(0x6E, NAS_PDU_TYPE_ESM, DE_ESM_SERV_PLMN_RATE_CTRL, NULL);
+    /* 5F   Extended APN-AMBR Extended APN aggregate maximum bit rate 9.9.4.29 O TLV 8 */
+    ELEM_OPT_TLV(0x5F, NAS_PDU_TYPE_ESM, DE_ESM_EXT_APN_AGR_MAX_BR , NULL);
+    /* 5C   Extended EPS QoS Extended EPS quality of service 9.9.4.30 O TLV 12 */
+    ELEM_OPT_TLV(0x5C, NAS_PDU_TYPE_ESM, DE_ESM_EXT_EPS_QOS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4926,6 +5260,8 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
+    /* 5C   Extended EPS QoS Extended EPS quality of service 9.9.4.30 O TLV 12 */
+    ELEM_OPT_TLV(0x5C, NAS_PDU_TYPE_ESM, DE_ESM_EXT_EPS_QOS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5002,6 +5338,8 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_OPT_TLV(0x66, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG, NULL);
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
+    /* 5C   Extended EPS QoS Extended EPS quality of service 9.9.4.30 O TLV 12 */
+    ELEM_OPT_TLV(0x5C, NAS_PDU_TYPE_ESM, DE_ESM_EXT_EPS_QOS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5226,6 +5564,10 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV(0x66, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG, NULL);
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
+    /* 5F   Extended APN-AMBR Extended APN aggregate maximum bit rate 9.9.4.29 O TLV 8 */
+    ELEM_OPT_TLV(0x5F, NAS_PDU_TYPE_ESM, DE_ESM_EXT_APN_AGR_MAX_BR , NULL);
+    /* 5C   Extended EPS QoS Extended EPS quality of service 9.9.4.30 O TLV 12 */
+    ELEM_OPT_TLV(0x5C, NAS_PDU_TYPE_ESM, DE_ESM_EXT_EPS_QOS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -6633,43 +6975,43 @@ proto_register_nas_eps(void)
         FT_UINT8,BASE_DEC|BASE_RANGE_STRING, RVALS(nas_eps_emm_gen_msg_cont_type_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_ul,
-        { "APN-AMBR for uplink","nas_eps.emm.apn_ambr_ul",
+    { &hf_nas_eps_esm_apn_ambr_ul,
+        { "APN-AMBR for uplink","nas_eps.esm.apn_ambr_ul",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_dl,
-        { "APN-AMBR for downlink","nas_eps.emm.apn_ambr_dl",
+    { &hf_nas_eps_esm_apn_ambr_dl,
+        { "APN-AMBR for downlink","nas_eps.esm.apn_ambr_dl",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_ul_ext,
-        { "APN-AMBR for uplink (extended)","nas_eps.emm.apn_ambr_ul_ext",
+    { &hf_nas_eps_esm_apn_ambr_ul_ext,
+        { "APN-AMBR for uplink (extended)","nas_eps.esm.apn_ambr_ul_ext",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_dl_ext,
-        { "APN-AMBR for downlink (extended)","nas_eps.emm.apn_ambr_dl_ext",
+    { &hf_nas_eps_esm_apn_ambr_dl_ext,
+        { "APN-AMBR for downlink (extended)","nas_eps.esm.apn_ambr_dl_ext",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_ul_ext2,
-        { "APN-AMBR for uplink (extended-2)","nas_eps.emm.apn_ambr_ul_ext2",
+    { &hf_nas_eps_esm_apn_ambr_ul_ext2,
+        { "APN-AMBR for uplink (extended-2)","nas_eps.esm.apn_ambr_ul_ext2",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_dl_ext2,
-        { "APN-AMBR for downlink (extended-2)","nas_eps.emm.apn_ambr_dl_ext2",
+    { &hf_nas_eps_esm_apn_ambr_dl_ext2,
+        { "APN-AMBR for downlink (extended-2)","nas_eps.esm.apn_ambr_dl_ext2",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_ul_total,
-        { "Total APN-AMBR for uplink","nas_eps.emm.apn_ambr_ul_total",
+    { &hf_nas_eps_esm_apn_ambr_ul_total,
+        { "Total APN-AMBR for uplink","nas_eps.esm.apn_ambr_ul_total",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_apn_ambr_dl_total,
-        { "Total APN-AMBR for downlink","nas_eps.emm.apn_ambr_dl_total",
+    { &hf_nas_eps_esm_apn_ambr_dl_total,
+        { "Total APN-AMBR for downlink","nas_eps.esm.apn_ambr_dl_total",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
@@ -6686,6 +7028,171 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_replayed_nas_msg_cont,
         { "Replayed NAS message container", "nas_eps.emm.replayed_nas_msg_cont",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_redir_policy,
+        { "Redirection to GERAN security policy", "nas_eps.emm.redic_policy",
+        FT_BOOLEAN, 8, TFS(&nas_eps_redir_policy_vals), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea0,
+        { "5G-EA0","nas_eps.emm.5g_ea0",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_128_5g_ea1,
+        { "128-5G-EA1","nas_eps.emm.128_5g_ea1",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_128_5g_ea2,
+        { "128-5G-EA2","nas_eps.emm.128_5g_ea2",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_128_5g_ea3,
+        { "128-5G-EA3","nas_eps.emm.128_5g_ea3",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea4,
+        { "5G-EA4","nas_eps.emm.5g_ea4",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea5,
+        { "5G-EA5","nas_eps.emm.5g_ea5",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea6,
+        { "5G-EA6","nas_eps.emm.5g_ea6",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea7,
+        { "5G-EA7","nas_eps.emm.5g_ea7",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea8,
+        { "5G-EA8","nas_eps.emm.5g_ea8",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea9,
+        { "5G-EA9","nas_eps.emm.5g_ea9",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea10,
+        { "5G-EA10","nas_eps.emm.5g_ea10",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea11,
+        { "5G-EA11","nas_eps.emm.5g_ea11",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea12,
+        { "5G-EA12","nas_eps.emm.5g_ea12",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea13,
+        { "5G-EA13","nas_eps.emm.5g_ea13",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea14,
+        { "5G-EA14","nas_eps.emm.5g_ea14",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ea15,
+        { "5G-EA15","nas_eps.emm.5g_ea15",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia0,
+        { "5G-IA0","nas_eps.emm.5g_ia0",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_128_5g_ia1,
+        { "128-5G-IA1","nas_eps.emm.128_5g_ia1",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_128_5g_ia2,
+        { "128-5G-IA2","nas_eps.emm.128_5g_ia2",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_128_5g_ia3,
+        { "128-5G-IA3","nas_eps.emm.128_5g_ia3",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia4,
+        { "5G-IA4","nas_eps.emm.5g_ia4",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia5,
+        { "5G-IA5","nas_eps.emm.5g_ia5",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia6,
+        { "5G-IA6","nas_eps.emm.5g_ia6",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia7,
+        { "5G-IA7","nas_eps.emm.5g_ia7",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia8,
+        { "5G-IA8","nas_eps.emm.5g_ia8",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia9,
+        { "5G-IA9","nas_eps.emm.5g_ia9",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia10,
+        { "5G-IA10","nas_eps.emm.5g_ia10",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia11,
+        { "5G-IA11","nas_eps.emm.5g_ia11",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia12,
+        { "5G-IA12","nas_eps.emm.5g_ia12",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia13,
+        { "5G-IA13","nas_eps.emm.5g_ia13",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia14,
+        { "5G-IA14","nas_eps.emm.5g_ia14",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_5g_ia15,
+        { "5G-IA15","nas_eps.emm.5g_ia15",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_detach_req_UL,
@@ -6713,48 +7220,48 @@ proto_register_nas_eps(void)
         FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_detach_DL_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_qci,
-        { "Quality of Service Class Identifier (QCI)","nas_eps.emm.qci",
+    { &hf_nas_eps_esm_qci,
+        { "Quality of Service Class Identifier (QCI)","nas_eps.esm.qci",
         FT_UINT8,(BASE_DEC|BASE_RANGE_STRING), RVALS(nas_eps_qci_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_mbr_ul,
-        { "Maximum bit rate for uplink","nas_eps.emm.mbr_ul",
+    { &hf_nas_eps_esm_mbr_ul,
+        { "Maximum bit rate for uplink","nas_eps.esm.mbr_ul",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_mbr_dl,
-        { "Maximum bit rate for downlink","nas_eps.emm.mbr_dl",
+    { &hf_nas_eps_esm_mbr_dl,
+        { "Maximum bit rate for downlink","nas_eps.esm.mbr_dl",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_gbr_ul,
-        { "Guaranteed bit rate for uplink","nas_eps.emm.gbr_ul",
+    { &hf_nas_eps_esm_gbr_ul,
+        { "Guaranteed bit rate for uplink","nas_eps.esm.gbr_ul",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_gbr_dl,
-        { "Guaranteed bit rate for downlink","nas_eps.emm.gbr_dl",
+    { &hf_nas_eps_esm_gbr_dl,
+        { "Guaranteed bit rate for downlink","nas_eps.esm.gbr_dl",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_embr_ul,
-        { "Maximum bit rate for uplink(ext)","nas_eps.emm.embr_ul",
+    { &hf_nas_eps_esm_embr_ul,
+        { "Maximum bit rate for uplink(ext)","nas_eps.esm.embr_ul",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_embr_dl,
-        { "Maximum bit rate for downlink(ext)","nas_eps.emm.embr_dl",
+    { &hf_nas_eps_esm_embr_dl,
+        { "Maximum bit rate for downlink(ext)","nas_eps.esm.embr_dl",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_egbr_ul,
-        { "Guaranteed bit rate for uplink(ext)","nas_eps.emm.egbr_ul",
+    { &hf_nas_eps_esm_egbr_ul,
+        { "Guaranteed bit rate for uplink(ext)","nas_eps.esm.egbr_ul",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_egbr_dl,
-        { "Guaranteed bit rate for downlink(ext)","nas_eps.emm.egbr_dl",
+    { &hf_nas_eps_esm_egbr_dl,
+        { "Guaranteed bit rate for downlink(ext)","nas_eps.esm.egbr_dl",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
@@ -6764,7 +7271,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_eit,
-        { "EIT (ESM information transfer)", "nas_eps.emm.eit",
+        { "EIT (ESM information transfer)", "nas_eps.esm.eit",
         FT_BOOLEAN, 8, TFS(&nas_eps_emm_eit_vals), 0x01,
         NULL, HFILL }
     },
@@ -7020,6 +7527,56 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_esm_serv_plmn_rate_ctrl_val,
         { "Serving PLMN rate control value", "nas_eps.esm.serv_plmn_rate_ctrl_val",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_apn_ambr_dl_unit,
+        { "Unit for extended APN-AMBR for downlink", "nas_eps.esm.ext_apn_ambr_dl_unit",
+        FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(nas_eps_ext_apn_ambr_unit_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_apn_ambr_dl,
+        { "Extended APN-AMBR for downlink", "nas_eps.esm.ext_apn_ambr_dl",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_apn_ambr_ul_unit,
+        { "Unit for extended APN-AMBR for uplink", "nas_eps.esm.ext_apn_ambr_ul_unit",
+        FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(nas_eps_ext_apn_ambr_unit_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_apn_ambr_ul,
+        { "Extended APN-AMBR for uplink", "nas_eps.esm.ext_apn_ambr_ul",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_mbr_unit,
+        { "Unit for maximum bit rate", "nas_eps.esm.ext_mbr_unit",
+        FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(nas_eps_ext_eps_qos_unit_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_mbr_ul,
+        { "Maximum bit rate for uplink", "nas_eps.esm.ext_mbr_ul",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_mbr_dl,
+        { "Maximum bit rate for downlink", "nas_eps.esm.ext_mbr_dl",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_gbr_unit,
+        { "Unit for guaranteed bit rate", "nas_eps.esm.ext_gbr_unit",
+        FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(nas_eps_ext_eps_qos_unit_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_gbr_ul,
+        { "Guaranteed bit rate for uplink", "nas_eps.esm.ext_gbr_ul",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_ext_gbr_dl,
+        { "Guaranteed bit rate for downlink", "nas_eps.esm.ext_gbr_dl",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
