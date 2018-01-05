@@ -28,6 +28,7 @@
 #include <epan/to_str.h>
 #include <epan/in_cksum.h>
 #include <epan/nlpid.h>
+#include <epan/etypes.h>
 
 
 /*
@@ -91,6 +92,7 @@ static int hf_cdp_nrgyz_reply_to_name = -1;
 static int hf_cdp_nrgyz_reply_to_domain = -1;
 static int hf_cdp_nrgyz_reply_to_role = -1;
 static int hf_cdp_nrgyz_ip_address = -1;
+static int hf_cdp_nrgyz_ip6_address = -1;
 static int hf_cdp_model_number = -1;
 static int hf_cdp_nrgyz_reply_to_unknown_field = -1;
 static int hf_cdp_len_tlv_table = -1;
@@ -1033,6 +1035,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     guint8      protocol_length;
     int         nlpid;
     guint16     address_length;
+    guint16     etypeid = 0;
     int         hf_addr = -1;
 
     if (length < 1)
@@ -1062,6 +1065,10 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
         nlpid = tvb_get_guint8(tvb, offset);
         proto_tree_add_bytes_format_value(address_tree, hf_cdp_protocol, tvb, offset, protocol_length, NULL, "%s",
                             val_to_str(nlpid, nlpid_vals, "Unknown (0x%02x)"));
+    } else if ((protocol_type == PROTO_TYPE_IEEE_802_2) && (protocol_length == 8) && (tvb_get_ntoh48(tvb, offset) == 0xAAAA03000000)) {
+        etypeid = tvb_get_ntohs(tvb, offset + 6);
+        proto_tree_add_bytes_format_value(address_tree, hf_cdp_protocol, tvb, offset, protocol_length, NULL, "%s",
+                            val_to_str(etypeid, etype_vals, "Unknown (0x%04x)"));
     } else {
         nlpid = -1;
         proto_tree_add_item(address_tree, hf_cdp_protocol, tvb, offset, protocol_length, ENC_NA);
@@ -1097,6 +1104,19 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
                 proto_item_set_text(ti, "IP address: %s", tvb_ip_to_str(tvb, offset));
                 hf_addr = hf_cdp_nrgyz_ip_address;
                 proto_tree_add_item(address_tree, hf_cdp_nrgyz_ip_address, tvb, offset, address_length, ENC_BIG_ENDIAN);
+            }
+            break;
+        }
+    }
+    if ((protocol_type == PROTO_TYPE_IEEE_802_2) && (protocol_length == 8) && (etypeid > 0)) {
+        switch (etypeid) {
+
+        case ETHERTYPE_IPv6:
+            if (address_length == 16) {
+                /* The address is an IPv6 address. */
+                proto_item_set_text(ti, "IPv6 address: %s", tvb_ip6_to_str(tvb, offset));
+                hf_addr = hf_cdp_nrgyz_ip6_address;
+                proto_tree_add_item(address_tree, hf_cdp_nrgyz_ip6_address, tvb, offset, address_length, ENC_NA);
             }
             break;
         }
@@ -1398,6 +1418,7 @@ proto_register_cdp(void)
       { &hf_cdp_nrgyz_reply_to_unknown_field, { "Unknown Field", "cdp.nrgyz_reply_to.unknown_field", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_nrgyz_reply_to_port, { "Port", "cdp.nrgyz_reply_to.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_nrgyz_ip_address, { "IP Address", "cdp.nrgyz.ip_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_cdp_nrgyz_ip6_address, { "IPv6 Address", "cdp.nrgyz.ipv6_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_nrgyz_reply_to_ip_address, { "IP Address", "cdp.nrgyz_reply_to.ip_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_nrgyz_reply_to_backup_server_port, { "Backup server Port?", "cdp.nrgyz_reply_to.backup_server_port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_nrgyz_reply_to_backup_server_ip, { "Backup Server IP?", "cdp.nrgyz_reply_to.backup_server_ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
