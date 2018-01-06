@@ -3424,6 +3424,8 @@ prefs_register_modules(void)
      */
     capture_module = prefs_register_module(NULL, "capture", "Capture",
         "Capture preferences", NULL, FALSE);
+    /* Capture preferences don't affect dissection */
+    prefs_set_module_effect_flags(capture_module, PREF_EFFECT_CAPTURE);
 
     register_string_like_preference(capture_module, "device", "Default capture device",
         "Default capture device",

@@ -276,6 +276,8 @@ void ProtocolPreferencesMenu::boolPreferenceTriggered()
         prefs_main_write();
     }
 
+    /* Protocol preference changes almost always affect dissection,
+       so don't bother checking flags */
     wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
 }
 
@@ -292,6 +294,8 @@ void ProtocolPreferencesMenu::enumPreferenceTriggered()
             prefs_main_write();
         }
 
+        /* Protocol preference changes almost always affect dissection,
+           so don't bother checking flags */
         wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
     }
 }
