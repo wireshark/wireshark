@@ -13,21 +13,8 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-* Display filter buttons can now be edited, disabled, and removed via a context
-  menu directly from the toolbar
-
-* Drag&Drop filter fields to the display filter toolbar or edit to create
-  a button on the fly or apply the filter as a display filter.
-
-* Application startup time has been reduced.
-
-* Some keyboard shortcut mix-up has been resolved by assigning new shortcuts
-  to Edit -> Copy methods.
-
-* The installation step for Wireshark will now install headers required to
-  build plugins. A pkg-config file is provided to help with this
-  (see doc/plugins.example for details). Note you must still rebuild all
-  plugins between minor releases (X.Y).
+Many user interface improvements have been made. See the New and Updated
+Features section below for more details.
 
 //=== Bug Fixes
 
@@ -44,28 +31,39 @@ used for troubleshooting, analysis, development and education.
 
 The following features are new (or have been significantly updated)
 since version 2.4.0:
-* Add color support for TShark with --color option.
+* Display filter buttons can now be edited, disabled, and removed via a context
+  menu directly from the toolbar
+* Drag & Drop filter fields to the display filter toolbar or edit to create
+  a button on the fly or apply the filter as a display filter.
+* Application startup time has been reduced.
+* Some keyboard shortcut mix-ups have been resolved by assigning new shortcuts
+  to Edit -> Copy methods.
+* TShark now supports color using the --color option.
 * The "matches" display filter operator is now case-insensitive.
 * Display expression (button) preferences have been converted to a UAT.
   This puts the display expressions in their own file.  Wireshark still
   supports preference files that contain the old preferences, but new
   preference files will be written without the old fields.
 * SMI private enterprise numbers are now read from the "enterprises.tsv" configuration file.
-* QUIC dissector is renamed to G(oogle) QUIC (quic => gquic).
-* Selected packet number can now be shown in the Status Bar by enabling
+* The QUIC dissector has been renamed to G(oogle) QUIC (quic => gquic).
+* The selected packet number can now be shown in the Status Bar by enabling
   Preferences -> Appearance -> Layout -> Show selected packet number.
-* File load time in Status Bar is now disabled by default and can be enabled in
+* File load time in the Status Bar is now disabled by default and can be enabled in
   Preferences -> Appearance -> Layout -> Show file load time.
-* Support for G.729 codec in the RTP Player (via the bcg729 library).
-* Support for hardware-timestamping of packets
+* Support for the G.729 codec in the RTP Player is now supported via the bcg729 library.
+* Support for hardware-timestamping of packets has been added.
 * Improved NetMon .cap support with comments, event tracing, network filter,
   network info types and some Message Analyzer exported types.
-* Personal plugins folder on Linux/Unix is now ~/.local/lib/wireshark/plugins.
-* Add Flow Graph functionality to TShark using -z
+* The personal plugins folder on Linux/Unix is now ~/.local/lib/wireshark/plugins.
+* TShark can print flow graphs using -z flow...
 * Capinfos now prints SHA256 hashes in addition to RIPEMD160 and SHA1. MD5 output
   has been removed.
-* Packet editor has been removed (GTK only experimental feature).
+* The packet editor has been removed (GTK only experimental feature).
 * Support BBC micro:bit Bluetooth profile
+* The Linux and UNIX installation step for Wireshark will now install
+  headers required to build plugins. A pkg-config file is provided to
+  help with this (see doc/plugins.example for details). Note you must
+  still rebuild all plugins between minor releases (X.Y).
 
 //=== Removed Dissectors
 
@@ -75,27 +73,27 @@ since version 2.4.0:
 
 // Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
+ActiveMQ Artemis Core Protocol
+AMT (Automatic Multicast Tunneling)
+Bluetooth Mesh
+Broadcom tags (Broadcom Ethernet switch management frames)
+FP Mux
+GRPC (gRPC)
+IEEE 1905.1a
+IEEE 802.3br Frame Preemption Protocol
+ISOBUS
 LoRaTap
 LoRaWAN
-ISOBUS
-AMT (Automatic Multicast Tunneling)
-QUIC (IETF)
-Wi-Fi Device Provisioning Protocol
-PFCP (Packet Forwarding Control Protocol)
-Tibia
-Broadcom tags (Broadcom Ethernet switch management frames)
-GRPC (gRPC)
-SolarEdge monitoring protocol
-Protobuf (Protocol Buffers)
-FP Mux
-Network Functional Application Platform Interface (NFAPI) Protocol
-IEEE 1905.1a
-Bluetooth Mesh
-TWAMP and OWAMP
-ActiveMQ Artemis Core Protocol
-IEEE 802.3br Frame Preemption Protocol
 Lustre Network
+Network Functional Application Platform Interface (NFAPI) Protocol
 NXP 802.15.4 Sniffer Protocol
+PFCP (Packet Forwarding Control Protocol)
+Protobuf (Protocol Buffers)
+QUIC (IETF)
+SolarEdge monitoring protocol
+Tibia
+TWAMP and OWAMP
+Wi-Fi Device Provisioning Protocol
 --sort-and-group--
 
 === Updated Protocol Support
@@ -104,14 +102,15 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
-_Non-empty section placeholder._
+//_Non-empty section placeholder._
 // Add one file type per line between the --sort-and-group-- delimiters.
 --sort-and-group--
+Microsoft Network Monitor
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
 
-_Non-empty section placeholder._
+//_Non-empty section placeholder._
 --sort-and-group--
 LoRaTap
 --sort-and-group--
@@ -159,9 +158,6 @@ Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])
 
 Wireshark should let you work with multiple capture files. (ws-buglink:10488[])
-
-Dell Backup and Recovery (DBAR) makes many Windows applications crash,
-including Wireshark. (ws-buglink:12036[])
 
 == Getting Help
 
