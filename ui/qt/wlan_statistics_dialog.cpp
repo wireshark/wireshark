@@ -550,6 +550,10 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
 
     connect(statsTreeWidget(), SIGNAL(itemSelectionChanged()),
             this, SLOT(updateHeaderLabels()));
+
+    // Set handler for when display filter string is changed.
+    connect(this, SIGNAL(updateFilter(QString)),
+            this, SLOT(filterUpdated(QString)));
 }
 
 WlanStatisticsDialog::~WlanStatisticsDialog()
@@ -641,7 +645,7 @@ void WlanStatisticsDialog::fillTree()
 {
     if (!registerTapListener("wlan",
                              this,
-                             NULL,
+                             displayFilter_.toLatin1().data(),
                              TL_REQUIRES_NOTHING,
                              tapReset,
                              tapPacket,
@@ -700,6 +704,26 @@ void WlanStatisticsDialog::captureFileClosing()
     updateWidgets();
 
     WiresharkDialog::captureFileClosing();
+}
+
+// Store filter from signal.
+void WlanStatisticsDialog::filterUpdated(QString filter)
+{
+    displayFilter_ = filter;
+}
+
+// This is how an item is represented for exporting.
+QList<QVariant> WlanStatisticsDialog::treeItemData(QTreeWidgetItem *it) const
+{
+    // Cast up to our type.
+    WlanNetworkTreeWidgetItem *nit = dynamic_cast<WlanNetworkTreeWidgetItem*>(it);
+    if (nit) {
+        return nit->rowData();
+    }
+    // TODO: not going to cast to WlanStationTreeWidgetItem* and do the same as
+    // some of the columns are different...
+
+    return QList<QVariant>();
 }
 
 // Stat command + args

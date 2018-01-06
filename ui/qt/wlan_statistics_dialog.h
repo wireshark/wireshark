@@ -40,7 +40,7 @@ private:
     int packet_count_;
     int cur_network_;
     QElapsedTimer *add_station_timer_;
-
+    QString displayFilter_;
 
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
@@ -49,11 +49,15 @@ private:
 
     virtual const QString filterExpression();
 
+    // How each item will be exported
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *) const;
+
 private slots:
     virtual void fillTree();
     void addStationTreeItems();
     void updateHeaderLabels();
     void captureFileClosing();
+    void filterUpdated(QString filter);
 };
 
 #endif // WLANSTATISTICSDIALOG_H
