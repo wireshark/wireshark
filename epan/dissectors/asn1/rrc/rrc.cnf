@@ -511,7 +511,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   }
 %(DEFAULT_BODY)s
   if( ciphering_info != NULL ){
-    direction = 0; /* Security Mode Command is from the RNC, direction is always downlink */
+    direction = P2P_DIR_DL; /* Security Mode Command is from the RNC, direction is always downlink */
     ciphering_info->setup_frame[direction] = actx->pinfo->num;
   }
 
@@ -533,7 +533,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 %(DEFAULT_BODY)s
   if( ciphering_info != NULL ){
-    direction = 1; /* Security Mode Complete is from the UE, direction is always uplink */
+    direction = P2P_DIR_UL; /* Security Mode Complete is from the UE, direction is always uplink */
     ciphering_info->setup_frame[direction] = actx->pinfo->num;
   }
 
@@ -1357,6 +1357,7 @@ if(state_dec >= 0 && state_dec <= 3) {
   rrc_ciphering_info *ciphering_info;
   guint32 rbid;
   guint32 rlc_ciphering_sqn;
+  guint32 direction;
 
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
   rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
@@ -1375,8 +1376,9 @@ if(state_dec >= 0 && state_dec <= 3) {
 
   rbid = private_data_get_rbid(actx);
   rlc_ciphering_sqn = private_data_get_rlc_ciphering_sqn(actx);
+  direction = fpinf->is_uplink ? P2P_DIR_UL : P2P_DIR_DL;
   /*Set the ciphering activation frame information*/
-  ciphering_info->seq_no[rbid][fpinf->is_uplink] = rlc_ciphering_sqn;
+  ciphering_info->seq_no[rbid][direction] = rlc_ciphering_sqn;
 
 
 #.FN_BODY RB-Identity VAL_PTR = &rbid

@@ -1468,7 +1468,7 @@ is_ciphered_according_to_rrc(packet_info *pinfo, fp_info *fpinf, rlc_info *rlcin
     ciphering_info =  (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((gint)ueid));
     if(ciphering_info != NULL) {
         rbid = rlcinf->rbid[cur_tb];
-        direction = fpinf->is_uplink ? 1 : 0;
+        direction = fpinf->is_uplink ? P2P_DIR_UL : P2P_DIR_DL;
         security_mode_frame_num = ciphering_info->setup_frame[direction];
         ciphering_begin_seq = ciphering_info->seq_no[rbid][direction];
         /* Making sure the rrc security message's frame number makes sense */
@@ -1530,7 +1530,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
     guint8 ext;
     int ciphered_data_hf;
 
-    indx = fpinf->is_uplink ? 1 : 0;
+    indx = fpinf->is_uplink ? P2P_DIR_UL : P2P_DIR_DL;
     pos = fpinf->cur_tb;
     if (mode ==RLC_UM) {
         header_size = 1;
