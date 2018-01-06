@@ -1077,7 +1077,6 @@ get_plugins_pers_dir_with_version(void)
     return plugin_pers_dir_with_version;
 }
 
-#if defined(HAVE_EXTCAP)
 /*
  * Find the directory where the extcap hooks are stored.
  *
@@ -1156,22 +1155,17 @@ static void init_extcap_dir(void) {
     }
 #endif
 }
-#endif /* HAVE_EXTCAP */
 
 /*
  * Get the directory in which the extcap hooks are stored.
  *
- * XXX - A fix instead of HAVE_EXTCAP must be found
  */
 const char *
-get_extcap_dir(void) {
-#if defined(HAVE_EXTCAP)
+get_extcap_dir(void)
+{
     if (!extcap_dir)
         init_extcap_dir();
     return extcap_dir;
-#else
-    return NULL;
-#endif
 }
 
 /*
@@ -2257,10 +2251,8 @@ free_progdirs(void)
     g_free(plugin_pers_dir_with_version);
     plugin_pers_dir_with_version = NULL;
 #endif
-#ifdef HAVE_EXTCAP
     g_free(extcap_dir);
     extcap_dir = NULL;
-#endif
 }
 
 /*

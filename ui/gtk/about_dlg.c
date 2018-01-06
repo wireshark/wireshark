@@ -39,9 +39,7 @@
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
 #endif
-#ifdef HAVE_EXTCAP
-#include "../../extcap.h"
-#endif
+#include "extcap.h"
 
 #include "../../log.h"
 #include "epan/register.h"
@@ -258,9 +256,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 #ifdef HAVE_LUA
       ul_count += wslua_count_plugins (); /* get count of lua plugins */
 #endif
-#ifdef HAVE_EXTCAP
       ul_count += extcap_count() + 1; /* Count of extcap binaries + registration message */
-#endif
     }
 
     main_lb = (GtkWidget *)g_object_get_data(G_OBJECT(win), "protocol_label");
@@ -401,7 +397,7 @@ about_folders_page_new(void)
   char                 *path;
   static const gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget            *scrolledwindow;
-#if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP) || defined(HAVE_EXTCAP)
+#if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP)
   gint                  i;
   gchar               **resultArray;
 #endif
@@ -478,7 +474,6 @@ about_folders_page_new(void)
       "lua scripts");
 #endif
 
-#ifdef HAVE_EXTCAP
   /* extcap */
   constpath = get_extcap_dir();
 
@@ -488,7 +483,6 @@ about_folders_page_new(void)
     about_folders_row(table, "Extcap path", g_strstrip(resultArray[i]),
                       "Extcap Plugins search path");
   g_strfreev(resultArray);
-#endif
 
 #ifdef HAVE_GEOIP
   /* GeoIP */

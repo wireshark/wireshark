@@ -188,10 +188,8 @@ typedef struct interface_tag {
     if_info_t       if_info;
     gboolean        selected;
     gboolean        hidden;
-#ifdef HAVE_EXTCAP
     /* External capture cached data */
     GHashTable     *external_cap_args_settings;
-#endif
     gchar          *timestamp_type;
 } interface_t;
 
@@ -216,7 +214,6 @@ typedef struct interface_options_tag {
     int               linktype;
     gboolean          promisc_mode;
     interface_type    if_type;
-#ifdef HAVE_EXTCAP
     gchar            *extcap;
     gchar            *extcap_fifo;
     GHashTable       *extcap_args;
@@ -230,7 +227,6 @@ typedef struct interface_options_tag {
 #endif
     gchar            *extcap_control_in;
     gchar            *extcap_control_out;
-#endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     int               buffer_size;
 #endif

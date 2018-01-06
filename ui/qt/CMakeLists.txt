@@ -141,6 +141,10 @@ set(WIRESHARK_QT_HEADERS
 	export_object_action.h
 	export_object_dialog.h
 	export_pdu_dialog.h
+	extcap_argument.h
+	extcap_argument_file.h
+	extcap_argument_multiselect.h
+	extcap_options_dialog.h
 	file_set_dialog.h
 	filter_action.h
 	filter_dialog.h
@@ -233,16 +237,6 @@ if(HAVE_PCAP_REMOTE)
 		${WIRESHARK_QT_HEADERS}
 		remote_capture_dialog.h
 		remote_settings_dialog.h
-	)
-endif()
-
-if(ENABLE_EXTCAP)
-	set(WIRESHARK_QT_HEADERS
-		${WIRESHARK_QT_HEADERS}
-		extcap_argument.h
-		extcap_argument_file.h
-		extcap_argument_multiselect.h
-		extcap_options_dialog.h
 	)
 endif()
 
@@ -365,6 +359,10 @@ set(WIRESHARK_QT_SRC
 	export_object_action.cpp
 	export_object_dialog.cpp
 	export_pdu_dialog.cpp
+	extcap_argument.cpp
+	extcap_argument_file.cpp
+	extcap_argument_multiselect.cpp
+	extcap_options_dialog.cpp
 	file_set_dialog.cpp
 	filter_action.cpp
 	filter_dialog.cpp
@@ -454,16 +452,6 @@ if(HAVE_PCAP_REMOTE)
 	)
 endif()
 
-if(ENABLE_EXTCAP)
-	set(WIRESHARK_QT_SRC
-		${WIRESHARK_QT_SRC}
-		extcap_argument.cpp
-		extcap_argument_file.cpp
-		extcap_argument_multiselect.cpp
-		extcap_options_dialog.cpp
-	)
-endif()
-
 set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/expert_info_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/funnel_statistics.cpp
@@ -508,6 +496,7 @@ set(WIRESHARK_QT_UI
 	expert_info_dialog.ui
 	export_object_dialog.ui
 	export_pdu_dialog.ui
+	extcap_options_dialog.ui
 	file_set_dialog.ui
 	filter_dialog.ui
 	filter_expression_frame.ui
@@ -573,13 +562,6 @@ if(HAVE_PCAP_REMOTE)
 		${WIRESHARK_QT_UI}
 		remote_capture_dialog.ui
 		remote_settings_dialog.ui
-	)
-endif()
-
-if(ENABLE_EXTCAP)
-	set(WIRESHARK_QT_UI
-		${WIRESHARK_QT_UI}
-		extcap_options_dialog.ui
 	)
 endif()
 

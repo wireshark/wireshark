@@ -33,9 +33,7 @@
 #include "epan/wslua/init_wslua.h"
 #endif
 
-#ifdef HAVE_EXTCAP
-#include "../../extcap.h"
-#endif
+#include "extcap.h"
 
 // Uncomment to slow the update progress
 //#define THROTTLE_STARTUP 1
@@ -61,9 +59,8 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 #ifdef HAVE_LUA
     register_max++;
 #endif
-#ifdef HAVE_EXTCAP
     register_max++;
-#endif
+
     so_ui_->progressBar->setMaximum(register_max);
     elapsed_timer_.start();
 

@@ -38,9 +38,7 @@ typedef enum {
 	IF_WIRELESS,
 	IF_DIALUP,
 	IF_USB,
-#ifdef HAVE_EXTCAP
 	IF_EXTCAP,
-#endif
 	IF_VIRTUAL
 } interface_type;
 
@@ -59,9 +57,7 @@ typedef struct {
 	GSList  *addrs;         /* containing address values of if_addr_t */
 	interface_type type;    /* type of interface */
 	gboolean loopback;      /* TRUE if loopback, FALSE otherwise */
-#ifdef HAVE_EXTCAP
 	char	*extcap;		/* extcap arguments, which present the data to call the extcap interface */
-#endif
 } if_info_t;
 
 /*

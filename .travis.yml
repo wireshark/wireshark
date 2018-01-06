@@ -11,7 +11,6 @@ env:
  - BUILD_CMAKE=yes
  - BUILD_CMAKE=yes CMAKE_OPTS="-DBUILD_wireshark_gtk=ON"
  - BUILD_CMAKE=yes CMAKE_OPTS="-DENABLE_PCAP=OFF"
- - BUILD_CMAKE=yes CMAKE_OPTS="-DENABLE_EXTCAP=OFF"
  - BUILD_CMAKE=no AUTOTOOLS_OPTS="--with-gtk=3"
 matrix:
   exclude:

@@ -672,10 +672,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SLOT(captureFilterSyntaxChanged(bool)));
 
-#ifdef HAVE_EXTCAP
         connect(this->main_welcome_, SIGNAL(showExtcapOptions(QString&)),
                 this, SLOT(showExtcapOptionsDialog(QString&)));
-#endif
 
 #endif // HAVE_LIBPCAP
 
@@ -2426,7 +2424,6 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif
 
-#ifdef HAVE_EXTCAP
     QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
     foreach (InterfaceToolbar *toolbar, toolbars) {
         if (capture_in_progress && ifaces) {
@@ -2435,9 +2432,6 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
             toolbar->stopCapture();
         }
     }
-#else
-    Q_UNUSED(ifaces)
-#endif
 }
 
 static QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()

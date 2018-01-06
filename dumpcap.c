@@ -98,9 +98,7 @@
 
 #include "caputils/ws80211_utils.h"
 
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
@@ -844,9 +842,7 @@ print_machine_readable_interfaces(GList *if_list)
             printf("\tloopback");
         else
             printf("\tnetwork");
-#ifdef HAVE_EXTCAP
         printf("\t%s", if_info->extcap);
-#endif
         printf("\n");
     }
 }
@@ -1493,13 +1489,9 @@ cap_pipe_open_live(char *pipename,
 #else /* _WIN32 */
     char    *pncopy, *pos;
     wchar_t *err_str;
-#ifdef HAVE_EXTCAP
     char* extcap_pipe_name;
 #endif
-#endif
-#ifdef HAVE_EXTCAP
     gboolean extcap_pipe = FALSE;
-#endif
     ssize_t  b;
     int      fd = -1, sel_ret;
     size_t   bytes_read;
@@ -1527,10 +1519,8 @@ cap_pipe_open_live(char *pipename,
        }
     } else {
 #ifndef _WIN32
-#ifdef HAVE_EXTCAP
         if ( g_strrstr(pipename, EXTCAP_PIPE_PREFIX) != NULL )
             extcap_pipe = TRUE;
-#endif
 
         if (ws_stat64(pipename, &pipe_stat) < 0) {
             if (errno == ENOENT || errno == ENOTDIR)
@@ -1640,20 +1630,15 @@ cap_pipe_open_live(char *pipename,
             pcap_src->cap_pipe_err = PIPNEXIST;
             return;
         }
-#ifdef HAVE_EXTCAP
         extcap_pipe_name = g_strconcat("\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, NULL);
         extcap_pipe = strstr(pipename, extcap_pipe_name) ? TRUE : FALSE;
         g_free(extcap_pipe_name);
-#endif
 
         /* Wait for the pipe to appear */
         while (1) {
-
-#ifdef HAVE_EXTCAP
             if(extcap_pipe)
                 pcap_src->cap_pipe_h = GetStdHandle(STD_INPUT_HANDLE);
             else
-#endif
                 pcap_src->cap_pipe_h = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
                                                    OPEN_EXISTING, 0, NULL);
 
@@ -1718,11 +1703,10 @@ cap_pipe_open_live(char *pipename,
                 b = cap_pipe_read(fd, ((char *)&magic)+bytes_read,
                                   sizeof magic-bytes_read,
                                   pcap_src->from_cap_socket);
-#ifdef HAVE_EXTCAP
                 /* jump messaging, if extcap had an error, stderr will provide the correct message */
                 if (extcap_pipe && b <= 0)
                     goto error;
-#endif
+
                 if (b <= 0) {
                     if (b == 0)
                         g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");

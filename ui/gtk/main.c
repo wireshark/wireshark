@@ -40,9 +40,7 @@
 #include <getopt.h>
 #endif
 
-#ifdef HAVE_EXTCAP
 #include <extcap.h>
-#endif
 
 #ifdef HAVE_LIBPORTAUDIO
 #include <portaudio.h>
@@ -2234,10 +2232,8 @@ main(int argc, char *argv[])
     rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
     new_stat_tap_iterate_tables(register_simple_stat_tables, NULL);
 
-#ifdef HAVE_EXTCAP
     splash_update(RA_EXTCAP, NULL, (gpointer)splash_win);
     extcap_register_preferences();
-#endif
 
     splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 
@@ -2634,10 +2630,7 @@ main(int argc, char *argv[])
 #endif
 
     epan_cleanup();
-
-#ifdef HAVE_EXTCAP
     extcap_cleanup();
-#endif
 
     AirPDcapDestroyContext(&airpdcap_ctx);
 

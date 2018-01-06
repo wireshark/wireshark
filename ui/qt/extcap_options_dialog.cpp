@@ -28,7 +28,6 @@
 
 #include <wireshark_application.h>
 
-#ifdef HAVE_EXTCAP
 #include <QMessageBox>
 #include <QMap>
 #include <QHBoxLayout>
@@ -505,9 +504,6 @@ void ExtcapOptionsDialog::storeValues()
 
     }
 }
-
-
-#endif /* HAVE_LIBPCAP */
 
 /*
  * Editor modelines

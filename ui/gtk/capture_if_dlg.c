@@ -412,13 +412,11 @@ GtkWidget * capture_get_if_icon(interface_t *device)
     return xpm_to_widget(network_virtual_16_xpm);
   case IF_WIRED:
     return PIXBUF_TO_WIDGET(network_wired_pb_data, "/org/wireshark/image/toolbar/network_wired_16.png");
-#ifdef HAVE_EXTCAP
   case IF_EXTCAP:
 #ifdef _WIN32
     if (strncmp(device->friendly_name, "USBPcap", 7) == 0) {
       return PIXBUF_TO_WIDGET(network_usb_pb_data, "/org/wireshark/image/toolbar/network_usb_16.png");
     }
-#endif
 #endif
   case IF_PIPE:
   case IF_STDIN:

@@ -119,9 +119,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
 
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -562,10 +560,8 @@ about_folders(void)
 {
   const char           *constpath;
   char                 *path;
-#if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP) || defined(HAVE_EXTCAP)
   gint                  i;
   gchar               **resultArray;
-#endif
 
   /* "file open" */
 
@@ -612,7 +608,6 @@ about_folders(void)
   printf("%-21s\t%s\n", "Global Lua Plugins:", get_plugins_dir());
 #endif
 
-#ifdef HAVE_EXTCAP
   /* Extcap */
   constpath = get_extcap_dir();
 
@@ -621,7 +616,6 @@ about_folders(void)
     printf("%-21s\t%s\n", "Extcap path:", g_strstrip(resultArray[i]));
 
   g_strfreev(resultArray);
-#endif
 
 #ifdef HAVE_GEOIP
   /* GeoIP */
@@ -919,9 +913,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
 #endif
-#ifdef HAVE_EXTCAP
   extcap_register_preferences();
-#endif
   /* Register all tap listeners. */
   for (tap_reg_t *t = tap_reg_listener; t->cb_func != NULL; t++) {
     t->cb_func();
@@ -1367,9 +1359,7 @@ main(int argc, char *argv[])
        * $ ./tools/valgrind-wireshark -n
        * much more useful. */
       epan_cleanup();
-#ifdef HAVE_EXTCAP
       extcap_cleanup();
-#endif
       exit_status = EXIT_SUCCESS;
       goto clean_exit;
     case 'O':        /* Only output these protocols */
@@ -1868,9 +1858,7 @@ main(int argc, char *argv[])
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
       epan_cleanup();
-#ifdef HAVE_EXTCAP
       extcap_cleanup();
-#endif
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
         pcap_t *pc;
@@ -1898,9 +1886,7 @@ main(int argc, char *argv[])
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
       epan_cleanup();
-#ifdef HAVE_EXTCAP
       extcap_cleanup();
-#endif
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
         pcap_t *pc;
@@ -2020,9 +2006,7 @@ main(int argc, char *argv[])
      */
     if (cf_open(&cfile, cf_name, in_file_type, FALSE, &err) != CF_OK) {
       epan_cleanup();
-#ifdef HAVE_EXTCAP
       extcap_cleanup();
-#endif
       exit_status = INVALID_FILE;
       goto clean_exit;
     }
@@ -2199,9 +2183,7 @@ main(int argc, char *argv[])
   funnel_dump_all_text_windows();
   epan_free(cfile.epan);
   epan_cleanup();
-#ifdef HAVE_EXTCAP
   extcap_cleanup();
-#endif
 
   output_fields_free(output_fields);
   output_fields = NULL;

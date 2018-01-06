@@ -29,9 +29,6 @@
 /* Directory where extcap hooks reside */
 #define EXTCAP_DIR "${EXTCAP_DIR}"
 
-/* Define to 1 if we want to enable extcap */
-#cmakedefine HAVE_EXTCAP 1
-
 /* Define to 1 if we want to enable plugins */
 #cmakedefine HAVE_PLUGINS 1
 

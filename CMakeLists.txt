@@ -1329,18 +1329,15 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 endif()
 
-if(ENABLE_EXTCAP)
-	# Target platform locations
-	# UN*X in general, including macOS if not building an app bundle:
-	# $DESTDIR/lib/wireshark/extcap
-	# Windows: $DESTDIR/extcap
-	# macOS app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
-	set(HAVE_EXTCAP 1)
-	if (WIN32)
-		set(EXTCAP_DIR "extcap")
-	else ()
-		set(EXTCAP_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap")
-	endif()
+# Target platform locations
+# UN*X in general, including macOS if not building an app bundle:
+# $DESTDIR/lib/wireshark/extcap
+# Windows: $DESTDIR/extcap
+# macOS app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
+if (WIN32)
+	set(EXTCAP_DIR "extcap")
+else ()
+	set(EXTCAP_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap")
 endif()
 
 if(LIBSSH_FOUND)
@@ -1577,17 +1574,10 @@ set(SHARK_COMMON_SRC
 	frame_tvbuff.c
 	sync_pipe_write.c
 	version_info.c
+	extcap.c
+	extcap_parser.c
+	extcap_spawn.c
 )
-
-# sources for external capture interfaces
-if(ENABLE_EXTCAP)
-	set(SHARK_COMMON_SRC
-		${SHARK_COMMON_SRC}
-		extcap.c
-		extcap_parser.c
-		extcap_spawn.c
-	)
-endif()
 
 set(TSHARK_TAP_SRC
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-camelsrt.c
@@ -1976,14 +1966,12 @@ foreach(_install_file ${INSTALL_FILES})
 	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
 
-if(ENABLE_EXTCAP)
-	# Ensure "run/extcap" exists
-	add_custom_command(OUTPUT "${DATAFILE_DIR}/extcap"
-		COMMAND ${CMAKE_COMMAND} -E make_directory
-			"${DATAFILE_DIR}/extcap"
-	)
-	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/extcap")
-endif()
+# Ensure "run/extcap" exists
+add_custom_command(OUTPUT "${DATAFILE_DIR}/extcap"
+	COMMAND ${CMAKE_COMMAND} -E make_directory
+		"${DATAFILE_DIR}/extcap"
+)
+list(APPEND copy_data_files_depends "${DATAFILE_DIR}/extcap")
 
 # faq.txt is handled separately below.
 set(_help_source_files
@@ -2815,7 +2803,7 @@ endif()
 
 add_custom_target(extcaps)
 
-if(ENABLE_EXTCAP AND BUILD_androiddump)
+if(BUILD_androiddump)
 	if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 		if(HAVE_LIBPCAP)
 			set(androiddump_LIBS
@@ -2848,7 +2836,7 @@ if(ENABLE_EXTCAP AND BUILD_androiddump)
 	add_dependencies(extcaps androiddump)
 endif()
 
-if(ENABLE_EXTCAP AND BUILD_sshdump AND LIBSSH_FOUND)
+if(BUILD_sshdump AND LIBSSH_FOUND)
 	set(sshdump_LIBS
 		wsutil
 		${GLIB2_LIBRARIES}
@@ -2871,7 +2859,7 @@ elseif (BUILD_sshdump)
 	#message( WARNING "Cannot find libssh, cannot build sshdump" )
 endif()
 
-if(ENABLE_EXTCAP AND BUILD_ciscodump AND LIBSSH_FOUND)
+if(BUILD_ciscodump AND LIBSSH_FOUND)
 	set(ciscodump_LIBS
 		writecap
 		wsutil
@@ -2895,7 +2883,7 @@ elseif (BUILD_ciscodump)
 	#message( WARNING "Cannot find libssh, cannot build ciscodump" )
 endif()
 
-if(ENABLE_EXTCAP AND BUILD_udpdump)
+if(BUILD_udpdump)
 	set(udpdump_LIBS
 		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
@@ -2914,7 +2902,7 @@ if(ENABLE_EXTCAP AND BUILD_udpdump)
 	add_dependencies(extcaps udpdump)
 endif()
 
-if(ENABLE_EXTCAP AND BUILD_randpktdump)
+if(BUILD_randpktdump)
 	set(randpktdump_LIBS
 		randpkt_core
 		ui

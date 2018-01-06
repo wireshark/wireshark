@@ -62,10 +62,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/ex-opt.h>
-
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
@@ -999,9 +996,7 @@ clean_exit:
   destroy_print_stream(print_stream);
   epan_free(cfile.epan);
   epan_cleanup();
-#ifdef HAVE_EXTCAP
   extcap_cleanup();
-#endif
 
   output_fields_free(output_fields);
   output_fields = NULL;

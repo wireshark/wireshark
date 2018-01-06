@@ -57,9 +57,7 @@
 
 #include <codecs/codecs.h>
 
-#ifdef HAVE_EXTCAP
 #include <extcap.h>
-#endif
 
 /* general (not Qt specific) */
 #include "file.h"
@@ -691,13 +689,11 @@ int main(int argc, char *qt_argv[])
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
     }
 
-#ifdef HAVE_EXTCAP
 #ifdef DEBUG_STARTUP_TIME
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
     splash_update(RA_EXTCAP, NULL, NULL);
     extcap_register_preferences();
-#endif
     splash_update(RA_PREFERENCES, NULL, NULL);
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 
@@ -955,9 +951,7 @@ int main(int argc, char *qt_argv[])
     recent_cleanup();
     epan_cleanup();
 
-#ifdef HAVE_EXTCAP
     extcap_cleanup();
-#endif
 
     AirPDcapDestroyContext(&airpdcap_ctx);
 

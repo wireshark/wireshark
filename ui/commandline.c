@@ -64,9 +64,7 @@
 
 commandline_param_info_t global_commandline_info;
 
-#if defined(HAVE_LIBPCAP) || defined(HAVE_EXTCAP)
 capture_options global_capture_opts;
-#endif
 
 void
 commandline_print_usage(gboolean for_help_option) {

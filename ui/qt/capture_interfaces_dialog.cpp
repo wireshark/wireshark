@@ -132,7 +132,6 @@ public:
         }
         setText(col_link_, linkname);
 
-#ifdef HAVE_EXTCAP
         if (device->if_info.type == IF_EXTCAP) {
             /* extcap interfaces does not have this settings */
             setApplicable(col_pmode_, false);
@@ -142,7 +141,6 @@ public:
             setApplicable(col_buffer_, false);
 #endif
         } else {
-#endif
             setApplicable(col_pmode_, true);
             setCheckState(col_pmode_, device->pmode ? Qt::Checked : Qt::Unchecked);
 
@@ -151,9 +149,7 @@ public:
 #ifdef SHOW_BUFFER_COLUMN
             setText(col_buffer_, QString::number(device->buffer));
 #endif
-#ifdef HAVE_EXTCAP
         }
-#endif
         setText(col_filter_, device->cfilter);
 
 #ifdef SHOW_MONITOR_COLUMN

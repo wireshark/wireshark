@@ -41,9 +41,7 @@
 #include "wsutil/copyright_info.h"
 #include "version_info.h"
 
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
@@ -131,7 +129,6 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
     wslua_plugins_get_descriptions(plugins_add_description, &plugin_data);
 #endif
 
-#ifdef HAVE_EXTCAP
     GHashTable * tools = extcap_loaded_interfaces();
     if (tools && g_hash_table_size(tools) > 0) {
         GList * walker = g_list_first(g_hash_table_get_keys(tools));
@@ -144,7 +141,6 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
             walker = g_list_next(walker);
         }
     }
-#endif
 
     typeNames_ << QString("");
     foreach(QStringList row, plugin_data)
@@ -241,14 +237,11 @@ FolderListModel::FolderListModel(QObject * parent):
     appendRow( QStringList() << "Global Lua Plugins" << get_plugins_dir() << "lua scripts");
 #endif
 
-#ifdef HAVE_EXTCAP
     /* Extcap */
     QStringList extPaths = QString(get_extcap_dir()).split(G_SEARCHPATH_SEPARATOR_S);
 
     foreach(QString path, extPaths)
         appendRow( QStringList() << "Extcap path" << path.trimmed() << "Extcap Plugins search path");
-
-#endif
 
 #ifdef HAVE_GEOIP
     /* GeoIP */
@@ -348,7 +341,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 
     /* Plugins */
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA) || defined(HAVE_EXTCAP)
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 
     PluginListModel * pluginModel = new PluginListModel(this);
     AStringListListSortFilterProxyModel * pluginFilterModel = new AStringListListSortFilterProxyModel(this);

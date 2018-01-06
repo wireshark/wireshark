@@ -740,7 +740,6 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
     if (!ifaces || ifaces->len == 0)
         return;
 
-#ifdef HAVE_EXTCAP
     const QString &selected_ifname = ui->interfacesComboBox->currentText();
     QString first_capturing_ifname;
     bool selected_found = false;
@@ -792,7 +791,6 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
     {
         updateWidgets();
     }
-#endif // HAVE_EXTCAP
 }
 
 void InterfaceToolbar::stopCapture()

@@ -30,9 +30,7 @@
 #include <ui/qt/models/sparkline_delegate.h>
 #include "wireshark_application.h"
 
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 
 #include <QFrame>
 #include <QPushButton>
@@ -77,18 +75,14 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     ifTypeDescription.insert(IF_WIRELESS, tr("Wireless"));
     ifTypeDescription.insert(IF_DIALUP, tr("Dial-Up"));
     ifTypeDescription.insert(IF_USB, tr("USB"));
-#ifdef HAVE_EXTCAP
     ifTypeDescription.insert(IF_EXTCAP, tr("External Capture"));
-#endif
     ifTypeDescription.insert(IF_VIRTUAL, tr ("Virtual"));
 
     proxyModel = new InterfaceSortFilterModel(this);
     sourceModel = new InterfaceTreeModel(this);
 
     QList<InterfaceTreeColumns> columns;
-#ifdef HAVE_EXTCAP
     columns.append(IFTREE_COL_EXTCAP);
-#endif
     columns.append(IFTREE_COL_NAME);
     columns.append(IFTREE_COL_STATS);
     proxyModel->setColumns(columns);
@@ -266,9 +260,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     {
         ui->interfaceTree->setHidden(false);
         ui->lblNoInterfaces->setHidden(true);
-#ifdef HAVE_EXTCAP
         ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_EXTCAP));
-#endif
         ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
         ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_STATS));
     }
@@ -311,7 +303,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
     if ( ! realIndex.isValid() )
         return;
 
-#if defined(HAVE_EXTCAP) && defined(HAVE_LIBPCAP)
+#ifdef HAVE_LIBPCAP
 
     QString device_name = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_INTERFACE_NAME).toString();
     QString extcap_string = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_EXTCAP_PATH).toString();
@@ -331,7 +323,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
     emit startCapture();
 }
 
-#if defined(HAVE_EXTCAP) && defined(HAVE_LIBPCAP)
+#ifdef HAVE_LIBPCAP
 void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
 {
     if ( index.column() == 0 )

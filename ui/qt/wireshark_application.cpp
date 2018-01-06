@@ -45,9 +45,7 @@
 #include "log.h"
 #include "recent_file_status.h"
 
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 #ifdef HAVE_LIBPCAP
 #include <caputils/iface_monitor.h>
 #endif
@@ -1110,9 +1108,7 @@ void WiresharkApplication::ifChangeEventsAvailable()
 
 void WiresharkApplication::refreshLocalInterfaces()
 {
-#ifdef HAVE_EXTCAP
     extcap_clear_interfaces();
-#endif
 
 #ifdef HAVE_LIBPCAP
     /*

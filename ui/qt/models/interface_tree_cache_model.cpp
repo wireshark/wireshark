@@ -186,14 +186,12 @@ void InterfaceTreeCacheModel::save()
                 {
                     device->hidden = saveValue.toBool();
                 }
-#ifdef HAVE_EXTCAP
                 else if ( device->if_info.type == IF_EXTCAP )
                 {
                     /* extcap interfaces do not have the following columns.
                      * ATTENTION: all generic columns must be added, BEFORE this
                      * if-clause, or they will be ignored for extcap interfaces */
                 }
-#endif
                 else if ( col == IFTREE_COL_PROMISCUOUSMODE )
                 {
                     device->pmode = saveValue.toBool();
@@ -237,10 +235,10 @@ void InterfaceTreeCacheModel::save()
             prefStorage[&prefs.capture_devices_descr] << QString("%1(%2)").arg(device->name).arg(content.toString());
 
         bool allowExtendedColumns = true;
-#ifdef HAVE_EXTCAP
+
         if ( device->if_info.type == IF_EXTCAP )
             allowExtendedColumns = false;
-#endif
+
         if ( allowExtendedColumns )
         {
             content = getColumnContent(idx, IFTREE_COL_PROMISCUOUSMODE, Qt::CheckStateRole);
@@ -352,7 +350,6 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
     if ( device == 0 )
         return false;
 
-#ifdef HAVE_EXTCAP
     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
     if ( device->if_info.type == IF_EXTCAP )
     {
@@ -364,8 +361,6 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
             return false;
 #endif
     }
-#endif
-
 #endif
     return true;
 }

@@ -93,7 +93,7 @@ private slots:
     void interfaceTreeSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
     void on_interfaceTree_doubleClicked(const QModelIndex &index);
-#if defined(HAVE_EXTCAP) && defined(HAVE_LIBPCAP)
+#ifdef HAVE_LIBPCAP
     void on_interfaceTree_clicked(const QModelIndex &index);
 #endif
 

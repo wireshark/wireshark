@@ -34,9 +34,7 @@
 
 #include "capchild/capture_session.h"
 #include "capchild/capture_sync.h"
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 #include "log.h"
 
 #include <caputils/capture_ifinfo.h>
@@ -111,13 +109,11 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     /* Try to get our interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
-#ifdef HAVE_EXTCAP
         /* Add the extcap interfaces that can exist, even if no native interfaces have been found */
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
         if_list = append_extcap_interface_list(if_list, err_str);
         /* err_str is ignored, as the error for the interface loading list will take precedence */
         if ( g_list_length(if_list) == 0 ) {
-#endif
 
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed. Error %d, %s (%s)",
                   *err, primary_msg ? primary_msg : "no message",
@@ -130,10 +126,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
             g_free(secondary_msg);
             *err = CANT_GET_INTERFACE_LIST;
 
-#ifdef HAVE_EXTCAP
         }
-#endif
-
         return if_list;
     }
 
@@ -146,7 +139,6 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     g_free(data);
 
     for (i = 0; raw_list[i] != NULL; i++) {
-#ifdef HAVE_EXTCAP
         if_parts = g_strsplit(raw_list[i], "\t", 7);
         if (if_parts[0] == NULL || if_parts[1] == NULL || if_parts[2] == NULL ||
                 if_parts[3] == NULL || if_parts[4] == NULL || if_parts[5] == NULL ||
@@ -154,14 +146,6 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
             g_strfreev(if_parts);
             continue;
         }
-#else
-        if_parts = g_strsplit(raw_list[i], "\t", 6);
-        if (if_parts[0] == NULL || if_parts[1] == NULL || if_parts[2] == NULL ||
-                if_parts[3] == NULL || if_parts[4] == NULL || if_parts[5] == NULL) {
-            g_strfreev(if_parts);
-            continue;
-        }
-#endif
 
         /* Number followed by the name, e.g "1. eth0" */
         name = strchr(if_parts[0], ' ');
@@ -196,9 +180,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         }
         if (strcmp(if_parts[5], "loopback") == 0)
             if_info->loopback = TRUE;
-#ifdef HAVE_EXTCAP
         if_info->extcap = g_strdup(if_parts[6]);
-#endif
         g_strfreev(if_parts);
         g_strfreev(addr_parts);
         if_list = g_list_append(if_list, if_info);
@@ -211,11 +193,9 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     }
 #endif
 
-#ifdef HAVE_EXTCAP
     /* Add the extcap interfaces after the native and remote interfaces */
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
     if_list = append_extcap_interface_list(if_list, err_str);
-#endif
 
     return if_list;
 }
@@ -235,7 +215,6 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities ...");
 
-#ifdef HAVE_EXTCAP
     /* see if the interface is from extcap */
     caps = extcap_get_if_dlts(ifname, err_str);
     if (caps != NULL)
@@ -244,7 +223,6 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     /* return if the extcap interface generated an error */
     if (err_str != NULL && *err_str != NULL)
         return NULL;
-#endif /* HAVE_EXTCAP */
 
     /* Try to get our interface list */
     err = sync_if_capabilities_open(ifname, monitor_mode, auth_string, &data,

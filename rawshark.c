@@ -90,9 +90,7 @@
 
 #include "caputils/capture-pcap-util.h"
 
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 
 #ifdef HAVE_LIBPCAP
 #include <setjmp.h>
@@ -836,9 +834,7 @@ main(int argc, char *argv[])
 clean_exit:
     epan_free(cfile.epan);
     epan_cleanup();
-#ifdef HAVE_EXTCAP
     extcap_cleanup();
-#endif
     wtap_cleanup();
     return ret;
 }

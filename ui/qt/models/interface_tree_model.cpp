@@ -41,9 +41,7 @@
 /* Needed for the meta type declaration of QList<int>* */
 #include <ui/qt/models/sparkline_delegate.h>
 
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 
 const QString InterfaceTreeModel::DefaultNumericValue = QObject::tr("default");
 
@@ -144,12 +142,10 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
                 if ( device->cfilter && strlen(device->cfilter) > 0 )
                     return html_escape(QString(device->cfilter));
             }
-#ifdef HAVE_EXTCAP
             else if ( col == IFTREE_COL_EXTCAP_PATH )
             {
                 return QString(device->if_info.extcap);
             }
-#endif
             else if ( col == IFTREE_COL_SNAPLEN )
             {
                 return device->has_snaplen ? QString::number(device->snaplen) : DefaultNumericValue;
@@ -222,7 +218,6 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
                 return QVariant::fromValue((bool)device->hidden);
             }
         }
-#ifdef HAVE_EXTCAP
         /* Displays the configuration icon for extcap interfaces */
         else if ( role == Qt::DecorationRole )
         {
@@ -239,7 +234,6 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
                 return Qt::AlignRight;
             }
         }
-#endif
         /* Displays the tooltip for each row */
         else if ( role == Qt::ToolTipRole )
         {
@@ -362,12 +356,10 @@ QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
                 .arg(html_escape(device->addresses))
                 .replace('\n', ", ");
     }
-#ifdef HAVE_EXTCAP
     else if ( device->if_info.type == IF_EXTCAP )
     {
         tt_str = QString(tr("Extcap interface: %1")).arg(get_basename(device->if_info.extcap));
     }
-#endif
     else
     {
         tt_str = tr("No addresses");

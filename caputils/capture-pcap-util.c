@@ -288,9 +288,7 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 	if_info->friendly_name = NULL;	/* default - unknown */
 	if_info->vendor_description = NULL;
 	if_info->type = IF_WIRED;	/* default */
-#ifdef HAVE_EXTCAP
 	if_info->extcap = g_strdup("");
-#endif
 #ifdef _WIN32
 	/*
 	 * Get the interface type.
@@ -555,10 +553,7 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 	g_free(if_info->name);
 	g_free(if_info->friendly_name);
 	g_free(if_info->vendor_description);
-#ifdef HAVE_EXTCAP
 	g_free(if_info->extcap);
-#endif
-
 	g_slist_foreach(if_info->addrs, free_if_info_addr_cb, NULL);
 	g_slist_free(if_info->addrs);
 	g_free(if_info);

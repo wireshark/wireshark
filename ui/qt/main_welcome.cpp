@@ -51,9 +51,7 @@
 #define VERSION_FLAVOR ""
 #endif
 
-#ifdef HAVE_EXTCAP
 #include <extcap.h>
-#endif
 
 MainWelcome::MainWelcome(QWidget *parent) :
     QFrame(parent),
@@ -331,12 +329,10 @@ void MainWelcome::interfaceSelected()
     emit interfacesChanged();
 }
 
-#ifdef HAVE_EXTCAP
 void MainWelcome::on_interfaceFrame_showExtcapOptions(QString device_name)
 {
     emit showExtcapOptions(device_name);
 }
-#endif
 
 void MainWelcome::on_interfaceFrame_startCapture()
 {

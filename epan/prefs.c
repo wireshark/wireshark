@@ -2983,9 +2983,7 @@ prefs_register_modules(void)
 {
     module_t *printing, *capture_module, *console_module,
         *gui_layout_module, *gui_font_module;
-#ifdef HAVE_EXTCAP
     module_t *extcap_module;
-#endif
 
     struct pref_custom_cbs custom_cbs;
 
@@ -2994,7 +2992,6 @@ prefs_register_modules(void)
         return;
     }
 
-#ifdef HAVE_EXTCAP
     /* GUI
      * These are "simple" GUI preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -3010,7 +3007,6 @@ prefs_register_modules(void)
                                    "Save arguments on start of capture",
                                    "Save arguments on start of capture",
                                    &prefs.extcap_save_on_start);
-#endif
 
     /* GUI
      * These are "simple" GUI preferences that can be read/written using the

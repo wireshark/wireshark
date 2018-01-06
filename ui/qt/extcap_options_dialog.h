@@ -25,8 +25,6 @@
 
 #include <config.h>
 
-#ifdef HAVE_EXTCAP
-
 #include <QWidget>
 #include <QDialog>
 #include <QPushButton>
@@ -74,8 +72,6 @@ private:
     void storeValues();
     void resetValues();
 };
-
-#endif /* HAVE_EXTCAP */
 
 #endif // EXTCAP_OPTIONS_DIALOG_H
 

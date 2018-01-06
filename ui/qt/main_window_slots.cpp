@@ -106,9 +106,7 @@ DIAG_ON(frame-larger-than=)
 #include "export_object_action.h"
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
-#ifdef HAVE_EXTCAP
 #include "extcap_options_dialog.h"
-#endif
 #include "file_set_dialog.h"
 #include "filter_action.h"
 #include "filter_dialog.h"
@@ -3910,7 +3908,6 @@ void MainWindow::gotoFrame(int packet_num)
     }
 }
 
-#ifdef HAVE_EXTCAP
 void MainWindow::extcap_options_finished(int result)
 {
     if (result == QDialog::Accepted) {
@@ -3929,7 +3926,6 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
         extcap_options_dialog->show();
     }
 }
-#endif
 
 void MainWindow::on_actionContextWikiProtocolPage_triggered()
 {

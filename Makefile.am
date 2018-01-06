@@ -371,17 +371,15 @@ GENERATED_C_FILES =
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
-EXTCAP_COMMON_SRC = \
-	extcap.c		\
-	extcap_parser.c		\
-	extcap_spawn.c
-
 # sources common for wireshark, tshark, and rawshark
 SHARK_COMMON_SRC = \
 	cfile.c			\
 	file_packet_provider.c	\
 	frame_tvbuff.c		\
-	sync_pipe_write.c
+	sync_pipe_write.c	\
+	extcap.c		\
+	extcap_parser.c		\
+	extcap_spawn.c
 
 # wireshark specifics
 WIRESHARK_COMMON_SRC = \
@@ -392,10 +390,6 @@ WIRESHARK_COMMON_SRC = \
 	fileset.c		\
 	summary.c		\
 	version_info.c
-
-if HAVE_EXTCAP
-SHARK_COMMON_SRC += $(EXTCAP_COMMON_SRC)
-endif
 
 EPAN_EXTRA_LIBS = \
 	@C_ARES_LIBS@			\
@@ -838,9 +832,7 @@ plugins_subdir = plugins
 endif
 endif
 
-if HAVE_EXTCAP
 extcap_subdir = extcap
-endif
 
 DIST_SUBDIRS = \
 	capchild	\

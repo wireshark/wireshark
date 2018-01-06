@@ -44,6 +44,7 @@ set(WIRESHARK_GTK_SRC
 	export_object_dlg.c
 	export_pdu_dlg.c
 	export_sslkeys.c
+	extcap_gtk.c
 	filter_autocomplete.c
 	file_dlg.c
 	file_import_dlg.c
@@ -183,13 +184,6 @@ if(PORTAUDIO_FOUND)
 			)
 		endif()
 	endif()
-endif()
-
-if(ENABLE_EXTCAP)
-	set(WIRESHARK_GTK_SRC
-		${WIRESHARK_GTK_SRC}
-		extcap_gtk.c
-	)
 endif()
 
 set(WIRESHARK_TAP_SRC

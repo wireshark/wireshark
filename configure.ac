@@ -2470,27 +2470,8 @@ dnl check for extcap directory - stolen from Amanda's configure.ac
 dnl
 dnl we don't wish to expand ${libdir} yet
 extcapdir="\${libdir}/wireshark/extcap"
-AC_ARG_WITH(extcap,
-  AC_HELP_STRING( [--with-extcap@<:@=DIR@:>@],
-		  [use extcap for external capture sources (installed in DIR, if supplied) @<:@default=yes, if possible@:>@]),
-[
-  if test "x$withval" = "xno"; then
-      have_extcap=no
-  elif test "x$withval" = "xyes"; then
-      have_extcap=yes
-  elif test "x$withval" != "xyes"; then
-      have_extcap=yes
-      extcapdir ="$withval"
-  fi
-],[
-    have_extcap=yes
-])
-AM_CONDITIONAL(HAVE_EXTCAP, test "x$have_extcap" = "xyes")
-if test "x$have_extcap" = "xyes"
-then
-  AC_DEFINE(HAVE_EXTCAP, 1, [Define if external capture sources should be enabled])
-  extcap_man="extcap.4"
-fi
+extcap_man="extcap.4"
+
 AC_SUBST(extcap_man)
 AC_SUBST(extcapdir)
 
@@ -2502,10 +2483,7 @@ AC_ARG_ENABLE(androiddump,
 		  [build androiddump @<:@default=yes@:>@]),
     androiddump=$enableval,enable_androiddump=yes)
 
-if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT([no, extcap disabled])
-	enable_androiddump=no
-elif test "x$enable_androiddump" = "xyes" ; then
+if test "x$enable_androiddump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
 else
 	AC_MSG_RESULT(no)
@@ -2538,10 +2516,7 @@ AC_ARG_ENABLE(sshdump,
 		[build sshdump @<:@default=yes@:>@]),
 	[],[enable_sshdump=yes])
 
-if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT([no, extcap disabled])
-	enable_sshdump=no
-elif test "x$have_libssh_pointsix" != xyes; then
+if test "x$have_libssh_pointsix" != xyes; then
 	AC_MSG_RESULT([no, libssh >= 0.6.0 not installed for development])
 	enable_sshdump=no
 elif test "x$enable_sshdump" = "xyes" ; then
@@ -2568,10 +2543,7 @@ AC_ARG_ENABLE(ciscodump,
 		[build ciscodump @<:@default=yes@:>@]),
 	[],[enable_ciscodump=yes])
 
-if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT([no, extcap disabled])
-	enable_ciscodump=no
-elif test "x$have_libssh_pointsix" != xyes; then
+if test "x$have_libssh_pointsix" != xyes; then
 	AC_MSG_RESULT([no, libssh >= 0.6.0 not installed for development])
 	enable_ciscodump=no
 elif test "x$enable_ciscodump" = "xyes" ; then
@@ -2598,10 +2570,7 @@ AC_ARG_ENABLE(randpktdump,
 		[build randpktdump @<:@default=yes@:>@]),
 	randpktdump=$enableval,enable_randpktdump=yes)
 
-if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT([no, extcap disabled])
-	enable_randpktdump=no
-elif test "x$enable_randpktdump" = "xyes" ; then
+if test "x$enable_randpktdump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
 else
 	AC_MSG_RESULT(no)
@@ -2625,10 +2594,7 @@ AC_ARG_ENABLE(udpdump,
 		[build udpdump @<:@default=yes@:>@]),
 	[],[enable_udpdump=yes])
 
-if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT([no, extcap disabled])
-	enable_udpdump=no
-elif test "x$enable_udpdump" = "xyes" ; then
+if test "x$enable_udpdump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
 else
 	AC_MSG_RESULT(no)
@@ -3017,7 +2983,6 @@ echo "  Install dumpcap with capabilities : $setcap_message"
 echo "             Install dumpcap setuid : $setuid_message"
 echo "                  Use dumpcap group : $dumpcap_group_message"
 echo "                        Use plugins : $have_plugins"
-echo "       Use external capture sources : $have_extcap"
 echo "                    Use Lua library : $lua_message"
 echo "                Build Qt RTP player : $qt_multimedia_message"
 echo "              Build GTK+ RTP player : $portaudio_message"

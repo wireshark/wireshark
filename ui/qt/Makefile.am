@@ -57,6 +57,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_expert_info_dialog.h				\
 	ui_export_object_dialog.h			\
 	ui_export_pdu_dialog.h				\
+	ui_extcap_options_dialog.h			\
 	ui_file_set_dialog.h				\
 	ui_filter_dialog.h				\
 	ui_filter_expression_frame.h			\
@@ -119,6 +120,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_uat_frame.h					\
 	ui_voip_calls_dialog.h				\
 	ui_wireless_frame.h
+
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
@@ -271,6 +273,10 @@ MOC_HDRS = \
 	export_object_action.h				\
 	export_object_dialog.h				\
 	export_pdu_dialog.h				\
+	extcap_argument.h		\
+	extcap_argument_file.h		\
+	extcap_argument_multiselect.h	\
+	extcap_options_dialog.h			\
 	file_set_dialog.h				\
 	filter_action.h					\
 	filter_dialog.h					\
@@ -387,6 +393,7 @@ UI_FILES = \
 	expert_info_dialog.ui				\
 	export_object_dialog.ui				\
 	export_pdu_dialog.ui				\
+	extcap_options_dialog.ui			\
 	file_set_dialog.ui				\
 	filter_dialog.ui				\
 	filter_expression_frame.ui			\
@@ -608,6 +615,10 @@ WIRESHARK_QT_SRC = \
 	export_object_action.cpp			\
 	export_object_dialog.cpp			\
 	export_pdu_dialog.cpp				\
+	extcap_argument.cpp			\
+	extcap_argument_file.cpp	\
+	extcap_argument_multiselect.cpp	\
+	extcap_options_dialog.cpp		\
 	file_set_dialog.cpp				\
 	filter_action.cpp				\
 	filter_dialog.cpp				\
@@ -718,25 +729,6 @@ noinst_HEADERS = \
 	utils/tango_colors.h		\
 	utils/variant_pointer.h
 
-if HAVE_EXTCAP
-NODIST_GENERATED_HEADER_FILES += \
-	ui_extcap_options_dialog.h
-
-MOC_HDRS += \
-	extcap_argument.h		\
-	extcap_argument_file.h		\
-	extcap_argument_multiselect.h	\
-	extcap_options_dialog.h
-
-UI_FILES += \
-	extcap_options_dialog.ui
-
-WIRESHARK_QT_SRC += \
-	extcap_argument.cpp		\
-	extcap_argument_file.cpp	\
-	extcap_argument_multiselect.cpp	\
-	extcap_options_dialog.cpp
-endif
 
 wireshark-tap-register.c: $(WIRESHARK_QT_TAP_SRC) ../make-taps
 	$(AM_V_GEN)../make-taps $@ $(filter %.cpp,$^)

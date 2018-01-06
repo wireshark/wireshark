@@ -91,9 +91,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
-#ifdef HAVE_EXTCAP
 #include "extcap.h"
-#endif
 #include "log.h"
 
 #ifdef _WIN32
@@ -252,13 +250,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
     cap_session->fork_child = WS_INVALID_PID;
 
-#ifdef HAVE_EXTCAP
     if (!extcap_init_interfaces(capture_opts)) {
         report_failure("Unable to init extcaps. (tmp fifo already exists?)");
         return FALSE;
     }
-
-#endif
 
     argv = init_pipe_args(&argc);
     if (!argv) {
@@ -338,11 +333,9 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, j);
 
         argv = sync_pipe_add_arg(argv, &argc, "-i");
-#ifdef HAVE_EXTCAP
         if (interface_opts->extcap_fifo != NULL)
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->extcap_fifo);
         else
-#endif
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->name);
 
         if (interface_opts->cfilter != NULL && strlen(interface_opts->cfilter) != 0) {
@@ -525,11 +518,9 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 #else
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
-#ifdef HAVE_EXTCAP
     if(interface_opts->extcap_pipe_h != INVALID_HANDLE_VALUE)
         si.hStdInput = interface_opts->extcap_pipe_h;
     else
-#endif
         si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 
     si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -1716,10 +1707,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 #ifdef _WIN32
         ws_close(cap_session->signal_pipe_write_fd);
 #endif
-#ifdef HAVE_EXTCAP
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: cleaning extcap pipe");
         extcap_if_cleanup(cap_session->capture_opts, &primary_msg);
-#endif
         capture_input_closed(cap_session, primary_msg);
         g_free(primary_msg);
         return FALSE;

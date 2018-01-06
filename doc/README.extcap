@@ -389,13 +389,9 @@ Messages with unknown control number or command will be silently ignored.
 
 DEVELOPMENT
 ===========
-To have extcap support, extcap must be enabled. Moreover the specific extcap must
-be compiled. Examples for autotools and cmake compiling the extcap plugin androiddump
-are provided within wireshark. The extcap subsystem and the bundled extcaps are compiled
-by default.
-
-autotools: ./configure --with-extcap --enable-androiddump
-cmake: cmake -DENABLE_EXTCAP=ON -DBUILD_androiddump ..
+To have extcap support, the specific extcap must be compiled. Examples for autotools and
+cmake compiling the extcap plugin androiddump are provided within wireshark. 
+The extcap subsystem and the bundled extcaps are compiled by default.
 
 Additionally there is an example python script available in doc/extcap_example.py.
 

@@ -55,6 +55,7 @@ WIRESHARK_COMMON_GTK_SRC = \
 	expert_comp_table.c	\
 	export_object_dlg.c	\
 	export_sslkeys.c	\
+	extcap_gtk.c		\
 	filter_autocomplete.c	\
 	file_dlg.c		\
 	file_import_dlg.c	\
@@ -176,6 +177,7 @@ WIRESHARK_COMMON_GTK_HDRS = \
 	export_object_dlg.h	\
 	export_pdu_dlg.h	\
 	export_sslkeys.h	\
+	extcap_gtk.h		\
 	file_dlg.h		\
 	file_import_dlg.h	\
 	fileset_dlg.h		\
@@ -259,11 +261,6 @@ else
 BUILD_PIXBUF_CSOURCE = \
 	pixbuf-csource.h	\
 	pixbuf-csource.c
-endif
-
-if HAVE_EXTCAP
-WIRESHARK_COMMON_GTK_SRC += extcap_gtk.c
-WIRESHARK_COMMON_GTK_HDRS += extcap_gtk.h
 endif
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GTK_CFLAGS) \
