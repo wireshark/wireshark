@@ -70,47 +70,48 @@ prefs_main_write(void)
     }
 }
 
-static gboolean
+static unsigned int
 prefs_store_ext_helper(const char * module_name, const char *pref_name, const char *pref_value)
 {
     module_t * module = NULL;
     pref_t * pref = NULL;
-    gboolean pref_changed = TRUE;
+    unsigned int pref_changed = 0;
 
     if ( ! prefs_is_registered_protocol(module_name))
-        return FALSE;
+        return 0;
 
     module = prefs_find_module(module_name);
     if ( ! module )
-        return FALSE;
+        return 0;
 
     pref = prefs_find_preference(module, pref_name);
 
     if (!pref)
-        return FALSE;
+        return 0;
 
     if (prefs_get_type(pref) == PREF_STRING )
     {
-        pref_changed = prefs_set_string_value(pref, pref_value, pref_stashed);
+        pref_changed |= prefs_set_string_value(pref, pref_value, pref_stashed);
         if ( ! pref_changed || prefs_get_string_value(pref, pref_stashed) != 0 )
-            pref_changed = prefs_set_string_value(pref, pref_value, pref_current);
+            pref_changed |= prefs_set_string_value(pref, pref_value, pref_current);
     }
 
     return pref_changed;
 }
 
-gboolean
+unsigned int
 prefs_store_ext(const char * module_name, const char *pref_name, const char *pref_value)
 {
-    if ( prefs_store_ext_helper(module_name, pref_name, pref_value) )
+    unsigned int changed_flags = prefs_store_ext_helper(module_name, pref_name, pref_value);
+    if ( changed_flags )
     {
         prefs_main_write();
         prefs_apply_all();
         prefs_to_capture_opts();
-        return TRUE;
+        return changed_flags;
     }
 
-    return FALSE;
+    return 0;
 }
 
 gboolean

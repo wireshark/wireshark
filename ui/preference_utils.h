@@ -41,9 +41,9 @@ extern void prefs_main_write(void);
  * @param key the key for the preference
  * @param value the new value as string for the preference
  *
- * @return true if the value has been stored successfully
+ * @return flags of types of preferences changed, non-zero if the value has been stored successfully
  */
-extern gboolean prefs_store_ext(const char * module, const char * key, const char * value);
+extern unsigned int prefs_store_ext(const char * module, const char * key, const char * value);
 
 /** Convenient function for the writing of multiple preferences, without
  * explicitly having prefs_t variables.

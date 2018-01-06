@@ -33,7 +33,7 @@ module_prefs_unstash(module_t *module, gpointer data)
 
     unstashed_data.handle_decode_as = TRUE;
 
-    module->prefs_changed = FALSE;        /* assume none of them changed */
+    module->prefs_changed_flags = 0;        /* assume none of them changed */
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
         pref_t *pref = (pref_t *) pref_l->data;
 
@@ -46,8 +46,7 @@ module_prefs_unstash(module_t *module, gpointer data)
     /* If any of them changed, indicate that we must redissect and refilter
        the current capture (if we have one), as the preference change
        could cause packets to be dissected differently. */
-    if (module->prefs_changed)
-        *must_redissect_p = TRUE;
+    *must_redissect_p |= module->prefs_changed_flags;
 
     if(prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, module_prefs_unstash, data);
@@ -202,7 +201,7 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &sear
 void PreferencesDialog::on_buttonBox_accepted()
 {
     gchar* err = NULL;
-    gboolean must_redissect = FALSE;
+    unsigned int must_redissect = 0;
 
     QVector<unsigned> old_layout = QVector<unsigned>() << prefs.gui_layout_type
                                                        << prefs.gui_layout_content_1
@@ -213,7 +212,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     // XXX - We're also too enthusiastic about setting must_redissect.
 //    if (!prefs_main_fetch_all(parent_w, &must_redissect))
 //        return; /* Errors in some preference setting - already reported */
-    prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer) &must_redissect);
+    prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer)&must_redissect);
 
     QVector<unsigned> new_layout = QVector<unsigned>() << prefs.gui_layout_type
                                                        << prefs.gui_layout_content_1

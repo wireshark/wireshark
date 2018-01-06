@@ -498,7 +498,7 @@ font_color_prefs_fetch(GtkWidget *w _U_)
 
 
 void
-font_color_prefs_apply(GtkWidget *w _U_, gboolean redissect)
+font_color_prefs_apply(GtkWidget *w _U_, unsigned int redissect)
 {
   if (font_changed) {
     /* This redraws the packet bytes windows. */

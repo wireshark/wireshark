@@ -42,8 +42,8 @@ public:
         setChecked(prefs_get_bool_value(pref_, pref_current));
     }
 
-    void setBoolValue() {
-        prefs_set_bool_value(pref_, isChecked(), pref_current);
+    unsigned int setBoolValue() {
+        return prefs_set_bool_value(pref_, isChecked(), pref_current);
     }
 
 private:
@@ -63,7 +63,7 @@ public:
         setCheckable(true);
     }
 
-    bool setEnumValue() {
+    unsigned int setEnumValue() {
         return prefs_set_enum_value(pref_, enumval_, pref_current);
     }
 
@@ -269,8 +269,7 @@ void ProtocolPreferencesMenu::boolPreferenceTriggered()
     BoolPreferenceAction *bpa = static_cast<BoolPreferenceAction *>(QObject::sender());
     if (!bpa) return;
 
-    bpa->setBoolValue();
-    module_->prefs_changed = TRUE;
+    module_->prefs_changed_flags |= bpa->setBoolValue();
 
     prefs_apply(module_);
     if (!prefs.gui_use_pref_save) {
@@ -285,8 +284,9 @@ void ProtocolPreferencesMenu::enumPreferenceTriggered()
     EnumPreferenceAction *epa = static_cast<EnumPreferenceAction *>(QObject::sender());
     if (!epa) return;
 
-    if (epa->setEnumValue()) { // Changed
-        module_->prefs_changed = TRUE;
+    unsigned int changed_flags = epa->setEnumValue();
+    if (changed_flags) { // Changed
+        module_->prefs_changed_flags |= changed_flags;
         prefs_apply(module_);
         if (!prefs.gui_use_pref_save) {
             prefs_main_write();

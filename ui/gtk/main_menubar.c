@@ -4670,7 +4670,7 @@ menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
     pref_t *pref = (pref_t*)data;
     module_t *module = (module_t *)g_object_get_data (G_OBJECT(w), "module");
 
-    module->prefs_changed = TRUE;
+    module->prefs_changed_flags |= prefs_get_effect_flags(pref);
     prefs_invert_bool_value(pref, pref_current);
 
     prefs_apply (module);
@@ -4692,7 +4692,7 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
         return;
 
     if (prefs_set_enum_value(pref, new_value, pref_current)) {
-        module->prefs_changed = TRUE;
+        module->prefs_changed_flags |= prefs_get_effect_flags(pref);
 
         prefs_apply (module);
         if (!prefs.gui_use_pref_save) {
@@ -4729,13 +4729,13 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
                           new_value);
             return;
         }
-        module->prefs_changed |= prefs_set_uint_value(pref, uval, pref_current);
+        module->prefs_changed_flags |= prefs_set_uint_value(pref, uval, pref_current);
         break;
     case PREF_STRING:
-        module->prefs_changed |= prefs_set_string_value(pref, new_value, pref_current);
+        module->prefs_changed_flags |= prefs_set_string_value(pref, new_value, pref_current);
         break;
     case PREF_RANGE:
-        if (!prefs_set_range_value_work(pref, new_value, TRUE, &module->prefs_changed)) {
+        if (!prefs_set_range_value_work(pref, new_value, TRUE, &module->prefs_changed_flags)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                           "The value \"%s\" isn't a valid range.",
                           new_value);
@@ -4747,7 +4747,7 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
         break;
     }
 
-    if (module->prefs_changed) {
+    if (module->prefs_changed_flags) {
         /* Ensure we reload the sub menu */
         menu_prefs_reset();
         prefs_apply (module);
@@ -5415,7 +5415,8 @@ void plugin_if_menubar_preference(GHashTable *dataSet)
                 g_hash_table_lookup_extended(dataSet, "pref_key", NULL, (void**)&pref_name ) &&
                 g_hash_table_lookup_extended(dataSet, "pref_value", NULL, (void**)&pref_value ) )
         {
-            if ( prefs_store_ext(module_name, pref_name, pref_value) )
+            unsigned int changed_flags = prefs_store_ext(module_name, pref_name, pref_value);
+            if ( changed_flags )
             {
                 redissect_packets();
                 redissect_all_packet_windows();

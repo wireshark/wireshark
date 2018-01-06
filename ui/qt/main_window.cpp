@@ -125,7 +125,8 @@ static void plugin_if_mainwindow_preference(GHashTable * data_set)
         g_hash_table_lookup_extended(data_set, "pref_key", NULL, (void**)&pref_name) &&
         g_hash_table_lookup_extended(data_set, "pref_value", NULL, (void**)&pref_value))
     {
-        if (prefs_store_ext(module_name, pref_name, pref_value)) {
+        unsigned int changed_flags = prefs_store_ext(module_name, pref_name, pref_value);
+        if (changed_flags) {
             wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
             wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
         }

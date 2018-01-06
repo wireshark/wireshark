@@ -1074,12 +1074,12 @@ pref_fetch(pref_t *pref, gpointer user_data)
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */
 #endif
-    module->prefs_changed |= prefs_set_uint_value(pref, uval, pref_current);
+    module->prefs_changed_flags |= prefs_set_uint_value(pref, uval, pref_current);
     break;
 
   case PREF_BOOL:
     bval = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(prefs_get_control(pref)));
-    module->prefs_changed |= prefs_set_bool_value(pref, bval, pref_current);
+    module->prefs_changed_flags |= prefs_set_bool_value(pref, bval, pref_current);
     break;
 
   case PREF_ENUM:
@@ -1091,7 +1091,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
                                                  prefs_get_enumvals(pref));
     }
 
-    module->prefs_changed |= prefs_set_enum_value(pref, enumval, pref_current);
+    module->prefs_changed_flags |= prefs_set_enum_value(pref, enumval, pref_current);
     break;
 
   case PREF_STRING:
@@ -1099,14 +1099,14 @@ pref_fetch(pref_t *pref, gpointer user_data)
   case PREF_OPEN_FILENAME:
   case PREF_DIRNAME:
     str_val = gtk_entry_get_text(GTK_ENTRY(prefs_get_control(pref)));
-    module->prefs_changed |= prefs_set_string_value(pref, str_val, pref_current);
+    module->prefs_changed_flags |= prefs_set_string_value(pref, str_val, pref_current);
     break;
 
   case PREF_DECODE_AS_RANGE:
     {
     str_val = gtk_entry_get_text(GTK_ENTRY(prefs_get_control(pref)));
 
-    module->prefs_changed |= prefs_set_stashed_range_value(pref, str_val);
+    module->prefs_changed_flags |= prefs_set_stashed_range_value(pref, str_val);
 
     unstash_data.module = module;
     unstash_data.handle_decode_as = TRUE;
@@ -1115,7 +1115,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     }
   case PREF_RANGE:
     str_val = gtk_entry_get_text(GTK_ENTRY(prefs_get_control(pref)));
-    if (!prefs_set_range_value_work(pref, str_val, TRUE, &module->prefs_changed))
+    if (!prefs_set_range_value_work(pref, str_val, TRUE, &module->prefs_changed_flags))
 #if 0
       return PREFS_SET_SYNTAX_ERR;      /* range was bad */
 #else
@@ -1142,7 +1142,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
 static guint
 module_prefs_fetch(module_t *module, gpointer user_data)
 {
-  gboolean *must_redissect_p = (gboolean *)user_data;
+  unsigned int *must_redissect_p = (unsigned int*)user_data;
 
   /* Ignore any preferences with their own interface */
   if (!module->use_gui) {
@@ -1151,14 +1151,13 @@ module_prefs_fetch(module_t *module, gpointer user_data)
 
   /* For all preferences in this module, fetch its value from this
      module's notebook page.  Find out whether any of them changed. */
-  module->prefs_changed = FALSE;        /* assume none of them changed */
+  module->prefs_changed_flags = 0;        /* assume none of them changed */
   prefs_pref_foreach(module, pref_fetch, module);
 
   /* If any of them changed, indicate that we must redissect and refilter
      the current capture (if we have one), as the preference change
      could cause packets to be dissected differently. */
-  if (module->prefs_changed)
-    *must_redissect_p = TRUE;
+  *must_redissect_p |= module->prefs_changed_flags;
 
   return 0;     /* keep fetching module preferences */
 }
@@ -1249,7 +1248,7 @@ module_prefs_clean_stash(module_t *module, gpointer user_data _U_)
 
 /* fetch all pref values from all pages */
 static gboolean
-prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
+prefs_main_fetch_all(GtkWidget *dlg, unsigned int *must_redissect)
 {
   pref_t *badpref;
 
@@ -1308,7 +1307,7 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 
 /* apply all pref values to the real world */
 static void
-prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
+prefs_main_apply_all(GtkWidget *dlg, unsigned int redissect)
 {
   GtkWidget *save_bt;
 
@@ -1458,7 +1457,7 @@ prefs_main_save(gpointer parent_w)
 static void
 prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-  gboolean must_redissect = FALSE;
+  unsigned int must_redissect = 0;
 
   if (!prefs_main_fetch_all((GtkWidget *)parent_w, &must_redissect))
     return; /* Errors in some preference setting - already reported */
@@ -1499,7 +1498,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 static void
 prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 {
-  gboolean must_redissect = FALSE;
+  unsigned int must_redissect = 0;
 
   if (!prefs_main_fetch_all((GtkWidget *)parent_w, &must_redissect))
     return; /* Errors in some preference setting - already reported */
@@ -1529,7 +1528,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 static void
 prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 {
-  gboolean must_redissect = FALSE;
+  unsigned int must_redissect = 0;
 
   if (!prefs_main_fetch_all((GtkWidget *)parent_w, &must_redissect))
     return; /* Errors in some preference setting - already reported */
@@ -1566,7 +1565,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 static guint
 module_prefs_revert(module_t *module, gpointer user_data)
 {
-  gboolean *must_redissect_p = (gboolean *)user_data;
+  unsigned int *must_redissect_p = (unsigned int*)user_data;
   pref_unstash_data_t unstashed_data;
 
   /* Ignore any preferences with their own interface */
@@ -1577,7 +1576,7 @@ module_prefs_revert(module_t *module, gpointer user_data)
   /* For all preferences in this module, revert its value to the value
      it had when we popped up the Preferences dialog.  Find out whether
      this changes any of them. */
-  module->prefs_changed = FALSE;        /* assume none of them changed */
+  module->prefs_changed_flags = 0;        /* assume none of them changed */
   unstashed_data.module = module;
   unstashed_data.handle_decode_as = FALSE;
   prefs_pref_foreach(module, pref_unstash, &unstashed_data);
@@ -1585,8 +1584,8 @@ module_prefs_revert(module_t *module, gpointer user_data)
   /* If any of them changed, indicate that we must redissect and refilter
      the current capture (if we have one), as the preference change
      could cause packets to be dissected differently. */
-  if (module->prefs_changed)
-    *must_redissect_p = TRUE;
+  *must_redissect_p |= module->prefs_changed_flags;
+
   return 0;     /* keep processing modules */
 }
 
@@ -1594,7 +1593,7 @@ module_prefs_revert(module_t *module, gpointer user_data)
 static void
 prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 {
-  gboolean must_redissect = FALSE;
+  unsigned int must_redissect = 0;
 
   /* Free up the current preferences and copy the saved preferences to the
      current preferences. */

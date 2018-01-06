@@ -46,7 +46,7 @@ void font_color_prefs_fetch(GtkWidget *widget);
  *
  * @param widget widget from font_color_prefs_show()
  */
-void font_color_prefs_apply(GtkWidget *widget, gboolean);
+void font_color_prefs_apply(GtkWidget *widget, unsigned int);
 
 /** Destroy preference values from page.
  *

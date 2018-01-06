@@ -562,7 +562,7 @@ load_wlan_driver_wep_keys(void)
      * Signal that we've changed things, and run the 802.11 dissector's
      * callback
      */
-    wlan_prefs->prefs_changed = TRUE;
+    wlan_prefs->prefs_changed_flags |= PREF_EFFECT_DISSECTION;
 
     prefs_apply(wlan_prefs);
 
@@ -772,7 +772,7 @@ save_wlan_driver_wep_keys(void)
 
     /* Signal that we've changed things, and run the 802.11 dissector's
      * callback */
-    wlan_prefs->prefs_changed = TRUE;
+    wlan_prefs->prefs_changed_flags |= PREF_EFFECT_DISSECTION;
 
     /* Apply changes for the specified preference */
     prefs_apply(wlan_prefs);
@@ -829,7 +829,7 @@ save_wlan_wireshark_wep_keys(GList* key_ls)
 
     /* Signal that we've changed things, and run the 802.11 dissector's
      * callback */
-    wlan_prefs->prefs_changed = TRUE;
+    wlan_prefs->prefs_changed_flags |= PREF_EFFECT_DISSECTION;
 
     /* Apply changes for the specified preference */
     prefs_apply(wlan_prefs);
@@ -1469,7 +1469,7 @@ set_wireshark_decryption(gboolean on_off)
      * Signal that we've changed things, and run the 802.11 dissector's
      * callback
      */
-    wlan_prefs->prefs_changed = TRUE;
+    wlan_prefs->prefs_changed_flags |= PREF_EFFECT_DISSECTION;
 
     prefs_apply(wlan_prefs);
 }

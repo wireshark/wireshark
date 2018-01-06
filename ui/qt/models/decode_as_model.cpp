@@ -619,7 +619,7 @@ void DecodeAsModel::applyChanges()
             module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle)));
             pref_value = prefs_find_preference(module, uint_entry.first);
             if (pref_value != NULL) {
-                module->prefs_changed = TRUE;
+                module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                 reset_pref(pref_value);
             }
         }
@@ -688,7 +688,7 @@ void DecodeAsModel::applyChanges()
                             module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissector_handle_)));
                             pref_value = prefs_find_preference(module, decode_as_entry->table_name);
                             if (pref_value != NULL) {
-                                module->prefs_changed = TRUE;
+                                module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                                 prefs_remove_decode_as_value(pref_value, item->selectorUint_, TRUE);
                             }
                         }
@@ -703,7 +703,7 @@ void DecodeAsModel::applyChanges()
                         module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissector_handle_)));
                         pref_value = prefs_find_preference(module, decode_as_entry->table_name);
                         if (pref_value != NULL) {
-                            module->prefs_changed = TRUE;
+                            module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                             prefs_add_decode_as_value(pref_value, item->selectorUint_, FALSE);
                         }
                     }

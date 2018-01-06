@@ -272,7 +272,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                         }
 
                         prefs_add_decode_as_value(pref_value, (guint)long_value, replace);
-                        module->prefs_changed = TRUE;
+                        module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                     }
 
                 }

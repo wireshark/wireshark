@@ -706,7 +706,7 @@ decode_simple (GtkWidget *notebook_pg)
                     module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(temp_handle)));
                     pref_value = prefs_find_preference(module, table_name);
                     if (pref_value != NULL) {
-                        module->prefs_changed = TRUE;
+                        module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                         prefs_remove_decode_as_value(pref_value, GPOINTER_TO_UINT(value_ptr), TRUE);
                     }
                 }
@@ -720,7 +720,7 @@ decode_simple (GtkWidget *notebook_pg)
                     module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle)));
                     pref_value = prefs_find_preference(module, table_name);
                     if (pref_value != NULL) {
-                        module->prefs_changed = TRUE;
+                        module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                         prefs_add_decode_as_value(pref_value, GPOINTER_TO_UINT(value_ptr), FALSE);
                     }
                 }
@@ -731,7 +731,7 @@ decode_simple (GtkWidget *notebook_pg)
                         module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(temp_handle)));
                         pref_value = prefs_find_preference(module, table_name);
                         if (pref_value != NULL) {
-                            module->prefs_changed = TRUE;
+                            module->prefs_changed_flags |= prefs_get_effect_flags(pref_value);
                             prefs_remove_decode_as_value(pref_value, GPOINTER_TO_UINT(value_ptr), FALSE);
                         }
                     }
