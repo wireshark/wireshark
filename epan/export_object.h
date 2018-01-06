@@ -36,7 +36,13 @@ typedef struct _export_object_entry_t {
     gchar *content_type;
     gchar *filename;
     /* We need to store a 64 bit integer to hold a file length
-      (was guint payload_len;) */
+      (was guint payload_len;)
+
+      XXX - we store the entire object in the program's address space,
+      so the *real* maximum object size is size_t; if we were to export
+      objects by going through all of the packets containing data from
+      the object, one packet at a time, and write the object incrementally,
+      we could support objects that don't fit into the address space. */
     gint64 payload_len;
     guint8 *payload_data;
 } export_object_entry_t;
