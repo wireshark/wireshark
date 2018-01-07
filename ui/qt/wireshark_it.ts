@@ -13815,17 +13815,17 @@ a:hover {
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Seleziona un comando e digita un filtro se vuoi, poi premi Applica.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Comando:</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempi di risposta del servizio SCSI</translation>
     </message>
 </context>
 <context>

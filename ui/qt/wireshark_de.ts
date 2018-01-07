@@ -13815,17 +13815,17 @@ text-decoration: underline;
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Ein Kommando auswählen und bei Bedarf einen Filter eingeben. Danach Anwenden.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSI Service Antwortzeit</translation>
     </message>
 </context>
 <context>

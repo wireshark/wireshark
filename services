@@ -8241,8 +8241,8 @@ varadero-1       4838/tcp # Varadero-1
 varadero-1       4838/udp # Varadero-1
 varadero-2       4839/tcp # Varadero-2 [Carlos_Arteaga] [Carlos_Arteaga]
 varadero-2       4839/udp # Varadero-2 [Carlos_Arteaga] [Carlos_Arteaga]
-opcua-tcp        4840/tcp # OPC UA TCP Protocol [OPC_Foundation] [Randy_Armstrong] 2017-05-23
-opcua-udp        4840/udp # OPC UA TCP Protocol [OPC_Foundation] [Randy_Armstrong] 2006-09 2017-05-23
+opcua-tcp        4840/tcp # OPC UA Connection Protocol [OPC_Foundation] [Randy_Armstrong] 2018-01-04
+opcua-udp        4840/udp # OPC UA Multicast Datagram Protocol [OPC_Foundation] [Randy_Armstrong] 2006-09 2018-01-04
 quosa            4841/tcp # QUOSA Virtual Library Service [Uri_Blank] [Uri_Blank] 2006-09
 quosa            4841/udp # QUOSA Virtual Library Service [Uri_Blank] [Uri_Blank] 2006-09
 gw-asv           4842/tcp # nCode ICE-flow Library AppServer [Ross_Swithenbank] [Ross_Swithenbank] 2006-09
