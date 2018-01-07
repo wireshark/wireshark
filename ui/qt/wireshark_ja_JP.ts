@@ -1858,26 +1858,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>ダイアログ</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="vanished">パケット</translation>
-    </message>
-    <message>
-        <source>Hostname</source>
-        <translation type="vanished">ホスト名</translation>
-    </message>
-    <message>
-        <source>Content Type</source>
-        <translation type="vanished">コンテントタイプ</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">サイズ</translation>
-    </message>
-    <message>
-        <source>Filename</source>
-        <translation type="vanished">ファイル名</translation>
-    </message>
-    <message>
         <source>Searching for objects</source>
         <translation>オブジェクトを探索中</translation>
     </message>
@@ -3516,8 +3496,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <oldsource>LBTRM Transport Statistics</oldsource>
-        <translation type="unfinished">LBTRM転送統計</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3802,8 +3781,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <oldsource>LBTRU Transport Statistics</oldsource>
-        <translation type="unfinished">LBTRUトランスポート統計</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4829,6 +4807,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>キャプチャファイルプロパティ画面を開く</translation>
     </message>
     <message>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>プロファイルの管理</translation>
@@ -4895,7 +4877,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Profile: </source>
-        <translation>プロファイル:</translation>
+        <translation type="vanished">プロファイル:</translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -6631,46 +6613,6 @@ a:hover {
         <translation>パケットバイト列を表示または非表示にします</translation>
     </message>
     <message>
-        <source>Bytes as Hex + ASCII Dump</source>
-        <translation type="vanished">16進数およびASCIIダンプ形式</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="vanished">16進数およびASCIIダンプ形式としてパケットバイト列をコピーします</translation>
-    </message>
-    <message>
-        <source>…as Hex Dump</source>
-        <translation type="vanished">16進数ダンプ形式として…</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex dump.</source>
-        <translation type="vanished">16進数ダンプとしてパケットバイト列をコピーします</translation>
-    </message>
-    <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">印刷可能なテキストとして…</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">パケット内の印刷可能なテキストだけをコピー</translation>
-    </message>
-    <message>
-        <source>…as a Hex Stream</source>
-        <translation type="vanished">16進数ストリームとして…</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="vanished">16進数ストリームとしてパケットバイト列をコピーします</translation>
-    </message>
-    <message>
-        <source>…as Raw Binary</source>
-        <translation type="vanished">Raw(無加工)バイナリ形式として...</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="vanished">MIME形式データ(application/octet-stream)としてパケットバイト列をコピーします</translation>
-    </message>
-    <message>
         <source>MAP Summary</source>
         <translation>MAP概要</translation>
     </message>
@@ -7766,36 +7708,27 @@ a:hover {
     <name>PreferencesDialog</name>
     <message>
         <source>Appearance</source>
-        <translation>外観</translation>
+        <translation type="vanished">外観</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>レイアウト</translation>
+        <translation type="vanished">レイアウト</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation>列</translation>
+        <translation type="vanished">列</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation>フォントと色</translation>
+        <translation type="vanished">フォントと色</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>キャプチャ</translation>
-    </message>
-    <message>
-        <source>Expert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Buttons</source>
-        <oldsource>Filter Expressions</oldsource>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">キャプチャ</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation>高度設定</translation>
+        <translation type="vanished">高度設定</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -7803,19 +7736,19 @@ a:hover {
     </message>
     <message>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation type="vanished">名前</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>状態</translation>
+        <translation type="vanished">状態</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>種別</translation>
+        <translation type="vanished">種別</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>値</translation>
+        <translation type="vanished">値</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8068,20 +8001,12 @@ a:hover {
 <context>
     <name>QObject</name>
     <message>
-        <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Has this preference been changed?</source>
-        <translation>この設定を変更されましたか？</translation>
+        <translation type="vanished">この設定を変更されましたか？</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation>デフォルト値は空です</translation>
+        <translation type="vanished">デフォルト値は空です</translation>
     </message>
     <message>
         <source>Average Throughput (bits/s)</source>

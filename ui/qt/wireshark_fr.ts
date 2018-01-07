@@ -1863,26 +1863,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Dialogue</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="vanished">Paquet</translation>
-    </message>
-    <message>
-        <source>Hostname</source>
-        <translation type="vanished">Nom d&apos;hôte</translation>
-    </message>
-    <message>
-        <source>Content Type</source>
-        <translation type="vanished">Type de contenu</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">Taille</translation>
-    </message>
-    <message>
-        <source>Filename</source>
-        <translation type="vanished">Nom du fichier</translation>
-    </message>
-    <message>
         <source>Searching for objects</source>
         <translation>Chercher les objects</translation>
     </message>
@@ -3530,8 +3510,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <oldsource>LBTRM Transport Statistics</oldsource>
-        <translation type="unfinished">Statistiques de Transport LBTRM</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3816,8 +3795,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <oldsource>LBTRU Transport Statistics</oldsource>
-        <translation type="unfinished">Statistiques de Transport LBTRU</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4841,6 +4819,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Ouvre le dialogue des Propriétés de Fichier de Capture</translation>
     </message>
     <message>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>Gérer des Profils</translation>
@@ -4907,7 +4889,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Profile: </source>
-        <translation>Profil: </translation>
+        <translation type="vanished">Profil: </translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -6644,22 +6626,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Bytes as Hex + ASCII Dump</source>
-        <translation type="vanished">Octets en Hex + ASCII Dump</translation>
-    </message>
-    <message>
-        <source>…as Hex Dump</source>
-        <translation type="vanished">...en Hex Dump</translation>
-    </message>
-    <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">...en Texte Imprimable</translation>
-    </message>
-    <message>
-        <source>…as Raw Binary</source>
-        <translation type="vanished">...en Binaire Brut</translation>
-    </message>
-    <message>
         <source>MAP Summary</source>
         <translation>Résumé MAP</translation>
     </message>
@@ -7758,36 +7724,27 @@ a:hover {
     <name>PreferencesDialog</name>
     <message>
         <source>Appearance</source>
-        <translation>Apparence</translation>
+        <translation type="vanished">Apparence</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Disposition</translation>
+        <translation type="vanished">Disposition</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation>Colonne</translation>
+        <translation type="vanished">Colonne</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation>Police et couleurs</translation>
+        <translation type="vanished">Police et couleurs</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>Capture</translation>
-    </message>
-    <message>
-        <source>Expert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Buttons</source>
-        <oldsource>Filter Expressions</oldsource>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Capture</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation>Avancé</translation>
+        <translation type="vanished">Avancé</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -7795,19 +7752,19 @@ a:hover {
     </message>
     <message>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation type="vanished">Nom</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>Etat</translation>
+        <translation type="vanished">Etat</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Type</translation>
+        <translation type="vanished">Type</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Valeur</translation>
+        <translation type="vanished">Valeur</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8060,20 +8017,12 @@ a:hover {
 <context>
     <name>QObject</name>
     <message>
-        <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Has this preference been changed?</source>
-        <translation>Cette préférence a été changé?</translation>
+        <translation type="vanished">Cette préférence a été changé?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation>La valeur par défaut est vide</translation>
+        <translation type="vanished">La valeur par défaut est vide</translation>
     </message>
     <message>
         <source>Average Throughput (bits/s)</source>

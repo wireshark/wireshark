@@ -4165,8 +4165,8 @@ htcp		4827/tcp/udp	# HTCP
 varadero-0	4837/tcp/udp	# Varadero-0
 varadero-1	4838/tcp/udp	# Varadero-1
 varadero-2	4839/tcp/udp	# Varadero-2
-opcua-tcp	4840/tcp	# OPC UA TCP Protocol
-opcua-udp	4840/udp	# OPC UA TCP Protocol
+opcua-tcp	4840/tcp	# OPC UA Connection Protocol
+opcua-udp	4840/udp	# OPC UA Multicast Datagram Protocol
 quosa		4841/tcp/udp	# QUOSA Virtual Library Service
 gw-asv		4842/tcp/udp	# nCode ICE-flow Library AppServer
 opcua-tls	4843/tcp/udp	# OPC UA TCP Protocol over TLS/SSL

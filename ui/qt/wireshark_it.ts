@@ -1865,26 +1865,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Finestra</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="vanished">Pacchetto</translation>
-    </message>
-    <message>
-        <source>Hostname</source>
-        <translation type="vanished">Nome host</translation>
-    </message>
-    <message>
-        <source>Content Type</source>
-        <translation type="vanished">Tipo di contenuto</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">Dimensione</translation>
-    </message>
-    <message>
-        <source>Filename</source>
-        <translation type="vanished">Nome del file</translation>
-    </message>
-    <message>
         <source>Searching for objects</source>
         <translation>Ricerca oggetti</translation>
     </message>
@@ -3530,8 +3510,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <oldsource>LBTRM Transport Statistics</oldsource>
-        <translation type="unfinished">Statistiche di trasporto LBTRM</translation>
+        <translation>Statistiche di trasporto LBT-RM</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3816,8 +3795,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <oldsource>LBTRU Transport Statistics</oldsource>
-        <translation type="unfinished">Statistiche di trasporto LBTRU</translation>
+        <translation>Statistiche di trasporto LBT-RU</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4841,6 +4819,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Apri la finestra delle proprietà del file di cattura</translation>
     </message>
     <message>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>Gestisci i profili</translation>
@@ -4907,7 +4889,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Profile: </source>
-        <translation>Profilo: </translation>
+        <translation type="vanished">Profilo: </translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -6294,14 +6276,6 @@ a:hover {
         <translation>Crea regole ACL firewall</translation>
     </message>
     <message>
-        <source>…as Escaped String</source>
-        <translation type="vanished">...come stringa letterale</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a Escaped string</source>
-        <translation type="vanished">Copia i byte del pacchetto come stringa letterale</translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
         <translation>Schermo &amp;intero</translation>
     </message>
@@ -6680,46 +6654,6 @@ a:hover {
     <message>
         <source>Show or hide the packet bytes</source>
         <translation>Mostra o nascondi i byte del pacchetto</translation>
-    </message>
-    <message>
-        <source>Bytes as Hex + ASCII Dump</source>
-        <translation type="vanished">Byte come dump esadecimale + ASCII</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="vanished">Copia i byte del pacchetto come un dump esadecimale e ASCII.</translation>
-    </message>
-    <message>
-        <source>…as Hex Dump</source>
-        <translation type="vanished">... come dump esadecimale</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex dump.</source>
-        <translation type="vanished">Copia i byte del pacchetto come un dump esadecimale.</translation>
-    </message>
-    <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">... come testo stampabile</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">Copia solo il testo stampabile nel pacchetto.</translation>
-    </message>
-    <message>
-        <source>…as a Hex Stream</source>
-        <translation type="vanished">... come un flusso esadecimale</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="vanished">Copia i byte del pacchetto come un flusso esadecimale.</translation>
-    </message>
-    <message>
-        <source>…as Raw Binary</source>
-        <translation type="vanished">... come binario grezzo</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="vanished">Copia i byte del pacchetto come dati MIME application/octet-stream.</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -7818,36 +7752,36 @@ a:hover {
     <name>PreferencesDialog</name>
     <message>
         <source>Appearance</source>
-        <translation>Apparenza</translation>
+        <translation type="vanished">Apparenza</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Impaginazione</translation>
+        <translation type="vanished">Impaginazione</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation>Colonne</translation>
+        <translation type="vanished">Colonne</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation>Caratteri e colori</translation>
+        <translation type="vanished">Caratteri e colori</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>Cattura</translation>
+        <translation type="vanished">Cattura</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation>Esperto</translation>
+        <translation type="vanished">Esperto</translation>
     </message>
     <message>
         <source>Filter Buttons</source>
         <oldsource>Filter Expressions</oldsource>
-        <translation>Pulsanti di filtro</translation>
+        <translation type="vanished">Pulsanti di filtro</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation>Avanzate</translation>
+        <translation type="vanished">Avanzate</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -7855,19 +7789,19 @@ a:hover {
     </message>
     <message>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation type="vanished">Nome</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>Stato</translation>
+        <translation type="vanished">Stato</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Tipo</translation>
+        <translation type="vanished">Tipo</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Valore</translation>
+        <translation type="vanished">Valore</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8121,19 +8055,19 @@ a:hover {
     <name>QObject</name>
     <message>
         <source>Default</source>
-        <translation>Predefinito</translation>
+        <translation type="vanished">Predefinito</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation>Modificato</translation>
+        <translation type="vanished">Modificato</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation>Questa impostazione è stata cambiata?</translation>
+        <translation type="vanished">Questa impostazione è stata cambiata?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation>Il valore predefinito è vuoto</translation>
+        <translation type="vanished">Il valore predefinito è vuoto</translation>
     </message>
     <message>
         <source>Average Throughput (bits/s)</source>
@@ -8489,19 +8423,19 @@ a:hover {
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Errore</translation>
+        <translation>Errore</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">Non è stata trovata alcuna interfaccia remota.</translation>
+        <translation>Non è stata trovata alcuna interfaccia remota.</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished">PCAP non trovate</translation>
+        <translation>PCAP non trovate</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore sconosciuto</translation>
     </message>
 </context>
 <context>

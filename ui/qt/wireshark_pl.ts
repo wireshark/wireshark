@@ -1864,26 +1864,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Okno</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="vanished">Pakiet</translation>
-    </message>
-    <message>
-        <source>Hostname</source>
-        <translation type="vanished">Nazwa hosta</translation>
-    </message>
-    <message>
-        <source>Content Type</source>
-        <translation type="vanished">Typ zawartości</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">Rozmiar</translation>
-    </message>
-    <message>
-        <source>Filename</source>
-        <translation type="vanished">Nazwa pliku</translation>
-    </message>
-    <message>
         <source>Searching for objects</source>
         <translation>Szukanie obiektów</translation>
     </message>
@@ -3529,8 +3509,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <oldsource>LBTRM Transport Statistics</oldsource>
-        <translation type="unfinished">Statystyki tranportu LBTRM</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3815,8 +3794,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <oldsource>LBTRU Transport Statistics</oldsource>
-        <translation type="unfinished">Statystyki tranportu LBTRU</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4842,6 +4820,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Otwórz okno Ustawień Pliku Przechwytywania</translation>
     </message>
     <message>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>Zarządzaj profilami</translation>
@@ -4908,7 +4890,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Profile: </source>
-        <translation>Profil: </translation>
+        <translation type="vanished">Profil: </translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -6676,46 +6658,6 @@ text-decoration: underline;
         <translation>Pokaż/ukryj bajty pakietu</translation>
     </message>
     <message>
-        <source>Bytes as Hex + ASCII Dump</source>
-        <translation type="vanished">Bajty jako Hex + ASCII Dump</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="vanished">Kopiuj bajty pakietu jako Hex i ASCII Dump.</translation>
-    </message>
-    <message>
-        <source>…as Hex Dump</source>
-        <translation type="vanished">…jako Hex Dump</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex dump.</source>
-        <translation type="vanished">Kopiuj bajty pakietu jako Hex Dump.</translation>
-    </message>
-    <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">…drukowalny tekst</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">Kopiuj tylko drukowalny tekst z pakietu.</translation>
-    </message>
-    <message>
-        <source>…as a Hex Stream</source>
-        <translation type="vanished">…jako strumień Hex</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="vanished">Kopiuj bajty pakietu jako strumień Hex.</translation>
-    </message>
-    <message>
-        <source>…as Raw Binary</source>
-        <translation type="vanished">…jako strumień binarny</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="vanished">Kopiuj bajty pakietu jako typ MIME application/octet-stream.</translation>
-    </message>
-    <message>
         <source>MAP Summary</source>
         <translation>Podsumowanie MAP</translation>
     </message>
@@ -7812,36 +7754,27 @@ text-decoration: underline;
     <name>PreferencesDialog</name>
     <message>
         <source>Appearance</source>
-        <translation>Prezentacja</translation>
+        <translation type="vanished">Prezentacja</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Wygląd</translation>
+        <translation type="vanished">Wygląd</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation>Kolumny</translation>
+        <translation type="vanished">Kolumny</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation>Czcionki i kolory</translation>
+        <translation type="vanished">Czcionki i kolory</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>Przechwytywanie</translation>
-    </message>
-    <message>
-        <source>Expert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Buttons</source>
-        <oldsource>Filter Expressions</oldsource>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Przechwytywanie</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation>Zaawansowane</translation>
+        <translation type="vanished">Zaawansowane</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -7849,19 +7782,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>Name</source>
-        <translation>Nazwa</translation>
+        <translation type="vanished">Nazwa</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>Status</translation>
+        <translation type="vanished">Status</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="vanished">Typ</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wartość</translation>
+        <translation type="vanished">Wartość</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8115,19 +8048,19 @@ text-decoration: underline;
     <name>QObject</name>
     <message>
         <source>Default</source>
-        <translation>Domyślne</translation>
+        <translation type="vanished">Domyślne</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation>Zmienione</translation>
+        <translation type="vanished">Zmienione</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation>Czy to ustawienie zostało zmienione?</translation>
+        <translation type="vanished">Czy to ustawienie zostało zmienione?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation>Domyślna wartość jest pusta</translation>
+        <translation type="vanished">Domyślna wartość jest pusta</translation>
     </message>
     <message>
         <source>Average Throughput (bits/s)</source>

@@ -1859,26 +1859,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>对话框</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="vanished">分组</translation>
-    </message>
-    <message>
-        <source>Hostname</source>
-        <translation type="vanished">主机名</translation>
-    </message>
-    <message>
-        <source>Content Type</source>
-        <translation type="vanished">内容类型</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">大小</translation>
-    </message>
-    <message>
-        <source>Filename</source>
-        <translation type="vanished">文件名</translation>
-    </message>
-    <message>
         <source>Searching for objects</source>
         <translation>正在搜索对象</translation>
     </message>
@@ -3517,8 +3497,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <oldsource>LBTRM Transport Statistics</oldsource>
-        <translation type="unfinished">LBTRM 传输层统计</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3803,8 +3782,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <oldsource>LBTRU Transport Statistics</oldsource>
-        <translation type="unfinished">LBTRU传输层统计</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4826,6 +4804,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>打开捕获文件属性对话框</translation>
     </message>
     <message>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>管理配置文件</translation>
@@ -4892,7 +4874,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Profile: </source>
-        <translation>配置文件: </translation>
+        <translation type="vanished">配置文件: </translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -6278,14 +6260,6 @@ text-decoration: underline;
         <translation>创建防火墙 ACL 规则</translation>
     </message>
     <message>
-        <source>…as Escaped String</source>
-        <translation type="vanished">…为转义字符串</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a Escaped string</source>
-        <translation type="vanished">复制分组字节为转义字符串。</translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
         <translation>全屏(&amp;F)</translation>
     </message>
@@ -6664,46 +6638,6 @@ text-decoration: underline;
     <message>
         <source>Show or hide the packet bytes</source>
         <translation>显示或隐藏分组字节流</translation>
-    </message>
-    <message>
-        <source>Bytes as Hex + ASCII Dump</source>
-        <translation type="vanished">字节为 Hex + ASCII 转储</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="vanished">复制分组字节为 Hex 和 ASCII 转储。</translation>
-    </message>
-    <message>
-        <source>…as Hex Dump</source>
-        <translation type="vanished">…为 Hex 转储</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex dump.</source>
-        <translation type="vanished">复制分组字节为 Hex 转储。</translation>
-    </message>
-    <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">为纯文本</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">只复制分组中的可打印文本。</translation>
-    </message>
-    <message>
-        <source>…as a Hex Stream</source>
-        <translation type="vanished">…为一个 Hex 流</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="vanished">复制分组字节为 Hex 流。</translation>
-    </message>
-    <message>
-        <source>…as Raw Binary</source>
-        <translation type="vanished">…为原始二进制</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="vanished">复制分组字节为 application/octet-stream MIME 数据。</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -7800,36 +7734,27 @@ text-decoration: underline;
     <name>PreferencesDialog</name>
     <message>
         <source>Appearance</source>
-        <translation>外观</translation>
+        <translation type="vanished">外观</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>布局</translation>
+        <translation type="vanished">布局</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation>列</translation>
+        <translation type="vanished">列</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation>字体与颜色</translation>
+        <translation type="vanished">字体与颜色</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>捕获</translation>
-    </message>
-    <message>
-        <source>Expert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Buttons</source>
-        <oldsource>Filter Expressions</oldsource>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">捕获</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation>高级</translation>
+        <translation type="vanished">高级</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -7837,19 +7762,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>Name</source>
-        <translation>名称</translation>
+        <translation type="vanished">名称</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>状态</translation>
+        <translation type="vanished">状态</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>类型</translation>
+        <translation type="vanished">类型</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>值</translation>
+        <translation type="vanished">值</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8103,19 +8028,19 @@ text-decoration: underline;
     <name>QObject</name>
     <message>
         <source>Default</source>
-        <translation>默认</translation>
+        <translation type="vanished">默认</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation>已更改</translation>
+        <translation type="vanished">已更改</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation>此首选项已被更改？</translation>
+        <translation type="vanished">此首选项已被更改？</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation>默认值为空</translation>
+        <translation type="vanished">默认值为空</translation>
     </message>
     <message>
         <source>Average Throughput (bits/s)</source>

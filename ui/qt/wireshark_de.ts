@@ -1865,26 +1865,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Dialog</translation>
     </message>
     <message>
-        <source>Packet</source>
-        <translation type="vanished">Paket</translation>
-    </message>
-    <message>
-        <source>Hostname</source>
-        <translation type="vanished">Hostname</translation>
-    </message>
-    <message>
-        <source>Content Type</source>
-        <translation type="vanished">Content-Type</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="vanished">Größe</translation>
-    </message>
-    <message>
-        <source>Filename</source>
-        <translation type="vanished">Dateiname</translation>
-    </message>
-    <message>
         <source>Searching for objects</source>
         <translation>Nach Objekt suchen</translation>
     </message>
@@ -3530,8 +3510,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <oldsource>LBTRM Transport Statistics</oldsource>
-        <translation type="unfinished">LBTRM Transport Statistik</translation>
+        <translation>LBT-RM Transport Statistik</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -3816,8 +3795,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <oldsource>LBTRU Transport Statistics</oldsource>
-        <translation type="unfinished">LBTRU Transportstatistik</translation>
+        <translation>LBT-RU Transportstatistik</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4841,6 +4819,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Eigenschaften der Mitschnittdatei öffnen</translation>
     </message>
     <message>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>Profile verwalten</translation>
@@ -4907,7 +4889,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Profile: </source>
-        <translation>Profil:</translation>
+        <translation type="vanished">Profil:</translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -6294,14 +6276,6 @@ text-decoration: underline;
         <translation>Firewall ACL Regeln erstellen</translation>
     </message>
     <message>
-        <source>…as Escaped String</source>
-        <translation type="vanished">...als Zeichenkette mit Escape-Sequenzen</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a Escaped string</source>
-        <translation type="vanished">Paketbytes als Zeichenkette mit Escape-Sequezen kopieren</translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
         <translation>&amp;Vollbild</translation>
     </message>
@@ -6680,46 +6654,6 @@ text-decoration: underline;
     <message>
         <source>Show or hide the packet bytes</source>
         <translation>Paketbytes anzeigen oder verstecken</translation>
-    </message>
-    <message>
-        <source>Bytes as Hex + ASCII Dump</source>
-        <translation type="vanished">Bytes als Hex + ASCII Dump</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="vanished">Paketbytes als Hex und ASCII Dump kopieren</translation>
-    </message>
-    <message>
-        <source>…as Hex Dump</source>
-        <translation type="vanished">...als Hex Dump</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a hex dump.</source>
-        <translation type="vanished">Paketbytes als Hex Dump kopieren</translation>
-    </message>
-    <message>
-        <source>…as Printable Text</source>
-        <translation type="vanished">...als druckbaren Text</translation>
-    </message>
-    <message>
-        <source>Copy only the printable text in the packet.</source>
-        <translation type="vanished">Nur den druckbaren Text im Paket kopieren.</translation>
-    </message>
-    <message>
-        <source>…as a Hex Stream</source>
-        <translation type="vanished">... als Hex Stream</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="vanished">Paketbytes als Hexstream kopieren.</translation>
-    </message>
-    <message>
-        <source>…as Raw Binary</source>
-        <translation type="vanished">...als Rohdaten</translation>
-    </message>
-    <message>
-        <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="vanished">Paketbytes als application/octet-stream MIME Daten kopieren.</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -7818,36 +7752,36 @@ text-decoration: underline;
     <name>PreferencesDialog</name>
     <message>
         <source>Appearance</source>
-        <translation>Darstellung</translation>
+        <translation type="vanished">Darstellung</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Ansicht</translation>
+        <translation type="vanished">Ansicht</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation>Spalten</translation>
+        <translation type="vanished">Spalten</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation>Schriftart und Farben</translation>
+        <translation type="vanished">Schriftart und Farben</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>Mitschnitt</translation>
+        <translation type="vanished">Mitschnitt</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation>Experte</translation>
+        <translation type="vanished">Experte</translation>
     </message>
     <message>
         <source>Filter Buttons</source>
         <oldsource>Filter Expressions</oldsource>
-        <translation>Filterknopf</translation>
+        <translation type="vanished">Filterknopf</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation>Erweitert</translation>
+        <translation type="vanished">Erweitert</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -7855,19 +7789,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation type="vanished">Name</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>Status</translation>
+        <translation type="vanished">Status</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="vanished">Typ</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wert</translation>
+        <translation type="vanished">Wert</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8121,19 +8055,19 @@ text-decoration: underline;
     <name>QObject</name>
     <message>
         <source>Default</source>
-        <translation>Standard</translation>
+        <translation type="vanished">Standard</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation>Geändert</translation>
+        <translation type="vanished">Geändert</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation>Wurde diese Einstellung geändert?</translation>
+        <translation type="vanished">Wurde diese Einstellung geändert?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation>Standardwert ist leer</translation>
+        <translation type="vanished">Standardwert ist leer</translation>
     </message>
     <message>
         <source>Average Throughput (bits/s)</source>
@@ -8489,19 +8423,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">Keine entfernte Schnittstelle gefunden.</translation>
+        <translation>Keine entfernte Schnittstelle gefunden.</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished">Kein PCAP gefunden</translation>
+        <translation>Kein PCAP gefunden</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
 </context>
 <context>
