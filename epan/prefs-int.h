@@ -148,14 +148,15 @@ gui_type_t prefs_get_gui_type(pref_t *pref);
 
 WS_DLL_PUBLIC guint32 prefs_get_max_value(pref_t *pref);
 
-/* Bitmask of flags for how a preference could affect changes in Wireshark */
+/* Bitmask of flags for the effect of a preference in Wireshark */
 #define PREF_EFFECT_DISSECTION        (1u << 0)
 #define PREF_EFFECT_CAPTURE           (1u << 1)
 #define PREF_EFFECT_GUI               (1u << 2)
 #define PREF_EFFECT_FONT              (1u << 3)
+#define PREF_EFFECT_GUI_LAYOUT        (1u << 4)
 #define PREF_EFFECT_CUSTOM            (1u << 31)
 
-/** Fetch flags that show preference effect
+/** Fetch flags that show the effect of the preference
  *
  * @param pref A preference.
  *
@@ -165,11 +166,11 @@ WS_DLL_PUBLIC guint32 prefs_get_max_value(pref_t *pref);
 WS_DLL_PUBLIC
 unsigned int prefs_get_effect_flags(pref_t *pref);
 
-/** Set flags for preference effect
+/** Set flags for the effect of the preference
  * The intention is to distinguish preferences that affect
  * dissection from those that don't. A bitmask was added to
- * provide great flexibility in the types of things that a
- * preference could affect.
+ * provide greater flexibility in the types of effects
+ * preferences can have.
  *
  * @param pref A preference.
  * @param flags Bitmask of flags to apply to preference. Note that flags

@@ -201,25 +201,13 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &sear
 void PreferencesDialog::on_buttonBox_accepted()
 {
     gchar* err = NULL;
-    unsigned int must_redissect = 0;
-
-    QVector<unsigned> old_layout = QVector<unsigned>() << prefs.gui_layout_type
-                                                       << prefs.gui_layout_content_1
-                                                       << prefs.gui_layout_content_2
-                                                       << prefs.gui_layout_content_3;
+    unsigned int redissect_flags = 0;
 
     // XXX - We should validate preferences as the user changes them, not here.
     // XXX - We're also too enthusiastic about setting must_redissect.
-//    if (!prefs_main_fetch_all(parent_w, &must_redissect))
-//        return; /* Errors in some preference setting - already reported */
-    prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer)&must_redissect);
+    prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer)&redissect_flags);
 
-    QVector<unsigned> new_layout = QVector<unsigned>() << prefs.gui_layout_type
-                                                       << prefs.gui_layout_content_1
-                                                       << prefs.gui_layout_content_2
-                                                       << prefs.gui_layout_content_3;
-
-    if (new_layout[0] != old_layout[0]) {
+    if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         // Layout type changed, reset sizes
         recent.gui_geometry_main_upper_pane = 0;
         recent.gui_geometry_main_lower_pane = 0;
@@ -269,13 +257,13 @@ void PreferencesDialog::on_buttonBox_accepted()
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 
-    if (must_redissect & PREF_EFFECT_DISSECTION) {
+    if (redissect_flags & PREF_EFFECT_DISSECTION) {
         /* Redissect all the packets, and re-evaluate the display filter. */
         wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
     }
     wsApp->queueAppSignal(WiresharkApplication::PreferencesChanged);
 
-    if (new_layout != old_layout) {
+    if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         wsApp->queueAppSignal(WiresharkApplication::RecentPreferencesRead);
     }
 }
