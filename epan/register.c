@@ -16,12 +16,17 @@
 #include "epan/dissectors/dissectors.h"
 
 static const char *cur_cb_name = NULL;
+// We could use g_atomic_pointer_set/get instead of a mutex, but that's
+// currently (early 2018) invisible to TSAN.
+static GMutex cur_cb_name_mtx;
 static GAsyncQueue *register_cb_done_q;
 
 #define CB_WAIT_TIME (150 * 1000) // microseconds
 
 static void set_cb_name(const char *proto) {
+    g_mutex_lock(&cur_cb_name_mtx);
     cur_cb_name = proto;
+    g_mutex_unlock(&cur_cb_name_mtx);
 }
 
 static void *
@@ -46,7 +51,9 @@ register_all_protocols(register_cb cb, gpointer cb_data)
 
     rapw_thread = g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
     while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
+        g_mutex_lock(&cur_cb_name_mtx);
         cb_name = cur_cb_name;
+        g_mutex_unlock(&cur_cb_name_mtx);
         if (cb && cb_name) {
             cb(RA_REGISTER, cb_name, cb_data);
             called_back = TRUE;
@@ -80,7 +87,9 @@ register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
 
     raphw_thread = g_thread_new("register_all_protocol_handoffs_worker", &register_all_protocol_handoffs_worker, NULL);
     while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
+        g_mutex_lock(&cur_cb_name_mtx);
         cb_name = cur_cb_name;
+        g_mutex_unlock(&cur_cb_name_mtx);
         if (cb && cb_name) {
             cb(RA_HANDOFF, cb_name, cb_data);
             called_back = TRUE;
