@@ -50,6 +50,7 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     pref_pcap_ng_ = prefFromPrefPtr(&prefs.capture_pcap_ng);
     pref_real_time_ = prefFromPrefPtr(&prefs.capture_real_time);
     pref_auto_scroll_ = prefFromPrefPtr(&prefs.capture_auto_scroll);
+    pref_no_extcap_ = prefFromPrefPtr(&prefs.capture_no_extcap);
 
     // Setting the left margin via a style sheet clobbers its
     // appearance.
@@ -117,6 +118,7 @@ void CapturePreferencesFrame::updateWidgets()
     ui->captureRealTimeCheckBox->setChecked(prefs_get_bool_value(pref_real_time_, pref_stashed));
     ui->captureAutoScrollCheckBox->setChecked(prefs_get_bool_value(pref_auto_scroll_, pref_stashed));
 #endif // HAVE_LIBPCAP
+    ui->captureNoExtcapCheckBox->setChecked(prefs_get_bool_value(pref_no_extcap_, pref_stashed));
 }
 
 void CapturePreferencesFrame::on_defaultInterfaceComboBox_editTextChanged(const QString &new_iface)
@@ -142,6 +144,12 @@ void CapturePreferencesFrame::on_captureRealTimeCheckBox_toggled(bool checked)
 void CapturePreferencesFrame::on_captureAutoScrollCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_auto_scroll_, checked, pref_stashed);
+}
+
+void CapturePreferencesFrame::on_captureNoExtcapCheckBox_toggled(bool checked)
+{
+    prefs_set_bool_value(pref_no_extcap_, checked, pref_stashed);
+    wsApp->refreshLocalInterfaces();
 }
 
 /*

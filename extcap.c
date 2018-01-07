@@ -506,6 +506,9 @@ append_extcap_interface_list(GList *list, char **err_str _U_)
     extcap_interface *data = NULL;
     GList *ifutilkeys_head = NULL, *ifutilkeys = NULL;
 
+    if (prefs.capture_no_extcap)
+        return list;
+
     /* Update the extcap interfaces and get a list of their if_infos */
     if ( !_loaded_interfaces || g_hash_table_size(_loaded_interfaces) == 0 )
         extcap_load_interface_list();

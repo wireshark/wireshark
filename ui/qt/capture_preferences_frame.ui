@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>354</width>
-    <height>194</height>
+    <height>220</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -94,6 +94,13 @@
      </property>
      <property name="text">
       <string>Automatic scrolling in live capture</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="captureNoExtcapCheckBox">
+     <property name="text">
+      <string>Disable Extcap interfaces</string>
      </property>
     </widget>
    </item>
