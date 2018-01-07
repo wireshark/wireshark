@@ -6483,7 +6483,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *              QuicVersion negotiated_version;
      *              QuicVersion supported_versions<4..2^8-4>;
      *      };
-     *      TransportParameter parameters<30..2^16-1>;
+     *      TransportParameter parameters<22..2^16-1>;
      *  } TransportParameters;
      */
     switch (hnd_type) {
@@ -6525,9 +6525,9 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         return offset;
     }
 
-    /* TransportParameter parameters<30..2^16-1>; */
+    /* TransportParameter parameters<22..2^16-1>; */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &quic_length,
-                        hf->hf.hs_ext_quictp_len, 30, G_MAXUINT16)) {
+                        hf->hf.hs_ext_quictp_len, 22, G_MAXUINT16)) {
         return offset_end;
     }
     offset += 2;
