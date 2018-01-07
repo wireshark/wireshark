@@ -46,49 +46,38 @@ void PrefModuleTreeView::setPane(const QString pane_name)
 
     //Look through appearance children
     if (!newIndex.isValid()) {
-        for (row = 0; row < model()->rowCount(appearanceIndex); row++)
-        {
-            modelIndex = model()->index(row, ModulePrefsModel::colName, appearanceIndex);
-            modelTreeName = model()->data(modelIndex, Qt::DisplayRole).toString();
-
-            if (modelTreeName.compare(pane_name) == 0) {
-                newIndex = modelIndex;
-                break;
-            }
-        }
+        newIndex = findModule(appearanceIndex, pane_name);
     }
 
     //Look through protocol children
     if (!newIndex.isValid()) {
-        for (row = 0; row < model()->rowCount(protocolIndex); row++)
-        {
-            modelIndex = model()->index(row, ModulePrefsModel::colName, protocolIndex);
-            PrefsItem* proto_pref = VariantPointer<PrefsItem>::asPtr(model()->data(modelIndex, Qt::UserRole));
-            if (proto_pref != NULL) {
-                if (pane_name.compare(proto_pref->getModuleName()) == 0) {
-                    newIndex = modelIndex;
-                    break;
-                }
-            }
-        }
+        newIndex = findModule(protocolIndex, pane_name);
     }
 
     //Look through stat children
     if (!newIndex.isValid()) {
-        for (row = 0; row < model()->rowCount(protocolIndex); row++)
-        {
-            modelIndex = model()->index(row, ModulePrefsModel::colName, protocolIndex);
-            PrefsItem* stat_pref = VariantPointer<PrefsItem>::asPtr(model()->data(modelIndex, Qt::UserRole));
-            if (stat_pref != NULL) {
-                if (pane_name.compare(stat_pref->getModuleName()) == 0) {
-                    newIndex = modelIndex;
-                    break;
-                }
-            }
-        }
+        newIndex = findModule(statIndex, pane_name);
     }
 
     setCurrentIndex(newIndex);
+}
+
+QModelIndex PrefModuleTreeView::findModule(QModelIndex& parent, const QString& name)
+{
+    QModelIndex findIndex, modelIndex;
+    QString module_name;
+
+    for (int row = 0; row < model()->rowCount(parent); row++)
+    {
+        modelIndex = model()->index(row, ModulePrefsModel::colName, parent);
+        module_name = model()->data(modelIndex, ModulePrefsModel::ModuleName).toString();
+        if (name.compare(module_name) == 0) {
+            findIndex = modelIndex;
+            break;
+        }
+    }
+
+    return findIndex;
 }
 
 

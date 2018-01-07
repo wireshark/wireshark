@@ -29,6 +29,8 @@ protected slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
+    QModelIndex findModule(QModelIndex &parent, const QString& name);
+
     //cache the translation of the module names we check frequently
     QString appearanceName_;
 };

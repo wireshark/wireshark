@@ -109,6 +109,13 @@ QString PrefsItem::getModuleName() const
     return QString(module_->name);
 }
 
+QString PrefsItem::getModuleTitle() const
+{
+    if ((module_ == NULL) && (pref_ == NULL))
+        return name_;
+
+    return QString(module_->title);
+}
 
 void PrefsItem::setChanged(bool changed)
 {
@@ -652,15 +659,7 @@ QVariant ModulePrefsModel::data(const QModelIndex &dataindex, int role) const
         switch ((ModulePrefsModelColumn)dataindex.column())
         {
         case colName:
-            if (item->getPref() == NULL) {
-                if (item->getModule() == NULL) {
-                    return item->getName();
-                }
-
-                return item->getModule()->title;
-            }
-
-            return sourceModel()->data(sourceModel()->index(modelIndex.row(), PrefsModel::colName, modelIndex.parent()), role);
+            return item->getModuleTitle();
         default:
             break;
         }
@@ -715,21 +714,29 @@ int ModulePrefsModel::columnCount(const QModelIndex&) const
 
 bool ModulePrefsModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
-    //Force "Advanced" preferences to be at bottom of model
-    if (source_left.isValid() && !source_left.parent().isValid() &&
-        source_right.isValid() && !source_right.parent().isValid()) {
-        PrefsItem* left_item = static_cast<PrefsItem*>(source_left.internalPointer());
-        PrefsItem* right_item = static_cast<PrefsItem*>(source_right.internalPointer());
-        if ((left_item != NULL) && (left_item->getName().compare(advancedPrefName_) == 0)) {
-            return false;
+    PrefsItem* left_item = static_cast<PrefsItem*>(source_left.internalPointer());
+    PrefsItem* right_item = static_cast<PrefsItem*>(source_right.internalPointer());
+
+    if ((left_item != NULL) && (right_item != NULL)) {
+        QString left_name = left_item->getModuleTitle(),
+                right_name = right_item->getModuleTitle();
+
+        //Force "Advanced" preferences to be at bottom of model
+        if (source_left.isValid() && !source_left.parent().isValid() &&
+            source_right.isValid() && !source_right.parent().isValid()) {
+            if (left_name.compare(advancedPrefName_) == 0) {
+                return false;
+            }
+            if (right_name.compare(advancedPrefName_) == 0) {
+                return true;
+            }
         }
-        if ((right_item != NULL) && (right_item->getName().compare(advancedPrefName_) == 0)) {
+
+        if (left_name.compare(right_name, Qt::CaseInsensitive) < 0)
             return true;
-        }
     }
 
-
-    return QSortFilterProxyModel::lessThan(source_left, source_right);
+    return false;
 }
 
 bool ModulePrefsModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

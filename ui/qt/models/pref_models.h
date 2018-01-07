@@ -34,6 +34,7 @@ public:
     QString getPrefTypeName() const;
     module_t* getModule() const {return module_;}
     QString getModuleName() const;
+    QString getModuleTitle() const;
     void setChanged(bool changed = true);
 
 private:
