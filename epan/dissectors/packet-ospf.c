@@ -1767,6 +1767,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 {
     proto_item *ti;
     proto_tree *ospf_lsr_tree;
+    proto_tree *lsa_type_tree;
     guint16 reserved;
     int orig_offset = offset;
 
@@ -1788,8 +1789,12 @@ dissect_ospf_ls_req(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
             if (reserved != 0)
                 expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
 
-            proto_tree_add_item(ospf_lsr_tree, hf_ospf_v3_ls_type,
+            ti = proto_tree_add_item(ospf_lsr_tree, hf_ospf_v3_ls_type,
                                 tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            lsa_type_tree = proto_item_add_subtree(ti, ett_ospf_lsa_type);
+            proto_tree_add_item(lsa_type_tree, hf_ospf_v3_ls_type_u, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(lsa_type_tree, hf_ospf_v3_ls_type_s12, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(lsa_type_tree, hf_ospf_v3_ls_type_fc, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
             break;
         }
 
