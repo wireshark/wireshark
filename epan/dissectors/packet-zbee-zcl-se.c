@@ -6656,15 +6656,12 @@ static int hf_zbee_zcl_tun_protocol_offset = -1;
 static int hf_zbee_zcl_tun_protocol_list_complete = -1;
 static int hf_zbee_zcl_tun_protocol_count = -1;
 static int hf_zbee_zcl_tun_transfer_status = -1;
-static int hf_zbee_zcl_tun_transfer_data = -1;
 static int hf_zbee_zcl_tun_transfer_data_status = -1;
+
+static heur_dissector_list_t zbee_zcl_tun_heur_subdissector_list;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_tun = -1;
-
-/* Subdissector handles. */
-static dissector_handle_t       ipv4_handle;
-static dissector_handle_t       ipv6_handle;
 
 #define zbee_zcl_tun_protocol_names_VALUE_STRING_LIST(XXX) \
     XXX(ZBEE_ZCL_TUN_PROTO_DLMS,                                0x00, "DLMS/COSEM (IEC 62056)" ) \
@@ -6778,20 +6775,30 @@ dissect_zcl_tun_close_tunnel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *This function manages the Transfer Data payload
  *
  *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param offset pointer to offset from caller
 */
 static void
-dissect_zcl_tun_transfer_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_tun_transfer_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
     gint length;
+    heur_dtbl_entry_t *hdtbl_entry;
+    tvbuff_t *data_tvb;
+    proto_tree *root_tree = proto_tree_get_root(tree);
 
     proto_tree_add_item(tree, hf_zbee_zcl_tun_tunnel_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     length = tvb_reported_length_remaining(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_tun_transfer_data, tvb, *offset, length, ENC_NA);
+    data_tvb = tvb_new_subset_remaining(tvb, *offset);
     *offset += length;
+
+    if (dissector_try_heuristic(zbee_zcl_tun_heur_subdissector_list, data_tvb, pinfo, root_tree, &hdtbl_entry, NULL)) {
+        return;
+    }
+
+    call_data_dissector(data_tvb, pinfo, root_tree);
 }
 
 /**
@@ -6975,7 +6982,7 @@ dissect_zbee_zcl_tun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     break;
 
                 case ZBEE_ZCL_CMD_ID_TUN_TRANSFER_DATA:
-                    dissect_zcl_tun_transfer_data(tvb, payload_tree, &offset);
+                    dissect_zcl_tun_transfer_data(tvb, pinfo, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_TUN_TRANSFER_DATA_ERROR:
@@ -7021,7 +7028,7 @@ dissect_zbee_zcl_tun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     break;
 
                 case ZBEE_ZCL_CMD_ID_TUN_TRANSFER_DATA_TX:
-                    dissect_zcl_tun_transfer_data(tvb, payload_tree, &offset);
+                    dissect_zcl_tun_transfer_data(tvb, pinfo, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_TUN_TRANSFER_DATA_ERROR_TX:
@@ -7114,10 +7121,6 @@ proto_register_zbee_zcl_tun(void)
             { "Transfer Status", "zbee_zcl_se.tun.transfer_status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_tun_status_names),
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_tun_transfer_data,
-            { "Transfer Data", "zbee_zcl_se.tun.transfer_data", FT_BYTES, BASE_NONE, NULL,
-            0, NULL, HFILL } },
-
         { &hf_zbee_zcl_tun_transfer_data_status,
             { "Transfer Data Status", "zbee_zcl_se.tun.transfer_data_status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_tun_trans_data_status_names),
             0x00, NULL, HFILL } },
@@ -7142,6 +7145,9 @@ proto_register_zbee_zcl_tun(void)
     proto_register_field_array(proto_zbee_zcl_tun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* Make heuristic dissectors possible */
+    zbee_zcl_tun_heur_subdissector_list = register_heur_dissector_list(ZBEE_PROTOABBREV_ZCL_TUN, proto_zbee_zcl_tun);
+
     /* Register the ZigBee ZCL Tunneling dissector. */
     tun_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_TUN, dissect_zbee_zcl_tun, proto_zbee_zcl_tun);
 
@@ -7154,9 +7160,6 @@ proto_register_zbee_zcl_tun(void)
 void
 proto_reg_handoff_zbee_zcl_tun(void)
 {
-    ipv4_handle = find_dissector("ipv4");
-    ipv6_handle = find_dissector("ipv6");
-
     /* Register our dissector with the ZigBee application dissectors. */
     dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_TUNNELING, tun_handle);
 
