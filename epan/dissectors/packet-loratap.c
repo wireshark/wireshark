@@ -26,6 +26,8 @@
 #include <wiretap/wtap.h>
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
+#include <epan/decode_as.h>
+#include <epan/proto_data.h>
 
 void proto_reg_handoff_loratap(void);
 void proto_register_loratap(void);
@@ -78,6 +80,18 @@ snr_base_custom(gchar *buffer, guint32 value) {
 	g_snprintf(buffer, ITEM_LABEL_LENGTH, "%d dB", value);
 }
 
+static void
+loratap_prompt(packet_info *pinfo, gchar* result)
+{
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "LoRaTap syncword 0x%02x as", GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_loratap, 0)));
+}
+
+static gpointer
+loratap_value(packet_info *pinfo)
+{
+	return p_get_proto_data(pinfo->pool, pinfo, proto_loratap, 0);
+}
+
 static int
 dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
@@ -119,7 +133,7 @@ dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	current_offset++;
 	proto_tree_add_item_ret_uint(loratap_tree, hf_loratap_header_syncword_type, tvb, current_offset, 1, ENC_NA, &syncword);
 	current_offset++;
-
+	p_add_proto_data(pinfo->pool, pinfo, proto_loratap, 0, GUINT_TO_POINTER((guint)syncword));
 	next_tvb = tvb_new_subset_length_caplen(tvb, current_offset, tvb_captured_length_remaining(tvb, current_offset), tvb_reported_length_remaining(tvb, current_offset));
 
 	if (!dissector_try_uint_new(loratap_dissector_table, syncword, next_tvb, pinfo, tree, TRUE, NULL)) {
@@ -219,6 +233,11 @@ proto_register_loratap(void)
 	},
 	};
 
+	/* Register for decode as */
+	static build_valid_func loratap_da_build_value[1] = {loratap_value};
+	static decode_as_value_t loratap_da_values = {loratap_prompt, 1, loratap_da_build_value};
+	static decode_as_t loratap_da = {"loratap", "LoRa Syncword", "loratap.syncword", 1, 0, &loratap_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_loratap
@@ -234,6 +253,7 @@ proto_register_loratap(void)
 	proto_register_field_array(proto_loratap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	loratap_dissector_table = register_dissector_table("loratap.syncword", "LoRa Syncword", proto_loratap, FT_UINT8, BASE_HEX);
+	register_decode_as(&loratap_da);
 }
 
 /*
