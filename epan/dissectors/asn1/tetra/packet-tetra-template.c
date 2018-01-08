@@ -630,7 +630,7 @@ void proto_register_tetra (void)
 		{ &ei_tetra_channels_incorrect, { "tetra.channels.incorrect", PI_MALFORMED, PI_WARN, "Channel count incorrect, must be <= 3", EXPFILL }},
 	};
 
-	proto_tetra = proto_register_protocol("TETRA Protocol", "tetra", "tetra");
+	proto_tetra = proto_register_protocol("TETRA Protocol", "TETRA", "tetra");
 	proto_register_field_array (proto_tetra, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 	register_dissector("tetra", dissect_tetra, proto_tetra);
