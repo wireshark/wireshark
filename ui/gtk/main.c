@@ -2363,6 +2363,7 @@ main(int argc, char *argv[])
        changed either from one of the preferences file or from the command
        line that their preferences have changed. */
     prefs_apply_all();
+    prefs_to_capture_opts();
 
 #ifdef HAVE_LIBPCAP
     if ((global_capture_opts.num_selected == 0) &&
