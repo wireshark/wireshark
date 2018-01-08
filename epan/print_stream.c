@@ -49,14 +49,39 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
      * include red, green or blue if the numeric intensity is high
      * enough.
      *
-     * The console in Windows 10 builds 14931 and later supports SGR RGB
-     * sequences:
+     * The console in Windows 10 version 1511 (TH2), build 10586, and later
+     * supports SGR escape sequences:
+     *
+     *  http://www.nivot.org/blog/post/2016/02/04/Windows-10-TH2-(v1511)-Console-Host-Enhancements
+     *
+     * but only supports 16 colors.  The "undocumented" 0x04 bit to which
+     * they refer is documented in the current version of the SetConsoleMode()
+     * documentation:
+     *
+     *  https://docs.microsoft.com/en-us/windows/console/setconsolemode
+     *
+     * as ENABLE_VIRTUAL_TERMINAL_PROCESSING, saying
+     *
+     *  When writing with WriteFile or WriteConsole, characters are parsed
+     *  for VT100 and similar control character sequences that control cursor
+     *  movement, color/font mode, and other operations that can also be
+     *  performed via the existing Console APIs. For more information, see
+     *  Console Virtual Terminal Sequences.
+     *
+     * Console Virtual Terminal Sequences:
+     *
+     *  https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+     *
+     * documents all the escape sequences the Console supports.
+     *
+     * The console in Windows 10 builds 14931 (a preview version of Windows 10
+     * version 1703) and later supports SGR RGB sequences:
      *
      *	https://blogs.msdn.microsoft.com/commandline/2016/09/22/24-bit-color-in-the-windows-console/
      *
      * We might want to print those instead depending on the version of
      * Windows or just remove the SetConsoleTextAttribute calls and only
-     * print SGR sequences.
+     * print SGR sequences if they are supported.
      */
     if (fg) {
         if (((fg->red >> 8) & 0xff) >= 0x80)
