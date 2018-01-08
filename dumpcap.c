@@ -150,32 +150,6 @@ static void capture_loop_stop(void);
 /** Close a pipe, or socket if \a from_socket is TRUE */
 static void cap_pipe_close(int pipe_fd, gboolean from_socket _U_);
 
-#ifdef __linux__
-/*
- * Enable kernel BPF JIT compiler if available.
- * If any calls fail, just drive on - the JIT compiler might not be
- * enabled, but filtering will still work, and it's not clear what
- * we could do if the calls fail; should we just report the error
- * and not continue to capture, should we report it as a warning, or
- * what?
- */
-static void
-enable_kernel_bpf_jit_compiler(void)
-{
-    int fd;
-    ssize_t written _U_;
-    static const char file[] = "/proc/sys/net/core/bpf_jit_enable";
-
-    fd = ws_open(file, O_WRONLY);
-    if (fd < 0)
-        return;
-
-    written = ws_write(fd, "1", strlen("1"));
-
-    ws_close(fd);
-}
-#endif
-
 #if !defined (__linux__)
 #ifndef HAVE_PCAP_BREAKLOOP
 /*
@@ -502,9 +476,10 @@ print_usage(FILE *output)
     fprintf(output, "  -h                       display this help and exit\n");
     fprintf(output, "\n");
 #ifdef __linux__
-    fprintf(output, "WARNING: dumpcap will enable kernel BPF JIT compiler if available.\n");
-    fprintf(output, "You might want to reset it\n");
-    fprintf(output, "By doing \"echo 0 > /proc/sys/net/core/bpf_jit_enable\"\n");
+    fprintf(output, "Dumpcap can benefit from an enabled BPF JIT compiler if available.\n");
+    fprintf(output, "You might want to enable it by executing:\n");
+    fprintf(output, " \"echo 1 > /proc/sys/net/core/bpf_jit_enable\"\n");
+    fprintf(output, "Note that this can make your system less secure!\n");
     fprintf(output, "\n");
 #endif
     fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcapng\n");
@@ -4662,10 +4637,6 @@ main(int argc, char *argv[])
     sigaction(SIGINFO, &action, NULL);
 #endif /* SIGINFO */
 #endif  /* _WIN32 */
-
-#ifdef __linux__
-    enable_kernel_bpf_jit_compiler();
-#endif
 
     /* ----------------------------------------------------------------- */
     /* Privilege and capability handling                                 */
