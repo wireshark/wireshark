@@ -929,7 +929,7 @@ static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *a
             gchar *iface = g_match_info_fetch_named(match, "iface");
             gchar *flags = g_match_info_fetch_named(match, "flags");
 
-            if (!flags_supported || strstr(flags, "Up")) {
+            if (!flags_supported || (flags && strstr(flags, "Up"))) {
                 g_snprintf(iface_name, sizeof(iface_name), INTERFACE_ANDROID_TCPDUMP_FORMAT, iface);
                 new_interface(extcap_conf, iface_name, iface, serial_number, "Android tcpdump");
             }
