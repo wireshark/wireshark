@@ -79,6 +79,8 @@
 #define TVBPARSE_DEBUG (TVBPARSE_DEBUG_SOME)
 */
 
+#define TVBPARSE_MAX_RECURSION_DEPTH 100 /* Arbitrary. Matches DAAP and PNIO. */
+
 static tvbparse_elem_t* new_tok(tvbparse_t* tt,
                                 int id,
                                 int offset,
@@ -409,6 +411,9 @@ static int cond_one_of(tvbparse_t* tt, const int offset, const tvbparse_wanted_t
     if ( offset > tt->end_offset )
         return -1;
 
+    if (++tt->recursion_depth > TVBPARSE_MAX_RECURSION_DEPTH)
+        return -1;
+
     for(i=0; i < wanted->control.elems->len; i++) {
         tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_ptr_array_index(wanted->control.elems,i);
         tvbparse_elem_t* new_elem = NULL;
@@ -483,6 +488,9 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
 #endif
 
     if ( offset > tt->end_offset )
+        return -1;
+
+    if (++tt->recursion_depth > TVBPARSE_MAX_RECURSION_DEPTH)
         return -1;
 
     key_len = wanted->control.hash.key->condition(tt, offset, wanted->control.hash.key,  &key_elem);
@@ -573,11 +581,15 @@ static int cond_seq(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
     int start = offset;
     tvbparse_elem_t* ret_tok = NULL;
 
-    if ( offset > tt->end_offset )
-        return -1;
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_SEQ) g_warning("cond_seq: START");
 #endif
+
+    if ( offset > tt->end_offset )
+        return -1;
+
+    if (++tt->recursion_depth > TVBPARSE_MAX_RECURSION_DEPTH)
+        return -1;
 
     for(i=0; i < wanted->control.elems->len; i++) {
         tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_ptr_array_index(wanted->control.elems,i);
@@ -654,6 +666,9 @@ static int cond_some(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wante
 #endif
 
     if ( offset > tt->end_offset )
+        return -1;
+
+    if (++tt->recursion_depth > TVBPARSE_MAX_RECURSION_DEPTH)
         return -1;
 
     if ( wanted->min == 0 ) {
@@ -741,6 +756,9 @@ static int cond_until(tvbparse_t* tt, const int offset, const tvbparse_wanted_t 
 #endif
 
     if ( offset + wanted->control.until.subelem->len > tt->end_offset )
+        return -1;
+
+    if (++tt->recursion_depth > TVBPARSE_MAX_RECURSION_DEPTH)
         return -1;
 
     do {
@@ -1201,6 +1219,7 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
     tt->end_offset = offset + len;
     tt->data = data;
     tt->ignore = ignore;
+    tt->recursion_depth = 0;
     return tt;
 }
 
