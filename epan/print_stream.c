@@ -50,9 +50,13 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
      * enough.
      *
      * The console in Windows 10 builds 14931 and later supports SGR RGB
-     * sequences. We might want to print those instead depending on the
-     * version of Windows or just remove the SetConsoleTextAttribute
-     * calls and only print SGR sequences.
+     * sequences:
+     *
+     *	https://blogs.msdn.microsoft.com/commandline/2016/09/22/24-bit-color-in-the-windows-console/
+     *
+     * We might want to print those instead depending on the version of
+     * Windows or just remove the SetConsoleTextAttribute calls and only
+     * print SGR sequences.
      */
     if (fg) {
         if (((fg->red >> 8) & 0xff) >= 0x80)
