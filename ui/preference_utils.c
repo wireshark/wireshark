@@ -1,4 +1,4 @@
-/* preference_utils.h
+/* preference_utils.c
  * Routines for handling preferences
  *
  * Wireshark - Network traffic analyzer
@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include <errno.h>
-
 
 #include <epan/column.h>
 #include <wsutil/filesystem.h>
