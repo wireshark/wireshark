@@ -148,6 +148,7 @@ struct _tvbparse_t {
     int end_offset;
     void* data;
     const tvbparse_wanted_t* ignore;
+    int recursion_depth;
 };
 
 
