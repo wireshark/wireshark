@@ -11,19 +11,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
  /* Ref https://thrift.apache.org/developers */
 
@@ -31,11 +19,17 @@
 
 #include <epan/packet.h>
 
+#include "packet-ssl.h"
+
+
 void proto_register_thrift(void);
 void proto_reg_handoff_thrift(void);
 
 #define THRIFT_VERSION_MASK     0xffff0000
 #define THRIFT_VERSION_1        0x80010000
+
+static dissector_handle_t thrift_handle;
+static guint thrift_tls_port = 0;
 
 static int proto_thrift = -1;
 static int hf_thrift_version = -1;
@@ -262,8 +256,8 @@ dissect_thrift_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int
     return offset;
 }
 
-static void
-dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+static int
+dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *data _U_)
 {
     proto_tree *sub_tree;
     int offset = 0;
@@ -320,7 +314,7 @@ dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             type = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(sub_tree, hf_thrift_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (type == 0){
-                return;
+                return tvb_reported_length(tvb);
             }
             offset++;
             proto_tree_add_item(sub_tree, hf_thrift_fid, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -329,10 +323,11 @@ dissect_thrift_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             offset = dissect_thrift_type(tvb, pinfo, sub_tree, type, offset, length);
         }
     }
+    return tvb_reported_length(tvb);
 }
 
 static gboolean
-dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *data _U_) {
+dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *data) {
     int offset = 0;
     guint32 header;
     gint tframe_length;
@@ -389,7 +384,7 @@ dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *d
         offset++;
     }
 
-    dissect_thrift_common(tvb, pinfo, tree);
+    dissect_thrift_common(tvb, pinfo, tree, data);
 
     return TRUE;
 
@@ -491,6 +486,8 @@ void proto_register_thrift(void) {
         &ett_thrift,
     };
 
+    module_t *thrift_module;
+
     /* Register protocol name and description */
     proto_thrift = proto_register_protocol("Thrift Protocol", "Thrift", "thrift");
 
@@ -501,15 +498,36 @@ void proto_register_thrift(void) {
     proto_register_subtree_array(ett, array_length(ett));
 
     /* register dissector */
-    /*register_dissector("thrift", dissect_thrift, proto_thrift); */
+    thrift_handle = register_dissector("thrift", dissect_thrift_common, proto_thrift);
+
+    thrift_module = prefs_register_protocol(proto_thrift, proto_reg_handoff_thrift);
+
+    prefs_register_uint_preference(thrift_module, "tls.port",
+        "Thrift TLS Port",
+        "Thrift TLS Port",
+        10, &thrift_tls_port);
+
+
 }
 
 void proto_reg_handoff_thrift(void) {
+    static guint saved_thrift_tls_port;
     static dissector_handle_t thrift_http_handle;
+    static gboolean thrift_initialized = FALSE;
 
-    heur_dissector_add("tcp", dissect_thrift_heur, "Thrift over TCP", "thrift_tcp", proto_thrift, HEURISTIC_ENABLE);
     thrift_http_handle = create_dissector_handle(dissect_thrift_heur, proto_thrift);
-    dissector_add_string("media_type", "application/x-thrift", thrift_http_handle);
+
+    if (!thrift_initialized) {
+        thrift_initialized = TRUE;
+        heur_dissector_add("tcp", dissect_thrift_heur, "Thrift over TCP", "thrift_tcp", proto_thrift, HEURISTIC_ENABLE);
+        dissector_add_string("media_type", "application/x-thrift", thrift_http_handle);
+    } else {
+        ssl_dissector_delete(saved_thrift_tls_port, thrift_handle);
+    }
+
+    ssl_dissector_add(thrift_tls_port, thrift_handle);
+    saved_thrift_tls_port = thrift_tls_port;
+
 
 }
 /*
