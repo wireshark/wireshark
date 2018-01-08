@@ -88,6 +88,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
 #include "ui/commandline.h"
+#include "ui/preference_utils.h"
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/color_utils.h"
@@ -684,6 +685,7 @@ int main(int argc, char *qt_argv[])
        changed either from one of the preferences file or from the command
        line that their preferences have changed. */
     prefs_apply_all();
+    prefs_to_capture_opts();
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP
