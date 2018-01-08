@@ -81,7 +81,7 @@ proto_register_chargen(void)
 		&ett_chargen,
 	};
 
-	proto_chargen = proto_register_protocol("Character Generator Protocol", "chargen",
+	proto_chargen = proto_register_protocol("Character Generator Protocol", "Chargen",
 	    "chargen");
 	proto_register_field_array(proto_chargen, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
