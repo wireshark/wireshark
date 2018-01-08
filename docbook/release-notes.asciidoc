@@ -12,9 +12,6 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-* Some keyboard shortcut mix-up has been resolved by assigning new shortcuts
-  to Edit -> Copy methods.
-
 The following bugs have been fixed:
 
 * ws-salink:2018-01[]
@@ -32,6 +29,38 @@ A dissector went awry.
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.4rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Some keyboard shortcut mix-up has been resolved by assigning new shortcuts
+  to Edit -> Copy methods.
+
+* Additional grouping in Expert Information dialog. (ws-buglink:11753[])
+
+* First start with non-empty extcap folder after install or reboot hangs at "initializing tap listeners". (ws-buglink:12845[])
+
+* Can't hide expert categories in Expert Information. (ws-buglink:13831[])
+
+* Expert info dialog should have "Collapse All"/"Expand All" options. (ws-buglink:13842[])
+
+* SIP Statistics extract does not work. (ws-buglink:13942[])
+
+* Service Response Time - SCSI dialog crashes. (ws-buglink:14144[])
+
+* Wireshark & Tshark 2.4.2 core dumps with segmentation fault. (ws-buglink:14194[])
+
+* SSH remote capture promiscuous mode. (ws-buglink:14237[])
+
+* SOCKS pseudo header displays incorrect Version value. (ws-buglink:14262[])
+
+* Only first variable of list is dissected in NTP Control request message. (ws-buglink:14268[])
+
+* NTP Authenticator field dissection fails if padding is used. (ws-buglink:14269[])
+
+* BSSAP packet dissector issue - BSSAP_UPLINK_TUNNEL_REQUEST message. (ws-buglink:14289[])
+
+* "[Malformed Packet]" for Mobile IP (MIP) protocol. (ws-buglink:14292[])
+
+* There is a potential buffer underflow in File_read_line function in epan/wslua/wslua_file.c file. (ws-buglink:14295[])
+
+* Saving a temporary capture file may not result in the temporary file being removed. (ws-buglink:14298[])
 
 === New and Updated Features
 
@@ -48,6 +77,16 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+Bluetooth
+BSSAP
+BT ATT
+BT HCI
+BT SMP
+MIP
+NTP
+SCTP
+SOCKS
+UDS
 --sort-and-group--
 
 === New and Updated Capture File Support
