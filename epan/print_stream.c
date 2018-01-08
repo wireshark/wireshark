@@ -43,9 +43,16 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
     WORD win_fg_color = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
     WORD win_bg_color = 0;
 
-    /* Windows seems to offer 1-bit color, so you can't set the red, green, or blue intensities,
-     * you can only set "{foreground, background} contains {red, green, blue}".
-     * So include red, green or blue if the numeric intensity is high enough
+    /* The classic Windows Console offers 1-bit color, so you can't set
+     * the red, green, or blue intensities, you can only set
+     * "{foreground, background} contains {red, green, blue}". So
+     * include red, green or blue if the numeric intensity is high
+     * enough.
+     *
+     * The console in Windows 10 builds 14931 and later supports SGR RGB
+     * sequences. We might want to print those instead depending on the
+     * version of Windows or just remove the SetConsoleTextAttribute
+     * calls and only print SGR sequences.
      */
     if (fg) {
         if (((fg->red >> 8) & 0xff) >= 0x80)
