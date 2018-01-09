@@ -35,7 +35,7 @@
  * o  Construct a list of interfaces, with interface names, give
  *    them link-layer types based on the interface name and packet
  *    data, and supply interface IDs with each packet (i.e., make
- *    this supply a pcap-ng-style set of interfaces and associate
+ *    this supply a pcapng-style set of interfaces and associate
  *    packets with interfaces).  This is probably the right way
  *    to "Pass the interface names and the traffic direction to either
  *    the frame-structure, a pseudo-header or use PPI."  See the
@@ -44,7 +44,7 @@
  *        http://www.wireshark.org/lists/wireshark-dev/200708/msg00029.html
  *
  *    to see whether any further discussion is still needed. I suspect
- *    it doesn't; pcap-NG existed at the time, as per the final
+ *    it doesn't; pcapng existed at the time, as per the final
  *    message in that thread:
  *
  *        http://www.wireshark.org/lists/wireshark-dev/200708/msg00039.html
@@ -56,7 +56,7 @@
  *    information as part of the packet metadata from Wiretap modules.
  *    That should be fixed so that we can show interface information,
  *    such as the interface name, in packet dissections from, for example,
- *    pcap-NG captures.
+ *    pcapng captures.
  */
 
 static gboolean info_line(const gchar *line);

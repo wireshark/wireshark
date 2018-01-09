@@ -22,7 +22,7 @@ Input:
                          used as the default for unspecified fields.
   -D                     the text before the packet starts with an I or an O,
                          indicating that the packet is inbound or outbound.
-                         This is only stored if the output format is PCAP-NG.
+                         This is only stored if the output format is pcapng.
   -a                     enable ASCII text dump identification.
                          The start of the ASCII text dump can be identified
                          and excluded from the packet data, even if it looks
@@ -76,4 +76,4 @@ Miscellaneous:
   -h                     display this help and exit.
   -d                     show detailed debug of parser states.
   -q                     generate no output at all (automatically disables -d).
-  -n                     use PCAP-NG instead of PCAP as output format.
+  -n                     use pcapng instead of pcap as output format.

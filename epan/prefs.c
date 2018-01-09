@@ -3464,8 +3464,8 @@ prefs_register_modules(void)
         "Interface capture filter (Ex: en0(tcp),en1(udp),...)",
         &prefs.capture_devices_filter, PREF_STRING, NULL, FALSE);
 
-    prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in Pcap-NG format",
-        "Capture in Pcap-NG format?", &prefs.capture_pcap_ng);
+    prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in pcapng format",
+        "Capture in pcapng format?", &prefs.capture_pcap_ng);
 
     prefs_register_bool_preference(capture_module, "real_time_update", "Update packet list in real time during capture",
         "Update packet list in real time during capture?", &prefs.capture_real_time);

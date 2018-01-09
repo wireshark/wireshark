@@ -111,7 +111,7 @@ multiple times to generate more debugging information.
 
 The text before the packet starts either with an I or O indicating that
 the packet is inbound or outbound.
-This is only stored if the output format is PCAP-NG.
+This is only stored if the output format is pcapng.
 
 =item -e E<lt>l3pidE<gt>
 
@@ -163,7 +163,7 @@ TCP packets.
 
 =item -n
 
-Write PCAP-NG file instead of a PCAP.
+Write the file in pcapng format rather than pcap format.
 
 =item -o hex|oct|dec
 

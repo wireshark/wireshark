@@ -366,7 +366,7 @@
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION
 
-/* Support for pcap-ng */
+/* Support for pcapng */
 #cmakedefine PCAP_NG_DEFAULT 1
 
 /* Define if we are using version of of the Portaudio library API */

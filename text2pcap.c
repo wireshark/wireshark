@@ -1383,7 +1383,7 @@ print_usage (FILE *output)
             "                         used as the default for unspecified fields.\n"
             "  -D                     the text before the packet starts with an I or an O,\n"
             "                         indicating that the packet is inbound or outbound.\n"
-            "                         This is only stored if the output format is PCAP-NG.\n"
+            "                         This is only stored if the output format is pcapng.\n"
             "  -a                     enable ASCII text dump identification.\n"
             "                         The start of the ASCII text dump can be identified\n"
             "                         and excluded from the packet data, even if it looks\n"
@@ -1437,7 +1437,7 @@ print_usage (FILE *output)
             "  -h                     display this help and exit.\n"
             "  -d                     show detailed debug of parser states.\n"
             "  -q                     generate no output at all (automatically disables -d).\n"
-            "  -n                     use PCAP-NG instead of PCAP as output format.\n"
+            "  -n                     use pcapng instead of pcap as output format.\n"
             "",
             WTAP_MAX_PACKET_SIZE_STANDARD);
 }
@@ -1845,7 +1845,7 @@ parse_options (int argc, char *argv[])
     if (!quiet) {
         fprintf(stderr, "Input from: %s\n", input_filename);
         fprintf(stderr, "Output to: %s\n",  output_filename);
-        fprintf(stderr, "Output format: %s\n", use_pcapng ? "PCAP-NG" : "PCAP");
+        fprintf(stderr, "Output format: %s\n", use_pcapng ? "pcapng" : "pcap");
 
         if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0X\n",
                                   hdr_ethernet_proto);

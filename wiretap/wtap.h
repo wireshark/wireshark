@@ -1223,7 +1223,7 @@ union wtap_pseudo_header {
  *
  * For file-type-specific records, the "ftsrec" field of the pseudo-header
  * contains a file-type-specific subtype value, such as a block type for
- * a pcap-ng file.
+ * a pcapng file.
  *
  * An "event" is an indication that something happened during the capture
  * process, such as a status transition of some sort on the network.
@@ -1234,7 +1234,7 @@ union wtap_pseudo_header {
  * packets are.
  *
  * A "report" supplies information not corresponding to an event;
- * for example, a pcap-ng Interface Statistics Block would be a report,
+ * for example, a pcapng Interface Statistics Block would be a report,
  * as it doesn't correspond to something happening on the network.
  * They may have a time stamp, and should be dissected and displayed
  * just as packets are.
@@ -1352,7 +1352,7 @@ typedef struct wtapng_if_descr_filter_s {
 } wtapng_if_descr_filter_t;
 
 /**
- * Holds the required data for pcap-ng Interface Statistics Block (ISB).
+ * Holds the required data for pcapng Interface Statistics Block (ISB).
  */
 typedef struct wtapng_if_stats_mandatory_s {
     guint32  interface_id;
@@ -1476,7 +1476,7 @@ typedef wtap_open_return_val (*wtap_open_routine_t)(struct wtap*, int *,
 /*
  * Some file formats have defined magic numbers at fixed offsets from
  * the beginning of the file; those routines should return 1 if and
- * only if the file has the magic number at that offset.  (pcap-ng
+ * only if the file has the magic number at that offset.  (pcapng
  * is a bit of a special case, as it has both the Section Header Block
  * type field and its byte-order magic field; it checks for both.)
  * Those file formats do not require a file name extension in order

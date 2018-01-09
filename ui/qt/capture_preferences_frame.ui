@@ -73,7 +73,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
-      <string>Capture packets in pcap-ng format</string>
+      <string>Capture packets in pcapng format</string>
      </property>
     </widget>
    </item>

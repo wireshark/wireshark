@@ -71,52 +71,52 @@ ff_step_nsec_pcap_direct() {
 	test_step_ok
 }
 
-# Microsecond pcap-ng / stdin
+# Microsecond pcapng / stdin
 ff_step_usec_pcapng_stdin() {
 	$TSHARK $TS_FF_ARGS -r - < "${CAPTURE_DIR}dhcp.pcapng" > ./ff-ts-usec-pcapng-stdin.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-usec-pcapng-stdin.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "Output of microsecond pcap direct read vs microsecond pcap-ng via stdin differ"
+		test_step_failed "Output of microsecond pcap direct read vs microsecond pcapng via stdin differ"
 		cat $DIFF_OUT
 		return
 	fi
 	test_step_ok
 }
 
-# Microsecond pcap-ng / direct
+# Microsecond pcapng / direct
 ff_step_usec_pcapng_direct() {
 	$TSHARK $TS_FF_ARGS -r "${CAPTURE_DIR}dhcp.pcapng" > ./ff-ts-usec-pcapng-direct.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-usec-pcapng-direct.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "Output of microsecond pcap direct read vs microsecond pcap-ng direct read differ"
+		test_step_failed "Output of microsecond pcap direct read vs microsecond pcapng direct read differ"
 		cat $DIFF_OUT
 		return
 	fi
 	test_step_ok
 }
 
-# Nanosecond pcap-ng / stdin
+# Nanosecond pcapng / stdin
 ff_step_nsec_pcapng_stdin() {
 	$TSHARK $TS_FF_ARGS -r - < "${CAPTURE_DIR}dhcp-nanosecond.pcapng" > ./ff-ts-nsec-pcapng-stdin.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-nsec-pcapng-stdin.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "Output of microsecond pcap direct read vs nanosecond pcap-ng via stdin differ"
+		test_step_failed "Output of microsecond pcap direct read vs nanosecond pcapng via stdin differ"
 		cat $DIFF_OUT
 		return
 	fi
 	test_step_ok
 }
 
-# Nanosecond pcap-ng / direct
+# Nanosecond pcapng / direct
 ff_step_nsec_pcapng_direct() {
 	$TSHARK $TS_FF_ARGS -r "${CAPTURE_DIR}dhcp-nanosecond.pcapng" > ./ff-ts-nsec-pcapng-direct.txt 2> /dev/null
 	diff -u $FF_BASELINE ./ff-ts-nsec-pcapng-direct.txt > $DIFF_OUT 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "Output of microsecond pcap direct read vs nanosecond pcap-ng direct read differ"
+		test_step_failed "Output of microsecond pcap direct read vs nanosecond pcapng direct read differ"
 		cat $DIFF_OUT
 		return
 	fi
@@ -128,10 +128,10 @@ tshark_ff_suite() {
 	test_step_add "Microsecond pcap via stdin" ff_step_usec_pcap_stdin
 	test_step_add "Nanosecond pcap via stdin" ff_step_nsec_pcap_stdin
 	test_step_add "Nanosecond pcap direct read" ff_step_nsec_pcap_direct
-	test_step_add "Microsecond pcap-ng via stdin" ff_step_usec_pcapng_stdin
-	test_step_add "Microsecond pcap-ng direct read" ff_step_usec_pcapng_direct
-	test_step_add "Nanosecond pcap-ng via stdin" ff_step_nsec_pcapng_stdin
-	test_step_add "Nanosecond pcap-ng direct read" ff_step_nsec_pcapng_direct
+	test_step_add "Microsecond pcapng via stdin" ff_step_usec_pcapng_stdin
+	test_step_add "Microsecond pcapng direct read" ff_step_usec_pcapng_direct
+	test_step_add "Nanosecond pcapng via stdin" ff_step_nsec_pcapng_stdin
+	test_step_add "Nanosecond pcapng direct read" ff_step_nsec_pcapng_direct
 }
 
 ff_cleanup_step() {

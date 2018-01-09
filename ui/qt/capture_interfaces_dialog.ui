@@ -221,7 +221,7 @@
          <item>
           <widget class="QRadioButton" name="rbPcapng">
            <property name="text">
-            <string>pcap-ng</string>
+            <string>pcapng</string>
            </property>
           </widget>
          </item>

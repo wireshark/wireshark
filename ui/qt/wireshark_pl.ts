@@ -1026,8 +1026,8 @@
         <translation>Format wyjściowy:</translation>
     </message>
     <message>
-        <source>pcap-ng</source>
-        <translation>pcap-ng</translation>
+        <source>pcapng</source>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1318,11 +1318,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zapisuj pakiety w formacie pcap-ng&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zapisuj pakiety w formacie pcapng&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Capture packets in pcap-ng format</source>
-        <translation>Zapisuj pakiety w formacie pcap-ng</translation>
+        <source>Capture packets in pcapng format</source>
+        <translation>Zapisuj pakiety w formacie pcapng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

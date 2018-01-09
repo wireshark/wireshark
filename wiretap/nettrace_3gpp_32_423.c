@@ -805,7 +805,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		goto end;
 	}
 
-	/* OK we've opend a new pcap-ng file and written the headers, time to do the packets, strt by finding the file size */
+	/* OK we've opend a new pcapng file and written the headers, time to do the packets, strt by finding the file size */
 
 	if ((file_size = wtap_file_size(wth, err)) == -1) {
 		result = WTAP_OPEN_ERROR;

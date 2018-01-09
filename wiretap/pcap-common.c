@@ -1,10 +1,10 @@
 /* pcap-common.c
- * Code common to libpcap and pcap-NG file formats
+ * Code common to pcap and pcapng file formats
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * File format support for pcap-ng file format
+ * File format support for pcapng file format
  * Copyright (c) 2007 by Ulf Lamping <ulf.lamping@web.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -492,7 +492,7 @@ static const struct {
 	 *
 	 * We put these *after* the entries for the LINKTYPE_ values for
 	 * those Wiretap encapsulation types, so that, when writing a
-	 * pcap or pcap-ng file, Wireshark writes the LINKTYPE_ value,
+	 * pcap or pcapng file, Wireshark writes the LINKTYPE_ value,
 	 * not the OS's DLT_ value, as the file's link-layer header type
 	 * for pcap or the interface's link-layer header type.
 	 */
@@ -1729,7 +1729,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		 * at least in pcap files.  For radiotap, that's indicated in
 		 * the radiotap header.
 		 *
-		 * XXX - in pcap-ng, there *could* be a packet option
+		 * XXX - in pcapng, there *could* be a packet option
 		 * indicating the FCS length.
 		 */
 		memset(&phdr->pseudo_header.ieee_802_11, 0, sizeof(phdr->pseudo_header.ieee_802_11));

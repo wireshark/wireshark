@@ -86,7 +86,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->save_file                       = NULL;
     capture_opts->group_read_access               = FALSE;
 #ifdef PCAP_NG_DEFAULT
-    capture_opts->use_pcapng                      = TRUE;             /* Save as pcap-ng by default */
+    capture_opts->use_pcapng                      = TRUE;             /* Save as pcapng by default */
 #else
     capture_opts->use_pcapng                      = FALSE;            /* Save as pcap by default */
 #endif

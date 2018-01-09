@@ -1023,7 +1023,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>pcap-ng</source>
+        <source>pcapng</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1317,7 +1317,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capture packets in pcap-ng format</source>
+        <source>Capture packets in pcapng format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

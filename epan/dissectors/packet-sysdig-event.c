@@ -28,7 +28,7 @@
 
 /*
  * Sysdig is a tool that captures and analyzes system state.
- * This dissects pcap-ng Sysdig Event Blocks (0x00000204), which contains
+ * This dissects pcapng Sysdig Event Blocks (0x00000204), which contains
  * a system call entry or exit along with its associated parameters.
  */
 

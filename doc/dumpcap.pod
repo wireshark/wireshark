@@ -39,7 +39,7 @@ S<[ B<--time-stamp-type> E<lt>typeE<gt> ]>
 
 B<Dumpcap> is a network traffic dump tool.  It lets you capture packet
 data from a live network and write the packets to a file.  B<Dumpcap>'s
-default capture file format is B<pcap-ng> format.
+default capture file format is B<pcapng> format.
 When the B<-P> option is specified, the output file is written in the
 B<pcap> format.
 
@@ -226,7 +226,7 @@ read data from the standard input.  Data read from pipes must be in
 standard pcap format.
 
 This option can occur multiple times. When capturing from multiple
-interfaces, the capture file will be saved in pcap-ng format.
+interfaces, the capture file will be saved in pcapng format.
 
 Note: the Win32 version of B<Dumpcap> doesn't support capturing from
 pipes or stdin!
@@ -263,7 +263,7 @@ B<TShark>; its format is subject to change from release to release.
 
 =item -n
 
-Save files as pcap-ng. This is the default.
+Save files as pcapng. This is the default.
 
 =item -N  E<lt>packet limitE<gt>
 
@@ -290,8 +290,8 @@ promiscuous mode.
 
 =item -P
 
-Save files as pcap instead of the default pcap-ng. In situations that require
-pcap-ng, such as capturing from multiple interfaces, this option will be
+Save files as pcap instead of the default pcapng. In situations that require
+pcapng, such as capturing from multiple interfaces, this option will be
 overridden.
 
 =item -q
@@ -352,7 +352,7 @@ the default capture link type is used if provided.
 Add a capture comment to the output file.
 
 This option is only available if we output the captured packets to a
-single file in pcap-ng format. Only one capture comment may be set per
+single file in pcapng format. Only one capture comment may be set per
 output file.
 
 =item --list-time-stamp-types

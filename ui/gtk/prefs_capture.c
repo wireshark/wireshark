@@ -211,9 +211,9 @@ capture_prefs_show(void)
 	g_signal_connect(promisc_cb, "toggled", G_CALLBACK(prom_mode_cb), NULL);
 	g_object_set_data(G_OBJECT(capture_window), PROM_MODE_KEY, promisc_cb);
 
-	/* Pcap-NG format */
+	/* Pcapng format */
 	pcap_ng_cb = create_preference_check_button(main_grid, row++,
-	    "Capture packets in pcap-ng format:",
+	    "Capture packets in pcapng format:",
 	    "Capture packets in the next-generation capture file format.",
 	    prefs.capture_pcap_ng);
 	g_object_set_data(G_OBJECT(capture_window), PCAP_NG_KEY, pcap_ng_cb);

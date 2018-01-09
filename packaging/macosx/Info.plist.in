@@ -133,7 +133,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Pcap-NG Network Capture</string>
+			<string>Pcapng Network Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>

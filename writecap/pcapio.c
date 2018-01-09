@@ -240,7 +240,7 @@ libpcap_write_packet(FILE* pfile,
         return write_to_file(pfile, pd, caplen, bytes_written, err);
 }
 
-/* Writing pcap-ng files */
+/* Writing pcapng files */
 
 static guint32
 pcapng_count_string_option(const char *option_value)

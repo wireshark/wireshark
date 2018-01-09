@@ -846,7 +846,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_ns_dns_ipv6,       { "Nameserver IPv6 address",            "ns_dns_ipv6",       FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
 
   { ERF_META_TAG_exthdr,            { "ERF Extension Header",               "exthdr",            FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_pcap_ng_block,     { "PCAP-NG Block",                      "pcap_ng_block",     FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_pcap_ng_block,     { "Pcapng Block",                       "pcap_ng_block",     FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_asn1,              { "ASN.1",                              "asn1",              FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
 
   { ERF_META_TAG_clk_source,             { "Clock Source",                  "clk_source",             FT_UINT32,   BASE_DEC,          VALS(erf_clk_source), 0x0, NULL, HFILL } },

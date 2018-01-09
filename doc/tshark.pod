@@ -539,7 +539,7 @@ read data from the standard input.  Data read from pipes must be in
 standard pcap format.
 
 This option can occur multiple times.  When capturing from multiple
-interfaces, the capture file will be saved in pcap-ng format.
+interfaces, the capture file will be saved in pcapng format.
 
 Note: the Win32 version of B<TShark> doesn't support capturing from
 pipes!

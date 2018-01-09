@@ -1025,8 +1025,8 @@
         <translation>Ausgabeformat:</translation>
     </message>
     <message>
-        <source>pcap-ng</source>
-        <translation>pcap-ng</translation>
+        <source>pcapng</source>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1320,8 +1320,8 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pakete im pcapng Dateiformat aufzeichnen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Capture packets in pcap-ng format</source>
-        <translation>Pakte im pcap-ng Format mitschneiden</translation>
+        <source>Capture packets in pcapng format</source>
+        <translation>Pakte im pcapng Format mitschneiden</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

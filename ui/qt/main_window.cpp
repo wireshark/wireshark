@@ -1315,8 +1315,8 @@ bool MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
            it to a permanent file.  Prompt the user for a location
            to which to save it.  Don't require that the file format
            support comments - if it's a temporary capture file, it's
-           probably pcap-ng, which supports comments and, if it's
-           not pcap-ng, let the user decide what they want to do
+           probably pcapng, which supports comments and, if it's
+           not pcapng, let the user decide what they want to do
            if they've added comments. */
         return saveAsCaptureFile(cf, FALSE, dont_reopen);
     } else {

@@ -730,16 +730,16 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
     /*
      * XXX: ERF_TYPE_META records should ideally be FT_SPECIFIC for display
      * purposes, but currently ft_specific_record_phdr clashes with erf_mc_phdr
-     * and the PCAP-NG dumper assumes it is a PCAP-NG block type. Ideally we
-     * would register a block handler with PCAP-NG and write out the closest
-     * PCAP-NG block, or a custom block/Provenance record.
+     * and the pcapng dumper assumes it is a pcapng block type. Ideally we
+     * would register a block handler with pcapng and write out the closest
+     * pcapng block, or a custom block/Provenance record.
      *
      */
 #if 0
     } else {
       /*
        * TODO: how to identify, distinguish and timestamp events?
-       * What to do about ENCAP_ERF in PCAP/PCAP-NG? Filetype dissector is
+       * What to do about ENCAP_ERF in pcap/pcapng? Filetype dissector is
        * chosen by wth->file_type_subtype?
        */
       /* For now just treat all Provenance records as reports */
@@ -1154,7 +1154,7 @@ static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
 #if 0
       tag_ptr->type = ERF_META_TAG_if_mac;
       tag_ptr->length = 6;
-      /*value same format as PCAP-NG (6-byte canonical, padded by write
+      /*value same format as pcapng (6-byte canonical, padded by write
        * function automatically to 32-bit boundary)*/
       tag_ptr->value = (guint8*)g_malloc(sizeof(optval->macval));
       memcpy(tag_ptr->value, &optval->macval, sizeof(optval->macval));
@@ -1961,7 +1961,7 @@ static gboolean erf_dump(
   /*XXX: The user may have changed the comment to cleared! */
   if(phdr->opt_comment || phdr->has_comment_changed) {
     if (encap == WTAP_ENCAP_ERF) {
-      /* XXX: What about ERF-in-PCAPNG with existing comment (that wasn't
+      /* XXX: What about ERF-in-pcapng with existing comment (that wasn't
        * modified)? */
       if(phdr->has_comment_changed) {
         memcpy(&other_phdr, pseudo_header, sizeof(union wtap_pseudo_header));

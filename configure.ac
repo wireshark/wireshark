@@ -1795,13 +1795,13 @@ fi
 AC_SUBST(fuzzshark_bin)
 
 
-dnl Use pcap-ng by default
+dnl Use pcapng by default
 AC_ARG_ENABLE(pcap-ng-default,
   AC_HELP_STRING( [--enable-pcap-ng-default],
-		  [use the pcap-ng file format by default instead of pcap @<:@default=yes@:>@]),
+		  [use the pcapng file format by default instead of pcap @<:@default=yes@:>@]),
     enable_pcap_ng_default=$enableval,enable_pcap_ng_default=yes)
 if test x$enable_pcap_ng_default = xyes; then
-	AC_DEFINE(PCAP_NG_DEFAULT, 1, [Support for pcap-ng])
+	AC_DEFINE(PCAP_NG_DEFAULT, 1, [Support for pcapng])
 fi
 
 dnl zlib check
@@ -2978,7 +2978,7 @@ echo "                  Build randpktdump : $enable_randpktdump"
 echo "                      Build udpdump : $enable_udpdump"
 echo "                 Build User's Guide : $wsug_message"
 echo ""
-echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
+echo "    Save files as pcapng by default : $enable_pcap_ng_default"
 echo "  Install dumpcap with capabilities : $setcap_message"
 echo "             Install dumpcap setuid : $setuid_message"
 echo "                  Use dumpcap group : $dumpcap_group_message"

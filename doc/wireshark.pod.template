@@ -75,7 +75,7 @@ and various other tools using libpcap's/WinPcap's/tcpdump's/WinDump's
 capture format
 
 =item *
-pcap-ng - "next-generation" successor to pcap format
+pcapng - "next-generation" successor to pcap format
 
 =item *
 B<snoop> and B<atmsnoop> captures
@@ -415,7 +415,7 @@ of the form ``\\pipe\.\B<pipename>''.  Data read from pipes must be in
 standard pcap format.
 
 This option can occur multiple times.  When capturing from multiple
-interfaces, the capture file will be saved in pcap-ng format.
+interfaces, the capture file will be saved in pcapng format.
 
 =item -I
 

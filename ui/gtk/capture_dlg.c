@@ -822,7 +822,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
      * header types; we will not have it if, for example, we have a named
      * pipe rather than an interface, as a named pipe doesn't *have* a
      * link-layer header type until the capture is started and the
-     * pcap file header or pcap-ng interface description block is
+     * pcap file header or pcapng interface description block is
      * written, and we can't wait for that.  We won't have it if we can't
      * open the interface, either.
      *
@@ -5021,8 +5021,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), multi_files_on_cb, 0, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
-  /* Pcap-NG row */
-  pcap_ng_cb = gtk_check_button_new_with_mnemonic("Use pcap-ng format");
+  /* Pcapng row */
+  pcap_ng_cb = gtk_check_button_new_with_mnemonic("Use pcapng format");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
   gtk_widget_set_tooltip_text(pcap_ng_cb, "Capture packets in the next-generation capture file format. "
                        "This is still experimental.");

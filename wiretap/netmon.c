@@ -1114,8 +1114,8 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				/*
 				 * List of adapters on which the capture
 				 * was done.
-				 * XXX - This could be translated into PCAP-NG blocks
-				 * but for now, just treat as a frame
+				 * XXX - this could be translated into pcapng
+				 * blocks but for now, just treat as a frame.
 				 */
 				pkt_encap = WTAP_ENCAP_NETMON_NETWORK_INFO_EX;
 				break;

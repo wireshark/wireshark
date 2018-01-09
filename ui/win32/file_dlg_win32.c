@@ -297,7 +297,7 @@ win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
     switch (response) {
 
     case IDNO: /* "No" means "Save in another format" in the first dialog */
-        /* OK, the only other format we support is pcap-ng.  Make that
+        /* OK, the only other format we support is pcapng.  Make that
            the one and only format in the combo box, and return to
            let the user continue with the dialog.
 
@@ -305,7 +305,7 @@ win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
            the compressed checkbox; get the current value and restore
            it.
 
-           XXX - we know pcap-ng can be compressed; if we ever end up
+           XXX - we know pcapng can be compressed; if we ever end up
            supporting saving comments in a format that *can't* be
            compressed, such as NetMon format, we must check this. */
         /* XXX - need a compressed checkbox here! */

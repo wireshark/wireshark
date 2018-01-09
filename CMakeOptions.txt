@@ -62,7 +62,7 @@ option(ENABLE_PDF_GUIDES        "Build PDF User & Developer Guides" OFF)
 if(WIN32)
 	option(ENABLE_CHM_GUIDES        "Build HTML Help User & Developer Guides" OFF)
 endif()
-option(ENABLE_PCAP_NG_DEFAULT   "Enable pcap-ng as default file format" ON)
+option(ENABLE_PCAP_NG_DEFAULT   "Enable pcapng as default file format" ON)
 
 option(ENABLE_PORTAUDIO  "Build with PortAudio support" ON)
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)

@@ -103,7 +103,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
     exp_pdu_dlg_data = (exp_pdu_dlg_t *)g_malloc(sizeof(exp_pdu_dlg_t));
     exp_pdu_dlg_data->exp_pdu_tap_data.pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDUs to pcap-ng file");
+    export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDUs to pcapng file");
 
     g_signal_connect(export_pdu_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(export_pdu_dlg, "destroy", G_CALLBACK(export_pdu_destroy_cb), NULL);

@@ -177,7 +177,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
      * Therefore we should use clickedButton() to determine which button was clicked. */
 
     if (msg_dialog.clickedButton() == save_button) {
-      /* OK, the only other format we support is pcap-ng.  Make that
+      /* OK, the only other format we support is pcapng.  Make that
          the one and only format in the combo box, and return to
          let the user continue with the dialog.
 
@@ -185,7 +185,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
          the compressed checkbox; get the current value and restore
          it.
 
-         XXX - we know pcap-ng can be compressed; if we ever end up
+         XXX - we know pcapng can be compressed; if we ever end up
          supporting saving comments in a format that *can't* be
          compressed, such as NetMon format, we must check this. */
       /* XXX - need a compressed checkbox here! */

@@ -272,12 +272,12 @@ _Use multiple files_::
 Instead of using a single file Wireshark will automatically switch to a new
 one if a specific trigger condition is reached.
 
-_Use pcap-ng format_:: This checkbox allows you to specify that
-Wireshark saves the captured packets in pcap-ng format. This next
+_Use pcapng format_:: This checkbox allows you to specify that
+Wireshark saves the captured packets in pcapng format. This next
 generation capture file format is currently in development. If more than
 one interface is chosen for capturing, this checkbox is set by default.
 See {wireshark-wiki-url}Development/PcapNg for more details on
-pcap-ng.
+pcapng.
 
 _Next file every n megabyte(s)_::
 Multiple files only. Switch to the next file after the given number of

@@ -1917,9 +1917,9 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 	/* Put the default file type/subtype first in the list. */
 	g_array_append_val(savable_file_types_subtypes, default_file_type_subtype);
 
-	/* If the default is pcap, put pcap-NG right after it if we can
-	   also write it in pcap-NG format; otherwise, if the default is
-	   pcap-NG, put pcap right after it if we can also write it in
+	/* If the default is pcap, put pcapng right after it if we can
+	   also write it in pcapng format; otherwise, if the default is
+	   pcapng, put pcap right after it if we can also write it in
 	   pcap format. */
 	if (default_file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) {
 		if (wtap_dump_can_write_format(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, file_encaps,

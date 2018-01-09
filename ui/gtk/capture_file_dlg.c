@@ -1350,8 +1350,8 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
        it to a permanent file.  Prompt the user for a location
        to which to save it.  Don't require that the file format
        support comments - if it's a temporary capture file, it's
-       probably pcap-ng, which supports comments and, if it's
-       not pcap-ng, let the user decide what they want to do
+       probably pcapng, which supports comments and, if it's
+       not pcapng, let the user decide what they want to do
        if they've added comments. */
     return file_save_as_cmd(cf, FALSE, dont_reopen);
   } else {
@@ -1443,7 +1443,7 @@ file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
 /* Attach a list of the valid 'save as' file types to a combo_box by
    checking what Wiretap supports.  Make the default type the first
    in the list.  If must_supprt_comments is true, restrict the list
-   to those formats that support comments (currently, just pcap-ng).
+   to those formats that support comments (currently, just pcapng).
 
    Returns the default file type. */
 static int
@@ -1589,7 +1589,7 @@ gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
   switch (response) {
 
   case RESPONSE_SAVE_IN_ANOTHER_FORMAT:
-    /* OK, the only other format we support is pcap-ng.  Make that
+    /* OK, the only other format we support is pcapng.  Make that
        the one and only format in the combo box, and return to
        let the user continue with the dialog.
 
@@ -1597,7 +1597,7 @@ gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
        the compressed checkbox; get the current value and restore
        it.
 
-       XXX - we know pcap-ng can be compressed; if we ever end up
+       XXX - we know pcapng can be compressed; if we ever end up
        supporting saving comments in a format that *can't* be
        compressed, such as NetMon format, we must check this. */
     /* XXX - need a compressed checkbox here! */

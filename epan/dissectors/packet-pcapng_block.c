@@ -1,5 +1,5 @@
 /* packet-pcapng.c
- * Dissector to handle pcap-ng file-type-specific blocks.
+ * Dissector to handle pcapng file-type-specific blocks.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -45,8 +45,8 @@ dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		/*
 		 * There isn't one; just do a minimal display.
 		 */
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAP-NG");
-		col_add_fstr(pinfo->cinfo, COL_INFO, "PCAP-NG block, type %u",
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAPNG");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Pcapng block, type %u",
 		    pinfo->pseudo_header->ftsrec.record_type);
 
 		proto_tree_add_item(tree, proto_pcapng_block, tvb, 0, -1, ENC_NA);
@@ -56,10 +56,10 @@ dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 void proto_register_pcapng_block(void)
 {
-	proto_pcapng_block = proto_register_protocol("PCAP-NG block",
-	    "PCAP-NG", "pcapng");
+	proto_pcapng_block = proto_register_protocol("Pcapng block",
+	    "PCAPNG", "pcapng");
 	pcapng_block_type_dissector_table = register_dissector_table("pcapng.block_type",
-	    "pcap-ng block type", proto_pcapng_block, FT_UINT32, BASE_DEC);
+	    "pcapng block type", proto_pcapng_block, FT_UINT32, BASE_DEC);
 }
 
 void

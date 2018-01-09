@@ -347,7 +347,7 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
        Most Visual capture types include the FCS in the original length
        value, but don't include the FCS as part of the payload or captured
        length.  This is different from the model used in most other capture
-       file formats, including pcap and pcap-ng in cases where the FCS isn't
+       file formats, including pcap and pcapng in cases where the FCS isn't
        captured (which are the typical cases), and causes the RTP audio
        payload save to fail since then captured len != orig len.
 

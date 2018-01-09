@@ -41,7 +41,7 @@ libpcap_write_packet(FILE* pfile,
                      const guint8 *pd,
                      guint64 *bytes_written, int *err);
 
-/* Writing pcap-ng files */
+/* Writing pcapng files */
 
 /* Write a pre-formatted pcapng block */
 extern gboolean

@@ -1025,8 +1025,8 @@
         <translation>Formato dell&apos;output:</translation>
     </message>
     <message>
-        <source>pcap-ng</source>
-        <translation>pcap-ng</translation>
+        <source>pcapng</source>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1320,8 +1320,8 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cattura i pacchetti nel formato di file di nuova generazione.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Capture packets in pcap-ng format</source>
-        <translation>Cattura i pacchetti nel formato pcap-ng</translation>
+        <source>Capture packets in pcapng format</source>
+        <translation>Cattura i pacchetti nel formato pcapng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

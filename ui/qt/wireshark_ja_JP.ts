@@ -1020,8 +1020,8 @@
         <translation>出力形式:</translation>
     </message>
     <message>
-        <source>pcap-ng</source>
-        <translation>pcap-ng形式</translation>
+        <source>pcapng</source>
+        <translation>pcapng形式</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1315,8 +1315,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;次世代のキャプチャファイル形式でパケットをキャプチャします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Capture packets in pcap-ng format</source>
-        <translation>pcap-ng形式でパケットをキャプチャします</translation>
+        <source>Capture packets in pcapng format</source>
+        <translation>pcapng形式でパケットをキャプチャします</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

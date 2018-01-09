@@ -332,7 +332,7 @@ WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, cons
 
 /*
  * Fetch 16-bit and 32-bit values in host byte order.
- * Used for some pseudo-headers in pcap/pcap-ng files, in which the
+ * Used for some pseudo-headers in pcap/pcapng files, in which the
  * headers are, when capturing, in the byte order of the host, and
  * are converted to the byte order of the host reading the file
  * when reading a capture file.

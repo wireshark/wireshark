@@ -3,7 +3,7 @@
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * File format support for pcap-ng file format
+ * File format support for pcapng file format
  * Copyright (c) 2007 by Ulf Lamping <ulf.lamping@web.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -485,7 +485,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
              * This block is too short to be an SHB.
              *
              * If we're reading this as part of an open,
-             * the file is too short to be a pcap-ng file.
+             * the file is too short to be a pcapng file.
              *
              * If we're not, we treat PCAPNG_BLOCK_NOT_SHB and
              * PCAPNG_BLOCK_ERROR the same, so we can just return
@@ -543,7 +543,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         return PCAPNG_BLOCK_ERROR;
     }
 
-    /* OK, at this point we assume it's a pcap-ng file.
+    /* OK, at this point we assume it's a pcapng file.
 
        Don't try to allocate memory for a huge number of options, as
        that might fail and, even if it succeeds, it might not leave
@@ -551,8 +551,8 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 
        We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
        We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
+       order magic number, so that non-pcapng files are less
+       likely to be treated as bad pcapng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u is too large (> %u)",
@@ -702,8 +702,8 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 
        We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
        We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
+       order magic number, so that non-pcapng files are less
+       likely to be treated as bad pcapng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_if_descr_block: total block length %u is too large (> %u)",
@@ -1036,8 +1036,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
        We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
        We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
+       order magic number, so that non-pcapng files are less
+       likely to be treated as bad pcapng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u is too large (> %u)",
@@ -1397,8 +1397,8 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
        We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
        We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
+       order magic number, so that non-pcapng files are less
+       likely to be treated as bad pcapng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_simple_packet_block: total block length %u is too large (> %u)",
@@ -1428,7 +1428,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     /*
      * The captured length is not a field in the SPB; it can be
      * calculated as the minimum of the snapshot length from the
-     * IDB and the packet length, as per the pcap-ng spec. An IDB
+     * IDB and the packet length, as per the pcapng spec. An IDB
      * snapshot length of 0 means no limit.
      */
     simple_packet.cap_len = simple_packet.packet_len;
@@ -1614,8 +1614,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 
        We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
        We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
+       order magic number, so that non-pcapng files are less
+       likely to be treated as bad pcapng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u is too large (> %u)",
@@ -1682,7 +1682,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                  * a 4-byte IPv4 address, hence a minimum
                  * of 4 bytes.
                  *
-                 * (The pcap-NG spec really indicates
+                 * (The pcapng spec really indicates
                  * that it must be at least 5 bytes,
                  * as there must be at least one name,
                  * and it really must be at least 6
@@ -1744,7 +1744,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                  * a 16-byte IPv6 address, hence a minimum
                  * of 16 bytes.
                  *
-                 * (The pcap-NG spec really indicates
+                 * (The pcapng spec really indicates
                  * that it must be at least 17 bytes,
                  * as there must be at least one name,
                  * and it really must be at least 18
@@ -1922,8 +1922,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
        We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
        We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
+       order magic number, so that non-pcapng files are less
+       likely to be treated as bad pcapng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too large (> %u)",
@@ -2311,7 +2311,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
              * Short read or EOF.
              *
              * If we're reading this as part of an open,
-             * the file is too short to be a pcap-ng file.
+             * the file is too short to be a pcapng file.
              *
              * If we're not, we treat PCAPNG_BLOCK_NOT_SHB and
              * PCAPNG_BLOCK_ERROR the same, so we can just return
@@ -2325,7 +2325,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
     /*
      * SHBs have to be treated differently from other blocks, as we
      * might be doing an open and attempting to read a block at the
-     * beginning of the file to see if it's a pcap-ng file or not,
+     * beginning of the file to see if it's a pcapng file or not,
      * and as they do not necessarily have the same byte order as
      * previous blocks.
      */
@@ -2356,7 +2356,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
             /*
              * No SHB seen yet, so we're trying to read the first block
              * during an open, to see whether it's an SHB; if what we
-             * read doesn't look like an SHB, this isn't a pcap-ng file.
+             * read doesn't look like an SHB, this isn't a pcapng file.
              */
             *err = 0;
             *err_info = NULL;
@@ -2476,14 +2476,14 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         break;
 
     case PCAPNG_BLOCK_NOT_SHB:
-        /* An error indicating that this isn't a pcap-ng file. */
+        /* An error indicating that this isn't a pcapng file. */
         wtap_block_free(wblock.block);
         *err = 0;
         *err_info = NULL;
         return WTAP_OPEN_NOT_MINE;
 
     case PCAPNG_BLOCK_ERROR:
-        /* An I/O error, or this probably *is* a pcap-ng file but not a valid one. */
+        /* An I/O error, or this probably *is* a pcapng file but not a valid one. */
         wtap_block_free(wblock.block);
         return WTAP_OPEN_ERROR;
     }
@@ -2502,7 +2502,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     pn.shb_read = TRUE;
 
     /*
-     * At this point, we've decided this is a pcap-NG file, not
+     * At this point, we've decided this is a pcapng file, not
      * some other type of file, so we can't return WTAP_OPEN_NOT_MINE
      * past this point.
      */
@@ -3000,7 +3000,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
     else {
         /*
          * XXX - we should support writing WTAP_ENCAP_PER_PACKET
-         * data to pcap-NG files even if we *don't* have interface
+         * data to pcapng files even if we *don't* have interface
          * IDs.
          */
         epb.interface_id        = 0;

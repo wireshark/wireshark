@@ -1,10 +1,10 @@
 /* pcap-encap.h
- * Declarations for routines to handle libpcap/pcap-NG linktype values
+ * Declarations for routines to handle pcap/pcapng linktype values
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * File format support for pcap-ng file format
+ * File format support for pcapng file format
  * Copyright (c) 2007 by Ulf Lamping <ulf.lamping@web.de>
  *
  * This program is free software; you can redistribute it and/or

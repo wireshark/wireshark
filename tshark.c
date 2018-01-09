@@ -1686,7 +1686,7 @@ main(int argc, char *argv[])
       if (global_capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
 
-        /* When capturing, we only support writing pcap or pcap-ng format. */
+        /* When capturing, we only support writing pcap or pcapng format. */
         if (out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAP &&
             out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
           cmdarg_err("Live captures can only be saved in pcap or pcapng format.");

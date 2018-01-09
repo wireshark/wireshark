@@ -1020,8 +1020,8 @@
         <translation>输出格式：</translation>
     </message>
     <message>
-        <source>pcap-ng</source>
-        <translation>pcap-ng</translation>
+        <source>pcapng</source>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1316,8 +1316,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用下一代捕获文件格式来捕获分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Capture packets in pcap-ng format</source>
-        <translation>使用pcap-ng格式捕获分组</translation>
+        <source>Capture packets in pcapng format</source>
+        <translation>使用pcapng格式捕获分组</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

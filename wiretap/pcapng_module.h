@@ -41,7 +41,7 @@
  */
 
 /*
- * Reader and writer routines for pcap-ng block types.
+ * Reader and writer routines for pcapng block types.
  */
 typedef gboolean (*block_reader)(FILE_T, guint32, gboolean, struct wtap_pkthdr *,
                                  Buffer *, int *, gchar **);
@@ -49,19 +49,19 @@ typedef gboolean (*block_writer)(wtap_dumper *, const struct wtap_pkthdr *,
                                  const guint8 *, int *);
 
 /*
- * Register a handler for a pcap-ng block type.
+ * Register a handler for a pcapng block type.
  */
 WS_DLL_PUBLIC
 void register_pcapng_block_type_handler(guint block_type, block_reader read,
                                         block_writer write);
 
 /*
- * Handler routine for pcap-ng option type.
+ * Handler routine for pcapng option type.
  */
 typedef gboolean (*option_handler_fn)(gboolean, guint, guint8 *, int *, gchar **);
 
 /*
- * Register a handler for a pcap-ng option code for a particular block
+ * Register a handler for a pcapng option code for a particular block
  * type.
  */
 WS_DLL_PUBLIC

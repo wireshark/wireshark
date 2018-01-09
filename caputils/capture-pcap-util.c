@@ -1157,9 +1157,9 @@ open_capture_device_pcap_create(capture_options *capture_opts
 
 #ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 		/*
-		 * If we're writing pcap-ng files, try to enable
+		 * If we're writing pcapng files, try to enable
 		 * nanosecond-resolution capture; any code that
-		 * can read pcap-ng files must be able to handle
+		 * can read pcapng files must be able to handle
 		 * nanosecond-resolution time stamps.  We don't
 		 * care whether it succeeds or fails - if it fails,
 		 * we just use the microsecond-precision time stamps
