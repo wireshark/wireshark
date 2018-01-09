@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="TabnavTreeWidget" name="coloringRulesTreeWidget">
+    <widget class="TabnavTreeView" name="coloringRulesTreeView">
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -34,16 +34,15 @@
      <property name="expandsOnDoubleClick">
       <bool>false</bool>
      </property>
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Filter</string>
-      </property>
-     </column>
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="DropIndicatorShown">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::InternalMove</enum>
+     </property>
     </widget>
    </item>
    <item>
@@ -114,6 +113,9 @@
        <property name="flat">
         <bool>true</bool>
        </property>
+       <property name="visible">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -133,6 +135,9 @@
        <property name="flat">
         <bool>true</bool>
        </property>
+       <property name="visible">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -144,6 +149,9 @@
         <string>Apply as filter</string>
        </property>
        <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="visible">
         <bool>false</bool>
        </property>
       </widget>
@@ -177,9 +185,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TabnavTreeWidget</class>
-   <extends>QTreeWidget</extends>
-   <header>tabnav_tree_widget.h</header>
+   <class>TabnavTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/tabnav_tree_view.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -37,9 +37,26 @@ public:
         childItems_.clear();
     }
 
+    void appendChild(Item* child)
+    {
+        childItems_.append(VariantPointer<Item>::asQVariant(child));
+    }
+
     void prependChild(Item* child)
     {
         childItems_.prepend(VariantPointer<Item>::asQVariant(child));
+    }
+
+
+    void insertChild(int row, Item* child)
+    {
+        childItems_.insert(row, VariantPointer<Item>::asQVariant(child));
+    }
+
+    void removeChild(int row)
+    {
+        delete VariantPointer<Item>::asPtr(childItems_.value(row));
+        childItems_.removeAt(row);
     }
 
     Item* child(int row)

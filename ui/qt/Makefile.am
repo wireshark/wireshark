@@ -211,6 +211,8 @@ MOC_UTILS_HDRS = \
 MOC_MODELS_HDRS = \
 	models/astringlist_list_model.h			\
 	models/cache_proxy_model.h			\
+	models/coloring_rules_delegate.h			\
+	models/coloring_rules_model.h			\
 	models/decode_as_delegate.h			\
 	models/decode_as_model.h			\
 	models/dissector_tables_model.h			\
@@ -559,6 +561,8 @@ WIRESHARK_QT_UTILS_SRC = \
 WIRESHARK_QT_MODELS_SRCS = \
 	models/astringlist_list_model.cpp		\
 	models/cache_proxy_model.cpp			\
+	models/coloring_rules_delegate.cpp			\
+	models/coloring_rules_model.cpp			\
 	models/decode_as_delegate.cpp			\
 	models/decode_as_model.cpp			\
 	models/dissector_tables_model.cpp			\
