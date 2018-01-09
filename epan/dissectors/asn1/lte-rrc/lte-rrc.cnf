@@ -28,6 +28,7 @@ HandoverPreparationInformation-NB_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
 SCG-ConfigInfo-r12_PDU
+UECapabilityInformation_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
 UERadioAccessCapabilityInformation_PDU

@@ -2726,6 +2726,7 @@ AC_CONFIG_FILES(
   epan/dissectors/asn1/mpeg-pes/Makefile
   epan/dissectors/asn1/mudurl/Makefile
   epan/dissectors/asn1/nbap/Makefile
+  epan/dissectors/asn1/nr-rrc/Makefile
   epan/dissectors/asn1/ns_cert_exts/Makefile
   epan/dissectors/asn1/novell_pkis/Makefile
   epan/dissectors/asn1/ocsp/Makefile

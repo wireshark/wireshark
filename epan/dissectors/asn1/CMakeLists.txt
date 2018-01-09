@@ -79,6 +79,7 @@ set(ASN1_SRC_DIRS
 	mpeg-pes
 	mudurl
 	nbap
+	nr-rrc
 	ns_cert_exts
 	novell_pkis
 	ocsp

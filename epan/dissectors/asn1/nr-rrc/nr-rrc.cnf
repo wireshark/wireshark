@@ -1,0 +1,202 @@
+# nr-rrc.cnf
+# nr-rrc conformation file
+# Copyright 2018 Pascal Quantin
+
+#.OPT
+PER
+UNALIGNED
+#.END
+
+#.USE_VALS_EXT
+DRX-Config/setup/drx-onDurationTimer
+DRX-Config/setup/drx-InactivityTimer
+DRX-Config/setup/drx-RetransmissionTimerDL
+DRX-Config/setup/drx-RetransmissionTimerUL
+DRX-Config/setup/drx-LongCycleStartOffset
+DRX-Config/setup/shortDRX/drx-ShortCycle
+DRX-Config/setup/drx-SlotOffset
+PDCP-Config/moreThanOneRLC/ul-DataSplitThreshold/setup
+PDCP-Config/t-Reordering
+PollByte
+PollPDU
+Q-OffsetRange
+RACH-ConfigCommon/preambleReceivedTargetPower
+SPS-Config/uplink/priodicity
+T-PollRetransmit
+T-Reassembly
+T-StatusProhibit
+
+#.EXPORTS
+
+#.PDU
+#UE-MRDC-Capability
+#UE-NR-Capability
+BCCH-BCH-Message             @bcch.bch
+DL-DCCH-Message              @dl.dcch
+UL-DCCH-Message              @ul.dcch
+#.END
+
+#.OMIT_ASSIGNMENT
+AS-Context
+BandCombination
+BandCombinationList
+BandNR
+BandwidthPart-Config
+BasebandParametersPerBand
+BasebandParametersPerCC
+BasebandProcessingCombination
+BasebandProcessingCombination-MRDC
+BasebandProcessingCombinationIndex
+BeamManagement
+CA-BandwidthClass
+CandidateCellInfo
+CandidateCellInfoList
+CandidateRS-IndexInfo
+CandidateRS-IndexInfoList
+ConfigRestrictInfoSCG
+ConfigRestrictModReqSCG
+ControlResourceIndex
+CSI-IM-ResourceConfig
+CSI-IM-ResourceConfigId
+DRX-Info
+FailureReportSCG-ToOtherRAT
+HandoverCommand
+HandoverCommand-r15-IEs
+HandoverPreparationInformation
+HandoverPreparationInformation-r15-IEs
+LinkedBasebandProcessingCombination
+MAC-Parameters
+MeasParameters-MRDC
+MeasResult2NR
+MeasResultList2NR
+MeasResultServFreq2NR
+MeasResultServFreqList2NR
+MIMO-Capability
+ModulationOrder
+PDCP-Parameters
+PhyLayerParameters
+PhyLayerParameters-MRDC
+PUCCH-F2-number-of-PRB
+PUCCH-format0
+PUCCH-format1
+PUCCH-format2
+PUCCH-format3
+PUCCH-format4
+RadioBearerConfiguration
+RAT-Type
+ReestabNCellInfo
+ReestabNCellInfoList
+RF-Parameters
+RF-Parameters-MRDC
+RLC-Parameters
+RRM-Config
+SIB1
+SCG-Config
+SCG-Config-r15-IEs
+SCG-ConfigInfo
+SCG-ConfigInfo-r15-IEs
+ShortMAC-I
+SubCarrierSpacing
+SubcarrierSpacingRACH
+SupportedBandCombination
+SupportedBandListNR
+SupportedBasebandProcessingCombination
+UE-CapabilityRAT-Container
+UE-CapabilityRAT-ContainerList
+UE-MRDC-Capability
+UE-NR-Capability
+UECapabilityInformation
+ZP-CSI-RS-Resource
+ZP-CSI-RS-ResourceId
+
+#.NO_EMIT ONLY_VALS
+
+#.MAKE_ENUM
+#RAT-Type TYPE_PREFIX
+
+#.FN_HDR BCCH-BCH-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+#.FN_HDR UL-DCCH-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
+#.FN_HDR DL-DCCH-Message
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
+#.FN_HDR MIB
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MIB");
+
+#.FN_HDR RRCReconfiguration
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration");
+
+#.FN_HDR MeasurementReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Measurement Report");
+
+#.FN_HDR RRCReconfigurationComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration Complete");
+
+# #.FN_BODY UE-CapabilityRAT-Container
+#   /* Initialise to invalid value */
+#   private_data_set_rat_type(actx, 0xFF);
+# %(DEFAULT_BODY)s
+
+# #.FN_BODY RAT-Type VAL_PTR = &rat_type
+#   guint32 rat_type;
+# %(DEFAULT_BODY)s
+#   private_data_set_rat_type(actx, (guint8)rat_type);
+
+# #.FN_BODY UE-CapabilityRAT-Container/ueCapabilityRAT-Container VAL_PTR = &ue_cap_tvb
+#   tvbuff_t *ue_cap_tvb=NULL;
+# %(DEFAULT_BODY)s
+
+# #.FN_FTR UE-CapabilityRAT-Container/ueCapabilityRAT-Container
+#   if (ue_cap_tvb) {
+#     proto_tree *subtree;
+#
+#     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UE_CapabilityRAT_Container);
+#     switch(private_data_get_rat_type(actx)){
+#     case RAT_Type_nr:
+#       /* eutra */
+#       dissect_UE_NR_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+#       break;
+#     case RAT_Type_mrdc:
+#       /* utra */
+#       dissect_UE_MRDC_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+#       break;
+#     default:
+#       break;
+#     }
+#   }
+
+# #.FN_BODY UECapabilityInformation VAL_PTR = &parameter_tvb
+#   tvbuff_t *parameter_tvb;
+#   proto_tree *subtree;
+#
+# %(DEFAULT_BODY)s
+#
+#   if (parameter_tvb) {
+#     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UECapabilityInformation);
+#     dissect_lte_rrc_UECapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+#   }

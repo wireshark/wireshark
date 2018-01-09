@@ -81,6 +81,7 @@ SUBDIRS =		\
 	mudurl 		\
 	nbap		\
 	novell_pkis		\
+	nr-rrc		\
 	ns_cert_exts	\
 	ocsp		\
 	p1		\

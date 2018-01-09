@@ -87,6 +87,7 @@ LoRaWAN
 Lustre Network
 Lustre Filesystem
 Network Functional Application Platform Interface (NFAPI) Protocol
+New Radio Radio Resource Control protocol
 NXP 802.15.4 Sniffer Protocol
 PFCP (Packet Forwarding Control Protocol)
 Protobuf (Protocol Buffers)
