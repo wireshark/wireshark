@@ -431,10 +431,12 @@ static int cond_one_of(tvbparse_t* tt, const int offset, const tvbparse_wanted_t
 #ifdef TVBPARSE_DEBUG
             if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_ONEOF) ws_g_warning("cond_one_of: GOT len=%i",curr_len);
 #endif
+            tt->recursion_depth--;
             return curr_len;
         }
     }
 
+    tt->recursion_depth--;
     return -1;
 }
 
@@ -496,8 +498,10 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
 
     key_len = wanted->control.hash.key->condition(tt, offset, wanted->control.hash.key,  &key_elem);
 
-    if (key_len < 0)
+    if (key_len < 0) {
+        tt->recursion_depth--;
         return -1;
+    }
 
     key = tvb_get_string_enc(wmem_packet_scope(),key_elem->tvb,key_elem->offset,key_elem->len, ENC_ASCII);
 #ifdef TVBPARSE_DEBUG
@@ -508,11 +512,16 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
         value_len = value_wanted->condition(tt, offset + key_len, value_wanted,  &value_elem);
     } else if (wanted->control.hash.other) {
         value_len = wanted->control.hash.other->condition(tt, offset+key_len, wanted->control.hash.other,  &value_elem);
-        if (value_len < 0)
+        if (value_len < 0) {
+            tt->recursion_depth--;
             return -1;
+        }
     } else {
+        tt->recursion_depth--;
         return -1;
     }
+
+    tt->recursion_depth--;
 
     tot_len = key_len + value_len;
 
@@ -596,9 +605,10 @@ static int cond_seq(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
         tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_ptr_array_index(wanted->control.elems,i);
         tvbparse_elem_t* new_elem = NULL;
 
-        if ( offset + w->len > tt->end_offset )
+        if ( offset + w->len > tt->end_offset ) {
+            tt->recursion_depth--;
             return -1;
-
+        }
 
         len = w->condition(tt, offset, w, &new_elem);
 
@@ -614,12 +624,15 @@ static int cond_seq(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
                 new_elem->last = new_elem;
             }
         } else {
+            tt->recursion_depth--;
             return -1;
         }
 
         offset += len;
         offset += ignore_fcn(tt,offset);
     }
+
+    tt->recursion_depth--;
 
     *tok = ret_tok;
 
@@ -680,8 +693,10 @@ static int cond_some(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wante
         tvbparse_elem_t* new_elem = NULL;
         int consumed;
 
-        if ( offset > tt->end_offset )
+        if ( offset > tt->end_offset ) {
+            tt->recursion_depth--;
             return -1;
+        }
 
         consumed = wanted->control.subelem->condition(tt, offset, wanted->control.subelem, &new_elem);
 
@@ -707,6 +722,8 @@ static int cond_some(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wante
         offset += consumed;
         got_so_far++;
     }
+
+    tt->recursion_depth--;
 
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_SOME) ws_g_warning("cond_some: got num=%u",got_so_far);
@@ -765,6 +782,8 @@ static int cond_until(tvbparse_t* tt, const int offset, const tvbparse_wanted_t 
     do {
         len = wanted->control.until.subelem->condition(tt, target_offset++, wanted->control.until.subelem,  &new_elem);
     } while(len < 0  && target_offset+1 < tt->end_offset);
+
+    tt->recursion_depth--;
 
     if (len >= 0) {
 
