@@ -644,10 +644,16 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		}
 		len = pdata_ptr->len;
 	} else {
+		if (buf_ptr->buf_cur + len > buf_end) {
+			expert_add_info_format(pinfo, cd_item, &ei_wcp_invalid_window_offset,
+				"Uncompressed data exceeds available buffer length (%d > %d)",
+				len, (int) (buf_end - buf_ptr->buf_cur));
+			return NULL;
+		}
 
-	/* save the new data as per packet data */
+		/* save the new data as per packet data */
 		pdata_ptr = wmem_new(wmem_file_scope(), wcp_pdata_t);
-		memcpy( &pdata_ptr->buffer, buf_ptr->buf_cur,  len);
+		memcpy( &pdata_ptr->buffer, buf_ptr->buf_cur, len);
 		pdata_ptr->len = len;
 
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_wcp, 0, (void*)pdata_ptr);
