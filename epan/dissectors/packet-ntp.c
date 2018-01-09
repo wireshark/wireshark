@@ -260,26 +260,36 @@ static const value_string ext_op_types[] = {
 #define NTPCTRL_MORE_MASK 0x20
 #define NTPCTRL_OP_MASK 0x1f
 
-#define NTPCTRL_OP_UNSPEC 0
-#define NTPCTRL_OP_READSTAT 1
-#define NTPCTRL_OP_READVAR 2
-#define NTPCTRL_OP_WRITEVAR 3
-#define NTPCTRL_OP_READCLOCK 4
-#define NTPCTRL_OP_WRITECLOCK 5
-#define NTPCTRL_OP_SETTRAP 6
-#define NTPCTRL_OP_ASYNCMSG 7
-#define NTPCTRL_OP_UNSETTRAP 31
+#define NTPCTRL_OP_UNSPEC 0		/* unspeciffied */
+#define NTPCTRL_OP_READSTAT 1		/* read status */
+#define NTPCTRL_OP_READVAR 2		/* read variables */
+#define NTPCTRL_OP_WRITEVAR 3		/* write variables */
+#define NTPCTRL_OP_READCLOCK 4		/* read clock variables */
+#define NTPCTRL_OP_WRITECLOCK 5		/* write clock variables */
+#define NTPCTRL_OP_SETTRAP 6		/* set trap address */
+#define NTPCTRL_OP_ASYNCMSG 7		/* asynchronous message */
+#define NTPCTRL_OP_CONFIGURE 8		/* runtime configuration */
+#define NTPCTRL_OP_SAVECONFIG 9		/* save config to file */
+#define NTPCTRL_OP_READ_MRU 10		/* retrieve MRU (mrulist) */
+#define NTPCTRL_OP_READ_ORDLIST_A 11	/* ordered list req. auth. */
+#define NTPCTRL_OP_REQ_NONCE 12		/* request a client nonce */
+#define NTPCTRL_OP_UNSETTRAP 31		/* unset trap */
 
 static const value_string ctrl_op_types[] = {
-	{ NTPCTRL_OP_UNSPEC,		"UNSPEC" },
-	{ NTPCTRL_OP_READSTAT,		"READSTAT" },
-	{ NTPCTRL_OP_READVAR,		"READVAR" },
-	{ NTPCTRL_OP_WRITEVAR,		"WRITEVAR" },
-	{ NTPCTRL_OP_READCLOCK,		"READCLOCK" },
-	{ NTPCTRL_OP_WRITECLOCK,	"WRITECLOCK" },
-	{ NTPCTRL_OP_SETTRAP,		"SETTRAP" },
-	{ NTPCTRL_OP_ASYNCMSG,		"ASYNCMSG" },
-	{ NTPCTRL_OP_UNSETTRAP,		"UNSETTRAP" },
+	{ NTPCTRL_OP_UNSPEC,		"reserved" },
+	{ NTPCTRL_OP_READSTAT,		"read status" },
+	{ NTPCTRL_OP_READVAR,		"read variables" },
+	{ NTPCTRL_OP_WRITEVAR,		"write variables" },
+	{ NTPCTRL_OP_READCLOCK,		"read clock variables" },
+	{ NTPCTRL_OP_WRITECLOCK,	"write clock variables" },
+	{ NTPCTRL_OP_SETTRAP,		"set trap address/port" },
+	{ NTPCTRL_OP_ASYNCMSG,		"asynchronous message" },
+	{ NTPCTRL_OP_CONFIGURE,		"runtime configuration" },
+	{ NTPCTRL_OP_SAVECONFIG,	"save config to file" },
+	{ NTPCTRL_OP_READ_MRU,		"retrieve MRU (mrulist)" },
+	{ NTPCTRL_OP_READ_ORDLIST_A,	"retrieve ordered list" },
+	{ NTPCTRL_OP_REQ_NONCE,		"request a client nonce" },
+	{ NTPCTRL_OP_UNSETTRAP,		"unset trap address/port" },
 	{ 0,		NULL}
 };
 
