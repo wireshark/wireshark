@@ -2192,7 +2192,7 @@ main(int argc, char *argv[])
         g_free(init_progfile_dir_error);
     }
 
-    wtap_init();
+    wtap_init(TRUE);
 
     splash_update(RA_DISSECTORS, NULL, (gpointer)splash_win);
 

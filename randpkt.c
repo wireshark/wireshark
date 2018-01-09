@@ -138,7 +138,7 @@ main(int argc, char **argv)
 	init_report_message(failure_warning_message, failure_warning_message,
 				NULL, NULL, NULL);
 
-	wtap_init();
+	wtap_init(TRUE);
 
 	cmdarg_err_init(failure_warning_message, failure_message_cont);
 

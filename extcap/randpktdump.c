@@ -272,6 +272,8 @@ int main(int argc, char *argv[])
 			goto end;
 		}
 
+		wtap_init(FALSE);
+
 		if (!all_random) {
 			produce_type = randpkt_parse_type(type);
 

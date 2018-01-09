@@ -38,7 +38,7 @@
 #ifdef HAVE_PLUGINS
 
 
-static plugins_t *libwiretap_plugins;
+static plugins_t *libwiretap_plugins = NULL;
 static GSList *wtap_plugins = NULL;
 
 void
@@ -1427,14 +1427,16 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
  * Initialize the library.
  */
 void
-wtap_init(void)
+wtap_init(gboolean load_wiretap_plugins)
 {
 	init_open_routines();
 	wtap_opttypes_initialize();
 	wtap_init_encap_types();
 #ifdef HAVE_PLUGINS
-	libwiretap_plugins = plugins_init("wiretap");
-	g_slist_foreach(wtap_plugins, call_plugin_register_wtap_module, NULL);
+	if (load_wiretap_plugins) {
+		libwiretap_plugins = plugins_init("wiretap");
+		g_slist_foreach(wtap_plugins, call_plugin_register_wtap_module, NULL);
+	}
 #endif
 }
 

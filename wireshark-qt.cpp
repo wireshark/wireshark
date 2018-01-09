@@ -625,7 +625,7 @@ int main(int argc, char *qt_argv[])
                         open_failure_alert_box, read_failure_alert_box,
                         write_failure_alert_box);
 
-    wtap_init();
+    wtap_init(TRUE);
 
     splash_update(RA_DISSECTORS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME

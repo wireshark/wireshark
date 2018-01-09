@@ -145,7 +145,7 @@ main(int argc, char *argv[])
   init_report_message(failure_warning_message, failure_warning_message,
                       NULL, NULL, NULL);
 
-  wtap_init();
+  wtap_init(TRUE);
 
   /* Process the options */
   while ((opt = getopt_long(argc, argv, "hv", long_options, NULL)) !=-1) {
