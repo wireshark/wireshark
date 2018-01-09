@@ -1583,8 +1583,8 @@ lustre_get_trans(packet_info *pinfo, struct lnet_trans_info *info)
             trans = (lustre_trans_t *)ptr;
             REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
                                "ERROR: packet-lustre: conversation replaced: "
-                               "trans:{opcode:%u sub_opcode:%lu match_bits:%lx} "
-                               "with match_bits:%lx",
+                               "trans:{opcode:%u sub_opcode:%" G_GINT64_MODIFIER "u match_bits:%" G_GINT64_MODIFIER "x} "
+                               "with match_bits:%" G_GINT64_MODIFIER "x",
                                trans->opcode, trans->sub_opcode, trans->match_bits, info->match_bits));
         }
     }
@@ -1691,7 +1691,7 @@ dissect_struct_lu_fid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int hf
     tree = proto_item_add_subtree(item, ett_lustre_lu_fid);
 
     proto_tree_add_item_ret_uint64(tree, hf_lustre_lu_fid_f_seq, tvb, offset, 8, ENC_LITTLE_ENDIAN, &seq);
-    proto_item_append_text(item, ": [%#lx:", seq);
+    proto_item_append_text(item, ": [%#" G_GINT64_MODIFIER "x:", seq);
     offset += 8;
 
     proto_tree_add_item_ret_uint(tree, hf_lustre_lu_fid_f_oid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &val);
@@ -3864,7 +3864,7 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
     if (*pb_type == PTL_RPC_MSG_REQUEST)
         trans->opcode = opcode;
     else if (trans->opcode != opcode) {
-        expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "Mismatched: PTLRPC:%s != Conversation:%s (match_bits:%lx)",
+        expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "Mismatched: PTLRPC:%s != Conversation:%s (match_bits:%" G_GINT64_MODIFIER "x)",
                                val_to_str(opcode, lustre_op_codes, "Unknown(%d)"),
                                val_to_str(trans->opcode, lustre_op_codes, "Unknown(%d)"), trans->match_bits);
         trans->opcode = opcode;
