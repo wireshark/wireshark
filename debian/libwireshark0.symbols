@@ -1796,6 +1796,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_dbi@Base 2.3.0
  units_dbm@Base 2.3.0
  units_decibels@Base 2.3.0
+ units_degree_bearing@Base 2.5.0
  units_degree_celsius@Base 2.3.0
  units_degree_degrees@Base 2.3.0
  units_foot_feet@Base 2.3.0
