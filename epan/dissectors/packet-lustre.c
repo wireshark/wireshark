@@ -5676,6 +5676,7 @@ process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * t
         }
         if (pb_type == PTL_RPC_MSG_REPLY)
             offset = display_buffer_data(tvb, pinfo, offset, tree, LUSTRE_REC_OFF, NULL);
+        break;
     default:
         expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "UNKNOWN MDS OPCODE: %d (type: %d)", trans->opcode, pb_type);
         break;
@@ -5843,6 +5844,7 @@ process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * 
             /* REQ: [KEY][VAL] */
             offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_ldlm_key, LUSTRE_REC_OFF);
             offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_ldlm_val, LUSTRE_REC_OFF+1);
+            break;
         default:
             expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "UNKNOWN LDLM OPCODE: %d (type: %d)", trans->opcode, pb_type);
             break;
