@@ -279,12 +279,13 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     int         offset   = 0;
     guint16     type;
     guint16     length, data_length;
-    proto_item *tlvi     = NULL;
-    proto_tree *tlv_tree = NULL;
+    proto_item *tlvi;
+    proto_tree *tlv_tree;
     int         real_length;
     guint32     naddresses;
     guint32     power_avail_len, power_avail;
     guint32     power_req_len, power_req;
+    gboolean    first;
     int         addr_length;
     vec_t       cksum_vec[1];
 
@@ -342,6 +343,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset += 2;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
+        tlv_tree = NULL;
         type = tvb_get_ntohs(tvb, offset + TLV_TYPE);
         length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
         if (length < 4) {
@@ -739,57 +741,69 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             break;
 
         case TYPE_POWER_REQUESTED:
+            tlvi = NULL;
             if (tree) {
                 tlv_tree = proto_tree_add_subtree(cdp_tree, tvb,
-                                           offset, length, ett_cdp_tlv, NULL, "Power Request: ");
+                                           offset, length, ett_cdp_tlv, &tlvi,
+                                           "Power Request");
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_request_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_management_id, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
             }
-            power_req_len = (tvb_get_ntohs(tvb, offset + TLV_LENGTH)) - 8;
+            power_req_len = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
+            if (power_req_len < 8) {
+                offset += power_req_len;
+                break;
+            }
+            power_req_len -= 8;
             /* Move offset to where the list of Power Request Values Exist */
             offset += 8;
-            while(power_req_len) {
-                if (power_req_len > 4) {
-                    proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, ENC_BIG_ENDIAN, &power_req);
-                    proto_item_append_text(tlvi, "%u mW, ", power_req);
-                    power_req_len -= 4;
-                    offset += 4;
-                } else {
-                    if (power_req_len == 4) {
-                        proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, ENC_BIG_ENDIAN, &power_req);
-                        proto_item_append_text(tlvi, "%u mW", power_req);
-                    }
-                    offset += power_req_len;
-                    break;
-                }
+            first = TRUE;
+            while (power_req_len >= 4) {
+                proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, ENC_BIG_ENDIAN, &power_req);
+                if (first) {
+                    proto_item_append_text(tlvi, ": %u mW", power_req);
+                    first = FALSE;
+                } else
+                    proto_item_append_text(tlvi, ", %u mW", power_req);
+                power_req_len -= 4;
+                offset += 4;
             }
+            offset += power_req_len;
             break;
 
         case TYPE_POWER_AVAILABLE:
+            tlvi = NULL;
             if (tree) {
                 tlv_tree = proto_tree_add_subtree(cdp_tree, tvb,
-                                           offset, length, ett_cdp_tlv, NULL, "Power Available: ");
+                                           offset, length, ett_cdp_tlv, &tlvi,
+                                           "Power Available");
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_request_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_management_id, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
             }
-            power_avail_len = (tvb_get_ntohs(tvb, offset + TLV_LENGTH)) - 8;
+            power_avail_len = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
+            if (power_avail_len < 8) {
+                offset += power_avail_len;
+                break;
+            }
+            power_avail_len -= 8;
             /* Move offset to where the list of Power Available Values Exist */
             offset += 8;
-            while(power_avail_len) {
-                if (power_avail_len >= 4) {
-                    proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_available, tvb, offset, 4, ENC_BIG_ENDIAN, &power_avail);
-                    proto_item_append_text(tlvi, "%u mW, ", power_avail);
-                    power_avail_len -= 4;
-                    offset += 4;
-                } else {
-                    offset += power_avail_len;
-                    break;
-                }
+            first = TRUE;
+            while (power_avail_len >= 4) {
+                proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_available, tvb, offset, 4, ENC_BIG_ENDIAN, &power_avail);
+                if (first) {
+                    proto_item_append_text(tlvi, ": %u mW", power_avail);
+                    first = FALSE;
+                } else
+                    proto_item_append_text(tlvi, ", %u mW", power_avail);
+                power_avail_len -= 4;
+                offset += 4;
             }
+            offset += power_avail_len;
             break;
 
         case TYPE_NRGYZ:
