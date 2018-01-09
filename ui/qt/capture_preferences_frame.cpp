@@ -149,7 +149,6 @@ void CapturePreferencesFrame::on_captureAutoScrollCheckBox_toggled(bool checked)
 void CapturePreferencesFrame::on_captureNoExtcapCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_no_extcap_, checked, pref_stashed);
-    wsApp->refreshLocalInterfaces();
 }
 
 /*

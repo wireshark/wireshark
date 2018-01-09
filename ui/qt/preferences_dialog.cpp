@@ -89,6 +89,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 {
     advancedPrefsModel_.setSourceModel(&model_);
     modulePrefsModel_.setSourceModel(&model_);
+    saved_capture_no_extcap_ = prefs.capture_no_extcap;
 
     // Some classes depend on pref_ptr_to_pref_ so this MUST be called after
     // model_.populate().
@@ -266,6 +267,9 @@ void PreferencesDialog::on_buttonBox_accepted()
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         wsApp->queueAppSignal(WiresharkApplication::RecentPreferencesRead);
     }
+
+    if (prefs.capture_no_extcap != saved_capture_no_extcap_)
+        wsApp->refreshLocalInterfaces();
 }
 
 void PreferencesDialog::on_buttonBox_rejected()

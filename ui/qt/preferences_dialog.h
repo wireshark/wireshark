@@ -47,6 +47,7 @@ private:
     AdvancedPrefsModel advancedPrefsModel_;
     AdvancedPrefDelegate advancedPrefsDelegate_;
     ModulePrefsModel modulePrefsModel_;
+    gboolean saved_capture_no_extcap_;
 
 private slots:
     void selectPane(QString pane);
