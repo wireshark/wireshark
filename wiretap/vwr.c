@@ -581,7 +581,7 @@ static gboolean     vwr_read_rec_data_ethernet(vwr_t *, struct wtap_pkthdr *,
                                                int, int *, gchar **);
 
 static int          find_signature(const guint8 *, int, int, register guint32, register guint8);
-static guint64      get_signature_ts(const guint8 *, int);
+static guint64      get_signature_ts(const guint8 *, int, int);
 static float        getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 nss );
 
 /* Open a .vwr file for reading */
@@ -1033,8 +1033,8 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* extract the 32 LSBs of the signature timestamp field from the data block*/
     pay_off = 42;    /* 24 (MAC) + 8 (SNAP) + IP */
     sig_off = find_signature(m_ptr, rec_size - 6, pay_off, flow_id, flow_seq);
-    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - v22_W_STATS_LEN)))
-        sig_ts = get_signature_ts(m_ptr, sig_off);
+    if (m_ptr[sig_off] == 0xdd)
+        sig_ts = get_signature_ts(m_ptr, sig_off, rec_size - v22_W_STATS_LEN);
     else
         sig_ts = 0;
 
@@ -1453,8 +1453,8 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     m_ptr = &(rec[8+12]);
     pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
     sig_off = find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq);
-    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - vVW510021_W_STATS_TRAILER_LEN)))
-        sig_ts = get_signature_ts(m_ptr, sig_off);
+    if (m_ptr[sig_off] == 0xdd)
+        sig_ts = get_signature_ts(m_ptr, sig_off, rec_size - vVW510021_W_STATS_TRAILER_LEN);
     else
         sig_ts = 0;
 
@@ -1799,8 +1799,8 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     }
 
     sig_off = find_signature(m_ptr, rec_size, pay_off, flow_id, flow_seq);
-    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= msdu_length) && (f_flow != 0))
-        sig_ts = get_signature_ts(m_ptr, sig_off);
+    if ((m_ptr[sig_off] == 0xdd) && (f_flow != 0))
+        sig_ts = get_signature_ts(m_ptr, sig_off, msdu_length);
     else
         sig_ts = 0;
 
@@ -2275,10 +2275,13 @@ int find_signature(const guint8 *m_ptr, int rec_size, int pay_off, guint32 flow_
 }
 
 /* utility routine: harvest the signature time stamp from the data frame */
-guint64 get_signature_ts(const guint8 *m_ptr,int sig_off)
+guint64 get_signature_ts(const guint8 *m_ptr,int sig_off, int sig_max)
 {
     int     ts_offset;
     guint64 sig_ts;
+
+    if (sig_off + 15 >= sig_max)
+        return 0;
 
     if (m_ptr[sig_off + 15] == 0xe2)
         ts_offset = 5;
