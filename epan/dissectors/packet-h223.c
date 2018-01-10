@@ -735,11 +735,11 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
                          h223_call_info* call_info, guint16 vc,
                          gboolean end_of_mux_sdu, endpoint_type orig_etype, guint32 orig_circuit)
 {
-    /* update the circuit details before passing to a subdissector */
-    guint32 circuit_id = circuit_chain_lookup(call_info, vc);
-    conversation_create_endpoint_by_id(pinfo, ENDPOINT_H223, circuit_id, 0);
-
     TRY {
+        /* update the circuit details before passing to a subdissector */
+        guint32 circuit_id = circuit_chain_lookup(call_info, vc);
+        conversation_create_endpoint_by_id(pinfo, ENDPOINT_H223, circuit_id, 0);
+
         conversation_t *subcircuit = find_conversation_by_id(pinfo->num, ENDPOINT_H223, circuit_id, 0);
         proto_tree *vc_tree;
         proto_item *vc_item;
