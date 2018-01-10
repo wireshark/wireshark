@@ -2335,7 +2335,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
             offset = dissect_struct_lov_desc(tvb, offset, tree);
             break;
         }
-        // else FALL THROUGH
+        // ELSE FALL THROUGH
     default:
         for (i = 0; i < count; ++i) {
             len = tvb_get_letohl(tvb, buf_offset+(4*i));
