@@ -327,6 +327,18 @@ test_dump_glossary_utf8() {
 	fi
 }
 
+test_dump_glossary_plugins() {
+	# We do a similar test in fuzz-test.sh.
+	$TSHARK -G plugins > /dev/null 2> ./testout.txt
+	PLUGIN_COUNT=$( grep dissectors ./testout.txt | wc -l )
+	if [ $PLUGIN_COUNT -lt 10 ] ; then
+		test_step_output_print ./testout.txt
+		test_step_failed "Fewer than 10 dissector plugins found"
+	else
+		test_step_ok
+	fi
+}
+
 # check that dumping the glossaries succeeds (at least doesn't crash)
 # this catches extended value strings without the BASE_EXT_STRING flag
 # among other problems
@@ -335,6 +347,7 @@ clopts_suite_dump_glossaries() {
 		test_step_add "Dumping $glossary glossary" "test_dump_glossary $glossary"
 		test_step_add "Testing $glossary output encoding" "test_dump_glossary_utf8 $glossary"
 	done
+	test_step_add "Testing plugins" test_dump_glossary_plugins
 }
 
 # check exit status of some basic functions
