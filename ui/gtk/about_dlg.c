@@ -397,10 +397,8 @@ about_folders_page_new(void)
   char                 *path;
   static const gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget            *scrolledwindow;
-#if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP)
   gint                  i;
   gchar               **resultArray;
-#endif
 #if 0
   const gchar *const  *dirs;
 #endif
