@@ -16,12 +16,17 @@ The following bugs have been fixed:
 
 * ws-salink:2018-01[]
 +
-A dissector went awry.
-(ws-buglink:xxxx[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: xxxx
-// Fixed in master-2.4: xxxx
-// Fixed in master-2.2: xxxx
+Multiple dissectors could crash.
+(ws-buglink:14253[])
+// cve-idlink:2018-xxxx[]
+// Fixed in master: 94479aded1, c51560985a
+// Fixed in master-2.4: 374e3d4bcf, 87d86189cc
+// Fixed in master-2.2: 4f4c95cf46, f6702e49a9
+
+Prior to this release dumpcap enabled the Linux kernel's BPF JIT
+compiler via the `net.core.bpf_jit_enable` sysctl. This could make
+systems more vulnerable to Spectre variant 1 (cve-idlink:2017-5753[])
+and this feature has been removed (ws-buglink:14313[]).
 
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
@@ -31,6 +36,8 @@ A dissector went awry.
 
 * Some keyboard shortcut mix-up has been resolved by assigning new shortcuts
   to Edit -> Copy methods.
+
+* Remote interfaces are not saved. (ws-buglink:8557[])
 
 * Additional grouping in Expert Information dialog. (ws-buglink:11753[])
 
@@ -47,6 +54,8 @@ A dissector went awry.
 * Wireshark & Tshark 2.4.2 core dumps with segmentation fault. (ws-buglink:14194[])
 
 * SSH remote capture promiscuous mode. (ws-buglink:14237[])
+
+* Heap out of bounds read in wcp_uncompress(). (ws-buglink:14251[])
 
 * SOCKS pseudo header displays incorrect Version value. (ws-buglink:14262[])
 
