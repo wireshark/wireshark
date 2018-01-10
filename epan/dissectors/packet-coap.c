@@ -667,7 +667,7 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 	    tvb, offset, opt_length, coinfo->block_number);
 
 	/* More flag in the end of the option */
-	coinfo->block_mflag = val & COAP_BLOCK_MFLAG_MASK;
+	coinfo->block_mflag = (val & COAP_BLOCK_MFLAG_MASK) >> 3;
 	proto_tree_add_uint(subtree, hf_coap_opt_block_mflag,
 	    tvb, offset + opt_length - 1, 1, coinfo->block_mflag);
 
