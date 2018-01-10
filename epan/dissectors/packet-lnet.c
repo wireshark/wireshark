@@ -400,8 +400,9 @@ dissect_csum(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int offset, g
         break;
 
     default:
-        expert_add_info_format(pinfo, NULL, &ei_lnet_type, "Checksum for unprocessed type: %s",
-                               val_to_str(lnd_type, lndnames, "Unknown(%d)"));
+        ti = proto_tree_add_expert_format(tree, pinfo, &ei_lnet_type, tvb, offset, 4,
+                                          "Checksum for unprocessed type: %s",
+                                          val_to_str(lnd_type, lndnames, "Unknown(%d)"));
         break;
     }
 
