@@ -16,7 +16,7 @@ The following vulnerabilities have been fixed:
 +
 Multiple dissectors could crash.
 (ws-buglink:14253[])
-// cve-idlink:2018-xxxx[]
+cve-idlink:2018-5336[]
 // Fixed in master: 94479aded1, c51560985a
 // Fixed in master-2.4: 374e3d4bcf, 87d86189cc
 // Fixed in master-2.2: 4f4c95cf46, f6702e49a9
@@ -24,10 +24,29 @@ Multiple dissectors could crash.
 * ws-salink:2018-02[]
 +
 The MRDISC dissector could crash.
-(ws-buglink:14299[])
-// cve-idlink:2018-xxxx[]
+(ws-buglink:14299[], ws-buglink:13707[])
+cve-idlink:2017-17997[]
 // Fixed in master: c486707b1e
+// Fixed in master-2.4: n/a
 // Fixed in master-2.2: 80a695869c
+
+* ws-salink:2018-03[]
++
+The IxVeriWave file parser could crash.
+(ws-buglink:14297[])
+cve-idlink:2018-5334[]
+// Fixed in master: 5dbc1d8d1c
+// Fixed in master-2.4: d6b2f2a6ce
+// Fixed in master-2.2: dc308c05ba
+
+* ws-salink:2018-04[]
++
+The WCP dissector could crash.
+(ws-buglink:14251[])
+cve-idlink:2018-5335[]
+// Fixed in master: a7e29d8b66
+// Fixed in master-2.4: 568ccd2250
+// Fixed in master-2.2: 086b87376b
 
 Prior to this release dumpcap enabled the Linux kernel's BPF JIT
 compiler via the `net.core.bpf_jit_enable` sysctl. This could make
@@ -44,13 +63,9 @@ The following bugs have been fixed:
 
 * First start with non-empty extcap folder after install or reboot hangs at "initializing tap listeners". (ws-buglink:12845[])
 
-* [oss-fuzz] UBSAN: null pointer passed as argument 1, which is declared to never be null in packet-mrdisc.c:183:13. (ws-buglink:13707[])
-
 * SIP Statistics extract does not work. (ws-buglink:13942[])
 
 * Service Response Time - SCSI dialog crashes. (ws-buglink:14144[])
-
-* Heap out of bounds read in wcp_uncompress(). (ws-buglink:14251[])
 
 * SOCKS pseudo header displays incorrect Version value. (ws-buglink:14262[])
 
@@ -61,8 +76,6 @@ The following bugs have been fixed:
 * There is a potential buffer underflow in File_read_line function in epan/wslua/wslua_file.c file. (ws-buglink:14295[])
 
 * Saving a temporary capture file may not result in the temporary file being removed. (ws-buglink:14298[])
-
-* There should be an invalid check for pinfo->dst in mrdisc. (ws-buglink:14299[])
 
 === New and Updated Features
 
@@ -90,9 +103,10 @@ WCP
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+//There is no new or updated capture file support in this release.
+--sort-and-group--
+Ixia IxVeriWave
+--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
