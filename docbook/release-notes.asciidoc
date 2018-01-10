@@ -18,10 +18,28 @@ The following bugs have been fixed:
 +
 Multiple dissectors could crash.
 (ws-buglink:14253[])
-// cve-idlink:2018-xxxx[]
+cve-idlink:2018-5336[]
 // Fixed in master: 94479aded1, c51560985a
 // Fixed in master-2.4: 374e3d4bcf, 87d86189cc
 // Fixed in master-2.2: 4f4c95cf46, f6702e49a9
+
+* ws-salink:2018-03[]
++
+The IxVeriWave file parser could crash.
+(ws-buglink:14297[])
+cve-idlink:2018-5334[]
+// Fixed in master: 5dbc1d8d1c
+// Fixed in master-2.4: d6b2f2a6ce
+// Fixed in master-2.2: dc308c05ba
+
+* ws-salink:2018-04[]
++
+The WCP dissector could crash.
+(ws-buglink:14251[])
+cve-idlink:2018-5335[]
+// Fixed in master: a7e29d8b66
+// Fixed in master-2.4: 568ccd2250
+// Fixed in master-2.2: 086b87376b
 
 Prior to this release dumpcap enabled the Linux kernel's BPF JIT
 compiler via the `net.core.bpf_jit_enable` sysctl. This could make
@@ -32,7 +50,7 @@ and this feature has been removed (ws-buglink:14313[]).
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.4rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.5rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 * Some keyboard shortcut mix-up has been resolved by assigning new shortcuts
   to Edit -> Copy methods.
@@ -54,8 +72,6 @@ and this feature has been removed (ws-buglink:14313[]).
 * Wireshark & Tshark 2.4.2 core dumps with segmentation fault. (ws-buglink:14194[])
 
 * SSH remote capture promiscuous mode. (ws-buglink:14237[])
-
-* Heap out of bounds read in wcp_uncompress(). (ws-buglink:14251[])
 
 * SOCKS pseudo header displays incorrect Version value. (ws-buglink:14262[])
 
@@ -96,13 +112,15 @@ NTP
 SCTP
 SOCKS
 UDS
+WCP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+//There is no new or updated capture file support in this release.
+--sort-and-group--
+Ixia IxVeriWave
+--sort-and-group--
 
 //=== New and Updated Capture Interfaces support
 
