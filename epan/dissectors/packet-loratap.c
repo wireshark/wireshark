@@ -147,6 +147,7 @@ void
 proto_reg_handoff_loratap(void)
 {
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_LORATAP, loratap_handle);
+	dissector_add_for_decode_as("udp.port", loratap_handle);
 }
 
 void
