@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0+
  *
- * References: 3GPP TS 24.301 V15.1.0 (2017-12)
+ * References: 3GPP TS 24.301 V15.1.1 (2017-12)
  */
 
 #include "config.h"
@@ -3926,8 +3926,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
-    /* X-   Network policy Network policy 9.9.3.52 O TV 1 */
-    /*ELEM_OPT_TV_SHORT(0xX0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);*/
+    /* C-   Network policy Network policy 9.9.3.52 O TV 1 */
+    ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4058,8 +4058,8 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
-    /* XX   UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
-    /*ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);*/
+    /* 6F   UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
+    ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4522,8 +4522,8 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     ELEM_OPT_TV(0x56, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - NonceMME");
     /* 4F   HashMME     HashMME 9.9.3.50  O   TLV  10 */
     ELEM_OPT_TLV(0x4F, NAS_PDU_TYPE_EMM, DE_EMM_HASH_MME, NULL);
-    /* XX   Replayed UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
-    /*ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, " - Replayed UE additional security capability");*/
+    /* 6F   Replayed UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
+    ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, " - Replayed UE additional security capability");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4698,8 +4698,8 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
-    /* X-   Network policy Network policy 9.9.3.52 O TV 1 */
-    /*ELEM_OPT_TV_SHORT(0xX0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);*/
+    /* C-   Network policy Network policy 9.9.3.52 O TV 1 */
+    ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4816,8 +4816,8 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
-    /* XX   UE additional security capability UE additional security capability 9.9.3.53 O TLV 8 */
-    /*ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);*/
+    /* 6F   UE additional security capability UE additional security capability 9.9.3.53 O TLV 8 */
+    ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
