@@ -396,11 +396,12 @@ AboutDialog::~AboutDialog()
     delete ui;
 }
 
-void AboutDialog::resizeEvent(QResizeEvent * event)
+void AboutDialog::showEvent(QShowEvent * event)
 {
     QList<QWidget *> pages;
 
-    pages << ui->tab_authors << ui->tab_folders << ui->tab_plugins << ui->tab_shortcuts;
+    // Authors, Folders & Shortcuts: Equal-sized columns.
+    pages << ui->tab_authors << ui->tab_folders << ui->tab_shortcuts;
 
     foreach ( QWidget * tabPage, pages )
     {
@@ -416,7 +417,14 @@ void AboutDialog::resizeEvent(QResizeEvent * event)
         tree->header()->setStretchLastSection(true);
     }
 
-    QDialog::resizeEvent(event);
+    // Plugins: Content-sized columns
+
+    QAbstractItemModel *model = ui->tblPlugins->model();
+    for (int col = 0; col < model->columnCount() - 1; col++) {
+        ui->tblPlugins->resizeColumnToContents(col);
+    }
+
+    QDialog::showEvent(event);
 }
 
 void AboutDialog::urlClicked(const QModelIndex &idx)

@@ -87,7 +87,7 @@ public:
     ~AboutDialog();
 
 protected:
-    virtual void resizeEvent(QResizeEvent *);
+    virtual void showEvent(QShowEvent *);
 
 private:
     Ui::AboutDialog *ui;
