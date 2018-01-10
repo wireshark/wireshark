@@ -347,7 +347,7 @@ static value_string_ext quic_old_error_code_vals_ext = VALUE_STRING_EXT_INIT(qui
 #define QUIC_TRANSPORT_PARAMETER_ERROR  0x0008
 #define QUIC_VERSION_NEGOTIATION_ERROR  0x0009
 #define QUIC_PROTOCOL_VIOLATION         0x000A
-
+#define QUIC_UNSOLICITED_PONG           0x000B
 static const value_string quic_error_code_vals[] = {
     { QUIC_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error.)" },
     { QUIC_INTERNAL_ERROR, "INTERNAL_ERROR (The endpoint encountered an internal error and cannot continue with the connection)" },
@@ -359,6 +359,7 @@ static const value_string quic_error_code_vals[] = {
     { QUIC_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
     { QUIC_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
     { QUIC_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
+    { QUIC_UNSOLICITED_PONG, "An endpoint received a PONG frame that did not correspond to any PING frame that it previously sent" },
     { 0, NULL }
 };
 static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
