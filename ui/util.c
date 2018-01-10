@@ -53,6 +53,9 @@ get_args_as_string(int argc, char **argv, int optindex)
     int i;
     char *argstring;
 
+    /* We don't allow a null-list call */
+    g_assert(argc - optindex > 0);
+
     /*
      * Find out how long the string will be.
      */
