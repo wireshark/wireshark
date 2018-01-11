@@ -245,7 +245,7 @@ void wimax_proto_register_wimax_pdu(void)
 }
 
 void
-proto_reg_handoff_wimax_pdu(void)
+wimax_proto_reg_handoff_wimax_pdu(void)
 {
 	mac_generic_decoder_handle = find_dissector("mac_header_generic_handler");
 	mac_header_type1_handle = find_dissector("mac_header_type_1_handler");

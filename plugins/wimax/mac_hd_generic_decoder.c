@@ -2292,7 +2292,7 @@ void wimax_proto_register_mac_header_generic(void)
 }
 
 void
-proto_reg_handoff_mac_header_generic(void)
+wimax_proto_reg_handoff_mac_header_generic(void)
 {
 	mac_mgmt_msg_decoder_handle = find_dissector("wmx_mac_mgmt_msg_decoder");
 	mac_ip_handle = find_dissector("ip");

@@ -36,4 +36,7 @@ void wimax_proto_register_mac_header_generic(void);
 void wimax_proto_register_mac_header_type_1(void);
 void wimax_proto_register_mac_header_type_2(void);
 
+void wimax_proto_reg_handoff_wimax_pdu(void);
+void wimax_proto_reg_handoff_mac_header_generic(void);
+
 #endif

@@ -352,6 +352,18 @@ void proto_register_wimax(void)
 }
 
 /*
+ * If we're going to give the register routines for the above files special
+ * names to ensure that they're called in the above order in the above
+ * routine, we have to do the same with their handoff routines, if they
+ * have any - that's the way the registration generation stuff now works.
+ */
+void proto_reg_handoff_wimax(void)
+{
+	wimax_proto_reg_handoff_wimax_pdu();
+	wimax_proto_reg_handoff_mac_header_generic();
+}
+
+/*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
