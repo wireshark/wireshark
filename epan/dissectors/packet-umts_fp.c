@@ -27,9 +27,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/uat.h>
 #include <epan/conversation.h>
-#include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 
 #include <wsutil/crc7.h> /* For FP data header and control frame CRC. */
@@ -54,10 +52,6 @@
  */
 void proto_register_fp(void);
 void proto_reg_handoff_fp(void);
-
-
-#define UMTS_FP_IPV4 1
-#define UMTS_FP_IPV6 2
 
 /* Initialize the protocol and registered fields. */
 
@@ -261,28 +255,6 @@ static gboolean preferences_payload_checksum = TRUE;
 static gboolean preferences_header_checksum = TRUE;
 static gboolean preferences_track_paging_indications = TRUE;
 
-#define UMTS_FP_USE_UAT 1
-
-#ifdef UMTS_FP_USE_UAT
-/* UAT entry structure. */
-typedef struct {
-   guint8 protocol;
-   gchar *srcIP;
-   guint16 src_port;
-   gchar *dstIP;
-   guint16 dst_port;
-   guint8 interface_type;
-   guint8 division;
-   guint8 rlc_mode;
-   guint8 channel_type;
-} uat_umts_fp_ep_and_ch_record_t;
-
-static uat_umts_fp_ep_and_ch_record_t *uat_umts_fp_ep_and_ch_records = NULL;
-
-static uat_t *umts_fp_uat = NULL;
-static guint  num_umts_fp_ep_and_ch_items = 0;
-
-#endif /* UMTS_FP_USE_UAT */
 /* E-DCH (T1) channel header information */
 struct edch_t1_subframe_info
 {
@@ -5819,120 +5791,6 @@ dissect_fp_aal2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return dissect_fp_common(tvb, pinfo, tree, data);
 }
 
-#ifdef UMTS_FP_USE_UAT
-UAT_VS_DEF(uat_umts_fp_ep_and_ch_records, protocol, uat_umts_fp_ep_and_ch_record_t, guint8, UMTS_FP_IPV4, "IPv4")
-UAT_CSTRING_CB_DEF(uat_umts_fp_ep_and_ch_records, srcIP, uat_umts_fp_ep_and_ch_record_t)
-UAT_DEC_CB_DEF(uat_umts_fp_ep_and_ch_records, src_port, uat_umts_fp_ep_and_ch_record_t)
-UAT_CSTRING_CB_DEF(uat_umts_fp_ep_and_ch_records, dstIP, uat_umts_fp_ep_and_ch_record_t)
-UAT_DEC_CB_DEF(uat_umts_fp_ep_and_ch_records, dst_port, uat_umts_fp_ep_and_ch_record_t)
-UAT_VS_DEF(uat_umts_fp_ep_and_ch_records, interface_type, uat_umts_fp_ep_and_ch_record_t, guint8, IuB_Interface, "IuB Interface")
-UAT_VS_DEF(uat_umts_fp_ep_and_ch_records, division, uat_umts_fp_ep_and_ch_record_t, guint8, Division_FDD, "Division FDD")
-UAT_VS_DEF(uat_umts_fp_ep_and_ch_records, rlc_mode, uat_umts_fp_ep_and_ch_record_t, guint8, FP_RLC_TM, "RLC mode")
-UAT_VS_DEF(uat_umts_fp_ep_and_ch_records, channel_type, uat_umts_fp_ep_and_ch_record_t, guint8, CHANNEL_RACH_FDD, "RACH FDD")
-
-static void *uat_umts_fp_record_copy_cb(void *n, const void *o, size_t siz _U_) {
-    uat_umts_fp_ep_and_ch_record_t *new_rec = (uat_umts_fp_ep_and_ch_record_t *)n;
-    const uat_umts_fp_ep_and_ch_record_t *old_rec = (const uat_umts_fp_ep_and_ch_record_t *)o;
-
-    new_rec->srcIP = g_strdup(old_rec->srcIP);
-    new_rec->dstIP = g_strdup(old_rec->dstIP);
-
-    return new_rec;
-}
-
-static void uat_umts_fp_record_free_cb(void*r) {
-    uat_umts_fp_ep_and_ch_record_t *rec = (uat_umts_fp_ep_and_ch_record_t *)r;
-
-    g_free(rec->srcIP);
-    g_free(rec->dstIP);
-}
-/*
- * Set up UAT predefined conversations for specified channels
- *  typedef struct {
- *    guint8 protocol;
- *    gchar *srcIP;
- *    guint16 src_port;
- *    gchar *dstIP;
- *    guint16 dst_port;
- *    guint8 interface_type;
- *    guint8 division;
- *    guint8 rlc_mode;
- *    guint8 channel_type;
- * } uat_umts_fp_ep_and_ch_record_t;
- */
-static void
-umts_fp_init_protocol(void)
-{
-    guint32 hosta_addr[4];
-    guint32 hostb_addr[4];
-    address     src_addr, dst_addr;
-    conversation_t *conversation;
-    umts_fp_conversation_info_t *umts_fp_conversation_info;
-    guint i, j, num_tf;
-
-    for (i=0; i<num_umts_fp_ep_and_ch_items; i++) {
-        /* check if we have a conversation allready */
-
-        /* Convert the strings to ADDR */
-        if (uat_umts_fp_ep_and_ch_records[i].protocol == UMTS_FP_IPV4) {
-            if ((uat_umts_fp_ep_and_ch_records[i].srcIP) && (!str_to_ip(uat_umts_fp_ep_and_ch_records[i].srcIP, &hosta_addr))) {
-                continue; /* parsing failed, skip this entry */
-            }
-            if ((uat_umts_fp_ep_and_ch_records[i].dstIP) && (!str_to_ip(uat_umts_fp_ep_and_ch_records[i].dstIP, &hostb_addr))) {
-                continue; /* parsing failed, skip this entry */
-            }
-            set_address(&src_addr, AT_IPv4, 4, &hosta_addr);
-            set_address(&dst_addr, AT_IPv4, 4, &hostb_addr);
-        } else {
-            continue; /* Not implemented yet */
-        }
-        conversation = find_conversation(1, &src_addr, &dst_addr, ENDPOINT_UDP, uat_umts_fp_ep_and_ch_records[i].src_port, 0, NO_ADDR2|NO_PORT2);
-        if (conversation == NULL) {
-            /* It's not part of any conversation - create a new one. */
-            conversation = conversation_new(1, &src_addr, &dst_addr, ENDPOINT_UDP, uat_umts_fp_ep_and_ch_records[i].src_port, 0, NO_ADDR2|NO_PORT2);
-            if (conversation == NULL)
-                continue;
-            conversation_set_dissector(conversation, fp_handle);
-            switch (uat_umts_fp_ep_and_ch_records[i].channel_type) {
-            case CHANNEL_RACH_FDD:
-                /* set up conversation info for RACH FDD channels */
-                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
-                /* Fill in the data */
-                umts_fp_conversation_info->iface_type        = (enum fp_interface_type)uat_umts_fp_ep_and_ch_records[i].interface_type;
-                umts_fp_conversation_info->division          = (enum division_type) uat_umts_fp_ep_and_ch_records[i].division;
-                umts_fp_conversation_info->channel           = uat_umts_fp_ep_and_ch_records[i].channel_type;
-                umts_fp_conversation_info->dl_frame_number   = 0;
-                umts_fp_conversation_info->ul_frame_number   = 1;
-                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &src_addr);
-                umts_fp_conversation_info->crnc_port         = uat_umts_fp_ep_and_ch_records[i].src_port;
-                umts_fp_conversation_info->rlc_mode          = (enum fp_rlc_mode) uat_umts_fp_ep_and_ch_records[i].rlc_mode;
-                /*Save unique UE-identifier */
-                umts_fp_conversation_info->com_context_id = 1;
-
-
-                /* DCH's in this flow */
-                umts_fp_conversation_info->dch_crc_present = 2;
-                /* Set data for First or single channel */
-                umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = 1;
-
-                for (j = 0; j < num_tf; j++) {
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = 168;
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = 1;
-                }
-
-                umts_fp_conversation_info->dch_ids_in_flow_list[0] = 1;
-                umts_fp_conversation_info->num_dch_in_flow=1;
-                set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
-            default:
-                break;
-            }
-        }
-    }
-}
-
-
-#endif /* UMTS_FP_USE_UAT */
-
 void proto_register_fp(void)
 {
     static hf_register_info hf[] =
@@ -6924,45 +6782,6 @@ void proto_register_fp(void)
     module_t *fp_module;
     expert_module_t *expert_fp;
 
-#ifdef UMTS_FP_USE_UAT
-    /* Define a UAT to set channel configuration data */
-
-  static const value_string umts_fp_proto_type_vals[] = {
-    { UMTS_FP_IPV4, "IPv4" },
-    { UMTS_FP_IPV6, "IPv6" },
-    { 0x00, NULL }
-  };
-  static const value_string umts_fp_uat_channel_type_vals[] = {
-    { CHANNEL_RACH_FDD, "RACH FDD" },
-    { 0x00, NULL }
-  };
-  static const value_string umts_fp_uat_interface_type_vals[] = {
-    { IuB_Interface, "IuB Interface" },
-    { 0x00, NULL }
-  };
-  static const value_string umts_fp_uat_division_type_vals[] = {
-    { Division_FDD, "Division FDD" },
-    { 0x00, NULL }
-  };
-
-  static const value_string umts_fp_uat_rlc_mode_vals[] = {
-    { FP_RLC_TM, "FP RLC TM" },
-    { 0x00, NULL }
-  };
-
-  static uat_field_t umts_fp_uat_flds[] = {
-      UAT_FLD_VS(uat_umts_fp_ep_and_ch_records, protocol, "IP address type", umts_fp_proto_type_vals, "IPv4 or IPv6"),
-      UAT_FLD_CSTRING(uat_umts_fp_ep_and_ch_records, srcIP, "RNC IP Address", "Source Address"),
-      UAT_FLD_DEC(uat_umts_fp_ep_and_ch_records, src_port, "RNC port for this channel", "Source port"),
-      UAT_FLD_CSTRING(uat_umts_fp_ep_and_ch_records, dstIP, "NodeB IP Address", "Destination Address"),
-      UAT_FLD_DEC(uat_umts_fp_ep_and_ch_records, dst_port, "NodeB port for this channel", "Destination port"),
-      UAT_FLD_VS(uat_umts_fp_ep_and_ch_records, interface_type, "Interface type", umts_fp_uat_interface_type_vals, "Interface type used"),
-      UAT_FLD_VS(uat_umts_fp_ep_and_ch_records, division, "division", umts_fp_uat_division_type_vals, "Division type used"),
-      UAT_FLD_VS(uat_umts_fp_ep_and_ch_records, channel_type, "Channel type", umts_fp_uat_channel_type_vals, "Channel type used"),
-      UAT_FLD_VS(uat_umts_fp_ep_and_ch_records, rlc_mode, "RLC mode", umts_fp_uat_rlc_mode_vals, "RLC mode used"),
-      UAT_END_FIELDS
-    };
-#endif /* UMTS_FP_USE_UAT */
     /* Register protocol. */
     proto_fp = proto_register_protocol("FP", "FP", "fp");
     proto_register_field_array(proto_fp, hf, array_length(hf));
@@ -7003,31 +6822,7 @@ void proto_register_fp(void)
                                     "For each PCH data frame, Try to show the paging indications bitmap found in the previous frame",
                                     &preferences_track_paging_indications);
     prefs_register_obsolete_preference(fp_module, "udp_heur");
-#ifdef UMTS_FP_USE_UAT
-
-  umts_fp_uat = uat_new("Endpoint and Channel Configuration",
-            sizeof(uat_umts_fp_ep_and_ch_record_t),   /* record size */
-            "umts_fp_ep_and_channel_cnf",     /* filename */
-            TRUE,                             /* from_profile */
-            &uat_umts_fp_ep_and_ch_records,   /* data_ptr */
-            &num_umts_fp_ep_and_ch_items,     /* numitems_ptr */
-            UAT_AFFECTS_DISSECTION,           /* affects dissection of packets, but not set of named fields */
-            NULL,                             /* help */
-            uat_umts_fp_record_copy_cb,       /* copy callback */
-            NULL,                             /* update callback */
-            uat_umts_fp_record_free_cb,       /* free callback */
-            NULL,                             /* post update callback */
-            NULL,                             /* reset callback */
-            umts_fp_uat_flds);                /* UAT field definitions */
-
-  prefs_register_uat_preference(fp_module,
-                                "epandchannelconfigurationtable",
-                                "Endpoints and Radio Channels configuration",
-                                "Preconfigured endpoint and Channels data",
-                                umts_fp_uat);
-
-  register_init_routine(&umts_fp_init_protocol);
-#endif
+    prefs_register_obsolete_preference(fp_module, "epandchannelconfigurationtable");
 
 }
 
