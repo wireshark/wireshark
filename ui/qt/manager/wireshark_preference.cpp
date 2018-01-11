@@ -55,7 +55,7 @@ public:
         return WiresharkPreference::editor(parent, option, index);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_BOOL, BoolPreference);
+REGISTER_PREFERENCE_TYPE(PREF_BOOL, BoolPreference)
 
 class StringPreference : public WiresharkPreference
 {
@@ -78,15 +78,15 @@ public:
         model->setData(index, line->text(), Qt::EditRole);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_STRING, StringPreference);
+REGISTER_PREFERENCE_TYPE(PREF_STRING, StringPreference)
 
 class UIntPreference : public StringPreference
 {
 public:
     UIntPreference(QObject * parent = Q_NULLPTR) : StringPreference(parent) {}
 };
-REGISTER_PREFERENCE_TYPE(PREF_UINT, UIntPreference);
-REGISTER_PREFERENCE_TYPE(PREF_DECODE_AS_UINT, UIntPreference);
+REGISTER_PREFERENCE_TYPE(PREF_UINT, UIntPreference)
+REGISTER_PREFERENCE_TYPE(PREF_DECODE_AS_UINT, UIntPreference)
 
 class EnumPreference : public WiresharkPreference
 {
@@ -115,7 +115,7 @@ public:
         model->setData(index, combo->itemData(combo->currentIndex()), Qt::EditRole);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_ENUM, EnumPreference);
+REGISTER_PREFERENCE_TYPE(PREF_ENUM, EnumPreference)
 
 class RangePreference : public WiresharkPreference
 {
@@ -138,8 +138,8 @@ public:
         model->setData(index, syntax->text(), Qt::EditRole);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_RANGE, RangePreference);
-REGISTER_PREFERENCE_TYPE(PREF_DECODE_AS_RANGE, RangePreference);
+REGISTER_PREFERENCE_TYPE(PREF_RANGE, RangePreference)
+REGISTER_PREFERENCE_TYPE(PREF_DECODE_AS_RANGE, RangePreference)
 
 class ColorPreference : public WiresharkPreference
 {
@@ -161,7 +161,7 @@ public:
         return WiresharkPreference::editor(parent, option, index);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_COLOR, ColorPreference);
+REGISTER_PREFERENCE_TYPE(PREF_COLOR, ColorPreference)
 
 class SaveFilePreference : public WiresharkPreference
 {
@@ -177,7 +177,7 @@ public:
         return WiresharkPreference::editor(parent, option, index);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_SAVE_FILENAME, SaveFilePreference);
+REGISTER_PREFERENCE_TYPE(PREF_SAVE_FILENAME, SaveFilePreference)
 
 class OpenFilePreference : public WiresharkPreference
 {
@@ -193,7 +193,7 @@ public:
         return WiresharkPreference::editor(parent, option, index);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_OPEN_FILENAME, OpenFilePreference);
+REGISTER_PREFERENCE_TYPE(PREF_OPEN_FILENAME, OpenFilePreference)
 
 class DirNamePreference : public WiresharkPreference
 {
@@ -209,7 +209,7 @@ public:
         return WiresharkPreference::editor(parent, option, index);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_DIRNAME, DirNamePreference);
+REGISTER_PREFERENCE_TYPE(PREF_DIRNAME, DirNamePreference)
 
 class UatPreference : public WiresharkPreference
 {
@@ -224,7 +224,7 @@ public:
         return WiresharkPreference::editor(parent, option, index);
     };
 };
-REGISTER_PREFERENCE_TYPE(PREF_UAT, UatPreference);
+REGISTER_PREFERENCE_TYPE(PREF_UAT, UatPreference)
 
 
 /*
