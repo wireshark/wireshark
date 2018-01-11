@@ -3529,7 +3529,8 @@ static const range_string nas_eps_ext_apn_ambr_unit_vals[] = {
     { 0, 0, NULL }
 };
 
-guint32 get_ext_ambr_unit(guint32 byte, const char **unit_str)
+static guint32
+get_ext_ambr_unit(guint32 byte, const char **unit_str)
 {
     guint32 mult;
 
@@ -3609,7 +3610,8 @@ static const range_string nas_eps_ext_eps_qos_unit_vals[] = {
     { 0, 0, NULL }
 };
 
-guint32 get_ext_eps_qos_unit(guint32 byte, const char **unit_str)
+static guint32
+get_ext_eps_qos_unit(guint32 byte, const char **unit_str)
 {
     guint32 mult;
 
