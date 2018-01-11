@@ -329,8 +329,8 @@ test_dump_glossary_utf8() {
 
 test_dump_glossary_plugins() {
 	# We do a similar test in fuzz-test.sh.
-	$TSHARK -G plugins > /dev/null 2> ./testout.txt
-	PLUGIN_COUNT=$( grep dissectors ./testout.txt | wc -l )
+	$TSHARK -G plugins > ./testout.txt 2> /dev/null
+	PLUGIN_COUNT=$( grep dissector ./testout.txt | wc -l )
 	if [ $PLUGIN_COUNT -lt 10 ] ; then
 		test_step_output_print ./testout.txt
 		test_step_failed "Fewer than 10 dissector plugins found"
