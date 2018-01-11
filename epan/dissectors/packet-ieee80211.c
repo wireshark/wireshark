@@ -19802,6 +19802,7 @@ static const value_string keydes_version_vals[] = {
 
 static int proto_wlan_rsna_eapol = -1;
 
+static int hf_wlan_rsna_eapol_wpa_keydes_msgnr = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_keydes_version = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_type = -1;
@@ -19869,9 +19870,12 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     switch (masked) {
     case KEY_INFO_KEY_ACK_MASK:
+    {
+      ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 1);
+
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
       break;
-
+    }
     case KEY_INFO_KEY_MIC_MASK:
       /* We check the key length to differentiate between message 2 and 4 and just hope that
       there are no strange implementations with key data and non-zero key length in message 4.
@@ -19879,22 +19883,38 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       use the Secure Bit and/or the Nonce, but there are implementations ignoring the spec.
       The Secure Bit is incorrectly set on rekeys for Windows clients for Message 2 and the Nonce is non-zero
       in Message 4 in Bug 11994 (Apple?) */
-      if (eapol_data_len)
+      if (eapol_data_len) {
+        ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
+
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
-      else
+      } else {
+        ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 4);
+
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+      }
       break;
 
     case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK):
+    {
+      ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 3);
+
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
       break;
     }
+    }
   } else {
-    if (keyinfo & KEY_INFO_KEY_ACK_MASK)
+    if (keyinfo & KEY_INFO_KEY_ACK_MASK) {
+      ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 1);
+
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 1 of 2)");
-    else
+    } else {
+      ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
+
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 2 of 2)");
+    }
   }
+
+  PROTO_ITEM_SET_GENERATED(ti);
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_wlan_rsna_eapol_wpa_keydes_keyinfo,
                                     ett_keyinfo, wlan_rsna_eapol_wpa_keydes_keyinfo,
@@ -29014,6 +29034,11 @@ proto_register_wlan_rsna_eapol(void)
 {
 
   static hf_register_info hf[] = {
+    {&hf_wlan_rsna_eapol_wpa_keydes_msgnr,
+     {"Message number", "wlan_rsna_eapol.keydes.msgnr",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
     {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo,
      {"Key Information", "wlan_rsna_eapol.keydes.key_info",
       FT_UINT16, BASE_HEX, NULL, 0x0,
