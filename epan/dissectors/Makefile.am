@@ -1800,6 +1800,7 @@ DISSECTOR_INCLUDES = \
 	packet-tcp.h		\
 	packet-tetra.h		\
 	packet-tftp.h		\
+	packet-thrift.h		\
 	packet-tn3270.h		\
 	packet-tn5250.h		\
 	packet-tpkt.h		\
