@@ -257,8 +257,8 @@ static int dissect_logcat_text_process(tvbuff_t *tvb, packet_info *pinfo, proto_
     dissect_info_t dinfo = { &process_regex, getters, array_length(getters) };
 
     add_exported_pdu(tvb,pinfo,"logcat_text_process");
-    set_address(&pinfo->dst, AT_STRINGZ, 0, "");
-    set_address(&pinfo->src, AT_STRINGZ, 0, "");
+    set_address(&pinfo->dst, AT_STRINGZ, 1, "");
+    set_address(&pinfo->src, AT_STRINGZ, 1, "");
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
