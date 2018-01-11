@@ -141,7 +141,7 @@ plugins_scan_dir(GPtrArray **plugins_ptr, const char *dirpath, plugin_type_e typ
             continue;
         }
 
-        /* Search for the entry point for the plugin type */
+        /* Search for the entry point for the plugin registration function */
         if (!g_module_symbol(handle, "plugin_register", &symbol)) {
             report_failure("The plugin '%s' has no \"plugin_register\" symbol", name);
             g_module_close(handle);
@@ -251,7 +251,7 @@ plugins_init(plugin_type_e type)
 
     switch (type) {
     case WS_PLUGIN_EPAN:
-            type_dir = TYPE_DIR_EPAN;
+        type_dir = TYPE_DIR_EPAN;
         break;
     case WS_PLUGIN_WIRETAP:
         type_dir = TYPE_DIR_WIRETAP;
