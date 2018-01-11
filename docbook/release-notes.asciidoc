@@ -12,46 +12,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2018-01[]
+* ws-salink:2018-05[]
 +
-Multiple dissectors could crash.
-(ws-buglink:14253[])
-cve-idlink:2018-5336[]
-// Fixed in master: 94479aded1, c51560985a
-// Fixed in master-2.4: 374e3d4bcf, 87d86189cc
-// Fixed in master-2.2: 4f4c95cf46, f6702e49a9
-
-* ws-salink:2018-02[]
-+
-The MRDISC dissector could crash.
-(ws-buglink:14299[], ws-buglink:13707[])
-cve-idlink:2017-17997[]
-// Fixed in master: c486707b1e
-// Fixed in master-2.4: n/a
-// Fixed in master-2.2: 80a695869c
-
-* ws-salink:2018-03[]
-+
-The IxVeriWave file parser could crash.
-(ws-buglink:14297[])
-cve-idlink:2018-5334[]
-// Fixed in master: 5dbc1d8d1c
-// Fixed in master-2.4: d6b2f2a6ce
-// Fixed in master-2.2: dc308c05ba
-
-* ws-salink:2018-04[]
-+
-The WCP dissector could crash.
-(ws-buglink:14251[])
-cve-idlink:2018-5335[]
-// Fixed in master: a7e29d8b66
-// Fixed in master-2.4: 568ccd2250
-// Fixed in master-2.2: 086b87376b
-
-Prior to this release dumpcap enabled the Linux kernel's BPF JIT
-compiler via the `net.core.bpf_jit_enable` sysctl. This could make
-systems more vulnerable to Spectre variant 1 (cve-idlink:2017-5753[])
-and this feature has been removed (ws-buglink:14313[]).
+A dissector went awry.
+(ws-buglink:xxxx[])
+cve-idlink:2018-xxxx[]
+// Fixed in master: xxxx
+// Fixed in master-2.4: xxxx
+// Fixed in master-2.2: xxxx
 
 The following bugs have been fixed:
 
@@ -61,21 +29,6 @@ The following bugs have been fixed:
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.13rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* First start with non-empty extcap folder after install or reboot hangs at "initializing tap listeners". (ws-buglink:12845[])
-
-* SIP Statistics extract does not work. (ws-buglink:13942[])
-
-* Service Response Time - SCSI dialog crashes. (ws-buglink:14144[])
-
-* SOCKS pseudo header displays incorrect Version value. (ws-buglink:14262[])
-
-* Only first variable of list is dissected in NTP Control request message. (ws-buglink:14268[])
-
-* NTP Authenticator field dissection fails if padding is used. (ws-buglink:14269[])
-
-* There is a potential buffer underflow in File_read_line function in epan/wslua/wslua_file.c file. (ws-buglink:14295[])
-
-* Saving a temporary capture file may not result in the temporary file being removed. (ws-buglink:14298[])
 
 === New and Updated Features
 
@@ -94,19 +47,13 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-MRDISC
-NTP
-SCTP
-SOCKS
-WCP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-//There is no new or updated capture file support in this release.
---sort-and-group--
-Ixia IxVeriWave
---sort-and-group--
+There is no new or updated capture file support in this release.
+//--sort-and-group--
+//--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
