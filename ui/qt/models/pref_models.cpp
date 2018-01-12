@@ -114,6 +114,8 @@ QString PrefsItem::getModuleTitle() const
     if ((module_ == NULL) && (pref_ == NULL))
         return name_;
 
+    Q_ASSERT(module_);
+
     return QString(module_->title);
 }
 
