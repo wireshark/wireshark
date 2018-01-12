@@ -4045,6 +4045,7 @@ dissect_struct_llogd_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gu
         &hf_lustre_llog_hdr_flag_is_plain,
         &hf_lustre_llog_hdr_flag_ext_jobid,
         &hf_lustre_llog_hdr_flag_is_fixsize,
+        NULL
     };
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
@@ -4124,6 +4125,7 @@ dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
         &hf_lustre_llog_hdr_flag_is_plain,
         &hf_lustre_llog_hdr_flag_ext_jobid,
         &hf_lustre_llog_hdr_flag_is_fixsize,
+        NULL
     };
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
