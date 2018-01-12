@@ -215,6 +215,7 @@ MOC_MODELS_HDRS = \
 	models/export_objects_model.h			\
 	models/fileset_entry_model.h			\
 	models/html_text_delegate.h			\
+	models/info_proxy_model.h			\
 	models/interface_sort_filter_model.h		\
 	models/interface_tree_cache_model.h		\
 	models/interface_tree_model.h			\
@@ -563,6 +564,7 @@ WIRESHARK_QT_MODELS_SRCS = \
 	models/export_objects_model.cpp			\
 	models/fileset_entry_model.cpp			\
 	models/html_text_delegate.cpp			\
+	models/info_proxy_model.cpp			\
 	models/interface_sort_filter_model.cpp		\
 	models/interface_tree_cache_model.cpp		\
 	models/interface_tree_model.cpp			\
