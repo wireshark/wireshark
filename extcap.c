@@ -567,6 +567,9 @@ extcap_register_preferences_callback(gpointer key, gpointer value _U_, gpointer 
 
 void extcap_register_preferences(void)
 {
+    if (prefs.capture_no_extcap)
+        return;
+
     module_t *dev_module = prefs_find_module("extcap");
 
     if (!dev_module)
@@ -1663,6 +1666,9 @@ extcap_load_interface_list(void)
 {
     gchar *argv;
     gchar *error;
+
+    if (prefs.capture_no_extcap)
+        return;
 
     if (_toolbars)
     {
