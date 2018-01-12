@@ -1483,6 +1483,9 @@ extcap_ensure_interface(const gchar * toolname, gboolean create_if_nonexist)
 {
     extcap_info * element = 0;
 
+    if ( prefs.capture_no_extcap )
+        return NULL;
+
     if ( ! toolname )
         return element;
 
