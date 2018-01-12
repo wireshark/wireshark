@@ -4144,6 +4144,7 @@ pre_init_prefs(void)
     prefs.capture_pcap_ng               = FALSE;
 #endif
     prefs.capture_real_time             = TRUE;
+    prefs.capture_no_extcap             = FALSE;
     prefs.capture_auto_scroll           = TRUE;
     prefs.capture_show_info             = FALSE;
 
