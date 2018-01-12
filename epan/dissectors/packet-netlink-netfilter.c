@@ -699,6 +699,7 @@ static const int *hfi_nfct_attr_status_flags[] = {
 	&hfi_nfct_attr_status_flag_assured.id,
 	&hfi_nfct_attr_status_flag_seen_reply.id,
 	&hfi_nfct_attr_status_flag_expected.id,
+	NULL
 };
 
 static header_field_info hfi_nfct_attr_status NETLINK_NETFILTER_HFI_INIT =
@@ -938,6 +939,7 @@ static const int *hfi_nfexp_attr_flags_bitfield[] = {
 	&hfi_nfexp_attr_flag_userspace.id,
 	&hfi_nfexp_attr_flag_inactive.id,
 	&hfi_nfexp_attr_flag_permanent.id,
+	NULL
 };
 
 static header_field_info hfi_nfexp_attr_flags NETLINK_NETFILTER_HFI_INIT =
