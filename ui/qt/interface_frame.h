@@ -28,6 +28,7 @@
 
 #include <glib.h>
 
+#include <ui/qt/models/info_proxy_model.h>
 #include <ui/qt/models/interface_tree_model.h>
 #include <ui/qt/models/interface_sort_filter_model.h>
 
@@ -82,6 +83,7 @@ private:
 
     InterfaceSortFilterModel * proxyModel;
     InterfaceTreeModel * sourceModel;
+    InfoProxyModel * infoModel;
 
     QMap<int, QString> ifTypeDescription;
 

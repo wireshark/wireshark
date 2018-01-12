@@ -30,6 +30,11 @@ void InfoProxyModel::appendInfo(QString info)
         infos_ << info;
 }
 
+void InfoProxyModel::clearInfos()
+{
+    infos_.clear();
+}
+
 int InfoProxyModel::rowCount(const QModelIndex &parent) const
 {
     return sourceModel()->rowCount(parent) + infos_.count();

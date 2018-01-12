@@ -34,6 +34,7 @@ public:
     virtual QModelIndex mapFromSource(const QModelIndex &fromIndex) const;
 
     void appendInfo(QString info);
+    void clearInfos();
 
 private:
 

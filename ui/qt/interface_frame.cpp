@@ -88,7 +88,11 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     proxyModel->setColumns(columns);
     proxyModel->setStoreOnChange(true);
     proxyModel->setSourceModel(sourceModel);
-    ui->interfaceTree->setModel(proxyModel);
+
+    infoModel = new InfoProxyModel(2, this);
+    infoModel->setSourceModel(proxyModel);
+
+    ui->interfaceTree->setModel(infoModel);
 
     ui->interfaceTree->setItemDelegateForColumn(proxyModel->mapSourceToColumn(IFTREE_COL_STATS), new SparkLineDelegate(this));
 
@@ -168,7 +172,7 @@ void InterfaceFrame::ensureSelectedInterface()
     if (interfacesPresent() < 1) return;
 
     if (sourceModel->selectedDevices().count() < 1) {
-        QModelIndex first_idx = proxyModel->index(0, 0);
+        QModelIndex first_idx = infoModel->mapFromSource(proxyModel->index(0, 0));
         ui->interfaceTree->setCurrentIndex(first_idx);
     }
 
@@ -218,6 +222,10 @@ void InterfaceFrame::triggeredIfTypeButton()
 
 void InterfaceFrame::interfaceListChanged()
 {
+    infoModel->clearInfos();
+    if ( prefs.capture_no_extcap )
+        infoModel->appendInfo(tr("Extcap interfaces disabled."));
+
     resetInterfaceTreeDisplay();
     // Ensure that device selection is consistent with the displayed selection.
     updateSelectedInterfaces();
@@ -272,7 +280,7 @@ void InterfaceFrame::updateSelectedInterfaces()
         return;
 #ifdef HAVE_LIBPCAP
     QItemSelection sourceSelection = sourceModel->selectedDevices();
-    QItemSelection mySelection = proxyModel->mapSelectionFromSource(sourceSelection);
+    QItemSelection mySelection = infoModel->mapSelectionFromSource(proxyModel->mapSelectionFromSource(sourceSelection));
 
     ui->interfaceTree->selectionModel()->clearSelection();
     ui->interfaceTree->selectionModel()->select(mySelection, QItemSelectionModel::SelectCurrent );
@@ -289,7 +297,7 @@ void InterfaceFrame::interfaceTreeSelectionChanged(const QItemSelection & select
 #ifdef HAVE_LIBPCAP
     /* Take all selected interfaces, not just the newly ones */
     QItemSelection allSelected = ui->interfaceTree->selectionModel()->selection();
-    QItemSelection sourceSelection = proxyModel->mapSelectionToSource(allSelected);
+    QItemSelection sourceSelection = proxyModel->mapSelectionToSource(infoModel->mapSelectionToSource(allSelected));
 
     if ( sourceModel->updateSelectedDevices(sourceSelection) )
         emit itemSelectionChanged();
@@ -298,7 +306,7 @@ void InterfaceFrame::interfaceTreeSelectionChanged(const QItemSelection & select
 
 void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
 {
-    QModelIndex realIndex = proxyModel->mapToSource(index);
+    QModelIndex realIndex = proxyModel->mapToSource(infoModel->mapToSource(index));
 
     if ( ! realIndex.isValid() )
         return;
@@ -328,7 +336,7 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
 {
     if ( index.column() == 0 )
     {
-        QModelIndex realIndex = proxyModel->mapToSource(index);
+        QModelIndex realIndex = proxyModel->mapToSource(infoModel->mapToSource(index));
 
         if ( ! realIndex.isValid() )
             return;
@@ -360,7 +368,7 @@ void InterfaceFrame::updateStatistics(void)
 
     for( int idx = 0; idx < proxyModel->rowCount(); idx++ )
     {
-        QModelIndex selectIndex = proxyModel->mapFromSource(sourceModel->index(idx, 0));
+        QModelIndex selectIndex = infoModel->mapFromSource(proxyModel->mapFromSource(sourceModel->index(idx, 0)));
 
         /* Proxy model has not masked out the interface */
         if ( selectIndex.isValid() )
