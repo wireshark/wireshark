@@ -21,7 +21,7 @@ class InfoProxyModel : public QIdentityProxyModel
     Q_OBJECT
 
 public:
-    explicit InfoProxyModel(int column, QObject * parent);
+    explicit InfoProxyModel(QObject * parent = 0);
     ~InfoProxyModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -35,6 +35,8 @@ public:
 
     void appendInfo(QString info);
     void clearInfos();
+
+    void setColumn(int column);
 
 private:
 

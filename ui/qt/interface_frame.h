@@ -81,9 +81,9 @@ private:
 
     Ui::InterfaceFrame *ui;
 
-    InterfaceSortFilterModel * proxyModel;
-    InterfaceTreeModel * sourceModel;
-    InfoProxyModel * infoModel;
+    InterfaceSortFilterModel proxyModel;
+    InterfaceTreeModel sourceModel;
+    InfoProxyModel infoModel;
 
     QMap<int, QString> ifTypeDescription;
 
