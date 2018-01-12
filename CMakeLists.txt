@@ -1886,6 +1886,7 @@ if(WIN32)
 		)
 	endif(WINSPARKLE_FOUND)
 
+	# This might not be needed since make-dissectors has the same dependency.
 	add_dependencies(epan copy_cli_dlls)
 
 	# We have a lot of choices for creating zip archives:

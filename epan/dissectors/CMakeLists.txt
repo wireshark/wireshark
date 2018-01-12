@@ -1874,6 +1874,10 @@ add_executable(make-dissectors make-dissectors.c)
 # wsutil is only required for glib-compat.c
 target_link_libraries(make-dissectors ${GLIB2_LIBRARIES} wsutil)
 
+if(WIN32)
+	add_dependencies(make-dissectors copy_cli_dlls)
+endif()
+
 #
 # We pass the arguments to make-dissectors in a file to avoid limitations
 # with the number of arguments handled by main().
