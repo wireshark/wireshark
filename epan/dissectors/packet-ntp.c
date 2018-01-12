@@ -553,6 +553,10 @@ static int hf_ntpctrl_count = -1;
 static int hf_ntpctrl_data = -1;
 static int hf_ntpctrl_item = -1;
 static int hf_ntpctrl_trapmsg = -1;
+static int hf_ntpctrl_ordlist = -1;
+static int hf_ntpctrl_configuration = -1;
+static int hf_ntpctrl_mru = -1;
+static int hf_ntpctrl_nonce = -1;
 
 static int hf_ntppriv_flags_r = -1;
 static int hf_ntppriv_flags_more = -1;
@@ -1058,6 +1062,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 	guint16		 datalen;
 	guint16		 data_offset;
 	gint		 length_remaining;
+	gboolean	 auth_diss = FALSE;
 
 	tvbparse_t	*tt;
 	tvbparse_elem_t *element;
@@ -1205,6 +1210,23 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 		case NTPCTRL_OP_ASYNCMSG:
 			proto_tree_add_item(data_tree, hf_ntpctrl_trapmsg, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
 			break;
+		case NTPCTRL_OP_CONFIGURE:
+		case NTPCTRL_OP_SAVECONFIG:
+			proto_tree_add_item(data_tree, hf_ntpctrl_configuration, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			auth_diss = TRUE;
+			break;
+		case NTPCTRL_OP_READ_MRU:
+			proto_tree_add_item(data_tree, hf_ntpctrl_mru, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			auth_diss = TRUE;
+			break;
+		case NTPCTRL_OP_READ_ORDLIST_A:
+			proto_tree_add_item(data_tree, hf_ntpctrl_ordlist, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			auth_diss = TRUE;
+			break;
+		case NTPCTRL_OP_REQ_NONCE:
+			proto_tree_add_item(data_tree, hf_ntpctrl_nonce, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			auth_diss = TRUE;
+			break;
 		/* these opcodes doesn't carry any data: NTPCTRL_OP_SETTRAP, NTPCTRL_OP_UNSETTRAP, NTPCTRL_OP_UNSPEC */
 		}
 	}
@@ -1212,7 +1234,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 	data_offset = 12+datalen;
 
 	/* Check if there is authentication */
-	if ((flags2 & NTPCTRL_R_MASK) == 0)
+	if (((flags2 & NTPCTRL_R_MASK) == 0) || auth_diss == TRUE)
 	{
 		gint padding_length;
 
@@ -1610,6 +1632,18 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_trapmsg, {
 			"Trap message", "ntp.ctrl.trapmsg", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_configuration, {
+			"Configuration", "ntp.ctrl.configuration", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_mru, {
+			"MRU", "ntp.ctrl.mru", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_ordlist, {
+			"Ordered List", "ntp.ctrl.ordlist", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_nonce, {
+			"Nonce", "ntp.ctrl.nonce", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntppriv_flags_r, {
