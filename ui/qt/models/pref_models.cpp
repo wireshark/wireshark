@@ -52,7 +52,7 @@ PrefsItem::PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent)
     }
 }
 
-PrefsItem::PrefsItem(QString name, PrefsItem* parent)
+PrefsItem::PrefsItem(const QString name, PrefsItem* parent)
     : ModelHelperTreeItem<PrefsItem>(parent),
     pref_(NULL),
     module_(NULL),
@@ -122,15 +122,15 @@ void PrefsItem::setChanged(bool changed)
     changed_ = changed;
 }
 
-
-const char* PrefsModel::ADVANCED_PREFERENCE_TREE_NAME = "Advanced";
-const char* PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME = "Appearance";
-const char* PrefsModel::LAYOUT_PREFERENCE_TREE_NAME = "Layout";
-const char* PrefsModel::COLUMNS_PREFERENCE_TREE_NAME = "Columns";
-const char* PrefsModel::FONT_AND_COLORS_PREFERENCE_TREE_NAME = "Font and Colors";
-const char* PrefsModel::CAPTURE_PREFERENCE_TREE_NAME = "Capture";
-const char* PrefsModel::EXPERT_PREFERENCE_TREE_NAME = "Expert";
-const char* PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME = "Filter Buttons";
+//: Names of special preferences handled by the GUI
+const char* PrefsModel::ADVANCED_PREFERENCE_TREE_NAME = QT_TR_NOOP("Advanced");
+const char* PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME = QT_TR_NOOP("Appearance");
+const char* PrefsModel::LAYOUT_PREFERENCE_TREE_NAME = QT_TR_NOOP("Layout");
+const char* PrefsModel::COLUMNS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Columns");
+const char* PrefsModel::FONT_AND_COLORS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Font and Colors");
+const char* PrefsModel::CAPTURE_PREFERENCE_TREE_NAME = QT_TR_NOOP("Capture");
+const char* PrefsModel::EXPERT_PREFERENCE_TREE_NAME = QT_TR_NOOP("Expert");
+const char* PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Filter Buttons");
 
 
 PrefsModel::PrefsModel(QObject *parent) :

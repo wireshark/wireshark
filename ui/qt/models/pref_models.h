@@ -23,7 +23,7 @@ class PrefsItem : public ModelHelperTreeItem<PrefsItem>
 {
 public:
     PrefsItem(module_t *module, pref_t *pref, PrefsItem* parent);
-    PrefsItem(QString name, PrefsItem* parent);
+    PrefsItem(const QString name, PrefsItem* parent);
     virtual ~PrefsItem();
 
     QString getName() const {return name_;}
