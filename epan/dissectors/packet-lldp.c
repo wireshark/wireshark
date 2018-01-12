@@ -280,12 +280,12 @@ static int hf_ieee_802_1qbg_evb_configure_caps_vdp = -1;
 static int hf_ieee_802_1qbg_evb_supported_vsi = -1;
 static int hf_ieee_802_1qbg_evb_configured_vsi = -1;
 static int hf_ieee_802_1qbg_evb_retrans_timer = -1;
-static int hf_ieee_802_1br_aec = -1;
-static int hf_ieee_802_1br_aec_support = -1;
-static int hf_ieee_802_1br_aec_enable = -1;
-static int hf_ieee_802_1br_aec_active = -1;
-static int hf_ieee_802_1br_aec_addfragsize = -1;
-static int hf_ieee_802_1br_aec_reserved = -1;
+static int hf_ieee_802_3br_aec = -1;
+static int hf_ieee_802_3br_aec_support = -1;
+static int hf_ieee_802_3br_aec_enable = -1;
+static int hf_ieee_802_3br_aec_active = -1;
+static int hf_ieee_802_3br_aec_addfragsize = -1;
+static int hf_ieee_802_3br_aec_reserved = -1;
 static int hf_media_tlv_subtype = -1;
 static int hf_media_tlv_subtype_caps = -1;
 static int hf_media_tlv_subtype_caps_llpd = -1;
@@ -468,7 +468,7 @@ static gint ett_802_3_power = -1;
 static gint ett_802_3_aggregation = -1;
 static gint ett_802_1_aggregation = -1;
 static gint ett_802_1qbg_capabilities_flags = -1;
-static gint ett_802_1br_capabilities_flags = -1;
+static gint ett_802_3br_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
 static gint ett_cisco_fourwire_tlv = -1;
@@ -623,7 +623,7 @@ static const value_string ieee_802_3_subtypes[] = {
 	{ 0x03,	"Link Aggregation" },
 	{ 0x04,	"Maximum Frame Size" },
 	{ 0x05,	"EEE (Energy-Efficient Ethernet)" },
-	{ 0x07,	"IEEE 802.1br Additional Ethernet capabilities" },
+	{ 0x07,	"IEEE 802.3br Additional Ethernet capabilities" },
 	{ 0, NULL }
 };
 
@@ -1061,12 +1061,12 @@ static const value_string hytec_mc[] = {
 #define EVB_CAPA_ECP		0x0002
 #define EVB_CAPA_VDP		0x0001
 
-/* IEEE 802.1br Additional Ethernet Capabilities flags */
-#define IEEE_802_1BR_AEC_SUPPORT		0x0001
-#define IEEE_802_1BR_AEC_ENABLE			0x0002
-#define IEEE_802_1BR_AEC_ACTIVE			0x0004
-#define IEEE_802_1BR_AEC_ADDFRAGSIZE		0x0018
-#define IEEE_802_1BR_AEC_RESERVED		0xFFE0
+/* IEEE 802.3br Additional Ethernet Capabilities flags */
+#define IEEE_802_3BR_AEC_SUPPORT		0x0001
+#define IEEE_802_3BR_AEC_ENABLE			0x0002
+#define IEEE_802_3BR_AEC_ACTIVE			0x0004
+#define IEEE_802_3BR_AEC_ADDFRAGSIZE		0x0018
+#define IEEE_802_3BR_AEC_RESERVED		0xFFE0
 
 #define MAX_MAC_LEN	6
 
@@ -2648,19 +2648,19 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 		break;
 	}
-	case 0x07:	/* IEEE 802.1br Frame Preemption Protocol */
+	case 0x07:	/* IEEE 802.3br Frame Preemption Protocol */
 	{
 		static const int * preemption_capabilities[] = {
-			&hf_ieee_802_1br_aec_support,
-			&hf_ieee_802_1br_aec_enable,
-			&hf_ieee_802_1br_aec_active,
-			&hf_ieee_802_1br_aec_addfragsize,
-			&hf_ieee_802_1br_aec_reserved,
+			&hf_ieee_802_3br_aec_support,
+			&hf_ieee_802_3br_aec_enable,
+			&hf_ieee_802_3br_aec_active,
+			&hf_ieee_802_3br_aec_addfragsize,
+			&hf_ieee_802_3br_aec_reserved,
 			NULL
 		};
 
 		/* Get Additional Ethernet Capabilities */
-		proto_tree_add_bitmask(tree, tvb, offset, hf_ieee_802_1br_aec, ett_802_1br_capabilities_flags, preemption_capabilities, ENC_BIG_ENDIAN);
+		proto_tree_add_bitmask(tree, tvb, offset, hf_ieee_802_3br_aec, ett_802_3br_capabilities_flags, preemption_capabilities, ENC_BIG_ENDIAN);
 		break;
 	}
 	}
@@ -4912,29 +4912,29 @@ proto_register_lldp(void)
 			{ "Retransmission timer exponent", "lldp.ieee.802_1qbg.evb_retrans_timer", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_ieee_802_1br_aec,
-			{ "Additional Ethernet Capabilities", "lldp.ieee.802_1br.eac", FT_UINT16, BASE_HEX,
+		{ &hf_ieee_802_3br_aec,
+			{ "Additional Ethernet Capabilities", "lldp.ieee.802_3br.eac", FT_UINT16, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_ieee_802_1br_aec_support,
-			{ "Preemption capabilities support", "lldp.ieee.802_1br.aec.support", FT_BOOLEAN, 16,
-			TFS(&tfs_supported_not_supported), IEEE_802_1BR_AEC_SUPPORT, NULL, HFILL }
+		{ &hf_ieee_802_3br_aec_support,
+			{ "Preemption capabilities support", "lldp.ieee.802_3br.aec.support", FT_BOOLEAN, 16,
+			TFS(&tfs_supported_not_supported), IEEE_802_3BR_AEC_SUPPORT, NULL, HFILL }
 		},
-		{ &hf_ieee_802_1br_aec_enable,
-			{ "Preemption capabilities enable", "lldp.ieee.802_1br.aec.enable", FT_BOOLEAN, 16,
-			TFS(&tfs_enabled_disabled), IEEE_802_1BR_AEC_ENABLE, NULL, HFILL }
+		{ &hf_ieee_802_3br_aec_enable,
+			{ "Preemption capabilities enable", "lldp.ieee.802_3br.aec.enable", FT_BOOLEAN, 16,
+			TFS(&tfs_enabled_disabled), IEEE_802_3BR_AEC_ENABLE, NULL, HFILL }
 		},
-		{ &hf_ieee_802_1br_aec_active,
-			{ "Preemption capabilities active", "lldp.ieee.802_1br.aec.active", FT_BOOLEAN, 16,
-			TFS(&tfs_active_inactive), IEEE_802_1BR_AEC_ACTIVE, NULL, HFILL }
+		{ &hf_ieee_802_3br_aec_active,
+			{ "Preemption capabilities active", "lldp.ieee.802_3br.aec.active", FT_BOOLEAN, 16,
+			TFS(&tfs_active_inactive), IEEE_802_3BR_AEC_ACTIVE, NULL, HFILL }
 		},
-		{ &hf_ieee_802_1br_aec_addfragsize,
-			{ "Additional Fragment Size", "lldp.ieee.802_1br.aec.addfragsize", FT_UINT16, BASE_DEC,
-			NULL, IEEE_802_1BR_AEC_ADDFRAGSIZE, NULL, HFILL }
+		{ &hf_ieee_802_3br_aec_addfragsize,
+			{ "Additional Fragment Size", "lldp.ieee.802_3br.aec.addfragsize", FT_UINT16, BASE_DEC,
+			NULL, IEEE_802_3BR_AEC_ADDFRAGSIZE, NULL, HFILL }
 		},
-		{ &hf_ieee_802_1br_aec_reserved,
-			{ "Reserved", "lldp.ieee.802_1br.aec.reserved", FT_UINT16, BASE_HEX,
-			NULL, IEEE_802_1BR_AEC_RESERVED, NULL, HFILL }
+		{ &hf_ieee_802_3br_aec_reserved,
+			{ "Reserved", "lldp.ieee.802_3br.aec.reserved", FT_UINT16, BASE_HEX,
+			NULL, IEEE_802_3BR_AEC_RESERVED, NULL, HFILL }
 		},
 		{ &hf_media_tlv_subtype,
 			{ "Media Subtype",	"lldp.media.subtype", FT_UINT8, BASE_HEX,
@@ -5460,7 +5460,7 @@ proto_register_lldp(void)
 		&ett_802_3_aggregation,
 		&ett_802_1_aggregation,
 		&ett_802_1qbg_capabilities_flags,
-		&ett_802_1br_capabilities_flags,
+		&ett_802_3br_capabilities_flags,
 		&ett_media_capabilities,
 		&ett_profinet_period,
 		&ett_cisco_fourwire_tlv,
