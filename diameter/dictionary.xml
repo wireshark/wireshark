@@ -132,10 +132,8 @@
 		<command name="Ericsson-SN"			code="8388634" vendor-id="None"/>	<!-- Ericsson Spending Status Notification -->
 		<command name="Spending-Limit"			code="8388635" vendor-id="None"/>	<!-- TGPP 29.219/Sy -->
 		<command name="Spending-Status-Notification"	code="8388636" vendor-id="None"/>	<!-- TGPP 29.219/Sy -->
-		<!--
-			8388637	TDF-Session-Request/Answer (TSR/TSA) [3GPP TS 29.212][Kimmo_Kymalainen]
-			8388638 3GPP-Update-VCSG-Location-Request/Answer (UVR/UVA) [3GPP TS 29.272][Kimmo_Kymalainen]
-		-->
+		<command name="TDF-Session"	code="8388637" vendor-id="None"/>	<!-- [3GPP TS 29.212][Kimmo_Kymalainen] -->
+		<command name="3GPP-Update-VCSG-Location"	code="8388638" vendor-id="None"/>  <!-- [3GPP TS 29.272][Kimmo_Kymalainen] -->
 		<command name="3GPP-Device-Action"		code="8388639" vendor-id="None"/>     <!--[3GPP TS 29.368][RFC5719] -->
 		<command name="3GPP-Device-Notification"	code="8388640" vendor-id="None"/>    <!--[3GPP TS 29.368][RFC5719] -->
 		<command name="3GPP-Subscriber-Information"	code="8388641" vendor-id="None"/>     <!-- 3GPP TS 29.336 -->
