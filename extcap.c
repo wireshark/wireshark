@@ -97,6 +97,9 @@ static void extcap_load_interface_list(void);
 GHashTable *
 extcap_loaded_interfaces(void)
 {
+    if (prefs.capture_no_extcap)
+        return NULL;
+
     if ( !_loaded_interfaces || g_hash_table_size(_loaded_interfaces) == 0 )
         extcap_load_interface_list();
 
