@@ -38,6 +38,8 @@
 #include <QLabel>
 #include <QItemSelection>
 
+#include <epan/prefs.h>
+
 #define BTN_IFTYPE_PROPERTY "ifType"
 
 #ifdef HAVE_LIBPCAP
