@@ -24,7 +24,7 @@
 #include <QComboBox>
 #include <QColorDialog>
 
-WiresharkPreference::WiresharkPreference(QObject * parent) : QObject(parent)
+WiresharkPreference::WiresharkPreference(QObject * parent) : QObject(parent), _prefsItem(NULL)
 {}
 
 QWidget * WiresharkPreference::editor(QWidget * /*parent*/, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/)
