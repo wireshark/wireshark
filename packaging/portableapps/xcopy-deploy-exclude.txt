@@ -2,3 +2,9 @@
 .ilk
 .lib
 .pdb
+fuzzshark.exe
+idl2wrs.exe
+lemon.exe
+make-
+test.exe
+uninstall.exe
