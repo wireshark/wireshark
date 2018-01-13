@@ -27,85 +27,63 @@ T-Reassembly
 T-StatusProhibit
 
 #.EXPORTS
+MeasResults_PDU
+SCG-ConfigInfo_PDU
+RadioBearerConfig_PDU
+RRCReconfiguration_PDU
+RRCReconfigurationComplete_PDU
+UL-DCCH-Message_PDU
+UE-MRDC-Capability_PDU
+UE-NR-Capability_PDU
 
 #.PDU
-#UE-MRDC-Capability
-#UE-NR-Capability
 BCCH-BCH-Message             @bcch.bch
 DL-DCCH-Message              @dl.dcch
+MeasResults
+RadioBearerConfig
+RRCReconfiguration
+RRCReconfigurationComplete
+SCG-ConfigInfo
+UE-MRDC-Capability
+UE-NR-Capability
 UL-DCCH-Message              @ul.dcch
 #.END
 
 #.OMIT_ASSIGNMENT
 AS-Context
-BandCombination
-BandCombinationList
-BandNR
 BandwidthPart-Config
-BasebandParametersPerBand
-BasebandParametersPerCC
-BasebandProcessingCombination
-BasebandProcessingCombination-MRDC
-BasebandProcessingCombinationIndex
 BeamManagement
-CA-BandwidthClass
-CandidateCellInfo
-CandidateCellInfoList
-CandidateRS-IndexInfo
-CandidateRS-IndexInfoList
-ConfigRestrictInfoSCG
 ConfigRestrictModReqSCG
 ControlResourceIndex
 CSI-IM-ResourceConfig
 CSI-IM-ResourceConfigId
-DRX-Info
 FailureReportSCG-ToOtherRAT
 HandoverCommand
 HandoverCommand-r15-IEs
 HandoverPreparationInformation
 HandoverPreparationInformation-r15-IEs
-LinkedBasebandProcessingCombination
-MAC-Parameters
-MeasParameters-MRDC
 MeasResult2NR
 MeasResultList2NR
 MeasResultServFreq2NR
 MeasResultServFreqList2NR
-MIMO-Capability
-ModulationOrder
-PDCP-Parameters
-PhyLayerParameters
-PhyLayerParameters-MRDC
 PUCCH-F2-number-of-PRB
 PUCCH-format0
 PUCCH-format1
 PUCCH-format2
 PUCCH-format3
 PUCCH-format4
-RadioBearerConfiguration
 RAT-Type
 ReestabNCellInfo
 ReestabNCellInfoList
-RF-Parameters
-RF-Parameters-MRDC
-RLC-Parameters
 RRM-Config
 SIB1
 SCG-Config
 SCG-Config-r15-IEs
-SCG-ConfigInfo
-SCG-ConfigInfo-r15-IEs
 ShortMAC-I
-SubCarrierSpacing
 SubcarrierSpacingRACH
 SupportedBandCombination
-SupportedBandListNR
-SupportedBasebandProcessingCombination
 UE-CapabilityRAT-Container
 UE-CapabilityRAT-ContainerList
-UE-MRDC-Capability
-UE-NR-Capability
-UECapabilityInformation
 ZP-CSI-RS-Resource
 ZP-CSI-RS-ResourceId
 
@@ -190,13 +168,13 @@ ZP-CSI-RS-ResourceId
 #     }
 #   }
 
-# #.FN_BODY UECapabilityInformation VAL_PTR = &parameter_tvb
-#   tvbuff_t *parameter_tvb;
-#   proto_tree *subtree;
-#
-# %(DEFAULT_BODY)s
-#
-#   if (parameter_tvb) {
-#     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UECapabilityInformation);
-#     dissect_lte_rrc_UECapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-#   }
+#.FN_BODY UECapabilityInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UECapabilityInformation);
+    dissect_lte_rrc_UECapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }

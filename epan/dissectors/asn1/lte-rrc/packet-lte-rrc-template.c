@@ -1,28 +1,15 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V14.4.0 Release 14) packet dissection
+ * (3GPP TS 36.331 V15.0.1 Release 15) packet dissection
  * Copyright 2008, Vincent Helfre
- * Copyright 2009-2017, Pascal Quantin
+ * Copyright 2009-2018, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include "config.h"
@@ -49,6 +36,7 @@
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
+#include "packet-nr-rrc.h"
 #include "packet-lte-rrc.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
@@ -296,6 +284,16 @@ static gint ett_lte_rrc_sib11_fragment = -1;
 static gint ett_lte_rrc_sib11_fragments = -1;
 static gint ett_lte_rrc_sib12_fragment = -1;
 static gint ett_lte_rrc_sib12_fragments = -1;
+static gint ett_lte_rrc_nr_SecondaryCellGroupConfig_r15 = -1;
+static gint ett_lte_rrc_nr_RadioBearerConfig_r15 = -1;
+static gint ett_lte_rrc_nr_RadioBearerConfigS_r15 = -1;
+static gint ett_lte_rrc_scg_ConfigResponseNR_r15 = -1;
+static gint ett_lte_rrc_measResultSCG_r15 = -1;
+static gint ett_lte_rrc_ul_DCCH_MessageNR_r15 = -1;
+static gint ett_lte_rrc_sourceRB_ConfigNR_r15 = -1;
+static gint ett_lte_rrc_sourceRB_ConfigSN_NR_r15 = -1;
+static gint ett_lte_rrc_sourceOtherConfigSN_NR_r15 = -1;
+static gint ett_lte_rrc_sourceContextENDC_r15 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -4192,7 +4190,17 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_sib11_fragment,
     &ett_lte_rrc_sib11_fragments,
     &ett_lte_rrc_sib12_fragment,
-    &ett_lte_rrc_sib12_fragments
+    &ett_lte_rrc_sib12_fragments,
+    &ett_lte_rrc_nr_SecondaryCellGroupConfig_r15,
+    &ett_lte_rrc_nr_RadioBearerConfig_r15,
+    &ett_lte_rrc_nr_RadioBearerConfigS_r15,
+    &ett_lte_rrc_scg_ConfigResponseNR_r15,
+    &ett_lte_rrc_measResultSCG_r15,
+    &ett_lte_rrc_ul_DCCH_MessageNR_r15,
+    &ett_lte_rrc_sourceRB_ConfigNR_r15,
+    &ett_lte_rrc_sourceRB_ConfigSN_NR_r15,
+    &ett_lte_rrc_sourceOtherConfigSN_NR_r15,
+    &ett_lte_rrc_sourceContextENDC_r15
   };
 
   static ei_register_info ei[] = {

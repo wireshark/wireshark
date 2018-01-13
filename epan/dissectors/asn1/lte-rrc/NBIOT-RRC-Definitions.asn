@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V14.4.0 (2017-09)
+-- 3GPP TS 36.331 V15.0.1 (2018-01)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -600,7 +600,17 @@ SystemInformationBlockType1-NB-v1350 ::=	SEQUENCE {
 
 SystemInformationBlockType1-NB-v1430 ::=	SEQUENCE {
 	cellSelectionInfo-v1430				CellSelectionInfo-NB-v1430		OPTIONAL, 	-- Need OR
-	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+	nonCriticalExtension				SystemInformationBlockType1-NB-v1450					OPTIONAL
+}
+
+SystemInformationBlockType1-NB-v1450 ::= SEQUENCE {
+	nrs-CRS-PowerOffset-v1450				ENUMERATED {dB-6,  dB-4dot77, dB-3,
+													dB-1dot77, dB0,       dB1,
+													dB1dot23,  dB2,       dB3,
+													dB4,       dB4dot23,  dB5,
+													dB6,       dB7,       dB8,
+													dB9}		OPTIONAL,	-- Cond inband-SamePCI-ExceptAnchor
+	nonCriticalExtension				SEQUENCE {}					OPTIONAL
 }
 
 PLMN-IdentityList-NB-r13 ::=		SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-IdentityInfo-NB-r13
@@ -667,9 +677,14 @@ UECapabilityInformation-NB ::=	SEQUENCE {
 }
 
 UECapabilityInformation-NB-r13-IEs ::=	SEQUENCE {
-	ue-Capability-Container-r13				UE-Capability-NB-r13,
+	ue-Capability-r13						UE-Capability-NB-r13,
 	ue-RadioPagingInfo-r13					UE-RadioPagingInfo-NB-r13,
 	lateNonCriticalExtension				OCTET STRING						OPTIONAL,
+	nonCriticalExtension					UECapabilityInformation-NB-Ext-r14-IEs							OPTIONAL
+}
+
+UECapabilityInformation-NB-Ext-r14-IEs ::=	SEQUENCE {
+	ue-Capability-ContainerExt-r14			OCTET STRING (CONTAINING UE-Capability-NB-Ext-r14-IEs),
 	nonCriticalExtension					SEQUENCE {}							OPTIONAL
 }
 
@@ -722,7 +737,7 @@ SystemInformationBlockType3-NB-r13 ::=	SEQUENCE {
 		t-Reselection-r13						T-Reselection-NB-r13
 	},
 	freqBandInfo-r13						NS-PmaxList-NB-r13				OPTIONAL,	-- Need OR
-	multiBandInfoList-r13					SEQUENCE (SIZE (1..maxMultiBands)) OF
+ 	multiBandInfoList-r13					SEQUENCE (SIZE (1..maxMultiBands)) OF
 												NS-PmaxList-NB-r13			OPTIONAL,	-- Need OR
 	lateNonCriticalExtension					OCTET STRING				OPTIONAL,
 	...,
@@ -731,6 +746,8 @@ SystemInformationBlockType3-NB-r13 ::=	SEQUENCE {
 	[[	intraFreqCellReselectionInfo-v1360	IntraFreqCellReselectionInfo-NB-v1360 OPTIONAL 	-- Need OR
 	]],
 	[[ 	intraFreqCellReselectionInfo-v1430	IntraFreqCellReselectionInfo-NB-v1430 OPTIONAL 	-- Need OR
+	]],
+	[[ 	cellReselectionInfoCommon-v1450		CellReselectionInfoCommon-NB-v1450	OPTIONAL 	-- Need OR
 	]]
 }
 
@@ -745,6 +762,10 @@ IntraFreqCellReselectionInfo-NB-v1360 ::=	SEQUENCE {
 IntraFreqCellReselectionInfo-NB-v1430 ::=	SEQUENCE {
 	powerClass14dBm-Offset-r14		ENUMERATED {dB-6, dB-3, dB3, dB6, dB9, dB12}	OPTIONAL,	-- Need OP
 	ce-AuthorisationOffset-r14		ENUMERATED {dB5, dB10, dB15, dB20, dB25, dB30, dB35}	OPTIONAL	-- Need OP
+}
+
+CellReselectionInfoCommon-NB-v1450 ::=	SEQUENCE {
+	s-SearchDeltaP-r14					ENUMERATED {dB6, dB9, dB12, dB15}
 }
 
 
@@ -1169,6 +1190,10 @@ NPRACH-ConfigSIB-NB-v1330 ::=		SEQUENCE {
 	nprach-ParametersList-v1330			NPRACH-ParametersList-NB-v1330
 }
 
+NPRACH-ConfigSIB-NB-v1450 ::=		SEQUENCE {
+	maxNumPreambleAttemptCE-r14			ENUMERATED {n3, n4, n5, n6, n7, n8, n10, spare1}
+}
+
 NPRACH-ParametersList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-r13
 
 NPRACH-ParametersList-NB-v1330 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-v1330
@@ -1273,7 +1298,9 @@ RACH-ConfigCommon-NB-r13 ::=		SEQUENCE {
 	powerRampingParameters-r13			PowerRampingParameters,
 	rach-InfoList-r13					RACH-InfoList-NB-r13,
 	connEstFailOffset-r13				INTEGER (0..15)					OPTIONAL,	-- Need OP
-	...
+	...,
+	[[	powerRampingParameters-v1450	PowerRampingParameters-NB-v1450	OPTIONAL	-- Need OR
+	]]
 }
 
 RACH-InfoList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF RACH-Info-NB-r13
@@ -1283,6 +1310,22 @@ RACH-Info-NB-r13	::=		SEQUENCE {
 											pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp10},
 	mac-ContentionResolutionTimer-r13	ENUMERATED {
 											pp1, pp2, pp3, pp4, pp8, pp16, pp32, pp64}
+}
+
+PowerRampingParameters-NB-v1450  ::=		SEQUENCE {
+	preambleInitialReceivedTargetPower-v1450		ENUMERATED {
+													dBm-130, dBm-128, dBm-126, dBm-124, dBm-122,
+													dBm-88, dBm-86, dBm-84,dBm-82, dBm-80}
+													OPTIONAL,	-- Need OR
+	powerRampingParametersCE1-r14				SEQUENCE {
+		powerRampingStepCE1-r14						ENUMERATED {dB0, dB2, dB4, dB6},
+		preambleInitialReceivedTargetPowerCE1-r14	ENUMERATED {
+													dBm-130, dBm-128, dBm-126, dBm-124, dBm-122,
+													dBm-120, dBm-118, dBm-116, dBm-114, dBm-112,
+													dBm-110, dBm-108, dBm-106, dBm-104, dBm-102,
+													dBm-100, dBm-98, dBm-96, dBm-94, dBm-92,
+													dBm-90, dBm-88, dBm-86, dBm-84,	dBm-82, dBm-80}
+	} OPTIONAL	-- Need OR
 }
 
 
@@ -1297,6 +1340,8 @@ RadioResourceConfigCommonSIB-NB-r13 ::=	SEQUENCE {
 	uplinkPowerControlCommon-r13			UplinkPowerControlCommon-NB-r13,
 	...,
 	[[	nprach-Config-v1330					NPRACH-ConfigSIB-NB-v1330	OPTIONAL		-- Need OR
+	]],
+	[[	nprach-Config-v1450					NPRACH-ConfigSIB-NB-v1450	OPTIONAL		-- Cond EnhPowerControl
 	]]
 }
 
@@ -1470,10 +1515,10 @@ UE-Capability-NB-r13 ::=		SEQUENCE {
 	pdcp-Parameters-r13				PDCP-Parameters-NB-r13				OPTIONAL,
 	phyLayerParameters-r13			PhyLayerParameters-NB-r13,
 	rf-Parameters-r13				RF-Parameters-NB-r13,
-	nonCriticalExtension			UE-Capability-NB-v1430-IEs			OPTIONAL
+	dummy							SEQUENCE {}							OPTIONAL
 }
 
-UE-Capability-NB-v1430-IEs ::=		SEQUENCE {
+UE-Capability-NB-Ext-r14-IEs ::=		SEQUENCE {
 	ue-Category-NB-r14					ENUMERATED {nb2}				OPTIONAL,
 	mac-Parameters-r14					MAC-Parameters-NB-r14			OPTIONAL,
 	phyLayerParameters-v1430			PhyLayerParameters-NB-v1430		OPTIONAL,

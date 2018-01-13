@@ -179,5 +179,6 @@ CandidateRS-IndexInfo ::=				SEQUENCE {
 maxCellPrep INTEGER ::= 1
 maxCellSCG INTEGER ::= 1
 maxRS-IndexReport INTEGER ::= 1
+MeasResultSSTD ::= SEQUENCE {}
 
 END

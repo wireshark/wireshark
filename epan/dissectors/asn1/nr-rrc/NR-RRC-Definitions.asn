@@ -2983,6 +2983,7 @@ AdditionalSpectrumEmission ::= INTEGER (1..32)
 ARFCN-ValueNR ::= INTEGER
 BandwidthParts ::= BandwidthPart
 BSR-Configuration ::= BSR-Config
+BWPerCC ::= CA-BandwidthClass
 CarrierBandwidthNR ::= ENUMERATED {ffs}
 ControlResourceId ::= ControlResourceSetId
 CSI-RS-ConfigurationId ::= INTEGER
@@ -2992,6 +2993,7 @@ FilterCoefficient ::= ENUMERATED {
 	fc0, fc1, fc2, fc3, fc4, fc5,
 	fc6, fc7, fc8, fc9, fc11, fc13,
 	fc15, fc17, fc19, spare1, ...}
+FreqBandIndicatorNR ::= INTEGER
 Hysteresis ::= INTEGER (0..30)
 maxBands INTEGER ::= 256
 maxCellReport INTEGER ::= 8

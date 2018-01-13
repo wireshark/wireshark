@@ -157,6 +157,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-mpeg-pes.c	\
 	packet-mudurl.c		\
 	packet-nbap.c		\
+	packet-nr-rrc.c		\
 	packet-novell_pkis.c	\
 	packet-ns_cert_exts.c	\
 	packet-ocsp.c		\

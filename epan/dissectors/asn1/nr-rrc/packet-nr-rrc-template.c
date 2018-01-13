@@ -9,7 +9,6 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0+
- *
  */
 
 #include "config.h"
@@ -23,6 +22,7 @@
 
 #include "packet-per.h"
 #include "packet-lte-rrc.h"
+#include "packet-nr-rrc.h"
 
 #define PNAME  "NR Radio Resource Control (RRC) protocol"
 #define PSNAME "NR RRC"
@@ -43,8 +43,9 @@ static gint ett_nr_rrc = -1;
 #include "packet-nr-rrc-ett.c"
 static gint ett_nr_rrc_UECapabilityInformation = -1;
 
-#if 0
 /* Forward declarations */
+int dissect_nr_rrc_RRCReconfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+#if 0
 static int dissect_UE_NR_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_UE_MRDC_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 

@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2017 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2018 Pascal Quantin
 
 #.OPT
 PER
@@ -9,13 +9,25 @@ UNALIGNED
 
 #.USE_VALS_EXT
 BandclassCDMA2000
+CarrierFreq-NB-r13/carrierFreqOffset-r13
+DelayBudgetReport-r14/type1
+DelayBudgetReport-r14/type2
 DRX-Config/setup/drx-InactivityTimer
+DRX-Config-r13/drx-ULRetransmissionTimer-r13
+DRX-Config-NB-r13/setup/drx-ULRetransmissionTimer-r13
 PDCP-Config/eag_3/t-Reordering-r12
+PDCP-Config/eag_4/statusFeedback-r13/setup/statusPDU-Periodicity-Type1-r13
+PDCP-Config/eag_4/statusFeedback-r13/setup/statusPDU-Periodicity-Type2-r13
+PollByte-r14
+PowerRampingParameters-NB-v1450/powerRampingParametersCE1-r14/preambleInitialReceivedTargetPowerCE1-r14
 Q-OffsetRange
 RRM-Config/ue-InactiveTime
+RRM-Config-NB/ue-InactiveTime
 SIB-Type
+SL-CommResourcePoolV2X-r14/sizeSubchannel-r14
 SL-PeriodComm-r12
 SupportedBandUTRA-FDD
+SystemInformation-r8-IEs/sib-TypeAndInfo
 T-PollRetransmit
 T-Reordering
 T-StatusProhibit
@@ -169,7 +181,7 @@ SI-OrPSI-GERAN TYPE_PREFIX
 
 #RAT-Type ::=						ENUMERATED {
 #										eutra, utra, geran-cs, geran-ps, cdma2000-1XRTT,
-#										spare3, spare2, spare1, ...}
+#										nr, eutra-nr, spare1, ...}
 # ueCapabilityRAT-Container
 # Container for the UE capabilities of the indicated RAT. The encoding is defined in the specification of each RAT:
 # For E-UTRA: the encoding of UE capabilities is defined in IE UE-EUTRA-Capability.
@@ -191,6 +203,8 @@ SI-OrPSI-GERAN TYPE_PREFIX
 # For CDMA2000-1XRTT: the octet string contains the A21 Mobile Subscription Information and the encoding of this is
 # defined in A.S0008 [33]. The A21 Mobile Subscription Information contains the supported CDMA2000 1xRTT band
 # class and band sub-class information.
+# For NR: The octet string contains the IE UE-NR-Capability as defined in TS 38.331 [82].
+# For EUTRA-NR: The octet string contains the IE UE-MRDC-Capability as defined in TS 38.331 [82]
 
 #.FN_BODY UE-CapabilityRAT-Container/ueCapabilityRAT-Container VAL_PTR = &ue_cap_tvb
   tvbuff_t *ue_cap_tvb=NULL;
@@ -245,6 +259,14 @@ if(ue_cap_tvb){
   case RAT_Type_cdma2000_1XRTT:
     /* cdma2000-1XRTT */
     /* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
+    break;
+  case RAT_Type_nr:
+    /* nr */
+    dissect_nr_rrc_UE_NR_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+    break;
+  case RAT_Type_eutra_nr:
+    /* eutra-nr */
+    dissect_nr_rrc_UE_MRDC_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
     break;
   default:
     break;
@@ -937,6 +959,9 @@ CellSelectionInfoCE1-v1360/delta-RxLevMinCE1-v1360 STRINGS=VALS(lte_rrc_delta_Rx
 
 #.TYPE_ATTR
 CellSelectionInfo-v920/q-QualMinOffset-r9 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+MobilityControlInfo/eag_4/schedulingInfoSIB1-BR-r14 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_BR_r13_vals_ext
 
 #.TYPE_ATTR
 TrafficPatternInfo-r14/timingOffset-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
@@ -1647,6 +1672,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeComplete-r13");
 
+#.FN_HDR ULInformationTransferMRDC
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULInformationTransferMRDC");
+
 #.FN_HDR SCPTMConfiguration-r13
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCPTMConfiguration-r13");
@@ -2301,6 +2330,142 @@ SL-V2X-InterFreqUE-Config-r14/offsetDFN-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
 
 #.TYPE_ATTR
 P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.FN_BODY RRCConnectionReconfiguration-v15x0-IEs/endc-Config-r15/nr-SecondaryCellGroupConfig-r15 VAL_PTR = &rrc_reconfiguration_tvb
+  tvbuff_t *rrc_reconfiguration_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (rrc_reconfiguration_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nr_SecondaryCellGroupConfig_r15);
+    dissect_nr_rrc_RRCReconfiguration_PDU(rrc_reconfiguration_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RRCConnectionReconfiguration-v15x0-IEs/endc-Config-r15/nr-RadioBearerConfig-r15 VAL_PTR = &radio_bearer_config_tvb
+  tvbuff_t *radio_bearer_config_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (radio_bearer_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nr_RadioBearerConfig_r15);
+    dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RRCConnectionReconfiguration-v15x0-IEs/endc-Config-r15/nr-RadioBearerConfigS-r15 VAL_PTR = &radio_bearer_config_tvb
+  tvbuff_t *radio_bearer_config_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (radio_bearer_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nr_RadioBearerConfigS_r15);
+    dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RRCConnectionReconfigurationComplete-v15xy-IEs/scg-ConfigResponseNR-r15 VAL_PTR = &rrc_reconfiguration_complete_tvb
+  tvbuff_t *rrc_reconfiguration_complete_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (rrc_reconfiguration_complete_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_scg_ConfigResponseNR_r15);
+    dissect_nr_rrc_RRCReconfigurationComplete_PDU(rrc_reconfiguration_complete_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RRCConnectionResume-v15x0-IEs/nr-RadioBearerConfig-r15 VAL_PTR = &radio_bearer_config_tvb
+  tvbuff_t *radio_bearer_config_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (radio_bearer_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nr_RadioBearerConfig_r15);
+    dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RRCConnectionResume-v15x0-IEs/nr-RadioBearerConfigS-r15 VAL_PTR = &radio_bearer_config_tvb
+  tvbuff_t *radio_bearer_config_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (radio_bearer_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nr_RadioBearerConfigS_r15);
+    dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY FailureReportSCG-NR-r15/measResultSCG-r15 VAL_PTR = &meas_results_tvb
+  tvbuff_t *meas_results_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (meas_results_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_measResultSCG_r15);
+    dissect_nr_rrc_MeasResults_PDU(meas_results_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ULInformationTransferMRDC-r15-IEs/ul-DCCH-MessageNR-r15 VAL_PTR = &nr_ul_dcch_tvb
+  tvbuff_t *nr_ul_dcch_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (nr_ul_dcch_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_ul_DCCH_MessageNR_r15);
+    dissect_nr_rrc_UL_DCCH_Message_PDU(nr_ul_dcch_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#
+# EUTRA-InterNodeDefinitions
+#
+
+#.FN_BODY AS-Config/eag_4/sourceRB-ConfigNR-r15 VAL_PTR = &radio_bearer_config_tvb
+  tvbuff_t *radio_bearer_config_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (radio_bearer_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sourceRB_ConfigNR_r15);
+    dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY AS-Config/eag_4/sourceRB-ConfigSN-NR-r15 VAL_PTR = &radio_bearer_config_tvb
+  tvbuff_t *radio_bearer_config_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (radio_bearer_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sourceRB_ConfigSN_NR_r15);
+    dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY AS-Config/eag_4/sourceOtherConfigSN-NR-r15 VAL_PTR = &rrc_reconfiguration_tvb
+  tvbuff_t *rrc_reconfiguration_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (rrc_reconfiguration_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sourceOtherConfigSN_NR_r15);
+    dissect_nr_rrc_RRCReconfiguration_PDU(rrc_reconfiguration_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY AS-Context-v1130/eag_2/sourceContextENDC-r15 VAL_PTR = &scg_config_info_tvb
+  tvbuff_t *scg_config_info_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (scg_config_info_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sourceContextENDC_r15);
+    dissect_nr_rrc_SCG_ConfigInfo_PDU(scg_config_info_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #
 # EUTRA-Sidelink-Preconf

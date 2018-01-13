@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V14.4.0 (2017-09)
+-- 3GPP TS 36.331 V15.0.1 (2018-01)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -376,6 +376,10 @@ AS-Config ::=				SEQUENCE {
 	[[	sourceSCellConfigList-r10			SCellToAddModList-r10			OPTIONAL
 	]],
 	[[	sourceConfigSCG-r12					SCG-Config-r12		OPTIONAL
+	]],
+	[[	sourceRB-ConfigNR-r15				OCTET STRING			OPTIONAL,
+		sourceRB-ConfigSN-NR-r15			OCTET STRING			OPTIONAL,
+		sourceOtherConfigSN-NR-r15			OCTET STRING			OPTIONAL
 	]]
 }
 
@@ -419,6 +423,8 @@ AS-Context-v1130 ::=					SEQUENCE {
 	...,
 	[[	sidelinkUEInformation-r12				OCTET STRING (CONTAINING
 												SidelinkUEInformation-r12)	OPTIONAL	-- Cond HO2
+	]],
+	[[	sourceContextENDC-r15				OCTET STRING					OPTIONAL	-- Cond HO2
 	]]
 }
 
