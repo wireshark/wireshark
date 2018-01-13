@@ -377,7 +377,7 @@ QString InterfaceSortFilterModel::interfaceError()
         result = sourceModel->interfaceError();
 
     if ( result.size() == 0 && rowCount() == 0 )
-        result = QString(tr("No interfaces to be displayed. %1 interfaces filtered.")).arg(interfacesHidden());
+        result = tr("No interfaces to be displayed. %1 interfaces hidden.").arg(interfacesHidden());
 
     return result;
 }
