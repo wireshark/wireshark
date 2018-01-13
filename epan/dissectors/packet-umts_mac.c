@@ -94,7 +94,7 @@ static expert_field ei_mac_macis_sdu_first = EI_INIT;
 static expert_field ei_mac_macis_sdu_middle = EI_INIT;
 static expert_field ei_mac_macis_sdu_last = EI_INIT;
 static expert_field ei_mac_macis_sdu_complete = EI_INIT;
-
+static expert_field ei_mac_reserved_c_t = EI_INIT;
 
 static dissector_handle_t rlc_pcch_handle;
 static dissector_handle_t rlc_ccch_handle;
@@ -406,6 +406,11 @@ static int dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         case TCTF_DCCH_DTCH_RACH_FDD:
             /*Set RLC Mode/MAC content based on the L-CHID derived from the C/T flag*/
             c_t = tvb_get_bits8(tvb,bitoffs-4,4);
+            if (c_t == 15) {
+                /* reserved value, discard PDU */
+                expert_add_info(pinfo, NULL, &ei_mac_reserved_c_t);
+                break;
+            }
             rlcinf->mode[chan] = lchId_rlc_map[c_t+1];
             macinf->content[chan] = lchId_type_table[c_t+1];
             rlcinf->rbid[chan] = c_t+1;
@@ -499,6 +504,11 @@ static int dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
             /*Set RLC Mode based on the L-CHID derived from the C/T flag*/
             c_t = tvb_get_bits8(tvb,bitoffs-4,4);
+            if (c_t == 15) {
+                /* reserved value, discard PDU */
+                expert_add_info(pinfo, NULL, &ei_mac_reserved_c_t);
+                break;
+            }
             rlcinf->mode[fpinf->cur_tb] = lchId_rlc_map[c_t+1];
             macinf->content[fpinf->cur_tb] = lchId_type_table[c_t+1];
             switch (macinf->content[fpinf->cur_tb]) {
@@ -1545,6 +1555,7 @@ proto_register_umts_mac(void)
         { &ei_mac_macis_sdu_middle, { "mac.macis_sdu.middle", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU", EXPFILL }},
         { &ei_mac_macis_sdu_last, { "mac.macis_sdu.last", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is the last segment of a MAC-d PDU or MAC-c PDU", EXPFILL }},
         { &ei_mac_macis_sdu_complete, { "mac.macis_sdu.complete", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is a complete MAC-d PDU or MAC-c PDU", EXPFILL }},
+        { &ei_mac_reserved_c_t, { "mac.reserved_ct", PI_PROTOCOL, PI_WARN, "C/T has a reserved value, PDU is discarded", EXPFILL }}
     };
 
     expert_module_t* expert_umts_mac;
