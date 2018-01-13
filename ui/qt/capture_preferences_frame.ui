@@ -100,7 +100,7 @@
    <item>
     <widget class="QCheckBox" name="captureNoExtcapCheckBox">
      <property name="text">
-      <string>Disable Extcap interfaces</string>
+      <string>Disable external capture interfaces</string>
      </property>
     </widget>
    </item>

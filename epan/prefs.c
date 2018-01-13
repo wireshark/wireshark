@@ -3478,8 +3478,8 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "real_time_update", "Update packet list in real time during capture",
         "Update packet list in real time during capture?", &prefs.capture_real_time);
 
-    prefs_register_bool_preference(capture_module, "no_extcap", "Disable Extcap interfaces",
-        "Disable external capture modules (Extcap)", &prefs.capture_no_extcap);
+    prefs_register_bool_preference(capture_module, "no_extcap", "Disable external capture interfaces",
+        "Disable external capture modules (extcap)", &prefs.capture_no_extcap);
 
     /* We might want to make this a "recent" setting. */
     prefs_register_bool_preference(capture_module, "auto_scroll", "Scroll packet list during capture",

@@ -226,7 +226,7 @@ void InterfaceFrame::interfaceListChanged()
 {
     infoModel->clearInfos();
     if ( prefs.capture_no_extcap )
-        infoModel->appendInfo(tr("Extcap interfaces disabled."));
+        infoModel->appendInfo(tr("External capture interfaces disabled."));
 
     resetInterfaceTreeDisplay();
     // Ensure that device selection is consistent with the displayed selection.
