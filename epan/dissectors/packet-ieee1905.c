@@ -237,16 +237,20 @@ static int hf_ieee1905_ap_he_cap_radio_id = -1;
 static int hf_ieee1905_ap_he_cap_mcs_count = -1;
 static int hf_ieee1905_unassoc_link_metrics_query_mac = -1;
 static int hf_ieee1905_unassoc_sta_link_metrics_class = -1;
-static int hf_ieee1905_sta_metrics_reporting_interval = -1;
 static int hf_ieee1905_ap_metrics_reporting_interval = -1;
 static int hf_ieee1905_metric_reporting_policy_radio_id = -1;
 static int hf_ieee1905_metric_reporting_radio_count = -1;
 static int hf_ieee1905_metrics_rssi_threshold = -1;
+static int hf_ieee1905_metric_reporting_rssi_hysteresis = -1;
+static int hf_ieee1905_metrics_policy_flags = -1;
 static int hf_ieee1905_metrics_channel_util_threshold = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_inclusion = -1;
+static int hf_ieee1905_assoc_sta_link_metrics_inclusion = -1;
+static int hf_ieee1905_reporting_policy_flags_reserved = -1;
 static int hf_ieee1905_ap_metric_query_bssid = -1;
 static int hf_ieee1905_sta_mac_address_type = -1;
 static int hf_ieee1905_assoc_sta_mac_addr = -1;
-static int hf_ieee1905_assoc_sta_link_metric_bss_count = -1;
+static int hf_ieee1905_assoc_sta_bssid_count = -1;
 static int hf_ieee1905_assoc_sta_link_metrics_bssid = -1;
 static int hf_ieee1905_assoc_sta_link_metrics_time_delta = -1;
 static int hf_ieee1905_assoc_sta_link_metrics_dwn_rate = -1;
@@ -322,6 +326,16 @@ static int hf_ieee1905_beacon_report_sub_elt_len = -1;
 static int hf_ieee1905_beacon_report_sub_elt_body = -1;
 static int hf_ieee1905_beacon_metrics_response_mac_addr = -1;
 static int hf_ieee1905_beacon_metrics_response_status = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_mac_addr = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_bytes_sent = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_bytes_rcvd = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_packets_sent = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_packets_rcvd = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_tx_pkt_errs = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_rx_pkt_errs = -1;
+static int hf_ieee1905_assoc_sta_traffic_stats_retrans_count = -1;
+static int hf_ieee1905_error_code_value = -1;
+static int hf_ieee1905_error_code_mac_addr = -1;
 
 static gint ett_ieee1905 = -1;
 static gint ett_ieee1905_flags = -1;
@@ -387,6 +401,7 @@ static gint ett_sta_link_metrics_query_channel_list = -1;
 static gint ett_sta_link_link_mac_addr_list = -1;
 static gint ett_metric_reporting_policy_list = -1;
 static gint ett_metric_reporting_policy_tree = -1;
+static gint ett_metric_policy_flags = -1;
 static gint ett_ap_metric_query_bssid_list = -1;
 static gint ett_sta_list_metrics_bss_list = -1;
 static gint ett_sta_list_metrics_bss_tree = -1;
@@ -572,6 +587,8 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define BACKHAUL_STEERING_RESPONSE_TLV          0x9F
 #define HIGHER_LAYER_DATA_TLV                   0xA0
 #define AP_CAPABILITY_TLV                       0xA1
+#define ASSOCIATED_STA_TRAFFIC_STATS_TLV        0xA2
+#define ERROR_CODE_TLV                          0xA3
 
 static const value_string ieee1905_tlv_types_vals[] = {
   { EOM_TLV,                                 "End of message" },
@@ -638,6 +655,8 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { BACKHAUL_STEERING_RESPONSE_TLV,          "Backhaul steering response" },
   { HIGHER_LAYER_DATA_TLV,                   "Higher layer data" },
   { AP_CAPABILITY_TLV,                       "AP capability" },
+  { ASSOCIATED_STA_TRAFFIC_STATS_TLV,        "Associated STA Traffic Stats" },
+  { ERROR_CODE_TLV,                          "Error Code" },
   { 0, NULL }
 };
 static value_string_ext ieee1905_tlv_types_vals_ext = VALUE_STRING_EXT_INIT(ieee1905_tlv_types_vals);
@@ -932,6 +951,16 @@ static const value_string beacon_report_sub_element_vals[] = {
   { 1, "Reported Frame Body" },
   { 163, "Wite Bandwidth Channel Switch" },
   { 221, "Vendor Specific" },
+  { 0, NULL }
+};
+
+static const value_string ieee1905_error_code_vals[] = {
+  { 0x01, "STA associated with a BSS operatted by the Agent" },
+  { 0x02, "STA not associated with any BSS operated by the Agent" },
+  { 0x03, "Client capability report undecified failure" },
+  { 0x04, "Backhaul steering request rejected because station cannot operate on specified channel" },
+  { 0x05, "Backhaul steering request rejected because target BSS signal too weak or not found" },
+  { 0x06, "Backhaul steering request authentication or association Rejected by target BSS" },
   { 0, NULL }
 };
 
@@ -2678,10 +2707,11 @@ dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *radio_tree = NULL;
     proto_item *pi = NULL;
     guint saved_offset = 0;
-
-    proto_tree_add_item(tree, hf_ieee1905_sta_metrics_reporting_interval,
-                        tvb, offset, 1, ENC_NA);
-    offset++;
+    static const int *ieee1905_reporting_policy_flags[] = {
+        &hf_ieee1905_assoc_sta_traffic_stats_inclusion,
+        &hf_ieee1905_assoc_sta_link_metrics_inclusion,
+        &hf_ieee1905_reporting_policy_flags_reserved
+    };
 
     proto_tree_add_item(tree, hf_ieee1905_ap_metrics_reporting_interval,
                         tvb, offset, 1, ENC_NA);
@@ -2715,8 +2745,19 @@ dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
                             offset, 1, ENC_NA);
         offset++;
 
+        proto_tree_add_item(radio_tree, hf_ieee1905_metric_reporting_rssi_hysteresis,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+
         proto_tree_add_item(radio_tree, hf_ieee1905_metrics_channel_util_threshold,
                             tvb, offset, 1, ENC_NA);
+        offset++;
+
+        proto_tree_add_bitmask_with_flags(radio_tree, tvb, offset,
+                            hf_ieee1905_metrics_policy_flags,
+                            ett_metric_policy_flags,
+                            ieee1905_reporting_policy_flags, ENC_NA,
+                            BMT_NO_APPEND);
         offset++;
 
         radio_index++;
@@ -3814,11 +3855,16 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 6;
     len -= 6;
 
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_bssid_count, tvb, offset,
+                        1, ENC_NA);
+    offset++;
+    len--;
+
     bss_list = proto_tree_add_subtree(tree, tvb, offset, -1,
                             ett_sta_list_metrics_bss_list, NULL,
                             "BSS list");
 
-    while (len >= 18) {
+    while (len >= 19) {
         bss_tree = proto_tree_add_subtree_format(bss_list, tvb,
                                 offset, 18, ett_sta_list_metrics_bss_tree,
                                 NULL, "BSS %u", bss_list_index);
@@ -3839,8 +3885,12 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
+        proto_tree_add_item(bss_tree, hf_ieee1905_assoc_sta_link_metrics_rssi,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+
         bss_list_index++;
-        len -= 18;
+        len -= 19;
     }
 
     proto_item_set_len(pi, offset - start_offset);
@@ -4042,6 +4092,73 @@ dissect_receiver_link_metric(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         remaining -= 23;
     }
+    return offset;
+}
+
+/*
+ * Dissect an Associated STA Traffic Stats TLV
+ */
+static int
+dissect_associated_sta_traffic_stats(tvbuff_t *tvb,
+        packet_info *pinfo _U_, proto_tree *tree, guint offset, guint16 len _U_)
+{
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_mac_addr, tvb,
+                        offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_bytes_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_bytes_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_packets_sent,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_packets_rcvd,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_tx_pkt_errs,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_rx_pkt_errs,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_ieee1905_assoc_sta_traffic_stats_retrans_count,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+/*
+ * Dissect an Associated STA Traffic Stats TLV
+ */
+static int
+dissect_error_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        guint offset, guint16 len _U_)
+{
+    proto_item *pi = NULL;
+    guint8 error_code = tvb_get_guint8(tvb, offset);
+
+    pi = proto_tree_add_item(tree, hf_ieee1905_error_code_value, tvb,
+                        offset, 1, ENC_NA);
+    proto_item_append_text(pi, ", %s",
+                        val_to_str(error_code,
+                                   ieee1905_error_code_vals,
+                                   "Reserved"));
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_error_code_mac_addr, tvb, offset,
+                        6, ENC_NA);
+    offset += 6;
+
     return offset;
 }
 
@@ -4339,6 +4456,14 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     case AP_CAPABILITY_TLV:
         offset = dissect_ap_capability(tvb, pinfo, tree, offset);
+        break;
+
+    case ASSOCIATED_STA_TRAFFIC_STATS_TLV:
+        offset = dissect_associated_sta_traffic_stats(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case ERROR_CODE_TLV:
+        offset = dissect_error_code(tvb, pinfo, tree, offset, tlv_len);
         break;
 
     default:
@@ -5200,10 +5325,6 @@ proto_register_ieee1905(void)
           { "STA MAC address", "ieee1905.unassoc_sta_link_metrics.mac_addr",
             FT_ETHER, FT_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_sta_metrics_reporting_interval,
-          { "STA metrics reporting interval", "ieee1905.sta_metric_policy.sta_interval",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-
         { &hf_ieee1905_ap_metrics_reporting_interval,
           { "AP metrics reporting interval", "ieee1905.sta_metric_policy.ap_interval",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -5220,8 +5341,32 @@ proto_register_ieee1905(void)
           { "RSSI reporting threshold", "ieee1905.sta_metric_policy.rssi_threshold",
             FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_metric_reporting_rssi_hysteresis,
+          {"STA Metrics Reporting RSSI Hysteresis Margin Override",
+            "ieee1905.sta_metric_policy.rssi_hysteresis_margin_override",
+          FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_metrics_policy_flags,
+          {"STA Metrics Reporting Policy Flags",
+            "ieee1905.sta_metrics_policy_flags",
+          FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_inclusion,
+          { "Associated STA Traffic Stats Inclusion Policy",
+             "ieee1905.sta_metrics_policy_flags.sta_traffic_stats_inclusion",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_link_metrics_inclusion,
+          { "Associated STA Link Metrics Inclusion Policy",
+             "ieee1905.sta_metrics_policy_flags.sta_link_metrics_inclusion",
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_reporting_policy_flags_reserved,
+          { "Reserved", "ieee1905.sta_metrics_policy_flags.reserved",
+          FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+
         { &hf_ieee1905_metrics_channel_util_threshold,
-          { "Utilization threshold", "ieee1905.sta_metric_policy.utilization_threshold",
+          { "Utilization Reporting threshold", "ieee1905.sta_metric_policy.utilization_threshold",
             FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_metric_query_bssid,
@@ -5236,8 +5381,8 @@ proto_register_ieee1905(void)
           { "MAC address", "ieee1905.assoc_sta_link_metrics.mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_assoc_sta_link_metric_bss_count,
-          {"BSS count", "ieee1905.assoc_sta_link_metrics.bss_count",
+        { &hf_ieee1905_assoc_sta_bssid_count,
+          { "Number of BSSIDs for STA", "ieee1905.assoc_sta_link_metrics.bssid_count",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_assoc_sta_link_metrics_bssid,
@@ -5257,8 +5402,8 @@ proto_register_ieee1905(void)
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_assoc_sta_link_metrics_rssi,
-          { "Uplink RSSI", "ieee1905.assoc_sta_link_metrics.rssi",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
+          { "Measured uplink RSSI for STA", "ieee1905.assoc_sta_link_metrics.rssi",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_unassoc_sta_link_metrics_class,
           { "Operating class", "ieee1905.unassoc_sta_link_metrics.operaring_class",
@@ -5428,13 +5573,13 @@ proto_register_ieee1905(void)
           { "Time delta (ms)", "ieee1905.unassoc_sta_link_metrics.delta",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_unassoc_link_metric_uplink_rssi,
-          { "Uplink RSSI", "ieee1905.unassoc_sta_link_metrics.rssi",
-            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
-
         { &hf_ieee1905_beacon_metrics_query_mac_addr,
           { "Associated STA MAC address", "ieee1905.beacon_metrics.assoc_sta_mac",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_unassoc_link_metric_uplink_rssi,
+          { "Uplink RSSI", "ieee1905.unassoc_sta_link_metrics.rssi",
+            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_beacon_metrics_query_op_class,
           { "Operating class", "ieee1905.beacon_metrics.op_class",
@@ -5544,6 +5689,46 @@ proto_register_ieee1905(void)
           { "Response status", "ieee1905.beacon_metrics.status",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_assoc_sta_traffic_stats_mac_addr,
+          { "Associated STA MAC address", "ieee1905.assoc_sta_traffic_stats.mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_bytes_sent,
+          { "Bytes Sent", "ieee1905.assoc_sta_traffic_stats.bytes_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_bytes_rcvd,
+          { "Bytes Received", "ieee1905.assoc_sta_traffic_stats.bytes_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_packets_sent,
+          { "Packets Sent", "ieee1905.assoc_sta_traffic_stats.packets_sent",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_packets_rcvd,
+          { "Packets Received", "ieee1905.assoc_sta_traffic_stats.packets_rcvd",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_tx_pkt_errs,
+          { "Tx Packet Errors", "ieee1905.assoc_sta_traffic_stats.tx_pkt_errs",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_rx_pkt_errs,
+          { "Rx Packet Errors", "ieee1905.assoc_sta_traffic_stats.rx_packet_errs",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_assoc_sta_traffic_stats_retrans_count,
+          { "Retransmission Count", "ieee1905.assoc_sta_traffic_stats.retrans_count",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_error_code_value,
+          { "Reason code", "ieee1905.error_code.reason",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_error_code_mac_addr,
+          { "MAC address of error-code STA", "ieee1905.error_code.mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
         { &hf_ieee1905_extra_tlv_data,
           { "Extraneous TLV data", "ieee1905.extra_tlv_data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -5618,6 +5803,7 @@ proto_register_ieee1905(void)
         &ett_sta_link_link_mac_addr_list,
         &ett_metric_reporting_policy_list,
         &ett_metric_reporting_policy_tree,
+        &ett_metric_policy_flags,
         &ett_ap_metric_query_bssid_list,
         &ett_sta_list_metrics_bss_list,
         &ett_sta_list_metrics_bss_tree,
