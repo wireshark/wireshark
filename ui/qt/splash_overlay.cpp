@@ -137,7 +137,7 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
         action_msg = tr("Initializing tap listeners");
         break;
     case RA_EXTCAP:
-        action_msg = tr("Initializing extcap");
+        action_msg = tr("Initializing external capture plugins");
         break;
     case RA_REGISTER:
         action_msg = tr("Registering dissectors");
