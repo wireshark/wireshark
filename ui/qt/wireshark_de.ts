@@ -11142,12 +11142,12 @@ text-decoration: underline;
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="801"/>
+        <location filename="../../wireshark-qt.cpp" line="803"/>
         <source>Invalid Display Filter</source>
         <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="802"/>
+        <location filename="../../wireshark-qt.cpp" line="804"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
     </message>
