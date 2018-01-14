@@ -9889,22 +9889,22 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="194"/>
+        <location filename="manage_interfaces_dialog.cpp" line="249"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>Questa versione di Wireshark non può salvare le impostazioni della pipe.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="198"/>
+        <location filename="manage_interfaces_dialog.cpp" line="253"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>Questa versione di Wireshark non può salvare le impostazioni remote.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="200"/>
+        <location filename="manage_interfaces_dialog.cpp" line="255"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>Questa versione di Wireshark non supporta le interfacce remote.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="228"/>
+        <location filename="manage_interfaces_dialog.cpp" line="283"/>
         <source>New Pipe</source>
         <translation>Nuova pipe</translation>
     </message>
@@ -11402,14 +11402,37 @@ a:hover {
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="875"/>
+        <location filename="../../wireshark-qt.cpp" line="876"/>
         <source>Invalid Display Filter</source>
         <translation>Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="876"/>
+        <location filename="../../wireshark-qt.cpp" line="877"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>L&apos;espressione %1 non è un filtro di visualizzazione valido. (%2).</translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="121"/>
+        <location filename="manage_interfaces_dialog.cpp" line="124"/>
+        <location filename="manage_interfaces_dialog.cpp" line="127"/>
+        <location filename="manage_interfaces_dialog.cpp" line="130"/>
+        <source>Error</source>
+        <translation type="unfinished">Errore</translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="121"/>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished">Non è stata trovata alcuna interfaccia remota.</translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="127"/>
+        <source>PCAP not found</source>
+        <translation type="unfinished">PCAP non trovate</translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="130"/>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

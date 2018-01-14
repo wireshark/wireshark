@@ -35,7 +35,7 @@
     <message>
         <location filename="about_dialog.ui" line="162"/>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Recherche des Auteurs</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="177"/>
@@ -92,7 +92,7 @@
     <message>
         <location filename="apply_line_edit.cpp" line="42"/>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Appliquer les modifications</translation>
     </message>
 </context>
 <context>
@@ -156,17 +156,17 @@
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="200"/>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="203"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marquer/Démarquer Ligne</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="206"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="211"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marquer/Démarquer Cellule</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.cpp" line="368"/>
@@ -219,32 +219,32 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="108"/>
         <source>Manufacturer</source>
-        <translation type="unfinished">Fabricant</translation>
+        <translation>Fabricant</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="113"/>
         <source>HCI Version</source>
-        <translation type="unfinished">Version HCI</translation>
+        <translation>Version HCI</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="118"/>
         <source>HCI Revision</source>
-        <translation type="unfinished">Révision HCI</translation>
+        <translation>Révision HCI</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="123"/>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>Scan</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="128"/>
         <source>Authentication</source>
-        <translation type="unfinished">Authentification</translation>
+        <translation>Authentification</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="133"/>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiffrement</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="138"/>
@@ -294,64 +294,64 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="183"/>
         <source>Voice Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Paramètres Voix</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="188"/>
         <source>Value</source>
-        <translation type="unfinished">Valeur</translation>
+        <translation>Valeur</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="193"/>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Changements</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
         <location filename="bluetooth_device_dialog.cpp" line="632"/>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 changements</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="223"/>
         <source>Copy Cell</source>
-        <translation type="unfinished">Copier la cellule</translation>
+        <translation>Copier la cellule</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="228"/>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier les lignes</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="233"/>
         <source>Copy All</source>
-        <translation type="unfinished">Copier Tout</translation>
+        <translation>Copier Tout</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="238"/>
         <source>Save as image</source>
-        <translation type="unfinished">Enregistrer en tant qu&apos;image</translation>
+        <translation>Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="243"/>
         <location filename="bluetooth_device_dialog.ui" line="246"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer/Démarquer Ligne</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="249"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="254"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer/Démarquer Cellule</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="180"/>
         <source>Unknown</source>
-        <translation type="unfinished">Inconnu</translation>
+        <translation>Inconnu</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="189"/>
@@ -361,12 +361,12 @@
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="567"/>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>activé</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="567"/>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>désactivé</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="575"/>
@@ -381,7 +381,7 @@
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="669"/>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">Image PNG (*.png)</translation>
+        <translation>Image PNG (*.png)</translation>
     </message>
 </context>
 <context>
@@ -476,17 +476,17 @@
         <location filename="bluetooth_devices_dialog.ui" line="183"/>
         <location filename="bluetooth_devices_dialog.ui" line="186"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer/Démarquer Ligne</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="189"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="194"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer/Démarquer Cellule</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.cpp" line="341"/>
@@ -695,7 +695,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="616"/>
         <source>Display filter:</source>
-        <translation type="unfinished">Filtre d&apos;affichage:</translation>
+        <translation>Filtre d&apos;affichage:</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="639"/>
@@ -731,17 +731,17 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="701"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="704"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer/Démarquer Ligne</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="707"/>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="712"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer/Démarquer Cellule</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="362"/>
@@ -874,7 +874,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="443"/>
         <source>Start / elapsed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Début / écoulé: </translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="489"/>
@@ -4761,7 +4761,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <location filename="interface_toolbar_lineedit.cpp" line="43"/>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Appliquer les modifications</translation>
     </message>
 </context>
 <context>
@@ -9846,22 +9846,22 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="194"/>
+        <location filename="manage_interfaces_dialog.cpp" line="249"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>Cette version de Wireshark ne sauvegarde pas les paramètres de pipe.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="198"/>
+        <location filename="manage_interfaces_dialog.cpp" line="253"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>Cette version de Wireshark ne sauvegarde pas les paramètres distants.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="200"/>
+        <location filename="manage_interfaces_dialog.cpp" line="255"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>Cette version de Wireshark ne supporte pas les interfaces distantes.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="228"/>
+        <location filename="manage_interfaces_dialog.cpp" line="283"/>
         <source>New Pipe</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11359,13 +11359,36 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="875"/>
+        <location filename="../../wireshark-qt.cpp" line="876"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Filtre d&apos;affichage invalide</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="876"/>
+        <location filename="../../wireshark-qt.cpp" line="877"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="121"/>
+        <location filename="manage_interfaces_dialog.cpp" line="124"/>
+        <location filename="manage_interfaces_dialog.cpp" line="127"/>
+        <location filename="manage_interfaces_dialog.cpp" line="130"/>
+        <source>Error</source>
+        <translation type="unfinished">Erreur</translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="121"/>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished">Aucune interface distante trouvée.</translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="127"/>
+        <source>PCAP not found</source>
+        <translation type="unfinished">PCAP non trouvé</translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="130"/>
+        <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

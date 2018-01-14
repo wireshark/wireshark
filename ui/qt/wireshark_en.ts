@@ -9781,22 +9781,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="194"/>
+        <location filename="manage_interfaces_dialog.cpp" line="249"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="198"/>
+        <location filename="manage_interfaces_dialog.cpp" line="253"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="200"/>
+        <location filename="manage_interfaces_dialog.cpp" line="255"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="228"/>
+        <location filename="manage_interfaces_dialog.cpp" line="283"/>
         <source>New Pipe</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11292,13 +11292,36 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="875"/>
+        <location filename="../../wireshark-qt.cpp" line="876"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="876"/>
+        <location filename="../../wireshark-qt.cpp" line="877"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="121"/>
+        <location filename="manage_interfaces_dialog.cpp" line="124"/>
+        <location filename="manage_interfaces_dialog.cpp" line="127"/>
+        <location filename="manage_interfaces_dialog.cpp" line="130"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="121"/>
+        <source>No remote interfaces found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="127"/>
+        <source>PCAP not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="manage_interfaces_dialog.cpp" line="130"/>
+        <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
