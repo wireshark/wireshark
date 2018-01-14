@@ -23,6 +23,7 @@
 #include <QMenu>
 
 class ProtoTreeModel;
+class ProtoNode;
 
 class ProtoTree : public QTreeView
 {
@@ -62,6 +63,7 @@ private:
     capture_file *cap_file_;
 
     void saveSelectedField(QModelIndex &index);
+    static void foreachSyncExpansion(proto_node *node, gpointer proto_tree_ptr);
 
 signals:
     void fieldSelected(FieldInformation *);
