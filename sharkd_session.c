@@ -73,6 +73,13 @@
 
 #include "sharkd.h"
 
+struct sharkd_filter_item
+{
+	guint8 *filtered;
+};
+
+static GHashTable *filter_table = NULL;
+
 static gboolean
 json_unescape_str(char *input)
 {
@@ -164,27 +171,22 @@ json_print_base64(const guint8 *data, size_t len)
 	putchar('"');
 }
 
-struct filter_item
+static void
+sharkd_session_filter_free(gpointer data)
 {
-	struct filter_item *next;
+	struct sharkd_filter_item *l = (struct sharkd_filter_item *) data;
 
-	char *filter;
-	guint8 *filtered;
-};
-
-static struct filter_item *filter_list = NULL;
+	g_free(l->filtered);
+	g_free(l);
+}
 
 static const guint8 *
 sharkd_session_filter_data(const char *filter)
 {
-	struct filter_item *l;
+	struct sharkd_filter_item *l;
 
-	for (l = filter_list; l; l = l->next)
-	{
-		if (!strcmp(l->filter, filter))
-			return l->filtered;
-	}
-
+	l = (struct sharkd_filter_item *) g_hash_table_lookup(filter_table, filter);
+	if (!l)
 	{
 		guint8 *filtered = NULL;
 
@@ -193,15 +195,13 @@ sharkd_session_filter_data(const char *filter)
 		if (ret == -1)
 			return NULL;
 
-		l = (struct filter_item *) g_malloc(sizeof(struct filter_item));
-		l->filter = g_strdup(filter);
+		l = (struct sharkd_filter_item *) g_malloc(sizeof(struct sharkd_filter_item));
 		l->filtered = filtered;
 
-		l->next = filter_list;
-		filter_list = l;
-
-		return filtered;
+		g_hash_table_insert(filter_table, g_strdup(filter), l);
 	}
+
+	return l->filtered;
 }
 
 struct sharkd_rtp_match
@@ -4048,6 +4048,8 @@ sharkd_session_main(void)
 
 	fprintf(stderr, "Hello in child.\n");
 
+	filter_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, sharkd_session_filter_free);
+
 	while (fgets(buf, sizeof(buf), stdin))
 	{
 		/* every command is line seperated JSON */
@@ -4081,6 +4083,7 @@ sharkd_session_main(void)
 		sharkd_session_process(buf, tokens, ret);
 	}
 
+	g_hash_table_destroy(filter_table);
 	g_free(tokens);
 
 	return 0;
