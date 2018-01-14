@@ -1027,7 +1027,8 @@
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng</translation>
+        <oldsource>pcap-ng</oldsource>
+        <translation type="unfinished">pcap-ng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1318,11 +1319,12 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zapisuj pakiety w formacie pcapng&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zapisuj pakiety w formacie pcap-ng&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation>Zapisuj pakiety w formacie pcapng</translation>
+        <oldsource>Capture packets in pcap-ng format</oldsource>
+        <translation type="unfinished">Zapisuj pakiety w formacie pcap-ng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1339,6 +1341,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Automatic scrolling in live capture</source>
         <translation>Automatyczne przewijanie podczas przechwytywania</translation>
+    </message>
+    <message>
+        <source>Disable external capture interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3489,6 +3495,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <source>Show hidden interfaces</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>External capture interfaces disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceToolbar</name>
@@ -4887,10 +4897,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Profile: </source>
-        <translation type="vanished">Profil: </translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -7753,48 +7759,8 @@ text-decoration: underline;
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Appearance</source>
-        <translation type="vanished">Prezentacja</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation type="vanished">Wygląd</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation type="vanished">Kolumny</translation>
-    </message>
-    <message>
-        <source>Font and Colors</source>
-        <translation type="vanished">Czcionki i kolory</translation>
-    </message>
-    <message>
-        <source>Capture</source>
-        <translation type="vanished">Przechwytywanie</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation type="vanished">Zaawansowane</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>Szukaj:</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nazwa</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">Status</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Typ</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">Wartość</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8046,22 +8012,6 @@ text-decoration: underline;
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Domyślne</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">Zmienione</translation>
-    </message>
-    <message>
-        <source>Has this preference been changed?</source>
-        <translation type="vanished">Czy to ustawienie zostało zmienione?</translation>
-    </message>
-    <message>
-        <source>Default value is empty</source>
-        <translation type="vanished">Domyślna wartość jest pusta</translation>
-    </message>
     <message>
         <source>Average Throughput (bits/s)</source>
         <translation type="unfinished"></translation>
@@ -10946,10 +10896,6 @@ text-decoration: underline;
         <translation>Inicjacja kanałów komunikacyjnych</translation>
     </message>
     <message>
-        <source>Initializing extcap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Registering dissectors</source>
         <translation>Rejestracja dekoderów</translation>
     </message>
@@ -10985,6 +10931,10 @@ text-decoration: underline;
     <message>
         <source>(Unknown action)</source>
         <translation>(Nieznana akcja)</translation>
+    </message>
+    <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

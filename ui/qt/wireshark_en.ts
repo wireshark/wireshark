@@ -1336,6 +1336,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Automatic scrolling in live capture</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Disable external capture interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ColoringRulesDialog</name>
@@ -3454,6 +3458,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Show hidden interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External capture interfaces disabled.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10723,7 +10731,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initializing extcap</source>
+        <source>Initializing external capture plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

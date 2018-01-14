@@ -1021,7 +1021,8 @@
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng</translation>
+        <oldsource>pcap-ng</oldsource>
+        <translation type="unfinished">pcap-ng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1317,7 +1318,8 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation>使用pcapng格式捕获分组</translation>
+        <oldsource>Capture packets in pcap-ng format</oldsource>
+        <translation type="unfinished">使用pcap-ng格式捕获分组</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1334,6 +1336,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Automatic scrolling in live capture</source>
         <translation>实时捕获时自动滚屏</translation>
+    </message>
+    <message>
+        <source>Disable external capture interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3477,6 +3483,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Show hidden interfaces</source>
         <translation>显示隐藏接口</translation>
     </message>
+    <message>
+        <source>External capture interfaces disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceToolbar</name>
@@ -4871,10 +4881,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Profile: </source>
-        <translation type="vanished">配置文件: </translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -7733,48 +7739,8 @@ text-decoration: underline;
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Appearance</source>
-        <translation type="vanished">外观</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation type="vanished">布局</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation type="vanished">列</translation>
-    </message>
-    <message>
-        <source>Font and Colors</source>
-        <translation type="vanished">字体与颜色</translation>
-    </message>
-    <message>
-        <source>Capture</source>
-        <translation type="vanished">捕获</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation type="vanished">高级</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>搜索:</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名称</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">状态</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">类型</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">值</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8026,22 +7992,6 @@ text-decoration: underline;
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">默认</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">已更改</translation>
-    </message>
-    <message>
-        <source>Has this preference been changed?</source>
-        <translation type="vanished">此首选项已被更改？</translation>
-    </message>
-    <message>
-        <source>Default value is empty</source>
-        <translation type="vanished">默认值为空</translation>
-    </message>
     <message>
         <source>Average Throughput (bits/s)</source>
         <translation>平均吞吐量 (比特/秒)</translation>
@@ -10919,7 +10869,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Initializing extcap</source>
-        <translation>正在初始化 extcap</translation>
+        <translation type="vanished">正在初始化 extcap</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -10957,6 +10907,10 @@ text-decoration: underline;
     <message>
         <source>(Unknown action)</source>
         <translation>(未知操作)</translation>
+    </message>
+    <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

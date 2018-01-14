@@ -382,7 +382,7 @@ datasurfsrv	461/tcp/udp	# DataRampSrv
 datasurfsrvsec	462/tcp/udp	# DataRampSrvSec
 alpes		463/tcp/udp
 kpasswd		464/tcp/udp
-urd		465/tcp		# URL Rendesvous Directory for SSM
+urd		465/tcp		# URL Rendezvous Directory for SSM
 igmpv3lite	465/udp		# IGMP over UDP for SSM
 digital-vrc	466/tcp/udp
 mylex-mapd	467/tcp/udp

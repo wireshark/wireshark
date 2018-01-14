@@ -1021,7 +1021,8 @@
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng形式</translation>
+        <oldsource>pcap-ng</oldsource>
+        <translation type="unfinished">pcap-ng形式</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1316,7 +1317,8 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation>pcapng形式でパケットをキャプチャします</translation>
+        <oldsource>Capture packets in pcap-ng format</oldsource>
+        <translation type="unfinished">pcap-ng形式でパケットをキャプチャします</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1333,6 +1335,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Automatic scrolling in live capture</source>
         <translation>キャプチャ中に自動スクロール</translation>
+    </message>
+    <message>
+        <source>Disable external capture interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3476,6 +3482,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Show hidden interfaces</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>External capture interfaces disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceToolbar</name>
@@ -4874,10 +4884,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Profile: </source>
-        <translation type="vanished">プロファイル:</translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -7707,48 +7713,8 @@ a:hover {
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Appearance</source>
-        <translation type="vanished">外観</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation type="vanished">レイアウト</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation type="vanished">列</translation>
-    </message>
-    <message>
-        <source>Font and Colors</source>
-        <translation type="vanished">フォントと色</translation>
-    </message>
-    <message>
-        <source>Capture</source>
-        <translation type="vanished">キャプチャ</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation type="vanished">高度設定</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>検索:</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名前</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">状態</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">種別</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">値</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8000,14 +7966,6 @@ a:hover {
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Has this preference been changed?</source>
-        <translation type="vanished">この設定を変更されましたか？</translation>
-    </message>
-    <message>
-        <source>Default value is empty</source>
-        <translation type="vanished">デフォルト値は空です</translation>
-    </message>
     <message>
         <source>Average Throughput (bits/s)</source>
         <translation type="unfinished"></translation>
@@ -10861,10 +10819,6 @@ a:hover {
         <translation>タップリスナを初期化中</translation>
     </message>
     <message>
-        <source>Initializing extcap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Registering dissectors</source>
         <translation>ダイセクターを登録中</translation>
     </message>
@@ -10900,6 +10854,10 @@ a:hover {
     <message>
         <source>(Unknown action)</source>
         <translation>(不明な動作)</translation>
+    </message>
+    <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

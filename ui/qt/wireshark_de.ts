@@ -1026,7 +1026,8 @@
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng</translation>
+        <oldsource>pcap-ng</oldsource>
+        <translation type="unfinished">pcap-ng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1321,7 +1322,8 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation>Pakte im pcapng Format mitschneiden</translation>
+        <oldsource>Capture packets in pcap-ng format</oldsource>
+        <translation type="unfinished">Pakte im pcap-ng Format mitschneiden</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1338,6 +1340,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Automatic scrolling in live capture</source>
         <translation>Automatisches Scrollen während des Mitschnitts</translation>
+    </message>
+    <message>
+        <source>Disable external capture interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3490,6 +3496,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>Show hidden interfaces</source>
         <translation>Versteckte Schnittstellen anzeigen</translation>
     </message>
+    <message>
+        <source>External capture interfaces disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceToolbar</name>
@@ -4820,7 +4830,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Profile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil: %1</translation>
     </message>
     <message>
         <source>Manage Profiles</source>
@@ -4886,10 +4896,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Bytes %1-%2</source>
         <translation>Bytes %1-%2</translation>
-    </message>
-    <message>
-        <source>Profile: </source>
-        <translation type="vanished">Profil:</translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -5087,8 +5093,8 @@ text-decoration: underline;
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
         <translation>
-            <numerusform>%n Schnittstelle anzeigt, %1 versteckt</numerusform>
-            <numerusform>%n Schnittstellen anzeigt, %1 versteckt</numerusform>
+            <numerusform>%n Schnittstelle angezeigt, %1 versteckt</numerusform>
+            <numerusform>%n Schnittstellen angezeigt, %1 versteckt</numerusform>
         </translation>
     </message>
     <message>
@@ -7751,57 +7757,8 @@ text-decoration: underline;
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Appearance</source>
-        <translation type="vanished">Darstellung</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation type="vanished">Ansicht</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation type="vanished">Spalten</translation>
-    </message>
-    <message>
-        <source>Font and Colors</source>
-        <translation type="vanished">Schriftart und Farben</translation>
-    </message>
-    <message>
-        <source>Capture</source>
-        <translation type="vanished">Mitschnitt</translation>
-    </message>
-    <message>
-        <source>Expert</source>
-        <translation type="vanished">Experte</translation>
-    </message>
-    <message>
-        <source>Filter Buttons</source>
-        <oldsource>Filter Expressions</oldsource>
-        <translation type="vanished">Filterknopf</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation type="vanished">Erweitert</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>Suchen:</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Name</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">Status</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Typ</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">Wert</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8053,22 +8010,6 @@ text-decoration: underline;
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Standard</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">Geändert</translation>
-    </message>
-    <message>
-        <source>Has this preference been changed?</source>
-        <translation type="vanished">Wurde diese Einstellung geändert?</translation>
-    </message>
-    <message>
-        <source>Default value is empty</source>
-        <translation type="vanished">Standardwert ist leer</translation>
-    </message>
     <message>
         <source>Average Throughput (bits/s)</source>
         <translation>Durchschnittlicher Durchsatz (Bits/s)</translation>
@@ -10950,7 +10891,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Initializing extcap</source>
-        <translation>Extcap initialisieren</translation>
+        <translation type="vanished">Extcap initialisieren</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -10988,6 +10929,10 @@ text-decoration: underline;
     <message>
         <source>(Unknown action)</source>
         <translation>(Unbekannte Aktion)</translation>
+    </message>
+    <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

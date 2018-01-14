@@ -1026,7 +1026,8 @@
     </message>
     <message>
         <source>pcapng</source>
-        <translation>pcapng</translation>
+        <oldsource>pcap-ng</oldsource>
+        <translation type="unfinished">pcap-ng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1321,7 +1322,8 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation>Cattura i pacchetti nel formato pcapng</translation>
+        <oldsource>Capture packets in pcap-ng format</oldsource>
+        <translation type="unfinished">Cattura i pacchetti nel formato pcap-ng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1338,6 +1340,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Automatic scrolling in live capture</source>
         <translation>Scorrimento automatico durante la cattura</translation>
+    </message>
+    <message>
+        <source>Disable external capture interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3490,6 +3496,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <source>Show hidden interfaces</source>
         <translation>Mostra interfacce nascoste</translation>
     </message>
+    <message>
+        <source>External capture interfaces disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceToolbar</name>
@@ -4820,7 +4830,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Profile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilo: %1</translation>
     </message>
     <message>
         <source>Manage Profiles</source>
@@ -4886,10 +4896,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Bytes %1-%2</source>
         <translation>Byte %1-%2</translation>
-    </message>
-    <message>
-        <source>Profile: </source>
-        <translation type="vanished">Profilo: </translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
@@ -7751,57 +7757,8 @@ a:hover {
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Appearance</source>
-        <translation type="vanished">Apparenza</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation type="vanished">Impaginazione</translation>
-    </message>
-    <message>
-        <source>Columns</source>
-        <translation type="vanished">Colonne</translation>
-    </message>
-    <message>
-        <source>Font and Colors</source>
-        <translation type="vanished">Caratteri e colori</translation>
-    </message>
-    <message>
-        <source>Capture</source>
-        <translation type="vanished">Cattura</translation>
-    </message>
-    <message>
-        <source>Expert</source>
-        <translation type="vanished">Esperto</translation>
-    </message>
-    <message>
-        <source>Filter Buttons</source>
-        <oldsource>Filter Expressions</oldsource>
-        <translation type="vanished">Pulsanti di filtro</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation type="vanished">Avanzate</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>Cerca:</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nome</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">Stato</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Tipo</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">Valore</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -8053,22 +8010,6 @@ a:hover {
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Predefinito</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">Modificato</translation>
-    </message>
-    <message>
-        <source>Has this preference been changed?</source>
-        <translation type="vanished">Questa impostazione è stata cambiata?</translation>
-    </message>
-    <message>
-        <source>Default value is empty</source>
-        <translation type="vanished">Il valore predefinito è vuoto</translation>
-    </message>
     <message>
         <source>Average Throughput (bits/s)</source>
         <translation>Capacità trasmissiva media (bit/s)</translation>
@@ -10950,7 +10891,7 @@ a:hover {
     </message>
     <message>
         <source>Initializing extcap</source>
-        <translation>Inizializzazione extcap</translation>
+        <translation type="vanished">Inizializzazione extcap</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -10988,6 +10929,10 @@ a:hover {
     <message>
         <source>(Unknown action)</source>
         <translation>(Azione sconosciuta)</translation>
+    </message>
+    <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1,4 +1,4 @@
-TShark (Wireshark) 2.5.0 (v2.5.0rc0-1500-g78f9a07f)
+TShark (Wireshark) 2.5.0 (v2.5.0rc0-2358-gae199f2e)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -114,6 +114,7 @@ Miscellaneous:
                            default report="fields"
                            use "-G help" for more help
 
-WARNING: dumpcap will enable kernel BPF JIT compiler if available.
-You might want to reset it
-By doing "echo 0 > /proc/sys/net/core/bpf_jit_enable"
+Dumpcap can benefit from an enabled BPF JIT compiler if available.
+You might want to enable it by executing:
+ "echo 1 > /proc/sys/net/core/bpf_jit_enable"
+Note that this can make your system less secure!
