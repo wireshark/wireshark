@@ -2126,6 +2126,9 @@ void wtap_cleanup(void);
 #define WTAP_ERR_UNWRITABLE_REC_DATA          -25
     /** Something in the record data can't be written to that file type */
 
+#define WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED  -26
+    /** We don't support decompressing that type of compressed file */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

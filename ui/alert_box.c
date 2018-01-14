@@ -143,6 +143,14 @@ cfile_open_failure_alert_box(const char *filename, int err, gchar *err_info)
             g_free(err_info);
             break;
 
+        case WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED:
+            simple_error_message_box(
+                        "The file \"%s\" cannot be decompressed; it is compressed in a way that we don't support.\n"
+                        "(%s)", display_basename,
+                        err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
         default:
             simple_error_message_box(
                         "The file \"%s\" could not be opened: %s.",
@@ -289,6 +297,15 @@ cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
     case WTAP_ERR_DECOMPRESS:
         simple_error_message_box(
                     "The %s cannot be decompressed; it may be damaged or corrupt.\n"
+                    "(%s)",
+                    display_name,
+                    err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
+    case WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED:
+        simple_error_message_box(
+                    "The %s cannot be decompressed; it is compressed in a way that we don't support.\n"
                     "(%s)",
                     display_name,
                     err_info != NULL ? err_info : "no information supplied");

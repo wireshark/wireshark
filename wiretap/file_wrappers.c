@@ -574,13 +574,13 @@ gz_head(FILE_T state)
     }
 
     /* look for the gzip magic header bytes 31 and 139 */
-#ifdef HAVE_ZLIB
     if (state->next_in[0] == 31) {
         state->avail_in--;
         state->next_in++;
         if (state->avail_in == 0 && fill_in_buffer(state) == -1)
             return -1;
         if (state->avail_in && state->next_in[0] == 139) {
+#ifdef HAVE_ZLIB
             guint8 cm;
             guint8 flags;
             guint16 len;
@@ -662,8 +662,13 @@ gz_head(FILE_T state)
                 state->fast_seek_cur = cur;
                 fast_seek_header(state, state->raw_pos - state->avail_in, state->pos, GZIP_AFTER_HEADER);
             }
-#endif
+#endif /* Z_BLOCK */
             return 0;
+#else /* HAVE_ZLIB */
+            state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
+            state->err_info = "reading gzip-compressed files isn't supported";
+            return -1;
+#endif /* HAVE_ZLIB */
         }
         else {
             /* not a gzip file -- save first byte (31) and fall to raw i/o */
@@ -671,7 +676,6 @@ gz_head(FILE_T state)
             state->have = 1;
         }
     }
-#endif
 #ifdef HAVE_LIBXZ
     /* { 0xFD, '7', 'z', 'X', 'Z', 0x00 } */
     /* FD 37 7A 58 5A 00 */
