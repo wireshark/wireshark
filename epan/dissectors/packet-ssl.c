@@ -802,6 +802,23 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
              * on this individual packet
              */
         default:
+            /*
+             * If the version is unknown, assume SSLv3/TLS which has a record
+             * size of at least 5 bytes (SSLv2 record header is two or three
+             * bytes, but the data will hopefully be larger than three bytes).
+             */
+            if (tvb_reported_length_remaining(tvb, offset) < 5) {
+                if (ssl_desegment && pinfo->can_desegment) {
+                    pinfo->desegment_offset = offset;
+                    pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                    need_desegmentation = TRUE;
+                } else {
+                    /* Not enough bytes available. Stop here. */
+                    offset = tvb_reported_length(tvb);
+                }
+                break;
+            }
+
             if (ssl_looks_like_sslv2(tvb, offset))
             {
                 /* looks like sslv2 or pct client hello */
