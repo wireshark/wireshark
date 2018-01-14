@@ -326,7 +326,7 @@ dissect_websocket_control_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void
-dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *pl_tree, guint8 opcode, websocket_conv_t *websocket_conv, gboolean pmc _U_, gint raw_offset)
+dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *pl_tree, guint8 opcode, websocket_conv_t *websocket_conv, gboolean pmc _U_, gint raw_offset _U_)
 {
   proto_item         *ti;
   dissector_handle_t  handle = NULL;
