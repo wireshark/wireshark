@@ -449,6 +449,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-nfs.h
 	packet-nisplus.h
 	packet-nlm.h
+	packet-nr-rrc.h
 	packet-nsh.h
 	packet-ntlmssp.h
 	packet-ntp.h
