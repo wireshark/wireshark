@@ -52,9 +52,6 @@ public:
     explicit VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows = false);
     ~VoipCallsDialog();
 
-public slots:
-    void endRetapPackets();
-
 signals:
     void updateFilter(QString filter, bool force = false);
     void captureFileChanged(capture_file *cf);
@@ -62,6 +59,7 @@ signals:
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
+    virtual void removeTapListeners();
 
 protected slots:
     void changeEvent(QEvent* event);

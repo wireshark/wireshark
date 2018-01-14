@@ -163,6 +163,11 @@ void WiresharkDialog::captureEvent(CaptureEvent *e)
 
 }
 
+void WiresharkDialog::beginRetapPackets()
+{
+    retap_depth_++;
+}
+
 void WiresharkDialog::endRetapPackets()
 {
     retap_depth_--;

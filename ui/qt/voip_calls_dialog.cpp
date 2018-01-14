@@ -126,10 +126,10 @@ VoipCallsDialog::~VoipCallsDialog()
     g_queue_free(tapinfo_.callsinfos);
 }
 
-void VoipCallsDialog::endRetapPackets()
+void VoipCallsDialog::removeTapListeners()
 {
     voip_calls_remove_all_tap_listeners(&tapinfo_);
-    WiresharkDialog::endRetapPackets();
+    WiresharkDialog::removeTapListeners();
 }
 
 void VoipCallsDialog::captureFileClosing()

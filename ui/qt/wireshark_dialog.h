@@ -59,7 +59,7 @@ public:
      * accessed after tapping is finished.
      */
 
-    void beginRetapPackets() { retap_depth_++; }
+    void beginRetapPackets();
     /**
      * @brief Mark the end of a code block that retaps packets. If the user
      * has closed the dialog it will be desroyed at this point.
@@ -111,7 +111,7 @@ protected:
     /**
      * @brief Remove all tap listeners registered via registerTapListener.
      */
-    void removeTapListeners();
+    virtual void removeTapListeners();
 
     /**
      * @brief true if the file has been closed, false otherwise.
