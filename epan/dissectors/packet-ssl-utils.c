@@ -103,6 +103,7 @@ const value_string ssl_versions[] = {
     { 0x7F14,               "TLS 1.3 (draft 20)" },
     { 0x7F15,               "TLS 1.3 (draft 21)" },
     { 0x7F16,               "TLS 1.3 (draft 22)" },
+    { 0x7F17,               "TLS 1.3 (draft 23)" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
@@ -1212,7 +1213,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_CACHED_INFO, "cached_info" }, /* RFC 7924 */
     { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS, "quic_transports_parameters" }, /* https://tools.ietf.org/html/draft-ietf-quic-tls */
     { SSL_HND_HELLO_EXT_SESSION_TICKET_TLS, "SessionTicket TLS" }, /* RFC 4507 */
-    { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
+    { SSL_HND_HELLO_EXT_KEY_SHARE_OLD, "Reserved (key_share)" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-22 */
     { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_EARLY_DATA, "early_data" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS, "supported_versions" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
@@ -1222,6 +1223,8 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES, "certificate_authorities" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.2.3.1 */
     { SSL_HND_HELLO_EXT_OID_FILTERS, "oid_filters" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.3.2.1 */
     { SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH, "post_handshake_auth" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-20#section-4.2.5 */
+    { SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT, "signature_algorithms_cert" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-23 */
+    { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-23 */
     { SSL_HND_HELLO_EXT_GREASE_0A0A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { SSL_HND_HELLO_EXT_GREASE_1A1A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { SSL_HND_HELLO_EXT_GREASE_2A2A, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
@@ -1286,7 +1289,7 @@ const value_string tls_signature_algorithm[] = {
     { 0, NULL }
 };
 
-/* https://tools.ietf.org/html/draft-ietf-tls-tls13-21#section-4.2.3 */
+/* https://tools.ietf.org/html/draft-ietf-tls-tls13-23#section-4.2.3 */
 const value_string tls13_signature_algorithm[] = {
     { 0x0201, "rsa_pkcs1_sha1" },
     { 0x0203, "ecdsa_sha1" },
@@ -1296,11 +1299,14 @@ const value_string tls13_signature_algorithm[] = {
     { 0x0503, "ecdsa_secp384r1_sha384" },
     { 0x0601, "rsa_pkcs1_sha512" },
     { 0x0603, "ecdsa_secp521r1_sha512" },
-    { 0x0804, "rsa_pss_sha256" },
-    { 0x0805, "rsa_pss_sha384" },
-    { 0x0806, "rsa_pss_sha512" },
+    { 0x0804, "rsa_pss_rsae_sha256" },
+    { 0x0805, "rsa_pss_rsae_sha384" },
+    { 0x0806, "rsa_pss_rsae_sha512" },
     { 0x0807, "ed25519" },
     { 0x0808, "ed448" },
+    { 0x0809, "rsa_pss_pss_sha256" },
+    { 0x080a, "rsa_pss_pss_sha384" },
+    { 0x080b, "rsa_pss_pss_sha512" },
     { 0, NULL }
 };
 
@@ -8062,6 +8068,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset);
             break;
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS:
+        case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT: /* since TLS 1.3 draft -23 */
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_USE_SRTP:
@@ -8125,6 +8132,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_SESSION_TICKET_TLS:
             offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
+        case SSL_HND_HELLO_EXT_KEY_SHARE_OLD: /* used before TLS 1.3 draft -23 */
         case SSL_HND_HELLO_EXT_KEY_SHARE:
             offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
             break;

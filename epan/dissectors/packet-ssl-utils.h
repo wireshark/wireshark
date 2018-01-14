@@ -167,7 +167,7 @@ typedef enum {
 /* 26-34  Unassigned*/
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
 /* TLS 1.3 draft */
-#define SSL_HND_HELLO_EXT_KEY_SHARE                     40
+#define SSL_HND_HELLO_EXT_KEY_SHARE_OLD                 40
 #define SSL_HND_HELLO_EXT_PRE_SHARED_KEY                41
 #define SSL_HND_HELLO_EXT_EARLY_DATA                    42
 #define SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS            43
@@ -177,6 +177,8 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES       47
 #define SSL_HND_HELLO_EXT_OID_FILTERS                   48
 #define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
+#define SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT     50
+#define SSL_HND_HELLO_EXT_KEY_SHARE                     51
 #define SSL_HND_HELLO_EXT_GREASE_0A0A                   2570
 #define SSL_HND_HELLO_EXT_GREASE_1A1A                   6682
 #define SSL_HND_HELLO_EXT_GREASE_2A2A                   10794
