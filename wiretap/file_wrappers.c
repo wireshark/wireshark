@@ -53,7 +53,11 @@
 #endif /* HAVE_ZLIB */
 
 /*
- * See RFC 1952 for a description of the gzip file format.
+ * See RFC 1952:
+ *
+ *      https://tools.ietf.org/html/rfc1952
+ *
+ * for a description of the gzip file format.
  *
  * Some other compressed file formats we might want to support:
  *
