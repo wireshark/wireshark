@@ -619,13 +619,21 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
         switch(frame_type){
             case FT_PADDING:{
                 proto_item *ti_pad_len;
-                guint32 pad_len = tvb_reported_length_remaining(tvb, offset);
+                guint32 padding_offset = offset, pad_len;
+
+                /* get length of padding (with check if it is always a 0) */
+                while ( tvb_reported_length_remaining(tvb, padding_offset) > 0) {
+                    if(tvb_get_guint8(tvb, padding_offset) != 0){
+                        break;
+                    }
+                    padding_offset ++;
+                }
+                pad_len = padding_offset - offset;
 
                 ti_pad_len = proto_tree_add_uint(ft_tree, hf_quic_frame_type_padding_length, tvb, offset, 0, pad_len);
                 PROTO_ITEM_SET_GENERATED(ti_pad_len);
                 proto_item_append_text(ti_ft, " Length: %u", pad_len);
-                //TODO: Add check if always 0 ?
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_padding, tvb, offset, -1, ENC_NA);
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_padding, tvb, offset, pad_len, ENC_NA);
                 offset += pad_len;
                 proto_item_set_len(ti_ft, 1+pad_len);
             }
