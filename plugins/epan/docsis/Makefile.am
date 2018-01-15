@@ -19,59 +19,53 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include ../Makefile.am.inc
+include $(top_srcdir)/plugins/Makefile.am.inc
 
 # the name of the plugin
-PLUGIN_NAME = ethercat
+PLUGIN_NAME = docsis
 
-PLUGIN_VERSION = 0.1.1
+PLUGIN_VERSION = 0.0.5
 
 BUILT_SOURCES = \
 	plugin.c
 
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
-	packet-ams.c \
-	packet-ecatmb.c \
-	packet-esl.c \
-	packet-ethercat-datagram.c \
-	packet-ethercat-frame.c \
-	packet-ioraw.c \
-	packet-nv.c
+	packet-docsis.c \
+	packet-macmgmt.c \
+	packet-tlv.c \
+	packet-vendor.c
 
 # Non-generated sources
 NONGENERATED_C_FILES = \
 	$(NONGENERATED_REGISTER_C_FILES)
 
 # Headers.
-CLEAN_HEADER_FILES = \
-	packet-ams.h \
-	packet-ecatmb.h \
-	packet-ethercat-datagram.h \
-	packet-ethercat-frame.h \
-	packet-ioraw.h \
-	packet-nv.h
+CLEAN_HEADER_FILES =	\
+	packet-tlv.h
 
 HEADER_FILES = \
+	$(FLEX_GENERATED_HEADER_FILES) \
 	$(CLEAN_HEADER_FILES)
 
-epan_plugin_LTLIBRARIES = ethercat.la
+epan_plugin_LTLIBRARIES = docsis.la
 
-ethercat_la_SOURCES = \
+docsis_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-nodist_ethercat_la_SOURCES = \
+nodist_docsis_la_SOURCES = \
 	plugin.c
 
-ethercat_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+docsis_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-ethercat_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+docsis_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
-ethercat_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+docsis_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 DISTCLEANFILES = \
 	plugin.c
 
 EXTRA_DIST = \
+	README			\
 	CMakeLists.txt

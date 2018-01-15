@@ -1370,19 +1370,19 @@ if(ENABLE_PLUGINS)
 	add_custom_target(plugins)
 	set_target_properties(plugins PROPERTIES FOLDER "Plugins")
 	set(PLUGIN_SRC_DIRS
-		plugins/docsis
-		plugins/ethercat
-		plugins/gryphon
-		plugins/irda
-		plugins/mate
-		plugins/opcua
-		plugins/profinet
-		plugins/stats_tree
-		plugins/transum
-		plugins/unistim
-		plugins/wimax
-		plugins/wimaxasncp
-		plugins/wimaxmacphy
+		plugins/epan/docsis
+		plugins/epan/ethercat
+		plugins/epan/gryphon
+		plugins/epan/irda
+		plugins/epan/mate
+		plugins/epan/opcua
+		plugins/epan/profinet
+		plugins/epan/stats_tree
+		plugins/epan/transum
+		plugins/epan/unistim
+		plugins/epan/wimax
+		plugins/epan/wimaxasncp
+		plugins/epan/wimaxmacphy
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
 

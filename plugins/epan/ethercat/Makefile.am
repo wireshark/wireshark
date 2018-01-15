@@ -19,19 +19,25 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include ../Makefile.am.inc
+include $(top_srcdir)/plugins/Makefile.am.inc
 
 # the name of the plugin
-PLUGIN_NAME = pluginifdemo
+PLUGIN_NAME = ethercat
 
-PLUGIN_VERSION = 0.0.1
+PLUGIN_VERSION = 0.1.1
 
 BUILT_SOURCES = \
 	plugin.c
 
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
-	pluginifdemo.c
+	packet-ams.c \
+	packet-ecatmb.c \
+	packet-esl.c \
+	packet-ethercat-datagram.c \
+	packet-ethercat-frame.c \
+	packet-ioraw.c \
+	packet-nv.c
 
 # Non-generated sources
 NONGENERATED_C_FILES = \
@@ -39,25 +45,30 @@ NONGENERATED_C_FILES = \
 
 # Headers.
 CLEAN_HEADER_FILES = \
-	pluginifdemo.h
+	packet-ams.h \
+	packet-ecatmb.h \
+	packet-ethercat-datagram.h \
+	packet-ethercat-frame.h \
+	packet-ioraw.h \
+	packet-nv.h
 
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-epan_plugin_LTLIBRARIES = pluginifdemo.la
+epan_plugin_LTLIBRARIES = ethercat.la
 
-pluginifdemo_la_SOURCES = \
+ethercat_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-nodist_pluginifdemo_la_SOURCES = \
+nodist_ethercat_la_SOURCES = \
 	plugin.c
 
-pluginifdemo_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+ethercat_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-pluginifdemo_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+ethercat_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
-pluginifdemo_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+ethercat_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 DISTCLEANFILES = \
 	plugin.c

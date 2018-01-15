@@ -55,7 +55,7 @@
 #include "epan/dissectors/packet-t30.h"
 #include "epan/dissectors/packet-h248.h"
 #include "epan/dissectors/packet-sccp.h"
-#include "plugins/unistim/packet-unistim.h"
+#include "plugins/epan/unistim/packet-unistim.h"
 #include "epan/dissectors/packet-skinny.h"
 #include "epan/dissectors/packet-iax2.h"
 #include "epan/rtp_pt.h"

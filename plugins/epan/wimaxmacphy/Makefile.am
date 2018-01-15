@@ -1,6 +1,5 @@
 # Makefile.am
 #
-# Adapted by Gerhard Gappmeier for OpcUa
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
@@ -20,72 +19,48 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include ../Makefile.am.inc
+include $(top_srcdir)/plugins/Makefile.am.inc
 
 # the name of the plugin
-PLUGIN_NAME = opcua
+PLUGIN_NAME = wimaxmacphy
 
-PLUGIN_VERSION = 1.1.0
+PLUGIN_VERSION = 0.0.1
 
 BUILT_SOURCES = \
 	plugin.c
 
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
-	opcua.c
+	packet-wimaxmacphy.c
 
 # Non-generated sources
 NONGENERATED_C_FILES = \
-	$(NONGENERATED_REGISTER_C_FILES) \
-	opcua_transport_layer.c \
-	opcua_security_layer.c \
-	opcua_application_layer.c \
-	opcua_serviceparser.c \
-	opcua_complextypeparser.c \
-	opcua_enumparser.c \
-	opcua_simpletypes.c \
-	opcua_servicetable.c \
-	opcua_extensionobjecttable.c \
-	opcua_hfindeces.c \
-	opcua_statuscode.c
+	$(NONGENERATED_REGISTER_C_FILES)
 
 # Headers.
 CLEAN_HEADER_FILES = \
-	opcua_complextypeparser.h \
-	opcua_enumparser.h \
-	opcua_hfindeces.h \
-	opcua_statuscode.h \
-	opcua_identifiers.h \
-	opcua_serviceparser.h \
-	opcua_simpletypes.h \
-	opcua_servicetable.h \
-	opcua_application_layer.h \
-	opcua_security_layer.h \
-	opcua_transport_layer.h \
-	opcua_extensionobjectids.h \
-	opcua_serviceids.h
+	packet-wimaxmacphy.h
 
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-epan_plugin_LTLIBRARIES = opcua.la
+epan_plugin_LTLIBRARIES = wimaxmacphy.la
 
-opcua_la_SOURCES = \
+wimaxmacphy_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-nodist_opcua_la_SOURCES = \
+nodist_wimaxmacphy_la_SOURCES = \
 	plugin.c
 
-opcua_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+wimaxmacphy_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-opcua_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+wimaxmacphy_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
-opcua_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+wimaxmacphy_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 DISTCLEANFILES = \
 	plugin.c
 
 EXTRA_DIST = \
-	README			\
 	CMakeLists.txt

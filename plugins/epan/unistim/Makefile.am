@@ -19,19 +19,19 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include ../Makefile.am.inc
+include $(top_srcdir)/plugins/Makefile.am.inc
 
 # the name of the plugin
-PLUGIN_NAME = wimaxmacphy
+PLUGIN_NAME = unistim
 
-PLUGIN_VERSION = 0.0.1
+PLUGIN_VERSION = 0.0.2
 
 BUILT_SOURCES = \
 	plugin.c
 
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
-	packet-wimaxmacphy.c
+	packet-unistim.c
 
 # Non-generated sources
 NONGENERATED_C_FILES = \
@@ -39,25 +39,34 @@ NONGENERATED_C_FILES = \
 
 # Headers.
 CLEAN_HEADER_FILES = \
-	packet-wimaxmacphy.h
+	audio.h        \
+	basic.h        \
+	broadcast.h    \
+	defines.h      \
+	display.h      \
+	expansion.h    \
+	key.h          \
+	network.h      \
+	uftp.h         \
+	packet-unistim.h
 
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-epan_plugin_LTLIBRARIES = wimaxmacphy.la
+epan_plugin_LTLIBRARIES = unistim.la
 
-wimaxmacphy_la_SOURCES = \
+unistim_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-nodist_wimaxmacphy_la_SOURCES = \
+nodist_unistim_la_SOURCES = \
 	plugin.c
 
-wimaxmacphy_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+unistim_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-wimaxmacphy_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+unistim_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
-wimaxmacphy_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+unistim_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 DISTCLEANFILES = \
 	plugin.c

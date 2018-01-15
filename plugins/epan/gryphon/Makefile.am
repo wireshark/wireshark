@@ -19,50 +19,45 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include ../Makefile.am.inc
+include $(top_srcdir)/plugins/Makefile.am.inc
 
 # the name of the plugin
-PLUGIN_NAME = transum
+PLUGIN_NAME = gryphon
 
-PLUGIN_VERSION = 2.0.2
+PLUGIN_VERSION = 0.0.4
 
 BUILT_SOURCES = \
 	plugin.c
 
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
-	packet-transum.c
+	packet-gryphon.c
 
 # Non-generated sources
 NONGENERATED_C_FILES = \
-	$(NONGENERATED_REGISTER_C_FILES) \
-	decoders.c \
-	extractors.c
+	$(NONGENERATED_REGISTER_C_FILES)
 
 # Headers.
 CLEAN_HEADER_FILES = \
-	decoders.h \
-	extractors.h \
-	packet-transum.h \
-	preferences.h
+	packet-gryphon.h
 
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-epan_plugin_LTLIBRARIES = transum.la
+epan_plugin_LTLIBRARIES = gryphon.la
 
-transum_la_SOURCES = \
+gryphon_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-nodist_transum_la_SOURCES = \
+nodist_gryphon_la_SOURCES = \
 	plugin.c
 
-transum_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+gryphon_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-transum_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+gryphon_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
-transum_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+gryphon_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 DISTCLEANFILES = \
 	plugin.c

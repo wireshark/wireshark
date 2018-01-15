@@ -34,7 +34,6 @@ typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     gchar          *name;         /* plugin name */
     const gchar    *version;      /* plugin version */
-    const gchar    *type_dir;     /* filesystem name (where it resides). */
     const gchar    *type_name;    /* user-facing name (what it does). Should these be capitalized? */
 } plugin;
 
@@ -50,6 +49,41 @@ typedef struct _plugin {
 static GPtrArray *plugins_array = NULL;
 /* map of names to plugin */
 static GHashTable *plugins_table = NULL;
+
+
+static inline const char *
+type_to_dir(plugin_type_e type)
+{
+    switch (type) {
+    case WS_PLUGIN_EPAN:
+        return TYPE_DIR_EPAN;
+    case WS_PLUGIN_WIRETAP:
+        return TYPE_DIR_WIRETAP;
+    case WS_PLUGIN_CODEC:
+        return TYPE_DIR_CODECS;
+    default:
+        g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
+        break;
+    }
+    g_assert_not_reached();
+}
+
+static inline const char *
+type_to_name(plugin_type_e type)
+{
+    switch (type) {
+    case WS_PLUGIN_EPAN:
+        return TYPE_NAME_DISSECTOR;
+    case WS_PLUGIN_WIRETAP:
+        return TYPE_NAME_FILE_TYPE;
+    case WS_PLUGIN_CODEC:
+        return TYPE_NAME_CODEC;
+    default:
+        g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
+        break;
+    }
+    g_assert_not_reached();
+}
 
 static void
 free_plugin(gpointer data)
@@ -67,20 +101,28 @@ compare_plugins(gconstpointer a, gconstpointer b)
 }
 
 static void
-plugins_scan_dir(GPtrArray **plugins_ptr, const char *dirpath, plugin_type_e type, gboolean build_dir)
+plugins_scan_dir(GPtrArray **plugins_ptr, const char *dirpath, plugin_type_e type, gboolean append_type)
 {
     GDir          *dir;
     const char    *name;            /* current file name */
-    gchar         *path;            /* current file full path */
+    gchar         *plugin_folder;
+    gchar         *plugin_file;     /* current file full path */
     GModule       *handle;          /* handle returned by g_module_open */
     gpointer       symbol;
     const char    *plug_version, *plug_release;
     plugin        *new_plug;
     gchar         *dot;
 
-    dir = g_dir_open(dirpath, 0, NULL);
-    if (dir == NULL)
+    if (append_type)
+        plugin_folder = g_build_filename(dirpath, type_to_dir(type), (gchar *)NULL);
+    else
+        plugin_folder = g_strdup(dirpath);
+
+    dir = g_dir_open(plugin_folder, 0, NULL);
+    if (dir == NULL) {
+        g_free(plugin_folder);
         return;
+    }
 
     while ((name = g_dir_read_name(dir)) != NULL) {
         /* Skip anything but files with G_MODULE_SUFFIX. */
@@ -103,16 +145,14 @@ plugins_scan_dir(GPtrArray **plugins_ptr, const char *dirpath, plugin_type_e typ
          */
         if (g_hash_table_lookup(plugins_table, name)) {
             /* Yes, it is. */
-            if (!build_dir) {
-                report_warning("The plugin '%s' was found "
+            report_warning("The plugin '%s' was found "
                                 "in multiple directories", name);
-            }
             continue;
         }
 
-        path = g_build_filename(dirpath, name, (gchar *)NULL);
-        handle = g_module_open(path, G_MODULE_BIND_LOCAL);
-        g_free(path);
+        plugin_file = g_build_filename(plugin_folder, name, (gchar *)NULL);
+        handle = g_module_open(plugin_file, G_MODULE_BIND_LOCAL);
+        g_free(plugin_file);
         if (handle == NULL) {
             /* g_module_error() provides file path. */
             report_failure("Couldn't load plugin '%s': %s", name,
@@ -157,31 +197,7 @@ DIAG_ON(pedantic)
         new_plug->handle = handle;
         new_plug->name = g_strdup(name);
         new_plug->version = plug_version;
-        new_plug->type_dir = "[build]";
-        switch (type) {
-        case WS_PLUGIN_EPAN:
-            if (!build_dir) {
-                new_plug->type_dir = TYPE_DIR_EPAN;
-            }
-            // XXX This isn't true for stats_tree and TRANSUM.
-            new_plug->type_name = TYPE_NAME_DISSECTOR;
-            break;
-        case WS_PLUGIN_WIRETAP:
-            if (!build_dir) {
-                new_plug->type_dir = TYPE_DIR_WIRETAP;
-            }
-            new_plug->type_name = TYPE_NAME_FILE_TYPE;
-            break;
-        case WS_PLUGIN_CODEC:
-            if (!build_dir) {
-                new_plug->type_dir = TYPE_DIR_CODECS;
-            }
-            new_plug->type_name = TYPE_NAME_CODEC;
-            break;
-        default:
-            g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
-            break;
-        }
+        new_plug->type_name = type_to_name(type);
 
         /* Add it to the list of plugins. */
         if (*plugins_ptr == NULL)
@@ -191,6 +207,7 @@ DIAG_ON(pedantic)
         g_hash_table_insert(plugins_table, new_plug->name, new_plug);
     }
     ws_dir_close(dir);
+    g_free(plugin_folder);
 }
 
 /*
@@ -199,17 +216,23 @@ DIAG_ON(pedantic)
 static void
 scan_plugins_build_dir(GPtrArray **plugins_ptr, plugin_type_e type)
 {
-    const char *plugin_dir;
     const char *name;
-    char *plugin_dir_path;
+    char *dirpath;
+    char *plugin_folder;
     WS_DIR *dir;                /* scanned directory */
     WS_DIRENT *file;            /* current file */
 
-    plugin_dir = get_plugins_dir();
-    if ((dir = ws_dir_open(plugin_dir, 0, NULL)) == NULL)
-        return;
+    /* Cmake */
+    plugins_scan_dir(plugins_ptr, get_plugins_dir_with_version(), type, TRUE);
 
-    plugins_scan_dir(plugins_ptr, plugin_dir, type, TRUE);
+    /* Autotools */
+    dirpath = g_build_filename(get_plugins_dir(), type_to_dir(type), (char *)NULL);
+    dir = ws_dir_open(dirpath, 0, NULL);
+    if (dir == NULL) {
+        g_free(dirpath);
+        return;
+    }
+
     while ((file = ws_dir_read_name(dir)) != NULL)
     {
         name = ws_dir_get_name(file);
@@ -219,8 +242,8 @@ scan_plugins_build_dir(GPtrArray **plugins_ptr, plugin_type_e type)
          * Get the full path of a ".libs" subdirectory of that
          * directory.
          */
-        plugin_dir_path = g_build_filename(plugin_dir, name, ".libs", (gchar *)NULL);
-        if (test_for_directory(plugin_dir_path) != EISDIR) {
+        plugin_folder = g_build_filename(dirpath, name, ".libs", (gchar *)NULL);
+        if (test_for_directory(plugin_folder) != EISDIR) {
             /*
              * Either it doesn't refer to a directory or it
              * refers to something that doesn't exist.
@@ -229,13 +252,14 @@ scan_plugins_build_dir(GPtrArray **plugins_ptr, plugin_type_e type)
              * the subdirectory of the plugin directory, not
              * a ".libs" subdirectory of that subdirectory.
              */
-            g_free(plugin_dir_path);
-            plugin_dir_path = g_build_filename(plugin_dir, name, (gchar *)NULL);
+            g_free(plugin_folder);
+            plugin_folder = g_build_filename(get_plugins_dir(), name, (gchar *)NULL);
         }
-        plugins_scan_dir(plugins_ptr, plugin_dir_path, type, TRUE);
-        g_free(plugin_dir_path);
+        plugins_scan_dir(plugins_ptr, plugin_folder, type, FALSE);
+        g_free(plugin_folder);
     }
     ws_dir_close(dir);
+    g_free(dirpath);
 }
 
 /*
@@ -247,24 +271,6 @@ plugins_init(plugin_type_e type)
     if (!g_module_supported())
         return NULL; /* nothing to do */
 
-    const char *type_dir;
-
-    switch (type) {
-    case WS_PLUGIN_EPAN:
-        type_dir = TYPE_DIR_EPAN;
-        break;
-    case WS_PLUGIN_WIRETAP:
-        type_dir = TYPE_DIR_WIRETAP;
-        break;
-    case WS_PLUGIN_CODEC:
-        type_dir = TYPE_DIR_CODECS;
-        break;
-    default:
-        g_error("Unknown plugin type: %u. Aborting.", (unsigned) type);
-        break;
-    }
-
-    gchar *dirpath;
     GPtrArray *plugins = NULL;
 
     if (plugins_table == NULL)
@@ -285,9 +291,7 @@ plugins_init(plugin_type_e type)
     }
     else
     {
-        dirpath = g_build_filename(get_plugins_dir_with_version(), type_dir, (gchar *)NULL);
-        plugins_scan_dir(&plugins, dirpath, type, FALSE);
-        g_free(dirpath);
+        plugins_scan_dir(&plugins, get_plugins_dir_with_version(), type, TRUE);
     }
 
     /*
@@ -300,9 +304,7 @@ plugins_init(plugin_type_e type)
      */
     if (!started_with_special_privs())
     {
-        dirpath = g_build_filename(get_plugins_pers_dir_with_version(), type_dir, (gchar *)NULL);
-        plugins_scan_dir(&plugins, dirpath, type, FALSE);
-        g_free(dirpath);
+        plugins_scan_dir(&plugins, get_plugins_pers_dir_with_version(), type, TRUE);
     }
 
     g_ptr_array_sort(plugins_array, compare_plugins);

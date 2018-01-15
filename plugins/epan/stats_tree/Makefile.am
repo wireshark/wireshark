@@ -19,56 +19,37 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include ../Makefile.am.inc
+include $(top_srcdir)/plugins/Makefile.am.inc
 
 # the name of the plugin
-PLUGIN_NAME = irda
+PLUGIN_NAME = stats_tree
 
-PLUGIN_VERSION = 0.0.6
-
-BUILT_SOURCES = \
-	plugin.c
-
-# Non-generated sources to be scanned for registration routines
-NONGENERATED_REGISTER_C_FILES = \
-	packet-ircomm.c \
-	packet-irda.c \
-	packet-sir.c
+PLUGIN_VERSION = 0.0.1
 
 # Non-generated sources
 NONGENERATED_C_FILES = \
-	$(NONGENERATED_REGISTER_C_FILES)
+	$(NONGENERATED_REGISTER_C_FILES) \
+	stats_tree_plugin.c	\
+	pinfo_stats_tree.c
 
 # Headers.
 CLEAN_HEADER_FILES = \
-	irda-appl.h
+	pinfo_stats_tree.h
 
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-epan_plugin_LTLIBRARIES = irda.la
+epan_plugin_LTLIBRARIES = stats_tree.la
 
-irda_la_SOURCES = \
+stats_tree_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-nodist_irda_la_SOURCES = \
-	plugin.c
+stats_tree_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-irda_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+stats_tree_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
-irda_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
-
-irda_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-
-DISTCLEANFILES = \
-	$(NODIST_SRC_FILES) \
-	$(NODIST_HEADER_FILES) \
-	plugin.c
-
-MAINTAINERCLEANFILES = \
-	$(GENERATED_SRC_FILES) \
-	$(GENERATED_HEADER_FILES)
+stats_tree_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 EXTRA_DIST = \
 	CMakeLists.txt

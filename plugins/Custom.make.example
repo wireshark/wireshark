@@ -1,7 +1,7 @@
 #
 
 _CUSTOM_SUBDIRS_ = \
-	foo
+	epan/foo
 
 _CUSTOM_EXTRA_DIST_ = \
 	Custom.m4 \

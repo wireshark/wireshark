@@ -40,17 +40,9 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 		FOLDER "Plugins"
 	)
 
-	if(ENABLE_APPLICATION_BUNDLE)
-		set_target_properties(${_plugin} PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
-		)
-	else()
-		# Why don't we just write to ${PLUGIN_DIR}/${_subfolder}
-		# everywhere?
-		set_target_properties(${_plugin} PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}
+	set_target_properties(${_plugin} PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
 	)
-endif()
 
 	# Try to force output to ${PLUGIN_DIR} without the configuration
 	# type appended. Needed on Windows.

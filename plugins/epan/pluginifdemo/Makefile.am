@@ -19,53 +19,48 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include ../Makefile.am.inc
+include $(top_srcdir)/plugins/Makefile.am.inc
 
 # the name of the plugin
-PLUGIN_NAME = docsis
+PLUGIN_NAME = pluginifdemo
 
-PLUGIN_VERSION = 0.0.5
+PLUGIN_VERSION = 0.0.1
 
 BUILT_SOURCES = \
 	plugin.c
 
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
-	packet-docsis.c \
-	packet-macmgmt.c \
-	packet-tlv.c \
-	packet-vendor.c
+	pluginifdemo.c
 
 # Non-generated sources
 NONGENERATED_C_FILES = \
 	$(NONGENERATED_REGISTER_C_FILES)
 
 # Headers.
-CLEAN_HEADER_FILES =	\
-	packet-tlv.h
+CLEAN_HEADER_FILES = \
+	pluginifdemo.h
 
 HEADER_FILES = \
-	$(FLEX_GENERATED_HEADER_FILES) \
 	$(CLEAN_HEADER_FILES)
 
-epan_plugin_LTLIBRARIES = docsis.la
+epan_plugin_LTLIBRARIES = pluginifdemo.la
 
-docsis_la_SOURCES = \
+pluginifdemo_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-nodist_docsis_la_SOURCES = \
+nodist_pluginifdemo_la_SOURCES = \
 	plugin.c
 
-docsis_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+pluginifdemo_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-docsis_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+pluginifdemo_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
-docsis_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+pluginifdemo_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 DISTCLEANFILES = \
 	plugin.c
 
 EXTRA_DIST = \
-	README			\
 	CMakeLists.txt
