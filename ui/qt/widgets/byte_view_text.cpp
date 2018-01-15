@@ -84,13 +84,13 @@ void ByteViewText::createContextMenu()
 
     QActionGroup * format_actions = new QActionGroup(this);
     action = format_actions->addAction(tr("Show bytes as hexadecimal"));
-    action->setData(qVariantFromValue(BYTES_HEX));
+    action->setData(QVariant::fromValue(BYTES_HEX));
     action->setCheckable(true);
     if (recent.gui_bytes_view == BYTES_HEX) {
         action->setChecked(true);
     }
     action = format_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as bits"));
-    action->setData(qVariantFromValue(BYTES_BITS));
+    action->setData(QVariant::fromValue(BYTES_BITS));
     action->setCheckable(true);
     if (recent.gui_bytes_view == BYTES_BITS) {
         action->setChecked(true);
@@ -103,19 +103,19 @@ void ByteViewText::createContextMenu()
 
     QActionGroup * encoding_actions = new QActionGroup(this);
     action = encoding_actions->addAction(tr("Show text based on packet"));
-    action->setData(qVariantFromValue(BYTES_ENC_FROM_PACKET));
+    action->setData(QVariant::fromValue(BYTES_ENC_FROM_PACKET));
     action->setCheckable(true);
     if (recent.gui_bytes_encoding == BYTES_ENC_FROM_PACKET) {
         action->setChecked(true);
     }
     action = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as ASCII"));
-    action->setData(qVariantFromValue(BYTES_ENC_ASCII));
+    action->setData(QVariant::fromValue(BYTES_ENC_ASCII));
     action->setCheckable(true);
     if (recent.gui_bytes_encoding == BYTES_ENC_ASCII) {
         action->setChecked(true);
     }
     action = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as EBCDIC"));
-    action->setData(qVariantFromValue(BYTES_ENC_EBCDIC));
+    action->setData(QVariant::fromValue(BYTES_ENC_EBCDIC));
     action->setCheckable(true);
     if (recent.gui_bytes_encoding == BYTES_ENC_EBCDIC) {
         action->setChecked(true);

@@ -113,7 +113,7 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
     }
 
     int idx = QTabWidget::addTab(byte_view_text, name);
-    byte_view_text->setProperty("tab_index", qVariantFromValue(idx));
+    byte_view_text->setProperty("tab_index", QVariant::fromValue(idx));
 
     QTabWidget::setTabToolTip(idx, name);
 }

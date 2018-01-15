@@ -67,7 +67,7 @@ void DragDropToolBar::childEvent(QChildEvent * event)
                 childCounter = 0;
 
             ((QWidget *)event->child())->installEventFilter(this);
-            event->child()->setProperty(drag_drop_toolbar_action_, qVariantFromValue(childCounter));
+            event->child()->setProperty(drag_drop_toolbar_action_, QVariant::fromValue(childCounter));
             childCounter++;
         }
     }

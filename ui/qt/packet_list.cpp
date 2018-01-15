@@ -547,7 +547,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
     ctx_menu_.addAction(action);
 
-    decode_as_->setData(qVariantFromValue(true));
+    decode_as_->setData(QVariant::fromValue(true));
     ctx_column_ = columnAt(event->x());
 
     // Set menu sensitivity for the current column and set action data.
@@ -685,7 +685,7 @@ void PacketList::initHeaderContextMenu()
     header_actions_[caRemoveColumn] = header_ctx_menu_.addAction(tr("Remove This Column"));
 
     foreach (ColumnActions ca, header_actions_.keys()) {
-        header_actions_[ca]->setData(qVariantFromValue(ca));
+        header_actions_[ca]->setData(QVariant::fromValue(ca));
         connect(header_actions_[ca], SIGNAL(triggered()), this, SLOT(headerMenuTriggered()));
     }
 
@@ -1335,7 +1335,7 @@ void PacketList::showHeaderMenu(QPoint pos)
         QAction *action = new QAction(get_column_title(i), &header_ctx_menu_);
         action->setCheckable(true);
         action->setChecked(get_column_visible(i));
-        action->setData(qVariantFromValue(i));
+        action->setData(QVariant::fromValue(i));
         connect(action, SIGNAL(triggered()), this, SLOT(columnVisibilityTriggered()));
         header_ctx_menu_.insertAction(show_hide_separator_, action);
         show_hide_actions_ << action;

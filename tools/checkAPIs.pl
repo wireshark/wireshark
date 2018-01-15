@@ -276,6 +276,7 @@ my %APIs = (
                 'G_WIN32_DLLMAIN_FOR_DLL_NAME',
                 'g_win32_get_package_installation_directory',
                 'g_win32_get_package_installation_subdirectory',
+                'qVariantFromValue'
                 ] },
 
         # APIs that make the program exit. Dissectors shouldn't call these

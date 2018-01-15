@@ -53,7 +53,7 @@ QVariant AStringListListModel::headerData(int section, Qt::Orientation orientati
 
     QStringList columns = headerColumns();
     if ( role == Qt::DisplayRole && section < columns.count() )
-        return qVariantFromValue(columns[section]);
+        return QVariant::fromValue(columns[section]);
 
     return QVariant();
 }
@@ -68,7 +68,7 @@ QVariant AStringListListModel::data(const QModelIndex &index, int role) const
         QStringList data = modelData.at(index.row());
 
         if ( index.column() < columnCount() )
-            return qVariantFromValue(data.at(index.column()));
+            return QVariant::fromValue(data.at(index.column()));
     }
 
     return QVariant();

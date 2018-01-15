@@ -786,7 +786,7 @@ void MainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
     toolbar->setMovable(false);
     toolbar->setVisible(visible);
 
-    action->setData(qVariantFromValue(toolbar));
+    action->setData(QVariant::fromValue(toolbar));
 
     addToolBar(Qt::TopToolBarArea, toolbar);
     insertToolBarBreak(toolbar);
@@ -1943,7 +1943,7 @@ void MainWindow::initShowHideMainWidgets()
     shmw_actions[main_ui_->actionViewPacketBytes] = byte_view_tab_;
 
     foreach (QAction *shmwa, shmw_actions.keys()) {
-        shmwa->setData(qVariantFromValue(shmw_actions[shmwa]));
+        shmwa->setData(QVariant::fromValue(shmw_actions[shmwa]));
         show_hide_actions_->addAction(shmwa);
         showHideMainWidgets(shmwa);
     }
@@ -1977,7 +1977,7 @@ void MainWindow::initTimeDisplayFormatMenu()
     td_actions[main_ui_->actionViewTimeDisplayFormatUTCTimeOfDay] = TS_UTC;
 
     foreach (QAction* tda, td_actions.keys()) {
-        tda->setData(qVariantFromValue(td_actions[tda]));
+        tda->setData(QVariant::fromValue(td_actions[tda]));
         time_display_actions_->addAction(tda);
     }
 
@@ -2001,7 +2001,7 @@ void MainWindow::initTimePrecisionFormatMenu()
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionNanoseconds] = TS_PREC_FIXED_NSEC;
 
     foreach (QAction* tpa, tp_actions.keys()) {
-        tpa->setData(qVariantFromValue(tp_actions[tpa]));
+        tpa->setData(QVariant::fromValue(tp_actions[tpa]));
         time_precision_actions_->addAction(tpa);
     }
 

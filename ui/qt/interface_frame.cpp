@@ -123,7 +123,7 @@ QMenu * InterfaceFrame::getSelectionMenu()
         if ( typesDisplayed.contains(ifType) )
         {
             QAction *endp_action = new QAction(it.value(), this);
-            endp_action->setData(qVariantFromValue(ifType));
+            endp_action->setData(QVariant::fromValue(ifType));
             endp_action->setCheckable(true);
             endp_action->setChecked(proxyModel.isInterfaceTypeShown(ifType));
             connect(endp_action, SIGNAL(triggered()), this, SLOT(triggeredIfTypeButton()));

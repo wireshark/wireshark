@@ -129,7 +129,7 @@ void DisplayFilterExpressionDialog::fillTree()
                 .arg(proto_get_protocol_short_name(protocol))
                 .arg(proto_get_protocol_long_name(protocol));
         proto_ti->setText(0, label);
-        proto_ti->setData(0, Qt::UserRole, qVariantFromValue(proto_id));
+        proto_ti->setData(0, Qt::UserRole, QVariant::fromValue(proto_id));
         proto_list << proto_ti;
     }
 

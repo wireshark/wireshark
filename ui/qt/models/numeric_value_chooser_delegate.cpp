@@ -45,7 +45,7 @@ void NumericValueChooserDelegate::setMinMaxRange(int min, int max)
     _max = qMax(min, max);
     /* ensure, that the default value is within the new min<->max */
     _default = qMin(_max, qMax(_min, _default));
-    _defReturn = qVariantFromValue(_default);
+    _defReturn = QVariant::fromValue(_default);
 }
 
 void NumericValueChooserDelegate::setDefaultValue(int defValue, QVariant defaultReturn)
@@ -91,7 +91,7 @@ void NumericValueChooserDelegate::setModelData(QWidget *editor, QAbstractItemMod
 {
     if ( index.isValid() ) {
         QSpinBox * spinBox = qobject_cast<QSpinBox *>(editor);
-        model->setData(index, _default == spinBox->value() ? _defReturn : qVariantFromValue(spinBox->value()));
+        model->setData(index, _default == spinBox->value() ? _defReturn : QVariant::fromValue(spinBox->value()));
     } else {
         QStyledItemDelegate::setModelData(editor, model, index);
     }

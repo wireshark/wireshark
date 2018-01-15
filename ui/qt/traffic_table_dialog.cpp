@@ -132,7 +132,7 @@ gboolean TrafficTableDialog::fillTypeMenuFunc(const void *key, void *value, void
     int proto_id = get_conversation_proto_id(ct);
 
     QAction *endp_action = new QAction(title, data->dialog_);
-    endp_action->setData(qVariantFromValue(proto_id));
+    endp_action->setData(QVariant::fromValue(proto_id));
     endp_action->setCheckable(true);
     endp_action->setChecked(data->enabled_protos_.contains(proto_id));
     data->dialog_->connect(endp_action, SIGNAL(triggered()), data->dialog_, SLOT(toggleTable()));

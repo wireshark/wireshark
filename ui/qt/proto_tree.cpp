@@ -181,7 +181,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     proto_prefs_menu_.setModule(finfo.moduleName());
 
-    decode_as_->setData(qVariantFromValue(true));
+    decode_as_->setData(QVariant::fromValue(true));
 
     // Set menu sensitivity and action data.
     emit fieldSelected(&finfo);

@@ -211,7 +211,7 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             if ( col == IFTREE_COL_STATS )
             {
                 if ( points.contains(device->name) )
-                    return qVariantFromValue(points[device->name]);
+                    return QVariant::fromValue(points[device->name]);
             }
             else if ( col == IFTREE_COL_HIDDEN )
             {

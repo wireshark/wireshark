@@ -438,7 +438,7 @@ public:
             if (column == CONV_COLUMN_DURATION) {
                 span_px.start -= start_px;
             }
-            return qVariantFromValue(span_px);
+            return QVariant::fromValue(span_px);
 
             break;
         }

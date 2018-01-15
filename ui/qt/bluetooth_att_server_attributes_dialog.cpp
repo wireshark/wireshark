@@ -299,7 +299,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
     item->setText(column_number_handle, handle);
     item->setText(column_number_uuid, uuid);
     item->setText(column_number_uuid_name,  uuid_name);
-    item->setData(0, Qt::UserRole, qVariantFromValue(pinfo->num));
+    item->setData(0, Qt::UserRole, QVariant::fromValue(pinfo->num));
 
     for (int i = 0; i < dialog->ui->tableTreeWidget->columnCount(); i++) {
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);
