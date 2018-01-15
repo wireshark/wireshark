@@ -175,6 +175,7 @@
 #define TDS_PRELOGIN_PKT    18
 #define TDS_INVALID_PKT     19
 #define TDS_TLS_PKT         23
+#define TDS_SMP_PKT         83  /* Session Multiplex Protocol; MARS option */
 
 #define is_valid_tds_type(x) (((x) >= TDS_QUERY_PKT && (x) < TDS_INVALID_PKT) || x == TDS_TLS_PKT)
 
@@ -1157,6 +1158,7 @@ static gboolean tds_defragment = TRUE;
 static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
+static dissector_handle_t smp_handle;
 
 typedef struct {
     gint tds_version;
@@ -1535,6 +1537,12 @@ static const value_string prelogin_encryption_options[] = {
 static const true_false_string tds_tfs_more_final = {"More tokens follow", "Final done token"};
 
 static const unit_name_string units_characters = { " character", " characters" };
+
+static const value_string tds_mars_type[] = {
+    {0, "Off"},
+    {1, "On"},
+    {0, NULL}
+};
 
 #define TDS_MAX_COLUMNS 256
 
@@ -5485,6 +5493,12 @@ dissect_tds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     col_clear(pinfo->cinfo, COL_INFO);
 
     type = tvb_get_guint8(tvb, 0);
+    if (type == TDS_SMP_PKT)
+    {
+        /* if the type is SMP, it's shimmed in between TDS and lower layer */
+        call_dissector(smp_handle, tvb, pinfo, tree);
+        return tvb_captured_length(tvb);
+    }
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", val_to_str(type, packet_type_names, "Unknown Packet Type: %u"));
 
     dissect_netlib_buffer(tvb, pinfo, tree);
@@ -5497,16 +5511,25 @@ dissect_tds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 static guint
 get_tds_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint16 plen;
+    guint  plen;
     guint8 type;
 
     type = tvb_get_guint8(tvb, offset);
 
-    /* Special test for TLS to that we don't have lots of incorrect reports of malformed packets */
-    if(type == TDS_TLS_PKT)
-        plen = tvb_get_ntohs(tvb, offset + 3) + 5;
-    else
-        plen = tvb_get_ntohs(tvb, offset + 2);
+    switch (type)
+    {
+        case TDS_SMP_PKT:
+            /* Special case for SMP dissector */
+            plen = tvb_get_letohl(tvb, offset + 4);
+            break;
+        case TDS_TLS_PKT:
+            /* Special test for TLS to that we don't have lots of incorrect reports of malformed packets */
+            plen = tvb_get_ntohs(tvb, offset + 3) + 5;
+            break;
+        default:
+            plen = tvb_get_ntohs(tvb, offset + 2);
+            break;
+    }
 
    return plen;
 }
@@ -7634,7 +7657,7 @@ proto_register_tds(void)
         },
         { &hf_tds_prelogin_option_mars,
           { "MARS", "tds.prelogin.option.mars",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, VALS(tds_mars_type), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_prelogin_option_traceid,
@@ -8194,6 +8217,10 @@ proto_reg_handoff_tds(void)
 
     ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_tds);
     gssapi_handle = find_dissector_add_dependency("gssapi", proto_tds);
+    smp_handle = find_dissector_add_dependency("smp_tds", proto_tds);
+
+    /* Isn't required, but allows user to override current payload */
+    dissector_add_for_decode_as("smp.payload", create_dissector_handle(dissect_tds_pdu, proto_tds));
 }
 
 /*

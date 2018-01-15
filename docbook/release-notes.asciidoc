@@ -96,6 +96,7 @@ PFCP (Packet Forwarding Control Protocol)
 Protobuf (Protocol Buffers)
 QUIC (IETF)
 SolarEdge monitoring protocol
+Session Multiplex Protocol
 Tibia
 TWAMP and OWAMP
 Wi-Fi Device Provisioning Protocol
