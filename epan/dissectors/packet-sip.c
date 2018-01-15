@@ -1285,9 +1285,18 @@ export_sip_pdu(packet_info *pinfo, tvbuff_t *tvb)
 
 }
 
+typedef enum
+{
+    SIP_URI_TYPE_ABSOLUTE_URI,
+    SIP_URI_TYPE_SIP,
+    SIP_URI_TYPE_TEL
+
+} sip_uri_type_enum_t;
+
 /* Structure to collect info about a sip uri */
 typedef struct _uri_offset_info
 {
+    sip_uri_type_enum_t uri_type;
     gint display_name_start;
     gint display_name_end;
     gint uri_start;
@@ -1308,6 +1317,7 @@ static void
 sip_uri_offset_init(uri_offset_info *uri_offsets){
 
     /* Initialize the uri_offsets */
+    uri_offsets->uri_type = SIP_URI_TYPE_ABSOLUTE_URI;
     uri_offsets->display_name_start = -1;
     uri_offsets->display_name_end = -1;
     uri_offsets->uri_start = -1;
@@ -1349,8 +1359,15 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
     uri_offsets->uri_start = current_offset;
 
     /* Check if it's really a sip uri ( it might be a tel uri, parse that?) */
-    if (tvb_strneql(tvb, current_offset, "sip", 3) != 0)
+    if (tvb_strneql(tvb, current_offset, "sip", 3) != 0){
+        if (uri_offsets->uri_end != -1) {
+            /* We know where the URI ends, set the offsets*/
+            return uri_offsets->name_addr_end;
+        }
         return -1;
+    }
+
+    uri_offsets->uri_type = SIP_URI_TYPE_SIP;
 
     if(uri_offsets->uri_end == -1)
     {
@@ -1680,6 +1697,7 @@ dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_in
  *  name-addr     =  [ display-name ] LAQUOT addr-spec RAQUOT
  *  addr-spec     =  SIP-URI / SIPS-URI / absoluteURI
  *  display-name  =  *(token LWS)/ quoted-string
+ *  absoluteURI    =  scheme ":" ( hier-part / opaque-part )
  */
 
 static gint
@@ -1832,6 +1850,10 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
     ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr),
                              tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, ENC_UTF_8|ENC_NA);
     uri_item_tree = proto_item_add_subtree(ti, *(uri->ett_uri));
+
+    if (uri_offsets->uri_type != SIP_URI_TYPE_SIP) {
+        return ti;
+    }
 
     if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
         proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
@@ -3496,7 +3518,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                 display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_to_uri);
                                 if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
                                     stat_info->tap_to_addr=tvb_get_string_enc(wmem_packet_scope(), tvb, uri_offsets.name_addr_start,
-                                        uri_offsets.name_addr_end - uri_offsets.name_addr_start, ENC_UTF_8|ENC_NA);
+                                        uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1, ENC_UTF_8|ENC_NA);
                                 }
                                 offset = uri_offsets.name_addr_end +1;
                             }
@@ -3559,7 +3581,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                 display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_from_uri);
                                 if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
                                     stat_info->tap_from_addr=tvb_get_string_enc(wmem_packet_scope(), tvb, uri_offsets.name_addr_start,
-                                        uri_offsets.name_addr_end - uri_offsets.name_addr_start, ENC_UTF_8|ENC_NA);
+                                        uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1, ENC_UTF_8|ENC_NA);
                                 }
                                 offset = uri_offsets.name_addr_end +1;
                             }
