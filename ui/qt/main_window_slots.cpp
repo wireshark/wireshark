@@ -3310,6 +3310,11 @@ void MainWindow::on_actionStatisticsHTTPLoadDistribution_triggered()
     openStatisticsTreeDialog("http_srv");
 }
 
+void MainWindow::on_actionStatisticsHTTPReferers_triggered()
+{
+    openStatisticsTreeDialog("http_ref");
+}
+
 void MainWindow::on_actionStatisticsPacketLengths_triggered()
 {
     openStatisticsTreeDialog("plen");

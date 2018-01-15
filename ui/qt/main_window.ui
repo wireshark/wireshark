@@ -484,6 +484,7 @@
      <addaction name="actionStatisticsHTTPPacketCounter"/>
      <addaction name="actionStatisticsHTTPRequests"/>
      <addaction name="actionStatisticsHTTPLoadDistribution"/>
+     <addaction name="actionStatisticsHTTPReferers"/>
     </widget>
     <widget class="QMenu" name="menu29West">
      <property name="title">
@@ -1939,6 +1940,14 @@
    </property>
    <property name="toolTip">
     <string>HTTP load distribution</string>
+   </property>
+  </action>
+  <action name="actionStatisticsHTTPReferers">
+   <property name="text">
+    <string>Referers</string>
+   </property>
+   <property name="toolTip">
+    <string>HTTP referers</string>
    </property>
   </action>
   <action name="actionStatisticsPacketLengths">

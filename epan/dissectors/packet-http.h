@@ -41,6 +41,8 @@ typedef struct _http_info_value_t {
 	guint	 response_code;
 	gchar   *http_host;
 	const gchar   *request_uri;
+	const gchar   *referer_uri;
+	const gchar   *full_uri;
 } http_info_value_t;
 
 /** information about a request and response on a HTTP conversation. */
