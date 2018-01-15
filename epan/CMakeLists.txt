@@ -225,7 +225,6 @@ set(LIBWIRESHARK_FILES
 	prefs.c
 	proto.c
 	proto_data.c
-	ps.c
 	range.c
 	reassemble.c
 	reedsolomon.c
@@ -256,6 +255,7 @@ set(LIBWIRESHARK_FILES
 	value_string.c
 	unit_strings.c
 	xdlc.c
+	${CMAKE_CURRENT_BINARY_DIR}/ps.c
 	${CMAKE_SOURCE_DIR}/version_info.c
 )
 
