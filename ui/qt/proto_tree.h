@@ -33,6 +33,7 @@ public:
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setRootNode(proto_node *root_node);
     void emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
+    void autoScrollTo(const QModelIndex &index);
     void goToHfid(int hfid);
     void clear();
     void closeContextMenu();
@@ -78,8 +79,8 @@ public slots:
     /* Set the capture file */
     void setCaptureFile(capture_file *cf);
     void setMonospaceFont(const QFont &mono_font);
-    void expand(const QModelIndex & index);
-    void collapse(const QModelIndex & index);
+    void syncExpanded(const QModelIndex & index);
+    void syncCollapsed(const QModelIndex & index);
     void expandSubtrees();
     void collapseSubtrees();
     void expandAll();

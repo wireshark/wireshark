@@ -52,8 +52,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
 
     setModel(proto_tree_model_);
 
-    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(expand(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(collapse(QModelIndex)));
+    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(syncCollapsed(QModelIndex)));
     connect(this, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(itemDoubleClicked(QModelIndex)));
 
@@ -246,14 +246,27 @@ void ProtoTree::emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_
     emit relatedFrame(related_frame, framenum_type);
 }
 
+void ProtoTree::autoScrollTo(const QModelIndex &index)
+{
+    selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    if (!index.isValid() || !prefs.gui_auto_scroll_on_expand) {
+        return;
+    }
+
+    ScrollHint scroll_hint = PositionAtTop;
+    if (prefs.gui_auto_scroll_percentage > 66) {
+        scroll_hint = PositionAtBottom;
+    } else if (prefs.gui_auto_scroll_percentage >= 33) {
+        scroll_hint = PositionAtCenter;
+    }
+    scrollTo(index, scroll_hint);
+}
+
 // XXX We select the first match, which might not be the desired item.
 void ProtoTree::goToHfid(int hfid)
 {
     QModelIndex index = proto_tree_model_->findFirstHfid(hfid);
-    if (index.isValid()) {
-        scrollTo(index);
-        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
-    }
+    autoScrollTo(index);
 }
 
 void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
@@ -302,19 +315,9 @@ void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSele
      */
 }
 
-void ProtoTree::expand(const QModelIndex &index) {
+void ProtoTree::syncExpanded(const QModelIndex &index) {
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
     if (!finfo.isValid()) return;
-
-    if(prefs.gui_auto_scroll_on_expand) {
-        ScrollHint scroll_hint = PositionAtTop;
-        if (prefs.gui_auto_scroll_percentage > 66) {
-            scroll_hint = PositionAtBottom;
-        } else if (prefs.gui_auto_scroll_percentage >= 33) {
-            scroll_hint = PositionAtCenter;
-        }
-        scrollTo(index, scroll_hint);
-    }
 
     /*
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
@@ -323,11 +326,9 @@ void ProtoTree::expand(const QModelIndex &index) {
     if (finfo.treeType() != -1) {
         tree_expanded_set(finfo.treeType(), TRUE);
     }
-
-    QTreeView::expand(index);
 }
 
-void ProtoTree::collapse(const QModelIndex &index) {
+void ProtoTree::syncCollapsed(const QModelIndex &index) {
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
     if (!finfo.isValid()) return;
 
@@ -338,7 +339,6 @@ void ProtoTree::collapse(const QModelIndex &index) {
     if (finfo.treeType() != -1) {
         tree_expanded_set(finfo.treeType(), FALSE);
     }
-    QTreeView::collapse(index);
 }
 
 void ProtoTree::expandSubtrees()
@@ -428,8 +428,7 @@ void ProtoTree::selectedFieldChanged(FieldInformation *finfo)
         // We only want valid, inbound signals.
         return;
     }
-    scrollTo(index);
-    selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    autoScrollTo(index);
 }
 
 // Remember the currently focussed field based on:
@@ -465,10 +464,7 @@ void ProtoTree::restoreSelectedField()
         }
     }
 
-    if (cur_index.isValid()) {
-        scrollTo(cur_index);
-        selectionModel()->select(cur_index, QItemSelectionModel::ClearAndSelect);
-    }
+    autoScrollTo(cur_index);
 }
 
 const QString ProtoTree::toString(const QModelIndex &index) const
@@ -573,17 +569,17 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
 
 void ProtoTree::foreachSyncExpansion(proto_node *node, gpointer proto_tree_ptr)
 {
-    if (!tree_expanded(node->finfo->tree_type)) {
-        return;
+    if (tree_expanded(node->finfo->tree_type)) {
+        QTreeView *tree_view = static_cast<QTreeView *>(proto_tree_ptr);
+        ProtoTreeModel *model = qobject_cast<ProtoTreeModel *>(tree_view->model());
+        if (!tree_view || !model) {
+            return;
+        }
+
+        ProtoNode expand_node = ProtoNode(node);
+        tree_view->expand(model->indexFromProtoNode(expand_node));
     }
 
-    ProtoTree *proto_tree = static_cast<ProtoTree *>(proto_tree_ptr);
-    if (!proto_tree) {
-        return;
-    }
-
-    ProtoNode expand_node = ProtoNode(node);
-    proto_tree->setExpanded(proto_tree->proto_tree_model_->indexFromProtoNode(expand_node), true);
     proto_tree_children_foreach(node, foreachSyncExpansion, proto_tree_ptr);
 }
 
@@ -591,14 +587,19 @@ void ProtoTree::foreachSyncExpansion(proto_node *node, gpointer proto_tree_ptr)
 // tracks it using QTreeViewPrivate::expandedIndexes. When we're handed
 // a new tree, clear expandedIndexes (which we do above in setRootNode)
 // and repopulate it by walking the tree and calling
-// QTreeView::setExpanded.
+// QTreeView::expand.
 void ProtoTree::rowsInserted(const QModelIndex &parent, int start, int end)
 {
+    disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
     for (int row = start; row <= end; row++) {
         QModelIndex index = proto_tree_model_->index(row, 0, parent);
         ProtoNode row_node = proto_tree_model_->protoNodeFromIndex(index);
+        if (row_node.isExpanded()) {
+            expand(index);
+        }
         proto_tree_children_foreach(row_node.protoNode(), foreachSyncExpansion, this);
     }
+    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
     QTreeView::rowsInserted(parent, start, end);
 }
 
