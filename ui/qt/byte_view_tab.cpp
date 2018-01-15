@@ -203,14 +203,14 @@ ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * 
     return item;
 }
 
-void ByteViewTab::tabInserted(int index) {
+void ByteViewTab::tabInserted(int tab_index) {
     setTabsVisible();
-    QTabWidget::tabInserted(index);
+    QTabWidget::tabInserted(tab_index);
 }
 
-void ByteViewTab::tabRemoved(int index) {
+void ByteViewTab::tabRemoved(int tab_index) {
     setTabsVisible();
-    QTabWidget::tabRemoved(index);
+    QTabWidget::tabRemoved(tab_index);
 }
 
 void ByteViewTab::setTabsVisible() {
