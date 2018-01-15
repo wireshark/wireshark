@@ -154,9 +154,9 @@ raw_read(FILE_T state, unsigned char *buf, unsigned int count, guint *have)
 static int /* gz_avail */
 fill_in_buffer(FILE_T state)
 {
-    if (state->err)
+    if (state->err != 0)
         return -1;
-    if (state->eof == 0) {
+    if (!state->eof) {
         if (raw_read(state, state->in, state->size, &(state->avail_in)) == -1)
             return -1;
         state->next_in = state->in;
@@ -246,7 +246,7 @@ fast_seek_reset(
 #endif
 {
 #ifdef HAVE_ZLIB
-    if (state->compression == ZLIB && state->fast_seek_cur) {
+    if (state->compression == ZLIB && state->fast_seek_cur != NULL) {
         struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
 
         cur->have = 0;
@@ -501,7 +501,7 @@ DIAG_ON(cast-qual)
 
         strm->adler = crc32(strm->adler, buf2, count2 - strm->avail_out);
 #ifdef Z_BLOCK
-        if (state->fast_seek_cur) {
+        if (state->fast_seek_cur != NULL) {
             struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
             unsigned int ready = count2 - strm->avail_out;
 
@@ -583,7 +583,7 @@ gz_head(FILE_T state)
         state->next_in++;
         if (state->avail_in == 0 && fill_in_buffer(state) == -1)
             return -1;
-        if (state->avail_in && state->next_in[0] == 139) {
+        if (state->avail_in != 0 && state->next_in[0] == 139) {
 #ifdef HAVE_ZLIB
             guint8 cm;
             guint8 flags;
@@ -692,7 +692,7 @@ gz_head(FILE_T state)
        the input buffer, which also assures space for gzungetc() */
     state->raw = state->pos;
     state->next = state->out;
-    if (state->avail_in) {
+    if (state->avail_in != 0) {
         memcpy(state->next + state->have, state->next_in, state->avail_in);
         state->have += state->avail_in;
         state->avail_in = 0;
@@ -707,7 +707,7 @@ fill_out_buffer(FILE_T state)
     if (state->compression == UNKNOWN) {           /* look for gzip header */
         if (gz_head(state) == -1)
             return -1;
-        if (state->have)                /* got some data from gz_head() */
+        if (state->have != 0)                /* got some data from gz_head() */
             return 0;
     }
     if (state->compression == UNCOMPRESSED) {           /* straight copy */
@@ -730,7 +730,7 @@ gz_skip(FILE_T state, gint64 len)
 
     /* skip over len bytes or reach end-of-file, whichever comes first */
     while (len)
-        if (state->have) {
+        if (state->have != 0) {
             /* We have stuff in the output buffer; skip over
                it. */
             n = (gint64)state->have > len ? (unsigned)len : state->have;
@@ -738,7 +738,7 @@ gz_skip(FILE_T state, gint64 len)
             state->next += n;
             state->pos += n;
             len -= n;
-        } else if (state->err) {
+        } else if (state->err != 0) {
             /* We have nothing in the output buffer, and
                we have an error that may not have been
                reported yet; that means we can't generate
@@ -1207,7 +1207,7 @@ file_read(void *buf, unsigned int len, FILE_T file)
      */
     got = 0;
     do {
-        if (file->have) {
+        if (file->have != 0) {
             /* We have stuff in the output buffer; copy
                what we have. */
             n = file->have > len ? len : file->have;
@@ -1220,7 +1220,7 @@ file_read(void *buf, unsigned int len, FILE_T file)
             len -= n;
             got += n;
             file->pos += n;
-        } else if (file->err) {
+        } else if (file->err != 0) {
             /* We have nothing in the output buffer, and
                we have an error that may not have been
                reported yet; that means we can't generate
@@ -1255,11 +1255,11 @@ file_peekc(FILE_T file)
     int ret = 0;
 
     /* check that we're reading and that there's no error */
-    if (file->err)
+    if (file->err != 0)
         return -1;
 
     /* try output buffer (no need to check for skip request) */
-    if (file->have) {
+    if (file->have != 0) {
         return *(file->next);
     }
 
@@ -1276,10 +1276,10 @@ file_peekc(FILE_T file)
      * file_read() but only for peeking not consuming a byte
      */
     while (1) {
-        if (file->have) {
+        if (file->have != 0) {
             return *(file->next);
         }
-        else if (file->err) {
+        else if (file->err != 0) {
             return -1;
         }
         else if (file->eof && file->avail_in == 0) {
@@ -1303,11 +1303,11 @@ file_getc(FILE_T file)
     int ret;
 
     /* check that we're reading and that there's no error */
-    if (file->err)
+    if (file->err != 0)
         return -1;
 
     /* try output buffer (no need to check for skip request) */
-    if (file->have) {
+    if (file->have != 0) {
         file->have--;
         file->pos++;
         return *(file->next)++;
@@ -1329,7 +1329,7 @@ file_gets(char *buf, int len, FILE_T file)
         return NULL;
 
     /* check that there's no error */
-    if (file->err)
+    if (file->err != 0)
         return NULL;
 
     /* process a skip request */
@@ -1348,7 +1348,7 @@ file_gets(char *buf, int len, FILE_T file)
             /* assure that something is in the output buffer */
             if (file->have == 0) {
                 /* We have nothing in the output buffer. */
-                if (file->err) {
+                if (file->err != 0) {
                     /* We have an error that may not have
                        been reported yet; that means we
                        can't generate any more data into
@@ -1681,7 +1681,7 @@ DIAG_ON(cast-qual)
     }
     else {
         /* consume whatever's left in the input buffer */
-        if (strm->avail_in && gz_comp(state, Z_NO_FLUSH) == -1)
+        if (strm->avail_in != 0 && gz_comp(state, Z_NO_FLUSH) == -1)
             return 0;
 
         /* directly compress user buffer to file */
