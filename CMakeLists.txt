@@ -1390,7 +1390,7 @@ if(ENABLE_PLUGINS)
 	if(ENABLE_PLUGIN_IFDEMO)
 		set(PLUGIN_SRC_DIRS
 			${PLUGIN_SRC_DIRS}
-			plugins/pluginifdemo
+			plugins/epan/pluginifdemo
 		)
 	endif()
 

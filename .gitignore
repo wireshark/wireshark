@@ -43,8 +43,10 @@ epan/wslua/register_wslua.c
 epan/wslua/taps.txt
 epan/wslua/taps_wslua.c
 epan/ps.c
-plugins/*/plugin.c
-plugins/mate/mate_parser.c
+plugins/epan/*/plugin.c
+plugins/wiretap/*/plugin.c
+plugins/codecs/*/plugin.c
+plugins/epan/mate/mate_parser.c
 version.h
 tools/lemon/lemon
 tshark-tap-register.c
