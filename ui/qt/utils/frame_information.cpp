@@ -47,7 +47,7 @@ FrameInformation::FrameInformation(CaptureFile * capfile, frame_data * fi, QObje
 
 void FrameInformation::loadFrameTree()
 {
-    if ( ! fi_ || ! cap_file_ )
+    if ( ! fi_ || ! cap_file_ || !cap_file_->capFile())
         return;
 
     if (!cf_read_record(cap_file_->capFile(), fi_))
