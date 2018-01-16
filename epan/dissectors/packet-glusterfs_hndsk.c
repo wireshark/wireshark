@@ -55,6 +55,7 @@ static gint hf_gluster_hndsk_spec = -1;		/* GETSPEC Reply */
 static gint hf_gluster_hndsk_key = -1;		/* GETSPEC Call */
 static gint hf_gluster_hndsk_event_op = -1;	/* EVENT NOTIFY call */
 static gint hf_gluster_hndsk_uid = -1;		/* LOCK VERSION*/
+static gint hf_gluster_hndsk_op_errstr = -1;	/* GETVOLUMEINFO */
 static gint hf_gluster_hndsk_lk_ver= -1;
 static gint hf_gluster_hndsk_flags = -1;
 
@@ -202,6 +203,26 @@ gluster_hndsk_2_event_notify_reply(tvbuff_t *tvb,
 }
 
 static int
+gluster_hndsk_2_get_volume_info_call(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                     proto_tree *tree, void* data _U_)
+{
+	return gluster_rpc_dissect_dict(tree, tvb, hf_gluster_hndsk_dict, 0);
+}
+
+static int
+gluster_hndsk_2_get_volume_info_reply(tvbuff_t *tvb, packet_info *pinfo,
+                                      proto_tree *tree, void* data)
+{
+	int offset = 0;
+	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
+	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_op_errstr, offset,
+				    NULL);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_gluster_hndsk_dict,
+					  offset);
+	return offset;
+}
+
+static int
 glusterfs_rpc_dissect_upcall_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	static const int *flag_bits[] = {
@@ -300,6 +321,11 @@ static const vsff gluster_hndsk_2_proc[] = {
 		gluster_hndsk_2_event_notify_call,
 		gluster_hndsk_2_event_notify_reply
 	},
+	{
+		GF_HNDSK_GET_VOLUME_INFO, "GETVOLUMEINFO",
+		gluster_hndsk_2_get_volume_info_call,
+		gluster_hndsk_2_get_volume_info_reply
+	},
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -317,6 +343,7 @@ static const value_string gluster_hndsk_proc_vals[] = {
 	{ GF_HNDSK_PING,         "PING" },
 	{ GF_HNDSK_SET_LK_VER,   "LOCK VERSION" },
 	{ GF_HNDSK_EVENT_NOTIFY, "EVENTNOTIFY" },
+	{ GF_HNDSK_GET_VOLUME_INFO, "GETVOLUMEINFO" },
 	{ 0, NULL }
 };
 
@@ -360,6 +387,11 @@ proto_register_gluster_hndsk(void)
 		{ &hf_gluster_hndsk_flags,
 			{ "Flags", "glusterfs.hndsk.flags", FT_UINT32, BASE_OCT,
 				NULL, 0, NULL, HFILL }
+		},
+		/* For handshake getvolumeinfo */
+		{ &hf_gluster_hndsk_op_errstr,
+			{ "Op Errstr", "glusterfs.hndsk.getvolumeinfo.op_errstr", FT_STRING,
+				BASE_NONE, NULL, 0, NULL, HFILL }
 		}
 	};
 

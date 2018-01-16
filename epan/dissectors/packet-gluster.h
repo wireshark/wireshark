@@ -251,7 +251,7 @@ enum gf_brick_procnum {
 	GF_BRICK_MAXVALUE
 };
 
-/* GLUSTER_HNDSK_PROGRAM  for nersion 1 and 2*/
+/* GLUSTER_HNDSK_PROGRAM  for version 1 and 2*/
 enum gluster_prog_hndsk_procs {
 	GF_HNDSK_NULL = 0,
 	GF_HNDSK_SETVOLUME,
@@ -259,6 +259,7 @@ enum gluster_prog_hndsk_procs {
 	GF_HNDSK_PING,
 	GF_HNDSK_SET_LK_VER,
 	GF_HNDSK_EVENT_NOTIFY,
+	GF_HNDSK_GET_VOLUME_INFO,
 	GF_HNDSK_MAXVALUE
 };
 
