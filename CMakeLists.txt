@@ -338,20 +338,27 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		/MP
 	)
 
+	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
+
 	if(MSVC12)
 		# /Zo                               Enhanced debugging of optimised code for VS2013 Update 3 and beyond,
 		#                                   Assume all VS2013 builds are at least Update 3.
 		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} /Zo)
 	elseif(MSVC14)
 		# /Zo                               Enhanced debugging of optimised code
 		# /utf-8                            Set Source and Executable character sets to UTF-8
 		#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo" "/utf-8")
+		# /guard:cf                         Control Flow Guard (compile and link).
+		#                                   See https://msdn.microsoft.com/en-us/library/windows/desktop/mt637065.aspx
+		# /Qspectre                         Speculative execution attack mitigation
+		#                                   See https://blogs.msdn.microsoft.com/vcblog/2018/01/15/spectre-mitigations-in-msvc/
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} /Zo /utf-8 /guard:cf /Qspectre)
+		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
 	endif()
 
 	if(ENABLE_CODE_ANALYSIS)
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/analyze:WX-")
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} /analyze:WX-)
 	endif()
 
 	# Additional compiler warnings to be treated as "Level 3"
@@ -360,16 +367,14 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	## 4189: local variable is initialized but not referenced
 	# Disable warnings about about use of flexible array members:
 	## 4200: nonstandard extension used : zero-sized array in struct/union
-	set(WARNINGS_CFLAGS "/w34295 /w34189 /wd4200")
+	set(WARNINGS_CFLAGS /w34295 /w34189 /wd4200)
 
 	set(WIRESHARK_COMMON_FLAGS
 		${LOCAL_CFLAGS}
 		${WARNINGS_CFLAGS}
 	)
 
-	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
-
-else()
+else() # ! MSVC
 	if(CMAKE_OSX_DEPLOYMENT_TARGET)
 		if(APPLE)
 			if(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.0")
@@ -633,7 +638,25 @@ else()
 		-DG_DISABLE_DEPRECATED
 		-DG_DISABLE_SINGLE_INCLUDES
 	)
-endif()
+
+	set(WIRESHARK_LD_FLAGS
+		-Wl,--as-needed
+		# -flto
+		# -fwhopr
+		# -fwhole-program
+	)
+	# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
+	# 2.8.9. Do not add -pie automatically for older versions.
+	#
+	# XXX - are there other compilers that don't support -pie?  It's
+	# not as if the only platforms we support are Windows and Linux....
+	#
+	if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
+		set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
+			-pie
+		)
+	endif()
+endif() # ! MSVC
 
 set( C_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_C_ONLY_FLAGS} )
 set( CXX_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CXX_ONLY_FLAGS} )
@@ -798,24 +821,6 @@ if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 				" All shared library symbols will be exported.")
 		endif()
 	endif()
-endif()
-
-set(WIRESHARK_LD_FLAGS
-	-Wl,--as-needed
-	# -flto
-	# -fwhopr
-	# -fwhole-program
-)
-# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
-# 2.8.9. Do not add -pie automatically for older versions.
-#
-# XXX - are there other compilers that don't support -pie?  It's
-# not as if the only platforms we support are Windows and Linux....
-#
-if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
-	set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
-		-pie
-	)
 endif()
 
 include(CheckCLinkerFlag)
