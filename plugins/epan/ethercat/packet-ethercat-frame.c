@@ -53,6 +53,7 @@ static const value_string EthercatFrameTypes[] =
    { 2, "ADS", },
    { 3, "RAW-IO", },
    { 4, "NV", },
+   { 5, "Mailbox"},
    { 0,  NULL }
 };
 
