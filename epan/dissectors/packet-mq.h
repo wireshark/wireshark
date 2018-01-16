@@ -64,6 +64,439 @@
 { 0, 0, NULL } \
 }
 
+#define IS_EBCDIC(a) ((a == 500) || (a == 1047))
+
+#define MQ_PORT_TCP    1414
+#define MQ_SOCKET_SPX  0x5E86
+
+#define MQ_STRUCTID_NULL          0x00000000
+
+#define MQ_STRUCTID_CAUT          0x43415554
+#define MQ_STRUCTID_CIH           0x43494820
+#define MQ_STRUCTID_DH            0x44482020
+#define MQ_STRUCTID_DLH           0x444C4820
+#define MQ_STRUCTID_FCNO          0x46434E4F
+#define MQ_STRUCTID_FOPA          0x464F5041
+#define MQ_STRUCTID_GMO           0x474D4F20
+#define MQ_STRUCTID_ID            0x49442020
+#define MQ_STRUCTID_IIH           0x49494820
+#define MQ_STRUCTID_LPOO          0x4C504F4F
+#define MQ_STRUCTID_MD            0x4D442020
+#define MQ_STRUCTID_MDE           0x4D444520
+#define MQ_STRUCTID_MSH           0x4D534820
+#define MQ_STRUCTID_OD            0x4F442020
+#define MQ_STRUCTID_PMO           0x504D4F20
+#define MQ_STRUCTID_RFH           0x52464820
+#define MQ_STRUCTID_RMH           0x524D4820
+
+#define MQ_STRUCTID_SPxx          0x53500000 /* SPxx */
+#define MQ_STRUCTID_SPxI          0x53500049 /* SPxI */
+#define MQ_STRUCTID_SPxO          0x5350004F /* SPxO */
+#define MQ_STRUCTID_SPxU          0x53500055 /* SPxU */
+#define MQ_STRUCTID_SPAI          0x53504149 /* SPI Activate In */
+#define MQ_STRUCTID_SPAO          0x5350414F /* SPI Activate Out */
+#define MQ_STRUCTID_SPAU          0x53504155 /* SPI Activate InOut */
+#define MQ_STRUCTID_SPGI          0x53504749 /* SPI Get In */
+#define MQ_STRUCTID_SPGO          0x5350474F /* SPI Get Out */
+#define MQ_STRUCTID_SPGU          0x53504755 /* SPI Get InOut */
+#define MQ_STRUCTID_SPOI          0x53504F49 /* SPI In */
+#define MQ_STRUCTID_SPOO          0x53504F4F /* SPI Out */
+#define MQ_STRUCTID_SPOU          0x53504F55 /* SPI InOut */
+#define MQ_STRUCTID_SPPI          0x53505049 /* SPI Put In */
+#define MQ_STRUCTID_SPPO          0x5350504F /* SPI Put Out */
+#define MQ_STRUCTID_SPPU          0x53505055 /* SPI Put InOut */
+#define MQ_STRUCTID_SPQI          0x53505149 /* SPI Query In */
+#define MQ_STRUCTID_SPQO          0x5350514F /* SPI Query Out */
+#define MQ_STRUCTID_SPQU          0x53505155 /* SPI Query InOut */
+#define MQ_STRUCTID_TM            0x544D2020
+#define MQ_STRUCTID_TMC2          0x544D4332
+
+#define MQ_MASK_TSHx              0xffffff00
+#define MQ_STRUCTID_TSHx          0x54534800
+
+#define MQ_STRUCTID_TSH           0x54534820
+#define MQ_STRUCTID_TSHC          0x54534843
+#define MQ_STRUCTID_TSHM          0x5453484D
+#define MQ_STRUCTID_UID           0x55494420
+#define MQ_STRUCTID_WIH           0x57494820
+#define MQ_STRUCTID_XQH           0x58514820
+
+#define MQ_STRUCTID_CAUT_EBCDIC   0xC3C1E4E3
+#define MQ_STRUCTID_CIH_EBCDIC    0xC3C9C840
+#define MQ_STRUCTID_DH_EBCDIC     0xC4C84040
+#define MQ_STRUCTID_DLH_EBCDIC    0xC4D3C840
+#define MQ_STRUCTID_FCNO_EBCDIC   0xC6C3D5D6
+#define MQ_STRUCTID_GMO_EBCDIC    0xC7D4D640
+#define MQ_STRUCTID_ID_EBCDIC     0xC9C44040
+#define MQ_STRUCTID_IIH_EBCDIC    0xC9C9C840
+#define MQ_STRUCTID_LPOO_EBCDIC   0xD3D7D6D6
+#define MQ_STRUCTID_MD_EBCDIC     0xD4C44040
+#define MQ_STRUCTID_MDE_EBCDIC    0xD4C4C540
+#define MQ_STRUCTID_MSH_EBCDIC    0xD4E2C840
+#define MQ_STRUCTID_FOPA_EBCDIC   0xC6D6D7C1
+#define MQ_STRUCTID_OD_EBCDIC     0xD6C44040
+#define MQ_STRUCTID_PMO_EBCDIC    0xD7D4D640
+#define MQ_STRUCTID_RFH_EBCDIC    0xD9C6C840
+#define MQ_STRUCTID_RMH_EBCDIC    0xD9D4C840
+
+#define MQ_STRUCTID_SPxx_EBCDIC   0xE2D70000 /* SPxx */
+#define MQ_STRUCTID_SPxI_EBCDIC   0xE2D700C9 /* SPxI */
+#define MQ_STRUCTID_SPxO_EBCDIC   0xE2D700D6 /* SPxO */
+#define MQ_STRUCTID_SPxU_EBCDIC   0xE2D700E4 /* SPxU */
+#define MQ_STRUCTID_SPAI_EBCDIC   0xE2D7C1C9 /* SPI Activate In */
+#define MQ_STRUCTID_SPAO_EBCDIC   0xE2D7C1D6 /* SPI Activate Out */
+#define MQ_STRUCTID_SPAU_EBCDIC   0xE2D7C1E4 /* SPI Activate InOut */
+#define MQ_STRUCTID_SPGI_EBCDIC   0xE2D7C7C9 /* SPI Get In */
+#define MQ_STRUCTID_SPGO_EBCDIC   0xE2D7C7D6 /* SPI Get Out */
+#define MQ_STRUCTID_SPGU_EBCDIC   0xE2D7C7E4 /* SPI Get InOut */
+#define MQ_STRUCTID_SPOI_EBCDIC   0xE2D7D6C9 /* SPI In */
+#define MQ_STRUCTID_SPOO_EBCDIC   0xE2D7D6D6 /* SPI Out */
+#define MQ_STRUCTID_SPOU_EBCDIC   0xE2D7D6E4 /* SPI InOut */
+#define MQ_STRUCTID_SPPI_EBCDIC   0xE2D7D7C9 /* SPI Put In */
+#define MQ_STRUCTID_SPPO_EBCDIC   0xE2D7D7D6 /* SPI Put Out */
+#define MQ_STRUCTID_SPPU_EBCDIC   0xE2D7D7E4 /* SPI Put InOut */
+#define MQ_STRUCTID_SPQI_EBCDIC   0xE2D7D8C9 /* SPI Query In */
+#define MQ_STRUCTID_SPQO_EBCDIC   0xE2D7D8D6 /* SPI Query Out */
+#define MQ_STRUCTID_SPQU_EBCDIC   0xE2D7D8E4 /* SPI Query InOut */
+#define MQ_STRUCTID_TM_EBCDIC     0xE3D44040
+#define MQ_STRUCTID_TMC2_EBCDIC   0xE3D4C3F2
+
+#define MQ_STRUCTID_TSHx_EBCDIC   0xE3E2C800
+#define MQ_STRUCTID_TSH_EBCDIC    0xE3E2C840
+#define MQ_STRUCTID_TSHC_EBCDIC   0xE3E2C8C3
+#define MQ_STRUCTID_TSHM_EBCDIC   0xE3E2C8D4
+
+#define MQ_STRUCTID_UID_EBCDIC    0xE4C9C440
+#define MQ_STRUCTID_WIH_EBCDIC    0xE6C9C840
+#define MQ_STRUCTID_XQH_EBCDIC    0xE7D8C840
+
+#define MQ_MASK_SPxx              0xffff0000
+#define MQ_MASK_SPxZ              0xffff00ff
+
+#define MQ_TST_INITIAL            0x01
+#define MQ_TST_RESYNC             0x02
+#define MQ_TST_RESET              0x03
+#define MQ_TST_MESSAGE            0x04
+#define MQ_TST_STATUS             0x05
+#define MQ_TST_SECURITY           0x06
+#define MQ_TST_PING               0x07
+#define MQ_TST_USERID             0x08
+#define MQ_TST_HEARTBEAT          0x09
+#define MQ_TST_CONAUTH_INFO       0x0A
+#define MQ_TST_RENEGOTIATE_DATA   0x0B
+#define MQ_TST_SOCKET_ACTION      0x0C
+#define MQ_TST_ASYNC_MESSAGE      0x0D
+#define MQ_TST_REQUEST_MSGS       0x0E
+#define MQ_TST_NOTIFICATION       0x0F
+#define MQ_TST_MQCONN             0x81
+#define MQ_TST_MQDISC             0x82
+#define MQ_TST_MQOPEN             0x83
+#define MQ_TST_MQCLOSE            0x84
+#define MQ_TST_MQGET              0x85
+#define MQ_TST_MQPUT              0x86
+#define MQ_TST_MQPUT1             0x87
+#define MQ_TST_MQSET              0x88
+#define MQ_TST_MQINQ              0x89
+#define MQ_TST_MQCMIT             0x8A
+#define MQ_TST_MQBACK             0x8B
+#define MQ_TST_SPI                0x8C
+#define MQ_TST_MQSTAT             0x8D
+#define MQ_TST_MQSUB              0x8E
+#define MQ_TST_MQSUBRQ            0x8F
+#define MQ_TST_MQCONN_REPLY       0x91
+#define MQ_TST_MQDISC_REPLY       0x92
+#define MQ_TST_MQOPEN_REPLY       0x93
+#define MQ_TST_MQCLOSE_REPLY      0x94
+#define MQ_TST_MQGET_REPLY        0x95
+#define MQ_TST_MQPUT_REPLY        0x96
+#define MQ_TST_MQPUT1_REPLY       0x97
+#define MQ_TST_MQSET_REPLY        0x98
+#define MQ_TST_MQINQ_REPLY        0x99
+#define MQ_TST_MQCMIT_REPLY       0x9A
+#define MQ_TST_MQBACK_REPLY       0x9B
+#define MQ_TST_SPI_REPLY          0x9C
+#define MQ_TST_MQSTAT_REPLY       0x9D
+#define MQ_TST_MQSUB_REPLY        0x9E
+#define MQ_TST_MQSUBRQ_REPLY      0x9F
+#define MQ_TST_XA_START           0xA1
+#define MQ_TST_XA_END             0xA2
+#define MQ_TST_XA_OPEN            0xA3
+#define MQ_TST_XA_CLOSE           0xA4
+#define MQ_TST_XA_PREPARE         0xA5
+#define MQ_TST_XA_COMMIT          0xA6
+#define MQ_TST_XA_ROLLBACK        0xA7
+#define MQ_TST_XA_FORGET          0xA8
+#define MQ_TST_XA_RECOVER         0xA9
+#define MQ_TST_XA_COMPLETE        0xAA
+#define MQ_TST_XA_START_REPLY     0xB1
+#define MQ_TST_XA_END_REPLY       0xB2
+#define MQ_TST_XA_OPEN_REPLY      0xB3
+#define MQ_TST_XA_CLOSE_REPLY     0xB4
+#define MQ_TST_XA_PREPARE_REPLY   0xB5
+#define MQ_TST_XA_COMMIT_REPLY    0xB6
+#define MQ_TST_XA_ROLLBACK_REPLY  0xB7
+#define MQ_TST_XA_FORGET_REPLY    0xB8
+#define MQ_TST_XA_RECOVER_REPLY   0xB9
+#define MQ_TST_XA_COMPLETE_REPLY  0xBA
+
+#define MQ_SPI_QUERY              0x01
+#define MQ_SPI_PUT                0x02
+#define MQ_SPI_GET                0x03
+#define MQ_SPI_ACTIVATE           0x04
+#define MQ_SPI_OPEN               0x0C
+
+#define MQ_SPI_ACTIVATE_ENABLE    0x01
+#define MQ_SPI_ACTIVATE_DISABLE   0x02
+
+#define MQ_SPI_OPTIONS_BLANK_PADDED  0x01
+#define MQ_SPI_OPTIONS_SYNCPOINT     0x02
+#define MQ_SPI_OPTIONS_DEFERRED      0x04
+
+#define MQ_TCF_CONFIRM_REQUEST    0x01
+#define MQ_TCF_ERROR              0x02
+#define MQ_TCF_REQUEST_CLOSE      0x04
+#define MQ_TCF_CLOSE_CHANNEL      0x08
+#define MQ_TCF_FIRST              0x10
+#define MQ_TCF_LAST               0x20
+#define MQ_TCF_REQUEST_ACCEPTED   0x40
+#define MQ_TCF_DLQ_USED           0x80
+
+#define MQ_TCF2_HDRCOMP           0x01
+#define MQ_TCF2_MSGCOMP           0x02
+#define MQ_TCF2_CSH               0x04
+#define MQ_TCF2_CMIT_INTERVAL     0x08
+
+#define MQ_ICF1_MSG_SEQ            0x01
+#define MQ_ICF1_CONVERSION_CAPABLE 0x02
+#define MQ_ICF1_SPLIT_MESSAGE      0x04
+#define MQ_ICF1_REQUEST_INITIATION 0x08
+#define MQ_ICF1_REQUEST_SECURITY   0x10
+#define MQ_ICF1_MQREQUEST          0x20
+#define MQ_ICF1_SVRCONN_SECURITY   0x40
+#define MQ_ICF1_RUNTIME            0x80
+
+#define MQ_ICF2_DIST_LIST_CAPABLE      0x01
+#define MQ_ICF2_FAST_MESSAGES_REQUIRED 0x02
+#define MQ_ICF2_RESPONDER_CONVERSION   0x04
+#define MQ_ICF2_DUAL_UOW               0x08
+#define MQ_ICF2_XAREQUEST              0x10
+#define MQ_ICF2_XARUNTIME_APP          0x20
+#define MQ_ICF2_SPIREQUEST             0x40
+#define MQ_ICF2_TRACE_ROUTE_CAPABLE    0x80
+
+#define MQ_ICF3_MSG_PROP_CAPABLE      0x01
+#define MQ_ICF3_MULTICAST_CAPABLE     0x02
+#define MQ_ICF3_MSG_PROP_INT_SEPARATE 0x04
+#define MQ_ICF3_MULTIPLEX_SYNCGET     0x08
+#define MQ_ICF3_PROT_ALGORITHMS       0x10
+
+#define MQ_IEF1_CCSID_NOT_SUPPORTED   0x01
+#define MQ_IEF1_ENCODING_INVALID      0x02
+#define MQ_IEF1_MAX_TRANSMISSION_SIZE 0x04
+#define MQ_IEF1_FAP_LEVEL             0x08
+#define MQ_IEF1_MAX_MSG_SIZE          0x10
+#define MQ_IEF1_MAX_MSG_PER_BATCH     0x20
+#define MQ_IEF1_SEQ_WRAP_VALUE        0x40
+#define MQ_IEF1_HEARTBEAT_INTERVAL    0x80
+
+#define MQ_IEF2_HDRCOMPLIST           0x01
+#define MQ_IEF2_MSGCOMPLIST           0x02
+#define MQ_IEF2_SSL_RESET             0x04
+
+#define MQ_IEF3_MSG_PROP_CAPABLE      0x01
+#define MQ_IEF3_MULTICAST_CAPABLE     0x02
+#define MQ_IEF3_MSG_PROP_INT_SEPARATE 0x04
+#define MQ_IEF3_MULTIPLEX_SYNCGET     0x08
+#define MQ_IEF3_PROT_ALGORITHMS       0x10
+
+#define MQ_BIG_ENDIAN          0x01
+#define MQ_LITTLE_ENDIAN       0x02
+
+#define MQ_CONN_OPTION         0x01
+#define MQ_CONNX_OPTION        0x03
+
+#define MQ_REQUEST_MSG_SELECTION   0x00000010
+#define MQ_REQUEST_MSG_F00000008   0x00000008
+#define MQ_REQUEST_MSG_F00000004   0x00000004
+#define MQ_REQUEST_MSG_F00000002   0x00000002
+
+#define MQ_REQUEST_MSG_SIZE_V1_SELECTION_FIXED_PART 64
+#define MQ_REQUEST_MSG_SIZE_V1_NO_SELECTION         40
+
+#define MQ_STATUS_ERR_NO_CHANNEL              0x01
+#define MQ_STATUS_ERR_CHANNEL_WRONG_TYPE      0x02
+#define MQ_STATUS_ERR_QM_UNAVAILABLE          0x03
+#define MQ_STATUS_ERR_MSG_SEQUENCE_ERROR      0x04
+#define MQ_STATUS_ERR_QM_TERMINATING          0x05
+#define MQ_STATUS_ERR_CAN_NOT_STORE           0x06
+#define MQ_STATUS_ERR_USER_CLOSED             0x07
+#define MQ_STATUS_ERR_TIMEOUT_EXPIRED         0x08
+#define MQ_STATUS_ERR_TARGET_Q_UNKNOWN        0x09
+#define MQ_STATUS_ERR_PROTOCOL_SEGMENT_TYPE   0x0A
+#define MQ_STATUS_ERR_PROTOCOL_LENGTH_ERROR   0x0B
+#define MQ_STATUS_ERR_PROTOCOL_INVALID_DATA   0x0C
+#define MQ_STATUS_ERR_PROTOCOL_SEGMENT_ERROR  0x0D
+#define MQ_STATUS_ERR_PROTOCOL_ID_ERROR       0x0E
+#define MQ_STATUS_ERR_PROTOCOL_MSH_ERROR      0x0F
+#define MQ_STATUS_ERR_PROTOCOL_GENERAL        0x10
+#define MQ_STATUS_ERR_BATCH_FAILURE           0x11
+#define MQ_STATUS_ERR_MESSAGE_LENGTH_ERROR    0x12
+#define MQ_STATUS_ERR_SEGMENT_NUMBER_ERROR    0x13
+#define MQ_STATUS_ERR_SECURITY_FAILURE        0x14
+#define MQ_STATUS_ERR_WRAP_VALUE_ERROR        0x15
+#define MQ_STATUS_ERR_CHANNEL_UNAVAILABLE     0x16
+#define MQ_STATUS_ERR_CLOSED_BY_EXIT          0x17
+#define MQ_STATUS_ERR_CIPHER_SPEC             0x18
+#define MQ_STATUS_ERR_PEER_NAME               0x19
+#define MQ_STATUS_ERR_SSL_CLIENT_CERTIFICATE  0x1A
+#define MQ_STATUS_ERR_RMT_RSRCS_IN_RECOVERY   0x1B
+#define MQ_STATUS_ERR_SSL_REFRESHING          0x1C
+#define MQ_STATUS_ERR_INVALID_HOBJ            0x1D
+#define MQ_STATUS_ERR_CONV_ID_ERROR           0x1E
+#define MQ_STATUS_ERR_SOCKET_ACTION_TYPE      0x1F
+#define MQ_STATUS_ERR_STANDBY_Q_MGR           0x20
+
+#define MQ_STATUS_ERR_CCSID_NOT_SUPPORTED     0xF0
+#define MQ_STATUS_ERR_ENCODING_INVALID        0xF1
+#define MQ_STATUS_ERR_FAP_LEVEL               0xF2
+#define MQ_STATUS_ERR_NEGOTIATION_FAILED      0xF3
+
+/* These errors codes are documented in javax.transaction.xa.XAException */
+#define MQ_XA_RBROLLBACK   100
+#define MQ_XA_RBCOMMFAIL   101
+#define MQ_XA_RBDEADLOCK   102
+#define MQ_XA_RBINTEGRITY  103
+#define MQ_XA_RBOTHER      104
+#define MQ_XA_RBPROTO      105
+#define MQ_XA_RBTIMEOUT    106
+#define MQ_XA_RBTRANSIENT  107
+#define MQ_XA_NOMIGRATE    9
+#define MQ_XA_HEURHAZ      8
+#define MQ_XA_HEURCOM      7
+#define MQ_XA_HEURRB       6
+#define MQ_XA_HEURMIX      5
+#define MQ_XA_RETRY        4
+#define MQ_XA_RDONLY       3
+#define MQ_XA_OK           0
+#define MQ_XAER_ASYNC      -2
+#define MQ_XAER_RMERR      -3
+#define MQ_XAER_NOTA       -4
+#define MQ_XAER_INVAL      -5
+#define MQ_XAER_PROTO      -6
+#define MQ_XAER_RMFAIL     -7
+#define MQ_XAER_DUPID      -8
+#define MQ_XAER_OUTSIDE    -9
+
+/* These flags are documented in javax.transaction.xa.XAResource */
+#define MQ_XA_TMNOFLAGS     0
+#define MQ_XA_TMJOIN        0x200000
+#define MQ_XA_TMENDRSCAN    0x800000
+#define MQ_XA_TMSTARTRSCAN  0x1000000
+#define MQ_XA_TMSUSPEND     0x2000000
+#define MQ_XA_TMSUCCESS     0x4000000
+#define MQ_XA_TMRESUME      0x8000000
+#define MQ_XA_TMFAIL        0x20000000
+#define MQ_XA_TMONEPHASE    0x40000000
+
+#define MQ_PMRF_NONE              0x00
+#define MQ_PMRF_MSG_ID            0x01
+#define MQ_PMRF_CORREL_ID         0x02
+#define MQ_PMRF_GROUP_ID          0x04
+#define MQ_PMRF_FEEDBACK          0x08
+#define MQ_PMRF_ACCOUNTING_TOKEN  0x10
+
+/* MQ structures */
+/* Undocumented structures */
+#define MQ_TEXT_TSH                     "Transmission Segment Header"
+#define MQ_TEXT_TSHC                    "Transmission Segment Header Common"
+#define MQ_TEXT_TSHM                    "Transmission Segment Header Multiplexed"
+#define MQ_TEXT_FCNO                    "F Connect Option"
+#define MQ_TEXT_API                     "API Header"
+#define MQ_TEXT_SOCKET                  "Socket Action"
+#define MQ_TEXT_ID                      "Initial Data"
+#define MQ_TEXT_UID                     "User Id Data"
+#define MQ_TEXT_MSH                     "Message Segment Header"
+#define MQ_TEXT_CAUT                    "Connection Authority"
+#define MQ_TEXT_CONN                    "MQCONN"
+#define MQ_TEXT_INQ                     "MQINQ/MQSET"
+#define MQ_TEXT_PUT                     "MQPUT/MQGET"
+#define MQ_TEXT_OPEN                    "MQOPEN/MQCLOSE"
+#define MQ_TEXT_REQMSG                  "REQUEST MESSAGE"
+#define MQ_TEXT_ASYMSG                  "ASYNC MESSAGE"
+#define MQ_TEXT_NOTIFICATION            "NOTIFICATION"
+#define MQ_TEXT_BIND_READAHEAD_AS_Q_DEF "Bind/Read Ahead As Q Def"
+#define MQ_TEXT_IMMEDIATE_NONE          "Close Immediate/No option"
+#define MQ_TEXT_MQPMO_NONE              "Resp as Q Def/Resp as Topic Def/None"
+#define MQ_TEXT_MQGMO_NONE              "No Wait/Prop as Q Def/None"
+#define MQ_TEXT_MQMO_NONE               "None"
+#define MQ_TEXT_LPOOOPT_NONE            "None"
+
+#define MQ_TEXT_PING  "PING"
+#define MQ_TEXT_RESET "RESET"
+#define MQ_TEXT_STAT  "STATUS"
+#define MQ_TEXT_SPI   "SPI"
+#define MQ_TEXT_XA    "XA"
+#define MQ_TEXT_XID   "Xid"
+#define MQ_TEXT_XINF  "XA_info"
+
+#define MQ_TEXT_SPQU  "SPI Query InOut"
+#define MQ_TEXT_SPQI  "SPI Query In"
+#define MQ_TEXT_SPQO  "SPI Query Out"
+#define MQ_TEXT_SPPU  "SPI Put InOut"
+#define MQ_TEXT_SPPI  "SPI Put In"
+#define MQ_TEXT_SPPO  "SPI Put Out"
+#define MQ_TEXT_SPGU  "SPI Get InOut"
+#define MQ_TEXT_SPGI  "SPI Get In"
+#define MQ_TEXT_SPGO  "SPI Get Out"
+#define MQ_TEXT_SPAU  "SPI Activate InOut"
+#define MQ_TEXT_SPAI  "SPI Activate In"
+#define MQ_TEXT_SPAO  "SPI Activate Out"
+#define MQ_TEXT_SPOU  "SPI InOut"
+#define MQ_TEXT_SPOI  "SPI In"
+#define MQ_TEXT_SPOO  "SPI Out"
+#define MQ_TEXT_LPOO  "LPOO"
+#define MQ_TEXT_FOPA  "FOPA"
+
+/* Documented structures with structid */
+#define MQ_TEXT_CIH  "CICS bridge Header"
+#define MQ_TEXT_DH   "Distribution Header"
+#define MQ_TEXT_DLH  "Dead-Letter Header"
+#define MQ_TEXT_GMO  "Get Message Options"
+#define MQ_TEXT_IIH  "IMS Information Header"
+#define MQ_TEXT_MD   "Message Descriptor"
+#define MQ_TEXT_MDE  "Message Descriptor Extension"
+#define MQ_TEXT_OD   "Object Descriptor"
+#define MQ_TEXT_PMO  "Put Message Options"
+#define MQ_TEXT_RMH  "Reference Message Header"
+#define MQ_TEXT_RFH  "Rules and Formatting Header"
+#define MQ_TEXT_TM   "Trigger Message"
+#define MQ_TEXT_TMC2 "Trigger Message 2 (character format)"
+#define MQ_TEXT_WIH  "Work Information Header"
+#define MQ_TEXT_XQH  "Transmission Queue Header"
+
+/* Documented structures without structid */
+#define MQ_TEXT_OR   "Object Record"
+#define MQ_TEXT_PMR  "Put Message Record"
+#define MQ_TEXT_RR   "Response Record"
+
+#define MQ_NC_GET_INHIBITED          1
+#define MQ_NC_GET_ALLOWED            2
+#define MQ_NC_CONN_STATE             3
+#define MQ_NC_CONN_STATE_REPLY       4
+#define MQ_NC_Q_STATE                5
+#define MQ_NC_Q_STATE_REPLY          6
+#define MQ_NC_QM_QUIESCING           7
+#define MQ_NC_TXN_ALLOWED            8
+#define MQ_NC_TXN_REVOKE             9
+#define MQ_NC_TXN_REVOKE_REPLY      10
+#define MQ_NC_CHECK_MSG             11
+#define MQ_NC_BROWSE_FIRST          12
+#define MQ_NC_MESSAGE_TOO_LARGE     13
+#define MQ_NC_STREAMING_FAILURE     14
+#define MQ_NC_CLIENT_ASYNC_EMPTY    15
+#define MQ_NC_STREAMING_TXN_PAUSED  16
+#define MQ_NC_RECONNECTION_COMPLETE 17
+
 typedef struct _mq_ccsid_t
 {
     guint32 encod;
@@ -5057,9 +5490,9 @@ extern void    dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 DEF_VALSX(mqcc);
 
-DEF_VALS_EXTX(mqat);
-DEF_VALS_EXTX(mqcmd);
-DEF_VALS_EXTX(mqrc);
+DEF_VALS_EXTX(MQAT);
+DEF_VALS_EXTX(MQCMD);
+DEF_VALS_EXTX(MQRC);
 DEF_VALS_EXTX(objtype);
 DEF_VALS_EXTX(PrmId);
 DEF_VALS_EXTX(PrmTyp);
@@ -5068,6 +5501,12 @@ DEF_VALS_EXTX(MQCFINT_Parse);
 
 DEF_VALSX(CtlOpt);
 DEF_VALSX(mqcft);
+
+DEF_VALSX(MQPER);
+DEF_VALSX(MQPRT);
+DEF_VALSX(MQREADA);
+DEF_VALSX(MQPROP);
+DEF_VALSX(MQMT);
 
 DEF_VALSX(FilterOP);
 DEF_VALSX(UOWControls);
