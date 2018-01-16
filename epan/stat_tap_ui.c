@@ -139,9 +139,9 @@ start_requested_stats(void)
     while(stats_requested){
         sr=(stat_requested *)stats_requested->data;
         (*sr->sca->func)(sr->arg,sr->sca->userdata);
+        stats_requested=g_slist_remove(stats_requested, sr);
         g_free(sr->arg);
         g_free(sr);
-        stats_requested=g_slist_remove(stats_requested, sr);
     }
 }
 
