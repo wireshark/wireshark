@@ -234,10 +234,42 @@ void ProtoTree::setMonospaceFont(const QFont &mono_font)
     update();
 }
 
+void ProtoTree::foreachTreeNode(proto_node *node, gpointer proto_tree_ptr)
+{
+    ProtoTree *tree_view = static_cast<ProtoTree *>(proto_tree_ptr);
+    ProtoTreeModel *model = qobject_cast<ProtoTreeModel *>(tree_view->model());
+    if (!tree_view || !model) {
+        return;
+    }
+
+    // Expanded state
+    if (tree_expanded(node->finfo->tree_type)) {
+        ProtoNode expand_node = ProtoNode(node);
+        tree_view->expand(model->indexFromProtoNode(expand_node));
+    }
+
+    // Related frames
+    if (node->finfo->hfinfo->type == FT_FRAMENUM) {
+        ft_framenum_type_t framenum_type = (ft_framenum_type_t)GPOINTER_TO_INT(node->finfo->hfinfo->strings);
+        tree_view->emitRelatedFrame(node->finfo->value.value.uinteger, framenum_type);
+    }
+
+    proto_tree_children_foreach(node, foreachTreeNode, proto_tree_ptr);
+}
+
+// We track item expansion using proto.c:tree_is_expanded. QTreeView
+// tracks it using QTreeViewPrivate::expandedIndexes. When we're handed
+// a new tree, clear expandedIndexes and repopulate it by walking the
+// tree and calling QTreeView::expand above.
 void ProtoTree::setRootNode(proto_node *root_node) {
     setFont(mono_font_);
     reset(); // clears expandedIndexes.
     proto_tree_model_->setRootNode(root_node);
+
+    disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
+    proto_tree_children_foreach(root_node, foreachTreeNode, this);
+    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
+
     updateContentWidth();
 }
 
@@ -565,42 +597,6 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
     }
 
     return QTreeView::eventFilter(obj, event);
-}
-
-void ProtoTree::foreachSyncExpansion(proto_node *node, gpointer proto_tree_ptr)
-{
-    if (tree_expanded(node->finfo->tree_type)) {
-        QTreeView *tree_view = static_cast<QTreeView *>(proto_tree_ptr);
-        ProtoTreeModel *model = qobject_cast<ProtoTreeModel *>(tree_view->model());
-        if (!tree_view || !model) {
-            return;
-        }
-
-        ProtoNode expand_node = ProtoNode(node);
-        tree_view->expand(model->indexFromProtoNode(expand_node));
-    }
-
-    proto_tree_children_foreach(node, foreachSyncExpansion, proto_tree_ptr);
-}
-
-// We track item expansion using proto.c:tree_is_expanded. QTreeView
-// tracks it using QTreeViewPrivate::expandedIndexes. When we're handed
-// a new tree, clear expandedIndexes (which we do above in setRootNode)
-// and repopulate it by walking the tree and calling
-// QTreeView::expand.
-void ProtoTree::rowsInserted(const QModelIndex &parent, int start, int end)
-{
-    disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
-    for (int row = start; row <= end; row++) {
-        QModelIndex index = proto_tree_model_->index(row, 0, parent);
-        ProtoNode row_node = proto_tree_model_->protoNodeFromIndex(index);
-        if (row_node.isExpanded()) {
-            expand(index);
-        }
-        proto_tree_children_foreach(row_node.protoNode(), foreachSyncExpansion, this);
-    }
-    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
-    QTreeView::rowsInserted(parent, start, end);
 }
 
 /*

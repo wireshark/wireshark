@@ -28,7 +28,7 @@ FieldInformation::FieldInformation(proto_node *node, QObject * parent)
     parent_fi_ = NULL;
 }
 
-bool FieldInformation::isValid()
+bool FieldInformation::isValid() const
 {
     bool ret = false;
 
@@ -42,6 +42,17 @@ bool FieldInformation::isValid()
     }
 
     return ret;
+}
+
+bool FieldInformation::isLink() const
+{
+    if (fi_ && fi_->hfinfo) {
+        if((fi_->hfinfo->type == FT_FRAMENUM) ||
+                (FI_GET_FLAG(fi_, FI_URL) && IS_FT_STRING(fi_->hfinfo->type))) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void FieldInformation::setParentField(field_info * par_fi)

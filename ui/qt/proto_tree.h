@@ -45,7 +45,6 @@ protected:
     virtual void timerEvent(QTimerEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
     virtual bool eventFilter(QObject * obj, QEvent * ev);
-    virtual void rowsInserted(const QModelIndex & parent, int start, int end);
 
 private:
     ProtoTreeModel *proto_tree_model_;
@@ -64,7 +63,7 @@ private:
     capture_file *cap_file_;
 
     void saveSelectedField(QModelIndex &index);
-    static void foreachSyncExpansion(proto_node *node, gpointer proto_tree_ptr);
+    static void foreachTreeNode(proto_node *node, gpointer proto_tree_ptr);
 
 signals:
     void fieldSelected(FieldInformation *);
