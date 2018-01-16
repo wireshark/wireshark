@@ -41,7 +41,10 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     setWindowSubtitle(tr("Packet %1").arg(fdata->num));
 
-    if (!cf_read_record(cap_file_.capFile(), fdata)) reject();
+    if (!cf_read_record(cap_file_.capFile(), fdata)) {
+        reject();
+        return;
+    }
 
     phdr_ = cap_file_.capFile()->phdr;
     packet_data_ = (guint8 *) g_memdup(ws_buffer_start_ptr(&(cap_file_.capFile()->buf)), fdata->cap_len);
