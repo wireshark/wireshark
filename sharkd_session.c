@@ -1101,6 +1101,9 @@ sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_
 	expert_info_t *ei             = (expert_info_t *) pointer;
 
 	ei = (expert_info_t *) g_memdup(ei, sizeof(*ei));
+	if (ei == NULL)
+		return FALSE;
+
 	ei->protocol = g_string_chunk_insert_const(etd->text, ei->protocol);
 	ei->summary  = g_string_chunk_insert_const(etd->text, ei->summary);
 
