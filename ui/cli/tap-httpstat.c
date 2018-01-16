@@ -141,18 +141,16 @@ http_init_hash(httpstat_t *sp)
 {
 	int i;
 
-	sp->hash_responses = g_hash_table_new(g_int_hash, g_int_equal);
+	sp->hash_responses = g_hash_table_new(g_direct_hash, g_direct_equal);
 
 	for (i=0; vals_status_code[i].strptr; i++ )
 	{
-		gint *key = g_new (gint, 1);
 		http_response_code_t *sc = g_new (http_response_code_t, 1);
-		*key = vals_status_code[i].value;
 		sc->packets = 0;
-		sc->response_code =  *key;
+		sc->response_code = vals_status_code[i].value;
 		sc->name = vals_status_code[i].strptr;
 		sc->sp = sp;
-		g_hash_table_insert(sc->sp->hash_responses, key, sc);
+		g_hash_table_insert(sc->sp->hash_responses, GUINT_TO_POINTER(vals_status_code[i].value), sc);
 	}
 	sp->hash_requests = g_hash_table_new(g_str_hash, g_str_equal);
 }
@@ -218,13 +216,12 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 	/* We are only interested in reply packets with a status code */
 	/* Request or reply packets ? */
 	if (value->response_code != 0) {
-		guint *key = g_new(guint, 1);
 		http_response_code_t *sc;
+		guint key = value->response_code;
 
-		*key = value->response_code;
 		sc = (http_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
-				key);
+				GUINT_TO_POINTER(key));
 		if (sc == NULL) {
 			/* non standard status code ; we classify it as others
 			 * in the relevant category (Informational,Success,Redirection,Client Error,Server Error)
@@ -234,23 +231,23 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 				return 0;
 			}
 			else if (i < 200) {
-				*key = 199;	/* Hopefully, this status code will never be used */
+				key = 199;	/* Hopefully, this status code will never be used */
 			}
 			else if (i < 300) {
-				*key = 299;
+				key = 299;
 			}
 			else if (i < 400) {
-				*key = 399;
+				key = 399;
 			}
 			else if (i < 500) {
-				*key = 499;
+				key = 499;
 			}
 			else{
-				*key = 599;
+				key = 599;
 			}
 			sc = (http_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
-				key);
+				GUINT_TO_POINTER(key));
 			if (sc == NULL)
 				return 0;
 		}
