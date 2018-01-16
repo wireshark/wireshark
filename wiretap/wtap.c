@@ -1095,7 +1095,7 @@ static const char *wtap_errlist[] = {
 	"That record type cannot be written in that format",
 
 	/* WTAP_ERR_UNWRITABLE_REC_DATA */
-	"That record can't be written in that format"
+	"That record can't be written in that format",
 
 	/* WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED */
 	"We don't support decompressing that type of compressed file",
