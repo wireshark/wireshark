@@ -126,6 +126,9 @@ static gboolean wlan_ignore_draft_ht = FALSE;
 #define WLAN_IGNORE_PROT_W_IV   2
 static gint wlan_ignore_prot = WLAN_IGNORE_PROT_NO;
 
+/* The Key MIC len has been set by the user */
+static guint wlan_key_mic_len = 0;
+
 /* Table for reassembly of fragments. */
 static reassembly_table wlan_reassembly_table;
 
@@ -19852,11 +19855,21 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
     &hf_wlan_rsna_eapol_wpa_keydes_keyinfo_smk_message,
     NULL
   };
+  guint16 eapol_data_offset = 76;  /* 92 - 16 */
+  guint16 eapol_key_mic_len = 0;
+
+  if (wlan_key_mic_len) {
+    eapol_data_offset += wlan_key_mic_len;
+    eapol_key_mic_len = wlan_key_mic_len;
+  } else {
+    eapol_data_offset = 92;
+    eapol_key_mic_len = 16;
+  }
 
   /*
    * RSNA key descriptors.
    */
-  eapol_data_len = tvb_get_ntohs(tvb, offset+92);
+  eapol_data_len = tvb_get_ntohs(tvb, offset+eapol_data_offset);
   keyinfo = tvb_get_ntohs(tvb, offset);
   if (keyinfo & KEY_INFO_REQUEST_MASK) {
     col_set_str(pinfo->cinfo, COL_INFO, "Key (Request)");
@@ -19940,8 +19953,8 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                       ENC_NA);
   offset += 8;
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
-                      16, ENC_NA);
-  offset += 16;
+                      eapol_key_mic_len, ENC_NA);
+  offset += eapol_key_mic_len;
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data_len, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -28995,6 +29008,11 @@ proto_register_ieee80211(void)
     "Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
     "and some also leave the IV (initialization vector).",
     &wlan_ignore_prot, wlan_ignore_prot_options, TRUE);
+
+  prefs_register_uint_preference(wlan_module, "wpa_key_mic_len",
+    "WPA Key MIC Length override",
+    "Some Key MIC lengths are greater than 16 bytes, so set the length you require",
+    10, &wlan_key_mic_len);
 
   prefs_register_obsolete_preference(wlan_module, "wep_keys");
 
