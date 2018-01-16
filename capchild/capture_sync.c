@@ -1350,8 +1350,10 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
 #endif
     ret = sync_pipe_open_command(argv, data_read_fd, &message_read_fd,
                                  fork_child, msg, update_cb);
-    if (ret == -1)
+    if (ret == -1) {
+        g_free(argv);
         return -1;
+    }
 
     /*
      * We were able to set up to read dumpcap's output.  Do so.
