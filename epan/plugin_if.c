@@ -44,26 +44,19 @@ static void
 plugin_if_init_hashtable(void)
 {
     if ( plugin_if_callback_functions == 0 )
-        plugin_if_callback_functions = g_hash_table_new(g_int_hash, g_int_equal);
+        plugin_if_callback_functions = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 static void plugin_if_call_gui_cb(plugin_if_callback_t actionType, GHashTable * dataSet)
 {
     plugin_if_gui_cb action;
-    gint * key = 0;
-
-    key = (gint *)g_malloc0(sizeof(gint));
-    *key = (gint) actionType;
 
     plugin_if_init_hashtable();
 
-    if ( g_hash_table_size(plugin_if_callback_functions) != 0 )
+    if ( g_hash_table_lookup_extended(plugin_if_callback_functions, GINT_TO_POINTER(actionType), NULL, (gpointer*)&action) )
     {
-        if ( g_hash_table_lookup_extended(plugin_if_callback_functions, key, NULL, (gpointer*)&action) )
-        {
-            if ( action != NULL )
-                action(dataSet);
-        }
+        if ( action != NULL )
+            action(dataSet);
     }
 }
 
@@ -596,15 +589,10 @@ extern void plugin_if_get_ws_info(ws_info_t **ws_info_ptr)
 
 extern void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if_gui_cb callback)
 {
-    gint * key = 0;
-
-    key = (gint *)g_malloc0(sizeof(gint));
-    *key = actionType;
-
     plugin_if_init_hashtable();
 
-    if ( ! g_hash_table_lookup_extended(plugin_if_callback_functions, key, NULL, NULL ) )
-        g_hash_table_insert(plugin_if_callback_functions, key, (gpointer)callback);
+    if ( ! g_hash_table_lookup_extended(plugin_if_callback_functions, GINT_TO_POINTER(actionType), NULL, NULL ) )
+        g_hash_table_insert(plugin_if_callback_functions, GINT_TO_POINTER(actionType), (gpointer)callback);
 }
 
 /*
