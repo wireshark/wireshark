@@ -838,10 +838,10 @@ decode_dcerpc_reset_all(void)
     while (decode_dcerpc_bindings) {
         binding = (decode_dcerpc_bind_values_t *)decode_dcerpc_bindings->data;
 
-        decode_dcerpc_binding_free(binding);
         decode_dcerpc_bindings = g_slist_remove(
             decode_dcerpc_bindings,
             decode_dcerpc_bindings->data);
+        decode_dcerpc_binding_free(binding);
     }
 }
 
