@@ -50,7 +50,7 @@ public slots:
     void setMonospaceFont(const QFont &mono_font);
 
     void markProtocol(int start, int length);
-    void markField(int start, int length);
+    void markField(int start, int length, bool scroll_to = true);
     void markAppendix(int start, int length);
 
 protected:
@@ -69,7 +69,6 @@ private:
         ModeProtocol,
         ModeOffsetNormal,
         ModeOffsetField,
-        ModeHover,
         ModeMarked,
         ModeNonPrintable
     } HighlightMode;
@@ -121,6 +120,7 @@ private:
     int row_width_;             // Number of bytes per line
     qreal font_width_;          // Single character width and text margin. NOTE: Use fontMetrics::width for multiple characters.
     int line_height_;           // Font line spacing
+    QList<QRect> hover_outlines_; // Hovered byte outlines.
 
     // Data selection
     QVector<int> x_pos_to_column_;

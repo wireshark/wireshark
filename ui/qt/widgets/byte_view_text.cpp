@@ -143,11 +143,13 @@ void ByteViewText::markProtocol(int start, int length)
     viewport()->update();
 }
 
-void ByteViewText::markField(int start, int length)
+void ByteViewText::markField(int start, int length, bool scroll_to)
 {
     field_start_ = start;
     field_len_ = length;
-    scrollToByte(start);
+    if (scroll_to) {
+        scrollToByte(start);
+    }
     viewport()->update();
 }
 
@@ -179,7 +181,7 @@ void ByteViewText::paintEvent(QPaintEvent *)
 {
     QPainter painter(viewport());
     painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
-    painter.setFont(font());
+    painter.setFont(mono_font_);
 
     // Pixel offset of this row
     int row_y = 0;
@@ -214,6 +216,31 @@ void ByteViewText::paintEvent(QPaintEvent *)
 
     painter.restore();
 
+    // We can't do this in drawLine since the next line might draw over our rect.
+    if (!hover_outlines_.isEmpty()) {
+        qreal pen_width = 1.0;
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+        pen_width = 1.0 / devicePixelRatio();
+    #endif
+        QPen ho_pen;
+        QColor ho_color = palette().text().color();
+        ho_color.setAlphaF(0.5);
+        ho_pen.setColor(ho_color);
+        ho_pen.setWidthF(pen_width);
+
+        painter.save();
+        painter.setPen(ho_pen);
+        painter.setBrush(Qt::NoBrush);
+        foreach (QRect ho_rect, hover_outlines_) {
+            // These look good on retina and non-retina displays on macOS.
+            // We might want to use fontMetrics numbers instead.
+            ho_rect.adjust(-1, 0, -1, -1);
+            painter.drawRect(ho_rect);
+        }
+        painter.restore();
+    }
+    hover_outlines_.clear();
+
     QStyleOptionFocusRect option;
     option.initFrom(this);
     style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
@@ -237,6 +264,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
         mouseMoveEvent(event);
     }
     emit byteSelected(marked_byte_offset_);
+    viewport()->update();
 }
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)
@@ -247,13 +275,11 @@ void ByteViewText::mouseMoveEvent(QMouseEvent *event)
 
     hovered_byte_offset_ = byteOffsetAtPixel(event->pos());
     emit byteHovered(hovered_byte_offset_);
-
     viewport()->update();
 }
 
 void ByteViewText::leaveEvent(QEvent *event)
 {
-    QString empty;
     emit byteHovered(-1);
 
     viewport()->update();
@@ -331,6 +357,13 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             if (build_x_pos) {
                 x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size() + slop);
             }
+            if (tvb_pos == hovered_byte_offset_) {
+                int ho_len = recent.gui_bytes_view == BYTES_HEX ? 2 : 8;
+                QRect ho_rect = painter->boundingRect(QRect(), Qt::AlignHCenter|Qt::AlignVCenter, line.right(ho_len));
+                ho_rect.moveRight(fontMetrics().width(line));
+                ho_rect.moveTop(row_y);
+                hover_outlines_.append(ho_rect);
+            }
         }
         line += QString(ascii_start - line.length(), ' ');
         if (build_x_pos) {
@@ -344,9 +377,6 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
         addHexFormatRange(fmt_list, field_a_start_, field_a_len_, offset, max_tvb_pos, ModeField);
         if (marked_byte_offset_ >= offset && marked_byte_offset_ <= max_tvb_pos) {
             addHexFormatRange(fmt_list, marked_byte_offset_, 1, offset, max_tvb_pos, ModeMarked);
-        }
-        if (hovered_byte_offset_ >= offset && hovered_byte_offset_ <= max_tvb_pos) {
-            addHexFormatRange(fmt_list, hovered_byte_offset_, 1, offset, max_tvb_pos, ModeHover);
         }
     }
 
@@ -391,6 +421,12 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
             if (build_x_pos) {
                 x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size());
             }
+            if (tvb_pos == hovered_byte_offset_) {
+                QRect ho_rect = painter->boundingRect(QRect(), 0, line.right(1));
+                ho_rect.moveRight(fontMetrics().width(line));
+                ho_rect.moveTop(row_y);
+                hover_outlines_.append(ho_rect);
+            }
         }
         if (in_non_printable) {
             addAsciiFormatRange(fmt_list, np_start, np_len, offset, max_tvb_pos, ModeNonPrintable);
@@ -402,9 +438,6 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
         addAsciiFormatRange(fmt_list, field_a_start_, field_a_len_, offset, max_tvb_pos, ModeField);
         if (marked_byte_offset_ >= offset && marked_byte_offset_ <= max_tvb_pos) {
             addAsciiFormatRange(fmt_list, marked_byte_offset_, 1, offset, max_tvb_pos, ModeMarked);
-        }
-        if (hovered_byte_offset_ >= offset && hovered_byte_offset_ <= max_tvb_pos) {
-            addAsciiFormatRange(fmt_list, hovered_byte_offset_, 1, offset, max_tvb_pos, ModeHover);
         }
     }
 
@@ -446,12 +479,6 @@ bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int
         break;
     case ModeOffsetField:
         format_range.format.setForeground(offset_field_fg_);
-        break;
-    case ModeHover:
-        // QTextCharFormat doesn't appear to let us draw a complete border.
-        // This is the next best thing.
-        format_range.format.setFontUnderline(true);
-        format_range.format.setFontOverline(true);
         break;
     case ModeMarked:
         // XXX Should we get rid of byteViewMarkColor and just draw an

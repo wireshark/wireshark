@@ -51,6 +51,8 @@ public slots:
     void selectedFrameChanged(int);
     /* Selects or marks a field */
     void selectedFieldChanged(FieldInformation *);
+    /* Highlights field */
+    void highlightedFieldChanged(FieldInformation *);
 
 signals:
     void fieldSelected(FieldInformation *);
@@ -59,12 +61,8 @@ signals:
 private:
     capture_file *cap_file_;
 
-    FieldInformation * curSelected;
-
     void setTabsVisible();
-
     ByteViewText * findByteViewTextForTvb(tvbuff_t * search, int * idx = 0);
-
     void addTab(const char *name = "", tvbuff_t *tvb = NULL);
 
 protected:
