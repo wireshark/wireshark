@@ -500,16 +500,17 @@ bool ByteViewText::addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list, 
     if (mark_start < 0 || mark_length < 1) return false;
     if (mark_start > max_tvb_pos && mark_end < tvb_offset) return false;
 
-    int chars_per_byte = recent.gui_bytes_view == BYTES_HEX ? 3 : 9;
+    int chars_per_byte = recent.gui_bytes_view == BYTES_HEX ? 2 : 8;
+    int chars_plus_pad = chars_per_byte + 1;
     int byte_start = qMax(tvb_offset, mark_start) - tvb_offset;
     int byte_end = qMin(max_tvb_pos, mark_end) - tvb_offset;
     int fmt_start = offsetChars() + 1 // offset + spacing
             + (byte_start / separator_interval_)
-            + (byte_start * chars_per_byte);
+            + (byte_start * chars_plus_pad);
     int fmt_length = offsetChars() + 1 // offset + spacing
             + (byte_end / separator_interval_)
-            + (byte_end * chars_per_byte)
-            + 2 // Both the high and low nibbles.
+            + (byte_end * chars_plus_pad)
+            + chars_per_byte
             - fmt_start;
     return addFormatRange(fmt_list, fmt_start, fmt_length, mode);
 }
