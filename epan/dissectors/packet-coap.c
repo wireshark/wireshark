@@ -1142,11 +1142,11 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 				coinfo->block_mflag ? "" : "End of ", coinfo->block_number);
 	if (wmem_strbuf_get_len(coinfo->uri_str_strbuf) > 0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", wmem_strbuf_get_str(coinfo->uri_str_strbuf));
-		/* Add to hidden protocol item as well */
+		/* Add a generated protocol item as well */
 		pi = proto_tree_add_string(coap_tree, hf_coap_opt_uri_path_recon, tvb, 0, 0, wmem_strbuf_get_str(coinfo->uri_str_strbuf));
-		PROTO_ITEM_SET_HIDDEN(pi);
+		PROTO_ITEM_SET_GENERATED(pi);
 	}
-	if (wmem_strbuf_get_len(coinfo->uri_query_strbuf)> 0)
+	if (wmem_strbuf_get_len(coinfo->uri_query_strbuf) > 0)
 		col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(coinfo->uri_query_strbuf));
 
 	/* dissect the payload */
