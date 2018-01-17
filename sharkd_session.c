@@ -724,13 +724,15 @@ sharkd_session_create_columns(column_info *cinfo, const char *buf, const jsmntok
 		if (tok_column == NULL)
 			break;
 
+		columns_custom[i] = NULL;
+		columns_occur[i] = 0;
+
 		if ((custom_sepa = strchr(tok_column, ':')))
 		{
 			*custom_sepa = '\0'; /* XXX, C abuse: discarding-const */
 
 			columns_fmt[i] = COL_CUSTOM;
 			columns_custom[i] = tok_column;
-			columns_occur[i] = 0;
 
 			if (!ws_strtoi16(custom_sepa + 1, NULL, &columns_occur[i]))
 				return NULL;
