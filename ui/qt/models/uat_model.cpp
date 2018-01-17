@@ -95,7 +95,6 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
             return qstr;
             }
         case PT_TXTMOD_BOOL:
-            return "";
         case PT_TXTMOD_COLOR:
             return QVariant();
         default:
@@ -135,14 +134,12 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role == Qt::DecorationRole) {
-        if (field->mode == PT_TXTMOD_COLOR) {
-            char *str = NULL;
-            guint length = 0;
-            field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
+    if ((role == Qt::DecorationRole) && (field->mode == PT_TXTMOD_COLOR)) {
+        char *str = NULL;
+        guint length = 0;
+        field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
 
-            return QColor(QString(str));
-        }
+        return QColor(QString(str));
     }
 
     // expose error message if any.

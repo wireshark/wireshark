@@ -208,6 +208,7 @@ private:
     void makeCsv(QTextStream &stream) const;
     bool saveCsv(const QString &file_name) const;
     IOGraph *currentActiveGraph() const;
+    bool graphIsEnabled(int row) const;
 
 private slots:
     void updateWidgets();
