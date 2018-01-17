@@ -17,6 +17,7 @@ X2AP-PDU
 #.MAKE_ENUM
 ProtocolIE-ID
 ProcedureCode
+TriggeringMessage
 
 #.USE_VALS_EXT
 CauseRadioNetwork
@@ -62,6 +63,10 @@ ProtocolIE-ContainerPairList
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_BODY  ProcedureCode  VAL_PTR = &x2ap_data->procedure_code
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
+#.FN_BODY TriggeringMessage VAL_PTR = &x2ap_data->triggering_message
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
 #.END
@@ -228,9 +233,57 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SeNBtoMeNBContainer);
   dissect_lte_rrc_SCG_ConfigInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
-#.FN_BODY EUTRANTraceID VAL_PTR = &parameter_tvb
+#.FN_BODY MeNBtoSgNBContainer VAL_PTR = &parameter_tvb
  tvbuff_t *parameter_tvb;
  proto_tree *subtree = NULL;
+ struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_MeNBtoSgNBContainer);
+  if ((x2ap_data->procedure_code == id_sgNBReconfigurationCompletion &&
+       x2ap_data->triggering_message == initiating_message) ||
+      (x2ap_data->procedure_code == id_sgNBinitiatedSgNBModification &&
+       x2ap_data->triggering_message == successful_outcome)) {
+    dissect_nr_rrc_RRCReconfigurationComplete_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  } else {
+    dissect_nr_rrc_SCG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SgNBtoMeNBContainer VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SgNBtoMeNBContainer);
+  dissect_nr_rrc_SCG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.FN_HDR MCGSplitSRB/rrcContainer
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+
+  x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_PDCP_C_PDU;
+
+#.FN_HDR UENRMeasurement/uENRMeasurements
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+
+  x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT;
+
+#.FN_BODY RRCContainer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree = NULL;
+  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  if (x2ap_data->rrc_container_type == RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SgNBtoMeNBContainer);
+    dissect_nr_rrc_UL_DCCH_Message_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY EUTRANTraceID VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree = NULL;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -457,6 +510,64 @@ LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_X2AP_Message);
     dissect_X2AP_PDU_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
+
+#.TYPE_ATTR
+ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+
+#.FN_BODY NRencryptionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = {
+      &hf_x2ap_NRencryptionAlgorithms_NEA1,
+      &hf_x2ap_NRencryptionAlgorithms_NEA2,
+      &hf_x2ap_NRencryptionAlgorithms_NEA3,
+      &hf_x2ap_NRencryptionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_NRencryptionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY NRintegrityProtectionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = {
+      &hf_x2ap_NRintegrityProtectionAlgorithms_NIA1,
+      &hf_x2ap_NRintegrityProtectionAlgorithms_NIA2,
+      &hf_x2ap_NRintegrityProtectionAlgorithms_NIA3,
+      &hf_x2ap_NRintegrityProtectionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_NRintegrityProtectionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY E-RABUsageReport-Item/startTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR E-RABUsageReport-Item/startTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.FN_BODY E-RABUsageReport-Item/endTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR E-RABUsageReport-Item/endTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.TYPE_ATTR
+E-RABUsageReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
+#.TYPE_ATTR
+E-RABUsageReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -561,23 +672,83 @@ LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RetrieveUEContextResponse");
 #.FN_HDR RetrieveUEContextFailure
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RetrieveUEContextFailure");
+#.FN_HDR SgNBAdditionRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBAdditionRequest");
+#.FN_HDR SgNBAdditionRequestAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBAdditionRequestAcknowledge");
+#.FN_HDR SgNBAdditionRequestReject
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBAdditionRequestReject");
+#.FN_HDR SgNBReconfigurationComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBReconfigurationComplete");
+#.FN_HDR SgNBModificationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBModificationRequest");
+#.FN_HDR SgNBModificationRequestAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBModificationRequestAcknowledge");
+#.FN_HDR SgNBModificationRequestReject
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBModificationRequestReject");
+#.FN_HDR SgNBModificationRequired
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBModificationRequired");
+#.FN_HDR SgNBModificationConfirm
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBModificationConfirm");
+#.FN_HDR SgNBModificationRefuse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBModificationRefuse");
+#.FN_HDR SgNBReleaseRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBReleaseRequest");
+#.FN_HDR SgNBReleaseRequestAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBReleaseRequestAcknowledge");
+#.FN_HDR SgNBReleaseRequestReject
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBReleaseRequestReject");
+#.FN_HDR SgNBReleaseRequired
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBReleaseRequired");
+#.FN_HDR SgNBReleaseConfirm
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBReleaseConfirm");
+#.FN_HDR SgNBCounterCheckRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBCounterCheckRequest");
+#.FN_HDR SgNBChangeRequired
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBChangeRequired");
+#.FN_HDR SgNBChangeConfirm
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBChangeConfirm");
+#.FN_HDR SgNBChangeRefuse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBChangeRefuse");
+#.FN_HDR RRCTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCTransfer");
+#.FN_HDR ENDCX2SetupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2SetupRequest");
+#.FN_HDR ENDCX2SetupResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2SetupResponse");
+#.FN_HDR ENDCX2SetupFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2SetupFailure");
+#.FN_HDR ENDCConfigurationUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCConfigurationUpdate");
+#.FN_HDR ENDCConfigurationUpdateAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCConfigurationUpdateAcknowledge");
+#.FN_HDR ENDCConfigurationUpdateFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCConfigurationUpdateFailure");
+#.FN_HDR SecondaryRATDataUsageReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATDataUsageReport");
+#.FN_HDR ENDCCellActivationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCCellActivationRequest");
+#.FN_HDR ENDCCellActivationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCCellActivationResponse");
+#.FN_HDR ENDCCellActivationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCCellActivationFailure");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
-id-handoverPreparation					ProcedureCode
+id-handoverPreparation						ProcedureCode
 id-handoverCancel						ProcedureCode
 id-loadIndication						ProcedureCode
 id-errorIndication						ProcedureCode
 id-snStatusTransfer						ProcedureCode
 id-uEContextRelease						ProcedureCode
-id-x2Setup								ProcedureCode
-id-reset								ProcedureCode
-id-eNBConfigurationUpdate				ProcedureCode
-id-resourceStatusReportingInitiation	ProcedureCode
-id-resourceStatusReporting				ProcedureCode
+id-x2Setup							ProcedureCode
+id-reset							ProcedureCode
+id-eNBConfigurationUpdate					ProcedureCode
+id-resourceStatusReportingInitiation				ProcedureCode
+id-resourceStatusReporting					ProcedureCode
 id-privateMessage						ProcedureCode
-id-mobilitySettingsChange				ProcedureCode
+id-mobilitySettingsChange					ProcedureCode
 id-rLFIndication						ProcedureCode
 id-handoverReport						ProcedureCode
 id-cellActivation						ProcedureCode
@@ -592,267 +763,356 @@ id-meNBinitiatedSeNBRelease					ProcedureCode
 id-seNBinitiatedSeNBRelease					ProcedureCode
 id-seNBCounterCheck						ProcedureCode
 id-retrieveUEContext						ProcedureCode
+id-sgNBAdditionPreparation					ProcedureCode
+id-sgNBReconfigurationCompletion				ProcedureCode
+id-meNBinitiatedSgNBModificationPreparation			ProcedureCode
+id-sgNBinitiatedSgNBModification				ProcedureCode
+id-meNBinitiatedSgNBRelease					ProcedureCode
+id-sgNBinitiatedSgNBRelease					ProcedureCode
+id-sgNBCounterCheck						ProcedureCode
+id-sgNBChange							ProcedureCode
+id-rRCTransfer							ProcedureCode
+id-endcX2Setup							ProcedureCode
+id-endcConfigurationUpdate					ProcedureCode
+id-secondaryRATDataUsageReport					ProcedureCode
+id-endcCellActivation						ProcedureCode
 
 
 # ProtocolIE-ID
 
-id-E-RABs-Admitted-Item														ProtocolIE-ID
-id-E-RABs-Admitted-List														ProtocolIE-ID
-id-E-RAB-Item																ProtocolIE-ID
-id-E-RABs-NotAdmitted-List													ProtocolIE-ID
-id-E-RABs-ToBeSetup-Item													ProtocolIE-ID
-id-Cause																	ProtocolIE-ID
-id-CellInformation															ProtocolIE-ID
-id-CellInformation-Item														ProtocolIE-ID
-id-New-eNB-UE-X2AP-ID														ProtocolIE-ID
-id-Old-eNB-UE-X2AP-ID														ProtocolIE-ID
-id-TargetCell-ID															ProtocolIE-ID
-id-TargeteNBtoSource-eNBTransparentContainer								ProtocolIE-ID
-id-TraceActivation															ProtocolIE-ID
-id-UE-ContextInformation													ProtocolIE-ID
-id-UE-HistoryInformation													ProtocolIE-ID
-id-UE-X2AP-ID																ProtocolIE-ID
-id-CriticalityDiagnostics													ProtocolIE-ID
-id-E-RABs-SubjectToStatusTransfer-List										ProtocolIE-ID
-id-E-RABs-SubjectToStatusTransfer-Item										ProtocolIE-ID
-id-ServedCells																ProtocolIE-ID
-id-GlobalENB-ID																ProtocolIE-ID
-id-TimeToWait																ProtocolIE-ID
-id-GUMMEI-ID																ProtocolIE-ID
-id-GUGroupIDList															ProtocolIE-ID
-id-ServedCellsToAdd															ProtocolIE-ID
-id-ServedCellsToModify														ProtocolIE-ID
-id-ServedCellsToDelete														ProtocolIE-ID
-id-Registration-Request														ProtocolIE-ID
-id-CellToReport																ProtocolIE-ID
-id-ReportingPeriodicity														ProtocolIE-ID
-id-CellToReport-Item														ProtocolIE-ID
-id-CellMeasurementResult													ProtocolIE-ID
-id-CellMeasurementResult-Item												ProtocolIE-ID
-id-GUGroupIDToAddList														ProtocolIE-ID
-id-GUGroupIDToDeleteList													ProtocolIE-ID
-id-SRVCCOperationPossible													ProtocolIE-ID
-id-Measurement-ID															ProtocolIE-ID
-id-ReportCharacteristics													ProtocolIE-ID
-id-ENB1-Measurement-ID														ProtocolIE-ID
-id-ENB2-Measurement-ID														ProtocolIE-ID
-id-Number-of-Antennaports													ProtocolIE-ID
-id-CompositeAvailableCapacityGroup											ProtocolIE-ID
-id-ENB1-Cell-ID																ProtocolIE-ID
-id-ENB2-Cell-ID																ProtocolIE-ID
-id-ENB2-Proposed-Mobility-Parameters										ProtocolIE-ID
-id-ENB1-Mobility-Parameters													ProtocolIE-ID
-id-ENB2-Mobility-Parameters-Modification-Range								ProtocolIE-ID
-id-FailureCellPCI															ProtocolIE-ID
-id-Re-establishmentCellECGI													ProtocolIE-ID
-id-FailureCellCRNTI															ProtocolIE-ID
-id-ShortMAC-I																ProtocolIE-ID
-id-SourceCellECGI															ProtocolIE-ID
-id-FailureCellECGI															ProtocolIE-ID
-id-HandoverReportType														ProtocolIE-ID
-id-PRACH-Configuration														ProtocolIE-ID
-id-MBSFN-Subframe-Info														ProtocolIE-ID
-id-ServedCellsToActivate													ProtocolIE-ID
-id-ActivatedCellList														ProtocolIE-ID
-id-DeactivationIndication													ProtocolIE-ID
-id-UE-RLF-Report-Container													ProtocolIE-ID
-id-ABSInformation															ProtocolIE-ID
-id-InvokeIndication															ProtocolIE-ID
-id-ABS-Status																ProtocolIE-ID
-id-PartialSuccessIndicator													ProtocolIE-ID
-id-MeasurementInitiationResult-List											ProtocolIE-ID
-id-MeasurementInitiationResult-Item											ProtocolIE-ID
-id-MeasurementFailureCause-Item												ProtocolIE-ID
-id-CompleteFailureCauseInformation-List										ProtocolIE-ID
-id-CompleteFailureCauseInformation-Item										ProtocolIE-ID
-id-CSG-Id																	ProtocolIE-ID
-id-CSGMembershipStatus														ProtocolIE-ID
-id-MDTConfiguration															ProtocolIE-ID
-id-ManagementBasedMDTallowed												ProtocolIE-ID
-id-RRCConnSetupIndicator													ProtocolIE-ID
-id-NeighbourTAC																ProtocolIE-ID
-id-Time-UE-StayedInCell-EnhancedGranularity									ProtocolIE-ID
-id-RRCConnReestabIndicator													ProtocolIE-ID
-id-MBMS-Service-Area-List													ProtocolIE-ID
-id-HO-cause																	ProtocolIE-ID
-id-TargetCellInUTRAN														ProtocolIE-ID
-id-MobilityInformation														ProtocolIE-ID
-id-SourceCellCRNTI															ProtocolIE-ID
-id-MultibandInfoList														ProtocolIE-ID
-id-M3Configuration															ProtocolIE-ID
-id-M4Configuration															ProtocolIE-ID
-id-M5Configuration															ProtocolIE-ID
-id-MDT-Location-Info														ProtocolIE-ID
-id-ManagementBasedMDTPLMNList												ProtocolIE-ID
-id-SignallingBasedMDTPLMNList												ProtocolIE-ID
-id-ReceiveStatusOfULPDCPSDUsExtended										ProtocolIE-ID
-id-ULCOUNTValueExtended														ProtocolIE-ID
-id-DLCOUNTValueExtended														ProtocolIE-ID
-id-eARFCNExtension															ProtocolIE-ID
-id-UL-EARFCNExtension														ProtocolIE-ID
-id-DL-EARFCNExtension														ProtocolIE-ID
-id-AdditionalSpecialSubframe-Info											ProtocolIE-ID
-id-Masked-IMEISV															ProtocolIE-ID
-id-IntendedULDLConfiguration												ProtocolIE-ID
-id-ExtendedULInterferenceOverloadInfo										ProtocolIE-ID
-id-RNL-Header																ProtocolIE-ID
-id-x2APMessage																ProtocolIE-ID
-id-ProSeAuthorized															ProtocolIE-ID
-id-ExpectedUEBehaviour														ProtocolIE-ID
-id-UE-HistoryInformationFromTheUE											ProtocolIE-ID
-id-DynamicDLTransmissionInformation											ProtocolIE-ID
-id-UE-RLF-Report-Container-for-extended-bands								ProtocolIE-ID
-id-CoMPInformation															ProtocolIE-ID
-id-ReportingPeriodicityRSRPMR												ProtocolIE-ID
-id-RSRPMRList																ProtocolIE-ID
-id-MeNB-UE-X2AP-ID															ProtocolIE-ID
-id-SeNB-UE-X2AP-ID															ProtocolIE-ID
-id-UE-SecurityCapabilities													ProtocolIE-ID
-id-SeNBSecurityKey															ProtocolIE-ID
-id-SeNBUEAggregateMaximumBitRate											ProtocolIE-ID
-id-ServingPLMN																ProtocolIE-ID
-id-E-RABs-ToBeAdded-List													ProtocolIE-ID
-id-E-RABs-ToBeAdded-Item													ProtocolIE-ID
-id-MeNBtoSeNBContainer														ProtocolIE-ID
-id-E-RABs-Admitted-ToBeAdded-List											ProtocolIE-ID
-id-E-RABs-Admitted-ToBeAdded-Item											ProtocolIE-ID
-id-SeNBtoMeNBContainer														ProtocolIE-ID
-id-ResponseInformationSeNBReconfComp										ProtocolIE-ID
-id-UE-ContextInformationSeNBModReq											ProtocolIE-ID
-id-E-RABs-ToBeAdded-ModReqItem												ProtocolIE-ID
-id-E-RABs-ToBeModified-ModReqItem											ProtocolIE-ID
-id-E-RABs-ToBeReleased-ModReqItem											ProtocolIE-ID
-id-E-RABs-Admitted-ToBeAdded-ModAckList										ProtocolIE-ID
-id-E-RABs-Admitted-ToBeModified-ModAckList									ProtocolIE-ID
-id-E-RABs-Admitted-ToBeReleased-ModAckList									ProtocolIE-ID
-id-E-RABs-Admitted-ToBeAdded-ModAckItem										ProtocolIE-ID
-id-E-RABs-Admitted-ToBeModified-ModAckItem									ProtocolIE-ID
-id-E-RABs-Admitted-ToBeReleased-ModAckItem									ProtocolIE-ID
-id-E-RABs-ToBeReleased-ModReqd												ProtocolIE-ID
-id-E-RABs-ToBeReleased-ModReqdItem											ProtocolIE-ID
-id-SCGChangeIndication														ProtocolIE-ID
-id-E-RABs-ToBeReleased-List-RelReq											ProtocolIE-ID
-id-E-RABs-ToBeReleased-RelReqItem											ProtocolIE-ID
-id-E-RABs-ToBeReleased-List-RelConf											ProtocolIE-ID
-id-E-RABs-ToBeReleased-RelConfItem											ProtocolIE-ID
-id-E-RABs-SubjectToCounterCheck-List										ProtocolIE-ID
-id-E-RABs-SubjectToCounterCheckItem											ProtocolIE-ID
-id-CoverageModificationList													ProtocolIE-ID
-id-ReportingPeriodicityCSIR													ProtocolIE-ID
-id-CSIReportList															ProtocolIE-ID
-id-UEID																		ProtocolIE-ID
-id-enhancedRNTP																ProtocolIE-ID
-id-ProSeUEtoNetworkRelaying													ProtocolIE-ID
-id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18									ProtocolIE-ID
-id-ULCOUNTValuePDCP-SNlength18												ProtocolIE-ID
-id-DLCOUNTValuePDCP-SNlength18												ProtocolIE-ID
-id-UE-ContextReferenceAtSeNB												ProtocolIE-ID
-id-UE-ContextKeptIndicator													ProtocolIE-ID
-id-New-eNB-UE-X2AP-ID-Extension												ProtocolIE-ID
-id-Old-eNB-UE-X2AP-ID-Extension												ProtocolIE-ID
-id-MeNB-UE-X2AP-ID-Extension												ProtocolIE-ID
-id-SeNB-UE-X2AP-ID-Extension												ProtocolIE-ID
-id-LHN-ID																	ProtocolIE-ID
-id-FreqBandIndicatorPriority												ProtocolIE-ID
-id-M6Configuration															ProtocolIE-ID
-id-M7Configuration															ProtocolIE-ID
-id-Tunnel-Information-for-BBF												ProtocolIE-ID
-id-SIPTO-BearerDeactivationIndication										ProtocolIE-ID
-id-GW-TransportLayerAddress													ProtocolIE-ID
-id-Correlation-ID															ProtocolIE-ID
-id-SIPTO-Correlation-ID														ProtocolIE-ID
-id-SIPTO-L-GW-TransportLayerAddress											ProtocolIE-ID
-id-X2RemovalThreshold														ProtocolIE-ID
-id-CellReportingIndicator													ProtocolIE-ID
-id-BearerType																ProtocolIE-ID
-id-resumeID																	ProtocolIE-ID
-id-UE-ContextInformationRetrieve											ProtocolIE-ID
-id-E-RABs-ToBeSetupRetrieve-Item											ProtocolIE-ID
-id-NewEUTRANCellIdentifier													ProtocolIE-ID
-id-V2XServicesAuthorized													ProtocolIE-ID
-id-OffsetOfNbiotChannelNumberToDL-EARFCN									ProtocolIE-ID
-id-OffsetOfNbiotChannelNumberToUL-EARFCN									ProtocolIE-ID
-id-AdditionalSpecialSubframeExtension-Info									ProtocolIE-ID
-id-BandwidthReducedSI														ProtocolIE-ID
-id-MakeBeforeBreakIndicator													ProtocolIE-ID
-id-UE-ContextReferenceAtWT													ProtocolIE-ID
-id-WT-UE-ContextKeptIndicator												ProtocolIE-ID
-id-UESidelinkAggregateMaximumBitRate										ProtocolIE-ID
-id-uL-GTPtunnelEndpoint														ProtocolIE-ID
+id-E-RABs-Admitted-Item						ProtocolIE-ID
+id-E-RABs-Admitted-List						ProtocolIE-ID
+id-E-RAB-Item							ProtocolIE-ID
+id-E-RABs-NotAdmitted-List					ProtocolIE-ID
+id-E-RABs-ToBeSetup-Item					ProtocolIE-ID
+id-Cause							ProtocolIE-ID
+id-CellInformation						ProtocolIE-ID
+id-CellInformation-Item						ProtocolIE-ID
+id-New-eNB-UE-X2AP-ID						ProtocolIE-ID
+id-Old-eNB-UE-X2AP-ID						ProtocolIE-ID
+id-TargetCell-ID						ProtocolIE-ID
+id-TargeteNBtoSource-eNBTransparentContainer			ProtocolIE-ID
+id-TraceActivation						ProtocolIE-ID
+id-UE-ContextInformation					ProtocolIE-ID
+id-UE-HistoryInformation					ProtocolIE-ID
+id-UE-X2AP-ID							ProtocolIE-ID
+id-CriticalityDiagnostics					ProtocolIE-ID
+id-E-RABs-SubjectToStatusTransfer-List				ProtocolIE-ID
+id-E-RABs-SubjectToStatusTransfer-Item				ProtocolIE-ID
+id-ServedCells							ProtocolIE-ID
+id-GlobalENB-ID							ProtocolIE-ID
+id-TimeToWait							ProtocolIE-ID
+id-GUMMEI-ID							ProtocolIE-ID
+id-GUGroupIDList						ProtocolIE-ID
+id-ServedCellsToAdd						ProtocolIE-ID
+id-ServedCellsToModify						ProtocolIE-ID
+id-ServedCellsToDelete						ProtocolIE-ID
+id-Registration-Request						ProtocolIE-ID
+id-CellToReport							ProtocolIE-ID
+id-ReportingPeriodicity						ProtocolIE-ID
+id-CellToReport-Item						ProtocolIE-ID
+id-CellMeasurementResult					ProtocolIE-ID
+id-CellMeasurementResult-Item					ProtocolIE-ID
+id-GUGroupIDToAddList						ProtocolIE-ID
+id-GUGroupIDToDeleteList					ProtocolIE-ID
+id-SRVCCOperationPossible					ProtocolIE-ID
+id-Measurement-ID						ProtocolIE-ID
+id-ReportCharacteristics					ProtocolIE-ID
+id-ENB1-Measurement-ID						ProtocolIE-ID
+id-ENB2-Measurement-ID						ProtocolIE-ID
+id-Number-of-Antennaports					ProtocolIE-ID
+id-CompositeAvailableCapacityGroup				ProtocolIE-ID
+id-ENB1-Cell-ID							ProtocolIE-ID
+id-ENB2-Cell-ID							ProtocolIE-ID
+id-ENB2-Proposed-Mobility-Parameters				ProtocolIE-ID
+id-ENB1-Mobility-Parameters					ProtocolIE-ID
+id-ENB2-Mobility-Parameters-Modification-Range			ProtocolIE-ID
+id-FailureCellPCI						ProtocolIE-ID
+id-Re-establishmentCellECGI					ProtocolIE-ID
+id-FailureCellCRNTI						ProtocolIE-ID
+id-ShortMAC-I							ProtocolIE-ID
+id-SourceCellECGI						ProtocolIE-ID
+id-FailureCellECGI						ProtocolIE-ID
+id-HandoverReportType						ProtocolIE-ID
+id-PRACH-Configuration						ProtocolIE-ID
+id-MBSFN-Subframe-Info						ProtocolIE-ID
+id-ServedCellsToActivate					ProtocolIE-ID
+id-ActivatedCellList						ProtocolIE-ID
+id-DeactivationIndication					ProtocolIE-ID
+id-UE-RLF-Report-Container					ProtocolIE-ID
+id-ABSInformation						ProtocolIE-ID
+id-InvokeIndication						ProtocolIE-ID
+id-ABS-Status							ProtocolIE-ID
+id-PartialSuccessIndicator					ProtocolIE-ID
+id-MeasurementInitiationResult-List				ProtocolIE-ID
+id-MeasurementInitiationResult-Item				ProtocolIE-ID
+id-MeasurementFailureCause-Item					ProtocolIE-ID
+id-CompleteFailureCauseInformation-List				ProtocolIE-ID
+id-CompleteFailureCauseInformation-Item				ProtocolIE-ID
+id-CSG-Id							ProtocolIE-ID
+id-CSGMembershipStatus						ProtocolIE-ID
+id-MDTConfiguration						ProtocolIE-ID
+id-ManagementBasedMDTallowed					ProtocolIE-ID
+id-RRCConnSetupIndicator					ProtocolIE-ID
+id-NeighbourTAC							ProtocolIE-ID
+id-Time-UE-StayedInCell-EnhancedGranularity			ProtocolIE-ID
+id-RRCConnReestabIndicator					ProtocolIE-ID
+id-MBMS-Service-Area-List					ProtocolIE-ID
+id-HO-cause							ProtocolIE-ID
+id-TargetCellInUTRAN						ProtocolIE-ID
+id-MobilityInformation						ProtocolIE-ID
+id-SourceCellCRNTI						ProtocolIE-ID
+id-MultibandInfoList						ProtocolIE-ID
+id-M3Configuration						ProtocolIE-ID
+id-M4Configuration						ProtocolIE-ID
+id-M5Configuration						ProtocolIE-ID
+id-MDT-Location-Info						ProtocolIE-ID
+id-ManagementBasedMDTPLMNList					ProtocolIE-ID
+id-SignallingBasedMDTPLMNList					ProtocolIE-ID
+id-ReceiveStatusOfULPDCPSDUsExtended				ProtocolIE-ID
+id-ULCOUNTValueExtended						ProtocolIE-ID
+id-DLCOUNTValueExtended						ProtocolIE-ID
+id-eARFCNExtension						ProtocolIE-ID
+id-UL-EARFCNExtension						ProtocolIE-ID
+id-DL-EARFCNExtension						ProtocolIE-ID
+id-AdditionalSpecialSubframe-Info				ProtocolIE-ID
+id-Masked-IMEISV						ProtocolIE-ID
+id-IntendedULDLConfiguration					ProtocolIE-ID
+id-ExtendedULInterferenceOverloadInfo				ProtocolIE-ID
+id-RNL-Header							ProtocolIE-ID
+id-x2APMessage							ProtocolIE-ID
+id-ProSeAuthorized						ProtocolIE-ID
+id-ExpectedUEBehaviour						ProtocolIE-ID
+id-UE-HistoryInformationFromTheUE				ProtocolIE-ID
+id-DynamicDLTransmissionInformation				ProtocolIE-ID
+id-UE-RLF-Report-Container-for-extended-bands			ProtocolIE-ID
+id-CoMPInformation						ProtocolIE-ID
+id-ReportingPeriodicityRSRPMR					ProtocolIE-ID
+id-RSRPMRList							ProtocolIE-ID
+id-MeNB-UE-X2AP-ID						ProtocolIE-ID
+id-SeNB-UE-X2AP-ID						ProtocolIE-ID
+id-UE-SecurityCapabilities					ProtocolIE-ID
+id-SeNBSecurityKey						ProtocolIE-ID
+id-SeNBUEAggregateMaximumBitRate				ProtocolIE-ID
+id-ServingPLMN							ProtocolIE-ID
+id-E-RABs-ToBeAdded-List					ProtocolIE-ID
+id-E-RABs-ToBeAdded-Item					ProtocolIE-ID
+id-MeNBtoSeNBContainer						ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-List				ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-Item				ProtocolIE-ID
+id-SeNBtoMeNBContainer						ProtocolIE-ID
+id-ResponseInformationSeNBReconfComp				ProtocolIE-ID
+id-UE-ContextInformationSeNBModReq				ProtocolIE-ID
+id-E-RABs-ToBeAdded-ModReqItem					ProtocolIE-ID
+id-E-RABs-ToBeModified-ModReqItem				ProtocolIE-ID
+id-E-RABs-ToBeReleased-ModReqItem				ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-ModAckList				ProtocolIE-ID
+id-E-RABs-Admitted-ToBeModified-ModAckList			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-ModAckList			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-ModAckItem				ProtocolIE-ID
+id-E-RABs-Admitted-ToBeModified-ModAckItem			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-ModAckItem			ProtocolIE-ID
+id-E-RABs-ToBeReleased-ModReqd					ProtocolIE-ID
+id-E-RABs-ToBeReleased-ModReqdItem				ProtocolIE-ID
+id-SCGChangeIndication						ProtocolIE-ID
+id-E-RABs-ToBeReleased-List-RelReq				ProtocolIE-ID
+id-E-RABs-ToBeReleased-RelReqItem				ProtocolIE-ID
+id-E-RABs-ToBeReleased-List-RelConf				ProtocolIE-ID
+id-E-RABs-ToBeReleased-RelConfItem				ProtocolIE-ID
+id-E-RABs-SubjectToCounterCheck-List				ProtocolIE-ID
+id-E-RABs-SubjectToCounterCheckItem				ProtocolIE-ID
+id-CoverageModificationList					ProtocolIE-ID
+id-ReportingPeriodicityCSIR					ProtocolIE-ID
+id-CSIReportList						ProtocolIE-ID
+id-UEID								ProtocolIE-ID
+id-enhancedRNTP							ProtocolIE-ID
+id-ProSeUEtoNetworkRelaying					ProtocolIE-ID
+id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18			ProtocolIE-ID
+id-ULCOUNTValuePDCP-SNlength18					ProtocolIE-ID
+id-DLCOUNTValuePDCP-SNlength18					ProtocolIE-ID
+id-UE-ContextReferenceAtSeNB					ProtocolIE-ID
+id-UE-ContextKeptIndicator					ProtocolIE-ID
+id-New-eNB-UE-X2AP-ID-Extension					ProtocolIE-ID
+id-Old-eNB-UE-X2AP-ID-Extension					ProtocolIE-ID
+id-MeNB-UE-X2AP-ID-Extension					ProtocolIE-ID
+id-SeNB-UE-X2AP-ID-Extension					ProtocolIE-ID
+id-LHN-ID							ProtocolIE-ID
+id-FreqBandIndicatorPriority					ProtocolIE-ID
+id-M6Configuration						ProtocolIE-ID
+id-M7Configuration						ProtocolIE-ID
+id-Tunnel-Information-for-BBF					ProtocolIE-ID
+id-SIPTO-BearerDeactivationIndication				ProtocolIE-ID
+id-GW-TransportLayerAddress					ProtocolIE-ID
+id-Correlation-ID						ProtocolIE-ID
+id-SIPTO-Correlation-ID						ProtocolIE-ID
+id-SIPTO-L-GW-TransportLayerAddress				ProtocolIE-ID
+id-X2RemovalThreshold						ProtocolIE-ID
+id-CellReportingIndicator					ProtocolIE-ID
+id-BearerType							ProtocolIE-ID
+id-resumeID							ProtocolIE-ID
+id-UE-ContextInformationRetrieve				ProtocolIE-ID
+id-E-RABs-ToBeSetupRetrieve-Item				ProtocolIE-ID
+id-NewEUTRANCellIdentifier					ProtocolIE-ID
+id-V2XServicesAuthorized					ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToDL-EARFCN			ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToUL-EARFCN			ProtocolIE-ID
+id-AdditionalSpecialSubframeExtension-Info			ProtocolIE-ID
+id-BandwidthReducedSI						ProtocolIE-ID
+id-MakeBeforeBreakIndicator					ProtocolIE-ID
+id-UE-ContextReferenceAtWT					ProtocolIE-ID
+id-WT-UE-ContextKeptIndicator					ProtocolIE-ID
+id-UESidelinkAggregateMaximumBitRate				ProtocolIE-ID
+id-uL-GTPtunnelEndpoint						ProtocolIE-ID
+id-DL-scheduling-PDCCH-CCE-usage				ProtocolIE-ID
+id-UL-scheduling-PDCCH-CCE-usage				ProtocolIE-ID
+id-UEAppLayerMeasConfig						ProtocolIE-ID
+id-extended-e-RAB-MaximumBitrateDL				ProtocolIE-ID
+id-extended-e-RAB-MaximumBitrateUL				ProtocolIE-ID
+id-extended-e-RAB-GuaranteedBitrateDL				ProtocolIE-ID
+id-extended-e-RAB-GuaranteedBitrateUL				ProtocolIE-ID
+id-extended-uEaggregateMaximumBitRateDownlink			ProtocolIE-ID
+id-extended-uEaggregateMaximumBitRateUplink			ProtocolIE-ID
+id-NRrestriction						ProtocolIE-ID
+id-SgNBSecurityKey						ProtocolIE-ID
+id-SgNBUEAggregateMaximumBitRate				ProtocolIE-ID
+id-E-RABs-ToBeAdded-SgNBAddReqList				ProtocolIE-ID
+id-MeNBtoSgNBContainer						ProtocolIE-ID
+id-SgNB-UE-X2AP-ID						ProtocolIE-ID
+id-RequestedMCGSplitSRBs					ProtocolIE-ID
+id-E-RABs-ToBeAdded-SgNBAddReq-Item				ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-SgNBAddResList			ProtocolIE-ID
+id-SgNBtoMeNBContainer						ProtocolIE-ID
+id-AdmittedMCGSplitSRBs						ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item			ProtocolIE-ID
+id-ResponseInformationSgNBReconfComp				ProtocolIE-ID
+id-UE-ContextInformation-SgNBModReq				ProtocolIE-ID
+id-E-RABs-ToBeAdded-SgNBModReq-Item				ProtocolIE-ID
+id-E-RABs-ToBeModified-SgNBModReq-Item				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBModReq-Item				ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-SgNBModAckList			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeModified-SgNBModAckList			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-SgNBModAckList			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-SgNBModAck-Item			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeModified-SgNBModAck-Item			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-SgNBModAck-Item			ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBModReqdList				ProtocolIE-ID
+id-E-RABs-ToBeModified-SgNBModReqdList				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBModReqd-Item				ProtocolIE-ID
+id-E-RABs-ToBeModified-SgNBModReqd-Item				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBChaConfList				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBChaConf-Item				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBRelReqList				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBRelReq-Item				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBRelConfList				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBRelConf-Item				ProtocolIE-ID
+id-E-RABs-SubjectToSgNBCounterCheck-List			ProtocolIE-ID
+id-E-RABs-SubjectToSgNBCounterCheck-Item			ProtocolIE-ID
+id-RRCContainer							ProtocolIE-ID
+id-SRBType							ProtocolIE-ID
+id-Target-SgNB-ID						ProtocolIE-ID
+id-HandoverRestrictionList					ProtocolIE-ID
+id-SCGConfigurationQuery					ProtocolIE-ID
+id-MCGSplitSRB							ProtocolIE-ID
+id-UENRMeasurement						ProtocolIE-ID
+id-InitiatingNodeType-EndcX2Setup				ProtocolIE-ID
+id-InitiatingNodeType-EndcConfigUpdate				ProtocolIE-ID
+id-RespondingNodeType-EndcX2Setup				ProtocolIE-ID
+id-RespondingNodeType-EndcConfigUpdate				ProtocolIE-ID
+id-NRUESecurityCapabilities					ProtocolIE-ID
+id-PDCPChangeIndication						ProtocolIE-ID
+id-ServedEUTRAcellsENDCX2ManagementList				ProtocolIE-ID
+id-CellAssistanceInformation					ProtocolIE-ID
+id-Globalen-gNB-ID						ProtocolIE-ID
+id-ServedNRcellsENDCX2ManagementList				ProtocolIE-ID
+id-UE-ContextReferenceAtSgNB					ProtocolIE-ID
+id-SecondaryRATUsageReport					ProtocolIE-ID
+id-ActivationID							ProtocolIE-ID
+id-MeNBResourceCoordinationInformation				ProtocolIE-ID
+id-SgNBResourceCoordinationInformation				ProtocolIE-ID
+id-ServedEUTRAcellsToModifyListENDCConfUpd			ProtocolIE-ID
+id-ServedEUTRAcellsToDeleteListENDCConfUpd			ProtocolIE-ID
+id-ServedNRcellsToModifyListENDCConfUpd				ProtocolIE-ID
+id-ServedNRcellsToDeleteListENDCConfUpd				ProtocolIE-ID
+id-E-RABUsageReport-Item					ProtocolIE-ID
+id-Old-SgNB-UE-X2AP-ID						ProtocolIE-ID
+id-SecondaryRATUsageReportList					ProtocolIE-ID
+id-SecondaryRATUsageReport-Item					ProtocolIE-ID
+id-ServedNRCellsToActivate					ProtocolIE-ID
+id-ActivatedNRCellList						ProtocolIE-ID
 
 #.REGISTER
 
 #X2AP-PROTOCOL-IES
 E-RABs-Admitted-Item						N x2ap.ies id-E-RABs-Admitted-Item
 E-RABs-Admitted-List						N x2ap.ies id-E-RABs-Admitted-List
-E-RAB-Item									N x2ap.ies id-E-RAB-Item
-E-RAB-List									N x2ap.ies id-E-RABs-NotAdmitted-List
+E-RAB-Item							N x2ap.ies id-E-RAB-Item
+E-RAB-List							N x2ap.ies id-E-RABs-NotAdmitted-List
 E-RABs-ToBeSetup-Item						N x2ap.ies id-E-RABs-ToBeSetup-Item
-Cause										N x2ap.ies id-Cause
+Cause								N x2ap.ies id-Cause
 CellInformation-List						N x2ap.ies id-CellInformation
 CellInformation-Item						N x2ap.ies id-CellInformation-Item
-UE-X2AP-ID									N x2ap.ies id-New-eNB-UE-X2AP-ID
-UE-X2AP-ID									N x2ap.ies id-Old-eNB-UE-X2AP-ID
-ECGI										N x2ap.ies id-TargetCell-ID
-TargeteNBtoSource-eNBTransparentContainer	N x2ap.ies id-TargeteNBtoSource-eNBTransparentContainer
-TraceActivation								N x2ap.ies id-TraceActivation
+UE-X2AP-ID							N x2ap.ies id-New-eNB-UE-X2AP-ID
+UE-X2AP-ID							N x2ap.ies id-Old-eNB-UE-X2AP-ID
+ECGI								N x2ap.ies id-TargetCell-ID
+TargeteNBtoSource-eNBTransparentContainer			N x2ap.ies id-TargeteNBtoSource-eNBTransparentContainer
+TraceActivation							N x2ap.ies id-TraceActivation
 UE-ContextInformation						N x2ap.ies id-UE-ContextInformation
 UE-HistoryInformation						N x2ap.ies id-UE-HistoryInformation
-UE-X2AP-ID									N x2ap.ies id-UE-X2AP-ID
+UE-X2AP-ID							N x2ap.ies id-UE-X2AP-ID
 CriticalityDiagnostics						N x2ap.ies id-CriticalityDiagnostics
-E-RABs-SubjectToStatusTransfer-List			N x2ap.ies id-E-RABs-SubjectToStatusTransfer-List
-E-RABs-SubjectToStatusTransfer-Item			N x2ap.ies id-E-RABs-SubjectToStatusTransfer-Item
-ServedCells									N x2ap.ies id-ServedCells
-GlobalENB-ID								N x2ap.ies id-GlobalENB-ID
-TimeToWait									N x2ap.ies id-TimeToWait
-GUMMEI										N x2ap.ies id-GUMMEI-ID
-GUGroupIDList								N x2ap.ies id-GUGroupIDList
-ServedCells									N x2ap.ies id-ServedCellsToAdd
-ServedCellsToModify							N x2ap.ies id-ServedCellsToModify
-Old-ECGIs									N x2ap.ies id-ServedCellsToDelete
+E-RABs-SubjectToStatusTransfer-List				N x2ap.ies id-E-RABs-SubjectToStatusTransfer-List
+E-RABs-SubjectToStatusTransfer-Item				N x2ap.ies id-E-RABs-SubjectToStatusTransfer-Item
+ServedCells							N x2ap.ies id-ServedCells
+GlobalENB-ID							N x2ap.ies id-GlobalENB-ID
+TimeToWait							N x2ap.ies id-TimeToWait
+GUMMEI								N x2ap.ies id-GUMMEI-ID
+GUGroupIDList							N x2ap.ies id-GUGroupIDList
+ServedCells							N x2ap.ies id-ServedCellsToAdd
+ServedCellsToModify						N x2ap.ies id-ServedCellsToModify
+Old-ECGIs							N x2ap.ies id-ServedCellsToDelete
 Registration-Request						N x2ap.ies id-Registration-Request
-CellToReport-List							N x2ap.ies id-CellToReport
+CellToReport-List						N x2ap.ies id-CellToReport
 ReportingPeriodicity						N x2ap.ies id-ReportingPeriodicity
-CellToReport-Item							N x2ap.ies id-CellToReport-Item
+CellToReport-Item						N x2ap.ies id-CellToReport-Item
 CellMeasurementResult-List					N x2ap.ies id-CellMeasurementResult
 CellMeasurementResult-Item					N x2ap.ies id-CellMeasurementResult-Item
-GUGroupIDList								N x2ap.ies id-GUGroupIDToAddList
-GUGroupIDList								N x2ap.ies id-GUGroupIDToDeleteList
+GUGroupIDList							N x2ap.ies id-GUGroupIDToAddList
+GUGroupIDList							N x2ap.ies id-GUGroupIDToDeleteList
 SRVCCOperationPossible						N x2ap.ies id-SRVCCOperationPossible
 # N x2ap.ies id-Measurement-ID
 ReportCharacteristics						N x2ap.ies id-ReportCharacteristics
-Measurement-ID								N x2ap.ies id-ENB1-Measurement-ID
-Measurement-ID								N x2ap.ies id-ENB2-Measurement-ID
-ECGI										N x2ap.ies id-ENB1-Cell-ID
-ECGI										N x2ap.ies id-ENB2-Cell-ID
-MobilityParametersInformation				N x2ap.ies id-ENB2-Proposed-Mobility-Parameters
-MobilityParametersInformation				N x2ap.ies id-ENB1-Mobility-Parameters
-MobilityParametersModificationRange			N x2ap.ies id-ENB2-Mobility-Parameters-Modification-Range
-PCI											N x2ap.ies id-FailureCellPCI
-ECGI										N x2ap.ies id-Re-establishmentCellECGI
-CRNTI										N x2ap.ies id-FailureCellCRNTI
-ShortMAC-I									N x2ap.ies id-ShortMAC-I
-ECGI										N x2ap.ies id-SourceCellECGI
-ECGI										N x2ap.ies id-FailureCellECGI
-HandoverReportType							N x2ap.ies id-HandoverReportType
+Measurement-ID							N x2ap.ies id-ENB1-Measurement-ID
+Measurement-ID							N x2ap.ies id-ENB2-Measurement-ID
+ECGI								N x2ap.ies id-ENB1-Cell-ID
+ECGI								N x2ap.ies id-ENB2-Cell-ID
+MobilityParametersInformation					N x2ap.ies id-ENB2-Proposed-Mobility-Parameters
+MobilityParametersInformation					N x2ap.ies id-ENB1-Mobility-Parameters
+MobilityParametersModificationRange				N x2ap.ies id-ENB2-Mobility-Parameters-Modification-Range
+PCI								N x2ap.ies id-FailureCellPCI
+ECGI								N x2ap.ies id-Re-establishmentCellECGI
+CRNTI								N x2ap.ies id-FailureCellCRNTI
+ShortMAC-I							N x2ap.ies id-ShortMAC-I
+ECGI								N x2ap.ies id-SourceCellECGI
+ECGI								N x2ap.ies id-FailureCellECGI
+HandoverReportType						N x2ap.ies id-HandoverReportType
 UE-RLF-Report-Container						N x2ap.ies id-UE-RLF-Report-Container
 ServedCellsToActivate						N x2ap.ies id-ServedCellsToActivate
-ActivatedCellList							N x2ap.ies id-ActivatedCellList
+ActivatedCellList						N x2ap.ies id-ActivatedCellList
 PartialSuccessIndicator						N x2ap.ies id-PartialSuccessIndicator
-MeasurementInitiationResult-List			N x2ap.ies id-MeasurementInitiationResult-List
-MeasurementInitiationResult-Item			N x2ap.ies id-MeasurementInitiationResult-Item
-MeasurementFailureCause-Item				N x2ap.ies id-MeasurementFailureCause-Item
-CompleteFailureCauseInformation-List		N x2ap.ies id-CompleteFailureCauseInformation-List
-CompleteFailureCauseInformation-Item		N x2ap.ies id-CompleteFailureCauseInformation-Item
-CSGMembershipStatus							N x2ap.ies id-CSGMembershipStatus
+MeasurementInitiationResult-List				N x2ap.ies id-MeasurementInitiationResult-List
+MeasurementInitiationResult-Item				N x2ap.ies id-MeasurementInitiationResult-Item
+MeasurementFailureCause-Item					N x2ap.ies id-MeasurementFailureCause-Item
+CompleteFailureCauseInformation-List				N x2ap.ies id-CompleteFailureCauseInformation-List
+CompleteFailureCauseInformation-Item				N x2ap.ies id-CompleteFailureCauseInformation-Item
+CSGMembershipStatus						N x2ap.ies id-CSGMembershipStatus
 RRCConnSetupIndicator						N x2ap.ies id-RRCConnSetupIndicator
 RRCConnReestabIndicator						N x2ap.ies id-RRCConnReestabIndicator
-TargetCellInUTRAN							N x2ap.ies id-TargetCellInUTRAN
-MobilityInformation							N x2ap.ies id-MobilityInformation
-CRNTI										N x2ap.ies id-SourceCellCRNTI
-Masked-IMEISV								N x2ap.ies id-Masked-IMEISV
-RNL-Header									N x2ap.ies id-RNL-Header
-X2AP-Message								N x2ap.ies id-x2APMessage
+TargetCellInUTRAN						N x2ap.ies id-TargetCellInUTRAN
+MobilityInformation						N x2ap.ies id-MobilityInformation
+CRNTI								N x2ap.ies id-SourceCellCRNTI
+Masked-IMEISV							N x2ap.ies id-Masked-IMEISV
+RNL-Header							N x2ap.ies id-RNL-Header
+X2AP-Message							N x2ap.ies id-x2APMessage
 ProSeAuthorized							N x2ap.ies id-ProSeAuthorized
 ExpectedUEBehaviour						N x2ap.ies id-ExpectedUEBehaviour
 UE-HistoryInformationFromTheUE					N x2ap.ies id-UE-HistoryInformationFromTheUE
@@ -912,39 +1172,102 @@ V2XServicesAuthorized						N x2ap.ies id-V2XServicesAuthorized
 UE-ContextReferenceAtWT						N x2ap.ies id-UE-ContextReferenceAtWT
 UE-ContextKeptIndicator						N x2ap.ies id-WT-UE-ContextKeptIndicator
 MakeBeforeBreakIndicator					N x2ap.ies id-MakeBeforeBreakIndicator
+SgNBSecurityKey							N x2ap.ies id-SgNBSecurityKey
+UEAggregateMaximumBitRate					N x2ap.ies id-SgNBUEAggregateMaximumBitRate
+E-RABs-ToBeAdded-SgNBAddReqList					N x2ap.ies id-E-RABs-ToBeAdded-SgNBAddReqList
+MeNBtoSgNBContainer						N x2ap.ies id-MeNBtoSgNBContainer
+SgNB-UE-X2AP-ID							N x2ap.ies id-SgNB-UE-X2AP-ID
+MCGSplitSRBs							N x2ap.ies id-RequestedMCGSplitSRBs
+E-RABs-ToBeAdded-SgNBAddReq-Item				N x2ap.ies id-E-RABs-ToBeAdded-SgNBAddReq-Item
+E-RABs-Admitted-ToBeAdded-SgNBAddResList			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddResList
+SgNBtoMeNBContainer						N x2ap.ies id-SgNBtoMeNBContainer
+MCGSplitSRBs							N x2ap.ies id-AdmittedMCGSplitSRBs
+E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item
+ResponseInformationSgNBReconfComp				N x2ap.ies id-ResponseInformationSgNBReconfComp
+UE-ContextInformation-SgNBModReq				N x2ap.ies id-UE-ContextInformation-SgNBModReq
+E-RABs-ToBeAdded-SgNBModReq-Item				N x2ap.ies id-E-RABs-ToBeAdded-SgNBModReq-Item
+E-RABs-ToBeModified-SgNBModReq-Item				N x2ap.ies id-E-RABs-ToBeModified-SgNBModReq-Item
+E-RABs-ToBeReleased-SgNBModReq-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBModReq-Item
+E-RABs-Admitted-ToBeAdded-SgNBModAckList			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBModAckList
+E-RABs-Admitted-ToBeModified-SgNBModAckList			N x2ap.ies id-E-RABs-Admitted-ToBeModified-SgNBModAckList
+E-RABs-Admitted-ToBeReleased-SgNBModAckList			N x2ap.ies id-E-RABs-Admitted-ToBeReleased-SgNBModAckList
+E-RABs-Admitted-ToBeAdded-SgNBModAck-Item			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBModAck-Item
+E-RABs-Admitted-ToBeModified-SgNBModAck-Item			N x2ap.ies id-E-RABs-Admitted-ToBeModified-SgNBModAck-Item
+E-RABs-Admitted-ToReleased-SgNBModAck-Item			N x2ap.ies id-E-RABs-Admitted-ToBeReleased-SgNBModAck-Item
+E-RABs-ToBeReleased-SgNBModReqdList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBModReqdList
+E-RABs-ToBeModified-SgNBModReqdList				N x2ap.ies id-E-RABs-ToBeModified-SgNBModReqdList
+E-RABs-ToBeReleased-SgNBModReqd-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBModReqd-Item
+E-RABs-ToBeModified-SgNBModReqd-Item				N x2ap.ies id-E-RABs-ToBeModified-SgNBModReqd-Item
+E-RABs-ToBeReleased-SgNBChaConfList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBChaConfList
+E-RABs-ToBeReleased-SgNBChaConf-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBChaConf-Item
+E-RABs-ToBeReleased-SgNBRelReqList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelReqList
+E-RABs-ToBeReleased-SgNBRelReq-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelReq-Item
+E-RABs-ToBeReleased-SgNBRelConfList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelConfList
+E-RABs-ToBeReleased-SgNBRelConf-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelConf-Item
+E-RABs-SubjectToSgNBCounterCheck-List				N x2ap.ies id-E-RABs-SubjectToSgNBCounterCheck-List
+E-RABs-SubjectToSgNBCounterCheck-Item				N x2ap.ies id-E-RABs-SubjectToSgNBCounterCheck-Item
+GNB-ID								N x2ap.ies id-Target-SgNB-ID
+HandoverRestrictionList						N x2ap.ies id-HandoverRestrictionList
+SCGConfigurationQuery						N x2ap.ies id-SCGConfigurationQuery
+MCGSplitSRB							N x2ap.ies id-MCGSplitSRB
+UENRMeasurement							N x2ap.ies id-UENRMeasurement
+InitiatingNodeType-EndcX2Setup					N x2ap.ies id-InitiatingNodeType-EndcX2Setup
+InitiatingNodeType-EndcConfigUpdate				N x2ap.ies id-InitiatingNodeType-EndcConfigUpdate
+RespondingNodeType-EndcX2Setup					N x2ap.ies id-RespondingNodeType-EndcX2Setup
+RespondingNodeType-EndcConfigUpdate				N x2ap.ies id-RespondingNodeType-EndcConfigUpdate
+NRUESecurityCapabilities					N x2ap.ies id-NRUESecurityCapabilities
+PDCPChangeIndication						N x2ap.ies id-PDCPChangeIndication
+ServedEUTRAcellsENDCX2ManagementList				N x2ap.ies id-ServedEUTRAcellsENDCX2ManagementList
+CellAssistanceInformation					N x2ap.ies id-CellAssistanceInformation
+GlobalGNB-ID							N x2ap.ies id-Globalen-gNB-ID
+ServedNRcellsENDCX2ManagementList				N x2ap.ies id-ServedNRcellsENDCX2ManagementList
+UE-ContextReferenceAtSgNB					N x2ap.ies id-UE-ContextReferenceAtSgNB
+ActivationID							N x2ap.ies id-ActivationID
+MeNBResourceCoordinationInformation				N x2ap.ies id-MeNBResourceCoordinationInformation
+SgNBResourceCoordinationInformation				N x2ap.ies id-SgNBResourceCoordinationInformation
+ServedEUTRAcellsToModifyListENDCConfUpd				N x2ap.ies id-ServedEUTRAcellsToModifyListENDCConfUpd
+ServedEUTRAcellsToDeleteListENDCConfUpd				N x2ap.ies id-ServedEUTRAcellsToDeleteListENDCConfUpd
+ServedNRcellsToModifyENDCConfUpdList				N x2ap.ies id-ServedNRcellsToModifyListENDCConfUpd
+ServedNRcellsToDeleteENDCConfUpdList				N x2ap.ies id-ServedNRcellsToDeleteListENDCConfUpd
+E-RABUsageReport-Item						N x2ap.ies id-E-RABUsageReport-Item
+SgNB-UE-X2AP-ID							N x2ap.ies id-Old-SgNB-UE-X2AP-ID
+SecondaryRATUsageReportList					N x2ap.ies id-SecondaryRATUsageReportList
+SecondaryRATUsageReport-Item					N x2ap.ies id-SecondaryRATUsageReport-Item
+ServedNRCellsToActivate						N x2ap.ies id-ServedNRCellsToActivate
+ActivatedNRCellList						N x2ap.ies id-ActivatedNRCellList
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
-CompositeAvailableCapacityGroup				N x2ap.extension id-CompositeAvailableCapacityGroup
-PRACH-Configuration							N x2ap.extension id-PRACH-Configuration
+CompositeAvailableCapacityGroup					N x2ap.extension id-CompositeAvailableCapacityGroup
+PRACH-Configuration						N x2ap.extension id-PRACH-Configuration
 MBSFN-Subframe-Infolist						N x2ap.extension id-MBSFN-Subframe-Info
 DeactivationIndication						N x2ap.extension id-DeactivationIndication
-ABSInformation								N x2ap.extension id-ABSInformation
-InvokeIndication							N x2ap.extension id-InvokeIndication
-ABS-Status									N x2ap.extension id-ABS-Status
-CSG-Id										N x2ap.extension id-CSG-Id
-MDT-Configuration							N x2ap.extension id-MDTConfiguration
+ABSInformation							N x2ap.extension id-ABSInformation
+InvokeIndication						N x2ap.extension id-InvokeIndication
+ABS-Status							N x2ap.extension id-ABS-Status
+CSG-Id								N x2ap.extension id-CSG-Id
+MDT-Configuration						N x2ap.extension id-MDTConfiguration
 ManagementBasedMDTallowed					N x2ap.extension id-ManagementBasedMDTallowed
-TAC											N x2ap.extension id-NeighbourTAC
-Time-UE-StayedInCell-EnhancedGranularity	N x2ap.extension id-Time-UE-StayedInCell-EnhancedGranularity
-MBMS-Service-Area-Identity-List				N x2ap.extension id-MBMS-Service-Area-List
-Cause										N x2ap.extension id-HO-cause
-MultibandInfoList							N x2ap.extension id-MultibandInfoList
-M3Configuration								N x2ap.extension id-M3Configuration
-M4Configuration								N x2ap.extension id-M4Configuration
-M5Configuration								N x2ap.extension id-M5Configuration
-MDT-Location-Info							N x2ap.extension id-MDT-Location-Info
-MDTPLMNList									N x2ap.extension id-ManagementBasedMDTPLMNList
-MDTPLMNList									N x2ap.extension id-SignallingBasedMDTPLMNList
-ReceiveStatusOfULPDCPSDUsExtended			N x2ap.extension id-ReceiveStatusOfULPDCPSDUsExtended
-COUNTValueExtended							N x2ap.extension id-ULCOUNTValueExtended
-COUNTValueExtended							N x2ap.extension id-DLCOUNTValueExtended
-EARFCNExtension								N x2ap.extension id-eARFCNExtension
-EARFCNExtension								N x2ap.extension id-UL-EARFCNExtension
-EARFCNExtension								N x2ap.extension id-DL-EARFCNExtension
-AdditionalSpecialSubframe-Info				N x2ap.extension id-AdditionalSpecialSubframe-Info
-SubframeAssignment							N x2ap.extension id-IntendedULDLConfiguration
-ExtendedULInterferenceOverloadInfo			N x2ap.extension id-ExtendedULInterferenceOverloadInfo
+TAC								N x2ap.extension id-NeighbourTAC
+Time-UE-StayedInCell-EnhancedGranularity			N x2ap.extension id-Time-UE-StayedInCell-EnhancedGranularity
+MBMS-Service-Area-Identity-List					N x2ap.extension id-MBMS-Service-Area-List
+Cause								N x2ap.extension id-HO-cause
+MultibandInfoList						N x2ap.extension id-MultibandInfoList
+M3Configuration							N x2ap.extension id-M3Configuration
+M4Configuration							N x2ap.extension id-M4Configuration
+M5Configuration							N x2ap.extension id-M5Configuration
+MDT-Location-Info						N x2ap.extension id-MDT-Location-Info
+MDTPLMNList							N x2ap.extension id-ManagementBasedMDTPLMNList
+MDTPLMNList							N x2ap.extension id-SignallingBasedMDTPLMNList
+ReceiveStatusOfULPDCPSDUsExtended				N x2ap.extension id-ReceiveStatusOfULPDCPSDUsExtended
+COUNTValueExtended						N x2ap.extension id-ULCOUNTValueExtended
+COUNTValueExtended						N x2ap.extension id-DLCOUNTValueExtended
+EARFCNExtension							N x2ap.extension id-eARFCNExtension
+EARFCNExtension							N x2ap.extension id-UL-EARFCNExtension
+EARFCNExtension							N x2ap.extension id-DL-EARFCNExtension
+AdditionalSpecialSubframe-Info					N x2ap.extension id-AdditionalSpecialSubframe-Info
+SubframeAssignment						N x2ap.extension id-IntendedULDLConfiguration
+ExtendedULInterferenceOverloadInfo				N x2ap.extension id-ExtendedULInterferenceOverloadInfo
 DynamicDLTransmissionInformation				N x2ap.extension id-DynamicDLTransmissionInformation
 CoMPInformation							N x2ap.extension id-CoMPInformation
 RSRPMRList							N x2ap.extension id-RSRPMRList
@@ -968,33 +1291,43 @@ GTPtunnelEndpoint						N x2ap.extension id-uL-GTPtunnelEndpoint
 UESidelinkAggregateMaximumBitRate				N x2ap.extension id-UESidelinkAggregateMaximumBitRate
 BandwidthReducedSI						N x2ap.extension id-BandwidthReducedSI
 AdditionalSpecialSubframeExtension-Info				N x2ap.extension id-AdditionalSpecialSubframeExtension-Info
+DL-scheduling-PDCCH-CCE-usage					N x2ap.extension id-DL-scheduling-PDCCH-CCE-usage
+UL-scheduling-PDCCH-CCE-usage					N x2ap.extension id-UL-scheduling-PDCCH-CCE-usage
+UEAppLayerMeasConfig						N x2ap.extension id-UEAppLayerMeasConfig
+ExtendedBitRate							N x2ap.extension id-extended-e-RAB-MaximumBitrateDL
+ExtendedBitRate							N x2ap.extension id-extended-e-RAB-MaximumBitrateUL
+ExtendedBitRate							N x2ap.extension id-extended-e-RAB-GuaranteedBitrateDL
+ExtendedBitRate							N x2ap.extension id-extended-e-RAB-GuaranteedBitrateUL
+ExtendedBitRate							N x2ap.extension id-extended-uEaggregateMaximumBitRateDownlink
+ExtendedBitRate							N x2ap.extension id-extended-uEaggregateMaximumBitRateUplink
+NRrestriction							N x2ap.extension id-NRrestriction
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
-HandoverRequest						N x2ap.proc.imsg id-handoverPreparation
+HandoverRequest					N x2ap.proc.imsg id-handoverPreparation
 HandoverRequestAcknowledge			N x2ap.proc.sout id-handoverPreparation
 HandoverPreparationFailure			N x2ap.proc.uout id-handoverPreparation
 
-SNStatusTransfer					N x2ap.proc.imsg id-snStatusTransfer
+SNStatusTransfer				N x2ap.proc.imsg id-snStatusTransfer
 
-UEContextRelease					N x2ap.proc.imsg id-uEContextRelease
+UEContextRelease				N x2ap.proc.imsg id-uEContextRelease
 
-HandoverCancel						N x2ap.proc.imsg id-handoverCancel
+HandoverCancel					N x2ap.proc.imsg id-handoverCancel
 
-ErrorIndication						N x2ap.proc.imsg id-errorIndication
+ErrorIndication					N x2ap.proc.imsg id-errorIndication
 
-ResetRequest						N x2ap.proc.imsg id-reset
-ResetResponse						N x2ap.proc.sout id-reset
+ResetRequest					N x2ap.proc.imsg id-reset
+ResetResponse					N x2ap.proc.sout id-reset
 
-X2SetupRequest						N x2ap.proc.imsg id-x2Setup
-X2SetupResponse						N x2ap.proc.sout id-x2Setup
-X2SetupFailure						N x2ap.proc.uout id-x2Setup
+X2SetupRequest					N x2ap.proc.imsg id-x2Setup
+X2SetupResponse					N x2ap.proc.sout id-x2Setup
+X2SetupFailure					N x2ap.proc.uout id-x2Setup
 
-LoadInformation						N x2ap.proc.imsg id-loadIndication
+LoadInformation					N x2ap.proc.imsg id-loadIndication
 
 ENBConfigurationUpdate				N x2ap.proc.imsg id-eNBConfigurationUpdate
-ENBConfigurationUpdateAcknowledge	N x2ap.proc.sout id-eNBConfigurationUpdate
-ENBConfigurationUpdateFailure		N x2ap.proc.uout id-eNBConfigurationUpdate
+ENBConfigurationUpdateAcknowledge		N x2ap.proc.sout id-eNBConfigurationUpdate
+ENBConfigurationUpdateFailure			N x2ap.proc.uout id-eNBConfigurationUpdate
 
 ResourceStatusRequest				N x2ap.proc.imsg id-resourceStatusReportingInitiation
 ResourceStatusResponse				N x2ap.proc.sout id-resourceStatusReportingInitiation
@@ -1002,11 +1335,11 @@ ResourceStatusFailure				N x2ap.proc.uout id-resourceStatusReportingInitiation
 
 ResourceStatusUpdate				N x2ap.proc.imsg id-resourceStatusReporting
 
-PrivateMessage						N x2ap.proc.imsg id-privateMessage
+PrivateMessage					N x2ap.proc.imsg id-privateMessage
 
-HandoverReport						N x2ap.proc.imsg id-handoverReport
+HandoverReport					N x2ap.proc.imsg id-handoverReport
 
-RLFIndication						N x2ap.proc.imsg id-rLFIndication
+RLFIndication					N x2ap.proc.imsg id-rLFIndication
 
 MobilityChangeRequest				N x2ap.proc.imsg id-mobilitySettingsChange
 MobilityChangeAcknowledge			N x2ap.proc.sout id-mobilitySettingsChange
@@ -1016,9 +1349,9 @@ CellActivationRequest				N x2ap.proc.imsg id-cellActivation
 CellActivationResponse				N x2ap.proc.sout id-cellActivation
 CellActivationFailure				N x2ap.proc.uout id-cellActivation
 
-X2Release							N x2ap.proc.imsg id-x2Release
+X2Release					N x2ap.proc.imsg id-x2Release
 
-X2APMessageTransfer					N x2ap.proc.imsg id-x2APMessageTransfer
+X2APMessageTransfer				N x2ap.proc.imsg id-x2APMessageTransfer
 
 X2RemovalRequest				N x2ap.proc.imsg id-x2Removal
 X2RemovalResponse				N x2ap.proc.sout id-x2Removal
@@ -1048,4 +1381,47 @@ SeNBCounterCheckRequest				N x2ap.proc.imsg id-seNBCounterCheck
 RetrieveUEContextRequest			N x2ap.proc.imsg id-retrieveUEContext
 RetrieveUEContextResponse			N x2ap.proc.sout id-retrieveUEContext
 RetrieveUEContextFailure			N x2ap.proc.uout id-retrieveUEContext
+
+SgNBAdditionRequest				N x2ap.proc.imsg id-sgNBAdditionPreparation
+SgNBAdditionRequestAcknowledge			N x2ap.proc.sout id-sgNBAdditionPreparation
+SgNBAdditionRequestReject			N x2ap.proc.uout id-sgNBAdditionPreparation
+
+SgNBReconfigurationComplete			N x2ap.proc.imsg id-sgNBReconfigurationCompletion
+
+SgNBModificationRequest				N x2ap.proc.imsg id-meNBinitiatedSgNBModificationPreparation
+SgNBModificationRequestAcknowledge		N x2ap.proc.sout id-meNBinitiatedSgNBModificationPreparation
+SgNBModificationRequestReject			N x2ap.proc.uout id-meNBinitiatedSgNBModificationPreparation
+
+SgNBModificationRequired			N x2ap.proc.imsg id-sgNBinitiatedSgNBModification
+SgNBModificationConfirm				N x2ap.proc.sout id-sgNBinitiatedSgNBModification
+SgNBModificationRefuse				N x2ap.proc.uout id-sgNBinitiatedSgNBModification
+
+SgNBReleaseRequest				N x2ap.proc.imsg id-meNBinitiatedSgNBRelease
+SgNBReleaseRequestAcknowledge			N x2ap.proc.sout id-meNBinitiatedSgNBRelease
+SgNBReleaseRequestReject			N x2ap.proc.uout id-meNBinitiatedSgNBRelease
+
+SgNBReleaseRequired				N x2ap.proc.imsg id-sgNBinitiatedSgNBRelease
+SgNBReleaseConfirm				N x2ap.proc.sout id-sgNBinitiatedSgNBRelease
+
+SgNBCounterCheckRequest				N x2ap.proc.imsg id-sgNBCounterCheck
+
+SgNBChangeRequired				N x2ap.proc.imsg id-sgNBChange
+SgNBChangeConfirm				N x2ap.proc.sout id-sgNBChange
+SgNBChangeRefuse				N x2ap.proc.uout id-sgNBChange
+
+RRCTransfer					N x2ap.proc.imsg id-rRCTransfer
+
+ENDCX2SetupRequest				N x2ap.proc.imsg id-endcX2Setup
+ENDCX2SetupResponse				N x2ap.proc.sout id-endcX2Setup
+ENDCX2SetupFailure				N x2ap.proc.uout id-endcX2Setup
+
+ENDCConfigurationUpdate				N x2ap.proc.imsg id-endcConfigurationUpdate
+ENDCConfigurationUpdateAcknowledge		N x2ap.proc.sout id-endcConfigurationUpdate
+ENDCConfigurationUpdateFailure			N x2ap.proc.uout id-endcConfigurationUpdate
+
+SecondaryRATDataUsageReport			N x2ap.proc.imsg id-secondaryRATDataUsageReport
+
+ENDCCellActivationRequest			N x2ap.proc.imsg id-endcCellActivation
+ENDCCellActivationResponse			N x2ap.proc.sout id-endcCellActivation
+ENDCCellActivationFailure			N x2ap.proc.uout id-endcCellActivation
 #.END

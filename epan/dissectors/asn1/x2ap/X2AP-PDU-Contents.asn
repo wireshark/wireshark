@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V14.3.0 (2017-06)
+-- 3GPP TS 36.423 V15.0.0 (2017-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -65,6 +65,7 @@ IMPORTS
 	RRCConnReestabIndicator,
 	RRCConnSetupIndicator,
 	UE-RLF-Report-Container,
+	UEAppLayerMeasConfig,
 	RRC-Context,
 	ServedCell-Information,
 	ServedCells,
@@ -122,7 +123,35 @@ IMPORTS
 	MakeBeforeBreakIndicator,
 	WTID,
 	WT-UE-XwAP-ID,
-	UESidelinkAggregateMaximumBitRate
+	UESidelinkAggregateMaximumBitRate,
+	SgNBSecurityKey,
+	MeNBtoSgNBContainer,
+	SgNBtoMeNBContainer,
+	MCGSplitSRBs,
+	RRCContainer,
+	SRBType,
+	GlobalGNB-ID,
+	GNB-ID,
+	SCGConfigurationQuery,
+	MCGSplitSRB,
+	UENRMeasurement,
+	EN-DC-ResourceConfiguration,
+	TAC,
+	NRARFCN,
+	NRCGI,
+	NRPCI,
+	NRUESecurityCapabilities,
+	PDCPChangeIndication,
+	ULConfiguration,
+	SgNB-UE-X2AP-ID,
+	SecondaryRATUsageReportList,
+	ActivationID,
+	MeNBResourceCoordinationInformation,
+	SgNBResourceCoordinationInformation,
+	NR-TxBW,
+	BroadcastPLMNs-Item,
+	RLCMode
+
 
 FROM X2AP-IEs
 
@@ -294,13 +323,82 @@ FROM X2AP-Containers
 	id-MakeBeforeBreakIndicator,
 	id-UESidelinkAggregateMaximumBitRate,
 	id-uL-GTPtunnelEndpoint,
+	id-SgNBSecurityKey,
+	id-SgNBUEAggregateMaximumBitRate,
+	id-E-RABs-ToBeAdded-SgNBAddReqList,
+	id-MeNBtoSgNBContainer,
+	id-SgNB-UE-X2AP-ID,
+	id-RequestedMCGSplitSRBs,
+	id-E-RABs-ToBeAdded-SgNBAddReq-Item,
+	id-E-RABs-Admitted-ToBeAdded-SgNBAddResList,
+	id-SgNBtoMeNBContainer,
+	id-AdmittedMCGSplitSRBs	,
+	id-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item,
+	id-ResponseInformationSgNBReconfComp,
+	id-UE-ContextInformation-SgNBModReq,
+	id-E-RABs-ToBeAdded-SgNBModReq-Item,
+	id-E-RABs-ToBeModified-SgNBModReq-Item,
+	id-E-RABs-ToBeReleased-SgNBModReq-Item,
+	id-E-RABs-Admitted-ToBeAdded-SgNBModAckList,
+	id-E-RABs-Admitted-ToBeModified-SgNBModAckList,
+	id-E-RABs-Admitted-ToBeReleased-SgNBModAckList,
+	id-E-RABs-Admitted-ToBeAdded-SgNBModAck-Item,
+	id-E-RABs-Admitted-ToBeModified-SgNBModAck-Item,
+	id-E-RABs-Admitted-ToBeReleased-SgNBModAck-Item,
+	id-E-RABs-ToBeReleased-SgNBModReqdList,
+	id-E-RABs-ToBeModified-SgNBModReqdList,
+	id-E-RABs-ToBeReleased-SgNBModReqd-Item,
+	id-E-RABs-ToBeModified-SgNBModReqd-Item,
+	id-E-RABs-ToBeReleased-SgNBChaConfList,
+	id-E-RABs-ToBeReleased-SgNBChaConf-Item,
+	id-E-RABs-ToBeReleased-SgNBRelReqList,
+	id-E-RABs-ToBeReleased-SgNBRelReq-Item,
+	id-E-RABs-ToBeReleased-SgNBRelConfList,
+	id-E-RABs-ToBeReleased-SgNBRelConf-Item,
+	id-E-RABs-SubjectToSgNBCounterCheck-List,
+	id-E-RABs-SubjectToSgNBCounterCheck-Item,
+	id-Target-SgNB-ID,
+	id-RRCContainer,
+	id-SRBType,
+	id-HandoverRestrictionList,
+	id-SCGConfigurationQuery,
+	id-MCGSplitSRB,
+	id-UENRMeasurement,
+	id-InitiatingNodeType-EndcX2Setup,
+	id-InitiatingNodeType-EndcConfigUpdate,
+	id-RespondingNodeType-EndcX2Setup,
+	id-RespondingNodeType-EndcConfigUpdate,
+	id-NRUESecurityCapabilities,
+	id-PDCPChangeIndication,
+	id-ServedEUTRAcellsENDCX2ManagementList,
+	id-ServedEUTRAcellsToModifyListENDCConfUpd,
+	id-ServedEUTRAcellsToDeleteListENDCConfUpd,
+	id-ServedNRcellsToModifyListENDCConfUpd,
+	id-ServedNRcellsToDeleteListENDCConfUpd,
+	id-CellAssistanceInformation,
+	id-Globalen-gNB-ID,
+	id-ServedNRcellsENDCX2ManagementList,
+	id-Old-SgNB-UE-X2AP-ID,
+	id-UE-ContextReferenceAtSgNB,
+	id-SecondaryRATUsageReportList,
+	id-ActivationID,
+	id-ServedNRCellsToActivate,
+	id-ActivatedNRCellList,
+	id-MeNBResourceCoordinationInformation,
+	id-SgNBResourceCoordinationInformation,
+	id-UEAppLayerMeasConfig,
 
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
 	maxFailedMeasObjects,
 	maxnoofCellIDforMDT,
-	maxnoofTAforMDT
+	maxnoofTAforMDT,
+	maxofNRNeighbours,
+	maxCellinengNB,
+	maxnoofCellIDforQMC,
+	maxnoofTAforQMC,
+	maxnoofPLMNforQMC
 FROM X2AP-Constants;
 
 -- **************************************************************
@@ -332,7 +430,9 @@ HandoverRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-UE-ContextReferenceAtSeNB		CRITICALITY ignore	TYPE UE-ContextReferenceAtSeNB			PRESENCE optional}|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension	CRITICALITY reject	TYPE UE-X2AP-ID-Extension				PRESENCE optional}|
 	{ ID id-V2XServicesAuthorized			CRITICALITY ignore	TYPE V2XServicesAuthorized				PRESENCE optional}|
-	{ ID id-UE-ContextReferenceAtWT			CRITICALITY ignore	TYPE UE-ContextReferenceAtWT			PRESENCE optional},
+	{ ID id-UE-ContextReferenceAtWT			CRITICALITY ignore	TYPE UE-ContextReferenceAtWT			PRESENCE optional}|
+	{ ID id-NRUESecurityCapabilities			CRITICALITY ignore	TYPE NRUESecurityCapabilities			PRESENCE optional}|
+	{ ID id-UE-ContextReferenceAtSgNB		CRITICALITY ignore	TYPE UE-ContextReferenceAtSgNB			PRESENCE optional},
 	...
 }
 
@@ -400,6 +500,17 @@ UE-ContextReferenceAtWT ::= SEQUENCE {
 }
 
 UE-ContextReferenceAtWT-ItemExtIEs	X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UE-ContextReferenceAtSgNB ::= SEQUENCE {
+	source-GlobalSgNB-ID		GlobalGNB-ID,
+	sgNB-UE-X2AP-ID				SgNB-UE-X2AP-ID,
+	iE-Extensions				ProtocolExtensionContainer { {UE-ContextReferenceAtSgNB-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+UE-ContextReferenceAtSgNB-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -508,7 +619,8 @@ SNStatusTransfer-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-New-eNB-UE-X2AP-ID						CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
 	{ ID id-E-RABs-SubjectToStatusTransfer-List		CRITICALITY ignore	TYPE E-RABs-SubjectToStatusTransfer-List		PRESENCE mandatory}|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
-	{ ID id-New-eNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	{ ID id-New-eNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID									PRESENCE optional},
 	...
 }
 
@@ -554,7 +666,8 @@ UEContextRelease-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-New-eNB-UE-X2AP-ID					CRITICALITY reject	TYPE UE-X2AP-ID									PRESENCE mandatory}|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension		CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional}|
 	{ ID id-New-eNB-UE-X2AP-ID-Extension		CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional}|
-	{ ID id-SIPTO-BearerDeactivationIndication	CRITICALITY ignore	TYPE SIPTOBearerDeactivationIndication		PRESENCE optional},
+	{ ID id-SIPTO-BearerDeactivationIndication	CRITICALITY ignore	TYPE SIPTOBearerDeactivationIndication		PRESENCE optional}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID							PRESENCE optional},
 	...
 }
 
@@ -596,7 +709,8 @@ ErrorIndication-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Cause								CRITICALITY ignore	TYPE Cause						PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension		CRITICALITY ignore	TYPE UE-X2AP-ID-Extension		PRESENCE optional}|
-	{ ID id-New-eNB-UE-X2AP-ID-Extension		CRITICALITY ignore	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
+	{ ID id-New-eNB-UE-X2AP-ID-Extension		CRITICALITY ignore	TYPE UE-X2AP-ID-Extension		PRESENCE optional}|
+	{ ID id-Old-SgNB-UE-X2AP-ID					CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID			PRESENCE optional},
 	...
 }
 
@@ -2139,5 +2253,1464 @@ RetrieveUEContextFailure-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
 }
+
+-- **************************************************************
+--
+-- SGNB ADDITION REQUEST
+--
+-- **************************************************************
+
+SgNBAdditionRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container {{SgNBAdditionRequest-IEs}},
+	...
+}
+
+SgNBAdditionRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-NRUESecurityCapabilities					CRITICALITY reject	TYPE NRUESecurityCapabilities					PRESENCE mandatory}|
+	{ ID id-SgNBSecurityKey							CRITICALITY reject	TYPE SgNBSecurityKey									PRESENCE mandatory}|
+	{ ID id-SgNBUEAggregateMaximumBitRate			CRITICALITY reject	TYPE UEAggregateMaximumBitRate					PRESENCE mandatory}|
+	{ ID id-ServingPLMN								CRITICALITY ignore	TYPE PLMN-Identity									PRESENCE optional}|
+	{ ID id-HandoverRestrictionList					CRITICALITY ignore	TYPE HandoverRestrictionList						PRESENCE optional}|
+	{ ID id-E-RABs-ToBeAdded-SgNBAddReqList			CRITICALITY reject	TYPE E-RABs-ToBeAdded-SgNBAddReqList			PRESENCE mandatory}|
+	{ ID id-MeNBtoSgNBContainer						CRITICALITY reject	TYPE MeNBtoSgNBContainer								PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID									PRESENCE optional}|
+	{ ID id-ExpectedUEBehaviour						CRITICALITY ignore	TYPE ExpectedUEBehaviour								PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
+	{ ID id-RequestedMCGSplitSRBs					CRITICALITY reject	TYPE MCGSplitSRBs									PRESENCE optional}|
+	{ ID id-MeNBResourceCoordinationInformation		CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation		PRESENCE optional},
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddReqList ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeAdded-SgNBAddReq-ItemIEs} }
+
+E-RABs-ToBeAdded-SgNBAddReq-ItemIEs	X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeAdded-SgNBAddReq-Item		CRITICALITY reject	TYPE E-RABs-ToBeAdded-SgNBAddReq-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddReq-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBAddReq-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresent ::= SEQUENCE {
+	full-E-RAB-Level-QoS-Parameters				E-RAB-Level-QoS-Parameters,
+	max-MCG-admit-E-RAB-Level-QoS-Parameters	E-RAB-Level-QoS-Parameters															OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	dL-Forwarding								DL-Forwarding																		OPTIONAL,
+	meNB-DL-GTP-TEIDatMCG						GTPtunnelEndpoint																	OPTIONAL,
+-- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE is set to “present” --
+	s1-UL-GTPtunnelEndpoint						GTPtunnelEndpoint,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresentExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	requested-SCG-E-RAB-Level-QoS-Parameters		E-RAB-Level-QoS-Parameters,
+	meNB-UL-GTP-TEIDatPDCP						GTPtunnelEndpoint,
+	rlc-Mode										RLCMode,
+	uL-Configuration								ULConfiguration	OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresentExtIEs} }		 OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB ADDITION REQUEST ACKNOWLEDGE
+--
+-- **************************************************************
+
+SgNBAdditionRequestAcknowledge ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBAdditionRequestAcknowledge-IEs}},
+	...
+}
+
+SgNBAdditionRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID								CRITICALITY reject	TYPE UE-X2AP-ID													PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY reject	TYPE SgNB-UE-X2AP-ID												PRESENCE mandatory}|
+	{ ID id-E-RABs-Admitted-ToBeAdded-SgNBAddResList		CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeAdded-SgNBAddResList			PRESENCE mandatory}|
+	{ ID id-E-RABs-NotAdmitted-List						CRITICALITY ignore	TYPE E-RAB-List													PRESENCE optional}|
+	{ ID id-SgNBtoMeNBContainer							CRITICALITY reject	TYPE SgNBtoMeNBContainer										PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics									PRESENCE optional}|
+	{ ID id-GW-TransportLayerAddress						CRITICALITY ignore	TYPE TransportLayerAddress									PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension					CRITICALITY reject	TYPE UE-X2AP-ID-Extension									PRESENCE optional}|
+	{ ID id-Tunnel-Information-for-BBF					CRITICALITY ignore	TYPE TunnelInformation										PRESENCE optional}|
+	{ ID id-AdmittedMCGSplitSRBs							CRITICALITY reject	TYPE MCGSplitSRBs												PRESENCE optional}|
+	{ ID id-SgNBResourceCoordinationInformation			CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation				PRESENCE optional},
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBAddResList ::= SEQUENCE (SIZE (1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-Admitted-ToBeAdded-SgNBAddRes-ItemIEs} }
+
+E-RABs-Admitted-ToBeAdded-SgNBAddRes-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item 		PRESENCE mandatory}
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBAddRes-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBAddRes-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPpresent ::= SEQUENCE {
+	s1-DL-GTPtunnelEndpoint					GTPtunnelEndpoint,
+	sgNB-UL-GTP-TEIDatPDCP					GTPtunnelEndpoint																						OPTIONAL,
+-- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE is set to “present” --
+	rlc-Mode									RLCMode,
+	dL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																						OPTIONAL,
+	uL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																						OPTIONAL,
+	mCG-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters																				OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resource IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	uL-Configuration							ULConfiguration																							OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	iE-Extensions							ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPpresentExtIEs} }			OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	sgNB-DL-GTP-TEIDatSCG			GTPtunnelEndpoint,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPnotpresentExtIEs} } 		OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+-- **************************************************************
+--
+-- SGNB ADDITION REQUEST REJECT
+--
+-- **************************************************************
+
+SgNBAdditionRequestReject ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBAdditionRequestReject-IEs}},
+	...
+}
+
+SgNBAdditionRequestReject-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID					CRITICALITY reject	TYPE UE-X2AP-ID					PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID					CRITICALITY reject	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension		CRITICALITY reject	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- SGNB RECONFIGURATION COMPLETE
+--
+-- **************************************************************
+
+SgNBReconfigurationComplete ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBReconfigurationComplete-IEs}},
+	...
+}
+
+SgNBReconfigurationComplete-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID											PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-ResponseInformationSgNBReconfComp		CRITICALITY ignore	TYPE ResponseInformationSgNBReconfComp			PRESENCE mandatory}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension								PRESENCE optional},
+	...
+}
+
+ResponseInformationSgNBReconfComp ::= CHOICE {
+	success-SgNBReconfComp				ResponseInformationSgNBReconfComp-SuccessItem,
+	reject-by-MeNB-SgNBReconfComp		ResponseInformationSgNBReconfComp-RejectByMeNBItem,
+	...
+}
+
+ResponseInformationSgNBReconfComp-SuccessItem ::= SEQUENCE {
+	meNBtoSgNBContainer				MeNBtoSgNBContainer,
+	iE-Extensions					ProtocolExtensionContainer { {ResponseInformationSgNBReconfComp-SuccessItemExtIEs} }	OPTIONAL,
+	...
+}
+
+ResponseInformationSgNBReconfComp-SuccessItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResponseInformationSgNBReconfComp-RejectByMeNBItem ::= SEQUENCE {
+	cause							Cause,
+	iE-Extensions					ProtocolExtensionContainer { {ResponseInformationSgNBReconfComp-RejectByMeNBItemExtIEs} }		OPTIONAL,
+	...
+}
+
+ResponseInformationSgNBReconfComp-RejectByMeNBItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- SGNB MODIFICATION REQUEST
+--
+-- **************************************************************
+
+SgNBModificationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ SgNBModificationRequest-IEs}},
+	...
+}
+
+SgNBModificationRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY reject	TYPE UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY reject	TYPE SgNB-UE-X2AP-ID								PRESENCE mandatory}|
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause										PRESENCE mandatory}|
+	{ ID id-PDCPChangeIndication					CRITICALITY ignore	TYPE PDCPChangeIndication						PRESENCE optional}|
+	{ ID id-ServingPLMN							CRITICALITY ignore	TYPE PLMN-Identity								PRESENCE optional}|
+	{ ID id-HandoverRestrictionList				CRITICALITY ignore	TYPE HandoverRestrictionList						PRESENCE optional}|
+	{ ID	id-SCGConfigurationQuery					CRITICALITY ignore  TYPE SCGConfigurationQuery						PRESENCE optional}|
+	{ ID id-UE-ContextInformation-SgNBModReq		CRITICALITY reject	TYPE UE-ContextInformation-SgNBModReq		PRESENCE optional}|
+	{ ID id-MeNBtoSgNBContainer					CRITICALITY ignore	TYPE MeNBtoSgNBContainer							PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional}|
+	{ ID id-MeNBResourceCoordinationInformation	CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation	PRESENCE optional},
+	...
+}
+
+UE-ContextInformation-SgNBModReq ::= SEQUENCE {
+	nRUE-SecurityCapabilities		NRUESecurityCapabilities																OPTIONAL,
+	sgNB-SecurityKey					SgNBSecurityKey 																		OPTIONAL,
+	sgNBUEAggregateMaximumBitRate	UEAggregateMaximumBitRate															OPTIONAL,
+	e-RABs-ToBeAdded					E-RABs-ToBeAdded-SgNBModReq-List														OPTIONAL,
+	e-RABs-ToBeModified				E-RABs-ToBeModified-SgNBModReq-List													OPTIONAL,
+	e-RABs-ToBeReleased				E-RABs-ToBeReleased-SgNBModReq-List													OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {UE-ContextInformationSgNBModReqExtIEs} }			OPTIONAL,
+	...
+}
+
+UE-ContextInformationSgNBModReqExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModReq-List ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeAdded-SgNBModReq-ItemIEs} }
+
+E-RABs-ToBeAdded-SgNBModReq-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeAdded-SgNBModReq-Item		CRITICALITY ignore	TYPE E-RABs-ToBeAdded-SgNBModReq-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModReq-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBModReq-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresent ::= SEQUENCE {
+	full-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters,
+	max-MN-admit-E-RAB-Level-QoS-Parameters	E-RAB-Level-QoS-Parameters															OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	dL-Forwarding							DL-Forwarding																		OPTIONAL,
+	meNB-DL-GTP-TEIDatMCG					GTPtunnelEndpoint																	OPTIONAL,
+-- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE is set to “present” --
+	s1-UL-GTPtunnelEndpoint					GTPtunnelEndpoint,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresentExtIEs} }		OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	requested-SCG-E-RAB-Level-QoS-Parameters		E-RAB-Level-QoS-Parameters,
+	meNB-UL-GTP-TEIDatPDCP						GTPtunnelEndpoint,
+	rlc-Mode										RLCMode,
+	uL-Configuration								ULConfiguration																OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs} } 		OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+E-RABs-ToBeModified-SgNBModReq-List ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeModified-SgNBModReq-ItemIEs} }
+
+E-RABs-ToBeModified-SgNBModReq-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeModified-SgNBModReq-Item	CRITICALITY ignore	TYPE E-RABs-ToBeModified-SgNBModReq-Item		PRESENCE mandatory},
+	...
+}
+
+
+E-RABs-ToBeModified-SgNBModReq-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeModified-SgNBModReq-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPpresent ::= SEQUENCE {
+	full-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters																		OPTIONAL,
+	max-MN-admit-E-RAB-Level-QoS-Parameters	E-RAB-Level-QoS-Parameters																		OPTIONAL,
+	meNB-DL-GTP-TEIDatMCG					GTPtunnelEndpoint																				OPTIONAL,
+	s1-UL-GTPtunnelEndpoint					GTPtunnelEndpoint																				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	requested-SCG-E-RAB-Level-QoS-Parameters		E-RAB-Level-QoS-Parameters																			OPTIONAL,
+	meNB-UL-GTP-TEIDatPDCP						GTPtunnelEndpoint																					OPTIONAL,
+	uL-Configuration								ULConfiguration																						OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReq-List ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeReleased-SgNBModReq-ItemIEs} }
+
+E-RABs-ToBeReleased-SgNBModReq-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeReleased-SgNBModReq-Item	CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBModReq-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReq-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBModReq-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPpresent ::= SEQUENCE {
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																				OPTIONAL,
+	uL-GTPtunnelEndpoint			GTPtunnelEndpoint																				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+-- **************************************************************
+--
+-- SGNB MODIFICATION REQUEST ACKNOWLEDGE
+--
+-- **************************************************************
+
+SgNBModificationRequestAcknowledge ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBModificationRequestAcknowledge-IEs}},
+	...
+}
+
+SgNBModificationRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID								CRITICALITY ignore	TYPE UE-X2AP-ID													PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID												PRESENCE mandatory}|
+	{ ID id-E-RABs-Admitted-ToBeAdded-SgNBModAckList		CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeAdded-SgNBModAckList			PRESENCE optional}|
+	{ ID id-E-RABs-Admitted-ToBeModified-SgNBModAckList	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeModified-SgNBModAckList		PRESENCE optional}|
+	{ ID id-E-RABs-Admitted-ToBeReleased-SgNBModAckList	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeReleased-SgNBModAckList		PRESENCE optional}|
+	{ ID id-E-RABs-NotAdmitted-List						CRITICALITY ignore	TYPE E-RAB-List													PRESENCE optional}|
+	{ ID id-SgNBtoMeNBContainer							CRITICALITY ignore	TYPE SgNBtoMeNBContainer										PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics									PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension									PRESENCE optional}|
+	{ ID id-SgNBResourceCoordinationInformation			CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation				PRESENCE optional},
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBModAckList ::= SEQUENCE (SIZE (1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-Admitted-ToBeAdded-SgNBModAck-ItemIEs} }
+
+E-RABs-Admitted-ToBeAdded-SgNBModAck-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-Admitted-ToBeAdded-SgNBModAck-Item 	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeAdded-SgNBModAck-Item		PRESENCE mandatory}
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBModAck-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-SgNBModAck-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBModAck-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresent ::= SEQUENCE {
+	s1-DL-GTPtunnelEndpoint					GTPtunnelEndpoint,
+	sgNB-UL-GTP-TEIDatPDCP					GTPtunnelEndpoint																					OPTIONAL,
+-- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE are set to “present” --
+	rlc-Mode									RLCMode,
+	dL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
+	uL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
+	mCG-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters																			OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resource IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	uL-Configuration						ULConfiguration																							OPTIONAL,
+-- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresentExtIEs} }		OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	sgNB-DL-GTP-TEIDatSCG					GTPtunnelEndpoint,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeModified-SgNBModAckList ::= SEQUENCE (SIZE (1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-Admitted-ToBeModified-SgNBModAck-ItemIEs} }
+
+E-RABs-Admitted-ToBeModified-SgNBModAck-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-Admitted-ToBeModified-SgNBModAck-Item		CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeModified-SgNBModAck-Item		PRESENCE mandatory}
+}
+
+E-RABs-Admitted-ToBeModified-SgNBModAck-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBModAck-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeAdded-SgNBModAck-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPpresent ::= SEQUENCE {
+	s1-DL-GTPtunnelEndpoint					GTPtunnelEndpoint																						OPTIONAL,
+	sgNB-UL-GTP-TEIDatPDCP					GTPtunnelEndpoint																						OPTIONAL,
+	mCG-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters																				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	sgNB-DL-GTP-TEIDatSCG					GTPtunnelEndpoint																								OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBModAckList ::= SEQUENCE (SIZE (1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-Admitted-ToBeReleased-SgNBModAck-ItemIEs} }
+
+E-RABs-Admitted-ToBeReleased-SgNBModAck-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-Admitted-ToBeReleased-SgNBModAck-Item		CRITICALITY ignore	TYPE E-RABs-Admitted-ToReleased-SgNBModAck-Item		PRESENCE mandatory}
+}
+
+E-RABs-Admitted-ToReleased-SgNBModAck-Item ::= SEQUENCE {
+	e-RAB-ID							E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBModAck-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModAck-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPpresent ::= SEQUENCE {
+	iE-Extensions				ProtocolExtensionContainer { {E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPpresentExtIEs} }		OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	iE-Extensions				ProtocolExtensionContainer { {E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- SGNB MODIFICATION REQUEST REJECT
+--
+-- **************************************************************
+
+SgNBModificationRequestReject ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBModificationRequestReject-IEs}},
+	...
+}
+
+SgNBModificationRequestReject-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY ignore	TYPE UE-X2AP-ID					PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY ignore	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- SGNB MODIFICATION REQUIRED
+--
+-- **************************************************************
+
+SgNBModificationRequired ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SgNBModificationRequired-IEs}},
+	...
+}
+
+SgNBModificationRequired-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
+	{ ID id-PDCPChangeIndication						CRITICALITY ignore	TYPE PDCPChangeIndication							PRESENCE optional}|
+	{ ID id-E-RABs-ToBeReleased-SgNBModReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBModReqdList		PRESENCE optional}|
+	{ ID id-SgNBtoMeNBContainer						CRITICALITY ignore	TYPE SgNBtoMeNBContainer								PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
+	{ ID id-E-RABs-ToBeModified-SgNBModReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeModified-SgNBModReqdList		PRESENCE optional}|
+	{ ID id-SgNBResourceCoordinationInformation		CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation		PRESENCE optional},
+	...
+}
+
+
+E-RABs-ToBeReleased-SgNBModReqdList ::= SEQUENCE (SIZE (1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeReleased-SgNBModReqd-ItemIEs} }
+
+E-RABs-ToBeReleased-SgNBModReqd-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeReleased-SgNBModReqd-Item	 CRITICALITY ignore		TYPE E-RABs-ToBeReleased-SgNBModReqd-Item		PRESENCE mandatory },
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReqd-Item ::= SEQUENCE {
+	e-RAB-ID							E-RAB-ID,
+	cause							Cause,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBModReqd-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBModReqd-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReqdList ::= SEQUENCE (SIZE (1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeModified-SgNBModReqd-ItemIEs} }
+
+E-RABs-ToBeModified-SgNBModReqd-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeModified-SgNBModReqd-Item	 CRITICALITY ignore		TYPE E-RABs-ToBeModified-SgNBModReqd-Item		PRESENCE mandatory },
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReqd-Item ::= SEQUENCE {
+	e-RAB-ID								E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeModified-SgNBModReqd-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReqd-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPpresent ::= SEQUENCE {
+	requested-MCG-E-RAB-Level-QoS-Parameters		E-RAB-Level-QoS-Parameters													OPTIONAL,
+	uL-Configuration								ULConfiguration																OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPpresentExtIEs} }		OPTIONAL,
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	sgNB-DL-GTP-TEIDatSCG		GTPtunnelEndpoint				OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPnotpresentExtIEs} }		OPTIONAL,
+	...
+}
+
+E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- SGNB MODIFICATION CONFIRM
+--
+-- **************************************************************
+
+SgNBModificationConfirm ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBModificationConfirm-IEs}},
+	...
+}
+
+SgNBModificationConfirm-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY ignore	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-MeNBtoSgNBContainer					CRITICALITY ignore	TYPE MeNBtoSgNBContainer								PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY ignore	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
+	{ ID id-MeNBResourceCoordinationInformation	CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB MODIFICATION REFUSE
+--
+-- **************************************************************
+
+SgNBModificationRefuse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SgNBModificationRefuse-IEs}},
+	...
+}
+
+SgNBModificationRefuse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY ignore	TYPE UE-X2AP-ID					PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-MeNBtoSgNBContainer					CRITICALITY ignore	TYPE MeNBtoSgNBContainer			PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY ignore	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB RELEASE REQUEST
+--
+-- **************************************************************
+
+SgNBReleaseRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SgNBReleaseRequest-IEs}},
+	...
+}
+
+SgNBReleaseRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID									PRESENCE optional}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE optional}|
+	{ ID id-E-RABs-ToBeReleased-SgNBRelReqList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqList		PRESENCE optional}|
+	{ ID id-UE-ContextKeptIndicator					CRITICALITY ignore	TYPE UE-ContextKeptIndicator						PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReqList ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeReleased-SgNBRelReq-ItemIEs} }
+
+E-RABs-ToBeReleased-SgNBRelReq-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeReleased-SgNBRelReq-Item		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReq-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReq-Item ::= SEQUENCE {
+	e-RAB-ID							E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBRelReq-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPpresent ::= SEQUENCE {
+	uL-GTPtunnelEndpoint			GTPtunnelEndpoint																	OPTIONAL,
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPnotpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB RELEASE REQUEST ACKNOWLEDGE
+--
+-- **************************************************************
+
+SgNBReleaseRequestAcknowledge ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SgNBReleaseRequestAcknowledge-IEs}},
+	...
+}
+
+SgNBReleaseRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB RELEASE REQUEST REJECT
+--
+-- **************************************************************
+
+SgNBReleaseRequestReject ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SgNBReleaseRequestReject-IEs}},
+	...
+}
+
+SgNBReleaseRequestReject-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB RELEASE REQUIRED
+--
+-- **************************************************************
+
+SgNBReleaseRequired ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBReleaseRequired-IEs}},
+	...
+}
+
+SgNBReleaseRequired-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID					CRITICALITY reject	TYPE UE-X2AP-ID					PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID					CRITICALITY reject	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension		CRITICALITY reject	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB RELEASE CONFIRM
+--
+-- **************************************************************
+
+SgNBReleaseConfirm ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBReleaseConfirm-IEs}},
+	...
+}
+
+SgNBReleaseConfirm-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY ignore	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-E-RABs-ToBeReleased-SgNBRelConfList	CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelConfList		PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY ignore	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelConfList ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeReleased-SgNBRelConf-ItemIEs} }
+
+E-RABs-ToBeReleased-SgNBRelConf-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeReleased-SgNBRelConf-Item		CRITICALITY ignore		TYPE E-RABs-ToBeReleased-SgNBRelConf-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelConf-Item ::= SEQUENCE {
+	e-RAB-ID							E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBRelConf-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelConf-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPpresent ::= SEQUENCE {
+	uL-GTPtunnelEndpoint			GTPtunnelEndpoint																				OPTIONAL,
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPpresentExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPnotpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelConf-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- SGNB COUNTER CHECK REQUEST
+--
+-- **************************************************************
+
+SgNBCounterCheckRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBCounterCheckRequest-IEs}},
+	...
+}
+
+SgNBCounterCheckRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID								CRITICALITY ignore	TYPE UE-X2AP-ID											PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-E-RABs-SubjectToSgNBCounterCheck-List		CRITICALITY ignore	TYPE E-RABs-SubjectToSgNBCounterCheck-List		PRESENCE mandatory}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	...
+}
+E-RABs-SubjectToSgNBCounterCheck-List ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-SubjectToSgNBCounterCheck-ItemIEs} }
+
+E-RABs-SubjectToSgNBCounterCheck-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-SubjectToSgNBCounterCheck-Item		CRITICALITY ignore	TYPE E-RABs-SubjectToSgNBCounterCheck-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-SubjectToSgNBCounterCheck-Item ::= SEQUENCE {
+	e-RAB-ID						E-RAB-ID,
+	uL-Count						INTEGER (0..4294967295),
+	dL-Count						INTEGER (0..4294967295),
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-SubjectToSgNBCounterCheck-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABs-SubjectToSgNBCounterCheck-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB CHANGE REQUIRED
+--
+-- **************************************************************
+
+SgNBChangeRequired ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SgNBChangeRequired-IEs}},
+	...
+}
+
+SgNBChangeRequired-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY ignore	TYPE UE-X2AP-ID					PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
+	{ ID id-Target-SgNB-ID						CRITICALITY ignore	TYPE GNB-ID						PRESENCE mandatory}|
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-SgNBtoMeNBContainer					CRITICALITY ignore	TYPE SgNBtoMeNBContainer			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB CHANGE CONFIRM
+--
+-- **************************************************************
+
+SgNBChangeConfirm ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{SgNBChangeConfirm-IEs}},
+	...
+}
+
+SgNBChangeConfirm-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY ignore	TYPE UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-E-RABs-ToBeReleased-SgNBChaConfList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBChaConfList		PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY ignore	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBChaConfList ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeReleased-SgNBChaConf-ItemIEs} }
+
+E-RABs-ToBeReleased-SgNBChaConf-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeReleased-SgNBChaConf-Item		CRITICALITY ignore		TYPE E-RABs-ToBeReleased-SgNBChaConf-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBChaConf-Item ::= SEQUENCE {
+	e-RAB-ID							E-RAB-ID,
+	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
+	resource-configuration				CHOICE {
+		sgNBPDCPpresent						E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPpresent,
+		sgNBPDCPnotpresent					E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPnotpresent,
+		...
+	},
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBChaConf-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBChaConf-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPpresent ::= SEQUENCE {
+	uL-GTPtunnelEndpoint			GTPtunnelEndpoint																				OPTIONAL,
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPpresentExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPnotpresent ::= SEQUENCE {
+	dL-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPnotpresentExtIEs} } 	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- RRC Transfer
+--
+-- **************************************************************
+
+RRCTransfer ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{RRCTransfer-IEs}},
+	...
+}
+
+RRCTransfer-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY ignore	TYPE UE-X2AP-ID					PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
+	{ ID id-MCGSplitSRB							CRITICALITY ignore	TYPE MCGSplitSRB					PRESENCE optional}|
+	{ ID id-UENRMeasurement						CRITICALITY ignore	TYPE UENRMeasurement				PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- SGNB CHANGE REFUSE
+--
+-- **************************************************************
+
+SgNBChangeRefuse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SgNBChangeRefuse-IEs}},
+	...
+}
+
+SgNBChangeRefuse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY ignore	TYPE UE-X2AP-ID					PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- EN-DC X2 SETUP REQUEST
+--
+-- **************************************************************
+
+ENDCX2SetupRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCX2SetupRequest-IEs}},
+	...
+}
+
+ENDCX2SetupRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-InitiatingNodeType-EndcX2Setup			CRITICALITY reject	TYPE InitiatingNodeType-EndcX2Setup		PRESENCE mandatory},
+	...
+}
+
+InitiatingNodeType-EndcX2Setup ::= CHOICE {
+	init-eNB				ProtocolIE-Container	{{ENB-ENDCX2SetupReqIEs}},
+	init-en-gNB			ProtocolIE-Container	{{En-gNB-ENDCX2SetupReqIEs}},
+	...
+}
+
+ENB-ENDCX2SetupReqIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-GlobalENB-ID								CRITICALITY reject	TYPE GlobalENB-ID										PRESENCE mandatory}|
+	{ ID id-ServedEUTRAcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedEUTRAcellsENDCX2ManagementList		PRESENCE mandatory}|
+	{ ID id-CellAssistanceInformation				CRITICALITY reject	TYPE CellAssistanceInformation						PRESENCE mandatory},
+	...
+}
+
+ServedEUTRAcellsENDCX2ManagementList ::= SEQUENCE (SIZE (1.. maxCellineNB)) OF SEQUENCE {
+	servedEUTRACellInfo					ServedCell-Information,
+	nrNeighbourInfo						NRNeighbour-Information		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { ServedEUTRAcellsENDCX2Management-ExtIEs} } OPTIONAL,
+	...
+}
+
+ServedEUTRAcellsENDCX2Management-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+En-gNB-ENDCX2SetupReqIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Globalen-gNB-ID							CRITICALITY reject	TYPE GlobalGNB-ID										PRESENCE mandatory}|
+	{ ID id-ServedNRcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedNRcellsENDCX2ManagementList		PRESENCE mandatory},
+	...
+}
+
+ServedNRcellsENDCX2ManagementList ::= SEQUENCE (SIZE (1.. maxCellinengNB)) OF SEQUENCE {
+	servedNRCellInfo					ServedNRCell-Information,
+	nRNeighbourInfo						NRNeighbour-Information,
+	iE-Extensions						ProtocolExtensionContainer { { En-gNBServedCells-ExtIEs} } OPTIONAL,
+	...
+}
+
+En-gNBServedCells-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ServedNRCell-Information ::= SEQUENCE {
+	nrpCI				NRPCI,
+	nrCellID			NRCGI,
+	tAC					TAC,
+	broadcastPLMNs		BroadcastPLMNs-Item,
+	nrModeInfo			CHOICE {
+		fdd		FDD-InfoServedNRCell-Information,
+		tdd		TDD-InfoServedNRCell-Information,
+		...
+	},
+	iE-Extensions						ProtocolExtensionContainer { { ServedNRCell-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+ServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+FDD-InfoServedNRCell-Information ::= SEQUENCE {
+	ul-NR-ARFCN				NRARFCN,
+	dl-NR-ARFCN				NRARFCN,
+	ul-NR-TxBW				NR-TxBW,
+	dl-NR-TxBW				NR-TxBW,
+	iE-Extensions			ProtocolExtensionContainer { { FDD-InfoServedNRCell-Information-ExtIEs } }		OPTIONAL,
+	...
+}
+
+FDD-InfoServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+TDD-InfoServedNRCell-Information ::= SEQUENCE {
+	nR-ARFCN				NRARFCN,
+	nR-TxBW					NR-TxBW,
+	iE-Extensions			ProtocolExtensionContainer { { TDD-InfoServedNRCell-Information-ExtIEs } }		OPTIONAL,
+	...
+}
+
+TDD-InfoServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NRNeighbour-Information ::= SEQUENCE (SIZE (1.. maxofNRNeighbours))OF SEQUENCE {
+	nrpCI				NRPCI,
+	nrCellID				NRCGI,
+	nrARFCN				NRARFCN,
+	tAC					TAC,	iE-Extensions						ProtocolExtensionContainer { { NRNeighbour-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+NRNeighbour-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellAssistanceInformation ::= CHOICE {				-- This IE may be refined.
+	full-list				ENUMERATED  {allServedNRcells, ...},
+	...
+}
+
+-- **************************************************************
+--
+-- EN-DC X2 SETUP RESPONSE
+--
+-- **************************************************************
+
+ENDCX2SetupResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCX2SetupResponse-IEs}},
+	...
+}
+
+ENDCX2SetupResponse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RespondingNodeType-EndcX2Setup		CRITICALITY reject	TYPE RespondingNodeType-EndcX2Setup		PRESENCE mandatory},
+	...
+}
+
+RespondingNodeType-EndcX2Setup ::= CHOICE {
+	respond-eNB			ProtocolIE-Container	{{ENB-ENDCX2SetupReqAckIEs}},
+	respond-en-gNB		ProtocolIE-Container	{{En-gNB-ENDCX2SetupReqAckIEs}},
+	...
+}
+
+ENB-ENDCX2SetupReqAckIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-GlobalENB-ID								CRITICALITY reject	TYPE GlobalENB-ID										PRESENCE mandatory}|
+	{ ID id-ServedEUTRAcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedEUTRAcellsENDCX2ManagementList		PRESENCE mandatory},
+	...
+}
+
+
+En-gNB-ENDCX2SetupReqAckIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Globalen-gNB-ID							CRITICALITY reject	TYPE GlobalGNB-ID										PRESENCE mandatory}|
+	{ ID id-ServedNRcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedNRcellsENDCX2ManagementList			PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- EN-DC X2 SETUP FAILURE
+--
+-- **************************************************************
+
+ENDCX2SetupFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCX2SetupFailure-IEs}},
+	...
+}
+
+ENDCX2SetupFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause					CRITICALITY ignore		TYPE Cause								PRESENCE mandatory} |
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore		TYPE CriticalityDiagnostics				PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- EN-DC CONFIGURATION UPDATE
+--
+-- **************************************************************
+
+ENDCConfigurationUpdate ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCConfigurationUpdate-IEs}},
+	...
+}
+
+ENDCConfigurationUpdate-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-InitiatingNodeType-EndcConfigUpdate			CRITICALITY reject	TYPE InitiatingNodeType-EndcConfigUpdate			PRESENCE mandatory},
+	...
+}
+
+InitiatingNodeType-EndcConfigUpdate::= CHOICE {
+	init-eNB			ProtocolIE-Container	{{ENB-ENDCConfigUpdateIEs}},
+	init-en-gNB			ProtocolIE-Container	{{En-gNB-ENDCConfigUpdateIEs}},
+	...
+}
+
+ENB-ENDCConfigUpdateIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-GlobalENB-ID								CRITICALITY reject	TYPE GlobalENB-ID											PRESENCE mandatory}|
+	{ ID id-CellAssistanceInformation				CRITICALITY reject	TYPE CellAssistanceInformation							PRESENCE optional }|
+	{ ID id-ServedEUTRAcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedEUTRAcellsENDCX2ManagementList			PRESENCE optional }|
+	{ ID id-ServedEUTRAcellsToModifyListENDCConfUpd	CRITICALITY reject	TYPE ServedEUTRAcellsToModifyListENDCConfUpd		PRESENCE optional }|
+	{ ID id-ServedEUTRAcellsToDeleteListENDCConfUpd	CRITICALITY reject	TYPE ServedEUTRAcellsToDeleteListENDCConfUpd		PRESENCE optional },
+	...
+}
+
+ServedEUTRAcellsToModifyListENDCConfUpd ::= SEQUENCE (SIZE (1.. maxCellineNB)) OF SEQUENCE {
+	old-ECGI								ECGI,
+	servedEUTRACellInfo					ServedCell-Information,
+	nrNeighbourInfo						NRNeighbour-Information		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { ServedEUTRAcellsToModifyListENDCConfUpd-ExtIEs} } OPTIONAL,
+	...
+}
+
+ServedEUTRAcellsToModifyListENDCConfUpd-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ServedEUTRAcellsToDeleteListENDCConfUpd ::= SEQUENCE (SIZE (1..maxCellineNB)) OF ECGI
+
+
+En-gNB-ENDCConfigUpdateIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Globalen-gNB-ID							CRITICALITY reject	TYPE GlobalGNB-ID										PRESENCE mandatory}|
+	{ ID id-ServedNRcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedNRcellsENDCX2ManagementList			PRESENCE optional }|
+	{ ID id-ServedNRcellsToModifyListENDCConfUpd		CRITICALITY reject	TYPE ServedNRcellsToModifyENDCConfUpdList		PRESENCE optional }|
+	{ ID id-ServedNRcellsToDeleteListENDCConfUpd		CRITICALITY reject	TYPE ServedNRcellsToDeleteENDCConfUpdList		PRESENCE optional },
+	...
+}
+
+ServedNRcellsToModifyENDCConfUpdList ::= SEQUENCE (SIZE (1..maxCellinengNB)) OF ServedNRCellsToModify-Item
+
+ServedNRCellsToModify-Item::= SEQUENCE {
+	old-nrcgi						NRCGI,
+	servedNRCellInformation			ServedNRCell-Information,
+	nrNeighbourInformation			NRNeighbour-Information			OPTIONAL,
+	nrDeactivationIndication			DeactivationIndication			OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { ServedNRCellsToModify-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ServedNRCellsToModify-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ServedNRcellsToDeleteENDCConfUpdList ::= SEQUENCE (SIZE (1..maxCellinengNB)) OF NRCGI
+
+-- **************************************************************
+--
+-- EN-DC CONFIGURATION UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+
+ENDCConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCConfigurationUpdateAcknowledge-IEs}},
+	...
+}
+
+ENDCConfigurationUpdateAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RespondingNodeType-EndcConfigUpdate			CRITICALITY reject	TYPE RespondingNodeType-EndcConfigUpdate			PRESENCE mandatory},
+	...
+}
+
+
+RespondingNodeType-EndcConfigUpdate::= CHOICE {
+	respond-en-gNB		ProtocolIE-Container	{{En-gNB-ENDCConfigUpdateAckIEs}},
+	...
+}
+
+
+En-gNB-ENDCConfigUpdateAckIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-ServedNRcellsENDCX2ManagementList		CRITICALITY reject	TYPE ServedNRcellsENDCX2ManagementList		PRESENCE mandatory},
+	...
+}
+
+
+-- **************************************************************
+--
+-- EN-DC CONFIGURATION UPDATE FAILURE
+--
+-- **************************************************************
+
+ENDCConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCConfigurationUpdateFailure-IEs}},
+	...
+}
+
+ENDCConfigurationUpdateFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- EN-DC CELL ACTIVATION REQUEST
+--
+-- **************************************************************
+
+ENDCCellActivationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCCellActivationRequest-IEs}},
+	...
+}
+
+ENDCCellActivationRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-ServedNRCellsToActivate 	CRITICALITY reject	TYPE ServedNRCellsToActivate			PRESENCE mandatory}|
+	{ ID id-ActivationID			 	CRITICALITY reject	TYPE ActivationID					PRESENCE mandatory},
+	...
+}
+
+ServedNRCellsToActivate::= SEQUENCE (SIZE (1.. maxCellinengNB)) OF ServedNRCellsToActivate-Item
+
+ServedNRCellsToActivate-Item::= SEQUENCE {
+	nrCellID						NRCGI,
+	iE-Extensions					ProtocolExtensionContainer { { ServedNRCellsToActivate-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ServedNRCellsToActivate-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- EN-DC CELL ACTIVATION RESPONSE
+--
+-- **************************************************************
+
+ENDCCellActivationResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCCellActivationResponse-IEs}},
+	...
+}
+
+ENDCCellActivationResponse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-ActivatedNRCellList		CRITICALITY ignore	TYPE ActivatedNRCellList				PRESENCE mandatory}|
+	{ ID id-ActivationID				CRITICALITY reject	TYPE ActivationID					PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+ActivatedNRCellList ::= SEQUENCE (SIZE (1.. maxCellinengNB)) OF ActivatedNRCellList-Item
+
+ActivatedNRCellList-Item::= SEQUENCE {
+	nrCellID						NRCGI,
+	iE-Extensions						ProtocolExtensionContainer { { ActivatedNRCellList-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ActivatedNRCellList-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+--**************************************************************
+--
+-- EN-DC CELL ACTIVATION FAILURE
+--
+-- **************************************************************
+
+ENDCCellActivationFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCCellActivationFailure-IEs}},
+	...
+}
+
+ENDCCellActivationFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-ActivationID					CRITICALITY reject	TYPE ActivationID				PRESENCE mandatory }|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- SECONDARY RAT DATA USAGE REPORT
+--
+-- **************************************************************
+
+SecondaryRATDataUsageReport ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{SecondaryRATDataUsageReport-IEs}},
+	...
+}
+
+SecondaryRATDataUsageReport-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY reject	TYPE UE-X2AP-ID								PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY reject	TYPE SgNB-UE-X2AP-ID							PRESENCE mandatory}|
+	{ ID id-SecondaryRATUsageReportList			CRITICALITY reject	TYPE SecondaryRATUsageReportList			PRESENCE mandatory},
+	...
+}
+
 
 END

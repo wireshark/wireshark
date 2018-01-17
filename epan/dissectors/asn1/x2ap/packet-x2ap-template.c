@@ -3,7 +3,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016, Pascal Quantin <pacal.quantin@gmail.com>
+ * Copyright 2016-2018, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -24,7 +24,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Ref:
- * 3GPP TS 36.423 V14.3.0 (2017-06)
+ * 3GPP TS 36.423 V15.0.0 (2017-12)
  */
 
 #include "config.h"
@@ -39,6 +39,8 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-lte-rrc.h"
+#include "packet-nr-rrc.h"
+#include "packet-ntp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -111,6 +113,14 @@ static int hf_x2ap_MDT_transmissionModes_tm6 = -1;
 static int hf_x2ap_MDT_transmissionModes_tm8 = -1;
 static int hf_x2ap_MDT_transmissionModes_tm9 = -1;
 static int hf_x2ap_MDT_transmissionModes_tm10 = -1;
+static int hf_x2ap_NRencryptionAlgorithms_NEA1 = -1;
+static int hf_x2ap_NRencryptionAlgorithms_NEA2 = -1;
+static int hf_x2ap_NRencryptionAlgorithms_NEA3 = -1;
+static int hf_x2ap_NRencryptionAlgorithms_Reserved = -1;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA1 = -1;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA2 = -1;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA3 = -1;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_Reserved = -1;
 #include "packet-x2ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -135,11 +145,24 @@ static int ett_x2ap_MeasurementsToActivate = -1;
 static int ett_x2ap_MDT_Location_Info = -1;
 static int ett_x2ap_transmissionModes = -1;
 static int ett_x2ap_X2AP_Message = -1;
+static int ett_x2ap_MeNBtoSgNBContainer = -1;
+static int ett_x2ap_SgNBtoMeNBContainer = -1;
+static int ett_x2ap_RRCContainer = -1;
+static int ett_x2ap_NRencryptionAlgorithms = -1;
+static int ett_x2ap_NRintegrityProtectionAlgorithms = -1;
 #include "packet-x2ap-ett.c"
+
+typedef enum {
+  RRC_CONTAINER_TYPE_UNKNOWN,
+  RRC_CONTAINER_TYPE_PDCP_C_PDU,
+  RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT
+} rrc_container_type_e;
 
 struct x2ap_private_data {
   guint32 procedure_code;
   guint32 protocol_ie_id;
+  guint32 triggering_message;
+  rrc_container_type_e rrc_container_type;
 };
 
 enum {
@@ -497,6 +520,38 @@ void proto_register_x2ap(void) {
       { "TM10", "x2ap.MDT_Location_Info.transmissionModes.tm10",
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
         NULL, HFILL }},
+    { &hf_x2ap_NRencryptionAlgorithms_NEA1,
+      { "128-NEA1", "x2ap.NRencryptionAlgorithms.NEA1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_x2ap_NRencryptionAlgorithms_NEA2,
+      { "128-NEA2", "x2ap.NRencryptionAlgorithms.NEA2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_x2ap_NRencryptionAlgorithms_NEA3,
+      { "128-NEA3", "x2ap.NRencryptionAlgorithms.NEA3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_x2ap_NRencryptionAlgorithms_Reserved,
+      { "Reserved", "x2ap.NRencryptionAlgorithms.Reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
+    { &hf_x2ap_NRintegrityProtectionAlgorithms_NIA1,
+      { "128-NIA1", "x2ap.NRintegrityProtectionAlgorithms.NIA1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_x2ap_NRintegrityProtectionAlgorithms_NIA2,
+      { "128-NIA2", "x2ap.NRintegrityProtectionAlgorithms.NIA2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_x2ap_NRintegrityProtectionAlgorithms_NIA3,
+      { "128-NIA3", "x2ap.NRintegrityProtectionAlgorithms.NIA3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_x2ap_NRintegrityProtectionAlgorithms_Reserved,
+      { "Reserved", "x2ap.NRintegrityProtectionAlgorithms.Reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
 #include "packet-x2ap-hfarr.c"
   };
 
@@ -523,6 +578,11 @@ void proto_register_x2ap(void) {
     &ett_x2ap_MDT_Location_Info,
     &ett_x2ap_transmissionModes,
     &ett_x2ap_X2AP_Message,
+    &ett_x2ap_MeNBtoSgNBContainer,
+    &ett_x2ap_SgNBtoMeNBContainer,
+    &ett_x2ap_RRCContainer,
+    &ett_x2ap_NRencryptionAlgorithms,
+    &ett_x2ap_NRintegrityProtectionAlgorithms,
 #include "packet-x2ap-ettarr.c"
   };
 
@@ -544,7 +604,7 @@ void proto_register_x2ap(void) {
   x2ap_proc_sout_dissector_table = register_dissector_table("x2ap.proc.sout", "X2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_x2ap, FT_UINT32, BASE_DEC);
   x2ap_proc_uout_dissector_table = register_dissector_table("x2ap.proc.uout", "X2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_x2ap, FT_UINT32, BASE_DEC);
 
-  /* Register configuration options for ports */
+  /* Register configuration1 options for ports */
   x2ap_module = prefs_register_protocol(proto_x2ap, proto_reg_handoff_x2ap);
 
   prefs_register_uint_preference(x2ap_module, "sctp.port",

@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V14.3.0 (2017-06)
+-- 3GPP TS 36.423 V15.0.0 (2017-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -52,6 +52,19 @@ id-meNBinitiatedSeNBRelease										ProcedureCode ::= 23
 id-seNBinitiatedSeNBRelease										ProcedureCode ::= 24
 id-seNBCounterCheck												ProcedureCode ::= 25
 id-retrieveUEContext											ProcedureCode ::= 26
+id-sgNBAdditionPreparation										ProcedureCode ::= 27
+id-sgNBReconfigurationCompletion								ProcedureCode ::= 28
+id-meNBinitiatedSgNBModificationPreparation						ProcedureCode ::= 29
+id-sgNBinitiatedSgNBModification								ProcedureCode ::= 30
+id-meNBinitiatedSgNBRelease										ProcedureCode ::= 31
+id-sgNBinitiatedSgNBRelease										ProcedureCode ::= 32
+id-sgNBCounterCheck												ProcedureCode ::= 33
+id-sgNBChange													ProcedureCode ::= 34
+id-rRCTransfer													ProcedureCode ::= 35
+id-endcX2Setup													ProcedureCode ::= 36
+id-endcConfigurationUpdate										ProcedureCode ::= 37
+id-secondaryRATDataUsageReport									ProcedureCode ::= 38
+id-endcCellActivation											ProcedureCode ::= 39
 
 
 -- **************************************************************
@@ -92,6 +105,13 @@ maxnoofPA									INTEGER ::= 3
 maxCSIProcess								INTEGER ::= 4
 maxCSIReport								INTEGER ::= 2
 maxSubband									INTEGER ::= 14
+maxofNRNeighbours							INTEGER ::= 1024
+maxCellinengNB								INTEGER ::= 16384
+--	maxnoofNRCarriers						INTEGER ::= 32
+maxnooftimeperiods							INTEGER ::= 2
+maxnoofCellIDforQMC							INTEGER ::= 32
+maxnoofTAforQMC								INTEGER ::= 8
+maxnoofPLMNforQMC							INTEGER ::= 16
 
 -- **************************************************************
 --
@@ -108,7 +128,7 @@ id-Cause																	ProtocolIE-ID ::= 5
 id-CellInformation															ProtocolIE-ID ::= 6
 id-CellInformation-Item														ProtocolIE-ID ::= 7
 --WS extension
-id-Unknown-8															ProtocolIE-ID ::= 8
+id-Unknown-8																ProtocolIE-ID ::= 8
 id-New-eNB-UE-X2AP-ID														ProtocolIE-ID ::= 9
 id-Old-eNB-UE-X2AP-ID														ProtocolIE-ID ::= 10
 id-TargetCell-ID															ProtocolIE-ID ::= 11
@@ -174,7 +194,7 @@ id-CSG-Id																	ProtocolIE-ID ::= 70
 id-CSGMembershipStatus														ProtocolIE-ID ::= 71
 id-MDTConfiguration															ProtocolIE-ID ::= 72
 --WS extension
-id-Unknown-73															ProtocolIE-ID ::= 73
+id-Unknown-73																ProtocolIE-ID ::= 73
 id-ManagementBasedMDTallowed												ProtocolIE-ID ::= 74
 id-RRCConnSetupIndicator													ProtocolIE-ID ::= 75
 id-NeighbourTAC																ProtocolIE-ID ::= 76
@@ -246,7 +266,7 @@ id-E-RABs-SubjectToCounterCheck-List										ProtocolIE-ID ::= 141
 id-E-RABs-SubjectToCounterCheckItem											ProtocolIE-ID ::= 142
 id-CoverageModificationList													ProtocolIE-ID ::= 143
 --WS extension
-id-Unknown-144															ProtocolIE-ID ::= 144
+id-Unknown-144																ProtocolIE-ID ::= 144
 id-ReportingPeriodicityCSIR													ProtocolIE-ID ::= 145
 id-CSIReportList															ProtocolIE-ID ::= 146
 id-UEID																		ProtocolIE-ID ::= 147
@@ -288,5 +308,89 @@ id-UE-ContextReferenceAtWT													ProtocolIE-ID ::= 182
 id-WT-UE-ContextKeptIndicator												ProtocolIE-ID ::= 183
 id-UESidelinkAggregateMaximumBitRate										ProtocolIE-ID ::= 184
 id-uL-GTPtunnelEndpoint														ProtocolIE-ID ::= 185
+--WS extension
+id-Unknown-186																ProtocolIE-ID ::= 186
+id-Unknown-187																ProtocolIE-ID ::= 187
+id-Unknown-188																ProtocolIE-ID ::= 188
+id-Unknown-189																ProtocolIE-ID ::= 189
+id-Unknown-190																ProtocolIE-ID ::= 190
+id-Unknown-191																ProtocolIE-ID ::= 191
+id-Unknown-192																ProtocolIE-ID ::= 192
+id-DL-scheduling-PDCCH-CCE-usage											ProtocolIE-ID ::= 193
+id-UL-scheduling-PDCCH-CCE-usage											ProtocolIE-ID ::= 194
+id-UEAppLayerMeasConfig														ProtocolIE-ID ::= 195
+id-extended-e-RAB-MaximumBitrateDL											ProtocolIE-ID ::= 196
+id-extended-e-RAB-MaximumBitrateUL											ProtocolIE-ID ::= 197
+id-extended-e-RAB-GuaranteedBitrateDL										ProtocolIE-ID ::= 198
+id-extended-e-RAB-GuaranteedBitrateUL										ProtocolIE-ID ::= 199
+id-extended-uEaggregateMaximumBitRateDownlink								ProtocolIE-ID ::= 200
+id-extended-uEaggregateMaximumBitRateUplink									ProtocolIE-ID ::= 201
+id-NRrestriction															ProtocolIE-ID ::= 202
+id-SgNBSecurityKey															ProtocolIE-ID ::= 203
+id-SgNBUEAggregateMaximumBitRate											ProtocolIE-ID ::= 204
+id-E-RABs-ToBeAdded-SgNBAddReqList											ProtocolIE-ID ::= 205
+id-MeNBtoSgNBContainer														ProtocolIE-ID ::= 206
+id-SgNB-UE-X2AP-ID															ProtocolIE-ID ::= 207
+id-RequestedMCGSplitSRBs													ProtocolIE-ID ::= 208
+id-E-RABs-ToBeAdded-SgNBAddReq-Item											ProtocolIE-ID ::= 209
+id-E-RABs-Admitted-ToBeAdded-SgNBAddResList									ProtocolIE-ID ::= 210
+id-SgNBtoMeNBContainer														ProtocolIE-ID ::= 211
+id-AdmittedMCGSplitSRBs														ProtocolIE-ID ::= 212
+id-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item								ProtocolIE-ID ::= 213
+id-ResponseInformationSgNBReconfComp										ProtocolIE-ID ::= 214
+id-UE-ContextInformation-SgNBModReq											ProtocolIE-ID ::= 215
+id-E-RABs-ToBeAdded-SgNBModReq-Item											ProtocolIE-ID ::= 216
+id-E-RABs-ToBeModified-SgNBModReq-Item										ProtocolIE-ID ::= 217
+id-E-RABs-ToBeReleased-SgNBModReq-Item										ProtocolIE-ID ::= 218
+id-E-RABs-Admitted-ToBeAdded-SgNBModAckList									ProtocolIE-ID ::= 219
+id-E-RABs-Admitted-ToBeModified-SgNBModAckList								ProtocolIE-ID ::= 220
+id-E-RABs-Admitted-ToBeReleased-SgNBModAckList								ProtocolIE-ID ::= 221
+id-E-RABs-Admitted-ToBeAdded-SgNBModAck-Item								ProtocolIE-ID ::= 222
+id-E-RABs-Admitted-ToBeModified-SgNBModAck-Item								ProtocolIE-ID ::= 223
+id-E-RABs-Admitted-ToBeReleased-SgNBModAck-Item								ProtocolIE-ID ::= 224
+id-E-RABs-ToBeReleased-SgNBModReqdList										ProtocolIE-ID ::= 225
+id-E-RABs-ToBeModified-SgNBModReqdList										ProtocolIE-ID ::= 226
+id-E-RABs-ToBeReleased-SgNBModReqd-Item										ProtocolIE-ID ::= 227
+id-E-RABs-ToBeModified-SgNBModReqd-Item										ProtocolIE-ID ::= 228
+id-E-RABs-ToBeReleased-SgNBChaConfList										ProtocolIE-ID ::= 229
+id-E-RABs-ToBeReleased-SgNBChaConf-Item										ProtocolIE-ID ::= 230
+id-E-RABs-ToBeReleased-SgNBRelReqList										ProtocolIE-ID ::= 231
+id-E-RABs-ToBeReleased-SgNBRelReq-Item										ProtocolIE-ID ::= 232
+id-E-RABs-ToBeReleased-SgNBRelConfList										ProtocolIE-ID ::= 233
+id-E-RABs-ToBeReleased-SgNBRelConf-Item										ProtocolIE-ID ::= 234
+id-E-RABs-SubjectToSgNBCounterCheck-List									ProtocolIE-ID ::= 235
+id-E-RABs-SubjectToSgNBCounterCheck-Item									ProtocolIE-ID ::= 236
+id-RRCContainer																ProtocolIE-ID ::= 237
+id-SRBType																	ProtocolIE-ID ::= 238
+id-Target-SgNB-ID															ProtocolIE-ID ::= 239
+id-HandoverRestrictionList													ProtocolIE-ID ::= 240
+id-SCGConfigurationQuery													ProtocolIE-ID ::= 241
+id-MCGSplitSRB																ProtocolIE-ID ::= 242
+id-UENRMeasurement															ProtocolIE-ID ::= 243
+id-InitiatingNodeType-EndcX2Setup											ProtocolIE-ID ::= 244
+id-InitiatingNodeType-EndcConfigUpdate										ProtocolIE-ID ::= 245
+id-RespondingNodeType-EndcX2Setup											ProtocolIE-ID ::= 246
+id-RespondingNodeType-EndcConfigUpdate										ProtocolIE-ID ::= 247
+id-NRUESecurityCapabilities													ProtocolIE-ID ::= 248
+id-PDCPChangeIndication														ProtocolIE-ID ::= 249
+id-ServedEUTRAcellsENDCX2ManagementList										ProtocolIE-ID ::= 250
+id-CellAssistanceInformation												ProtocolIE-ID ::= 251
+id-Globalen-gNB-ID															ProtocolIE-ID ::= 252
+id-ServedNRcellsENDCX2ManagementList										ProtocolIE-ID ::= 253
+id-UE-ContextReferenceAtSgNB												ProtocolIE-ID ::= 254
+id-SecondaryRATUsageReport													ProtocolIE-ID ::= 255
+id-ActivationID																ProtocolIE-ID ::= 256
+id-MeNBResourceCoordinationInformation										ProtocolIE-ID ::= 257
+id-SgNBResourceCoordinationInformation										ProtocolIE-ID ::= 258
+id-ServedEUTRAcellsToModifyListENDCConfUpd									ProtocolIE-ID ::= 259
+id-ServedEUTRAcellsToDeleteListENDCConfUpd									ProtocolIE-ID ::= 260
+id-ServedNRcellsToModifyListENDCConfUpd										ProtocolIE-ID ::= 261
+id-ServedNRcellsToDeleteListENDCConfUpd										ProtocolIE-ID ::= 262
+id-E-RABUsageReport-Item													ProtocolIE-ID ::= 263
+id-Old-SgNB-UE-X2AP-ID														ProtocolIE-ID ::= 264
+id-SecondaryRATUsageReportList												ProtocolIE-ID ::= 265
+id-SecondaryRATUsageReport-Item												ProtocolIE-ID ::= 266
+id-ServedNRCellsToActivate													ProtocolIE-ID ::= 267
+id-ActivatedNRCellList														ProtocolIE-ID ::= 268
 
 END
