@@ -2372,6 +2372,10 @@ cf_print_packets(capture_file *cf, print_args_t *print_args,
         }
     }
 
+    /* if num_visible_col is 0, we are done */
+    if (num_visible_col == 0)
+      return CF_PRINT_OK;
+
     /* Find the widths for each of the columns - maximum of the
        width of the title and the width of the data - and construct
        a buffer with a line containing the column titles. */
