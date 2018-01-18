@@ -442,7 +442,7 @@ ib_addr_to_str(const address *addr, gchar *buf, int buf_len)
     }
 
     /* this is a LID (16 bits) */
-    g_snprintf(buf,buf_len,"LID: %u", *(guint16 *)addr->data);
+    g_snprintf(buf,buf_len,"LID: %u", *(const guint16 *)addr->data);
 
     return (int)(strlen(buf)+1);
 }
