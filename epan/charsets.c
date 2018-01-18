@@ -1374,12 +1374,12 @@ guint8 *
 get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
     gint           i;
-    guint8        *c;
+    const guint8  *c;
     wmem_strbuf_t *strbuf;
 
     strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
-    for (i = 0, c = (guint8 *)ptr; i < length; c++, i++) {
+    for (i = 0, c = ptr; i < length; c++, i++) {
         if (!t61_tab[*c]) {
             wmem_strbuf_append_unichar(strbuf, UNREPL);
         } else if ((*c & 0xf0) == 0xc0) {
