@@ -316,9 +316,7 @@ const interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) co
 {
     const interface_t * result = 0;
 
-    if ( ! index.isValid() )
-        return result;
-    if ( ! global_capture_opts.all_ifaces && newDevices.size() == 0 )
+    if ( ! index.isValid() || ! global_capture_opts.all_ifaces )
         return result;
 
     int idx = index.row();
