@@ -8,7 +8,7 @@
 #line 1 "./asn1/lpp/packet-lpp-template.c"
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2017 Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2018 Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 14.3.0 Release 14
+ * Ref 3GPP TS 36.355 version 14.4.0 Release 14
  * http://www.3gpp.org
  */
 
@@ -327,7 +327,7 @@ static int hf_lpp_prsOccGroupLen_r14 = -1;        /* T_prsOccGroupLen_r14 */
 static int hf_lpp_prsHoppingInfo_r14 = -1;        /* T_prsHoppingInfo_r14 */
 static int hf_lpp_nb2_r14 = -1;                   /* INTEGER_0_maxAvailNarrowBands_Minus1_r14 */
 static int hf_lpp_nb4_r14 = -1;                   /* T_nb4_r14 */
-static int hf_lpp_nb4_r14_item = -1;              /* INTEGER_1_maxAvailNarrowBands_Minus1_r14 */
+static int hf_lpp_nb4_r14_item = -1;              /* INTEGER_0_maxAvailNarrowBands_Minus1_r14 */
 static int hf_lpp_OTDOA_NeighbourCellInfoList_item = -1;  /* OTDOA_NeighbourFreqInfo */
 static int hf_lpp_OTDOA_NeighbourFreqInfo_item = -1;  /* OTDOA_NeighbourCellInfoElement */
 static int hf_lpp_earfcn = -1;                    /* ARFCN_ValueEUTRA */
@@ -10349,18 +10349,8 @@ dissect_lpp_INTEGER_0_maxAvailNarrowBands_Minus1_r14(tvbuff_t *tvb _U_, int offs
 }
 
 
-
-static int
-dissect_lpp_INTEGER_1_maxAvailNarrowBands_Minus1_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, maxAvailNarrowBands_Minus1_r14, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t T_nb4_r14_sequence_of[1] = {
-  { &hf_lpp_nb4_r14_item    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_1_maxAvailNarrowBands_Minus1_r14 },
+  { &hf_lpp_nb4_r14_item    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_maxAvailNarrowBands_Minus1_r14 },
 };
 
 static int
@@ -16354,7 +16344,7 @@ void proto_register_lpp(void) {
     { &hf_lpp_nb4_r14_item,
       { "nb4-r14 item", "lpp.nb4_r14_item",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_maxAvailNarrowBands_Minus1_r14", HFILL }},
+        "INTEGER_0_maxAvailNarrowBands_Minus1_r14", HFILL }},
     { &hf_lpp_OTDOA_NeighbourCellInfoList_item,
       { "OTDOA-NeighbourFreqInfo", "lpp.OTDOA_NeighbourFreqInfo",
         FT_UINT32, BASE_DEC, NULL, 0,

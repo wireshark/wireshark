@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V14.3.0 (2017-09)
+-- 3GPP TS 36.355 V14.4.0 (2017-12)
 --
 
 LPP-PDU-Definitions {
@@ -725,7 +725,7 @@ PRS-Info ::= SEQUENCE {
 		prsHoppingInfo-r14	CHOICE {
 			nb2-r14				INTEGER (0.. maxAvailNarrowBands-Minus1-r14),
 			nb4-r14				SEQUENCE (SIZE (3))
-										OF INTEGER (1.. maxAvailNarrowBands-Minus1-r14)
+										OF INTEGER (0.. maxAvailNarrowBands-Minus1-r14)
 	}														OPTIONAL				-- Cond PRS-FH
 	]]
 }
