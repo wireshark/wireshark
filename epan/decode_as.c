@@ -150,7 +150,7 @@ gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern)
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
-        dissector_reset_string(name, (!pattern)?"":(gchar *) pattern);
+        dissector_reset_string(name, (!pattern)?"":(const gchar *) pattern);
         return TRUE;
     default:
         return FALSE;
@@ -177,7 +177,7 @@ gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gpoi
         case FT_STRINGZ:
         case FT_UINT_STRING:
         case FT_STRINGZPAD:
-            dissector_change_string(name, (!pattern)?"":(gchar *) pattern, *dissector);
+            dissector_change_string(name, (!pattern)?"":(const gchar *) pattern, *dissector);
             return TRUE;
         default:
             return FALSE;
