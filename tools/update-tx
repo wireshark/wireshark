@@ -1,11 +1,23 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright 2015, Alexis La Goutte (See AUTHORS file)
 #
 # Resync translation between Gerrit repo and Transifex
 
+NO_PUSH="False"
+while getopts "n" OPTCHAR ; do
+    case $OPTCHAR in
+        n) NO_PUSH="True" ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+# All .cpp, .h, and .ui files under ui/qt plus wireshark-qt.cpp.
+LUPDATE_FILES=$(find ui/qt -name '*.cpp' -o -name '*.h' -o -name '*.ui')
+LUPDATE_FILES=($LUPDATE_FILES wireshark-qt.cpp)
+
 # Add line numbers
 for i in ui/qt/*.ts ; do
-    lupdate -locations absolute ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
+    lupdate -locations absolute "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 # Get last translation for Transifex
@@ -13,15 +25,17 @@ tx pull -f
 
 # Regenerate last translation for repo
 for i in ui/qt/*.ts ; do
-    lupdate -locations absolute ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
+    lupdate -locations absolute "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 # Push last change tranlastion on Transifex
-tx push -t -s
+if [ "$NO_PUSH" != "True" ]; then
+    tx push -t -s
+fi
 
 # Remove line numbers
 for i in ui/qt/*.ts ; do
-    lupdate -locations none -no-ui-lines ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
+    lupdate -locations none -no-ui-lines "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 #Add new commit with last translaation update
