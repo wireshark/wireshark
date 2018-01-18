@@ -332,7 +332,7 @@ void ProfileDialog::on_copyToolButton_clicked()
 
 void ProfileDialog::on_buttonBox_accepted()
 {
-    const gchar *err_msg;
+    gchar *err_msg;
     QTreeWidgetItem *default_item = pd_ui_->profileTreeWidget->topLevelItem(0);
     QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
     gchar *profile_name = NULL;
@@ -355,7 +355,7 @@ void ProfileDialog::on_buttonBox_accepted()
         QMessageBox::critical(this, tr("Profile Error"),
                               err_msg,
                               QMessageBox::Ok);
-        g_free((gchar*)err_msg);
+        g_free(err_msg);
         return;
     }
 

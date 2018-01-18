@@ -99,8 +99,9 @@ GList * edited_profile_list(void);
 
 /** Apply the changes in the edited profile list
  * @return NULL if the operation was successful or an error message otherwise.
+ * The error message must be freed by the caller.
  */
-const gchar *apply_profile_changes(void);
+gchar *apply_profile_changes(void);
 
 /** Given a profile name, return the name of its parent profile.
  *

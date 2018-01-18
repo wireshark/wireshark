@@ -111,13 +111,13 @@ get_profile_parent (const gchar *profilename)
     return profilename;
 }
 
-const gchar *apply_profile_changes(void)
+gchar *apply_profile_changes(void)
 {
     char        *pf_dir_path, *pf_dir_path2, *pf_filename;
     GList       *fl1, *fl2;
     profile_def *profile1, *profile2;
     gboolean     found;
-    const gchar *err_msg;
+    gchar       *err_msg;
 
     /* First validate all profile names */
     fl1 = edited_profile_list();
@@ -126,7 +126,7 @@ const gchar *apply_profile_changes(void)
         g_strstrip(profile1->name);
         if ((err_msg = profile_name_is_valid(profile1->name)) != NULL) {
             gchar *message = g_strdup_printf("%s\nProfiles unchanged.", err_msg);
-            g_free((gchar *)err_msg);
+            g_free(err_msg);
             return message;
         }
         fl1 = g_list_next(fl1);
