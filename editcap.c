@@ -1526,7 +1526,10 @@ main(int argc, char *argv[])
                     }
                 }
 
-                /* CHOP */
+                /*
+                 * CHOP
+                 * Copy and change rather than modify returned phdr.
+                 */
                 temp_phdr = *phdr;
                 handle_chopping(chop, &temp_phdr, phdr, &buf, adjlen);
                 phdr = &temp_phdr;
@@ -1551,6 +1554,8 @@ main(int argc, char *argv[])
                                      * that it is being compared to.  This is NOT a normal
                                      * situation since trace files usually have packets in
                                      * chronological order (oldest to newest).
+                                     * Copy and change rather than modify
+                                     * returned phdr.
                                      */
                                     /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
                                     temp_phdr = *phdr;
@@ -1570,6 +1575,8 @@ main(int argc, char *argv[])
                                  * A negative strict time adjustment is requested.
                                  * Unconditionally set each timestamp to previous
                                  * packet's timestamp plus delta.
+                                 * Copy and change rather than modify returned
+                                 * phdr.
                                  */
                                 temp_phdr = *phdr;
                                 temp_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
@@ -1588,6 +1595,7 @@ main(int argc, char *argv[])
                     }
 
                     if (time_adj.tv.secs != 0) {
+                        /* Copy and change rather than modify returned phdr */
                         temp_phdr = *phdr;
                         if (time_adj.is_negative)
                             temp_phdr.ts.secs -= time_adj.tv.secs;
@@ -1597,6 +1605,7 @@ main(int argc, char *argv[])
                     }
 
                     if (time_adj.tv.nsecs != 0) {
+                        /* Copy and change rather than modify returned phdr */
                         temp_phdr = *phdr;
                         if (time_adj.is_negative) { /* subtract */
                             if (temp_phdr.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
@@ -1619,8 +1628,10 @@ main(int argc, char *argv[])
 
                 /* remove vlan info */
                 if (rem_vlan) {
-                    /* TODO: keep casting const like this? change pointer instead of value? */
-                    remove_vlan_info(phdr, buf, (guint32 *) &phdr->caplen);
+                    /* Copy and change rather than modify returned phdr */
+                    temp_phdr = *phdr;
+                    remove_vlan_info(phdr, buf, &temp_phdr.caplen);
+                    phdr = &temp_phdr;
                 }
 
                 /* suppress duplicates by packet window */
@@ -1751,6 +1762,7 @@ main(int argc, char *argv[])
                         temp_phdr.has_comment_changed = TRUE;
                         phdr = &temp_phdr;
                     } else {
+                        /* Copy and change rather than modify returned phdr */
                         temp_phdr = *phdr;
                         temp_phdr.has_comment_changed = FALSE;
                         phdr = &temp_phdr;
