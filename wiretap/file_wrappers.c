@@ -1026,69 +1026,64 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
     }
 
     /*
-     * Do we have a buffer?
+     * Are we seeking backwards?
      */
-    if (file->out.next != NULL) {
+    if (offset < 0) {
         /*
          * Yes.
-         * Are we seeking backwards?
+         *
+         * Do we have enough data before the current position in the
+         * buffer that we can seek backwards within the buffer?
          */
-        if (offset < 0) {
+        if (-offset <= offset_in_buffer(&file->out)) {
             /*
-             * Yes.
+             * Yes.  Adjust appropriately.
              *
-             * Do we have enough data before the current position in the
-             * buffer that we can seek backwards within the buffer?
+             * offset is negative, so -offset is non-negative, and
+             * -offset is <= an unsigned and thus fits in an unsigned.
+             * Get that value and adjust appropriately.
+             *
+             * (Casting offset to unsigned makes it positive, which
+             * is not what we would want, so we cast -offset instead.)
+             *
+             * XXX - this won't work with -offset = 2^63, as its
+             * negative isn't a valid 64-bit integer, but we are
+             * not at all likely to see files big enough to ever
+             * see a negative offset that large.
              */
-            if (-offset <= offset_in_buffer(&file->out)) {
-                /*
-                 * Yes.  Adjust appropriately.
-                 *
-                 * offset is negative, so -offset is non-negative, and
-                 * -offset is <= an unsigned and thus fits in an unsigned.
-                 * Get that value and adjust appropriately.
-                 *
-                 * (Casting offset to unsigned makes it positive, which
-                 * is not what we would want, so we cast -offset instead.)
-                 *
-                 * XXX - this won't work with -offset = 2^63, as its
-                 * negative isn't a valid 64-bit integer, but we are
-                 * not at all likely to see files big enough to ever
-                 * see a negative offset that large.
-                 */
-                guint adjustment = (unsigned)(-offset);
+            guint adjustment = (unsigned)(-offset);
 
-                file->out.avail += adjustment;
-                file->out.next -= adjustment;
-                file->pos -= adjustment;
-                return file->pos;
-            }
-        } else {
+            file->out.avail += adjustment;
+            file->out.next -= adjustment;
+            file->pos -= adjustment;
+            return file->pos;
+        }
+    } else {
+        /*
+         * No.  Offset is positive; we're seeking forwards.
+         *
+         * Do we have enough data after the current position in the
+         * buffer that we can seek forwards within the buffer?
+         */
+        if (offset < file->out.avail) {
             /*
-             * No.  Offset is positive; we're seeking forwards.
+             * Yes.  Adjust appropriately.
              *
-             * Do we have enough data after the current position in the
-             * buffer that we can seek forwards within the buffer?
+             * offset is < an unsigned and thus fits in an unsigned,
+             * so we can cast it to guint safely.
              */
-            if (offset < file->out.avail) {
-                /*
-                 * Yes.  Adjust appropriately.
-                 *
-                 * offset is < an unsigned and thus fits in an unsigned,
-                 * so we can cast it to guint safely.
-                 */
-                file->out.avail -= (guint)offset;
-                file->out.next += offset;
-                file->pos += offset;
-                return file->pos;
-            }
+            file->out.avail -= (guint)offset;
+            file->out.next += offset;
+            file->pos += offset;
+            return file->pos;
         }
     }
 
     /*
-     * No.  Do we have "fast seek" data for the location to which we
-     * will be seeking, and is the offset outside the span for
-     * compressed files or is this an uncompressed file?
+     * We're not seeking within the buffer.  Do we have "fast seek" data
+     * for the location to which we will be seeking, and is the offset
+     * outside the span for compressed files or is this an uncompressed
+     * file?
      *
      * XXX, profile
      */
