@@ -4738,8 +4738,8 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_b2_erir,
-        { "DLDR (Downlink Data Report)", "pfcp.report_type.erir",
-            FT_BOOLEAN, 8, NULL, 0x01,
+        { "ERIR (Error Indication Report)", "pfcp.report_type.erir",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_pfcp_b1_usar,
@@ -4748,8 +4748,8 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_b0_dldr,
-        { "ERIR (Error Indication Report)", "pfcp.report_type.dldr",
-            FT_BOOLEAN, 8, NULL, 0x04,
+        { "DLDR (Downlink Data Report)", "pfcp.report_type.dldr",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_pfcp_offending_ie,
