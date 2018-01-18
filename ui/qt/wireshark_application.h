@@ -101,7 +101,7 @@ public:
     void setLastOpenDir(const char *dir_name);
     void setLastOpenDir(QString dir_str);
     void helpTopicAction(topic_action_e action);
-    const QFont monospaceFont() const { return mono_font_; }
+    const QFont monospaceFont(bool zoomed = false) const;
     void setMonospaceFont(const char *font_string);
     int monospaceTextSize(const char *str);
     void setConfigurationProfile(const gchar *profile_name, bool write_recent = true);
@@ -134,6 +134,7 @@ private:
     bool initialized_;
     bool is_reloading_lua_;
     QFont mono_font_;
+    QFont zoomed_font_;
     QTimer recent_timer_;
     QTimer addr_resolv_timer_;
     QTimer tap_update_timer_;

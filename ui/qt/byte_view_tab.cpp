@@ -99,7 +99,7 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
     ByteViewText * byte_view_text = new ByteViewText(data, encoding, this);
     byte_view_text->setAccessibleName(name);
-    byte_view_text->setMonospaceFont(wsApp->monospaceFont());
+    byte_view_text->setMonospaceFont(wsApp->monospaceFont(true));
 
     if ( tvb )
     {
