@@ -958,6 +958,76 @@ ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 #.TYPE_ATTR
 ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
+#.FN_BODY E-RABUsageReportItem/startTimestamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR E-RABUsageReportItem/startTimestamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.FN_BODY E-RABUsageReportItem/endTimestamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR E-RABUsageReportItem/endTimestamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.TYPE_ATTR
+E-RABUsageReportItem/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
+#.TYPE_ATTR
+E-RABUsageReportItem/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
+#.TYPE_ATTR
+ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+
+#.FN_BODY NRencryptionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = {
+      &hf_s1ap_NRencryptionAlgorithms_NEA1,
+      &hf_s1ap_NRencryptionAlgorithms_NEA2,
+      &hf_s1ap_NRencryptionAlgorithms_NEA3,
+      &hf_s1ap_NRencryptionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NRencryptionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY NRintegrityProtectionAlgorithms VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = {
+      &hf_s1ap_NRintegrityProtectionAlgorithms_NIA1,
+      &hf_s1ap_NRintegrityProtectionAlgorithms_NIA2,
+      &hf_s1ap_NRintegrityProtectionAlgorithms_NIA3,
+      &hf_s1ap_NRintegrityProtectionAlgorithms_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_NRintegrityProtectionAlgorithms);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY UE-Application-Layer-Measurement-Capability VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    const gint *fields[] = {
+      &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement,
+      &hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_Application_Layer_Measurement_Capability);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
 #.TYPE_ATTR
 TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
@@ -1149,6 +1219,7 @@ id-RetrieveUEInformation                ProcedureCode
 id-UEInformationTransfer                ProcedureCode
 id-eNBCPRelocationIndication            ProcedureCode
 id-MMECPRelocationIndication            ProcedureCode
+id-SecondaryRATReport                   ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID                                   ProtocolIE-ID
@@ -1388,6 +1459,21 @@ id-EnhancedCoverageRestricted                       ProtocolIE-ID
 id-UE-Level-QoS-Parameters                          ProtocolIE-ID
 id-DL-CP-SecurityInformation                        ProtocolIE-ID
 id-UL-CP-SecurityInformation                        ProtocolIE-ID
+id-extended-e-RAB-MaximumBitrateDL                  ProtocolIE-ID
+id-extended-e-RAB-MaximumBitrateUL                  ProtocolIE-ID
+id-extended-e-RAB-GuaranteedBitrateDL               ProtocolIE-ID
+id-extended-e-RAB-GuaranteedBitrateUL               ProtocolIE-ID
+id-extended-uEaggregateMaximumBitRateDL             ProtocolIE-ID
+id-extended-uEaggregateMaximumBitRateUL             ProtocolIE-ID
+id-NRrestriction                                    ProtocolIE-ID
+id-UEAppLayerMeasConfig                             ProtocolIE-ID
+id-UE-Application-Layer-Measurement-Capability      ProtocolIE-ID
+id-SecondaryRATusageReportList                      ProtocolIE-ID
+id-SecondaryRATusageReportItem                      ProtocolIE-ID
+id-HandoverFlag                                     ProtocolIE-ID
+id-E-RABUsageReportItem                             ProtocolIE-ID
+id-SecondaryRATusageDataRequst                      ProtocolIE-ID
+id-NRUESecurityCapabilities                         ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1593,6 +1679,13 @@ ServedDCNs                                      N s1ap.ies id-ServedDCNs
 DL-CP-SecurityInformation                       N s1ap.ies id-DL-CP-SecurityInformation
 E-RABLevelQoSParameters                         N s1ap.ies id-UE-Level-QoS-Parameters
 UL-CP-SecurityInformation                       N s1ap.ies id-UL-CP-SecurityInformation
+E-RABUsageReportItem                            N s1ap.ies id-E-RABUsageReportItem
+SecondaryRATusageReportItem                     N s1ap.ies id-SecondaryRATusageReportItem
+NRUESecurityCapabilities                        N s1ap.ies id-NRUESecurityCapabilities
+SecondaryRATusageDataRequst                     N s1ap.ies id-SecondaryRATusageDataRequst
+SecondaryRATusageReportList                     N s1ap.ies id-SecondaryRATusageReportList
+UE-Application-Layer-Measurement-Capability     N s1ap.ies id-UE-Application-Layer-Measurement-Capability
+HandoverFlag                                    N s1ap.ies id-HandoverFlag
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1635,6 +1728,14 @@ M6Configuration                         N s1ap.extension id-M6Configuration
 M7Configuration                         N s1ap.extension id-M7Configuration
 RAT-Type                                N s1ap.extension id-RAT-Type
 BearerType                              N s1ap.extension id-BearerType
+ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-MaximumBitrateDL
+ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-MaximumBitrateUL
+ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-GuaranteedBitrateDL
+ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-GuaranteedBitrateUL
+NRrestriction                           N s1ap.extension id-NRrestriction
+UEAppLayerMeasConfig                    N s1ap.extension id-UEAppLayerMeasConfig
+ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateDL
+ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateUL
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation
@@ -1790,6 +1891,8 @@ UEInformationTransfer                   N s1ap.proc.imsg id-UEInformationTransfe
 ENBCPRelocationIndication               N s1ap.proc.imsg id-eNBCPRelocationIndication
 
 MMECPRelocationIndication               N s1ap.proc.imsg id-MMECPRelocationIndication
+
+SecondaryRATReport                      N s1ap.proc.imsg id-SecondaryRATReport
 
 
 #.FN_HDR HandoverRequired
@@ -1976,6 +2079,8 @@ MMECPRelocationIndication               N s1ap.proc.imsg id-MMECPRelocationIndic
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBCPRelocationIndication");
 #.FN_HDR MMECPRelocationIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMECPRelocationIndication");
+#.FN_HDR SecondaryRATReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATReport");
 #.END
 
 # Whenever a Cause appears, look up the reason and show it in the Info column

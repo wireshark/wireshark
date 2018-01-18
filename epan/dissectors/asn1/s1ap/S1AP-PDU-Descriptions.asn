@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V14.4.0 (2017-09)
+-- 3GPP TS 36.413 V15.0.0 (2017-12)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -116,7 +116,8 @@ FROM S1AP-CommonDataTypes
 	RetrieveUEInformation,
 	UEInformationTransfer,
 	ENBCPRelocationIndication,
-	MMECPRelocationIndication
+	MMECPRelocationIndication,
+	SecondaryRATReport
 
 
 FROM S1AP-PDU-Contents
@@ -182,7 +183,8 @@ FROM S1AP-PDU-Contents
 	id-RetrieveUEInformation,
 	id-UEInformationTransfer,
 	id-eNBCPRelocationIndication,
-	id-MMECPRelocationIndication
+	id-MMECPRelocationIndication,
+	id-SecondaryRATReport
 
 
 FROM S1AP-Constants;
@@ -320,7 +322,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	retrieveUEInformation			|
 	uEInformationTransfer			|
 	eNBCPRelocationIndication					|
-	mMECPRelocationIndication
+	mMECPRelocationIndication		|
+	secondaryRATReport
 }
 
 -- **************************************************************
@@ -727,6 +730,12 @@ mMECPRelocationIndication S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		MMECPRelocationIndication
 	PROCEDURE CODE			id-MMECPRelocationIndication
 	CRITICALITY				reject
+}
+
+secondaryRATReport S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SecondaryRATReport
+	PROCEDURE CODE			id-SecondaryRATReport
+	CRITICALITY			ignore
 }
 
 

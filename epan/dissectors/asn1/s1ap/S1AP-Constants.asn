@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V14.4.0 (2017-09)
+-- 3GPP TS 36.413 V15.0.0 (2017-12)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -95,6 +95,7 @@ id-RetrieveUEInformation					ProcedureCode ::= 58
 id-UEInformationTransfer					ProcedureCode ::= 59
 id-eNBCPRelocationIndication				ProcedureCode ::= 60
 id-MMECPRelocationIndication				ProcedureCode ::= 61
+id-SecondaryRATReport						ProcedureCode ::= 62
 
 -- **************************************************************
 --
@@ -147,6 +148,12 @@ maxEARFCN								INTEGER ::= 262143
 maxnoofMBSFNAreaMDT						INTEGER ::= 8
 maxnoofRecommendedCells					INTEGER ::= 16
 maxnoofRecommendedENBs					INTEGER ::= 16
+maxnooftimeperiods						INTEGER ::= 2
+maxnoofCellIDforQMC						INTEGER ::= 32
+maxnoofTAforQMC							INTEGER ::= 8
+maxnoofPLMNforQMC						INTEGER ::= 16
+
+
 
 -- **************************************************************
 --
@@ -421,5 +428,20 @@ id-EnhancedCoverageRestricted						ProtocolIE-ID ::= 251
 id-UE-Level-QoS-Parameters							ProtocolIE-ID ::= 252
 id-DL-CP-SecurityInformation						ProtocolIE-ID ::= 253
 id-UL-CP-SecurityInformation						ProtocolIE-ID ::= 254
+id-extended-e-RAB-MaximumBitrateDL					ProtocolIE-ID ::= 255
+id-extended-e-RAB-MaximumBitrateUL					ProtocolIE-ID ::= 256
+id-extended-e-RAB-GuaranteedBitrateDL				ProtocolIE-ID ::= 257
+id-extended-e-RAB-GuaranteedBitrateUL				ProtocolIE-ID ::= 258
+id-extended-uEaggregateMaximumBitRateDL				ProtocolIE-ID ::= 259
+id-extended-uEaggregateMaximumBitRateUL				ProtocolIE-ID ::= 260
+id-NRrestriction									ProtocolIE-ID ::= 261
+id-UEAppLayerMeasConfig								ProtocolIE-ID ::= 262
+id-UE-Application-Layer-Measurement-Capability		ProtocolIE-ID ::= 263
+id-SecondaryRATusageReportList						ProtocolIE-ID ::= 264
+id-SecondaryRATusageReportItem						ProtocolIE-ID ::= 265
+id-HandoverFlag										ProtocolIE-ID ::= 266
+id-E-RABUsageReportItem								ProtocolIE-ID ::= 267
+id-SecondaryRATusageDataRequst						ProtocolIE-ID ::= 268
+id-NRUESecurityCapabilities							ProtocolIE-ID ::= 269
 
 END

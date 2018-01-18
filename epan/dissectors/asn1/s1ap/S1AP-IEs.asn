@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V14.4.0 (2017-09)
+-- 3GPP TS 36.413 V15.0.0 (2017-12)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -36,6 +36,7 @@ IMPORTS
 	id-eNBIndirectX2TransportLayerAddresses,
 	id-Muting-Availability-Indication,
 	id-Muting-Pattern-Information,
+	id-NRrestriction,
 	id-Synchronisation-Information,
 	id-uE-HistoryInformationFromTheUE,
 	id-LoggedMBSFNMDT,
@@ -49,6 +50,15 @@ IMPORTS
 	id-M6Configuration,
 	id-M7Configuration,
 	id-RAT-Type,
+	id-extended-e-RAB-MaximumBitrateDL,
+	id-extended-e-RAB-MaximumBitrateUL,
+	id-extended-e-RAB-GuaranteedBitrateDL,
+	id-extended-e-RAB-GuaranteedBitrateUL,
+	id-extended-uEaggregateMaximumBitRateDL,
+	id-extended-uEaggregateMaximumBitRateUL,
+	id-SecondaryRATusageReportItem,
+	id-E-RABUsageReportItem,
+	id-UEAppLayerMeasConfig,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -82,7 +92,11 @@ IMPORTS
 	maxEARFCN,
 	maxnoofCellsineNB,
 	maxnoofRecommendedCells,
-	maxnoofRecommendedENBs
+	maxnoofRecommendedENBs,
+	maxnooftimeperiods,
+	maxnoofCellIDforQMC,
+	maxnoofTAforQMC,
+	maxnoofPLMNforQMC
 
 
 
@@ -120,6 +134,15 @@ AreaScopeOfMDT ::= CHOICE {
 	pLMNWide					NULL,
 	...,
 	tAIBased					TAIBasedMDT
+}
+
+
+AreaScopeOfQMC ::= CHOICE {
+	cellBased					CellBasedQMC,
+	tABased						TABasedQMC,
+	tAIBased						TAIBasedQMC,
+	pLMNAreaBased				PLMNAreaBasedQMC,
+	...
 }
 
 AllocationAndRetentionPriority ::= SEQUENCE {
@@ -398,6 +421,18 @@ CellBasedMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 CellIdListforMDT ::= SEQUENCE (SIZE(1..maxnoofCellIDforMDT)) OF EUTRAN-CGI
+
+CellBasedQMC::= SEQUENCE {
+	cellIdListforQMC		CellIdListforQMC,
+	iE-Extensions		ProtocolExtensionContainer { {CellBasedQMC-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellBasedQMC-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellIdListforQMC ::= SEQUENCE (SIZE(1..maxnoofCellIDforQMC)) OF EUTRAN-CGI
 
 Cdma2000PDU	::= OCTET STRING
 
@@ -793,6 +828,26 @@ E-RABLevelQoSParameters ::= SEQUENCE {
 	...
 }
 
+E-RABUsageReportList ::= SEQUENCE (SIZE(1..maxnooftimeperiods)) OF ProtocolIE-SingleContainer { {E-RABUsageReportItemIEs} }
+
+E-RABUsageReportItemIEs 	S1AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABUsageReportItem	 CRITICALITY ignore 	TYPE E-RABUsageReportItem 	PRESENCE mandatory },
+	...
+}
+
+E-RABUsageReportItem ::= SEQUENCE {
+	startTimestamp					OCTET STRING (SIZE(4)),
+	endTimestamp					OCTET STRING (SIZE(4)),
+	usageCountUL					INTEGER,
+	usageCountDL					INTEGER,
+	iE-Extensions				ProtocolExtensionContainer { { E-RABUsageReportItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABUsageReportItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 E-RABQoSParameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
@@ -848,6 +903,8 @@ ExpectedHOInterval ::= ENUMERATED {
 	sec15, sec30, sec60, sec90, sec120, sec180, long-time,
 	...
 }
+
+ExtendedBitRate	::= INTEGER (10000000001..4000000000000, ...)
 
 ExtendedRNC-ID					::= INTEGER (4096..65535)
 
@@ -910,8 +967,12 @@ GBR-QosInformation ::= SEQUENCE {
 }
 
 GBR-QosInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	...
-}
+-- Extension for maximum bitrate > 10G bps --
+	{ ID id-extended-e-RAB-MaximumBitrateDL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
+	{ ID id-extended-e-RAB-MaximumBitrateUL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
+	{ ID id-extended-e-RAB-GuaranteedBitrateDL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
+	{ ID id-extended-e-RAB-GuaranteedBitrateUL	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional},
+	...}
 
 
 GTP-TEID					::= OCTET STRING (SIZE (4))
@@ -941,6 +1002,12 @@ GWContextReleaseIndication ::= ENUMERATED {
 
 -- H
 
+HandoverFlag ::= ENUMERATED {
+	handoverPreparation,
+	...
+}
+
+
 HandoverRestrictionList ::= SEQUENCE {
 	servingPLMN					PLMNidentity,
 	equivalentPLMNs				EPLMNs					OPTIONAL,
@@ -952,6 +1019,7 @@ HandoverRestrictionList ::= SEQUENCE {
 }
 
 HandoverRestrictionList-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-NRrestriction		CRITICALITY ignore	EXTENSION NRrestriction	PRESENCE optional},
 	...
 }
 
@@ -1327,6 +1395,25 @@ NextPagingAreaScope ::= ENUMERATED {
 	...
 }
 
+NRencryptionAlgorithms ::= BIT STRING (SIZE (16,...))
+NRintegrityProtectionAlgorithms ::= BIT STRING (SIZE (16,...))
+
+NRrestriction ::= ENUMERATED {
+	nRrestricted,
+	...
+}
+
+NRUESecurityCapabilities ::= SEQUENCE {
+	nRencryptionAlgorithms				NRencryptionAlgorithms,
+	nRintegrityProtectionAlgorithms		NRintegrityProtectionAlgorithms,
+	iE-Extensions						ProtocolExtensionContainer { { NRUESecurityCapabilities-ExtIEs} }	OPTIONAL,
+...
+}
+
+NRUESecurityCapabilities-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 NumberofBroadcastRequest ::= INTEGER (0..65535)
 
 NumberOfBroadcasts ::= INTEGER (0..65535)
@@ -1422,6 +1509,18 @@ M1PeriodicReporting-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 PLMNidentity 				::= TBCD-STRING
+
+PLMNAreaBasedQMC ::= SEQUENCE {
+	plmnListforQMC		PLMNListforQMC,
+	iE-Extensions		ProtocolExtensionContainer { {PLMNAreaBasedQMC-ExtIEs} } OPTIONAL,
+	...
+}
+
+PLMNAreaBasedQMC-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PLMNListforQMC ::= SEQUENCE (SIZE(1..maxnoofPLMNforQMC)) OF PLMNidentity
 
 Port-Number		::= OCTET STRING (SIZE (2))
 
@@ -1650,6 +1749,36 @@ SecurityContext ::= SEQUENCE {
 
 
 SecurityContext-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SecondaryRATType ::= ENUMERATED {
+	nR,
+	...
+}
+
+
+SecondaryRATusageDataRequst ::= ENUMERATED {
+	requested,
+	...
+}
+
+SecondaryRATusageReportList ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {SecondaryRATusageReportItemIEs} }
+
+SecondaryRATusageReportItemIEs 	S1AP-PROTOCOL-IES ::= {
+	{ ID id-SecondaryRATusageReportItem	 CRITICALITY ignore 	TYPE SecondaryRATusageReportItem 	PRESENCE mandatory },
+	...
+}
+
+SecondaryRATusageReportItem ::= SEQUENCE {
+	e-RAB-ID					E-RAB-ID,
+	secondaryRATType			SecondaryRATType,
+	e-RABUsageReportList		E-RABUsageReportList,
+	iE-Extensions				ProtocolExtensionContainer { { SecondaryRATusageReportItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+SecondaryRATusageReportItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1910,6 +2039,30 @@ TABasedMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 TAListforMDT ::= SEQUENCE (SIZE(1..maxnoofTAforMDT)) OF TAC
 
+TABasedQMC ::= SEQUENCE {
+	tAListforQMC		TAListforQMC,
+	iE-Extensions		ProtocolExtensionContainer { {TABasedQMC-ExtIEs} } OPTIONAL,
+	...
+}
+
+TABasedQMC-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAListforQMC ::= SEQUENCE (SIZE(1..maxnoofTAforQMC)) OF TAC
+
+TAIBasedQMC ::= SEQUENCE {
+	tAIListforQMC		TAIListforQMC,
+	iE-Extensions		ProtocolExtensionContainer { {TAIBasedQMC-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAIBasedQMC-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAIListforQMC ::= SEQUENCE (SIZE(1..maxnoofTAforQMC)) OF TAI
+
 CompletedCellinTAI ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CompletedCellinTAI-Item
 
 CompletedCellinTAI-Item ::= SEQUENCE{
@@ -2016,7 +2169,9 @@ traceCollectionEntityIPAddress		TransportLayerAddress,
 
 TraceActivation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Extension for Rel-10 to support MDT --
-	{ ID id-MDTConfiguration	CRITICALITY ignore	EXTENSION MDT-Configuration		PRESENCE optional },
+	{ ID id-MDTConfiguration	CRITICALITY ignore	EXTENSION MDT-Configuration		PRESENCE optional }|
+-- Extension for Rel-15 to support QMC –
+	{ ID id-UEAppLayerMeasConfig	CRITICALITY ignore	EXTENSION UEAppLayerMeasConfig		PRESENCE optional },
 	...
 }
 
@@ -2063,6 +2218,20 @@ UEAggregateMaximumBitrate ::= SEQUENCE {
 }
 
 UEAggregate-MaximumBitrates-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+-- Extension for maximum bitrate > 10G bps --
+	{ ID id-extended-uEaggregateMaximumBitRateDL 	CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional}|
+	{ ID id-extended-uEaggregateMaximumBitRateUL		CRITICALITY ignore	EXTENSION ExtendedBitRate	PRESENCE optional},
+	...
+}
+
+UEAppLayerMeasConfig ::= SEQUENCE {
+	containerForAppLayerMeasConfig			OCTET STRING (SIZE(1..1000)),
+	areaScopeOfQMC		AreaScopeOfQMC,
+	iE-Extensions		ProtocolExtensionContainer { {UEAppLayerMeasConfig-ExtIEs} } OPTIONAL,
+	...
+}
+
+UEAppLayerMeasConfig-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2176,6 +2345,12 @@ UEUserPlaneCIoTSupportIndicator ::= ENUMERATED {
 	supported,
 	...
 }
+
+UE-Application-Layer-Measurement-Capability ::= BIT STRING (SIZE (8))
+
+-- First bit: QoE Measurement
+
+-- Note that undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver.
 
 -- V
 
