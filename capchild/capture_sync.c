@@ -104,6 +104,13 @@ static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
 
 static void (*fetch_dumpcap_pid)(ws_process_id) = NULL;
 
+static void free_argv(char** argv, int argc)
+{
+    int i;
+    for (i = 0; i < argc; i++)
+        g_free(argv[i]);
+    g_free(argv);
+}
 
 void
 capture_session_init(capture_session *cap_session, capture_file *cf)
@@ -428,10 +435,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         /* Couldn't create the pipe between parent and child. */
         report_failure("Couldn't create sync pipe: %s",
                        win32strerror(GetLastError()));
-        for (i = 0; i < argc; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
+        free_argv(argv, argc);
         return FALSE;
     }
 
@@ -448,10 +452,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         report_failure("Couldn't get C file handle for sync pipe: %s", g_strerror(errno));
         CloseHandle(sync_pipe_read);
         CloseHandle(sync_pipe_write);
-        for (i = 0; i < argc; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free(argv);
+        free_argv(argv, argc);
         return FALSE;
     }
 
@@ -467,10 +468,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
                        win32strerror(GetLastError()));
         ws_close(sync_pipe_read_fd);    /* Should close sync_pipe_read */
         CloseHandle(sync_pipe_write);
-        for (i = 0; i < argc; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
+        free_argv(argv, argc);
         return FALSE;
     }
 
@@ -488,10 +486,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         ws_close(sync_pipe_read_fd);    /* Should close sync_pipe_read */
         CloseHandle(sync_pipe_write);
         CloseHandle(signal_pipe);
-        for (i = 0; i < argc; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free(argv);
+        free_argv(argv, argc);
         return FALSE;
     }
 
@@ -534,10 +529,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         ws_close(sync_pipe_read_fd);    /* Should close sync_pipe_read */
         CloseHandle(sync_pipe_write);
         CloseHandle(signal_pipe);
-        for (i = 0; i < argc; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
+        free_argv(argv, argc);
         g_string_free(args, TRUE);
         g_free(wcommandline);
         return FALSE;
@@ -554,10 +546,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     if (pipe(sync_pipe) < 0) {
         /* Couldn't create the pipe between parent and child. */
         report_failure("Couldn't create sync pipe: %s", g_strerror(errno));
-        for (i = 0; i < argc; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free(argv);
+        free_argv(argv, argc);
         return FALSE;
     }
 
@@ -589,13 +578,9 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     sync_pipe_read_fd = sync_pipe[PIPE_READ];
 #endif
 
-    for (i = 0; i < argc; i++) {
-        g_free( (gpointer) argv[i]);
-    }
-
     /* Parent process - read messages from the child process over the
        sync pipe. */
-    g_free( (gpointer) argv);   /* free up arg array */
+    free_argv(argv, argc);
 
     /* Close the write side of the pipe, so that only the child has it
        open, and thus it completely closes, and thus returns to us
@@ -652,7 +637,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 /* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_open_command(char** argv, int *data_read_fd,
+sync_pipe_open_command(char* const argv[], int *data_read_fd,
                        int *message_read_fd, ws_process_id *fork_child, gchar **msg, void(*update_cb)(void))
 {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
@@ -665,12 +650,12 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
+    int i;
 #else
     char errmsg[1024+1];
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
     int data_pipe[2];                       /* pipe used to send data from child to parent */
 #endif
-    int i;
     *fork_child = WS_INVALID_PID;
     *data_read_fd = -1;
     *message_read_fd = -1;
@@ -696,10 +681,6 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         /* Couldn't create the message pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s",
                                win32strerror(GetLastError()));
-        for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
         return -1;
     }
 
@@ -715,10 +696,6 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         *msg = g_strdup_printf("Couldn't get C file handle for message read pipe: %s", g_strerror(errno));
         CloseHandle(sync_pipe[PIPE_READ]);
         CloseHandle(sync_pipe[PIPE_WRITE]);
-        for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
         return -1;
     }
 
@@ -730,10 +707,6 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
                                win32strerror(GetLastError()));
         ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
-        for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
         return -1;
     }
 
@@ -751,10 +724,6 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         CloseHandle(data_pipe[PIPE_WRITE]);
         ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
-        for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
         return -1;
     }
 
@@ -794,10 +763,6 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         CloseHandle(data_pipe[PIPE_WRITE]);
         ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
-        for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free( (gpointer) argv);
         g_string_free(args, TRUE);
         g_free(wcommandline);
         return -1;
@@ -812,10 +777,6 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     if (pipe(sync_pipe) < 0) {
         /* Couldn't create the message pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", g_strerror(errno));
-        for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free(argv);
         return -1;
     }
 
@@ -825,10 +786,6 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         *msg = g_strdup_printf("Couldn't create data pipe: %s", g_strerror(errno));
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
-        for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
-        }
-        g_free(argv);
         return -1;
     }
 
@@ -865,13 +822,8 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     *message_read_fd = sync_pipe[PIPE_READ];
 #endif
 
-    for (i = 0; argv[i] != NULL; i++) {
-        g_free( (gpointer) argv[i]);
-    }
-
     /* Parent process - read messages from the child process over the
        sync pipe. */
-    g_free( (gpointer) argv);   /* free up arg array */
 
     /* Close the write sides of the pipes, so that only the child has them
        open, and thus they completely close, and thus return to us
@@ -938,7 +890,7 @@ sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
 /* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
+sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_msg,
                       gchar **secondary_msg,  void(*update_cb)(void))
 {
     gchar *msg;
@@ -1115,7 +1067,7 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
 * redirects to sync_pipe_run_command_actual()
 */
 static int
-sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
+sync_pipe_run_command(char* const argv[], gchar **data, gchar **primary_msg,
                       gchar **secondary_msg, void (*update_cb)(void))
 {
     int ret, i;
@@ -1183,6 +1135,7 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
         *primary_msg = g_strdup("Out of mem.");
         *secondary_msg = NULL;
         *data = NULL;
+        free_argv(argv, argc);
         return -1;
     }
 
@@ -1197,6 +1150,7 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
 
     ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
     g_free(opt);
+    free_argv(argv, argc);
     return ret;
 }
 
@@ -1218,6 +1172,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
 {
     int argc;
     char **argv;
+    int ret;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open");
 
@@ -1238,7 +1193,9 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
+    ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
+    free_argv(argv, argc);
+    return ret;
 }
 
 /*
@@ -1260,6 +1217,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode, const gcha
 {
     int argc;
     char **argv;
+    int ret;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_if_capabilities_open");
 
@@ -1289,7 +1247,9 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode, const gcha
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
+    ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
+    free_argv(argv, argc);
+    return ret;
 }
 
 /*
@@ -1337,8 +1297,8 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
 #endif
     ret = sync_pipe_open_command(argv, data_read_fd, &message_read_fd,
                                  fork_child, msg, update_cb);
+    free_argv(argv, argc);
     if (ret == -1) {
-        g_free(argv);
         return -1;
     }
 
@@ -1382,7 +1342,6 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
                 *msg = combined_msg;
             }
         }
-
         return -1;
     }
 
