@@ -93,7 +93,8 @@ void PathChooserDelegate::browse_button_clicked()
         break;
     }
 
-    QString file_name = QFileDialog::getOpenFileName(new QWidget(), tr("Open Pipe"), open_dir);
+    QWidget * qw = new QWidget();
+    QString file_name = QFileDialog::getOpenFileName(qw, tr("Open Pipe"), open_dir);
     if ( !file_name.isEmpty() )
     {
         QWidget * parent = ((QPushButton *)sender())->parentWidget();
@@ -102,9 +103,9 @@ void PathChooserDelegate::browse_button_clicked()
         {
             lineEdit->setText(file_name);
             emit commitData(parent);
-
         }
     }
+    delete(qw);
 }
 
 void PathChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &idx) const
