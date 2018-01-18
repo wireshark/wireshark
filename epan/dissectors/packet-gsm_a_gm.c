@@ -4500,13 +4500,13 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 {
 	proto_item        *generated_item;
 	guint32            curr_offset;
-	guint              curr_len;
+	gint               curr_len;
 	guchar             oct;
 	int                link_dir;
 	proto_item        *pco_item;
 	proto_tree        *pco_tree;
 
-	curr_len    = len;
+	curr_len    = (gint)len; /* length field is only 1 or 2 bytes long */
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -4530,7 +4530,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	curr_len--;
 	curr_offset++;
 
-	while (curr_len > 0)
+	while (curr_len >= 3) /* 2 bytes protocol/container ID + 1 byte length */
 	{
 		guchar e_len;
 		guint16 prot;
@@ -4693,15 +4693,17 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				}
 			}
 		}
-
 		curr_len    -= e_len;
 		curr_offset += e_len;
 	}
-	curr_offset += curr_len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
+	if (curr_len < 0) {
+		proto_tree_add_expert(tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, offset, len);
+	} else {
+		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
+	}
 
-	return (curr_offset - offset);
+	return len;
 }
 
 /*
