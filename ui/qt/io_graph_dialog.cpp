@@ -805,7 +805,7 @@ IOGraph *IOGraphDialog::currentActiveGraph() const
 
 bool IOGraphDialog::graphIsEnabled(int row) const
 {
-    Qt::CheckState state = uat_model_->data(uat_model_->index(row, colEnabled), Qt::CheckStateRole).value<Qt::CheckState>();
+    Qt::CheckState state = static_cast<Qt::CheckState>(uat_model_->data(uat_model_->index(row, colEnabled), Qt::CheckStateRole).toInt());
     return state == Qt::Checked;
 }
 
