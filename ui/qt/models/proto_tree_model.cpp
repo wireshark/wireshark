@@ -25,6 +25,15 @@ ProtoTreeModel::ProtoTreeModel(QObject * parent) :
     root_node_(0)
 {}
 
+Qt::ItemFlags ProtoTreeModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags item_flags = QAbstractItemModel::flags(index);
+    if (rowCount(index) < 1) {
+        item_flags |= Qt::ItemNeverHasChildren;
+    }
+    return item_flags;
+}
+
 QModelIndex ProtoTreeModel::index(int row, int, const QModelIndex &parent) const
 {
     ProtoNode parent_node(root_node_);

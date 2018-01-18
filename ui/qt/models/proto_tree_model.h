@@ -22,6 +22,7 @@ class ProtoTreeModel : public QAbstractItemModel
 public:
     explicit ProtoTreeModel(QObject * parent = 0);
 
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     QModelIndex index(int row, int, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &index) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
