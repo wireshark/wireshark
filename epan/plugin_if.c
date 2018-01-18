@@ -241,8 +241,8 @@ ext_toolbar_compare(gconstpointer  a, gconstpointer  b)
     if ( !a || !b )
         return -1;
 
-    ext_toolbar_t * ta = (ext_toolbar_t *)a;
-    ext_toolbar_t * tb = (ext_toolbar_t *)b;
+    const ext_toolbar_t * ta = (const ext_toolbar_t *)a;
+    const ext_toolbar_t * tb = (const ext_toolbar_t *)b;
 
     return strcmp(ta->name, tb->name);
 }
@@ -298,8 +298,8 @@ void ext_toolbar_unregister_toolbar(ext_toolbar_t * toolbar)
 static gint
 ext_toolbar_insert_sort(gconstpointer a, gconstpointer b)
 {
-    ext_toolbar_t * ca = (ext_toolbar_t *)a;
-    ext_toolbar_t * cb = (ext_toolbar_t *)b;
+    const ext_toolbar_t * ca = (const ext_toolbar_t *)a;
+    const ext_toolbar_t * cb = (const ext_toolbar_t *)b;
 
     if ( ca == 0 || cb == 0 )
         return 0;
@@ -371,11 +371,11 @@ ext_toolbar_search_label(gconstpointer tb, gconstpointer lbl)
     if ( ! tb || ! lbl )
         return -1;
 
-    ext_toolbar_t * toolbar = (ext_toolbar_t *) tb;
+    const ext_toolbar_t * toolbar = (const ext_toolbar_t *) tb;
     if ( toolbar->type != EXT_TOOLBAR_ITEM )
         return -2;
 
-    gchar * label = (gchar * )lbl;
+    const gchar * label = (const gchar * )lbl;
 
     return g_strcmp0(toolbar->name, label);
 }
@@ -417,8 +417,8 @@ ext_toolbar_find_item(gconstpointer a, gconstpointer b)
     if ( a == 0 || b == 0 )
         return -1;
 
-    ext_toolbar_update_list_t * item = (ext_toolbar_update_list_t *)a;
-    ext_toolbar_t * entry = (ext_toolbar_t *)b;
+    const ext_toolbar_update_list_t * item = (const ext_toolbar_update_list_t *)a;
+    const ext_toolbar_t * entry = (const ext_toolbar_t *)b;
 
     if ( item->item && g_strcmp0 ( item->item->name, entry->name ) == 0 )
         return 0;
