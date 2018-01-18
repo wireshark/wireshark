@@ -1100,16 +1100,18 @@ static gboolean
 sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
 	struct sharkd_expert_tap *etd = (struct sharkd_expert_tap *) tapdata;
-	expert_info_t *ei             = (expert_info_t *) pointer;
+	const expert_info_t *ei       = (const expert_info_t *) pointer;
+	expert_info_t *ei_copy;
 
-	ei = (expert_info_t *) g_memdup(ei, sizeof(*ei));
-	if (ei == NULL)
+	/* Note: this is a shallow copy */
+	ei_copy = (expert_info_t *) g_memdup(ei, sizeof(*ei));
+	if (ei_copy == NULL)
 		return FALSE;
 
-	ei->protocol = g_string_chunk_insert_const(etd->text, ei->protocol);
-	ei->summary  = g_string_chunk_insert_const(etd->text, ei->summary);
+	ei_copy->protocol = g_string_chunk_insert_const(etd->text, ei_copy->protocol);
+	ei_copy->summary  = g_string_chunk_insert_const(etd->text, ei_copy->summary);
 
-	etd->details = g_slist_prepend(etd->details, ei);
+	etd->details = g_slist_prepend(etd->details, ei_copy);
 
 	return TRUE;
 }
