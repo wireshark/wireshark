@@ -162,13 +162,15 @@ void ByteViewText::markAppendix(int start, int length)
 
 void ByteViewText::setMonospaceFont(const QFont &mono_font)
 {
-    mono_font_ = mono_font;
+    mono_font_ = QFont(mono_font);
+    mono_font_.setStyleStrategy(QFont::ForceIntegerMetrics);
 
-    const QFontMetricsF fm(mono_font);
+    const QFontMetricsF fm(mono_font_);
     font_width_  = fm.width('M');
 
-    setFont(mono_font);
-    layout_->setFont(mono_font);
+    setFont(mono_font_);
+    viewport()->setFont(mono_font_);
+    layout_->setFont(mono_font_);
 
     // We should probably use ProtoTree::rowHeight.
     line_height_ = fontMetrics().height();
@@ -181,7 +183,6 @@ void ByteViewText::paintEvent(QPaintEvent *)
 {
     QPainter painter(viewport());
     painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
-    painter.setFont(mono_font_);
 
     // Pixel offset of this row
     int row_y = 0;
@@ -205,13 +206,14 @@ void ByteViewText::paintEvent(QPaintEvent *)
 
     // Data rows
     int widget_height = height();
+    int leading = fontMetrics().leading();
     painter.save();
 
     x_pos_to_column_.clear();
     while( (int) (row_y + line_height_) < widget_height && offset < (int) data_.count()) {
         drawLine(&painter, offset, row_y);
         offset += row_width_;
-        row_y += line_height_;
+        row_y += line_height_ + leading;
     }
 
     painter.restore();
@@ -219,14 +221,16 @@ void ByteViewText::paintEvent(QPaintEvent *)
     // We can't do this in drawLine since the next line might draw over our rect.
     if (!hover_outlines_.isEmpty()) {
         qreal pen_width = 1.0;
-    #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-        pen_width = 1.0 / devicePixelRatio();
-    #endif
         QPen ho_pen;
         QColor ho_color = palette().text().color();
         ho_color.setAlphaF(0.5);
         ho_pen.setColor(ho_color);
         ho_pen.setWidthF(pen_width);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+        if (devicePixelRatio() > 1) {
+            pen_width = 0.5;
+        }
+#endif
 
         painter.save();
         painter.setPen(ho_pen);
@@ -451,7 +455,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     layout_->beginLayout();
     QTextLine tl = layout_->createLine();
     tl.setLineWidth(totalPixels());
-    tl.setPosition(QPointF(0.0, 0.0));
+    tl.setLeadingIncluded(true);
     layout_->endLayout();
     layout_->draw(painter, QPointF(0.0, row_y));
 }
@@ -464,7 +468,6 @@ bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int
     QTextLayout::FormatRange format_range;
     format_range.start = start;
     format_range.length = length;
-    format_range.format.setProperty(QTextFormat::LineHeight, line_height_);
     switch (mode) {
     case ModeNormal:
         return false;
@@ -482,7 +485,7 @@ bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int
         break;
     case ModeMarked:
         // XXX Should we get rid of byteViewMarkColor and just draw an
-        // overline + underline instead?
+        // outline instead?
         format_range.format.setForeground(ColorUtils::byteViewMarkColor(false));
         format_range.format.setBackground(ColorUtils::byteViewMarkColor(true));
         break;
