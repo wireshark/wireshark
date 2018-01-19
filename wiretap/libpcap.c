@@ -88,12 +88,8 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA
 	};
 #define N_SUBTYPES_STANDARD	G_N_ELEMENTS(subtypes_standard)
-	static const int subtypes_nsec[] = {
-		WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC
-	};
-#define N_SUBTYPES_NSEC		G_N_ELEMENTS(subtypes_nsec)
 #define MAX_FIGURES_OF_MERIT \
-	MAX(MAX(N_SUBTYPES_MODIFIED, N_SUBTYPES_STANDARD), N_SUBTYPES_NSEC)
+	MAX(N_SUBTYPES_MODIFIED, N_SUBTYPES_STANDARD)
 	int figures_of_merit[MAX_FIGURES_OF_MERIT];
 	const int *subtypes;
 	int n_subtypes;
@@ -362,80 +358,118 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	 * Oh, and if it has the standard magic number, it might, instead,
 	 * be a Nokia libpcap file, so we may need to try that if
 	 * neither normal nor ss990417 headers work.
+	 *
+	 * But don't do that if the input is a pipe; that would mean the
+	 * open won't complete until two packets have been written to
+	 * the pipe, unless the pipe is closed after one packet has
+	 * been written, so a program reading from the file won't see
+	 * the first packet until the second packet has been written.
 	 */
 	if (modified) {
 		/*
 		 * Well, we have the magic number from Alexey's
-		 * later two patches.  Try the subtypes for that.
+		 * later two patches.  Try the subtypes for that,
+		 * and fail if we're reading from a pipe.
 		 */
+		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 		subtypes = subtypes_modified;
 		n_subtypes = N_SUBTYPES_MODIFIED;
 	} else {
 		if (wth->file_tsprec == WTAP_TSPREC_NSEC) {
 			/*
 			 * We have nanosecond-format libpcap's magic
-			 * number.  Try the subtypes for that.
+			 * number.  There's only one format with that
+			 * magic number (if somebody comes up with
+			 * another one, we'll just refuse to support
+			 * it and tell them to ask The Tcpdump Group
+			 * for another magic number).
 			 */
-			subtypes = subtypes_nsec;
-			n_subtypes = N_SUBTYPES_NSEC;
+			wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC;
+			subtypes = NULL;
+			n_subtypes = 0;
 		} else {
 			/*
 			 * We have the regular libpcap magic number.
-			 * Try the subtypes for that.
+			 * Try the subtypes for that, unless we're
+			 * reading from a pipe, in which case we
+			 * just assume it's a regular libpcap file.
 			 */
+			wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 			subtypes = subtypes_standard;
 			n_subtypes = N_SUBTYPES_STANDARD;
 		}
 	}
 
 	/*
-	 * Try all the subtypes.
+	 * Do we have any subtypes to try?
 	 */
-	first_packet_offset = file_tell(wth->fh);
-	for (i = 0; i < n_subtypes; i++) {
-		wth->file_type_subtype = subtypes[i];
-		figures_of_merit[i] = libpcap_try(wth, err, err_info);
-		if (figures_of_merit[i] == -1) {
-			/*
-			 * Well, we couldn't even read it.
-			 * Give up.
-			 */
+	if (n_subtypes == 0) {
+		/*
+		 * No, so just use what we picked.
+		 */
+		goto done;
+	} else if (wth->ispipe) {
+		/*
+		 * It's a pipe, so use what we picked, unless we picked
+		 * WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, in which case we fail.
+		 */
+		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+			*err = WTAP_ERR_UNSUPPORTED;
+			*err_info = g_strdup("pcap: that type of pcap file can't be read from a pipe");
 			return WTAP_OPEN_ERROR;
 		}
-		if (figures_of_merit[i] == 0) {
-			/*
-			 * This format doesn't have any issues.
-			 * Put the seek pointer back, and finish.
-			 */
-			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
+		goto done;
+	} else {
+		first_packet_offset = file_tell(wth->fh);
+		for (i = 0; i < n_subtypes; i++) {
+			wth->file_type_subtype = subtypes[i];
+			figures_of_merit[i] = libpcap_try(wth, err, err_info);
+			if (figures_of_merit[i] == -1) {
+				/*
+				 * Well, we couldn't even read it.
+				 * Give up.
+				 */
 				return WTAP_OPEN_ERROR;
 			}
-			goto done;
-		}
+			if (figures_of_merit[i] == 0) {
+				/*
+				 * This format doesn't have any issues.
+				 * Put the seek pointer back, and finish,
+				 * using that format as the subtype.
+				 */
+				if (file_seek(wth->fh, first_packet_offset,
+				    SEEK_SET, err) == -1) {
+					return WTAP_OPEN_ERROR;
+				}
+				goto done;
+			}
 
-		/*
-		 * OK, we've recorded the figure of merit for this one;
-		 * go back to the first packet and try the next one.
-		 */
-		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-			return WTAP_OPEN_ERROR;
-		}
-	}
-
-	/*
-	 * OK, none are perfect; let's see which one is least bad.
-	 */
-	best_subtype = INT_MAX;
-	for (i = 0; i < n_subtypes; i++) {
-		/*
-		 * Is this subtype better than the last one we saw?
-		 */
-		if (figures_of_merit[i] < best_subtype) {
 			/*
-			 * Yes.  Choose it until we find a better one.
+			 * OK, we've recorded the figure of merit for this
+			 * one; go back to the first packet and try the
+			 * next one.
 			 */
-			wth->file_type_subtype = subtypes[i];
-			best_subtype = figures_of_merit[i];
+			if (file_seek(wth->fh, first_packet_offset, SEEK_SET,
+			    err) == -1) {
+				return WTAP_OPEN_ERROR;
+			}
+		}
+
+		/*
+		 * OK, none are perfect; let's see which one is least bad.
+		 */
+		best_subtype = INT_MAX;
+		for (i = 0; i < n_subtypes; i++) {
+			/*
+			 * Is this subtype better than the last one we saw?
+			 */
+			if (figures_of_merit[i] < best_subtype) {
+				/*
+				 * Yes.  Choose it until we find a better one.
+				 */
+				wth->file_type_subtype = subtypes[i];
+				best_subtype = figures_of_merit[i];
+			}
 		}
 	}
 

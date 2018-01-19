@@ -47,6 +47,7 @@ typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
 struct wtap {
     FILE_T                      fh;
     FILE_T                      random_fh;              /**< Secondary FILE_T for random access */
+    gboolean                    ispipe;                 /**< TRUE if the file is a pipe */
     int                         file_type_subtype;
     guint                       snapshot_length;
     struct Buffer               *frame_buffer;

@@ -720,6 +720,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 {
 	int	fd;
 	ws_statb64 statb;
+	gboolean ispipe = FALSE;
 	wtap	*wth;
 	unsigned int	i;
 	gboolean use_stdin = FALSE;
@@ -761,6 +762,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 			*err = WTAP_ERR_RANDOM_OPEN_PIPE;
 			return NULL;
 		}
+		ispipe = TRUE;
 	} else if (S_ISDIR(statb.st_mode)) {
 		/*
 		 * Return different errors for "this is a directory"
@@ -836,6 +838,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		wth->random_fh = NULL;
 
 	/* initialization */
+	wth->ispipe = ispipe;
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
