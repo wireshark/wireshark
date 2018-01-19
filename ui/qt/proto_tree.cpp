@@ -183,8 +183,6 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     decode_as_->setData(QVariant::fromValue(true));
 
-    // Set menu sensitivity and action data.
-    emit fieldSelected(&finfo);
     ctx_menu_.exec(event->globalPos());
     decode_as_->setData(QVariant());
 }
@@ -499,9 +497,10 @@ void ProtoTree::restoreSelectedField()
     autoScrollTo(cur_index);
 }
 
-const QString ProtoTree::toString(const QModelIndex &index) const
+const QString ProtoTree::toString(const QModelIndex &start_idx) const
 {
-    QModelIndex cur_idx = index.isValid() ? index : proto_tree_model_->index(0, 0);
+    QModelIndex cur_idx = start_idx.isValid() ? start_idx : proto_tree_model_->index(0, 0);
+    QModelIndex stop_idx = proto_tree_model_->index(cur_idx.row() + 1, 0, cur_idx.parent());
     QString tree_string;
     int indent_level = 0;
 
@@ -524,7 +523,7 @@ const QString ProtoTree::toString(const QModelIndex &index) const
         // Next parent
         cur_idx = proto_tree_model_->index(cur_idx.parent().row() + 1, 0, cur_idx.parent().parent());
         indent_level--;
-    } while (cur_idx.isValid() && cur_idx != index && indent_level >= 0);
+    } while (cur_idx.isValid() && cur_idx.internalPointer() != stop_idx.internalPointer() && indent_level >= 0);
 
     return tree_string;
 }

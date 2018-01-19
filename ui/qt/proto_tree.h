@@ -38,7 +38,7 @@ public:
     void clear();
     void closeContextMenu();
     void restoreSelectedField();
-    const QString toString(const QModelIndex &index = QModelIndex()) const;
+    const QString toString(const QModelIndex &start_idx = QModelIndex()) const;
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
