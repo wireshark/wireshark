@@ -281,6 +281,7 @@ static void extcap_free_toolbar_control(iface_toolbar_control *c) {
     g_free(c->validation);
     g_free(c->tooltip);
     g_free(c->placeholder);
+    g_free(c);
 }
 
 void extcap_free_arg_list(GList *a) {
