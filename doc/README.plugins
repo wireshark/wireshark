@@ -1,4 +1,15 @@
-1. Plugins
+0. Plugins
+
+There are a multitude of plugin options available in Wireshark that allow to
+extend its functionality without changing the source code itself.  Using the
+available APIs gives you the means to do this.
+
+Currently plugin APIs are available for dissectors (epan), capture file types
+(wiretap) and media decoders (codecs).  This README focuses primarily on
+dissector plugins; most of the descriptions are applicable to the other plugin
+types as well.
+
+1. Dissector plugins
 
 Writing a "plugin" dissector is not very different from writing a standard
 one.  In fact all of the functions described in README.dissector can be
@@ -14,7 +25,7 @@ of "foo" below should be replaced by the name of your plugin.
 
 2. The directory for the plugin, and its files
 
-The plugin should be placed in a new plugins/foo directory which should
+The plugin should be placed in a new plugins/epan/foo directory which should
 contain at least the following files:
 
 CMakeLists.txt
@@ -27,21 +38,21 @@ Optionally you can add your own plugin.rc.in.
 
 And of course the source and header files for your dissector.
 
-Examples of these files can be found in plugins/gryphon.
+Examples of these files can be found in plugins/epan/gryphon.
 
 2.1 CMakeLists.txt
 
-For your plugins/foo/CMakeLists.txt file, see the corresponding file in
-plugins/gryphon.  Replace all occurrences of "gryphon" in those files
+For your plugins/epan/foo/CMakeLists.txt file, see the corresponding file in
+plugins/epan/gryphon.  Replace all occurrences of "gryphon" in those files
 with "foo" and add your source files to the DISSECTOR_SRC variable.
 
 2.2 Makefile.am
 
-For your plugins/foo/Makefile.am file, see the corresponding file in
-plugins/gryphon.  Replace all occurrences of "gryphon" in those files
+For your plugins/epan/foo/Makefile.am file, see the corresponding file in
+plugins/epan/gryphon.  Replace all occurrences of "gryphon" in those files
 with "foo".
 
-Your plugins/foo/Makefile.am also needs to list the main source file
+Your plugins/epan/foo/Makefile.am also needs to list the main source file
 which exports plugin_register() for your dissector in the
 DISSECTOR_SRC variable.  All other supporting source files should be
 listed in the DISSECTOR_SUPPORT_SRC variable.
@@ -50,7 +61,7 @@ DISSECTOR_INCLUDES variable.
 
 2.4 plugin.rc.in
 
-Your plugins/foo/plugin.rc.in is the Windows resource template file used
+Your plugins/epan/foo/plugin.rc.in is the Windows resource template file used
 to add the plugin specific information as resources to the DLL.
 If not provided the plugins/plugin.rc.in file will be used.
 
@@ -72,18 +83,18 @@ If you want to add the plugin to your own Windows installer add a text
 file named custom_plugins.txt to the packaging/nsis directory, with a
 "File" statement for NSIS:
 
-File "..\..\plugins\foo\foo.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\foo.dll"
 
 For CMake builds, either pass the custom plugin dir on the CMake generation
 step command line:
 
-CMake ... -DCUSTOM_PLUGIN_SRC_DIR="plugins/foo"
+CMake ... -DCUSTOM_PLUGIN_SRC_DIR="plugins/epan/foo"
 
 or copy the top-level file CMakeListsCustom.txt.example to CMakeListsCustom.txt
 (also in the top-level source dir) and edit so that CUSTOM_PLUGIN_SRC_DIR is
 set() to the relative path of your plugin, e.g.
 
-set(CUSTOM_PLUGIN_SRC_DIR plugins/foo)
+set(CUSTOM_PLUGIN_SRC_DIR plugins/epan/foo)
 
 and re-run the CMake generation step.
 
@@ -115,10 +126,10 @@ The plugins directory contains a Makefile.am.  You need to add to SUBDIRS
 
 SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	...
-	ethercat \
-	foo \
-	gryphon \
-	irda \
+	epan/ethercat \
+	epan/foo \
+	epan/gryphon \
+	epan/irda \
 
 
 3.2.2  Changes to the top level configure.ac
@@ -128,10 +139,10 @@ AC_OUTPUT rule in the configure.ac
 
 AC_OUTPUT(
   ...
-  plugins/ethercat/Makefile
-  plugins/foo/Makefile
-  plugins/gryphon/Makefile
-  plugins/irda/Makefile
+  plugins/epan/ethercat/Makefile
+  plugins/epan/foo/Makefile
+  plugins/epan/gryphon/Makefile
+  plugins/epan/irda/Makefile
   ...
   ,)
 
@@ -142,12 +153,12 @@ order) to plugin_src:
 
 plugin_src = \
         ...
-	../plugins/ethercat/packet-ioraw.c \
-	../plugins/ethercat/packet-nv.c \
-	../plugins/foo/packet-foo.c \
-	../plugins/gryphon/packet-gryphon.c \
-	../plugins/irda/packet-ircomm.c \
-	../plugins/irda/packet-irda.c \
+	../plugins/epan/ethercat/packet-ioraw.c \
+	../plugins/epan/ethercat/packet-nv.c \
+	../plugins/epan/foo/packet-foo.c \
+	../plugins/epan/gryphon/packet-gryphon.c \
+	../plugins/epan/irda/packet-ircomm.c \
+	../plugins/epan/irda/packet-irda.c \
         ...
 
 3.2.4  Changes to CMakeLists.txt
@@ -158,10 +169,10 @@ if(ENABLE_PLUGINS)
         ...
         set(PLUGIN_SRC_DIRS
                 ...
-                plugins/ethercat
-                plugins/foo
-                plugins/gryphon
-                plugins/irda
+                plugins/epan/ethercat
+                plugins/epan/foo
+                plugins/epan/gryphon
+                plugins/epan/irda
                 ...
 
 3.2.5  Changes to the installers
@@ -174,10 +185,10 @@ in the NSIS installer wireshark.nsi file.
 Add the relative path of your plugin DLL (in alphbetical order) to the
 list of "File" statements in the "Dissector Plugins" section:
 
-File "${STAGING_DIR}\plugins\${VERSION}\ethercat.dll"
-File "${STAGING_DIR}\plugins\${VERSION}\foo.dll"
-File "${STAGING_DIR}\plugins\${VERSION}\gryphon.dll"
-File "${STAGING_DIR}\plugins\${VERSION}\irda.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\ethercat.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\foo.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\gryphon.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\irda.dll"
 
 3.2.5.2  Other installers
 
@@ -296,9 +307,9 @@ is encouraged to update their plugins as outlined below:
 
 6 How to plugin related interface options
 
-To demonstrate the functionality of the plugin interface options, a demonstration
-plugin exists (pluginifdemo). To build it using cmake, the build option ENABLE_PLUGINIFDEMO
-has to be enabled.
+To demonstrate the functionality of the plugin interface options, a
+demonstration plugin exists (pluginifdemo). To build it using cmake, the
+build option ENABLE_PLUGINIFDEMO has to be enabled.
 
 6.1 Implement a plugin GUI menu
 
@@ -346,8 +357,8 @@ For a more detailed information, please refer to plugin_if.h
 6.2 Implement interactions with the main interface
 
 Due to memory constraints on most platforms, plugin functionality cannot be
-called directly from a DLL context. Instead special functions will be used, which
-will implement certain options for plugins to utilize.
+called directly from a DLL context. Instead special functions will be used,
+which will implement certain options for plugins to utilize.
 
 The following methods exist so far:
 

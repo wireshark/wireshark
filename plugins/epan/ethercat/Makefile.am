@@ -19,7 +19,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include $(top_srcdir)/Makefile.am.inc
-include $(top_srcdir)/plugins/Makefile.am.inc
+include $(top_srcdir)/plugins/epan/Makefile.am.inc
 
 # the name of the plugin
 PLUGIN_NAME = ethercat
