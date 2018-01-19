@@ -65,10 +65,10 @@ wsp_reset_hash(gchar *key _U_ , wsp_status_code_t *data, gpointer ptr _U_)
 	data->packets = 0;
 }
 static void
-wsp_print_statuscode(gint *key, wsp_status_code_t *data, char *format)
+wsp_print_statuscode(gpointer key, wsp_status_code_t *data, char *format)
 {
 	if (data && (data->packets != 0))
-		printf(format, *key, data->packets , data->name);
+		printf(format, GPOINTER_TO_INT(key), data->packets , data->name);
 }
 static void
 wsp_free_hash_table( gpointer key, gpointer value, gpointer user_data _U_ )
@@ -135,19 +135,17 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 	int retour = 0;
 
 	if (value->status_code != 0) {
-		gint *key = g_new(gint, 1);
 		wsp_status_code_t *sc;
-		*key = value->status_code ;
 		sc = (wsp_status_code_t *)g_hash_table_lookup(
 				sp->hash,
-				key);
+				GINT_TO_POINTER(value->status_code));
 		if (!sc) {
 			sc = g_new(wsp_status_code_t, 1);
 			sc -> packets = 1;
 			sc -> name = NULL;
 			g_hash_table_insert(
 				sp->hash,
-				key,
+				GINT_TO_POINTER(value->status_code),
 				sc);
 		} else {
 			sc->packets++;
@@ -228,7 +226,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 
 
 	sp = g_new(wspstat_t, 1);
-	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
+	sp->hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 	wsp_vals_status_p = VALUE_STRING_EXT_VS_P(&wsp_vals_status_ext);
 	for (i=0; wsp_vals_status_p[i].strptr; i++ )
 	{
