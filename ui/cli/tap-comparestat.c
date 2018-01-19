@@ -232,12 +232,15 @@ call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 
 	/* collect TTL's */
 	if (TTL_method && (fInfo->num < TTL_SEARCH)) {
+		gboolean found = FALSE;
 		for (i=0; i < cs->ip_ttl_list->len; i++) {
 			if (g_array_index(cs->ip_ttl_list, guint8, i) == fInfo->ip_ttl) {
-				return;
+				found = TRUE;
+				break;
 			}
 		}
-		g_array_append_val(cs->ip_ttl_list, fInfo->ip_ttl);
+		if (!found)
+			g_array_prepend_val(cs->ip_ttl_list, fInfo->ip_ttl);
 	}
 
 	g_free(pinfo->fd);
