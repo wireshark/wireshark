@@ -83,7 +83,6 @@ static int hf_quic_frame_type_ack_n = -1;
 static int hf_quic_frame_type_ack_ll = -1;
 static int hf_quic_frame_type_ack_mm = -1;
 static int hf_quic_frame_type_ack_num_blocks = -1;
-static int hf_quic_frame_type_ack_num_ts = -1;
 static int hf_quic_frame_type_ack_largest_acknowledged = -1;
 static int hf_quic_frame_type_ack_ack_delay = -1;
 static int hf_quic_frame_type_ack_ack_block_count = -1;
@@ -93,17 +92,12 @@ static int hf_quic_frame_type_ack_ack_block = -1;
 static int hf_quic_frame_type_ack_fabl = -1;
 static int hf_quic_frame_type_ack_gap2nb = -1;
 static int hf_quic_frame_type_ack_ack_block_length = -1;
-static int hf_quic_frame_type_ack_dla = -1;
-static int hf_quic_frame_type_ack_ft = -1;
-static int hf_quic_frame_type_ack_tspt = -1;
 
 static int hf_quic_frame_type_padding_length = -1;
 static int hf_quic_frame_type_padding = -1;
 static int hf_quic_frame_type_rsts_stream_id = -1;
-static int hf_quic_frame_type_rsts_error_code = -1;
 static int hf_quic_frame_type_rsts_application_error_code = -1;
 static int hf_quic_frame_type_rsts_final_offset = -1;
-static int hf_quic_frame_type_cc_old_error_code = -1;
 static int hf_quic_frame_type_cc_error_code = -1;
 static int hf_quic_frame_type_cc_reason_phrase_length = -1;
 static int hf_quic_frame_type_cc_reason_phrase = -1;
@@ -124,7 +118,6 @@ static int hf_quic_frame_type_nci_sequence = -1;
 static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 static int hf_quic_frame_type_ss_stream_id = -1;
-static int hf_quic_frame_type_ss_error_code = -1;
 static int hf_quic_frame_type_ss_application_error_code = -1;
 static int hf_quic_frame_type_pong_length = -1;
 static int hf_quic_frame_type_pong_data = -1;
@@ -186,9 +179,6 @@ static const value_string quic_long_packet_type_vals[] = {
     { 0x04, "Server Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
     { 0x05, "Client Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
     { 0x06, "0-RTT Protected" },  /* Replaced in draft-08 by 0x7C (0-RTT Protected) */
-    { 0x07, "1-RTT Protected (key phase 0)" }, /* Removed in draft-07 */
-    { 0x08, "1-RTT Protected (key phase 1)" }, /* Removed in draft-07 */
-    { 0x09, "Public Reset" }, /* Removed in draft-06*/
     { 0x7F, "Initial" },
     { 0x7E, "Retry" },
     { 0x7D, "Handshake" },
@@ -299,43 +289,6 @@ static const value_string len_ack_block_vals[] = {
 #define FTFLAGS_STREAM_FIN 0x01
 #define FTFLAGS_STREAM_LEN 0x02
 #define FTFLAGS_STREAM_OFF 0x04
-
-/* draft05-06 */
-#define QUIC_OLD_NO_ERROR                   0x80000000
-#define QUIC_OLD_INTERNAL_ERROR             0x80000001
-#define QUIC_OLD_CANCELLED                  0x80000002
-#define QUIC_OLD_FLOW_CONTROL_ERROR         0x80000003
-#define QUIC_OLD_STREAM_ID_ERROR            0x80000004
-#define QUIC_OLD_STREAM_STATE_ERROR         0x80000005
-#define QUIC_OLD_FINAL_OFFSET_ERROR         0x80000006
-#define QUIC_OLD_FRAME_FORMAT_ERROR         0x80000007
-#define QUIC_OLD_TRANSPORT_PARAMETER_ERROR  0x80000008
-#define QUIC_OLD_VERSION_NEGOTIATION_ERROR  0x80000009
-#define QUIC_OLD_PROTOCOL_VIOLATION         0x8000000A
-
-/* QUIC TLS Error */
-#define QUIC_OLD_TLS_HANDSHAKE_FAILED       0xC000001C
-#define QUIC_OLD_TLS_FATAL_ALERT_GENERATED  0xC000001D
-#define QUIC_OLD_TLS_FATAL_ALERT_RECEIVED   0xC000001E
-
-static const value_string quic_old_error_code_vals[] = {
-    { QUIC_OLD_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error)" },
-    { QUIC_OLD_INTERNAL_ERROR, "INTERNAL_ERROR (The endpoint encountered an internal error and cannot continue with the connection)" },
-    { QUIC_OLD_CANCELLED, "CANCELLED (An endpoint sends this with RST_STREAM to indicate that the stream is not wanted and that no application action was taken for the stream)" },
-    { QUIC_OLD_FLOW_CONTROL_ERROR, "FLOW_CONTROL_ERROR (An endpoint received more data than An endpoint received more data tha)" },
-    { QUIC_OLD_STREAM_ID_ERROR, "STREAM_ID_ERROR (An endpoint received a frame for a stream identifier that exceeded its advertised maximum stream ID)" },
-    { QUIC_OLD_STREAM_STATE_ERROR, "STREAM_STATE_ERROR (An endpoint received a frame for a stream that was not in a state that permitted that frame)" },
-    { QUIC_OLD_FINAL_OFFSET_ERROR, "FINAL_OFFSET_ERROR (An endpoint received a STREAM frame containing data that exceeded the previously established final offset)" },
-    { QUIC_OLD_FRAME_FORMAT_ERROR, "FRAME_FORMAT_ERROR (An endpoint received a frame that was badly formatted)" },
-    { QUIC_OLD_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
-    { QUIC_OLD_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
-    { QUIC_OLD_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
-    { QUIC_OLD_TLS_HANDSHAKE_FAILED, "TLS_HANDSHAKE_FAILED (The TLS handshake failed)" },
-    { QUIC_OLD_TLS_FATAL_ALERT_GENERATED, "TLS_FATAL_ALERT_GENERATED (A TLS fatal alert was sent, causing the TLS connection to end prematurel)" },
-    { QUIC_OLD_TLS_FATAL_ALERT_RECEIVED, "TLS_FATAL_ALERT_RECEIVED (A TLS fatal alert was received, causing the TLS connection to end prematurely)" },
-    { 0, NULL }
-};
-static value_string_ext quic_old_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_old_error_code_vals);
 
 /* > draft 07 */
 #define QUIC_NO_ERROR                   0x0000
@@ -539,7 +492,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
     } else if (frame_type >= FT_ACK_MIN && frame_type <= FT_ACK_MAX ){
         guint32 len_largest_acknowledged = 0, len_ack_block = 0;
-        guint8 num_blocks = 0, num_ts = 0;
+        guint8 num_blocks = 0;
 
         ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
         proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack, tvb, offset, 1, ENC_NA);
@@ -556,12 +509,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             offset += 1;
         }
 
-        /* No longer Timestamps Block with draft07 */
-        if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_ts, tvb, offset, 1, ENC_NA);
-            num_ts = tvb_get_guint8(tvb , offset);
-            offset += 1;
-        }
         proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_acknowledged, tvb, offset, len_largest_acknowledged, ENC_BIG_ENDIAN);
         offset += len_largest_acknowledged;
 
@@ -584,35 +531,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             offset += len_ack_block;
 
             num_blocks--;
-        }
-
-        if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
-            /* Timestamp Section */
-            if(num_ts){
-
-                /* Delta Largest Acknowledged */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_dla, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-
-                /* First Timestamp */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ft, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-
-                num_ts--;
-                /* Repeated "Num Timestamps - 1" */
-                while(num_ts){
-
-                    /* Delta Largest Acknowledged */
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_dla, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-
-                    /* Time Since Previous Timestamp*/
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_tspt, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-
-                    num_ts--;
-                }
-            }
         }
 
     } else { /* it is not STREAM or ACK Frame (<= draft-07)*/
@@ -652,13 +570,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                     offset += len_streamid;
                 }
 
-                if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
-                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
-                    offset += 4;
-                } else {
-                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
-                    offset += 2;
-                }
+                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+                offset += 2;
 
                 if(quic_info-> version <= 0xFF000007) {
                     proto_tree_add_item(ft_tree, hf_quic_frame_type_rsts_final_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -671,11 +584,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
                 proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
 
-                if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
-                    proto_item_set_len(ti_ft, 1 + 4 + 4 + 8);
-                } else {
-                    proto_item_set_len(ti_ft, 1 + len_streamid + 2 + len_finaloffset);
-                }
+                proto_item_set_len(ti_ft, 1 + len_streamid + 2 + len_finaloffset);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "RST STREAM, ");
 
@@ -685,13 +594,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 guint32 len_reasonphrase, error_code;
                 guint64 len_reason = 0;
 
-                if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
-                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_old_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
-                    offset += 4;
-                } else { /* Only 2 bytes with draft07 */
-                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
-                    offset += 2;
-                }
+                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+                offset += 2;
+
                 if (quic_info->version <= 0xff000007) {
                     proto_tree_add_item_ret_uint64(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len_reason);
                     offset += 2;
@@ -703,12 +608,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
                 offset += (guint32)len_reason;
 
-                proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_old_error_code_vals_ext, "Unknown (%d)"));
-                if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
-                    proto_item_set_len(ti_ft, 1 + 4 + 2 + (guint32)len_reason);
-                } else {
-                    proto_item_set_len(ti_ft, 1 + 2 + len_reasonphrase + (guint32)len_reason);
-                }
+                proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
+                proto_item_set_len(ti_ft, 1 + 2 + len_reasonphrase + (guint32)len_reason);
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Connection Close");
 
             }
@@ -906,17 +807,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                    offset += len_streamid;
                 }
 
-                if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
 
-                    proto_item_set_len(ti_ft, 1 + len_streamid + 4);
-                } else {
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-
-                    proto_item_set_len(ti_ft, 1 + len_streamid + 2);
-                }
+                proto_item_set_len(ti_ft, 1 + len_streamid + 2);
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
 
             }
@@ -1252,64 +1146,51 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     /*  Client Initial (0x02), Server Stateless Retry (0x03), Server ClearText (0x04),
         Client ClearText (0x05) and Public Reset (0x09) */
     } else if(long_packet_type <= 0x05 || long_packet_type == 0x09) {
-        if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) { /* draft05 and draft06 use FNV Protection */
-            /* All Unprotected have 8 bytes with FNV-1a has (See QUIC-TLS) */
-            payload_tvb = tvb_new_subset_length(tvb, 0, tvb_reported_length(tvb) - 8);
+        proto_item *ti;
 
-            while(tvb_reported_length_remaining(payload_tvb, offset) > 0){
-                offset = dissect_quic_frame_type(payload_tvb, pinfo, quic_tree, offset, quic_info);
-            }
+        /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
+        DISSECTOR_ASSERT(offset == QUIC_LONG_HEADER_LENGTH);
 
-            /* FNV-1a hash, TODO: Add check and expert info ? */
-            proto_tree_add_item(quic_tree, hf_quic_hash, tvb, offset, 8, ENC_NA);
-            offset += 8;
-        } else { /* Now use Clear Text AEAD */
-            proto_item *ti;
-
-            /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
-            DISSECTOR_ASSERT(offset == QUIC_LONG_HEADER_LENGTH);
-
-            ti = proto_tree_add_item(quic_tree, hf_quic_cleartext_protected_payload, tvb, offset, -1, ENC_NA);
-            offset += tvb_reported_length_remaining(tvb, offset);
+        ti = proto_tree_add_item(quic_tree, hf_quic_cleartext_protected_payload, tvb, offset, -1, ENC_NA);
+        offset += tvb_reported_length_remaining(tvb, offset);
 
 #ifdef HAVE_LIBGCRYPT_AEAD
-            tls13_cipher *cipher = NULL;
-            const gchar *error = NULL;
-            tvbuff_t *decrypted_tvb;
+        tls13_cipher *cipher = NULL;
+        const gchar *error = NULL;
+        tvbuff_t *decrypted_tvb;
 
-            switch (long_packet_type) {
-            case 0x02: /* Client Initial Packet */
-                /* Create new decryption context based on the Client Connection
-                 * ID from the Client Initial packet. */
-                if (!quic_create_cleartext_decoders(cid, &error, quic_info)) {
-                    expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
-                    return offset;
-                }
-                /* FALLTHROUGH */
-            case 0x05: /* Client Cleartext Packet */
-                cipher = quic_info->client_cleartext_cipher;
-                break;
-            case 0x03: /* Server Stateless Retry Packet */
-            case 0x04: /* Server Cleartext Packet */
-                cipher = quic_info->server_cleartext_cipher;
-                break;
+        switch (long_packet_type) {
+        case 0x02: /* Client Initial Packet */
+            /* Create new decryption context based on the Client Connection
+             * ID from the Client Initial packet. */
+            if (!quic_create_cleartext_decoders(cid, &error, quic_info)) {
+                expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
+                return offset;
             }
-
-            if (cipher) {
-                decrypted_tvb = quic_decrypt_message(cipher, tvb, pinfo, QUIC_LONG_HEADER_LENGTH, pkn, &error);
-                if (decrypted_tvb) {
-                    guint decrypted_offset = 0;
-                    while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0){
-                        decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, quic_tree, decrypted_offset, quic_info);
-                    }
-                } else {
-                    expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to decrypt handshake: %s", error);
-                }
-            }
-#else /* !HAVE_LIBGCRYPT_AEAD */
-            expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
-#endif /* !HAVE_LIBGCRYPT_AEAD */
+            /* FALLTHROUGH */
+        case 0x05: /* Client Cleartext Packet */
+            cipher = quic_info->client_cleartext_cipher;
+            break;
+        case 0x03: /* Server Stateless Retry Packet */
+        case 0x04: /* Server Cleartext Packet */
+            cipher = quic_info->server_cleartext_cipher;
+            break;
         }
+
+        if (cipher) {
+            decrypted_tvb = quic_decrypt_message(cipher, tvb, pinfo, QUIC_LONG_HEADER_LENGTH, pkn, &error);
+            if (decrypted_tvb) {
+                guint decrypted_offset = 0;
+                while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0){
+                    decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, quic_tree, decrypted_offset, quic_info);
+                }
+            } else {
+                expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to decrypt handshake: %s", error);
+            }
+        }
+#else /* !HAVE_LIBGCRYPT_AEAD */
+        expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
+#endif /* !HAVE_LIBGCRYPT_AEAD */
     /* Initial (>= draft-08) */
     } else if (long_packet_type == 0x7F) {
         proto_item *ti;
@@ -1711,11 +1592,6 @@ proto_register_quic(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Specifying the number of additional ACK blocks (besides the required First ACK Block)", HFILL }
         },
-        { &hf_quic_frame_type_ack_num_ts,
-          { "Num Timestamps", "quic.frame_type.ack.num_ts",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Specifying the total number of <packet number, timestamp> pairs in the Timestamp Section", HFILL }
-        },
         { &hf_quic_frame_type_ack_largest_acknowledged,
           { "Largest Acknowledged", "quic.frame_type.ack.largest_acknowledged",
             FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -1761,21 +1637,6 @@ proto_register_quic(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicates the number of contiguous packets being acknowledged starting after the end of the previous gap", HFILL }
         },
-        { &hf_quic_frame_type_ack_dla,
-          { "Delta Largest Acknowledged", "quic.frame_type.ack.dla",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Specifying the delta between the largest acknowledged and the first packet whose timestamp is being reported", HFILL }
-        },
-        { &hf_quic_frame_type_ack_ft,
-          { "First Timestamp", "quic.frame_type.ack.ft",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Specifying the time delta in microseconds, from the beginning of the connection to the arrival of the packet indicated by Delta Largest Acknowledged", HFILL }
-        },
-        { &hf_quic_frame_type_ack_tspt,
-          { "Time Since Previous Timestamp", "quic.frame_type.ack.tspt",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Specifying time delta from the previous reported timestamp. It is encoded in the same format as the ACK Delay", HFILL }
-        },
         /* PADDING */
         { &hf_quic_frame_type_padding_length,
           { "Padding Length", "quic.frame_type.padding.length",
@@ -1793,11 +1654,6 @@ proto_register_quic(void)
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Stream ID of the stream being terminated", HFILL }
         },
-        { &hf_quic_frame_type_rsts_error_code,
-            { "Error code", "quic.frame_type.rsts.error_code",
-              FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
-              "Indicates why the stream is being closed", HFILL }
-        },
         { &hf_quic_frame_type_rsts_application_error_code,
             { "Application Error code", "quic.frame_type.rsts.application_error_code",
               FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
@@ -1809,11 +1665,6 @@ proto_register_quic(void)
               "Indicating the absolute byte offset of the end of data written on this stream", HFILL }
         },
         /* CONNECTION_CLOSE */
-        { &hf_quic_frame_type_cc_old_error_code, /* draft05-06 */
-            { "Error code", "quic.frame_type.cc.error_code",
-              FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_old_error_code_vals_ext, 0x0,
-              "Indicates the reason for closing this connection", HFILL }
-        },
         { &hf_quic_frame_type_cc_error_code, /* >= draft07 */
             { "Error code", "quic.frame_type.cc.error_code",
               FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
@@ -1923,11 +1774,6 @@ proto_register_quic(void)
             { "Stream ID", "quic.frame_type.ss.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Stream ID of the stream being ignored", HFILL }
-        },
-        { &hf_quic_frame_type_ss_error_code,
-            { "Error code", "quic.frame_type.ss.error_code",
-              FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
-              "Indicates why the sender is ignoring the stream", HFILL }
         },
         { &hf_quic_frame_type_ss_application_error_code,
             { "Application Error code", "quic.frame_type.ss.application_error_code",
