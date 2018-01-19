@@ -171,6 +171,9 @@ static const value_string quic_short_packet_type_vals[] = {
     { 0x1D, "4 octet" },
     { 0, NULL }
 };
+#define QUIC_LPT_INITIAL    0x7F
+#define QUIC_LPT_RETRY      0x7E
+#define QUIC_LPT_HANDSHAKE  0x7D
 
 static const value_string quic_long_packet_type_vals[] = {
     { 0x01, "Version Negotiation" }, /* Removed in draft-08 by a check of Version (=0x00000000)*/
@@ -179,9 +182,9 @@ static const value_string quic_long_packet_type_vals[] = {
     { 0x04, "Server Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
     { 0x05, "Client Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
     { 0x06, "0-RTT Protected" },  /* Replaced in draft-08 by 0x7C (0-RTT Protected) */
-    { 0x7F, "Initial" },
-    { 0x7E, "Retry" },
-    { 0x7D, "Handshake" },
+    { QUIC_LPT_INITIAL, "Initial" },
+    { QUIC_LPT_RETRY, "Retry" },
+    { QUIC_LPT_HANDSHAKE, "Handshake" },
     { 0x7C, "0-RTT Protected" },
     { 0, NULL }
 };
@@ -1192,7 +1195,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
 #endif /* !HAVE_LIBGCRYPT_AEAD */
     /* Initial (>= draft-08) */
-    } else if (long_packet_type == 0x7F) {
+    } else if (long_packet_type == QUIC_LPT_INITIAL) {
         proto_item *ti;
 
         ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
@@ -1236,7 +1239,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         offset += tvb_reported_length_remaining(tvb, offset);
 
     /* Handshake (>= draft-08) */
-    } else if  (long_packet_type == 0x7D ) {
+    } else if  (long_packet_type == QUIC_LPT_HANDSHAKE ) {
         proto_item *ti;
 
         ti = proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
