@@ -286,8 +286,13 @@ static int hf_ieee1905_radio_restriction_chan_count = -1;
 static int hf_ieee1905_radio_restriction_channel = -1;
 static int hf_ieee1905_radio_restriction_min_separation = -1;
 static int hf_ieee1905_ap_metrics_agent_bssid = -1;
+static int hf_ieee1905_include_estimated_spi_ac_eq_be = -1;
+static int hf_ieee1905_include_estimated_spi_ac_eq_bk = -1;
+static int hf_ieee1905_include_estimated_spi_ac_eq_vo = -1;
+static int hf_ieee1905_include_estimated_spi_ac_eq_vi = -1;
 static int hf_ieee1905_ap_metrics_channel_utilization = -1;
 static int hf_ieee1905_ap_metrics_sta_count = -1;
+static int hf_ieee1905_ap_metrics_flags = -1;
 static int hf_ieee1905_ap_metrics_service_params_be = -1;
 static int hf_ieee1905_ap_metrics_service_params_bk = -1;
 static int hf_ieee1905_ap_metrics_service_params_vo = -1;
@@ -403,6 +408,7 @@ static gint ett_metric_reporting_policy_list = -1;
 static gint ett_metric_reporting_policy_tree = -1;
 static gint ett_metric_policy_flags = -1;
 static gint ett_ap_metric_query_bssid_list = -1;
+static gint ett_ieee1905_ap_metrics_flags = -1;
 static gint ett_sta_list_metrics_bss_list = -1;
 static gint ett_sta_list_metrics_bss_tree = -1;
 static gint ett_he_mcs_list = -1;
@@ -3775,10 +3781,24 @@ dissect_ap_metric_query(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect an STA MAC address type TLV
  */
+#define INCLUDE_ESTIMATED_SP_AC_EQ_BE 0x80
+#define INCLUDE_ESTIMATED_SP_AC_EQ_BK 0x40
+#define INCLUDE_ESTIMATED_SP_AC_EQ_VO 0x20
+#define INCLUDE_ESTIMATED_SP_AC_EQ_VI 0x10
+
 static int
 dissect_ap_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
+    guint8 presence_flags = 0;
+    static const int *flags[] = {
+        &hf_ieee1905_include_estimated_spi_ac_eq_be,
+        &hf_ieee1905_include_estimated_spi_ac_eq_bk,
+        &hf_ieee1905_include_estimated_spi_ac_eq_vo,
+        &hf_ieee1905_include_estimated_spi_ac_eq_vi,
+        NULL
+    };
+
     proto_tree_add_item(tree, hf_ieee1905_ap_metrics_agent_bssid,
                         tvb, offset, 6, ENC_NA);
     offset += 6;
@@ -3791,6 +3811,17 @@ dissect_ap_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    presence_flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                        hf_ieee1905_ap_metrics_flags,
+                        ett_ieee1905_ap_metrics_flags, flags, ENC_NA,
+                        BMT_NO_APPEND);
+    offset++;
+
+    /*
+     * This field should always be present, and the associated flag bit
+     * should be 1 (TODO:check that).
+     */
     proto_tree_add_item(tree, hf_ieee1905_ap_metrics_service_params_be,
                         tvb, offset, 3, ENC_NA);
     offset += 3;
@@ -3799,26 +3830,23 @@ dissect_ap_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
      * We should indicate an error if the field is too small. Also,
      * need to know the format of these fields.
      */
-    if (len <  15)  /* No more fields to deal with */
-        return offset + len - 12;
-
-    proto_tree_add_item(tree, hf_ieee1905_ap_metrics_service_params_bk,
+    if (presence_flags & INCLUDE_ESTIMATED_SP_AC_EQ_BK) {
+        proto_tree_add_item(tree, hf_ieee1905_ap_metrics_service_params_bk,
                         tvb, offset, 3, ENC_NA);
-    offset += 3;
+        offset += 3;
+    }
 
-    if (len < 18)  /* No more fields to deal with */
-        return offset + len - 15;
-
-    proto_tree_add_item(tree, hf_ieee1905_ap_metrics_service_params_vo,
+    if (presence_flags & INCLUDE_ESTIMATED_SP_AC_EQ_VO) {
+        proto_tree_add_item(tree, hf_ieee1905_ap_metrics_service_params_vo,
                         tvb, offset, 3, ENC_NA);
-    offset += 3;
+        offset += 3;
+    }
 
-    if (len < 21)  /* No more fields to deal with */
-        return offset + len - 18;
-
-    proto_tree_add_item(tree, hf_ieee1905_ap_metrics_service_params_vi,
+    if (presence_flags & INCLUDE_ESTIMATED_SP_AC_EQ_VI) {
+        proto_tree_add_item(tree, hf_ieee1905_ap_metrics_service_params_vi,
                         tvb, offset, 3, ENC_NA);
-    offset += 3;
+        offset += 3;
+    }
 
     return offset;
 }
@@ -5525,6 +5553,26 @@ proto_register_ieee1905(void)
           { "Minimum separation", "ieee1905.radio_restriction.min_sep",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_include_estimated_spi_ac_eq_be,
+          { "Include Estimated Service Parameters Information for AC=BE",
+             "ieee1905.ap_metrics.include_ac_eq_be_params",
+           FT_BOOLEAN, 8, TFS(&tfs_included_not_included), 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_include_estimated_spi_ac_eq_bk,
+          { "Include Estimated Service Parameters Information for AC=BK",
+             "ieee1905.ap_metrics.include_ac_eq_bk_params",
+           FT_BOOLEAN, 8, TFS(&tfs_included_not_included), 0x40, NULL, HFILL }},
+
+        { &hf_ieee1905_include_estimated_spi_ac_eq_vo,
+          { "Include Estimated Service Parameters Information for AC=VO",
+             "ieee1905.ap_metrics.include_ac_eq_vo_params",
+           FT_BOOLEAN, 8, TFS(&tfs_included_not_included), 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_include_estimated_spi_ac_eq_vi,
+          { "Include Estimated Service Parameters Information for AC=VI",
+             "ieee1905.ap_metrics.include_ac_eq_vi_params",
+           FT_BOOLEAN, 8, TFS(&tfs_included_not_included), 0x10, NULL, HFILL }},
+
         { &hf_ieee1905_ap_metrics_agent_bssid,
           { "Multi-AP agent BSSID", "ieee1905.ap_metrics.bssid",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -5536,6 +5584,10 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_ap_metrics_sta_count,
           { "BSS STA count", "ieee1905.ap_metrics.sta_count",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_metrics_flags,
+          { "Estimated Service Parameters Flags", "ieee1905.ap_metrics.flags",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_metrics_service_params_be,
           { "Estimated service parameters AC=BE", "ieee1905.ap_metrics.est_param_be",
@@ -5805,6 +5857,7 @@ proto_register_ieee1905(void)
         &ett_metric_reporting_policy_tree,
         &ett_metric_policy_flags,
         &ett_ap_metric_query_bssid_list,
+        &ett_ieee1905_ap_metrics_flags,
         &ett_sta_list_metrics_bss_list,
         &ett_sta_list_metrics_bss_tree,
         &ett_he_mcs_list,
