@@ -37,6 +37,7 @@
 #include "wimax_utils.h"
 
 void proto_register_wimax(void);
+void proto_reg_handoff_wimax(void);
 
 /* Global variables */
 gint	proto_wimax = -1;
