@@ -1103,11 +1103,14 @@ sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_
 	const expert_info_t *ei       = (const expert_info_t *) pointer;
 	expert_info_t *ei_copy;
 
-	/* Note: this is a shallow copy */
-	ei_copy = (expert_info_t *) g_memdup(ei, sizeof(*ei));
-	if (ei_copy == NULL)
+	if (ei == NULL)
 		return FALSE;
 
+	ei_copy = g_new(expert_info_t, 1);
+	/* Note: this is a shallow copy */
+	*ei_copy = *ei;
+
+	/* ei->protocol, ei->summary might be allocated in packet scope, make a copy. */
 	ei_copy->protocol = g_string_chunk_insert_const(etd->text, ei_copy->protocol);
 	ei_copy->summary  = g_string_chunk_insert_const(etd->text, ei_copy->summary);
 
