@@ -23,7 +23,8 @@
 
 /*
  * See https://quicwg.github.io/
- * https://tools.ietf.org/html/draft-ietf-quic-transport-05
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-08
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-08
  */
 
 #include <config.h>
