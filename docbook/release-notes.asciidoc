@@ -50,7 +50,7 @@ since version 2.4.0:
   Preferences -> Appearance -> Layout -> Show selected packet number.
 * File load time in the Status Bar is now disabled by default and can be enabled in
   Preferences -> Appearance -> Layout -> Show file load time.
-* Support for the G.729 codec in the RTP Player is now supported via the bcg729 library.
+* Support for the G.729A codec in the RTP Player is now added via the bcg729 library.
 * Support for hardware-timestamping of packets has been added.
 * Improved NetMon .cap support with comments, event tracing, network filter,
   network info types and some Message Analyzer exported types.
