@@ -855,10 +855,17 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
         store->data = addr;
 
-        if (info->direction == 1)
-            info = add_address(store, info, 1);
-        else if (info->direction == 2)
-            info = add_address(store, info, 2);
+        switch (info->direction) {
+            case 1:
+                info = add_address(store, info, 1);
+                break;
+            case 2:
+                info = add_address(store, info, 2);
+                break;
+            default:
+                g_free(store);
+                break;
+        }
 
         store = (address *)g_malloc(sizeof (address));
         store->type = tmp_info.dst.type;
@@ -867,10 +874,17 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
         store->data = addr;
 
-        if (info->direction == 1)
-            info = add_address(store, info, 2);
-        else if (info->direction == 2)
-            info = add_address(store, info, 1);
+        switch (info->direction) {
+            case 1:
+                info = add_address(store, info, 2);
+                break;
+            case 2:
+                info = add_address(store, info, 1);
+                break;
+            default:
+                g_free(store);
+                break;
+        }
 
         if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_ACK_CHUNK_ID) ||
                 ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID))
