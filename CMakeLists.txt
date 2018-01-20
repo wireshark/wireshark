@@ -1713,128 +1713,64 @@ if(WIN32)
 	# The cairo, freetype, gio, gnutls, png, and other OBS-generated DLLs
 	# depend on zlib1.dll. We compile zlib locally but the Debug
 	# configuration (the default) creates zlibd1.dll.
-	file (TO_NATIVE_PATH "${_dll_output_dir}" _dll_output_dir_win )
-	foreach( _dll ${GLIB2_DLLS} $<$<CONFIG:Debug>:zlib1.dll> )
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			# It would be really handy if copy, xcopy, or "cmake
-			# -E copy_if_different" supported multiple files
-			# separated by whitespace, or if robocpy had a sane
-			# notion of exit codes.
-			COMMAND if exist \"${_dll}\" xcopy ${_dll} "${_dll_output_dir_win}" /D /Y
-			WORKING_DIRECTORY "${GLIB2_DLL_DIR}"
-		)
-	endforeach(_dll)
+	# Note: Passing multiple files to copy_if_different requires
+	# CMake 3.5 or later.
+	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${GLIB2_DLLS} $<$<CONFIG:Debug>:zlib1.dll>
+			"${_dll_output_dir}"
+		WORKING_DIRECTORY "${GLIB2_DLL_DIR}"
+	)
 
-	# Optional
+	# Optional DLLs.
+	set (OPTIONAL_DLLS)
 	if (AIRPCAP_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${AIRPCAP_DLL_DIR}/${AIRPCAP_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${AIRPCAP_DLL_DIR}/${AIRPCAP_DLL}")
 	endif(AIRPCAP_FOUND)
 	if (CARES_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${CARES_DLL_DIR}/${CARES_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${CARES_DLL_DIR}/${CARES_DLL}")
 	endif(CARES_FOUND)
 	if (GEOIP_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${GEOIP_DLL_DIR}/${GEOIP_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${GEOIP_DLL_DIR}/${GEOIP_DLL}")
 	endif(GEOIP_FOUND)
 	if (LIBSSH_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${LIBSSH_DLL_DIR}/${LIBSSH_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${LIBSSH_DLL_DIR}/${LIBSSH_DLL}")
 	endif(LIBSSH_FOUND)
 	foreach( _dll ${GCRYPT_DLLS} )
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${GCRYPT_DLL_DIR}/${_dll}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${GCRYPT_DLL_DIR}/${_dll}")
 	endforeach(_dll)
-	if(GNUTLS_FOUND)
-		foreach( _dll ${GNUTLS_DLLS} )
-			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					"${GNUTLS_DLL_DIR}/${_dll}"
-					"${_dll_output_dir}"
-			)
-		endforeach(_dll)
-	endif(GNUTLS_FOUND)
-	if(KERBEROS_FOUND)
-		foreach( _dll ${KERBEROS_DLLS} )
-			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					"${KERBEROS_DLL_DIR}/${_dll}"
-					"${_dll_output_dir}"
-			)
-		endforeach(_dll)
-	endif(KERBEROS_FOUND)
+	foreach( _dll ${GNUTLS_DLLS} )
+		list (APPEND OPTIONAL_DLLS "${GNUTLS_DLL_DIR}/${_dll}")
+	endforeach(_dll)
+	foreach( _dll ${KERBEROS_DLLS} )
+		list (APPEND OPTIONAL_DLLS "${KERBEROS_DLL_DIR}/${_dll}")
+	endforeach(_dll)
 	if (LUA_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${LUA_DLL_DIR}/${LUA_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${LUA_DLL_DIR}/${LUA_DLL}")
 	endif(LUA_FOUND)
 	if (LZ4_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${LZ4_DLL_DIR}/${LZ4_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${LZ4_DLL_DIR}/${LZ4_DLL}")
 	endif(LZ4_FOUND)
 	if (NGHTTP2_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${NGHTTP2_DLL_DIR}/${NGHTTP2_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${NGHTTP2_DLL_DIR}/${NGHTTP2_DLL}")
 	endif(NGHTTP2_FOUND)
 	if (SBC_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${SBC_DLL_DIR}/${SBC_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${SBC_DLL_DIR}/${SBC_DLL}")
 	endif(SBC_FOUND)
 	if (SPANDSP_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${SPANDSP_DLL_DIR}/${SPANDSP_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${SPANDSP_DLL_DIR}/${SPANDSP_DLL}")
 	endif(SPANDSP_FOUND)
 	if (BCG729_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${BCG729_DLL_DIR}/${BCG729_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${BCG729_DLL_DIR}/${BCG729_DLL}")
 	endif(BCG729_FOUND)
 	if (LIBXML2_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${LIBXML2_DLL_DIR}/${LIBXML2_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${LIBXML2_DLL_DIR}/${LIBXML2_DLL}")
 	endif(LIBXML2_FOUND)
 	if (SMI_FOUND)
+		list (APPEND OPTIONAL_DLLS "${SMI_DLL_DIR}/${SMI_DLL}")
 		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
 		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${SMI_DLL_DIR}/${SMI_DLL}"
-				"${_dll_output_dir}"
 			COMMAND ${CMAKE_COMMAND} -E make_directory
 				"${_dll_output_dir}/snmp"
 			COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -1872,19 +1808,22 @@ if(WIN32)
 		)
 	endif(SMI_FOUND)
 	if (SNAPPY_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${SNAPPY_DLL_DIR}/${SNAPPY_DLL}"
-				"${_dll_output_dir}"
-		)
+		list (APPEND OPTIONAL_DLLS "${SNAPPY_DLL_DIR}/${SNAPPY_DLL}")
 	endif(SNAPPY_FOUND)
 	if (WINSPARKLE_FOUND)
+		list (APPEND OPTIONAL_DLLS "${WINSPARKLE_DLL_DIR}/${WINSPARKLE_DLL}")
+	endif(WINSPARKLE_FOUND)
+
+	# With libs downloaded to c:/wireshark-win64-libs this currently
+	# (early 2018) expands to about 1900 characters.
+	if (OPTIONAL_DLLS)
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${WINSPARKLE_DLL_DIR}/${WINSPARKLE_DLL}"
+				${OPTIONAL_DLLS}
 				"${_dll_output_dir}"
+			VERBATIM
 		)
-	endif(WINSPARKLE_FOUND)
+	endif(OPTIONAL_DLLS)
 
 	# This might not be needed since make-dissectors has the same dependency.
 	add_dependencies(epan copy_cli_dlls)
@@ -1957,7 +1896,7 @@ foreach(_install_file ${INSTALL_FILES})
 	get_filename_component(_install_basename "${_install_file}" NAME)
 	set(_output_file "${DATAFILE_DIR}/${_install_basename}")
 	add_custom_command(OUTPUT "${_output_file}"
-		COMMAND ${CMAKE_COMMAND} -E copy
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			"${_install_file_src}"
 			"${_output_file}"
 		DEPENDS
@@ -2027,7 +1966,7 @@ if(LUA_FOUND AND ENABLE_LUA)
 		list(APPEND copy_data_files_depends
 			"${DATAFILE_DIR}/${_lua_filename}")
 		add_custom_command(OUTPUT "${DATAFILE_DIR}/${_lua_filename}"
-			COMMAND ${CMAKE_COMMAND} -E copy
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
 				"${_lua_file}"
 				"${DATAFILE_DIR}/${_lua_filename}"
 			DEPENDS
@@ -2057,10 +1996,12 @@ list(APPEND DATA_FILES_SRC
 
 # Copy all paths from the source tree to the data directory. Directories are
 # automatically created if missing as the filename is given.
+# TODO Switch to cmake -E copy_if_different when our minimum CMake version
+# is >= 3.5 everywhere.
 file(GLOB _data_files RELATIVE "${CMAKE_SOURCE_DIR}" ${DATA_FILES_SRC})
 foreach(_data_file ${_data_files})
 	add_custom_command(OUTPUT "${DATAFILE_DIR}/${_data_file}"
-		COMMAND ${CMAKE_COMMAND} -E copy
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			"${CMAKE_SOURCE_DIR}/${_data_file}"
 			"${DATAFILE_DIR}/${_data_file}"
 		DEPENDS
