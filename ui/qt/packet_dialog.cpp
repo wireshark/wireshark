@@ -33,6 +33,7 @@
 PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) :
     WiresharkDialog(parent, cf),
     ui(new Ui::PacketDialog),
+    phdr_(wtap_pkthdr()),
     packet_data_(NULL)
 {
     ui->setupUi(this);
