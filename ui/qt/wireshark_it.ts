@@ -11417,22 +11417,22 @@ a:hover {
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Error</source>
-        <translation type="unfinished">Errore</translation>
+        <translation>Errore</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="121"/>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">Non è stata trovata alcuna interfaccia remota.</translation>
+        <translation>Non è stata trovata alcuna interfaccia remota.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <source>PCAP not found</source>
-        <translation type="unfinished">PCAP non trovate</translation>
+        <translation>PCAP non trovate</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore sconosciuto</translation>
     </message>
 </context>
 <context>

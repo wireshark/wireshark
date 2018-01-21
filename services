@@ -9706,6 +9706,7 @@ ionixnetmon      7410/tcp # Ionix Network Monitor [Maxime_Renaud] [Maxime_Renaud
 ionixnetmon      7410/udp # Ionix Network Monitor [Maxime_Renaud] [Maxime_Renaud] 2006-04
 daqstream        7411/tcp # Streaming of measurement data [Hottinger_Baldwin_Messtechnik_GmbH] [Stephan_Gatzka] 2013-03-15
 daqstream        7411/udp # Streaming of measurement data [Hottinger_Baldwin_Messtechnik_GmbH] [Stephan_Gatzka] 2013-03-15
+ipluminary       7420/udp # Multichannel real-time lighting control [Tristan_Seifert_3] [Tristan_Seifert_3] 2018-01-18
 mtportmon        7421/tcp # Matisse Port Monitor [Didier_Cabannes] [Didier_Cabannes] 2004-11
 mtportmon        7421/udp # Matisse Port Monitor [Didier_Cabannes] [Didier_Cabannes] 2004-11
 pmdmgr           7426/tcp # OpenView DM Postmaster Manager [Dave_Lamb] [Dave_Lamb]
@@ -9921,6 +9922,7 @@ teradataordbms   8002/tcp # Teradata ORDBMS [Curt_Ellmann] [Curt_Ellmann]
 teradataordbms   8002/udp # Teradata ORDBMS [Curt_Ellmann] [Curt_Ellmann]
 mcreport         8003/tcp # Mulberry Connect Reporting Service [Dave_Stoneham] [Dave_Stoneham] 2008-03-10
 mcreport         8003/udp # Mulberry Connect Reporting Service [Dave_Stoneham] [Dave_Stoneham] 2008-03-10
+p2pevolvenet     8004/tcp # Opensource Evolv Enterprise Platform P2P Network Node Connection Protocol [Tris_Puki] [Adrians_Borsteins] 2018-01-16
 mxi              8005/tcp # MXI Generation II for z/OS [Rob_Scott] [Rob_Scott] 2007-05
 mxi              8005/udp # MXI Generation II for z/OS [Rob_Scott] [Rob_Scott] 2007-05
 wpl-analytics    8006/tcp # World Programming analytics [World_Programming_Limited] [Thomas_Quarendon] 2017-04-04

@@ -11417,22 +11417,22 @@ text-decoration: underline;
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="121"/>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">Keine entfernte Schnittstelle gefunden.</translation>
+        <translation>Keine entfernte Schnittstelle gefunden.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <source>PCAP not found</source>
-        <translation type="unfinished">Kein PCAP gefunden</translation>
+        <translation>Kein PCAP gefunden</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
 </context>
 <context>
