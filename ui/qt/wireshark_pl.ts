@@ -1027,8 +1027,7 @@
     </message>
     <message>
         <source>pcapng</source>
-        <oldsource>pcap-ng</oldsource>
-        <translation type="unfinished">pcap-ng</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1323,8 +1322,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <oldsource>Capture packets in pcap-ng format</oldsource>
-        <translation type="unfinished">Zapisuj pakiety w formacie pcap-ng</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10896,6 +10894,10 @@ text-decoration: underline;
         <translation>Inicjacja kanałów komunikacyjnych</translation>
     </message>
     <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Registering dissectors</source>
         <translation>Rejestracja dekoderów</translation>
     </message>
@@ -10931,10 +10933,6 @@ text-decoration: underline;
     <message>
         <source>(Unknown action)</source>
         <translation>(Nieznana akcja)</translation>
-    </message>
-    <message>
-        <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

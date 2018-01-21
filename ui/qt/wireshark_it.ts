@@ -101,6 +101,32 @@
     </message>
 </context>
 <context>
+    <name>AdvancedPrefsModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="vanished">Nome</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation type="vanished">Stato</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="vanished">Tipo</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="vanished">Valore</translation>
+    </message>
+</context>
+<context>
+    <name>ApplyLineEdit</name>
+    <message>
+        <source>Apply changes</source>
+        <translation type="vanished">Applica modifiche</translation>
+    </message>
+</context>
+<context>
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
@@ -647,6 +673,17 @@
     </message>
 </context>
 <context>
+    <name>ByteViewText</name>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="vanished">Mostra byte in esadecimale</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="vanished">Mostra testo sulla base del pacchetto</translation>
+    </message>
+</context>
+<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -995,6 +1032,53 @@
     </message>
 </context>
 <context>
+    <name>CaptureFilterCombo</name>
+    <message>
+        <source>Capture filter selector</source>
+        <translation type="vanished">Selettore del file di cattura</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEdit</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="vanished">Voce del filtro di cattura</translation>
+    </message>
+    <message>
+        <source>Manage saved bookmarks.</source>
+        <translation type="vanished">Gestisci i segnalibri salvati.</translation>
+    </message>
+    <message>
+        <source>Apply this filter string to the display.</source>
+        <translation type="vanished">Applica questa stringa di filtro alla visualizzazione.</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="vanished">Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="vanished">&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="vanished">Digita un filtro di cattura %1</translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="vanished">Salva questo filtro</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="vanished">Rimuovi questo filtro</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="vanished">Gestisci fltri di cattura</translation>
+    </message>
+</context>
+<context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
@@ -1026,8 +1110,7 @@
     </message>
     <message>
         <source>pcapng</source>
-        <oldsource>pcap-ng</oldsource>
-        <translation type="unfinished">pcap-ng</translation>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1297,6 +1380,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
  if you want to use multiple files.</oldsource>
         <translation>File multipli: non è stato fornito alcun limite di file. Devi specificare una dimensione del file o l&apos;intervallo trascorso il quale si passa al successivo file di cattura se vuoi utilizzare diversi file.</translation>
     </message>
+    <message>
+        <source>pcap-ng</source>
+        <translation type="vanished">pcap-ng</translation>
+    </message>
 </context>
 <context>
     <name>CapturePreferencesFrame</name>
@@ -1322,8 +1409,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <oldsource>Capture packets in pcap-ng format</oldsource>
-        <translation type="unfinished">Cattura i pacchetti nel formato pcap-ng</translation>
+        <translation>Cattura i pacchetti nel formato pcapng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1343,7 +1429,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Disabilita le interfacce di cattura esterne</translation>
+    </message>
+    <message>
+        <source>Capture packets in pcap-ng format</source>
+        <translation type="vanished">Cattura i pacchetti nel formato pcap-ng</translation>
     </message>
 </context>
 <context>
@@ -1565,6 +1655,37 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
+    <name>DataPrinter</name>
+    <message>
+        <source>Copy Bytes as Hex + ASCII Dump</source>
+        <translation type="vanished">Copia byte come dump esadecimale + ASCII</translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a hex and ASCII dump.</source>
+        <translation type="vanished">Copia i byte del pacchetto come un dump esadecimale e ASCII.</translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a hex dump.</source>
+        <translation type="vanished">Copia i byte del pacchetto come dump esadecimale.</translation>
+    </message>
+    <message>
+        <source>Copy only the printable text in the packet.</source>
+        <translation type="vanished">Copia solo il testo stampabile nel pacchetto.</translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a stream of hex.</source>
+        <translation type="vanished">Copia i byte del pacchetto come un flusso esadecimale.</translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as application/octet-stream MIME data.</source>
+        <translation type="vanished">Copia i byte del pacchetto come dati MIME application/octet-stream.</translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as an escaped string.</source>
+        <translation type="vanished">Copia i byte del pacchetto come stringa letterale</translation>
+    </message>
+</context>
+<context>
     <name>DecodeAsDialog</name>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
@@ -1581,6 +1702,123 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Decode As</source>
         <translation>Decodifica come</translation>
+    </message>
+</context>
+<context>
+    <name>DecodeAsModel</name>
+    <message>
+        <source>Match using this field</source>
+        <translation type="vanished">Verifica utilizzando questo campo</translation>
+    </message>
+    <message>
+        <source>Current&quot;Decode As&quot; behavior</source>
+        <translation type="vanished">Comportamento attuale di &quot;Decodifica come&quot;</translation>
+    </message>
+    <message>
+        <source>Default &quot;Decode As&quot; behavior</source>
+        <translation type="vanished">Comportamento predefinito di &quot;Decodifica come&quot;</translation>
+    </message>
+    <message>
+        <source>Change behavior when the protocol field matches this value</source>
+        <translation type="vanished">Cambia il comportamento quando il campo del protocollo corrisponde a questo valore</translation>
+    </message>
+    <message>
+        <source>String</source>
+        <translation type="vanished">Stringa</translation>
+    </message>
+    <message>
+        <source>Integer, base </source>
+        <translation type="vanished">Intero, base </translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation type="vanished">sconosciuto</translation>
+    </message>
+    <message>
+        <source>&lt;none&gt;</source>
+        <translation type="vanished">&lt;none&gt;</translation>
+    </message>
+    <message>
+        <source>GUID</source>
+        <translation type="vanished">GUID</translation>
+    </message>
+    <message>
+        <source>Field</source>
+        <translation type="vanished">Campo</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="vanished">Valore</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="vanished">Tipo</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="vanished">Predefinito</translation>
+    </message>
+    <message>
+        <source>Current</source>
+        <translation type="vanished">Attuale</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterCombo</name>
+    <message>
+        <source>Display filter selector</source>
+        <translation type="vanished">Selettore del filtro di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Select from previously used filters.</source>
+        <translation type="vanished">Seleziona tra i filtri precedentemente utilizzati.</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEdit</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="vanished">Voce del filtro di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Manage saved bookmarks.</source>
+        <translation type="vanished">Gestisci i segnalibri salvati.</translation>
+    </message>
+    <message>
+        <source>Apply this filter string to the display.</source>
+        <translation type="vanished">Applica questa stringa di filtro alla visualizzazione.</translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="vanished">Applica un filtro di visualizzazione %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a display filter %1</source>
+        <translation type="vanished">Inserisci un filtro di visualizzazione %1</translation>
+    </message>
+    <message>
+        <source>Apply a read filter %1</source>
+        <translation type="vanished">Applica un filtro di lettura %1</translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
+        <translation type="vanished">Filtro non valido: </translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="vanished">Salva questo filtro</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="vanished">Rimuovi questo filtro</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="vanished">Gestisci filtri di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Manage Filter Expressions</source>
+        <translation type="vanished">Gestisci espressioni di filtro</translation>
     </message>
 </context>
 <context>
@@ -1678,6 +1916,41 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
+    <name>DissectorTablesProxyModel</name>
+    <message>
+        <source>Table Type</source>
+        <translation type="vanished">Tipo tabella</translation>
+    </message>
+    <message>
+        <source>String</source>
+        <translation type="vanished">Stringa</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="vanished">Decodificatore</translation>
+    </message>
+    <message>
+        <source>Integer</source>
+        <translation type="vanished">Intero</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation type="vanished">Protocollo</translation>
+    </message>
+    <message>
+        <source>Short Name</source>
+        <translation type="vanished">Nome breve</translation>
+    </message>
+    <message>
+        <source>Table Name</source>
+        <translation type="vanished">Nome tabella</translation>
+    </message>
+    <message>
+        <source>Selector Name</source>
+        <translation type="vanished">Nome selettore</translation>
+    </message>
+</context>
+<context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
@@ -1706,6 +1979,17 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Enabled Protocols</source>
         <translation>Protocolli abilitati</translation>
+    </message>
+</context>
+<context>
+    <name>EnabledProtocolsModel</name>
+    <message>
+        <source>Protocol</source>
+        <translation type="vanished">Protocollo</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="vanished">Descrizione</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +2112,33 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
+    <name>ExpertInfoProxyModel</name>
+    <message>
+        <source>Packet</source>
+        <translation type="vanished">Pacchetto</translation>
+    </message>
+    <message>
+        <source>Severity</source>
+        <translation type="vanished">Gravità</translation>
+    </message>
+    <message>
+        <source>Summary</source>
+        <translation type="vanished">Riepilogo</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="vanished">Gruppo</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation type="vanished">Protocollo</translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="vanished">Conteggio</translation>
+    </message>
+</context>
+<context>
     <name>ExportDissectionDialog</name>
     <message>
         <source>Export Packet Dissections</source>
@@ -1900,6 +2211,29 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
+    <name>ExportObjectModel</name>
+    <message>
+        <source>Packet</source>
+        <translation type="vanished">Pacchetto</translation>
+    </message>
+    <message>
+        <source>Hostname</source>
+        <translation type="vanished">Nome host</translation>
+    </message>
+    <message>
+        <source>Content Type</source>
+        <translation type="vanished">Tipo di contenuto</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="vanished">Dimensione</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="vanished">Nome del file</translation>
+    </message>
+</context>
+<context>
     <name>ExportPDUDialog</name>
     <message>
         <source>Dialog</source>
@@ -1946,6 +2280,21 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
+    <name>FieldFilterEdit</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="vanished">Voce del filtro di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Enter a field %1</source>
+        <translation type="vanished">Digita un campo %1</translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
+        <translation type="vanished">Filtro non valido: </translation>
+    </message>
+</context>
+<context>
     <name>FileSetDialog</name>
     <message>
         <source>Dialog</source>
@@ -1970,6 +2319,29 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
             <numerusform>%Ln file nel gruppo</numerusform>
             <numerusform>%Ln file nel gruppo</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>FilesetEntryModel</name>
+    <message>
+        <source>Open this capture file</source>
+        <translation type="vanished">Apri questo file di cattura</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="vanished">Nome del file</translation>
+    </message>
+    <message>
+        <source>Created</source>
+        <translation type="vanished">Creato</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation type="vanished">Modificato</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="vanished">Dimensione</translation>
     </message>
 </context>
 <context>
@@ -2068,6 +2440,17 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Invalid filter expression.</source>
         <translation>Espressioni di filtro non valida.</translation>
+    </message>
+</context>
+<context>
+    <name>FindLineEdit</name>
+    <message>
+        <source>Textual Find</source>
+        <translation type="vanished">Trova testuale</translation>
+    </message>
+    <message>
+        <source>Regular Expression Find</source>
+        <translation type="vanished">Trova con espressione regolare</translation>
     </message>
 </context>
 <context>
@@ -3498,7 +3881,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfacce di cattura esterne disabilitate.</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceSortFilterModel</name>
+    <message>
+        <source>No interfaces to be displayed. %1 interfaces hidden.</source>
+        <translation type="vanished">Nessuna interfaccia da visualizzare. %1 interfacce nascoste.</translation>
     </message>
 </context>
 <context>
@@ -3514,6 +3904,88 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Interface</source>
         <translation>Interfaccia</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceToolbarLineEdit</name>
+    <message>
+        <source>Apply changes</source>
+        <translation type="vanished">Applica modifiche</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceTreeModel</name>
+    <message>
+        <source>No Interfaces found.</source>
+        <translation type="vanished">Nessuna interfaccia trovata.</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation type="vanished">Mostra</translation>
+    </message>
+    <message>
+        <source>Friendly Name</source>
+        <translation type="vanished">Nome intuitivo</translation>
+    </message>
+    <message>
+        <source>Interface Name</source>
+        <translation type="vanished">Nome dell&apos;interfaccia</translation>
+    </message>
+    <message>
+        <source>Local Pipe Path</source>
+        <translation type="vanished">Percorso pipe locale</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation type="vanished">Commento</translation>
+    </message>
+    <message>
+        <source>Link-Layer Header</source>
+        <translation type="vanished">Intestazione livello di collegamento</translation>
+    </message>
+    <message>
+        <source>Promiscuous</source>
+        <translation type="vanished">Promiscua</translation>
+    </message>
+    <message>
+        <source>Snaplen (B)</source>
+        <translation type="vanished">Lunghezza di cattura (B)</translation>
+    </message>
+    <message>
+        <source>Buffer (MB)</source>
+        <translation type="vanished">Buffer (MB)</translation>
+    </message>
+    <message>
+        <source>Monitor Mode</source>
+        <translation type="vanished">Modalità di monitoraggio</translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="vanished">Filtro di cattura</translation>
+    </message>
+    <message>
+        <source>Addresses</source>
+        <translation type="vanished">Indirizzi</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="vanished">Indirizzo</translation>
+    </message>
+    <message>
+        <source>Extcap interface: %1</source>
+        <translation type="vanished">Interfaccia Extcap: %1</translation>
+    </message>
+    <message>
+        <source>No addresses</source>
+        <translation type="vanished">Nessun indirizzo</translation>
+    </message>
+    <message>
+        <source>No capture filter</source>
+        <translation type="vanished">Nessun filtro di cattura</translation>
+    </message>
+    <message>
+        <source>Capture filter</source>
+        <translation type="vanished">Filtro di cattura</translation>
     </message>
 </context>
 <context>
@@ -7666,6 +8138,17 @@ a:hover {
     </message>
 </context>
 <context>
+    <name>PacketListModel</name>
+    <message>
+        <source>Dissecting</source>
+        <translation type="vanished">Decodifica</translation>
+    </message>
+    <message>
+        <source>Sorting &quot;%1&quot;</source>
+        <translation type="vanished">Ordinamento di &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
@@ -7710,6 +8193,17 @@ a:hover {
     <message>
         <source>Captured</source>
         <translation>Catturati</translation>
+    </message>
+</context>
+<context>
+    <name>PathChooserDelegate</name>
+    <message>
+        <source>Browse</source>
+        <translation type="vanished">Sfoglia</translation>
+    </message>
+    <message>
+        <source>Open Pipe</source>
+        <translation type="vanished">Apri pipe</translation>
     </message>
 </context>
 <context>
@@ -7763,6 +8257,42 @@ a:hover {
     <message>
         <source>Preferences</source>
         <translation>Preferenze</translation>
+    </message>
+</context>
+<context>
+    <name>PrefsModel</name>
+    <message>
+        <source>Advanced</source>
+        <extracomment>Names of special preferences handled by the GUI</extracomment>
+        <translation type="vanished">Avanzate</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation type="vanished">Aspetto</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation type="vanished">Disposizione</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation type="vanished">Colonne</translation>
+    </message>
+    <message>
+        <source>Font and Colors</source>
+        <translation type="vanished">Caratteri e colori</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="vanished">Cattura</translation>
+    </message>
+    <message>
+        <source>Expert</source>
+        <translation type="vanished">Esperto</translation>
+    </message>
+    <message>
+        <source>Filter Buttons</source>
+        <translation type="vanished">Pulsanti di filtro</translation>
     </message>
 </context>
 <context>
@@ -8377,6 +8907,22 @@ a:hover {
     <message>
         <source>Unknown error</source>
         <translation>Errore sconosciuto</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="vanished">Predefinito</translation>
+    </message>
+    <message>
+        <source>Changed</source>
+        <translation type="vanished">Modificato</translation>
+    </message>
+    <message>
+        <source>Has this preference been changed?</source>
+        <translation type="vanished">Questa impostazione è stata cambiata?</translation>
+    </message>
+    <message>
+        <source>Default value is empty</source>
+        <translation type="vanished">Il valore predefinito è vuoto</translation>
     </message>
 </context>
 <context>
@@ -10890,8 +11436,8 @@ a:hover {
         <translation>Inizializzazione dei listener tap in corso</translation>
     </message>
     <message>
-        <source>Initializing extcap</source>
-        <translation type="vanished">Inizializzazione extcap</translation>
+        <source>Initializing external capture plugins</source>
+        <translation>Inizializzazione estensioni di cattura esterne</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -10930,10 +11476,6 @@ a:hover {
         <source>(Unknown action)</source>
         <translation>(Azione sconosciuta)</translation>
     </message>
-    <message>
-        <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>StatsTreeDialog</name>
@@ -10971,6 +11513,32 @@ a:hover {
     <message>
         <source>%1 protocols, %2 fields.</source>
         <translation>%1 protocolli, %2 campi.</translation>
+    </message>
+</context>
+<context>
+    <name>SupportedProtocolsModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="vanished">Nome</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="vanished">Filtro</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="vanished">Tipo</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="vanished">Descrizione</translation>
+    </message>
+</context>
+<context>
+    <name>SyntaxLineEdit</name>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
+        <translation type="vanished">&quot;%1&quot; potrebbe avere dei risultati inattesi (vedi il Manuale utente)</translation>
     </message>
 </context>
 <context>
@@ -11871,6 +12439,61 @@ a:hover {
     <message>
         <source>No Audio</source>
         <translation>Nessun audio</translation>
+    </message>
+</context>
+<context>
+    <name>VoipCallsInfoModel</name>
+    <message>
+        <source>On</source>
+        <translation type="vanished">Acceso</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="vanished">Spento</translation>
+    </message>
+    <message>
+        <source>Tunneling: %1  Fast Start: %2</source>
+        <translation type="vanished">Tunnel: %1  Avvio veloce: %2</translation>
+    </message>
+    <message>
+        <source>Start Time</source>
+        <translation type="vanished">Ora di inizio</translation>
+    </message>
+    <message>
+        <source>Stop Time</source>
+        <translation type="vanished">Ora di fine</translation>
+    </message>
+    <message>
+        <source>Initial Speaker</source>
+        <translation type="vanished">Oratore iniziale</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation type="vanished">Da</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation type="vanished">A</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation type="vanished">Protocollo</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="vanished">Durata</translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="vanished">Pacchetti</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation type="vanished">Stato</translation>
+    </message>
+    <message>
+        <source>Comments</source>
+        <translation type="vanished">Commenti</translation>
     </message>
 </context>
 <context>

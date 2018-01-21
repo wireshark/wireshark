@@ -1021,8 +1021,7 @@
     </message>
     <message>
         <source>pcapng</source>
-        <oldsource>pcap-ng</oldsource>
-        <translation type="unfinished">pcap-ng</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1318,8 +1317,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <oldsource>Capture packets in pcap-ng format</oldsource>
-        <translation type="unfinished">使用pcap-ng格式捕获分组</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10868,8 +10866,8 @@ text-decoration: underline;
         <translation>正在初始化 tap 监听器</translation>
     </message>
     <message>
-        <source>Initializing extcap</source>
-        <translation type="vanished">正在初始化 extcap</translation>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -10907,10 +10905,6 @@ text-decoration: underline;
     <message>
         <source>(Unknown action)</source>
         <translation>(未知操作)</translation>
-    </message>
-    <message>
-        <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

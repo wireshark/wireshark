@@ -1021,8 +1021,7 @@
     </message>
     <message>
         <source>pcapng</source>
-        <oldsource>pcap-ng</oldsource>
-        <translation type="unfinished">pcap-ng形式</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1317,8 +1316,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <oldsource>Capture packets in pcap-ng format</oldsource>
-        <translation type="unfinished">pcap-ng形式でパケットをキャプチャします</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10819,6 +10817,10 @@ a:hover {
         <translation>タップリスナを初期化中</translation>
     </message>
     <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Registering dissectors</source>
         <translation>ダイセクターを登録中</translation>
     </message>
@@ -10854,10 +10856,6 @@ a:hover {
     <message>
         <source>(Unknown action)</source>
         <translation>(不明な動作)</translation>
-    </message>
-    <message>
-        <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

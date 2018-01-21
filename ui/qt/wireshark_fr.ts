@@ -1026,8 +1026,7 @@
     </message>
     <message>
         <source>pcapng</source>
-        <oldsource>pcap-ng</oldsource>
-        <translation type="unfinished">pcap-ng</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1322,8 +1321,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <oldsource>Capture packets in pcap-ng format</oldsource>
-        <translation type="unfinished">Capture de paquet au format pcap-ng</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10833,6 +10831,10 @@ a:hover {
         <translation>Initialisation tap</translation>
     </message>
     <message>
+        <source>Initializing external capture plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Registering dissectors</source>
         <translation>Enregistrer dissecteurs</translation>
     </message>
@@ -10868,10 +10870,6 @@ a:hover {
     <message>
         <source>(Unknown action)</source>
         <translation>(Action inconnue)</translation>
-    </message>
-    <message>
-        <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

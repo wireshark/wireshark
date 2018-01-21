@@ -1026,8 +1026,7 @@
     </message>
     <message>
         <source>pcapng</source>
-        <oldsource>pcap-ng</oldsource>
-        <translation type="unfinished">pcap-ng</translation>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1322,8 +1321,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <oldsource>Capture packets in pcap-ng format</oldsource>
-        <translation type="unfinished">Pakte im pcap-ng Format mitschneiden</translation>
+        <translation>Pakte im pcap-ng Format mitschneiden</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1343,7 +1341,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Externe Mitschnittschnittstellen deaktivieren</translation>
     </message>
 </context>
 <context>
@@ -3498,7 +3496,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Externe Mitschnittschnittstellen deaktiviert.</translation>
     </message>
 </context>
 <context>
@@ -10890,8 +10888,8 @@ text-decoration: underline;
         <translation>Tap Listener initialisieren</translation>
     </message>
     <message>
-        <source>Initializing extcap</source>
-        <translation type="vanished">Extcap initialisieren</translation>
+        <source>Initializing external capture plugins</source>
+        <translation>Initialisieren von externen Mitschnitt Plugins</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -10929,10 +10927,6 @@ text-decoration: underline;
     <message>
         <source>(Unknown action)</source>
         <translation>(Unbekannte Aktion)</translation>
-    </message>
-    <message>
-        <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
