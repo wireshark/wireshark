@@ -1837,6 +1837,18 @@ zbee_apf_transaction_len(tvbuff_t *tvb, guint offset, guint8 type)
     }
 } /* zbee_apf_transaction_len */
 
+/* The ZigBee Smart Energy version in enum_val_t for the ZigBee Smart Energy version preferences. */
+static const enum_val_t zbee_zcl_protocol_version_enums[] = {
+    { "se1.1b",     "SE 1.1b",     ZBEE_SE_VERSION_1_1B },
+    { "se1.2",      "SE 1.2",      ZBEE_SE_VERSION_1_2 },
+    { "se1.2a",     "SE 1.2a",     ZBEE_SE_VERSION_1_2A },
+    { "se1.2b",     "SE 1.2b",     ZBEE_SE_VERSION_1_2B },
+    { "se1.4",      "SE 1.4",      ZBEE_SE_VERSION_1_4 },
+    { NULL, NULL, 0 }
+};
+
+gint gPREF_zbee_se_protocol_version = ZBEE_SE_VERSION_1_4;
+
 /**
  *ZigBee APS protocol registration routine.
  *
@@ -2128,6 +2140,14 @@ void proto_register_zbee_aps(void)
     /* Register the APS dissector and subdissector list. */
     zbee_aps_dissector_table = register_dissector_table("zbee.profile", "ZigBee Profile ID", proto_zbee_aps, FT_UINT16, BASE_HEX);
     zbee_aps_handle = register_dissector(ZBEE_PROTOABBREV_APS, dissect_zbee_aps, proto_zbee_aps);
+
+    /* Register preferences */
+    module_t* zbee_se_prefs = prefs_register_protocol(proto_zbee_aps, NULL);
+
+    prefs_register_enum_preference(zbee_se_prefs, "zbeeseversion", "ZigBee Smart Energy Version",
+            "Specifies the ZigBee Smart Energy version used when dissecting "
+            "ZigBee APS messages within the Smart Energy Profile",
+            &gPREF_zbee_se_protocol_version, zbee_zcl_protocol_version_enums, FALSE);
 
     /* Register reassembly table. */
     reassembly_table_register(&zbee_aps_reassembly_table,

@@ -5270,7 +5270,6 @@ dissect_zcl_met_get_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     nstime_t start_time;
     nstime_t end_time;
-    gint rem_len = tvb_reported_length_remaining(tvb, *offset);
 
     /* Start Time */
     start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
@@ -5278,8 +5277,8 @@ dissect_zcl_met_get_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree_add_time(tree, hf_zbee_zcl_met_get_snapshot_start_time, tvb, *offset, 4, &start_time);
     *offset += 4;
 
-    if (rem_len > 9) {
-        /* End Time - not part of SE 1.1b specification */
+    if (gPREF_zbee_se_protocol_version >= ZBEE_SE_VERSION_1_2) {
+        /* End Time - Introduced from ZCL version 1.2 */
         end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
         end_time.nsecs = 0;
         proto_tree_add_time(tree, hf_zbee_zcl_met_get_snapshot_end_time, tvb, *offset, 4, &end_time);
@@ -10281,9 +10280,11 @@ dissect_zcl_events_publish_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     nstime_t    event_time;
     gint        length;
 
-    /* Log ID */
-    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_id, tvb, *offset, 1, ENC_NA);
-    *offset += 1;
+    if (gPREF_zbee_se_protocol_version >= ZBEE_SE_VERSION_1_2) {
+        /* Log ID - Introduced from ZCL version 1.2 */
+        proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_id, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
 
     /* Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -10338,9 +10339,11 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
         /* Add subtree */
         event_log_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_zbee_zcl_events_publish_event_log_entry[i], NULL, "Event Log %d", i + 1);
 
-        /* Log ID */
-        proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_log_id, tvb, *offset, 1, ENC_NA);
-        *offset += 1;
+        if (gPREF_zbee_se_protocol_version >= ZBEE_SE_VERSION_1_2) {
+            /* Log ID - Introduced from ZCL version 1.2 */
+            proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_log_id, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+        }
 
         /* Event ID */
         proto_item_append_text(event_log_tree, ", Event ID: 0x%04x", tvb_get_guint16(tvb, *offset, ENC_LITTLE_ENDIAN));

@@ -300,6 +300,17 @@ typedef struct{
     gboolean    src_present;
 } zbee_aps_packet;
 
+/* ZigBee Smart Energy version used for preferences */
+extern gint  gPREF_zbee_se_protocol_version;
+
+enum {
+    ZBEE_SE_VERSION_1_1B,
+    ZBEE_SE_VERSION_1_2,
+    ZBEE_SE_VERSION_1_2A,
+    ZBEE_SE_VERSION_1_2B,
+    ZBEE_SE_VERSION_1_4
+};
+
 /**************************************
  * Value Strings
  **************************************
