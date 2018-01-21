@@ -5043,6 +5043,17 @@ static int hf_ieee80211_tag_switching_stream_llt_type = -1;
 
 static int hf_ieee80211_mysterious_olpc_stuff = -1;
 
+static int hf_ieee80211_esp_access_category = -1;
+static int hf_ieee80211_esp_reserved = -1;
+static int hf_ieee80211_esp_data_format = -1;
+static int hf_ieee80211_esp_ba_windows_size = -1;
+static int hf_ieee80211_esp_est_air_time_frac = -1;
+static int hf_ieee80211_esp_data_ppdu_duration_target = -1;
+static int hf_ieee80211_estimated_service_params = -1;
+
+static int hf_ieee80211_fcg_new_channel_number = -1;
+static int hf_ieee80211_fcg_extra_info = -1;
+
 static int hf_ieee80211_ext_tag = -1;
 static int hf_ieee80211_ext_tag_number = -1;
 static int hf_ieee80211_ext_tag_length = -1;
@@ -5458,6 +5469,8 @@ static gint ett_rcsi_tree = -1;
 static gint ett_80211_ext = -1;
 static gint ett_allocation_tree = -1;
 static gint ett_sta_info = -1;
+
+static gint ett_ieee80211_esp = -1;
 
 /* 802.11ax trees */
 static gint ett_he_mac_capabilities = -1;
@@ -17524,6 +17537,81 @@ dissect_ess_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                         tvb, offset, 1, bss_trans_thresh, " (No recommendation)");
 }
 
+/*
+ * There will be from 1 to 4 24-bit fields in the order of AC=BK, AC=BE,
+ * AC=VI and AC=VO.
+ */
+
+static const int *esp_headers[] = {
+  &hf_ieee80211_esp_access_category,
+  &hf_ieee80211_esp_reserved,
+  &hf_ieee80211_esp_data_format,
+  &hf_ieee80211_esp_ba_windows_size,
+  &hf_ieee80211_esp_est_air_time_frac,
+  &hf_ieee80211_esp_data_ppdu_duration_target,
+  NULL
+};
+
+static const value_string esp_access_category_vals[] = {
+  { 0, "AC=BK" },
+  { 1, "AC=BE" },
+  { 2, "AC=VI" },
+  { 3, "AC=VO" },
+  { 0, NULL }
+};
+
+static const value_string esp_data_format_vals[] = {
+  { 0, "No aggregation is expected to be performed" },
+  { 1, "A-MSDU aggregation is expected but not A-MPDUs when type is data" },
+  { 2, "A-MSDU aggregation is NOT expected but A-MPDUs aggregation is when type is data" },
+  { 3, "A-MSDU aggregation is expected and A-MPDU aggregation is when type is data" },
+  { 0, NULL }
+};
+
+static const value_string esp_ba_window_size_vals[] = {
+  { 0, "Block Ack not expected to be used" },
+  { 1, "2" },
+  { 2, "4" },
+  { 3, "6" },
+  { 4, "8" },
+  { 5, "16" },
+  { 6, "32" },
+  { 7, "64" },
+  { 0, NULL }
+};
+
+static int
+dissect_estimated_service_params(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len)
+{
+  while (len > 0) {
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                        hf_ieee80211_estimated_service_params, ett_ieee80211_esp,
+                        esp_headers, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 3;
+    len -= 3;
+  }
+
+  return offset;
+}
+
+static int
+dissect_future_channel_guidance(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  proto_tree_add_item(tree, hf_ieee80211_fcg_new_channel_number, tvb, offset,
+                        4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  if (len - 4 > 0) {
+    proto_tree_add_item(tree, hf_ieee80211_fcg_extra_info, tvb, offset, len - 4,
+                        ENC_NA);
+    offset += len - 4;
+  }
+
+  return offset;
+}
+
 static int
 ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -17550,6 +17638,12 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_FILS_NONCE:
       proto_tree_add_item(tree, hf_ieee80211_fils_nonce, tvb, offset, ext_tag_len, ENC_NA);
+      break;
+    case ETAG_ESTIMATED_SERVICE_PARAM:
+      dissect_estimated_service_params(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_FUTURE_CHANNEL_GUIDANCE:
+      dissect_future_channel_guidance(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_HE_CAPABILITIES:
       dissect_he_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
@@ -29906,6 +30000,45 @@ proto_register_ieee80211(void)
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_estimated_service_params,
+     {"Estimated Service Parameters", "wlan.ext_tag.estimated_service_params",
+      FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_esp_access_category,
+     {"Access Category", "wlan.ext_tag.estimated_service_params.access_category",
+      FT_UINT24, BASE_DEC, VALS(esp_access_category_vals), 0x000003,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_esp_reserved,
+     {"Reserved", "wlan.ext_tag.estimated_service_params.reserved",
+      FT_UINT24, BASE_HEX, NULL, 0x000004, NULL, HFILL }},
+
+    {&hf_ieee80211_esp_data_format,
+     {"Data Format", "wlan.ext_tag.estimated_service_params.data_format",
+      FT_UINT24, BASE_DEC, VALS(esp_data_format_vals), 0x000018,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_esp_ba_windows_size,
+     {"BA Window Size", "wlan.ext_tag.estimated_service_params.ba_window_size",
+      FT_UINT24, BASE_DEC, VALS(esp_ba_window_size_vals), 0x0000E0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_esp_est_air_time_frac,
+     {"Estimated Air Time Fraction", "wlan.ext_tag.estimated_service_params.air_time_frac",
+      FT_UINT24, BASE_DEC, NULL, 0x00FF00, NULL, HFILL }},
+
+    {&hf_ieee80211_esp_data_ppdu_duration_target,
+     {"Data PPDU Duration Target", "wlan.ext_tag.estimated_service_params.data_ppdu_dur_target",
+      FT_UINT24, BASE_DEC, NULL, 0x00FF00, NULL, HFILL }},
+
+    {&hf_ieee80211_fcg_new_channel_number,
+     {"New Channel Number", "wlan.ext_tag.future_channel_guidance.new_chan_num",
+      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_fcg_extra_info,
+     {"Extra bytes", "wlan.ext_tag.future_channel_guidance.extra_bytes",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_ext_tag,
      {"Ext Tag", "wlan.ext_tag",
       FT_NONE, BASE_NONE, 0x0, 0,
@@ -30867,6 +31000,8 @@ proto_register_ieee80211(void)
     &ett_80211_ext,
     &ett_allocation_tree,
     &ett_sta_info,
+
+    &ett_ieee80211_esp,
 
     &ett_gas_resp_fragment,
     &ett_gas_resp_fragments,
