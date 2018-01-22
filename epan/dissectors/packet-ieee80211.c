@@ -17387,7 +17387,7 @@ dissect_muac_param_record(tvbuff_t *tvb, proto_tree *tree, int offset)
   return offset;
 }
 
-static void
+static int
 dissect_mu_edca_parameter_set(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   int offset, int len _U_)
 {
@@ -17414,6 +17414,8 @@ dissect_mu_edca_parameter_set(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
   param_tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_he_mu_edca_param,
                         NULL, "MUAC_VO Parameter Record");
   offset = dissect_muac_param_record(tvb, param_tree, offset);
+
+  return offset;
 }
 
 #define SRP_DISALLOWED                     0x01
@@ -17432,7 +17434,7 @@ static const int *sr_control_field_headers[] = {
   NULL
 };
 
-static void
+static int
 dissect_spatial_reuse_parameter_set(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, int len _U_)
 {
@@ -17464,6 +17466,8 @@ dissect_spatial_reuse_parameter_set(tvbuff_t *tvb, packet_info *pinfo _U_,
                         tvb, offset, 8, ENC_NA);
     offset += 8;
   }
+
+  return offset;
 }
 
 static void
