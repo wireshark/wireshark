@@ -186,6 +186,7 @@ create_endpoint_geoip_map(const GArray *endp_array, gchar **err_str) {
         ws_unlink(map_filename);
         g_free(map_filename);
         fclose(tpl_file);
+        g_free(tpl_line);
         return NULL;
     }
 
