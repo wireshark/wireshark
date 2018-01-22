@@ -109,7 +109,6 @@ plugins_scan_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     gpointer       symbol;
     const char    *plug_version, *plug_release;
     plugin        *new_plug;
-    gchar         *dot;
 
     if (append_type)
         plugin_folder = g_build_filename(dirpath, type_to_dir(type), (gchar *)NULL);
@@ -124,8 +123,7 @@ plugins_scan_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
 
     while ((name = g_dir_read_name(dir)) != NULL) {
         /* Skip anything but files with G_MODULE_SUFFIX. */
-        dot = strrchr(name, '.');
-        if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0)
+        if (!g_str_has_suffix(name, "." G_MODULE_SUFFIX))
             continue;
 
 #if WIN32
