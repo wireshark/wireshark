@@ -99,7 +99,7 @@ compare_plugins(gconstpointer a, gconstpointer b)
 }
 
 static void
-plugins_scan_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type, gboolean append_type)
+scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type, gboolean append_type)
 {
     GDir          *dir;
     const char    *name;            /* current file name */
@@ -215,7 +215,7 @@ scan_plugins_build_dir(GHashTable *plugins_module, plugin_type_e type)
     WS_DIRENT *file;            /* current file */
 
     /* Cmake */
-    plugins_scan_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
+    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
 
     /* Autotools */
     dirpath = g_build_filename(get_plugins_dir(), type_to_dir(type), (char *)NULL);
@@ -247,7 +247,7 @@ scan_plugins_build_dir(GHashTable *plugins_module, plugin_type_e type)
             g_free(plugin_folder);
             plugin_folder = g_build_filename(get_plugins_dir(), name, (gchar *)NULL);
         }
-        plugins_scan_dir(plugins_module, plugin_folder, type, FALSE);
+        scan_plugins_dir(plugins_module, plugin_folder, type, FALSE);
         g_free(plugin_folder);
     }
     ws_dir_close(dir);
@@ -276,7 +276,7 @@ plugins_init(plugin_type_e type)
         scan_plugins_build_dir(plugins_module, type);
     }
     else {
-        plugins_scan_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
+        scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
     }
 
     /*
@@ -288,7 +288,7 @@ plugins_init(plugin_type_e type)
      * reclaim them before each time we start capturing.)
      */
     if (!started_with_special_privs()) {
-        plugins_scan_dir(plugins_module, get_plugins_pers_dir_with_version(), type, TRUE);
+        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type, TRUE);
     }
 
     plugins_module_list = g_slist_prepend(plugins_module_list, plugins_module);
