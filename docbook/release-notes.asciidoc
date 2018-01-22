@@ -96,6 +96,7 @@ SolarEdge monitoring protocol
 Tibia
 TWAMP and OWAMP
 Wi-Fi Device Provisioning Protocol
+802.11ax (High Efficiency WLAN (HEW))
 --sort-and-group--
 
 === Updated Protocol Support
