@@ -33,12 +33,20 @@
 PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) :
     WiresharkDialog(parent, cf),
     ui(new Ui::PacketDialog),
+    proto_tree_(NULL),
+    byte_view_tab_(NULL),
     phdr_(wtap_pkthdr()),
     packet_data_(NULL)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->hintLabel->setSmallText();
+    phdr_.ft_specific_data = Buffer();
+    edt_.session = NULL;
+    edt_.tvb = NULL;
+    edt_.tree = NULL;
+
+    memset(&edt_.pi, 0x0, sizeof(edt_.pi));
 
     setWindowSubtitle(tr("Packet %1").arg(fdata->num));
 
