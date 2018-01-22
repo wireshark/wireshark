@@ -91,6 +91,7 @@ fill_list(GtkWidget *main_w)
        * and use it later without any crashes.  This may not be a
        * valid assumption.
        */
+      g_free(l_select);
       l_select = (GtkTreeIter *)g_memdup(&iter, sizeof(iter));
     }
     fl_entry = g_list_next(fl_entry);
