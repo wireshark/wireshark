@@ -126,16 +126,6 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
         if (!g_str_has_suffix(name, "." G_MODULE_SUFFIX))
             continue;
 
-#if WIN32
-        if (strncmp(name, "nordic_ble.dll", 14) == 0) {
-            /*
-             * Skip the Nordic BLE Sniffer dll on WIN32 because
-             * the dissector has been added as internal.
-             */
-            continue;
-        }
-#endif
-
         /*
          * Check if the same name is already registered.
          */
