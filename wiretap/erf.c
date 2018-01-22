@@ -522,16 +522,16 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       case ERF_TYPE_COLOR_ETH:
       case ERF_TYPE_DSM_COLOR_ETH:
       case ERF_TYPE_COLOR_HASH_ETH:
-        if (!wtap_read_bytes(wth->fh,&eth_hdr,erf_ext_header_size,err,err_info)) {
+        if (!wtap_read_bytes(wth->fh,&eth_hdr,erf_eth_hdr_size,err,err_info)) {
           if (*err == WTAP_ERR_SHORT_READ) {
             /* Subheader missing, not an ERF file */
             return WTAP_OPEN_NOT_MINE;
           }
           return WTAP_OPEN_ERROR;
         }
-        if (packet_size < erf_ext_header_size)
+        if (packet_size < erf_eth_hdr_size)
           return WTAP_OPEN_NOT_MINE;
-        packet_size -= erf_ext_header_size;
+        packet_size -= erf_eth_hdr_size;
         break;
       default:
         break;
