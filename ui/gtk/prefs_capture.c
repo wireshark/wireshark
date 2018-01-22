@@ -1805,15 +1805,14 @@ ifopts_write_new_monitor_mode(void)
 	gint		 first_if = TRUE;	/* flag to check if first in list */
 	gchar		*ifnm;
 	gboolean	 monitor_mode;
-	gchar		*new_monitor_mode;
-
-	/* new preferences "monitor mode" interfaces string */
-	new_monitor_mode = (gchar*)g_malloc0(MAX_VAL_LEN);
 
 	/* get "monitor mode" flag text for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		/* new preferences "monitor mode" interfaces string */
+		gchar *new_monitor_mode = (gchar*)g_malloc0(MAX_VAL_LEN);
+
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
 					   DEVICE_COLUMN,           &ifnm,
@@ -1860,15 +1859,13 @@ ifopts_write_new_linklayer(void)
 	gchar		*ifnm;
 	gint		 linktype;
 	gchar		*tmp_linklayer;
-	gchar		*new_linklayer;
-
-	/* new preferences interfaces link-layer string */
-	new_linklayer = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get link-layer for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		/* new preferences interfaces link-layer string */
+		gchar *new_linklayer = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
@@ -1919,15 +1916,13 @@ ifopts_write_new_buffersize(void)
 	gchar		*ifnm;
 	gint		 buffersize;
 	gchar		*tmp_buffersize;
-	gchar		*new_buffersize;
-
-	/* new preferences interfaces buffer size string */
-	new_buffersize = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get buffer size for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		/* new preferences interfaces buffer size string */
+		gchar *new_buffersize = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
@@ -1978,15 +1973,13 @@ ifopts_write_new_snaplen(void)
 	gint		 snaplen;
 	gboolean hassnap;
 	gchar		*tmp_snaplen;
-	gchar		*new_snaplen;
-
-	/* new preferences interfaces snap length string */
-	new_snaplen = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get snap length for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		/* new preferences interfaces snap length string */
+		gchar *new_snaplen = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
@@ -2036,15 +2029,13 @@ ifopts_write_new_pmode(void)
 	gchar		*ifnm;
 	gboolean	pmode, off = FALSE;
 	gchar		*tmp_pmode;
-	gchar		*new_pmode;
-
-	/* new preferences interfaces promiscuous mode string */
-	new_pmode = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get promiscuous mode for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		/* new preferences interfaces promiscuous mode string */
+		gchar *new_pmode = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
@@ -2103,15 +2094,14 @@ ifopts_write_new_descr(void)
 	gchar		*ifnm;
 	gchar		*desc;
 	gchar		*tmp_descr;
-	gchar		*new_descr;
-
-	/* new preferences interfaces description string */
-	new_descr = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get description for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		/* new preferences interfaces description string */
+		gchar *new_descr = (gchar *)g_malloc0(MAX_VAL_LEN);
+
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
 				DEVICE_COLUMN, &ifnm,
@@ -2160,14 +2150,14 @@ ifopts_write_new_hide(void)
 	gint		 first_if = TRUE;	/* flag to check if first in list */
 	gchar		*ifnm;
 	gboolean	 hide;
-	gchar		*new_hide;
 
 	/* get "hide" flag text for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
 		/* new preferences "hidden" interfaces string */
-		new_hide = (gchar *)g_malloc0(MAX_VAL_LEN);
+		gchar *new_hide = (gchar *)g_malloc0(MAX_VAL_LEN);
+
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
 					   DEVICE_COLUMN, &ifnm,
