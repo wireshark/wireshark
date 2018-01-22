@@ -264,6 +264,7 @@ static guint8 *unhexbytes(const char *si, guint len, guint *len_p, char** err) {
 
 on_error:
 	*err = g_strdup("Error parsing hex string");
+	g_free(buf);
 	return NULL;
 }
 
