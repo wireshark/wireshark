@@ -99,9 +99,9 @@ add_idb_index_map(merge_in_file_t *in_file, const guint orig_index, const guint 
 
 /** Open a number of input files to merge.
  *
- * @param in_file_count number of entries in in_file_names and in_files
+ * @param in_file_count number of entries in in_file_names
  * @param in_file_names filenames of the input files
- * @param in_files input file array to be filled (>= sizeof(merge_in_file_t) * in_file_count)
+ * @param out_files output pointer with filled file array, or NULL
  * @param err wiretap error, if failed
  * @param err_info wiretap error string, if failed
  * @param err_fileno file on which open failed, if failed
@@ -109,7 +109,7 @@ add_idb_index_map(merge_in_file_t *in_file, const guint orig_index, const guint 
  */
 static gboolean
 merge_open_in_files(guint in_file_count, const char *const *in_file_names,
-                    merge_in_file_t **in_files, merge_progress_callback_t* cb,
+                    merge_in_file_t **out_files, merge_progress_callback_t* cb,
                     int *err, gchar **err_info, guint *err_fileno)
 {
     guint i;
@@ -119,7 +119,7 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
     gint64 size;
 
     files = (merge_in_file_t *)g_malloc0(files_size);
-    *in_files = files;
+    *out_files = NULL;
 
     for (i = 0; i < in_file_count; i++) {
         files[i].filename    = in_file_names[i];
@@ -132,6 +132,7 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
             /* Close the files we've already opened. */
             for (j = 0; j < i; j++)
                 cleanup_in_file(&files[j]);
+            g_free(files);
             *err_fileno = i;
             return FALSE;
         }
@@ -139,6 +140,7 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
         if (size == -1) {
             for (j = 0; j != G_MAXUINT && j <= i; j++)
                 cleanup_in_file(&files[j]);
+            g_free(files);
             *err_fileno = i;
             return FALSE;
         }
@@ -149,6 +151,7 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
     if (cb)
         cb->callback_func(MERGE_EVENT_INPUT_FILES_OPENED, 0, files, in_file_count, cb->data);
 
+    *out_files = files;
     return TRUE;
 }
 
