@@ -632,7 +632,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
   if (try_conversation_dissector(&pinfo->dst, &pinfo->src, ENDPOINT_UDP,
-                                 uh_dport, uh_sport, next_tvb, pinfo, tree, NULL)) {
+                                 uh_dport, uh_sport, next_tvb, pinfo, tree, NULL, NO_ADDR_B|NO_PORT_B)) {
     handle_export_pdu_conversation(pinfo, next_tvb, uh_dport, uh_sport);
     return;
   }

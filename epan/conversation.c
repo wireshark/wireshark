@@ -1233,6 +1233,23 @@ conversation_get_dissector(conversation_t *conversation, const guint32 frame_num
 	return (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, frame_num);
 }
 
+static gboolean try_conversation_call_dissector_helper(conversation_t *conversation, gboolean* dissector_success,
+					tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+	int ret;
+	dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(
+					conversation->dissector_tree, pinfo->num);
+	if (handle == NULL)
+		return FALSE;
+
+	ret = call_dissector_only(handle, tvb, pinfo, tree, data);
+
+	/* Let the caller decide what to do with success or rejection */
+	(*dissector_success) = (ret != 0);
+
+	return TRUE;
+}
+
 /*
  * Given two address/port pairs for a packet, search for a matching
  * conversation and, if found and it has a conversation dissector,
@@ -1246,28 +1263,43 @@ conversation_get_dissector(conversation_t *conversation, const guint32 frame_num
 gboolean
 try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, void* data)
+    proto_tree *tree, void* data, const guint options)
 {
 	conversation_t *conversation;
+	gboolean dissector_success;
 
-	conversation = find_conversation(pinfo->num, addr_a, addr_b, etype, port_a,
-	    port_b, 0);
+	/* Try each mode based on option flags */
 
+	conversation = find_conversation(pinfo->num, addr_a, addr_b, etype, port_a, port_b, 0);
 	if (conversation != NULL) {
-		int ret;
-		dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
-		if (handle == NULL)
-			return FALSE;
-		ret=call_dissector_only(handle, tvb, pinfo, tree, data);
-		if(!ret) {
-			/* this packet was rejected by the dissector
-			 * so return FALSE in case our caller wants
-			 * to do some cleaning up.
-			 */
-			return FALSE;
-		}
-		return TRUE;
+		if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
+			return dissector_success;
 	}
+
+	if (options & NO_ADDR_B) {
+		conversation = find_conversation(pinfo->num, addr_a, addr_b, etype, port_a, port_b, NO_ADDR_B);
+		if (conversation != NULL) {
+			if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
+				return dissector_success;
+		}
+	}
+
+	if (options & NO_PORT_B) {
+		conversation = find_conversation(pinfo->num, addr_a, addr_b, etype, port_a, port_b, NO_PORT_B);
+		if (conversation != NULL) {
+			if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
+				return dissector_success;
+		}
+	}
+
+	if (options & (NO_ADDR_B|NO_PORT_B)) {
+		conversation = find_conversation(pinfo->num, addr_a, addr_b, etype, port_a, port_b, NO_ADDR_B|NO_PORT_B);
+		if (conversation != NULL) {
+			if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
+				return dissector_success;
+		}
+	}
+
 	return FALSE;
 }
 
