@@ -1979,16 +1979,6 @@ endif(LUA_FOUND AND ENABLE_LUA)
 
 # TODO shouldn't this use full (relative) paths instead of glob patterns?
 list(APPEND DATA_FILES_SRC
-	"dtds/*.dtd"
-
-	"radius/README.radius_dictionary"
-	"radius/custom.includes"
-	"radius/dictionary"
-	"radius/dictionary.*"
-
-	"diameter/*.dtd"
-	"diameter/*.xml"
-	"profiles/*/*"
 	"tpncp/tpncp.dat"
 	"wimaxasncp/*.dtd"
 	"wimaxasncp/*.xml"
@@ -2010,8 +2000,101 @@ foreach(_data_file ${_data_files})
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_data_file}")
 endforeach()
 
+if(CMAKE_VERSION VERSION_LESS "3.5")
+# To bad -u / --update is a GNU extension.
+set (MULTI_COPY_COMMAND cp)
+else()
+set (MULTI_COPY_COMMAND ${CMAKE_COMMAND} -E copy_if_different)
+endif()
+
+add_custom_command(
+	OUTPUT "${DATAFILE_DIR}/dtds" "${DATAFILE_DIR}/diameter" "${DATAFILE_DIR}/radius"
+	COMMAND ${CMAKE_COMMAND} -E make_directory
+		"${DATAFILE_DIR}/dtds"
+		"${DATAFILE_DIR}/diameter"
+		"${DATAFILE_DIR}/radius"
+)
+
+file(GLOB _dtds_src_files RELATIVE "${CMAKE_SOURCE_DIR}" "dtds/*.dtd")
+
+set (_dtds_data_files)
+foreach(_data_file ${_dtds_src_files})
+	list(APPEND _dtds_data_files "${DATAFILE_DIR}/${_data_file}")
+endforeach()
+
+add_custom_command(
+	OUTPUT ${_dtds_data_files}
+	COMMAND ${MULTI_COPY_COMMAND}
+		${_dtds_src_files}
+		"${DATAFILE_DIR}/dtds"
+	VERBATIM
+	DEPENDS "${DATAFILE_DIR}/dtds"
+	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+
+file(GLOB _diameter_src_files RELATIVE "${CMAKE_SOURCE_DIR}"
+	diameter/*.dtd
+	diameter/*.xml
+)
+
+set (_diameter_data_files)
+foreach(_data_file ${_diameter_src_files})
+	list(APPEND _diameter_data_files "${DATAFILE_DIR}/${_data_file}")
+endforeach()
+
+add_custom_command(
+	OUTPUT ${_diameter_data_files}
+	COMMAND ${MULTI_COPY_COMMAND}
+		${_diameter_src_files}
+		"${DATAFILE_DIR}/diameter"
+	VERBATIM
+	DEPENDS "${DATAFILE_DIR}/diameter"
+	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+
+file(GLOB _radius_src_files RELATIVE "${CMAKE_SOURCE_DIR}"
+	radius/README.radius_dictionary
+	radius/custom.includes
+	radius/dictionary
+	radius/dictionary.*
+)
+
+set (_radius_data_files)
+foreach(_data_file ${_radius_src_files})
+	list(APPEND _radius_data_files "${DATAFILE_DIR}/${_data_file}")
+endforeach()
+
+add_custom_command(
+	OUTPUT ${_radius_data_files}
+	COMMAND ${MULTI_COPY_COMMAND}
+		${_radius_src_files}
+		"${DATAFILE_DIR}/radius"
+	VERBATIM
+	DEPENDS "${DATAFILE_DIR}/radius"
+	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+
+file(GLOB _profiles_src_files RELATIVE "${CMAKE_SOURCE_DIR}" profiles/*/*)
+set (_profiles_data_files)
+foreach(_data_file ${_profiles_src_files})
+	list(APPEND _profiles_data_files "${DATAFILE_DIR}/${_data_file}")
+endforeach()
+
+add_custom_command(
+	OUTPUT ${_profiles_data_files}
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_SOURCE_DIR}/profiles" "${DATAFILE_DIR}/profiles"
+)
+
+list(APPEND copy_data_files_depends
+	${_dtds_data_files}
+	${_diameter_data_files}
+	${_radius_data_files}
+	${_profiles_data_files}
+)
+
 # Copy files including ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
-add_custom_target(copy_data_files ALL DEPENDS ${copy_data_files_depends})
+add_custom_target(copy_data_files ALL DEPENDS ${copy_data_files_depends} )
 set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
 
 if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
