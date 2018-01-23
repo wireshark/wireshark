@@ -43,11 +43,7 @@ SCG-ConfigInfo-r12_PDU
 UECapabilityInformation_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
-UERadioAccessCapabilityInformation_PDU
-UERadioAccessCapabilityInformation-NB_PDU
 UE-EUTRA-Capability_PDU
-UERadioPagingInformation_PDU
-UERadioPagingInformation-NB_PDU
 VisitedCellInfoList-r12_PDU
 #.END
 
@@ -60,10 +56,10 @@ RLF-Report-v9e0
 SCG-ConfigInfo-r12
 UEPagingCoverageInformation
 UEPagingCoverageInformation-NB
-UERadioAccessCapabilityInformation
-UERadioAccessCapabilityInformation-NB
-UERadioPagingInformation
-UERadioPagingInformation-NB
+UERadioAccessCapabilityInformation    @ue_radio_access_cap_info
+UERadioAccessCapabilityInformation-NB @ue_radio_access_cap_info.nb
+UERadioPagingInformation              @ue_radio_paging_info
+UERadioPagingInformation-NB           @ue_radio_paging_info.nb
 VisitedCellInfoList-r12
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch

@@ -579,12 +579,16 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     return offset;
 
   if (g_s1ap_dissect_container) {
+    dissector_handle_t handle;
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
     if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
         (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
-       dissect_lte_rrc_UERadioAccessCapabilityInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      handle = lte_rrc_ue_radio_access_cap_info_nb_handle;
     } else {
-      dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      handle = lte_rrc_ue_radio_access_cap_info_handle;
+    }
+    if (handle) {
+      call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
     }
   }
 
@@ -657,12 +661,16 @@ if (gcsna_handle) {
     return offset;
 
   if (g_s1ap_dissect_container) {
+    dissector_handle_t handle;
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioPagingInformation);
     if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
         (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
-       dissect_lte_rrc_UERadioPagingInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      handle = lte_rrc_ue_radio_paging_info_nb_handle;
     } else {
-      dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      handle = lte_rrc_ue_radio_paging_info_handle;
+    }
+    if (handle) {
+      call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
     }
   }
 

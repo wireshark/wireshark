@@ -64,6 +64,10 @@ void proto_reg_handoff_s1ap(void);
 static dissector_handle_t nas_eps_handle;
 static dissector_handle_t lppa_handle;
 static dissector_handle_t bssgp_handle;
+static dissector_handle_t lte_rrc_ue_radio_access_cap_info_handle;
+static dissector_handle_t lte_rrc_ue_radio_access_cap_info_nb_handle;
+static dissector_handle_t lte_rrc_ue_radio_paging_info_handle;
+static dissector_handle_t lte_rrc_ue_radio_paging_info_nb_handle;
 
 #include "packet-s1ap-val.h"
 
@@ -467,6 +471,10 @@ proto_reg_handoff_s1ap(void)
     nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
     lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
     bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
+    lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_s1ap);
+    lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_s1ap);
+    lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_s1ap);
+    lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_s1ap);
     dissector_add_for_decode_as("sctp.port", s1ap_handle);
     dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
     Initialized=TRUE;
