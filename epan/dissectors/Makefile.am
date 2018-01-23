@@ -424,6 +424,7 @@ DISSECTOR_SRC = \
 	packet-csn1.c		\
 	packet-ctdb.c		\
 	packet-cups.c		\
+	packet-cvspserver.c	\
 	packet-daap.c		\
 	packet-data.c		\
 	packet-daytime.c	\

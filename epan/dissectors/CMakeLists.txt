@@ -801,6 +801,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-csn1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ctdb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cups.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cvspserver.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-daap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-daytime.c
