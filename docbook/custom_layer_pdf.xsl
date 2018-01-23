@@ -5,8 +5,16 @@
 <!-- import the main stylesheet -->
 <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl"/>
 
+<!-- page size -->
+<!-- Create PA4 (210 × 280mm) pages: https://en.wikipedia.org/wiki/Paper_size#PA4_or_L4
+     This is the approximate intersection of A4 (210 × 297mm) and U.S.
+     Letter (216 × 279mm).
+-->
+<xsl:param name="paper.type">PA4</xsl:param>
+<xsl:param name="page.width.portrait">210mm</xsl:param>
+<xsl:param name="page.height.portrait">280mm</xsl:param>
+
 <!-- create pdf bookmarks -->
-<!-- Disable this since FOP 0.93 doesn't handle them, yet -->
 <xsl:param name="fop1.extensions" select="1"/>
 
 <!-- don't use the draft mode (no loading of image from the web) -->

@@ -428,39 +428,22 @@ endif()
 
 if(ENABLE_PDF_GUIDES)
 	# To do:
-	# - Merge A4 and letter into the smallest dimension of each format.
-	#   Use   --stringparam  page.height <letter-height>mm --stringparam  page.width <at-width>mm
-	#   Test the effect of this on letter and a4 printers first (ps and non-ps).
-	# - Generate PDFs using AsciiDoc.
+	# - Generate PDFs using AsciiDoctor.
 
 	XML2PDF(
 		user_guide
-		user-guide-a4.pdf
+		user-guide.pdf
 		user-guide.xml
 		custom_layer_pdf.xsl
-		A4
 	)
 
-	XML2PDF(
-		user_guide
-		user-guide-us.pdf
-		user-guide.xml
-		custom_layer_pdf.xsl
-		letter
-	)
 	add_custom_target(
-		user_guide_pdf_a4
+		user_guide_pdf
 		DEPENDS
-			user-guide-a4.pdf
+			user-guide.pdf
 	)
-	set_target_properties(user_guide_pdf_a4 PROPERTIES FOLDER "Docbook")
-	add_custom_target(
-		user_guide_pdf_us
-		DEPENDS
-			user-guide-us.pdf
-	)
-	set_target_properties(user_guide_pdf_us PROPERTIES FOLDER "Docbook")
-	add_dependencies(user_guides user_guide_pdf_a4 user_guide_pdf_us)
+	set_target_properties(user_guide_pdf PROPERTIES FOLDER "Docbook")
+	add_dependencies(user_guides user_guide_pdf)
 endif()
 
 if(ENABLE_CHM_GUIDES)
@@ -505,32 +488,18 @@ endif()
 if(ENABLE_PDF_GUIDES)
 	XML2PDF(
 		developer_guide
-		developer-guide-a4.pdf
+		developer-guide.pdf
 		developer-guide.xml
 		custom_layer_pdf.xsl
-		A4
 	)
 
-	XML2PDF(
-		developer_guide
-		developer-guide-us.pdf
-		developer-guide.xml
-		custom_layer_pdf.xsl
-		letter
-	)
 	add_custom_target(
-		developer_guide_pdf_a4
+		developer_guide_pdf
 		DEPENDS
-			developer-guide-a4.pdf
+			developer-guide.pdf
 	)
-	set_target_properties(developer_guide_pdf_a4 PROPERTIES FOLDER "Docbook")
-	add_custom_target(
-		developer_guide_pdf_us
-		DEPENDS
-			developer-guide-us.pdf
-	)
-	set_target_properties(developer_guide_pdf_us PROPERTIES FOLDER "Docbook")
-	add_dependencies(developer_guides developer_guide_pdf_a4 developer_guide_pdf_us)
+	set_target_properties(developer_guide_pdf PROPERTIES FOLDER "Docbook")
+	add_dependencies(developer_guides developer_guide_pdf)
 endif()
 
 if(ENABLE_CHM_GUIDES)
@@ -545,7 +514,7 @@ if(ENABLE_CHM_GUIDES)
 	add_dependencies(developer_guides developer_guide_chm)
 endif()
 
-# release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
+# release_notes: release-notes.html release-notes.txt
 
 add_custom_target( release_notes_html DEPENDS ws.css release-notes.html )
 set_target_properties(release_notes_html PROPERTIES FOLDER "Docbook")
@@ -582,20 +551,6 @@ if( ASCIIDOC_FOUND )
 		"${ASCIIDOC_CONF_FILES}"
 	)
 endif()
-
-#ASCIIDOC2PDF(
-#	release-notes-a4.pdf
-#	release-notes.asciidoc
-#	"${ASCIIDOC_CONF_FILES}"
-#	A4
-#)
-
-#ASCIIDOC2PDF(
-#	release-notes-us.pdf
-#	release-notes.asciidoc
-#	"${ASCIIDOC_CONF_FILES}"
-#	letter
-#)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

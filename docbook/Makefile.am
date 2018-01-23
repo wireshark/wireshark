@@ -370,12 +370,12 @@ all-local: $(docbook_all_local_targets)
 
 all-html: wsug wsdg release-notes
 
-all-pdf: wsug-pdf wsdg-pdf release-notes-pdf
+all-pdf: wsug-pdf wsdg-pdf
 
 # Wireshark User Guide
 wsug: wsug_html_chunked wsug_html
 
-wsug-pdf: wsug user-guide-a4.pdf user-guide-us.pdf
+wsug-pdf: wsug user-guide.pdf
 
 user-guide.xml: user-guide.asciidoc $(WSUG_FILES) $(WSUG_TOOLS_HELP_FILES)
 	$(A2X) --verbose \
@@ -414,19 +414,11 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE)
 		    $(WSUG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsug_html_chunked
 
-# create pdf file (through XSL-FO), portrait pages on US letter paper
-# you will get lot's of errors, but that's ok
-user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
-	@ echo --- WSUG - PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter \
-		$(COMMON_XSLTPROC_ARGS) $(WSUG_PDF_XSLTPROC_ARGS) \
-		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
-
-# create pdf file (through XSL-FO), portrait pages on A4 paper
-# you will get lot's of errors, but that's ok
-user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
-	@ echo --- WSUG - PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 \
+# create pdf file (through XSL-FO), portrait pages on PA4 (210 x 280 mm) "paper"
+# you will get lots of errors, but that's ok
+user-guide.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
+	@ echo --- WSUG - PDF PA4 PAPER ---
+	$(XSLTPROC) \
 		$(COMMON_XSLTPROC_ARGS) $(WSUG_PDF_XSLTPROC_ARGS) \
 		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
@@ -439,7 +431,7 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 # Wireshark Developer Guide
 wsdg: wsdg_html_chunked wsdg_html
 
-wsdg-pdf: wsdg developer-guide-a4.pdf developer-guide-us.pdf
+wsdg-pdf: wsdg developer-guide.pdf
 
 developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES) wsluarm
 	$(A2X) --verbose \
@@ -481,20 +473,11 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 		$(WSDG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsdg_html_chunked
 
-# create pdf file (through XSL-FO), portrait pages on US letter paper
+# create pdf file (through XSL-FO), portrait pages on PA4 (210 x 280 mm) "paper"
 # you will get lot's of errors, but that's ok
-developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
-	@ echo --- WSDG - PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter \
-		    $(COMMON_XSLTPROC_ARGS) $(WSDG_PDF_XSLTPROC_ARGS) \
-		    --path .:wsluarm_src:$(srcdir) \
-		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
-
-# create pdf file (through XSL-FO), portrait pages on A4 paper
-# you will get lot's of errors, but that's ok
-developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
-	@ echo --- WSDG - PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 \
+developer-guide.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
+	@ echo --- WSDG - PDF PA4 PAPER ---
+	$(XSLTPROC) \
 		    $(COMMON_XSLTPROC_ARGS) $(WSDG_PDF_XSLTPROC_ARGS) \
 		    --path .:wsluarm_src:$(srcdir) \
 		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
@@ -505,8 +488,6 @@ release-notes: release-notes.html release-notes.txt
 else
 release-notes: release-notes.html
 endif
-
-release-notes-pdf: release-notes release-notes-a4.pdf release-notes-us.pdf
 
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
@@ -527,26 +508,6 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 news: release-notes.txt
 	cp release-notes.txt ../NEWS
 	-cp release-notes.txt $(top_srcdir)/NEWS
-
-# Apparently we can only run one instance of a2x at a time.
-.NOTPARALLEL: release-notes-us.pdf release-notes-a4.pdf
-# create pdf file, portrait pages on US letter paper
-release-notes-us.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
-	@ echo --- RELEASE NOTES - PDF US LETTER PAPER ---
-	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
-		--xsltproc-opts "--stringparam paper.type letter --nonet" \
-		--xsl-file=$(srcdir)/custom_layer_pdf.xsl \
-		--destination-dir=$(builddir) \
-		$(srcdir)/release-notes.asciidoc
-
-# create pdf file, portrait pages on A4 paper
-release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
-	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
-	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
-		--xsltproc-opts "--stringparam paper.type A4 --nonet" \
-		--xsl-file=$(srcdir)/custom_layer_pdf.xsl \
-		--destination-dir=$(builddir) \
-		$(srcdir)/release-notes.asciidoc
 
 install-data-local:
 if BUILD_USER_GUIDE
