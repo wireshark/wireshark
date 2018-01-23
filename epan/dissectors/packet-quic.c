@@ -330,6 +330,7 @@ static const value_string quic_error_code_vals[] = {
 static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
 
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 static guint32 get_len_offset(guint8 frame_type){
 
     switch((frame_type & FTFLAGS_STREAM_OO) >> 1){
@@ -411,6 +412,7 @@ static guint32 get_len_ack_block(guint8 frame_type){
     }
     return 1;
 }
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 static guint32 get_len_packet_number(guint8 short_packet_type){
 
@@ -433,6 +435,7 @@ static guint32 get_len_packet_number(guint8 short_packet_type){
     return 1;
 }
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 static int
 dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info){
     proto_item *ti_ft, *ti_ftflags;
@@ -922,6 +925,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
     return offset;
 }
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 /* TLS 1.3 draft used by the draft-ietf-quic-tls-07 */
 #define QUIC_TLS13_VERSION          21
