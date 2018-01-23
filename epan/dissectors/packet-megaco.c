@@ -129,6 +129,7 @@ static int hf_megaco_mId                        = -1;
 static int hf_megaco_h245                       = -1;
 static int hf_megaco_h223Capability             = -1;
 static int hf_megaco_audititem                  = -1;
+static int hf_megaco_priority                   = -1;
 
 /* Define the trees for megaco */
 static int ett_megaco                           = -1;
@@ -178,6 +179,12 @@ static gint exported_pdu_tap = -1;
 static ws_mempbrk_pattern pbrk_whitespace;
 static ws_mempbrk_pattern pbrk_braces;
 
+/* Used when command type is needed to diferentiate parsing, extend as needed */
+typedef enum
+{
+    MEGACO_CMD_NOT_SET = 0,
+    MEGACO_CMD_PRIORITY,
+} megaco_commands_enum_t;
 
 /*
 * Here are the global variables associated with
@@ -604,6 +611,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     gcp_wildcard_t  wild_term = GCP_WILDCARD_NONE;
     gboolean        short_form;
 
+    megaco_commands_enum_t megaco_command = MEGACO_CMD_NOT_SET;
     /* Initialize variables */
     tvb_len                     = tvb_reported_length(tvb);
     megaco_tree                 = NULL;
@@ -1324,6 +1332,7 @@ nextcontext:
                                     tvb_command_start_offset, tokenlen, "Priority");
                                 col_append_str(pinfo->cinfo, COL_INFO, " Priority");
                                 proto_item_append_text(sub_ti, "Priority");
+                                megaco_command = MEGACO_CMD_PRIORITY;
                                 break;
                             case 'F':
                                 proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
@@ -1526,15 +1535,25 @@ nextcontext:
 
                     default:
                         /*** TERM ***/
-                        proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
-                            tvb_offset, tokenlen,
-                            tvb_format_text(tvb, tvb_offset,
-                            tokenlen));
+                        switch (megaco_command) {
+                        case MEGACO_CMD_PRIORITY:
+                            proto_tree_add_string(megaco_tree_command_line, hf_megaco_priority, tvb,
+                                tvb_offset, tokenlen,
+                                tvb_format_text(tvb, tvb_offset,
+                                    tokenlen));
+                            break;
+                        default:
+                            proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
+                                tvb_offset, tokenlen,
+                                tvb_format_text(tvb, tvb_offset,
+                                    tokenlen));
 
-                        term->len = tokenlen;
-                        term->buffer = (const guint8*)(term->str = tvb_format_text(tvb, tvb_offset, tokenlen));
+                            term->len = tokenlen;
+                            term->buffer = (const guint8*)(term->str = tvb_format_text(tvb, tvb_offset, tokenlen));
 
-                        gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+                            gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+                            break;
+                        }
 
                         col_append_fstr(pinfo->cinfo, COL_INFO, "=%s",tvb_format_text(tvb, tvb_offset,tokenlen));
                         break;
@@ -3746,6 +3765,9 @@ proto_register_megaco(void)
         { &hf_megaco_h223Capability,
           { "h223Capability", "megaco.h245.h223Capability", FT_NONE, BASE_NONE, NULL, 0,
             "megaco.h245.H223Capability", HFILL }},
+        { &hf_megaco_priority,
+          { "Priority", "megaco.priority", FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
 
         GCP_HF_ARR_ELEMS("megaco",megaco_ctx_ids),
 
