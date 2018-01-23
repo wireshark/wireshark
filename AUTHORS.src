@@ -3704,6 +3704,10 @@ S. Shapira		<sswsdev[AT]gmail.com> {
 	UMTS FP heuristic dissectors
 }
 
+Lazar Sumar		<bugzilla[AT]lazar.co.nz> {
+	CAN-ETH dissectors
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

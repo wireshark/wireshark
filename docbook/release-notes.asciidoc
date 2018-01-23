@@ -78,6 +78,7 @@ AMT (Automatic Multicast Tunneling)
 Bluetooth Mesh
 Broadcom tags (Broadcom Ethernet switch management frames)
 CVS password server
+CAN-ETH
 FP Mux
 GRPC (gRPC)
 IEEE 1905.1a

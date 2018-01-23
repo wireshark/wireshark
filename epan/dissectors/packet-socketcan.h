@@ -30,6 +30,9 @@ struct can_identifier
 
 typedef struct can_identifier can_identifier_t;
 
+#define CAN_EFF_MASK 0x1FFFFFFF /* extended frame format (EFF) has a 29 bit identifier */
+#define CAN_SFF_MASK 0x000007FF /* standard frame format (SFF) has a 11 bit identifier */
+
 #endif /* __PACKET_SOCKETCAN_H__ */
 
 /*

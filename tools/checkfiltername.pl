@@ -394,6 +394,7 @@ sub is_from_other_protocol_whitelist {
 	# XXX - may be faster to hash this (note 1-many relationship)?
 	if (($proto_filename eq "packet-bpdu.c") && (index($_[0], "mstp") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-bssap.c") && (index($_[0], "bsap") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-caneth.c") && (index($_[0], "can") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cimetrics.c") && (index($_[0], "llc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "cip") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "enip") >= 0)) {return 1;}

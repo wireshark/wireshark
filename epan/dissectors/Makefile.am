@@ -371,6 +371,7 @@ DISSECTOR_SRC = \
 	packet-bzr.c		\
 	packet-c15ch.c		\
 	packet-calcappprotocol.c	\
+	packet-caneth.c		\
 	packet-canopen.c	\
 	packet-capwap.c		\
 	packet-carp.c		\

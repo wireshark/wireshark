@@ -44,8 +44,6 @@
 #define CAN_EFF_FLAG 0x80000000 /* EFF/SFF is set in the MSB */
 #define CAN_RTR_FLAG 0x40000000 /* remote transmission request */
 #define CAN_ERR_FLAG 0x20000000 /* error frame */
-#define CAN_EFF_MASK 0x1FFFFFFF /* extended frame format (EFF) */
-#define CAN_SFF_MASK 0x000007FF /* standard frame format (SFF) */
 
 void proto_register_socketcan(void);
 void proto_reg_handoff_socketcan(void);
