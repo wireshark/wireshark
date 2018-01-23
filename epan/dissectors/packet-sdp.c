@@ -250,6 +250,7 @@ typedef struct {
     transport_proto_t proto;    /**< Protocol, parsed from "m=" line. */
     gboolean is_video;          /**< Whether "m=video" */
     guint16 media_port;         /**< Port number, parsed from "m=" line. */
+    guint16 control_port;       /**< Port number, parsed from "a=rtcp" or "a=rtcp-mux" line. */
     address conn_addr;          /**< The address from the "c=" line (default
                                      from session level, possibly overridden at
                                      the media level). */
@@ -1541,6 +1542,8 @@ typedef struct {
 #define SDP_ED137_TYPE          8
 #define SDP_ED137_TXRXMODE      9
 #define SDP_ED137_FID           10
+#define SDP_RTCP                11
+#define SDP_RTCP_MUX            12
 
 static const sdp_names_t sdp_media_attribute_names[] = {
     { "Unknown-name"},    /* 0 Pad so that the real headers start at index 1 */
@@ -1554,6 +1557,8 @@ static const sdp_names_t sdp_media_attribute_names[] = {
     { "type" },           /* 8 */
     { "txrxmode" },       /* 9 */
     { "fid" },            /* 10 */
+    { "rtcp" },           /* 11 */
+    { "rtcp-mux" },       /* 12 */
 };
 
 static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
@@ -2036,6 +2041,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
                                 tvb, offset, -1, ENC_UTF_8|ENC_NA);
             break;
+        case SDP_RTCP :
+            if (!ws_strtou16(attribute_value, NULL, &media_desc->control_port))
+                media_desc->control_port = 0; /* Just use default, if not legal port */
+            break;
+        case SDP_RTCP_MUX :
+            media_desc->control_port = media_desc->media_port;
+            break;
         default:
             /* No special treatment for values of this attribute type, just add as one item. */
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
@@ -2095,6 +2107,9 @@ complete_descriptions(transport_info_t *transport_info, guint answer_offset)
 
     for (guint i = answer_offset; i < media_count; i++) {
         media_description_t *media_desc = &media_descs[i];
+
+        if (media_desc->control_port == 0)
+            media_desc->control_port = media_desc->media_port + 1;
 
         /* If this is an answer to a previous offer... */
         if (answer_offset > 0) {
@@ -2197,18 +2212,18 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
             /* SPRT might use the same port... */
             current_rtp_port = media_desc->media_port;
 
-            if (rtcp_handle) {
+            if (rtcp_handle && media_desc->media_port != media_desc->control_port) {
                 if (media_desc->proto == SDP_PROTO_SRTP) {
                     DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
-                            i, media_desc->media_port+1));
+                            i, media_desc->control_port));
                     DINDENT();
-                    srtcp_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port+1, 0, "SDP", establish_frame, srtp_info);
+                    srtcp_add_address(pinfo, &media_desc->conn_addr, media_desc->control_port, 0, "SDP", establish_frame, srtp_info);
                     DENDENT();
                  } else {
                     DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
-                            i, media_desc->media_port+1));
+                            i, media_desc->control_port));
                     DINDENT();
-                    rtcp_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port+1, 0, "SDP", establish_frame);
+                    rtcp_add_address(pinfo, &media_desc->conn_addr, media_desc->control_port, 0, "SDP", establish_frame);
                     DENDENT();
                  }
             }
