@@ -1181,7 +1181,7 @@ rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload)
 void
 bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
          const gchar *setup_method, guint32 setup_frame_number,
-         gboolean is_video, void *data)
+         guint32 media_types, void *data)
 {
     address null_addr;
     conversation_t* p_conv;
@@ -1237,13 +1237,10 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
         p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
 
-        if (is_video) {
-            p_conv_data->bta2dp_info = NULL;
-            p_conv_data->btvdp_info = (btvdp_codec_info_t *) wmem_memdup(wmem_file_scope(), data, sizeof(btvdp_codec_info_t));
-        } else {
+        if (media_types&RTP_MEDIA_AUDIO)
             p_conv_data->bta2dp_info = (bta2dp_codec_info_t *) wmem_memdup(wmem_file_scope(), data, sizeof(bta2dp_codec_info_t));
-            p_conv_data->btvdp_info = NULL;
-        }
+        if (media_types&RTP_MEDIA_VIDEO)
+            p_conv_data->btvdp_info = (btvdp_codec_info_t *) wmem_memdup(wmem_file_scope(), data, sizeof(btvdp_codec_info_t));
     }
 
     /*
@@ -1254,7 +1251,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
 
     g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
     p_conv_data->frame_number = setup_frame_number;
-    p_conv_data->is_video = is_video;
+    p_conv_data->media_types = media_types;
     p_conv_data->rtp_dyn_payload = NULL;
     p_conv_data->srtp_info = NULL;
 }
@@ -1263,7 +1260,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
 void
 srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int port, int other_port,
          const gchar *setup_method, guint32 setup_frame_number,
-         gboolean is_video _U_, rtp_dyn_payload_t *rtp_dyn_payload,
+         guint32 media_types _U_, rtp_dyn_payload_t *rtp_dyn_payload,
          struct srtp_info *srtp_info)
 {
     address null_addr;
@@ -1359,7 +1356,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
 
     g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
     p_conv_data->frame_number = setup_frame_number;
-    p_conv_data->is_video = is_video;
+    p_conv_data->media_types = media_types;
     p_conv_data->srtp_info = srtp_info;
     p_conv_data->bta2dp_info = NULL;
     p_conv_data->btvdp_info = NULL;
@@ -1369,9 +1366,9 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
 void
 rtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int port, int other_port,
         const gchar *setup_method, guint32 setup_frame_number,
-        gboolean is_video , rtp_dyn_payload_t *rtp_dyn_payload)
+        guint32 media_types , rtp_dyn_payload_t *rtp_dyn_payload)
 {
-    srtp_add_address(pinfo, ptype, addr, port, other_port, setup_method, setup_frame_number, is_video, rtp_dyn_payload, NULL);
+    srtp_add_address(pinfo, ptype, addr, port, other_port, setup_method, setup_frame_number, media_types, rtp_dyn_payload, NULL);
 }
 
 static gboolean
@@ -1441,7 +1438,7 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         }
         g_strlcpy(p_conv_data->method, "HEUR RTP", MAX_RTP_SETUP_METHOD_SIZE+1);
         p_conv_data->frame_number = pinfo->num;
-        p_conv_data->is_video = FALSE;
+        p_conv_data->media_types = 0;
         p_conv_data->srtp_info = NULL;
         p_conv_data->bta2dp_info = NULL;
         p_conv_data->btvdp_info = NULL;
@@ -2127,7 +2124,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     rtp_info->info_padding_set = padding_set;
     rtp_info->info_padding_count = 0;
     rtp_info->info_marker_set = marker_set;
-    rtp_info->info_is_video = FALSE;
+    rtp_info->info_media_types = 0;
     rtp_info->info_payload_type = payload_type;
     rtp_info->info_seq_num = seq_num;
     rtp_info->info_timestamp = timestamp;
@@ -2176,7 +2173,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     p_conv_data = get_conv_info(pinfo, rtp_info);
 
     if (p_conv_data)
-        rtp_info->info_is_video = p_conv_data->is_video;
+        rtp_info->info_media_types = p_conv_data->media_types;
 
     if (p_conv_data && p_conv_data->srtp_info) is_srtp = TRUE;
     rtp_info->info_is_srtp = is_srtp;
@@ -2788,7 +2785,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
                 p_conv_packet_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
                 g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
-                p_conv_packet_data->is_video = p_conv_data->is_video;
+                p_conv_packet_data->media_types = p_conv_data->media_types;
                 /* do not increment ref count for the rtp_dyn_payload */
                 p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
                 p_conv_packet_data->rtp_conv_info = p_conv_data->rtp_conv_info;

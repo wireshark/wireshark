@@ -30,11 +30,16 @@
 
 #include "packet-btavdtp.h"
 
+
+#define RTP_MEDIA_AUDIO 1
+#define RTP_MEDIA_VIDEO 2
+#define RTP_MEDIA_OTHER 4
+
 struct _rtp_info {
 	unsigned int  info_version;
 	gboolean      info_padding_set;
 	gboolean      info_marker_set;
-	gboolean      info_is_video;
+	guint32       info_media_types;
 	unsigned int  info_payload_type;
 	unsigned int  info_padding_count;
 	guint16       info_seq_num;
@@ -177,7 +182,7 @@ struct _rtp_conversation_info
 {
 	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
 	guint32 frame_number;			/* the frame where this conversation is started */
-	gboolean is_video;
+	guint32 media_types;
 	rtp_dyn_payload_t *rtp_dyn_payload;	/* the dynamic RTP payload info - see comments above */
 
 	guint32 extended_seqno;			/* the sequence number, extended to a 32-bit
@@ -200,7 +205,7 @@ void rtp_add_address(packet_info *pinfo,
                      int other_port,
                      const gchar *setup_method,
                      guint32 setup_frame_number,
-					 gboolean is_video,
+                     guint32 media_types,
                      rtp_dyn_payload_t *rtp_dyn_payload);
 
 /* Add an SRTP conversation with the given details */
@@ -211,7 +216,7 @@ void srtp_add_address(packet_info *pinfo,
                      int other_port,
                      const gchar *setup_method,
                      guint32 setup_frame_number,
-					 gboolean is_video,
+                     guint32 media_types,
                      rtp_dyn_payload_t *rtp_dyn_payload,
                      struct srtp_info *srtp_info);
 
@@ -219,4 +224,4 @@ void srtp_add_address(packet_info *pinfo,
 void
 bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
          const gchar *setup_method, guint32 setup_frame_number,
-         gboolean is_video, void *data);
+         guint32 media_types, void *data);

@@ -3076,7 +3076,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (bta2dp_codec_info.content_protection_type == 0 && codec_dissector == aptx_handle) {
         call_dissector_with_data(aptx_handle, tvb, pinfo, tree, &bta2dp_codec_info);
     } else {
-        bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->num, FALSE, &bta2dp_codec_info);
+        bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->num, RTP_MEDIA_AUDIO, &bta2dp_codec_info);
         call_dissector(rtp_handle, tvb, pinfo, tree);
     }
     offset += tvb_reported_length_remaining(tvb, offset);
@@ -3309,7 +3309,7 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pinfo->destport = sep_data.stream_number;
 #endif
 
-    bluetooth_add_address(pinfo, &pinfo->net_dst, 0, "BT VDP", pinfo->num, TRUE, &btvdp_codec_info);
+    bluetooth_add_address(pinfo, &pinfo->net_dst, 0, "BT VDP", pinfo->num, RTP_MEDIA_VIDEO, &btvdp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
     offset += tvb_reported_length_remaining(tvb, offset);
 
