@@ -4482,13 +4482,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         stat_info->setup_time = response_time;
     }
 
-    /* Check if this packet is a resend. */
-    resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
-                                             cseq_number_set, cseq_number,
-                                             line_type);
-    /* Mark whether this is a resend for the tap */
-    stat_info->resend = (resend_for_packet > 0);
-
     /* For responses, try to link back to request frame */
     if (line_type == STATUS_LINE)
     {
@@ -4496,6 +4489,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                 cseq_number_set, cseq_number,
                                                 &response_time);
     }
+
+    /* Check if this packet is a resend. */
+    resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
+                                             cseq_number_set, cseq_number,
+                                             line_type);
+    /* Mark whether this is a resend for the tap */
+    stat_info->resend = (resend_for_packet > 0);
 
     /* Report this packet to the tap */
     if (!pinfo->flags.in_error_pkt)
