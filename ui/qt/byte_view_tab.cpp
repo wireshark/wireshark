@@ -28,17 +28,24 @@
 // - We might want to add a callback to free_data_sources in so that we
 //   don't have to blindly call clear().
 
-ByteViewTab::ByteViewTab(QWidget *parent) :
+ByteViewTab::ByteViewTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     QTabWidget(parent),
-    cap_file_(0)
+    cap_file_(0),
+    is_fixed_packet_(edt_fixed != NULL),
+    edt_(edt_fixed)
 {
     setAccessibleName(tr("Packet bytes"));
     setTabPosition(QTabWidget::South);
     setDocumentMode(true);
 
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+    if (!edt_fixed) {
+        connect(wsApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+    }
 }
 
+// Connects the byte view with the main window, acting on changes to the packet
+// list selection. It MUST NOT be used with the packet dialog as that is
+// independent of the selection in the packet list.
 void ByteViewTab::connectToMainWindow()
 {
     connect(this, SIGNAL(fieldSelected(FieldInformation *)),
@@ -108,10 +115,10 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
 void ByteViewTab::byteViewTextHovered(int idx)
 {
-    if ( idx >= 0 && cap_file_ && cap_file_->edt )
+    if ( idx >= 0 && edt_ )
     {
         tvbuff_t * tvb = VariantPointer<tvbuff_t>::asPtr(sender()->property(tvb_data_property));
-        proto_tree * tree = cap_file_->edt->tree;
+        proto_tree * tree = edt_->tree;
 
         if ( tvb && tree )
         {
@@ -131,10 +138,10 @@ void ByteViewTab::byteViewTextHovered(int idx)
 
 void ByteViewTab::byteViewTextMarked(int idx)
 {
-    if ( idx >= 0 && cap_file_ && cap_file_->edt )
+    if ( idx >= 0 && edt_ )
     {
         tvbuff_t * tvb = VariantPointer<tvbuff_t>::asPtr(sender()->property(tvb_data_property));
-        proto_tree * tree = cap_file_->edt->tree;
+        proto_tree * tree = edt_->tree;
 
         if ( tvb && tree )
         {
@@ -216,6 +223,20 @@ void ByteViewTab::selectedFrameChanged(int frameNum)
     clear();
     qDeleteAll(findChildren<ByteViewText *>());
 
+    if (!is_fixed_packet_) {
+        /* If this is not a fixed packet (not the packet dialog), it must be the
+         * byte view associated with the packet list. */
+        if (cap_file_ && cap_file_->edt) {
+            /* Assumes that this function is called as a result of selecting a
+             * packet in the packet list (PacketList::selectionChanged). That
+             * invokes "cf_select_packet" which will update "cap_file_->edt". */
+            edt_ = cap_file_->edt;
+        } else {
+            /* capture file is closing or packet is deselected. */
+            edt_ = NULL;
+        }
+    }
+
     if ( frameNum >= 0 )
     {
         if ( ! cap_file_ || ! cap_file_->edt )
@@ -225,7 +246,7 @@ void ByteViewTab::selectedFrameChanged(int frameNum)
          * really check, if the dissection happened for the correct frame. In the future we might
          * rewrite this for directly calling the dissection engine here. */
         GSList *src_le;
-        for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+        for (src_le = edt_->pi.data_src; src_le != NULL; src_le = src_le->next) {
             struct data_source *source;
             char* source_name;
             source = (struct data_source *)src_le->data;

@@ -29,7 +29,7 @@ class ByteViewTab : public QTabWidget
     Q_OBJECT
 
 public:
-    explicit ByteViewTab(QWidget *parent = 0);
+    explicit ByteViewTab(QWidget *parent = 0, epan_dissect_t *edt_fixed = 0);
 
 public slots:
     /* Set the capture file */
@@ -47,6 +47,10 @@ signals:
 
 private:
     capture_file *cap_file_;
+    bool is_fixed_packet_;  /* true if this byte view is related to a single
+                               packet in the packet dialog and false if the
+                               packet dissection context can change. */
+    epan_dissect_t *edt_;   /* Packet dissection result for the currently selected packet. */
 
     void setTabsVisible();
     ByteViewText * findByteViewTextForTvb(tvbuff_t * search, int * idx = 0);
