@@ -618,6 +618,7 @@ static expert_field ei_bootp_option125_enterprise_malformed = EI_INIT;
 static expert_field ei_bootp_option_6RD_malformed = EI_INIT;
 static expert_field ei_bootp_option82_vi_cl_tag_unknown = EI_INIT;
 static expert_field ei_bootp_option_parse_err = EI_INIT;
+static expert_field ei_bootp_nonstd_option_data = EI_INIT;
 static expert_field ei_bootp_suboption_invalid = EI_INIT;
 static expert_field ei_bootp_secs_le = EI_INIT;
 static expert_field ei_bootp_end_option_missing = EI_INIT;
@@ -2188,6 +2189,13 @@ dissect_bootpopt_user_class_information(tvbuff_t *tvb, packet_info *pinfo, proto
 	if (tvb_reported_length(tvb) < 2) {
 		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length isn't >= 2");
 		return 1;
+	}
+
+	if (!tvb_strneql(tvb, offset, "iPXE", 4)) {
+		/* The iPXE is known to violate RFC 3004, http://forum.ipxe.org/showthread.php?tid=7530 */
+		proto_item *expert_ti = proto_tree_add_item(tree, hf_bootp_option77_user_class_data, tvb, offset, -1, ENC_NA);
+		expert_add_info(pinfo, expert_ti, &ei_bootp_nonstd_option_data);
+		return tvb_captured_length(tvb);
 	}
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -8861,6 +8869,7 @@ proto_register_bootp(void)
 		{ &ei_bootp_option_6RD_malformed, { "bootp.option.6RD.malformed", PI_PROTOCOL, PI_ERROR, "6RD: malformed option", EXPFILL }},
 		{ &ei_bootp_option82_vi_cl_tag_unknown, { "bootp.option.option.vi.cl.tag_unknown", PI_PROTOCOL, PI_ERROR, "Unknown tag", EXPFILL }},
 		{ &ei_bootp_option_parse_err, { "bootp.option.parse_err", PI_PROTOCOL, PI_ERROR, "Parse error", EXPFILL }},
+		{ &ei_bootp_nonstd_option_data, { "bootp.option.nonstd_data", PI_PROTOCOL, PI_NOTE, "Non standard compliant option data", EXPFILL }},
 		{ &ei_bootp_suboption_invalid, { "bootp.suboption_invalid", PI_PROTOCOL, PI_ERROR, "Invalid suboption", EXPFILL }},
 		{ &ei_bootp_secs_le, { "bootp.secs_le", PI_PROTOCOL, PI_NOTE, "Seconds elapsed appears to be encoded as little-endian", EXPFILL }},
 		{ &ei_bootp_end_option_missing, { "bootp.end_option_missing", PI_PROTOCOL, PI_ERROR, "End option missing", EXPFILL }},
