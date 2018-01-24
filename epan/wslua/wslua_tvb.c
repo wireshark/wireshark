@@ -883,6 +883,11 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
         return 0;
     }
 
+    if (encoding & ~ENC_STR_TIME_MASK) {
+        WSLUA_OPTARG_ERROR(TvbRange_nstime, ENCODING, "invalid encoding value");
+        return 0;
+    }
+
     nstime = g_new(nstime_t,1);
 
     if (encoding == 0) {
@@ -899,9 +904,6 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
         }
         pushNSTime(L, nstime);
         lua_pushinteger(L, tvbr->len);
-    }
-    else if (encoding & ~ENC_STR_TIME_MASK) {
-        WSLUA_OPTARG_ERROR(TvbRange_nstime, ENCODING, "invalid encoding value");
     }
     else {
         gint endoff = 0;
