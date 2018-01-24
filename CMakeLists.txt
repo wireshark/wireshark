@@ -2005,19 +2005,18 @@ foreach(_data_file ${_data_files})
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_data_file}")
 endforeach()
 
-if(CMAKE_VERSION VERSION_LESS "3.5")
-# To bad -u / --update is a GNU extension.
-set (MULTI_COPY_COMMAND cp)
+if(CMAKE_VERSION VERSION_LESS 3.5)
+	# To bad -u / --update is a GNU extension.
+	set (MULTI_COPY_COMMAND cp)
 else()
-set (MULTI_COPY_COMMAND ${CMAKE_COMMAND} -E copy_if_different)
+	set (MULTI_COPY_COMMAND ${CMAKE_COMMAND} -E copy_if_different)
 endif()
 
 add_custom_command(
 	OUTPUT "${DATAFILE_DIR}/dtds" "${DATAFILE_DIR}/diameter" "${DATAFILE_DIR}/radius"
-	COMMAND ${CMAKE_COMMAND} -E make_directory
-		"${DATAFILE_DIR}/dtds"
-		"${DATAFILE_DIR}/diameter"
-		"${DATAFILE_DIR}/radius"
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/dtds"
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/diameter"
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/radius"
 )
 
 file(GLOB _dtds_src_files RELATIVE "${CMAKE_SOURCE_DIR}" "dtds/*.dtd")
