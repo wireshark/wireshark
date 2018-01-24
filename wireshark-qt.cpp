@@ -835,32 +835,13 @@ int main(int argc, char *qt_argv[])
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();
-////////
 
     packet_list_enable_color(recent.packet_list_colorize);
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: fetch recent color settings");
-    packet_list_enable_color(TRUE);
-
-////////
-
-
-////////
     if (!color_filters_init(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
-
-////////
-
-#ifdef HAVE_LIBPCAP
-    /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
-    if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
-        global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
-    }
-#else /* HAVE_LIBPCAP */
-    ////////
-#endif /* HAVE_LIBPCAP */
 
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %.3fs\n", (float) (g_get_monotonic_time() - start_time) / 1000000);
@@ -915,7 +896,6 @@ int main(int argc, char *qt_argv[])
                 g_free(s);
             }
             /* "-k" was specified; start a capture. */
-//            show_main_window(FALSE);
             check_and_warn_user_startup(cf_name);
 
             /* If no user interfaces were specified on the command line,
@@ -934,7 +914,7 @@ int main(int argc, char *qt_argv[])
                 start_requested_stats();
             }
         }
-    /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
+        /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
         if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
             global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
         }
