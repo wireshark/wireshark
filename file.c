@@ -2412,7 +2412,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args,
 
       /* Find the length of the string for this column. */
       column_len = (int) strlen(cf->cinfo.columns[i].col_title);
-      if (callback_args.col_widths[i] > column_len)
+      if (callback_args.col_widths[visible_col_count] > column_len)
         column_len = callback_args.col_widths[visible_col_count];
 
       /* Make sure there's room in the line buffer for the column; if not,
