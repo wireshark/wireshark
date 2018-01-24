@@ -4269,8 +4269,8 @@ dissect_openflow_port_stats_prop_ethernet_v6(tvbuff_t *tvb, packet_info *pinfo _
 #define OFPOSF_RX_TUNE   1<<0
 #define OFPOSF_TX_TUNE   1<<1
 #define OFPOSF_TX_PWR    1<<2
-#define OFPOSF_RX_PWR    1<<3
-#define OFPOSF_TX_BIAS   1<<4
+#define OFPOSF_RX_PWR    1<<4
+#define OFPOSF_TX_BIAS   1<<5
 #define OFPOSF_TX_TEMP   1<<6
 static int
 dissect_openflow_port_stats_prop_optical_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
