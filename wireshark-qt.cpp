@@ -388,9 +388,9 @@ int main(int argc, char *qt_argv[])
 #ifdef HAVE_LIBPCAP
     int                  caps_queries = 0;
 #endif
-#ifdef DEBUG_STARTUP_TIME
     /* Start time in microseconds */
     guint64 start_time = g_get_monotonic_time();
+#ifdef DEBUG_STARTUP_TIME
     /* At least on Windows there is a problem with the logging as the preferences is taken
      * into account and the preferences are loaded pretty late in the startup process.
      */
@@ -863,9 +863,7 @@ int main(int argc, char *qt_argv[])
 #endif /* HAVE_LIBPCAP */
 
     wsApp->allSystemsGo();
-#ifdef DEBUG_STARTUP_TIME
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %" G_GUINT64_FORMAT "us \n", g_get_monotonic_time() - start_time);
-#endif
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %.3fs\n", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */
