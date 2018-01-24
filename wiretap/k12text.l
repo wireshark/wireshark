@@ -394,6 +394,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 
 	if (!k12text_run_scanner(&state, wth->random_fh, NEXT_FRAME, err, err_info)) {
+		g_free(state.bb);
 		return FALSE;
 	}
 
