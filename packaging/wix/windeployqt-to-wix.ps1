@@ -72,6 +72,7 @@ try {
         $wdqtList = windeployqt `
             --release `
             --no-compiler-runtime `
+            --no-translations `
             --list relative `
             $Executable
 
@@ -95,12 +96,6 @@ try {
       <ComponentGroup Id=`"CG.QtDependencies`">
 "
         foreach ($entry in $wdqtList) {
-            $entryPath = Join-Path -Path $dllPath -ChildPath $entry
-            if ($entry.EndsWith(".qm") -and -not (Test-Path $entryPath -PathType Leaf)) {
-                # Windeployqt --list can print translation files that
-                # don't exist (QTBUG-65974).
-                continue
-            }
             $dir = Split-Path -Parent $entry
             if ($dir) {
                 if ($dir -ne $currentDir) {
