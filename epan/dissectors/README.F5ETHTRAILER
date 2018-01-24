@@ -1,0 +1,279 @@
+F5 Ethernet Trailer Plugin
+Version 1.11 Aug 19, 2017
+(c) F5 Networks, 2007-2017
+
+Supported Platforms:
+    BIGIP 9.4.2 and later.
+
+Supported Wireshark Versions:
+    Wireshark 2.2, 2.4
+
+Installation:
+    1.  Acquire the Wireshark source tarball at:
+        * http://www.wireshark.org/download/src/wireshark-{version}.tar.bz2
+    2.  Extract out the files.
+    3.  Enter into the directory, and extract the files in the F5 package:
+        # cd wireshark-{version}/
+        # tar xzf wireshark2.2.plugin.f5ethtrailer.1.11.tar.gz
+    4.  (optional) You might want to define the "NO_F5_POP_OTHERFIELDS" macro.
+        Please see the note in the packet-f5ethtrailer.c file for details.
+    5a. If you are on Windows, proceed to compilation following the
+        instructions at:
+        * http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
+    5b. If you are on a GNU GCC based platform, proceed to compilation by
+        following the instructions at:
+        * http://www.wireshark.org/docs/wsdg_html_chunked/ChSrcBuildFirstTime.html
+    6.  Install Wireshark to your target system
+
+Usage:
+
+  * Acquire capture files using the following command line:
+    * tcpdump -w capture.pcap -s0 -i internal:nnn
+  * Load the capture file into wireshark.
+
+  * Observe the grammar added to the beginning of each packet in the "Info"
+    column of the packet list pane.
+  * Observe the added "F5 Ethernet trailer" section in the packet detail
+    pane.
+  * These fields are filterable like any other field.
+  * Review the preferences for the dissector.
+
+  * If you are using Wireshark 1.8 or higher, you might be missing the Low
+    details of the trailer for some packets.  If this happens, try modifying
+    the settings for the Ethernet dissector.  Go to "Edit/Preferences...",
+    expand "Protocols" on the left and select "Ethernet".  Disable "Assume
+    short frames which include a trailer contain padding".
+
+Notes:
+
+  Follow F5 Conversation:
+
+    As an alternative to the Populate Fields for Other Dissectors below, you
+    can now follow a connection through the BIG-IP using the main menu
+    Analyze/Conversation Filter menu.  There are three options: follow "F5 IP",
+    "F5 TCP" or "F5 UDP".  Select a frame and choose the appropriate menu item.
+    For best results, disable Populate Fields for Other Dissectors.  This
+    method of following a conversation should avoid the stray packets problem
+    mentioned below.
+
+    These menu selections will populate an appropriate filter expression with
+    ip.addr, tcp.port or udp.port, f5ethtrailer.peeraddr, f5ethtrailer.peerport
+    and f5ethtrailer.peeripproto.
+
+    You will need to have gathered the capture with high noise (":nnn") to
+    contain the peer flow information in order for this to work.
+
+  Populate Fields for Other Dissectors:
+
+    The populate fields for other dissectors will add hidden fields to the
+    f5ethtrailer for "ip.addr", "ipv6.addr", "tcp.port" and "udp.port" based on
+    information in high noise of a packet.  This will allow the "Conversation
+    Filter" option in Wireshark to find both the client-side and server-side
+    flows for a connection.
+
+    In order to use this, you will need to enable the "Populate fields for
+    other dissectors" preference.  Note that the fields are registered when the
+    preference is enabled.  After changing the preference, you may need to
+    restart Wireshark for proper handling.
+
+    Please note that this may cause some stray packets to show up in filter
+    results since, for example, "tcp.port eq A and tcp.port eq B" can now be
+    matching on at least four fields (tcp.port from the TCP dissector and
+    tcp.port from the f5ethtrailer dissector) and a filter can match on an
+    address/port from the IP/TCP/UDP dissector or an address/port from the
+    f5ethtrailer dissector.
+
+    For example, given two connections:
+      client:12345 <-> VIP:443 {BIGIP} clientS:12346 <-> poolmember:80
+      client:12346 <-> VIP:443 {BIGIP} clientS:12347 <-> poolmember:80
+    Selecting "Conversation Filter->TCP" on the client side of the second
+    connection will result in a filter of:
+      ip.addr eq client and ip.addr eq VIP and
+      tcp.port eq 12346 and tcp.port eq 443
+    All four flows would be displayed by the filter:
+      * From client:12345 <-> VIP:443 (unexpected)
+        - ip.addr from ip.src matches.
+        - ip.addr from ip.dst matches.
+        - tcp.port from f5ethtrailer.peerlocalport matches.
+        - tcp.port from tcp.dstport matches.
+      * From clientS:12346 <-> poolmember:80 (unexpected)
+        - ip.addr from f5ethtrailer.peerremoteaddr matches.
+        - ip.addr from f5ethtrailer.peerlocaladdr matches.
+        - tcp.port from tcp.srcport matches.
+        - tcp.port from f5ethtrailer.peerlocalport matches.
+      * From client:12346 <-> VIP:443 (expected)
+        - ip.addr from ip.src matches.
+        - ip.addr from ip.dst matches.
+        - tcp.port from tcp.srcport matches.
+        - tcp.port from tcp.dstport matches.
+      * From clientS:12347 <-> poolmember:80 (desired)
+        - ip.addr from f5ethtrailer.peerremoteaddr matches.
+        - ip.addr from f5ethtrailer.peerlocaladdr matches.
+        - tcp.port from f5ethtrailer.peerremoteport matches.
+        - tcp.port from f5ethtrailer.peerlocalport matches.
+
+    You can filter based on IP/port information by disabling the "Populate
+    fields for other dissectors" and creating your own filter like:
+      ( ip.addr eq client and ip.addr eq VIP and
+        tcp.port eq 12346 and tcp.port eq 443 ) or
+      ( f5ethtrailer.peeraddr eq client and f5ethtrailer.peeraddr eq VIP and
+        f5ethtrailer.peerport eq 12346 and f5ethtrailer.peerport eq 443 )
+
+    Since the preference is disabled by default, it should not cause any
+    interference unless the user actively enables the preference.  You can
+    remove the option entirely at compile time by defining the compiler macro
+    "NO_F5_POP_OTHERFIELDS".
+
+  Analysis:
+
+    The f5ethtrailer dissector can add an "F5 Analysis" subtree to the "F5
+    Ethernet trailer" protocol tree.  The items added here are also added to
+    Wireshark expert info.  The analysis done is intended to help spot traffic
+    anomalies.
+
+    Possible Analysis:
+      * Flow reuse or SYN retransmit
+        Filter field name: f5ethtrailer.analysis.flowreuse
+        This is intended to highlight initial packets that arrive that match
+        a pre-existing flow.  In other words, a TCP SYN packet that arrives
+        and matches an existing flow.  This can indicate:
+        - A prior flow was not properly terminated and a new flow is starting.
+        - A stray SYN has arrived for an existing connection.
+        - A SYN has been retransmitted (the first SYN would have created the
+          flow that subsequent SYNs would match).
+
+      * Flow lost, incorrect VLAN, loose initiation, tunnel or SYN cookie use
+        Filter field name: f5ethtrailer.analysis.flowlost
+        This is intended to highlight non-initial packets that arrive that
+        do not match an existing flow.  In other words, a TCP non-SYN packet
+        arriving that does not match an existing flow.  This can indicate:
+        - The flow is no longer in the BIGIP's connection table.
+        - VLAN keyed connections is in use (the default) and a packet arrived
+          on an incorrect VLAN.
+        - A stray packet has arrived.
+        - The packet may be handled by a virtual server with loose initiation.
+          In this case, a packet in the middle of a TCP conversation could
+          arrive and then be handled by a virtual server that has loose
+          initiation enabled to create a flow.
+        - The packet may be the inner payload of a tunnel.  For inbound tunnel
+          traffic, the encapsulating packet is shown as well as the
+          encapsulated packet (and the encapsulated packet may not have flow
+          information).
+        - SYN cookies are being used (the initial SYN would not have created
+          a flow).
+
+    A few notes.  The analysis is implemented by using Wireshark taps and
+    tapping the IP/IPv6/TCP dissectors.  The taps are not called until after
+    packet dissection is completely finished.  So, the f5ethtrailer dissector
+    may not have the necessary data to draw conclusions.  The traffic light
+    in the lower left corner of the Wireshark GUI might not properly reflect
+    the existence of these analysis fields.
+
+  Hiding Slot Information in Info Column:
+
+    You can now specify which platforms will display slot information in the
+    summary in the info columns.  In the preferences for the F5 Ethernet
+    trailer dissector, you can provide a regular expression to match the
+    platform in F5 tcpdump header packet.  If there is no platform information
+    in the header (or there is no header at all), slot information will always
+    be displayed.  A reasonable regular expression would be "^(A.*|Z101)$" to
+    match chassis and vCMP platforms (there is no distinction for vCMP on a
+    chassis versus an appliance).  The default is to always display slot
+    information (no regular expression is provided by default).
+
+  Statistics reports (Wireshark 1.12 and later only):
+
+    All statistics are reported as packet counts and byte counts.  Byte count
+    statistics do not include the bytes of the trailer.
+    
+    Statistics menu now has:
+      F5/Virtual Server Distribution
+        A line for each named virtual server name
+        A line for traffic with a flow ID and no virtual server name
+        A line for traffic without a flow ID.
+        
+      F5/tmm Distribution
+        A line for each tmm.
+          A line each for ingress and egress (should add to tmm total)
+          A line each for (should add to tmm total)
+            Traffic with a virtual server name
+            Traffic with a flow ID and no virtual server name
+            Traffic without a flow ID.
+
+Change Log:
+-------------------------------------------------------------------------------
+Version 1.11:
+  * Implemented a tap for the F5 Ethernet trailer dissector
+  * Used the tap datastructures for the trailer analysis
+  * Generate Statistics reports (off of Statistics menu)
+
+-------------------------------------------------------------------------------
+Version 1.10:
+  * Added support for BIG-IP version 12.
+  * Fixed field size problem for peervlan.
+
+Version 1.9:
+  * Added ability to filter connection through BIG-IP
+    Main Menu/Analyze/Conversation Filter/F5 {IP,TCP,UDP}
+
+Version 1.8:
+  * Added support for Wireshark 1.12, dropped support for Wireshark 1.6.
+  * Improved analysis.  It should now work with tshark.
+  * Ability to restrict slot data in info column to specific platforms.
+  * Ability to reduce the length of summary information in info column.
+  * Fixed display of "(peer)" flag in reset cause in the info column (the peer
+    flag has always been correct in the packet details pane).
+  * Other minor fixes.
+
+-------------------------------------------------------------------------------
+Version 1.7:
+  * Support for BIG-IP 11.5.
+
+-------------------------------------------------------------------------------
+Version 1.6:
+  * Added support for Wireshark 1.10.
+  * The population of fields for other dissectors is now compiled by default.
+  * Added analysis of trailer information.
+  * High noise (peer flow information) is not rendered if there is not 
+    actually a peer flow.
+  * Removed support for Wireshark 1.4.
+
+-------------------------------------------------------------------------------
+Version 1.5:
+  * Render tcpdump first pseudo-packet which contains command information.
+  * If there is no peer flow data, don't render high noise, just show a field
+    that says there is no peer flow data.
+
+-------------------------------------------------------------------------------
+Version 1.4:
+  * Fixed issue with improper rendering of some v11.2 variable length trailers.
+
+-------------------------------------------------------------------------------
+Version 1.3:
+  * Support for BIG-IP v11.2.
+  * Support for BIG-IP v11.0.
+  * With v10 and higher captures, slots start at 1 to match tcpdump output on
+    BIG-IP.
+  * Add "IN" and "OUT" strings to the display of the ingress field in the
+    packet details pane.
+  * Add ability to populate ip.addr, tcp.port, etc. to make following both
+    flows in a connection easier based upon data in the high detail.  (This is
+    not compiled in by default, controlled by F5_POP_OTHERFIELDS macro.)
+  * Add preference to put the tmm/blade/ingress in the info column or not.
+  * Add generic peeraddr/peerport fields (to match either local or remote).
+  * Display peer addresses as IPv4 where appropriate.
+  * Display route domain IPv6 format address as IPv4 + route domain ID.
+  * Modest performance improvement.
+  * No longer support WS 1.2.x.  1.4.5 and higher only.
+  * Other minor fixes.
+
+-------------------------------------------------------------------------------
+Version 1.2:
+  * Low detail trailer information is now collapsible.
+  * Fixed display of ingress slot and port fields.
+  * Properly display version 9.4 trailers
+  * Ports to build on WS 1.2
+  * Added an "anyflowid" field so that search for a flowid as either a flowid
+    or a peer flow id is collapsed to one filter:
+    "f5ethtrailer.anyflowid eq X" is equivalent to
+    "(f5ethtrailer.flowid eq X or f5ethtrailer.peerid eq X)"
