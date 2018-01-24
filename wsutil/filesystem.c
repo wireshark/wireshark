@@ -638,12 +638,6 @@ DIAG_ON(pedantic)
                  * That's not it.  If there are more
                  * path components to test, try them.
                  */
-                if (*path_end == '\0') {
-                    /*
-                     * There's nothing more to try.
-                     */
-                    break;
-                }
                 if (*path_end == ':')
                     path_end++;
                 path_start = path_end;
