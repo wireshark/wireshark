@@ -225,12 +225,12 @@ void ByteViewText::paintEvent(QPaintEvent *)
         QColor ho_color = palette().text().color();
         ho_color.setAlphaF(0.5);
         ho_pen.setColor(ho_color);
-        ho_pen.setWidthF(pen_width);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
         if (devicePixelRatio() > 1) {
             pen_width = 0.5;
         }
 #endif
+        ho_pen.setWidthF(pen_width);
 
         painter.save();
         painter.setPen(ho_pen);
