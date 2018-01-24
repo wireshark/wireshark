@@ -1,20 +1,189 @@
 /* packet-f5ethtrailer.c
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-* F5 Ethernet Trailer Copyright 2008-2017 F5 Networks
-*/
+ *
+ * F5 Ethernet Trailer Copyright 2008-2017 F5 Networks
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+/*
+Supported Platforms:
+    BIGIP 9.4.2 and later.
+
+Usage:
+
+  * Acquire capture files using the following command line:
+    * tcpdump -w capture.pcap -s0 -i internal:nnn
+  * Load the capture file into wireshark.
+
+  * Observe the grammar added to the beginning of each packet in the "Info"
+    column of the packet list pane.
+  * Observe the added "F5 Ethernet trailer" section in the packet detail
+    pane.
+  * These fields are filterable like any other field.
+  * Review the preferences for the dissector.
+
+  * If you are missing the Low details of the trailer for some packets, try
+    modifying the settings for the Ethernet dissector.  Go to "Edit/Preferences...",
+    expand "Protocols" on the left and select "Ethernet".  Disable "Assume
+    short frames which include a trailer contain padding".
+
+Notes:
+
+  Follow F5 Conversation:
+
+    As an alternative to the Populate Fields for Other Dissectors below, you
+    can now follow a connection through the BIG-IP using the main menu
+    Analyze/Conversation Filter menu.  There are three options: follow "F5 IP",
+    "F5 TCP" or "F5 UDP".  Select a frame and choose the appropriate menu item.
+    For best results, disable Populate Fields for Other Dissectors.  This
+    method of following a conversation should avoid the stray packets problem
+    mentioned below.
+
+    These menu selections will populate an appropriate filter expression with
+    ip.addr, tcp.port or udp.port, f5ethtrailer.peeraddr, f5ethtrailer.peerport
+    and f5ethtrailer.peeripproto.
+
+    You will need to have gathered the capture with high noise (":nnn") to
+    contain the peer flow information in order for this to work.
+
+  Populate Fields for Other Dissectors:
+
+    The populate fields for other dissectors will add hidden fields to the
+    f5ethtrailer for "ip.addr", "ipv6.addr", "tcp.port" and "udp.port" based on
+    information in high noise of a packet.  This will allow the "Conversation
+    Filter" option in Wireshark to find both the client-side and server-side
+    flows for a connection.
+
+    In order to use this, you will need to enable the "Populate fields for
+    other dissectors" preference.  Note that the fields are registered when the
+    preference is enabled.  After changing the preference, you may need to
+    restart Wireshark for proper handling.
+
+    Please note that this may cause some stray packets to show up in filter
+    results since, for example, "tcp.port eq A and tcp.port eq B" can now be
+    matching on at least four fields (tcp.port from the TCP dissector and
+    tcp.port from the f5ethtrailer dissector) and a filter can match on an
+    address/port from the IP/TCP/UDP dissector or an address/port from the
+    f5ethtrailer dissector.
+
+    For example, given two connections:
+      client:12345 <-> VIP:443 {BIGIP} clientS:12346 <-> poolmember:80
+      client:12346 <-> VIP:443 {BIGIP} clientS:12347 <-> poolmember:80
+    Selecting "Conversation Filter->TCP" on the client side of the second
+    connection will result in a filter of:
+      ip.addr eq client and ip.addr eq VIP and
+      tcp.port eq 12346 and tcp.port eq 443
+    All four flows would be displayed by the filter:
+      * From client:12345 <-> VIP:443 (unexpected)
+        - ip.addr from ip.src matches.
+        - ip.addr from ip.dst matches.
+        - tcp.port from f5ethtrailer.peerlocalport matches.
+        - tcp.port from tcp.dstport matches.
+      * From clientS:12346 <-> poolmember:80 (unexpected)
+        - ip.addr from f5ethtrailer.peerremoteaddr matches.
+        - ip.addr from f5ethtrailer.peerlocaladdr matches.
+        - tcp.port from tcp.srcport matches.
+        - tcp.port from f5ethtrailer.peerlocalport matches.
+      * From client:12346 <-> VIP:443 (expected)
+        - ip.addr from ip.src matches.
+        - ip.addr from ip.dst matches.
+        - tcp.port from tcp.srcport matches.
+        - tcp.port from tcp.dstport matches.
+      * From clientS:12347 <-> poolmember:80 (desired)
+        - ip.addr from f5ethtrailer.peerremoteaddr matches.
+        - ip.addr from f5ethtrailer.peerlocaladdr matches.
+        - tcp.port from f5ethtrailer.peerremoteport matches.
+        - tcp.port from f5ethtrailer.peerlocalport matches.
+
+    You can filter based on IP/port information by disabling the "Populate
+    fields for other dissectors" and creating your own filter like:
+      ( ip.addr eq client and ip.addr eq VIP and
+        tcp.port eq 12346 and tcp.port eq 443 ) or
+      ( f5ethtrailer.peeraddr eq client and f5ethtrailer.peeraddr eq VIP and
+        f5ethtrailer.peerport eq 12346 and f5ethtrailer.peerport eq 443 )
+
+    Since the preference is disabled by default, it should not cause any
+    interference unless the user actively enables the preference.  You can
+    remove the option entirely at compile time by defining the compiler macro
+    "NO_F5_POP_OTHERFIELDS".
+
+  Analysis:
+
+    The f5ethtrailer dissector can add an "F5 Analysis" subtree to the "F5
+    Ethernet trailer" protocol tree.  The items added here are also added to
+    Wireshark expert info.  The analysis done is intended to help spot traffic
+    anomalies.
+
+    Possible Analysis:
+      * Flow reuse or SYN retransmit
+        Filter field name: f5ethtrailer.analysis.flowreuse
+        This is intended to highlight initial packets that arrive that match
+        a pre-existing flow.  In other words, a TCP SYN packet that arrives
+        and matches an existing flow.  This can indicate:
+        - A prior flow was not properly terminated and a new flow is starting.
+        - A stray SYN has arrived for an existing connection.
+        - A SYN has been retransmitted (the first SYN would have created the
+          flow that subsequent SYNs would match).
+
+      * Flow lost, incorrect VLAN, loose initiation, tunnel or SYN cookie use
+        Filter field name: f5ethtrailer.analysis.flowlost
+        This is intended to highlight non-initial packets that arrive that
+        do not match an existing flow.  In other words, a TCP non-SYN packet
+        arriving that does not match an existing flow.  This can indicate:
+        - The flow is no longer in the BIGIP's connection table.
+        - VLAN keyed connections is in use (the default) and a packet arrived
+          on an incorrect VLAN.
+        - A stray packet has arrived.
+        - The packet may be handled by a virtual server with loose initiation.
+          In this case, a packet in the middle of a TCP conversation could
+          arrive and then be handled by a virtual server that has loose
+          initiation enabled to create a flow.
+        - The packet may be the inner payload of a tunnel.  For inbound tunnel
+          traffic, the encapsulating packet is shown as well as the
+          encapsulated packet (and the encapsulated packet may not have flow
+          information).
+        - SYN cookies are being used (the initial SYN would not have created
+          a flow).
+
+    A few notes.  The analysis is implemented by using Wireshark taps and
+    tapping the IP/IPv6/TCP dissectors.  The taps are not called until after
+    packet dissection is completely finished.  So, the f5ethtrailer dissector
+    may not have the necessary data to draw conclusions.  The traffic light
+    in the lower left corner of the Wireshark GUI might not properly reflect
+    the existence of these analysis fields.
+
+  Hiding Slot Information in Info Column:
+
+    You can now specify which platforms will display slot information in the
+    summary in the info columns.  In the preferences for the F5 Ethernet
+    trailer dissector, you can provide a regular expression to match the
+    platform in F5 tcpdump header packet.  If there is no platform information
+    in the header (or there is no header at all), slot information will always
+    be displayed.  A reasonable regular expression would be "^(A.*|Z101)$" to
+    match chassis and vCMP platforms (there is no distinction for vCMP on a
+    chassis versus an appliance).  The default is to always display slot
+    information (no regular expression is provided by default).
+
+  Statistics reports:
+
+    All statistics are reported as packet counts and byte counts.  Byte count
+    statistics do not include the bytes of the trailer.
+
+    Statistics menu now has:
+      F5/Virtual Server Distribution
+        A line for each named virtual server name
+        A line for traffic with a flow ID and no virtual server name
+        A line for traffic without a flow ID.
+
+      F5/tmm Distribution
+        A line for each tmm.
+          A line each for ingress and egress (should add to tmm total)
+          A line each for (should add to tmm total)
+            Traffic with a virtual server name
+            Traffic with a flow ID and no virtual server name
+            Traffic without a flow ID.
+ */
+
 
 /* A note about the F5_POP_OTHERFIELDS macro:
  *
@@ -34,18 +203,6 @@
  *
  * The preference is still disabled by default, so this should theoretically
  * not be a change for people that have been running without it.
- */
-
-/* There is a an issue with the Wireshark Ethernet dissector.  It does not call
- * trailer dissectors if it is not building a tree.  The problems with this are
- *   1. With some invocations of tshark, you will not get the IN/OUT and tmm
- *      information in the default tshark output.  This can be fixed by somehow
- *      triggering tshark to build a tree (supply a filter, or add custom
- *      columns to the display, or probably other things).
- *   2. When performing analysis (and populating expert info) during the first
- *      pass through the capture, the trailer information is not read and there
- *      can be no analysis performed.  So, the traffic light in the lower left
- *      corner of the gui will likely be incorrect.
  */
 
 /* Only enable populate othe fields if it has not been requested that it be
@@ -72,7 +229,6 @@
 #include <epan/proto_data.h>
 #include <epan/dissector_filters.h>
 #include <epan/dissectors/packet-ip.h>
-#include <epan/dissectors/packet-ipv6.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/etypes.h>
 #include <epan/to_str.h>
@@ -83,23 +239,17 @@
 
 #define PROTO_TAG_F5ETHTRAILER  "F5ETHTRAILER"
 
-/*-----------------------------------------------------------------------------------------------*/
-/** Setup macros to ease the commpilation of this dissector on various versions of Wireshark.    */
-#if defined(VERSION_MAJOR) && defined(VERSION_MINOR)
-#	if VERSION_MAJOR > 2 || (VERSION_MAJOR == 2 && VERSION_MINOR == 2)
-#		define ip6h_nxt ip6_nxt
-#	endif
-#	if VERSION_MAJOR > 2 || (VERSION_MAJOR == 2 && VERSION_MINOR >= 4)
-		/* Nothing at this point. */
-#	endif
-#endif
-/*-----------------------------------------------------------------------------------------------*/
-
 /* Wireshark ID of the F5ETHTRAILER protocol */
 static int proto_f5ethtrailer = -1;
 static int tap_f5ethtrailer = -1;
 static int proto_f5fileinfo = -1;
 static int tap_f5fileinfo = -1;
+
+void proto_reg_handoff_f5ethtrailer(void);
+void proto_register_f5ethtrailer(void);
+
+void proto_reg_handoff_f5fileinfo(void);
+void proto_register_f5fileinfo(void);
 
 gboolean dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree, void *data);
@@ -120,11 +270,8 @@ static gint hf_vip = -1;
 /* Med */
 static gint hf_med_id = -1;
 static gint hf_flow_id = -1;
-static gint hf_flow_id64 = -1;
 static gint hf_peer_id = -1;
-static gint hf_peer_id64 = -1;
 static gint hf_any_flow = -1;
-static gint hf_any_flow64 = -1;
 static gint hf_cf_flags = -1;
 static gint hf_cf_flags2 = -1;
 static gint hf_flow_type = -1;
@@ -299,16 +446,16 @@ static gboolean f5_udp_conv_valid(packet_info *pinfo)
 static gchar *f5_ip_conv_filter(packet_info *pinfo)
 {
 	gchar *buf = NULL;
-	gchar s_addr[MAX_IP6_STR_LEN];
-	gchar d_addr[MAX_IP6_STR_LEN];
+	gchar s_addr[WS_INET6_ADDRSTRLEN];
+	gchar d_addr[WS_INET6_ADDRSTRLEN];
 
 	if( !f5_ip_conv_valid(pinfo) ) {
 		return(NULL);
 	}
 	*d_addr = *s_addr = '\0';
 	if(pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-		address_to_str_buf(&pinfo->src, s_addr, MAX_IP6_STR_LEN);
-		address_to_str_buf(&pinfo->dst, d_addr, MAX_IP6_STR_LEN);
+		address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
+		address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
 		if(*s_addr != '\0' && *d_addr != '\0') {
 			buf = g_strdup_printf(
 				"(ip.addr eq %s and ip.addr eq %s) or"
@@ -316,8 +463,8 @@ static gchar *f5_ip_conv_filter(packet_info *pinfo)
 				s_addr, d_addr, s_addr, d_addr);
 		}
 	} else if(pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-		address_to_str_buf(&pinfo->src, s_addr, MAX_IP6_STR_LEN);
-		address_to_str_buf(&pinfo->dst, d_addr, MAX_IP6_STR_LEN);
+		address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
+		address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
 		if(*s_addr != '\0' && *d_addr != '\0') {
 			buf = g_strdup_printf(
 				"(ipv6.addr eq %s and ipv6.addr eq %s) or"
@@ -354,16 +501,16 @@ static gchar *f5_ip_conv_filter(packet_info *pinfo)
 static gchar *f5_tcp_conv_filter(packet_info *pinfo)
 {
 	gchar *buf = NULL;
-	gchar s_addr[MAX_IP6_STR_LEN];
-	gchar d_addr[MAX_IP6_STR_LEN];
+	gchar s_addr[WS_INET6_ADDRSTRLEN];
+	gchar d_addr[WS_INET6_ADDRSTRLEN];
 
 	if( !f5_tcp_conv_valid(pinfo) ) {
 		return(NULL);
 	}
 	*d_addr = *s_addr = '\0';
 	if(pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-		address_to_str_buf(&pinfo->src, s_addr, MAX_IP6_STR_LEN);
-		address_to_str_buf(&pinfo->dst, d_addr, MAX_IP6_STR_LEN);
+		address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
+		address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
 		if(*s_addr != '\0' && *d_addr != '\0') {
 			buf = g_strdup_printf(
 				"(ip.addr eq %s and ip.addr eq %s and tcp.port eq %d and tcp.port eq %d) or"
@@ -374,8 +521,8 @@ static gchar *f5_tcp_conv_filter(packet_info *pinfo)
 				s_addr, d_addr, pinfo->srcport, pinfo->destport);
 		}
 	} else if(pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-		address_to_str_buf(&pinfo->src, s_addr, MAX_IP6_STR_LEN);
-		address_to_str_buf(&pinfo->dst, d_addr, MAX_IP6_STR_LEN);
+		address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
+		address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
 		if(*s_addr != '\0' && *d_addr != '\0') {
 			buf = g_strdup_printf(
 				"(ipv6.addr eq %s and ipv6.addr eq %s and tcp.port eq %d and tcp.port eq %d) or"
@@ -415,16 +562,16 @@ static gchar *f5_tcp_conv_filter(packet_info *pinfo)
 static gchar *f5_udp_conv_filter(packet_info *pinfo)
 {
 	gchar *buf = NULL;
-	gchar s_addr[MAX_IP6_STR_LEN];
-	gchar d_addr[MAX_IP6_STR_LEN];
+	gchar s_addr[WS_INET6_ADDRSTRLEN];
+	gchar d_addr[WS_INET6_ADDRSTRLEN];
 
 	if( !f5_udp_conv_valid(pinfo) ) {
 		return(NULL);
 	}
 	*d_addr = *s_addr = '\0';
 	if(pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) {
-		address_to_str_buf(&pinfo->src, s_addr, MAX_IP6_STR_LEN);
-		address_to_str_buf(&pinfo->dst, d_addr, MAX_IP6_STR_LEN);
+		address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
+		address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
 		if(*s_addr != '\0' && *d_addr != '\0') {
 			buf = g_strdup_printf(
 				"(ip.addr eq %s and ip.addr eq %s and udp.port eq %d and udp.port eq %d) or"
@@ -435,8 +582,8 @@ static gchar *f5_udp_conv_filter(packet_info *pinfo)
 				s_addr, d_addr, pinfo->srcport, pinfo->destport);
 		}
 	} else if(pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6) {
-		address_to_str_buf(&pinfo->src, s_addr, MAX_IP6_STR_LEN);
-		address_to_str_buf(&pinfo->dst, d_addr, MAX_IP6_STR_LEN);
+		address_to_str_buf(&pinfo->src, s_addr, WS_INET6_ADDRSTRLEN);
+		address_to_str_buf(&pinfo->dst, d_addr, WS_INET6_ADDRSTRLEN);
 		if(*s_addr != '\0' && *d_addr != '\0') {
 			buf = g_strdup_printf(
 				"(ipv6.addr eq %s and ipv6.addr eq %s and udp.port eq %d and udp.port eq %d) or"
@@ -482,7 +629,7 @@ static const gchar *st_str_virtdist_novirt = "Flow without virtual server name";
  *
  *  \attention This is an interface function to be called from the rest of wireshark.
  *
- *   @param st
+ *   @param st      A pointer to the stats tree to use
  *
  */
 static void f5eth_tmmdist_stats_tree_init(
@@ -502,7 +649,7 @@ static void f5eth_tmmdist_stats_tree_init(
  *
  *   @param st      A pointer to the stats tree to use
  *   @param pinfo   A pointer to the packet info.
- *   @param edt
+ *   @param edt     Unused
  *   @param data    A pointer to the data provided by the tap
  *   @return        1 if the data was actually used to alter the statistics, 0 otherwise.
  *
@@ -513,7 +660,7 @@ static int f5eth_tmmdist_stats_tree_packet(
 	epan_dissect_t *edt _U_,
 	const void *data
 ) {
-	f5eth_tap_data_t *tdata;
+	const f5eth_tap_data_t *tdata;
 	guint32 pkt_len;
 	int st_node_tot_pkts;
 	int st_node_tot_bytes;
@@ -522,7 +669,7 @@ static int f5eth_tmmdist_stats_tree_packet(
 	char tmm_stat_name_buffer[PER_TMM_STAT_NAME_BUF_LEN];
 
 	if(data == NULL) return 0;
-	tdata = (f5eth_tap_data_t *)data;
+	tdata = (const f5eth_tap_data_t *)data;
 	/* Unnecessary since this tap packet function and the F5 Ethernet trailer dissector are both in
 	 * the same source file.  If you are using this function as an example in a separate tap source
 	 * file, you should uncomment this.
@@ -617,11 +764,11 @@ static int f5eth_virtdist_stats_tree_packet(
 	epan_dissect_t *edt _U_,
 	const void *data
 ) {
-	f5eth_tap_data_t *tdata;
+	const f5eth_tap_data_t *tdata;
 	guint32 pkt_len;
 
 	if(data == NULL) return 0;
-	tdata = (f5eth_tap_data_t *)data;
+	tdata = (const f5eth_tap_data_t *)data;
 	/* Unnecessary since this tap packet function and the F5 Ethernet trailer dissector are both in
 	 * the same source file.  If you are using this function as an example in a separate tap source
 	 * file, you should uncomment this.
@@ -727,7 +874,7 @@ typedef enum {
 	, brief_in_out_only = 7
 } f5eth_info_type_t;
 /** Info column display format type strings */
-static enum_val_t f5eth_display_strings[] = {
+static const enum_val_t f5eth_display_strings[] = {
 	  { "None",           "None",               0 }
 	, { "Full",           "Full",               1 }
 	, { "InOutOnly",      "In/out only",        3 }
@@ -829,7 +976,7 @@ static void f5eth_set_info_col_inout(
 	packet_info *pinfo,
 	guint ingress,
 	guint slot _U_,
-	guint tm _U_
+	guint tmm _U_
 ) {
 	gboolean col_writable;
 	/*
@@ -839,23 +986,11 @@ static void f5eth_set_info_col_inout(
 	col_writable = col_get_writable(pinfo->cinfo, COL_INFO);
 	col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
 
-#	if ( __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 5))
-#	pragma GCC diagnostic push
-#	pragma GCC diagnostic ignored "-Wformat-security"
-#	endif
-		/** The info_format_in_only and info_format_out_only should not have any format
-		 *  specifiers in them, and as such, this function should not require additional
-		 *  paramters.  Warning silenced on gcc.  There is no col_prepend_fence_str()
-		 *  function in Wireshark.  If you modify the value(s) for
-		 *  info_format*_{in,out}_only, you do so at your own risk. */
-		if(ingress != 0) {
-			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, info_format_in_only);
-		} else {
-			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, info_format_out_only);
-		}
-#	if ( __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 5))
-#	pragma GCC diagnostic pop
-#	endif
+	if(ingress != 0) {
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "%s", info_format_in_only);
+	} else {
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "%s", info_format_out_only);
+	}
 
 	/* Reset writable to whatever it was before we got here. */
 	col_set_writable(pinfo->cinfo, COL_INFO, col_writable);
@@ -1093,25 +1228,25 @@ void proto_register_f5ethtrailer (void)
 		  }
 		, { &hf_type,
 		    { "Type", "f5ethtrailer.type", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "F5ETHTRAILER type", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_length,
 		    { "Trailer length", "f5ethtrailer.length", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "F5ETHTRAILER length", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_version,
 		    { "Version", "f5ethtrailer.version", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "F5ETHTRAILER version", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 
 	/* Low parameters */
 		, { &hf_low_id,
-		    { "F5 Low Details", "f5ethtrailer.low", FT_NONE, BASE_NONE, NULL,
-		      0x0, "Low Details", HFILL }
+		    { "Low Details", "f5ethtrailer.low", FT_NONE, BASE_NONE, NULL,
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_ingress,
 		    { "Ingress", "f5ethtrailer.ingress", FT_BOOLEAN, BASE_NONE, NULL,
-		      0x0, "Incoming packet?", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_slot0,
 		    { "Slot (0-based)", "f5ethtrailer.slot", FT_UINT8, BASE_DEC, NULL,
@@ -1127,7 +1262,7 @@ void proto_register_f5ethtrailer (void)
 		  }
 		, { &hf_vipnamelen,
 		    { "VIP name length", "f5ethtrailer.vipnamelen", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "Length of the VIP field", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_vip,
 		    { "VIP", "f5ethtrailer.vip", FT_STRING, BASE_NONE, NULL,
@@ -1136,60 +1271,48 @@ void proto_register_f5ethtrailer (void)
 
 	/* Medium parameters */
 		, { &hf_med_id,
-		    { "F5 Medium Details", "f5ethtrailer.medium", FT_NONE, BASE_NONE, NULL,
-		      0x0, "Medium Details", HFILL }
+		    { "Medium Details", "f5ethtrailer.medium", FT_NONE, BASE_NONE, NULL,
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_any_flow,
-		    { "Flow ID or peer flow ID", "f5ethtrailer.anyflowid", FT_UINT32, BASE_HEX, NULL,
-		      0x0, "", HFILL }
-		  }
-		, { &hf_any_flow64,
 		    { "Flow ID or peer flow ID", "f5ethtrailer.anyflowid", FT_UINT64, BASE_HEX, NULL,
-		      0x0, "", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_flow_id,
-		    { "Flow ID", "f5ethtrailer.flowid", FT_UINT32, BASE_HEX, NULL,
-		      0x0, "Flow ID", HFILL }
-		  }
-		, { &hf_flow_id64,
 		    { "Flow ID", "f5ethtrailer.flowid", FT_UINT64, BASE_HEX, NULL,
-		      0x0, "Flow ID", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_id,
-		    { "Peer ID", "f5ethtrailer.peerid", FT_UINT32, BASE_HEX, NULL,
-		      0x0, "Peer ID", HFILL }
-		  }
-		, { &hf_peer_id64,
 		    { "Peer ID", "f5ethtrailer.peerid", FT_UINT64, BASE_HEX, NULL,
-		      0x0, "Peer ID", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_cf_flags,
 		    { "Connflow Flags", "f5ethtrailer.cfflags", FT_UINT32, BASE_HEX, NULL,
-		      0x0, "Connflow flags", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_cf_flags2,
 		    { "Connflow Flags High Bits", "f5ethtrailer.cfflags2", FT_UINT32,
-		      BASE_HEX, NULL, 0x0, "Connflow flags high bits", HFILL }
+		      BASE_HEX, NULL, 0x0, NULL, HFILL }
 		  }
 		, { &hf_flow_type,
 		    { "Flow Type", "f5ethtrailer.flowtype", FT_UINT8, BASE_HEX, NULL,
-		      0x0, "Flow type", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_ha_unit,
 		    { "HA Unit", "f5ethtrailer.haunit", FT_UINT8, BASE_HEX, NULL,
-		      0x0, "HA unit", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_ingress_slot,
 		    { "Ingress Slot", "f5ethtrailer.ingressslot", FT_UINT16, BASE_DEC, NULL,
-		      0x0, "Ingress slot", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_ingress_port,
 		    { "Ingress Port", "f5ethtrailer.ingressport", FT_UINT16, BASE_DEC, NULL,
-		      0x0, "Ingress port", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_priority,
 		    { "Priority", "f5ethtrailer.priority", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "Packet priority", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_rstcause,
 		    { "RST cause", "f5ethtrailer.rstcause", FT_NONE, BASE_NONE, NULL,
@@ -1222,16 +1345,16 @@ void proto_register_f5ethtrailer (void)
 
 	/* High parameters */
 		, { &hf_high_id,
-		    { "F5 High Details", "f5ethtrailer.high", FT_NONE, BASE_NONE, NULL,
-		      0x0, "High Details", HFILL }
+		    { "High Details", "f5ethtrailer.high", FT_NONE, BASE_NONE, NULL,
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_ipproto,
 		    { "Peer IP Protocol", "f5ethtrailer.peeripproto", FT_UINT8, BASE_DEC,
-		      NULL, 0x0, "Peer IP", HFILL }
+		      NULL, 0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_vlan,
 		    { "Peer VLAN", "f5ethtrailer.peervlan", FT_UINT16, BASE_DEC, NULL,
-		      0x0, "Peer VLAN", HFILL }
+		      0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_remote_addr,
 		    { "Peer remote address", "f5ethtrailer.peerremoteaddr", FT_IPv4,
@@ -1259,11 +1382,11 @@ void proto_register_f5ethtrailer (void)
 		  }
 		, { &hf_peer_remote_rtdom,
 		    { "Peer remote route domain", "f5ethtrailer.peerremotertdom", FT_UINT16,
-		      BASE_DEC, NULL, 0x0, "Peer remote route domain", HFILL }
+		      BASE_DEC, NULL, 0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_local_rtdom,
 		    { "Peer local route domain", "f5ethtrailer.peerlocalrtdom", FT_UINT16,
-		      BASE_DEC, NULL, 0x0, "Peer local route domain", HFILL }
+		      BASE_DEC, NULL, 0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_rtdom,
 		    { "Peer remote or local route domain", "f5ethtrailer.peerrtdom", FT_UINT16,
@@ -1271,11 +1394,11 @@ void proto_register_f5ethtrailer (void)
 		  }
 		, { &hf_peer_remote_port,
 		    { "Peer remote port", "f5ethtrailer.peerremoteport", FT_UINT16, BASE_DEC,
-		      NULL, 0x0, "Peer remote port", HFILL }
+		      NULL, 0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_local_port,
 		    { "Peer local port", "f5ethtrailer.peerlocalport", FT_UINT16, BASE_DEC,
-		      NULL, 0x0, "Peer local port", HFILL }
+		      NULL, 0x0, NULL, HFILL }
 		  }
 		, { &hf_peer_port,
 		    { "Peer remote or local port", "f5ethtrailer.peerport", FT_UINT16, BASE_DEC,
@@ -1288,7 +1411,7 @@ void proto_register_f5ethtrailer (void)
 
 	/* Analysis parameters */
 		, { &hf_analysis,
-		    { "F5 Analysis", "f5ethtrailer.analysis", FT_NONE, BASE_NONE, NULL,
+		    { "Analysis", "f5ethtrailer.analysis", FT_NONE, BASE_NONE, NULL,
 		      0x0, "Analysis of details", HFILL }
 		  }
 		, { &hf_analysis_flowreuse,
@@ -1712,7 +1835,7 @@ static void perform_analysis(struct f5eth_analysis_data_t *ad)
  *   @param tvb   A pointer to a TV buffer for the packet.
  *   @param pinfo A pointer to the packet info struction for the packet
  *   @param tree  A pointer to the protocol tree structure
- *   @param tdata A pointer to the intra-noise information data
+ *   @param ad    A pointer to the intra-noise information data
  *
  *   There is a shortcoming in the Ethernet dissector where the trailer dissectors are not called
  *   when there is no protocol tree.  So, for example, when first loading the file, this is not
@@ -1724,7 +1847,7 @@ static void render_analysis(
 	tvbuff_t       *tvb,
 	packet_info    *pinfo,
 	proto_tree     *tree,
-	struct f5eth_analysis_data_t *ad)
+	const struct f5eth_analysis_data_t *ad)
 {
 	proto_item *pi;
 	proto_tree *pt;
@@ -1756,21 +1879,21 @@ static gboolean ip_tap_pkt(
 	const void *data
 ) {
 	struct f5eth_analysis_data_t *ad;
-	ws_ip *iph;
+	const ws_ip4 *iph;
 
 	if((ad = get_f5eth_analysis_data(pinfo)) == NULL) return(FALSE);
 	if(ad->ip_visited == 1) return(FALSE);
 	ad->ip_visited = 1;
 
 	if(data == NULL) return(FALSE);
-	iph = (ws_ip *)data;
+	iph = (const ws_ip4 *)data;
 
 	/* Only care about TCP at this time */
 	/* We wait until here to make this check so that if TCP in encapsulated in something else, we
 	 * don't work on the encapsulated header.  So, we only want to work on TCP if it associated
 	 * with the first IP header (not if it's embedded in an ICMP datagram or some sort of tunnel).
 	 */
-	if(iph->ip_nxt != IP_PROTO_TCP) {
+	if(iph->ip_proto != IP_PROTO_TCP) {
 		ad->ip_istcp = 0;
 		return(FALSE);
 	}
@@ -1791,14 +1914,14 @@ static gboolean ipv6_tap_pkt(
 	const void *data
 ) {
 	struct f5eth_analysis_data_t *ad;
-	struct ws_ip6_hdr *ipv6h;
+	const struct ws_ip6_hdr *ipv6h;
 
 	if((ad = get_f5eth_analysis_data(pinfo)) == NULL) return(FALSE);
 	if(ad->ip_visited == 1) return(FALSE);
 	ad->ip_visited = 1;
 
 	if(data == NULL) return(FALSE);
-	ipv6h = (struct ws_ip6_hdr *)data;
+	ipv6h = (const struct ws_ip6_hdr *)data;
 
 	/* Only care about TCP at this time */
 	/* We wait until here to make this check so that if TCP in encapsulated in something else, we
@@ -1829,14 +1952,14 @@ static gboolean tcp_tap_pkt(
 	const void *data
 ) {
 	struct f5eth_analysis_data_t *ad;
-	tcp_info_t *tcph;
+	const tcp_info_t *tcph;
 
 	if((ad = get_f5eth_analysis_data(pinfo)) == NULL) return(FALSE);
 	if(ad->tcp_visited == 1) return(FALSE);
 	ad->tcp_visited = 1;
 
 	if(data == NULL) return(FALSE);
-	tcph = (tcp_info_t *)data;
+	tcph = (const tcp_info_t *)data;
 
 	ad->tcp_synset = (tcph->th_flags & TH_SYN) ? 1 : 0;
 	ad->tcp_ackset = (tcph->th_flags & TH_ACK) ? 1 : 0;
@@ -1911,7 +2034,7 @@ static proto_item *displayIPv6as4(
 			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 	}
-	
+
 	return(pi);
 } /* displayIPv6as4() */
 
@@ -2210,13 +2333,13 @@ dissect_med_trailer(
 		} else {
 			/* After v10, flowIDs are 64bit */
 			tdata->flow = tvb_get_ntoh64(tvb,o);
-			pi = proto_tree_add_item(tree, hf_flow_id64, tvb, o, 8, ENC_BIG_ENDIAN);
-			pi = proto_tree_add_item(tree, hf_any_flow64, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_flow_id, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 8, ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_HIDDEN(pi);
 			o += 8;
 			tdata->peer_flow = tvb_get_ntoh64(tvb,o);
-			pi = proto_tree_add_item(tree, hf_peer_id64, tvb, o, 8, ENC_BIG_ENDIAN);
-			pi = proto_tree_add_item(tree, hf_any_flow64, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_peer_id, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 8, ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_HIDDEN(pi);
 			o += 8;
 		}
@@ -2277,13 +2400,13 @@ dissect_med_trailer(
 					rstcauseval, "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
 				pi = proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o+6, 2, ENC_BIG_ENDIAN);
 				o += 8;
-				
+
 				proto_item_append_text(rc_item, ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER
 					"u]%s %s", rstcauseval, rstcauseline, rstcausepeer ? " {peer}" : "",
 					tvb_get_string_enc(wmem_packet_scope(), tvb, o, rstcauselen-(o-startcause),
 					ENC_ASCII));
 				pi = proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o, rstcauselen-(o-startcause),
-					ENC_ASCII);
+					ENC_ASCII|ENC_NA);
 				o += (rstcauselen - (o-startcause)); /* XXX This is strange */
 				break;
 			default:
@@ -2441,7 +2564,7 @@ dissect_low_trailer(
 		PROTO_ITEM_SET_HIDDEN(pi);
 		o += 1;
 	}
-	pi = proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII);
+	pi = proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII|ENC_NA);
 	o += vipnamelen;
 
 	return(trailer_length);
@@ -2489,7 +2612,7 @@ dissect_f5ethtrailer(
 	tdata->noise_high   = 0;
 	tdata->flows_set    = 0;
 	tdata->ingress      = 3;
-	
+
 	/* If there is no reference to the fields here, then there is no need to
 	 * populate a tree.  We only need to populate the column information.  Set
 	 * tree to NULL to prevent the subdissectors from doing much work. */
@@ -2641,7 +2764,7 @@ dissect_f5ethtrailer(
  * dissectors have a chance to dissect (and the Ethernet dissector does not
  * waste its time rendering Ethernet information for no reason).
  */
-gboolean
+static gboolean
 dissect_f5fileinfo(
 	  tvbuff_t *tvb
 	, packet_info *pinfo
@@ -2687,7 +2810,7 @@ dissect_f5fileinfo(
 			guint i;
 			const guint8 *c;
 
-			proto_tree_add_item(tree, hf_fi_version, tvb, offset+5, objlen-6, ENC_ASCII);
+			proto_tree_add_item(tree, hf_fi_version, tvb, offset+5, objlen-6, ENC_ASCII|ENC_NA);
 			for(c=object;  *c && (*c < '0' || *c > '9');  c++);
 			for(i=0;  i<6 && *c;  c++) {
 				if(*c < '0' || *c > '9') {
@@ -2697,13 +2820,13 @@ dissect_f5fileinfo(
 			}
 		}
 		else if(strncmp(object, "HOST: ", 6) == 0)
-			proto_tree_add_item(tree, hf_fi_hostname, tvb, offset+6, objlen-7, ENC_ASCII);
+			proto_tree_add_item(tree, hf_fi_hostname, tvb, offset+6, objlen-7, ENC_ASCII|ENC_NA);
 		else if(strncmp(object, "PLAT: ", 6) == 0) {
-			proto_tree_add_item(tree, hf_fi_platform, tvb, offset+6, objlen-7, ENC_ASCII);
+			proto_tree_add_item(tree, hf_fi_platform, tvb, offset+6, objlen-7, ENC_ASCII|ENC_NA);
 			platform = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+6, objlen-7, ENC_ASCII);
 		}
 		else if(strncmp(object, "PROD: ", 6) == 0)
-			proto_tree_add_item(tree, hf_fi_product, tvb, offset+6, objlen-7, ENC_ASCII);
+			proto_tree_add_item(tree, hf_fi_product, tvb, offset+6, objlen-7, ENC_ASCII|ENC_NA);
 
 		offset += objlen;
 	}

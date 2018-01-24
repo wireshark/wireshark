@@ -392,6 +392,9 @@ sub is_from_other_protocol_whitelist {
 	if (($proto_filename eq "packet-dvb-ipdc.c") && (index($_[0], "ipdc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-enip.c") && (index($_[0], "cip") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-extreme.c") && (index($_[0], "llc") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-f5ethtrailer.c") && (index($_[0], "ip") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-f5ethtrailer.c") && (index($_[0], "udp") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-f5ethtrailer.c") && (index($_[0], "tcp") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-fmp_notify.c") && (index($_[0], "fmp") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-foundry.c") && (index($_[0], "llc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-glusterfs.c") && (index($_[0], "gluster") >= 0)) {return 1;}

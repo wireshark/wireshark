@@ -576,6 +576,7 @@ DISSECTOR_SRC = \
 	packet-exec.c		\
 	packet-exported_pdu.c	\
 	packet-extreme.c	\
+	packet-f5ethtrailer.c	\
 	packet-fc00.c		\
 	packet-fc.c		\
 	packet-fcct.c		\
@@ -1575,6 +1576,7 @@ DISSECTOR_INCLUDES = \
 	packet-epmd.h		\
 	packet-ess.h		\
 	packet-eth.h		\
+	packet-f5ethtrailer.h	\
 	packet-fc.h		\
 	packet-fcbls.h		\
 	packet-fcct.h		\

@@ -322,6 +322,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-epmd.h
 	packet-ess.h
 	packet-eth.h
+	packet-f5ethtrailer.h
 	packet-fc.h
 	packet-fcbls.h
 	packet-fcct.h
@@ -954,6 +955,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-exec.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-exported_pdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-extreme.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-f5ethtrailer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fc00.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fcct.c
