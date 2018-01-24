@@ -2624,12 +2624,12 @@ dissect_openflow_port_desc_prop_optical_v6(tvbuff_t *tvb, packet_info *pinfo _U_
     offset+=4;
 
     /* uint16_t tx_pwr_min; */
-    proto_tree_add_item(tree, hf_openflow_v6_port_desc_prop_optical_tx_pwr_min, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset+=4;
+    proto_tree_add_item(tree, hf_openflow_v6_port_desc_prop_optical_tx_pwr_min, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
 
     /* uint16_t tx_pwr_max; */
-    proto_tree_add_item(tree, hf_openflow_v6_port_desc_prop_optical_tx_pwr_max, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset+=4;
+    proto_tree_add_item(tree, hf_openflow_v6_port_desc_prop_optical_tx_pwr_max, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
 
     return offset;
 }
