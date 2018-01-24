@@ -6891,7 +6891,7 @@ proto_register_openflow_v5(void)
                NULL, HFILL }
         },
         { &hf_openflow_v5_port_length,
-            { "Pad", "openflow_v5.port.length",
+            { "Length", "openflow_v5.port.length",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
@@ -6901,7 +6901,7 @@ proto_register_openflow_v5(void)
                NULL, HFILL }
         },
         { &hf_openflow_v5_port_pad2,
-            { "Pad", "openflow_v5.port.pad2",
+            { "Pad2", "openflow_v5.port.pad2",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
