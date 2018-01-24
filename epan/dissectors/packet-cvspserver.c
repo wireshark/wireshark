@@ -39,7 +39,7 @@ dissect_cvspserver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* di
 	ti = proto_tree_add_item(tree, proto_cvspserver, tvb, 0, -1, ENC_NA);
 	cvspserver_tree = proto_item_add_subtree(ti, ett_cvspserver);
 
-	for (offset = 0; tvb_reported_length_remaining(tvb, offset); offset = next_offset)
+	for (offset = 0; tvb_offset_exists(tvb, offset); offset = next_offset)
 	{
 		length = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
 		proto_tree_add_item(cvspserver_tree, hf_cvspserver_data, tvb, offset, length, ENC_UTF_8|ENC_NA);
