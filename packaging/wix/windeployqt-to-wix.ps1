@@ -9,19 +9,7 @@
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# SPDX-License-Identifier: GPL-2.0+
 
 #requires -version 2
 
@@ -107,30 +95,36 @@ try {
       <ComponentGroup Id=`"CG.QtDependencies`">
 "
         foreach ($entry in $wdqtList) {
+            $entryPath = Join-Path -Path $dllPath -ChildPath $entry
+            if ($entry.EndsWith(".qm") -and -not (Test-Path $entryPath -PathType Leaf)) {
+                # Windeployqt --list can print translation files that
+                # don't exist (QTBUG-65974).
+                continue
+            }
             $dir = Split-Path -Parent $entry
             if ($dir) {
-				if ($dir -ne $currentDir) {
-					if ($currentDir -ne "") { # for everything but first directory found
-						$currentDirList += $endDirList
+                if ($dir -ne $currentDir) {
+                    if ($currentDir -ne "") { # for everything but first directory found
+                        $currentDirList += $endDirList
 
-						# Previous directory complete, add to list
-						$dirList += $currentDirList
-					} else {
-					}
+                        # Previous directory complete, add to list
+                        $dirList += $currentDirList
+                    } else {
+                    }
 
-					$currentDirList = $startDirList + "       <Directory Id=`"dir$dir`" Name=`"$dir`">
-"
+                    $currentDirList = $startDirList + "       <Directory Id=`"dir$dir`" Name=`"$dir`">
+    "
 
-					$currentDir = $dir
-				}
+                    $currentDir = $dir
+                }
 
 
-				$wix_name = $entry -replace "[\\|\.]", "_"
+                $wix_name = $entry -replace "[\\|\.]", "_"
                 $currentDirList += "           <Component Id=`"cmp$wix_name`" Guid=`"*`">
               <File Id=`"fil$wix_name`" KeyPath=`"yes`" Source=`"`$(var.Staging.Dir)\$entry`" />
            </Component>
 "
-				$componentGroup += "         <ComponentRef Id=`"cmp$wix_name`" />
+                $componentGroup += "         <ComponentRef Id=`"cmp$wix_name`" />
 "
             } else {
 
@@ -138,19 +132,19 @@ try {
           <File Id=`"fil$entry`" KeyPath=`"yes`" Source=`"`$(var.Staging.Dir)\$entry`" />
        </Component>
 "
-			  $componentGroup += "         <ComponentRef Id=`"cmp$entry`" />
+                $componentGroup += "         <ComponentRef Id=`"cmp$entry`" />
 "
             }
         }
 
-		#finish up the last directory
-		$currentDirList += $endDirList
-		$dirList += $currentDirList
+        #finish up the last directory
+        $currentDirList += $endDirList
+        $dirList += $currentDirList
 
-		$dllList += "     </DirectoryRef>
+        $dllList += "     </DirectoryRef>
    </Fragment>
 "
-		$componentGroup += "      </ComponentGroup>
+        $componentGroup += "      </ComponentGroup>
    </Fragment>
 "
 
