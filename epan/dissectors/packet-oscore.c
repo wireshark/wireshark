@@ -16,6 +16,7 @@
 #include <config.h>
 
 #include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
+#include <epan/proto_data.h>
 #include <epan/expert.h>   /* Include only as needed */
 #include <epan/uat.h>
 #include <epan/strutil.h>
@@ -24,7 +25,7 @@
 
 #include <wsutil/wsgcrypt.h>
 #include "packet-ieee802154.h" /* We use CCM implementation available as part of 802.15.4 dissector */
-#include "packet-oscore.h"
+#include "packet-coap.h" /* packet-coap.h includes packet-oscore.h */
 
 /* Prototypes */
 static guint oscore_alg_get_key_len(cose_aead_alg_t);
@@ -44,10 +45,12 @@ void proto_reg_handoff_oscore(void);
 void proto_register_oscore(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_oscore                 = -1;
+static int proto_oscore                             = -1;
+static int proto_coap                               = -1;
 
-static int hf_oscore_coap_data          = -1;
-static int hf_oscore_tag                = -1;
+static int hf_oscore_tag                            = -1;
+
+static COAP_COMMON_LIST_T(dissect_oscore_hf);
 
 static expert_field ei_oscore_key_id_not_found        = EI_INIT;
 static expert_field ei_oscore_partial_iv_not_found    = EI_INIT;
@@ -58,9 +61,10 @@ static expert_field ei_oscore_tag_check_failed        = EI_INIT;
 static expert_field ei_oscore_decrypt_error           = EI_INIT;
 static expert_field ei_oscore_cbc_mac_failed          = EI_INIT;
 static expert_field ei_oscore_piv_len_invalid         = EI_INIT;
+static expert_field ei_oscore_info_fetch_failed       = EI_INIT;
 
 /* Initialize the subtree pointers */
-static gint ett_oscore = -1;
+static gint ett_oscore                                = -1;
 
 /* UAT variables */
 static uat_t            *oscore_context_uat = NULL;
@@ -397,7 +401,7 @@ cborencoder_put_text(guint8 *buffer, const char *text, guint8 text_len) {
         buffer[ret++] = (0x60 | text_len);
     }
 
-    if (text) {
+    if (text_len != 0 && text != NULL) {
         memcpy(&buffer[ret], text, text_len);
         ret += text_len;
     }
@@ -428,7 +432,7 @@ cborencoder_put_bytes(guint8 *buffer, const guint8 *bytes, guint8 bytes_len) {
         buffer[ret++] = (0x40 | bytes_len);
     }
 
-    if (bytes){
+    if (bytes_len != 0 && bytes != NULL){
         memcpy(&buffer[ret], bytes, bytes_len);
         ret += bytes_len;
     }
@@ -467,6 +471,7 @@ oscore_create_nonce(guint8 *out,
     guint i = 0;
     gchar piv_extended[NONCE_MAX_LEN] = { 0 };
     guint nonce_len;
+    GByteArray *piv_generator;
 
     DISSECTOR_ASSERT(out != NULL);
     DISSECTOR_ASSERT(context != NULL);
@@ -475,9 +480,12 @@ oscore_create_nonce(guint8 *out,
     nonce_len = oscore_alg_get_iv_len(context->algorithm);
     DISSECTOR_ASSERT(nonce_len <= NONCE_MAX_LEN);
 
+    /* Recipient ID is the PIV generator ID if the PIV is present in the response */
+    piv_generator = info->piv_in_response ? context->recipient_id : context->sender_id;
+
     /* AEAD nonce is the XOR of Common IV left-padded to AEAD nonce length and the concatenation of:
-     * Step 3: Size of Sender ID (1 byte),
-     * Step 2: Sender ID (left-padded to "AEAD nonce length - 6 bytes"),
+     * Step 3: Size of ID of the entity that generated PIV (1 byte),
+     * Step 2: ID of the entity that generated PIV (left-padded to "AEAD nonce length - 6 bytes"),
      * Step 1: Partial IV (left-padded to OSCORE_PIV_MAX_LEN bytes).
      */
 
@@ -486,11 +494,11 @@ oscore_create_nonce(guint8 *out,
     memcpy(&piv_extended[nonce_len - info->piv_len], info->piv, info->piv_len);
 
     /* Step 2 */
-    DISSECTOR_ASSERT(context->sender_id->len <= nonce_len - 6);
-    memcpy(&piv_extended[nonce_len - OSCORE_PIV_MAX_LEN - context->sender_id->len], context->sender_id->data, context->sender_id->len);
+    DISSECTOR_ASSERT(piv_generator->len <= nonce_len - 6);
+    memcpy(&piv_extended[nonce_len - OSCORE_PIV_MAX_LEN - piv_generator->len], piv_generator->data, piv_generator->len);
 
     /* Step 3 */
-    piv_extended[0] = context->sender_id->len;
+    piv_extended[0] = piv_generator->len;
 
     /* Now XOR with Common IV */
     for (i = 0; i < nonce_len; i++) {
@@ -519,6 +527,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
     guint8 external_aad_len = 0;
     guint8 aad[OSCORE_AAD_MAX_LEN];
     guint8 aad_len = 0;
+    guint8 *decryption_key;
     gint ciphertext_captured_len;
     gint ciphertext_reported_len;
     const char *encrypt0 = "Encrypt0";
@@ -547,6 +556,12 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         tvb_memcpy(tvb_ciphertext, rx_tag, *offset + ciphertext_reported_len, tag_len);
     }
 
+    if (info->response) {
+        decryption_key = context->response_decryption_key->data;
+    } else {
+        decryption_key = context->request_decryption_key->data;
+    }
+
     /* Create nonce to use for decryption and authenticity check */
     oscore_create_nonce(nonce, context, info);
 
@@ -568,7 +583,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
      * Perform CTR-mode transformation and decrypt the tag.
      * XXX: This only handles AES-CCM-16-64-128, add generic algorithm handling
      * */
-    if(ccm_ctr_encrypt(context->request_decryption_key->data, tmp, rx_tag, text, ciphertext_captured_len) == FALSE) {
+    if(ccm_ctr_encrypt(decryption_key, tmp, rx_tag, text, ciphertext_captured_len) == FALSE) {
         return STATUS_ERROR_DECRYPT_FAILED;
     }
 
@@ -615,7 +630,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         DISSECTOR_ASSERT(tag_len <= sizeof(gen_tag));
         ccm_init_block(tmp, TRUE, tag_len, 0, 0, 0, ciphertext_captured_len, nonce);
         /* text is already a raw buffer containing the plaintext since we just decrypted it in-place */
-        if (!ccm_cbc_mac(context->request_decryption_key->data, tmp, aad, aad_len, text, ciphertext_captured_len, gen_tag)) {
+        if (!ccm_cbc_mac(decryption_key, tmp, aad, aad_len, text, ciphertext_captured_len, gen_tag)) {
             return STATUS_ERROR_CBCMAC_FAILED;
         }
         /* Compare the received tag with the one we generated. */
@@ -644,11 +659,14 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *oscore_tree;
     /* Other misc. local variables. */
-    guint offset = 0;
+    gint offset = 0;
     oscore_info_t *info = (oscore_info_t *) data;
     oscore_context_t *context = NULL;
     oscore_decryption_status_t status;
     tvbuff_t *tvb_decrypted = NULL;
+    coap_info *coinfo;
+    gint oscore_length;
+    guint8 code_class;
 
     /* Check that the packet is long enough for it to belong to us. */
     if (tvb_reported_length(tvb) < OSCORE_MIN_LENGTH) {
@@ -708,7 +726,21 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     DISSECTOR_ASSERT(tvb_decrypted);
 
-    proto_tree_add_item(oscore_tree, hf_oscore_coap_data, tvb_decrypted, 0, tvb_reported_length(tvb_decrypted), ENC_NA);
+    oscore_length = tvb_reported_length(tvb_decrypted);
+
+    /* Fetch CoAP info */
+    coinfo = (coap_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_coap, 0);
+
+    if (coinfo) {
+        dissect_coap_code(tvb_decrypted, oscore_tree, &offset, &dissect_oscore_hf, &code_class);
+        offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, coinfo, &dissect_oscore_hf);
+        if (oscore_length > offset) {
+            dissect_coap_payload(tvb_decrypted, pinfo, oscore_tree, tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf, TRUE);
+        }
+    } else {
+        /* We don't support OSCORE over HTTP at the moment, where coinfo fetch will fail */
+        expert_add_info(pinfo, oscore_tree, &ei_oscore_info_fetch_failed);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -725,20 +757,17 @@ proto_register_oscore(void)
     expert_module_t *expert_oscore;
 
     static hf_register_info hf[] = {
-        { &hf_oscore_coap_data,
-          { "Decrypted CoAP Data", "oscore.coap_data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
         { &hf_oscore_tag,
           { "Decrypted Authentication Tag", "oscore.tag", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        COAP_COMMON_HF_LIST(dissect_oscore_hf, "oscore")
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_oscore
+        &ett_oscore,
+        COAP_COMMON_ETT_LIST(dissect_oscore_hf)
     };
 
     /* Setup protocol expert items */
@@ -783,11 +812,17 @@ proto_register_oscore(void)
             "Decryption error", EXPFILL
           }
         },
+        { &ei_oscore_info_fetch_failed,
+          { "oscore.info_fetch_failed", PI_UNDECODED, PI_WARN,
+            "Failed to fetch info from the lower layer - OSCORE over HTTP is not supported", EXPFILL
+          }
+        },
         { &ei_oscore_piv_len_invalid,
           { "oscore.piv_len_invalid", PI_UNDECODED, PI_WARN,
             "Partial IV length from the lower layer is invalid", EXPFILL
           }
         },
+        COAP_COMMON_EI_LIST(dissect_oscore_hf, "oscore")
     };
 
     static uat_field_t oscore_context_uat_flds[] = {
@@ -839,6 +874,8 @@ proto_register_oscore(void)
                 oscore_context_uat);
 
     register_dissector("oscore", oscore_dissect, proto_oscore);
+
+    proto_coap = proto_get_id_by_short_name("CoAP");
 }
 
 /*

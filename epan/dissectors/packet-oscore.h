@@ -53,6 +53,7 @@ typedef struct oscore_info {
     guint8              kid_context_len;
     guint8              *piv;
     guint8              piv_len;
+    gboolean            piv_in_response;
     gboolean            response;
 } oscore_info_t;
 
