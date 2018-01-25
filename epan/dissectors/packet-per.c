@@ -1572,7 +1572,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		/* 10.5.7.4 */
 		/* 12.2.6 */
 		/* calculate the number of bits to hold the length */
-		if ((range & G_GINT64_CONSTANT(0xffffffff0000000)) != 0){
+		if ((range & G_GINT64_CONSTANT(0xffffffff00000000)) != 0){
 			n_bits=3;
 		}else{
 			n_bits=2;
