@@ -105,7 +105,7 @@ QString AuthorListModel::acknowledgment() const
 
 QStringList AuthorListModel::headerColumns() const
 {
-    return QStringList() << tr("Name") << tr("E-Mail");
+    return QStringList() << tr("Name") << tr("Email");
 }
 
 static void plugins_add_description(const char *name, const char *version,
@@ -134,7 +134,7 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
         while (walker && walker->data) {
             extcap_info * tool = (extcap_info *)g_hash_table_lookup(tools, walker->data);
             if (tool) {
-                QStringList plugin_row = QStringList() << tool->basename << tool->version << "extcap" << tool->full_path;
+                QStringList plugin_row = QStringList() << tool->basename << tool->version << tr("extcap") << tool->full_path;
                 plugin_data << plugin_row;
             }
             walker = g_list_next(walker);
@@ -197,63 +197,63 @@ FolderListModel::FolderListModel(QObject * parent):
         AStringListListModel(parent)
 {
     /* "file open" */
-    appendRow( QStringList() << "\"File\" dialogs" << get_last_open_dir() << "capture files");
+    appendRow( QStringList() << tr("\"File\" dialogs") << get_last_open_dir() << tr("capture files"));
 
     /* temp */
-    appendRow( QStringList() <<  "Temp" << g_get_tmp_dir() << "untitled capture files");
+    appendRow( QStringList() << tr("Temp") << g_get_tmp_dir() << tr("untitled capture files"));
 
     /* pers conf */
-    appendRow( QStringList() << "Personal configuration"
+    appendRow( QStringList() << tr("Personal configuration")
             << gchar_free_to_qstring(get_persconffile_path("", FALSE))
-            << "dfilters, preferences, ethers, " UTF8_HORIZONTAL_ELLIPSIS);
+            << tr("dfilters, preferences, ethers, " UTF8_HORIZONTAL_ELLIPSIS));
 
     /* global conf */
     QString dirPath = get_datafile_dir();
     if (! dirPath.isEmpty()) {
-        appendRow ( QStringList() << "Global configuration" << dirPath
-                << "dfilters, preferences, manuf, " UTF8_HORIZONTAL_ELLIPSIS);
+        appendRow ( QStringList() << tr("Global configuration") << dirPath
+                << tr("dfilters, preferences, manuf, " UTF8_HORIZONTAL_ELLIPSIS));
     }
 
     /* system */
-    appendRow( QStringList() << "System" << get_systemfile_dir() << "ethers, ipxnets");
+    appendRow( QStringList() << tr("System") << get_systemfile_dir() << tr("ethers, ipxnets"));
 
     /* program */
-    appendRow( QStringList() << "Program" << get_progfile_dir() << "program files");
+    appendRow( QStringList() << tr("Program") << get_progfile_dir() << tr("program files"));
 
 #ifdef HAVE_PLUGINS
     /* pers plugins */
-    appendRow( QStringList() << "Personal Plugins" << get_plugins_pers_dir_with_version() << "binary plugins");
+    appendRow( QStringList() << tr("Personal Plugins") << get_plugins_pers_dir_with_version() << tr("binary plugins"));
 
     /* global plugins */
-    appendRow( QStringList() << "Global Plugins" << get_plugins_dir_with_version() << "binary plugins");
+    appendRow( QStringList() << tr("Global Plugins") << get_plugins_dir_with_version() << tr("binary plugins"));
 #endif
 
 #ifdef HAVE_LUA
     /* pers plugins */
-    appendRow( QStringList() << "Personal Lua Plugins" << get_plugins_pers_dir() << "lua scripts");
+    appendRow( QStringList() << tr("Personal Lua Plugins") << get_plugins_pers_dir() << tr("lua scripts"));
 
     /* global plugins */
-    appendRow( QStringList() << "Global Lua Plugins" << get_plugins_dir() << "lua scripts");
+    appendRow( QStringList() << tr("Global Lua Plugins") << get_plugins_dir() << tr("lua scripts"));
 #endif
 
     /* Extcap */
     QStringList extPaths = QString(get_extcap_dir()).split(G_SEARCHPATH_SEPARATOR_S);
 
     foreach(QString path, extPaths)
-        appendRow( QStringList() << "Extcap path" << path.trimmed() << "Extcap Plugins search path");
+        appendRow( QStringList() << tr("Extcap path") << path.trimmed() << tr("Extcap Plugins search path"));
 
 #ifdef HAVE_GEOIP
     /* GeoIP */
     QStringList geoIpPaths = QString(geoip_db_get_paths()).split(G_SEARCHPATH_SEPARATOR_S);
     foreach(QString path, geoIpPaths)
-        appendRow( QStringList() << "GeoIP path" << path.trimmed() << "GeoIP database search path");
+        appendRow( QStringList() << tr("GeoIP path") << path.trimmed() << tr("GeoIP database search path"));
 #endif
 
 #ifdef HAVE_LIBSMI
     /* SMI MIBs/PIBs */
     QStringList smiPaths = QString(oid_get_default_mib_path()).split(G_SEARCHPATH_SEPARATOR_S);
     foreach(QString path, smiPaths)
-        appendRow( QStringList() << "MIB/PIB path" << path.trimmed() << "SMI MIB/PIB search path");
+        appendRow( QStringList() << tr("MIB/PIB path") << path.trimmed() << tr("SMI MIB/PIB search path"));
 #endif
 }
 
