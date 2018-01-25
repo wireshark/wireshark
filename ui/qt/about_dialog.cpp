@@ -82,7 +82,7 @@ AStringListListModel(parent)
         if ( line.startsWith("------") )
             continue;
 
-        if ( line.compare(QStringLiteral("Acknowledgements") ) == 0 )
+        if ( line == "Acknowledgements" )
         {
             readAck = true;
             continue;
@@ -293,7 +293,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->pte_Authors->moveCursor(QTextCursor::Start);
 
     ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblAuthors, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblAuthors, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchAuthors, SIGNAL(textChanged(QString)), proxyAuthorModel, SLOT(setFilter(QString)));
 
     /* Wireshark tab */
@@ -335,9 +335,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblFolders->setItemDelegateForColumn(1, new UrlLinkDelegate(this));
     ui->tblFolders->setItemDelegateForColumn(2, new HTMLTextDelegate(this));
     ui->tblFolders->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblFolders, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblFolders, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchFolders, SIGNAL(textChanged(QString)), folderProxyModel, SLOT(setFilter(QString)));
-    connect(ui->tblFolders, &QTreeView::clicked, this, &AboutDialog::urlClicked );
+    connect(ui->tblFolders, SIGNAL(clicked(QModelIndex)), this, SLOT(urlClicked(QModelIndex)));
 
 
     /* Plugins */
@@ -354,7 +354,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblPlugins->setRootIsDecorated(false);
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblPlugins, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblPlugins, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchPlugins, SIGNAL(textChanged(QString)), pluginFilterModel, SLOT(setFilter(QString)));
     connect(ui->cmbType, SIGNAL(currentIndexChanged(QString)), pluginTypeModel, SLOT(setFilter(QString)));
 
@@ -372,7 +372,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblShortcuts->setModel(shortcutProxyModel);
     ui->tblShortcuts->setRootIsDecorated(false);
     ui->tblShortcuts->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblShortcuts, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblShortcuts, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchShortcuts, SIGNAL(textChanged(QString)), shortcutProxyModel, SLOT(setFilter(QString)));
 
     /* License */
@@ -460,11 +460,11 @@ void AboutDialog::handleCopyMenu(QPoint pos)
 
     QAction * copyColumnAction = menu->addAction(tr("Copy"));
     copyColumnAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
-    connect(copyColumnAction, &QAction::triggered, this, &AboutDialog::copyActionTriggered);
+    connect(copyColumnAction, SIGNAL(triggered()), this, SLOT(copyActionTriggered()));
 
     QAction * copyRowAction = menu->addAction(tr("Copy Row(s)"));
     copyRowAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
-    connect(copyRowAction, &QAction::triggered, this, &AboutDialog::copyRowActionTriggered);
+    connect(copyRowAction, SIGNAL(triggered()), this, SLOT(copyRowActionTriggered()));
 
     menu->popup(tree->viewport()->mapToGlobal(pos));
 }

@@ -13,6 +13,8 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
+#include <QRegExp>
+
 FilesetEntryModel::FilesetEntryModel(QObject * parent) :
     QAbstractItemModel(parent)
 {}

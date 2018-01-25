@@ -1,5 +1,5 @@
-/* qt_gui_utils.h
- * Declarations of GTK+-specific UI utility routines
+/* qt_ui_utils.h
+ * Declarations of Qt-specific UI utility routines
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -53,11 +53,6 @@ struct epan_range;
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-// Needed to support Qt 4.x
-#ifndef Q_NULLPTR
-#define Q_NULLPTR NULL
-#endif
 
 // Introduced in Qt 5.4
 #ifndef qUtf8Printable

@@ -31,6 +31,8 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
+#include <QVector>
+
 static const char *DEFAULT_TABLE = "tcp.port";    // Arbitrary
 static const char *DEFAULT_UI_TABLE = "TCP port";    // Arbitrary
 

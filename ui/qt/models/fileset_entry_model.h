@@ -18,6 +18,7 @@
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
+#include <QVector>
 
 class FilesetEntryModel : public QAbstractItemModel
 {

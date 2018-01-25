@@ -36,8 +36,9 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
     {
     case DP_PrintableText:
         for (int i = 0; i < printData.length(); i++) {
-            if (QChar::isSpace(printData[i]) || QChar::isLetter(printData[i])) {
-                clipboard_text += QChar(printData[i]);
+            QChar ch(printData[i]);
+            if (ch.isSpace() || ch.isLetter()) {
+                clipboard_text += ch;
             }
         }
         break;
@@ -126,10 +127,10 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
         byteStr += QString(" %1").arg((uint8_t) printData[cnt], 2, 16, QChar('0'));
         if ( showText )
         {
-            char ch = '.';
-            if ( QChar::isPrint(printData[cnt]) )
-                ch = (char) printData[cnt];
-            dataStr += QChar( ch );
+            QChar ch(printData[cnt]);
+            if (!ch.isPrint())
+                ch = '.';
+            dataStr += ch;
         }
         cnt++;
     }

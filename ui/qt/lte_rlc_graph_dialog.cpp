@@ -33,6 +33,7 @@
 
 #include <ui/qt/utils/tango_colors.h>
 
+#include <QFileDialog>
 #include <QMenu>
 #include <QRubberBand>
 

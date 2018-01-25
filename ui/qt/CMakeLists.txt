@@ -599,6 +599,11 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+# Define compatibility macros for Qt 4.8
+if(QT_VERSION EQUAL 4)
+	add_definitions(-DQ_NULLPTR=NULL)
+endif()
+
 SET(CMAKE_AUTOMOC TRUE)
 
 if(CMAKE_VERSION VERSION_LESS "3.0.2")

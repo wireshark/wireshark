@@ -257,6 +257,7 @@ get_wireshark_runtime_info(GString *str)
 #endif
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 static void
 g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
@@ -283,6 +284,7 @@ g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString 
     }
     g_log(LOG_DOMAIN_MAIN, log_level, "%s", qUtf8Printable(msg));
 }
+#endif
 
 #ifdef HAVE_LIBPCAP
 /*  Check if there's something important to tell the user during startup.
@@ -610,7 +612,9 @@ int main(int argc, char *qt_argv[])
 #endif
 
     set_console_log_handler();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     qInstallMessageHandler(g_log_message_handler);
+#endif
 #ifdef DEBUG_STARTUP_TIME
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
