@@ -47,7 +47,6 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/models/astringlist_list_model.h>
 #include <ui/qt/models/url_link_delegate.h>
-#include <ui/qt/models/html_text_delegate.h>
 
 #include <QFontMetrics>
 #include <QKeySequence>
@@ -206,17 +205,17 @@ FolderListModel::FolderListModel(QObject * parent):
     /* pers conf */
     appendRow( QStringList() << "Personal configuration"
             << gchar_free_to_qstring(get_persconffile_path("", FALSE))
-            << "<i>dfilters</i>, <i>preferences</i>, <i>ethers</i>, " UTF8_HORIZONTAL_ELLIPSIS);
+            << "dfilters, preferences, ethers, " UTF8_HORIZONTAL_ELLIPSIS);
 
     /* global conf */
     QString dirPath = get_datafile_dir();
     if (! dirPath.isEmpty()) {
         appendRow ( QStringList() << "Global configuration" << dirPath
-                << "<i>dfilters</i>, <i>preferences</i>, <i>manuf</i>, " UTF8_HORIZONTAL_ELLIPSIS);
+                << "dfilters, preferences, manuf, " UTF8_HORIZONTAL_ELLIPSIS);
     }
 
     /* system */
-    appendRow( QStringList() << "System" << get_systemfile_dir() << "<i>ethers</i>, <i>ipxnets</i>");
+    appendRow( QStringList() << "System" << get_systemfile_dir() << "ethers, ipxnets");
 
     /* program */
     appendRow( QStringList() << "Program" << get_progfile_dir() << "program files");
@@ -333,7 +332,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblFolders->setModel(folderDisplayModel);
     ui->tblFolders->setRootIsDecorated(false);
     ui->tblFolders->setItemDelegateForColumn(1, new UrlLinkDelegate(this));
-    ui->tblFolders->setItemDelegateForColumn(2, new HTMLTextDelegate(this));
     ui->tblFolders->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tblFolders, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchFolders, SIGNAL(textChanged(QString)), folderProxyModel, SLOT(setFilter(QString)));

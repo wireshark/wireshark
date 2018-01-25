@@ -82,7 +82,6 @@ set(WIRESHARK_MODEL_HEADERS
 	models/expert_info_proxy_model.h
 	models/export_objects_model.h
 	models/fileset_entry_model.h
-	models/html_text_delegate.h
 	models/info_proxy_model.h
 	models/interface_sort_filter_model.h
 	models/interface_tree_cache_model.h
@@ -306,7 +305,6 @@ set(WIRESHARK_MODEL_SRCS
 	models/expert_info_proxy_model.cpp
 	models/export_objects_model.cpp
 	models/fileset_entry_model.cpp
-	models/html_text_delegate.cpp
 	models/info_proxy_model.cpp
 	models/interface_sort_filter_model.cpp
 	models/interface_tree_cache_model.cpp
