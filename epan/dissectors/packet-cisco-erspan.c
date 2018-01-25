@@ -24,12 +24,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Protocol Spec:
- *   https://tools.ietf.org/html/draft-foschiano-erspan-01
+ *   https://tools.ietf.org/html/draft-foschiano-erspan-03
  *
  * For ERSPAN packets, the "protocol type" field value in the GRE header
- * is 0x88BE (version 1) or 0x22EB (version 2).
- *   ERSPAN type II is version 1
- *   ERSPAN type III is version 2
+ * is 0x88BE (types I and II) or 0x22EB (type III).
+ *   ERSPAN type I   has no extra gre header bytes (all flags 0), e.g. Broadcom Trident 2 ASIC
+ *   ERSPAN type II  has version = 1
+ *   ERSPAN type III has version = 2
  */
 
 #include "config.h"
@@ -87,9 +88,6 @@ static expert_field ei_erspan_version_unknown = EI_INIT;
 
 #define PROTO_SHORT_NAME "ERSPAN"
 #define PROTO_LONG_NAME "Encapsulated Remote Switch Packet ANalysis"
-
-/* Global ERSPAN Preference */
-static gboolean pref_fake_erspan = FALSE;
 
 #define ERSPAN_DIRECTION_INCOMING 0
 #define ERSPAN_DIRECTION_OUTGOING 1
@@ -154,7 +152,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 	}
 
-	if(pref_fake_erspan) {
+	if(pinfo->flags.in_erspan_i) {
 		/* Some vendors don't include ERSPAN Header...*/
 		eth_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(ethnofcs_handle, eth_tvb, pinfo, tree);
@@ -304,7 +302,6 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 void
 proto_register_erspan(void)
 {
-	module_t *erspan_module;
 	expert_module_t* expert_erspan;
 
 	static hf_register_info hf[] = {
@@ -445,15 +442,6 @@ proto_register_erspan(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_erspan = expert_register_protocol(proto_erspan);
 	expert_register_field_array(expert_erspan, ei, array_length(ei));
-
-	/* register dissection preferences */
-	erspan_module = prefs_register_protocol(proto_erspan, NULL);
-
-	prefs_register_bool_preference(erspan_module, "fake_erspan",
-				"FORCE to decode fake ERSPAN frame",
-				"When set, dissector will FORCE to decode directly Ethernet Frame"
-				"Some vendor use fake ERSPAN frame (with not ERSPAN Header)",
-				&pref_fake_erspan);
 }
 
 void

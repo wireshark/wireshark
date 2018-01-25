@@ -129,7 +129,7 @@ const value_string gre_typevals[] = {
     { GRE_CISCO_CDP,       "CDP (Cisco)"},
     { GRE_NHRP,            "NHRP"},
     { GRE_ERSPAN_88BE,     "ERSPAN"},
-    { GRE_ERSPAN_22EB,     "ERSPAN"},
+    { GRE_ERSPAN_22EB,     "ERSPAN III"},
     { GRE_MIKROTIK_EOIP,   "MIKROTIK EoIP"},
     { GRE_AIROHIVE,        "AIROHIVE AP AP"},
     { ETHERTYPE_IPX,       "IPX"},
@@ -493,6 +493,9 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
         if (type == ETHERTYPE_3GPP2) {
             offset = dissect_gre_3gpp2_attribs(tvb, offset, gre_tree);
+        }
+        if (type == GRE_ERSPAN_88BE && !(flags_and_ver & GRE_SEQUENCE)) {
+            pinfo->flags.in_erspan_i = TRUE;
         }
 
         proto_item_set_len(ti, offset);
