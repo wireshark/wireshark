@@ -7301,7 +7301,7 @@ proto_reg_handoff_zbee_zcl_tun(void)
     XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_6_COST_CON_DELIVERED,  0x054C, "Previous Month 6 Cost Consumption Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_6_COST_CON_RECEIVED,   0x054D, "Previous Month 6 Cost Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_7_COST_CON_DELIVERED,  0x054E, "Previous Month 7 Cost Consumption Delivered" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_7_COST_CON_RECEIVED,   0x054D, "Previous Month 7 Cost Consumption Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_7_COST_CON_RECEIVED,   0x054F, "Previous Month 7 Cost Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_8_COST_CON_DELIVERED,  0x0550, "Previous Month 8 Cost Consumption Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_8_COST_CON_RECEIVED,   0x0551, "Previous Month 8 Cost Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_9_COST_CON_DELIVERED,  0x0552, "Previous Month 9 Cost Consumption Delivered" ) \
