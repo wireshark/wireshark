@@ -130,6 +130,8 @@ static int hf_radiotap_ampdu_flags_last_known = -1;
 static int hf_radiotap_ampdu_flags_is_last = -1;
 static int hf_radiotap_ampdu_flags_delim_crc_error = -1;
 static int hf_radiotap_ampdu_delim_crc = -1;
+static int hf_radiotap_ampdu_flags_eof_known = -1;
+static int hf_radiotap_ampdu_flags_eof = -1;
 static int hf_radiotap_vht = -1;
 static int hf_radiotap_vht_known = -1;
 static int hf_radiotap_vht_have_stbc = -1;
@@ -2161,6 +2163,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_delim_crc_error,
 						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_eof,
+						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_eof_known,
+						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
 			}
 			if (ampdu_flags & IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_KNOWN) {
 				if (ampdu_tree)
@@ -3048,6 +3054,16 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_ampdu_flags_delim_crc_error,
 		 {"Delimiter CRC error on this subframe", "radiotap.ampdu.flags.delim_crc_error",
 		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_ERR,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_ampdu_flags_eof,
+		 {"EOF on this subframe", "radiotap.ampdu.flags.eof",
+		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_EOF,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_ampdu_flags_eof_known,
+		 {"EOF of this A-MPDU is known", "radiotap.ampdu.flags.eof_known",
+		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_EOF_KNOWN,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_delim_crc,
