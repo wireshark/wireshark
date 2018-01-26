@@ -2823,6 +2823,7 @@ AC_CONFIG_FILES(
   plugins/epan/wimax/Makefile
   plugins/epan/wimaxasncp/Makefile
   plugins/epan/wimaxmacphy/Makefile
+  plugins/wiretap/usbdump/Makefile
   _CUSTOM_PLUGIN_CONFIG_FILES_
   randpkt_core/doxygen.cfg
   randpkt_core/Makefile

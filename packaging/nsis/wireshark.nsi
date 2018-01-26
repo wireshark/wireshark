@@ -1046,6 +1046,12 @@ SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan'
 File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\transum.dll"
 SectionEnd
 
+Section "File type plugins - capture file support" SecWiretap
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\wiretap'
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\wiretap\usbdump.dll"
+SectionEnd
+
 Section "Configuration Profiles" SecProfiles
 ;-------------------------------------------
 ; This should be a function or macro

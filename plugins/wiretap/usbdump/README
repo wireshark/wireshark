@@ -1,0 +1,3 @@
+This wiretap plugin serves a dual purpose. One is to add usbdump file
+reading capability to wiretap and therefore Wireshark and Tshark.
+Second it is an illustration of a basic wiretap plugin module.
