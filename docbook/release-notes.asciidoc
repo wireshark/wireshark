@@ -64,6 +64,7 @@ since version 2.4.0:
   headers required to build plugins. A pkg-config file is provided to
   help with this (see doc/plugins.example for details). Note you must
   still rebuild all plugins between minor releases (X.Y).
+* The Windows installers and packages now ship with Qt 5.9.4.
 
 //=== Removed Dissectors
 
