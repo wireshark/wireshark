@@ -42,6 +42,8 @@ FilterExpressionFrame::FilterExpressionFrame(QWidget *parent) :
         w->setAttribute(Qt::WA_MacSmallSize, true);
     }
 #endif
+
+    updateWidgets();
 }
 
 FilterExpressionFrame::~FilterExpressionFrame()
@@ -72,7 +74,9 @@ void FilterExpressionFrame::updateWidgets()
 {
     bool ok_enable = true;
 
-    if (ui->labelLineEdit->text().isEmpty() || ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Valid)
+    if (ui->labelLineEdit->text().isEmpty() ||
+        ((ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Valid) &&
+         (ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Deprecated)))
         ok_enable = false;
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enable);
