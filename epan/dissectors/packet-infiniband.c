@@ -64,6 +64,7 @@ static gint ett_deth = -1;
 static gint ett_reth = -1;
 static gint ett_atomiceth = -1;
 static gint ett_aeth = -1;
+static gint ett_aeth_syndrome = -1;
 static gint ett_atomicacketh = -1;
 static gint ett_immdt = -1;
 static gint ett_ieth = -1;
@@ -547,6 +548,12 @@ static int hf_infiniband_compare_data = -1;
 /* ACK Extended Transport Header (AETH) */
 static int hf_infiniband_AETH = -1;
 static int hf_infiniband_syndrome = -1;
+static int hf_infiniband_syndrome_reserved = -1;
+static int hf_infiniband_syndrome_opcode = -1;
+static int hf_infiniband_syndrome_credit_count = -1;
+static int hf_infiniband_syndrome_timer = -1;
+static int hf_infiniband_syndrome_reserved_value = -1;
+static int hf_infiniband_syndrome_error_code = -1;
 static int hf_infiniband_message_sequence_number = -1;
 /* Atomic ACK Extended Transport Header (AtomicAckETH) */
 static int hf_infiniband_AtomicAckETH = -1;
@@ -1299,6 +1306,63 @@ static const value_string bth_opcode_tbl[] = {
     { 0, NULL}
 };
 
+#define AETH_SYNDROME_OPCODE_ACK 0
+#define AETH_SYNDROME_OPCODE_RNR_NAK 1
+#define AETH_SYNDROME_OPCODE_RES 2
+#define AETH_SYNDROME_OPCODE_NAK 3
+
+static const value_string aeth_syndrome_opcode_vals[]= {
+    { AETH_SYNDROME_OPCODE_ACK, "Ack"},
+    { AETH_SYNDROME_OPCODE_RNR_NAK, "RNR Nak"},
+    { AETH_SYNDROME_OPCODE_RES, "Reserved"},
+    { AETH_SYNDROME_OPCODE_NAK, "Nak"},
+    { 0, NULL}
+};
+
+static const value_string aeth_syndrome_nak_error_code_vals[]= {
+    { 0, "PSN Sequence Error"},
+    { 1, "Invalid Request"},
+    { 2, "Remote Access Error"},
+    { 3, "Remote Operational Error"},
+    { 4, "Invalid RD Request"},
+    { 0, NULL}
+};
+
+static const value_string aeth_syndrome_timer_code_vals[]= {
+    { 0, "655.36 ms"},
+    { 1, "0.01 ms"},
+    { 2, "0.02 ms"},
+    { 3, "0.03 ms"},
+    { 4, "0.04 ms"},
+    { 5, "0.06 ms"},
+    { 6, "0.08 ms"},
+    { 7, "0.12 ms"},
+    { 8, "0.16 ms"},
+    { 9, "0.24 ms"},
+    { 10, "0.32 ms"},
+    { 11, "0.48 ms"},
+    { 12, "0.64 ms"},
+    { 13, "0.96 ms"},
+    { 14, "1.28 ms"},
+    { 15, "1.92 ms"},
+    { 16, "2.56 ms"},
+    { 17, "3.84 ms"},
+    { 18, "5.12 ms"},
+    { 19, "7.68 ms"},
+    { 20, "10.24 ms"},
+    { 21, "15.36 ms"},
+    { 22, "20.48 ms"},
+    { 23, "30.72 ms"},
+    { 24, "40.96 ms"},
+    { 25, "61.44 ms"},
+    { 26, "81.92 ms"},
+    { 27, "122.88 ms"},
+    { 28, "163.84 ms"},
+    { 29, "245.76 ms"},
+    { 30, "327.68 ms"},
+    { 31, "491.52 ms"},
+    { 0, NULL}
+};
 
 /* MAD Management Classes
 * Classes from the Common MAD Header
@@ -1488,6 +1552,10 @@ static const value_string DctOpCodeMap[] =
 #define TRANSPORT_UC    1
 #define TRANSPORT_RD    2
 #define TRANSPORT_UD    3
+
+#define AETH_SYNDROME_RES 0x80
+#define AETH_SYNDROME_OPCODE 0x60
+#define AETH_SYNDROME_VALUE 0x1F
 
 
 /* Array of all availavle OpCodes to make matching a bit easier.
@@ -2441,12 +2509,36 @@ parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     /* AETH - ACK Extended Transport Header */
     proto_item *AETH_header_item;
     proto_tree *AETH_header_tree;
+    proto_item *AETH_syndrome_item;
+    proto_tree *AETH_syndrome_tree;
+    guint8      opcode;
 
     AETH_header_item = proto_tree_add_item(parentTree, hf_infiniband_AETH, tvb, local_offset, 4, ENC_NA);
     proto_item_set_text(AETH_header_item, "%s", "AETH - ACK Extended Transport Header");
     AETH_header_tree = proto_item_add_subtree(AETH_header_item, ett_aeth);
 
-    proto_tree_add_item(AETH_header_tree, hf_infiniband_syndrome, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    AETH_syndrome_item = proto_tree_add_item(AETH_header_tree, hf_infiniband_syndrome, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    AETH_syndrome_tree = proto_item_add_subtree(AETH_syndrome_item, ett_aeth_syndrome);
+    proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_opcode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    opcode = ((tvb_get_guint8(tvb, local_offset) & AETH_SYNDROME_OPCODE) >> 5);
+    proto_item_append_text(AETH_syndrome_item, ", %s", val_to_str_const(opcode, aeth_syndrome_opcode_vals, "Unknown"));
+    switch (opcode)
+    {
+        case AETH_SYNDROME_OPCODE_ACK:
+            proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_credit_count, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case AETH_SYNDROME_OPCODE_RNR_NAK:
+            proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_timer, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case AETH_SYNDROME_OPCODE_RES:
+            proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_reserved_value, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case AETH_SYNDROME_OPCODE_NAK:
+            proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_error_code, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            break;
+    }
+
     local_offset += 1;
     proto_tree_add_item(AETH_header_tree, hf_infiniband_message_sequence_number, tvb, local_offset, 3, ENC_BIG_ENDIAN);
     local_offset += 3;
@@ -6365,6 +6457,30 @@ void proto_register_infiniband(void)
                 "Syndrome", "infiniband.aeth.syndrome",
                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
+        { &hf_infiniband_syndrome_reserved, {
+                "Reserved", "infiniband.aeth.syndrome.reserved",
+                FT_UINT8, BASE_DEC, NULL, AETH_SYNDROME_RES, NULL, HFILL}
+        },
+        { &hf_infiniband_syndrome_opcode, {
+                "OpCode", "infiniband.aeth.syndrome.opcode",
+                FT_UINT8, BASE_DEC, VALS(aeth_syndrome_opcode_vals), AETH_SYNDROME_OPCODE, NULL, HFILL}
+        },
+        { &hf_infiniband_syndrome_credit_count, {
+                "Credit Count", "infiniband.aeth.syndrome.credit_count",
+                FT_UINT8, BASE_DEC, NULL, AETH_SYNDROME_VALUE, NULL, HFILL}
+        },
+        { &hf_infiniband_syndrome_timer, {
+                "Timer", "infiniband.aeth.syndrome.timer",
+                FT_UINT8, BASE_DEC, VALS(aeth_syndrome_timer_code_vals), AETH_SYNDROME_VALUE, NULL, HFILL}
+        },
+        { &hf_infiniband_syndrome_reserved_value, {
+                "Reserved", "infiniband.aeth.syndrome.reserved_value",
+                FT_UINT8, BASE_DEC, NULL, AETH_SYNDROME_VALUE, NULL, HFILL}
+        },
+        { &hf_infiniband_syndrome_error_code, {
+                "Error Code", "infiniband.aeth.syndrome.error_code",
+                FT_UINT8, BASE_DEC, VALS(aeth_syndrome_nak_error_code_vals), AETH_SYNDROME_VALUE, NULL, HFILL}
+        },
         { &hf_infiniband_message_sequence_number, {
                 "Message Sequence Number", "infiniband.aeth.msn",
                 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
@@ -8480,6 +8596,7 @@ void proto_register_infiniband(void)
         &ett_reth,
         &ett_atomiceth,
         &ett_aeth,
+        &ett_aeth_syndrome,
         &ett_atomicacketh,
         &ett_immdt,
         &ett_ieth,
