@@ -1327,16 +1327,13 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
         return find_dissector("http");
     }
     else
-    if ((strcmp(protocol_name, "fp") == 0) ||
-        (strncmp(protocol_name, "fp_r", 4) == 0) ||
+    if ((strncmp(protocol_name, "fp_r", 4) == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
         return find_dissector("fp");
     }
     else
-    if ((strcmp(protocol_name, "iuup_rtp_r5") == 0) ||
-        (strcmp(protocol_name, "iuup_rtp_r6") == 0)) {
-
+    if (strncmp(protocol_name, "iuup_rtp_r", strlen("iuup_rtp_r")) == 0) {
         return find_dissector("rtp");
     }
     else
@@ -1381,7 +1378,6 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
 
         return find_dissector("x2ap");
     }
-
     else
     if ((strcmp(protocol_name, "gtpv2_r8_lte") == 0) ||
         (strcmp(protocol_name, "gtpv2_r9_lte") == 0)) {
@@ -2181,11 +2177,32 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* Timestamp in file */
     timestamp_string = tvb_get_const_stringz(tvb, offset, &timestamp_length);
     if (dct2000_tree) {
-        /* TODO: this is *very* slow, but float version adds trailing digits when
-                 displayed as a custom column... */
+        /* g_ascii_strtod(timestamp_string, NULL)) is much simpler, but *very* slow..
+           There will be seconds, a dot, and 4 decimal places.
+           N.B. timestamp_length also includes following NULL character */
+        if (timestamp_length < 7) {
+            /* Can't properly parse, but leave showing how far we got */
+            return offset;
+        }
+
+        /* Seconds. */
+        int seconds = 0;
+        int multiplier = 1;
+        for (int d=timestamp_length-7; d >= 0; d--) {
+            seconds += ((timestamp_string[d]-'0') * multiplier);
+            multiplier *= 10;
+        }
+
+        /* Subseconds (4 digits). */
+        int subseconds = 0;
+        subseconds += (timestamp_string[timestamp_length-2]-'0');
+        subseconds += (timestamp_string[timestamp_length-3]-'0')*10;
+        subseconds += (timestamp_string[timestamp_length-4]-'0')*100;
+        subseconds += (timestamp_string[timestamp_length-5]-'0')*1000;
+
         proto_tree_add_double(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
                               offset, timestamp_length,
-                              g_ascii_strtod(timestamp_string, NULL));
+                              seconds+(subseconds/10000.0));
     }
     offset += timestamp_length;
 
@@ -2845,9 +2862,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             /* Last chance: is there a (private) registered protocol of the form
                "dct2000.protocol" ? */
             if (protocol_handle == 0) {
-                /* TODO: only look inside preference? */
-                char dotted_protocol_name[64+128];
-                g_snprintf(dotted_protocol_name, 64+128, "dct2000.%s", protocol_name);
+                /* TODO: only look inside if a preference enabled? */
+                char dotted_protocol_name[128];
+                /* N.B. avoiding g_snprintf(), which was slow */
+                g_strlcpy(dotted_protocol_name, "dct2000.", 128);
+                g_strlcpy(dotted_protocol_name+8, protocol_name, 128-8);
                 protocol_handle = find_dissector(dotted_protocol_name);
             }
 
