@@ -35,7 +35,8 @@ FilterExpressionFrame::FilterExpressionFrame(QWidget *parent) :
     }
 #endif
 
-	editExpression_ = -1;
+    editExpression_ = -1;
+    updateWidgets();
 }
 
 FilterExpressionFrame::~FilterExpressionFrame()
@@ -95,7 +96,9 @@ void FilterExpressionFrame::updateWidgets()
 {
     bool ok_enable = true;
 
-    if (ui->labelLineEdit->text().isEmpty() || ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Valid)
+    if (ui->labelLineEdit->text().isEmpty() ||
+        ((ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Valid) &&
+         (ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Deprecated)))
         ok_enable = false;
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enable);
