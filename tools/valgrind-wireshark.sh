@@ -102,7 +102,7 @@ then
     printf "[-e]: use 'editcap -E 0.02' instead of tshark\n"
     printf "[-c]: use capinfos instead of tshark\n"
     printf "[-C]: binary profile file\n"
-    printf "[-l]: add valgring option --leak-check=full\n"
+    printf "[-l]: add valgrind option --leak-check=full\n"
     printf "[-m]: use valgrind massif tool\n"
     printf "[-n]: print binary version\n"
     printf "[-p]: use callgrind massif tool\n"
