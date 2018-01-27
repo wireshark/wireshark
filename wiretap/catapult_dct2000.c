@@ -1187,8 +1187,12 @@ parse_line(gchar *linebuff, gint line_length,
 
     /* Convert found value into number */
     seconds_buff[seconds_chars] = '\0';
-    if (!ws_strtoi32(seconds_buff, NULL, seconds)) {
-      return FALSE;
+    /* Already know they are digits, so avoid expense of ws_strtoi32() */
+    int multiplier = 1;
+    *seconds = 0;
+    for (int d=seconds_chars-1; d >= 0; d--) {
+        *seconds += ((seconds_buff[d]-'0')*multiplier);
+        multiplier *= 10;
     }
 
     /* The decimal point must follow the last of the seconds digits */
@@ -1216,10 +1220,11 @@ parse_line(gchar *linebuff, gint line_length,
     }
     /* Convert found value into microseconds */
     subsecond_decimals_buff[subsecond_decimals_chars] = '\0';
-    if (!ws_strtoi32(subsecond_decimals_buff, NULL, useconds)) {
-      return FALSE;
-    }
-    (*useconds) *= 100;
+    /* Already know they are digits, so avoid expense of ws_strtoi32() */
+    *useconds = ((subsecond_decimals_buff[0]-'0') * 100000) +
+                ((subsecond_decimals_buff[1]-'0') * 10000) +
+                ((subsecond_decimals_buff[2]-'0') * 1000) +
+                ((subsecond_decimals_buff[3]-'0') * 100);
 
     /* Space character must follow end of timestamp */
     if (linebuff[n] != ' ') {
