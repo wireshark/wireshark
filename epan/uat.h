@@ -632,10 +632,14 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 /*
  * Color Macros,
- *   an boolean value contained in
+ *   an #RRGGBB color value contained in
  */
 #define UAT_COLOR_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	if (len < 1) { \
+		((rec_t*)rec)->field_name = 0; \
+		return; \
+	} \
 	char* tmp_str = g_strndup(buf+1,len-1); \
 	((rec_t*)rec)->field_name = (guint)strtol(tmp_str,NULL,16); \
 	g_free(tmp_str); } \
