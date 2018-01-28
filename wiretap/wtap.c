@@ -1423,12 +1423,12 @@ wtap_init(gboolean load_wiretap_plugins)
 	init_open_routines();
 	wtap_opttypes_initialize();
 	wtap_init_encap_types();
-#ifdef HAVE_PLUGINS
 	if (load_wiretap_plugins) {
+#ifdef HAVE_PLUGINS
 		libwiretap_plugins = plugins_init(WS_PLUGIN_WIRETAP);
 		g_slist_foreach(wtap_plugins, call_plugin_register_wtap_module, NULL);
-	}
 #endif
+	}
 }
 
 /*

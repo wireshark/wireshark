@@ -152,7 +152,6 @@ libwsutil_la_SOURCES = \
 	mpeg-audio.c		\
 	nstime.c		\
 	os_version_info.c	\
-	plugins.c		\
 	privileges.c		\
 	report_message.c	\
 	rsa.c			\
@@ -169,6 +168,10 @@ libwsutil_la_SOURCES = \
 	wsgcrypt.c		\
 	wsjsmn.c		\
 	xtea.c
+
+if HAVE_PLUGINS
+libwsutil_la_SOURCES += plugins.c
+endif
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@

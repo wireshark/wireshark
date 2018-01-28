@@ -10,8 +10,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_PLUGINS
-
 #include <time.h>
 
 #include <stdlib.h>
@@ -344,8 +342,6 @@ plugins_cleanup(plugins_t *plugins)
     plugins_module_list = g_slist_remove(plugins_module_list, plugins);
     g_hash_table_destroy((GHashTable *)plugins);
 }
-
-#endif /* HAVE_PLUGINS */
 
 /*
  * Editor modelines
