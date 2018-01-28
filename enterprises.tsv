@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-01-20)
+# (last updated 2018-01-27)
 
 0	Reserved
 1	NxNetworks
@@ -6291,7 +6291,7 @@
 6304	fogcity
 6305	Flextronics International
 6306	Dartware, LLC
-6307	Ipanema Technologies
+6307	InfoVista SAS	# formerly 'Ipanema Technologies'
 6308	cholul
 6309	Dan Nielsen Consulting
 6310	KaanBaan Technologies
@@ -48344,7 +48344,7 @@
 48522	Elisa Eesti AS
 48523	ALTEC S.p.A.
 48524	Ping Communication (Switzerland) AG
-48525	SnapServ Ltd
+48525	SnapServ Mathis
 48526	Twilio, inc.
 48527	LEGO System A/S
 48528	IT Niedersachsen
@@ -51010,7 +51010,7 @@
 51194	Harvard-Smithsonian Center for Astrophysics
 51195	IT.NRW
 51196	CAF S.A. - Construcciones y Auxiliar de Ferrocarriles S.A.
-51197	BlackCard Security Inc.
+51197	Smart Card Security Inc.
 51198	Logicalis Latin America
 51199	LTD Meditsinsky center Doctor Bogolubov
 51200	Fuszenecker Software Development
@@ -51119,3 +51119,45 @@
 51303	Sailpoint Technologies
 51304	Medical Clinic of Northville
 51305	National Marine Electronics Association
+51306	Nipendo
+51307	OEM Solutions, Inc.
+51308	SEHCON
+51309	5x9 Networks
+51310	segfault.io
+51311	SAGS IT
+51312	Vasilevsky Rudnik Gold Mine
+51313	Horizon Power
+51314	Solusindo Antar Network
+51315	Technotronics Ltd.
+51316	Lundgrens i Igelfors AB
+51317	ArchNemesis
+51318	Starview Systems
+51319	Wallace Roberts & Todd, LLC
+51320	Hitachi Hirel Power Electronics Pvt Ltd
+51321	If P&C Insurance AS
+51322	ONAIR MEDYA KOMUNIKASYON LTD.
+51323	Stensborgs åkeri AB
+51324	Skarox OÜ
+51325	Jurupa Unified School District
+51326	Profitap HQ BV
+51327	Agência Estadual de Tecnologia da Informação de Pernambuco
+51328	Elder Estates
+51329	Salviol Global Analytics Ltd.
+51330	VOMATEC Innovations GmbH
+51331	TO21
+51332	Shenzhen Taishan Technology Co., Ltd.
+51333	EduBase LLC
+51334	PolarPower, Inc.
+51335	Austrian Federal Ministry of Education, Science and Research
+51336	Big River Communications
+51337	Freesat Limited
+51338	Frederick County Bank
+51339	Robison Jacka
+51340	Shenzhen Adamasnet Technology Co., Ltd.
+51341	Trusted Key
+51342	Deutsche Familienversicherung
+51343	Brotherhood and Sisterhood Graphic Design and Fashion
+51344	SINENSIA IT SOLUTIONS
+51345	IBT Interfaces
+51346	da young telecommunication
+51347	Accipiter Radar

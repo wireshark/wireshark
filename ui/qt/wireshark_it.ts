@@ -133,8 +133,12 @@
         <translation>Nome</translation>
     </message>
     <message>
+        <source>Email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>E-Mail</source>
-        <translation>Email</translation>
+        <translation type="vanished">Email</translation>
     </message>
 </context>
 <context>
@@ -1380,10 +1384,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
  if you want to use multiple files.</oldsource>
         <translation>File multipli: non è stato fornito alcun limite di file. Devi specificare una dimensione del file o l&apos;intervallo trascorso il quale si passa al successivo file di cattura se vuoi utilizzare diversi file.</translation>
     </message>
-    <message>
-        <source>pcap-ng</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>CapturePreferencesFrame</name>
@@ -1430,10 +1430,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Disable external capture interfaces</source>
         <translation>Disabilita le interfacce di cattura esterne</translation>
-    </message>
-    <message>
-        <source>Capture packets in pcap-ng format</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2522,6 +2518,102 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 </context>
 <context>
     <name>FolderListModel</name>
+    <message>
+        <source>&quot;File&quot; dialogs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Temp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>untitled capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dfilters, preferences, ethers, </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>dfilters, preferences, manuf, </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ethers, ipxnets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>program files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>binary plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal Lua Plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lua scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Lua Plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extcap path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extcap Plugins search path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GeoIP path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GeoIP database search path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIB/PIB path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMI MIB/PIB search path</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Name</source>
         <translation>Nome</translation>
@@ -8208,6 +8300,10 @@ a:hover {
 </context>
 <context>
     <name>PluginListModel</name>
+    <message>
+        <source>extcap</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Name</source>
         <translation>Nome</translation>
