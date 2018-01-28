@@ -201,11 +201,6 @@ EXTRA_DIST = \
 	win32-utils.c		\
 	win32-utils.h
 
-CLEANFILES = \
-	libwsutil.a	\
-	libwsutil.la	\
-	*~
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \
