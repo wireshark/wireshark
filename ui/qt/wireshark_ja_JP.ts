@@ -2885,22 +2885,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>フィルタ:</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="59"/>
+        <location filename="filter_expression_frame.cpp" line="61"/>
         <source>Apply this filter</source>
         <translation>このフィルタを適用</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="125"/>
+        <location filename="filter_expression_frame.cpp" line="129"/>
         <source>Missing label.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="127"/>
+        <location filename="filter_expression_frame.cpp" line="131"/>
         <source>Missing filter expression.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="129"/>
+        <location filename="filter_expression_frame.cpp" line="133"/>
         <source>Invalid filter expression.</source>
         <translation type="unfinished"></translation>
     </message>

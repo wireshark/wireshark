@@ -2889,22 +2889,22 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Filtro</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="59"/>
+        <location filename="filter_expression_frame.cpp" line="61"/>
         <source>Apply this filter</source>
         <translation>Applica questo filtro</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="125"/>
+        <location filename="filter_expression_frame.cpp" line="129"/>
         <source>Missing label.</source>
         <translation>Etichetta mancante.</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="127"/>
+        <location filename="filter_expression_frame.cpp" line="131"/>
         <source>Missing filter expression.</source>
         <translation>Espressione di filtro mancante.</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="129"/>
+        <location filename="filter_expression_frame.cpp" line="133"/>
         <source>Invalid filter expression.</source>
         <translation>Espressioni di filtro non valida.</translation>
     </message>
