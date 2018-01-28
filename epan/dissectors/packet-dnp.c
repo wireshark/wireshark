@@ -607,6 +607,10 @@
 #define AL_OBJ_VT_OBLK     0x7000   /* 112 xx Virtual Terminal Output Block */
 #define AL_OBJ_VT_EVTD     0x7100   /* 113 xx Virtual Terminal Event Data */
 
+/* Reasonable amount of fields that are expected to be empty and thus don't
+   increment the packet offset.  Used to prevent infinite/really long loops */
+#define DNP_EMPTY_FIELD_LIMIT       50
+
 /***************************************************************************/
 /* End of Application Layer Data Object Definitions */
 /***************************************************************************/
@@ -1355,6 +1359,7 @@ static expert_field ei_dnp3_data_hdr_crc_incorrect = EI_INIT;
 static expert_field ei_dnp3_data_chunk_crc_incorrect = EI_INIT;
 static expert_field ei_dnp3_unknown_object = EI_INIT;
 static expert_field ei_dnp3_unknown_group0_variation = EI_INIT;
+static expert_field ei_dnp_empty_field_limit = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
 #if 0
 static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received = EI_INIT;
@@ -1667,6 +1672,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint32     al_ptaddr = 0;
   int         num_items = 0;
   int         orig_offset, rangebytes = 0;
+  int         empty_field_limit = 0;    //Used to control the potential for really long/infinite loops
   proto_item *object_item, *range_item;
   proto_tree *object_tree, *qualifier_tree, *range_tree;
 
@@ -1836,6 +1842,14 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
       data_pos   = offset;
       prefixbytes = dnp3_al_obj_procprefix(tvb, offset, al_objq_prefix, &al_ptaddr, point_tree);
+      if (prefixbytes == 0) {
+        empty_field_limit++;
+      }
+      if (empty_field_limit > DNP_EMPTY_FIELD_LIMIT) {
+        proto_item_append_text(range_item, " (bogus)");
+        expert_add_info(pinfo, range_item, &ei_dnp_empty_field_limit);
+        return tvb_captured_length(tvb);
+      }
       proto_item_append_text(point_item, " %u", al_ptaddr);
       proto_item_set_len(point_item, prefixbytes);
       data_pos += prefixbytes;
@@ -4600,6 +4614,7 @@ proto_register_dnp3(void)
      { &ei_dnp3_data_chunk_crc_incorrect, { "dnp3.data_chunk.CRC.incorrect", PI_CHECKSUM, PI_WARN, "Data Chunk Checksum incorrect", EXPFILL }},
      { &ei_dnp3_unknown_object, { "dnp3.unknown_object", PI_PROTOCOL, PI_WARN, "Unknown Object\\Variation", EXPFILL }},
      { &ei_dnp3_unknown_group0_variation, { "dnp3.unknown_group0_variation", PI_PROTOCOL, PI_WARN, "Unknown Group 0 Variation", EXPFILL }},
+     { &ei_dnp_empty_field_limit, { "dnp3.empty_field_limit", PI_MALFORMED, PI_ERROR, "Empty field limit reached.  Potentially malicious packet", EXPFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
 #if 0
       { &ei_dnp3_buffering_user_data_until_final_frame_is_received, { "dnp3.buffering_user_data_until_final_frame_is_received", PI_PROTOCOL, PI_WARN, "Buffering User Data Until Final Frame is Received..", EXPFILL }},
