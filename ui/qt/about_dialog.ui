@@ -82,12 +82,6 @@
            <property name="text">
             <string/>
            </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
           </widget>
          </item>
          <item>
@@ -190,7 +184,7 @@
          <item>
           <widget class="QLineEdit" name="searchPlugins">
            <property name="placeholderText">
-            <string>Search plugins</string>
+            <string>Search Plugins</string>
            </property>
           </widget>
          </item>
@@ -245,7 +239,7 @@
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="textElideMode">
-          <enum>Qt::ElideNone</enum>
+          <enum>Qt::ElideRight</enum>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

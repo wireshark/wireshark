@@ -10,28 +10,18 @@
 
 #include <ui/qt/models/url_link_delegate.h>
 
-#include <QComboBox>
-#include <QEvent>
-#include <QLineEdit>
 #include <QPainter>
-#include <QTextDocument>
-#include <QRect>
-#include <QStyledItemDelegate>
-#include <QStyleOptionViewItem>
-#include <QTextEdit>
 
 UrlLinkDelegate::UrlLinkDelegate(QObject *parent)
  : QStyledItemDelegate(parent)
 {}
 
 void UrlLinkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    QStyleOptionViewItem options = option;
-    initStyleOption(&options, index);
-
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
     opt.font.setUnderline(true);
+    opt.palette.setColor(QPalette::Text, opt.palette.link().color());
 
     QStyledItemDelegate::paint(painter, opt, index);
 }

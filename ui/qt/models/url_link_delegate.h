@@ -13,7 +13,6 @@
 
 #include <config.h>
 
-#include <QWidget>
 #include <QStyledItemDelegate>
 #include <QStyleOptionViewItem>
 #include <QModelIndex>
