@@ -36,6 +36,9 @@
 #include <QSplitter>
 #include <QToolButton>
 
+// To do:
+// - Use the CaptureFile class.
+
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
 
 enum StatusContext {
@@ -435,59 +438,61 @@ void MainStatusBar::showCaptureStatistics()
     QString packets_str;
 
 #ifdef HAVE_LIBPCAP
-    /* Do we have any packets? */
-    if (cs_fixed_ && cs_count_ > 0) {
-        if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
-            packets_str.append(QString(tr("Selected Packet: %1 %2 "))
-                              .arg(cap_file_->current_frame->num)
-                              .arg(UTF8_MIDDLE_DOT));
+    if (cap_file_) {
+        /* Do we have any packets? */
+        if (cs_fixed_ && cs_count_ > 0) {
+            if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+                packets_str.append(QString(tr("Selected Packet: %1 %2 "))
+                                   .arg(cap_file_->current_frame->num)
+                                   .arg(UTF8_MIDDLE_DOT));
+            }
+            packets_str.append(QString(tr("Packets: %1"))
+                               .arg(cs_count_));
+        } else if (cs_count_ > 0) {
+            if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+                packets_str.append(QString(tr("Selected Packet: %1 %2 "))
+                                   .arg(cap_file_->current_frame->num)
+                                   .arg(UTF8_MIDDLE_DOT));
+            }
+            packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
+                               .arg(cap_file_->count)
+                               .arg(cap_file_->displayed_count)
+                               .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 1)
+                               .arg(UTF8_MIDDLE_DOT));
+            if(cap_file_->marked_count > 0) {
+                packets_str.append(QString(tr(" %1 Marked: %2 (%3%)"))
+                                   .arg(UTF8_MIDDLE_DOT)
+                                   .arg(cap_file_->marked_count)
+                                   .arg((100.0*cap_file_->marked_count)/cap_file_->count, 0, 'f', 1));
+            }
+            if(cap_file_->drops_known) {
+                packets_str.append(QString(tr(" %1 Dropped: %2 (%3%)"))
+                                   .arg(UTF8_MIDDLE_DOT)
+                                   .arg(cap_file_->drops)
+                                   .arg((100.0*cap_file_->drops)/cap_file_->count, 0, 'f', 1));
+            }
+            if(cap_file_->ignored_count > 0) {
+                packets_str.append(QString(tr(" %1 Ignored: %2 (%3%)"))
+                                   .arg(UTF8_MIDDLE_DOT)
+                                   .arg(cap_file_->ignored_count)
+                                   .arg((100.0*cap_file_->ignored_count)/cap_file_->count, 0, 'f', 1));
+            }
+            if(prefs.gui_qt_show_file_load_time && !cap_file_->is_tempfile) {
+                /* Loading an existing file */
+                gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
+                packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))
+                                   .arg(UTF8_MIDDLE_DOT)
+                                   .arg(computed_elapsed/60000)
+                                   .arg(computed_elapsed%60000/1000)
+                                   .arg(computed_elapsed%1000));
+            }
         }
-        packets_str.append(QString(tr("Packets: %1"))
-                          .arg(cs_count_));
-    } else if (cap_file_ && cs_count_ > 0) {
-        if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
-            packets_str.append(QString(tr("Selected Packet: %1 %2 "))
-                              .arg(cap_file_->current_frame->num)
-                              .arg(UTF8_MIDDLE_DOT));
-        }
-        packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
-                          .arg(cap_file_->count)
-                          .arg(cap_file_->displayed_count)
-                          .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 1)
-                          .arg(UTF8_MIDDLE_DOT));
-        if(cap_file_->marked_count > 0) {
-            packets_str.append(QString(tr(" %1 Marked: %2 (%3%)"))
-                              .arg(UTF8_MIDDLE_DOT)
-                              .arg(cap_file_->marked_count)
-                              .arg((100.0*cap_file_->marked_count)/cap_file_->count, 0, 'f', 1));
-        }
-        if(cap_file_->drops_known) {
-            packets_str.append(QString(tr(" %1 Dropped: %2 (%3%)"))
-                              .arg(UTF8_MIDDLE_DOT)
-                              .arg(cap_file_->drops)
-                              .arg((100.0*cap_file_->drops)/cap_file_->count, 0, 'f', 1));
-        }
-        if(cap_file_->ignored_count > 0) {
-            packets_str.append(QString(tr(" %1 Ignored: %2 (%3%)"))
-                              .arg(UTF8_MIDDLE_DOT)
-                              .arg(cap_file_->ignored_count)
-                              .arg((100.0*cap_file_->ignored_count)/cap_file_->count, 0, 'f', 1));
-        }
-        if(prefs.gui_qt_show_file_load_time && !cap_file_->is_tempfile) {
-            /* Loading an existing file */
-            gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
-            packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))
-                                        .arg(UTF8_MIDDLE_DOT)
-                                        .arg(computed_elapsed/60000)
-                                        .arg(computed_elapsed%60000/1000)
-                                        .arg(computed_elapsed%1000));
-        }
-    } else
+    }
 #endif // HAVE_LIBPCAP
-    {
+
+    if (packets_str.isEmpty()) {
         packets_str = tr("No Packets");
     }
-
     popPacketStatus();
     pushPacketStatus(packets_str);
 }
