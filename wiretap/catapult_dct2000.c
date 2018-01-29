@@ -1214,8 +1214,8 @@ parse_line(gchar *linebuff, gint line_length,
         }
         subsecond_decimals_buff[subsecond_decimals_chars] = linebuff[n];
     }
-    if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS || n >= line_length) {
-        /* More numbers than expected - give up */
+    if (subsecond_decimals_chars != MAX_SUBSECOND_DECIMALS || n >= line_length) {
+        /* There should be exactly 4 subsecond digits - give up if not */
         return FALSE;
     }
     /* Convert found value into microseconds */

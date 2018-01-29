@@ -2193,7 +2193,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             multiplier *= 10;
         }
 
-        /* Subseconds (4 digits). */
+        /* Subseconds (4 digits). N.B. trailing zeros are written out by wiretap module. */
         int subseconds = 0;
         subseconds += (timestamp_string[timestamp_length-2]-'0');
         subseconds += (timestamp_string[timestamp_length-3]-'0')*10;
