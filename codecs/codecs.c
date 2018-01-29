@@ -91,10 +91,6 @@ codecs_init(void)
     register_codec("SBC", codec_sbc_init, codec_sbc_release,
             codec_sbc_get_channels, codec_sbc_get_frequency, codec_sbc_decode);
 #endif
-#ifdef HAVE_SBC
-    register_codec("SBC", codec_sbc_init, codec_sbc_release,
-            codec_sbc_get_channels, codec_sbc_get_frequency, codec_sbc_decode);
-#endif
 
 #ifdef HAVE_PLUGINS
     libwscodecs_plugins = plugins_init(WS_PLUGIN_CODEC);
