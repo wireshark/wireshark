@@ -56,7 +56,6 @@ public:
     static const QList<QRgb> graphColors();
     static QRgb graphColor(int item);
     static QRgb sequenceColor(int item);
-    static QColor byteViewMarkColor(bool background);
 
 signals:
 
@@ -65,8 +64,6 @@ public slots:
 private:
     static QList<QRgb> graph_colors_;
     static QList<QRgb> sequence_colors_;
-    static const QRgb byte_view_mark_bg_;
-    static const QRgb byte_view_mark_fg_;
 };
 
 void color_filter_qt_add_cb(color_filter_t *colorf, gpointer user_data);

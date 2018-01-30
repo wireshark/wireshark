@@ -69,7 +69,6 @@ private:
         ModeProtocol,
         ModeOffsetNormal,
         ModeOffsetField,
-        ModeMarked,
         ModeNonPrintable
     } HighlightMode;
 
