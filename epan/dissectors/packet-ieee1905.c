@@ -2716,7 +2716,8 @@ dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
     static const int *ieee1905_reporting_policy_flags[] = {
         &hf_ieee1905_assoc_sta_traffic_stats_inclusion,
         &hf_ieee1905_assoc_sta_link_metrics_inclusion,
-        &hf_ieee1905_reporting_policy_flags_reserved
+        &hf_ieee1905_reporting_policy_flags_reserved,
+        NULL
     };
 
     proto_tree_add_item(tree, hf_ieee1905_ap_metrics_reporting_interval,
