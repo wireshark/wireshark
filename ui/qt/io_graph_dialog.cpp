@@ -789,14 +789,14 @@ IOGraph *IOGraphDialog::currentActiveGraph() const
 {
     QModelIndex index = ui->graphUat->currentIndex();
     if (index.isValid()) {
-        return ioGraphs_[index.row()];
+        return ioGraphs_.value(index.row(), NULL);
     }
 
     //if no currently selected item, go with first item enabled
     for (int row = 0; row < uat_model_->rowCount(); row++)
     {
         if (graphIsEnabled(row)) {
-            return ioGraphs_[row];
+            return ioGraphs_.value(row, NULL);
         }
     }
 
@@ -1171,7 +1171,7 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
 
     if (uat_model_ != NULL) {
         for (int row = 0; row < uat_model_->rowCount(); row++) {
-            IOGraph *iog = ioGraphs_[row];
+            IOGraph *iog = ioGraphs_.value(row, NULL);
             if (iog) {
                 iog->setInterval(interval);
                 if (iog->visible()) {
