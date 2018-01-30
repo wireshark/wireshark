@@ -41,7 +41,8 @@ int AStringListListModel::rowCount(const QModelIndex &parent) const
 
 int AStringListListModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    if ( rowCount(parent) == 0 )
+        return 0;
 
     return headerColumns().count();
 }

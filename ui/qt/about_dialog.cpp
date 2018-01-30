@@ -416,9 +416,8 @@ void AboutDialog::showEvent(QShowEvent * event)
     }
 
     // Plugins: Content-sized columns
-
     QAbstractItemModel *model = ui->tblPlugins->model();
-    for (int col = 0; col < model->columnCount() - 1; col++) {
+    for (int col = 0; model && col < model->columnCount() - 1; col++) {
         ui->tblPlugins->resizeColumnToContents(col);
     }
 
