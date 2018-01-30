@@ -28,6 +28,7 @@
 #include "qt_ui_utils.h"
 
 #include "ui/profile.h"
+#include "ui/recent.h"
 
 #include <ui/qt/variant_pointer.h>
 
@@ -351,6 +352,15 @@ void ProfileDialog::on_buttonBox_accepted()
         item_data_removed = (item == default_item);
     }
 
+    if (write_recent) {
+        /* Get the current geometry, before writing it to disk */
+        wsApp->emitAppSignal(WiresharkApplication::ProfileChanging);
+
+        /* Write recent file for current profile now because
+         * the profile may be renamed in apply_profile_changes() */
+        write_profile_recent();
+    }
+
     if ((err_msg = apply_profile_changes()) != NULL) {
         QMessageBox::critical(this, tr("Profile Error"),
                               err_msg,
@@ -366,11 +376,11 @@ void ProfileDialog::on_buttonBox_accepted()
 
     if (profile_exists (profile_name, FALSE) || profile_exists (profile_name, TRUE)) {
         // The new profile exists, change.
-        wsApp->setConfigurationProfile (profile_name, write_recent);
+        wsApp->setConfigurationProfile (profile_name, FALSE);
     } else if (!profile_exists (get_profile_name(), FALSE)) {
         // The new profile does not exist, and the previous profile has
         // been deleted.  Change to the default profile.
-        wsApp->setConfigurationProfile (NULL, write_recent);
+        wsApp->setConfigurationProfile (NULL, FALSE);
     }
 }
 
