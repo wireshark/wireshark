@@ -265,14 +265,16 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
     }
 
     if (marked_byte_offset_ < 0) {
+        // Marked mode.
         marked_byte_offset_ = byteOffsetAtPixel(event->pos());
         hovered_byte_offset_ = -1;
+        emit byteSelected(marked_byte_offset_);
+        viewport()->update();
     } else {
+        // Back to hover mode.
         marked_byte_offset_ = -1;
         mouseMoveEvent(event);
     }
-    emit byteSelected(marked_byte_offset_);
-    viewport()->update();
 }
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)

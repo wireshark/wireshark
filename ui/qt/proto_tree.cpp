@@ -32,7 +32,6 @@
 #include <QWindow>
 #endif
 
-
 // To do:
 // - Fix "apply as filter" behavior.
 
@@ -283,6 +282,22 @@ void ProtoTree::autoScrollTo(const QModelIndex &index)
         return;
     }
 
+    // Find and highlight the protocol bytes. select above won't call
+    // selectionChanged if the current and selected indexes are the same
+    // so we do this here.
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode(), this);
+    if (finfo.isValid()) {
+        QModelIndex parent = index;
+        while (parent.isValid() && parent.parent().isValid()) {
+            parent = parent.parent();
+        }
+        if (parent.isValid()) {
+            FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent).protoNode());
+            finfo.setParentField(parent_finfo.fieldInfo());
+        }
+        emit fieldSelected(&finfo);
+    }
+
     ScrollHint scroll_hint = PositionAtTop;
     if (prefs.gui_auto_scroll_percentage > 66) {
         scroll_hint = PositionAtBottom;
@@ -305,44 +320,7 @@ void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSele
     if (selected.isEmpty()) return;
 
     QModelIndex index = selected.indexes().first();
-
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode(), this);
-    if (!finfo.isValid()) return;
-
-    // Find and highlight the protocol bytes
-    QModelIndex parent = index;
-    while (parent.isValid() && parent.parent().isValid()) {
-        parent = parent.parent();
-    }
-    if (parent.isValid()) {
-        FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent).protoNode());
-        finfo.setParentField(parent_finfo.fieldInfo());
-    }
-
-    if ( finfo.isValid() )
-    {
-        saveSelectedField(index);
-        emit fieldSelected(&finfo);
-    }
-    // else the GTK+ version pushes an empty string as described below.
-    /*
-     * Don't show anything if the field name is zero-length;
-     * the pseudo-field for text-only items is such
-     * a field, and we don't want "Text (text)" showing up
-     * on the status line if you've selected such a field.
-     *
-     * XXX - there are zero-length fields for which we *do*
-     * want to show the field name.
-     *
-     * XXX - perhaps the name and abbrev field should be null
-     * pointers rather than null strings for that pseudo-field,
-     * but we'd have to add checks for null pointers in some
-     * places if we did that.
-     *
-     * Or perhaps text-only items should have -1 as the field
-     * index, with no pseudo-field being used, but that might
-     * also require special checks for -1 to be added.
-     */
+    saveSelectedField(index);
 }
 
 void ProtoTree::syncExpanded(const QModelIndex &index) {
@@ -468,11 +446,12 @@ void ProtoTree::selectedFieldChanged(FieldInformation *finfo)
 void ProtoTree::saveSelectedField(QModelIndex &index)
 {
     selected_hfid_path_.clear();
-    while (index.isValid()) {
-        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    QModelIndex save_index = index;
+    while (save_index.isValid()) {
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(save_index).protoNode());
         if (!finfo.isValid()) break;
-        selected_hfid_path_.prepend(QPair<int,int>(index.row(), finfo.headerInfo().id));
-        index = index.parent();
+        selected_hfid_path_.prepend(QPair<int,int>(save_index.row(), finfo.headerInfo().id));
+        save_index = save_index.parent();
     }
 }
 
