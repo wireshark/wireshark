@@ -200,8 +200,6 @@ const gchar *apply_profile_changes(void)
                     g_free(pf_dir_path2);
                 }
                 profile1->status = PROF_STAT_EXISTS;
-                g_free (profile1->reference);
-                profile1->reference = g_strdup(profile1->name);
             }
         }
         fl1 = g_list_next(fl1);
@@ -220,7 +218,9 @@ const gchar *apply_profile_changes(void)
                     /* Profile exists in both lists */
                     found = TRUE;
                 } else if (strcmp(profile1->name, profile2->reference)==0) {
-                    /* Profile has been renamed */
+                    /* Profile has been renamed, update reference to the new name */
+                    g_free (profile2->reference);
+                    profile2->reference = g_strdup(profile2->name);
                     found = TRUE;
                 }
             }
