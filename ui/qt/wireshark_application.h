@@ -62,6 +62,7 @@ public:
         NameResolutionChanged,
         PacketDissectionChanged,
         PreferencesChanged,
+        ProfileChanging,
         RecentCapturesChanged,
         RecentPreferencesRead
     };

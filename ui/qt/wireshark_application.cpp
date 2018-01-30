@@ -918,6 +918,9 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case PacketDissectionChanged:
         emit packetDissectionChanged();
         break;
+    case ProfileChanging:
+        emit profileChanging();
+        break;
     case RecentCapturesChanged:
         emit updateRecentCaptureStatus(NULL, 0, false);
         break;
