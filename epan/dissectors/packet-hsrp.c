@@ -200,7 +200,7 @@ static expert_field ei_hsrp_unknown_tlv = EI_INIT;
 
 #define UDP_PORT_HSRP   1985
 #define UDP_PORT_HSRP2_V6   2029
-#define UDP_PORT_HSRP_RANGE   "1985,2009"
+#define UDP_PORT_HSRP_RANGE   "1985,2029"
 #define HSRP_DST_IP_ADDR 0xE0000002
 #define HSRP2_DST_IP_ADDR 0xE0000066
 
