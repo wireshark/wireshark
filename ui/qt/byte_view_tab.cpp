@@ -255,7 +255,11 @@ void ByteViewTab::selectedFrameChanged(int frameNum)
 
 void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
 {
-    ByteViewText * byte_view_text = 0;
+    // We need to handle both selection and deselection.
+    ByteViewText * byte_view_text = qobject_cast<ByteViewText *>(currentWidget());
+    int f_start = -1, f_length = -1;
+    int p_start = -1, p_length = -1;
+    int fa_start = -1, fa_length = -1;
 
     if (selected) {
         if (selected->parent() == this) {
@@ -268,29 +272,31 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
         if ( fi )
             byte_view_text = findByteViewTextForTvb(fi->ds_tvb, &idx);
 
-        if (byte_view_text)
-        {
-            int f_start = -1, f_length = -1;
-
-            if (cap_file_->search_in_progress && (cap_file_->hex || (cap_file_->string && cap_file_->packet_data))) {
-                // In the hex view, only highlight the target bytes or string. The entire
-                // field can then be displayed by clicking on any of the bytes in the field.
-                f_start = cap_file_->search_pos - cap_file_->search_len + 1;
-                f_length = (int) cap_file_->search_len;
-            } else {
-                f_start = selected->position().start;
-                f_length = selected->position().length;
-            }
-
-            setCurrentIndex(idx);
-
-            byte_view_text->markField(f_start, f_length);
-            byte_view_text->markProtocol(selected->parentField()->position().start, selected->parentField()->position().length);
-            byte_view_text->markAppendix(selected->appendix().start, selected->appendix().length);
+        if (cap_file_->search_in_progress && (cap_file_->hex || (cap_file_->string && cap_file_->packet_data))) {
+            // In the hex view, only highlight the target bytes or string. The entire
+            // field can then be displayed by clicking on any of the bytes in the field.
+            f_start = cap_file_->search_pos - cap_file_->search_len + 1;
+            f_length = (int) cap_file_->search_len;
+        } else {
+            f_start = selected->position().start;
+            f_length = selected->position().length;
         }
+
+        setCurrentIndex(idx);
+
+        p_start = selected->parentField()->position().start;
+        p_length = selected->parentField()->position().length;
+        fa_start = selected->appendix().start;
+        fa_length = selected->appendix().length;
+    }
+
+    if (byte_view_text)
+    {
+        byte_view_text->markField(f_start, f_length);
+        byte_view_text->markProtocol(p_start, p_length);
+        byte_view_text->markAppendix(fa_start, fa_length);
     }
 }
-
 void ByteViewTab::highlightedFieldChanged(FieldInformation *highlighted)
 {
     ByteViewText * byte_view_text = qobject_cast<ByteViewText *>(currentWidget());

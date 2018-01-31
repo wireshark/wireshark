@@ -282,22 +282,6 @@ void ProtoTree::autoScrollTo(const QModelIndex &index)
         return;
     }
 
-    // Find and highlight the protocol bytes. select above won't call
-    // selectionChanged if the current and selected indexes are the same
-    // so we do this here.
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode(), this);
-    if (finfo.isValid()) {
-        QModelIndex parent = index;
-        while (parent.isValid() && parent.parent().isValid()) {
-            parent = parent.parent();
-        }
-        if (parent.isValid()) {
-            FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent).protoNode());
-            finfo.setParentField(parent_finfo.fieldInfo());
-        }
-        emit fieldSelected(&finfo);
-    }
-
     ScrollHint scroll_hint = PositionAtTop;
     if (prefs.gui_auto_scroll_percentage > 66) {
         scroll_hint = PositionAtBottom;
@@ -317,10 +301,29 @@ void ProtoTree::goToHfid(int hfid)
 void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QTreeView::selectionChanged(selected, deselected);
-    if (selected.isEmpty()) return;
+    if (selected.isEmpty()) {
+        emit fieldSelected(0);
+        return;
+    }
 
     QModelIndex index = selected.indexes().first();
     saveSelectedField(index);
+
+    // Find and highlight the protocol bytes. select above won't call
+    // selectionChanged if the current and selected indexes are the same
+    // so we do this here.
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode(), this);
+    if (finfo.isValid()) {
+        QModelIndex parent = index;
+        while (parent.isValid() && parent.parent().isValid()) {
+            parent = parent.parent();
+        }
+        if (parent.isValid()) {
+            FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent).protoNode());
+            finfo.setParentField(parent_finfo.fieldInfo());
+        }
+        emit fieldSelected(&finfo);
+    }
 }
 
 void ProtoTree::syncExpanded(const QModelIndex &index) {
@@ -431,12 +434,19 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
 
 void ProtoTree::selectedFieldChanged(FieldInformation *finfo)
 {
-    QModelIndex index = proto_tree_model_->findFieldInformation(finfo);
-    if (!index.isValid() || finfo->parent() == this) {
-        // We only want valid, inbound signals.
+    if (finfo && finfo->parent() == this) {
+        // We only want inbound signals.
         return;
     }
+
+    QModelIndex index = proto_tree_model_->findFieldInformation(finfo);
+    setUpdatesEnabled(false);
+    // The new finfo might match the current index. Clear our selection
+    // so that we force a fresh item selection, so that fieldSelected
+    // will in turn be emitted.
+    selectionModel()->clearSelection();
     autoScrollTo(index);
+    setUpdatesEnabled(true);
 }
 
 // Remember the currently focussed field based on:

@@ -147,6 +147,9 @@ void ByteViewText::markField(int start, int length, bool scroll_to)
 {
     field_start_ = start;
     field_len_ = length;
+    // This might be called as a result of (de)selecting a proto tree
+    // item, so take us out of marked mode.
+    marked_byte_offset_ = -1;
     if (scroll_to) {
         scrollToByte(start);
     }
@@ -264,17 +267,26 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
         return;
     }
 
-    if (marked_byte_offset_ < 0) {
-        // Marked mode.
-        marked_byte_offset_ = byteOffsetAtPixel(event->pos());
+    // byteSelected does the following:
+    // - Triggers selectedFieldChanged in ProtoTree, which clears the
+    //   selection and selects the corresponding (or no) item.
+    // - The new tree selection triggers markField, which clobbers
+    //   marked_byte_offset_.
+
+    const bool hover_mode = marked_byte_offset_ < 0;
+    const int byte_offset = byteOffsetAtPixel(event->pos());
+    setUpdatesEnabled(false);
+    emit byteSelected(byte_offset);
+    if (hover_mode && byte_offset >= 0) {
+        // Switch to marked mode.
         hovered_byte_offset_ = -1;
-        emit byteSelected(marked_byte_offset_);
+        marked_byte_offset_ = byte_offset;
         viewport()->update();
     } else {
         // Back to hover mode.
-        marked_byte_offset_ = -1;
         mouseMoveEvent(event);
     }
+    setUpdatesEnabled(true);
 }
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)
@@ -290,7 +302,8 @@ void ByteViewText::mouseMoveEvent(QMouseEvent *event)
 
 void ByteViewText::leaveEvent(QEvent *event)
 {
-    emit byteHovered(-1);
+    hovered_byte_offset_ = -1;
+    emit byteHovered(hovered_byte_offset_);
 
     viewport()->update();
     QAbstractScrollArea::leaveEvent(event);
