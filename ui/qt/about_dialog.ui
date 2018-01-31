@@ -180,6 +180,13 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
+        <widget class="QLabel" name="label_no_plugins">
+         <property name="text">
+          <string>No plugins found.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QLineEdit" name="searchPlugins">

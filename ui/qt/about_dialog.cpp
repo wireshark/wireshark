@@ -111,6 +111,7 @@ QStringList AuthorListModel::headerColumns() const
     return QStringList() << tr("Name") << tr("Email");
 }
 
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 static void plugins_add_description(const char *name, const char *version,
                                     const char *types, const char *filename,
                                     void *user_data)
@@ -119,6 +120,7 @@ static void plugins_add_description(const char *name, const char *version,
     QStringList plugin_row = QStringList() << name << version << types << filename;
     *plugin_data << plugin_row;
 }
+#endif
 
 PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent)
 {
@@ -349,8 +351,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 
     /* Plugins */
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
-
+    ui->label_no_plugins->hide();
     PluginListModel * pluginModel = new PluginListModel(this);
     AStringListListSortFilterProxyModel * pluginFilterModel = new AStringListListSortFilterProxyModel(this);
     pluginFilterModel->setSourceModel(pluginModel);
@@ -366,10 +367,14 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(ui->tblPlugins, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchPlugins, SIGNAL(textChanged(QString)), pluginFilterModel, SLOT(setFilter(QString)));
     connect(ui->cmbType, SIGNAL(currentIndexChanged(QString)), pluginTypeModel, SLOT(setFilter(QString)));
-
-#else
-    ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tab_plugins));
-#endif
+    if (ui->tblPlugins->model()->rowCount() < 1) {
+        foreach (QWidget *w, ui->tab_plugins->findChildren<QWidget *>()) {
+            w->hide();
+        }
+        ui->label_no_plugins->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+        ui->label_no_plugins->setEnabled(false);
+        ui->label_no_plugins->show();
+    }
 
     /* Shortcuts */
     ShortcutListModel * shortcutModel = new ShortcutListModel(this);
