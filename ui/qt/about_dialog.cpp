@@ -150,15 +150,8 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
     foreach(QStringList row, plugin_data)
     {
         QString type_name = row.at(2);
-        QString tooltip;
         typeNames_ << type_name;
-
-#ifdef HAVE_LUA
-        if (type_name == wslua_plugin_type_name()) {
-            tooltip = tr("Double-click to edit");
-        }
-#endif
-        appendRow(row, tooltip);
+        appendRow(row);
     }
 
     typeNames_.sort();
@@ -347,7 +340,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblFolders->setTextElideMode(Qt::ElideMiddle);
     connect(ui->tblFolders, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchFolders, SIGNAL(textChanged(QString)), folderProxyModel, SLOT(setFilter(QString)));
-    connect(ui->tblFolders, SIGNAL(clicked(QModelIndex)), this, SLOT(urlClicked(QModelIndex)));
+    connect(ui->tblFolders, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(urlDoubleClicked(QModelIndex)));
 
 
     /* Plugins */
@@ -361,6 +354,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     pluginTypeModel->setColumnToFilter(2);
     ui->tblPlugins->setModel(pluginTypeModel);
     ui->tblPlugins->setRootIsDecorated(false);
+    UrlLinkDelegate *plugin_delegate = new UrlLinkDelegate(this);
+    QString pattern = QString("^%1$").arg(wslua_plugin_type_name());
+    plugin_delegate->setColCheck(2, pattern);
+    ui->tblPlugins->setItemDelegateForColumn(3, plugin_delegate);
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblPlugins->setTextElideMode(Qt::ElideMiddle);
@@ -442,8 +439,11 @@ void AboutDialog::showEvent(QShowEvent * event)
     QDialog::showEvent(event);
 }
 
-void AboutDialog::urlClicked(const QModelIndex &idx)
+void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
 {
+    if (idx.column() != 1) {
+        return;
+    }
     QTreeView * table = qobject_cast<QTreeView *>(sender());
     if ( ! table )
         return;
@@ -553,9 +553,12 @@ void AboutDialog::copyActionTriggered(bool copyRow)
 #ifdef HAVE_LUA
 void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
 {
-    const int row = index.row();
     const int type_col = 2;
     const int path_col = 3;
+    if (index.column() != path_col) {
+        return;
+    }
+    const int row = index.row();
     const QAbstractItemModel *model = index.model();
     if (model->index(row, type_col).data().toString() == wslua_plugin_type_name()) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(model->index(row, path_col).data().toString()));

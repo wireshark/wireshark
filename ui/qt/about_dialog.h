@@ -93,7 +93,7 @@ private:
     Ui::AboutDialog *ui;
 
 private slots:
-    void urlClicked(const QModelIndex &);
+    void urlDoubleClicked(const QModelIndex &);
     void handleCopyMenu(QPoint);
     void copyActionTriggered(bool row = false);
     void copyRowActionTriggered();
