@@ -728,8 +728,8 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_FILS_PUBLIC_KEY,                     "FILS Public Key" },
   { ETAG_FILS_NONCE,                          "FILS Nonce" },
   { ETAG_FUTURE_CHANNEL_GUIDANCE,             "Future Channel Guidance" },
-  { ETAG_HE_CAPABILITIES,                     "HE Capabilities (IEEE Std 802.11ax/D2.0" },
-  { ETAG_HE_OPERATION,                        "HE Operation (IEEE Std 802.11ax/D2.0" },
+  { ETAG_HE_CAPABILITIES,                     "HE Capabilities (IEEE Std 802.11ax/D2.0)" },
+  { ETAG_HE_OPERATION,                        "HE Operation (IEEE Std 802.11ax/D2.0)" },
   { ETAG_UORA_PARAMETER_SET,                  "UORA Parameter Set" },
   { ETAG_MU_EDCA_PARAMETER_SET,               "MU EDCA Parameter Set" },
   { ETAG_SPATIAL_REUSE_PARAMETER_SET,         "Spatial Reuse Parameter Set" },
@@ -2935,7 +2935,7 @@ static const value_string ff_vht_mimo_cntrl_channel_width_vals[] = {
   {0x00, "20 MHz"},
   {0x01, "40 MHz"},
   {0x02, "80 MHz"},
-  {0x03, "160 MHz / 80+80 Mhz"},
+  {0x03, "160 MHz / 80+80 MHz"},
   {0, NULL}
 };
 
@@ -5096,12 +5096,12 @@ static int hf_he_ndp_feedback_report_support = -1;
 static int hf_he_ops_support = -1;
 static int hf_he_a_msdu_in_a_mpdu_support = -1;
 static int hf_he_reserved = -1;
-static int hf_he_reserved_bit_8 = -1;
-static int hf_he_reserved_bit_10 = -1;
-static int hf_he_reserved_bit_11 = -1;
-static int hf_he_reserved_bit_17 = -1;
+static int hf_he_reserved_bit_19 = -1;
+static int hf_he_reserved_bit_20 = -1;
+static int hf_he_reserved_bit_25 = -1;
 static int hf_he_reserved_bits_5_7 = -1;
 static int hf_he_reserved_bits_8_9 = -1;
+static int hf_he_reserved_bits_15_16 = -1;
 static int hf_he_phy_chan_width_set = -1;
 static int hf_he_40mhz_channel_2_4ghz = -1;
 static int hf_he_40_and_80_mhz_5ghz = -1;
@@ -5175,7 +5175,7 @@ static int hf_he_phy_cap_max_nc = -1;
 static int hf_he_phy_cap_stbc_tx_gt_80_mhz = -1;
 static int hf_he_phy_cap_stbc_rx_gt_80_mhz = -1;
 static int hf_he_phy_cap_he_er_su_ppdu_4xxx_gi = -1;
-static int hf_he_phy_cap_20mhz_in_40mgz_24ghz_band = -1;
+static int hf_he_phy_cap_20mhz_in_40mhz_24ghz_band = -1;
 static int hf_he_phy_cap_20mhz_in_160_80p80_ppdu = -1;
 static int hf_he_phy_cap_80mgz_in_160_80p80_ppdu = -1;
 static int hf_he_phy_cap_he_er_su_ppdu_1xxx_gi = -1;
@@ -17038,7 +17038,7 @@ static const int *he_phy_b56_to_b71_headers[] = {
   &hf_he_phy_cap_stbc_tx_gt_80_mhz,
   &hf_he_phy_cap_stbc_rx_gt_80_mhz,
   &hf_he_phy_cap_he_er_su_ppdu_4xxx_gi,
-  &hf_he_phy_cap_20mhz_in_40mgz_24ghz_band,
+  &hf_he_phy_cap_20mhz_in_40mhz_24ghz_band,
   &hf_he_phy_cap_20mhz_in_160_80p80_ppdu,
   &hf_he_phy_cap_80mgz_in_160_80p80_ppdu,
   &hf_he_phy_cap_he_er_su_ppdu_1xxx_gi,
@@ -17097,10 +17097,10 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
   /* Change some header fields depending on HE_HTC_HE_SUPPORT and FRAGMENTATION */
   if (!(he_mac_caps & HE_HTC_HE_SUPPORT)) {
-    he_mac_headers[8] = &hf_he_reserved_bit_8;
-    he_mac_headers[10] = &hf_he_reserved_bit_10;
-    he_mac_headers[11] = &hf_he_reserved_bit_11;
-    he_mac_headers[17] = &hf_he_reserved_bit_17;
+    he_mac_headers[8] = &hf_he_reserved_bits_15_16;
+    he_mac_headers[10] = &hf_he_reserved_bit_19;
+    he_mac_headers[11] = &hf_he_reserved_bit_20;
+    he_mac_headers[17] = &hf_he_reserved_bit_25;
   }
   if (!(he_mac_caps & HE_FRAGMENTATION_SUPPORT)) {
     he_mac_headers[4] = &hf_he_reserved_bits_5_7;
@@ -17153,7 +17153,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         "Tx Rx HE-MCS NSS Support");
   rx_tx_he_mcs_map_80 = proto_tree_add_subtree(sup_he_mcs_and_nss_tree, tvb,
                         offset, 4, ett_he_rx_tx_he_mcs_map_lte_80, NULL,
-                        "Rx and Tx MCS Maps <= 80 Mhz");
+                        "Rx and Tx MCS Maps <= 80 MHz");
   proto_tree_add_bitmask_with_flags(rx_tx_he_mcs_map_80, tvb, offset,
                         hf_he_rx_he_mcs_map_lte_80,
                         ett_he_rx_mcs_map_lte_80, he_mcs_map_headers,
@@ -17168,7 +17168,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   if (phy_channel_width_set & HE_CHANNEL_WIDTH_SET_B2) {
     rx_tx_he_mcs_map_160 = proto_tree_add_subtree(sup_he_mcs_and_nss_tree,
                         tvb, offset, 4, ett_he_rx_tx_he_mcs_map_160, NULL,
-                        "Rx and Tx MCS Maps 160 Mhz");
+                        "Rx and Tx MCS Maps 160 MHz");
     proto_tree_add_bitmask_with_flags(rx_tx_he_mcs_map_160, tvb, offset,
                         hf_he_rx_he_mcs_map_160,
                         ett_he_rx_mcs_map_160, he_mcs_map_headers,
@@ -17178,15 +17178,13 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         hf_he_tx_he_mcs_map_160,
                         ett_he_tx_mcs_map_160, he_mcs_map_headers,
                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-    proto_tree_add_item(rx_tx_he_mcs_map_160, hf_he_tx_he_mcs_map_160, tvb,
-                        offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
   }
 
   if (phy_channel_width_set & HE_CHANNEL_WIDTH_SET_B3) {
     rx_tx_he_mcs_map_80_80 = proto_tree_add_subtree(sup_he_mcs_and_nss_tree,
                         tvb, offset, 4, ett_he_rx_tx_he_mcs_map_80_80, NULL,
-                        "Rx and Tx MCS Maps 80+80 Mhz");
+                        "Rx and Tx MCS Maps 80+80 MHz");
     proto_tree_add_bitmask_with_flags(rx_tx_he_mcs_map_80_80, tvb, offset,
                         hf_he_rx_he_mcs_map_80_80,
                         ett_he_rx_mcs_map_80_80, he_mcs_map_headers,
@@ -30114,7 +30112,7 @@ proto_register_ieee80211(void)
       FT_UINT40, BASE_DEC, NULL, 0x0000007000, NULL, HFILL }},
 
     {&hf_he_he_link_adaptation_support,
-     {"HE Link Adaption Support", "wlan.ext_tag.he_mac_cap.he_link_adatopion_support",
+     {"HE Link Adaptation Support", "wlan.ext_tag.he_mac_cap.he_link_adaptation_support",
       FT_UINT40, BASE_DEC|BASE_VAL64_STRING,
       VALS64(he_link_adaptation_support_vals), 0x0000018000,
       NULL, HFILL }},
@@ -30224,7 +30222,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_he_reserved,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_31",
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_39",
       FT_UINT40, BASE_HEX, NULL, 0x8000000000, NULL, HFILL }},
 
     {&hf_he_reserved_bits_5_7,
@@ -30235,21 +30233,21 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bits_8_9",
       FT_UINT40, BASE_HEX, NULL, 0x0000000300, NULL, HFILL }},
 
-    {&hf_he_reserved_bit_8,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_8",
-      FT_UINT40, BASE_HEX, NULL, 0x0000000100, NULL, HFILL }},
+    {&hf_he_reserved_bits_15_16,
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bits_15_16",
+      FT_UINT40, BASE_HEX, NULL, 0x0000018000, NULL, HFILL }},
 
-    {&hf_he_reserved_bit_10,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_10",
+    {&hf_he_reserved_bit_19,
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_19",
       FT_UINT40, BASE_HEX, NULL, 0x0000000400, NULL, HFILL }},
 
-    {&hf_he_reserved_bit_11,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_11",
+    {&hf_he_reserved_bit_20,
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_20",
       FT_UINT40, BASE_HEX, NULL, 0x0000000800, NULL, HFILL }},
 
-    {&hf_he_reserved_bit_17,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_17",
-      FT_UINT40, BASE_HEX, NULL, 0x0000020000, NULL, HFILL }},
+    {&hf_he_reserved_bit_25,
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_25",
+      FT_UINT40, BASE_HEX, NULL, 0x0002000000, NULL, HFILL }},
 
     {&hf_he_phy_dual_band_support,
      {"Dual Band Support", "wlan.ext_tag.he_phy_cap.fbytes",
@@ -30265,7 +30263,7 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }},
 
     {&hf_he_40mhz_channel_2_4ghz,
-     {"40MHz in 2.4GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.40mhz_in_24ghz",
+     {"40MHz in 2.4GHz band", "wlan.ext_tag.he_phy_cap.chan_width_set.40mhz_in_2_4ghz",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
 
     {&hf_he_40_and_80_mhz_5ghz,
@@ -30323,11 +30321,11 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200, NULL, HFILL }},
 
     {&hf_he_phy_cap_stbc_tx_lt_80mhz,
-     {"STBC Tx <= 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.stbc_tx_lt_80hz",
+     {"STBC Tx <= 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.stbc_tx_lt_80mhz",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0400, NULL, HFILL }},
 
     {&hf_he_phy_cap_stbc_rx_lt_80mhz,
-     {"STBC Rx <= 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.stbc_rx_lt_80hz",
+     {"STBC Rx <= 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.stbc_rx_lt_80mhz",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0800, NULL, HFILL }},
 
     {&hf_he_phy_cap_dopler_tx,
@@ -30335,7 +30333,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x1000, NULL, HFILL }},
 
     {&hf_he_phy_cap_dopler_rx,
-     {"Dopler Rx", "wlan.ext_tag.he_phy_cap.nbytes.stbc_tx_lt_80hz",
+     {"Dopler Rx", "wlan.ext_tag.he_phy_cap.nbytes.dopler_rx",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL }},
 
     {&hf_he_phy_cap_full_bw_ul_mu_mimo,
@@ -30351,7 +30349,7 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_phy_cap_dcm_max_constellation_tx,
-     {"DCM Max Constellation TX", "wlan.ext_tag.he_phy_cap.nbytes.dcm_max_const_tx",
+     {"DCM Max Constellation Tx", "wlan.ext_tag.he_phy_cap.nbytes.dcm_max_const_tx",
       FT_UINT16, BASE_HEX, NULL, 0x0003, NULL, HFILL }},
 
     {&hf_he_phy_cap_dcm_max_nss_tx,
@@ -30383,11 +30381,11 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200, NULL, HFILL }},
 
     {&hf_he_phy_cap_beamformer_sts_lte_80mhz,
-     {"Beamformee STS <= 80 Mhz", "wlan.ext_tag.he_phy_cap.nbytes.beamformee_sts_lte_80mhz",
+     {"Beamformee STS <= 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.beamformee_sts_lte_80mhz",
       FT_UINT16, BASE_HEX, NULL, 0x1C00, NULL, HFILL }},
 
     {&hf_he_phy_cap_beamformer_sts_gt_80mhz,
-     {"Beamformee STS > 80 Mhz", "wlan.ext_tag.he_phy_cap.nbytes.beamformee_sts_gt_80mhz",
+     {"Beamformee STS > 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.beamformee_sts_gt_80mhz",
       FT_UINT16, BASE_HEX, NULL, 0xE000, NULL, HFILL }},
 
     {&hf_he_phy_b40_to_b55,
@@ -30399,7 +30397,7 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0x0007, NULL, HFILL }},
 
     {&hf_he_phy_cap_number_of_sounding_dims_gt_80,
-     {"Number Of Sounding Dimensions > 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.no_sounding_dims_gr_80",
+     {"Number Of Sounding Dimensions > 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.no_sounding_dims_gt_80",
       FT_UINT16, BASE_DEC, NULL, 0x0038, NULL, HFILL }},
 
     {&hf_he_phy_cap_ng_eq_16_su_fb,
@@ -30435,7 +30433,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL }},
 
     {&hf_he_phy_cap_partial_bw_dl_mu_mimo,
-     {"Partial Badnwidth DL MU-MIMO", "wlan.ext_tag.he_phy_cap.nbytes.partial_bw_dl_mu_mimo",
+     {"Partial Bandwidth DL MU-MIMO", "wlan.ext_tag.he_phy_cap.nbytes.partial_bw_dl_mu_mimo",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000, NULL, HFILL }},
 
     {&hf_he_phy_cap_ppe_threshold_present,
@@ -30467,27 +30465,27 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL }},
 
     {&hf_he_phy_cap_stbc_rx_gt_80_mhz,
-     {"STBC Rx > 80 Mhz", "wlan.ext_tag.he_phy_cap.nbytes.stbc_rx_gt_80_mhz",
+     {"STBC Rx > 80 MHz", "wlan.ext_tag.he_phy_cap.nbytes.stbc_rx_gt_80_mhz",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0080, NULL, HFILL }},
 
     {&hf_he_phy_cap_he_er_su_ppdu_4xxx_gi,
      {"HE ER SU PPDU W 4x HE-LTF & 0.8us GI", "wlan.ext_tag.he_phy_cap.nbytes.he_er_su_ppdu_4xxx_gi",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0100, NULL, HFILL }},
 
-    {&hf_he_phy_cap_20mhz_in_40mgz_24ghz_band,
-     {"20 MHz In 40 MHz HE PPDU In 2.4GHz Band", "wlan.ext_tag.he_phy_cap.nbytes.20_mhz_in_40_in2_4ghz",
+    {&hf_he_phy_cap_20mhz_in_40mhz_24ghz_band,
+     {"20 MHz In 40 MHz HE PPDU In 2.4GHz Band", "wlan.ext_tag.he_phy_cap.nbytes.20_mhz_in_40_in_2_4ghz",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200, NULL, HFILL }},
 
     {&hf_he_phy_cap_20mhz_in_160_80p80_ppdu,
-     {"20 MHz In 160/80+80 MHz HE PPDU", "wlan.ext_tag.he_phy_cap.nbytes.20_mhz_in_160_80p80",
+     {"20 MHz In 160/80+80 MHz HE PPDU", "wlan.ext_tag.he_phy_cap.nbytes.20_mhz_in_160_80p80_ppdu",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0400, NULL, HFILL }},
 
     {&hf_he_phy_cap_80mgz_in_160_80p80_ppdu,
-     {"80 MHz In 160/80+80 MHz He PPDU", "wlan.ext_tag.he_phy_cap.nbytes.80_mhz_in_160_80p80",
+     {"80 MHz In 160/80+80 MHz HE PPDU", "wlan.ext_tag.he_phy_cap.nbytes.80_mhz_in_160_80p80_ppdu",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0800, NULL, HFILL }},
 
     {&hf_he_phy_cap_he_er_su_ppdu_1xxx_gi,
-     {"HE ER SU PPDU W 1x HE-LTF & 0.8us GI", "wlan.ext_tag.he_phy_cap.nbytes.he_er_su_ppdu_4xxx_gi",
+     {"HE ER SU PPDU W 1x HE-LTF & 0.8us GI", "wlan.ext_tag.he_phy_cap.nbytes.he_er_su_ppdu_1xxx_gi",
       FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x1000, NULL, HFILL }},
 
     {&hf_he_phy_cap_midamble_rx_2x_xxx_ltf,
@@ -30500,58 +30498,58 @@ proto_register_ieee80211(void)
 
     {&hf_he_mcs_max_he_mcs_1_ss,
      {"Max HE-MCS for 1 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_1_ss",
-      FT_UINT16, BASE_HEX, NULL, 0x0003, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0x0003, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_2_ss,
      {"Max HE-MCS for 2 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_2_ss",
-      FT_UINT16, BASE_HEX, NULL, 0x000C, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0x000C, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_3_ss,
      {"Max HE-MCS for 3 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_3_ss",
-      FT_UINT16, BASE_HEX, NULL, 0x0030, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0x0030, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_4_ss,
      {"Max HE-MCS for 4 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_4_ss",
-      FT_UINT16, BASE_HEX, NULL, 0x00C0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0x00C0, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_5_ss,
      {"Max HE-MCS for 5 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_5_ss",
-      FT_UINT16, BASE_HEX, NULL, 0x0300, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0x0300, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_6_ss,
      {"Max HE-MCS for 6 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_6_ss",
-      FT_UINT16, BASE_HEX, NULL, 0x0C00, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0x0C00, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_7_ss,
      {"Max HE-MCS for 7 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_7_ss",
-      FT_UINT16, BASE_HEX, NULL, 0x3000, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0x3000, NULL, HFILL }},
 
     {&hf_he_mcs_max_he_mcs_8_ss,
      {"Max HE-MCS for 8 SS", "wlan.ext_tag.he_mcs_map.max_he_mcs_for_8_ss",
-      FT_UINT16, BASE_HEX, NULL, 0xC000, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(he_mcs_map_vals), 0xC000, NULL, HFILL }},
 
     {&hf_he_rx_he_mcs_map_lte_80,
-     {"Rx HEX-MCS Map <= 80 Mhz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_lte_80",
+     {"Rx HEX-MCS Map <= 80 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_lte_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_tx_he_mcs_map_lte_80,
-     {"Tx HEX-MCS Map <= 80 Mhz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_lte_80",
+     {"Tx HEX-MCS Map <= 80 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_lte_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_rx_he_mcs_map_160,
-     {"Rx HEX-MCS Map 160 Mhz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_160",
+     {"Rx HEX-MCS Map 160 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_160",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_tx_he_mcs_map_160,
-     {"Tx HEX-MCS Map 160 Mhz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_160",
+     {"Tx HEX-MCS Map 160 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_160",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_rx_he_mcs_map_80_80,
-     {"Rx HEX-MCS Map 80+80 Mhz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_80_80",
+     {"Rx HEX-MCS Map 80+80 MHz", "wlan.ext_tag.he_mcs_map.rx_he_mcs_map_80_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_tx_he_mcs_map_80_80,
-     {"Tx HEX-MCS Map 80+80 Mhz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_80_80",
+     {"Tx HEX-MCS Map 80+80 MHz", "wlan.ext_tag.he_mcs_map.tx_he_mcs_map_80_80",
      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_he_ppe_thresholds_nss,
