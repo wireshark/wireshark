@@ -94,8 +94,10 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
         encoding = (packet_char_enc)cap_file_->current_frame->flags.encoding;
 
     QByteArray data;
-    if ( tvb )
-        data = QByteArray((const char *) tvb_memdup(wmem_file_scope(), tvb, 0, -1), tvb_captured_length(tvb));
+    if ( tvb ) {
+        int data_len = (int) tvb_captured_length(tvb);
+        data = QByteArray::fromRawData((const char *) tvb_get_ptr(tvb, 0, data_len), data_len);
+    }
 
     ByteViewText * byte_view_text = new ByteViewText(data, encoding, this);
     byte_view_text->setAccessibleName(name);
