@@ -1021,6 +1021,8 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   call -> dataformat = AST_DATAFORMAT_NULL;
   call -> src_codec = 0;
   call -> dst_codec = 0;
+  call -> src_vformat = 0;
+  call -> dst_vformat = 0;
   call -> n_forward_circuit_ids = 0;
   call -> n_reverse_circuit_ids = 0;
   call -> subdissector = NULL;
