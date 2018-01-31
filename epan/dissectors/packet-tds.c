@@ -1163,7 +1163,6 @@ static dissector_handle_t smp_handle;
 typedef struct {
     gint tds_version;
     gboolean tds_packets_in_order;
-    guint tds_major_version;
     guint tds_encoding_int2;
     guint tds_encoding_int4;
     guint tds_encoding_char;
@@ -1197,14 +1196,6 @@ typedef struct {
 #define TDS_PROTOCOL_7_3A   0x730a
 #define TDS_PROTOCOL_7_3B   0x730b
 #define TDS_PROTOCOL_7_4    0x7400
-
-#define TDS_PROTO_MAJOR_4   4
-#define TDS_PROTO_MAJOR_5   5
-#define TDS_PROTO_MAJOR_7   7
-
-#define TDS_PROTO_IS_4(tds_info) ((tds_info)->tds_major_version == TDS_PROTO_MAJOR_4)
-#define TDS_PROTO_IS_5(tds_info) ((tds_info)->tds_major_version == TDS_PROTO_MAJOR_5)
-#define TDS_PROTO_IS_7(tds_info) ((tds_info)->tds_major_version == TDS_PROTO_MAJOR_7)
 
 static gint tds_protocol_type = TDS_PROTOCOL_NOT_SPECIFIED;
 
@@ -2488,15 +2479,11 @@ dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_con
     guint lval;
     guint32 tds_version;
 
-    /* Get the protocol version */
-    tds_info->tds_major_version = tvb_get_guint8(tvb, 458);
-
     /* create display subtree for the protocol */
     offset = 0;
     len = tvb_reported_length(tvb);
     login_item = proto_tree_add_item(tree, hf_tdslogin, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
     login_tree = proto_item_add_subtree(login_item, ett_tds_login);
-    proto_item_set_text(login_item, (TDS_PROTO_IS_5(tds_info) ? "TDS 5 Login Packet" : "TDS 4 Login Packet"));
     offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
                                       hf_tdslogin_hostname, hf_tdslogin_hostname_length,
                                       offset, TDS_MAXNAME, "hostname");
@@ -2562,6 +2549,7 @@ dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_con
                                  &tds_version);
     offset += 4;
     set_tds_version(tds_info, tds_version);
+    proto_item_set_text(login_item, (tds_version == TDS_PROTOCOL_5 ? "TDS 5 Login Packet" : "TDS 4 Login Packet"));
 
     offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
                                       hf_tdslogin_progname, hf_tdslogin_progname_length,
@@ -5261,13 +5249,11 @@ fill_tds_info_defaults(tds_conv_info_t *tds_info)
         case TDS_PROTOCOL_7_3A:
         case TDS_PROTOCOL_7_3B:
         case TDS_PROTOCOL_7_4:
+        case TDS_PROTOCOL_NOT_SPECIFIED:
+        default:
             tds_info->tds_encoding_int4 = TDS_INT4_LITTLE_ENDIAN;
             tds_info->tds_encoding_int2 = TDS_INT2_LITTLE_ENDIAN;
             tds_info->tds_encoding_char = TDS_CHAR_UTF16;
-            break;
-
-        case TDS_PROTOCOL_NOT_SPECIFIED:
-        default:
             break;
     }
 }
