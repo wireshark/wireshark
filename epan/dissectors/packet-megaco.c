@@ -1108,6 +1108,7 @@ nextcontext:
                 }
 
                 megaco_tree_command_line = proto_tree_add_subtree(megaco_tree, tvb, tvb_command_start_offset, len+1, ett_megaco_command_line, &sub_ti, "Command: ");
+                megaco_command = MEGACO_CMD_NOT_SET;
                 /* creation of the megaco_tree_command_line additionally Command and Transaction ID will be printed in this line */
                 /* Changed to use the lines above. this code is saved if there is complaints
                 sub_ti = proto_tree_add_item(megaco_tree,hf_megaco_command_line,tvb,tvb_command_start_offset,tokenlen, ENC_UTF_8|ENC_NA);
