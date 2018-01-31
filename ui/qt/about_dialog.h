@@ -97,7 +97,9 @@ private slots:
     void handleCopyMenu(QPoint);
     void copyActionTriggered(bool row = false);
     void copyRowActionTriggered();
+#ifdef HAVE_LUA
     void on_tblPlugins_doubleClicked(const QModelIndex &index);
+#endif
 };
 
 #endif // ABOUT_DIALOG_H

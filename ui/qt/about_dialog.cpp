@@ -151,9 +151,11 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
         QString tooltip;
         typeNames_ << type_name;
 
+#ifdef HAVE_LUA
         if (type_name == wslua_plugin_type_name()) {
             tooltip = tr("Double-click to edit");
         }
+#endif
         appendRow(row, tooltip);
     }
 
@@ -543,6 +545,7 @@ void AboutDialog::copyActionTriggered(bool copyRow)
     clipBoard->setText(clipdata);
 }
 
+#ifdef HAVE_LUA
 void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
 {
     const int row = index.row();
@@ -553,6 +556,7 @@ void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
         QDesktopServices::openUrl(QUrl::fromLocalFile(model->index(row, path_col).data().toString()));
     }
 }
+#endif
 
 /*
  * Editor modelines
