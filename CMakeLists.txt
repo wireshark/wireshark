@@ -351,6 +351,8 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
 		# /guard:cf                         Control Flow Guard (compile and link).
 		#                                   See https://msdn.microsoft.com/en-us/library/windows/desktop/mt637065.aspx
+		#                                   Note: This requires CMake 3.9.0 or newer.
+		#                                   https://gitlab.kitware.com/cmake/cmake/commit/f973d49ab9d4c59b93f6dac812a94bb130200836
 		# /Qspectre                         Speculative execution attack mitigation
 		#                                   See https://blogs.msdn.microsoft.com/vcblog/2018/01/15/spectre-mitigations-in-msvc/
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} /Zo /utf-8 /guard:cf /Qspectre)
