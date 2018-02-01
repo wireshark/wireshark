@@ -715,6 +715,7 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
          * There is no global filter file; treat that as equivalent to
          * that file existing bug being empty, and say we succeeded.
          */
+        g_free(path);
         return TRUE;
     }
 
