@@ -175,6 +175,11 @@ fuzz_init(int argc _U_, char **argv)
 	g_setenv("WIRESHARK_DEBUG_WMEM_OVERRIDE", "simple", 0);
 	g_setenv("G_SLICE", "always-malloc", 0);
 
+	fprintf(stderr, "test it\n");
+	fprintf(stderr, "g_home=%s\n", g_get_home_dir());
+	fprintf(stderr, "g_user_data=%s\n", g_get_user_data_dir());
+	fprintf(stderr, "g_cache_dir=%s\n", g_get_user_cache_dir());
+
 	cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 	/*
