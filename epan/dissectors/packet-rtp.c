@@ -1237,10 +1237,13 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
         p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
 
-        if (media_types&RTP_MEDIA_AUDIO)
+        if (media_types == RTP_MEDIA_AUDIO) {
             p_conv_data->bta2dp_info = (bta2dp_codec_info_t *) wmem_memdup(wmem_file_scope(), data, sizeof(bta2dp_codec_info_t));
-        if (media_types&RTP_MEDIA_VIDEO)
+            p_conv_data->btvdp_info = NULL;
+        } else if (media_types == RTP_MEDIA_VIDEO) {
             p_conv_data->btvdp_info = (btvdp_codec_info_t *) wmem_memdup(wmem_file_scope(), data, sizeof(btvdp_codec_info_t));
+            p_conv_data->bta2dp_info = NULL;
+        }
     }
 
     /*
