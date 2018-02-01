@@ -124,6 +124,11 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     ThrottleThread::msleep(10);
 #endif
 
+    if (last_action_ == action && (elapsed_timer_.elapsed() < info_update_freq_)) {
+        // Nothing to update yet
+        return;
+    }
+
     if (last_action_ != action) {
         register_cur_++;
     }
@@ -179,10 +184,8 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
 
     so_ui_->progressBar->setValue(register_cur_);
 
-    if (elapsed_timer_.elapsed() > info_update_freq_) {
-        wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
-        elapsed_timer_.restart();
-    }
+    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+    elapsed_timer_.restart();
 }
 
 /*
