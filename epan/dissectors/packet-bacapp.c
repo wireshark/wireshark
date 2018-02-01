@@ -7469,7 +7469,7 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
     guint       start = offset;
     guint       offs;
     guint32     lvt, i, numberOfBytes;
-    guint8      bf_arr[256];
+    guint8      bf_arr[256 + 1];
     proto_tree* subtree = tree;
 
     offs = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
@@ -7477,7 +7477,7 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
     offset += offs;
     unused  = tvb_get_guint8(tvb, offset); /* get the unused Bits */
 
-    memset(bf_arr, 0, 256);
+    memset(bf_arr, 0, sizeof(bf_arr));
     skip = 0;
     for (i = 0; i < numberOfBytes; i++) {
         tmp = tvb_get_guint8(tvb, (offset)+i + 1);
@@ -7493,7 +7493,7 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 
     fTagHeaderTree(tvb, pinfo, subtree, start, &tag_no, &tag_info, &lvt);
     proto_tree_add_item(subtree, hf_bacapp_unused_bits, tvb, offset, 1, ENC_NA);
-    memset(bf_arr, 0, 256);
+    memset(bf_arr, 0, sizeof(bf_arr));
     skip = 0;
     for (i = 0; i < numberOfBytes; i++) {
         tmp = tvb_get_guint8(tvb, (offset)+i+1);
