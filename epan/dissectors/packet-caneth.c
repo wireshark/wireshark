@@ -96,14 +96,13 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     can_tree = proto_item_add_subtree(ti, ett_caneth_can);
 
     ext_flag = tvb_get_guint8(tvb, 13);
+    proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_ident_ext, tvb, 0, 4, ENC_LITTLE_ENDIAN, &raw_can_id);
     if (ext_flag)
     {
-        proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_ident_ext, tvb, 0, 4, ENC_NA, &raw_can_id);
         can_id.id = raw_can_id & CAN_EFF_MASK;
     }
     else
     {
-        proto_tree_add_item_ret_uint(can_tree, hf_caneth_can_ident_std, tvb, 0, 4, ENC_NA, &raw_can_id);
         can_id.id = raw_can_id & CAN_SFF_MASK;
     }
 
