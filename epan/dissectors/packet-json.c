@@ -140,24 +140,22 @@ typedef struct {
 #define JSON_COMPACT_ARRAY 0
 
 #define JSON_ARRAY_BEGIN(json_tvbparse_data) wmem_stack_push(json_tvbparse_data->array_idx, GINT_TO_POINTER(JSON_COMPACT_ARRAY))
-
 #define JSON_OBJECT_BEGIN(json_tvbparse_data) wmem_stack_push(json_tvbparse_data->array_idx, GINT_TO_POINTER(JSON_COMPACT_OBJECT_WITHOUT_KEY))
-
 #define JSON_ARRAY_OBJECT_END(json_tvbparse_data) wmem_stack_pop(json_tvbparse_data->array_idx)
-
-#define JSON_INSIDE_ARRAY(idx) idx >= JSON_COMPACT_ARRAY
-
-#define JSON_OBJECT_SET_HAS_KEY(idx) idx == JSON_COMPACT_OBJECT_WITH_KEY
+#define JSON_INSIDE_ARRAY(idx) (idx >= JSON_COMPACT_ARRAY)
+#define JSON_OBJECT_SET_HAS_KEY(idx) (idx == JSON_COMPACT_OBJECT_WITH_KEY)
 
 static void
-json_array_index_increment(json_parser_data_t *data) {
+json_array_index_increment(json_parser_data_t *data)
+{
 	gint idx = GPOINTER_TO_INT(wmem_stack_pop(data->array_idx));
 	idx++;
 	wmem_stack_push(data->array_idx, GINT_TO_POINTER(idx));
 }
 
 static void
-json_object_add_key(json_parser_data_t *data) {
+json_object_add_key(json_parser_data_t *data)
+{
 	wmem_stack_pop(data->array_idx);
 	wmem_stack_push(data->array_idx, GINT_TO_POINTER(JSON_COMPACT_OBJECT_WITH_KEY));
 }
@@ -288,7 +286,7 @@ static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbp
 
 		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
-		if ( JSON_INSIDE_ARRAY(idx) ) {
+		if (JSON_INSIDE_ARRAY(idx)) {
 			ti_compact = proto_tree_add_none_format(tree_compact, hfi_json_object_compact.id, tok->tvb, tok->offset, tok->len, "%d:", idx);
 			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_object_compact);
 			json_array_index_increment(data);
@@ -312,7 +310,7 @@ static void after_object(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
 		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
-		if ( JSON_OBJECT_SET_HAS_KEY(idx) )
+		if (JSON_OBJECT_SET_HAS_KEY(idx))
 			proto_item_append_text(parent_item, " {...}");
 		else
 			proto_item_append_text(parent_item, " {}");
@@ -618,7 +616,7 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 			return;
 		}
 
-		if ( JSON_INSIDE_ARRAY(idx) ) {
+		if (JSON_INSIDE_ARRAY(idx)) {
 			proto_tree_add_none_format(tree_compact, hfi_json_array_item_compact.id, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
 			json_array_index_increment(data);
 		} else {
