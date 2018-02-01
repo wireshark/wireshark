@@ -172,13 +172,18 @@ fuzz_init(int argc _U_, char **argv)
 
 	dissector_handle_t fuzz_handle = NULL;
 
+	/* In oss-fuzz running environment g_get_home_dir() fails:
+	 * (process:1): GLib-WARNING **: getpwuid_r(): failed due to unknown user id (0)
+	 * (process:1): GLib-CRITICAL **: g_once_init_leave: assertion 'result != 0' failed
+	 *
+	 * Avoid GLib-CRITICAL by setting some XDG environment variables.
+	 */
+	g_setenv("XDG_CACHE_HOME", "/not/existing/directory", 0);  /* g_get_user_cache_dir() */
+	g_setenv("XDG_CONFIG_HOME", "/not/existing/directory", 0); /* g_get_user_config_dir() */
+	g_setenv("XDG_DATA_HOME", "/not/existing/directory", 0);   /* g_get_user_data_dir() */
+
 	g_setenv("WIRESHARK_DEBUG_WMEM_OVERRIDE", "simple", 0);
 	g_setenv("G_SLICE", "always-malloc", 0);
-
-	fprintf(stderr, "test it\n");
-	fprintf(stderr, "g_home=%s\n", g_get_home_dir());
-	fprintf(stderr, "g_user_data=%s\n", g_get_user_data_dir());
-	fprintf(stderr, "g_cache_dir=%s\n", g_get_user_cache_dir());
 
 	cmdarg_err_init(failure_warning_message, failure_message_cont);
 
