@@ -1331,9 +1331,9 @@ struct object_mapping {
 	} frame; /* frames for which object_mapping applies */
 	struct od_entry *info;
 	const char *index_name;
-	const char *title;
+	char title[32];
 };
-#define OBJECT_MAPPING_INITIALIZER { { 0, 0 }, { 0, 0 }, 0, 0, 0, { 0, 0 }, 0, 0, 0 }
+#define OBJECT_MAPPING_INITIALIZER { { 0, 0 }, { 0, 0 }, 0, 0, 0, { 0, 0 }, 0, 0, { 0 } }
 
 #define CONVO_FOR_RESPONSE  1
 #define CONVO_FOR_REQUEST   2
@@ -4211,9 +4211,9 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 	{
 		/* TODO One could think of a better string here? */
 		if (nosub)
-			map.title = g_strdup_printf("PDO - %04X", map.pdo.idx);
+			g_snprintf(map.title, sizeof(map.title), "PDO - %04X", map.pdo.idx);
 		else
-			map.title = g_strdup_printf("PDO - %04X:%02X", map.pdo.idx, map.pdo.subindex);
+			g_snprintf(map.title, sizeof(map.title), "PDO - %04X:%02X", map.pdo.idx, map.pdo.subindex);
 
 		add_object_mapping(mappings, &map);
 	}
