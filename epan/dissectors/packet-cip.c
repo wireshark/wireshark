@@ -494,6 +494,11 @@ static int hf_conn_path_class = -1;
 static int hf_path_len_usint = -1;
 static int hf_path_len_uint = -1;
 
+static int hf_32bitheader = -1;
+static int hf_32bitheader_roo = -1;
+static int hf_32bitheader_coo = -1;
+static int hf_32bitheader_run_idle = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_cip = -1;
 static gint ett_cip_class_generic = -1;
@@ -563,6 +568,7 @@ static gint ett_time_sync_port_profile_id_info = -1;
 static gint ett_time_sync_port_phys_addr_info = -1;
 static gint ett_time_sync_port_proto_addr_info = -1;
 static gint ett_id_status = -1;
+static gint ett_32bitheader_tree = -1;
 
 static expert_field ei_mal_identity_revision = EI_INIT;
 static expert_field ei_mal_identity_status = EI_INIT;
@@ -2669,6 +2675,14 @@ const value_string cip_port_number_vals[] = {
 
 value_string_ext cip_class_names_vals_ext = VALUE_STRING_EXT_INIT(cip_class_names_vals);
 
+/* Translate function to string - Run/Idle */
+static const value_string cip_run_idle_vals[] = {
+   { 0, "Idle" },
+   { 1, "Run" },
+
+   { 0, NULL }
+};
+
 static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, int display_type)
 {
    cip_req_info_t *cip_req_info;
@@ -3382,7 +3396,10 @@ static int dissect_single_segment_packed_attr(packet_info *pinfo, proto_tree *tr
    proto_item *subitem;
    subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_port_path, &subitem, "Path: ");
 
-   return dissect_cip_segment_single(pinfo, tvb, offset, 0, subtree, subitem, FALSE, TRUE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
+   int parsed_len = dissect_cip_segment_single(pinfo, tvb, offset, 0, subtree, subitem, FALSE, TRUE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
+   proto_item_set_len(subitem, parsed_len);
+
+   return parsed_len;
 }
 
 static int dissect_single_segment_padded_attr(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
@@ -3392,7 +3409,10 @@ static int dissect_single_segment_padded_attr(packet_info *pinfo, proto_tree *tr
    proto_item *subitem;
    subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_port_path, &subitem, "Path: ");
 
-   return dissect_cip_segment_single(pinfo, tvb, offset, 0, subtree, subitem, FALSE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
+   int parsed_len = dissect_cip_segment_single(pinfo, tvb, offset, 0, subtree, subitem, FALSE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
+   proto_item_set_len(subitem, parsed_len);
+
+   return parsed_len;
 }
 
 static int dissect_port_link_object(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -4435,7 +4455,7 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
                case CI_LOGICAL_SEG_CON_POINT:
                   segment_len = dissect_cia(tvb, offset, pathpos, segment_type, generate, packed, pinfo,
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
-                       "Connection Point", NULL, NULL,
+                       "Connection Point", NULL, (req_data == NULL) ? NULL : &req_data->iConnPoint,
                        hf_cip_conpoint8, hf_cip_conpoint16, hf_cip_conpoint32);
                   if (segment_len == 0)
                   {
@@ -4946,6 +4966,7 @@ void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pro
       req_data->iInstance = (guint32)-1;
       req_data->iAttribute = (guint32)-1;
       req_data->iMember = (guint32)-1;
+      req_data->iConnPoint = (guint32)-1;
    }
    if (safety != NULL)
       safety->safety_seg = FALSE;
@@ -5875,6 +5896,7 @@ void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_da
         req_data->iInstance = (guint32)-1;
         req_data->iAttribute = (guint32)-1;
         req_data->iMember = (guint32)-1;
+        req_data->iConnPoint = (guint32)-1;
     }
 }
 
@@ -6104,6 +6126,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->motion = (connection_path.iClass == 0x42) ? TRUE : FALSE;
          preq_info->connInfo->safety = safety_fwdopen;
          preq_info->connInfo->ClassID = connection_path.iClass;
+         preq_info->connInfo->ConnPoint = connection_path.iConnPoint;
       }
    }
 }
@@ -7484,6 +7507,18 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
 } /* End of dissect_cip_data() */
 
+void dissect_cip_run_idle(tvbuff_t* tvb, int offset, proto_tree* item_tree)
+{
+   static const int * run_idle_header[] = {
+      &hf_32bitheader_roo,
+      &hf_32bitheader_coo,
+      &hf_32bitheader_run_idle,
+      NULL
+   };
+
+   proto_tree_add_bitmask(item_tree, tvb, offset, hf_32bitheader, ett_32bitheader_tree, run_idle_header, ENC_LITTLE_ENDIAN);
+}
+
 static int
 dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -7839,6 +7874,11 @@ proto_register_cip(void)
       { &hf_conn_path_class, { "CIP Connection Path Class", "cip.conn_path_class", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_class_names_vals_ext, 0, NULL, HFILL }},
       { &hf_path_len_usint, { "Path Length (words)", "cip.path_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_path_len_uint, { "Path Length (words)", "cip.path_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+      { &hf_32bitheader, { "32-bit Header", "cip.32bitheader", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_32bitheader_roo, { "ROO", "cip.32bitheader.roo", FT_UINT32, BASE_HEX, NULL, 0xC, "Ready for Ownership of Outputs", HFILL } },
+      { &hf_32bitheader_coo, { "COO", "cip.32bitheader.coo", FT_UINT32, BASE_HEX, NULL, 0x2, "Claim Output Ownership", HFILL } },
+      { &hf_32bitheader_run_idle, { "Run/Idle", "cip.32bitheader.run_idle", FT_UINT32, BASE_HEX, VALS(cip_run_idle_vals), 0x1, NULL, HFILL } },
    };
 
    static hf_register_info hf_cm[] = {
@@ -8030,6 +8070,7 @@ proto_register_cip(void)
       &ett_time_sync_port_phys_addr_info,
       &ett_time_sync_port_proto_addr_info,
       &ett_id_status,
+      &ett_32bitheader_tree,
    };
 
    static gint *ett_cm[] = {

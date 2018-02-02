@@ -235,6 +235,7 @@ typedef struct cip_simple_request_info {
    guint32 iInstance;
    guint32 iAttribute;
    guint32 iMember;
+   guint32 iConnPoint;
 } cip_simple_request_info_t;
 
 enum cip_datatype {
@@ -316,6 +317,7 @@ typedef struct cip_conn_info {
    cip_safety_epath_info_t safety;
    gboolean                motion;
    guint32                 ClassID;
+   guint32                 ConnPoint;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {
@@ -355,6 +357,7 @@ extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint
 extern int dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, cip_simple_request_info_t* req_data);
 extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
+void dissect_cip_run_idle(tvbuff_t* tvb, int offset, proto_tree* item_tree);
 
 /*
 ** Exported variables

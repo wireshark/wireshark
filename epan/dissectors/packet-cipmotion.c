@@ -35,6 +35,7 @@ void proto_reg_handoff_cipmotion(void);
 
 /* Protocol handle for CIP Motion */
 static int proto_cipmotion = -1;
+static int proto_cipmotion3 = -1;
 
 /* Header field identifiers, these are registered in the
  * proto_register_cipmotion function along with the bites/bytes
@@ -67,7 +68,7 @@ static int hf_cip_data_rx_time_stamp        = -1;
 static int hf_cip_data_tx_time_stamp        = -1;
 static int hf_cip_node_fltalarms            = -1;
 static int hf_cip_motor_cntrl               = -1;
-static int hf_cip_fdbk_config               = -1;
+static int hf_cip_feedback_mode             = -1;
 static int hf_cip_axis_control              = -1;
 static int hf_cip_control_status            = -1;
 static int hf_cip_axis_response             = -1;
@@ -262,6 +263,7 @@ static gint ett_axis_status_set     = -1;
 static gint ett_command_control     = -1;
 
 static dissector_handle_t cipmotion_handle;
+static dissector_handle_t cipmotion3_handle;
 
 /* These are the BITMASKS for the Time Data Set header field */
 #define TIME_DATA_SET_TIME_STAMP                0x1
@@ -327,8 +329,8 @@ static const value_string cip_motor_control_vals[] = {
    { 0,    NULL                    }
 };
 
-/* Translate function to string - feedback config values */
-static const value_string cip_fdbk_config_vals[] = {
+/* Translate function to string - feedback mode values */
+static const value_string cip_feedback_mode_vals[] = {
    { 0,    "No Feedback"       },
    { 1,    "Master Feedback"   },
    { 2,    "Motor Feedback"    },
@@ -749,8 +751,8 @@ dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gui
    /* Add the control mode header field to the tree */
    proto_tree_add_item(header_tree, hf_cip_motor_cntrl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-   /* Add the feedback config header field to the tree */
-   proto_tree_add_item(header_tree, hf_cip_fdbk_config, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+   /* Add the feedback mode header field to the tree */
+   proto_tree_add_item(header_tree, hf_cip_feedback_mode, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
 
    /* Add the axis control field to the tree */
    proto_tree_add_item(header_tree, hf_cip_axis_control, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -817,7 +819,7 @@ dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gui
 }
 
 /*
- * Function name: dissect_devce_cyclic
+ * Function name: dissect_device_cyclic
  *
  * Purpose: Dissect the cyclic data block of a device to controller format message
  *
@@ -825,7 +827,7 @@ dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gui
  * as their starting offset
  */
 static guint32
-dissect_devce_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance _U_)
+dissect_device_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance _U_)
 {
    proto_item *temp_proto_item;
    proto_tree *header_tree, *temp_proto_tree;
@@ -838,8 +840,8 @@ dissect_devce_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gu
    /* Add the control mode header field to the tree */
    proto_tree_add_item(header_tree, hf_cip_motor_cntrl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-   /* Add the feedback config header field to the tree */
-   proto_tree_add_item(header_tree, hf_cip_fdbk_config, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+   /* Add the feedback mode header field to the tree */
+   proto_tree_add_item(header_tree, hf_cip_feedback_mode, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
 
    /* Add the axis response field to the tree */
    proto_tree_add_item(header_tree, hf_cip_axis_response, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1777,13 +1779,14 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
  * Returns: void
  */
 static int
-dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
    guint32     con_format;
    guint32     update_id;
    proto_item *proto_item_top;
    proto_tree *proto_tree_top;
    guint32     offset = 0;
+   guint32 ConnPoint = GPOINTER_TO_UINT(data);
 
    /* Create display subtree for the protocol by creating an item and then
     * creating a subtree from the item, the subtree must have been registered
@@ -1794,6 +1797,12 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
    /* Add the CIP class 1 sequence number to the tree */
    proto_tree_add_item(proto_tree_top, hf_cip_class1_seqnum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
    offset = (offset + 2);
+
+   if (ConnPoint >= 3)
+   {
+       dissect_cip_run_idle(tvb, offset, proto_tree_top);
+       offset += 4;
+   }
 
    /* Pull the actual values for the connection format and update id from the
     * incoming message to be used in the column info */
@@ -1856,7 +1865,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
             break;
          case FORMAT_VAR_DEVICE_TO_CONTROL:
             if ( cyc_size > 0 )
-               offset = dissect_devce_cyclic( con_format, tvb, proto_tree_top, offset, cyc_size, instance );
+               offset = dissect_device_cyclic( con_format, tvb, proto_tree_top, offset, cyc_size, instance );
             if ( cyc_blk_size > 0 )
                offset = dissect_cyclic_rd( tvb, proto_tree_top, offset, cyc_blk_size );
             if ( evnt_size > 0 )
@@ -1877,6 +1886,12 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
    }
 
    return tvb_captured_length(tvb);
+}
+
+static int dissect_cipmotion3(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+    guint32 ConnPoint = 3;
+    return dissect_cipmotion(tvb, pinfo, tree, GUINT_TO_POINTER(ConnPoint));
 }
 
 /*
@@ -2043,10 +2058,10 @@ proto_register_cipmotion(void)
           FT_UINT8, BASE_DEC, VALS(cip_motor_control_vals), 0,
           "Cyclic Data Block: Motor Control Mode", HFILL }
       },
-      { &hf_cip_fdbk_config,
-        { "Feedback Config", "cipm.fdbkcfg",
-          FT_UINT8, BASE_DEC, VALS(cip_fdbk_config_vals), 0,
-          "Cyclic Data Block: Feedback Configuration", HFILL }
+      { &hf_cip_feedback_mode,
+        { "Feedback Mode", "cipm.feedback_mode",
+          FT_UINT8, BASE_DEC, VALS(cip_feedback_mode_vals), 0,
+          "Cyclic Data Block: Feedback Mode", HFILL }
       },
       { &hf_cip_axis_control,
         { "Axis Control", "cipm.axisctrl",
@@ -2916,7 +2931,14 @@ proto_register_cipmotion(void)
      "Common Industrial Protocol, Motion",  /* Full name of protocol        */
      "CIP Motion",           /* Short name of protocol       */
      "cipm");                /* Abbreviated name of protocol */
-;
+
+   proto_cipmotion3 = proto_register_protocol_in_name_only(
+     "Common Industrial Protocol, Motion - Rev 3",
+     "CIP Motion - Rev 3",
+     "cipm3",
+     proto_cipmotion,
+     FT_PROTOCOL);
+
    /* Register the header fields with the protocol */
    proto_register_field_array(proto_cipmotion, hf, array_length(hf));
 
@@ -2924,11 +2946,13 @@ proto_register_cipmotion(void)
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
 
    cipmotion_handle = register_dissector("cipmotion", dissect_cipmotion, proto_cipmotion);
+   cipmotion3_handle = register_dissector("cipmotion3", dissect_cipmotion3, proto_cipmotion3);
 }
 
 void proto_reg_handoff_cipmotion(void)
 {
    dissector_add_for_decode_as("enip.io", cipmotion_handle);
+   dissector_add_for_decode_as("enip.io", cipmotion3_handle);
 }
 
 /*
