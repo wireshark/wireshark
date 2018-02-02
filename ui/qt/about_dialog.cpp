@@ -416,7 +416,9 @@ void AboutDialog::showEvent(QShowEvent * event)
     // Authors: Names slightly narrower than emails.
     QAbstractItemModel *model = ui->tblAuthors->model();
     int column_count = model->columnCount();
-    ui->tblAuthors->setColumnWidth(0, (ui->tblAuthors->parentWidget()->width() / column_count) - one_em);
+    if (column_count) {
+        ui->tblAuthors->setColumnWidth(0, (ui->tblAuthors->parentWidget()->width() / column_count) - one_em);
+    }
 
     // Folders: First and last to contents.
     ui->tblFolders->resizeColumnToContents(0);
