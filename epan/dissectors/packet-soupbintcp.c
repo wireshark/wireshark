@@ -382,22 +382,6 @@ dissect_soupbintcp_common(
         /* Sub-dissector tvb starts at 3 (length (2) + pkt_type (1)) */
         sub_tvb = tvb_new_subset_remaining(tvb, 3);
 
-#if 0   /* XXX: It's not valid for a soupbintcp subdissector to call       */
-        /*  conversation_set_dissector() since the conversation is really  */
-        /*  a TCP conversation.  (A 'soupbintcp' port type would need to   */
-        /*  be defined to be able to use conversation_set_dissector()).    */
-        /* In addition, no current soupbintcp subdissector calls           */
-        /*  conversation_set_dissector().                                  */
-
-        /* If this packet is part of a conversation, call dissector
-         * for the conversation if available */
-        if (try_conversation_dissector(&pinfo->dst, &pinfo->src, conversation_pt_to_endpoint_type(pinfo->ptype),
-                                       pinfo->srcport, pinfo->destport,
-                                       sub_tvb, pinfo, tree, NULL)) {
-            return;
-        }
-#endif
-
         /* Otherwise, try heuristic dissectors */
         if (dissector_try_heuristic(heur_subdissector_list,
                                     sub_tvb,
