@@ -112,7 +112,7 @@ packet_list_select_first_row(void)
 {
     if (!gbl_cur_packet_list)
         return;
-    gbl_cur_packet_list->goFirstPacket();
+    gbl_cur_packet_list->goFirstPacket(false);
 }
 
 /*
@@ -1187,12 +1187,14 @@ void PacketList::goPreviousPacket(void)
     scrollViewChanged(false);
 }
 
-void PacketList::goFirstPacket(void) {
+void PacketList::goFirstPacket(bool user_selected) {
     if (packet_list_model_->rowCount() < 1) return;
     setCurrentIndex(packet_list_model_->index(0, 0));
     scrollTo(currentIndex());
 
-    scrollViewChanged(false);
+    if (user_selected) {
+        scrollViewChanged(false);
+    }
 }
 
 void PacketList::goLastPacket(void) {
