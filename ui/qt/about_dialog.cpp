@@ -354,10 +354,12 @@ AboutDialog::AboutDialog(QWidget *parent) :
     pluginTypeModel->setColumnToFilter(2);
     ui->tblPlugins->setModel(pluginTypeModel);
     ui->tblPlugins->setRootIsDecorated(false);
+#ifdef HAVE_LUA
     UrlLinkDelegate *plugin_delegate = new UrlLinkDelegate(this);
     QString pattern = QString("^%1$").arg(wslua_plugin_type_name());
     plugin_delegate->setColCheck(2, pattern);
     ui->tblPlugins->setItemDelegateForColumn(3, plugin_delegate);
+#endif
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblPlugins->setTextElideMode(Qt::ElideMiddle);
