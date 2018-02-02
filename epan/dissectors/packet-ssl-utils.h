@@ -643,7 +643,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
  * and mode are Libgcrypt identifiers.
  */
 tls13_cipher *
-tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, StringInfo *secret, const gchar **error);
+tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, const StringInfo *secret, const gchar **error);
 
 /*
  * Calculate HKDF-Extract(salt, IKM) -> PRK according to RFC 5869.

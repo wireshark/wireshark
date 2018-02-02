@@ -3022,7 +3022,7 @@ tls13_cipher_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _
 }
 
 tls13_cipher *
-tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, StringInfo *secret, const gchar **error)
+tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, const StringInfo *secret, const gchar **error)
 {
     tls13_cipher       *cipher = NULL;
     guchar             *write_key = NULL, *write_iv = NULL;

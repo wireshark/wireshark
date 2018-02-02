@@ -1070,7 +1070,7 @@ quic_derive_cleartext_secrets(guint64 cid,
 
     if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, server_label,
                                  "", HASH_SHA2_256_LENGTH, server_cleartext_secret)) {
-        wmem_free(NULL, client_cleartext_secret);
+        wmem_free(NULL, *client_cleartext_secret);
         *client_cleartext_secret = NULL;
         *error = "Key expansion (server) failed";
         return FALSE;
@@ -1096,6 +1096,10 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
     /* Cleartext packets are protected with AEAD_AES_128_GCM */
     client_cipher = tls13_cipher_create(QUIC_TLS13_VERSION, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &client_secret, error);
     server_cipher = tls13_cipher_create(QUIC_TLS13_VERSION, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &server_secret, error);
+
+    wmem_free(NULL, client_secret.data);
+    wmem_free(NULL, server_secret.data);
+
     if (!client_cipher || !server_cipher) {
         return FALSE;
     }
