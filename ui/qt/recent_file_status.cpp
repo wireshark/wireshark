@@ -10,7 +10,9 @@
 #include "recent_file_status.h"
 
 RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
-        QObject(parent), filename_(filename)
+    QObject(parent),
+    // Force a deep copy.
+    filename_(QString::fromUtf16(filename.utf16()))
 {
     // We're a QObject, which means that we emit a destroyed signal,
     // which might happen at the wrong time when automatic deletion is
@@ -18,12 +20,9 @@ RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
     setAutoDelete(false);
     // Qt::BlockingQueuedConnection shouldn't be necessary but it doesn't
     // hurt either.
+    // We could alternatively pass a qHash of the filename.
     connect(this, SIGNAL(statusFound(QString, qint64, bool)),
             parent, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::BlockingQueuedConnection);
-}
-
-QString RecentFileStatus::getFilename() const {
-    return (filename_);
 }
 
 void RecentFileStatus::run() {

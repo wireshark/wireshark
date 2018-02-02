@@ -19,13 +19,11 @@ class RecentFileStatus : public QObject, public QRunnable
 public:
     RecentFileStatus(const QString filename, QObject *parent);
 
-    QString getFilename() const;
-
 protected:
     void run();
 
 private:
-    QString    filename_;
+    const QString    filename_;
     QFileInfo  fileinfo_;
 
 signals:
