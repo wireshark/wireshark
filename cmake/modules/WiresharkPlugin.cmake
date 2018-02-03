@@ -28,7 +28,17 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	add_definitions(-DPLUGIN_VERSION=\"${PLUGIN_VERSION}\")
 endmacro()
 
-macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
+macro(ADD_PLUGIN_LIBRARY _plugin _plugin_type)
+	if(${_plugin_type} STREQUAL "epan")
+		set(_subfolder "epan")
+		set(_required_libraries "epan")
+	elseif(${_plugin_type} STREQUAL "wiretap")
+		set(_subfolder "wiretap")
+		set(_required_libraries "wiretap")
+	else()
+		message(FATAL_ERROR "add_plugin_library called with invalid plugin type ${_plugin_type}")
+	endif()
+
 	add_library(${_plugin} MODULE
 		${PLUGIN_FILES}
 		${PLUGIN_RC_FILE}
@@ -53,11 +63,19 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 		)
 	endforeach()
 
-	target_link_libraries(${_plugin} epan)
+	target_link_libraries(${_plugin} ${_required_libraries})
 	add_dependencies(plugins ${_plugin})
 endmacro()
 
-macro(INSTALL_PLUGIN _plugin _subfolder)
+macro(INSTALL_PLUGIN _plugin _plugin_type)
+	if(${_plugin_type} STREQUAL "epan")
+		set(_subfolder "epan")
+	elseif(${_plugin_type} STREQUAL "wiretap")
+		set(_subfolder "wiretap")
+	else()
+		message(FATAL_ERROR "install_plugin called with invalid plugin type ${_plugin_type}")
+	endif()
+
 	install(TARGETS ${_plugin}
 		LIBRARY DESTINATION ${PLUGIN_INSTALL_LIBDIR}/${_subfolder} NAMELINK_SKIP
 		RUNTIME DESTINATION ${PLUGIN_INSTALL_LIBDIR}
