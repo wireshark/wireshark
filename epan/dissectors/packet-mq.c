@@ -3728,17 +3728,16 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static guint get_mq_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                             int offset, void *data _U_)
 {
-    if (tvb_reported_length_remaining(tvb, offset) >= 8)
+    guint uLen = tvb_reported_length_remaining(tvb, offset);
+    if (uLen >= 8)
     {
         guint32 mq_strucID = tvb_get_ntohl(tvb, offset + 0);
         if ((mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx || (mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx_EBCDIC)
         {
-            return tvb_get_ntohl(tvb, offset + 4);
+            uLen = tvb_get_ntohl(tvb, offset + 4);
         }
-        else
-            return tvb_reported_length_remaining(tvb, offset);
     }
-    return 0;
+    return uLen;
 }
 
 static int dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
