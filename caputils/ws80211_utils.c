@@ -142,6 +142,21 @@ static int ack_handler(struct nl_msg *msg _U_, void *arg)
 
 static int nl80211_do_cmd(struct nl_msg *msg, struct nl_cb *cb)
 {
+	/*
+	 * XXX - Coverity doesn't understand how libnl works, so it
+	 * doesn't know that nl_recvmsgs() calls the callback, and
+	 * that the callback has had a pointer to err registered
+	 * with it, and therefore that nl_recvmsgs() can change
+	 * err as a side-effect, so it thinks this can loop
+	 * infinitely.
+	 *
+	 * We declare err to be volatile to work around it.
+	 *
+	 * XXX - that workaround provokes a compiler complaint that
+	 * casting a pointer to it to "void *" discards the
+	 * volatile qualifier.  Perhaps we should just re-close
+	 * Coverity CID 997052 as "false positive".
+	 */
 	volatile int err;
 
 	if (!nl_state.nl_sock)
