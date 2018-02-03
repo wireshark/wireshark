@@ -232,7 +232,7 @@ pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
 pkgbin="$pkgres/bin"
 pkglib="$bundle/Contents/Frameworks"
-pkgplugin="$bundle/Contents/PlugIns/wireshark/@VERSION_MAJOR@.@VERSION_MINOR@/epan"
+pkgplugin="$bundle/Contents/PlugIns/wireshark/@VERSION_MAJOR@.@VERSION_MINOR@"
 
 # Set the 'macosx' directory, usually the current directory.
 resdir=`pwd`
@@ -468,7 +468,8 @@ rpathify_files () {
 	#
 	rpathify_dir "$pkglib" "*.dylib"
 	rpathify_dir "$pkgexec" "*"
-	rpathify_dir "$pkgplugin" "*"
+	rpathify_dir "$pkgplugin/epan" "*"
+	rpathify_dir "$pkgplugin/wiretap" "*"
 
 	rpathify_dir "$pkgexec/extcap" "*"
 }
@@ -521,7 +522,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	done
 
 	echo "Signing plugins"
-	for plugin in $pkgplugin/*.so ; do
+	for plugin in $pkgplugin/epan/*.so $pkgplugin/wiretap/*.so ; do
 		codesign_file "$plugin"
 	done
 
