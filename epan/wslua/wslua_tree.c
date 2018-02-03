@@ -409,12 +409,20 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                 case FT_IPv4:
                     {
                         Address addr = checkAddress(L,1);
+                        guint32 addr_value;
+
                         if (addr->type != AT_IPv4) {
                             luaL_error(L, "Expected IPv4 address for FT_IPv4 field");
                             return 0;
                         }
 
-                        item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,*((const guint32*)(addr->data)));
+			/*
+			 * The address is not guaranteed to be aligned on a
+			 * 32-bit boundary, so we can't safely dereference
+			 * the pointer as if it were so aligned.
+			 */
+			memcpy(&addr_value, addr->data, sizeof addr_value);
+                        item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,addr_value);
                     }
                     break;
                 case FT_IPv6:
@@ -425,7 +433,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                             return 0;
                         }
 
-                        item = proto_tree_add_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (ws_in6_addr *)addr->data);
+                        item = proto_tree_add_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (const ws_in6_addr *)addr->data);
                     }
                     break;
                 case FT_ETHER:
