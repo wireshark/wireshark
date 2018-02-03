@@ -2681,7 +2681,7 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     ti = proto_tree_add_string (tree, hf_envelope_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Insert into hash, for analysis */
-    wmem_map_insert (dmp_long_id_hash_table, g_strdup (mts_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
+    wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), mts_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += dmp.mts_id_length;
@@ -2737,7 +2737,7 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     ti = proto_tree_add_string (tree, hf_envelope_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Insert into hash, for analysis */
-    wmem_map_insert (dmp_long_id_hash_table, g_strdup (ipm_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
+    wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), ipm_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += ipm_id_length;
