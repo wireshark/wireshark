@@ -18,11 +18,10 @@ RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
     // which might happen at the wrong time when automatic deletion is
     // enabled. This will trigger an assert in debug builds (bug 14279).
     setAutoDelete(false);
-    // Qt::BlockingQueuedConnection shouldn't be necessary but it doesn't
-    // hurt either.
-    // We could alternatively pass a qHash of the filename.
+    // Qt::QueuedConnection creates a copy of our argument list. This
+    // squelches what appears to be a ThreadSanitizer false positive.
     connect(this, SIGNAL(statusFound(QString, qint64, bool)),
-            parent, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::BlockingQueuedConnection);
+            parent, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::QueuedConnection);
 }
 
 void RecentFileStatus::run() {
