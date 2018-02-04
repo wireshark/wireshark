@@ -415,6 +415,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_rpc_unknown@Base 1.99.8
  dissect_rpc_void@Base 1.99.8
  dissect_tcp_payload@Base 1.99.0
+ dissect_thrift_t_byte@Base 2.5.0
+ dissect_thrift_t_i32@Base 2.5.0
+ dissect_thrift_t_stop@Base 2.5.0
+ dissect_thrift_t_struct@Base 2.5.0
+ dissect_thrift_t_utf7@Base 2.5.0
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
  dissect_xdlc_control@Base 1.9.1
@@ -1974,6 +1979,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ws_strdup_escape_char@Base 1.9.1
  ws_strdup_unescape_char@Base 1.9.1
  wslua_count_plugins@Base 1.12.0~rc1
+ wslua_plugin_type_name@Base 2.5.0
  wslua_plugins_dump_all@Base 1.12.0~rc1
  wslua_plugins_get_descriptions@Base 1.12.0~rc1
  wslua_reload_plugins@Base 1.99.9
