@@ -41,11 +41,13 @@ bin_PROGRAMS = \
 	@captype_bin@		\
 	@editcap_bin@		\
 	@randpkt_bin@		\
-	@dftest_bin@		\
 	@dumpcap_bin@		\
 	@reordercap_bin@	\
 	@rawshark_bin@		\
-	@sharkd_bin@		\
+	@sharkd_bin@
+
+noinst_PROGRAMS = \
+	@dftest_bin@		\
 	@fuzzshark_bin@
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype \
