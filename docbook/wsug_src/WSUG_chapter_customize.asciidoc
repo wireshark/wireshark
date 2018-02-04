@@ -413,7 +413,7 @@ are seconds since epoch (Jan 1, 1970 00:00:00)
 
 -u <s | hms>::
 
-Show timesamps as seconds ('s', the default) or hours, minutes, and seconts ('hms')
+Show timesamps as seconds (`s', the default) or hours, minutes, and seconds (`hms')
 
 -v::
 
@@ -449,12 +449,12 @@ Tells Wireshark to load the given script in addition to the default Lua scripts.
 lua_script[num]:argument::
 
 Tells Wireshark to pass the given argument to the lua script identified by
-'num', which is the number indexed order of the 'lua_script' command. For
+_num_, which is the number indexed order of the _lua_script_ command. For
 example, if only one script was loaded with `-X lua_script:my.lua`, then `-X
-lua_script1:foo` will pass the string 'foo' to the 'my.lua' script. If two
+lua_script1:foo` will pass the string _foo_ to the _my.lua_ script. If two
 scripts were loaded, such as `-X lua_script:my.lua` and `-X
 lua_script:other.lua` in that order, then a `-X lua_script2:bar` would pass the
-string 'bar' to the second lua script, namely 'other.lua'.
+string _bar_ to the second lua script, namely _other.lua_.
 --
 
 -z <statistics-string>::
@@ -921,13 +921,13 @@ Responder's SPI::
 Responder's SPI of the IKE_SA. This field takes hexadecimal string without
 ``0x'' prefix and the length must be 16 hex chars (represents 8 octets).
 
-$$SK_ei$$::
+SK_ei::
 Key used to encrypt/decrypt IKEv2 packets from initiator to responder. This
 field takes hexadecimal string without ``0x'' prefix and its length must meet
 the requirement of the encryption algorithm selected.
 
 
-$$SK_er$$::
+SK_er::
 Key used to encrypt/decrypt IKEv2 packets from responder to initiator. This
 field takes hexadecimal string without ``0x'' prefix and its length must meet
 the requirement of the encryption algorithm selected.
@@ -973,7 +973,7 @@ The string representation of the Object Identifier e.g. ``2.5.4.6''.
 
 Name::
 The name that should be displayed by Wireshark when the Object Identifier is
-dissected e.g. ('c');
+dissected e.g. (``c'');
 
 Syntax::
 The syntax of the value associated with the Object Identifier. This must be one
@@ -1084,21 +1084,21 @@ Authentication model::
 Which auth model to use (either ``MD5'' or ``SHA1'').
 
 Password::
-The authentication password. Use '\xDD' for unprintable characters. An
-hexadecimal password must be entered as a sequence of '\xDD' characters. For
+The authentication password. Use _\xDD_ for unprintable characters. An
+hexadecimal password must be entered as a sequence of _\xDD_ characters. For
 example the hex password 010203040506 must be entered as
-'\x01\x02\x03\x04\x05\x06'. The '\' character must be treated as an unprintable
-character, i.e. it must be entered as '\x5C' or '\x5c'.
+_\x01\x02\x03\x04\x05\x06_. The _\_ character must be treated as an unprintable
+character, i.e. it must be entered as _\x5C_ or _\x5c_.
 
 Privacy protocol::
 Which encryption algorithm to use (either ``DES'' or ``AES").
 
 Privacy password::
-The privacy password. Use '\xDD' for unprintable characters. An hexadecimal
-password must be entered as a sequence of '\xDD' characters. For example the hex
-password 010203040506 must be entered as '\x01\x02\x03\x04\x05\x06'. The '\'
+The privacy password. Use _\xDD_ for unprintable characters. An hexadecimal
+password must be entered as a sequence of _\xDD_ characters. For example the hex
+password 010203040506 must be entered as _\x01\x02\x03\x04\x05\x06_. The _\_
 character must be treated as an unprintable character, i.e. it must be entered
-as '\x5C' or '\x5c'.
+as _\x5C_ or _\x5c_.
 
 [[ChK12ProtocolsSection]]
 

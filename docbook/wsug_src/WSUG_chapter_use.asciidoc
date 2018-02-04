@@ -670,11 +670,11 @@ image::wsug_graphics/ws-help-menu.png[{screenshot-attrs}]
 |menu:Contents[]|F1| This menu item brings up a basic help system.
 |menu:Manual Pages[...]|| This menu item starts a Web browser showing one of the locally installed html manual pages.
 |menu:Website[]|| This menu item starts a Web browser showing the webpage from: link:{wireshark-main-url}[].
-|menu:FAQ's[]|| This menu item starts a Web browser showing various FAQ's.
+|menu:FAQs[]|| This menu item starts a Web browser showing various FAQs.
 |menu:Downloads[]|| This menu item starts a Web browser showing the downloads from: link:{wireshark-download-url}[].
 |menu:Wiki[]|| This menu item starts a Web browser showing the front page from: link:{wireshark-wiki-url}[].
 |menu:Sample Captures[]|| This menu item starts a Web browser showing the sample captures from: link:{wireshark-wiki-url}SampleCaptures[].
-|menu:About Wireshark[]|| This menu item brings up an information window that provides various detailed information items on Wireshark, such as how it's build, the plugins loaded, the used folders, ...
+|menu:About Wireshark[]|| This menu item brings up an information window that provides various detailed information items on Wireshark, such as how it's built, the plugins loaded, the used folders, ...
 
 |===============
 

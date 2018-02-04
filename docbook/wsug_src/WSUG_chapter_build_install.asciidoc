@@ -321,7 +321,7 @@ the installation methods used with your version of UNIX. For example, under AIX,
 you would use _smit_ to install the Wireshark binary package, while under Tru64
 UNIX (formerly Digital UNIX) you would use _setld_.
 
-==== Installing from RPM's under Red Hat and alike
+==== Installing from RPMs under Red Hat and alike
 
 Building RPMs from Wireshark's source code results in several packages (most
 distributions follow the same system):
@@ -353,7 +353,7 @@ rpm -ivh wireshark-2.0.0-1.x86_64.rpm wireshark-qt-2.0.0-1.x86_64.rpm
 If the above command fails because of missing dependencies, install the
 dependencies first, and then retry the step above.
 
-==== Installing from deb's under Debian, Ubuntu and other Debian derivatives
+==== Installing from debs under Debian, Ubuntu and other Debian derivatives
 
 If you can just install from the repository then use
 
@@ -363,7 +363,7 @@ $ aptitude install wireshark
 
 Aptitude should take care of all of the dependency issues for you.
 
-Use the following command to install downloaded Wireshark deb's under Debian:
+Use the following command to install downloaded Wireshark debs under Debian:
 
 ----
 $ dpkg -i wireshark-common_2.0.5.0-1_i386.deb wireshark_wireshark-2.0.5.0-1_i386.deb

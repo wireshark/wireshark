@@ -128,7 +128,7 @@ Wireshark mailing lists available.
 ==== Programming languages used
 
 Most of Wireshark is implemented in plain ANSI C. A notable exception is
-the code in 'ui/qt', which is written in $$C++$$.
+the code in _ui/qt_, which is written in {cpp}.
 
 The typical task for a new Wireshark developer is to extend an existing,
 or write a new dissector for a specific network protocol. As (almost) any
@@ -375,15 +375,15 @@ typically more up to date and the HTML format is easier to use.
 If you don't find the information you need inside this book, there are
 various other sources of information:
 
-* The file 'doc/README.developer' and all the other README.xxx files in the
+* The file _doc/README.developer_ and all the other README.xxx files in the
   source code. These are various documentation files on different topics
 
 [NOTE]
 .Read the README
 ====
-'README.developer' is packed full with all kinds of details relevant
+_README.developer_ is packed full with all kinds of details relevant
 to the developer of Wireshark source code. Its companion file
-'README.dissector' advises you around common
+_README.dissector_ advises you around common
 pitfalls, shows you basic layout of dissector code, shows details of the
 APIs available to the dissector developer, etc.
 ====
@@ -538,7 +538,7 @@ echoed. The ^D
 (Control-D, that is, press the Control key and the D key
 together) will cause `gdb` to exit. This will
 leave you with a file called
-'bt.txt' in the current directory.
+_bt.txt_ in the current directory.
 Include the file with your bug report.
 
 If you do not have `gdb` available, you

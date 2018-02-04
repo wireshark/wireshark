@@ -98,28 +98,28 @@ menu.
 
 ==== Folders on Windows
 
-_APPDATA_ is the personal application data folder, e.g.:
-++C:\Users\++__username__++\AppData\Roaming\Wireshark++ (details can be
+_%APPDATA%_ is the personal application data folder, e.g.:
+_C:\Users{backslash}**username**\AppData\Roaming\Wireshark_ (details can be
 found at: <<ChWindowsProfiles>>).
 
-_WIRESHARK_ is the Wireshark program folder, e.g.: `C:\Program
-Files\Wireshark`.
+_WIRESHARK_ is the Wireshark program folder, e.g.: _C:\Program
+Files\Wireshark_.
 
 ==== Folders on Unix-like systems
 
-_XDG_CONFIG_HOME_ is the folder for user-specific configuration files.
-It's usually $HOME++/.config++, where $HOME is the user's home folder, which
-is usually something such as ++/home/++__username__, or
-++/Users/++__username__ on macOS.
+_$XDG_CONFIG_HOME_ is the folder for user-specific configuration files.
+It's usually _$HOME/.config_, where _$HOME_ is the user's home folder, which
+is usually something such as _$HOME/**username**_, or
+_/Users/**username**_ on macOS.
 
 If you are using macOS and you are running a copy of Wireshark
 installed as an application bundle, _APPDIR_ is the top-level directory
 of the Wireshark application bundle, which will typically be
-`/Applications/Wireshark.app`.  Otherwise, _INSTALLDIR_ is the top-level
+_/Applications/Wireshark.app_.  Otherwise, _INSTALLDIR_ is the top-level
 directory under which reside the subdirectories in which components of
 Wireshark are installed.  This will typically be `/usr` if Wireshark is
 bundled with the system (for example, provided as a package with a Linux
-distribution) and `/usr/local` if, for example, you've build Wireshark
+distribution) and _/usr/local_ if, for example, you've build Wireshark
 from source and installed it.
 
 [[ChAppFilesConfigurationSection]]
@@ -135,7 +135,7 @@ The content format of the configuration files is the same on all platforms.
 On Windows:
 
 * The personal configuration folder for Wireshark is the
-`Wireshark` sub-folder of that folder, i.e. _APPDATA_`\Wireshark`.
+_Wireshark_ sub-folder of that folder, i.e. _%APPDATA%\Wireshark_.
 
 * The global configuration folder for Wireshark is the Wireshark program
 folder and is also used as the system configuration folder.
@@ -143,20 +143,18 @@ folder and is also used as the system configuration folder.
 On Unix-like systems:
 
 * The personal configuration folder is
-__XDG_CONFIG_HOME__++/wireshark++.  For backwards compatibility with
-Wireshark before 2.2, if __XDG_CONFIG_HOME__++/wireshark++ does not
-exist and $HOME++/.wireshark++ is present, then the latter will be used.
+_$XDG_CONFIG_HOME/wireshark_.  For backwards compatibility with
+Wireshark before 2.2, if _$XDG_CONFIG_HOME/wireshark_ does not
+exist and _$HOME/.wireshark_ is present, then the latter will be used.
 
 * If you are using macOS and you are running a copy of Wireshark
 installed as an application bundle, the global configuration folder is
-__APPDIR__++/Contents/Resources/share/wireshark++.  Otherwise, the
-global configuration folder is __INSTALLDIR__++/share/wireshark++.
+_APPDIR/Contents/Resources/share/wireshark_.  Otherwise, the
+global configuration folder is _INSTALLDIR/share/wireshark_.
 
-* The `/etc` folder is the system configuration folder.  The folder
+* The _/etc_ folder is the system configuration folder.  The folder
 actually used on your system may vary, maybe something like:
-`/usr/local/etc`.
-
-[float]
+_/usr/local/etc_.
 
 [[AppFilesTabFolders]]
 .Configuration files overview
@@ -168,7 +166,7 @@ actually used on your system may vary, maybe something like:
 |_cfilters_|Capture filters.
 |_dfilters_|Display filters.
 |_colorfilters_|Coloring rules.
-|_$$disabled_protos$$_|Disabled protocols.
+|_+++disabled_protos+++_|Disabled protocols.
 |_ethers_|Ethernet name resolution.
 |_manuf_|Ethernet name resolution.
 |_hosts_|IPv4 and IPv6 name resolution.
@@ -271,7 +269,7 @@ all the current color filters are written to the personal color filters
 file.
 --
 
-_$$disabled_protos$$_::
+_+++disabled_protos+++_::
 Each line in this file specifies a disabled protocol name. The following are
 some examples:
 +
@@ -281,9 +279,9 @@ tcp
 udp
 ----
 
-At program start, if there is a _$$disabled_protos$$_ file in the global
+At program start, if there is a _+++disabled_protos+++_ file in the global
 configuration folder, it is read first.  Then, if there is a
-_$$disabled_protos$$_ file in the personal configuration folder, that is
+_+++disabled_protos+++_ file in the personal configuration folder, that is
 read; if there is an entry for a protocol set in both files, the setting
 in the personal disabled protocols file overrides the setting in the
 global disabled protocols file.
@@ -344,7 +342,7 @@ given IP address in both files, the setting in the personal hosts file
 overrides the entry in the global hosts file.
 +
 --
-This file has the same format as the usual `/etc/hosts` file on Unix systems.
+This file has the same format as the usual _/etc/hosts_ file on Unix systems.
 
 An example is:
 
@@ -392,7 +390,7 @@ overrides the setting in the personal preference file.
 +
 --
 Each line in one of these files consists of an IPv4 address, a subnet
-mask length separated only by a '/' and a name separated by whitespace.
+mask length separated only by a ``/'' and a name separated by whitespace.
 While the address must be a full IPv4 address, any values beyond the
 mask length are subsequently ignored.
 
@@ -455,7 +453,7 @@ Wireshark.
 === Plugin folders
 
 Wireshark supports plugins for various purposes.  Plugins can either be
-scripts written in Lua or code written in C or C++ and compiled to
+scripts written in Lua or code written in C or {cpp} and compiled to
 machine code.
 
 Wireshark looks for plugins in both a personal plugin folder and a
@@ -464,33 +462,33 @@ compiled plugins are stored in subfolders of the plugin folders, with
 the subfolder name being the Wireshark minor version number (X.Y). There is
 another hierarchical level for each Wireshark library (libwireshark, libwscodecs
 and libwiretap). So for example the location for a libwireshark plugin
-++foo.so++ (++foo.dll++ on Windows) would be __PLUGINDIR__++/X.Y/epan++
-(libwireshark used to be called libepan; the other folder names are ++codecs++
-and ++wiretap++).
+_foo.so_ (_foo.dll_ on Windows) would be _PLUGINDIR/X.Y/epan_
+(libwireshark used to be called libepan; the other folder names are _codecs_
+and _wiretap_).
 
 On Windows:
 
-* The personal plugin folder is _APPDATA_`\Wireshark\plugins`.
+* The personal plugin folder is _%APPDATA%\Wireshark\plugins_.
 
-* The global plugin folder is _WIRESHARK_`\plugins`.
+* The global plugin folder is _WIRESHARK\plugins_.
 
 On Unix-like systems:
 
-* The personal plugin folder is ++~/.local/lib/wireshark/plugins++.
+* The personal plugin folder is _~/.local/lib/wireshark/plugins_.
 
 [NOTE]
 ====
 To provide better support for binary plugins this folder changed in Wireshark 2.5.
 It is recommended to use the new folder but *for lua scripts only* you may
-continue to use __XDG_CONFIG_HOME__++/wireshark/plugins++ for backward-compatibility.
+continue to use _$XDG_CONFIG_HOME/wireshark/plugins_ for backward-compatibility.
 This is useful to have older versions of Wireshark installed side-by-side. In case
 of duplicate file names between old and new the new folder wins.
 ====
 
 * If you are running on macOS and Wireshark is installed as an
 application bundle, the global plugin folder is
-_APPDIR_`/Contents/PlugIns/wireshark`, otherwise it's
-_INSTALLDIR_`/lib/wireshark/plugins`.
+_%APPDIR%/Contents/PlugIns/wireshark_, otherwise it's
+_INSTALLDIR/lib/wireshark/plugins_.
 
 [[ChWindowsFolder]]
 
@@ -499,8 +497,8 @@ _INSTALLDIR_`/lib/wireshark/plugins`.
 Here you will find some details about the folders used in Wireshark on different
 Windows versions.
 
-As already mentioned, you can find the currently used folders in the _About
-Wireshark_ dialog.
+As already mentioned, you can find the currently used folders in the ``About
+Wireshark'' dialog.
 
 [[ChWindowsProfiles]]
 
@@ -521,23 +519,23 @@ The following guides you to the right place where to look for Wireshark's
 profile data.
 
 Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
-++C:\Users\++__username__++\AppData\Roaming\Wireshark++.
+_C:\Users{backslash}**username**\AppData\Roaming\Wireshark_.
 
 Windows XP, Windows Server 2003, and Windows 2000 footnoteref:[historical,No longer supported by Wireshark. For historical reference only.]::
-++C:\Documents and Settings\++__username__++\Application Data++. ``Documents and
+_C:\Documents and Settings{backslash}**username**\Application Data_. ``Documents and
 Settings'' and ``Application Data'' might be internationalized.
 
 Windows NT 4 footnoteref:[historical]::
-++C:\WINNT\Profiles\++__username__++\Application Data\Wireshark++
+_C:\WINNT\Profiles{backslash}**username**\Application Data\Wireshark_
 
 Windows ME, Windows 98 with user profiles footnoteref:[historical]::
 In Windows ME and 98 you could enable separate user profiles. In that case,
-something like ++C:\windows\Profiles\++__username__++\Application Data\Wireshark++
+something like _C:\windows\Profiles{backslash}**username**\Application Data\Wireshark_
 is used.
 
 Windows ME, Windows 98 without user profiles footnoteref:[historical]::
 Without user profiles enabled the default location for all users was
-++C:\windows\Application Data\Wireshark++.
+_C:\windows\Application Data\Wireshark_.
 
 [[ChWindowsRoamingProfiles]]
 
@@ -549,7 +547,7 @@ They will be stored on the domain server instead.
 
 Your settings will travel with you from computer to computer with one exception.
 The ``Local Settings'' folder in your profile data (typically something like:
-++C:\Documents and Settings\++__username__++\Local Settings++) will not be
+_C:\Documents and Settings{backslash}**username**\Local Settings_) will not be
 transferred to the domain server. This is the default for temporary capture
 files.
 
@@ -561,13 +559,13 @@ Wireshark uses the folder which is set by the TMPDIR or TEMP environment
 variable. This variable will be set by the Windows installer.
 
 Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
-++C:\Users\++__username__++\AppData\Local\Temp++
+_C:\Users{backslash}**username**\AppData\Local\Temp_
 
 Windows XP, Windows Server 2003, Windows 2000 footnoteref:[historical]::
-++C:\Documents and Settings\++__username__++\Local Settings\Temp++
+_C:\Documents and Settings{backslash}**username**\Local Settings\Temp_
 
 Windows NT footnoteref:[historical]::
-++C:\TEMP++
+_C:\TEMP_
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSUG Appendix Files -->

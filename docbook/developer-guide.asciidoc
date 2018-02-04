@@ -3,6 +3,11 @@
 :doctype: book
 include::attributes.asciidoc[]
 
+// Convenience attribute.
+// XXX This should be surrounded by single quotes in the text. It's
+// currently surrounded by plus signs for AsciiDoc compatibility.
+:dlt-glob: DLT_*
+
 [[Preface]]
 ["preface",id="Preface"]
 == Preface

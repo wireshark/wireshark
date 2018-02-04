@@ -26,29 +26,29 @@ image::wsdg_graphics/ws-function-blocks.png[{pdf-scaledwidth}]
 The function blocks in more detail:
 
 GUI:: Handling of all user input/output (all windows, dialogs and such).
-Source code can be found in the 'ui/qt' and 'ui/gtk' directory.
+Source code can be found in the _ui/qt_ and _ui/gtk_ directory.
 
 Core:: Main "glue code" that holds the other blocks together. Source
 code can be found in the root directory.
 
 Epan:: Ethereal Packet ANalyzer -- the packet analyzing engine.
-Source code can be found in the 'epan' directory. Epan provides
+Source code can be found in the _epan_ directory. Epan provides
 the following APIs:
 
 * Protocol Tree. Dissection information for an individual packet.
 
 * Dissectors. The various protocol dissectors in
-'epan/dissectors'.
+_epan/dissectors_.
 
 * Dissector Plugins - Support for implementing dissectors as separate modules.
-Source code can be found in 'plugins'.
+Source code can be found in _plugins_.
 
 * Display Filters - The display filter engine at
-'epan/dfilter'.
+_epan/dfilter_.
 
 Wiretap:: The wiretap library is used to read and write capture files in libpcap,
 pcapng, and many other file formats. Source code is in the
-'wiretap' directory.
+_wiretap_ directory.
 
 Capture:: The interface with the capture engine. Source code is in the
 root directory.

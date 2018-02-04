@@ -440,7 +440,7 @@ Here is a sample dump that can be imported:
 There is no limit on the width or number of bytes per line. Also the text dump
 at the end of the line is ignored. Byte and hex numbers can be uppercase or
 lowercase. Any text before the offset is ignored, including email forwarding
-characters '&gt;'. Any lines of text between the bytestring lines are ignored.
+characters _&gt;_. Any lines of text between the bytestring lines are ignored.
 The offsets are used to track the bytes, so offsets must be correct. Any line
 which has only bytes without a leading offset is ignored. An offset is
 recognized as being a hex number longer than two characters. Any text after the
@@ -707,7 +707,7 @@ Export packet bytes into C arrays so you can import the stream data into your ow
 
 Export packet data into PSML. This is an XML based format including only the
 packet summary. The PSML file specification is available at:
-link:$$http://www.nbee.org/doku.php?id=netpdl:psml_specification$$[].
+link:http://www.nbee.org/doku.php?id=netpdl:psml_specification[].
 
 .The "Export as PSML File" dialog box
 image::wsug_graphics/ws-export-psml.png[{screenshot-attrs}]
@@ -725,7 +725,7 @@ format is defined by the PSML specification.
 
 Export packet data into PDML. This is an XML based format including the packet
 details. The PDML file specification is available at:
-link:$$http://www.nbee.org/doku.php?id=netpdl:pdml_specification$$[].
+link:http://www.nbee.org/doku.php?id=netpdl:pdml_specification[].
 
 [NOTE]
 ====

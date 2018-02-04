@@ -1,6 +1,10 @@
 // Common attributes
 
 :wireshark-version: 2.5.0
+// We're migrating from AsciiDoc.
+:compat-mode:
+// Required for btn, kbd:, and menu: macros.
+:experimental:
 
 //
 // URLs

@@ -431,7 +431,7 @@ When reporting problems with Wireshark please supply the following information:
 
 . The version number of Wireshark and the dependent libraries linked with it,
   such as Qt or GLib. You can obtain this from Wireshark's about box or the
-  command `wireshark -v`.
+  command _wireshark -v_.
 
 . Information about the platform you run Wireshark on.
 
@@ -473,9 +473,9 @@ backtrace
 ^D
 ----
 
-If you do not have `gdb` available, you will have to check out your operating system's debugger.
+If you do not have _gdb_ available, you will have to check out your operating system's debugger.
 
-Mail `backtrace.txt` to mailto:{wireshark-dev-list-email}[].
+Mail _backtrace.txt_ to mailto:{wireshark-dev-list-email}[].
 
 ==== Reporting Crashes on Windows platforms
 

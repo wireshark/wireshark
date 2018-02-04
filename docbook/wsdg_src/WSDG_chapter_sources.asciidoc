@@ -84,8 +84,8 @@ http://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching] to
 manage different copies of the source code and allow parallel development.
 Wireshark uses the following branches for official releases:
 
-* 'master': Main feature development and odd-numbered "feature" releases.
-* 'master-x.y': Stable release maintenance. For example, master-1.10 is used
+* _master_: Main feature development and odd-numbered "feature" releases.
+* _master-x.y_: Stable release maintenance. For example, master-1.10 is used
   to manage the 1.10.x official releases.
 
 [[ChSrcObtain]]
@@ -155,7 +155,7 @@ select _Settings_.
 
 . Under _Profile_ set a username. This will be the username that
 you use for SSH access. For the steps below we'll assume that your
-username is +henry.perry+.
+username is `henry.perry`.
 
 . Select _SSH Public Keys_ and add one or more keys. You will typically
 upload a key for each computer that you use.
@@ -361,7 +361,7 @@ error-prone than using Git.
 
 The sources contain several documentation files. It's a good idea to read these
 files first. After obtaining the sources, tools and libraries, the first place
-to look at is 'doc/README.developer'. Inside you will find the latest
+to look at is _doc/README.developer_. Inside you will find the latest
 information for Wireshark development for all supported platforms.
 
 .Build Wireshark before changing anything
@@ -731,15 +731,15 @@ as described at <<ChSrcGit>>.
 Some tips that will make the merging of your changes into Git much more likely
 (and you want exactly that, don't you?):
 
-* 'Use the latest Git sources.' It's a good idea to work with the same
+* _Use the latest Git sources._ It's a good idea to work with the same
   sources that are used by the other developers. This usually makes it much
   easier to apply your patch. For information about the different ways to get
   the sources, see <<ChSrcObtain>>.
 
-* 'Update your sources just before making a patch.' For the same reasons as the
+* _Update your sources just before making a patch._ For the same reasons as the
   previous point.
 
-* 'Inspect your patch carefully.' Run `git diff` and make sure you aren't
+* _Inspect your patch carefully._ Run `git diff` and make sure you aren't
   adding, removing, or omitting anything you shouldn't.
 
 // * 'Do a "make clean" before generating the patch.' This removes a lot of
@@ -748,11 +748,11 @@ Some tips that will make the merging of your changes into Git much more likely
 //   the patch again.
 
 // XXX - What *are* good topic names?
-* 'Find a good descriptive topic name for your patch.' Short, specific
-  names are preferred. 'snowcone-machine-protocol' is good, your name or
+* _Find a good descriptive topic name for your patch._ Short, specific
+  names are preferred. _snowcone-machine-protocol_ is good, your name or
   your company name isn't.
 
-* 'Don't put unrelated things into one large patch.' A few smaller patches are
+* _Don't put unrelated things into one large patch._ A few smaller patches are
   usually easier to apply (but also don't put every changed line into a separate
   patch.
 
@@ -785,13 +785,13 @@ Ignoring the code requirements will make it very likely that your patch will
 be rejected.
 ====
 
-* 'Follow the Wireshark source code style guide.' Just because something
+* _Follow the Wireshark source code style guide._ Just because something
   compiles on your platform, that doesn't mean it'll compile on all of the other
   platforms for which Wireshark is built. Wireshark runs on many platforms, and
   can be compiled with a number of different compilers. See <<ChCodeStyle>>for
   details.
 
-* 'Submit dissectors as built-in whenever possible.' Developing a new dissector
+* _Submit dissectors as built-in whenever possible._ Developing a new dissector
 as a plugin is a good idea because compiling and testing is quicker, but it's
 best to convert dissectors to the built-in style before submitting for check in.
 This reduces the number of files that must be installed with Wireshark and
@@ -802,7 +802,7 @@ can easily be put into "the big pile", while some are ASN.1 based which takes a
 different approach, and some multiple source file dissectors are more suitable to
 be placed separately as plugins.
 
-* 'Ensure Wireshark Git Pre-Commit Hook is in the repository.'  In your local
+* _Ensure Wireshark Git Pre-Commit Hook is in the repository._  In your local
 repository directory, there will be a .git/hooks/ directory, with sample git hooks
 for running automatic actions before and after git commands. You can also
 optionally install other hooks that you find useful.
@@ -823,7 +823,7 @@ change, you can run git commit --no-verify to skip running the hooks. Warning: u
 Change-ID to your commit. In case you are not updating an existing patch you may generate
 a Change-ID by running git review -i (or git commit --amend if don't use git review).
 
-* 'Fuzz test your changes!' Fuzz testing is a very
+* _Fuzz test your changes!_ Fuzz testing is a very
 effective way to automatically find a lot of dissector related bugs.
 You'll take a capture file containing packets affecting your dissector
 and the fuzz test will randomly change bytes in this file, so that unusual
@@ -943,11 +943,11 @@ of the patch and your source files match.
 
 ==== Using patch
 
-Given the file 'new.diff' containing a unified diff,
+Given the file _new.diff_ containing a unified diff,
 the right way to call the patch tool depends on what the pathnames in
-'new.diff' look like.
+_new.diff_ look like.
 If they're relative to the top-level source directory (for example, if a
-patch to 'prefs.c' just has 'prefs.c' as the file name) you'd run it as:
+patch to _prefs.c_ just has _prefs.c_ as the file name) you'd run it as:
 
 ----
 $ patch -p0 < new.diff
@@ -955,24 +955,24 @@ $ patch -p0 < new.diff
 
 If they're relative to a higher-level directory, you'd replace 0 with the
 number of higher-level directories in the path, e.g. if the names are
-'wireshark.orig/prefs.c' and
-'wireshark.mine/prefs.c', you'd run it with:
+_wireshark.orig/prefs.c_ and
+_wireshark.mine/prefs.c_, you'd run it with:
 
 ----
 $ patch -p1 < new.diff
 ----
 
-If they're relative to a 'subdirectory' of the top-level
-directory, you'd run `patch` in 'that' directory and run it with `-p0`.
+If they're relative to a _subdirectory_ of the top-level
+directory, you'd run `patch` in _that_ directory and run it with `-p0`.
 
 If you run it without `-pat` all, the patch tool
 flattens path names, so that if you
-have a patch file with patches to 'Makefile.am' and
-'wiretap/Makefile.am',
+have a patch file with patches to _Makefile.am_ and
+_wiretap/Makefile.am_,
 it'll try to apply the first patch to the top-level
-'Makefile.am' and then apply the
-'wiretap/Makefile.am' patch to the top-level
-'Makefile.am' as well.
+_Makefile.am_ and then apply the
+_wiretap/Makefile.am_ patch to the top-level
+_Makefile.am_ as well.
 
 At which position in the filesystem should the patch tool be called?
 
@@ -981,11 +981,11 @@ directory above that directory, you'd run it in the top-level source
 directory.
 
 If they're relative to a *subdirectory* -- for example,
-if somebody did a patch to 'packet-ip.c' and ran `diff` or `git diff` in
-the 'epan/dissectors' directory -- you'd run it in that subdirectory.
+if somebody did a patch to _packet-ip.c_ and ran `diff` or `git diff` in
+the _epan/dissectors_ directory -- you'd run it in that subdirectory.
 It is preferred that people *not* submit patches like
 that, especially if they're only patching files that exist in multiple
-directories such as 'Makefile.am'.
+directories such as _Makefile.am_.
 
 [[ChSrcBinary]]
 
@@ -1073,7 +1073,7 @@ installing the _qt-devel_ package.
 ==== macOS: .dmg packages
 
 The macOS Package is built using macOS packaging tools, based on information
-found in the source tree under 'packaging/macosx'. It must be built using
+found in the source tree under _packaging/macosx_. It must be built using
 CMake. In your build directory, type:
 
 ----
@@ -1089,10 +1089,10 @@ to build the macOS Package.
 The _Nullsoft Install System_ is a free installer generator for Windows
 systems. Instructions on installing it can be found in <<ChToolsNSIS>>.
 NSIS is script based. You can find the main Wireshark installer
-generation script at 'packaging/nsis/wireshark.nsi'.
+generation script at _packaging/nsis/wireshark.nsi_.
 
-When building with CMake you must first build the 'nsis_package_prep' target,
-followed by the 'nsis_package' target, e.g.
+When building with CMake you must first build the _nsis_package_prep_ target,
+followed by the _nsis_package_ target, e.g.
 
 ----
 > msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
@@ -1109,8 +1109,8 @@ It might take some time, even on fast machines.
 ====
 
 If everything went well, you will now find something like:
-'wireshark-setup-{wireshark-version}.exe' in
-the 'packaging/nsis' directory in the source tree.
+_wireshark-setup-{wireshark-version}.exe_ in
+the _packaging/nsis_ directory in the source tree.
 
 [[ChSrcPortableApps]]
 
@@ -1119,7 +1119,7 @@ the 'packaging/nsis' directory in the source tree.
 _PortableApps.com_ is an environment that lets users run popular applications
 from portable media such as flash drives and cloud drive services.
 
-Install the 'PortableApps.com Platform'. Install for ``all users``, which
+Install the _PortableApps.com Platform_. Install for ``all users'', which
 will place it in `C:\PortableApps`. Add the following apps:
 
 - NSIS Portable (Unicode)
@@ -1127,9 +1127,9 @@ will place it in `C:\PortableApps`. Add the following apps:
 - PortableApps.com Launcher
 - PortableApps.com AppCompactor
 
-When building with CMake you must first build the 'nsis_package_prep' target
+When building with CMake you must first build the _nsis_package_prep_ target
 (which takes care of general packaging dependencies), followed by the
-'portableapps_package' target, e.g.
+_portableapps_package_ target, e.g.
 
 ----
 > msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
@@ -1144,8 +1144,8 @@ It might take some time, even on fast machines.
 ====
 
 If everything went well, you will now find something like:
-'WiresharkPortable_{wireshark-version}.paf.exe' in
-the 'packaging/portableapps' directory.
+_WiresharkPortable_{wireshark-version}.paf.exe_ in
+the _packaging/portableapps_ directory.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Sources -->

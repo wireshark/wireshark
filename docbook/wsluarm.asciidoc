@@ -174,19 +174,19 @@ This Part of the User Guide describes the Wireshark specific functions in the em
 Classes group certain functionality, the following notational conventions are
 used:
 
-* 'Class.function()' represents a class method (named 'function') on class
-  'Class', taking no arguments.
+* _Class.function()_ represents a class method (named _function_) on class
+  _Class_, taking no arguments.
 
-* 'Class.function(a)' represents a class method taking one argument.
+* _Class.function(a)_ represents a class method taking one argument.
 
-* 'Class.function(...)' represents a class method taking a variable number of
+* _Class.function(...)_ represents a class method taking a variable number of
   arguments.
 
-* 'class:method()' represents an instance method (named 'method') on an instance
-  of class 'Class', taking no arguments. Note the lowercase notation in the
+* _class:method()_ represents an instance method (named _method_) on an instance
+  of class _Class_, taking no arguments. Note the lowercase notation in the
   documentation to clarify an instance.
 
-* 'class.prop' represents a property 'prop' on the instance of class 'Class'.
+* _class.prop_ represents a property _prop_ on the instance of class _Class_.
 
 Trying to access a non-existing property, function or method currently gives an
 error, but do not rely on it as the behavior may change in the future.
@@ -210,7 +210,7 @@ include::{build_dir}/wsluarm_src/wslua_struct.asciidoc[]
 
 === GLib Regular Expressions
 
-Lua has its own native 'pattern' syntax in the string library, but sometimes a
+Lua has its own native _pattern_ syntax in the string library, but sometimes a
 real regex engine is more useful. Wireshark comes with GLib's Regex
 implementation, which itself is based on Perl Compatible Regular Expressions
 (PCRE). This engine is exposed into Wireshark's Lua engine through the
@@ -219,23 +219,23 @@ Lrexlib PCRE implementation, with a few differences as follows:
 
 * There is no support for using custom locale/chartables
 
-* 'dfa_exec()' doesn't take 'ovecsize' nor 'wscount' arguments
+* _dfa_exec()_ doesn't take _ovecsize_ nor _wscount_ arguments
 
-* 'dfa_exec()' returns boolean true for partial match, without subcapture info
+* _dfa_exec()_ returns boolean true for partial match, without subcapture info
 
 * Named subgroups do not return name-keyed entries in the return table (i.e., in
   match/tfind/exec)
 
-* The 'flags()' function still works, returning all flags, but two new functions
-  'compile_flags()' and 'match_flags()' return just their respective flags,
+* The _flags()_ function still works, returning all flags, but two new functions
+  _compile_flags()_ and _match_flags()_ return just their respective flags,
   since GLib has a different and smaller set of such flags, for regex compile
   vs. match functions
 
 * Using some assertions and POSIX character classes against strings with
   non-ASCII characters might match high-order characters, because glib always
-  sets PCRE_UCP even if G_REGEX_RAW is set. For example, '[:alpha;]' matches
-  certain non-ASCII bytes. The following assertions have this issue: '\b', '\B',
-  '\s', '\S', '\w', '\W'. The following character classes have this issue:
+  sets PCRE_UCP even if G_REGEX_RAW is set. For example, _[:alpha;]_ matches
+  certain non-ASCII bytes. The following assertions have this issue: _\b_, _\B_,
+  _\s_, _\S_, _\w_, _\W_. The following character classes have this issue:
   [:alpha:], [:alnum:], [:lower:], [:upper:], [:space:], [:word:], and
   [:graph:].
 
@@ -272,15 +272,15 @@ All functions that take a string-type regex argument accept a compiled regex
 too. In this case, the compile flags argument is ignored (should be either
 supplied as nils or omitted).
 
-The capture flag argument 'cf' may also be supplied as a string, whose
+The capture flag argument _cf_ may also be supplied as a string, whose
 characters stand for compilation flags. Combinations of the following characters
 (case sensitive) are supported:
 
-* '__i__' = G_REGEX_CASELESS - Letters in the pattern match both upper- and
+* _i_ = G_REGEX_CASELESS - Letters in the pattern match both upper- and
   lowercase letters. This option can be changed within a pattern by a ``(?i)''
   option setting.
 
-* '__m__' = G_REGEX_MULTILINE - By default, GRegex treats the strings as
+* _m_ = G_REGEX_MULTILINE - By default, GRegex treats the strings as
   consisting of a single line of characters (even if it actually contains
   newlines). The ``start of line'' metacharacter (``^'') matches only at the start
   of the string, while the ``end of line'' metacharacter (``$'') matches only at
@@ -291,18 +291,18 @@ characters stand for compilation flags. Combinations of the following characters
   very start and end. This can be changed within a pattern by a ``(?m)'' option
   setting.
 
-* '__s__' = G_REGEX_DOTALL - A dot metacharater (``.'') in the pattern matches
+* _s_ = G_REGEX_DOTALL - A dot metacharater (``.'') in the pattern matches
   all characters, including newlines. Without it, newlines are excluded. This
   option can be changed within a pattern by a ("?s") option setting.
 
-* '__x__' = G_REGEX_EXTENDED - Whitespace data characters in the pattern are
+* _x_ = G_REGEX_EXTENDED - Whitespace data characters in the pattern are
   totally ignored except when escaped or inside a character class. Whitespace
   does not include the VT character (code 11). In addition, characters between
   an unescaped ``$$#$$'' outside a character class and the next newline character,
   inclusive, are also ignored. This can be changed within a pattern by a
   ``(?x)'' option setting.
 
-* '__U__' = G_REGEX_UNGREEDY - Inverts the ``greediness'' of the quantifiers so
+* _U_ = G_REGEX_UNGREEDY - Inverts the ``greediness'' of the quantifiers so
   that they are not greedy by default, but become greedy if followed by ``?''.
   It can also be set by a ``(?U)'' option setting within the pattern.
 
@@ -405,7 +405,7 @@ A table filled with the results.
 
 Searches for the first match of the regexp pattern in the string subject,
 starting from offset init, subject to flags cf and ef. The pattern is compiled
-each time this is called, unlike the class method 'match' function.
+each time this is called, unlike the class method _match_ function.
 
 Since: 1.11.3
 
@@ -436,7 +436,7 @@ is returned. On failure, returns nil.
 
 Searches for the first match of the regexp pattern in the string subject,
 starting from offset init, subject to flags ef. The pattern is compiled each
-time this is called, unlike the class method 'find' function.
+time this is called, unlike the class method _find_ function.
 
 Since: 1.11.3
 

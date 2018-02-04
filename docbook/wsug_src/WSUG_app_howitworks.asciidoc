@@ -65,7 +65,7 @@ There are two ways for a dissector to register itself for packet data:
 
 Let's look at an example. We'll assume, Wireshark loads a TCP/IP/Ethernet
 packet. Wireshark will call the Ethernet dissector, which will dissect the
-Ethernet related data (usually the first 6+6+2 bytes). Then this dissector calls
+Ethernet related data (usually the first 6 + 6 + 2 bytes). Then this dissector calls
 back into Wireshark and will pass the rest of the data back to Wireshark.
 Wireshark in turn will call the next related dissector, in our case the IP
 dissector (because of the value 0x800 in the Ethernet type field). This game

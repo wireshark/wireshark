@@ -319,13 +319,13 @@ Signed integer::
 
 Boolean::
   A boolean field is present in the protocol decode only if its value is true. For
-  example, +tcp.flags.syn+ is present, and thus true, only if the SYN flag is
+  example, `tcp.flags.syn` is present, and thus true, only if the SYN flag is
   present in a TCP segment header.
 
-  The filter expression  +tcp.flags.syn+ will select only  those packets for which
+  The filter expression  `tcp.flags.syn` will select only  those packets for which
   this flag exists, that is,  TCP segments where the segment header contains the
   SYN flag. Similarly, to find source-routed token ring packets, use a filter
-  expression of  +tr.sr+.
+  expression of  `tr.sr`.
 
 Ethernet address::
   6 bytes separated by a colon (:), dot (.) or dash (-) with one or two bytes between separators:
@@ -346,12 +346,12 @@ IPv4 address::
   ip.addr == 129.111.0.0/16
 
 IPv6 address::
-  +ipv6.addr == ::1+
+  `ipv6.addr == ::1`
 
   As with IPv4 addresses, IPv6 addresses can match a subnet.
 
 Text string::
-  +http.request.uri == "https://www.wireshark.org/"+
+  `http.request.uri == "https://www.wireshark.org/"`
 
 ----
 udp contains 81:60:03
@@ -368,7 +368,7 @@ http.host matches "acme\.(org|com|net)"
 ----
 The example above match HTTP packets where the HOST header contains acme.org or acme.com
 or acme.net. Comparisons are case-insensitive. Note: Wireshark needs to be built with
-libpcre in order to be able to use the +matches+ resp. +~+ operator.
+libpcre in order to be able to use the `matches` resp. `~`` operator.
 ----
 tcp.flags & 0x02
 ----
@@ -817,7 +817,7 @@ The available precisions (aka. the number of displayed decimal places) are:
   precision is larger, the remaining decimal places will be cut off.
 
 Precision example: If you have a timestamp and it's displayed using, ``Seconds
-Since Previous Packet'', : the value might be 1.123456. This will be displayed
+Since Previous Packet'' the value might be 1.123456. This will be displayed
 using the ``Automatic'' setting for libpcap files (which is microseconds). If
 you use Seconds it would show simply 1 and if you use Nanoseconds it shows
 1.123456000.
@@ -839,7 +839,7 @@ Time referencing will only be useful if the time display format is set to
 are used, time referencing will have no effect (and will make no sense either).
 
 To work with time references, choose one of the menu:Time Reference[] items in
-the menu:Edit[] menu or from the pop-up menu of the ``Packet List'' pane. See
+the menu:[Edit] menu or from the pop-up menu of the ``Packet List'' pane. See
 <<ChUseEditMenuSection>>.
 
 * _Set Time Reference (toggle)_ Toggles the time reference state of the

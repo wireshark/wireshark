@@ -12,11 +12,11 @@
 
 Wireshark consists of the following major parts:
 
-* Packet dissection - in the '/epan/dissector' and '/plugin/*' directories
+* Packet dissection - in the _/epan/dissector_ and _/plugin/\*_ directories
 
 * File I/O - using Wireshark's own wiretap library
 
-* Capture - using the libpcap/winpcap library, in '/wiretap'
+* Capture - using the libpcap/winpcap library, in _/wiretap_
 
 * User interface - using the Qt or $$GTK+$$ and associated libraries
 
@@ -29,7 +29,7 @@ Wireshark consists of the following major parts:
 === Coding Style
 
 The coding style guides for Wireshark can be found in the "Code style"
-section of the file 'doc/README.developer'.
+section of the file _doc/README.developer_.
 
 [[ChCodeGLib]]
 

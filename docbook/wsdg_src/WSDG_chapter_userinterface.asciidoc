@@ -80,12 +80,12 @@ adding new UI features much easier. It doesn't work well on Windows at
 the present time, so it's recommended that you use it on macOS or Linux.
 
 To edit and build Wireshark using Qt Cretor, open the top-level
-'CMakeLists.txt' within Qt Creator. It should ask you to choose a build
+_CMakeLists.txt_ within Qt Creator. It should ask you to choose a build
 location. Do so. It should then ask you to run CMake. Fill in any
 desired build arguments (e.g. "-D CMAKE_BUILD_TYPE=Debug" or "-D
 ENABLE_GTK3=OFF") and click the ``Run CMake'' button. When that
 completes select ``Build → Open Build and Run Kit Selector...'' and make
-sure 'wireshark' is selected.
+sure _wireshark_ is selected.
 
 Note that Qt Creator uses output created by CMake's *CodeBlocks*
 generator. If you run CMake outside of Qt Creator you should use the
@@ -94,19 +94,19 @@ prompt you to re-run CMake.
 
 ==== Source Code Overview
 
-Wireshark's `main` entry point is in 'wireshark-qt.cpp'. Command-line arguments
+Wireshark's `main` entry point is in _wireshark-qt.cpp_. Command-line arguments
 are processed there and the main application class (`WiresharkApplication`)
 instance is created there along with the main window.
 
-The main window along with the rest of the application resides in 'ui/qt'. Due
-to its size the main window code is split into two modules, 'main_window.cpp'
-and 'main_window_slots.cpp'.
+The main window along with the rest of the application resides in _ui/qt_. Due
+to its size the main window code is split into two modules, _main_window.cpp_
+and _main_window_slots.cpp_.
 
-Most of the modules in 'ui/qt' are dialogs. Although we follow Qt naming
+Most of the modules in _ui/qt_ are dialogs. Although we follow Qt naming
 conventions for class names, we follow our own conventions by separating file
 name components with underscores. For example, ColoringRulesDialog is defined in
-'coloring_rules_dialog.cpp', 'coloring_rules_dialog.h', and
-'coloring_rules_dialog.ui'.
+_coloring_rules_dialog.cpp_, _coloring_rules_dialog.h_, and
+_coloring_rules_dialog.ui_.
 
 General-purpose dialogs are subclasses of `QDialog`. Dialogs that rely on the
 current capture file can subclass `WiresharkDialog`, which provides methods and
@@ -117,7 +117,7 @@ open when the capture file closes.
 
 ===== Names
 
-The code in 'ui/qt' directory uses three APIs: Qt (which uses
+The code in _ui/qt_ directory uses three APIs: Qt (which uses
 InterCapConvention), GLib (which uses underscore_convention), and the Wireshark
 API (which also uses underscore_convention). As a general rule Wireshark's Qt
 code uses InterCapConvention for class names, interCapConvention for methods,
@@ -175,18 +175,18 @@ QStrings are generally *much* safer and easier to use. They also make
 translations easier.
 
 If you need to pass strings between Qt and GLib you can use a number
-of convenience routines which are defined in 'ui/qt/qt_ui_utils.h'.
+of convenience routines which are defined in _ui/qt/qt_ui_utils.h_.
 
 If you're calling a function that returns wmem-allocated memory it might make
-more sense to add a wrapper function to 'qt_ui_utils' than to call wmem_free in
+more sense to add a wrapper function to _qt_ui_utils_ than to call wmem_free in
 your code.
 
-===== Mixing C and $$C++$$
+===== Mixing C and {cpp}
 
-Sometimes we have to call $$C++$$ functions from one of
-Wireshark's C callbacks and pass $$C++$$ objects to or from C. Tap
-listeners are a common example. The $$C++$$ FAQ link:$$http://www.
-parashift.com/c++-faq/mixing-c-and-cpp.html$$:[describes how to do this
+Sometimes we have to call {cpp} functions from one of
+Wireshark's C callbacks and pass {cpp} objects to or from C. Tap
+listeners are a common example. The {cpp} FAQ link:http://www.
+parashift.com/c++-faq/mixing-c-and-cpp.html:[describes how to do this
 safely].
 
 Tapping usually involves declaring static methods for callbacks, passing `this`
@@ -197,10 +197,10 @@ as the tap data.
 Qt provides a convenient method for translating text: `Qobject::tr()`,
 usually available as `tr()`.
 
-However, please avoid using `tr()` for static strings and define them in '*.ui'
+However, please avoid using `tr()` for static strings and define them in _*.ui_
 files instead. `tr()` on manually created objects like `QMenu` are not
 automatically retranslated and must instead be manually translated using
-`changeEvent()` and `retranslateUi()`. See 'summary_dialog.[ch]' for an example
+`changeEvent()` and `retranslateUi()`. See _summary_dialog.[ch]_ for an example
 of this.
 
 NOTE: If your object life is short and your components are (re)created
@@ -212,16 +212,16 @@ In most cases you should handle the changeEvent in order to catch
 Qt makes translating the Wireshark UI into different languages easy. To add a new
 translation, do the following:
 
-- Add your translation ('ui/qt/wireshark_XX.ts') to 'ui/qt/Makefile.am' and 'ui/qt/CMakeLists.txt'
-- (Recommended) Add a flag image for your language in 'images/languages/XX.svg'. Update 'image/languages/languages.qrc' accordingly.
+- Add your translation (_ui/qt/wireshark_XX.ts_) to _ui/qt/Makefile.am_ and _ui/qt/CMakeLists.txt_
+- (Recommended) Add a flag image for your language in _images/languages/XX.svg_. Update _image/languages/languages.qrc_ accordingly.
 - Run `lupdate ui/qt -ts ui/qt/wireshark_XX.ts` to generate/update your translation file.
 - Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.
-- Do a test build and make sure the generated 'wireshark_XX.qm' binary file is included.
+- Do a test build and make sure the generated _wireshark_XX.qm_ binary file is included.
 - Push your translation to Gerrit for review. See <<ChSrcContribute>> for details.
 
-Alternatively you can put your QM and flag files in the 'languages'
+Alternatively you can put your QM and flag files in the _languages_
 directory in the Wireshark user configuration directory
-('$XDG_CONFIG_HOME/wireshark/languages/' or '$HOME/.wireshark/languages/' on
+(_$XDG_CONFIG_HOME/wireshark/languages/_ or _$HOME/.wireshark/languages/_ on
 UNIX).
 
 For more information about Qt Linguist see
@@ -254,7 +254,7 @@ doesn't meet your needs.
 ==== Other Issues and Information
 
 The main window has many QActions which are shared with child widgets. See
-'ui/qt/proto_tree.cpp' for an example of this.
+_ui/qt/proto_tree.cpp_ for an example of this.
 
 http://www.kdab.com/kdab-products/gammaray/[GammaRay] lets you inspect
 the internals of a running Qt application similar to $$Spy++$$ on Windows.
@@ -335,7 +335,7 @@ GTK 3.x depends on the following libraries:
 ==== Compatibility GTK versions
 
 The GTK library itself defines some values which makes it easy to distinguish
-between the versions, e.g. +GTK_MAJOR_VERSION+ and +GTK_MINOR_VERSION+ will be
+between the versions, e.g. `GTK_MAJOR_VERSION` and `GTK_MINOR_VERSION` will be
 set to the GTK version at compile time inside the gtkversion.h header.
 
 [[ChUIGTKWeb]]

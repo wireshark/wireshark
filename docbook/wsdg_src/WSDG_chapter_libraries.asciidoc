@@ -13,11 +13,11 @@
 Several libraries are needed to build and run Wireshark. Most of them
 are split into three packages:
 
-. 'Runtime'. System and third party libraries such as 'MSVCR110.dll' and 'libglib-2.0-0.dll'.
+. _Runtime_. System and third party libraries such as _MSVCR110.dll_ and _libglib-2.0-0.dll_.
 
-. 'Developer'. Documentation, header files, import libraries, and other files needed for compilation.
+. _Developer_. Documentation, header files, import libraries, and other files needed for compilation.
 
-. 'Source'. Library sources, which are usually not required to
+. _Source_. Library sources, which are usually not required to
 build Wireshark.
 
 [TIP]
@@ -99,8 +99,8 @@ For more information on the Qt libraries, see <<ChUIQt>>.
 
 Most Linux distributions provide Qt and its development libraries as standard packages.
 The required libraries and tools will likely be split across several packages. For example,
-building on Ubuntu requires 'qttools5-dev', 'qttools5-dev-tools', 'libqt5svg5-dev,
-'qtmultimedia5-dev', and possibly others.
+building on Ubuntu requires _qttools5-dev_, _qttools5-dev-tools_, _libqt5svg5-dev_,
+_qtmultimedia5-dev_, and possibly others.
 
 The Qt Project provides an installation tool for macOS, similar to Windows.
 It is available at https://www.qt.io/download-open-source/#section-2[].
@@ -243,7 +243,7 @@ platform, you can get it at {tcpdump-main-url}.
 
 ==== Win32 MSVC: WinPcap
 
-You can get the "Windows packet capture library" at:
+You can get the ``Windows packet capture library'' at:
 https://www.winpcap.org/install/[]
 
 [[ChLibsGNUTLS]]
