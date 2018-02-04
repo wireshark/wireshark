@@ -1237,6 +1237,22 @@ union wtap_pseudo_header {
  * information in them stored somewhere, and used somewhere, whether
  * it's just used when saving the file in its native format or also
  * used to parse *other* file-type-specific records.
+ *
+ * These would be similar to, for example, pcapng Interface Description
+ * Blocks, for which the position within the file is significant only
+ * in that an IDB for an interface must appear before any packets from
+ * the interface; the fact that an IDB appears at some point doesn't
+ * necessarily mean something happened in the capture at that point.
+ * Name Resolution Blocks are another example of such a record.
+ *
+ * (XXX - if you want to have a record that says "this interface first
+ * showed up at this time", that needs to be a separate record type
+ * from the IDB.  We *could* add a "New Interface Description Block",
+ * with a time stamp, for that purpose, but we'd *still* have to
+ * provide IDBs for those interfaces, for compatibility with programs
+ * that don't know about the NIDB.  An ISB with only an isb_starttime
+ * option would suffice for this purpose, so nothing needs to be
+ * added to pcapng for this.)
  */
 #define REC_TYPE_PACKET               0    /**< packet */
 #define REC_TYPE_FT_SPECIFIC_EVENT    1    /**< file-type-specific event */
