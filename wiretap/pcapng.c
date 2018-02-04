@@ -2349,7 +2349,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
         pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
 
         ret = pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info);
-        if (ret != PCAPNG_BLOCK_OK) {
+        if (ret == PCAPNG_BLOCK_ERROR) {
             return ret;
         }
     } else {
@@ -2569,7 +2569,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         if (bh.block_type != BLOCK_TYPE_IDB) {
             break;  /* No more IDB:s */
         }
-        if (pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
+        if (pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info) == PCAPNG_BLOCK_ERROR) {
             wtap_block_free(wblock.block);
             if (*err == 0) {
                 pcapng_debug("No more IDBs available...");
@@ -2609,7 +2609,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     while (1) {
         *data_offset = file_tell(wth->fh);
         pcapng_debug("pcapng_read: data_offset is %" G_GINT64_MODIFIER "d", *data_offset);
-        if (pcapng_read_block(wth, wth->fh, pcapng, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
+        if (pcapng_read_block(wth, wth->fh, pcapng, &wblock, err, err_info) == PCAPNG_BLOCK_ERROR) {
             pcapng_debug("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
             pcapng_debug("pcapng_read: couldn't read packet block");
             wtap_block_free(wblock.block);
@@ -2734,7 +2734,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     /* read the block */
     ret = pcapng_read_block(wth, wth->random_fh, pcapng, &wblock, err, err_info);
     wtap_block_free(wblock.block);
-    if (ret != PCAPNG_BLOCK_OK) {
+    if (ret == PCAPNG_BLOCK_ERROR) {
         pcapng_debug("pcapng_seek_read: couldn't read packet block (err=%d).",
                       *err);
         return FALSE;
