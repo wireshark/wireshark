@@ -115,9 +115,9 @@ On the _Choose Components_ page of the installer you can select from the followi
 
   - *Rawshark* - Raw packet filter.
 
-* *User's Guide* - Local installation of the User's Guide. The Help buttons on
+* *User’s Guide* - Local installation of the User’s Guide. The Help buttons on
   most dialogs will require an internet connection to show help pages if the
-  User's Guide is not installed locally.
+  User’s Guide is not installed locally.
 
 [[ChBuildInstallWinAdditionalTasks]]
 
@@ -260,7 +260,7 @@ included _Read me first_ file for more details.
 === Building Wireshark from source under UNIX
 
 Building Wireshark requires the proper build environment including a
-compiler and many supporting libraries. See the Developer's Guide at
+compiler and many supporting libraries. See the Developer’s Guide at
 {wireshark-developers-guide-url} for more information.
 
 Use the following general steps to build Wireshark from source under UNIX or Linux:
@@ -323,7 +323,7 @@ UNIX (formerly Digital UNIX) you would use _setld_.
 
 ==== Installing from RPMs under Red Hat and alike
 
-Building RPMs from Wireshark's source code results in several packages (most
+Building RPMs from Wireshark’s source code results in several packages (most
 distributions follow the same system):
 
 * The `wireshark` package contains the core Wireshark libraries and command-line
@@ -369,7 +369,7 @@ Use the following command to install downloaded Wireshark debs under Debian:
 $ dpkg -i wireshark-common_2.0.5.0-1_i386.deb wireshark_wireshark-2.0.5.0-1_i386.deb
 ----
 
-dpkg doesn't take care of all dependencies, but reports what's missing.
+dpkg doesn't take care of all dependencies, but reports what’s missing.
 
 
 [NOTE]
@@ -430,7 +430,7 @@ We strongly recommended that you use the binary installer for Windows unless you
 want to start developing Wireshark on the Windows platform.
 
 For further information how to build Wireshark for Windows from the sources
-see the Developer's Guide at {wireshark-developers-guide-url}.
+see the Developer’s Guide at {wireshark-developers-guide-url}.
 
 You may also want to have a look at the Development Wiki
 ({wireshark-wiki-url}Development) for the latest available development

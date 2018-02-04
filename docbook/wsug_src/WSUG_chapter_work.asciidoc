@@ -73,7 +73,7 @@ description of each item.
 .The menu items of the ``Packet List'' column header pop-up menu
 [options="header",cols="3,2,5"]
 |===============
-|Item|Identical to main menu's item:|Description
+|Item|Identical to main menu’s item:|Description
 |menu:Sort Ascending[]|| Sort the packet list in ascending order based on this column.
 |menu:Sort Descending[]|| Sort the packet list in descending order based on this column.
 |menu:No Sort[]|| Remove sorting order based on this column.
@@ -103,7 +103,7 @@ The following table gives an overview of which functions are available  in this 
 .The menu items of the ``Packet List'' pop-up menu
 [options="header",cols="3,2,5"]
 |===============
-|Item|Identical to main menu's item:|Description
+|Item|Identical to main menu’s item:|Description
 |menu:Mark Packet (toggle)[]|menu:Edit[]| Mark/unmark a packet.
 |menu:Ignore Packet (toggle)[]|menu:Edit[]| Ignore or inspect this packet while dissecting the capture file.
 |menu:Set Time Reference (toggle)[]|menu:Edit[]| Set/reset a time reference.
@@ -123,7 +123,7 @@ The following table gives an overview of which functions are available  in this 
 |menu:Copy/ Bytes (Offset Hex)[]|| Copy the packet bytes to the clipboard in hexdump-like format, but without the text portion.
 |menu:Copy/ Bytes (Printable Text Only)[]|| Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters.
 |menu:Copy/ Bytes (Hex Stream)[]|| Copy the packet bytes to the clipboard as an unpunctuated list of hex digits.
-|menu:Copy/ Bytes (Binary Stream)[]|| Copy the packet bytes to the clipboard as raw binary. The data is stored in the clipboard as MIME-type ``application/octet-stream''.
+|menu:Copy/ Bytes (Binary Stream)[]|| Copy the packet bytes to the clipboard as raw binary. The data is stored in the clipboard as MIME-type “application/octet-stream”.
 |menu:Decode As...[]|menu:Analyze[]| Change or apply a new relation between two dissectors.
 |menu:Print...[]|File| Print packets.
 |menu:Show Packet in New Window[]|menu:View[]| Display the selected packet in a new window.
@@ -148,7 +148,7 @@ description of each item.
 .The menu items of the ``Packet Details'' pop-up menu
 [options="header",cols="3,2,5"]
 |===============
-|Item|Identical to main menu's item:|Description
+|Item|Identical to main menu’s item:|Description
 |menu:Expand Subtrees[]|menu:View[]| Expand the currently selected subtree.
 |menu:Collapse Subtrees[]|menu:View[]| Collapse the currently selected subtree.
 |menu:Expand All[]|menu:View[]| Expand all subtrees in all packets in the capture.
@@ -168,7 +168,7 @@ description of each item.
 |menu:Copy/ Bytes (Offset Hex)[]|| Copy the packet bytes to the clipboard in hexdump-like format, but without the text portion; similar to the         Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane).
 |menu:Copy/ Bytes (Printable Text Only)[]|| Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane).
 |menu:Copy/ Bytes (Hex Stream)[]|| Copy the packet bytes to the clipboard as an unpunctuated list of hex digits; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane).
-|menu:Copy/ Bytes (Binary Stream)[]|| Copy the packet bytes to the clipboard as raw binary; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane). The data is stored in the clipboard as MIME-type ``application/octet-stream''.
+|menu:Copy/ Bytes (Binary Stream)[]|| Copy the packet bytes to the clipboard as raw binary; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane). The data is stored in the clipboard as MIME-type “application/octet-stream”.
 |menu:Export Selected Packet Bytes...[]|menu:File[]| This menu item is the same as the File menu item of the same  name. It allows you to export raw packet bytes to a binary file.
 |menu:Wiki Protocol Page[]|| Show the wiki page corresponding to the currently selected protocol  in your web browser.
 |menu:Filter Field Reference[]|| Show the filter field reference web page corresponding to the  currently selected protocol in your web browser.
@@ -474,7 +474,7 @@ for which there are no occurrences of a field named ip.addr with the value
 
 === The ``Filter Expression'' dialog box
 
-When you are accustomed to Wireshark's filtering system and know what labels you
+When you are accustomed to Wireshark’s filtering system and know what labels you
 wish to use in your filters it can be very quick to simply type a filter string.
 However if you are new to Wireshark or are working with a slightly unfamiliar
 protocol it can be very confusing to try to figure out what to type. The
@@ -518,7 +518,7 @@ also indicate the type of value for the _field name_ you have selected (like
 character string).
 
 _Predefined values_::
-Some of the protocol fields have predefined values available, much like enum's
+Some of the protocol fields have predefined values available, much like enum’s
 in C. If the selected protocol field has such values defined, you can choose one
 of them here.
 
@@ -565,7 +565,7 @@ image::wsug_graphics/ws-filters.png[{screenshot-attrs}]
 _New_::
 This button adds a new filter to the list of filters. The currently entered
 values from Filter name and Filter string will be used. If any of these fields
-are empty, it will be set to ``new''.
+are empty, it will be set to “new”.
 
 
 _Delete_::
@@ -651,7 +651,7 @@ For more details on display filters, see <<ChWorkDisplayFilterSection>>
 +
 Search for a specific byte sequence in the packet data.
 +
-For example, use ``00:00'' to find the next packet including two  null bytes in the packet data.
+For example, use “00:00” to find the next packet including two  null bytes in the packet data.
 
 * _String_
 +
@@ -710,7 +710,7 @@ Wireshark will jump to that packet.
 If a protocol field is selected which points to another packet in the capture
 file, this command will jump to that packet.
 
-As these protocol fields now work like links (just as in your Web browser), it's
+As these protocol fields now work like links (just as in your Web browser), it’s
 easier to simply double-click on the field to jump to the corresponding field.
 
 ==== The ``Go to First Packet'' command
@@ -744,7 +744,7 @@ There are three functions to manipulate the marked state of a packet:
 
 * _Unmark all packets_ reset the mark state of all  packets.
 
-These mark functions are available from the ``Edit'' menu, and the ``Mark packet
+These mark functions are available from the “Edit” menu, and the ``Mark packet
 (toggle)'' function is also available from the pop-up menu of the ``Packet
 List'' pane.
 
@@ -768,7 +768,7 @@ There are three functions to manipulate the ignored state of a packet:
 
 * _Un-Ignore all packets_ reset the ignored state of all  packets.
 
-These ignore functions are available from the ``Edit'' menu, and the ``Ignore
+These ignore functions are available from the “Edit” menu, and the ``Ignore
 packet (toggle)'' function is also available from the pop-up menu of the
 ``Packet List'' pane.
 
@@ -816,9 +816,9 @@ The available precisions (aka. the number of displayed decimal places) are:
   the actually available precision is smaller, zeros will be appended. If the
   precision is larger, the remaining decimal places will be cut off.
 
-Precision example: If you have a timestamp and it's displayed using, ``Seconds
+Precision example: If you have a timestamp and it’s displayed using, ``Seconds
 Since Previous Packet'' the value might be 1.123456. This will be displayed
-using the ``Automatic'' setting for libpcap files (which is microseconds). If
+using the “Automatic” setting for libpcap files (which is microseconds). If
 you use Seconds it would show simply 1 and if you use Nanoseconds it shows
 1.123456000.
 
@@ -829,7 +829,7 @@ you use Seconds it would show simply 1 and if you use Nanoseconds it shows
 The user can set time references to packets. A time reference is the starting
 point for all subsequent packet time calculations. It will be useful, if you
 want to see the time values relative to a special packet, e.g. the start of a
-new request. It's possible to set multiple time references in the capture file.
+new request. It’s possible to set multiple time references in the capture file.
 
 The time references will not be saved permanently and will be lost when you
 close the capture file.

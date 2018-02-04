@@ -28,7 +28,7 @@ such as where to find specific functionality. This is done in
 === The Wireshark Git repository
 
 http://git-scm.com/[Git] is used to keep track of the changes made to the
-Wireshark source code. The code is stored inside Wireshark project's Git
+Wireshark source code. The code is stored inside Wireshark project’s Git
 repository located at a server at the wireshark.org domain.
 
 Changes to the official repository are managed using the
@@ -46,7 +46,7 @@ scale distributed development and ensures data integrity.
 .Why Gerrit?
 
 Gerrit makes it easy to contribute. You can sign in with any OpenID
-provider and push your changes. It's usable from both the web and
+provider and push your changes. It’s usable from both the web and
 command line and is integrated with many popular tools.
 
 .Git is our *third* revision control system
@@ -57,7 +57,7 @@ Wireshark originally used http://www.nongnu.org/cvs/[Concurrent Versions System]
 The Subversion repository was subsequently migrated to Git in January 2014.
 ====
 
-Using Wireshark's Git repository you can:
+Using Wireshark’s Git repository you can:
 
 * Keep your private sources up to date with very little effort
 * Get a mail notification when the official source code changes
@@ -92,7 +92,7 @@ Wireshark uses the following branches for official releases:
 
 === Obtain the Wireshark sources
 
-There are several ways to obtain the sources from Wireshark's Git
+There are several ways to obtain the sources from Wireshark’s Git
 repository.
 
 [TIP]
@@ -109,7 +109,7 @@ source tree several times a day without much effort.
 ====
 The following ways to retrieve the Wireshark sources are sorted in
 decreasing source timeliness.  If you plan to commit changes you've
-made to the sources, it's a good idea to keep your private source
+made to the sources, it’s a good idea to keep your private source
 tree as current as possible.
 ====
 
@@ -126,7 +126,7 @@ Recommended for development purposes.
 
 Age: a few minutes.
 
-You can use a Git client to download the source code from Wireshark's code
+You can use a Git client to download the source code from Wireshark’s code
 review system. Anyone can clone from the anonymous git URL:
 
 * {wireshark-git-anonhttp-url}
@@ -141,7 +141,7 @@ https://code.wireshark.org/review/Documentation/cmd-index.html#_server[command l
 HTTP lets you access the repository in environments that block the Gerrit SSH
 port (29418). At the time of this writing (early 2014) we recommend that
 you use the SSH interface. However, this may change as more tools take
-advantage of Gerrit's HTTP REST API.
+advantage of Gerrit’s HTTP REST API.
 
 The following example shows how to get up and running on the command
 line. See <<ChToolsGit>> for information on installing and configuring
@@ -258,14 +258,14 @@ possible (e.g. because of a restrictive firewall).
 Age: some number of minutes (a bit older than the Git access).
 
 The Buildbot server will automatically start to generate a snapshot of
-Wireshark's source tree after a source code change is committed. These
+Wireshark’s source tree after a source code change is committed. These
 snapshots can be found at {wireshark-snapshots-url}.
 
 If Git access isn't possible, e.g. if the connection to the server
 isn't possible because of a corporate firewall, the sources can be
 obtained by downloading the Buildbot snapshots. However, if you are
 going to maintain your sources in parallel to the "official" sources
-for some time, it's recommended to use the anonymous (or authenticated)
+for some time, it’s recommended to use the anonymous (or authenticated)
 Git access if possible (believe it, it will save you a lot of time).
 
 [[ChSrcReleased]]
@@ -310,7 +310,7 @@ sure the builds are in good shape.
 
 ==== Update Using Git
 
-After you clone Wireshark's Git repository you can update
+After you clone Wireshark’s Git repository you can update
 by running
 
 ----
@@ -359,7 +359,7 @@ error-prone than using Git.
 
 === Build Wireshark
 
-The sources contain several documentation files. It's a good idea to read these
+The sources contain several documentation files. It’s a good idea to read these
 files first. After obtaining the sources, tools and libraries, the first place
 to look at is _doc/README.developer_. Inside you will find the latest
 information for Wireshark development for all supported platforms.
@@ -420,7 +420,7 @@ installed version first.
 ==== Unix/Linux
 
 After a successful build you can run Wireshark right from the build
-directory. Still the program would need to know that it's being run from
+directory. Still the program would need to know that it’s being run from
 the build directory and not from its install location. This has an impact
 on the directories where the program can find the other parts and
 relevant data files.
@@ -436,7 +436,7 @@ command line to launch Wireshark would be:
 $ WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./wireshark
 ----
 
-There's no need to run Wireshark as root user, you just won't be able to
+There’s no need to run Wireshark as root user, you just won't be able to
 capture. When you opt to run Wireshark this way, your terminal output can
 be informative when things don't work as expected.
 
@@ -501,7 +501,7 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 
 As the Wireshark developers are working on many different platforms, a lot of
 editors are used to develop Wireshark (emacs, vi, Microsoft Visual Studio
-and many, many others). There's no "standard" or "default" development
+and many, many others). There’s no "standard" or "default" development
 environment.
 
 There are several reasons why you might want to change the Wireshark
@@ -521,7 +521,7 @@ The internal structure of the Wireshark sources will be described in
 .Ask the _wireshark-dev_ mailing list before you start a new development task.
 [TIP]
 ====
-If you have an idea what you want to add or change it's a good idea to
+If you have an idea what you want to add or change it’s a good idea to
 contact the developer mailing list
 (see <<ChIntroMailingLists>>)
 and explain your idea. Someone else might already be working on the same
@@ -541,12 +541,12 @@ If you have finished changing the Wireshark sources to suit your needs, you
 might want to contribute your changes back to the Wireshark community. You gain
 the following benefits by contributing your improvements:
 
-* _It's the right thing to do._ Other people who find your contributions useful
+* _It’s the right thing to do._ Other people who find your contributions useful
   will appreciate them, and you will know that you have helped people in the
   same way that the developers of Wireshark have helped you.
 
 * _You get free enhancements._ By making your code public, other developers have
-  a chance to make improvements, as there's always room for improvements. In
+  a chance to make improvements, as there’s always room for improvements. In
   addition someone may implement advanced features on top of your code, which
   can be useful for yourself too.
 
@@ -557,7 +557,7 @@ the following benefits by contributing your improvements:
   version from the website and your changes will already be included without any
   effort for you.
 
-There's no direct way to push changes to the Git repository. Only a few people
+There’s no direct way to push changes to the Git repository. Only a few people
 are authorised to actually make changes to the source code (check-in changed
 files). If you want to submit your changes, you should upload them to the code
 review system at {wireshark-code-review-url}. This requires you to set up git
@@ -696,7 +696,7 @@ as described at <<ChSrcGit>>.
 // $ diff -N -r -u --strip-trailing-cr ./svn-dir ./working-dir > foo.diff
 // ----
 //
-// It's a good idea to run `make distclean` before the
+// It’s a good idea to run `make distclean` before the
 // actual diff call, as this will remove a lot
 // of temporary files which might be otherwise included in the diff. After
 // doing the diff, you should edit the _foo.diff_ file and remove unnecessary
@@ -731,7 +731,7 @@ as described at <<ChSrcGit>>.
 Some tips that will make the merging of your changes into Git much more likely
 (and you want exactly that, don't you?):
 
-* _Use the latest Git sources._ It's a good idea to work with the same
+* _Use the latest Git sources._ It’s a good idea to work with the same
   sources that are used by the other developers. This usually makes it much
   easier to apply your patch. For information about the different ways to get
   the sources, see <<ChSrcObtain>>.
@@ -774,7 +774,7 @@ and integrated.
 The core maintainers have done a lot of work fixing bugs and making code
 compile on the various platforms Wireshark supports.
 
-To ensure Wireshark's source code quality, and to reduce the workload of the
+To ensure Wireshark’s source code quality, and to reduce the workload of the
 core maintainers, there are some things you should think about _before_
 submitting a patch.
 
@@ -792,7 +792,7 @@ be rejected.
   details.
 
 * _Submit dissectors as built-in whenever possible._ Developing a new dissector
-as a plugin is a good idea because compiling and testing is quicker, but it's
+as a plugin is a good idea because compiling and testing is quicker, but it’s
 best to convert dissectors to the built-in style before submitting for check in.
 This reduces the number of files that must be installed with Wireshark and
 ensures your dissector will be available on all platforms.
@@ -882,7 +882,7 @@ You might get one of the following responses to your patch request:
   your patch is in the review system it won't get lost.
 
 If you're concerned, feel free to add a comment to the patch or send an email
-to the developer's list asking for status. But please be patient: most if not
+to the developer’s list asking for status. But please be patient: most if not
 all of us do this in our spare time.
 
 [[ChSrcBackport]]
@@ -947,23 +947,23 @@ Given the file _new.diff_ containing a unified diff,
 the right way to call the patch tool depends on what the pathnames in
 _new.diff_ look like.
 If they're relative to the top-level source directory (for example, if a
-patch to _prefs.c_ just has _prefs.c_ as the file name) you'd run it as:
+patch to _prefs.c_ just has _prefs.c_ as the file name) you’d run it as:
 
 ----
 $ patch -p0 < new.diff
 ----
 
-If they're relative to a higher-level directory, you'd replace 0 with the
+If they're relative to a higher-level directory, you’d replace 0 with the
 number of higher-level directories in the path, e.g. if the names are
 _wireshark.orig/prefs.c_ and
-_wireshark.mine/prefs.c_, you'd run it with:
+_wireshark.mine/prefs.c_, you’d run it with:
 
 ----
 $ patch -p1 < new.diff
 ----
 
 If they're relative to a _subdirectory_ of the top-level
-directory, you'd run `patch` in _that_ directory and run it with `-p0`.
+directory, you’d run `patch` in _that_ directory and run it with `-p0`.
 
 If you run it without `-pat` all, the patch tool
 flattens path names, so that if you
@@ -977,12 +977,12 @@ _Makefile.am_ as well.
 At which position in the filesystem should the patch tool be called?
 
 If the pathnames are relative to the top-level source directory, or to a
-directory above that directory, you'd run it in the top-level source
+directory above that directory, you’d run it in the top-level source
 directory.
 
 If they're relative to a *subdirectory* -- for example,
 if somebody did a patch to _packet-ip.c_ and ran `diff` or `git diff` in
-the _epan/dissectors_ directory -- you'd run it in that subdirectory.
+the _epan/dissectors_ directory -- you’d run it in that subdirectory.
 It is preferred that people *not* submit patches like
 that, especially if they're only patching files that exist in multiple
 directories such as _Makefile.am_.

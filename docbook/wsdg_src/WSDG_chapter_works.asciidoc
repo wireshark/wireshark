@@ -16,7 +16,7 @@ This chapter will give you a short overview of how Wireshark works.
 
 === Overview
 
-The following will give you a simplified overview of Wireshark's function blocks:
+The following will give you a simplified overview of Wireshark’s function blocks:
 
 [[ChWorksFigOverview]]
 
@@ -58,8 +58,8 @@ with elevated privileges. Source code is in the root directory.
 
 WinPcap and libpcap:: These are separate libraries that provide packet capture
 and filtering support on different platforms. The filtering WinPcap and libpcap
-works at a much lower level than Wireshark's display filters and uses a
-significantly different mechanism. That's why we have different display and
+works at a much lower level than Wireshark’s display filters and uses a
+significantly different mechanism. That’s why we have different display and
 capture filter syntaxes.
 
 
@@ -71,7 +71,7 @@ Capturing takes packets from a network adapter and saves them to a file
 on your hard disk.
 
 Since raw network adapter access requires elevated privileges these functions
-are isolated into the `dumpcap` program. It's only this program that needs these
+are isolated into the `dumpcap` program. It’s only this program that needs these
 privileges, allowing the main part of the code (dissectors, user interface,
 etc) to run with normal user privileges.
 

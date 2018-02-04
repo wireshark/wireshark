@@ -66,7 +66,7 @@ instead of requiring that options be specified.
 documentation and instead prefer to learn an application as they use it.
 Providing feedback increases your sense of control and awareness, and
 makes the application more enjoyable to use. Most of the Qt dialogs
-provide a ``hint'' area near the bottom which shows useful information.
+provide a “hint” area near the bottom which shows useful information.
 For example, the ``Follow Stream'' dialog shows the packet corresponding
 to the text under the mouse. The profile management dialog shows a
 clickable path to the current profile. The main welcome screen shows
@@ -77,7 +77,7 @@ keyboard shortcuts.
 
 Qt Creator is a full-featured IDE and user interface editor. It makes
 adding new UI features much easier. It doesn't work well on Windows at
-the present time, so it's recommended that you use it on macOS or Linux.
+the present time, so it’s recommended that you use it on macOS or Linux.
 
 To edit and build Wireshark using Qt Cretor, open the top-level
 _CMakeLists.txt_ within Qt Creator. It should ask you to choose a build
@@ -87,14 +87,14 @@ ENABLE_GTK3=OFF") and click the ``Run CMake'' button. When that
 completes select ``Build → Open Build and Run Kit Selector...'' and make
 sure _wireshark_ is selected.
 
-Note that Qt Creator uses output created by CMake's *CodeBlocks*
+Note that Qt Creator uses output created by CMake’s *CodeBlocks*
 generator. If you run CMake outside of Qt Creator you should use the
 ``CodeBlocks - Unix Makefiles'' generator, otherwise Qt Creator will
 prompt you to re-run CMake.
 
 ==== Source Code Overview
 
-Wireshark's `main` entry point is in _wireshark-qt.cpp_. Command-line arguments
+Wireshark’s `main` entry point is in _wireshark-qt.cpp_. Command-line arguments
 are processed there and the main application class (`WiresharkApplication`)
 instance is created there along with the main window.
 
@@ -119,7 +119,7 @@ open when the capture file closes.
 
 The code in _ui/qt_ directory uses three APIs: Qt (which uses
 InterCapConvention), GLib (which uses underscore_convention), and the Wireshark
-API (which also uses underscore_convention). As a general rule Wireshark's Qt
+API (which also uses underscore_convention). As a general rule Wireshark’s Qt
 code uses InterCapConvention for class names, interCapConvention for methods,
 and underscore_convention for variables, with a trailing_underscore_ for member
 variables.
@@ -130,9 +130,9 @@ Dialogs that work with capture file information shouldn't close just because the
 capture file closes. Subclassing `WiresharkDialog` as described above can make
 it easier to persist across capture files.
 
-When you create a window with a row of standard ``OK'' and ``Close'' buttons at
+When you create a window with a row of standard “OK” and “Close” buttons at
 the bottom using Qt Creator you will end up with a subclass of QDialog. This is
-fine for traditional modal dialogs, but many times the ``dialog'' needs to behave
+fine for traditional modal dialogs, but many times the “dialog” needs to behave
 like a QWindow instead.
 
 Modal dialogs should be constructed with `QDialog(parent)`. Modeless dialogs
@@ -143,7 +143,7 @@ this for you.
 
 Most of the dialogs in ui/qt share many similarities, including method names,
 widget names, and behavior. Most dialogs should have the following, although
-it's not strictly required:
+it’s not strictly required:
 
 - An `updateWidgets()` method, which enables and disables widgets depending on
   the current state and constraints of the dialog. For example, the Coloring
@@ -163,7 +163,7 @@ it's not strictly required:
 
 ===== Strings
 
-Wireshark's C code and GLib use UTF-8 encoded character arrays. Qt
+Wireshark’s C code and GLib use UTF-8 encoded character arrays. Qt
 (specifically QString) uses UTF-16. You can convert a `char *` to a
 `QString` using simple assignment. You can convert a `QString` to a
 `const char *` using `qUtf8Printable`.
@@ -184,7 +184,7 @@ your code.
 ===== Mixing C and {cpp}
 
 Sometimes we have to call {cpp} functions from one of
-Wireshark's C callbacks and pass {cpp} objects to or from C. Tap
+Wireshark’s C callbacks and pass {cpp} objects to or from C. Tap
 listeners are a common example. The {cpp} FAQ link:http://www.
 parashift.com/c++-faq/mixing-c-and-cpp.html:[describes how to do this
 safely].
@@ -266,7 +266,7 @@ the internals of a running Qt application similar to $$Spy++$$ on Windows.
 .We have switched to Qt
 [NOTE]
 ====
-Wireshark's default interface uses Qt. If you would like to add a new
+Wireshark’s default interface uses Qt. If you would like to add a new
 interface feature you should use it and not GTK{plus}.
 The documentation below is primarily historical.
 ====
@@ -278,13 +278,13 @@ intended to be a multiplatform tool, there are some drawbacks, as the
 result is a somewhat "non native" look and feel.
 
 GTK{plus} is available for many different platforms including, but not limited to:
-Unix/Linux, macOS and Win32. It's the foundation of the famous GNOME desktop,
+Unix/Linux, macOS and Win32. It’s the foundation of the famous GNOME desktop,
 so the future development of GTK should be certain. GTK is implemented in plain
 C (as is Wireshark itself), and available under the LGPL (Lesser General Public
 License), making it free to used by commercial and noncommercial applications.
 
 There are other similar toolkits like wxWidgets which could also be used for
-Wireshark. There's no "one and only" reason for or against any of these
+Wireshark. There’s no "one and only" reason for or against any of these
 toolkits. However, the decision towards GTK was made a long time ago :-)
 
 There are two major GTK versions available:
@@ -353,7 +353,7 @@ Several mailing lists are available about GTK development, see
 http://mail.gnome.org/mailman/listinfo[], the gtk-app-devel-list may be your
 friend.
 
-As it's often done wrong: You should post a mail to *help* the developers
+As it’s often done wrong: You should post a mail to *help* the developers
 there instead of only complaining. Posting such a thing like "I don't like
 your dialog, it looks ugly" won't be of much help. You might think about
 what you dislike and describe why you dislike it and provide a suggestion

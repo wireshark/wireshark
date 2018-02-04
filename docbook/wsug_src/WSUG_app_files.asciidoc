@@ -12,7 +12,7 @@
 === Capture Files
 
 To understand which information will remain available after the captured packets
-are saved to a capture file, it's helpful to know a bit about the capture file
+are saved to a capture file, it’s helpful to know a bit about the capture file
 contents.
 
 Wireshark uses the
@@ -23,7 +23,7 @@ but other tools may not support it.
 Wireshark also supports the
 link:https://wiki.wireshark.org/Development/LibpcapFileFormat[libpcap] file
 format. This is a much simpler format and is well established. However, it has
-some drawbacks: it's not extensible and lacks some information that would be
+some drawbacks: it’s not extensible and lacks some information that would be
 really helpful (e.g. being able to add a comment to a packet such as ``the
 problems start here'' would be really nice).
 
@@ -46,9 +46,9 @@ The following data is saved for each packet:
 
 * The packet length as it was ``on the wire''
 
-* The packet length as it's saved in the file
+* The packet length as it’s saved in the file
 
-* The packet's raw bytes
+* The packet’s raw bytes
 
 A detailed description of the libpcap file format can be found at:
 link:$$https://wiki.wireshark.org/Development/LibpcapFileFormat$$[]
@@ -108,7 +108,7 @@ Files\Wireshark_.
 ==== Folders on Unix-like systems
 
 _$XDG_CONFIG_HOME_ is the folder for user-specific configuration files.
-It's usually _$HOME/.config_, where _$HOME_ is the user's home folder, which
+It’s usually _$HOME/.config_, where _$HOME_ is the user’s home folder, which
 is usually something such as _$HOME/**username**_, or
 _/Users/**username**_ on macOS.
 
@@ -195,7 +195,7 @@ _preferences_ file in the personal configuration folder, that is read;
 if there is a preference set in both files, the setting in the personal
 preferences file overrides the setting in the global preference file.
 
-If you press the Save button in the ``Preferences'' dialog box, all the
+If you press the Save button in the “Preferences” dialog box, all the
 current settings are written to the personal preferences file.
 --
 
@@ -390,7 +390,7 @@ overrides the setting in the personal preference file.
 +
 --
 Each line in one of these files consists of an IPv4 address, a subnet
-mask length separated only by a ``/'' and a name separated by whitespace.
+mask length separated only by a “/” and a name separated by whitespace.
 While the address must be a full IPv4 address, any values beyond the
 mask length are subsequently ignored.
 
@@ -400,10 +400,10 @@ An example is:
 192.168.0.0/24 ws_test_network
 ----
 
-A partially matched name will be printed as ``subnet-name.remaining-address''.
-For example, ``192.168.0.1'' under the subnet above would be printed as
+A partially matched name will be printed as “subnet-name.remaining-address”.
+For example, “192.168.0.1” under the subnet above would be printed as
 ``ws_test_network.1"; if the mask length above had been 16 rather than 24, the
-printed address would be ``ws_test_network.0.1''.
+printed address would be “ws_test_network.0.1”.
 
 The settings from these files are read in at program start and never
 written by Wireshark.
@@ -487,7 +487,7 @@ of duplicate file names between old and new the new folder wins.
 
 * If you are running on macOS and Wireshark is installed as an
 application bundle, the global plugin folder is
-_%APPDIR%/Contents/PlugIns/wireshark_, otherwise it's
+_%APPDIR%/Contents/PlugIns/wireshark_, otherwise it’s
 _INSTALLDIR/lib/wireshark/plugins_.
 
 [[ChWindowsFolder]]
@@ -515,7 +515,7 @@ If you've upgraded to a new Windows version, your profile might be kept in the
 former location. The defaults mentioned here might not apply.
 ====
 
-The following guides you to the right place where to look for Wireshark's
+The following guides you to the right place where to look for Wireshark’s
 profile data.
 
 Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::

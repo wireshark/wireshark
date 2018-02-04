@@ -44,11 +44,11 @@ be pretty hard to understand.
 
 [[ChStatSummary]]
 
-=== The ``Summary'' window
+=== The “Summary” window
 
 General statistics about the current capture file.
 
-.The ``Summary'' window
+.The “Summary” window
 image::wsug_graphics/ws-stats-summary.png[{screenshot-attrs}]
 
 * __File__: general information about the capture file.
@@ -88,7 +88,7 @@ The btn:[Copy] button will let you copy the window contents as CSV or YAML.
 
 .Protocol hierarchy columns
 
-_Protocol_:: This protocol's name
+_Protocol_:: This protocol’s name
 
 _Percent Packets_:: The percentage of protocol packets relative to all packets in
   the capture
@@ -136,7 +136,7 @@ description of the known endpoint types can be found in
 
 [[ChStatConversationsWindow]]
 
-==== The ``Conversations'' window
+==== The “Conversations” window
 
 The conversations window is similar to the endpoint Window. See
 <<ChStatEndpointsWindow>> for a description of their common features. Along with
@@ -144,9 +144,9 @@ addresses, packet counters, and byte counters the conversation window adds four
 columns: the start time of the conversation (``Rel Start'') or (``Abs Start''),
 the duration of the conversation in seconds, and the average bits (not bytes)
 per second in each direction. A timeline graph is also drawn across the
-``Rel Start'' / ``Abs Start'' and ``Duration'' columns.
+``Rel Start'' / ``Abs Start'' and “Duration” columns.
 
-.The ``Conversations'' window
+.The “Conversations” window
 image::wsug_graphics/ws-stats-conversations.png[{screenshot-attrs}]
 
 Each row in the list shows the statistical values for exactly one conversation.
@@ -196,7 +196,7 @@ you're looking for.
 
 _Bluetooth_:: A MAC-48 address similar to Ethernet.
 
-_Ethernet_:: Identical to the Ethernet device's MAC-48 identifier.
+_Ethernet_:: Identical to the Ethernet device’s MAC-48 identifier.
 
 _Fibre Channel_:: A MAC-48 address similar to Ethernet.
 
@@ -209,7 +209,7 @@ _IPv4_:: Identical to the 32-bit IPv4 address.
 _IPv6_:: Identical to the 128-bit IPv6 address.
 
 _IPX_:: A concatenation of a 32 bit network number and 48 bit node address, by
-default the Ethernet interface's MAC-48 address.
+default the Ethernet interface’s MAC-48 address.
 
 _JXTA_:: A 160 bit SHA-1 URN.
 
@@ -242,11 +242,11 @@ will be received by some or all of the listed unicast endpoints.
 
 [[ChStatEndpointsWindow]]
 
-==== The ``Endpoints'' window
+==== The “Endpoints” window
 
 This window shows statistics about the endpoints captured.
 
-.The ``Endpoints'' window
+.The “Endpoints” window
 image::wsug_graphics/ws-stats-endpoints.png[{screenshot-attrs}]
 
 For each supported protocol, a tab is shown in this window. Each tab label shows
@@ -421,7 +421,7 @@ You can configure the following:
 The info column contains new numbering so the same packets are parallel.
 
 The color filtering differentiate the two files from each other. A
-``zebra'' effect is create if the Info column is sorted.
+“zebra” effect is create if the Info column is sorted.
 
 [TIP]
 ====

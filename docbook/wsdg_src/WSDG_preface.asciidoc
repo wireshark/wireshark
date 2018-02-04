@@ -32,7 +32,7 @@ Wireshark.
 
 This book is not intended to explain the usage of Wireshark in general.
 Please refer the
-{wireshark-users-guide-url}[Wireshark User's Guide] about Wireshark usage.
+{wireshark-users-guide-url}[Wireshark User’s Guide] about Wireshark usage.
 
 By reading this book, you will learn how to develop Wireshark. It will
 hopefully guide you around some common problems that frequently appear for

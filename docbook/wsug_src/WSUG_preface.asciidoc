@@ -31,7 +31,7 @@ useful information regarding these topics can be found at the Wireshark
 Wiki at link:{wireshark-wiki-url}[].
 
 By reading this book, you will learn how to install Wireshark, how to use the
-basic elements of the graphical user interface (such as the menu) and what's
+basic elements of the graphical user interface (such as the menu) and what’s
 behind some of the advanced features that are not always obvious at first sight.
 It will hopefully guide you around some common problems that frequently appear
 for new (and sometimes even advanced) users of Wireshark.

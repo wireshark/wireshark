@@ -21,7 +21,7 @@ IP) and so on. At each stage, details of the packet will be decoded and
 displayed.
 
 Dissection can be implemented in two possible ways. One is to have a dissector
-module compiled into the main program, which means it's always available.
+module compiled into the main program, which means it’s always available.
 Another way is to make a plugin (a shared library or DLL) that registers itself
 to handle dissection.
 
@@ -44,7 +44,7 @@ a dissector. In many cases it is more up to date than this document.
 
 === Adding a basic dissector
 
-Let's step through adding a basic dissector. We'll start with the made up "foo"
+Let’s step through adding a basic dissector. We'll start with the made up "foo"
 protocol. It consists of the following basic items.
 
 * A packet type - 8 bits, possible values: 1 - initialisation, 2 - terminate, 3 - data.
@@ -62,7 +62,7 @@ protocol. It consists of the following basic items.
 The first decision you need to make is if this dissector will be a
 built-in dissector, included in the main program, or a plugin.
 
-Plugins are the easiest to write initially, so let's start with that.
+Plugins are the easiest to write initially, so let’s start with that.
 With a little care, the plugin can be made to run as a built-in
 easily too so we haven't lost anything.
 
@@ -90,12 +90,12 @@ proto_register_foo(void)
 ----
 ====
 
-Let's go through this a bit at a time. First we have some boilerplate
+Let’s go through this a bit at a time. First we have some boilerplate
 include files. These will be pretty constant to start with.
 
 Next we have an int that is initialised to `-1` that records our protocol.
 This will get updated when we register this dissector with the main program.
-It's good practice to make all variables and functions that aren't exported
+It’s good practice to make all variables and functions that aren't exported
 static to keep name space pollution down. Normally this isn't a problem unless your
 dissector gets so big it has to span multiple files.
 
@@ -126,7 +126,7 @@ proto_reg_handoff_foo(void)
 ----
 ====
 
-What's happening here? We are initialising the dissector. First we create a
+What’s happening here? We are initialising the dissector. First we create a
 dissector handle; It is associated with the foo protocol and with a routine to
 be called to do the actual dissecting. Then we associate the handle with a UDP
 port number so that the main program will know to call us when it gets UDP
@@ -160,8 +160,8 @@ info structure contains general data about the protocol, and we can update
 information here. The tree parameter is where the detail dissection takes place.
 
 For now we'll do the minimum we can get away with. In the first line we set the
-text of this to our protocol, so everyone can see it's being recognised. The
-only other thing we do is to clear out any data in the INFO column if it's being
+text of this to our protocol, so everyone can see it’s being recognised. The
+only other thing we do is to clear out any data in the INFO column if it’s being
 displayed.
 
 At this point we should have a basic dissector ready to compile and install.
@@ -194,7 +194,7 @@ binary into the plugin directory of your Wireshark installation and run that.
 
 ==== Dissecting the details of the protocol
 
-Now that we have our basic dissector up and running, let's do something with it.
+Now that we have our basic dissector up and running, let’s do something with it.
 The simplest thing to do to start with is to just label the payload.
 This will allow us to set up some of the parts we will need.
 
@@ -224,7 +224,7 @@ This subtree will hold all the details of this protocol and so not clutter
 up the display when not required.
 
 We are also marking the area of data that is being consumed by this
-protocol. In our case it's all that has been passed to us, as we're assuming
+protocol. In our case it’s all that has been passed to us, as we're assuming
 this protocol does not encapsulate another.
 Therefore, we add the new tree node with `proto_tree_add_item()`,
 adding it to the passed in tree, label it with the protocol, use the passed in
@@ -234,7 +234,7 @@ ENC_NA ("not applicable") is specified as the "encoding" parameter.
 After this change, there should be a label in the detailed display for the protocol,
 and selecting this will highlight the remaining contents of the packet.
 
-Now let's go to the next step and add some protocol dissection. For this step
+Now let’s go to the next step and add some protocol dissection. For this step
 we'll need to construct a couple of tables that help with dissection. This needs
 some additions to the `proto_register_foo()` function shown previously.
 
@@ -335,7 +335,7 @@ We'll ignore the rest of the structure for now.
 If you install this plugin and try it out, you'll see something that begins to look
 useful.
 
-Now let's finish off dissecting the simple protocol. We need to add a few
+Now let’s finish off dissecting the simple protocol. We need to add a few
 more variables to the hfarray, and a couple more procedure calls.
 
 .Wrapping up the packet dissection.
@@ -405,7 +405,7 @@ now dissected.
 ==== Improving the dissection information
 
 We can certainly improve the display of the protocol with a bit of extra data.
-The first step is to add some text labels. Let's start by labeling the packet
+The first step is to add some text labels. Let’s start by labeling the packet
 types. There is some useful support for this sort of thing by adding a couple of
 extra things. First we add a simple table of type to name.
 
@@ -507,7 +507,7 @@ to the dissection routine. Note we keep the same offset for each of the flags.
 This is starting to look fairly full featured now, but there are a couple of
 other things we can do to make things look even more pretty. At the moment our
 dissection shows the packets as "Foo Protocol" which whilst correct is a little
-uninformative. We can enhance this by adding a little more detail. First, let's
+uninformative. We can enhance this by adding a little more detail. First, let’s
 get hold of the actual value of the protocol type. We can use the handy function
 `tvb_get_guint8()` to do this. With this value in hand, there are a couple of
 things we can do. First we can set the INFO column of the non-detailed view to
@@ -545,7 +545,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 So here, after grabbing the value of the first 8 bits, we use it with one of the
 built-in utility routines `val_to_str()`, to lookup the value. If the value
 isn't found we provide a fallback which just prints the value in hex. We use
-this twice, once in the INFO field of the columns -- if it's displayed, and
+this twice, once in the INFO field of the columns -- if it’s displayed, and
 similarly we append this data to the base of our dissecting tree.
 
 [[ChDissectTransformed]]
@@ -557,7 +557,7 @@ encrypt the data, or compress data, or part of it. If you know
 how these steps are taken it is possible to reverse them within the
 dissector.
 
-As encryption can be tricky, let's consider the case of compression.
+As encryption can be tricky, let’s consider the case of compression.
 These techniques can also work for other transformations of data,
 where some step is required before the data can be examined.
 
@@ -594,7 +594,7 @@ effect.
 The first steps here are to recognise the compression. In this case a flag byte
 alerts us to the fact the remainder of the packet is compressed. Next we
 retrieve the original size of the packet, which in this case is conveniently
-within the protocol. If it's not, it may be part of the compression routine to
+within the protocol. If it’s not, it may be part of the compression routine to
 work it out for you, in which case the logic would be different.
 
 So armed with the size, a buffer is allocated to receive the uncompressed data
@@ -613,7 +613,7 @@ tvb as a new data source, so that the detailed display can show the
 decompressed bytes as well as the original.
 
 After this has been set up the remainder of the dissector can dissect the buffer
-next_tvb, as it's a new buffer the offset needs to be 0 as we start again from
+next_tvb, as it’s a new buffer the offset needs to be 0 as we start again from
 the beginning of this buffer. To make the rest of the dissector work regardless
 of whether compression was involved or not, in the case that compression was not
 signaled, we use `tvb_new_subset_remaining()` to deliver us a new buffer based
@@ -640,7 +640,7 @@ _epan/reassemble.h_.
 
 ==== How to reassemble split UDP packets
 
-As an example, let's examine a protocol that is layered on top of UDP that
+As an example, let’s examine a protocol that is layered on top of UDP that
 splits up its own data stream. If a packet is bigger than some given size, it
 will be split into chunks, and somehow signaled within its protocol.
 
@@ -693,7 +693,7 @@ if (flags & FL_FRAGMENT) { /* fragmented */
 
 We start by saving the fragmented state of this packet, so we can restore it
 later. Next comes some protocol specific stuff, to dig the fragment data out of
-the stream if it's present. Having decided it is present, we let the function
+the stream if it’s present. Having decided it is present, we let the function
 `fragment_add_seq_check()` do its work. We need to provide this with a certain
 amount of parameters:
 
@@ -967,7 +967,7 @@ exception.
 Adding a Tap interface to a protocol allows it to do some useful things.
 In particular you can produce protocol statistics from the tap interface.
 
-A tap is basically a way of allowing other items to see what's happening as
+A tap is basically a way of allowing other items to see what’s happening as
 a protocol is dissected. A tap is registered with the main program, and
 then called on each dissection. Some arbitrary protocol specific data
 is provided with the routine that can be used.
@@ -998,15 +998,15 @@ void proto_register_foo(void)
 ====
 
 Whilst you can program a tap without protocol specific data, it is generally not
-very useful. Therefore it's a good idea to declare a structure that can be
+very useful. Therefore it’s a good idea to declare a structure that can be
 passed through the tap. This needs to be a static structure as it will be used
-after the dissection routine has returned. It's generally best to pick out some
+after the dissection routine has returned. It’s generally best to pick out some
 generic parts of the protocol you are dissecting into the tap data. A packet
 type, a priority or a status code maybe. The structure really needs to be
 included in a header file so that it can be included by other components that
 want to listen in to the tap.
 
-Once you have these defined, it's simply a case of populating the protocol
+Once you have these defined, it’s simply a case of populating the protocol
 specific structure and then calling `tap_queue_packet`, probably as the last part
 of the dissector.
 
@@ -1073,7 +1073,7 @@ strings, an integer, and three callback functions.
 
 . An abbreviation of the stats name.
 
-. The name of the stats module. A `/' character can be used to make sub menus.
+. The name of the stats module. A “/” character can be used to make sub menus.
 
 . Flags for per-packet callback
 
@@ -1136,14 +1136,14 @@ _doc/README.dissector_, chapter 2.2.
 
 === __idl2wrs__: Creating dissectors from CORBA IDL files
 
-Many of Wireshark's dissectors are automatically generated. This section shows
+Many of Wireshark’s dissectors are automatically generated. This section shows
 how to generate one from a CORBA IDL file.
 
 ==== What is it?
 
 As you have probably guessed from the name, `idl2wrs` takes a user specified IDL
 file and attempts to build a dissector that can decode the IDL traffic over
-GIOP. The resulting file is ``C'' code, that should compile okay as a Wireshark
+GIOP. The resulting file is “C” code, that should compile okay as a Wireshark
 dissector.
 
 `idl2wrs` parses the data struct given to it by the `omniidl` compiler,
@@ -1176,7 +1176,7 @@ I have also had comments/feedback that this tool would be good for say a CORBA
 class when teaching students what CORBA traffic looks like ``on the wire''.
 
 It is also COOL to work on a great Open Source project such as the case with
-``Wireshark'' ({wireshark-main-url})
+“Wireshark” ({wireshark-main-url})
 
 
 ==== How to use idl2wrs

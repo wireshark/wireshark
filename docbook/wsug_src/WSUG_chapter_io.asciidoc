@@ -31,10 +31,10 @@ select the menu:File[Open] menu or toolbar item. Wireshark will then pop up
 the ``File Open'' dialog box, which is discussed in more detail in <<ChIOOpen>>.
 
 [TIP]
-.It's convenient to use drag-and-drop
+.It’s convenient to use drag-and-drop
 ====
 You can open a file by simply dragging it in your file manager and dropping it
-onto Wireshark's main window. However, drag-and-drop may not be available in all
+onto Wireshark’s main window. However, drag-and-drop may not be available in all
 desktop environments.
 ====
 
@@ -73,7 +73,7 @@ Wireshark extensions to the standard behaviour of these dialogs:
 * Specify a display filter with the btn:[Filter] button and filter field.
   This filter will be used when opening the new file. The text field background
   becomes green for a valid filter string and red for an invalid one. Clicking
-  on the btn:[Filter] button causes Wireshark to pop up the ``Filters''
+  on the btn:[Filter] button causes Wireshark to pop up the “Filters”
   dialog box (which is discussed further in <<ChWorkDisplayFilterSection>>).
 +
 // XXX - we need a better description of these read filters
@@ -93,18 +93,18 @@ it can be a good idea to set at least the filter in advance here.
 
 [[ChIOOpenFileDialogWin32]]
 
-.``Open'' on Microsoft Windows
+.“Open” on Microsoft Windows
 image::wsug_graphics/ws-open-win32.png[{screenshot-attrs}]
 
 This is the common Windows file open dialog - plus some Wireshark extensions.
 
 Specific for this dialog:
 
-* The btn:[Help] button will lead you to this section of this ``User's Guide''.
+* The btn:[Help] button will lead you to this section of this “`User”s Guide''.
 
 [[ChIOOpenFileDialog]]
 
-.``Open'' - Linux and UNIX
+.“Open” - Linux and UNIX
 image::wsug_graphics/ws-open-gtk24.png[{screenshot-attrs}]
 
 This is the common Gimp/GNOME file open dialog plus some Wireshark extensions.
@@ -116,7 +116,7 @@ Specific for this dialog:
   persistent.
 
 * The btn:[-] button allows you to remove a selected directory from the list.
-  Some items (such as ``Desktop'') cannot be removed from the favorites list.
+  Some items (such as “Desktop”) cannot be removed from the favorites list.
 
 * If Wireshark doesn't recognize the selected file as a capture file it will
   grey out the btn:[Open] button.
@@ -155,15 +155,15 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * AG Group/WildPackets/Savvius EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures
 
-* RADCOM's WAN/LAN Analyzer captures
+* RADCOM’s WAN/LAN Analyzer captures
 
 * Network Instruments Observer version 9 captures
 
 * Lucent/Ascend router debug output
 
-* HP-UX's nettl
+* HP-UX’s nettl
 
-* Toshiba's ISDN routers dump output
+* Toshiba’s ISDN routers dump output
 
 * ISDN4BSD _i4btrace_ utility
 
@@ -173,7 +173,7 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * pppd logs (pppdump format)
 
-* the output from VMS's TCPIPtrace/TCPtrace/UCX$TRACE utilities
+* the output from VMS’s TCPIPtrace/TCPtrace/UCX$TRACE utilities
 
 * the text output from the DBS Etherwatch VMS utility
 
@@ -181,7 +181,7 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * the output from CoSine L2 debug
 
-* the output from Accellent's 5Views LAN agents
+* the output from Accellent’s 5Views LAN agents
 
 * Endace Measurement Systems' ERF format captures
 
@@ -236,21 +236,21 @@ should be the same across systems.
 
 [[ChIOSaveAsFileWin32]]
 
-.``Save'' on Microsoft Windows
+.“Save” on Microsoft Windows
 image::wsug_graphics/ws-save-as-win32.png[{screenshot-attrs}]
 
 This is the common Windows file save dialog with some additional Wireshark extensions.
 
 Specific behavior for this dialog:
 
-* If available, the ``Help'' button will lead you to this section of this "User's Guide".
+* If available, the “Help” button will lead you to this section of this "User’s Guide".
 
 * If you don't provide a file extension to the filename (e.g. `.pcap`) Wireshark
   will append the standard file extension for that file format.
 
 [[ChIOSaveAsFile2]]
 
-.``Save'' on Linux and UNIX
+.“Save” on Linux and UNIX
 image::wsug_graphics/ws-save-as-gtk24.png[{screenshot-attrs}]
 
 This is the common Gimp/GNOME file save dialog with additional Wireshark extensions.
@@ -309,29 +309,30 @@ time stamp accuracy; see the <<ChAdvTimestamps>> for details.
 
 The following file formats can be saved by Wireshark (with the known file extensions):
 
-* pcapng ($$*$$.pcapng). A flexible, etensible successor to the libpcap format.
-  Wireshark 1.8 and later save files as pcapng by default. Versions prior to 1.8
-  used libpcap.
+* pcapng ({asterisk}.pcapng). A flexible, etensible successor to the
+  libpcap format. Wireshark 1.8 and later save files as pcapng by
+  default. Versions prior to 1.8 used libpcap.
 
-* libpcap, tcpdump and various other tools using tcpdump's capture format ($$*$$.pcap,$$*$$.cap,$$*$$.dmp)
+* libpcap, tcpdump and various other tools using tcpdump’s capture
+  format ({asterisk}.pcap,{asterisk}.cap,{asterisk}.dmp)
 
-* Accellent 5Views ($$*$$.5vw)
+* Accellent 5Views ({asterisk}.5vw)
 
-* HP-UX's nettl ($$*$$.TRC0,$$*$$.TRC1)
+* HP-UX’s nettl ({asterisk}.TRC0,{asterisk}.TRC1)
 
-* Microsoft Network Monitor - NetMon ($$*$$.cap)
+* Microsoft Network Monitor - NetMon ({asterisk}.cap)
 
-* Network Associates Sniffer - DOS ($$*$$.cap,$$*$$.enc,$$*$$.trc,*fdc,$$*$$.syc)
+* Network Associates Sniffer - DOS ({asterisk}.cap,{asterisk}.enc,{asterisk}.trc,*fdc,{asterisk}.syc)
 
-* Network Associates Sniffer - Windows ($$*$$.cap)
+* Network Associates Sniffer - Windows ({asterisk}.cap)
 
-* Network Instruments Observer version 9 ($$*$$.bfr)
+* Network Instruments Observer version 9 ({asterisk}.bfr)
 
-* Novell LANalyzer ($$*$$.tr1)
+* Novell LANalyzer ({asterisk}.tr1)
 
-* Oracle (previously Sun) snoop ($$*$$.snoop,$$*$$.cap)
+* Oracle (previously Sun) snoop ({asterisk}.snoop,{asterisk}.cap)
 
-* Visual Networks Visual UpTime traffic ($$*.*$$)
+* Visual Networks Visual UpTime traffic ({asterisk}.{asterisk})
 
 New file formats are added from time to time.
 
@@ -341,7 +342,7 @@ Whether or not the above tools will be more helpful than Wireshark is a differen
 [NOTE]
 .Third party protocol analyzers may require specific file extensions
 ====
-Wireshark examines a file's contents to determine its type. Some other protocol
+Wireshark examines a file’s contents to determine its type. Some other protocol
 analyzers only look at a filename extensions. For example, you might need to use
 the `.cap` extension in order to open a file using _Sniffer_.
 ====
@@ -356,7 +357,7 @@ be useful if you have captured simultaneously from multiple interfaces at once
 
 There are three ways to merge capture files using Wireshark:
 
-* Use the menu:File[Merge] menu to open the ``Merge'' dialog. See
+* Use the menu:File[Merge] menu to open the “Merge” dialog. See
   <<ChIOMergeDialog>>. This menu item will be disabled unless you have loaded a
   capture file.
 
@@ -398,14 +399,14 @@ Append the packets from the selected file after the currently loaded packets.
 
 [[ChIOMergeFileWin32]]
 
-.``Merge'' on Microsoft Windows
+.“Merge” on Microsoft Windows
 image::wsug_graphics/ws-merge-win32.png[{screenshot-attrs}]
 
 This is the common Windows file open dialog with additional Wireshark extensions.
 
 [[ChIOMergeFile2]]
 
-.``Merge'' on Linux and UNIX
+.“Merge” on Linux and UNIX
 image::wsug_graphics/ws-merge-gtk24.png[{screenshot-attrs}]
 
 This is the common Gimp/GNOME file open dialog with additional Wireshark extensions.
@@ -440,7 +441,7 @@ Here is a sample dump that can be imported:
 There is no limit on the width or number of bytes per line. Also the text dump
 at the end of the line is ignored. Byte and hex numbers can be uppercase or
 lowercase. Any text before the offset is ignored, including email forwarding
-characters _&gt;_. Any lines of text between the bytestring lines are ignored.
+characters _>_. Any lines of text between the bytestring lines are ignored.
 The offsets are used to track the bytes, so offsets must be correct. Any line
 which has only bytes without a leading offset is ignored. An offset is
 recognized as being a hex number longer than two characters. Any text after the
@@ -550,7 +551,7 @@ some features to handle these file sets in a convenient way.
 ****
 A filename in a file set uses the format Prefix_Number_DateTimeSuffix which
 might look something like `test_00001_20060420183910.pcap`. All files of a file
-set share the same prefix (e.g. ``test'') and suffix (e.g. ``.pcap'') and a
+set share the same prefix (e.g. “test”) and suffix (e.g. “.pcap”) and a
 varying middle part.
 
 To find the files of a file set, Wireshark scans the directory where the
@@ -716,7 +717,7 @@ image::wsug_graphics/ws-export-psml.png[{screenshot-attrs}]
 
 *  The _Packet Range_ frame is described in <<ChIOPacketRangeSection>>.
 
-There's no such thing as a packet details frame for PSML export, as the packet
+There’s no such thing as a packet details frame for PSML export, as the packet
 format is defined by the PSML specification.
 
 [[ChIOExportPDMLDialog]]
@@ -729,7 +730,7 @@ link:http://www.nbee.org/doku.php?id=netpdl:pdml_specification[].
 
 [NOTE]
 ====
-The PDML specification is not officially released and Wireshark's implementation
+The PDML specification is not officially released and Wireshark’s implementation
 of it is still in an early beta state, so please expect changes in future
 Wireshark versions.
 ====
@@ -741,7 +742,7 @@ image::wsug_graphics/ws-export-pdml.png[{screenshot-attrs}]
 
 *  The _Packet Range_ frame is described in <<ChIOPacketRangeSection>>.
 
-There's no such thing as a packet details frame for PDML export, as the packet
+There’s no such thing as a packet details frame for PDML export, as the packet
 format is defined by the PDML specification.
 
 [[ChIOExportSelectedDialog]]
@@ -790,7 +791,7 @@ image::wsug_graphics/ws-export-objects.png[{screenshot-attrs}]
    typically indicates that the file was received in response to a HTTP POST
    request.
 
-*  _Help:_ Opens this section in the user's guide.
+*  _Help:_ Opens this section in the user’s guide.
 
 *  _Close:_ Closes this dialog.
 
@@ -809,14 +810,14 @@ image::wsug_graphics/ws-export-objects.png[{screenshot-attrs}]
 === Printing packets
 
 To print packets, select the menu:File[Print...] menu item. When you
-do this Wireshark pops up the ``Print'' dialog box as shown in
+do this Wireshark pops up the “Print” dialog box as shown in
 <<ChIOPrintDialogBox>>.
 
-==== The ``Print'' dialog box
+==== The “Print” dialog box
 
 [[ChIOPrintDialogBox]]
 
-.The ``Print'' dialog box
+.The “Print” dialog box
 image::wsug_graphics/ws-print.png[{screenshot-attrs}]
 
 The following fields are available in the Print dialog box: _Printer_::

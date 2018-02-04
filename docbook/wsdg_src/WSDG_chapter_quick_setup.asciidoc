@@ -16,7 +16,7 @@ If a tool is not already installed on your system, you can usually install it
 using the package in your distribution: aptitude, yum, Synaptic, etc.
 
 If an install package is not available or you have a
-reason not to use it (maybe because it's simply too old), you
+reason not to use it (maybe because it’s simply too old), you
 can install that tool from source code. The following sections
 will provide you with the webpage addresses where you can get
 these sources.
@@ -81,7 +81,7 @@ PS$>choco install VisualStudio2015Community --timeout 0 -package-parameters "--A
 ----
 
 You can use other Microsoft C compiler variants, but VS2015 is used to
-build the development releases and is the preferred option. It's
+build the development releases and is the preferred option. It’s
 possible to compile Wireshark with a wide range of Microsoft C compiler
 variants. For details see <<ChToolsMSChain>>.
 
@@ -185,7 +185,7 @@ You can directly download packages via `cyg-get`
 PS$>cyg-get asciidoc patch docbook-xml45 [...]
 ----
 
-You can use Chocolatey's Win flex-bison packages rather than the Cygwin
+You can use Chocolatey’s Win flex-bison packages rather than the Cygwin
 Bison and Flex package:
 
 ----
@@ -199,7 +199,7 @@ PS$>choco install winflexbison
 Get the Python 3.5 or 2.7 installer from http://python.org/download/[] and
 install Python into the default location (_C:\Python35_ or _C:\Python27_).
 
-Why is this recommended? Cygwin's _/usr/bin/python_ is a Cygwin-specific
+Why is this recommended? Cygwin’s _/usr/bin/python_ is a Cygwin-specific
 symbolic link which cannot be run from Windows. The native package is faster
 as well.
 
@@ -288,7 +288,7 @@ Chocolatey ensures cmake.exe is on your path.
 [TIP]
 .Make sure everything works
 ====
-It's a good idea to make sure Wireshark compiles and runs at least once before
+It’s a good idea to make sure Wireshark compiles and runs at least once before
 you start hacking the Wireshark sources for your own project. This example uses
 Git Extensions but any other Git client should work as well.
 ====
@@ -318,7 +318,7 @@ Repository to clone: *`https://code.wireshark.org/review/wireshark`*
 +
 Destination: Your top-level development directory, e.g. _C:\Development_.
 +
-Subdirectory to create: Anything you'd like. Usually _wireshark_.
+Subdirectory to create: Anything you’d like. Usually _wireshark_.
 +
 [TIP]
 .Check your paths
@@ -457,7 +457,7 @@ the environment variables `WIRESHARK_BASE_DIR` and `QT5_BASE_DIR`.
 
 ==== Build Wireshark
 
-Now it's time to build Wireshark!
+Now it’s time to build Wireshark!
 
 . If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 
@@ -491,7 +491,7 @@ The build files produced by CMake will regenerate themselves if required by chan
 You can debug using the Visual Studio Debugger or WinDbg.  See the section
 on using the <<ChToolsDebugger, Debugger Tools>>.
 
-==== Optional: Create User's and Developer's Guide
+==== Optional: Create User’s and Developer’s Guide
 
 Detailed information to build these guides can be found in the file
 _docbook\README.txt_ in the Wireshark sources.
@@ -538,6 +538,6 @@ to build a Wireshark installer.
 ----
 > C:\Development\wireshark\packaging\nsis\wireshark-win32-{wireshark-version}-myprotocol123.exe
 ----
-to test your new installer. It's a good idea to test on a different machine
+to test your new installer. It’s a good idea to test on a different machine
 than the developer machine. Note that if you've built an x64 version, the installer will be named accordingly.
 --

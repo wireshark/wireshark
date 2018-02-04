@@ -9,7 +9,7 @@ The following table shows the typographic conventions that are used in this guid
 // AsciiDoc allows alternative markup for some styles, specifially
 // 'single quotes' and _underlines_ for italics and +plus signs+ and
 // `backticks` for monospaces.
-// Asciidoctor's modern mode is more strict, and only allows _underline_
+// Asciidoctor’s modern mode is more strict, and only allows _underline_
 // italics and `backtick` monospaces.
 // http://asciidoctor.org/docs/migration/
 
@@ -18,7 +18,7 @@ The following table shows the typographic conventions that are used in this guid
 |===============
 |Style|Description|Example
 |_Italic_             |File names, folder names, and extensions |_C:\Development\wireshark_.
-|`Monospace`          |Commands, flags, and environment variables|CMake's `-G` option.
+|`Monospace`          |Commands, flags, and environment variables|CMake’s `-G` option.
 |**`Bold Monospace`** |Commands that should be run by the user|Run **`cmake -G Ninja ..`**.
 |btn:[Button]         |Dialog and window buttons |Press btn:[Launch] to go to the Moon.
 |kbd:[Key]            |Keyboard shortcut |Press kbd:[Ctrl+Down] to move to the next packet.

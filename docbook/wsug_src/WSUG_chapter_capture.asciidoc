@@ -25,7 +25,7 @@ The Wireshark capture engine provides the following features:
   <<ChCapCaptureFilterSection>>.
 
 * Save packets in multiple files while doing a long term capture, optionally
-  rotating through a fixed number of files (a ``ringbuffer''). See
+  rotating through a fixed number of files (a “ringbuffer”). See
   <<ChCapCaptureFiles>>.
 
 * Simultaneously capture from multiple network interfaces.
@@ -131,7 +131,7 @@ comment added in <<ChCustInterfaceOptionsSection>>.
 _IP_::
 The first IP address Wireshark could find for this interface. You can click on
 the address to cycle through other addresses assigned to it, if available. If no
-address could be found ``none'' will be displayed.
+address could be found “none” will be displayed.
 
 
 _Packets_::
@@ -186,7 +186,7 @@ the defaults as this should work well in many cases.
 The table shows the settings for all available interfaces:
 
 * The name of the interface and its IP addresses. If no address could be
-  resolved from the system, ``none'' will be shown.
+  resolved from the system, “none” will be shown.
 --
 [NOTE]
 ====
@@ -366,7 +366,7 @@ You can set the following fields in this dialog box:
 
 _IP address_::
 The IP address(es) of the selected interface. If no address could be resolved
-from the system ``none'' will be shown.
+from the system “none” will be shown.
 
 _Link-layer header type_::
 Unless you are in the rare situation that requires this keep the default setting.
@@ -410,7 +410,7 @@ most protocols. Some rules of thumb:
   dropped if traffic is very heavy.
 
 * If you don't capture all of the data in a packet you might find that the
-  packet data you want is in the part that's dropped or that reassembly isn't
+  packet data you want is in the part that’s dropped or that reassembly isn't
   possible as the data required for reassembly is missing.
 
 _Buffer size: n megabyte(s)_::
@@ -498,7 +498,7 @@ activated, it is not automatically added to the list to prevent the constant
 scanning for a change in the list of available interfaces. To renew the list a
 rescan can be done.
 
-One way to hide an interface is to change the preferences. If the ``Hide''
+One way to hide an interface is to change the preferences. If the “Hide”
 checkbox is activated and the btn:[Apply] button clicked, the interface will
 not be seen in the lists of the ``Capture Interfaces'' dialog box any more. The
 changes are also saved in the `preferences` file.
@@ -645,9 +645,9 @@ from the network card and keep the packet data in a (relatively) small kernel
 buffer. This data is read by Wireshark and saved into a capture file.
 
 By default Wireshark saves packets to a temporary file. You can also tell
-Wireshark to save to a specific (``permanent'') file and switch to a
+Wireshark to save to a specific (“permanent”) file and switch to a
 different file after a given time has elapsed or a given number of packets
-have been captured. These options are controlled in the ``Output'' tab in
+have been captured. These options are controlled in the “Output” tab in
 the ``Capture Options'' dialog.
 
 [[ChCapCaptureOptionsOutputDialog]]
@@ -703,7 +703,7 @@ _Multiple files, ring buffer_::
   conditions (one of the ``Next file every ...'' values) will switch to the next
   file. This will be a newly created file if value of ``Ring buffer with n files''
   is not reached, otherwise it will replace the oldest of the formerly used files
-  (thus forming a ``ring'').
+  (thus forming a “ring”).
   +
   This mode will limit the maximum disk usage, even for an unlimited amount of
   capture input data, only keeping the latest captured data.
@@ -716,16 +716,16 @@ In most cases you won't have to modify link-layer header type. Some exceaptions
 are as follows:
 
 If you are capturing on an Ethernet device you might be offered a choice of
-``Ethernet'' or ``DOCSIS''. If you are capturing traffic from a Cisco Cable
+“Ethernet” or “DOCSIS”. If you are capturing traffic from a Cisco Cable
 Modem Termination System that is putting DOCSIS traffic onto the Ethernet to be
-captured, select ``DOCSIS'', otherwise select ``Ethernet''.
+captured, select “DOCSIS”, otherwise select “Ethernet”.
 
 If you are capturing on an 802.11 device on some versions of BSD you might be
-offered a choice of ``Ethernet'' or ``802.11''. ``Ethernet'' will cause the
-captured packets to have fake (``cooked'') Ethernet headers. ``802.11'' will
+offered a choice of “Ethernet” or “802.11”. “Ethernet” will cause the
+captured packets to have fake (“cooked”) Ethernet headers. “802.11” will
 cause them to have full IEEE 802.11 headers. Unless the capture needs to be read
 by an application that doesn't support 802.11 headers you should select
-``802.11''.
+“802.11”.
 
 If you are capturing on an Endace DAG card connected to a synchronous serial
 line you might be offered a choice of ``PPP over serial'' or ``Cisco HDLC''. If
@@ -747,7 +747,7 @@ overview of the syntax follows. Complete documentation can be found in
 the link:{pcap-filter-man-page-url}[pcap-filter man page]. You can find
 a lot of Capture Filter examples at {wireshark-wiki-url}CaptureFilters.
 
-You enter the capture filter into the ``Filter'' field of the Wireshark
+You enter the capture filter into the “Filter” field of the Wireshark
 ``Capture Options'' dialog box, as shown in <<ChCapCaptureOptionsDialog>>.
 
 A capture filter takes the form of a series of primitive expressions connected
@@ -786,26 +786,26 @@ tcp port 23 and not src host 10.0.0.5
 
 // XXX - add examples to the following list.
 
-A primitive is simply one of the following: _[src|dst] host &lt;host&gt;_::
+A primitive is simply one of the following: _[src|dst] host <host>_::
 This primitive allows you to filter on a host IP address or name. You can
 optionally precede the primitive with the keyword _src|dst_ to specify that you
 are only interested in source or destination addresses. If these are not
 present, packets where the specified address appears as either the source or the
 destination address will be selected.
 
-_ether [src|dst] host &lt;ehost&gt;_::
+_ether [src|dst] host <ehost>_::
 This primitive allows you to filter on Ethernet host addresses. You can
 optionally include the keyword _src|dst_ between the keywords _ether_ and _host_
 to specify that you are only interested in source or destination addresses. If
 these are not present, packets where the specified address appears in either the
 source or destination address will be selected.
 
-_gateway host &lt;host&gt;_::
+_gateway host <host>_::
 This primitive allows you to filter on packets that used _host_ as a gateway.
 That is, where the Ethernet source or destination was _host_ but neither the
 source nor destination IP address was _host_.
 
-_[src|dst] net &lt;net&gt; [{mask &lt;mask&gt;}|{len &lt;len&gt;}]_::
+_[src|dst] net <net> [{mask <mask>}|{len <len>}]_::
 This primitive allows you to filter on network numbers. You can optionally
 precede this primitive with the keyword _src|dst_ to specify that you are only
 interested in a source or destination network. If neither of these are present,
@@ -814,7 +814,7 @@ destination address. In addition, you can specify either the netmask or the CIDR
 prefix for the network if they are different from your own.
 
 
-_[tcp|udp] [src|dst] port &lt;port&gt;_::
+_[tcp|udp] [src|dst] port <port>_::
 This primitive allows you to filter on TCP and UDP port numbers. You can
 optionally precede this primitive with the keywords _src|dst_ and _tcp|udp_
 which allow you to specify that you are only interested in source or destination
@@ -825,12 +825,12 @@ If these are not specified, packets will be selected for both the TCP and UDP
 protocols and when the specified address appears in either the source or
 destination port field.
 
-_less|greater &lt;length&gt;_::
+_less|greater <length>_::
 This primitive allows you to filter on packets whose length was less than or
 equal to the specified length, or greater than or equal to the specified length,
 respectively.
 
-_ip|ether proto &lt;protocol&gt;_::
+_ip|ether proto <protocol>_::
 This primitive allows you to filter on the specified protocol at either the
 Ethernet layer or the IP layer.
 
@@ -838,7 +838,7 @@ _ether|ip broadcast|multicast_::
 This primitive allows you to filter on either Ethernet or IP broadcasts or
 multicasts.
 
-_&lt;expr&gt; relop &lt;expr&gt;_:: This primitive allows you to create
+_<expr> relop <expr>_:: This primitive allows you to create
 complex filter expressions that select bytes or ranges of bytes in
 packets. Please see the pcap-filter man page at
 {pcap-filter-man-page-url} for more details.
@@ -853,31 +853,31 @@ terminal server, ...), the remote content has to be transported over the
 network, adding a lot of (usually unimportant) packets to the actually
 interesting traffic.
 
-To avoid this, Wireshark tries to figure out if it's remotely connected (by
+To avoid this, Wireshark tries to figure out if it’s remotely connected (by
 looking at some specific environment variables) and automatically creates a
 capture filter that matches aspects of the connection.
 
 The following environment variables are analyzed:
 
 _$$SSH_CONNECTION$$_ (ssh)::
-&lt;remote IP&gt; &lt;remote port&gt; &lt;local IP&gt; &lt;local port&gt;
+<remote IP> <remote port> <local IP> <local port>
 
 
 _$$SSH_CLIENT$$_ (ssh)::
-&lt;remote IP&gt; &lt;remote port&gt; &lt;local port&gt;
+<remote IP> <remote port> <local port>
 
 
 _REMOTEHOST_ (tcsh, others?)::
-&lt;remote name&gt;
+<remote name>
 
 _DISPLAY_ (x11)::
-[remote name]:&lt;display num&gt;
+[remote name]:<display num>
 
 
 _SESSIONNAME_ (terminal server)::
-&lt;remote name&gt;
+<remote name>
 
-On Windows it asks the operating system if it's running in a Remote Desktop Services environment.
+On Windows it asks the operating system if it’s running in a Remote Desktop Services environment.
 
 ////
 
@@ -934,7 +934,7 @@ dialog'' option is used.
 
 A running capture session can be restarted with the same capture options as the
 last time, this will remove all packets previously captured. This can be useful,
-if some uninteresting packets are captured and there's no need to keep them.
+if some uninteresting packets are captured and there’s no need to keep them.
 
 Restart is a convenience function and equivalent to a capture stop following by
 an immediate capture start. A restart can be triggered in one of the following

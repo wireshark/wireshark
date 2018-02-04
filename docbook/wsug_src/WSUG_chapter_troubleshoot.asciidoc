@@ -38,7 +38,7 @@ systems and then copy the capture file to your system for later analysis. For
 more details on capturing with _tcpdump_, see <<Ch05tcpdump>>.
 
 * Once you have captured packets that you think relate to the problem, load them
-  into Wireshark and look for your problem. Using Wireshark's filtering and
+  into Wireshark and look for your problem. Using Wireshark’s filtering and
   colorization capabilities, you can quickly narrow down the capture to the area
   of interest.
 
@@ -49,7 +49,7 @@ more details on capturing with _tcpdump_, see <<Ch05tcpdump>>.
 
 === Capturing in the presence of switches and routers
 
-In the old days of Ethernet, all network traffic was spread over one ``yellow''
+In the old days of Ethernet, all network traffic was spread over one “yellow”
 cable through the whole network. Capturing data was easy, as all packets from
 the network could be captured using the ``promiscuous mode'' at any place in the
 network. The only devices blocking network traffic, were routers. But as routers
@@ -62,12 +62,12 @@ change.
 At the next stage, Ethernet switches became widely available. This complicated
 things a lot. When capturing traffic on a computer connected to a switch,
 usually the switch will only forward packets to the computer, which are directed
-to it, or to all computers (broadcasts). It's much the same like deactivating
+to it, or to all computers (broadcasts). It’s much the same like deactivating
 the promiscuous mode of the capturing network card.
 
 There are some ways to circumvent this.
 
-Many vendor's switches support a feature known as ``port spanning'' or ``port
+Many vendor’s switches support a feature known as ``port spanning'' or ``port
 mirroring'' in which all of the traffic to and from port A are also sent out
 port B. An excellent reference on the ``port spanning'' feature of Cisco
 switches can be found at

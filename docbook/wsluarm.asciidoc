@@ -20,13 +20,13 @@ the Department of Computer Science.
 In Wireshark Lua can be used to write dissectors, taps, and capture file readers
 and writers.
 
-Wireshark's Lua interpreter starts by loading `init.lua` that is located in the
+Wireshark’s Lua interpreter starts by loading `init.lua` that is located in the
 global configuration directory of Wireshark. Lua is enabled by default. To
 disable Lua the line variable _$$disable_lua$$_ should be set to _true_ in
 `init.lua`.
 
 After loading _init.lua_ from the data directory if Lua is enabled Wireshark
-will try to load a file named `init.lua` in the user's directory.
+will try to load a file named `init.lua` in the user’s directory.
 
 Wireshark will also load all files with `.lua` suffix from both the global and
 the personal plugins directory.
@@ -167,7 +167,7 @@ register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)
 
 [[wsluarm_modules]]
 
-== Wireshark's Lua API Reference Manual
+== Wireshark’s Lua API Reference Manual
 
 This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
 
@@ -211,9 +211,9 @@ include::{build_dir}/wsluarm_src/wslua_struct.asciidoc[]
 === GLib Regular Expressions
 
 Lua has its own native _pattern_ syntax in the string library, but sometimes a
-real regex engine is more useful. Wireshark comes with GLib's Regex
+real regex engine is more useful. Wireshark comes with GLib’s Regex
 implementation, which itself is based on Perl Compatible Regular Expressions
-(PCRE). This engine is exposed into Wireshark's Lua engine through the
+(PCRE). This engine is exposed into Wireshark’s Lua engine through the
 well-known Lrexlib library, following the same syntax and semantics as the
 Lrexlib PCRE implementation, with a few differences as follows:
 
@@ -277,34 +277,34 @@ characters stand for compilation flags. Combinations of the following characters
 (case sensitive) are supported:
 
 * _i_ = G_REGEX_CASELESS - Letters in the pattern match both upper- and
-  lowercase letters. This option can be changed within a pattern by a ``(?i)''
+  lowercase letters. This option can be changed within a pattern by a “(?i)”
   option setting.
 
 * _m_ = G_REGEX_MULTILINE - By default, GRegex treats the strings as
   consisting of a single line of characters (even if it actually contains
-  newlines). The ``start of line'' metacharacter (``^'') matches only at the start
-  of the string, while the ``end of line'' metacharacter (``$'') matches only at
+  newlines). The ``start of line'' metacharacter (“^”) matches only at the start
+  of the string, while the ``end of line'' metacharacter (“$”) matches only at
   the end of the string, or before a terminating newline (unless
   G_REGEX_DOLLAR_ENDONLY is set). When G_REGEX_MULTILINE is set, the ``start of
   line'' and ``end of line'' constructs match immediately following or
   immediately before any newline in the string, respectively, as well as at the
-  very start and end. This can be changed within a pattern by a ``(?m)'' option
+  very start and end. This can be changed within a pattern by a “(?m)” option
   setting.
 
-* _s_ = G_REGEX_DOTALL - A dot metacharater (``.'') in the pattern matches
+* _s_ = G_REGEX_DOTALL - A dot metacharater (“.”) in the pattern matches
   all characters, including newlines. Without it, newlines are excluded. This
   option can be changed within a pattern by a ("?s") option setting.
 
 * _x_ = G_REGEX_EXTENDED - Whitespace data characters in the pattern are
   totally ignored except when escaped or inside a character class. Whitespace
   does not include the VT character (code 11). In addition, characters between
-  an unescaped ``$$#$$'' outside a character class and the next newline character,
+  an unescaped “$$#$$” outside a character class and the next newline character,
   inclusive, are also ignored. This can be changed within a pattern by a
-  ``(?x)'' option setting.
+  “(?x)” option setting.
 
-* _U_ = G_REGEX_UNGREEDY - Inverts the ``greediness'' of the quantifiers so
-  that they are not greedy by default, but become greedy if followed by ``?''.
-  It can also be set by a ``(?U)'' option setting within the pattern.
+* _U_ = G_REGEX_UNGREEDY - Inverts the “greediness” of the quantifiers so
+  that they are not greedy by default, but become greedy if followed by “?”.
+  It can also be set by a “(?U)” option setting within the pattern.
 
 [[lua_fn_GRegex_new_pattern_]]
 
@@ -597,7 +597,7 @@ ef (optional):: match execution flags (bitwise OR)
 [float]
 ===== Returns
 
-On success, returns all substring matches (``captures''), in the order they appear
+On success, returns all substring matches (“captures”), in the order they appear
 in the pattern. false is returned for sub-patterns that did not participate in
 the match. If the pattern specified no captures then the whole matched substring
 is returned. nil is returned if the pattern did not match.
@@ -650,7 +650,7 @@ ef (optional):: match execution flags (bitwise OR)
 ===== Returns
 
 On success, returns the start point of the first match (a number), the end point
-of the first match (a number), and the offsets of substring matches (``captures''
+of the first match (a number), and the offsets of substring matches (“captures”
 in Lua terminology) are returned as a third result, in a table. This table
 contains false in the positions where the corresponding sub-pattern did not
 participate in the match. On failure, returns nil. Example: If the whole match

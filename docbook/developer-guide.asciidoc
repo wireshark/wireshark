@@ -1,10 +1,10 @@
-= Wireshark Developer's Guide
+= Wireshark Developer’s Guide
 //v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
 :doctype: book
 include::attributes.asciidoc[]
 
 // Convenience attribute.
-// XXX This should be surrounded by single quotes in the text. It's
+// XXX This should be surrounded by single quotes in the text. It’s
 // currently surrounded by plus signs for AsciiDoc compatibility.
 :dlt-glob: DLT_*
 

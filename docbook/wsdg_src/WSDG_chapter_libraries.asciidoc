@@ -63,7 +63,7 @@ format. You will recognize MSVC libraries by the .lib/.dll file extension.
 ==== Win32: cygwin gcc
 
 Cygwin provides most of the required libraries (with file extension .a or .lib)
-for Wireshark suitable for cygwin's gcc compiler.
+for Wireshark suitable for cygwin’s gcc compiler.
 
 
 [[ChLibsSetup]]
@@ -120,7 +120,7 @@ bin directory, e.g. C:\Qt\Qt5.6.2\5.6\msvc2013
 
 === GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv
 
-The Glib library is used as a basic platform abstraction library, it's
+The Glib library is used as a basic platform abstraction library, it’s
 not related to graphical user interface (GUI) things. For a detailed
 description about GLib, see <<ChCodeGLib>>.
 
@@ -172,7 +172,7 @@ http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 
 Wireshark uses the source libSMI distribution at
 http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
-LibSMI is cross-compiled using MinGW32. It's stored in the libsmi zip archive at
+LibSMI is cross-compiled using MinGW32. It’s stored in the libsmi zip archive at
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsCares]]
@@ -230,7 +230,7 @@ locally.
 === libpcap/WinPcap (optional)
 
 Libpcap and WinPcap provide that packet capture capabilities that are central
-to Wireshark's core functionality.
+to Wireshark’s core functionality.
 
 [[ChLibsLibpcap]]
 

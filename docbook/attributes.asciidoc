@@ -74,3 +74,5 @@
 // XXX height=22 results in content-height="22px" in the .fo file. Not sure
 // how to make scaledwidth take precedence.
 :statusbar-attrs: scaledwidth="85%",height=22
+
+:multiplication: ×

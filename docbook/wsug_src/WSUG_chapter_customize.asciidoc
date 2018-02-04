@@ -10,7 +10,7 @@
 
 === Introduction
 
-Wireshark's default behaviour will usually suit your needs pretty well. However,
+Wireshark’s default behaviour will usually suit your needs pretty well. However,
 as you become more familiar with Wireshark, it can be customized in various ways
 to suit your needs even better. In this chapter we explore:
 
@@ -152,7 +152,7 @@ name is based on the number of the file and on the creation date and
 time.
 +
 When the first capture file fills up Wireshark will switch to writing
-to the next file, and so on.  With the <command>files</command> option it's
+to the next file, and so on.  With the <command>files</command> option it’s
 also possible to form a ``ring buffer.''  This will fill up new files until the
 number of files specified, at which point the data in the first file will be
 discarded so a new file can be written.
@@ -235,7 +235,7 @@ interfaces, and choosing the first loopback interface if there are no
 non-loopback interfaces; if there are no interfaces, Wireshark reports an error
 and doesn't start the capture.
 +
-Pipe names should be either the name of a FIFO (named pipe) or ``-'' to read
+Pipe names should be either the name of a FIFO (named pipe) or “-” to read
 data from the standard input. Data read from pipes must be in standard libpcap
 format.
 
@@ -322,7 +322,7 @@ wireshark -o mgcp.display_dissect_tree:TRUE -o mgcp.udp.callagent_port:2627
 You can get a list of all available preference strings from the
 preferences file. See <<AppFiles>> for details.
 
-User access tables can be overridden using ``uat,'' followed by
+User access tables can be overridden using “uat,” followed by
 the UAT file name and a valid record for the file:
 
 ----
@@ -355,7 +355,7 @@ The criterion is of the form key:path, where key is one of:
 
     persdata:path::
 
-    Path of personal data files, it's the folder initially opened. After the
+    Path of personal data files, it’s the folder initially opened. After the
     initialization, the recent file will keep the folder last used.
 --
 
@@ -413,7 +413,7 @@ are seconds since epoch (Jan 1, 1970 00:00:00)
 
 -u <s | hms>::
 
-Show timesamps as seconds (`s', the default) or hours, minutes, and seconds (`hms')
+Show timesamps as seconds (“s”, the default) or hours, minutes, and seconds (“hms”)
 
 -v::
 
@@ -509,7 +509,7 @@ will match first).
 ====
 
 You can create a new rule by clicking on the btn:[+] button. You can delete
-one or more rules by clicking the btn:[-] button. The ``copy'' button will
+one or more rules by clicking the btn:[-] button. The “copy” button will
 duplicate a rule.
 
 You can edit a rule by double-clicking on its name or filter. In
@@ -543,7 +543,7 @@ The user can control how protocols are dissected.
 
 Each protocol has its own dissector, so dissecting a complete packet will
 typically involve several dissectors. As Wireshark tries to find the right
-dissector for each packet (using static ``routes'' and heuristics ``guessing"),
+dissector for each packet (using static “routes” and heuristics ``guessing"),
 it might choose the wrong dissector in your specific case. For example,
 Wireshark won't know if you use a common protocol on an uncommon TCP port, e.g.
 using HTTP on TCP port 800 instead of the standard port 80.
@@ -683,8 +683,8 @@ image::wsug_graphics/ws-gui-preferences.png[{screenshot-attrs}]
 
 ==== Interface Options
 
-In the ``Capture'' preferences it is possible to configure several options for the
-interfaces available on your computer. Select the ``Capture'' pane and press the
+In the “Capture” preferences it is possible to configure several options for the
+interfaces available on your computer. Select the “Capture” pane and press the
 btn:[Edit] button. In this window it is possible to change the default
 link-layer header type for the interface, add a comment or choose to hide a
 interface from other parts of the program.
@@ -718,7 +718,7 @@ Configuration Profiles can be used to configure and use more than one set of
 preferences and configurations. Select the _Configuration Profiles..._ menu item
 from the _Edit_ menu, or simply press Shift-Ctrl-A; and Wireshark will pop up
 the Configuration Profiles dialog box as shown in
-<<ChCustGUIConfigProfilesPage>>. It is also possible to click in the ``Profile''
+<<ChCustGUIConfigProfilesPage>>. It is also possible to click in the “Profile”
 part of the statusbar to popup a menu with available Configuration Profiles
 (<<ChUseWiresharkStatusbarProfile>>).
 
@@ -774,7 +774,7 @@ Configuration files stored in the Profiles:
 
 * Some recent settings (recent), such as pane sizes in the Main window
   (<<ChUseMainWindowSection>>), column widths in the packet list
-  (<<ChUsePacketListPaneSection>>), all selections in the ``View'' menu
+  (<<ChUsePacketListPaneSection>>), all selections in the “View” menu
   (<<ChUseViewMenuSection>>) and the last directory navigated to in the File
   Open dialog.
 
@@ -792,12 +792,12 @@ profile is ``New profile'' and can be changed in the Properties field.
 Copy::
 This button adds a new profile to the profiles list, copying all configuration
 from the profile currently selected in the list. The name of the created profile
-is the same as the copied profile, with the text ``(copy)'' applied. The name
+is the same as the copied profile, with the text “(copy)” applied. The name
 can be changed in the Properties field.
 
 Delete::
 This button deletes the selected profile, including all configuration files used
-in this profile. It is not possible to delete the ``Default'' profile.
+in this profile. It is not possible to delete the “Default” profile.
 
 Configuration Profiles::
 You can select a configuration profile from this list (which will fill in the
@@ -812,9 +812,9 @@ configurations'' folder. If adding multiple profiles with the same name, only
 one profile will be created.
 
 On Windows the profile name cannot start or end with a period (.), and cannot
-contain any of the following characters: `&#x5c;', `&#x2f;', `:', `&#x2a;',
-`&#x3f;', `&#x60;', `<', `>', `&#x7c;', or `&#x2b;'. On Unix the profile name
-cannot contain the `&#x2f;' character.
+contain any of the following characters: “{backslash}”, “/”, “:”, “{asterisk}”,
+“?”, “{backtick}”, “<”, “>”, “|”, or “{plus}”. On Unix the profile name
+cannot contain the “/” character.
 --
 
 btn:[OK]::
@@ -913,23 +913,23 @@ under ESP protocol preference respectively.
 
 This table is handled by an <<ChUserTable>> with the following fields.
 
-Initiator's SPI::
-Initiator's SPI of the IKE_SA. This field takes hexadecimal string without
-``0x'' prefix and the length must be 16 hex chars (represents 8 octets).
+Initiator’s SPI::
+Initiator’s SPI of the IKE_SA. This field takes hexadecimal string without
+“0x” prefix and the length must be 16 hex chars (represents 8 octets).
 
-Responder's SPI::
-Responder's SPI of the IKE_SA. This field takes hexadecimal string without
-``0x'' prefix and the length must be 16 hex chars (represents 8 octets).
+Responder’s SPI::
+Responder’s SPI of the IKE_SA. This field takes hexadecimal string without
+“0x” prefix and the length must be 16 hex chars (represents 8 octets).
 
 SK_ei::
 Key used to encrypt/decrypt IKEv2 packets from initiator to responder. This
-field takes hexadecimal string without ``0x'' prefix and its length must meet
+field takes hexadecimal string without “0x” prefix and its length must meet
 the requirement of the encryption algorithm selected.
 
 
 SK_er::
 Key used to encrypt/decrypt IKEv2 packets from responder to initiator. This
-field takes hexadecimal string without ``0x'' prefix and its length must meet
+field takes hexadecimal string without “0x” prefix and its length must meet
 the requirement of the encryption algorithm selected.
 
 Encryption Algorithm::
@@ -937,12 +937,12 @@ Encryption algorithm of the IKE_SA.
 
 $$SK_ai$$::
 Key used to calculate Integrity Checksum Data for IKEv2 packets from responder
-to initiator. This field takes hexadecimal string without ``0x'' prefix and its
+to initiator. This field takes hexadecimal string without “0x” prefix and its
 length must meet the requirement of the integrity algorithm selected.
 
 $$SK_ar$$::
 Key used to calculate Integrity Checksum Data for IKEv2 packets from initiator
-to responder. This field takes hexadecimal string without ``0x'' prefix and its
+to responder. This field takes hexadecimal string without “0x” prefix and its
 length must meet the requirement of the integrity algorithm selected.
 
 Integrity Algorithm::
@@ -964,20 +964,20 @@ Wireshark uses this table to allow the user to define the name and syntax of
 Object Identifiers that Wireshark does not know about (for example, a privately
 defined X.400 extension). It also allows the user to override the name and
 syntax of Object Identifiers that Wireshark does know about (e.g. changing the
-name ``id-at-countryName'' to just ``c'').
+name “id-at-countryName” to just “c”).
 
 This table is handled by an <<ChUserTable>> with the following fields.
 
 OID::
-The string representation of the Object Identifier e.g. ``2.5.4.6''.
+The string representation of the Object Identifier e.g. “2.5.4.6”.
 
 Name::
 The name that should be displayed by Wireshark when the Object Identifier is
-dissected e.g. (``c'');
+dissected e.g. (“c”);
 
 Syntax::
 The syntax of the value associated with the Object Identifier. This must be one
-of the syntaxes that Wireshark already knows about (e.g. ``PrintableString'').
+of the syntaxes that Wireshark already knows about (e.g. “PrintableString”).
 
 [[ChPresContextList]]
 
@@ -1081,7 +1081,7 @@ different SNMP-engines the first entry to match both is taken, if you need a
 catch all engine-id (empty) that entry should be the last one.
 
 Authentication model::
-Which auth model to use (either ``MD5'' or ``SHA1'').
+Which auth model to use (either “MD5” or “SHA1”).
 
 Password::
 The authentication password. Use _\xDD_ for unprintable characters. An
@@ -1091,7 +1091,7 @@ _\x01\x02\x03\x04\x05\x06_. The _\_ character must be treated as an unprintable
 character, i.e. it must be entered as _\x5C_ or _\x5c_.
 
 Privacy protocol::
-Which encryption algorithm to use (either ``DES'' or ``AES").
+Which encryption algorithm to use (either “DES” or ``AES").
 
 Privacy password::
 The privacy password. Use _\xDD_ for unprintable characters. An hexadecimal
@@ -1118,7 +1118,7 @@ specific case and a general one the specific one must appear first in the list.
 Protocol::
 This is the name of the encapsulating protocol (the lowest layer in the packet
 data) it can be either just the name of the protocol (e.g. mtp2, eth_witoutfcs,
-sscf-nni ) or the name of the encapsulation protocol and the ``application''
+sscf-nni ) or the name of the encapsulation protocol and the “application”
 protocol over it separated by a colon (e.g sscop:sscf-nni, sscop:alcap,
 sscop:nbap, ...)
 
@@ -1136,21 +1136,21 @@ One of the user dlts.
 
 Payload protocol::
 This is the name of the payload protocol (the lowest layer in the packet data).
-(e.g. ``eth'' for ethernet, ``ip'' for IPv4)
+(e.g. “eth” for ethernet, “ip” for IPv4)
 
 Header size::
 If there is a header protocol (before the payload protocol) this tells which
 size this header is. A value of 0 disables the header protocol.
 
 Header protocol::
-The name of the header protocol to be used (uses ``data'' as default).
+The name of the header protocol to be used (uses “data” as default).
 
 Trailer size::
 If there is a trailer protocol (after the payload protocol) this tells which
 size this trailer is. A value of 0 disables the trailer protocol.
 
 Trailer protocol::
-The name of the trailer protocol to be used (uses ``data'' as default).
+The name of the trailer protocol to be used (uses “data” as default).
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSUG Chapter Customizing -->

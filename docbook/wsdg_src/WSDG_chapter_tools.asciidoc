@@ -65,7 +65,7 @@ PS:\>iex ((new-object net.webclient).DownloadString(_https://chocolatey.org/inst
 ----
 
 Chocolatey sometimes installs packages in unexpected locations. Cygwin is a notable
-example -- recent versions of the Cygwin package are installed in _C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin_ instead of Cygwin's default location
+example -- recent versions of the Cygwin package are installed in _C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin_ instead of Cygwin’s default location
 (_C:\cygwin_ or _C:\cygwin64_).
 
 [[ChToolsCygwin]]
@@ -85,7 +85,7 @@ Although Cygwin consists of several separate packages, the installation
 and update is done through a single utility, _setup-x86.exe_ or
 _setup-x86_64.exe_, which acts similarly to other web based installers.
 You can install Cygwin and its packages using Chocolatey, but this is not
-recommended due to Chocolatey's default installation location, described
+recommended due to Chocolatey’s default installation location, described
 in the previous section.
 
 ==== Installing Cygwin using the Cygwin installer
@@ -198,7 +198,7 @@ Your version string may vary, of course.
 
 [[ChToolsCMake]]
 
-Wireshark's build environment can be configured using CMake on Windows
+Wireshark’s build environment can be configured using CMake on Windows
 and either CMake or Autotools on Linux, macOS, and UNIX. CMake is designed
 to support out of tree builds. So much so, that in tree builds do not work
 properly in all cases. Along with being cross-platform, CMake supports
@@ -237,7 +237,7 @@ using the `-D` flag. Useful variables and generators include the following:
 
 +++-DCMAKE_C_FLAGS='-Qunused-arguments'+++:: Make ccache and clang work together
 
--DPYTHON_EXECUTABLE=c:/Python27/python:: Force the Python path. Useful on Windows since Cygwin's /usrbin/python is a symlink.
+-DPYTHON_EXECUTABLE=c:/Python27/python:: Force the Python path. Useful on Windows since Cygwin’s /usrbin/python is a symlink.
 
 -DENABLE_APPLICATION_BUNDLE=OFF:: Disable building an application bundle (Wireshark.app) on macOS
 
@@ -522,7 +522,7 @@ http://msdn.microsoft.com/en-us/library/t2fck18t.aspx[Microsoft MSDN]
 ==== C-Runtime "Redistributable" Files
 
 Please note: The following is not legal advice - ask your preferred lawyer
-instead. It's the authors view and this view might be wrong.
+instead. It’s the authors view and this view might be wrong.
 
 Depending on the Microsoft compiler version you use, some binary files coming
 from Microsoft might be required to be installed on Windows machine to run
@@ -575,7 +575,7 @@ this for applications built with Visual Studio 2013)
 
 . _Using Visual {cpp} Redistributable Merge Modules._
 (Loadable modules for building msi installers.
-Not suitable for Wireshark's NSIS based installer)
+Not suitable for Wireshark’s NSIS based installer)
 
 . _Install a particular Visual {cpp} assembly as a
 private assembly for the application._ The
@@ -596,7 +596,7 @@ is used (this produces the smallest package).
 The Windows Platform SDK (PSDK) or Windows SDK is a free
 (as in beer) download and contains platform specific headers and
 libraries (e.g. _windows.h_, _WSock32.lib_, etc.). As new Windows
-features evolve in time, updated SDK's become available that
+features evolve in time, updated SDK’s become available that
 include new and updated APIs.
 
 When you purchase a commercial Visual Studio or use the Community Edition, it will
@@ -611,15 +611,15 @@ search for SetEnv.* in the SDK directory.
 
 ==== HTML Help
 
-HTML Help is used to create the User's and Developer's Guide in .chm format and
-to show the User's Guide as the Wireshark "Online Help".
+HTML Help is used to create the User’s and Developer’s Guide in .chm format and
+to show the User’s Guide as the Wireshark "Online Help".
 
 Both features are currently optional, and might be removed in future versions.
 
 ===== HTML Help Compiler (hhc.exe)
 
 This compiler is used to generate a .chm file from a bunch of HTML files -- in
-our case to generate the User's and Developer's Guide in .chm format.
+our case to generate the User’s and Developer’s Guide in .chm format.
 
 The compiler is only available as the free (as in beer) "HTML Help Workshop"
 download. If you want to compile the guides yourself, you need to download and
@@ -688,7 +688,7 @@ If you require a non-optimised version, then build using a debug configuration.
 ===== Debugging Tools for Windows
 
 You can also use the Microsoft Debugging Tools for Windows toolkit, which is a
-standalone GUI debugger. Although it's not that comfortable compared to
+standalone GUI debugger. Although it’s not that comfortable compared to
 debugging with the Visual Studio integrated debugger it can be helpful if you
 have to debug on a machine where an integrated debugger is not available.
 
@@ -897,7 +897,7 @@ However, the version string may vary.
 
 === Bison
 
-Bison is a parser generator used for some of Wireshark's file format support.
+Bison is a parser generator used for some of Wireshark’s file format support.
 
 [[ChToolsUnixBison]]
 
@@ -944,7 +944,7 @@ officially supported but _should_ work.
 
 === Flex
 
-Flex is a lexical analyzer generator used for Wireshark's display filters, some
+Flex is a lexical analyzer generator used for Wireshark’s display filters, some
 file formats, and other features.
 
 [[ChToolsUnixFlex]]

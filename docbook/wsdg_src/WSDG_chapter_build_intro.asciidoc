@@ -14,7 +14,7 @@ Wireshark consists of the following major parts:
 
 * Packet dissection - in the _/epan/dissector_ and _/plugin/\*_ directories
 
-* File I/O - using Wireshark's own wiretap library
+* File I/O - using Wireshark’s own wiretap library
 
 * Capture - using the libpcap/winpcap library, in _/wiretap_
 

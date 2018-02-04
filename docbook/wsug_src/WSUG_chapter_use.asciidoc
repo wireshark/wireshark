@@ -28,7 +28,7 @@ You can start Wireshark from your shell or window manager.
 [TIP]
 .Power user tip
 ====
-When starting Wireshark it's possible to specify optional settings using the
+When starting Wireshark it’s possible to specify optional settings using the
 command line. See <<ChCustCommandLine>> for details.
 ====
 
@@ -43,7 +43,7 @@ still be well understandable.
 
 === The Main window
 
-Let's look at Wireshark's user interface. <<ChUseFig01>> shows Wireshark as you
+Let’s look at Wireshark’s user interface. <<ChUseFig01>> shows Wireshark as you
 would usually see it after some packets are captured or loaded (how to do this
 will be described later).
 
@@ -51,7 +51,7 @@ will be described later).
 .The Main window
 image::wsug_graphics/ws-main.png[{screenshot-attrs}]
 
-Wireshark's main window consists of parts that are commonly known from many
+Wireshark’s main window consists of parts that are commonly known from many
 other GUI programs.
 
 . The _menu_ (see <<ChUseMenuSection>>) is used to start actions.
@@ -91,19 +91,19 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 |===============
 |Accelerator               |Description
 |kbd:[Tab], kbd:[Shift+Tab]|Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
-|kbd:[Down]                |Move to the next packet or detail item.
-|kbd:[Up]                  |Move to the previous packet or detail item.
-|kbd:[Ctrl+Down], kbd:[F8] |Move to the next packet, even if the packet list isn't focused.
-|kbd:[Ctrl+Up], kbd:[F7]   |Move to the previous packet, even if the packet list isn't focused.
+|kbd:[↓]                   |Move to the next packet or detail item.
+|kbd:[↑]                   |Move to the previous packet or detail item.
+|kbd:[Ctrl+↓], kbd:[F8]    |Move to the next packet, even if the packet list isn't focused.
+|kbd:[Ctrl+↑], kbd:[F7]    |Move to the previous packet, even if the packet list isn't focused.
 |kbd:[Ctrl+.]              |Move to the next packet of the conversation (TCP, UDP or IP).
-|kbd:[Ctrl+&#x2c;]         |Move to the previous packet of the conversation (TCP, UDP or IP).
-|kbd:[Alt+Right] or kbd:[Option+Right] (macOS) |Move to the next packet in the selection history.
-|kbd:[Alt+Left] or kbd:[Option+Right] (macOS)  |Move to the previous packet in the selection history.
-|kbd:[Left]                |In the packet detail, closes the selected tree item. If it's already closed, jumps to the parent node.
-|kbd:[Right]               |In the packet detail, opens the selected tree item.
-|kbd:[Shift+Right]         |In the packet detail, opens the selected tree item and all of its subtrees.
-|kbd:[Ctrl+Right]          |In the packet detail, opens all tree items.
-|kbd:[Ctrl+Left]           |In the packet detail, closes all tree items.
+|kbd:[Ctrl+&#44;]          |Move to the previous packet of the conversation (TCP, UDP or IP).
+|kbd:[Alt+→] or kbd:[Option+→] (macOS) |Move to the next packet in the selection history.
+|kbd:[Alt+←] or kbd:[Option+←] (macOS)  |Move to the previous packet in the selection history.
+|kbd:[←]                   |In the packet detail, closes the selected tree item. If it’s already closed, jumps to the parent node.
+|kbd:[→]                   |In the packet detail, opens the selected tree item.
+|kbd:[Shift+→]             |In the packet detail, opens the selected tree item and all of its subtrees.
+|kbd:[Ctrl+→]              |In the packet detail, opens all tree items.
+|kbd:[Ctrl+←]              |In the packet detail, closes all tree items.
 |kbd:[Backspace]           |In the packet detail, jumps to the parent node.
 |kbd:[Return], kbd:[Enter] |In the packet detail, toggles the selected tree item.
 |===============
@@ -116,7 +116,7 @@ filling in a display filter.
 
 === The Menu
 
-Wireshark's main menu is located either at the top of the main window (Windows,
+Wireshark’s main menu is located either at the top of the main window (Windows,
 Linux) or at the top of your main screen (macOS). An example is shown in
 <<ChUseWiresharkMenu>>.
 
@@ -194,12 +194,12 @@ press the Control (or Strg in German) and the K keys together to open the
 
 [[ChUseFileMenuSection]]
 
-=== The ``File'' menu
+=== The “File” menu
 
 The Wireshark file menu contains the fields shown in <<ChUseTabFile>>.
 
 [[ChUseWiresharkFileMenu]]
-.The ``File'' Menu
+.The “File” Menu
 image::wsug_graphics/ws-file-menu.png[{screenshot-attrs}]
 
 [[ChUseTabFile]]
@@ -232,7 +232,7 @@ will be asked to do so first (this can be disabled by a preference setting).
 
 |menu:Save[]                          |kbd:[Ctrl+S]|
 This menu item saves the current capture. If you have not set a default capture
-file name (perhaps with the -w &lt;capfile&gt; option), Wireshark pops up the
+file name (perhaps with the -w <capfile> option), Wireshark pops up the
 Save Capture File As dialog box (which is discussed further in <<ChIOSaveAs>>).
 
 If you have already saved the current capture, this menu item will be greyed
@@ -290,12 +290,12 @@ preference setting).
 
 [[ChUseEditMenuSection]]
 
-=== The ``Edit'' menu
+=== The “Edit” menu
 
 The Wireshark Edit menu contains the fields shown in <<ChUseTabEdit>>.
 
 [[ChUseWiresharkEditMenu]]
-.The ``Edit'' Menu
+.The “Edit” Menu
 image::wsug_graphics/ws-edit-menu.png[{screenshot-attrs}]
 
 [[ChUseTabEdit]]
@@ -388,12 +388,12 @@ Wireshark will use them the next time you start it. More detail is provided in
 
 [[ChUseViewMenuSection]]
 
-=== The ``View'' menu
+=== The “View” menu
 
 The Wireshark View menu contains the fields shown in <<ChUseTabView>>.
 
 [[ChUseWiresharkViewMenu]]
-.The ``View'' Menu
+.The “View” Menu
 image::wsug_graphics/ws-view-menu.png[{screenshot-attrs}]
 
 [[ChUseTabView]]
@@ -435,7 +435,7 @@ The fields "Automatic", "Seconds" and "...seconds" are mutually exclusive.
 Enabling colorization will slow down the display of new packets while capturing / loading capture files.
 
 |menu:Auto Scroll in Live Capture[] |                   |This item allows you to specify that Wireshark should scroll the packet list pane as new packets come in, so you are always looking at the last packet.  If you do not specify this, Wireshark simply adds new packets onto the end of the list, but does not scroll the packet list pane.
-|menu:Zoom In[]                     |kbd:[Ctrl+&#x2b;]  | Zoom into the packet data (increase the font size).
+|menu:Zoom In[]                     |kbd:[Ctrl+&#43;]   | Zoom into the packet data (increase the font size).
 |menu:Zoom Out[]                    |kbd:[Ctrl+-]       | Zoom out of the packet data (decrease the font size).
 |menu:Normal Size[]                 |kbd:[Ctrl+=]       | Set zoom level back to 100% (set font size back to normal).
 |menu:Resize All Columns[]          |kbd:[Shift+Ctrl+R] | Resize all column widths so the content will fit into it.
@@ -443,10 +443,10 @@ Enabling colorization will slow down the display of new packets while capturing 
 Resizing may take a significant amount of time, especially if a large capture file is loaded.
 
 |menu:Displayed Columns[]                           |                   |This menu items folds out with a list of all configured columns. These columns can now be shown or hidden in the packet list.
-|menu:Expand Subtrees[]                             |kbd:[Shift+&#x2192;]|This menu item expands the currently selected subtree in the packet details tree.
-|menu:Collapse Subtrees[]                           |kbd:[Shift+&#x2190;]|This menu item collapses the currently selected subtree in the packet details tree.
-|menu:Expand All[]                                  |kbd:[Ctrl+&#x2192;] |Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item expands all subtrees in all packets in the capture.
-|menu:Collapse All[]                                |kbd:[Ctrl+&#x2190;] |This menu item collapses the tree view of all packets in the capture list.
+|menu:Expand Subtrees[]                             |kbd:[Shift+→]|This menu item expands the currently selected subtree in the packet details tree.
+|menu:Collapse Subtrees[]                           |kbd:[Shift+←]|This menu item collapses the currently selected subtree in the packet details tree.
+|menu:Expand All[]                                  |kbd:[Ctrl+→] |Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item expands all subtrees in all packets in the capture.
+|menu:Collapse All[]                                |kbd:[Ctrl+←] |This menu item collapses the tree view of all packets in the capture list.
 |menu:Colorize Conversation[]                       |                   |This menu item brings up a submenu that allows you to color packets in the packet list pane based on the addresses of the currently selected packet. This makes it easy to distinguish packets belonging to different conversations. <<ChCustColorizationSection>>.
 |menu:Colorize Conversation[Color 1-10]             |                   |These menu items enable one of the ten temporary color filters based on the currently selected conversation.
 |menu:Colorize Conversation[Reset coloring]         |                   |This menu item clears all temporary coloring rules.
@@ -458,12 +458,12 @@ Resizing may take a significant amount of time, especially if a large capture fi
 
 [[ChUseGoMenuSection]]
 
-=== The ``Go'' menu
+=== The “Go” menu
 
 The Wireshark Go menu contains the fields shown in <<ChUseTabGo>>.
 
 [[ChUseWiresharkGoMenu]]
-.The ``Go'' Menu
+.The “Go” Menu
 image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 
 [[ChUseTabGo]]
@@ -471,26 +471,26 @@ image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===============
 |Menu Item                              |Accelerator        |Description
-|menu:Back[]                            |kbd:[Alt+&#x2190;] |Jump to the recently visited packet in the packet history, much like the page history in a web browser.
-|menu:Forward[]                         |kbd:[Alt+&#x2192;] |Jump to the next visited packet in the packet history, much like the page history in a web browser.
+|menu:Back[]                            |kbd:[Alt+←] |Jump to the recently visited packet in the packet history, much like the page history in a web browser.
+|menu:Forward[]                         |kbd:[Alt+→] |Jump to the next visited packet in the packet history, much like the page history in a web browser.
 |menu:Go to Packet...[]                 |kbd:[Ctrl+G]       |Bring up a window frame that allows you to specify a packet number, and then goes to that packet. See <<ChWorkGoToPacketSection>> for details.
 |menu:Go to Corresponding Packet[]      |                   |Go to the corresponding packet of the currently selected protocol field. If the selected field doesn't correspond to a packet, this item is greyed out.
-|menu:Previous Packet[]                 |kbd:[Ctrl+&#x2191;]|Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
-|menu:Next Packet[]                     |kbd:[Ctrl+&#x2193;]|Move to the next packet in the list.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
+|menu:Previous Packet[]                 |kbd:[Ctrl+↑]|Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
+|menu:Next Packet[]                     |kbd:[Ctrl+↓]|Move to the next packet in the list.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
 |menu:First Packet[]                    |kbd:[Ctrl+Home]    |Jump to the first packet of the capture file.
 |menu:Last Packet[]                     |kbd:[Ctrl+End]     |Jump to the last packet of the capture file.
-|menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#x2c;]  |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
+|menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#44;]  |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
 |menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
 |===============
 
 [[ChUseCaptureMenuSection]]
 
-=== The ``Capture'' menu
+=== The “Capture” menu
 
 The Wireshark Capture menu contains the fields shown in <<ChUseTabCap>>.
 
 [[ChUseWiresharkCaptureMenu]]
-.The ``Capture'' Menu
+.The “Capture” Menu
 image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
 
 [[ChUseTabCap]]
@@ -498,7 +498,7 @@ image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===============
 |Menu Item                  |Accelerator    |Description
-|menu:Interfaces...[]       |kbd:[Ctrl+I]   |This menu item brings up a dialog box that shows what's going on at the network interfaces Wireshark knows of, see <<ChCapInterfaceSection>>) .
+|menu:Interfaces...[]       |kbd:[Ctrl+I]   |This menu item brings up a dialog box that shows what’s going on at the network interfaces Wireshark knows of, see <<ChCapInterfaceSection>>) .
 |menu:Options...[]          |kbd:[Ctrl+K]   |This menu item brings up the Capture Options dialog box (discussed further in <<ChCapCaptureOptions>>) and allows you to start capturing packets.
 |menu:Start[]               |kbd:[Ctrl+E]   |Immediately start capturing packets with the same settings than the last time.
 |menu:Stop[]                |kbd:[Ctrl+E]   |This menu item stops the currently running capture, see <<ChCapStopSection>>) .
@@ -508,12 +508,12 @@ image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
 
 [[ChUseAnalyzeMenuSection]]
 
-=== The ``Analyze'' menu
+=== The “Analyze” menu
 
 The Wireshark Analyze menu contains the fields shown in <<ChUseAnalyze>>.
 
 [[ChUseWiresharkAnalyzeMenu]]
-.The ``Analyze'' Menu
+.The “Analyze” Menu
 image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 
 [[ChUseAnalyze]]
@@ -538,12 +538,12 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 
 [[ChUseStatisticsMenuSection]]
 
-=== The ``Statistics'' menu
+=== The “Statistics” menu
 
 The Wireshark Statistics menu contains the fields shown in <<ChUseStatistics>>.
 
 [[ChUseWiresharkStatisticsMenu]]
-.The ``Statistics'' Menu
+.The “Statistics” Menu
 image::wsug_graphics/ws-statistics-menu.png[{screenshot-attrs}]
 
 All menu items will bring up a new window showing specific statistical information.
@@ -579,12 +579,12 @@ All menu items will bring up a new window showing specific statistical informati
 
 [[ChUseTelephonyMenuSection]]
 
-=== The ``Telephony'' menu
+=== The “Telephony” menu
 
 The Wireshark Telephony menu contains the fields shown in <<ChUseTelephony>>.
 
 [[ChUseWiresharkTelephonyMenu]]
-.The ``Telephony'' Menu
+.The “Telephony” Menu
 image::wsug_graphics/ws-telephony-menu.png[{screenshot-attrs}]
 
 All menu items will bring up a new window showing specific telephony related statistical information.
@@ -613,12 +613,12 @@ All menu items will bring up a new window showing specific telephony related sta
 
 [[ChUseToolsMenuSection]]
 
-=== The ``Tools'' menu
+=== The “Tools” menu
 
 The Wireshark Tools menu contains the fields shown in <<ChUseTools>>.
 
 [[ChUseWiresharkToolsMenu]]
-.The ``Tools'' Menu
+.The “Tools” Menu
 image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
 
 [[ChUseTools]]
@@ -630,17 +630,17 @@ image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
 
 It is assumed that the rules will be applied to an outside interface.
 
-|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark. See the ``Lua Support in Wireshark'' in the Wireshark Developer's Guide.
+|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark. See the ``Lua Support in Wireshark'' in the Wireshark Developer’s Guide.
 |===============
 
 [[ChUseInternalsMenuSection]]
 
-=== The ``Internals'' menu
+=== The “Internals” menu
 
 The Wireshark Internals menu contains the fields shown in <<ChUseInternals>>.
 
 [[ChUseWiresharkInternalsMenu]]
-.The ``Internals'' Menu
+.The “Internals” Menu
 image::wsug_graphics/ws-internals-menu.png[{screenshot-attrs}]
 
 [[ChUseInternals]]
@@ -654,12 +654,12 @@ image::wsug_graphics/ws-internals-menu.png[{screenshot-attrs}]
 
 [[ChUseHelpMenuSection]]
 
-=== The ``Help'' menu
+=== The “Help” menu
 
 The Wireshark Help menu contains the fields shown in <<ChUseHelp>>.
 
 [[ChUseWiresharkHelpMenu]]
-.The ``Help'' Menu
+.The “Help” Menu
 image::wsug_graphics/ws-help-menu.png[{screenshot-attrs}]
 
 [[ChUseHelp]]
@@ -674,7 +674,7 @@ image::wsug_graphics/ws-help-menu.png[{screenshot-attrs}]
 |menu:Downloads[]|| This menu item starts a Web browser showing the downloads from: link:{wireshark-download-url}[].
 |menu:Wiki[]|| This menu item starts a Web browser showing the front page from: link:{wireshark-wiki-url}[].
 |menu:Sample Captures[]|| This menu item starts a Web browser showing the sample captures from: link:{wireshark-wiki-url}SampleCaptures[].
-|menu:About Wireshark[]|| This menu item brings up an information window that provides various detailed information items on Wireshark, such as how it's built, the plugins loaded, the used folders, ...
+|menu:About Wireshark[]|| This menu item brings up an information window that provides various detailed information items on Wireshark, such as how it’s built, the plugins loaded, the used folders, ...
 
 |===============
 
@@ -690,7 +690,7 @@ preferences dialog.
 
 [[ChUseMainToolbarSection]]
 
-=== The ``Main'' toolbar
+=== The “Main” toolbar
 
 The main toolbar provides quick access to frequently used items from the menu.
 This toolbar cannot be customized by the user, but it can be hidden using the
@@ -702,7 +702,7 @@ you haven't loaded one).
 
 [[ChUseWiresharkMainToolbar]]
 
-.The ``Main'' toolbar
+.The “Main” toolbar
 image::wsug_graphics/ws-main-toolbar.png[{screenshot-attrs}]
 
 [[ChUseMainToolbar]]
@@ -744,14 +744,14 @@ If you currently have a temporary capture file, the Save icon  will be shown ins
 
 [[ChUseFilterToolbarSection]]
 
-=== The ``Filter'' toolbar
+=== The “Filter” toolbar
 
 The filter toolbar lets you quickly edit and apply display filters. More
 information on display filters is available in <<ChWorkDisplayFilterSection>>.
 
 [[ChUseWiresharkFilterToolbar]]
 
-.The ``Filter'' toolbar
+.The “Filter” toolbar
 image::wsug_graphics/ws-filter-toolbar.png[{screenshot-attrs}]
 
 [[ChUseFilterToolbar]]
@@ -794,7 +794,7 @@ dissectors into the columns. As higher level protocols might overwrite
 information from lower levels, you will typically see the information from the
 highest possible level only.
 
-For example, let's look at a packet containing TCP inside IP inside an Ethernet
+For example, let’s look at a packet containing TCP inside IP inside an Ethernet
 packet. The Ethernet dissector will write its data (such as the Ethernet
 addresses), the IP dissector will overwrite this by its own (such as the IP
 addresses), the TCP dissector will overwrite the IP information, and so on.
@@ -866,7 +866,7 @@ The packet list has an _Intelligent Scrollbar_ which shows a miniature map of
 nearby packets. Each https://en.wikipedia.org/wiki/Raster_graphics[raster line]
 of the scrollbar corresponds to a single packet, so the number of packets shown
 in the map depends on your physical display and the height of the packet list. A
-tall packet list on a high-resolution (``Retina'') display will show you quite a
+tall packet list on a high-resolution (“Retina”) display will show you quite a
 few packets. In the image above the scrollbar shows the status of more than 500
 packets along with the 15 shown in the packet list itself.
 
@@ -896,7 +896,7 @@ Some protocol fields have special meanings.
 
 * *Generated fields.* Wireshark itself will generate additional protocol
   information which isn't present in the captured data. This information is
-  enclosed in square brackets (`[' and `]'). Generated information includes
+  enclosed in square brackets (“[” and “]”). Generated information includes
   response times, TCP analysis, GeoIP information, and checksum validation.
 
 * *Links.* If Wireshark detects a relationship to another packet in the capture
@@ -919,7 +919,7 @@ image::wsug_graphics/ws-bytes-pane.png[{screenshot-attrs}]
 The ``Packet Bytes'' pane shows a canonical
 https://en.wikipedia.org/wiki/Hex_dump[hex dump] of the packet data. Each line
 contains the data offset, sixteen hexadecimal bytes, and sixteen ASCII bytes.
-Non-printalbe bytes are replaced with a period (`.').
+Non-printalbe bytes are replaced with a period (“.”).
 
 Depending on the packet data, sometimes more than one page is available, e.g.
 when Wireshark has reassembled some packets into a single chunk of data. (See
@@ -1006,7 +1006,7 @@ Details'' pane.
 
 [TIP]
 ====
-The value between the parentheses (in this example `ipv6.src') can be used as a
+The value between the parentheses (in this example “ipv6.src”) can be used as a
 display filter, representing the selected protocol field.
 ====
 
