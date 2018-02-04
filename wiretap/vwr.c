@@ -966,7 +966,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     int      f_len, v_type;
     guint16  data_length  = 0;
     guint16  fpga_version;
-    int      valid_but_empty_file = -1;
+    gboolean valid_but_empty_file = FALSE;
 
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
@@ -1003,7 +1003,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     return -1;
                 }
                 else if (v_type == VT_CPMSG)
-                    valid_but_empty_file = 1;
+                    valid_but_empty_file = TRUE;
             }
             else {
                 rec_size = f_len;
@@ -1102,7 +1102,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Is this a valid but empty file?  If so, claim it's the S3_W_FPGA FPGA. */
-    if (valid_but_empty_file > 0) {
+    if (valid_but_empty_file) {
         g_free(rec);
         return(S3_W_FPGA);
     }
