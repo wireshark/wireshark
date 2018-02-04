@@ -46,6 +46,8 @@
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
 
+#include <wsutil/pint.h>
+
 #include "packet-ip.h"
 #include "packet-icmp.h"
 
@@ -363,17 +365,19 @@ static const value_string interface_role_str[] = {
 #define MPLS_EXTENDED_PAYLOAD_C_TYPE             1
 
 /* Return true if the address is in the 224.0.0.0/4 network block */
-#define is_a_multicast_addr(a)	in4_addr_is_multicast(g_ntohl(a))
+#define is_a_multicast_addr(a)	in4_addr_is_multicast(a)
 
 /* Return true if the address is the 255.255.255.255 broadcast address */
-#define is_a_broadcast_addr(a) \
-	(g_ntohl(a) == 0xffffffff)
+#define is_a_broadcast_addr(a)	((a) == 0xffffffffU)
 
+/*
+ * XXX - should these be checking the address *type*, instead?
+ */
 #define ADDR_IS_MULTICAST(addr) \
-	(((addr)->len == 4) && is_a_multicast_addr(*(const guint32 *)((addr)->data)))
+	(((addr)->len == 4) && is_a_multicast_addr(pntoh32((addr)->data)))
 
 #define ADDR_IS_BROADCAST(addr) \
-	(((addr)->len == 4) && is_a_broadcast_addr(*(const guint32 *)((addr)->data)))
+	(((addr)->len == 4) && is_a_broadcast_addr(pntoh32((addr)->data)))
 
 #define ADDR_IS_NOT_UNICAST(addr) \
 	(ADDR_IS_MULTICAST(addr) || ADDR_IS_BROADCAST(addr))
