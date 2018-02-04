@@ -249,6 +249,60 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
 {
     block_handler *handler;
 
+    /*
+     * Is this a known block type?
+     */
+    switch (block_type) {
+
+    case BLOCK_TYPE_SHB:
+    case BLOCK_TYPE_IDB:
+    case BLOCK_TYPE_PB:
+    case BLOCK_TYPE_SPB:
+    case BLOCK_TYPE_NRB:
+    case BLOCK_TYPE_ISB:
+    case BLOCK_TYPE_EPB:
+    case BLOCK_TYPE_SYSDIG_EVENT:
+        /*
+         * Yes; we already handle it, and don't allow a replacement to
+         * be registeted (if there's a bug in our code, or there's
+         * something we don't handle in that block, submit a change
+         * to the main Wireshark source).
+         */
+        g_warning("Attempt to register plugin for block type 0x%08x not allowed",
+            block_type);
+        return;
+
+    case BLOCK_TYPE_IRIG_TS:
+    case BLOCK_TYPE_ARINC_429:
+    case BLOCK_TYPE_SYSDIG_EVF:
+        /*
+         * Yes, and we don't already handle it.  Allow a plugin to
+         * handle it.
+         *
+         * (But why not submit the plugin source to Wireshark?)
+         */
+        break;
+
+    default:
+        /*
+         * No; is it a local block type?
+         */
+         if (!(block_type & 0x80000000)) {
+             /*
+              * No; don't allow a plugin to be registered for it, as
+              * the block type needs to be registered before it's used.
+              */
+            g_warning("Attempt to register plugin for reserved block type 0x%08x not allowed",
+                      block_type);
+            return;
+         }
+
+         /*
+          * Yes; allow the registration.
+          */
+         break;
+    }
+
     if (block_handlers == NULL) {
         /*
          * Create the table of block handlers.
