@@ -432,8 +432,6 @@ void AboutDialog::showEvent(QShowEvent * event)
         ui->tblPlugins->resizeColumnToContents(col);
     }
 
-    // Shortcuts: Set widths manually.
-    model = ui->tblShortcuts->model();
     // Contents + 2 em-widths
     ui->tblShortcuts->resizeColumnToContents(0);
     ui->tblShortcuts->setColumnWidth(0, ui->tblShortcuts->columnWidth(0) + (one_em * 2));
