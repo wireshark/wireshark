@@ -998,6 +998,8 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
             else if (v_type != VT_FRAME) {
                 if (!wtap_read_bytes(wth->fh, NULL, f_len, err, err_info)) {
                     g_free(rec);
+                    if (*err == WTAP_ERR_SHORT_READ)
+                        return UNKNOWN_FPGA; /* short read - not a vwr file */
                     return -1;
                 }
                 else if (v_type == VT_CPMSG)
