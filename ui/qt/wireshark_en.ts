@@ -10501,62 +10501,62 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="58"/>
+        <location filename="profile_dialog.cpp" line="59"/>
         <source>Configuration Profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="163"/>
+        <location filename="profile_dialog.cpp" line="164"/>
         <source>Will be reset to default values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="179"/>
+        <location filename="profile_dialog.cpp" line="180"/>
         <source>Created from %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="181"/>
+        <location filename="profile_dialog.cpp" line="182"/>
         <source>(system provided)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="187"/>
+        <location filename="profile_dialog.cpp" line="188"/>
         <source>Created from default settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="190"/>
+        <location filename="profile_dialog.cpp" line="191"/>
         <source>Renamed from %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="196"/>
+        <location filename="profile_dialog.cpp" line="197"/>
         <source>Go to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="221"/>
+        <location filename="profile_dialog.cpp" line="222"/>
         <source>This is a system provided profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="225"/>
+        <location filename="profile_dialog.cpp" line="226"/>
         <source>A profile already exists with this name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="230"/>
+        <location filename="profile_dialog.cpp" line="231"/>
         <source>A profile already exists with this name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="234"/>
+        <location filename="profile_dialog.cpp" line="235"/>
         <source>The profile will be reset to default values.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="355"/>
+        <location filename="profile_dialog.cpp" line="365"/>
         <source>Profile Error</source>
         <translation type="unfinished"></translation>
     </message>
