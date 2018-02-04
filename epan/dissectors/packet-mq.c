@@ -2491,13 +2491,13 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                             sApplicationName = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 28, iEnc);
                             sApplicationName = format_text_chr(wmem_packet_scope(), sApplicationName, strlen(sApplicationName), '.');
-                            if (strip_trailing_blanks((guint8 *)sApplicationName, 28) > 0)
+                            if (strip_trailing_blanks((guint8 *)sApplicationName, (guint32)strlen(sApplicationName)) > 0)
                             {
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s", sApplicationName);
                             }
                             sQMgr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, iEnc);
                             sQMgr = format_text_chr(wmem_packet_scope(), sQMgr, strlen(sQMgr), '.');
-                            if (strip_trailing_blanks((guint8 *)sQMgr, 48) > 0)
+                            if (strip_trailing_blanks((guint8 *)sQMgr, (guint32)strlen(sQMgr)) > 0)
                             {
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQMgr);
                             }
