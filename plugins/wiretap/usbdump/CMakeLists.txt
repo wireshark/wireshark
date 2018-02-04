@@ -43,6 +43,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(usbdump wiretap)
 
+target_link_libraries(usbdump wiretap)
+
 install_plugin(usbdump wiretap)
 
 file(GLOB WIRETAP_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

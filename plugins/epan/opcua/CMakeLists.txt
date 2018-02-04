@@ -68,6 +68,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(opcua epan)
 
+target_link_libraries(opcua epan)
+
 install_plugin(opcua epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

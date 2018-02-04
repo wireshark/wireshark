@@ -66,6 +66,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(profinet epan)
 
+target_link_libraries(profinet epan)
+
 install_plugin(profinet epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

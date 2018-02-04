@@ -52,6 +52,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(gryphon epan)
 
+target_link_libraries(gryphon epan)
+
 install_plugin(gryphon epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

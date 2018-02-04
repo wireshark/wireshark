@@ -59,6 +59,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(transum epan)
 
+target_link_libraries(transum epan)
+
 install_plugin(transum epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

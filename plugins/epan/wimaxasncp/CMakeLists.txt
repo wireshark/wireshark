@@ -57,6 +57,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(wimaxasncp epan)
 
+target_link_libraries(wimaxasncp epan)
+
 install_plugin(wimaxasncp epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

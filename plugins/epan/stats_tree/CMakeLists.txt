@@ -41,6 +41,8 @@ set_source_files_properties(
 
 add_plugin_library(stats_tree epan)
 
+target_link_libraries(stats_tree epan)
+
 install_plugin(stats_tree epan)
 
 file(GLOB PLUGIN_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")

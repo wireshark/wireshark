@@ -74,6 +74,8 @@ register_plugin_files(plugin.c
 
 add_plugin_library(mate epan)
 
+target_link_libraries(mate epan)
+
 install_plugin(mate epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
