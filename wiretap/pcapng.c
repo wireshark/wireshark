@@ -2671,7 +2671,26 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 break;
 
             case(BLOCK_TYPE_ISB):
-                /* Another interface statistics report */
+                /*
+                 * Another interface statistics report
+                 *
+                 * XXX - given that they're reports, we should be
+                 * supplying them in read calls, and displaying them
+                 * in the "packet" list, so you can see what the
+                 * statistics were *at the time when the report was
+                 * made*.
+                 *
+                 * The statistics from the *last* ISB could be displayed
+                 * in the summary, but if there are packets after the
+                 * last ISB, that could be misleading.
+                 *
+                 * If we only display them if that ISB has an isb_endtime
+                 * option, which *should* only appear when capturing ended
+                 * on that interface (so there should be no more packet
+                 * blocks or ISBs for that interface after that point,
+                 * that would be the best way of showing "summary"
+                 * statistics.
+                 */
                 pcapng_debug("pcapng_read: block type BLOCK_TYPE_ISB");
                 if_stats_mand_block = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(wblock.block);
                 if (wth->interface_data->len <= if_stats_mand_block->interface_id) {
