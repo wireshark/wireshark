@@ -52,6 +52,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/rtd_table.h>
+#include "packet-frame.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"
@@ -908,7 +909,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 128 "./asn1/h225/packet-h225-template.c"
+#line 129 "./asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1156,7 +1157,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 132 "./asn1/h225/packet-h225-template.c"
+#line 133 "./asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -7823,7 +7824,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 248 "./asn1/h225/packet-h225-template.c"
+#line 249 "./asn1/h225/packet-h225-template.c"
 
 /* Forward declaration we need below */
 void proto_reg_handoff_h225(void);
@@ -7908,6 +7909,14 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
   return h225ras_call;
 }
 
+static void
+h225_frame_end(void)
+{
+  /* next_tvb pointers are allocated in packet scope, clear it. */
+  next_tvb_init(&h245_list);
+  next_tvb_init(&tp_list);
+}
+
 static int
 dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -7921,6 +7930,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   h225_pi->msg_type = H225_CS;
   p_add_proto_data(pinfo->pool, pinfo, proto_h225, 0, h225_pi);
 
+  register_frame_end_routine(pinfo, h225_frame_end);
   next_tvb_init(&h245_list);
   next_tvb_init(&tp_list);
 
@@ -7955,6 +7965,8 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   h225_pi = create_h225_packet_info(pinfo);
   h225_pi->msg_type = H225_RAS;
   p_add_proto_data(pinfo->pool, pinfo, proto_h225, 0, h225_pi);
+
+  register_frame_end_routine(pinfo, h225_frame_end);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -11476,7 +11488,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 812 "./asn1/h225/packet-h225-template.c"
+#line 824 "./asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11726,7 +11738,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 818 "./asn1/h225/packet-h225-template.c"
+#line 830 "./asn1/h225/packet-h225-template.c"
   };
 
   static tap_param h225_stat_params[] = {
