@@ -499,7 +499,6 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 
 typedef enum {
     PCAPNG_BLOCK_OK,
-    PCAPNG_BLOCK_NOT_SHB,
     PCAPNG_BLOCK_ERROR
 } block_return_val;
 
@@ -521,22 +520,8 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     guint8 *option_content = NULL; /* Allocate as large as the options block */
 
     /* read fixed-length part of the block */
-    if (!wtap_read_bytes(fh, &shb, sizeof shb, err, err_info)) {
-        if (*err == WTAP_ERR_SHORT_READ) {
-            /*
-             * This block is too short to be an SHB.
-             *
-             * If we're reading this as part of an open,
-             * the file is too short to be a pcapng file.
-             *
-             * If we're not, we treat PCAPNG_BLOCK_NOT_SHB and
-             * PCAPNG_BLOCK_ERROR the same, so we can just return
-             * PCAPNG_BLOCK_NOT_SHB in both cases.
-             */
-            return PCAPNG_BLOCK_NOT_SHB;
-        }
+    if (!wtap_read_bytes(fh, &shb, sizeof shb, err, err_info))
         return PCAPNG_BLOCK_ERROR;
-    }
 
     /* is the magic number one we expect? */
     switch (shb.magic) {
@@ -565,11 +550,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             /* Not a "pcapng" magic number we know about. */
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown byte-order magic number 0x%08x", shb.magic);
-
-            /*
-             * See above comment about PCAPNG_BLOCK_NOT_SHB.
-             */
-            return PCAPNG_BLOCK_NOT_SHB;
+            return PCAPNG_BLOCK_ERROR;
     }
 
     /*
@@ -2348,19 +2329,6 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
     /* Try to read the (next) block header */
     if (!wtap_read_bytes_or_eof(fh, &bh, sizeof bh, err, err_info)) {
         pcapng_debug("pcapng_read_block: wtap_read_bytes_or_eof() failed, err = %d.", *err);
-        if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
-            /*
-             * Short read or EOF.
-             *
-             * If we're reading this as part of an open,
-             * the file is too short to be a pcapng file.
-             *
-             * If we're not, we treat PCAPNG_BLOCK_NOT_SHB and
-             * PCAPNG_BLOCK_ERROR the same, so we can just return
-             * PCAPNG_BLOCK_NOT_SHB in both cases.
-             */
-            return PCAPNG_BLOCK_NOT_SHB;
-        }
         return PCAPNG_BLOCK_ERROR;
     }
 
@@ -2399,10 +2367,11 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
              * No SHB seen yet, so we're trying to read the first block
              * during an open, to see whether it's an SHB; if what we
              * read doesn't look like an SHB, this isn't a pcapng file.
+             * Report it as a "bad file" error.
              */
-            *err = 0;
+            *err = WTAP_ERR_BAD_FILE;
             *err_info = NULL;
-            return PCAPNG_BLOCK_NOT_SHB;
+            return PCAPNG_BLOCK_ERROR;
         }
         switch (bh.block_type) {
             case(BLOCK_TYPE_IDB):
@@ -2517,14 +2486,22 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         /* No problem */
         break;
 
-    case PCAPNG_BLOCK_NOT_SHB:
-        /* An error indicating that this isn't a pcapng file. */
-        wtap_block_free(wblock.block);
-        *err = 0;
-        *err_info = NULL;
-        return WTAP_OPEN_NOT_MINE;
-
     case PCAPNG_BLOCK_ERROR:
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ ||
+            *err == WTAP_ERR_BAD_FILE) {
+            /*
+             * This is an EOF or a short read, in which case this is
+             * either a pcapng file that's been cut short or a file
+             * that's not a pcapng file, or it's not a valid pcapng
+             * file.  It's probably not a pcapng file, so treat it
+             * as such, so we can try other file types.
+             */
+            wtap_block_free(wblock.block);
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+            return WTAP_OPEN_NOT_MINE;
+        }
         /* An I/O error, or this probably *is* a pcapng file but not a valid one. */
         wtap_block_free(wblock.block);
         return WTAP_OPEN_ERROR;
