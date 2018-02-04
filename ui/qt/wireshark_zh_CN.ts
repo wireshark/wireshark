@@ -44,7 +44,7 @@
         <translation>插件</translation>
     </message>
     <message>
-        <source>Search plugins</source>
+        <source>Search Plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -73,6 +73,10 @@
     </message>
     <message>
         <source>Copy Row(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugins found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

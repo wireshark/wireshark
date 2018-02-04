@@ -44,7 +44,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Search plugins</source>
+        <source>No plugins found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search Plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
