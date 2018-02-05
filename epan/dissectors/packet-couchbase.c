@@ -42,6 +42,10 @@
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 
+#include <glib.h>
+#include <math.h>
+#include <stdio.h>
+
 #define PNAME  "Couchbase Protocol"
 #define PSNAME "Couchbase"
 #define PFNAME "couchbase"
@@ -52,6 +56,7 @@
  /* Magic Byte */
 #define MAGIC_REQUEST         0x80
 #define MAGIC_RESPONSE        0x81
+#define MAGIC_RESPONSE_FLEX   0x18
 
  /* Response Status */
 #define PROTOCOL_BINARY_RESPONSE_SUCCESS            0x00
@@ -309,6 +314,8 @@ static int hf_opaque = -1;
 static int hf_cas = -1;
 static int hf_ttp = -1;
 static int hf_ttr = -1;
+static int hf_flex_extras_length = -1;
+static int hf_flex_keylength = -1;
 static int hf_extras = -1;
 static int hf_extras_flags = -1;
 static int hf_extras_flags_backfill = -1;
@@ -427,10 +434,20 @@ static int hf_xattr_key = -1;
 static int hf_xattr_value = -1;
 static int hf_xattrs = -1;
 
+static int hf_flex_extras = -1;
+static int hf_flex_frame = -1;
+static int hf_flex_frame_id_len = -1;
+static int hf_flex_frame_id = -1;
+static int hf_flex_frame_len = -1;
+static int hf_flex_frame_id_esc = -1;
+static int hf_flex_frame_len_esc = -1;
+static int hf_flex_frame_tracing_duration = -1;
+
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
 static expert_field ef_warn_shall_not_have_key = EI_INIT;
 static expert_field ef_compression_error = EI_INIT;
+static expert_field ef_warn_unknown_flex_code = EI_INIT;
 
 static expert_field ei_value_missing = EI_INIT;
 static expert_field ef_warn_must_have_extras = EI_INIT;
@@ -456,10 +473,20 @@ static gint ett_hello_features = -1;
 static gint ett_datatype = -1;
 static gint ett_xattrs = -1;
 static gint ett_xattr_pair = -1;
+static gint ett_flex_frame_extras = -1;
 
 static const value_string magic_vals[] = {
-  { MAGIC_REQUEST,     "Request"  },
-  { MAGIC_RESPONSE,    "Response" },
+  { MAGIC_REQUEST,       "Request"  },
+  { MAGIC_RESPONSE,      "Response" },
+  { MAGIC_RESPONSE_FLEX, "Response with flexible framing extras" },
+  { 0, NULL }
+};
+
+#define FLEX_ID_RX_TX_DURATION 0
+#define FLEX_ID_ESCAPE 0x0F
+static const value_string flex_frame_ids[] = {
+  { FLEX_ID_RX_TX_DURATION, "Server Recv->Send duration"  },
+  { FLEX_ID_ESCAPE, "Escape"  },
   { 0, NULL }
 };
 
@@ -2004,6 +2031,104 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
+/*
+  Add an escaped field for Flexible Framing Extras:
+  https://github.com/couchbase/kv_engine/blob/master/docs/BinaryProtocol.md
+
+  len or id can be escaped, i.e. the len/id is derived from more then 1 byte
+*/
+static guint16 add_escaped_field(tvbuff_t* tvb,
+                                 proto_tree* tree,
+                                 int hfid,
+                                 gint* offset) {
+    guint16 escaped_val = 0x0F + tvb_get_guint8(tvb, *offset);
+    char str[32];
+    g_snprintf(str, 32, "%" G_GUINT16_FORMAT , escaped_val);
+    proto_tree_add_string(tree, hfid, tvb, *offset, 1, str);
+    (*offset)++;
+    return escaped_val;
+}
+
+/*
+  Flexible Framing Extras:
+  https://github.com/couchbase/kv_engine/blob/master/docs/BinaryProtocol.md
+*/
+static void dissect_flexible_framing_extras(tvbuff_t* tvb,
+                                            packet_info* pinfo,
+                                            proto_tree* tree,
+                                            gint offset,
+                                            guint8 flex_frame_extra_len) {
+
+  proto_item* flex_item = proto_tree_add_item(tree,
+                                              hf_flex_extras,
+                                              tvb,
+                                              offset,
+                                              flex_frame_extra_len,
+                                              ENC_NA);
+
+  /* iterate until we've consumed the flex_frame_extra_len */
+  gint bytes_remaining = flex_frame_extra_len;
+  while(bytes_remaining > 0) {
+    guint8 id_and_len = tvb_get_guint8(tvb, offset);
+    /*id/len u16 as they may be escaped and derived from 2 bytes */
+    guint16 id = id_and_len >> 4;
+    guint16 len = id_and_len & 0x0F;
+
+    proto_tree* frame_tree = proto_item_add_subtree(flex_item,
+                                                    ett_flex_frame_extras);
+
+    static const gint* frame_id_len_fields[] = {
+      &hf_flex_frame_id,
+      &hf_flex_frame_len,
+      NULL
+    };
+
+    proto_item* frame = proto_tree_add_bitmask(frame_tree,
+                                               tvb,
+                                               offset,
+                                               hf_flex_frame_id_len,
+                                               ett_flex_frame_extras,
+                                               frame_id_len_fields,
+                                               ENC_BIG_ENDIAN);
+    offset++;
+    bytes_remaining--;
+
+    /* Handle escaped id and/or len, this where 0xF is reserved to mean the rest
+       of id is in the next byte (same for len)
+       Final id or len is 0xF + the next byte value*/
+    if (id == 0x0F) {
+        id = add_escaped_field(tvb, frame_tree, hf_flex_frame_id_esc, &offset);
+        bytes_remaining--;
+    }
+
+     if (len == 0x0F) {
+        len = add_escaped_field(tvb, frame_tree, hf_flex_frame_len_esc, &offset);
+        bytes_remaining--;
+    }
+
+    if (id == FLEX_ID_RX_TX_DURATION) {
+      // Decode the u16 time value into a string
+      guint16 encoded_micros = tvb_get_ntohs(tvb, offset);
+      char str[32];
+      guint64 decoded_micros = (guint64)pow(encoded_micros, 1.74) / 2;
+      g_snprintf(str, 32, "%" G_GUINT64_FORMAT "us", decoded_micros);
+      proto_tree_add_string(frame_tree,
+                            hf_flex_frame_tracing_duration,
+                            tvb,
+                            offset,
+                            2,
+                            str);
+    } else {
+        expert_add_info_format(pinfo,
+                               frame,
+                               &ef_warn_unknown_flex_code,
+                               "Unknown flexible ID");
+    }
+    offset += len;
+    bytes_remaining -= len;
+  }
+}
+
 static gboolean
 is_xerror(guint8 datatype, guint16 status)
 {
@@ -2019,7 +2144,7 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   proto_tree *couchbase_tree;
   proto_item *couchbase_item, *ti;
   gint        offset = 0;
-  guint8      magic, opcode, extlen, datatype;
+  guint8      magic, opcode, extlen, datatype, flex_frame_extras = 0;
   guint16     keylen, status = 0, vbucket;
   guint32     bodylen, value_len;
   gboolean    request;
@@ -2056,9 +2181,21 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                   val_to_str(magic, magic_vals, "Unknown magic (0x%x)"),
                   opcode);
 
-  keylen = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(couchbase_tree, hf_keylength, tvb, offset, 2, ENC_BIG_ENDIAN);
-  offset += 2;
+  /* A response now has two magic values */
+  if (magic == MAGIC_RESPONSE_FLEX) {
+    /* 2 separate bytes for the flex_extras and keylen */
+    flex_frame_extras = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(couchbase_tree, hf_flex_extras_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    keylen = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(couchbase_tree, hf_flex_keylength, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+  } else {
+    /* 2 bytes for the key */
+    keylen = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(couchbase_tree, hf_keylength, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+  }
 
   extlen = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(couchbase_tree, hf_extlength, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2068,7 +2205,8 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   proto_tree_add_bitmask(couchbase_tree, tvb, offset, hf_datatype, ett_datatype, datatype_vals, ENC_BIG_ENDIAN);
   offset += 1;
 
-  if (magic & 0x01) {    /* We suppose this is a response, even when unknown magic byte */
+  /* We suppose this is a response, even when unknown magic byte */
+  if (magic & 0x01 || magic == MAGIC_RESPONSE_FLEX) {
     request = FALSE;
     status = tvb_get_ntohs(tvb, offset);
     ti = proto_tree_add_item(couchbase_tree, hf_status, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2089,7 +2227,7 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   offset += 2;
 
   bodylen = tvb_get_ntohl(tvb, offset);
-  value_len = bodylen - extlen - keylen;
+  value_len = bodylen - extlen - keylen - flex_frame_extras;
   ti = proto_tree_add_uint(couchbase_tree, hf_value_length, tvb, offset, 0, value_len);
   PROTO_ITEM_SET_GENERATED(ti);
 
@@ -2113,6 +2251,11 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
   if (status == 0) {
     guint16 path_len = 0;
+
+    if (flex_frame_extras) {
+        dissect_flexible_framing_extras(tvb, pinfo, couchbase_tree, offset, flex_frame_extras);
+        offset += flex_frame_extras;
+    }
 
     dissect_extras(tvb, pinfo, couchbase_tree, offset, extlen, opcode, request,
                    &path_len);
@@ -2213,6 +2356,17 @@ proto_register_couchbase(void)
     { &hf_cas, { "CAS", "couchbase.cas", FT_UINT64, BASE_HEX, NULL, 0x0, "Data version check", HFILL } },
     { &hf_ttp, { "Time to Persist", "couchbase.ttp", FT_UINT32, BASE_DEC, NULL, 0x0, "Approximate time needed to persist the key (milliseconds)", HFILL } },
     { &hf_ttr, { "Time to Replicate", "couchbase.ttr", FT_UINT32, BASE_DEC, NULL, 0x0, "Approximate time needed to replicate the key (milliseconds)", HFILL } },
+    { &hf_flex_keylength, { "Key Length", "couchbase.key.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the text key that follows the command extras", HFILL } },
+    { &hf_flex_extras_length, { "Flexible Framing Extras Length", "couchbase.flex_extras", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the flexible framing extras that follows the response header", HFILL } },
+    { &hf_flex_extras, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_flex_frame, {"Flexible Frame", "couchbase.flex_frame.frame", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_flex_frame_id_len, {"Flexible Frame Byte0", "couchbase.flex_frame.byte0", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_flex_frame_id, {"Flexible Frame ID", "couchbase.flex_frame.frame.id", FT_UINT8, BASE_DEC, VALS(flex_frame_ids), 0xF0, NULL, HFILL } },
+    { &hf_flex_frame_id_esc, {"Flexible Frame ID (escaped)", "couchbase.flex_frame.frame.id", FT_UINT16, BASE_DEC, VALS(flex_frame_ids), 0xF0, NULL, HFILL } },
+    { &hf_flex_frame_len, {"Flexible Frame Len", "couchbase.flex_frame.frame.len", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
+    { &hf_flex_frame_len_esc, {"Flexible Frame Len (escaped)", "couchbase.flex_frame.frame.len", FT_UINT16, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
+    { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+
     { &hf_extras, { "Extras", "couchbase.extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_flags, { "Flags", "couchbase.extras.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_flags_backfill, { "Backfill Age", "couchbase.extras.flags.backfill", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL } },
@@ -2351,12 +2505,15 @@ proto_register_couchbase(void)
     { &ef_note_status_code, { "couchbase.note.status_code", PI_RESPONSE_CODE, PI_NOTE, "Status", EXPFILL }},
     { &ef_separator_not_found, { "couchbase.warn.separator_not_found", PI_UNDECODED, PI_WARN, "Separator not found", EXPFILL }},
     { &ef_illegal_value, { "couchbase.warn.illegal_value", PI_UNDECODED, PI_WARN, "Illegal value for command", EXPFILL }},
-    { &ef_compression_error, { "couchbase.error.compression", PI_UNDECODED, PI_WARN, "Compression error", EXPFILL }}
+    { &ef_compression_error, { "couchbase.error.compression", PI_UNDECODED, PI_WARN, "Compression error", EXPFILL }},
+    { &ef_warn_unknown_flex_code, { "couchbase.warn.unknown_flexible_frame_id", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }}
+
   };
 
   static gint *ett[] = {
     &ett_couchbase,
     &ett_extras,
+    &ett_flex_frame_extras,
     &ett_extras_flags,
     &ett_observe,
     &ett_failover_log,
