@@ -42,15 +42,6 @@ typedef struct wtapng_block_s {
     guint32             type;           /* block_type as defined by pcapng */
     gboolean            internal;       /* TRUE if this block type shouldn't be returned from pcapng_read() */
     wtap_block_t        block;
-
-    /*
-     * XXX - currently don't know how to handle these!
-     *
-     * For one thing, when we're reading a block, they must be
-     * writable, i.e. not const, so that we can read into them,
-     * but, when we're writing a block, they can be const, and,
-     * in fact, they sometimes point to const values.
-     */
     struct wtap_pkthdr *packet_header;
     Buffer             *frame_buffer;
 } wtapng_block_t;
