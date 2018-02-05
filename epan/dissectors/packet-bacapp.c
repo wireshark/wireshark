@@ -6778,7 +6778,7 @@ fTimeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         offset = fTime(tvb, pinfo, tree, offset, "Time: ");
         offset = fApplicationTypes(tvb, pinfo, tree, offset, "Value: ");
 
-        if (offset == lastoffset) break;    /* exit loop if nothing happens inside */
+        if (offset <= lastoffset) break;    /* exit loop if nothing happens inside */
     }
     return offset;
 }
@@ -7068,7 +7068,7 @@ fRecipientProcess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         default:
             break;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -7122,7 +7122,7 @@ fCOVSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
         default:
             break;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -7189,7 +7189,7 @@ fActionCommand(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -7230,7 +7230,7 @@ fActionList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             break;
         }
-        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;    /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -7279,7 +7279,7 @@ fPropertyAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         break;
     }
 
-    if (offset == lastoffset) break;    /* nothing happened, exit loop */
+    if (offset <= lastoffset) break;    /* nothing happened, exit loop */
   }
 
   return offset;
@@ -7616,7 +7616,7 @@ fShedLevel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -7687,7 +7687,7 @@ fPrescale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 
@@ -7721,7 +7721,7 @@ fScale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -7770,7 +7770,7 @@ fLoggingRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -7792,7 +7792,7 @@ fSequenceOfEnums(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
             return offset;
             }
         offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, label, vs);
-        if ( offset == lastoffset ) break;
+        if ( offset <= lastoffset ) break;
     }
     return offset;
 }
@@ -7815,7 +7815,7 @@ fDoorMembers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
             return offset;
             }
         offset = fDeviceObjectReference(tvb, pinfo, tree, offset);
-        if (offset == lastoffset) break;
+        if (offset <= lastoffset) break;
     }
     return offset;
 }
@@ -7837,7 +7837,7 @@ fListOfGroupMembers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
             return offset;
             }
         offset = fReadAccessSpecification(tvb, pinfo, tree, offset);
-        if ( offset == lastoffset ) break;
+        if ( offset <= lastoffset ) break;
     }
     return offset;
 }
@@ -8512,7 +8512,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                 offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
             }
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -8574,7 +8574,7 @@ fBACnetPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             if (tag_is_context_specific(tag_info) && (tag_no == 3))
                 offset = fUnsignedTag(tvb, pinfo, tree, offset, "Priority: ");
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -8625,7 +8625,7 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -8714,7 +8714,7 @@ fSubscribeCOVPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                               default:
                                   return offset;
                             }
-                            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
                         }
                       }
                       else {
@@ -8724,7 +8724,7 @@ fSubscribeCOVPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                     default:
                       return offset;
                     }
-                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                    if (offset <= lastoffset) break;     /* nothing happened, exit loop */
                 }
             }
             else {
@@ -8734,7 +8734,7 @@ fSubscribeCOVPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -8796,13 +8796,13 @@ fSubscribeCOVPropertyMultipleError(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 default:
                     return offset;
                 }
-                if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
             }
             break;
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -8837,7 +8837,7 @@ fWhoHas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -8863,7 +8863,7 @@ fDailySchedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint off
             }
 
             offset = fTimeValue(tvb, pinfo, subtree, offset);
-            if (offset == lastoffset) break;    /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;    /* nothing happened, exit loop */
         }
     } else if ((tag_no == 0) && (lvt == 0)) {
         /* not sure null (empty array element) is legal */
@@ -8900,7 +8900,7 @@ fWeeklySchedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
         subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_bacapp_value, NULL,
                                 val_to_str(i++, day_of_week, "day of week (%d) not found"));
         offset = fDailySchedule(tvb, pinfo, subtree, offset);
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -8986,7 +8986,7 @@ fWriteGroupRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
                         offset = fChannelValue(tvb, pinfo, subtree, offset, "Value: ");
                         break;
                     }
-                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                    if (offset <= lastoffset) break;     /* nothing happened, exit loop */
                 }
             }
             else {
@@ -8999,7 +8999,7 @@ fWriteGroupRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -9113,7 +9113,7 @@ fConfirmedTextMessageRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -9184,7 +9184,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     return offset;
@@ -9235,7 +9235,7 @@ fLifeSafetyOperationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -9398,7 +9398,7 @@ fDeviceObjectPropertyValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -9460,7 +9460,7 @@ fDeviceObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -9498,7 +9498,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 1: /* change-of-state */
@@ -9518,7 +9518,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 2: /* change-of-value */
@@ -9549,7 +9549,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 3: /* command-failure */
@@ -9578,7 +9578,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 4: /* floating-limit */
@@ -9602,7 +9602,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 5: /* out-of-range */
@@ -9626,14 +9626,14 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 6:
         while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
             lastoffset = offset;
             offset =fBACnetPropertyValue(tvb, pinfo, subtree, offset);
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 7: /* deprecated (was 'buffer-ready', changed and moved to [10]) */
@@ -9660,7 +9660,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 8: /* change-of-life-safety */
@@ -9687,7 +9687,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 9: /* extended */
@@ -9704,6 +9704,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
                 while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                    const guint param_lastoffset = offset;
                     fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
                     if (tag_is_closing(tag_info))
                     {
@@ -9720,7 +9721,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
                     {
                         offset = fApplicationTypes(tvb, pinfo, subtree, offset, "parameters: ");
                     }
-                    if (offset == lastoffset)
+                    if (offset <= param_lastoffset)
                         break;     /* nothing happened, exit loop */
                 }
 
@@ -9730,7 +9731,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 10: /* buffer ready */
@@ -9754,7 +9755,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 11: /* unsigned range */
@@ -9777,7 +9778,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
         /* 12 reserved */
@@ -9804,7 +9805,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 15: /* signed-out-of-range */
@@ -9828,7 +9829,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 16: /* unsigned-out-of-range */
@@ -9852,7 +9853,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 17: /* change-of-characterstring */
@@ -9875,7 +9876,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 18: /* change-of-status-flags */
@@ -9897,7 +9898,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 19: /* change-of-reliability */
@@ -9926,7 +9927,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                break;
            }
-           if (offset == lastoffset)
+           if (offset <= lastoffset)
                break;     /* nothing happened, exit loop */
         }
         break;
@@ -9950,7 +9951,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 22: /* change-of-timer */
@@ -9981,7 +9982,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
 
@@ -10254,7 +10255,7 @@ fEventParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
             default:
                 break;
             }
-            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
     case 10: /* buffer-ready */
@@ -10942,7 +10943,7 @@ fRouterEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     return offset;
@@ -10972,7 +10973,7 @@ fVMACEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
   }
 
   return offset;
@@ -11034,7 +11035,7 @@ fAssignedLandingCalls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
@@ -11068,7 +11069,7 @@ fLandingCallStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     return offset;
@@ -11100,7 +11101,7 @@ fLandingDoorStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
@@ -11171,19 +11172,19 @@ fCOVMultipleSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
                     default:
                         return offset;
                     }
-                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                    if (offset <= lastoffset) break;     /* nothing happened, exit loop */
                     }
                     break;
                 default:
                     return offset;
                 }
-                if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
             }
             break;
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     return offset;
@@ -11223,7 +11224,7 @@ fNameValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
             /* DMR Should be fAbstractNSyntax, but that's where we came from! */
             offset = fApplicationTypes(tvb, pinfo, tree, offset, "value: ");
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11296,7 +11297,7 @@ fEventLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11369,7 +11370,7 @@ fLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11454,7 +11455,7 @@ fLogMultipleRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11525,7 +11526,7 @@ fConfirmedEventNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         default:
             break;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11623,7 +11624,7 @@ fConfirmedCOVNotificationMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, prot
                                 /* wrong tag encoding */
                                 return offset;
                             }
-                            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
                             }
                         }
                         else {
@@ -11635,7 +11636,7 @@ fConfirmedCOVNotificationMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, prot
                         /* wrong tag encoding */
                         return offset;
                     }
-                    if (offset == lastoffset) break;     /* nothing happened, exit loop */
+                    if (offset <= lastoffset) break;     /* nothing happened, exit loop */
                 }
             }
             else {
@@ -11647,7 +11648,7 @@ fConfirmedCOVNotificationMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, prot
             /* wrong tag encoding */
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11702,7 +11703,7 @@ fConfirmedCOVNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11749,7 +11750,7 @@ fAcknowledgeAlarmRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11766,7 +11767,7 @@ fGetAlarmSummaryAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
             "alarm State: ", BACnetEventState, 64);
         offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset,
             "acknowledged Transitions: ", BACnetEventTransitionBits);
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return  offset;
 }
@@ -11810,7 +11811,7 @@ fGetEnrollmentSummaryRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11830,7 +11831,7 @@ fGetEnrollmentSummaryAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         offset = fApplicationTypes(tvb, pinfo, tree, offset, "Priority: ");
         if (tvb_reported_length_remaining(tvb, offset) > 0 && fTagNo(tvb, offset) == 2)  /* Notification Class - OPTIONAL */
             offset = fUnsignedTag(tvb, pinfo, tree, offset, "Notification Class: ");
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     return  offset;
@@ -11901,7 +11902,7 @@ flistOfEventSummaries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11922,7 +11923,7 @@ fLOPR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
             break;
         }
         offset = fDeviceObjectPropertyReference(tvb, pinfo, tree, offset);
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11948,7 +11949,7 @@ fGetEventInformationACK(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -11989,7 +11990,7 @@ fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12022,7 +12023,7 @@ fDeviceCommunicationControlRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12047,7 +12048,7 @@ fReinitializeDeviceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12074,7 +12075,7 @@ fVtCloseRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         offset= fApplicationTypes(tvb, pinfo, tree, offset, "remote VT Session ID: ");
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12105,7 +12106,7 @@ fVtDataAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12137,7 +12138,7 @@ fAuthenticateRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12177,7 +12178,7 @@ fAuthenticationFactor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
             break;
         }
 
-        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;    /* nothing happened, exit loop */
     }
 
     return offset;
@@ -12212,7 +12213,7 @@ fAuthenticationFactorFormat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
 
-        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;    /* nothing happened, exit loop */
     }
 
     return offset;
@@ -12256,7 +12257,7 @@ fAuthenticationPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
                     break;
                 }
 
-                if (offset == lastoffset) break;    /* nothing happened, exit loop */
+                if (offset <= lastoffset) break;    /* nothing happened, exit loop */
             }
             break;
         case 1: /* order-enforced */
@@ -12269,7 +12270,7 @@ fAuthenticationPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
             break;
         }
 
-        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;    /* nothing happened, exit loop */
     }
 
     return offset;
@@ -12331,7 +12332,7 @@ fReadPropertyAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
         default:
             break;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12373,7 +12374,7 @@ fWritePropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12409,7 +12410,7 @@ fWriteAccessSpecification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12454,7 +12455,7 @@ fPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
             lastoffset = offset; /* Set loop end condition */
             break;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12486,7 +12487,7 @@ fBACnetObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             lastoffset = offset; /* Set loop end condition */
             break;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12564,7 +12565,7 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
         if (i > 16) {
             break;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
 
     return offset;
@@ -12594,7 +12595,7 @@ fDeviceObjectReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12639,7 +12640,7 @@ fSpecialEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offs
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12789,7 +12790,7 @@ fSelectionCriteria(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12826,7 +12827,7 @@ fObjectSelectionCriteria(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree,
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12857,7 +12858,7 @@ fReadPropertyConditionalRequest(tvbuff_t *tvb, packet_info* pinfo, proto_tree *s
             }
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12894,7 +12895,7 @@ fReadAccessSpecification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -12962,7 +12963,7 @@ fReadAccessResult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -13014,7 +13015,7 @@ fCreateObjectRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gui
             }
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
         }
-        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;    /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -13171,7 +13172,7 @@ fAccessRule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
             break;
         }
 
-        if (offset == lastoffset) break;    /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;    /* nothing happened, exit loop */
     }
 
     return offset;
@@ -13467,7 +13468,7 @@ fWhoIsRequest(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint offset)
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -13721,7 +13722,7 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -13743,7 +13744,7 @@ fCreateObjectError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
@@ -13797,7 +13798,7 @@ fWritePropertyMultipleError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         default:
             return offset;
         }
-        if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
 }
