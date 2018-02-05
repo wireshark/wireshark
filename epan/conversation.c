@@ -78,6 +78,12 @@ static wmem_map_t *conversation_hashtable_no_addr2_or_port2 = NULL;
 static guint32 new_index;
 
 /*
+ * Placeholder for address-less conversations.
+ */
+static address null_address_ = ADDRESS_INIT_NONE;
+
+
+/*
  * Creates a new conversation with known endpoints based on a conversation
  * created with the CONVERSATION_TEMPLATE option while keeping the
  * conversation created with the CONVERSATION_TEMPLATE option so it can still
@@ -626,9 +632,9 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	conversation_t *conversation=NULL;
 	conversation_key_t new_key;
 
-	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (ptype=%d)",
+	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (etype=%d)",
 		    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
-		    address_to_str(wmem_packet_scope(), addr2), port2, ptype));
+		    address_to_str(wmem_packet_scope(), addr2), port2, etype));
 
 	if (options & NO_ADDR2) {
 		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
@@ -1190,7 +1196,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id, const guint options)
 {
 	/* Force the lack of a address or port B */
-	return find_conversation(frame, NULL, NULL, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
+	return find_conversation(frame, &null_address_, &null_address_, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
 }
 
 void
@@ -1393,7 +1399,7 @@ void conversation_create_endpoint_by_id(struct _packet_info *pinfo,
     endpoint_type etype, guint32 id, const guint options)
 {
 	/* Force the lack of a address or port B */
-	conversation_create_endpoint(pinfo, NULL, NULL, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
+	conversation_create_endpoint(pinfo, &null_address_, &null_address_, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
 }
 
 guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo, endpoint_type etype, const guint options)
