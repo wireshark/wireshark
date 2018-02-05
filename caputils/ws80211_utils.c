@@ -150,6 +150,10 @@ static int nl80211_do_cmd(struct nl_msg *msg, struct nl_cb *cb)
 	 * err as a side-effect, so it thinks this can loop
 	 * infinitely.
 	 *
+	 * The proper way to address this is to help Coverity to
+	 * understand the behaviour of nl_recvmsgs(), in that it
+	 * does call the callback, setting err. This help would be
+	 * provided through a so called 'model' of this function.
 	 * We declare err to be volatile to work around it.
 	 *
 	 * XXX - that workaround provokes a compiler complaint that
