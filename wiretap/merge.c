@@ -125,7 +125,7 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
         files[i].filename    = in_file_names[i];
         files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
         files[i].data_offset = 0;
-        files[i].state       = PACKET_NOT_PRESENT;
+        files[i].state       = RECORD_NOT_PRESENT;
         files[i].packet_num  = 0;
 
         if (!files[i].wth) {
@@ -254,7 +254,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
      * with the earliest time stamp.
      */
     for (i = 0; i < in_file_count; i++) {
-        if (in_files[i].state == PACKET_NOT_PRESENT) {
+        if (in_files[i].state == RECORD_NOT_PRESENT) {
             /*
              * No packet available, and we haven't seen an error or EOF yet,
              * so try to read the next packet.
@@ -266,10 +266,10 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
                 }
                 in_files[i].state = AT_EOF;
             } else
-                in_files[i].state = PACKET_PRESENT;
+                in_files[i].state = RECORD_PRESENT;
         }
 
-        if (in_files[i].state == PACKET_PRESENT) {
+        if (in_files[i].state == RECORD_PRESENT) {
             phdr = wtap_phdr(in_files[i].wth);
             if (is_earlier(&phdr->ts, &tv)) {
                 tv = phdr->ts;
@@ -285,7 +285,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
     }
 
     /* We'll need to read another packet from this file. */
-    in_files[ei].state = PACKET_NOT_PRESENT;
+    in_files[ei].state = RECORD_NOT_PRESENT;
 
     /* Count this packet. */
     in_files[ei].packet_num++;
@@ -834,7 +834,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
 
         count++;
         if (cb)
-            stop_flag = cb->callback_func(MERGE_EVENT_PACKET_WAS_READ, count, in_files, in_file_count, cb->data);
+            stop_flag = cb->callback_func(MERGE_EVENT_RECORD_WAS_READ, count, in_files, in_file_count, cb->data);
 
         if (stop_flag) {
             /* The user decided to abort the merge. */

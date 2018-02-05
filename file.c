@@ -1246,7 +1246,7 @@ merge_callback(merge_event event, int num _U_,
       g_get_current_time(&cb_data->start_time);
       break;
 
-    case MERGE_EVENT_PACKET_WAS_READ:
+    case MERGE_EVENT_RECORD_WAS_READ:
       {
         gint64 data_offset = 0;
 

@@ -18,8 +18,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef enum {
-    PACKET_PRESENT,
-    PACKET_NOT_PRESENT,
+    RECORD_PRESENT,
+    RECORD_NOT_PRESENT,
     AT_EOF,
     GOT_ERROR
 } in_file_state_e;
@@ -57,7 +57,7 @@ typedef enum {
     MERGE_EVENT_INPUT_FILES_OPENED,
     MERGE_EVENT_FRAME_TYPE_SELECTED,
     MERGE_EVENT_READY_TO_MERGE,
-    MERGE_EVENT_PACKET_WAS_READ,
+    MERGE_EVENT_RECORD_WAS_READ,
     MERGE_EVENT_DONE
 } merge_event;
 

@@ -211,7 +211,7 @@ merge_callback(merge_event event, int num,
       fprintf(stderr, "mergecap: ready to merge records\n");
       break;
 
-    case MERGE_EVENT_PACKET_WAS_READ:
+    case MERGE_EVENT_RECORD_WAS_READ:
       /* for this event, num = count */
       fprintf(stderr, "Record: %d\n", num);
       break;
