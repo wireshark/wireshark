@@ -186,23 +186,6 @@ typedef struct wtapng_simple_packet_s {
     /* XXX - put the packet data / pseudo_header here as well? */
 } wtapng_simple_packet_t;
 
-/* Block data to be passed between functions during reading */
-typedef struct wtapng_block_s {
-    guint32             type;           /* block_type as defined by pcapng */
-    wtap_block_t        block;
-
-    /*
-     * XXX - currently don't know how to handle these!
-     *
-     * For one thing, when we're reading a block, they must be
-     * writable, i.e. not const, so that we can read into them,
-     * but, when we're writing a block, they can be const, and,
-     * in fact, they sometimes point to const values.
-     */
-    struct wtap_pkthdr *packet_header;
-    Buffer             *frame_buffer;
-} wtapng_block_t;
-
 /* Interface data in private struct */
 typedef struct interface_info_s {
     int wtap_encap;
@@ -679,6 +662,11 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     }
     g_free(option_content);
 
+    /*
+     * We don't return these to the caller in pcapng_read().
+     */
+    wblock->internal = TRUE;
+
     return TRUE;
 }
 
@@ -1021,6 +1009,11 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             wth->file_tsprec = WTAP_TSPREC_PER_PACKET;
         }
     }
+
+    /*
+     * We don't return these to the caller in pcapng_read().
+     */
+    wblock->internal = TRUE;
 
     return TRUE;
 }
@@ -1382,6 +1375,12 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, iface_info.wtap_encap,
                            wblock->packet_header, ws_buffer_start_ptr(wblock->frame_buffer),
                            pn->byte_swapped, fcslen);
+
+    /*
+     * We return these to the caller in pcapng_read().
+     */
+    wblock->internal = FALSE;
+
     return TRUE;
 }
 
@@ -1547,6 +1546,12 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, iface_info.wtap_encap,
                            wblock->packet_header, ws_buffer_start_ptr(wblock->frame_buffer),
                            pn->byte_swapped, pn->if_fcslen);
+
+    /*
+     * We return these to the caller in pcapng_read().
+     */
+    wblock->internal = FALSE;
+
     return TRUE;
 }
 
@@ -1907,6 +1912,12 @@ read_options:
 
     g_free(option_content);
     ws_buffer_free(&nrb_rec);
+
+    /*
+     * We don't return these to the caller in pcapng_read().
+     */
+    wblock->internal = TRUE;
+
     return TRUE;
 }
 
@@ -2151,6 +2162,11 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
     g_free(option_content);
 
+    /*
+     * We don't return these to the caller in pcapng_read().
+     */
+    wblock->internal = TRUE;
+
     return TRUE;
 }
 
@@ -2249,6 +2265,11 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
 
     /* XXX Read comment? */
 
+    /*
+     * We return these to the caller in pcapng_read().
+     */
+    wblock->internal = FALSE;
+
     return TRUE;
 }
 
@@ -2257,11 +2278,10 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 #
 #ifdef HAVE_PLUGINS
     pcapng_t *pn,
-    wtapng_block_t *wblock,
 #else
     pcapng_t *pn _U_,
-    wtapng_block_t *wblock _U_,
 #endif
+    wtapng_block_t *wblock,
     int *err, gchar **err_info)
 {
     guint32 block_read;
@@ -2295,8 +2315,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
         (handler = (block_handler *)g_hash_table_lookup(block_handlers,
                                                         GUINT_TO_POINTER(bh->block_type))) != NULL) {
         /* Yes - call it to read this block type. */
-        if (!handler->reader(fh, block_read, pn->byte_swapped,
-                             wblock->packet_header, wblock->frame_buffer,
+        if (!handler->reader(fh, block_read, pn->byte_swapped, wblock,
                              err, err_info))
             return FALSE;
     } else
@@ -2306,6 +2325,12 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
         if (!wtap_read_bytes(fh, NULL, block_read, err, err_info)) {
             return FALSE;
         }
+
+        /*
+         * We're skipping this, so we won't return these to the caller
+         * in pcapng_read().
+         */
+        wblock->internal = TRUE;
     }
 
     return TRUE;
@@ -2619,20 +2644,23 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
             return FALSE;
         }
 
+        if (!wblock.internal) {
+            /*
+             * This is a block type we return to the caller to process.
+             */
+            break;
+        }
+
+        /*
+         * This is a block type we process internally, rather than
+         * returning it for the caller to process.
+         */
         switch (wblock.type) {
 
             case(BLOCK_TYPE_SHB):
                 pcapng_debug("pcapng_read: another section header block");
                 g_array_append_val(wth->shb_hdrs, wblock.block);
                 break;
-
-            case(BLOCK_TYPE_PB):
-            case(BLOCK_TYPE_SPB):
-            case(BLOCK_TYPE_EPB):
-            case(BLOCK_TYPE_SYSDIG_EVENT):
-            case(BLOCK_TYPE_SYSDIG_EVF):
-                /* packet block - we've found a packet */
-                goto got_packet;
 
             case(BLOCK_TYPE_IDB):
                 /* A new interface */
@@ -2705,8 +2733,6 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         }
     }
 
-got_packet:
-
     /*pcapng_debug("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
     pcapng_debug("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
 
@@ -2741,12 +2767,10 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
     }
 
-    /* block must be a "Packet Block", an "Enhanced Packet Block",
-       a "Simple Packet Block", or an event */
-    if (wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB &&
-        wblock.type != BLOCK_TYPE_SPB &&
-        wblock.type != BLOCK_TYPE_SYSDIG_EVENT && wblock.type != BLOCK_TYPE_SYSDIG_EVF) {
-            pcapng_debug("pcapng_seek_read: block type %u not PB/EPB/SPB", wblock.type);
+    /* block must not be one we process internally rather than supplying */
+    if (wblock.internal) {
+        pcapng_debug("pcapng_seek_read: block type %u is not one we return",
+                     wblock.type);
         wtap_block_free(wblock.block);
         return FALSE;
     }
