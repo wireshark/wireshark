@@ -242,6 +242,9 @@
 #define PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG      0xb4
 #define PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG      0xb5
 
+#define PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST 0xb9
+#define PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST 0xba
+
 /* Sub-document API commands */
 #define PROTOCOL_BINARY_CMD_SUBDOC_GET              0xc5
 #define PROTOCOL_BINARY_CMD_SUBDOC_EXISTS           0xc6
@@ -273,7 +276,7 @@
 #define PROTOCOL_BINARY_DCP_NOOP                    0x5c
 #define PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT  0x5d
 #define PROTOCOL_BINARY_DCP_CONTROL                 0x5e
-#define PROTOCOL_BINARY_DCP_RESERVED4               0x5f
+#define PROTOCOL_BINARY_DCP_SYSTEM_EVENT            0x5f
 
 #define PROTOCOL_BINARY_CMD_GET_RANDOM_KEY          0xb6
 #define PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE       0xb7
@@ -337,6 +340,8 @@ static int hf_extras_flags_dcp_snapshot_marker_chk = -1;
 static int hf_extras_flags_dcp_snapshot_marker_ack = -1;
 static int hf_extras_flags_dcp_include_xattrs = -1;
 static int hf_extras_flags_dcp_no_value = -1;
+static int hf_extras_flags_dcp_include_delete_times = -1;
+static int hf_extras_flags_dcp_collections = -1;
 static int hf_subdoc_doc_flags = -1;
 static int hf_subdoc_doc_flags_mkdoc = -1;
 static int hf_subdoc_doc_flags_add = -1;
@@ -365,6 +370,9 @@ static int hf_extras_lock_time = -1;
 static int hf_extras_nmeta = -1;
 static int hf_extras_nru = -1;
 static int hf_extras_bytes_to_ack = -1;
+static int hf_extras_delete_time = -1;
+static int hf_extras_collection_len = -1;
+static int hf_extras_system_event_id = -1;
 static int hf_extras_pathlen = -1;
 static int hf_key = -1;
 static int hf_path = -1;
@@ -622,7 +630,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_DCP_NOOP,                       "DCP NOOP"                 },
   { PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT,     "DCP Buffer Acknowledgement"},
   { PROTOCOL_BINARY_DCP_CONTROL,                    "DCP Control"              },
-  { PROTOCOL_BINARY_DCP_RESERVED4,                  "DCP Set Reserved"         },
+  { PROTOCOL_BINARY_DCP_SYSTEM_EVENT,               "DCP System Event"         },
   { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
   { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
   { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
@@ -670,6 +678,8 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
   { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
   { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
+  { PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST,   "Set Collection's Manifest" },
+  { PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST,   "Get Collection's Manifest" },
   { PROTOCOL_BINARY_CMD_SUBDOC_GET,                 "Subdoc Get"               },
   { PROTOCOL_BINARY_CMD_SUBDOC_EXISTS,              "Subdoc Exists"            },
   { PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD,            "Subdoc Dictionary Add"    },
@@ -754,6 +764,13 @@ static const value_string feature_vals[] = {
   {0, NULL}
 };
 
+static const value_string dcp_system_event_id_vals [] = {
+    {0, "CreateCollection"},
+    {1, "DeleteCollection"},
+    {2, "CollectionSeparatorChanged"},
+    {0, NULL}
+};
+
 static dissector_handle_t couchbase_handle;
 static dissector_handle_t json_handle;
 
@@ -788,6 +805,8 @@ has_json_value(guint8 opcode)
   switch (opcode) {
   case PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG:
   case PROTOCOL_BINARY_CMD_SUBDOC_GET:
+  case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST:
+  case PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST:
     return TRUE;
 
   default:
@@ -1053,6 +1072,8 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           &hf_extras_flags_dcp_connection_type,
           &hf_extras_flags_dcp_include_xattrs,
           &hf_extras_flags_dcp_no_value,
+          &hf_extras_flags_dcp_collections,
+          &hf_extras_flags_dcp_include_delete_times,
           NULL
         };
 
@@ -1166,6 +1187,12 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
         proto_tree_add_item(extras_tree, hf_extras_nru, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
+
+        // Add the collections_len when extlen == 32
+        if (extlen == 32) {
+          proto_tree_add_item(extras_tree, hf_extras_collection_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset += 1;
+        }
       } else {
         illegal = TRUE;
       }
@@ -1176,6 +1203,30 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case PROTOCOL_BINARY_DCP_DELETION:
+    if (request) {
+      if (extlen == 18 || extlen == 21) {
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_rev_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+
+        // Is this a delete with delete_time (21 bytes) or not (18 bytes)?
+        if (extlen == 18) {
+          proto_tree_add_item(extras_tree, hf_extras_nmeta, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset += 2;
+        } else if (extlen == 21) {
+          proto_tree_add_item(extras_tree, hf_extras_delete_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          proto_tree_add_item(extras_tree, hf_extras_collection_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset += 1;
+        }
+      } else if (extlen == 0) {
+        missing = TRUE; // request with no extras
+      }
+    } else if (extlen) {
+        illegal = TRUE; // response with extras
+    }
+    break;
   case PROTOCOL_BINARY_DCP_EXPIRATION:
   case PROTOCOL_BINARY_DCP_FLUSH:
     if (extlen) {
@@ -1208,7 +1259,15 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       missing = TRUE;
     }
     break;
-
+  case PROTOCOL_BINARY_DCP_SYSTEM_EVENT: {
+    if (request && extlen == 12) {
+      proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+      proto_tree_add_item(extras_tree, hf_extras_system_event_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+    }
+    break;
+  }
   case PROTOCOL_BINARY_CMD_SUBDOC_GET:
   case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
     dissect_subdoc_spath_required_extras(tvb, extras_tree, extlen, request,
@@ -1450,6 +1509,7 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case PROTOCOL_BINARY_DCP_MUTATION:
     case PROTOCOL_BINARY_DCP_DELETION:
     case PROTOCOL_BINARY_DCP_EXPIRATION:
+    case PROTOCOL_BINARY_DCP_SYSTEM_EVENT:
       /* Request must have key */
       if (request) {
         missing = TRUE;
@@ -2199,6 +2259,8 @@ proto_register_couchbase(void)
     { &hf_extras_flags_dcp_snapshot_marker_ack, {"Ack", "couchbase.extras.flags.dcp_snapshot_marker_ack", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x08, NULL, HFILL } },
     { &hf_extras_flags_dcp_include_xattrs, {"Include XATTRs", "couchbase.extras.flags.dcp_include_xattrs", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x04, "Indicates the server should include documents XATTRs", HFILL} },
     { &hf_extras_flags_dcp_no_value, {"No Value", "couchbase.extras.flags.dcp_no_value", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x08, "Indicates the server should strip off values", HFILL} },
+    { &hf_extras_flags_dcp_collections, {"Enable Collections", "couchbase.extras.flags.dcp_collections", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x10, "Indicates the server should stream collections", HFILL} },
+    { &hf_extras_flags_dcp_include_delete_times, {"Include Delete Times", "couchbase.extras.flags.dcp_include_delete_times", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x20, "Indicates the server should include delete timestamps", HFILL} },
     { &hf_extras_seqno, { "Sequence number", "couchbase.extras.seqno", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_opaque, { "Opaque (vBucket identifier)", "couchbase.extras.opaque", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_reserved, { "Reserved", "couchbase.extras.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -2213,6 +2275,9 @@ proto_register_couchbase(void)
     { &hf_extras_nmeta, { "nmeta", "couchbase.extras.nmeta", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_nru, { "nru", "couchbase.extras.nru", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_bytes_to_ack, { "bytes_to_ack", "couchbase.extras.bytes_to_ack", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_delete_time, { "delete_time", "couchbase.extras.delete_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_collection_len, { "collection_len", "couchbase.extras.collection_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_system_event_id, { "system_event_id", "couchbase.extras.system_event_id", FT_UINT32, BASE_DEC, VALS(dcp_system_event_id_vals), 0x0, NULL, HFILL } },
 
     { &hf_failover_log, { "Failover Log", "couchbase.dcp.failover_log", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_failover_log_size, { "Size", "couchbase.dcp.failover_log.size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
