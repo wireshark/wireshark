@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG User Interface Chapter -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG User Interface Chapter
 
 [[ChapterUsing]]
 
@@ -1019,6 +1017,4 @@ This is displayed if you are trying to use a display filter which may have
 unexpected results. For a detailed description, see
 <<ChWorkBuildDisplayFilterMistake>>.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter 3 -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter 3

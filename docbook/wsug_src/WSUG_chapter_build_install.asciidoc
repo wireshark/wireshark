@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter BuildInstall -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter BuildInstall
 
 [[ChapterBuildInstall]]
 
@@ -50,9 +48,7 @@ In general, unless you have already downloaded Wireshark before, you will most
 likely need to download several source packages if you are building Wireshark
 from source. This is covered in more detail below.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- Make a ref -->
-++++++++++++++++++++++++++++++++++++++
+// Make a ref
 ====
 
 Once you have downloaded the relevant files, you can go on to the next step.
@@ -436,7 +432,5 @@ You may also want to have a look at the Development Wiki
 ({wireshark-wiki-url}Development) for the latest available development
 documentation.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter 2 -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter 2
 

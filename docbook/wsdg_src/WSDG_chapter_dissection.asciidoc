@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter Dissection -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter Dissection
 
 [[ChapterDissection]]
 
@@ -1319,6 +1317,4 @@ may want to check if PYTHONPATH is set correctly. On my Linux box, it is
 PYTHONPATH=/usr/lib/python2.4/
 
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter Dissection -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter Dissection

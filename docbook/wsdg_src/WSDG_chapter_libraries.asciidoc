@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter Libraries -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter Libraries
 
 [[ChapterLibraries]]
 
@@ -390,6 +388,4 @@ WinSparkle is an easy-to-use software update library for Windows developers.
 We provide a copy of the WinSparkle package at
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter Libraries -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter Libraries

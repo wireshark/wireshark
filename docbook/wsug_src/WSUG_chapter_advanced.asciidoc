@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Advanced -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Advanced
 
 [[ChapterAdvanced]]
 
@@ -1048,6 +1046,4 @@ You can do two things to avoid this checksum offloading problem:
   Recent releases of Wireshark disable checksum validation by default due to the
   prevalance of offloading in modern hardware and operating systems.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter Advanced -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter Advanced

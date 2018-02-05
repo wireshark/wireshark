@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter Works -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter Works
 
 [[ChapterWorks]]
 
@@ -105,7 +103,5 @@ As the user selects a specific packet in the packet list pane this packet will
 be dissected again. This time, Wireshark tries to get every single piece of
 information and put it into the packet details pane.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter Works -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter Works
 

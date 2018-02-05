@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter Introduction -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter Introduction
 
 [[ChapterIntroduction]]
 
@@ -561,6 +559,4 @@ corresponding "Wireshark-win__bits__-_x_._y_._z_.exe" installer packages.
 
 // XXX Show how to use the Visual Studio debugger
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter Introduction -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter Introduction

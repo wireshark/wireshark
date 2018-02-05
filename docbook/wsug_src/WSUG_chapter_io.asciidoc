@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter IO -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter IO
 
 [[ChapterIO]]
 
@@ -924,6 +922,4 @@ image::wsug_graphics/ws-packet-format.png[{screenshot-attrs}]
   saving/printing to a text file, this will put a form feed character between
   the packets).
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter IO -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter IO

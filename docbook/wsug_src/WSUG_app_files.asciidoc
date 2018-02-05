@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Appendix Files -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Appendix Files
 
 [[AppFiles]]
 
@@ -567,6 +565,4 @@ _C:\Documents and Settings{backslash}**username**\Local Settings\Temp_
 Windows NT footnoteref:[historical]::
 _C:\TEMP_
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Appendix Files -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Appendix Files

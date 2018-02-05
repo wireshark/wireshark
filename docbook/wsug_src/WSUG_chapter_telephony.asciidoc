@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Telephony -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Telephony
 
 [[ChTelephony]]
 
@@ -110,6 +108,4 @@ specific protocols and might be described in a later version of this document.
 Some of these statistics are described at the
 {wireshark-wiki-url}Statistics pages.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter Telephony -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter Telephony

@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter Capture -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter Capture
 
 [[ChapterCapture]]
 
@@ -69,6 +67,4 @@ protocols and have them register themselves with the `wtap_encap` dissector
 table, with the appropriate _WTAP_ENCAP_ values by calling
 `dissector_add_uint()`.
 
-++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter Capture -->
-++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter Capture

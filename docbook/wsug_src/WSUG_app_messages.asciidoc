@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Appendix Messages -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Appendix Messages
 
 [[AppMessages]]
 
@@ -80,6 +78,4 @@ The session control protocol (SDP, H225, etc) message which signaled the
 creation of this session. You can directly jump to the corresponding packet just
 by double clicking on this message.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Appendix Messages -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Appendix Messages

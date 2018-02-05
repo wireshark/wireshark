@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- Wireshark GPL Appendix -->
-++++++++++++++++++++++++++++++++++++++
+// Wireshark GPL Appendix
 
 [[AppGPL]]
 == This Document’s License (GPL)

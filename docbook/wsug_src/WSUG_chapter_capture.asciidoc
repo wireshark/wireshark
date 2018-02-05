@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Capture -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Capture
 
 [[ChapterCapture]]
 
@@ -944,6 +942,4 @@ ways:
 
 . Using the btn:[Restart] toolbar button.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter Capture -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter Capture

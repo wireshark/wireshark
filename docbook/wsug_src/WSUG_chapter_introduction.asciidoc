@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Introduction -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Introduction
 
 [[ChapterIntroduction]]
 
@@ -485,6 +483,4 @@ very large. You can download them separately at
 {wireshark-main-url}download/win32/all-versions/ and
 {wireshark-main-url}download/win64/all-versions/ .
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter 1 -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter 1

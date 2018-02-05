@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter Build Introduction -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter Build Introduction
 
 [[ChapterBuildIntro]]
 
@@ -49,6 +47,4 @@ ____
 GLib contains lots of useful things for platform independent development.
 See https://developer.gnome.org/glib/[] for details about GLib.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter Build Introduction -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter Build Introduction

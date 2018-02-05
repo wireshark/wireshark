@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Four -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Four
 
 [[Chap04]]
 
@@ -80,6 +78,4 @@ question. However, as Wireshark will often give you some good hints, you might
 get an idea of what is going wrong simply by looking in the packets being
 exchanged.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter 4 -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter 4

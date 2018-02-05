@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Customizing -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Customizing
 
 [[ChapterCustomize]]
 
@@ -1152,6 +1150,4 @@ size this trailer is. A value of 0 disables the trailer protocol.
 Trailer protocol::
 The name of the trailer protocol to be used (uses “data” as default).
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter Customizing -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter Customizing

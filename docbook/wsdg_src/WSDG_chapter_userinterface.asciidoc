@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter User Interface -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter User Interface
 
 [[ChapterUserInterface]]
 
@@ -436,6 +434,4 @@ to gtk_widget_show_all() on the parent of all the widgets in question
 (e.g. a dialog window) can be done, so all of its child widgets will
 be shown too.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter User Interface -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter User Interface

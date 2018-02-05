@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Appendix Tools -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Appendix Tools
 
 [[AppTools]]
 
@@ -294,6 +292,4 @@ link:{wireshark-man-page-url}reordercap.html[the online version].
 include::reordercap-h.txt[]
 ----
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Appendix Tools -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Appendix Tools

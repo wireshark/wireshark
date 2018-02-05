@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSDG Chapter Tools -->
-++++++++++++++++++++++++++++++++++++++
+// WSDG Chapter Tools
 
 [[ChapterTools]]
 
@@ -1180,8 +1178,6 @@ To install it, do the following:
 You can find more instructions on using the PortableApps.com Installer in
 <<ChSrcPortableApps>>.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSDG Chapter Tools -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSDG Chapter Tools
 
 // vim: set syntax=asciidoc:

@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Statistics -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Statistics
 
 [[ChStatistics]]
 
@@ -469,6 +467,4 @@ specific protocols and might be described in a later version of this document.
 Some of these statistics are described at
 {wireshark-wiki-url}Statistics.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter Statistics -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter Statistics

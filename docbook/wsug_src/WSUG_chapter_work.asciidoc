@@ -1,6 +1,4 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter Work -->
-++++++++++++++++++++++++++++++++++++++
+// WSUG Chapter Work
 
 [[ChapterWork]]
 
@@ -859,6 +857,4 @@ A time referenced packet will be marked with the string $$*REF*$$ in the Time
 column (see packet number 10). All subsequent packets will show the time since
 the last time reference.
 
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter Work -->
-++++++++++++++++++++++++++++++++++++++
+// End of WSUG Chapter Work
