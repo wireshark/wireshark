@@ -502,7 +502,7 @@ typedef enum {
     PCAPNG_BLOCK_ERROR
 } block_return_val;
 
-static block_return_val
+static gboolean
 pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
                                  pcapng_t *pn, wtapng_block_t *wblock,
                                  int *err, gchar **err_info)
@@ -521,7 +521,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 
     /* read fixed-length part of the block */
     if (!wtap_read_bytes(fh, &shb, sizeof shb, err, err_info))
-        return PCAPNG_BLOCK_ERROR;
+        return FALSE;
 
     /* is the magic number one we expect? */
     switch (shb.magic) {
@@ -550,7 +550,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             /* Not a "pcapng" magic number we know about. */
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown byte-order magic number 0x%08x", shb.magic);
-            return PCAPNG_BLOCK_ERROR;
+            return FALSE;
     }
 
     /*
@@ -563,7 +563,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u of an SHB is less than the minimum SHB size %u",
                                     bh->block_total_length, MIN_SHB_SIZE);
-        return PCAPNG_BLOCK_ERROR;
+        return FALSE;
     }
 
     /* OK, at this point we assume it's a pcapng file.
@@ -580,7 +580,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
-        return PCAPNG_BLOCK_ERROR;
+        return FALSE;
     }
 
     /* we currently only understand SHB V1.0 */
@@ -588,7 +588,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown SHB version %u.%u",
                                     pn->version_major, pn->version_minor);
-        return PCAPNG_BLOCK_ERROR;
+        return FALSE;
     }
 
     pn->byte_swapped  = byte_swapped;
@@ -612,7 +612,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     option_content = (guint8 *)g_try_malloc(opt_cont_buf_len);
     if (opt_cont_buf_len != 0 && option_content == NULL) {
         *err = ENOMEM;  /* we assume we're out of memory */
-        return PCAPNG_BLOCK_ERROR;
+        return FALSE;
     }
     pcapng_debug("pcapng_read_section_header_block: Options %u bytes", to_read);
     while (to_read != 0) {
@@ -621,7 +621,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info, "section_header");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_section_header_block: failed to read option");
-            return PCAPNG_BLOCK_ERROR;
+            return FALSE;
         }
         to_read -= bytes_read;
 
@@ -684,7 +684,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     }
     g_free(option_content);
 
-    return PCAPNG_BLOCK_OK;
+    return TRUE;
 }
 
 
@@ -2320,7 +2320,6 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 static block_return_val
 pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
-    block_return_val ret;
     pcapng_block_header_t bh;
     guint32 block_total_length;
 
@@ -2333,25 +2332,32 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
     }
 
     /*
-     * SHBs have to be treated differently from other blocks, as we
-     * might be doing an open and attempting to read a block at the
-     * beginning of the file to see if it's a pcapng file or not,
-     * and as they do not necessarily have the same byte order as
-     * previous blocks.
+     * SHBs have to be treated differently from other blocks, because
+     * the byte order of the fields in the block can only be determined
+     * by looking at the byte-order magic number inside the block, not
+     * by using the byte order of the section to which it belongs, as
+     * it is the block that *defines* the byte order of the section to
+     * which it belongs.
      */
     if (bh.block_type == BLOCK_TYPE_SHB) {
         /*
          * BLOCK_TYPE_SHB has the same value regardless of byte order,
          * so we don't need to byte-swap it.
+         *
+         * We *might* need to byte-swap the total length, but we
+         * can't determine whether we do until we look inside the
+         * block and find the byte-order magic number, so we rely
+         * on pcapng_read_section_header_block() to do that and
+         * to swap the total length (as it needs to get the total
+         * length in the right byte order in order to read the
+         * entire block).
          */
         wblock->type = bh.block_type;
 
         pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
 
-        ret = pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info);
-        if (ret == PCAPNG_BLOCK_ERROR) {
-            return ret;
-        }
+        if (!pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info))
+            return PCAPNG_BLOCK_ERROR;
     } else {
         if (pn->byte_swapped) {
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
