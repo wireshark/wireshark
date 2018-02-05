@@ -792,7 +792,7 @@ void ipmi_set_data(packet_info *pinfo, guint idx, guint32 value)
 	ipmi_packet_data_t * data = get_packet_data(pinfo);
 
 	/* check bounds */
-	if (data->curr_level >= MAX_NEST_LEVEL || idx >= NSAVED_DATA ) {
+	if (data->curr_level >= MAX_NEST_LEVEL || idx >= NSAVED_DATA || !data->curr_frame ) {
 		return;
 	}
 
@@ -806,7 +806,7 @@ gboolean ipmi_get_data(packet_info *pinfo, guint idx, guint32 * value)
 	ipmi_packet_data_t * data = get_packet_data(pinfo);
 
 	/* check bounds */
-	if (data->curr_level >= MAX_NEST_LEVEL || idx >= NSAVED_DATA ) {
+	if (data->curr_level >= MAX_NEST_LEVEL || idx >= NSAVED_DATA || !data->curr_frame ) {
 		return FALSE;
 	}
 
