@@ -1,6 +1,8 @@
 /* packet-couchbase.c
  *
  * Routines for Couchbase Protocol
+ *
+ * Copyright 2018, Jim Walker <jim@couchbase.com>
  * Copyright 2015-2016, Dave Rigby <daver@couchbase.com>
  * Copyright 2011, Sergey Avseyev <sergey.avseyev@gmail.com>
  *
@@ -734,7 +736,7 @@ static const int * subdoc_doc_flags[] = {
 };
 
 static const value_string feature_vals[] = {
-  {0x01, "Datatype"},
+  {0x01, "Datatype (deprecated)"},
   {0x02, "TLS"},
   {0x03, "TCP Nodelay"},
   {0x04, "Mutation Seqno"},
@@ -746,6 +748,9 @@ static const value_string feature_vals[] = {
   {0x0a, "Snappy"},
   {0x0b, "JSON"},
   {0x0c, "Duplex"},
+  {0x0d, "Clustermap Change Notification"},
+  {0x0e, "Unordered Execution"},
+  {0x0f, "Tracing"},
   {0, NULL}
 };
 
