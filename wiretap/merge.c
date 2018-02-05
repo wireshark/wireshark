@@ -249,9 +249,11 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
     struct wtap_pkthdr *phdr;
 
     /*
-     * Make sure we have a packet available from each file, if there are any
-     * packets left in the file in question, and search for the packet
-     * with the earliest time stamp.
+     * Make sure we have a record available from each file that's not at
+     * EOF, and search for the record with the earliest time stamp or
+     * with no time stamp (those records are treated as earlier than
+     * all other records).  Yes, this means you won't get a chronological
+     * merge of those records, but you obviously *can't* get that.
      */
     for (i = 0; i < in_file_count; i++) {
         if (in_files[i].state == RECORD_NOT_PRESENT) {
@@ -271,7 +273,19 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
 
         if (in_files[i].state == RECORD_PRESENT) {
             phdr = wtap_phdr(in_files[i].wth);
+            if (!(phdr->presence_flags & WTAP_HAS_TS)) {
+                /*
+                 * No time stamp.  Pick this record, and stop looking.
+                 */
+                ei = i;
+                break;
+            }
             if (is_earlier(&phdr->ts, &tv)) {
+                /*
+                 * This record's time stamp is earlier than any of the
+                 * records we've seen so far.  Pick it, for now, but
+                 * keep looking.
+                 */
                 tv = phdr->ts;
                 ei = i;
             }
@@ -844,17 +858,19 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
 
         phdr = wtap_phdr(in_file->wth);
 
-        if (snaplen != 0 && phdr->caplen > snaplen) {
-            /*
-             * The dumper will only write up to caplen bytes out, so we only
-             * need to change that value, instead of cloning the whole packet
-             * with fewer bytes.
-             *
-             * XXX: but do we need to change the IDBs' snap_len?
-             */
-            snap_phdr = *phdr;
-            snap_phdr.caplen = snaplen;
-            phdr = &snap_phdr;
+        if (phdr->presence_flags & WTAP_HAS_CAP_LEN) {
+            if (snaplen != 0 && phdr->caplen > snaplen) {
+                /*
+                 * The dumper will only write up to caplen bytes out,
+                 * so we only need to change that value, instead of
+                 * cloning the whole packet with fewer bytes.
+                 *
+                 * XXX: but do we need to change the IDBs' snap_len?
+                 */
+                snap_phdr = *phdr;
+                snap_phdr.caplen = snaplen;
+                phdr = &snap_phdr;
+            }
         }
 
         if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
