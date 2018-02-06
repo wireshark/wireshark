@@ -225,15 +225,16 @@ static int hf_pfcp_b0_dldr = -1;
 static int hf_pfcp_offending_ie = -1;
 
 static int hf_pfcp_up_function_features = -1;
-static int hf_pfcp_b8_empu = -1;
-static int hf_pfcp_b7_treu = -1;
-static int hf_pfcp_b6_heeu = -1;
-static int hf_pfcp_b5_pfdm = -1;
-static int hf_pfcp_b4_ftup = -1;
-static int hf_pfcp_b3_trst = -1;
-static int hf_pfcp_b2_dlbd = -1;
-static int hf_pfcp_b1_ddnd = -1;
-static int hf_pfcp_b0_bucp = -1;
+static int hf_pfcp_b1_b7_spare = -1;
+static int hf_pfcp_b0_empu = -1;
+static int hf_pfcp_b15_treu = -1;
+static int hf_pfcp_b14_heeu = -1;
+static int hf_pfcp_b13_pfdm = -1;
+static int hf_pfcp_b12_ftup = -1;
+static int hf_pfcp_b11_trst = -1;
+static int hf_pfcp_b10_dlbd = -1;
+static int hf_pfcp_b9_ddnd = -1;
+static int hf_pfcp_b8_bucp = -1;
 static int hf_pfcp_sequence_number = -1;
 static int hf_pfcp_metric = -1;
 static int hf_pfcp_timer_unit = -1;
@@ -1349,18 +1350,20 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     int offset = 0;
 
     static const int * pfcp_up_function_features_flags[] = {
-        &hf_pfcp_b8_empu,
-        &hf_pfcp_b7_treu,
-        &hf_pfcp_b6_heeu,
-        &hf_pfcp_b5_pfdm,
-        &hf_pfcp_b4_ftup,
-        &hf_pfcp_b3_trst,
-        &hf_pfcp_b2_dlbd,
-        &hf_pfcp_b1_ddnd,
-        &hf_pfcp_b0_bucp,
+        &hf_pfcp_b15_treu,
+        &hf_pfcp_b14_heeu,
+        &hf_pfcp_b13_pfdm,
+        &hf_pfcp_b12_ftup,
+        &hf_pfcp_b11_trst,
+        &hf_pfcp_b10_dlbd,
+        &hf_pfcp_b9_ddnd,
+        &hf_pfcp_b8_bucp,
+        &hf_pfcp_b1_b7_spare,
+        &hf_pfcp_b0_empu,
         NULL
     };
-    /* Octet 5  LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO*/
+    /* Octet 5  TREU   HEEU   PFDM   FTUP   TRST   DLBD   DDND   BUCP*/
+    /* Octet 6  Spare   Spare   Spare   Spare   Spare   Spare   Spare   EMPU*/
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_up_function_features,
         ett_pfcp_up_function_features, pfcp_up_function_features_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 2;
@@ -4765,49 +4768,54 @@ proto_register_pfcp(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_b0_bucp,
+        { &hf_pfcp_b8_bucp,
         { "BUCP", "pfcp.up_function_features.bucp",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0001,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0100,
             "Downlink Data Buffering in CP function", HFILL }
         },
-        { &hf_pfcp_b1_ddnd,
+        { &hf_pfcp_b9_ddnd,
         { "DDND", "pfcp.up_function_features.ddnd",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0002,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0200,
             "Buffering parameter 'Downlink Data Notification Delay", HFILL }
         },
-        { &hf_pfcp_b2_dlbd,
+        { &hf_pfcp_b10_dlbd,
         { "DLBD", "pfcp.up_function_features.dlbd",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0004,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0400,
             NULL, HFILL }
         },
-        { &hf_pfcp_b3_trst,
+        { &hf_pfcp_b11_trst,
         { "TRST", "pfcp.up_function_features.trst",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0008,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0800,
             "Traffic Steering", HFILL }
         },
-        { &hf_pfcp_b4_ftup,
+        { &hf_pfcp_b12_ftup,
         { "FTUP", "pfcp.up_function_features.ftup",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0010,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x1000,
             "F-TEID allocation / release in the UP function", HFILL }
         },
-        { &hf_pfcp_b5_pfdm,
+        { &hf_pfcp_b13_pfdm,
         { "PFDM", "pfcp.up_function_features.pfdm",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0020,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
             "PFD Management procedure", HFILL }
         },
-        { &hf_pfcp_b6_heeu,
+        { &hf_pfcp_b14_heeu,
         { "HEEU", "pfcp.up_function_features.heeu",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
             "Header Enrichment of Uplink traffic", HFILL }
         },
-        { &hf_pfcp_b7_treu,
+        { &hf_pfcp_b15_treu,
         { "TREU", "pfcp.up_function_features.treu",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0080,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
             "Traffic Redirection Enforcement in the UP function", HFILL }
         },
-        { &hf_pfcp_b8_empu,
+        { &hf_pfcp_b0_empu,
         { "EMPU", "pfcp.up_function_features.empu",
-            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0100,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0001,
+            "Sending of End Marker packets", HFILL }
+        },
+        { &hf_pfcp_b1_b7_spare,
+        { "Spare", "pfcp.up_function_features.spare",
+            FT_BOOLEAN, 16, NULL , 0x00FE,
             "Sending of End Marker packets", HFILL }
         },
         { &hf_pfcp_sequence_number,
