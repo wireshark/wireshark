@@ -1193,7 +1193,7 @@ dissect_sbc_ap_Criticality_Diagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 268 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      8, 8, FALSE, &parameter_tvb, NULL);
@@ -1337,7 +1337,7 @@ dissect_sbc_ap_List_of_EAIs_Restart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_sbc_ap_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 234 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      16, 16, FALSE, &parameter_tvb, NULL);
@@ -1429,7 +1429,7 @@ dissect_sbc_ap_Send_Stop_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sbc_ap_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 232 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 241 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      16, 16, FALSE, &parameter_tvb, NULL);
@@ -1503,7 +1503,7 @@ dissect_sbc_ap_Warning_Area_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sbc_ap_Warning_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 270 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 279 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 9600, FALSE, &parameter_tvb);
@@ -1534,7 +1534,7 @@ dissect_sbc_ap_Warning_Security_Information(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sbc_ap_Warning_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 248 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 257 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        2, 2, FALSE, &parameter_tvb);
@@ -1621,6 +1621,9 @@ static const per_sequence_t Write_Replace_Warning_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_Write_Replace_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 225 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Indication");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_Write_Replace_Warning_Indication, Write_Replace_Warning_Indication_sequence);
 
@@ -1636,6 +1639,9 @@ static const per_sequence_t Stop_Warning_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_Stop_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 227 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Indication");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_Stop_Warning_Indication, Stop_Warning_Indication_sequence);
 
@@ -1651,6 +1657,9 @@ static const per_sequence_t PWS_Restart_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_PWS_Restart_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 229 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Restart-Indication");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_PWS_Restart_Indication, PWS_Restart_Indication_sequence);
 
@@ -1666,6 +1675,10 @@ static const per_sequence_t PWS_Failure_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_PWS_Failure_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 231 "./asn1/sbc-ap/sbc-ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Failure-Indication");
+
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_sbc_ap_PWS_Failure_Indication, PWS_Failure_Indication_sequence);
 

@@ -221,6 +221,15 @@ PWS-Failure-Indication                  N sbc_ap.proc.imsg id-PWS-Failure-Indica
 #.TYPE_ATTR
 Message-Identifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &lte_rrc_messageIdentifier_vals_ext
 
+#.FN_HDR Write-Replace-Warning-Indication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Indication");
+#.FN_HDR Stop-Warning-Indication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Indication");
+#.FN_HDR PWS-Restart-Indication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Restart-Indication");
+#.FN_HDR PWS-Failure-Indication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Failure-Indication");
+
 #.FN_BODY Message-Identifier VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
