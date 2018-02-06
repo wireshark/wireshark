@@ -36,7 +36,7 @@
  *
  *        http://www.rtnet.org/
  *
- *        http://www.rts.uni-hannover.de/rtnet/lxr/source/Documentation/RTmac.spec
+ *        http://web.archive.org/web/20141012010440/http://www.rts.uni-hannover.de/rtnet/lxr/source/Documentation/RTmac.spec
  */
 
 void proto_register_rtmac(void);
