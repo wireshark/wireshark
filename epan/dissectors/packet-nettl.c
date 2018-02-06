@@ -227,7 +227,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                            0, 0, pinfo->pseudo_header->nettl.uid);
     }
 
-    switch (pinfo->pkt_encap) {
+    switch (pinfo->phdr->pkt_encap) {
         case WTAP_ENCAP_NETTL_ETHERNET:
             call_dissector(eth_withoutfcs_handle, tvb, pinfo, tree);
             break;

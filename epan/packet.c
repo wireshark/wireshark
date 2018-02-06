@@ -512,7 +512,6 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		edt->pi.presence_flags |= PINFO_HAS_TS;
 		edt->pi.abs_ts = fd->abs_ts;
 	}
-	edt->pi.pkt_encap     = phdr->pkt_encap;
 	edt->pi.fd            = fd;
 	edt->pi.phdr          = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;

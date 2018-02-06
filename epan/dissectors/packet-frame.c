@@ -245,7 +245,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		 * overrides the packet record.
 		 */
 		if (pinfo->pseudo_header != NULL) {
-			switch (pinfo->pkt_encap) {
+			switch (pinfo->phdr->pkt_encap) {
 
 			case WTAP_ENCAP_WFLEET_HDLC:
 			case WTAP_ENCAP_CHDLC_WITH_PHDR:
@@ -432,7 +432,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		if (pinfo->phdr->rec_type == REC_TYPE_PACKET)
-			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->pkt_encap);
+			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->phdr->pkt_encap);
 
 		if (pinfo->presence_flags & PINFO_HAS_TS) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
@@ -519,7 +519,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		/* Check for existences of MTP2 link number */
-		if ((pinfo->pseudo_header != NULL ) && (pinfo->pkt_encap == WTAP_ENCAP_MTP2_WITH_PHDR)) {
+		if ((pinfo->pseudo_header != NULL ) && (pinfo->phdr->pkt_encap == WTAP_ENCAP_MTP2_WITH_PHDR)) {
 			proto_tree_add_uint(fh_tree, hf_link_number, tvb,
 					    0, 0, pinfo->link_number);
 		}
@@ -561,12 +561,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					    (void *)pinfo->pseudo_header);
 				} else {
 					if (!dissector_try_uint_new(wtap_encap_dissector_table,
-					    pinfo->pkt_encap, tvb, pinfo,
+					    pinfo->phdr->pkt_encap, tvb, pinfo,
 					    parent_tree, TRUE,
 					    (void *)pinfo->pseudo_header)) {
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-							     pinfo->pkt_encap);
+							     pinfo->phdr->pkt_encap);
 						call_data_dissector(tvb, pinfo, parent_tree);
 					}
 				}

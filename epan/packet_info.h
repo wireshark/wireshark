@@ -60,7 +60,6 @@ typedef struct _packet_info {
   guint32 num;                      /**< Frame number */
   nstime_t abs_ts;                  /**< Packet absolute time stamp */
   nstime_t rel_ts;                  /**< Relative timestamp (yes, it can be negative) */
-  gint pkt_encap;                   /**< Per-packet encapsulation/data-link type */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
   struct wtap_pkthdr *phdr;         /**< Record metadata */

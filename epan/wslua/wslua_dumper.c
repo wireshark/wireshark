@@ -375,7 +375,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
         return 0;
     }
 
-    encap = lua_pinfo->pkt_encap;
+    encap = lua_pinfo->phdr->pkt_encap;
 
     d = wtap_dump_open(filename, filetype, encap, 0, FALSE, &err);
 
@@ -438,7 +438,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     pkthdr.ts        = lua_pinfo->abs_ts;
     pkthdr.len       = tvb_reported_length(tvb);
     pkthdr.caplen    = tvb_captured_length(tvb);
-    pkthdr.pkt_encap = lua_pinfo->pkt_encap;
+    pkthdr.pkt_encap = lua_pinfo->phdr->pkt_encap;
     pkthdr.pseudo_header = *lua_pinfo->pseudo_header;
 
     if (lua_pinfo->fd->flags.has_user_comment) {

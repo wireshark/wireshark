@@ -1166,11 +1166,18 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
                 /* Older versions of Snort don't support capture file with several encapsulations (like pcapng),
                  * so write in pcap format and hope we have just one encap.
-                 * Newer versions of Snort can read pcapng now, but still write in pcap format.
+                 * Newer versions of Snort can read pcapng now, but still
+                 * write in pcap format; if "newer versions of Snort" really
+                 * means "Snort, when using newer versions of libpcap", then,
+                 * yes, they can read pcapng, but they can't read pcapng
+                 * files with more than one encapsulation type, as libpcap's
+                 * API currently can't handle that, so even those "newer
+                 * versions of Snort" wouldn't handle multiple encapsulation
+                 * types.
                  */
                 current_session.pdh = wtap_dump_fdopen(current_session.in,
                                                        WTAP_FILE_TYPE_SUBTYPE_PCAP,
-                                                       pinfo->pkt_encap,
+                                                       pinfo->phdr->pkt_encap,
                                                        WTAP_MAX_PACKET_SIZE_STANDARD,
                                                        FALSE,                 /* compressed */
                                                        &open_err);
@@ -1193,7 +1200,6 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
             wtp.caplen = tvb_captured_length(tvb);
             wtp.len = tvb_reported_length(tvb);
-            wtp.pkt_encap = pinfo->pkt_encap;
             if (current_session.pdh->encap != wtp.pkt_encap) {
                 /* XXX, warning! convert? */
             }

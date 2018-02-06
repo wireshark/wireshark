@@ -121,7 +121,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		fh_tree = proto_item_add_subtree(ti, ett_file);
 
-		proto_tree_add_int(fh_tree, hf_file_ftap_encap, tvb, 0, 0, pinfo->pkt_encap);
+		proto_tree_add_int(fh_tree, hf_file_ftap_encap, tvb, 0, 0, pinfo->phdr->pkt_encap);
 
 		proto_tree_add_uint(fh_tree, hf_file_record_number, tvb, 0, 0, pinfo->num);
 
@@ -177,12 +177,12 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		*/
 		__try {
 #endif
-			if (!dissector_try_uint(file_encap_dissector_table, pinfo->pkt_encap,
+			if (!dissector_try_uint(file_encap_dissector_table, pinfo->phdr->pkt_encap,
 						tvb, pinfo, parent_tree)) {
 
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 				col_add_fstr(pinfo->cinfo, COL_INFO, "FTAP_ENCAP = %d",
-					     pinfo->pkt_encap);
+					     pinfo->phdr->pkt_encap);
 				call_data_dissector(tvb, pinfo, parent_tree);
 			}
 #ifdef _MSC_VER
