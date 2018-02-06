@@ -74,6 +74,15 @@ WHITELISTED_LICENSES = [
 
 
 PATH_SPECIFIC_WHITELISTED_LICENSES = {
+    'caputils/airpcap.h': [
+        'BSD-3-Clause',
+    ],
+    'wsutil/strnatcmp.c': [
+        'Zlib',
+    ],
+    'wsutil/strnatcmp.h': [
+        'Zlib',
+    ],
     'dtds': [
         'UNKNOWN',
     ],
