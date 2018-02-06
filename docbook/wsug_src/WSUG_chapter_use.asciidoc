@@ -88,11 +88,11 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 [options="header",cols="1,3"]
 |===============
 |Accelerator               |Description
-|kbd:[Tab], kbd:[Shift+Tab]|Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
+|kbd:[Tab] or kbd:[Shift+Tab]|Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
 |kbd:[↓]                   |Move to the next packet or detail item.
 |kbd:[↑]                   |Move to the previous packet or detail item.
-|kbd:[Ctrl+↓], kbd:[F8]    |Move to the next packet, even if the packet list isn't focused.
-|kbd:[Ctrl+↑], kbd:[F7]    |Move to the previous packet, even if the packet list isn't focused.
+|kbd:[Ctrl+↓] or kbd:[F8]  |Move to the next packet, even if the packet list isn't focused.
+|kbd:[Ctrl+↑] or kbd:[F7]  |Move to the previous packet, even if the packet list isn't focused.
 |kbd:[Ctrl+.]              |Move to the next packet of the conversation (TCP, UDP or IP).
 |kbd:[Ctrl+&#44;]          |Move to the previous packet of the conversation (TCP, UDP or IP).
 |kbd:[Alt+→] or kbd:[Option+→] (macOS) |Move to the next packet in the selection history.
@@ -103,7 +103,7 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 |kbd:[Ctrl+→]              |In the packet detail, opens all tree items.
 |kbd:[Ctrl+←]              |In the packet detail, closes all tree items.
 |kbd:[Backspace]           |In the packet detail, jumps to the parent node.
-|kbd:[Return], kbd:[Enter] |In the packet detail, toggles the selected tree item.
+|kbd:[Return] or kbd:[Enter] |In the packet detail, toggles the selected tree item.
 |===============
 
 menu:Help[About Wireshark,Keyboard Shortcuts] will show a list of all shortcuts
