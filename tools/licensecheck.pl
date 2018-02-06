@@ -630,6 +630,8 @@ sub parselicense {
 	$gplver = " (v$1)";
     } elsif ($licensetext =~ /SPDX-License-Identifier:\s+GPL-([1-9])\.0\+/i ) {
 	$gplver = " (v$1 or later)";
+    } elsif ($licensetext =~ /SPDX-License-Identifier:\s+LGPL-([1-9])\.0\-or-later/i ) {
+  $gplver = " (v$1 or later)";
     }
 
     if ($licensetext =~ /(?:675 Mass Ave|59 Temple Place|51 Franklin Steet|02139|02111-1307)/i) {
@@ -676,6 +678,18 @@ sub parselicense {
     if ($licensetext =~ /SPDX-License-Identifier:\s+GPL/i
 	and length $gplver) {
 	$license = "GPL$gplver$extrainfo $license";
+    }
+
+    if ($licensetext =~ /SPDX-License-Identifier:\s+LGPL/i and length $gplver) {
+      $license = "LGPL$gplver$extrainfo $license";
+    }
+
+    if ($licensetext =~ /SPDX-License-Identifier:\s+Zlib/i) {
+      $license = "Zlib";
+    }
+
+    if ($licensetext =~ /SPDX-License-Identifier:\s+BSD-3-Clause/i) {
+      $license = 'BSD-3-Clause';
     }
 
     if ($licensetext =~ /(?:is|may be)\s(?:(?:distributed|used).*?terms|being\s+released).*?\b(L?GPL)\b/) {
