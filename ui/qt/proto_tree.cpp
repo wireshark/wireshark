@@ -587,6 +587,18 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
     return QTreeView::eventFilter(obj, event);
 }
 
+QModelIndex ProtoTree::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+{
+    if (cursorAction == MoveLeft && selectionModel()->hasSelection()) {
+        QModelIndex cur_idx = selectionModel()->selectedIndexes().first();
+        QModelIndex parent = cur_idx.parent();
+        if (!isExpanded(cur_idx) && parent.isValid() && parent != rootIndex()) {
+            return parent;
+        }
+    }
+    return QTreeView::moveCursor(cursorAction, modifiers);
+}
+
 /*
  * Editor modelines
  *
