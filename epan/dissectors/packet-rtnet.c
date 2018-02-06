@@ -36,7 +36,8 @@
  *
  *        http://www.rtnet.org/
  *
- *        http://web.archive.org/web/20141012010440/http://www.rts.uni-hannover.de/rtnet/lxr/source/Documentation/RTmac.spec
+ *        https://github.com/iocroblab/rtnet/blob/master/Documentation/RTcfg.spec
+ *        https://github.com/iocroblab/rtnet/blob/master/Documentation/RTmac.spec
  */
 
 void proto_register_rtmac(void);
@@ -862,8 +863,13 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
              break;
          }
 
-         switch (pinfo->pkt_encap) {
-           case WTAP_ENCAP_ETHERNET:
+         /*
+          * Infer the type of the physical address from the type of the
+          * source address of this packet.
+          */
+         switch( pinfo->dl_src.type )
+         {
+           case AT_ETHER:
              proto_tree_add_bytes_format_value( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
                                           NULL, "%s",
                                           tvb_ether_to_str(tvb, offset));
