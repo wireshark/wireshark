@@ -1,7 +1,7 @@
-                         Wireshark 2.1.1 Release Notes
+                         Wireshark 2.5.0 Release Notes
 
    This is a semi-experimental release intended to test new features for
-   Wireshark 2.2.
+   Wireshark 2.6.
      __________________________________________________________________
 
 What is Wireshark?
@@ -12,106 +12,80 @@ What is Wireshark?
 
 What's New
 
+   Many user interface improvements have been made. See the New and
+   Updated Features section below for more details.
+
   New and Updated Features
 
    The following features are new (or have been significantly updated)
-   since version 2.1.0:
-     * Added -d option for Decode As support in Wireshark (mimics TShark
-       functionality)
-     * The Qt UI, GTK+ UI, and TShark can now export packets as JSON.
-       TShark can additionally export packets as Elasticsearch-compatible
-       JSON.
-     * The Qt UI now supports the -j, -J, and -l flags. The -m flag is now
-       deprecated.
-     * The Conversations and Endpoints dialogs are more responsive when
-       viewing large numbers of items.
-     * The RTP player now allows up to 30 minutes of silence frames.
-     * Packet bytes can now be displayed as EBCDIC.
-     * The Qt UI loads captures faster on Windows.
-
-   The following features are new (or have been significantly updated)
-   since version 2.0.0:
-     * The intelligent scroll bar now sits to the left of a normal scroll
-       bar and provides a clickable map of nearby packets.
-     * You can now switch between between Capture and File Format
-       dissection of the current capture file via the View menu in the Qt
-       GUI.
-     * You can now show selected packet bytes as ASCII, HTML, Image, ISO
-       8859-1, Raw, UTF-8, a C array, or YAML.
-     * You can now use regular expressions in Find Packet and in the
-       advanced preferences.
-     * Name resolution for packet capture now supports asynchronous DNS
-       lookups only. Therefore the "concurrent DNS resolution" preference
-       has been deprecated and is a no-op. To enable DNS name resolution
-       some build dependencies must be present (currently c-ares). If that
-       is not the case DNS name resolution will be disabled (but other
-       name resolution mechanisms, such as host files, are still
-       available).
-     * The byte under the mouse in the Packet Bytes pane is now
-       highlighted.
-     * TShark supports exporting PDUs via the -U flag.
-     * The Windows and OS X installers now come with the "sshdump" and
-       "ciscodump" extcap interfaces.
-     * Most dialogs in the Qt UI now save their size and positions.
-     * The Follow Stream dialog now supports UTF-16.
-     * The Firewall ACL Rules dialog has returned.
-     * The Flow (Sequence) Analysis dialog has been improved.
-     * We no longer provide packages for 32-bit versions of OS X.
-     * The Bluetooth Device details dialog has been added.
-
-  New File Format Decoding Support
-
-   Wireshark is able to display the format of some types of files (rather
-   than displaying the contents of those files). This is useful when
-   you're curious about, or debugging, a file and its format. To open a
-   capture file (such as PCAP) in this mode specify "MIME Files Format" as
-   the file's format in the Open File dialog.
-
-   New files that Wireshark can open in this mode include:
+   since version 2.4.0:
+     * Display filter buttons can now be edited, disabled, and removed via
+       a context menu directly from the toolbar
+     * Drag & Drop filter fields to the display filter toolbar or edit to
+       create a button on the fly or apply the filter as a display filter.
+     * Application startup time has been reduced.
+     * Some keyboard shortcut mix-ups have been resolved by assigning new
+       shortcuts to Edit -> Copy methods.
+     * TShark now supports color using the --color option.
+     * The "matches" display filter operator is now case-insensitive.
+     * Display expression (button) preferences have been converted to a
+       UAT. This puts the display expressions in their own file. Wireshark
+       still supports preference files that contain the old preferences,
+       but new preference files will be written without the old fields.
+     * SMI private enterprise numbers are now read from the
+       "enterprises.tsv" configuration file.
+     * The QUIC dissector has been renamed to Google QUIC (quic -> gquic).
+     * The selected packet number can now be shown in the Status Bar by
+       enabling Preferences -> Appearance -> Layout -> Show selected
+       packet number.
+     * File load time in the Status Bar is now disabled by default and can
+       be enabled in Preferences -> Appearance -> Layout -> Show file load
+       time.
+     * Support for the G.729A codec in the RTP Player is now added via the
+       bcg729 library.
+     * Support for hardware-timestamping of packets has been added.
+     * Improved NetMon .cap support with comments, event tracing, network
+       filter, network info types and some Message Analyzer exported
+       types.
+     * The personal plugins folder on Linux/Unix is now
+       ~/.local/lib/wireshark/plugins.
+     * TShark can print flow graphs using -z flow...
+     * Capinfos now prints SHA256 hashes in addition to RIPEMD160 and
+       SHA1. MD5 output has been removed.
+     * The packet editor has been removed. (This was a GTK+ only
+       experimental feature.)
+     * Support BBC micro:bit Bluetooth profile
+     * The Linux and UNIX installation step for Wireshark will now install
+       headers required to build plugins. A pkg-config file is provided to
+       help with this (see doc/plugins.example for details). Note you must
+       still rebuild all plugins between minor releases (X.Y).
+     * The Windows installers and packages now ship with Qt 5.9.4.
 
   New Protocol Support
 
-   Apache Cassandra - CQL version 3.0, Bachmann bluecom Protocol,
-   Bluetooth Pseudoheader for BR/EDR, CISCO ERSPAN3 Marker, Edge Control
-   Protocol (ECP), Ericsson IPOS Kernel Packet Header Dissector Added
-   (IPOS), Extensible Control & Management Protocol (eCMP), FLEXRAY
-   Protocol dissector added (automotive bus), IEEE 802.1BR E-Tag, ISO
-   8583-1, ISO14443, ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP),
-   LAT protocol (DECNET), Metamako trailers, Network-Based IP Flow
-   Mobility (NBIFOM), Nokia Intelligent Service Interface (ISI), Open
-   Mobile Alliance Lightweight Machine to Machine TLV payload Added (LwM2M
-   TLV), Real Time Location System (RTLS), RTI TCP Transport Layer
-   (RTITCP), STANAG 5602 SIMPLE, USB3 Vision Protocol (USB machine vision
-   cameras), USBIP Protocol, UserLog Protocol, and Zigbee Protocol
-   Clusters Dissectors Added (Closures Lighting General Measurement &
-   Sensing HVAC Security & Safety)
+   802.11ax (High Efficiency WLAN (HEW)), ActiveMQ Artemis Core Protocol,
+   AMT (Automatic Multicast Tunneling), Bluetooth Mesh, Broadcom tags
+   (Broadcom Ethernet switch management frames), CAN-ETH, CVS password
+   server, FP Mux, GRPC (gRPC), IEEE 1905.1a, IEEE 802.3br Frame
+   Preemption Protocol, ISOBUS, LoRaTap, LoRaWAN, Lustre Filesystem,
+   Lustre Network, Network Functional Application Platform Interface
+   (NFAPI) Protocol, New Radio Radio Resource Control protocol, NXP
+   802.15.4 Sniffer Protocol, PFCP (Packet Forwarding Control Protocol),
+   Protobuf (Protocol Buffers), QUIC (IETF), Session Multiplex Protocol,
+   SolarEdge monitoring protocol, Tibia, TWAMP and OWAMP, and Wi-Fi Device
+   Provisioning Protocol
 
   Updated Protocol Support
 
-   Bluetooth OBEX dissector (btobex) was renamed to Obex Dissector (obex),
-   allow to DecodeAs it over USB, TCP and UDP.
-
-   A preference was added to TCP dissector for handling IPFIX process
-   information. It has been disabled by default.
+   Too many protocols have been updated to list here.
 
   New and Updated Capture File Support
 
-   and Micropross mplog
+   Microsoft Network Monitor
 
   New and Updated Capture Interfaces support
 
-   Non-empty section placeholder.
-
-  Major API Changes
-
-   The libwireshark API has undergone some major changes:
-     * The address macros (e.g., SET_ADDRESS) have been removed. Use the
-       (lower case) functions of the same names instead.
-     * "old style" dissector functions (that don't return number of bytes
-       used) have been replaced in name with the "new style" dissector
-       functions.
-     * tvb_get_string and tvb_get_stringz have been replaced with
-       tvb_get_string_enc and tvb_get_stringz_enc respectively.
+   LoRaTap
      __________________________________________________________________
 
 Getting Wireshark
@@ -149,34 +123,29 @@ Known Problems
 
    Application crash when changing real-time option. ([7]Bug 4035)
 
-   Packet list rows are oversized. ([8]Bug 4357)
-
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([9]Bug 4985)
+   ([8]Bug 4985)
 
-   Wireshark should let you work with multiple capture files. ([10]Bug
+   Wireshark should let you work with multiple capture files. ([9]Bug
    10488)
-
-   Dell Backup and Recovery (DBAR) makes many Windows applications crash,
-   including Wireshark. ([11]Bug 12036)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [12]Wireshark's Q&A site and on the
+   Community support is available on [10]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [13]the web site.
+   all of Wireshark's mailing lists can be found on [11]the web site.
 
    Official Wireshark training and certification are available from
-   [14]Wireshark University.
+   [12]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [15]Wireshark web site.
+   A complete FAQ is available on the [13]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2016-07-14 18:05:31 UTC
+   Last updated 2018-02-06 20:11:41 UTC
 
 References
 
@@ -187,11 +156,9 @@ References
    5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
    6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
    7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
-  12. https://ask.wireshark.org/
-  13. https://www.wireshark.org/lists/
-  14. http://www.wiresharktraining.com/
-  15. https://www.wireshark.org/faq.html
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  10. https://ask.wireshark.org/
+  11. https://www.wireshark.org/lists/
+  12. http://www.wiresharktraining.com/
+  13. https://www.wireshark.org/faq.html
