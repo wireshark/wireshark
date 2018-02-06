@@ -706,6 +706,7 @@ void CaptureFileDialog::preview(const QString & path)
     const struct wtap_pkthdr *phdr;
     double       start_time = 0; /* seconds, with nsec resolution */
     double       stop_time = 0;  /* seconds, with nsec resolution */
+    gboolean     have_times = FALSE;
     double       cur_time;
     unsigned int packets = 0;
     bool         timed_out = FALSE;
@@ -760,16 +761,19 @@ void CaptureFileDialog::preview(const QString & path)
     time(&time_preview);
     while ((wtap_read(wth, &err, &err_info, &data_offset))) {
         phdr = wtap_phdr(wth);
-        cur_time = nstime_to_sec(&phdr->ts);
-        if(packets == 0) {
-            start_time = cur_time;
-            stop_time = cur_time;
-        }
-        if (cur_time < start_time) {
-            start_time = cur_time;
-        }
-        if (cur_time > stop_time){
-            stop_time = cur_time;
+        if (phdr->presence_flags & WTAP_HAS_TS) {
+            cur_time = nstime_to_sec(&phdr->ts);
+            if (!have_times) {
+                start_time = cur_time;
+                stop_time = cur_time;
+                have_times = TRUE;
+            }
+            if (cur_time < start_time) {
+                start_time = cur_time;
+            }
+            if (cur_time > stop_time){
+                stop_time = cur_time;
+            }
         }
 
         packets++;
@@ -799,32 +803,41 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     // First packet + elapsed time
-    ti_time = (long)start_time;
-    ti_tm = localtime(&ti_time);
-    QString first_elapsed = "?";
-    if(ti_tm) {
-        first_elapsed = QString().sprintf(
-                 "%04d-%02d-%02d %02d:%02d:%02d",
-                 ti_tm->tm_year + 1900,
-                 ti_tm->tm_mon + 1,
-                 ti_tm->tm_mday,
-                 ti_tm->tm_hour,
-                 ti_tm->tm_min,
-                 ti_tm->tm_sec
-                 );
+    QString first_elapsed;
+    if(!have_times) {
+        first_elapsed = tr("unknown");
+    } else {
+        ti_time = (long)start_time;
+        ti_tm = localtime(&ti_time);
+        first_elapsed = "?";
+        if(ti_tm) {
+            first_elapsed = QString().sprintf(
+                     "%04d-%02d-%02d %02d:%02d:%02d",
+                     ti_tm->tm_year + 1900,
+                     ti_tm->tm_mon + 1,
+                     ti_tm->tm_mday,
+                     ti_tm->tm_hour,
+                     ti_tm->tm_min,
+                     ti_tm->tm_sec
+                     );
+        }
     }
 
     // Elapsed time
     first_elapsed += " / ";
-    elapsed_time = (unsigned int)(stop_time-start_time);
-    if(timed_out) {
+    if(!have_times) {
         first_elapsed += tr("unknown");
-    } else if(elapsed_time/86400) {
-        first_elapsed += QString().sprintf("%02u days %02u:%02u:%02u",
-                elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     } else {
-        first_elapsed += QString().sprintf("%02u:%02u:%02u",
-                elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        elapsed_time = (unsigned int)(stop_time-start_time);
+        if(timed_out) {
+            first_elapsed += tr("unknown");
+        } else if(elapsed_time/86400) {
+            first_elapsed += QString().sprintf("%02u days %02u:%02u:%02u",
+                    elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        } else {
+            first_elapsed += QString().sprintf("%02u:%02u:%02u",
+                    elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        }
     }
     preview_first_elapsed_.setText(first_elapsed);
 
