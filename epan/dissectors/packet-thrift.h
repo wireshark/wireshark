@@ -40,6 +40,7 @@ typedef enum
 typedef struct _thrift_struct_t {
     const int *p_id;                 /* The hf field for the struct member*/
     int fid;                         /* The Thrift field id of the stuct memeber*/
+    gboolean optional;               /* TRUE if element is optional, FALSE otherwise */
     trift_type_enum_t type;          /* The thrift type of the struct member */
 } thrift_struct_t;
 

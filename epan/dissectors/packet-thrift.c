@@ -78,6 +78,7 @@ static int ett_thrift = -1;
 
 static expert_field ei_thrift_wrong_type = EI_INIT;
 static expert_field ei_thrift_struct_type_not_imp = EI_INIT;
+static expert_field ei_thrift_struct_type_not_in_seq = EI_INIT;
 
 static const value_string thrift_type_vals[] = {
     {  0, "T_STOP" },
@@ -300,6 +301,18 @@ dissect_thrift_t_struct(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
     }
 
     while (seq->fid) {
+        type = tvb_get_guint8(tvb, offset);
+        if (type != seq->type) {
+            /* Wrong field in sequence*/
+            if (seq->optional == TRUE) {
+                /* Skip to next element*/
+                seq++;
+                continue;
+            } else {
+                proto_tree_add_expert(sub_tree, pinfo, &ei_thrift_struct_type_not_in_seq, tvb, offset, 1);
+                return offset;
+            }
+        }
         switch (seq->type) {
         case DE_THRIFT_T_STOP:
             offset = dissect_thrift_t_stop(tvb, pinfo, sub_tree, offset);
@@ -321,8 +334,10 @@ dissect_thrift_t_struct(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree,
             offset = dissect_thrift_t_i32(tvb, pinfo, sub_tree, offset, seq->fid, *seq->p_id);
             break;
         case DE_THRIFT_T_U64:
+            offset = dissect_thrift_t_u64(tvb, pinfo, sub_tree, offset, seq->fid, *seq->p_id);
+            break;
         case DE_THRIFT_T_I64:
-            proto_tree_add_expert(sub_tree, pinfo, &ei_thrift_struct_type_not_imp, tvb, offset, 1);
+            offset = dissect_thrift_t_i64(tvb, pinfo, sub_tree, offset, seq->fid, *seq->p_id);
             break;
         case DE_THRIFT_T_UTF7:
             offset = dissect_thrift_t_utf7(tvb, pinfo, sub_tree, offset, seq->fid, *seq->p_id);
@@ -838,6 +853,7 @@ void proto_register_thrift(void) {
     static ei_register_info ei[] = {
         { &ei_thrift_wrong_type,{ "thrift.wrong_type", PI_PROTOCOL, PI_ERROR, "Type value not expected", EXPFILL } },
         { &ei_thrift_struct_type_not_imp,{ "thrift.struct_type_not_imp", PI_PROTOCOL, PI_ERROR, "Struct type handling not implemented in Wireshak yet", EXPFILL } },
+        { &ei_thrift_struct_type_not_in_seq,{ "thrift.struct_type_not_in_seq", PI_PROTOCOL, PI_ERROR, "Wrong element in struct", EXPFILL } },
     };
 
 
