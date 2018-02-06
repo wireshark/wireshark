@@ -2201,7 +2201,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 col_add_str(pinfo->cinfo, COL_INFO, ", TCPL KEEPALIVE Segment");
             }
         } else {
-            col_set_str(pinfo->cinfo, COL_INFO, "TCPL KEEPALIVE Segment");
+            col_set_str(pinfo->cinfo, COL_INFO, "TCPL KEEPALIVE Sgement");
         }
         /*No valid flags in Keep Alive*/
         processed_length = 1;
@@ -2213,7 +2213,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 col_add_str(pinfo->cinfo, COL_INFO, ", TCPL SHUTDOWN Segment");
             }
         } else {
-            col_set_str(pinfo->cinfo, COL_INFO, "TCPL SHUTDOWN Segment");
+            col_set_str(pinfo->cinfo, COL_INFO, "TCPL SHUTDOWN Sgement");
         }
         /* Add tree for Shutdown Flags */
         sub_item = proto_tree_add_item(conv_tree, hf_tcp_convergence_shutdown_flags, tvb,
@@ -2244,7 +2244,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 col_add_str(pinfo->cinfo, COL_INFO, ", TCPL REFUSE_BUNDLE Segment");
             }
         } else {
-            col_set_str(pinfo->cinfo, COL_INFO, "TCPL REFUSE_BUNDLE Segment");
+            col_set_str(pinfo->cinfo, COL_INFO, "TCPL REFUSE_BUNDLE Sgement");
         }
         /*No valid flags*/
         processed_length = tvb_captured_length(tvb);
