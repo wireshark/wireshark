@@ -1,6 +1,6 @@
 # lppe.cnf
 # llpe conformation file
-# Copyright 2012-2014 Pascal Quantin
+# Copyright 2012-2018 Pascal Quantin
 
 #.OPT
 PER
@@ -14,11 +14,6 @@ OMA-LPPe-MessageExtension
 #.END
 
 #.OMIT_ASSIGNMENT
-OMA-LPPe-ver1-1-BroadcastContainer
-OMA-LPPe-ver1-1-BroadcastMessage
-OMA-LPPe-ver1-1-BroadcastControlIEs
-OMA-LPPe-ver1-1-CipheringIEs
-OMA-LPPe-ver1-1-DigitalSignature
 
 #.FN_HDR OMA-LPPe-MessageExtension
 
