@@ -88,6 +88,7 @@ static expert_field ei_lapd_abort = EI_INIT;
 static expert_field ei_lapd_checksum_bad = EI_INIT;
 
 static dissector_handle_t lapd_handle;
+static dissector_handle_t linux_lapd_handle;
 static dissector_handle_t lapd_bitstream_handle;
 
 static dissector_table_t lapd_sapi_dissector_table;
@@ -199,7 +200,7 @@ typedef struct lapd_convo_data {
 
 
 static void
-dissect_lapd_full(tvbuff_t*, packet_info*, proto_tree*, gboolean);
+dissect_lapd_full(tvbuff_t*, packet_info*, proto_tree*, guint32);
 
 /* got new LAPD frame byte */
 static void new_byte(char full_byte, char data[], int *data_len) {
@@ -219,6 +220,12 @@ lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 	ti = proto_tree_add_item(tree, proto_lapd, tvb, offset, 1, ENC_NA);
 	expert_add_info_format(pinfo, ti, &ei_lapd_abort, "%s", msg);
 }
+
+/*
+ * Flags to pass to dissect_lapd_full.
+ */
+#define LAPD_HAS_CRC		0x00000001
+#define LAPD_HAS_LINUX_SLL	0x00000002
 
 static int
 dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
@@ -312,7 +319,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 						lapd_log_abort(tvb, pinfo, tree, offset, "Abort! 6 ones that don't match 0x7e!");
 
 					}
-					dissect_lapd_full(new_tvb, pinfo, tree, TRUE);
+					dissect_lapd_full(new_tvb, pinfo, tree, LAPD_HAS_CRC);
 				} else if (ones >= 7) { /* frame reset or 11111111 flag byte */
 					data_len = 0;
 					state = OUT_OF_SYNC;
@@ -406,14 +413,21 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 static int
+dissect_linux_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	dissect_lapd_full(tvb, pinfo, tree, LAPD_HAS_LINUX_SLL);
+	return tvb_captured_length(tvb);
+}
+
+static int
 dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	dissect_lapd_full(tvb, pinfo, tree, FALSE);
+	dissect_lapd_full(tvb, pinfo, tree, 0);
 	return tvb_captured_length(tvb);
 }
 
 static void
-dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean has_crc)
+dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 flags)
 {
 	proto_tree	*lapd_tree, *addr_tree;
 	proto_item	*lapd_ti, *addr_ti;
@@ -441,7 +455,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "TEI:%02u ", tei);
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	if (pinfo->pkt_encap == WTAP_ENCAP_LINUX_LAPD) {
+	if (flags & LAPD_HAS_LINUX_SLL) {
 		/* frame is captured via libpcap */
 		if (pinfo->pseudo_header->lapd.pkttype == 4 /*PACKET_OUTGOING*/) {
 			if (pinfo->pseudo_header->lapd.we_network) {
@@ -537,7 +551,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 	if (tree)
 		proto_item_set_len(lapd_ti, lapd_header_len);
 
-	if (has_crc) {
+	if (flags & LAPD_HAS_CRC) {
 
 		/* check checksum */
 		checksum_offset = tvb_reported_length(tvb) - 2;
@@ -689,6 +703,7 @@ proto_register_lapd(void)
 	expert_register_field_array(expert_lapd, ei, array_length(ei));
 
 	lapd_handle = register_dissector("lapd", dissect_lapd, proto_lapd);
+	linux_lapd_handle = register_dissector("linux-lapd", dissect_linux_lapd, proto_lapd);
 	lapd_bitstream_handle = register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 
 	lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
@@ -723,7 +738,7 @@ proto_reg_handoff_lapd(void)
 	static guint lapd_sctp_ppi;
 
 	if (!init) {
-		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
+		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, linux_lapd_handle);
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_handle);
 		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
 
