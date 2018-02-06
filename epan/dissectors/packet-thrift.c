@@ -186,6 +186,60 @@ dissect_thrift_t_i32(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, in
 }
 
 int
+dissect_thrift_t_i64(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id)
+{
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    if (type != THRIFT_T_I64) {
+        proto_tree_add_expert(tree, pinfo, &ei_thrift_wrong_type, tvb, offset, 1);
+    }
+
+    if (show_internal_thrift_fields) {
+        proto_tree_add_item(tree, hf_thrift_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        proto_tree_add_item(tree, hf_thrift_fid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+    else {
+        offset += 3;
+    }
+
+    proto_tree_add_item(tree, hf_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
+}
+
+int
+dissect_thrift_t_u64(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id)
+{
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    if (type != THRIFT_T_U64) {
+        proto_tree_add_expert(tree, pinfo, &ei_thrift_wrong_type, tvb, offset, 1);
+    }
+
+    if (show_internal_thrift_fields) {
+        proto_tree_add_item(tree, hf_thrift_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        proto_tree_add_item(tree, hf_thrift_fid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+    else {
+        offset += 3;
+    }
+
+    proto_tree_add_item(tree, hf_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
+}
+
+int
 dissect_thrift_t_utf7(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id)
 {
     guint32 str_len;

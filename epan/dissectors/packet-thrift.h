@@ -51,6 +51,8 @@ WS_DLL_PUBLIC int dissect_thrift_t_stop(tvbuff_t* tvb, packet_info* pinfo _U_, p
 
 WS_DLL_PUBLIC int dissect_thrift_t_byte(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_i32(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_u64(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_i64(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_utf7(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int field_id _U_, gint hf_id);
 
 /** Dissect a Thrift struct
