@@ -882,7 +882,10 @@ wmem_test_map(void)
     wmem_allocator_t   *allocator, *extra_allocator;
     wmem_map_t       *map;
     gchar            *str_key;
+    const void       *str_key_ret;
     unsigned int      i;
+    unsigned int     *key_ret;
+    unsigned int     *value_ret;
     void             *ret;
 
     allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
@@ -903,8 +906,22 @@ wmem_test_map(void)
     for (i=0; i<CONTAINER_ITERS; i++) {
         ret = wmem_map_lookup(map, GINT_TO_POINTER(i));
         g_assert(ret == GINT_TO_POINTER(i));
+        g_assert(wmem_map_contains(map, GINT_TO_POINTER(i)) == TRUE);
+        g_assert(wmem_map_lookup_extended(map, GINT_TO_POINTER(i), NULL, NULL));
+        key_ret = NULL;
+        g_assert(wmem_map_lookup_extended(map, GINT_TO_POINTER(i), GINT_TO_POINTER(&key_ret), NULL));
+        g_assert(key_ret == GINT_TO_POINTER(i));
+        value_ret = NULL;
+        g_assert(wmem_map_lookup_extended(map, GINT_TO_POINTER(i), NULL, GINT_TO_POINTER(&value_ret)));
+        g_assert(value_ret == GINT_TO_POINTER(i));
+        key_ret = NULL;
+        value_ret = NULL;
+        g_assert(wmem_map_lookup_extended(map, GINT_TO_POINTER(i), GINT_TO_POINTER(&key_ret), GINT_TO_POINTER(&value_ret)));
+        g_assert(key_ret == GINT_TO_POINTER(i));
+        g_assert(value_ret == GINT_TO_POINTER(i));
         ret = wmem_map_remove(map, GINT_TO_POINTER(i));
         g_assert(ret == GINT_TO_POINTER(i));
+        g_assert(wmem_map_contains(map, GINT_TO_POINTER(i)) == FALSE);
         ret = wmem_map_lookup(map, GINT_TO_POINTER(i));
         g_assert(ret == NULL);
         ret = wmem_map_remove(map, GINT_TO_POINTER(i));
@@ -938,6 +955,12 @@ wmem_test_map(void)
         wmem_map_insert(map, str_key, GINT_TO_POINTER(i));
         ret = wmem_map_lookup(map, str_key);
         g_assert(ret == GINT_TO_POINTER(i));
+        g_assert(wmem_map_contains(map, str_key) == TRUE);
+        str_key_ret = NULL;
+        value_ret = NULL;
+        g_assert(wmem_map_lookup_extended(map, str_key, &str_key_ret, GINT_TO_POINTER(&value_ret)) == TRUE);
+        g_assert(g_str_equal(str_key_ret, str_key));
+        g_assert(value_ret == GINT_TO_POINTER(i));
     }
 
     /* test foreach */

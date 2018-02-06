@@ -99,6 +99,16 @@ WS_DLL_PUBLIC
 void *
 wmem_map_insert(wmem_map_t *map, const void *key, void *value);
 
+/** Check if a value is in the map.
+ *
+ * @param map The map to search in.
+ * @param key The key to lookup.
+ * @return true if the key is in the map, otherwise false.
+ */
+WS_DLL_PUBLIC
+gboolean
+wmem_map_contains(wmem_map_t *map, const void *key);
+
 /** Lookup a value in the map.
  *
  * @param map The map to search in.
@@ -108,6 +118,19 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value);
 WS_DLL_PUBLIC
 void *
 wmem_map_lookup(wmem_map_t *map, const void *key);
+
+/** Lookup a value in the map, returning the key, value, and a boolean which
+ * is true if the key is found.
+ *
+ * @param map The map to search in.
+ * @param key The key to lookup.
+ * @param orig_key (optional) The key that was determined to be a match, if any.
+ * @param value (optional) The value stored at the key, if any.
+ * @return true if the key is in the map, otherwise false.
+ */
+WS_DLL_PUBLIC
+gboolean
+wmem_map_lookup_extended(wmem_map_t *map, const void *key, const void **orig_key, void **value);
 
 /** Remove a value from the map. If no value is stored at that key, nothing
  * happens.

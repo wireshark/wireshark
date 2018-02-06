@@ -238,6 +238,30 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     return NULL;
 }
 
+gboolean
+wmem_map_contains(wmem_map_t *map, const void *key)
+{
+    wmem_map_item_t *item;
+
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        return FALSE;
+    }
+
+    /* find correct slot */
+    item = map->table[HASH(map, key)];
+
+    /* scan list of items in this slot for the correct value */
+    while (item) {
+        if (map->eql_func(key, item->key)) {
+            return TRUE;
+        }
+        item = item->next;
+    }
+
+    return FALSE;
+}
+
 void *
 wmem_map_lookup(wmem_map_t *map, const void *key)
 {
@@ -260,6 +284,36 @@ wmem_map_lookup(wmem_map_t *map, const void *key)
     }
 
     return NULL;
+}
+
+gboolean
+wmem_map_lookup_extended(wmem_map_t *map, const void *key, const void **orig_key, void **value)
+{
+    wmem_map_item_t *item;
+
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        return FALSE;
+    }
+
+    /* find correct slot */
+    item = map->table[HASH(map, key)];
+
+    /* scan list of items in this slot for the correct value */
+    while (item) {
+        if (map->eql_func(key, item->key)) {
+            if (orig_key) {
+                *orig_key = item->key;
+            }
+            if (value) {
+                *value = item->value;
+            }
+            return TRUE;
+        }
+        item = item->next;
+    }
+
+    return FALSE;
 }
 
 void *
