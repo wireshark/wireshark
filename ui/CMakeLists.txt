@@ -50,6 +50,7 @@ set(COMMON_UI_SRC
 	service_response_time.c
 	software_update.c
 	ssl_key_export.c
+	summary.c
 	tap_export_pdu.c
 	tap-iax2-analysis.c
 	tap-rtp-common.c

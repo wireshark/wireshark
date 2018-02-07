@@ -17,7 +17,7 @@
 
 #include <glib.h>
 
-#include "summary.h"
+#include "ui/summary.h"
 
 #include <epan/packet.h>
 #include <epan/tap.h>

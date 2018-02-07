@@ -39,9 +39,9 @@
 #include <epan/dissectors/packet-mtp3.h>
 
 #include "globals.h"
-#include "summary.h"
 
 #include "ui/simple_dialog.h"
+#include "ui/summary.h"
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"

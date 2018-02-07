@@ -17,8 +17,6 @@
 
 #include <glib.h>
 
-#include "summary.h"
-
 #include <epan/tap.h>
 
 #include <epan/dissectors/packet-mtp3.h>
@@ -27,6 +25,7 @@
 
 #include "ui/capture_globals.h"
 #include "ui/simple_dialog.h"
+#include "ui/summary.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
 

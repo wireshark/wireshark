@@ -29,7 +29,6 @@
 #include <version_info.h>
 
 #include "../../file.h"
-#include "../../summary.h"
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
@@ -38,6 +37,7 @@
 #include "ui/main_statusbar.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/summary_dlg.h"
+#include "ui/summary.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"

@@ -390,7 +390,6 @@ WIRESHARK_COMMON_SRC = \
 	capture_opts.c		\
 	file.c			\
 	fileset.c		\
-	summary.c		\
 	version_info.c
 
 EPAN_EXTRA_LIBS = \
@@ -731,7 +730,6 @@ noinst_HEADERS = \
 	fileset.h		\
 	frame_tvbuff.h		\
 	ringbuffer.h		\
-	summary.h		\
 	sync_pipe.h		\
 	version_info.h
 

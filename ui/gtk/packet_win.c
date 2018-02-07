@@ -51,10 +51,10 @@
 #include <epan/print.h>
 
 #include "../../file.h"
-#include "../../summary.h"
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/summary.h"
 #include "ui/ws_ui_util.h"
 
 #include "ui/gtk/font_utils.h"

@@ -88,7 +88,6 @@
 /* general (not GTK specific) */
 #include "../../file.h"
 #include "../../frame_tvbuff.h"
-#include "../../summary.h"
 #include <epan/color_filters.h>
 #include "epan/register.h"
 #include "../../ringbuffer.h"
@@ -106,6 +105,7 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/software_update.h"
+#include "ui/summary.h"
 #include "ui/ws_ui_util.h"
 #include "ui/util.h"
 #include "ui/dissect_opts.h"

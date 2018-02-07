@@ -2110,7 +2110,6 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 		capture_opts.c
 		file.c
 		fileset.c
-		summary.c
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
 	)

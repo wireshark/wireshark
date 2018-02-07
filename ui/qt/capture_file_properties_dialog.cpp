@@ -11,7 +11,7 @@
 #include "capture_file_properties_dialog.h"
 #include <ui_capture_file_properties_dialog.h>
 
-#include "summary.h"
+#include "ui/summary.h"
 
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"

@@ -37,9 +37,9 @@
 #include <epan/dissectors/packet-gsm_map.h>
 
 #include "globals.h"
-#include "summary.h"
 
 #include "ui/simple_dialog.h"
+#include "ui/summary.h"
 
 #include <epan/stat_tap_ui.h>
 #include "ui/gtk/gui_stat_menu.h"

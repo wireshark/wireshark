@@ -75,6 +75,7 @@ WIRESHARK_UI_SRC = \
 	service_response_time.c	\
 	software_update.c	\
 	ssl_key_export.c	\
+	summary.c		\
 	tap_export_pdu.c	\
 	tap-iax2-analysis.c	\
 	tap-rlc-graph.c		\
@@ -126,6 +127,7 @@ WIRESHARK_UI_INCLUDES = \
 	simple_dialog.h		\
 	software_update.h	\
 	ssl_key_export.h	\
+	summary.h		\
 	tap_export_pdu.h	\
 	tap-iax2-analysis.h	\
 	tap-rlc-graph.h		\
