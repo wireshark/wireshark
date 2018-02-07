@@ -16,7 +16,7 @@
 
 #include <epan/packet.h>
 #include "cfile.h"
-#include "summary.h"
+#include "ui/summary.h"
 
 static void
 tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
