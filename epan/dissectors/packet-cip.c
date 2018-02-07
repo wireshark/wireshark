@@ -5541,13 +5541,13 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
    add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
+   req_path_size = tvb_get_guint8(tvb, offset + 1);
+   offset += ((req_path_size * 2) + 2);
+
    /* Create service tree */
-   cmd_data_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_cmd_data, &cmd_data_item,
+   cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_cmd_data, &cmd_data_item,
                         val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
    proto_item_append_text(cmd_data_item, " (Request)");
-
-   req_path_size = tvb_get_guint8( tvb, offset+1);
-   offset += ((req_path_size*2)+2);
 
    int parsed_len = 0;
 
@@ -5588,6 +5588,8 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    {
        proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset + parsed_len, remain_len, ENC_NA);
    }
+
+   proto_item_set_len(cmd_data_item, parsed_len + remain_len);
 
    return tvb_reported_length(tvb);
 }
@@ -5931,7 +5933,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
    add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
-   cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+   cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
        ett_cmd_data, &cmd_data_item, val_to_str(service, cip_sc_vals, "Unknown Service (0x%02x)"));
    proto_item_append_text(cmd_data_item, " (Response)");
 
@@ -5983,6 +5985,8 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    {
        proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset + parsed_len, remain_len, ENC_NA);
    }
+
+   proto_item_set_len(cmd_data_item, parsed_len + remain_len);
 
    return tvb_reported_length(tvb);
 }
