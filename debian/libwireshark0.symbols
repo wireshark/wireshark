@@ -1286,7 +1286,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  range_copy@Base 1.9.1
  range_empty@Base 1.9.1
  range_foreach@Base 1.9.1
- range_foreach_r@Base 2.5.0
  range_add_value@Base 2.3.0
  range_remove_value@Base 2.3.0
  ranges_are_equal@Base 1.9.1
