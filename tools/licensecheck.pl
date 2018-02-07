@@ -692,6 +692,10 @@ sub parselicense {
       $license = 'BSD-3-Clause';
     }
 
+    if ($licensetext =~ /SPDX-License-Identifier:\s+MIT/i) {
+      $license = 'MIT/X11 (BSD like)';
+    }
+
     if ($licensetext =~ /(?:is|may be)\s(?:(?:distributed|used).*?terms|being\s+released).*?\b(L?GPL)\b/) {
         my $v = $gplver || ' (unversioned/unknown version)';
         $license = "$1$v $license";
