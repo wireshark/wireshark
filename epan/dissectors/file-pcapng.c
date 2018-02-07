@@ -197,7 +197,7 @@ struct info {
 
 struct interface_description {
     guint32  link_type;
-    guint8   timestamp_resolution;
+    guint64  timestamp_resolution;
     guint64  timestamp_offset;
 };
 
@@ -553,6 +553,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     gint          option_length;
     gint          hfj_pcapng_option_code;
     const guint8 *str = NULL;
+    wmem_strbuf_t *strbuf;
     address       addr;
     address      addr_mask;
     const value_string  *vals = NULL;
@@ -744,6 +745,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 break;
             case 0x0009:
+            {
+                guint32     base;
+                guint32     exponent;
+                guint32     i;
+                guint64     resolution;
+
                 if (option_length != 1) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
                     offset += option_length;
@@ -754,16 +761,91 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u8 = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
-                if (interface_description) {
-                    interface_description->timestamp_resolution = value.u8;
+                if (value.u8 & 0x80) {
+                    base = 2;
+                } else {
+                    base = 10;
                 }
+                exponent = value.u8 & 0x7F;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s^-%u%s",
-                        (value.u8 & 0x80) ? "2" : "10",
-                        (guint32) (value.u8 & 0x7F),
-                        (!(value.u8 & 0x80) && value.u8 == 6) ? " (microseconds)" : ((!(value.u8 & 0x80) && value.u8 == 9) ? " (nanoseconds)" : ""));
+                strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+                wmem_strbuf_append_printf(strbuf, "%u^-%u", base, exponent);
+                resolution = 1;
+                for (i = 0; i < exponent; i += 1)
+                    resolution *= base;
+                if (interface_description) {
+                    interface_description->timestamp_resolution = resolution;
+                }
+                switch (resolution) {
 
+                case 0:
+                    /* Overflow */
+                    wmem_strbuf_append(strbuf, " (overflow)");
+                    break;
+
+                case 1:
+                    wmem_strbuf_append(strbuf, " (seconds)");
+                    break;
+
+                case 10:
+                    wmem_strbuf_append(strbuf, " (.1 seconds)");
+                    break;
+
+                case 100:
+                    wmem_strbuf_append(strbuf, " (.01 seconds)");
+                    break;
+
+                case 1000:
+                    wmem_strbuf_append(strbuf, " (milliseconds)");
+                    break;
+
+                case 10000:
+                    wmem_strbuf_append(strbuf, " (.1 milliseconds)");
+                    break;
+
+                case 100000:
+                    wmem_strbuf_append(strbuf, " (.01 milliseconds)");
+                    break;
+
+                case 1000000:
+                    wmem_strbuf_append(strbuf, " (microseconds)");
+                    break;
+
+                case 10000000:
+                    wmem_strbuf_append(strbuf, " (.1 microseconds)");
+                    break;
+
+                case 100000000:
+                    wmem_strbuf_append(strbuf, " (.01 microseconds)");
+                    break;
+
+                case 1000000000:
+                    wmem_strbuf_append(strbuf, " (nanoseconds)");
+                    break;
+
+                case 10000000000:
+                    wmem_strbuf_append(strbuf, " (.1 nanoseconds)");
+                    break;
+
+                case 100000000000:
+                    wmem_strbuf_append(strbuf, " (.01 nanoseconds)");
+                    break;
+
+                case 1000000000000:
+                    wmem_strbuf_append(strbuf, " (picoseconds)");
+                    break;
+
+                case 10000000000000:
+                    wmem_strbuf_append(strbuf, " (.1 picoseconds)");
+                    break;
+
+                case 100000000000000:
+                    wmem_strbuf_append(strbuf, " (.01 picoseconds)");
+                    break;
+                }
+                str = wmem_strbuf_finalize(strbuf);
                 break;
+            }
             case 0x000A:
                 if (option_length != 4) {
                     proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
@@ -1134,9 +1216,6 @@ pcapng_add_timestamp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         struct interface_description  *interface_description;
         nstime_t    timestamp;
         guint64     ts;
-        guint32     base;
-        guint32     i_resolution;
-        guint64     resolution = 1;
         proto_item *ti;
 
         interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
@@ -1144,24 +1223,19 @@ pcapng_add_timestamp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         tvb_get_guint32(tvb, offset + 4, encoding);
 
         ts += interface_description->timestamp_offset;
-        if (interface_description->timestamp_resolution == 0)
-            interface_description->timestamp_resolution = 6;
 
-        if (interface_description->timestamp_resolution & 0x80) {
-            base = 2;
+        if (interface_description->timestamp_resolution == 0) {
+            /* This overflowed, so we can't calculate the time stamp */
+            pinfo->presence_flags &= ~PINFO_HAS_TS;
         } else {
-            base = 10;
+            timestamp.secs  = (time_t)(ts / interface_description->timestamp_resolution);
+            timestamp.nsecs = (int)(ts - (ts / interface_description->timestamp_resolution) * interface_description->timestamp_resolution);
+
+            ti = proto_tree_add_time(tree, hf_pcapng_timestamp, tvb, offset, 8, &timestamp);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            pinfo->abs_ts = timestamp;
         }
-
-        for (i_resolution = 0; i_resolution < (guint32)(interface_description->timestamp_resolution & 0x7F); i_resolution += 1)
-            resolution *= base;
-        timestamp.secs  = (time_t)(ts / resolution);
-        timestamp.nsecs = (int)(ts - (ts / resolution) * resolution);
-
-        ti = proto_tree_add_time(tree, hf_pcapng_timestamp, tvb, offset, 8, &timestamp);
-        PROTO_ITEM_SET_GENERATED(ti);
-
-        pinfo->abs_ts = timestamp;
     }
 }
 
@@ -1232,6 +1306,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         struct interface_description  interface_description;
 
         memset(&interface_description, 0, sizeof(struct interface_description));
+        interface_description.timestamp_resolution = 1000000; /* 1 microsecond resolution is the default */
 
         proto_item_append_text(block_item, " %u", info->interface_number);
         info->interface_number += 1;
