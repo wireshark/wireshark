@@ -1828,7 +1828,7 @@ proto_register_quic(void)
         },
     };
 
-    proto_quic = proto_register_protocol("QUIC (Quick UDP Internet Connections) IETF", "QUIC", "quic");
+    proto_quic = proto_register_protocol("QUIC IETF", "QUIC", "quic");
 
     proto_register_field_array(proto_quic, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
