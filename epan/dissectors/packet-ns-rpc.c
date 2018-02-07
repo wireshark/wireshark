@@ -1178,7 +1178,7 @@ dissect_ns_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
 	guint16 ns_rpc_sig;
 
-	if (tvb_reported_length(tvb) < 6)
+	if (tvb_captured_length(tvb) < 6)
 		return FALSE;
 
 	/* Get the signature */
@@ -1186,7 +1186,7 @@ dissect_ns_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	if (ns_rpc_sig != 0xA5A5)
 		return FALSE;
 
-	dissect_ns_rpc_heur(tvb, pinfo, tree, data);
+	dissect_ns_rpc(tvb, pinfo, tree, data);
 	return TRUE;
 }
 
