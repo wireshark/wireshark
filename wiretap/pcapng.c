@@ -480,7 +480,13 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
     return block_read;
 }
 
-static gboolean
+typedef enum {
+    PCAPNG_BLOCK_OK,
+    PCAPNG_BLOCK_NOT_SHB,
+    PCAPNG_BLOCK_ERROR
+} block_return_val;
+
+static block_return_val
 pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
                                  pcapng_t *pn, wtapng_block_t *wblock,
                                  int *err, gchar **err_info)
@@ -498,8 +504,22 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     guint8 *option_content = NULL; /* Allocate as large as the options block */
 
     /* read fixed-length part of the block */
-    if (!wtap_read_bytes(fh, &shb, sizeof shb, err, err_info))
-        return FALSE;
+    if (!wtap_read_bytes(fh, &shb, sizeof shb, err, err_info)) {
+        if (*err == WTAP_ERR_SHORT_READ) {
+            /*
+             * This block is too short to be an SHB.
+             *
+             * If we're reading this as part of an open,
+             * the file is too short to be a pcapng file.
+             *
+             * If we're not, we treat PCAPNG_BLOCK_NOT_SHB and
+             * PCAPNG_BLOCK_ERROR the same, so we can just return
+             * PCAPNG_BLOCK_NOT_SHB in both cases.
+             */
+            return PCAPNG_BLOCK_NOT_SHB;
+        }
+        return PCAPNG_BLOCK_ERROR;
+    }
 
     /* is the magic number one we expect? */
     switch (shb.magic) {
@@ -528,7 +548,11 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             /* Not a "pcapng" magic number we know about. */
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown byte-order magic number 0x%08x", shb.magic);
-            return FALSE;
+
+            /*
+             * See above comment about PCAPNG_BLOCK_NOT_SHB.
+             */
+            return PCAPNG_BLOCK_NOT_SHB;
     }
 
     /*
@@ -541,7 +565,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u of an SHB is less than the minimum SHB size %u",
                                     bh->block_total_length, MIN_SHB_SIZE);
-        return FALSE;
+        return PCAPNG_BLOCK_ERROR;
     }
 
     /* OK, at this point we assume it's a pcapng file.
@@ -558,7 +582,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
-        return FALSE;
+        return PCAPNG_BLOCK_ERROR;
     }
 
     /* we currently only understand SHB V1.0 */
@@ -566,7 +590,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown SHB version %u.%u",
                                     pn->version_major, pn->version_minor);
-        return FALSE;
+        return PCAPNG_BLOCK_ERROR;
     }
 
     pn->byte_swapped  = byte_swapped;
@@ -590,7 +614,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     option_content = (guint8 *)g_try_malloc(opt_cont_buf_len);
     if (opt_cont_buf_len != 0 && option_content == NULL) {
         *err = ENOMEM;  /* we assume we're out of memory */
-        return FALSE;
+        return PCAPNG_BLOCK_ERROR;
     }
     pcapng_debug("pcapng_read_section_header_block: Options %u bytes", to_read);
     while (to_read != 0) {
@@ -599,7 +623,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info, "section_header");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_section_header_block: failed to read option");
-            return FALSE;
+            return PCAPNG_BLOCK_ERROR;
         }
         to_read -= bytes_read;
 
@@ -667,7 +691,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
      */
     wblock->internal = TRUE;
 
-    return TRUE;
+    return PCAPNG_BLOCK_OK;
 }
 
 
@@ -2337,9 +2361,10 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 }
 
 
-static gboolean
+static block_return_val
 pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
+    block_return_val ret;
     pcapng_block_header_t bh;
     guint32 block_total_length;
 
@@ -2348,7 +2373,20 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
     /* Try to read the (next) block header */
     if (!wtap_read_bytes_or_eof(fh, &bh, sizeof bh, err, err_info)) {
         pcapng_debug("pcapng_read_block: wtap_read_bytes_or_eof() failed, err = %d.", *err);
-        return FALSE;
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
+            /*
+             * Short read or EOF.
+             *
+             * If we're reading this as part of an open,
+             * the file is too short to be a pcapng file.
+             *
+             * If we're not, we treat PCAPNG_BLOCK_NOT_SHB and
+             * PCAPNG_BLOCK_ERROR the same, so we can just return
+             * PCAPNG_BLOCK_NOT_SHB in both cases.
+             */
+            return PCAPNG_BLOCK_NOT_SHB;
+        }
+        return PCAPNG_BLOCK_ERROR;
     }
 
     /*
@@ -2376,8 +2414,10 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
 
         pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
 
-        if (!pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info))
-            return FALSE;
+        ret = pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info);
+        if (ret != PCAPNG_BLOCK_OK) {
+            return ret;
+        }
     } else {
         if (pn->byte_swapped) {
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
@@ -2393,46 +2433,45 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
              * No SHB seen yet, so we're trying to read the first block
              * during an open, to see whether it's an SHB; if what we
              * read doesn't look like an SHB, this isn't a pcapng file.
-             * Report it as a "bad file" error.
              */
-            *err = WTAP_ERR_BAD_FILE;
+            *err = 0;
             *err_info = NULL;
-            return FALSE;
+            return PCAPNG_BLOCK_NOT_SHB;
         }
         switch (bh.block_type) {
             case(BLOCK_TYPE_IDB):
                 if (!pcapng_read_if_descr_block(wth, fh, &bh, pn, wblock, err, err_info))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_PB):
                 if (!pcapng_read_packet_block(fh, &bh, pn, wblock, err, err_info, FALSE))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_SPB):
                 if (!pcapng_read_simple_packet_block(fh, &bh, pn, wblock, err, err_info))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_EPB):
                 if (!pcapng_read_packet_block(fh, &bh, pn, wblock, err, err_info, TRUE))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_NRB):
                 if (!pcapng_read_name_resolution_block(fh, &bh, pn, wblock, err, err_info))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_ISB):
                 if (!pcapng_read_interface_statistics_block(fh, &bh, pn, wblock, err, err_info))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
             case(BLOCK_TYPE_SYSDIG_EVENT):
             /* case(BLOCK_TYPE_SYSDIG_EVF): */
                 if (!pcapng_read_sysdig_event_block(fh, &bh, pn, wblock, err, err_info))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
             default:
                 pcapng_debug("pcapng_read_block: Unknown block_type: 0x%x (block ignored), block total length %d", bh.block_type, bh.block_total_length);
                 if (!pcapng_read_unknown_block(fh, &bh, pn, wblock, err, err_info))
-                    return FALSE;
+                    return PCAPNG_BLOCK_ERROR;
                 break;
         }
     }
@@ -2441,7 +2480,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
     if (!wtap_read_bytes(fh, &block_total_length, sizeof block_total_length,
                          err, err_info)) {
         pcapng_debug("pcapng_check_block_trailer: couldn't read second block length");
-        return FALSE;
+        return PCAPNG_BLOCK_ERROR;
     }
 
     if (pn->byte_swapped)
@@ -2451,9 +2490,9 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_check_block_trailer: total block lengths (first %u and second %u) don't match",
                                     bh.block_total_length, block_total_length);
-        return FALSE;
+        return PCAPNG_BLOCK_ERROR;
     }
-    return TRUE;
+    return PCAPNG_BLOCK_OK;
 }
 
 /* Process an IDB that we've just read. The contents of wblock are copied as needed. */
@@ -2506,30 +2545,21 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
     pcapng_debug("pcapng_open: opening file");
     /* read first block */
-    if (!pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info)) {
-        if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
-            /*
-             * This is an EOF or a short read, so the file is either a
-             * pcapng file that's been cut short or a file that's not
-             * a pcapng file.  It's probably not a pcapng file, so treat
-             * it as such, so we can try other file types.
-             */
-            wtap_block_free(wblock.block);
-            *err = 0;
-            *err_info = NULL;
-            return WTAP_OPEN_NOT_MINE;
-        }
-        if (*err == WTAP_ERR_BAD_FILE) {
-            /*
-             * This block is not a valid pcapng block, so the file is
-             * not a valid pcapng file.
-             */
-            wtap_block_free(wblock.block);
-            g_free(*err_info);
-            *err = 0;
-            *err_info = NULL;
-            return WTAP_OPEN_NOT_MINE;
-        }
+    switch (pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info)) {
+
+    case PCAPNG_BLOCK_OK:
+        /* No problem */
+        break;
+
+    case PCAPNG_BLOCK_NOT_SHB:
+        /* This doesn't look like an SHB, so this isn't a pcapng file. */
+        wtap_block_free(wblock.block);
+        *err = 0;
+        g_free(*err_info);
+        *err_info = NULL;
+        return WTAP_OPEN_NOT_MINE;
+
+    case PCAPNG_BLOCK_ERROR:
         /* An I/O error, or this probably *is* a pcapng file but not a valid one. */
         wtap_block_free(wblock.block);
         return WTAP_OPEN_ERROR;
@@ -2597,7 +2627,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         if (bh.block_type != BLOCK_TYPE_IDB) {
             break;  /* No more IDB:s */
         }
-        if (!pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info)) {
+        if (pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
             wtap_block_free(wblock.block);
             if (*err == 0) {
                 pcapng_debug("No more IDBs available...");
@@ -2637,7 +2667,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     while (1) {
         *data_offset = file_tell(wth->fh);
         pcapng_debug("pcapng_read: data_offset is %" G_GINT64_MODIFIER "d", *data_offset);
-        if (!pcapng_read_block(wth, wth->fh, pcapng, &wblock, err, err_info)) {
+        if (pcapng_read_block(wth, wth->fh, pcapng, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
             pcapng_debug("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
             pcapng_debug("pcapng_read: couldn't read packet block");
             wtap_block_free(wblock.block);
@@ -2760,7 +2790,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     wblock.packet_header = phdr;
 
     /* read the block */
-    if (!pcapng_read_block(wth, wth->random_fh, pcapng, &wblock, err, err_info)) {
+    if (pcapng_read_block(wth, wth->random_fh, pcapng, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
         pcapng_debug("pcapng_seek_read: couldn't read packet block (err=%d).",
                       *err);
         wtap_block_free(wblock.block);
