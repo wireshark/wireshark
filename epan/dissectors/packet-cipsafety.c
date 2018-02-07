@@ -44,6 +44,10 @@ void proto_reg_handoff_cipsafety(void);
 
 /* Protocol handle for CIP Safety */
 static int proto_cipsafety                = -1;
+static int proto_cipsafety_base_data      = -1;
+static int proto_cipsafety_extended_data  = -1;
+static int proto_cipsafety_base_time_coord      = -1;
+static int proto_cipsafety_extended_time_coord  = -1;
 static int proto_cip_class_s_supervisor   = -1;
 static int proto_cip_class_s_validator    = -1;
 static int proto_cip                      = -1;
@@ -316,6 +320,10 @@ static expert_field ei_mal_svalidator_coordination_conn_inst = EI_INIT;
 static expert_field ei_mal_svalidator_prod_cons_fault_count = EI_INIT;
 
 static dissector_handle_t cipsafety_handle;
+static dissector_handle_t cipsafety_base_data_handle;
+static dissector_handle_t cipsafety_extended_data_handle;
+static dissector_handle_t cipsafety_base_time_coord_handle;
+static dissector_handle_t cipsafety_extended_time_coord_handle;
 
 typedef struct cip_safety_packet_data {
    guint16 rollover_value;
@@ -1495,7 +1503,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    guint32 test_crc_c5, value_c5 = 0, tmp_c5;
    proto_item *complement_item, *crc_s5_item, *crc_s5_status_item;
    gboolean short_format = TRUE;
-   gboolean compute_crc = ((safety_info != NULL) && (safety_info->eip_conn_info != NULL));
+   gboolean compute_crc = ((safety_info != NULL) && (safety_info->compute_crc == TRUE));
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP Safety");
@@ -1980,6 +1988,66 @@ dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
    return tvb_captured_length(tvb);
 }
 
+static int dissect_cipsafety_base_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+   cip_safety_info_t safety_info;
+   enip_conn_val_t eip_conn_info;
+   safety_info.eip_conn_info = &eip_conn_info;
+   safety_info.compute_crc = FALSE;
+
+   // Set up parameters that will trigger dissect_cip_safety_data to parse the correct format.
+   safety_info.conn_type = ECIDT_T2O;
+   safety_info.eip_conn_info->TransportClass_trigger = 0;
+   safety_info.eip_conn_info->safety.format = CIP_SAFETY_BASE_FORMAT;
+
+   return dissect_cipsafety(tvb, pinfo, tree, &safety_info);
+}
+
+static int dissect_cipsafety_extended_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+   cip_safety_info_t safety_info;
+   enip_conn_val_t eip_conn_info;
+   safety_info.eip_conn_info = &eip_conn_info;
+   safety_info.compute_crc = FALSE;
+
+   // Set up parameters that will trigger dissect_cip_safety_data to parse the correct format.
+   safety_info.conn_type = ECIDT_T2O;
+   safety_info.eip_conn_info->TransportClass_trigger = 0;
+   safety_info.eip_conn_info->safety.format = CIP_SAFETY_EXTENDED_FORMAT;
+
+   return dissect_cipsafety(tvb, pinfo, tree, &safety_info);
+}
+
+static int dissect_cipsafety_base_time_coord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+   cip_safety_info_t safety_info;
+   enip_conn_val_t eip_conn_info;
+   safety_info.eip_conn_info = &eip_conn_info;
+   safety_info.compute_crc = FALSE;
+
+   // Set up parameters that will trigger dissect_cip_safety_data to parse the correct format.
+   safety_info.conn_type = ECIDT_O2T;
+   safety_info.eip_conn_info->TransportClass_trigger = 0;
+   safety_info.eip_conn_info->safety.format = CIP_SAFETY_BASE_FORMAT;
+
+   return dissect_cipsafety(tvb, pinfo, tree, &safety_info);
+}
+
+static int dissect_cipsafety_extended_time_coord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+   cip_safety_info_t safety_info;
+   enip_conn_val_t eip_conn_info;
+   safety_info.eip_conn_info = &eip_conn_info;
+   safety_info.compute_crc = FALSE;
+
+   // Set up parameters that will trigger dissect_cip_safety_data to parse the correct format.
+   safety_info.conn_type = ECIDT_O2T;
+   safety_info.eip_conn_info->TransportClass_trigger = 0;
+   safety_info.eip_conn_info->safety.format = CIP_SAFETY_EXTENDED_FORMAT;
+
+   return dissect_cipsafety(tvb, pinfo, tree, &safety_info);
+}
+
 static int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
@@ -2194,7 +2262,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cipsafety_consumer_time_value,
         { "Consumer Time Value", "cipsafety.consumer_time_value",
-          FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cipsafety_mcast_byte,
         { "MCAST Byte", "cipsafety.mcast_byte",
@@ -2226,7 +2294,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cipsafety_time_correction,
         { "Time Correction", "cipsafety.time_correction",
-          FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cipsafety_crc_s5_0,
         { "CRC S5_0", "cipsafety.crc_s5_0",
@@ -2923,6 +2991,36 @@ proto_register_cipsafety(void)
 
    cipsafety_handle = register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
+   // Register different protocols for "Decode As".
+   proto_cipsafety_base_data = proto_register_protocol_in_name_only("Common Industrial Protocol, Safety - Base - Data",
+      "CIP Safety - Base - Data",
+      "cipsafety_bd",
+      proto_cipsafety,
+      FT_PROTOCOL);
+   cipsafety_base_data_handle = register_dissector("cipsafety_bd", dissect_cipsafety_base_data, proto_cipsafety_base_data);
+
+   proto_cipsafety_extended_data = proto_register_protocol_in_name_only("Common Industrial Protocol, Safety - Extended - Data",
+      "CIP Safety - Extended - Data",
+      "cipsafety_ed",
+      proto_cipsafety,
+      FT_PROTOCOL);
+   cipsafety_extended_data_handle = register_dissector("cipsafety_ed", dissect_cipsafety_extended_data, proto_cipsafety_extended_data);
+
+   proto_cipsafety_base_time_coord = proto_register_protocol_in_name_only("Common Industrial Protocol, Safety - Base - Time Coordination",
+      "CIP Safety - Base - Time Coordination",
+      "cipsafety_bt",
+      proto_cipsafety,
+      FT_PROTOCOL);
+   cipsafety_base_time_coord_handle = register_dissector("cipsafety_bt", dissect_cipsafety_base_time_coord, proto_cipsafety_base_time_coord);
+
+   proto_cipsafety_extended_time_coord = proto_register_protocol_in_name_only("Common Industrial Protocol, Safety - Extended - Time Coordination",
+      "CIP Safety - Extended - Time Coordination",
+      "cipsafety_et",
+      proto_cipsafety,
+      FT_PROTOCOL);
+   cipsafety_extended_time_coord_handle = register_dissector("cipsafety_et", dissect_cipsafety_extended_time_coord, proto_cipsafety_extended_time_coord);
+
+
    /* Register CIP Safety objects */
    proto_cip_class_s_supervisor = proto_register_protocol("CIP Safety Supervisor",
        "CIPSSupervisor", "cipssupervisor");
@@ -2962,7 +3060,10 @@ proto_reg_handoff_cipsafety(void)
    heur_dissector_add("cip.sc", dissect_class_svalidator_heur, "CIP Safety Validator", "s_validator_cip", proto_cip_class_s_validator, HEURISTIC_ENABLE);
 
    /* Register dissector for I/O data handling */
-   dissector_add_for_decode_as("enip.io", cipsafety_handle );
+   dissector_add_for_decode_as("enip.io", cipsafety_base_data_handle );
+   dissector_add_for_decode_as("enip.io", cipsafety_extended_data_handle );
+   dissector_add_for_decode_as("enip.io", cipsafety_base_time_coord_handle );
+   dissector_add_for_decode_as("enip.io", cipsafety_extended_time_coord_handle );
 
    proto_cip = proto_get_id_by_filter_name( "cip" );
    subdissector_class_table = find_dissector_table("cip.class.iface");

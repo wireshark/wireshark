@@ -1054,6 +1054,12 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    if (pinfo->fd->flags.visited)
       return;
 
+   // Don't create connections for Null Forward Opens.
+   if (connInfo->T2O.type == CONN_TYPE_NULL && connInfo->O2T.type == CONN_TYPE_NULL)
+   {
+      return;
+   }
+
    conn_key = wmem_new(wmem_file_scope(), enip_conn_key_t);
    conn_key->ConnSerialNumber = connInfo->ConnSerialNumber;
    conn_key->VendorID = connInfo->VendorID;
@@ -2386,6 +2392,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                             /* Add any possible safety related data */
                             cip_safety.conn_type = connid_type;
                             cip_safety.eip_conn_info = conn_info;
+                            cip_safety.compute_crc = TRUE;
 
                             call_dissector_with_data(cipsafety_handle, next_tvb, pinfo, dissector_tree, &cip_safety);
                          }
