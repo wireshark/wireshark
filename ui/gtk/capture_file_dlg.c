@@ -174,6 +174,7 @@ preview_do(GtkWidget *prev, wtap *wth)
   gint64        data_offset;
   double        start_time   = 0; /* seconds, with nsec resolution */
   double        stop_time    = 0; /* seconds, with nsec resolution */
+  gboolean      have_times   = FALSE;
   double        cur_time;
   unsigned int  packets    = 0;
   gboolean      is_breaked = FALSE;
@@ -187,16 +188,19 @@ preview_do(GtkWidget *prev, wtap *wth)
   time(&time_preview);
   while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
     phdr = wtap_phdr(wth);
-    cur_time = nstime_to_sec(&phdr->ts);
-    if (packets == 0) {
-      start_time = cur_time;
-      stop_time = cur_time;
-    }
-    if (cur_time < start_time) {
-      start_time = cur_time;
-    }
-    if (cur_time > stop_time) {
-      stop_time = cur_time;
+    if (phdr->presence_flags & WTAP_HAS_TS) {
+      cur_time = nstime_to_sec(&phdr->ts);
+      if (!have_times) {
+        start_time = cur_time;
+        stop_time = cur_time;
+        have_times = TRUE;
+      }
+      if (cur_time < start_time) {
+        start_time = cur_time;
+      }
+      if (cur_time > stop_time) {
+        stop_time = cur_time;
+      }
     }
 
     packets++;
@@ -228,32 +232,40 @@ preview_do(GtkWidget *prev, wtap *wth)
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
   /* first packet */
-  ti_time = (long)start_time;
-  ti_tm = localtime( &ti_time );
-  if (ti_tm) {
-    g_snprintf(first_buff, PREVIEW_STR_MAX,
-               "%04d-%02d-%02d %02d:%02d:%02d",
-               ti_tm->tm_year + 1900,
-               ti_tm->tm_mon + 1,
-               ti_tm->tm_mday,
-               ti_tm->tm_hour,
-               ti_tm->tm_min,
-               ti_tm->tm_sec);
+  if (!have_times) {
+    g_snprintf(first_buff, PREVIEW_STR_MAX, "unknown");
   } else {
-    g_snprintf(first_buff, PREVIEW_STR_MAX, "?");
+    ti_time = (long)start_time;
+    ti_tm = localtime( &ti_time );
+    if (ti_tm) {
+      g_snprintf(first_buff, PREVIEW_STR_MAX,
+                 "%04d-%02d-%02d %02d:%02d:%02d",
+                 ti_tm->tm_year + 1900,
+                 ti_tm->tm_mon + 1,
+                 ti_tm->tm_mday,
+                 ti_tm->tm_hour,
+                 ti_tm->tm_min,
+                 ti_tm->tm_sec);
+    } else {
+      g_snprintf(first_buff, PREVIEW_STR_MAX, "?");
+    }
   }
 
   /* elapsed time */
-  elapsed_time = (unsigned int)(stop_time-start_time);
-  if (elapsed_time/86400) {
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u days %02u:%02u:%02u",
-               first_buff, elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-  } else {
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u:%02u:%02u",
-               first_buff, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-  }
-  if (is_breaked) {
+  if (!have_times) {
     g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / unknown", first_buff);
+  } else {
+    elapsed_time = (unsigned int)(stop_time-start_time);
+    if (elapsed_time/86400) {
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u days %02u:%02u:%02u",
+                 first_buff, elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    } else {
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u:%02u:%02u",
+                 first_buff, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    }
+    if (is_breaked) {
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / unknown", first_buff);
+    }
   }
   label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_ELAPSED_KEY);
   gtk_label_set_text(GTK_LABEL(label), string_buff);
