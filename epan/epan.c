@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2001 by Gerald Combs <gerald@wireshark.org>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"

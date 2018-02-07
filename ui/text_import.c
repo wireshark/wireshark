@@ -8,7 +8,7 @@
  *
  * Based on text2pcap.c by Ashok Narayanan <ashokn@cisco.com>
  *
- * SPDX-License-Identifier: GPL-2.0+ */
+ * SPDX-License-Identifier: GPL-2.0-or-later */
 
 /*******************************************************************************
  *

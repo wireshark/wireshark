@@ -7,7 +7,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Generated on Wed Jul 11 17:24:57 2012,
  * by pycrc v0.7.10, http://www.tty1.net/pycrc/

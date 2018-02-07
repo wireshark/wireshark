@@ -5,7 +5,7 @@
  * Copyright 2007 Shaun Jackman
  *
  * Wiretap Library
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "mpeg-audio.h"

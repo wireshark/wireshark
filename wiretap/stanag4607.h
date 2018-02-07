@@ -2,7 +2,7 @@
  *
  * STANAG 4607 file reading
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
 

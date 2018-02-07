@@ -2,7 +2,7 @@
  *
  * Copyright 2015, Dario Lombardo <lomato@gmail.com>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
 

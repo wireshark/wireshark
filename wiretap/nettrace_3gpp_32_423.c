@@ -3,7 +3,7 @@
  * Decoder for 3GPP TS 32.423 file format for the Wiretap library.
  * The main purpose is to have Wireshark decode raw message content (<rawMsg> tag).
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref: http://www.3gpp.org/DynaReport/32423.htm
  */

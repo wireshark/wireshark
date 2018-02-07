@@ -2,7 +2,7 @@
  *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
 

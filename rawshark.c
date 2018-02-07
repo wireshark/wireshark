@@ -9,7 +9,7 @@
  * Based on TShark, by Gilbert Ramirez <gram@alumni.rice.edu> and Guy Harris
  * <guy@alum.mit.edu>.
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 /*

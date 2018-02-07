@@ -4,7 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0+*/
+ * SPDX-License-Identifier: GPL-2.0-or-later*/
 
 #include "show_packet_bytes_dialog.h"
 #include <ui_show_packet_bytes_dialog.h>

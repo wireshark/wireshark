@@ -4,7 +4,7 @@
  *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include <stdio.h>

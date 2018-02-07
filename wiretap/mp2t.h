@@ -5,7 +5,7 @@
  * Copyright 2012 Weston Schmidt
  *
  * Wiretap Library
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef __W_MP2T_H__

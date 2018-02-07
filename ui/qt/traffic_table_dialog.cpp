@@ -4,7 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0+*/
+ * SPDX-License-Identifier: GPL-2.0-or-later*/
 
 #include "log.h"
 #include "traffic_table_dialog.h"

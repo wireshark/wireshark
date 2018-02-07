@@ -3,7 +3,7 @@
  * Wiretap Library
  * Copyright (c) 2005 by Martin Warnes <martin@warnes.homeip.net>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef __W_ISERIES_H__

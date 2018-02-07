@@ -3,7 +3,7 @@
  * Wiretap Library
  * Copyright (c) 1998-2010 by Tom Alexander <talexander@ixiacom.com>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
 

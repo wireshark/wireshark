@@ -2,7 +2,7 @@
  *
  * Copyright 2014, Michal Labedzki for Tieto Corporation
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
 

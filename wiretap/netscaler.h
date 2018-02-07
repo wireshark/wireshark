@@ -3,7 +3,7 @@
  * Wiretap Library
  * Copyright (c) 2006 by Ravi Kondamuru <Ravi.Kondamuru@citrix.com>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef _NETSCALER_H

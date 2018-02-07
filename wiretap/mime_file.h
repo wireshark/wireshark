@@ -3,7 +3,7 @@
  * MIME file format decoder for the Wiretap library.
  *
  * Wiretap Library
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef __W_JPEG_JFIF_H__

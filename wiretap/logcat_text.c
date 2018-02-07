@@ -3,7 +3,7 @@
  * Copyright 2014, Michal Orynicz for Tieto Corporation
  * Copyright 2014, Michal Labedzki for Tieto Corporation
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"

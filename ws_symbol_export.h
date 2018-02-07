@@ -5,7 +5,7 @@
  * By Balint Reczey <balint@balintreczey.hu>
  * Copyright 2013 Balint Reczey
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "ws_compiler_tests.h"

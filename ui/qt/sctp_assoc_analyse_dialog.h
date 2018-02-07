@@ -4,7 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0+*/
+ * SPDX-License-Identifier: GPL-2.0-or-later*/
 
 #ifndef SCTP_ASSOC_ANALYSE_DIALOG_H
 #define SCTP_ASSOC_ANALYSE_DIALOG_H

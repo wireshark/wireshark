@@ -4,7 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0+*/
+ * SPDX-License-Identifier: GPL-2.0-or-later*/
 
 #ifndef FONT_COLOR_PREFERENCES_FRAME_H
 #define FONT_COLOR_PREFERENCES_FRAME_H

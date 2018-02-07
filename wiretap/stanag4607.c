@@ -8,7 +8,7 @@
  *
  * https://nso.nato.int/nso/zPublic/ap/aedp-7(2).pdf
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"

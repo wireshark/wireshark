@@ -6,7 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0+*/
+ * SPDX-License-Identifier: GPL-2.0-or-later*/
 
 #ifndef EDITOR_COLOR_DIALOG_H_
 #define EDITOR_COLOR_DIALOG_H_

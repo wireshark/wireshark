@@ -6,7 +6,7 @@
  * File format support for usbdump file format
  * Copyright (c) 2017 by Jaap Keuter <jaap.keuter@xs4all.nl>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 /*

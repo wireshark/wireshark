@@ -7,7 +7,7 @@
  *
  * That project is covered by the GPLv2, so:
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef __WS_DIAG_CONTROL_H__

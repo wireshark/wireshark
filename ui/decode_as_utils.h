@@ -5,7 +5,7 @@
  * By David Hampton <dhampton@mac.com>
  * Copyright 2001 David Hampton
  *
- * SPDX-License-Identifier: GPL-2.0+*
+ * SPDX-License-Identifier: GPL-2.0-or-later*
  */
 
 #ifndef __DECODE_AS_UTILS_H__

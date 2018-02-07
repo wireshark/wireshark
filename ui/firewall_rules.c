@@ -1,6 +1,6 @@
 /* firewall_rules_dlg.c
  *
- * SPDX-License-Identifier: GPL-2.0+*/
+ * SPDX-License-Identifier: GPL-2.0-or-later*/
 
 /*
  * Generate firewall ACL rules based on packet addresses and ports.

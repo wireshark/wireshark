@@ -5,7 +5,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2002, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This original code was from the Technet Article Q139652 :
  * HOWTO: Print a Document

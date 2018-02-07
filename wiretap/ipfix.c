@@ -7,7 +7,7 @@
  * Copyright (c) 2010 by Hadriel Kaplan <hadrielk@yahoo.com>
  *   with generous copying from other wiretaps, such as pcapng
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 /* File format reference:

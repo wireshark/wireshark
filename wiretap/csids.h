@@ -3,7 +3,7 @@
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) Cisco Systems
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  */
 

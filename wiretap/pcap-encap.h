@@ -7,7 +7,7 @@
  * File format support for pcapng file format
  * Copyright (c) 2007 by Ulf Lamping <ulf.lamping@web.de>
  *
- * SPDX-License-Identifier: GPL-2.0+
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef __W_PCAP_ENCAP_H__
