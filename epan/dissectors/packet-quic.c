@@ -23,8 +23,8 @@
 
 /*
  * See https://quicwg.github.io/
- * https://tools.ietf.org/html/draft-ietf-quic-transport-08
- * https://tools.ietf.org/html/draft-ietf-quic-tls-08
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-09
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-09
  */
 
 #include <config.h>
@@ -130,6 +130,7 @@ const value_string quic_version_vals[] = {
     { 0xff000006, "draft-06" },
     { 0xff000007, "draft-07" },
     { 0xff000008, "draft-08" },
+    { 0xff000009, "draft-09" },
     { 0, NULL }
 };
 
