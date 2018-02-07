@@ -534,7 +534,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				return WTAP_OPEN_ERROR;
 			}
 
-			comment_rec = g_new(struct netmonrec_comment, 1);
+			comment_rec = g_new0(struct netmonrec_comment, 1);
 			comment_rec->numFramePerComment = pletoh32(&comment_header.numFramePerComment);
 			comment_rec->frameOffset = pletoh32(&comment_header.frameOffset);
 			comment_rec->titleLength = pletoh32(&comment_header.titleLength);
