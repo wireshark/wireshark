@@ -1465,10 +1465,13 @@ profile_exists(const gchar *profilename, gboolean global)
 {
     gchar *path = NULL, *global_path;
 
-    if (!profilename && global)
-        return FALSE;
-
     if (global) {
+        /*
+         * If we're looking up a global profile, we must have a
+         * profile name.
+         */
+        if (!profilename)
+            return FALSE;
         global_path = get_global_profiles_dir();
         path = g_strdup_printf ("%s%s%s", global_path,
                            G_DIR_SEPARATOR_S, profilename);
@@ -1478,6 +1481,10 @@ profile_exists(const gchar *profilename, gboolean global)
             return TRUE;
         }
     } else {
+        /*
+         * If we didn't supply a profile name, i.e. if profilename is
+         * null, get_persconffile_dir() returns the default profile.
+         */
         path = get_persconffile_dir (profilename);
         if (test_for_directory (path) == EISDIR) {
             g_free (path);
