@@ -692,19 +692,83 @@ static wmem_map_t* refstats_node_id_to_parent_node_id_hash = NULL;
 static void
 http_ref_stats_tree_init(stats_tree* st)
 {
-	int *parent_node_id_p = NULL;
+	gint root_node_id = 0;
+	gpointer root_node_id_p = GINT_TO_POINTER(root_node_id);
+	gpointer node_id_p = NULL;
+	gchar *uri = NULL;
 
-	refstats_node_id_to_parent_node_id_hash = wmem_map_new(wmem_file_scope(), g_int_hash, g_int_equal);
-	refstats_node_id_to_uri_hash = wmem_map_new(wmem_file_scope(), g_int_hash, g_int_equal);
+	refstats_node_id_to_parent_node_id_hash = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+	refstats_node_id_to_uri_hash = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 	refstats_uri_to_node_id_hash = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
-	/* Add the root node and its mappings */
-	parent_node_id_p = wmem_new(wmem_file_scope(), int);
-	*parent_node_id_p = 0;
-	st_node_requests_by_referer = stats_tree_create_node(st, st_str_requests_by_referer, *parent_node_id_p, TRUE);
 
-	wmem_map_insert(refstats_uri_to_node_id_hash, st_str_requests_by_referer, parent_node_id_p);
-	wmem_map_insert(refstats_node_id_to_uri_hash, &st_node_requests_by_referer, wmem_strdup(wmem_file_scope(), st_str_requests_by_referer));
-	wmem_map_insert(refstats_node_id_to_parent_node_id_hash, &st_node_requests_by_referer, parent_node_id_p);
+	/* Add the root node and its mappings */
+	st_node_requests_by_referer = stats_tree_create_node(st, st_str_requests_by_referer, root_node_id, TRUE);
+	node_id_p = GINT_TO_POINTER(st_node_requests_by_referer);
+	uri = wmem_strdup(wmem_file_scope(), st_str_requests_by_referer);
+
+	wmem_map_insert(refstats_uri_to_node_id_hash, uri, node_id_p);
+	wmem_map_insert(refstats_node_id_to_uri_hash, node_id_p, uri);
+	wmem_map_insert(refstats_node_id_to_parent_node_id_hash, node_id_p, root_node_id_p);
+}
+
+static gint
+http_ref_stats_tick_referer(stats_tree* st, const http_info_value_t* v)
+{
+	gint root_node_id = st_node_requests_by_referer;
+	gpointer root_node_id_p = GINT_TO_POINTER(st_node_requests_by_referer);
+	gint referer_node_id;
+	gpointer referer_node_id_p;
+	gint referer_parent_node_id;
+	gpointer referer_parent_node_id_p;
+	gchar *referer_uri;
+
+	/* Tick the referer's URI */
+	/* Does the node exist? */
+	if (!wmem_map_lookup_extended(refstats_uri_to_node_id_hash, v->referer_uri, NULL, &referer_node_id_p)) {
+		/* The node for the referer didn't already exist, create the mappings */
+		referer_node_id = tick_stat_node(st, v->referer_uri, root_node_id, TRUE);
+		referer_node_id_p = GINT_TO_POINTER(referer_node_id);
+		referer_parent_node_id_p = root_node_id_p;
+
+		referer_uri = wmem_strdup(wmem_file_scope(), v->referer_uri);
+		wmem_map_insert(refstats_uri_to_node_id_hash, referer_uri, referer_node_id_p);
+		wmem_map_insert(refstats_node_id_to_uri_hash, referer_node_id_p, referer_uri);
+		wmem_map_insert(refstats_node_id_to_parent_node_id_hash, referer_node_id_p, referer_parent_node_id_p);
+	} else {
+		/* The node for the referer already exists, tick it */
+		referer_parent_node_id_p = wmem_map_lookup(refstats_node_id_to_parent_node_id_hash, referer_node_id_p);
+		referer_parent_node_id = GPOINTER_TO_INT(referer_parent_node_id_p);
+		referer_node_id = tick_stat_node(st, v->referer_uri, referer_parent_node_id, TRUE);
+	}
+	return referer_node_id;
+}
+
+static void
+http_ref_stats_tick_request(stats_tree* st, const http_info_value_t* v, gint referer_node_id)
+{
+	gpointer referer_node_id_p = GINT_TO_POINTER(referer_node_id);
+	gint node_id;
+	gpointer node_id_p;
+	gchar *uri;
+
+	node_id = tick_stat_node(st, v->full_uri, referer_node_id, TRUE);
+	node_id_p = GINT_TO_POINTER(node_id);
+
+	/* Update the mappings. Even if the URI was already seen, the URI->node mapping may need to be updated */
+
+	/* Is this a new node? */
+	uri = (gchar *) wmem_map_lookup(refstats_node_id_to_uri_hash, node_id_p);
+	if (!uri) {
+		/* node not found, add mappings for the node and uri */
+		uri = wmem_strdup(wmem_file_scope(), v->full_uri);
+
+		wmem_map_insert(refstats_uri_to_node_id_hash, uri, node_id_p);
+		wmem_map_insert(refstats_node_id_to_uri_hash, node_id_p, uri);
+		wmem_map_insert(refstats_node_id_to_parent_node_id_hash, node_id_p, referer_node_id_p);
+	} else {
+		/* We've seen the node id before. Update the URI mapping refer to this node id*/
+		wmem_map_insert(refstats_uri_to_node_id_hash, uri, node_id_p);
+	}
 }
 
 /* HTTP/Referers stats packet function */
@@ -712,72 +776,28 @@ static int
 http_ref_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
 	const http_info_value_t* v = (const http_info_value_t*)p;
-	int *referer_node_id_p = NULL;
-	int uri_node_id;
-	int *uri_node_id_p = NULL;
-	int *parent_node_id_p = NULL;
-	int *current_node_id_p = NULL;
+
+	gint referer_node_id;
+
+	gint parent_node_id;
+	gpointer parent_node_id_p;
+	gpointer current_node_id_p;
+
 	gchar *uri = NULL;
-	gchar *referer_uri = NULL;
-	wmem_list_t *node_ids_list = NULL;
-	wmem_list_frame_t *node_ids_list_pos = NULL;
 
 	if (v->request_method && v->referer_uri && v->full_uri) {
 		/* Tick the referer's URI */
-		/* If the node for the referer didn't already exist, create the mappings */
-		referer_node_id_p = (int *) wmem_map_lookup(refstats_uri_to_node_id_hash, v->referer_uri);
-		if (!referer_node_id_p) {
-			referer_uri = wmem_strdup(wmem_file_scope(), v->referer_uri);
-			referer_node_id_p = wmem_new(wmem_file_scope(), int);
-			*referer_node_id_p = tick_stat_node(st, v->referer_uri, st_node_requests_by_referer, TRUE);
-
-			wmem_map_insert(refstats_uri_to_node_id_hash, referer_uri, referer_node_id_p);
-			wmem_map_insert(refstats_node_id_to_uri_hash, referer_node_id_p, referer_uri);
-			wmem_map_insert(refstats_node_id_to_parent_node_id_hash, referer_node_id_p, &st_node_requests_by_referer);
-		} else {
-			parent_node_id_p = (int *) wmem_map_lookup(refstats_node_id_to_parent_node_id_hash, referer_node_id_p);
-			*referer_node_id_p = tick_stat_node(st, v->referer_uri, *parent_node_id_p, TRUE);
-		}
+		referer_node_id = http_ref_stats_tick_referer(st, v);
 
 		/* Tick the request's URI */
-		/* Even if the URI was seen, the mapping needs to be updated to refer to the correct node */
-		uri_node_id = tick_stat_node(st, v->full_uri, *referer_node_id_p, TRUE);
-
-		/* Have we seen this node id before? */
-		uri = (gchar *) wmem_map_lookup(refstats_node_id_to_uri_hash, &uri_node_id);
-		if (!uri) {
-			/* URI node not found, add mappings for the uri (under the referer node) */
-			uri = wmem_strdup(wmem_file_scope(), v->full_uri);
-			uri_node_id_p = wmem_new(wmem_file_scope(), int);
-			*uri_node_id_p = uri_node_id;
-
-			wmem_map_insert(refstats_uri_to_node_id_hash, uri, uri_node_id_p);
-			wmem_map_insert(refstats_node_id_to_uri_hash, uri_node_id_p, uri);
-			wmem_map_insert(refstats_node_id_to_parent_node_id_hash, uri_node_id_p, referer_node_id_p);
-		} else {
-			/* We've seen the node id before. Does the URI mapping refer to this node id?*/
-			if ( *((int *) wmem_map_lookup(refstats_uri_to_node_id_hash, uri)) != uri_node_id) {
-				/* Reuse the existing pointer containing uri_node_id, to avoid leaking memory */
-				node_ids_list = wmem_map_get_keys(wmem_file_scope(), refstats_node_id_to_uri_hash);
-				node_ids_list_pos = wmem_list_head(node_ids_list);
-				while (node_ids_list_pos != NULL) {
-					uri_node_id_p = (int *) wmem_list_frame_data(node_ids_list_pos);
-					if( *uri_node_id_p == uri_node_id) {
-						wmem_map_insert(refstats_uri_to_node_id_hash, uri, uri_node_id_p);
-						break;
-					}
-					node_ids_list_pos = wmem_list_frame_next(node_ids_list_pos);
-				}
-				wmem_destroy_list(node_ids_list);
-			}
-		}
+		http_ref_stats_tick_request(st, v, referer_node_id);
 
 		/* Tick all stats nodes above the referer */
-		current_node_id_p = (int *) wmem_map_lookup(refstats_node_id_to_parent_node_id_hash, referer_node_id_p);
-		while (current_node_id_p && *current_node_id_p) {
-			parent_node_id_p = (int *) wmem_map_lookup(refstats_node_id_to_parent_node_id_hash, current_node_id_p);
+		current_node_id_p = GINT_TO_POINTER(referer_node_id);
+		while (wmem_map_lookup_extended(refstats_node_id_to_parent_node_id_hash, current_node_id_p, NULL, &parent_node_id_p)) {
+			parent_node_id = GPOINTER_TO_INT(parent_node_id_p);
 			uri = (gchar *) wmem_map_lookup(refstats_node_id_to_uri_hash, current_node_id_p);
-			tick_stat_node(st, uri, *parent_node_id_p, TRUE);
+			tick_stat_node(st, uri, parent_node_id, TRUE);
 			current_node_id_p = parent_node_id_p;
 		}
 	}
