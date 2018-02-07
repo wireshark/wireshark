@@ -94,14 +94,12 @@ platforms:
 
 * Windows 7 / Windows Server 2008 R2
 
-* Windows Vista / Windows Server 2008
-
-Development on Windows XP, Server 2003, and older versions may be possible but
+Development on Windows Vista, Server 2008, and older versions may be possible but
 is not supported.
 
 [[ChIntroDevelopment]]
 
-===  Development and maintenance of Wireshark
+=== Development and maintenance of Wireshark
 
 Wireshark was initially developed by Gerald Combs. Ongoing development
 and maintenance of Wireshark is handled by the Wireshark core developers,
