@@ -247,6 +247,7 @@ static int hf_ieee1905_metrics_channel_util_threshold = -1;
 static int hf_ieee1905_assoc_sta_traffic_stats_inclusion = -1;
 static int hf_ieee1905_assoc_sta_link_metrics_inclusion = -1;
 static int hf_ieee1905_reporting_policy_flags_reserved = -1;
+static int hf_ieee1905_ap_metric_query_bssid_cnt = -1;
 static int hf_ieee1905_ap_metric_query_bssid = -1;
 static int hf_ieee1905_sta_mac_address_type = -1;
 static int hf_ieee1905_assoc_sta_mac_addr = -1;
@@ -3762,6 +3763,10 @@ dissect_ap_metric_query(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *pi = NULL;
     guint saved_offset;
 
+    proto_tree_add_item(tree, hf_ieee1905_ap_metric_query_bssid_cnt, tvb,
+                        offset, 1, ENC_NA);
+    offset++;
+
     bssid_list = proto_tree_add_subtree(tree, tvb, offset, -1,
                             ett_ap_metric_query_bssid_list, &pi,
                             "AP BSSID list");
@@ -5397,6 +5402,10 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_metrics_channel_util_threshold,
           { "Utilization Reporting threshold", "ieee1905.sta_metric_policy.utilization_threshold",
             FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_metric_query_bssid_cnt,
+          { "BSSID Count", "ieee1905.ap_metrics_query.bssid_cnt",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_metric_query_bssid,
           { "Query BSSID", "ieee1905.ap_metrics_query.bssid",
