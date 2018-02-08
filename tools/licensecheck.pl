@@ -626,6 +626,8 @@ sub parselicense {
 			$gplver = " (v$1 or later)";
 		} elsif ($licensetext =~ /GPL\sas\spublished\sby\sthe\sFree\sSoftware\sFoundation,\sversion\s([\d.]+)/i ) {
 			$gplver = " (v$1)";
+		} elsif ($licensetext =~ /SPDX-License-Identifier:\s+GPL-([1-9])\.0-or-later/i ){
+			$gplver = " (v$1 or later)";
 		} elsif ($licensetext =~ /SPDX-License-Identifier:\s+GPL-([1-9])\.0[^+]/i ) {
 			$gplver = " (v$1)";
 		} elsif ($licensetext =~ /SPDX-License-Identifier:\s+GPL-([1-9])\.0\+/i ) {
@@ -675,9 +677,12 @@ sub parselicense {
 			$license = "GPL$gplver$extrainfo $license";
 		}
 
-		if ($licensetext =~ /SPDX-License-Identifier:\s+GPL/i
-				and length $gplver) {
+		if ($licensetext =~ /SPDX-License-Identifier:\s+GPL/i and length $gplver) {
 			$license = "GPL$gplver$extrainfo $license";
+		}
+
+		if ($licensetext =~ /SPDX-License-Identifier:\s+GPL-2.0-or-later/i and length $gplver) {
+			$license = "GPL$gplver$extrainfo";
 		}
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+LGPL/i and length $gplver) {
