@@ -179,7 +179,7 @@
 #define TDS5_CURDECLARE2_TOKEN     35  /* 0x23    TDS 5.0 only        [###] */
 #define TDS5_ROWFMT2_TOKEN         97  /* 0x61    TDS 5.0 only              */
 #define TDS5_MSG_TOKEN            101  /* 0x65    TDS 5.0 only        [###] */
-#define TDS_LOGOUT_TOKEN          113  /* 0x71    TDS 5.0 only? ct_close()  */
+#define TDS5_LOGOUT_TOKEN         113  /* 0x71    TDS 5.0 only? ct_close()  */
 #define TDS_OFFSET_TOKEN          120  /* 0x78    Removed in TDS 7.2        */
 #define TDS_RET_STAT_TOKEN        121  /* 0x79                              */
 #define TDS_PROCID_TOKEN          124  /* 0x7C    TDS 4.x only - TDS_PROCID */
@@ -214,7 +214,7 @@
 #define TDS_ENVCHG_TOKEN          227  /* 0xE3                              */
 #define TDS_SESSIONSTATE_TOKEN    228  /* 0xE4    Introduced TDS 7.4        */
 #define TDS5_EED_TOKEN            229  /* 0xE5    TDS 5.0 only              */
-#define TDS_DBRPC_TOKEN           230  /* 0xE6                              */
+#define TDS5_DBRPC_TOKEN          230  /* 0xE6                              */
 #define TDS5_DYNAMIC_TOKEN        231  /* 0xE7    TDS 5.0 only              */
 #define TDS5_PARAMFMT_TOKEN       236  /* 0xEC    TDS 5.0 only              */
 #define TDS_AUTH_TOKEN            237  /* 0xED                              */  /* DUPLICATE! */
@@ -293,8 +293,7 @@
 #define SYBFLTN       109  /* 0x6D */
 #define SYBMONEYN     110  /* 0x6E */
 #define SYBDATETIMN   111  /* 0x6F */
-#define XSYBCHAR      175  /* 0xA7 */
-#define XSYBVARCHAR   167  /* 0xAF */
+#define SYBLONGCHAR   175  /* 0xAF */
 #define XSYBNVARCHAR  231  /* 0xE7 */
 #define XSYBNCHAR     239  /* 0xEF */
 #define XSYBVARBINARY 165  /* 0xA5 */
@@ -343,7 +342,7 @@
 #define TDS_DATA_TYPE_BIGVARBIN       0xA5  /* 165 = VarBinary */
 #define TDS_DATA_TYPE_BIGVARCHR       0xA7  /* 167 = VarChar */
 #define TDS_DATA_TYPE_BIGBINARY       0xAD  /* 173 = Binary */
-#define TDS_DATA_TYPE_BIGCHAR         0xAF  /* 175 = Char */
+#define TDS_DATA_TYPE_BIGCHAR         0xAF  /* 175 = Char, AKA SYBLONGCHAR (TDS 5) */
 #define TDS_DATA_TYPE_NVARCHAR        0xE7  /* 231 = NVarChar */
 #define TDS_DATA_TYPE_NCHAR           0xEF  /* 239 = NChar */
 /* LONGLEN_TYPE */
@@ -370,6 +369,10 @@
                                     x==SYBUNIQUE                  \
                                    )
 
+#define is_longlen_type_sybase(x)  ((x)==SYBLONGCHAR ||             \
+                                    (x)==SYBLONGBINARY              \
+                                   )
+
 #define is_fixedlen_type_tds(x)    (x==TDS_DATA_TYPE_NULL ||      \
                                     x==TDS_DATA_TYPE_INT1 ||      \
                                     x==TDS_DATA_TYPE_BIT  ||      \
@@ -382,6 +385,12 @@
                                     x==TDS_DATA_TYPE_FLT8 ||      \
                                     x==TDS_DATA_TYPE_MONEY4 ||    \
                                     x==TDS_DATA_TYPE_INT8         \
+                                   )
+
+#define is_numeric_type_tds(x)     ((x)==TDS_DATA_TYPE_NUMERIC ||   \
+                                    (x)==TDS_DATA_TYPE_NUMERICN ||  \
+                                    (x)==TDS_DATA_TYPE_DECIMAL ||   \
+                                    (x)==TDS_DATA_TYPE_DECIMALN     \
                                    )
 
 #define is_varlen_type_tds(x)     (x==TDS_DATA_TYPE_GUID            ||  \
@@ -858,6 +867,15 @@ static int hf_tds_control = -1;
 static int hf_tds_control_length = -1;
 static int hf_tds_control_fmt = -1;
 
+/* TDS5 DBRPC Token (TDS5_DBRPC_TOKEN) */
+static int hf_tds_dbrpc = -1;
+static int hf_tds_dbrpc_length = -1;
+static int hf_tds_dbrpc_rpcname_len = -1;
+static int hf_tds_dbrpc_rpcname = -1;
+static int hf_tds_dbrpc_options = -1;
+static int hf_tds_dbrpc_options_recompile = -1;
+static int hf_tds_dbrpc_options_params = -1;
+
 /* DONE token (TDS_DONE_TOKEN) */
 static int hf_tds_done = -1;
 static int hf_tds_done_curcmd = -1;
@@ -963,6 +981,10 @@ static int hf_tds_loginack_tdsversion = -1;
 static int hf_tds_loginack_progversion = -1;
 static int hf_tds_loginack_progname = -1;
 
+/* LOGOUT token (TDS5_LOGOUT_TOKEN) */
+static int hf_tds_logout = -1;
+static int hf_tds_logout_options = -1;
+
 /* NBCROW token (TDS_NBCROW_TOKEN) */
 static int hf_tds_nbcrow = -1;
 
@@ -975,6 +997,32 @@ static int hf_tds_offset_len = -1;
 static int hf_tds_order = -1;
 static int hf_tds_order_length = -1;
 static int hf_tds_order_colnum = -1;
+
+/* PARAMFMT token (TDS5_PARAMFMT_TOKEN) */
+static int hf_tds_paramfmt = -1;
+static int hf_tds_paramfmt_length = -1;
+static int hf_tds_paramfmt_numparams = -1;
+static int hf_tds_paramfmt_colname = -1;
+static int hf_tds_paramfmt_status = -1;
+static int hf_tds_paramfmt_utype = -1;
+static int hf_tds_paramfmt_ctype = -1;
+static int hf_tds_paramfmt_csize = -1;
+static int hf_tds_paramfmt_locale_info = -1;
+
+/* PARAMFMT2 token (TDS5_PARAM_TOKEN) */
+static int hf_tds_paramfmt2 = -1;
+static int hf_tds_paramfmt2_length = -1;
+static int hf_tds_paramfmt2_numparams = -1;
+static int hf_tds_paramfmt2_colname = -1;
+static int hf_tds_paramfmt2_status = -1;
+static int hf_tds_paramfmt2_utype = -1;
+static int hf_tds_paramfmt2_ctype = -1;
+static int hf_tds_paramfmt2_csize = -1;
+static int hf_tds_paramfmt2_locale_info = -1;
+
+/* PARAMS token (TDS5_PARAMS_TOKEN) */
+static int hf_tds_params = -1;
+static int hf_tds_params_field = -1;
 
 /* PROCID token (TDS_PROCID_TOKEN) */
 static int hf_tds_procid = -1;
@@ -999,8 +1047,9 @@ static int hf_tds_rowfmt_status = -1;
 static int hf_tds_rowfmt_utype = -1;
 static int hf_tds_rowfmt_ctype = -1;
 static int hf_tds_rowfmt_csize = -1;
-static int hf_tds_rowfmt_csize_long = -1;
 static int hf_tds_rowfmt_text_tablename = -1;
+static int hf_tds_rowfmt_precision = -1;
+static int hf_tds_rowfmt_scale = -1;
 static int hf_tds_rowfmt_locale_info = -1;
 
 /* ROWFMT2 token (TDS5_ROW_TOKEN) */
@@ -1016,8 +1065,9 @@ static int hf_tds_rowfmt2_status = -1;
 static int hf_tds_rowfmt2_utype = -1;
 static int hf_tds_rowfmt2_ctype = -1;
 static int hf_tds_rowfmt2_csize = -1;
-static int hf_tds_rowfmt2_csize_long = -1;
 static int hf_tds_rowfmt2_text_tablename = -1;
+static int hf_tds_rowfmt2_precision = -1;
+static int hf_tds_rowfmt2_scale = -1;
 static int hf_tds_rowfmt2_locale_info = -1;
 
 /* SESSIONSTATE token (TDS_SESSIONSTATE_TOKEN) */
@@ -1037,9 +1087,11 @@ static int hf_tds_sspi_buffer = -1;
 
 /* TVPROW Token */
 
-/* TDS5 Lang Token */
+/* TDS5 LANG Token */
+static int hf_tds_lang_length = -1;
 static int hf_tds_lang_language_text = -1;
 static int hf_tds_lang_token_status = -1;
+static int hf_tds_lang_status_parameterized = -1;
 
 /* Unknown token */
 static int hf_tds_unknown_tds_token = -1;
@@ -1070,8 +1122,10 @@ static int hf_tds_type_varbyte_data_int8 = -1;
 static int hf_tds_type_varbyte_data_float = -1;
 static int hf_tds_type_varbyte_data_double = -1;
 static int hf_tds_type_varbyte_data_bytes = -1;
+static int hf_tds_type_varbyte_data_uint_bytes = -1;
 static int hf_tds_type_varbyte_data_guid = -1;
 static int hf_tds_type_varbyte_data_string = -1;
+static int hf_tds_type_varbyte_data_uint_string = -1;
 static int hf_tds_type_varbyte_data_absdatetime = -1;
 static int hf_tds_type_varbyte_data_reltime = -1;
 static int hf_tds_type_varbyte_data_sign = -1;
@@ -1113,7 +1167,6 @@ static int hf_tds_all_headers_header_type = -1;
 static int hf_tds_all_headers_trans_descr = -1;
 static int hf_tds_all_headers_request_cnt = -1;
 static int hf_tds_unknown_tds_packet = -1;
-static int hf_tds_token_len = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tds = -1;
@@ -1146,6 +1199,7 @@ static gint ett_tds_flags = -1;
 static gint ett_tds_prelogin_option = -1;
 static gint ett_tds7_featureextack = -1;
 static gint ett_tds7_featureextack_feature = -1;
+static gint ett_tds5_dbrpc_options = -1;
 
 /* static expert_field ei_tds_type_info_type_undecoded = EI_INIT; */
 static expert_field ei_tds_invalid_length = EI_INIT;
@@ -1350,7 +1404,7 @@ static const value_string token_names[] = {
     {TDS5_PARAMFMT2_TOKEN,      "TDS5 Parameter2 Format"},
     {TDS5_PARAMS_TOKEN,         "TDS5 Parameters"},
     {TDS_LANG_TOKEN,            "Language"},
-    {TDS_LOGOUT_TOKEN,          "Logout"},
+    {TDS5_LOGOUT_TOKEN,         "Logout"},
     {TDS_RET_STAT_TOKEN,        "Return Status"},
     {TDS_PROCID_TOKEN,          "Proc ID"},
     {TDS_COL_NAME_TOKEN,        "Column Names"},
@@ -1392,7 +1446,7 @@ static const value_string token_names[] = {
     {TDS_NBCROW_TOKEN,          "Row (with Null Bitmap Compression)"},
     {TDS_ALTROW_TOKEN,          "ALTROW"},
     {TDS_SESSIONSTATE_TOKEN,    "Session State"},
-    {TDS_DBRPC_TOKEN,           "DBRPC"},
+    {TDS5_DBRPC_TOKEN,           "DBRPC"},
     {TDS_SSPI_TOKEN,            "SSPI"},
     {TDS_FEDAUTHINFO_TOKEN,     "FEDAUTHINFO"},
     {0, NULL}
@@ -1654,7 +1708,7 @@ tds_token_is_fixed_size_sybase(guint8 token)
         case TDS_DONEINPROC_TOKEN:
         case TDS_RET_STAT_TOKEN:
         case TDS_PROCID_TOKEN:
-        case TDS_LOGOUT_TOKEN:
+        case TDS5_LOGOUT_TOKEN:
         case TDS_OFFSET_TOKEN:
             return 1;
         default:
@@ -1674,7 +1728,7 @@ tds_get_fixed_token_size_sybase(guint8 token, tds_conv_info_t *tds_info _U_)
             return 8;
         case TDS_RET_STAT_TOKEN:
             return 4;
-        case TDS_LOGOUT_TOKEN:
+        case TDS5_LOGOUT_TOKEN:
             return 1;
         case TDS_OFFSET_TOKEN:
             return 4;
@@ -1721,6 +1775,29 @@ tds_get_variable_token_size_sybase(tvbuff_t *tvb, gint offset, guint8 token,
             break;
     }
     return *len_field_val_p + *len_field_size_p + 1;
+}
+
+static int
+get_size_by_coltype(int servertype)
+{
+    switch(servertype)
+    {
+        case SYBINT1:        return 1;
+        case SYBINT2:        return 2;
+        case SYBINT4:        return 4;
+        case SYBINT8:        return 8;
+        case SYBREAL:        return 4;
+        case SYBFLT8:        return 8;
+        case SYBDATETIME:    return 8;
+        case SYBDATETIME4:   return 4;
+        case SYBBIT:         return 1;
+        case SYBBITN:        return 1;
+        case SYBMONEY:       return 8;
+        case SYBMONEY4:      return 4;
+        case SYBUNIQUE:      return 16;
+
+        default:             return -1;
+    }
 }
 
 static void
@@ -1783,6 +1860,543 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
 }
 
 static void
+dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, tds_conv_info_t *tds_info,
+                         guint8 data_type, guint8 scale, gboolean plp, gint fieldnum, const guint8 *name)
+{
+    guint length, textptrlen;
+    proto_tree *sub_tree = NULL;
+    proto_item *item = NULL, *length_item = NULL;
+    int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+
+    item = proto_tree_add_item(tree, hf, tvb, *offset, 0, ENC_NA);
+    sub_tree = proto_item_add_subtree(item, ett_tds_type_varbyte);
+
+    if(fieldnum != -1)
+        proto_item_append_text(item, " %i", fieldnum);
+
+    proto_item_append_text(item, " (%s)", val_to_str(data_type, tds_data_type_names, "Invalid data type: %02X"));
+    if (name && strlen(name) > 0) {
+        proto_item *pi;
+        pi = proto_tree_add_string(sub_tree, hf_tds_type_varbyte_column_name, tvb, 0, (gint) strlen(name),
+                                   (const char *)name);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+
+    if(plp) {
+        guint64 plp_length = tvb_get_letoh64(tvb, *offset);
+        length_item = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_plp_len, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+        *offset += 8;
+        if(plp_length == TDS_PLP_NULL)
+            proto_item_append_text(length_item, " (PLP_NULL)");
+        else {
+            if(plp_length == TDS_UNKNOWN_PLP_LEN)
+                proto_item_append_text(length_item, " (UNKNOWN_PLP_LEN)");
+            while(TRUE) {
+                length_item = proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_plp_chunk_len, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &length);
+                *offset += 4;
+                if(length == TDS_PLP_TERMINATOR) {
+                    proto_item_append_text(length_item, " (PLP_TERMINATOR)");
+                    break;
+                }
+                switch(data_type) {
+                    case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
+                        break;
+                    case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
+                        break;
+                    case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        break;
+                    case TDS_DATA_TYPE_XML:       /* XML (introduced in TDS 7.2) */
+                    case TDS_DATA_TYPE_UDT:       /* CLR-UDT (introduced in TDS 7.2) */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
+                        break;
+                    default:
+                        /* no other data type sets plp = TRUE */
+                        expert_add_info_format(pinfo, length_item, &ei_tds_invalid_plp_type, "This type should not use PLP");
+                }
+                *offset += length;
+            }
+        }
+    }
+    else switch(data_type) {
+        /* FIXEDLENTYPE */
+        case TDS_DATA_TYPE_NULL:            /* Null (no data associated with this type) */
+            break;
+        case TDS_DATA_TYPE_BIT:             /* Bit (1 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+        case TDS_DATA_TYPE_INT1:            /* TinyInt (1 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int1, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+        case TDS_DATA_TYPE_INT2:            /* SmallInt (2 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset, 2, tds_get_int2_encoding(tds_info));
+            *offset += 2;
+            break;
+        case TDS_DATA_TYPE_INT4:            /* Int (4 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset, 4, tds_get_int4_encoding(tds_info));
+            *offset += 4;
+            break;
+        case TDS_DATA_TYPE_INT8:            /* BigInt (8 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+            *offset += 8;
+            break;
+        case TDS_DATA_TYPE_FLT4:            /* Real (4 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            *offset += 4;
+            break;
+        case TDS_DATA_TYPE_FLT8:            /* Float (8 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+            *offset += 8;
+            break;
+        case TDS_DATA_TYPE_MONEY4:          /* SmallMoney (4 byte data representation) */
+        case TDS_DATA_TYPE_DATETIME4:       /* SmallDateTime (4 byte data representation) */
+            /*TODO*/
+            *offset += 4;
+            break;
+        case TDS_DATA_TYPE_MONEY:           /* Money (8 byte data representation) */
+        case TDS_DATA_TYPE_DATETIME:        /* DateTime (8 byte data representation) */
+            /*TODO*/
+            *offset += 8;
+            break;
+
+
+        /* BYTELEN_TYPE - types prefixed with 1-byte length */
+        case TDS_DATA_TYPE_GUID:            /* UniqueIdentifier */
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case TDS_GEN_NULL:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
+                    break;
+                case 16:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_guid, tvb, *offset + 1, length, ENC_LITTLE_ENDIAN);
+                    break;
+                default:
+                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
+            }
+            *offset += 1 + length;
+            break;
+
+        case TDS_DATA_TYPE_BITN:
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case TDS_GEN_NULL:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
+                    break;
+                case 1:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset + 1, 1, ENC_NA);
+                    break;
+                default:
+                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
+            }
+            *offset += 1 + length;
+            break;
+
+        case TDS_DATA_TYPE_INTN:
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case TDS_GEN_NULL:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
+                    break;
+                case 1:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int1, tvb, *offset + 1, 1, ENC_NA);
+                    break;
+                case 2:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset + 1, 2, tds_get_int2_encoding(tds_info));
+                    break;
+                case 4:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset + 1, 4, tds_get_int4_encoding(tds_info));
+                    break;
+                case 8:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
+                    break;
+                default:
+                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
+            }
+            *offset += 1 + length;
+            break;
+
+        case TDS_DATA_TYPE_FLTN:
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case TDS_GEN_NULL:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
+                    break;
+                case 4:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN);
+                    break;
+                case 8:
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
+                    break;
+                default:
+                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
+            }
+            *offset += 1 + length;
+            break;
+
+        case TDS_DATA_TYPE_MONEYN:
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+            if(length > 0) {
+                if(length == 4)
+                {
+                    gdouble dblvalue = (gfloat)tvb_get_guint32(tvb, *offset, encoding);
+                    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 4, dblvalue, "%.4f", dblvalue/10000);
+                }
+                if(length == 8)
+                {
+                    gdouble dblvalue;
+                    guint64 moneyval;
+
+                    moneyval = tvb_get_guint32(tvb, *offset, encoding);
+                    dblvalue = (gdouble)((moneyval << 32) + tvb_get_guint32(tvb, *offset + 4, encoding));
+                    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 8, dblvalue, "%.4f", dblvalue/10000);
+                }
+                *offset += length;
+            }
+            break;
+
+        case TDS_DATA_TYPE_DATEN:           /* (introduced in TDS 7.3) */
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+            if(length == 3) {
+                guint days = 0;
+                nstime_t tv;
+
+                days += tvb_get_guint8(tvb, *offset + 2) << 16;
+                days += tvb_get_guint8(tvb, *offset + 1) << 8;
+                days += tvb_get_guint8(tvb, *offset);
+
+                tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800)); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
+                tv.nsecs = 0;
+                proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
+            }
+            *offset += length;
+            break;
+
+        case TDS_DATA_TYPE_TIMEN:           /* (introduced in TDS 7.3) */
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+            if(length > 0) {
+
+                int i;
+                guint64 value = 0;
+                gdouble dblvalue;
+                nstime_t tv;
+
+                for(i = length - 1; i > 0; i--)
+                {
+                    value = value + tvb_get_guint8(tvb, *offset + i);
+                    value = value << 8;
+                }
+                value = value + tvb_get_guint8(tvb, *offset);
+
+                dblvalue = (gdouble)value;
+                for(i = 0; i < scale; i++)
+                {
+                    dblvalue = dblvalue / 10;
+                }
+
+                tv.secs = (time_t)dblvalue;
+                tv.nsecs = (guint)(dblvalue - tv.secs) * 1000000000;
+                proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_reltime, tvb, *offset, length, &tv);
+
+                *offset += length;
+            }
+            break;
+
+        case TDS_DATA_TYPE_DATETIMN:
+
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+            if(length > 0) {
+                if(length == 4)
+                {
+                    /* SQL smalldatetime */
+                    nstime_t tv;
+                    guint days = tvb_get_guint16(tvb, *offset, encoding);
+                    guint minutes = tvb_get_guint16(tvb, *offset + 2, encoding);
+
+                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+                    tv.nsecs = 0;
+                    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
+                }
+                if(length == 8)
+                {
+                    /* SQL datetime */
+                    nstime_t tv;
+                    guint days = tvb_get_guint32(tvb, *offset, encoding);
+                    guint threehndths = tvb_get_guint32(tvb, *offset + 4, encoding);
+
+                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+                    tv.nsecs = (threehndths%300) * 10000000 / 3;
+                    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
+                }
+                *offset += length;
+            }
+            break;
+
+        case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+            if(length > 0) {
+
+                int i, bytestoread = 0;
+                guint64 value = 0;
+                gdouble dblvalue;
+                guint days = 0;
+                guint64 secs;
+                nstime_t tv;
+
+                if(scale <= 2) bytestoread = 3;
+                if((scale >= 3) && (scale <= 4)) bytestoread = 4;
+                if((scale >= 5) && (scale <= 7)) bytestoread = 5;
+
+                for(i = bytestoread - 1; i > 0; i--)
+                {
+                    value = value + tvb_get_guint8(tvb, *offset + i);
+                    value = value << 8;
+                }
+                value = value + tvb_get_guint8(tvb, *offset);
+
+                dblvalue = (gdouble)value;
+                for(i = 0; i < scale; i++)
+                {
+                     dblvalue = dblvalue / 10;
+                }
+
+                days += tvb_get_guint8(tvb, *offset + bytestoread + 2) << 16;
+                days += tvb_get_guint8(tvb, *offset + bytestoread + 1) << 8;
+                days += tvb_get_guint8(tvb, *offset + bytestoread);
+
+                secs = (days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
+
+                value = (guint64)dblvalue;
+                tv.secs = (time_t)(secs + value);
+                dblvalue = dblvalue - value;
+                tv.nsecs = (guint)dblvalue * 1000000000;
+                proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
+
+                *offset += bytestoread + 3;
+            }
+            break;
+
+        case TDS_DATA_TYPE_DATETIMEOFFSETN: /* (introduced in TDS 7.3) */
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+            if(length > 0) {
+
+                int i, bytestoread = 0;
+                guint64 value = 0;
+                gdouble dblvalue;
+                guint days = 0;
+                gshort timeoffset = 0;
+                guint64 secs;
+                nstime_t tv;
+                proto_item *timeitem = NULL;
+
+                if(scale <= 2) bytestoread = 3;
+                if((scale >= 3) && (scale <= 4)) bytestoread = 4;
+                if((scale >= 5) && (scale <= 7)) bytestoread = 5;
+
+                for(i = bytestoread - 1; i > 0; i--)
+                {
+                    value = value + tvb_get_guint8(tvb, *offset + i);
+                    value = value << 8;
+                }
+                value = value + tvb_get_guint8(tvb, *offset);
+
+                dblvalue = (gdouble)value;
+                for(i = 0; i < scale; i++)
+                {
+                    dblvalue = dblvalue / 10;
+                }
+
+                days += tvb_get_guint8(tvb, *offset + bytestoread + 2) << 16;
+                days += tvb_get_guint8(tvb, *offset + bytestoread + 1) << 8;
+                days += tvb_get_guint8(tvb, *offset + bytestoread);
+
+                secs = (days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
+
+                value = (guint64)dblvalue;
+                tv.secs = (time_t)(secs + value);
+                dblvalue = dblvalue - value;
+                tv.nsecs = (guint)dblvalue * 1000000000;
+                timeitem = proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
+
+                timeoffset = tvb_get_letohs(tvb, *offset + bytestoread + 3);
+
+                /* TODO: Need to find a way to convey the time and the offset in a single item, rather than appending text */
+                proto_item_append_text(timeitem, " %c%02i:%02i", timeoffset > 0 ? '+':'-', timeoffset / 60, timeoffset % 60);
+                *offset += bytestoread + 5;
+            }
+            break;
+
+        case TDS_DATA_TYPE_DECIMAL:         /* Decimal (TDS 4/5) */
+        case TDS_DATA_TYPE_NUMERIC:         /* Numeric (TDS 4/5) */
+        case TDS_DATA_TYPE_DECIMALN:        /* Decimal */
+        case TDS_DATA_TYPE_NUMERICN:        /* Numeric */
+        {
+            proto_item *numericitem = NULL;
+
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+
+            if(length > 0) {
+
+                if (TDS_PROTO_TDS7(tds_info)) {
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_sign, tvb, *offset, 1, ENC_NA);
+                    length -= 1;
+                }
+
+                switch(length)
+                {
+                    case 4:
+                    {
+                        numericitem = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4,
+                                          tvb, *offset + 1, 4, tds_get_int4_encoding(tds_info));
+
+                        if(scale != 0)
+                            proto_item_append_text(numericitem, " x 10^%u", scale);
+                        break;
+                    }
+                    case 8:
+                    {
+                        numericitem = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
+
+                        if(scale != 0)
+                            proto_item_append_text(numericitem, " x 10^%u", scale);
+                        break;
+                    }
+                    case 12:
+                    case 16:
+                    {
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset + 1, length, ENC_NA);
+                        break;
+                    }
+                }
+                *offset += length;
+            }
+            break;
+        }
+        case TDS_DATA_TYPE_CHAR:            /* Char (TDS 4/5) */
+        case TDS_DATA_TYPE_VARCHAR:         /* VarChar (TDS 4/5) */
+            proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string,
+                tvb, *offset, 1, tds_get_char_encoding(tds_info), &length);
+            *offset += length;
+            break;
+
+        case TDS_DATA_TYPE_BINARY:          /* Binary (TDS 4/5) */
+        case TDS_DATA_TYPE_VARBINARY:       /* VarBinary (TDS 4/5) */
+            proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes,
+                tvb, *offset, 1, ENC_NA, &length);
+            *offset += length;
+            break;
+
+        /* USHORTLEN_TYPE - types prefixed with 2-byte length */
+        case TDS_DATA_TYPE_BIGVARBIN:       /* VarBinary */
+        case TDS_DATA_TYPE_BIGBINARY:       /* Binary */
+        case TDS_DATA_TYPE_BIGVARCHR:       /* VarChar */
+        case TDS_DATA_TYPE_BIGCHAR:         /* Char */
+        case TDS_DATA_TYPE_NVARCHAR:        /* NVarChar */
+        case TDS_DATA_TYPE_NCHAR:           /* NChar */
+            /* Special case where MS and Sybase independently assigned a data type of 0xaf. */
+            if ((data_type == SYBLONGCHAR) && TDS_PROTO_LESS_THAN_TDS7(tds_info)) {
+                proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string, tvb, *offset, 4,
+                    tds_get_char_encoding(tds_info)|tds_get_int4_encoding(tds_info), &length);
+                *offset += length;
+                break;
+            }
+            length = tvb_get_letohs(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 2, length);
+            *offset += 2;
+            if(length == TDS_CHARBIN_NULL) {
+                proto_item_append_text(length_item, " (CHARBIN_NULL)");
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
+            }
+            else {
+                switch(data_type) {
+                    case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
+                    case TDS_DATA_TYPE_BIGBINARY: /* Binary */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
+                        break;
+                    case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
+                    case TDS_DATA_TYPE_BIGCHAR:   /* Char */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
+                        break;
+                    case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
+                    case TDS_DATA_TYPE_NCHAR:     /* NChar */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        break;
+                }
+                *offset += length;
+            }
+            break;
+
+        /* LONGLEN_TYPE - types prefixed with 4-byte length */
+        case TDS_DATA_TYPE_NTEXT:           /* NText */
+        case TDS_DATA_TYPE_TEXT:            /* Text */
+        case TDS_DATA_TYPE_IMAGE:           /* Image */
+        case TDS_DATA_TYPE_XML:             /* XML (introduced in TDS 7.2) */
+        case TDS_DATA_TYPE_UDT:             /* CLR-UDT (introduced in TDS 7.2) */
+        case TDS_DATA_TYPE_SSVARIANT:       /* Sql_Variant (introduced in TDS 7.2) */
+            /* TextPointer */
+            length_item =proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_data_textptr_len,
+                             tvb, *offset, 1, ENC_NA, &textptrlen);
+            if (TDS_PROTO_LESS_THAN_TDS7(tds_info) && textptrlen == 0) {
+                proto_item_append_text(length_item, " (NULL)");
+                *offset += 1;
+                break;
+            }
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_textptr, tvb,
+                                *offset + 1, textptrlen, ENC_NA);
+            *offset += 1 + textptrlen;
+
+            /* Timestamp */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_text_ts, tvb,
+                                *offset, 8, ENC_NA);
+            *offset += 8;
+
+            length_item = proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 4,
+                                                       tds_get_int4_encoding(tds_info), &length);
+            *offset += 4;
+            if(length == TDS_CHARBIN_NULL32) {
+                proto_item_append_text(length_item, " (CHARBIN_NULL)");
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
+            }
+            else {
+                switch(data_type) {
+                    case TDS_DATA_TYPE_NTEXT: /* NText */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        break;
+                    case TDS_DATA_TYPE_TEXT:
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
+                        break;
+                    default: /*TODO*/
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
+                }
+                *offset += length;
+            }
+            break;
+    }
+    proto_item_set_end(item, tvb, *offset);
+}
+
+static void
 dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint offset, len;
@@ -1803,15 +2417,59 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, td
     /* offset += len; */
 }
 
-static void
-dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree) {
+static const int *dbrpc_options_hf_fields[] = {
+    &hf_tds_dbrpc_options_recompile,
+    &hf_tds_dbrpc_options_params,
+    NULL
+};
 
-    proto_tree_add_item(tree, hf_tds_lang_token_status, tvb, offset, 1, ENC_NA);
-    offset += 1;
-    len    -= 1;
+static guint
+dissect_tds5_dbrpc_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info) {
 
-    proto_tree_add_item(tree, hf_tds_lang_language_text, tvb, offset, len, ENC_ASCII|ENC_NA);
+    guint rpcnamelen, cur=offset;
+
+    proto_tree_add_item(tree, hf_tds_dbrpc_length, tvb, cur, 2,
+                        tds_get_int2_encoding(tds_info));
+    cur += 2;
+
+    proto_tree_add_item_ret_uint(tree, hf_tds_dbrpc_rpcname_len, tvb, cur, 1,
+                                 ENC_NA, &rpcnamelen);
+    if (rpcnamelen > 0) {
+        proto_tree_add_item(tree, hf_tds_dbrpc_rpcname, tvb, cur + 1, rpcnamelen,
+                            tds_get_char_encoding(tds_info));
+    }
+    cur += (rpcnamelen + 1);
+
+    proto_tree_add_bitmask(tree, tvb, cur, hf_tds_dbrpc_options, ett_tds5_dbrpc_options,
+                           dbrpc_options_hf_fields, tds_get_int2_encoding(tds_info));
+    cur += 2;
+
+    return cur - offset;
 }
+
+static guint
+dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info) {
+
+    guint len, cur=offset;
+
+    proto_tree_add_item_ret_uint(tree, hf_tds_lang_length, tvb, cur, 4,
+                                 tds_get_int4_encoding(tds_info), &len);
+    cur += 4;
+
+    /* Both of these calls are retained for backwards compatibility. */
+    proto_tree_add_item(tree, hf_tds_lang_token_status, tvb, cur, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_tds_lang_status_parameterized, tvb, cur, 1, ENC_NA);
+
+    cur += 1;
+    len -= 1;
+
+    proto_tree_add_item(tree, hf_tds_lang_language_text, tvb, cur, len, ENC_ASCII|ENC_NA);
+    cur += len;
+
+    return cur - offset;
+}
+
+
 
 
 static const int *hf_req_0[9] = {
@@ -2142,8 +2800,234 @@ dissect_tds_transmgr_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static guint
+dissect_tds5_logout_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info _U_)
+{
+    guint cur = offset;
+
+    proto_tree_add_item(tree, hf_tds_logout_options, tvb, cur, 1, ENC_NA);
+    cur += 1;
+
+    return cur - offset;
+}
+
+/*
+ * Process TDS 5 "PARAMFMT" token and store relevant information in the
+ * _netlib_data structure for later use (see tds_get_row_size)
+ *
+ */
+static guint
+dissect_tds_paramfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info,
+                           struct _netlib_data *nl_data)
+{
+    guint next, cur;
+    guint col, len, numcols;
+
+    proto_tree_add_item_ret_uint(tree, hf_tds_paramfmt_length, tvb, offset, 2,
+                                 tds_get_int4_encoding(tds_info), &len);
+    proto_tree_add_item_ret_uint(tree, hf_tds_paramfmt_numparams, tvb, offset + 2, 2,
+                                 tds_get_int2_encoding(tds_info), &numcols);
+    next = offset + len + 2; /* Only skip the length field. */
+    cur = offset + 4; /* Skip the length and numcols field. */
+
+    col = 0;
+    while (cur < next) {
+        const guint8 *colname = NULL;
+        guint colnamelen, localelen;
+
+        if (col >= TDS_MAX_COLUMNS) {
+            nl_data->num_cols = TDS_MAX_COLUMNS;
+            return 0;
+        }
+
+        if (!(nl_data->columns[col])) {
+            nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
+        }
+
+        proto_tree_add_item_ret_string_and_length(tree, hf_tds_paramfmt_colname,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &colname, &colnamelen);
+        cur += colnamelen;
+        nl_data->columns[col]->name = colname;
+
+        proto_tree_add_item(tree, hf_tds_paramfmt_status, tvb, cur, 1, ENC_NA);
+        cur += 1;
+
+        nl_data->columns[col]->utype = tvb_get_guint32(tvb, cur,
+                                                       tds_get_int4_encoding(tds_info));
+        proto_tree_add_item(tree, hf_tds_paramfmt_utype, tvb, cur, 4,
+                            tds_get_int4_encoding(tds_info));
+        cur += 4;
+
+        nl_data->columns[col]->ctype = tvb_get_guint8(tvb,cur);
+        proto_tree_add_item(tree, hf_tds_paramfmt_ctype, tvb, cur, 1, ENC_NA);
+        cur++;
+
+        if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
+            nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
+            proto_tree_add_item(tree, hf_tds_paramfmt_csize, tvb, cur, 1, ENC_NA);
+            cur ++;
+        } else {
+            nl_data->columns[col]->csize =
+                get_size_by_coltype(nl_data->columns[col]->ctype);
+        }
+
+        proto_tree_add_item_ret_length(tree, hf_tds_paramfmt_locale_info,
+            tvb, cur, 1, ENC_NA, &localelen);
+        cur += localelen;
+
+        col += 1;
+
+    } /* while */
+
+    nl_data->num_cols = col;
+    return cur - offset;
+}
+
+/*
+ * Process TDS 5 "PARAMFMT2" token and store relevant information in the
+ * _netlib_data structure for later use (see tds_get_row_size)
+ *
+ */
+static guint
+dissect_tds_paramfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info,
+                           struct _netlib_data *nl_data)
+{
+    guint next, cur;
+    guint col, len, numcols;
+
+    proto_tree_add_item_ret_uint(tree, hf_tds_paramfmt2_length, tvb, offset, 4,
+                                 tds_get_int4_encoding(tds_info), &len);
+    proto_tree_add_item_ret_uint(tree, hf_tds_paramfmt2_numparams, tvb, offset + 4, 2,
+                                 tds_get_int2_encoding(tds_info), &numcols);
+    next = offset + len + 4; /* Only skip the length field. */
+    cur = offset + 6; /* Skip the length and numcols field. */
+
+    col = 0;
+    while (cur < next) {
+        const guint8 *colname = NULL;
+        guint colnamelen, localelen;
+
+        if (col >= TDS_MAX_COLUMNS) {
+            nl_data->num_cols = TDS_MAX_COLUMNS;
+            return 0;
+        }
+
+        if (!(nl_data->columns[col])) {
+            nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
+        }
+
+        proto_tree_add_item_ret_string_and_length(tree, hf_tds_paramfmt2_colname,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &colname, &colnamelen);
+        cur += colnamelen;
+        nl_data->columns[col]->name = colname;
+
+        proto_tree_add_item(tree, hf_tds_paramfmt2_status, tvb, cur, 4, tds_get_int4_encoding(tds_info));
+        cur += 4;
+
+        nl_data->columns[col]->utype = tvb_get_guint32(tvb, cur,
+                                                       tds_get_int4_encoding(tds_info));
+        proto_tree_add_item(tree, hf_tds_paramfmt2_utype, tvb, cur, 4,
+                            tds_get_int4_encoding(tds_info));
+        cur += 4;
+
+        nl_data->columns[col]->ctype = tvb_get_guint8(tvb,cur);
+        proto_tree_add_item(tree, hf_tds_paramfmt2_ctype, tvb, cur, 1, ENC_NA);
+        cur++;
+
+        if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
+            nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
+            proto_tree_add_item(tree, hf_tds_paramfmt2_csize, tvb, cur, 1, ENC_NA);
+            cur ++;
+        } else {
+            nl_data->columns[col]->csize =
+                get_size_by_coltype(nl_data->columns[col]->ctype);
+        }
+
+        proto_tree_add_item_ret_length(tree, hf_tds_paramfmt2_locale_info,
+            tvb, cur, 1, ENC_NA, &localelen);
+        cur += localelen;
+
+        col += 1;
+
+    } /* while */
+
+    nl_data->num_cols = col;
+    return cur - offset;
+}
+
+static int
+dissect_tds5_params_token(tvbuff_t *tvb, packet_info *pinfo,
+                          struct _netlib_data *nl_data, guint offset,
+                          proto_tree *tree, proto_item *token_item,
+                          tds_conv_info_t *tds_info)
+{
+    guint cur = offset, i;
+
+    /* TDS5 does not have the Paritially Length-Prefixed concept, so the "plp"
+     * parameter is always FALSE. */
+    for (i = 0; i < nl_data->num_cols; i++) {
+        dissect_tds_type_varbyte(tvb, &cur, pinfo, tree, hf_tds_params_field, tds_info,
+                                 nl_data->columns[i]->ctype, nl_data->columns[i]->scale,
+                                 FALSE, i+1, nl_data->columns[i]->name);
+    }
+
+    proto_item_set_len(token_item, cur - offset);
+    return cur - offset;
+}
+
+static gint
+tds45_token_to_idx(guint8 token)
+{
+    /* TODO: Commented out entries are token types which are not currently dissected
+     * Although they are known values, we cannot step over the bytes as token length is unknown
+     * Better therefore to return unknown token type and highlight to user
+    */
+
+    /*
+     * Token values for TDS4 and TDS5.
+     * Microsoft and Sybase have separately expanded the protocol and have
+     * each used numbers differently.
+     */
+
+    switch(token)
+    {
+        /*case TDS_ALTROW_TOKEN: return hf_tds_altrow;*/
+        case TDS_CAPABILITY_TOKEN: return hf_tds_capability;
+        case TDS_COLFMT_TOKEN: return hf_tds_colfmt;
+        case TDS_COL_NAME_TOKEN: return hf_tds_colname;
+        case TDS_CONTROL_TOKEN: return hf_tds_control;
+        case TDS5_DBRPC_TOKEN: return hf_tds_dbrpc;
+        case TDS_DONE_TOKEN: return hf_tds_done;
+        case TDS_DONEPROC_TOKEN: return hf_tds_doneproc;
+        case TDS_DONEINPROC_TOKEN: return hf_tds_doneinproc;
+        case TDS5_EED_TOKEN: return hf_tds_eed;
+        case TDS_ENVCHG_TOKEN: return hf_tds_envchg;
+        case TDS_ERR_TOKEN: return hf_tds_error;
+        case TDS_INFO_TOKEN: return hf_tds_info;
+        case TDS_LOGIN_ACK_TOKEN: return hf_tds_loginack;
+        case TDS5_LOGOUT_TOKEN: return hf_tds_logout;
+        case TDS_OFFSET_TOKEN: return hf_tds_offset;
+        case TDS_ORDER_TOKEN: return hf_tds_order;
+        case TDS5_PARAMFMT_TOKEN: return hf_tds_paramfmt;
+        case TDS5_PARAMFMT2_TOKEN: return hf_tds_paramfmt2;
+        case TDS5_PARAMS_TOKEN: return hf_tds_params;
+        case TDS_PROCID_TOKEN: return hf_tds_procid;
+        case TDS_RET_STAT_TOKEN: return hf_tds_returnstatus;
+        /*case TDS_RETURNVAL_TOKEN: return hf_tds_returnvalue;*/
+        case TDS_ROW_TOKEN: return hf_tds_row;
+        case TDS5_ROWFMT_TOKEN: return hf_tds_rowfmt;
+        case TDS5_ROWFMT2_TOKEN: return hf_tds_rowfmt2;
+        /*case TDS_TABNAME_TOKEN: return hf_tds_tabname;*/
+    }
+
+    return hf_tds_unknown_tds_token;
+}
+
 static void
-dissect_tds5_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
+dissect_tds5_tokenized_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                      tds_conv_info_t *tds_info)
 {
     guint offset;
     guint pos;
@@ -2154,6 +3038,9 @@ dissect_tds5_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, t
     proto_tree *query_tree;
     proto_tree *token_tree;
     proto_item *token_item;
+    struct _netlib_data nl_data;
+
+    (void) memset(&nl_data, '\0', sizeof nl_data);
 
     offset = 0;
     query_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_query, NULL, "TDS5 Query Packet");
@@ -2181,19 +3068,25 @@ dissect_tds5_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, t
             break;
         }
 
-        /*
-         * If it's a variable token, put the length field in here
-         * instead of replicating this for each token subdissector.
-         */
-        if (!tds_token_is_fixed_size_sybase(token))
-        {
-            token_item = proto_tree_add_uint(token_tree, hf_tds_token_len, tvb, pos + 1, 1, token_len_field_val);
-            proto_item_set_len(token_item, token_len_field_size);
-        }
-
         switch (token) {
             case TDS_LANG_TOKEN:
-                dissect_tds5_lang_token(tvb, pos + 5, token_sz -5, token_tree);
+                token_sz = dissect_tds5_lang_token(tvb, pos + 1, token_tree, tds_info) + 1;
+                break;
+            case TDS5_LOGOUT_TOKEN:
+                token_sz = dissect_tds5_logout_token(token_tree, tvb, pos + 1, tds_info) + 1;
+                break;
+            case TDS5_DBRPC_TOKEN:
+                token_sz = dissect_tds5_dbrpc_token(tvb, pos + 1, token_tree, tds_info) + 1;
+                break;
+            case TDS5_PARAMFMT_TOKEN:
+                token_sz = dissect_tds_paramfmt_token(token_tree, tvb, pos + 1, tds_info, &nl_data) + 1;
+                break;
+            case TDS5_PARAMFMT2_TOKEN:
+                token_sz = dissect_tds_paramfmt2_token(token_tree, tvb, pos + 1, tds_info, &nl_data) + 1;
+                break;
+            case TDS5_PARAMS_TOKEN:
+                token_sz = dissect_tds5_params_token(tvb, pinfo, &nl_data, pos + 1,
+                                                     token_tree, token_item, tds_info) + 1;
                 break;
             default:
                 break;
@@ -2790,29 +3683,6 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
     }
 }
 
-static int
-get_size_by_coltype(int servertype)
-{
-    switch(servertype)
-    {
-        case SYBINT1:        return 1;
-        case SYBINT2:        return 2;
-        case SYBINT4:        return 4;
-        case SYBINT8:        return 8;
-        case SYBREAL:        return 4;
-        case SYBFLT8:        return 8;
-        case SYBDATETIME:    return 8;
-        case SYBDATETIME4:   return 4;
-        case SYBBIT:         return 1;
-        case SYBBITN:        return 1;
-        case SYBMONEY:       return 8;
-        case SYBMONEY4:      return 4;
-        case SYBUNIQUE:      return 16;
-
-        default:             return -1;
-    }
-}
-
 static guint8 variant_propbytes(guint8 type)
 {
     switch (type)
@@ -2849,536 +3719,6 @@ static guint8 variant_propbytes(guint8 type)
 
     default: return 0;
     }
-}
-
-static void
-dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, tds_conv_info_t *tds_info,
-                         guint8 data_type, guint8 scale, gboolean plp, gint fieldnum, const guint8 *name)
-{
-    guint length, textptrlen;
-    proto_tree *sub_tree = NULL;
-    proto_item *item = NULL, *length_item = NULL;
-    int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
-
-    item = proto_tree_add_item(tree, hf, tvb, *offset, 0, ENC_NA);
-    sub_tree = proto_item_add_subtree(item, ett_tds_type_varbyte);
-
-    if(fieldnum != -1)
-        proto_item_append_text(item, " %i", fieldnum);
-
-    proto_item_append_text(item, " (%s)", val_to_str(data_type, tds_data_type_names, "Invalid data type: %02X"));
-    if (name && strlen(name) > 0) {
-        proto_item *pi;
-        pi = proto_tree_add_string(sub_tree, hf_tds_type_varbyte_column_name, tvb, 0, (gint) strlen(name),
-                                   (const char *)name);
-        PROTO_ITEM_SET_GENERATED(pi);
-    }
-
-    if(plp) {
-        guint64 plp_length = tvb_get_letoh64(tvb, *offset);
-        length_item = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_plp_len, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
-        *offset += 8;
-        if(plp_length == TDS_PLP_NULL)
-            proto_item_append_text(length_item, " (PLP_NULL)");
-        else {
-            if(plp_length == TDS_UNKNOWN_PLP_LEN)
-                proto_item_append_text(length_item, " (UNKNOWN_PLP_LEN)");
-            while(TRUE) {
-                length_item = proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_plp_chunk_len, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &length);
-                *offset += 4;
-                if(length == TDS_PLP_TERMINATOR) {
-                    proto_item_append_text(length_item, " (PLP_TERMINATOR)");
-                    break;
-                }
-                switch(data_type) {
-                    case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
-                        break;
-                    case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
-                        break;
-                    case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-                        break;
-                    case TDS_DATA_TYPE_XML:       /* XML (introduced in TDS 7.2) */
-                    case TDS_DATA_TYPE_UDT:       /* CLR-UDT (introduced in TDS 7.2) */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
-                        break;
-                    default:
-                        /* no other data type sets plp = TRUE */
-                        expert_add_info_format(pinfo, length_item, &ei_tds_invalid_plp_type, "This type should not use PLP");
-                }
-                *offset += length;
-            }
-        }
-    }
-    else switch(data_type) {
-        /* FIXEDLENTYPE */
-        case TDS_DATA_TYPE_NULL:            /* Null (no data associated with this type) */
-            break;
-        case TDS_DATA_TYPE_BIT:             /* Bit (1 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset, 1, ENC_NA);
-            *offset += 1;
-            break;
-        case TDS_DATA_TYPE_INT1:            /* TinyInt (1 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int1, tvb, *offset, 1, ENC_NA);
-            *offset += 1;
-            break;
-        case TDS_DATA_TYPE_INT2:            /* SmallInt (2 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset, 2, tds_get_int2_encoding(tds_info));
-            *offset += 2;
-            break;
-        case TDS_DATA_TYPE_INT4:            /* Int (4 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset, 4, tds_get_int4_encoding(tds_info));
-            *offset += 4;
-            break;
-        case TDS_DATA_TYPE_INT8:            /* BigInt (8 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
-            *offset += 8;
-            break;
-        case TDS_DATA_TYPE_FLT4:            /* Real (4 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-            *offset += 4;
-            break;
-        case TDS_DATA_TYPE_FLT8:            /* Float (8 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
-            *offset += 8;
-            break;
-        case TDS_DATA_TYPE_MONEY4:          /* SmallMoney (4 byte data representation) */
-        case TDS_DATA_TYPE_DATETIME4:       /* SmallDateTime (4 byte data representation) */
-            /*TODO*/
-            *offset += 4;
-            break;
-        case TDS_DATA_TYPE_MONEY:           /* Money (8 byte data representation) */
-        case TDS_DATA_TYPE_DATETIME:        /* DateTime (8 byte data representation) */
-            /*TODO*/
-            *offset += 8;
-            break;
-
-
-        /* BYTELEN_TYPE - types prefixed with 1-byte length */
-        case TDS_DATA_TYPE_GUID:            /* UniqueIdentifier */
-            length = tvb_get_guint8(tvb, *offset);
-            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            switch(length) {
-                case TDS_GEN_NULL:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
-                    break;
-                case 16:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_guid, tvb, *offset + 1, length, ENC_LITTLE_ENDIAN);
-                    break;
-                default:
-                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
-            }
-            *offset += 1 + length;
-            break;
-
-        case TDS_DATA_TYPE_BITN:
-            length = tvb_get_guint8(tvb, *offset);
-            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            switch(length) {
-                case TDS_GEN_NULL:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
-                    break;
-                case 1:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset + 1, 1, ENC_NA);
-                    break;
-                default:
-                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
-            }
-            *offset += 1 + length;
-            break;
-
-        case TDS_DATA_TYPE_INTN:
-            length = tvb_get_guint8(tvb, *offset);
-            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            switch(length) {
-                case TDS_GEN_NULL:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
-                    break;
-                case 1:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int1, tvb, *offset + 1, 1, ENC_NA);
-                    break;
-                case 2:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset + 1, 2, tds_get_int2_encoding(tds_info));
-                    break;
-                case 4:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset + 1, 4, tds_get_int4_encoding(tds_info));
-                    break;
-                case 8:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-                    break;
-                default:
-                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
-            }
-            *offset += 1 + length;
-            break;
-
-        case TDS_DATA_TYPE_FLTN:
-            length = tvb_get_guint8(tvb, *offset);
-            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            switch(length) {
-                case TDS_GEN_NULL:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
-                    break;
-                case 4:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN);
-                    break;
-                case 8:
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-                    break;
-                default:
-                    expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
-            }
-            *offset += 1 + length;
-            break;
-
-        case TDS_DATA_TYPE_MONEYN:
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length > 0) {
-                if(length == 4)
-                {
-                    gdouble dblvalue = (gfloat)tvb_get_guint32(tvb, *offset, encoding);
-                    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 4, dblvalue, "%.4f", dblvalue/10000);
-                }
-                if(length == 8)
-                {
-                    gdouble dblvalue;
-                    guint64 moneyval;
-
-                    moneyval = tvb_get_guint32(tvb, *offset, encoding);
-                    dblvalue = (gdouble)((moneyval << 32) + tvb_get_guint32(tvb, *offset + 4, encoding));
-                    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 8, dblvalue, "%.4f", dblvalue/10000);
-                }
-                *offset += length;
-            }
-            break;
-
-        case TDS_DATA_TYPE_DATEN:           /* (introduced in TDS 7.3) */
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length == 3) {
-                guint days = 0;
-                nstime_t tv;
-
-                days += tvb_get_guint8(tvb, *offset + 2) << 16;
-                days += tvb_get_guint8(tvb, *offset + 1) << 8;
-                days += tvb_get_guint8(tvb, *offset);
-
-                tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800)); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
-                tv.nsecs = 0;
-                proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
-            }
-            *offset += length;
-            break;
-
-        case TDS_DATA_TYPE_TIMEN:           /* (introduced in TDS 7.3) */
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length > 0) {
-
-                int i;
-                guint64 value = 0;
-                gdouble dblvalue;
-                nstime_t tv;
-
-                for(i = length - 1; i > 0; i--)
-                {
-                    value = value + tvb_get_guint8(tvb, *offset + i);
-                    value = value << 8;
-                }
-                value = value + tvb_get_guint8(tvb, *offset);
-
-                dblvalue = (gdouble)value;
-                for(i = 0; i < scale; i++)
-                {
-                    dblvalue = dblvalue / 10;
-                }
-
-                tv.secs = (time_t)dblvalue;
-                tv.nsecs = (guint)(dblvalue - tv.secs) * 1000000000;
-                proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_reltime, tvb, *offset, length, &tv);
-
-                *offset += length;
-            }
-            break;
-
-        case TDS_DATA_TYPE_DATETIMN:
-
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length > 0) {
-                if(length == 4)
-                {
-                    /* SQL smalldatetime */
-                    nstime_t tv;
-                    guint days = tvb_get_guint16(tvb, *offset, encoding);
-                    guint minutes = tvb_get_guint16(tvb, *offset + 2, encoding);
-
-                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
-                    tv.nsecs = 0;
-                    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
-                }
-                if(length == 8)
-                {
-                    /* SQL datetime */
-                    nstime_t tv;
-                    guint days = tvb_get_guint32(tvb, *offset, encoding);
-                    guint threehndths = tvb_get_guint32(tvb, *offset + 4, encoding);
-
-                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
-                    tv.nsecs = (threehndths%300) * 10000000 / 3;
-                    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
-                }
-                *offset += length;
-            }
-            break;
-
-        case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length > 0) {
-
-                int i, bytestoread = 0;
-                guint64 value = 0;
-                gdouble dblvalue;
-                guint days = 0;
-                guint64 secs;
-                nstime_t tv;
-
-                if(scale <= 2) bytestoread = 3;
-                if((scale >= 3) && (scale <= 4)) bytestoread = 4;
-                if((scale >= 5) && (scale <= 7)) bytestoread = 5;
-
-                for(i = bytestoread - 1; i > 0; i--)
-                {
-                    value = value + tvb_get_guint8(tvb, *offset + i);
-                    value = value << 8;
-                }
-                value = value + tvb_get_guint8(tvb, *offset);
-
-                dblvalue = (gdouble)value;
-                for(i = 0; i < scale; i++)
-                {
-                     dblvalue = dblvalue / 10;
-                }
-
-                days += tvb_get_guint8(tvb, *offset + bytestoread + 2) << 16;
-                days += tvb_get_guint8(tvb, *offset + bytestoread + 1) << 8;
-                days += tvb_get_guint8(tvb, *offset + bytestoread);
-
-                secs = (days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
-
-                value = (guint64)dblvalue;
-                tv.secs = (time_t)(secs + value);
-                dblvalue = dblvalue - value;
-                tv.nsecs = (guint)dblvalue * 1000000000;
-                proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
-
-                *offset += bytestoread + 3;
-            }
-            break;
-
-        case TDS_DATA_TYPE_DATETIMEOFFSETN: /* (introduced in TDS 7.3) */
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length > 0) {
-
-                int i, bytestoread = 0;
-                guint64 value = 0;
-                gdouble dblvalue;
-                guint days = 0;
-                gshort timeoffset = 0;
-                guint64 secs;
-                nstime_t tv;
-                proto_item *timeitem = NULL;
-
-                if(scale <= 2) bytestoread = 3;
-                if((scale >= 3) && (scale <= 4)) bytestoread = 4;
-                if((scale >= 5) && (scale <= 7)) bytestoread = 5;
-
-                for(i = bytestoread - 1; i > 0; i--)
-                {
-                    value = value + tvb_get_guint8(tvb, *offset + i);
-                    value = value << 8;
-                }
-                value = value + tvb_get_guint8(tvb, *offset);
-
-                dblvalue = (gdouble)value;
-                for(i = 0; i < scale; i++)
-                {
-                    dblvalue = dblvalue / 10;
-                }
-
-                days += tvb_get_guint8(tvb, *offset + bytestoread + 2) << 16;
-                days += tvb_get_guint8(tvb, *offset + bytestoread + 1) << 8;
-                days += tvb_get_guint8(tvb, *offset + bytestoread);
-
-                secs = (days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
-
-                value = (guint64)dblvalue;
-                tv.secs = (time_t)(secs + value);
-                dblvalue = dblvalue - value;
-                tv.nsecs = (guint)dblvalue * 1000000000;
-                timeitem = proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
-
-                timeoffset = tvb_get_letohs(tvb, *offset + bytestoread + 3);
-
-                /* TODO: Need to find a way to convey the time and the offset in a single item, rather than appending text */
-                proto_item_append_text(timeitem, " %c%02i:%02i", timeoffset > 0 ? '+':'-', timeoffset / 60, timeoffset % 60);
-                *offset += bytestoread + 5;
-            }
-            break;
-
-        case TDS_DATA_TYPE_DECIMAL:         /* Decimal (TDS 4/5) */
-        case TDS_DATA_TYPE_NUMERIC:         /* Numeric (TDS 4/5) */
-        case TDS_DATA_TYPE_DECIMALN:        /* Decimal */
-        case TDS_DATA_TYPE_NUMERICN:        /* Numeric */
-        {
-            proto_item *numericitem = NULL;
-
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-
-            if(length > 0) {
-
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_sign, tvb, *offset, 1, ENC_NA);
-
-                switch(length - 1)
-                {
-                    case 4:
-                    {
-                        numericitem = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN);
-
-                        if(scale != 0)
-                            proto_item_append_text(numericitem, " x 10^%u", scale);
-                        break;
-                    }
-                    case 8:
-                    {
-                        numericitem = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-
-                        if(scale != 0)
-                            proto_item_append_text(numericitem, " x 10^%u", scale);
-                        break;
-                    }
-                    case 12:
-                    case 16:
-                    {
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset + 1, length, ENC_NA);
-                        break;
-                    }
-                }
-                *offset += length;
-            }
-            break;
-        }
-        case TDS_DATA_TYPE_CHAR:            /* Char (TDS 4/5) */
-        case TDS_DATA_TYPE_VARCHAR:         /* VarChar (TDS 4/5) */
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length > 0) {
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length,
-                                    tds_get_char_encoding(tds_info));
-                *offset += length;
-            }
-            break;
-
-        case TDS_DATA_TYPE_BINARY:          /* Binary (TDS 4/5) */
-        case TDS_DATA_TYPE_VARBINARY:       /* VarBinary (TDS 4/5) */
-            length = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
-            *offset += 1;
-            if(length > 0) {
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
-                *offset += length;
-            }
-            break;
-
-        /* USHORTLEN_TYPE - types prefixed with 2-byte length */
-        case TDS_DATA_TYPE_BIGVARBIN:       /* VarBinary */
-        case TDS_DATA_TYPE_BIGBINARY:       /* Binary */
-        case TDS_DATA_TYPE_BIGVARCHR:       /* VarChar */
-        case TDS_DATA_TYPE_BIGCHAR:         /* Char */
-        case TDS_DATA_TYPE_NVARCHAR:        /* NVarChar */
-        case TDS_DATA_TYPE_NCHAR:           /* NChar */
-            length = tvb_get_letohs(tvb, *offset);
-            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 2, length);
-            *offset += 2;
-            if(length == TDS_CHARBIN_NULL) {
-                proto_item_append_text(length_item, " (CHARBIN_NULL)");
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
-            }
-            else {
-                switch(data_type) {
-                    case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
-                    case TDS_DATA_TYPE_BIGBINARY: /* Binary */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
-                        break;
-                    case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
-                    case TDS_DATA_TYPE_BIGCHAR:   /* Char */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
-                        break;
-                    case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
-                    case TDS_DATA_TYPE_NCHAR:     /* NChar */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-                        break;
-                }
-                *offset += length;
-            }
-            break;
-
-        /* LONGLEN_TYPE - types prefixed with 4-byte length */
-        case TDS_DATA_TYPE_NTEXT:           /* NText */
-        case TDS_DATA_TYPE_TEXT:            /* Text */
-        case TDS_DATA_TYPE_IMAGE:           /* Image */
-        case TDS_DATA_TYPE_XML:             /* XML (introduced in TDS 7.2) */
-        case TDS_DATA_TYPE_UDT:             /* CLR-UDT (introduced in TDS 7.2) */
-        case TDS_DATA_TYPE_SSVARIANT:       /* Sql_Variant (introduced in TDS 7.2) */
-            /* TextPointer */
-            proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_data_textptr_len, tvb,
-                                         *offset, 1, ENC_NA, &textptrlen);
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_textptr, tvb,
-                                *offset + 1, textptrlen, ENC_NA);
-            *offset += 1 + textptrlen;
-
-            /* Timestamp */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_text_ts, tvb,
-                                *offset, 8, ENC_NA);
-            *offset += 8;
-
-            length_item = proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 4,
-                                                       tds_get_int4_encoding(tds_info), &length);
-            *offset += 4;
-            if(length == TDS_CHARBIN_NULL32) {
-                proto_item_append_text(length_item, " (CHARBIN_NULL)");
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
-            }
-            else {
-                switch(data_type) {
-                    case TDS_DATA_TYPE_NTEXT: /* NText */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-                        break;
-                    case TDS_DATA_TYPE_TEXT:
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
-                        break;
-                    default: /*TODO*/
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
-                }
-                *offset += length;
-            }
-            break;
-    }
-    proto_item_set_end(item, tvb, *offset);
 }
 
 static void
@@ -3638,7 +3978,7 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
         if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
             if (is_image_type_tds(nl_data->columns[col]->ctype)) {
                 guint tnamelen;
-                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_csize_long, tvb, cur, 4,
+                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_csize, tvb, cur, 4,
                     tds_get_int4_encoding(tds_info),
                     &nl_data->columns[col]->csize);
                 cur += 4;
@@ -3648,6 +3988,12 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
                     &tnamelen);
                 cur += tnamelen;
             }
+            else if (is_longlen_type_sybase(nl_data->columns[col]->ctype)) {
+                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_csize, tvb, cur, 4,
+                    tds_get_int4_encoding(tds_info),
+                    &nl_data->columns[col]->csize);
+                cur += 4;
+            }
             else {
                 nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
                 proto_tree_add_item(col_tree, hf_tds_rowfmt_csize, tvb, cur, 1, ENC_NA);
@@ -3656,6 +4002,12 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
         } else {
             nl_data->columns[col]->csize =
                 get_size_by_coltype(nl_data->columns[col]->ctype);
+        }
+
+        if (is_numeric_type_tds(nl_data->columns[col]->ctype)) {
+            proto_tree_add_item(col_tree, hf_tds_rowfmt_precision, tvb, cur, 1, ENC_NA);
+            proto_tree_add_item(col_tree, hf_tds_rowfmt_scale, tvb, cur + 1, 1, ENC_NA);
+            cur += 2;
         }
 
         proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt_locale_info,
@@ -3696,6 +4048,7 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
         proto_item *col_item;
         proto_tree *col_tree;
         guint colstart = cur;
+        guint ctype;
         guint labelnamelen, catalognamelen, schemanamelen, tablenamelen, colnamelen, localelen;
         const guint8 *labelname = NULL, *catalogname = "", *schemaname = "",
                      *tablename = "", *colname = "";
@@ -3775,14 +4128,15 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
             tds_get_int4_encoding(tds_info));
         cur += 4;
 
-        nl_data->columns[col]->ctype = tvb_get_guint8(tvb,cur);
-        proto_tree_add_item(col_tree, hf_tds_rowfmt2_ctype, tvb, cur, 1, ENC_NA);
+        proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt2_ctype, tvb, cur, 1, ENC_NA, &ctype);
         cur++;
 
-        if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
-            if (is_image_type_tds(nl_data->columns[col]->ctype)) {
+        nl_data->columns[col]->ctype = ctype;
+
+        if (!is_fixedlen_type_tds(ctype)) {
+            if (is_image_type_tds(ctype)) {
                 guint tnamelen;
-                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt2_csize_long, tvb, cur, 4,
+                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt2_csize, tvb, cur, 4,
                     tds_get_int4_encoding(tds_info),
                     &nl_data->columns[col]->csize);
                 cur += 4;
@@ -3792,14 +4146,25 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
                     &tnamelen);
                 cur += tnamelen;
             }
+            else if (is_longlen_type_sybase(ctype)) {
+                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt2_csize, tvb, cur, 4,
+                    tds_get_int4_encoding(tds_info),
+                    &nl_data->columns[col]->csize);
+                cur += 4;
+            }
             else {
                 nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
                 proto_tree_add_item(col_tree, hf_tds_rowfmt2_csize, tvb, cur, 1, ENC_NA);
                 cur ++;
             }
         } else {
-            nl_data->columns[col]->csize =
-                get_size_by_coltype(nl_data->columns[col]->ctype);
+            nl_data->columns[col]->csize = get_size_by_coltype(ctype);
+        }
+
+        if (is_numeric_type_tds(nl_data->columns[col]->ctype)) {
+            proto_tree_add_item(col_tree, hf_tds_rowfmt2_precision, tvb, cur, 1, ENC_NA);
+            proto_tree_add_item(col_tree, hf_tds_rowfmt2_scale, tvb, cur + 1, 1, ENC_NA);
+            cur += 2;
         }
 
         proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt2_locale_info,
@@ -3853,7 +4218,6 @@ dissect_tds_control_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
 
     return cur - offset;
 }
-
 
 /*
  * If the packet type from the netlib header is a login packet, then dig into
@@ -4271,7 +4635,8 @@ dissect_tds_eed_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_in
     cur += 2;
 
     proto_tree_add_item_ret_length(tree, hf_tds_eed_msgtext, tvb, cur, 2,
-         tds_get_char_encoding(tds_info)|ENC_NA, &msg_len);
+         tds_get_char_encoding(tds_info)|tds_get_int2_encoding(tds_info),
+         &msg_len);
     cur += msg_len;
 
     proto_tree_add_item_ret_length(tree, hf_tds_eed_servername, tvb, cur, 1,
@@ -5222,49 +5587,6 @@ dissect_tds_sessionstate_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static gint
-tds45_token_to_idx(guint8 token)
-{
-    /* TODO: Commented out entries are token types which are not currently dissected
-     * Although they are known values, we cannot step over the bytes as token length is unknown
-     * Better therefore to return unknown token type and highlight to user
-    */
-
-    /*
-     * Token values for TDS4 and TDS5.
-     * Microsoft and Sybase have separately expanded the protocol and have
-     * each used numbers differently.
-     */
-
-    switch(token)
-    {
-        /*case TDS_ALTROW_TOKEN: return hf_tds_altrow;*/
-        case TDS_CAPABILITY_TOKEN: return hf_tds_capability;
-        case TDS_COLFMT_TOKEN: return hf_tds_colfmt;
-        case TDS_COL_NAME_TOKEN: return hf_tds_colname;
-        case TDS_CONTROL_TOKEN: return hf_tds_control;
-        case TDS_DONE_TOKEN: return hf_tds_done;
-        case TDS_DONEPROC_TOKEN: return hf_tds_doneproc;
-        case TDS_DONEINPROC_TOKEN: return hf_tds_doneinproc;
-        case TDS5_EED_TOKEN: return hf_tds_eed;
-        case TDS_ENVCHG_TOKEN: return hf_tds_envchg;
-        case TDS_ERR_TOKEN: return hf_tds_error;
-        case TDS_INFO_TOKEN: return hf_tds_info;
-        case TDS_LOGIN_ACK_TOKEN: return hf_tds_loginack;
-        case TDS_OFFSET_TOKEN: return hf_tds_offset;
-        case TDS_ORDER_TOKEN: return hf_tds_order;
-        case TDS_PROCID_TOKEN: return hf_tds_procid;
-        case TDS_RET_STAT_TOKEN: return hf_tds_returnstatus;
-        /*case TDS_RETURNVAL_TOKEN: return hf_tds_returnvalue;*/
-        case TDS5_ROWFMT_TOKEN: return hf_tds_rowfmt;
-        case TDS5_ROWFMT2_TOKEN: return hf_tds_rowfmt2;
-        case TDS_ROW_TOKEN: return hf_tds_row;
-        /*case TDS_TABNAME_TOKEN: return hf_tds_tabname;*/
-    }
-
-    return hf_tds_unknown_tds_token;
-}
-
-static gint
 tds7_token_to_idx(guint8 token)
 {
     /* TODO: Commented out entries are token types which are not currently dissected
@@ -5704,7 +6026,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_tds_query_packet(next_tvb, pinfo, tds_tree, tds_info);
                 break;
             case TDS5_QUERY_PKT:
-                dissect_tds5_query_packet(next_tvb, pinfo, tds_tree, tds_info);
+                dissect_tds5_tokenized_request_packet(next_tvb, pinfo, tds_tree,
+                                                      tds_info);
                 break;
             case TDS_SSPI_PKT:
                 dissect_tds_nt(next_tvb, pinfo, tds_tree, offset - 8, -1);
@@ -6941,6 +7264,43 @@ proto_register_tds(void)
             NULL, HFILL }
         },
 
+        /* DBRPC token (TDS5_DBRPC_TOKEN) */
+        { &hf_tds_dbrpc,
+          { "Token - DBRPC", "tds.dbrpc",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_dbrpc_length,
+          { "Token Length - DBRPC", "tds.dbrpc.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_dbrpc_rpcname_len,
+          { "DBRPC - RPC Name Length", "tds.dbrpc.rpcname_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_dbrpc_rpcname,
+          { "DBRPC - RPC Name", "tds.dbrpc.rpcname_len",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_dbrpc_options,
+          { "DBRPC - Options", "tds.dbrpc.options",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_dbrpc_options_recompile,
+          { "Recompile", "tds.dbrpc.options.recompile",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_tds_dbrpc_options_params,
+          { "Has parameters", "tds.dbrpc.options.params",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+
         /* DONE token (TDS_DONE_TOKEN) */
         { &hf_tds_done,
           { "Token - Done", "tds.done",
@@ -7386,6 +7746,18 @@ proto_register_tds(void)
             NULL, HFILL }
         },
 
+        /* LOGOUT token (TDS5_LOGOUT_TOKEN) */
+        { &hf_tds_logout,
+          { "Token - Logout", "tds.logout",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_logout_options,
+          { "Logout Options", "tds.logout.options",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         /* NBCROW token (TDS_NBCROW_TOKEN) */
         { &hf_tds_nbcrow,
           { "Token - NBCRow", "tds.nbcrow",
@@ -7425,6 +7797,112 @@ proto_register_tds(void)
           { "Order column", "tds.order.colnum",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
+        },
+
+        /* PARAMFMT token (TDS5_PARAMFMT_TOKEN) */
+        { &hf_tds_paramfmt,
+          { "Token - Paramfmt", "tds.paramfmt",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_length,
+          { "Token length - Paramfmt", "tds.paramfmt.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_numparams,
+          { "Number of Parameters", "tds.paramfmt.numparams",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_colname,
+          { "Parameter name", "tds.paramfmt.colname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_status,
+          { "Column Status", "tds.paramfmt.status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_utype,
+          { "Parameter Usertype", "tds.paramfmt.utype",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_ctype,
+          { "Parameter Datatype", "tds.paramfmt.ctype",
+            FT_UINT8, BASE_DEC, &tds_data_type_names, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_csize,
+          { "Parameter size", "tds.paramfmt.csize",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt_locale_info,
+          { "Locale info", "tds.paramfmt.locale_info",
+            FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        /* PARAMFMT2 token (TDS5_PARAMFMT2_TOKEN) */
+        { &hf_tds_paramfmt2,
+          { "Token - Paramfmt2", "tds.paramfmt2",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_length,
+          { "Token length - Paramfmt2", "tds.paramfmt2.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_numparams,
+          { "Number of Parameters", "tds.paramfmt2.numparams",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_colname,
+          { "Parameter name", "tds.paramfmt2.paramname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_status,
+          { "Parameter Status", "tds.paramfmt2.status",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_utype,
+          { "Parameter Usertype", "tds.paramfmt2.utype",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_ctype,
+          { "Parameter Datatype", "tds.paramfmt2.ctype",
+            FT_UINT8, BASE_DEC, &tds_data_type_names, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_csize,
+          { "Parameter size", "tds.paramfmt2.csize",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_paramfmt2_locale_info,
+          { "Locale info", "tds.paramfmt2.locale_info",
+            FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        /* PARAMS token (TDS5_PARAMS_TOKEN) */
+        { &hf_tds_params,
+          { "Token - Params", "tds.params",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_params_field,
+          { "Parameter", "tds.params.parameter",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
 
         /* PROCID token (TDS_PROCID_TOKEN) */
@@ -7503,17 +7981,22 @@ proto_register_tds(void)
         },
         { &hf_tds_rowfmt_csize,
           { "Column size", "tds.rowfmt.csize",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_tds_rowfmt_csize_long,
-          { "Column size - long", "tds.rowfmt.csize_long",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_rowfmt_text_tablename,
           { "Text Tablename", "tds.rowfmt.text_tablename",
             FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_precision,
+          { "Precision", "tds.rowfmt.precision",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_scale,
+          { "Scale", "tds.rowfmt.scale",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_rowfmt_locale_info,
@@ -7580,17 +8063,22 @@ proto_register_tds(void)
         },
         { &hf_tds_rowfmt2_csize,
           { "Column size", "tds.rowfmt2.csize",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_tds_rowfmt2_csize_long,
-          { "Column size - long", "tds.rowfmt2.csize_long",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_rowfmt2_text_tablename,
           { "Text Tablename", "tds.rowfmt2.text_tablename",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_precision,
+          { "Precision", "tds.rowfmt2.precision",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_scale,
+          { "Scale", "tds.rowfmt2.scale",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_rowfmt2_locale_info,
@@ -7653,9 +8141,19 @@ proto_register_tds(void)
         /* TVPROW Token */
 
         /* TDS5 Lang Token */
+        { &hf_tds_lang_length,
+          { "Token Length - Language", "tds.lang.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_tds_lang_token_status,
           { "Status", "tds.lang.token_status",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_lang_status_parameterized,
+          { "Parameters follow", "tds.lang.token_status.parameterized",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_tds_lang_language_text,
@@ -8327,6 +8825,11 @@ proto_register_tds(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_tds_type_varbyte_data_uint_bytes,
+          { "Data", "tds.type_varbyte.data.uint_bytes",
+            FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_tds_type_varbyte_data_guid,
           { "Data", "tds.type_varbyte.data.guid",
             FT_GUID, BASE_NONE, NULL, 0x0,
@@ -8335,6 +8838,11 @@ proto_register_tds(void)
         { &hf_tds_type_varbyte_data_string,
           { "Data", "tds.type_varbyte.data.string",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_uint_string,
+          { "Data", "tds.type_varbyte.data.uint_string",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_absdatetime,
@@ -8524,11 +9032,6 @@ proto_register_tds(void)
           { "TDS Packet", "tds.unknown_tds_packet",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
-        },
-        { &hf_tds_token_len,
-          { "Length", "tds.token_len",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
         }
     };
 
@@ -8562,7 +9065,8 @@ proto_register_tds(void)
         &ett_tds_col,
         &ett_tds_flags,
         &ett_tds7_featureextack,
-        &ett_tds7_featureextack_feature
+        &ett_tds7_featureextack_feature,
+        &ett_tds5_dbrpc_options
     };
 
     static ei_register_info ei[] = {
