@@ -846,7 +846,6 @@ sub parselicense {
 		$license =~ s/\s+$//;
 
 		return $license;
->>>>>>> tools: remake the indentation of licencecheck.pl.
 }
 
 sub fatal {
