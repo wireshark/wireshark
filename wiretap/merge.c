@@ -124,7 +124,6 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
     for (i = 0; i < in_file_count; i++) {
         files[i].filename    = in_file_names[i];
         files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
-        files[i].data_offset = 0;
         files[i].state       = RECORD_NOT_PRESENT;
         files[i].packet_num  = 0;
 
@@ -256,12 +255,14 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
      * merge of those records, but you obviously *can't* get that.
      */
     for (i = 0; i < in_file_count; i++) {
+    	gint64 data_offset;
+
         if (in_files[i].state == RECORD_NOT_PRESENT) {
             /*
              * No packet available, and we haven't seen an error or EOF yet,
              * so try to read the next packet.
              */
-            if (!wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset)) {
+            if (!wtap_read(in_files[i].wth, err, err_info, &data_offset)) {
                 if (*err != 0) {
                     in_files[i].state = GOT_ERROR;
                     return &in_files[i];
@@ -337,6 +338,7 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
                          int *err, gchar **err_info)
 {
     int i;
+    gint64 data_offset;
 
     /*
      * Find the first file not at EOF, and read the next packet from it.
@@ -344,7 +346,7 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
     for (i = 0; i < in_file_count; i++) {
         if (in_files[i].state == AT_EOF)
             continue; /* This file is already at EOF */
-        if (wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset))
+        if (wtap_read(in_files[i].wth, err, err_info, &data_offset))
             break; /* We have a packet */
         if (*err != 0) {
             /* Read error - quit immediately. */
