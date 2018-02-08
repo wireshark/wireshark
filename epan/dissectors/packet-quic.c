@@ -215,43 +215,6 @@ static const range_string quic_frame_type_vals[] = {
 };
 
 
-static const value_string len_offset_vals[] = {
-    { 0, "0 Byte" },
-    { 1, "2 Bytes" },
-    { 2, "4 Bytes" },
-    { 3, "8 Bytes" },
-    { 0, NULL }
-};
-
-static const value_string len_stream_vals[] = {
-    { 0, "1 Byte" },
-    { 1, "2 Bytes" },
-    { 2, "3 Bytes" },
-    { 3, "4 Bytes" },
-    { 0, NULL }
-};
-
-static const true_false_string len_data_vals = {
-    "2 Bytes",
-    "0 Byte"
-};
-
-static const value_string len_largest_acknowledged_vals[] = {
-    { 0, "1 Byte" },
-    { 1, "2 Bytes" },
-    { 2, "4 Bytes" },
-    { 3, "8 Bytes" },
-    { 0, NULL }
-};
-
-static const value_string len_ack_block_vals[] = {
-    { 0, "1 Byte" },
-    { 1, "2 Bytes" },
-    { 2, "4 Bytes" },
-    { 3, "8 Bytes" },
-    { 0, NULL }
-};
-
 /* >= draft-08 */
 #define FTFLAGS_STREAM_FIN 0x01
 #define FTFLAGS_STREAM_LEN 0x02
