@@ -255,7 +255,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
      * merge of those records, but you obviously *can't* get that.
      */
     for (i = 0; i < in_file_count; i++) {
-    	gint64 data_offset;
+        gint64 data_offset;
 
         if (in_files[i].state == RECORD_NOT_PRESENT) {
             /*
