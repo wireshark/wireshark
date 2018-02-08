@@ -34,8 +34,6 @@
 
 #include <wsutil/file_util.h>
 
-#include <wiretap/merge.h>
-
 #include "ui/util.h"
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"

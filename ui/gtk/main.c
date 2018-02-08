@@ -54,8 +54,6 @@
 #include <wsutil/report_message.h>
 #include <version_info.h>
 
-#include <wiretap/merge.h>
-
 #include <epan/addr_resolv.h>
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
