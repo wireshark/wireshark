@@ -1248,13 +1248,6 @@ merge_callback(merge_event event, int num _U_,
 
     case MERGE_EVENT_RECORD_WAS_READ:
       {
-        gint64 data_offset = 0;
-
-        /* Get the sum of the data offsets in all of the files. */
-        data_offset = 0;
-        for (i = 0; i < in_file_count; i++)
-          data_offset += in_files[i].data_offset;
-
         /* Create the progress bar if necessary.
            We check on every iteration of the loop, so that it takes no
            longer than the standard time to create it (otherwise, for a
