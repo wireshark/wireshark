@@ -942,6 +942,8 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 static int
 dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_){
     guint64 cid;
+    guint32 supported_version;
+    proto_item *ti;
 
     proto_tree_add_item(quic_tree, hf_quic_vn_unused, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -957,7 +959,10 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* Supported Version */
     while(tvb_reported_length_remaining(tvb, offset) > 0){
-        proto_tree_add_item(quic_tree, hf_quic_supported_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item_ret_uint(quic_tree, hf_quic_supported_version, tvb, offset, 4, ENC_BIG_ENDIAN, &supported_version);
+        if ((supported_version & 0x0F0F0F0F) == 0x0a0a0a0a) {
+            proto_item_append_text(ti, " (GREASE)");
+        }
         offset += 4;
     }
 
