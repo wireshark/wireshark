@@ -59,6 +59,12 @@ class TextHTMLParser(HTMLParser):
         self.ordered_list_index = None
         # Indentation (for heading and paragraphs)
         self.indent_levels = [0, 0]
+        # Don't dump CSS, scripts, etc.
+        self.ignore_tags = ('style', 'script')
+        self.ignore_level = 0
+        # href footnotes.
+        self.footnotes = []
+        self.href = None
 
     def _wrap_text(self, text):
         """Wraps text, but additionally indent list items."""
@@ -105,9 +111,20 @@ class TextHTMLParser(HTMLParser):
             self.indent_levels = [int(tag[1]) - 1, 0]
         if tag == 'p':
             self.indent_levels[1] = 1
+        if tag == 'a':
+            try:
+                href = [attr[1] for attr in attrs if attr[0] == 'href'][0]
+                if '://' in href: # Skip relative URLs and links.
+                    self.href = href
+            except IndexError:
+                self.href = None
+        if tag in self.ignore_tags:
+            self.ignore_level += 1
 
     def handle_data(self, data):
-        if self.skip_wrap:
+        if self.ignore_level > 0:
+            return
+        elif self.skip_wrap:
             block = data
         else:
             # For normal text, fold multiple whitespace and strip
@@ -133,6 +150,11 @@ class TextHTMLParser(HTMLParser):
             self.ordered_list_index = None
         if tag == 'pre':
             self.skip_wrap = False
+        if tag == 'a' and self.href:
+            self.footnotes.append(self.href)
+            self.text_block += '[{}]'.format(len(self.footnotes))
+        if tag in self.ignore_tags:
+            self.ignore_level -= 1
 
     def handle_charref(self, name):
         self.handle_data(unichr(int(name)))
@@ -143,6 +165,20 @@ class TextHTMLParser(HTMLParser):
     def close(self):
         HTMLParser.close(self)
         self._commit_block()
+
+        if len(self.footnotes) > 0:
+            self.list_item_prefix = None
+            self.indent_levels = [1, 0]
+            self.text_block = 'References'
+            self._commit_block()
+            self.indent_levels = [1, 1]
+            footnote_num = 1
+            for href in self.footnotes:
+                self.text_block += '{:>2}. {}\n'.format(footnote_num, href)
+                footnote_num += 1
+                self._commit_block('\n')
+
+
         byte_output = self.output_buffer.encode('utf-8')
         if hasattr(sys.stdout, 'buffer'):
             sys.stdout.buffer.write(byte_output)
