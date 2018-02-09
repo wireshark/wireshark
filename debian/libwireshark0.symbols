@@ -417,8 +417,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_tcp_payload@Base 1.99.0
  dissect_thrift_t_byte@Base 2.5.0
  dissect_thrift_t_i32@Base 2.5.0
+ dissect_thrift_t_i64@Base 2.5.1
  dissect_thrift_t_stop@Base 2.5.0
  dissect_thrift_t_struct@Base 2.5.0
+ dissect_thrift_t_u64@Base 2.5.1
  dissect_thrift_t_utf7@Base 2.5.0
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
@@ -1906,10 +1908,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_list_remove@Base 1.12.0~rc1
  wmem_list_remove_frame@Base 1.12.0~rc1
  wmem_list_tail@Base 1.12.0~rc1
+ wmem_map_contains@Base 2.5.1
  wmem_map_foreach@Base 2.1.0
  wmem_map_get_keys@Base 2.3.0
  wmem_map_insert@Base 1.12.0~rc1
  wmem_map_lookup@Base 1.12.0~rc1
+ wmem_map_lookup_extended@Base 2.5.1
  wmem_map_new@Base 1.12.0~rc1
  wmem_map_new_autoreset@Base 2.3.0
  wmem_map_remove@Base 1.12.0~rc1
