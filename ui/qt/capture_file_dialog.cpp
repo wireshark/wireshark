@@ -740,7 +740,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     if(status == PREVIEW_READ_ERROR) {
         // XXX - give error details?
-    	g_free(err_info);
+        g_free(err_info);
         preview_size_.setText(tr("%1, error after %Ln packet(s)", "", packets)
                               .arg(size_str));
         return;
