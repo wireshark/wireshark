@@ -1258,15 +1258,14 @@ typedef struct {
 
 typedef struct {
     guint     record_type;      /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
-    guint32   caplen;           /* data length in the file */
-    guint32   len;              /* data length on the wire */
     int       byte_order;
-    guint16   cpu_id;
     /* guint32 sentinel; */
-    guint64   timestamp;        /* ns since epoch */
+    guint64   timestamp;        /* ns since epoch - XXX dup of ts */
     guint64   thread_id;
-    guint32   event_len;        /* XXX dup of wtap_pkthdr.len */
+    guint32   event_len;        /* length of the event */
+    guint32   event_filelen;    /* event data length in the file */
     guint16   event_type;
+    guint16   cpu_id;
     /* ... Event ... */
 } wtap_syscall_header;
 

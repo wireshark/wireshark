@@ -180,14 +180,16 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
      * XXX
      */
     fdata->pkt_len = 0;
-    fdata->cum_bytes = 0;
     fdata->cap_len = 0;
     break;
 
   case REC_TYPE_SYSCALL:
-    fdata->pkt_len = rec->rec_header.syscall_header.len;
-    fdata->cum_bytes = cum_bytes + rec->rec_header.syscall_header.len;
-    fdata->cap_len = rec->rec_header.syscall_header.caplen;
+    /*
+     * XXX - is cum_bytes supposed to count non-packet bytes?
+     */
+    fdata->pkt_len = rec->rec_header.syscall_header.event_len;
+    fdata->cum_bytes = cum_bytes + rec->rec_header.syscall_header.event_len;
+    fdata->cap_len = rec->rec_header.syscall_header.event_filelen;
     break;
   }
 

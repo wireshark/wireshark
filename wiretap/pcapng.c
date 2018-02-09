@@ -2279,8 +2279,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
     wblock->rec->ts.secs = (time_t) (ts / 1000000000);
     wblock->rec->ts.nsecs = (int) (ts % 1000000000);
 
-    wblock->rec->rec_header.syscall_header.caplen = block_read;
-    wblock->rec->rec_header.syscall_header.len = wblock->rec->rec_header.syscall_header.event_len;
+    wblock->rec->rec_header.syscall_header.event_filelen = block_read;
 
     /* "Sysdig Event Block" read event data */
     if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
@@ -3236,13 +3235,13 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     guint16 event_type;
 
     /* Don't write anything we're not willing to read. */
-    if (rec->rec_header.syscall_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (rec->rec_header.syscall_header.event_filelen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
 
-    if (rec->rec_header.syscall_header.caplen % 4) {
-        pad_len = 4 - (rec->rec_header.syscall_header.caplen % 4);
+    if (rec->rec_header.syscall_header.event_filelen % 4) {
+        pad_len = 4 - (rec->rec_header.syscall_header.event_filelen % 4);
     } else {
         pad_len = 0;
     }
@@ -3267,7 +3266,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     /* write sysdig event block header */
     bh.block_type = BLOCK_TYPE_SYSDIG_EVENT;
-    bh.block_total_length = (guint32)sizeof(bh) + SYSDIG_EVENT_HEADER_SIZE + rec->rec_header.syscall_header.caplen + pad_len + options_total_length + 4;
+    bh.block_total_length = (guint32)sizeof(bh) + SYSDIG_EVENT_HEADER_SIZE + rec->rec_header.syscall_header.event_filelen + pad_len + options_total_length + 4;
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
@@ -3302,9 +3301,9 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     wdh->bytes_dumped += sizeof event_type;
 
     /* write event data */
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.syscall_header.caplen, err))
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.syscall_header.event_filelen, err))
         return FALSE;
-    wdh->bytes_dumped += rec->rec_header.syscall_header.caplen;
+    wdh->bytes_dumped += rec->rec_header.syscall_header.event_filelen;
 
     /* write padding (if any) */
     if (pad_len != 0) {

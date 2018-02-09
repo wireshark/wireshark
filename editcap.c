@@ -1718,7 +1718,7 @@ main(int argc, char *argv[])
                         break;
 
                     case REC_TYPE_SYSCALL:
-                        caplen = rec->rec_header.syscall_header.caplen;
+                        caplen = rec->rec_header.syscall_header.event_filelen;
                         do_mutation = TRUE;
                         break;
                     }
