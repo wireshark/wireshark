@@ -1105,7 +1105,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     HWND        cur_ctrl;
     int         i;
     wtap       *wth;
-    const struct wtap_pkthdr *phdr;
+    const wtap_rec *rec;
     int         err = 0;
     gchar      *err_info;
     TCHAR       string_buff[PREVIEW_STR_MAX];
@@ -1178,8 +1178,8 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-        phdr = wtap_phdr(wth);
-        cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
+        rec = wtap_get_rec(wth);
+        cur_time = nstime_to_sec( (const nstime_t *) &rec->ts );
         if(packet == 0) {
             start_time  = cur_time;
             stop_time = cur_time;
