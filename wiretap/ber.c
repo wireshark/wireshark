@@ -22,7 +22,7 @@
 #define BER_UNI_TAG_SEQ 16      /* SEQUENCE, SEQUENCE OF */
 #define BER_UNI_TAG_SET 17      /* SET, SET OF */
 
-static gboolean ber_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean ber_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
                               Buffer *buf, int *err, gchar **err_info)
 {
   gint64 file_size;
@@ -43,14 +43,14 @@ static gboolean ber_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   }
   packet_size = (int)file_size;
 
-  phdr->rec_type = REC_TYPE_PACKET;
-  phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+  rec->rec_type = REC_TYPE_PACKET;
+  rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 
-  phdr->caplen = packet_size;
-  phdr->len = packet_size;
+  rec->rec_header.packet_header.caplen = packet_size;
+  rec->rec_header.packet_header.len = packet_size;
 
-  phdr->ts.secs = 0;
-  phdr->ts.nsecs = 0;
+  rec->ts.secs = 0;
+  rec->ts.nsecs = 0;
 
   ws_buffer_assure_space(buf, packet_size);
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
@@ -70,10 +70,10 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
   *data_offset = offset;
 
-  return ber_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
+  return ber_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
 }
 
-static gboolean ber_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+static gboolean ber_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
                               Buffer *buf, int *err, gchar **err_info)
 {
   /* there is only one packet */
@@ -85,7 +85,7 @@ static gboolean ber_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
-  return ber_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
+  return ber_read_file(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
 wtap_open_return_val ber_open(wtap *wth, int *err, gchar **err_info)

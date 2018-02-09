@@ -236,7 +236,7 @@ static char *output_file_name;
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual);
 static gboolean process_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
-    epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
+    epan_dissect_t *edt, gint64 offset, wtap_rec *rec,
     const guchar *pd, guint tap_flags);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
@@ -2664,8 +2664,8 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
         cf->provider.wth = NULL;
       } else {
         ret = process_packet_single_pass(cf, edt, data_offset,
-                                         wtap_phdr(cf->provider.wth),
-                                         wtap_buf_ptr(cf->provider.wth), tap_flags);
+                                         wtap_get_rec(cf->provider.wth),
+                                         wtap_get_buf_ptr(cf->provider.wth), tap_flags);
       }
       if (ret != FALSE) {
         /* packet successfully read and gone through the "Read Filter" */
@@ -2836,7 +2836,7 @@ capture_cleanup(int signum _U_)
 
 static gboolean
 process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
-                          gint64 offset, struct wtap_pkthdr *whdr,
+                          gint64 offset, wtap_rec *rec,
                           const guchar *pd)
 {
   frame_data     fdlocal;
@@ -2852,7 +2852,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
      that all packets can be marked as 'passed'. */
   passed = TRUE;
 
-  frame_data_init(&fdlocal, framenum, whdr, offset, cum_bytes);
+  frame_data_init(&fdlocal, framenum, rec, offset, cum_bytes);
 
   /* If we're going to run a read filter or a display filter, set up to
      do a dissection and do so.  (This is the first pass of two passes
@@ -2884,7 +2884,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
       cf->provider.ref = &ref_frame;
     }
 
-    epan_dissect_run(edt, cf->cd_t, whdr,
+    epan_dissect_run(edt, cf->cd_t, rec,
                      frame_tvbuff_new(&cf->provider, &fdlocal, pd),
                      &fdlocal, NULL);
 
@@ -2924,7 +2924,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 
 static gboolean
 process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
-                           frame_data *fdata, struct wtap_pkthdr *phdr,
+                           frame_data *fdata, wtap_rec *rec,
                            Buffer *buf, guint tap_flags)
 {
   column_info    *cinfo;
@@ -2976,7 +2976,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
       fdata->flags.need_colorize = 1;
     }
 
-    epan_dissect_run_with_taps(edt, cf->cd_t, phdr,
+    epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                                frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                                fdata, cinfo);
 
@@ -3031,12 +3031,12 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   GArray                      *shb_hdrs = NULL;
   wtapng_iface_descriptions_t *idb_inf = NULL;
   GArray                      *nrb_hdrs = NULL;
-  struct wtap_pkthdr phdr;
+  wtap_rec     rec;
   Buffer       buf;
   epan_dissect_t *edt = NULL;
   char                        *shb_user_appl;
 
-  wtap_phdr_init(&phdr);
+  wtap_rec_init(&rec);
 
   idb_inf = wtap_file_get_idb_info(cf->provider.wth);
 #ifdef PCAP_NG_DEFAULT
@@ -3153,8 +3153,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     tshark_debug("tshark: reading records for first pass");
     while (wtap_read(cf->provider.wth, &err, &err_info, &data_offset)) {
-      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->provider.wth),
-                                    wtap_buf_ptr(cf->provider.wth))) {
+      if (process_packet_first_pass(cf, edt, data_offset, wtap_get_rec(cf->provider.wth),
+                                    wtap_get_buf_ptr(cf->provider.wth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -3232,17 +3232,17 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->provider.frames, framenum);
-      if (wtap_seek_read(cf->provider.wth, fdata->file_off, &phdr, &buf, &err,
+      if (wtap_seek_read(cf->provider.wth, fdata->file_off, &rec, &buf, &err,
                          &err_info)) {
         tshark_debug("tshark: invoking process_packet_second_pass() for frame #%d", framenum);
-        if (process_packet_second_pass(cf, edt, fdata, &phdr, &buf,
+        if (process_packet_second_pass(cf, edt, fdata, &rec, &buf,
                                        tap_flags)) {
           /* Either there's no read filtering or this packet passed the
              filter, so, if we're writing to a capture file, write
              this packet out. */
           if (pdh != NULL) {
             tshark_debug("tshark: writing packet #%d to outfile", framenum);
-            if (!wtap_dump(pdh, &phdr, ws_buffer_start_ptr(&buf), &err, &err_info)) {
+            if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&buf), &err, &err_info)) {
               /* Error writing to a capture file */
               tshark_debug("tshark: error writing to a capture file (%d)", err);
 
@@ -3319,14 +3319,14 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
       reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
 
-      if (process_packet_single_pass(cf, edt, data_offset, wtap_phdr(cf->provider.wth),
-                                     wtap_buf_ptr(cf->provider.wth), tap_flags)) {
+      if (process_packet_single_pass(cf, edt, data_offset, wtap_get_rec(cf->provider.wth),
+                                     wtap_get_buf_ptr(cf->provider.wth), tap_flags)) {
         /* Either there's no read filtering or this packet passed the
            filter, so, if we're writing to a capture file, write
            this packet out. */
         if (pdh != NULL) {
           tshark_debug("tshark: writing packet #%d to outfile", framenum);
-          if (!wtap_dump(pdh, wtap_phdr(cf->provider.wth), wtap_buf_ptr(cf->provider.wth), &err, &err_info)) {
+          if (!wtap_dump(pdh, wtap_get_rec(cf->provider.wth), wtap_get_buf_ptr(cf->provider.wth), &err, &err_info)) {
             /* Error writing to a capture file */
             tshark_debug("tshark: error writing to a capture file (%d)", err);
             cfile_write_failure_message("TShark", cf->filename, save_file,
@@ -3357,7 +3357,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
   }
 
-  wtap_phdr_cleanup(&phdr);
+  wtap_rec_cleanup(&rec);
 
   if (err != 0 || err_pass1 != 0) {
     tshark_debug("tshark: something failed along the line (%d)", err);
@@ -3430,7 +3430,7 @@ out:
 
 static gboolean
 process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-                           struct wtap_pkthdr *whdr, const guchar *pd,
+                           wtap_rec *rec, const guchar *pd,
                            guint tap_flags)
 {
   frame_data      fdata;
@@ -3445,7 +3445,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
      that all packets can be marked as 'passed'. */
   passed = TRUE;
 
-  frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
+  frame_data_init(&fdata, cf->count, rec, offset, cum_bytes);
 
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
@@ -3493,7 +3493,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
       fdata.flags.need_colorize = 1;
     }
 
-    epan_dissect_run_with_taps(edt, cf->cd_t, whdr,
+    epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                                frame_tvbuff_new(&cf->provider, &fdata, pd),
                                &fdata, cinfo);
 

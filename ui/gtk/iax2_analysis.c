@@ -3569,7 +3569,7 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 		return;	/* error reading the record */
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_with_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, cf->cd_t, &cf->phdr,
+	epan_dissect_run(&edt, cf->cd_t, &cf->rec,
 	    frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
 	    fdata, NULL);
 

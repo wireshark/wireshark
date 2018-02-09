@@ -89,10 +89,10 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean toshiba_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
-static gboolean parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean parse_toshiba_packet(FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -207,20 +207,20 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	*data_offset = offset;
 
 	/* Parse the packet */
-	return parse_toshiba_packet(wth->fh, &wth->phdr, wth->frame_buffer,
+	return parse_toshiba_packet(wth->fh, &wth->rec, wth->rec_data,
 	    err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
 toshiba_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf,
+	wtap_rec *rec, Buffer *buf,
 	int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!parse_toshiba_packet(wth->random_fh, phdr, buf, err, err_info)) {
+	if (!parse_toshiba_packet(wth->random_fh, rec, buf, err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -230,10 +230,10 @@ toshiba_seek_read(wtap *wth, gint64 seek_off,
 
 /* Parses a packet. */
 static gboolean
-parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+parse_toshiba_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+	union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	num_items_scanned;
 	int	pkt_len, pktnum, hr, min, sec, csec;
@@ -310,29 +310,29 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	}
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	phdr->ts.secs = hr * 3600 + min * 60 + sec;
-	phdr->ts.nsecs = csec * 10000000;
-	phdr->caplen = pkt_len;
-	phdr->len = pkt_len;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->ts.secs = hr * 3600 + min * 60 + sec;
+	rec->ts.nsecs = csec * 10000000;
+	rec->rec_header.packet_header.caplen = pkt_len;
+	rec->rec_header.packet_header.len = pkt_len;
 
 	switch (channel[0]) {
 		case 'B':
-			phdr->pkt_encap = WTAP_ENCAP_ISDN;
+			rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ISDN;
 			pseudo_header->isdn.uton = (direction[0] == 'T');
 			pseudo_header->isdn.channel = (guint8)
 			    strtol(&channel[1], NULL, 10);
 			break;
 
 		case 'D':
-			phdr->pkt_encap = WTAP_ENCAP_ISDN;
+			rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ISDN;
 			pseudo_header->isdn.uton = (direction[0] == 'T');
 			pseudo_header->isdn.channel = 0;
 			break;
 
 		default:
-			phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
+			rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETHERNET;
 			/* XXX - is there an FCS in the frame? */
 			pseudo_header->eth.fcs_len = -1;
 			break;

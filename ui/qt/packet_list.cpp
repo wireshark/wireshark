@@ -985,7 +985,7 @@ QString PacketList::getFilterFromRowAndColumn()
         epan_dissect_init(&edt, cap_file_->epan, have_custom_cols(&cap_file_->cinfo), FALSE);
         col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
-        epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->phdr,
+        epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->rec,
                          frame_tvbuff_new_buffer(&cap_file_->provider, fdata, &cap_file_->buf),
                          fdata, &cap_file_->cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);

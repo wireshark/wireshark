@@ -748,15 +748,13 @@ typedef struct file_data_s
  * Dissectors should never modify the record data.
  */
 extern void dissect_record(struct epan_dissect *edt, int file_type_subtype,
-    struct wtap_pkthdr *phdr, tvbuff_t *tvb,
-    frame_data *fd, column_info *cinfo);
+    wtap_rec *rec, tvbuff_t *tvb, frame_data *fd, column_info *cinfo);
 
 /*
  * Dissectors should never modify the packet data.
  */
 extern void dissect_file(struct epan_dissect *edt,
-    struct wtap_pkthdr *phdr, tvbuff_t *tvb,
-    frame_data *fd, column_info *cinfo);
+    wtap_rec *rec, tvbuff_t *tvb, frame_data *fd, column_info *cinfo);
 
 /* Structure passed to the ethertype dissector */
 typedef struct ethertype_data_s

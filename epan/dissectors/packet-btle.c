@@ -576,8 +576,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (bluetooth_data)
         interface_id = bluetooth_data->interface_id;
-    else if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-        interface_id = pinfo->phdr->interface_id;
+    else if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+        interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
         interface_id = HCI_INTERFACE_DEFAULT;
 

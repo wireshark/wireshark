@@ -265,12 +265,15 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
     if (dialog->file_closed_)
         return FALSE;
 
-    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
+    if (pinfo->rec->rec_type != REC_TYPE_PACKET)
+        return FALSE;
+
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
         gchar       *interface;
         const char  *interface_name;
 
-        interface_name = epan_get_interface_name(pinfo->epan, pinfo->phdr->interface_id);
-        interface = wmem_strdup_printf(wmem_packet_scope(), "%u: %s", pinfo->phdr->interface_id, interface_name);
+        interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id);
+        interface = wmem_strdup_printf(wmem_packet_scope(), "%u: %s", pinfo->rec->rec_header.packet_header.interface_id, interface_name);
 
         if (dialog->ui->interfaceComboBox->findText(interface) == -1)
             dialog->ui->interfaceComboBox->addItem(interface);

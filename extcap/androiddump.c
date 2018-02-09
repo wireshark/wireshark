@@ -465,20 +465,20 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
 #else
     int                 err = 0;
     char               *err_info;
-    struct wtap_pkthdr  hdr;
+    wtap_rec            rec;
 
-    hdr.presence_flags = WTAP_HAS_TS;
-    hdr.caplen = (guint32) captured_length;
-    hdr.len = (guint32) reported_length;
+    rec.rec_type = REC_TYPE_PACKET;
+    rec.presence_flags = WTAP_HAS_TS;
+    rec.rec_header.packet_header.caplen = (guint32) captured_length;
+    rec.rec_header.packet_header.len = (guint32) reported_length;
 
-    hdr.ts.secs = seconds;
-    hdr.ts.nsecs = (int) nanoseconds;
+    rec.ts.secs = seconds;
+    rec.ts.nsecs = (int) nanoseconds;
 
-    hdr.opt_comment = 0;
-    hdr.opt_comment = NULL;
-    hdr.drop_count = 0;
-    hdr.pack_flags = 0;
-    hdr.rec_type = REC_TYPE_PACKET;
+    rec.opt_comment = 0;
+    rec.opt_comment = NULL;
+    rec.rec_header.packet_header.drop_count = 0;
+    rec.rec_header.packet_header.pack_flags = 0;
 
 /*  NOTE: Try to handle pseudoheaders manually */
     if (extcap_dumper.encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) {
@@ -486,22 +486,22 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
 
         SET_DATA(direction, value_u32, buffer)
 
-        hdr.pseudo_header.bthci.sent = GINT32_FROM_BE(*direction) ? 0 : 1;
+        rec.rec_header.packet_header.pseudo_header.bthci.sent = GINT32_FROM_BE(*direction) ? 0 : 1;
 
-        hdr.len -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
-        hdr.caplen -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
+        rec.rec_header.packet_header.len -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
+        rec.rec_header.packet_header.caplen -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
 
         buffer += sizeof(own_pcap_bluetooth_h4_header);
-        hdr.pkt_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
+        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
     }
     else if (extcap_dumper.encap == EXTCAP_ENCAP_ETHERNET) {
-        hdr.pkt_encap = WTAP_ENCAP_ETHERNET;
+        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETHERNET;
     }
     else {
-        hdr.pkt_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     }
 
-    if (!wtap_dump(extcap_dumper.dumper.wtap, &hdr, (const guint8 *) buffer, &err, &err_info)) {
+    if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, (const guint8 *) buffer, &err, &err_info)) {
         cfile_write_failure_message("androiddump", NULL, fifo, err, err_info,
                                     0, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
         return FALSE;

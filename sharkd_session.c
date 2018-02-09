@@ -2825,7 +2825,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 	if (fdata->flags.has_user_comment)
 		pkt_comment = sharkd_get_user_comment(fdata);
 	else if (fdata->flags.has_phdr_comment)
-		pkt_comment = pi->phdr->opt_comment;
+		pkt_comment = pi->rec->opt_comment;
 
 	if (pkt_comment)
 	{

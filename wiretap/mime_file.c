@@ -92,7 +92,7 @@ static const mime_files_t magic_files[] = {
 #define MAX_FILE_SIZE	G_MAXINT
 
 static gboolean
-mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+mime_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
 	gint64 file_size;
@@ -113,14 +113,14 @@ mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	}
 	packet_size = (int)file_size;
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 
-	phdr->caplen = packet_size;
-	phdr->len = packet_size;
+	rec->rec_header.packet_header.caplen = packet_size;
+	rec->rec_header.packet_header.len = packet_size;
 
-	phdr->ts.secs = 0;
-	phdr->ts.nsecs = 0;
+	rec->ts.secs = 0;
+	rec->ts.nsecs = 0;
 
 	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
@@ -140,11 +140,11 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	*data_offset = offset;
 
-	return mime_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
+	return mime_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
 }
 
 static gboolean
-mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+mime_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
 	/* there is only one packet */
 	if (seek_off > 0) {
@@ -155,7 +155,7 @@ mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	return mime_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
+	return mime_read_file(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
 wtap_open_return_val

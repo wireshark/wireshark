@@ -61,9 +61,9 @@ static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 
 static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
-static gboolean daintree_sna_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean daintree_sna_read_packet(FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info);
 
 /* Open a file and determine if it's a Daintree file */
@@ -114,21 +114,21 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	*data_offset = file_tell(wth->fh);
 
 	/* parse that line and the following packet data */
-	return daintree_sna_read_packet(wth->fh, &wth->phdr,
-	    wth->frame_buffer, err, err_info);
+	return daintree_sna_read_packet(wth->fh, &wth->rec,
+	    wth->rec_data, err, err_info);
 }
 
 /* Read the capture file randomly
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static gboolean
-daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+daintree_sna_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* parse that line and the following packet data */
-	return daintree_sna_read_packet(wth->random_fh, phdr, buf, err,
+	return daintree_sna_read_packet(wth->random_fh, rec, buf, err,
 	    err_info);
 }
 
@@ -137,7 +137,7 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
  * sanity-check its length against what we assume is the packet length field,
  * and copy it into a Buffer. */
 static gboolean
-daintree_sna_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
 	guint64 seconds;
@@ -157,27 +157,27 @@ daintree_sna_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		}
 	} while (readLine[0] == COMMENT_LINE);
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	if (sscanf(readLine, "%*s %18" G_GINT64_MODIFIER "u.%9d %9u %" READDATA_MAX_FIELD_SIZE "s",
-	    &seconds, &useconds, &phdr->len, readData) != 4) {
+	    &seconds, &useconds, &rec->rec_header.packet_header.len, readData) != 4) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: invalid read record");
 		return FALSE;
 	}
 
 	/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
-	if (phdr->len <= FCS_LENGTH) {
+	if (rec->rec_header.packet_header.len <= FCS_LENGTH) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("daintree_sna: packet length <= %u bytes, no frame data present",
 		    FCS_LENGTH);
 		return FALSE;
 	}
-	phdr->len -= FCS_LENGTH;
+	rec->rec_header.packet_header.len -= FCS_LENGTH;
 
-	phdr->ts.secs = (time_t) seconds;
-	phdr->ts.nsecs = useconds * 1000; /* convert mS to nS */
+	rec->ts.secs = (time_t) seconds;
+	rec->ts.nsecs = useconds * 1000; /* convert mS to nS */
 
 	/*
 	 * READDATA_BUF_SIZE is < WTAP_MAX_PACKET_SIZE_STANDARD, and is the maximum
@@ -227,14 +227,14 @@ daintree_sna_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	}
 	bytes -= FCS_LENGTH;
-	if (bytes > phdr->len) {
+	if (bytes > rec->rec_header.packet_header.len) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("daintree_sna: capture length (%u) > packet length (%u)",
-		    bytes, phdr->len);
+		    bytes, rec->rec_header.packet_header.len);
 		return FALSE;
 	}
 
-	phdr->caplen = bytes;
+	rec->rec_header.packet_header.caplen = bytes;
 
 	ws_buffer_assure_space(buf, bytes);
 	memcpy(ws_buffer_start_ptr(buf), readData, bytes);

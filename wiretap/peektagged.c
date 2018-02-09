@@ -153,7 +153,7 @@ typedef struct {
 static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
 static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
                                 gchar **err_info)
@@ -404,7 +404,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
  * are present.
  */
 static int
-peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                        Buffer *buf, int *err, gchar **err_info)
 {
     peektagged_t *peektagged = (peektagged_t *)wth->priv;
@@ -713,14 +713,14 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
         return -1;
     }
 
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    phdr->len    = length;
-    phdr->caplen = sliceLength;
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    rec->rec_header.packet_header.len    = length;
+    rec->rec_header.packet_header.caplen = sliceLength;
 
     /* calculate and fill in packet time stamp */
     t = (((guint64) timestamp.upper) << 32) + timestamp.lower;
-    if (!nsfiletime_to_nstime(&phdr->ts, t)) {
+    if (!nsfiletime_to_nstime(&rec->ts, t)) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup("peektagged: time stamp outside supported range");
         return -1;
@@ -783,22 +783,22 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                 ieee_802_11.frequency = frequency;
             }
         }
-        phdr->pseudo_header.ieee_802_11 = ieee_802_11;
+        rec->rec_header.packet_header.pseudo_header.ieee_802_11 = ieee_802_11;
         if (peektagged->has_fcs)
-            phdr->pseudo_header.ieee_802_11.fcs_len = 4;
+            rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = 4;
         else {
-            if (phdr->len < 4 || phdr->caplen < 4) {
+            if (rec->rec_header.packet_header.len < 4 || rec->rec_header.packet_header.caplen < 4) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("peektagged: 802.11 packet has length < 4");
                 return FALSE;
             }
-            phdr->pseudo_header.ieee_802_11.fcs_len = 0;
-            phdr->len -= 4;
-            phdr->caplen -= 4;
+            rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = 0;
+            rec->rec_header.packet_header.len -= 4;
+            rec->rec_header.packet_header.caplen -= 4;
             skip_len = 4;
         }
-        phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
-        phdr->pseudo_header.ieee_802_11.datapad = FALSE;
+        rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = FALSE;
+        rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = FALSE;
         break;
 
     case WTAP_ENCAP_ETHERNET:
@@ -806,20 +806,20 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
          * The last 4 bytes appear to be 0 in the captures I've seen;
          * are there any captures where it's an FCS?
          */
-        if (phdr->len < 4 || phdr->caplen < 4) {
+        if (rec->rec_header.packet_header.len < 4 || rec->rec_header.packet_header.caplen < 4) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("peektagged: Ethernet packet has length < 4");
             return FALSE;
         }
-        phdr->pseudo_header.eth.fcs_len = 0;
-        phdr->len -= 4;
-        phdr->caplen -= 4;
+        rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
+        rec->rec_header.packet_header.len -= 4;
+        rec->rec_header.packet_header.caplen -= 4;
         skip_len = 4;
         break;
     }
 
     /* Read the packet data. */
-    if (!wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info))
+    if (!wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info))
         return -1;
 
     return skip_len;
@@ -833,8 +833,8 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = file_tell(wth->fh);
 
     /* Read the packet. */
-    skip_len = peektagged_read_packet(wth, wth->fh, &wth->phdr,
-                                      wth->frame_buffer, err, err_info);
+    skip_len = peektagged_read_packet(wth, wth->fh, &wth->rec,
+                                      wth->rec_data, err, err_info);
     if (skip_len == -1)
         return FALSE;
 
@@ -849,13 +849,13 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 peektagged_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
     /* Read the packet. */
-    if (peektagged_read_packet(wth, wth->random_fh, phdr, buf, err, err_info) == -1) {
+    if (peektagged_read_packet(wth, wth->random_fh, rec, buf, err, err_info) == -1) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;

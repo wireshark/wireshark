@@ -28,13 +28,13 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 {
     const exp_pdu_data_t *exp_pdu_data = (const exp_pdu_data_t *)data;
     exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)tapdata;
-    struct wtap_pkthdr pkthdr;
+    wtap_rec rec;
     int err;
     gchar *err_info;
     int buffer_len;
     guint8 *packet_buf;
 
-    memset(&pkthdr, 0, sizeof(struct wtap_pkthdr));
+    memset(&rec, 0, sizeof rec);
     buffer_len = exp_pdu_data->tvb_captured_length + exp_pdu_data->tlv_buffer_len;
     packet_buf = (guint8 *)g_malloc(buffer_len);
 
@@ -45,26 +45,25 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     if(exp_pdu_data->tvb_captured_length > 0){
         tvb_memcpy(exp_pdu_data->pdu_tvb, packet_buf+exp_pdu_data->tlv_buffer_len, 0, exp_pdu_data->tvb_captured_length);
     }
-    pkthdr.rec_type  = REC_TYPE_PACKET;
-    pkthdr.ts.secs   = pinfo->abs_ts.secs;
-    pkthdr.ts.nsecs  = pinfo->abs_ts.nsecs;
-    pkthdr.caplen    = buffer_len;
-    pkthdr.len       = exp_pdu_data->tvb_reported_length + exp_pdu_data->tlv_buffer_len;
+    rec.rec_type                           = REC_TYPE_PACKET;
+    rec.presence_flags                     = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
+    rec.ts.secs                            = pinfo->abs_ts.secs;
+    rec.ts.nsecs                           = pinfo->abs_ts.nsecs;
+    rec.rec_header.packet_header.caplen    = buffer_len;
+    rec.rec_header.packet_header.len       = exp_pdu_data->tvb_reported_length + exp_pdu_data->tlv_buffer_len;
 
-    pkthdr.pkt_encap = exp_pdu_tap_data->pkt_encap;
+    rec.rec_header.packet_header.pkt_encap = exp_pdu_tap_data->pkt_encap;
 
     if (pinfo->fd->flags.has_user_comment) {
-        pkthdr.opt_comment = g_strdup(epan_get_user_comment(edt->session, pinfo->fd));
-        pkthdr.has_comment_changed = TRUE;
+        rec.opt_comment = g_strdup(epan_get_user_comment(edt->session, pinfo->fd));
+        rec.has_comment_changed = TRUE;
     } else if (pinfo->fd->flags.has_phdr_comment) {
-        pkthdr.opt_comment = g_strdup(pinfo->phdr->opt_comment);
+        rec.opt_comment = g_strdup(pinfo->rec->opt_comment);
     }
 
-    pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
-
-    /* XXX: should the pkthdr.pseudo_header be set to the pinfo's pseudo-header? */
+    /* XXX: should the rec.rec_header.packet_header.pseudo_header be set to the pinfo's pseudo-header? */
     /* XXX: report errors! */
-    if (!wtap_dump(exp_pdu_tap_data->wdh, &pkthdr, packet_buf, &err, &err_info)) {
+    if (!wtap_dump(exp_pdu_tap_data->wdh, &rec, packet_buf, &err, &err_info)) {
         switch (err) {
 
         case WTAP_ERR_UNWRITABLE_REC_DATA:
@@ -77,7 +76,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     }
 
     g_free(packet_buf);
-    g_free(pkthdr.opt_comment);
+    g_free(rec.opt_comment);
 
     return FALSE; /* Do not redraw */
 }

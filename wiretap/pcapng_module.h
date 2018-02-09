@@ -39,11 +39,11 @@
 
 /* Block data to be passed between functions during reading */
 typedef struct wtapng_block_s {
-    guint32             type;           /* block_type as defined by pcapng */
-    gboolean            internal;       /* TRUE if this block type shouldn't be returned from pcapng_read() */
-    wtap_block_t        block;
-    struct wtap_pkthdr *packet_header;
-    Buffer             *frame_buffer;
+    guint32      type;           /* block_type as defined by pcapng */
+    gboolean     internal;       /* TRUE if this block type shouldn't be returned from pcapng_read() */
+    wtap_block_t block;
+    wtap_rec     *rec;
+    Buffer       *frame_buffer;
 } wtapng_block_t;
 
 /*
@@ -51,7 +51,7 @@ typedef struct wtapng_block_s {
  */
 typedef gboolean (*block_reader)(FILE_T, guint32, gboolean, wtapng_block_t *,
                                  int *, gchar **);
-typedef gboolean (*block_writer)(wtap_dumper *, const struct wtap_pkthdr *,
+typedef gboolean (*block_writer)(wtap_dumper *, const wtap_rec *,
                                  const guint8 *, int *);
 
 /*

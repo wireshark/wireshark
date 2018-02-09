@@ -40,14 +40,14 @@ void FrameInformation::loadFrameTree()
     if (!cf_read_record(cap_file_->capFile(), fi_))
         return;
 
-    struct wtap_pkthdr phdr_ = cap_file_->capFile()->phdr;
+    wtap_rec rec_ = cap_file_->capFile()->rec;
     packet_data_ = (guint8 *) g_memdup(ws_buffer_start_ptr(&(cap_file_->capFile()->buf)), fi_->cap_len);
 
     /* proto tree, visible. We need a proto tree if there's custom columns */
     epan_dissect_init(&edt_, cap_file_->capFile()->epan, TRUE, TRUE);
     col_custom_prime_edt(&edt_, &(cap_file_->capFile()->cinfo));
 
-    epan_dissect_run(&edt_, cap_file_->capFile()->cd_t, &phdr_,
+    epan_dissect_run(&edt_, cap_file_->capFile()->cd_t, &rec_,
                      frame_tvbuff_new(&cap_file_->capFile()->provider, fi_, packet_data_),
                      fi_, &(cap_file_->capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, TRUE, TRUE);

@@ -1103,14 +1103,14 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	column_info *cinfo;
 	gint col;
 	gboolean create_proto_tree;
-	struct wtap_pkthdr phdr; /* Packet header */
-	Buffer buf; /* Packet data */
+	wtap_rec rec; /* Record metadata */
+	Buffer buf;   /* Record data */
 	gboolean dissect_columns = (record->col_text == NULL);
 
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
-	wtap_phdr_init(&phdr);
+	wtap_rec_init(&rec);
 
 	fdata = record->fdata;
 
@@ -1123,7 +1123,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		cinfo = NULL;
 
 	ws_buffer_init(&buf, 1500);
-	if (!cf_read_record_r(&cfile, fdata, &phdr, &buf)) {
+	if (!cf_read_record_r(&cfile, fdata, &rec, &buf)) {
 		/*
 		 * Error reading the record.
 		 *
@@ -1176,7 +1176,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	 * XXX - need to catch an OutOfMemoryError exception and
 	 * attempt to recover from it.
 	 */
-	epan_dissect_run(&edt, cfile.cd_t, &phdr,
+	epan_dissect_run(&edt, cfile.cd_t, &rec,
 	    frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
 	    fdata, cinfo);
 
@@ -1192,7 +1192,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		record->colorized = TRUE;
 
 	epan_dissect_cleanup(&edt);
-	wtap_phdr_cleanup(&phdr);
+	wtap_rec_cleanup(&rec);
 	ws_buffer_free(&buf);
 }
 

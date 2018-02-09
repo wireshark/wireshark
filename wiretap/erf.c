@@ -70,7 +70,7 @@ static const guint erf_eth_hdr_size = (guint)sizeof(erf_eth_header_t);
 
 
 static gboolean erf_read_header(wtap *wth, FILE_T fh,
-                                struct wtap_pkthdr *phdr,
+                                wtap_rec *rec,
                                 erf_header_t *erf_header,
                                 int *err,
                                 gchar **err_info,
@@ -80,12 +80,12 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
                          gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-                              struct wtap_pkthdr *phdr, Buffer *buf,
+                              wtap_rec *rec, Buffer *buf,
                               int *err, gchar **err_info);
 static void erf_close(wtap *wth);
 
 static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint32 packet_size, GPtrArray *anchor_mappings_to_update);
-static int erf_update_anchors_from_header(erf_t *erf_priv, struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update);
+static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update);
 
 typedef struct {
   gboolean write_next_extra_meta;
@@ -590,14 +590,14 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 
   do {
     if (!erf_read_header(wth, wth->fh,
-                         &wth->phdr, &erf_header,
+                         &wth->rec, &erf_header,
                          err, err_info, &bytes_read, &packet_size,
                          anchor_mappings_to_update)) {
       g_ptr_array_free(anchor_mappings_to_update, TRUE);
       return FALSE;
     }
 
-    if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, packet_size,
+    if (!wtap_read_packet_bytes(wth->fh, wth->rec_data, packet_size,
                                 err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, TRUE);
       return FALSE;
@@ -610,7 +610,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
      */
     if ((erf_header.type & 0x7F) == ERF_TYPE_META && packet_size > 0)
     {
-      populate_summary_info((erf_t*) wth->priv, wth, &wth->phdr.pseudo_header, packet_size, anchor_mappings_to_update);
+      populate_summary_info((erf_t*) wth->priv, wth, &wth->rec.rec_header.packet_header.pseudo_header, packet_size, anchor_mappings_to_update);
     }
 
   } while ( erf_header.type == ERF_TYPE_PAD );
@@ -621,7 +621,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-                              struct wtap_pkthdr *phdr, Buffer *buf,
+                              wtap_rec *rec, Buffer *buf,
                               int *err, gchar **err_info)
 {
   erf_header_t erf_header;
@@ -634,7 +634,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
   anchor_mappings_to_update = g_ptr_array_new_with_free_func(erf_anchor_mapping_destroy);
 
   do {
-    if (!erf_read_header(wth, wth->random_fh, phdr, &erf_header,
+    if (!erf_read_header(wth, wth->random_fh, rec, &erf_header,
                          err, err_info, NULL, &packet_size, anchor_mappings_to_update)) {
       g_ptr_array_free(anchor_mappings_to_update, TRUE);
       return FALSE;
@@ -667,7 +667,7 @@ static struct erf_anchor_mapping* erf_find_anchor_mapping(erf_t *priv,
 }
 
 static gboolean erf_read_header(wtap *wth, FILE_T fh,
-                                struct wtap_pkthdr *phdr,
+                                wtap_rec *rec,
                                 erf_header_t *erf_header,
                                 int *err,
                                 gchar **err_info,
@@ -675,7 +675,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
                                 guint32 *packet_size,
                                 GPtrArray *anchor_mappings_to_update)
 {
-  union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+  union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
   guint8  erf_exhdr[8];
   guint64 erf_exhdr_sw;
   guint8  type    = 0;
@@ -726,7 +726,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
     guint64 ts = pletoh64(&erf_header->ts);
 
     /*if ((erf_header->type & 0x7f) != ERF_TYPE_META || wth->file_type_subtype != WTAP_FILE_TYPE_SUBTYPE_ERF) {*/
-      phdr->rec_type = REC_TYPE_PACKET;
+      rec->rec_type = REC_TYPE_PACKET;
     /*
      * XXX: ERF_TYPE_META records should ideally be FT_SPECIFIC for display
      * purposes, but currently ft_specific_record_phdr clashes with erf_mc_phdr
@@ -743,18 +743,18 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
        * chosen by wth->file_type_subtype?
        */
       /* For now just treat all Provenance records as reports */
-      phdr->rec_type = REC_TYPE_FT_SPECIFIC_REPORT;
+      rec->rec_type = REC_TYPE_FT_SPECIFIC_REPORT;
       /* XXX: phdr ft_specific_record_phdr? */
     }
 #endif
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
-    phdr->ts.secs = (long) (ts >> 32);
+    rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
+    rec->ts.secs = (long) (ts >> 32);
     ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
     ts += (ts & 0x80000000) << 1; /* rounding */
-    phdr->ts.nsecs = ((int) (ts >> 32));
-    if (phdr->ts.nsecs >= 1000000000) {
-      phdr->ts.nsecs -= 1000000000;
-      phdr->ts.secs += 1;
+    rec->ts.nsecs = ((int) (ts >> 32));
+    if (rec->ts.nsecs >= 1000000000) {
+      rec->ts.nsecs -= 1000000000;
+      rec->ts.secs += 1;
     }
 
     if_num = erf_header->flags & 0x03;
@@ -808,10 +808,10 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
   }
 
   /* XXX: erf_priv pointer needs to change if used as common function for other dissectors! */
-  phdr->interface_id = (guint) erf_populate_interface((erf_t*) wth->priv, wth, pseudo_header, host_id, source_id, if_num);
+  rec->rec_header.packet_header.interface_id = (guint) erf_populate_interface((erf_t*) wth->priv, wth, pseudo_header, host_id, source_id, if_num);
 
   /* Try to find comment links using Anchor ID. Done here after we found the first Host ID and have updated the implicit Host ID. */
-  erf_update_anchors_from_header(priv, phdr, pseudo_header, host_id, anchor_mappings_to_update);
+  erf_update_anchors_from_header(priv, rec, pseudo_header, host_id, anchor_mappings_to_update);
 
   switch (erf_header->type & 0x7F) {
     case ERF_TYPE_IPV4:
@@ -824,8 +824,8 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
     case ERF_TYPE_OPA_9B:
 #if 0
       {
-        phdr->len =  g_htons(erf_header->wlen);
-        phdr->caplen = g_htons(erf_header->wlen);
+        rec->rec_header.packet_header.len =  g_htons(erf_header->wlen);
+        rec->rec_header.packet_header.caplen = g_htons(erf_header->wlen);
       }
       return TRUE;
 #endif
@@ -887,8 +887,8 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
   }
 
   {
-    phdr->len = g_ntohs(erf_header->wlen);
-    phdr->caplen = MIN( g_ntohs(erf_header->wlen),
+    rec->rec_header.packet_header.len = g_ntohs(erf_header->wlen);
+    rec->rec_header.packet_header.caplen = MIN( g_ntohs(erf_header->wlen),
                         g_ntohs(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
   }
 
@@ -1467,7 +1467,7 @@ static gboolean erf_update_host_id_ext_hdrs_list(erf_dump_t *dump_priv, const un
  * @param err the error value
  * @return A gboolean value to indicate whether the dump was successful
  */
-static gboolean erf_write_anchor_meta_update_phdr(wtap_dumper *wdh, erf_dump_t *dump_priv, const struct wtap_pkthdr *phdr, union wtap_pseudo_header *mutable_hdr, int *err) {
+static gboolean erf_write_anchor_meta_update_phdr(wtap_dumper *wdh, erf_dump_t *dump_priv, const wtap_rec *rec, union wtap_pseudo_header *mutable_hdr, int *err) {
   GArray *meta_ehdrs;
   GPtrArray* sections = NULL;
   guint8 has_more;
@@ -1651,7 +1651,7 @@ static gboolean erf_write_anchor_meta_update_phdr(wtap_dumper *wdh, erf_dump_t *
 
   /* Generate the metadata payload with the packet comment */
   sections = g_ptr_array_new_with_free_func(erf_meta_section_free);
-  erf_comment_to_sections(wdh, ERF_META_SECTION_INFO, 0x8000 /*local to record*/, phdr->opt_comment, sections);
+  erf_comment_to_sections(wdh, ERF_META_SECTION_INFO, 0x8000 /*local to record*/, rec->opt_comment, sections);
 
   /* Write the metadata record, but not the packet record as what we do depends
    * on the WTAP_ENCAP */
@@ -1770,12 +1770,12 @@ erf_dump_t *erf_dump_priv_create(void) {
 
 static gboolean erf_dump(
     wtap_dumper                    *wdh,
-    const struct wtap_pkthdr       *phdr,
+    const wtap_rec                 *rec,
     const guint8                   *pd,
     int                            *err,
     gchar                          **err_info _U_)
 {
-  const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+  const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
   union wtap_pseudo_header other_phdr;
   int      encap;
   int      erf_type;
@@ -1790,20 +1790,20 @@ static gboolean erf_dump(
   guint64  non_erf_host_id_ehdr = erf_host_id_ext_hdr(0, 1);
 
   /* Don't write anything bigger than we're willing to read. */
-  if(phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+  if(rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
     *err = WTAP_ERR_PACKET_TOO_LARGE;
     return FALSE;
   }
 
   if(wdh->encap == WTAP_ENCAP_PER_PACKET){
-    encap = phdr->pkt_encap;
+    encap = rec->rec_header.packet_header.pkt_encap;
   }else{
     encap = wdh->encap;
   }
 
   if(!dump_priv->gen_time) {
     erf_dump_priv_init_gen_time(dump_priv);
-    dump_priv->first_frame_time_sec = phdr->ts.secs;
+    dump_priv->first_frame_time_sec = rec->ts.secs;
   }
 
   if (encap != WTAP_ENCAP_ERF) {
@@ -1812,11 +1812,11 @@ static gboolean erf_dump(
 
     /*Non-ERF*/
 
-    total_rlen = phdr->caplen+16;
-    total_wlen = phdr->len;
+    total_rlen = rec->rec_header.packet_header.caplen+16;
+    total_wlen = rec->rec_header.packet_header.len;
 
     /* We can only convert packet records. */
-    if (phdr->rec_type != REC_TYPE_PACKET) {
+    if (rec->rec_type != REC_TYPE_PACKET) {
       *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
       return FALSE;
     }
@@ -1829,11 +1829,11 @@ static gboolean erf_dump(
     /* Generate a fake header in other_phdr using data that we know*/
     memset(&other_phdr, 0, sizeof(union wtap_pseudo_header));
     /* Convert time erf timestamp format*/
-    other_phdr.erf.phdr.ts = ((guint64) phdr->ts.secs << 32) + (((guint64) phdr->ts.nsecs <<32) / 1000 / 1000 / 1000);
+    other_phdr.erf.phdr.ts = ((guint64) rec->ts.secs << 32) + (((guint64) rec->ts.nsecs <<32) / 1000 / 1000 / 1000);
     other_phdr.erf.phdr.type = (guint8)erf_type;
     /* Support up to 4 interfaces */
     /* TODO: use multiple Source IDs and metadata records to support >4 interfaces */
-    other_phdr.erf.phdr.flags = phdr->interface_id % ERF_MAX_INTERFACES;
+    other_phdr.erf.phdr.flags = rec->rec_header.packet_header.interface_id % ERF_MAX_INTERFACES;
     other_phdr.erf.phdr.flags |= 0x4;  /*vlen flag set because we're creating variable length records*/
 
     other_phdr.erf.phdr.lctr = 0;
@@ -1847,8 +1847,8 @@ static gboolean erf_dump(
              (pseudo_header->eth.fcs_len = 0), or we don't
              know whether it has an FCS (= -1).  We have to
              synthesize an FCS.*/
-          if(!(phdr->caplen < phdr->len)){ /*don't add FCS if packet has been snapped off*/
-            crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
+          if(!(rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len)){ /*don't add FCS if packet has been snapped off*/
+            crc32 = crc32_ccitt_seed(pd, rec->rec_header.packet_header.caplen, 0xFFFFFFFF);
             total_rlen += 4;  /*4 bytes for added checksum*/
             total_wlen += 4;
             must_add_crc = TRUE;
@@ -1857,8 +1857,8 @@ static gboolean erf_dump(
         break;
       case ERF_TYPE_HDLC_POS:
         /*we assume that it's missing a FCS checksum, make one up*/
-        if(!(phdr->caplen < phdr->len)){  /*unless of course, the packet has been snapped off*/
-          crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
+        if(!(rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len)){  /*unless of course, the packet has been snapped off*/
+          crc32 = crc32_ccitt_seed(pd, rec->rec_header.packet_header.caplen, 0xFFFFFFFF);
           total_rlen += 4;  /*4 bytes for added checksum*/
           total_wlen += 4;
           must_add_crc = TRUE; /* XXX - these never have an FCS? */
@@ -1874,7 +1874,7 @@ static gboolean erf_dump(
     total_rlen += 8;
 
     padbytes = ERF_PADDING_TO_8(total_rlen);  /*calculate how much padding will be required */
-    if(phdr->caplen < phdr->len){ /*if packet has been snapped, we need to round down what we output*/
+    if(rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len){ /*if packet has been snapped, we need to round down what we output*/
       round_down = (8 - padbytes) % 8;
       total_rlen -= round_down;
     }else{
@@ -1921,7 +1921,7 @@ static gboolean erf_dump(
         }
 
         if (!erf_write_meta_record(wdh, dump_priv, dump_priv->prev_frame_ts, dump_priv->periodic_sections, dump_priv->periodic_extra_ehdrs, err)) return FALSE;
-        dump_priv->prev_inserted_time_sec = phdr->ts.secs;
+        dump_priv->prev_inserted_time_sec = rec->ts.secs;
         /*TODO: clear accumulated existing extension headers here?*/
       }
 
@@ -1932,8 +1932,8 @@ static gboolean erf_dump(
        * read. */
       /* restart searching for next meta record to update capture comment at */
       dump_priv->write_next_extra_meta = FALSE;
-    } else if (phdr->ts.secs > dump_priv->first_frame_time_sec + 1
-          && dump_priv->prev_inserted_time_sec != phdr->ts.secs) {
+    } else if (rec->ts.secs > dump_priv->first_frame_time_sec + 1
+          && dump_priv->prev_inserted_time_sec != rec->ts.secs) {
       /* For compatibility, don't insert metadata for older ERF files with no changed metadata */
       if (dump_priv->write_next_extra_meta) {
         if (!dump_priv->periodic_sections) {
@@ -1949,8 +1949,8 @@ static gboolean erf_dump(
       /* At second boundaries insert either the updated comment (if we've seen some metadata records
        * already) or the full metadata */
       if (dump_priv->periodic_sections) {
-        if (!erf_write_meta_record(wdh, dump_priv, (guint64)(phdr->ts.secs) << 32, dump_priv->periodic_sections, dump_priv->periodic_extra_ehdrs, err)) return FALSE;
-        dump_priv->prev_inserted_time_sec = phdr->ts.secs;
+        if (!erf_write_meta_record(wdh, dump_priv, (guint64)(rec->ts.secs) << 32, dump_priv->periodic_sections, dump_priv->periodic_extra_ehdrs, err)) return FALSE;
+        dump_priv->prev_inserted_time_sec = rec->ts.secs;
       }
     }
   }
@@ -1959,18 +1959,18 @@ static gboolean erf_dump(
    * construct a new header with additional Host ID and Anchor ID
    * and insert a metadata record before that frame */
   /*XXX: The user may have changed the comment to cleared! */
-  if(phdr->opt_comment || phdr->has_comment_changed) {
+  if(rec->opt_comment || rec->has_comment_changed) {
     if (encap == WTAP_ENCAP_ERF) {
       /* XXX: What about ERF-in-pcapng with existing comment (that wasn't
        * modified)? */
-      if(phdr->has_comment_changed) {
+      if(rec->has_comment_changed) {
         memcpy(&other_phdr, pseudo_header, sizeof(union wtap_pseudo_header));
-        if(!erf_write_anchor_meta_update_phdr(wdh, dump_priv, phdr, &other_phdr, err)) return FALSE;
+        if(!erf_write_anchor_meta_update_phdr(wdh, dump_priv, rec, &other_phdr, err)) return FALSE;
         pseudo_header = &other_phdr;
       }
     } else {
       /* Always write the comment if non-ERF */
-      if(!erf_write_anchor_meta_update_phdr(wdh, dump_priv, phdr, &other_phdr, err)) return FALSE;
+      if(!erf_write_anchor_meta_update_phdr(wdh, dump_priv, rec, &other_phdr, err)) return FALSE;
     }
   }
 
@@ -1979,8 +1979,8 @@ static gboolean erf_dump(
 
   if(!erf_write_phdr(wdh, WTAP_ENCAP_ERF, pseudo_header, err)) return FALSE;
 
-  if(!wtap_dump_file_write(wdh, pd, phdr->caplen - round_down, err)) return FALSE;
-  wdh->bytes_dumped += phdr->caplen - round_down;
+  if(!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen - round_down, err)) return FALSE;
+  wdh->bytes_dumped += rec->rec_header.packet_header.caplen - round_down;
 
   /*add the 4 byte CRC if necessary*/
   if(must_add_crc){
@@ -2203,7 +2203,7 @@ static void erf_set_interface_descr(wtap_block_t block, guint option_id, guint64
   }
 }
 
-static int erf_update_anchors_from_header(erf_t *erf_priv, struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update)
+static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update)
 {
   guint8   type;
   guint8   has_more;
@@ -2214,7 +2214,7 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, struct wtap_pkthdr *p
   int      i             = 0;
   gchar   *comment = NULL;
 
-  if (!phdr || !pseudo_header)
+  if (!rec || !pseudo_header)
     return -1;
 
   /* Start with the first Host ID that was found on the record
@@ -2279,8 +2279,8 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, struct wtap_pkthdr *p
   }
 
   if (comment) {
-    phdr->opt_comment = g_strdup(comment);
-    phdr->presence_flags |= WTAP_HAS_COMMENTS;
+    rec->opt_comment = g_strdup(comment);
+    rec->presence_flags |= WTAP_HAS_COMMENTS;
   } else {
     /* WTAP_HAS_COMMENT has no visible effect?
      * Need to set opt_comment to NULL to prevent other packets
@@ -2288,7 +2288,7 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, struct wtap_pkthdr *p
      */
     /* XXX: We cannot free the old comment because it can be for a different
      * frame and still in use, wiretap should be handling this better! */
-    phdr->opt_comment = NULL;
+    rec->opt_comment = NULL;
   }
 
   return 0;
@@ -3175,7 +3175,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
   }
 
 
-  state.tag_ptr = wth->frame_buffer->data;
+  state.tag_ptr = wth->rec_data->data;
   state.remaining_len = packet_size;
 
   /* Read until see next section tag */

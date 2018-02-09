@@ -91,7 +91,7 @@ WS_DLL_PUBLIC void frame_data_reset(frame_data *fdata);
 WS_DLL_PUBLIC void frame_data_destroy(frame_data *fdata);
 
 WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, guint32 num,
-                const struct wtap_pkthdr *phdr, gint64 offset,
+                const wtap_rec *rec, gint64 offset,
                 guint32 cum_bytes);
 
 extern void frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata,

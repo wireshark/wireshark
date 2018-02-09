@@ -138,7 +138,7 @@ static gboolean want_pcap_pkthdr;
 cf_status_t raw_cf_open(capture_file *cf, const char *fname);
 static gboolean load_cap_file(capture_file *cf);
 static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-                               struct wtap_pkthdr *whdr, const guchar *pd);
+                               wtap_rec *rec, const guchar *pd);
 static void show_print_file_io_error(int err);
 
 static void failure_warning_message(const char *msg_format, va_list ap);
@@ -851,7 +851,7 @@ clean_exit:
  * @return TRUE on success, FALSE on failure.
  */
 static gboolean
-raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info, gint64 *data_offset) {
+raw_pipe_read(wtap_rec *rec, guchar * pd, int *err, gchar **err_info, gint64 *data_offset) {
     struct pcap_pkthdr mem_hdr;
     struct pcaprec_hdr disk_hdr;
     ssize_t bytes_read = 0;
@@ -899,27 +899,29 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
         ptr += bytes_read;
     }
 
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     if (want_pcap_pkthdr) {
-        phdr->ts.secs = mem_hdr.ts.tv_sec;
-        phdr->ts.nsecs = (gint32)mem_hdr.ts.tv_usec * 1000;
-        phdr->caplen = mem_hdr.caplen;
-        phdr->len = mem_hdr.len;
+        rec->ts.secs = mem_hdr.ts.tv_sec;
+        rec->ts.nsecs = (gint32)mem_hdr.ts.tv_usec * 1000;
+        rec->rec_header.packet_header.caplen = mem_hdr.caplen;
+        rec->rec_header.packet_header.len = mem_hdr.len;
     } else {
-        phdr->ts.secs = disk_hdr.ts_sec;
-        phdr->ts.nsecs = disk_hdr.ts_usec * 1000;
-        phdr->caplen = disk_hdr.incl_len;
-        phdr->len = disk_hdr.orig_len;
+        rec->ts.secs = disk_hdr.ts_sec;
+        rec->ts.nsecs = disk_hdr.ts_usec * 1000;
+        rec->rec_header.packet_header.caplen = disk_hdr.incl_len;
+        rec->rec_header.packet_header.len = disk_hdr.orig_len;
     }
-    bytes_needed = phdr->caplen;
+    bytes_needed = rec->rec_header.packet_header.caplen;
 
-    phdr->pkt_encap = encap;
+    rec->rec_header.packet_header.pkt_encap = encap;
 
 #if 0
     printf("mem_hdr: %lu disk_hdr: %lu\n", sizeof(mem_hdr), sizeof(disk_hdr));
-    printf("tv_sec: %u (%04x)\n", (unsigned int) phdr->ts.secs, (unsigned int) phdr->ts.secs);
-    printf("tv_nsec: %d (%04x)\n", phdr->ts.nsecs, phdr->ts.nsecs);
-    printf("caplen: %d (%04x)\n", phdr->caplen, phdr->caplen);
-    printf("len: %d (%04x)\n", phdr->len, phdr->len);
+    printf("tv_sec: %u (%04x)\n", (unsigned int) rec->ts.secs, (unsigned int) rec->ts.secs);
+    printf("tv_nsec: %d (%04x)\n", rec->ts.nsecs, rec->ts.nsecs);
+    printf("caplen: %d (%04x)\n", rec->rec_header.packet_header.caplen, rec->rec_header.packet_header.caplen);
+    printf("len: %d (%04x)\n", rec->rec_header.packet_header.len, rec->rec_header.packet_header.len);
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_BAD_FILE;
@@ -955,21 +957,21 @@ load_cap_file(capture_file *cf)
     gint64       data_offset = 0;
 
     guchar      *pd;
-    struct wtap_pkthdr phdr;
+    wtap_rec     rec;
     epan_dissect_t edt;
 
-    wtap_phdr_init(&phdr);
+    wtap_rec_init(&rec);
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 
     pd = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
-    while (raw_pipe_read(&phdr, pd, &err, &err_info, &data_offset)) {
-        process_packet(cf, &edt, data_offset, &phdr, pd);
+    while (raw_pipe_read(&rec, pd, &err, &err_info, &data_offset)) {
+        process_packet(cf, &edt, data_offset, &rec, pd);
     }
 
     epan_dissect_cleanup(&edt);
 
-    wtap_phdr_cleanup(&phdr);
+    wtap_rec_cleanup(&rec);
     g_free(pd);
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */
@@ -982,20 +984,20 @@ load_cap_file(capture_file *cf)
 
 static gboolean
 process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-               struct wtap_pkthdr *whdr, const guchar *pd)
+               wtap_rec *rec, const guchar *pd)
 {
     frame_data fdata;
     gboolean passed;
     int i;
 
-    if(whdr->len == 0)
+    if(rec->rec_header.packet_header.len == 0)
     {
         /* The user sends an empty packet when he wants to get output from us even if we don't currently have
            packets to process. We spit out a line with the timestamp and the text "void"
         */
         printf("%lu %lu %lu void -\n", (unsigned long int)cf->count,
-               (unsigned long int)whdr->ts.secs,
-               (unsigned long int)whdr->ts.nsecs);
+               (unsigned long int)rec->ts.secs,
+               (unsigned long int)rec->ts.nsecs);
 
         fflush(stdout);
 
@@ -1008,7 +1010,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     /* If we're going to print packet information, or we're going to
        run a read filter, or we're going to process taps, set up to
        do a dissection and do so. */
-    frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
+    frame_data_init(&fdata, cf->count, rec, offset, cum_bytes);
 
     passed = TRUE;
 
@@ -1033,7 +1035,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
      the protocol summary. */
-    epan_dissect_run_with_taps(edt, cf->cd_t, whdr,
+    epan_dissect_run_with_taps(edt, cf->cd_t, rec,
                                frame_tvbuff_new(&cf->provider, &fdata, pd),
                                &fdata, &cf->cinfo);
 

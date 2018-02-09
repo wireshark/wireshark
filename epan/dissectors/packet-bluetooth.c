@@ -2679,8 +2679,8 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     main_tree = proto_item_add_subtree(main_item, ett_bluetooth);
 
     bluetooth_data = (bluetooth_data_t *) wmem_new(wmem_packet_scope(), bluetooth_data_t);
-    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-        bluetooth_data->interface_id = pinfo->phdr->interface_id;
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+        bluetooth_data->interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
         bluetooth_data->interface_id = HCI_INTERFACE_DEFAULT;
     bluetooth_data->adapter_id = HCI_ADAPTER_DEFAULT;
@@ -2761,7 +2761,7 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     bluetooth_data->previous_protocol_data_type = BT_PD_NONE;
     bluetooth_data->previous_protocol_data.none = NULL;
 
-    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
         call_data_dissector(tvb, pinfo, tree);
     }
 
@@ -2790,7 +2790,7 @@ dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data->previous_protocol_data_type = BT_PD_BTHCI;
     bluetooth_data->previous_protocol_data.bthci = (struct bthci_phdr *)data;
 
-    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
         call_data_dissector(tvb, pinfo, tree);
     }
 
@@ -2818,7 +2818,7 @@ dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data->previous_protocol_data_type = BT_PD_BTMON;
     bluetooth_data->previous_protocol_data.btmon = (struct btmon_phdr *)data;
 
-    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    if (!dissector_try_uint_new(bluetooth_table, pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
         call_data_dissector(tvb, pinfo, tree);
     }
 

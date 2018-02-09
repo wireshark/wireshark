@@ -25,9 +25,8 @@ WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
-typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
-                                           struct wtap_pkthdr *, Buffer *buf,
-                                           int *, char **);
+typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, wtap_rec *,
+                                           Buffer *, int *, char **);
 
 /**
  * Struct holding data of the currently read file.
@@ -38,8 +37,8 @@ struct wtap {
     gboolean                    ispipe;                 /**< TRUE if the file is a pipe */
     int                         file_type_subtype;
     guint                       snapshot_length;
-    struct Buffer               *frame_buffer;
-    struct wtap_pkthdr          phdr;
+    wtap_rec                    rec;
+    Buffer                      *rec_data;
     GArray                      *shb_hdrs;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     GArray                      *nrb_hdrs;              /**< holds the Name Res Block's comment/custom_opts, or NULL */
@@ -80,7 +79,7 @@ struct wtap_dumper;
 typedef void *WFILE_T;
 
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
-                                       const struct wtap_pkthdr*,
+                                       const wtap_rec *rec,
                                        const guint8*, int*, gchar**);
 typedef gboolean (*subtype_finish_func)(struct wtap_dumper*, int*);
 

@@ -1158,7 +1158,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         if (!pinfo->fd->flags.visited && current_session.working) {
             int write_err = 0;
             gchar *err_info;
-            struct wtap_pkthdr wtp;
+            wtap_rec rec;
 
             /* First time, open current_session.in to write to for dumping into snort with */
             if (!current_session.pdh) {
@@ -1177,7 +1177,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                  */
                 current_session.pdh = wtap_dump_fdopen(current_session.in,
                                                        WTAP_FILE_TYPE_SUBTYPE_PCAP,
-                                                       pinfo->phdr->pkt_encap,
+                                                       pinfo->rec->rec_header.packet_header.pkt_encap,
                                                        WTAP_MAX_PACKET_SIZE_STANDARD,
                                                        FALSE,                 /* compressed */
                                                        &open_err);
@@ -1188,24 +1188,24 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             }
 
             /* Start with all same values... */
-            memcpy(&wtp, pinfo->phdr, sizeof(wtp));
+            rec = *pinfo->rec;
 
             /* Copying packet details into wtp for writing */
-            wtp.ts = pinfo->fd->abs_ts;
+            rec.ts = pinfo->fd->abs_ts;
 
-            /* NB: overwriting wtp.ts.nsecs so we can see packet number back if an alert is written for this frame!!!! */
+            /* NB: overwriting the time stamp so we can see packet number back if an alert is written for this frame!!!! */
             /* TODO: does this seriously affect snort's ability to reason about time?
              * At least all packets will still be in order... */
-            wtp.ts.nsecs = pinfo->fd->num * 1000;    /* XXX, max 999'999 frames */
+            rec.ts.nsecs = pinfo->fd->num * 1000;    /* XXX, max 999'999 frames */
 
-            wtp.caplen = tvb_captured_length(tvb);
-            wtp.len = tvb_reported_length(tvb);
-            if (current_session.pdh->encap != wtp.pkt_encap) {
+            rec.rec_header.packet_header.caplen = tvb_captured_length(tvb);
+            rec.rec_header.packet_header.len = tvb_reported_length(tvb);
+            if (current_session.pdh->encap != rec.rec_header.packet_header.pkt_encap) {
                 /* XXX, warning! convert? */
             }
 
             /* Dump frame into snort's stdin */
-            if (!wtap_dump(current_session.pdh, &wtp, tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), &write_err, &err_info)) {
+            if (!wtap_dump(current_session.pdh, &rec, tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), &write_err, &err_info)) {
                 current_session.working = FALSE;
                 return 0;
             }

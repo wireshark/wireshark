@@ -1137,20 +1137,6 @@ struct logcat_phdr {
     gint version;
 };
 
-/* Packet "pseudo-header" information for Sysdig events. */
-
-struct sysdig_event_phdr {
-    guint record_type;    /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
-    int byte_order;
-    guint16 cpu_id;
-    /* guint32 sentinel; */
-    guint64 timestamp; /* ns since epoch */
-    guint64 thread_id;
-    guint32 event_len; /* XXX dup of wtap_pkthdr.len */
-    guint16 event_type;
-    /* ... Event ... */
-};
-
 /* Packet "pseudo-header" information for header data from NetMon files. */
 
 struct netmon_phdr {
@@ -1164,11 +1150,6 @@ struct netmon_phdr {
         struct atm_phdr     atm;
         struct ieee_802_11_phdr ieee_802_11;
     } subheader;
-};
-
-/* Pseudo-header for file-type-specific records */
-struct ft_specific_record_phdr {
-    guint record_type;    /* the type of record this is */
 };
 
 union wtap_pseudo_header {
@@ -1197,9 +1178,7 @@ union wtap_pseudo_header {
     struct nokia_phdr   nokia;
     struct llcp_phdr    llcp;
     struct logcat_phdr  logcat;
-    struct sysdig_event_phdr sysdig_event;
     struct netmon_phdr  netmon;
-    struct ft_specific_record_phdr ftsrec;
 };
 
 /*
@@ -1259,27 +1238,59 @@ union wtap_pseudo_header {
 #define REC_TYPE_FT_SPECIFIC_REPORT   2    /**< file-type-specific report */
 #define REC_TYPE_SYSCALL              3    /**< system call */
 
-struct wtap_pkthdr {
-    guint     rec_type;         /* what type of record is this? */
-    guint32   presence_flags;   /* what stuff do we have? */
-    nstime_t  ts;               /* time stamp */
+typedef struct {
     guint32   caplen;           /* data length in the file */
     guint32   len;              /* data length on the wire */
     int       pkt_encap;        /* WTAP_ENCAP_ value for this packet */
-    int       pkt_tsprec;       /* WTAP_TSPREC_ value for this packet */
                                 /* pcapng variables */
     guint32   interface_id;     /* identifier of the interface. */
                                 /* options */
-    gchar     *opt_comment;     /* NULL if not available */
-    gboolean  has_comment_changed; /* TRUE if the comment has been changed. Currently only valid while dumping. */
-
     guint64   drop_count;       /* number of packets lost (by the interface and the
                                    operating system) between this packet and the preceding one. */
     guint32   pack_flags;       /* XXX - 0 for now (any value for "we don't have it"?) */
-    Buffer    ft_specific_data; /* file-type specific data */
 
     union wtap_pseudo_header  pseudo_header;
-};
+} wtap_packet_header;
+
+typedef struct {
+    guint     record_type;      /* the type of record this is - file type-specific value */
+} wtap_ft_specific_header;
+
+typedef struct {
+    guint     record_type;      /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
+    guint32   caplen;           /* data length in the file */
+    guint32   len;              /* data length on the wire */
+    int       byte_order;
+    guint16   cpu_id;
+    /* guint32 sentinel; */
+    guint64   timestamp;        /* ns since epoch */
+    guint64   thread_id;
+    guint32   event_len;        /* XXX dup of wtap_pkthdr.len */
+    guint16   event_type;
+    /* ... Event ... */
+} wtap_syscall_header;
+
+typedef struct {
+    guint     rec_type;         /* what type of record is this? */
+    guint32   presence_flags;   /* what stuff do we have? */
+    nstime_t  ts;               /* time stamp */
+    int       tsprec;           /* WTAP_TSPREC_ value for this record */
+    union {
+        wtap_packet_header packet_header;
+        wtap_ft_specific_header ft_specific_header;
+        wtap_syscall_header syscall_header;
+    } rec_header;
+    /*
+     * XXX - this should become a full set of options.
+     */
+    gchar     *opt_comment;     /* NULL if not available */
+    gboolean  has_comment_changed; /* TRUE if the comment has been changed. Currently only valid while dumping. */
+
+    /*
+     * XXX - what is this used for?
+     */
+    Buffer    ft_specific_data; /* file-type specific data */
+} wtap_rec;
 
 /*
  * Bits in presence_flags, indicating which of the fields we have.
@@ -1300,6 +1311,8 @@ struct wtap_pkthdr {
  * There could be a presence flag for the packet encapsulation - if it's
  * absent, use the file encapsulation - but it's not clear that's useful;
  * we currently do that in the module for the file format.
+ *
+ * Only WTAP_HAS_TS applies to all record types.
  */
 #define WTAP_HAS_TS            0x00000001  /**< time stamp */
 #define WTAP_HAS_CAP_LEN       0x00000002  /**< captured length separate from on-the-network length */
@@ -1617,22 +1630,23 @@ gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 
 WS_DLL_PUBLIC
-gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
-        struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+gboolean wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info);
 
-/*** get various information snippets about the current packet ***/
+/*** get various information snippets about the current record ***/
 WS_DLL_PUBLIC
-struct wtap_pkthdr *wtap_phdr(wtap *wth);
-WS_DLL_PUBLIC
-guint8 *wtap_buf_ptr(wtap *wth);
+wtap_rec *wtap_get_rec(wtap *wth);
 
-/*** initialize a wtap_pkthdr structure ***/
 WS_DLL_PUBLIC
-void wtap_phdr_init(struct wtap_pkthdr *phdr);
+guint8 *wtap_get_buf_ptr(wtap *wth);
 
-/*** clean up a wtap_pkthdr structure, freeing what wtap_phdr_init() allocated */
+/*** initialize a wtap_rec structure ***/
 WS_DLL_PUBLIC
-void wtap_phdr_cleanup(struct wtap_pkthdr *phdr);
+void wtap_rec_init(wtap_rec *rec);
+
+/*** clean up a wtap_rec structure, freeing what wtap_rec_init() allocated */
+WS_DLL_PUBLIC
+void wtap_rec_cleanup(wtap_rec *rec);
 
 /*** get various information snippets about the current file ***/
 
@@ -1929,7 +1943,7 @@ wtap_dumper* wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snap
                 GArray* nrb_hdrs, int *err);
 
 WS_DLL_PUBLIC
-gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *,
+gboolean wtap_dump(wtap_dumper *, const wtap_rec *, const guint8 *,
      int *err, gchar **err_info);
 WS_DLL_PUBLIC
 void wtap_dump_flush(wtap_dumper *);

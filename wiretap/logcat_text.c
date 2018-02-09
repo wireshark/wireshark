@@ -150,7 +150,7 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 
 }
 
-static void get_time(gchar *string, struct wtap_pkthdr *phdr) {
+static void get_time(gchar *string, wtap_rec *rec) {
     gint ms;
     struct tm date;
     time_t seconds;
@@ -160,17 +160,17 @@ static void get_time(gchar *string, struct wtap_pkthdr *phdr) {
         date.tm_year = 70;
         date.tm_mon -= 1;
         seconds = mktime(&date);
-        phdr->ts.secs = (time_t) seconds;
-        phdr->ts.nsecs = (int) (ms * 1e6);
-        phdr->presence_flags = WTAP_HAS_TS;
+        rec->ts.secs = (time_t) seconds;
+        rec->ts.nsecs = (int) (ms * 1e6);
+        rec->presence_flags = WTAP_HAS_TS;
     } else {
-        phdr->presence_flags = 0;
-        phdr->ts.secs = (time_t) 0;
-        phdr->ts.nsecs = (int) 0;
+        rec->presence_flags = 0;
+        rec->ts.secs = (time_t) 0;
+        rec->ts.nsecs = (int) 0;
     }
 }
 
-static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
         Buffer *buf, gint file_type) {
     gint8 *pd;
     gchar *cbuff;
@@ -212,27 +212,27 @@ static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
         g_free(lbuff);
     }
 
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->caplen = (guint32)strlen(cbuff);
-    phdr->len = phdr->caplen;
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->rec_header.packet_header.caplen = (guint32)strlen(cbuff);
+    rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
 
-    ws_buffer_assure_space(buf, phdr->caplen + 1);
+    ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen + 1);
     pd = ws_buffer_start_ptr(buf);
     if ((WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TIME == file_type
             || WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREADTIME == file_type
             || WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG == file_type)
             && '-' != cbuff[0]) { /* the last part filters out the -- beginning of... lines */
         if (WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG == file_type) {
-            get_time(cbuff+2, phdr);
+            get_time(cbuff+2, rec);
         } else {
-            get_time(cbuff, phdr);
+            get_time(cbuff, rec);
         }
     } else {
-        phdr->presence_flags = 0;
-        phdr->ts.secs = (time_t) 0;
-        phdr->ts.nsecs = (int) 0;
+        rec->presence_flags = 0;
+        rec->ts.secs = (time_t) 0;
+        rec->ts.nsecs = (int) 0;
     }
-    memcpy(pd, cbuff, phdr->caplen + 1);
+    memcpy(pd, cbuff, rec->rec_header.packet_header.caplen + 1);
     g_free(cbuff);
     return TRUE;
 }
@@ -241,16 +241,16 @@ static gboolean logcat_text_read(wtap *wth, int *err _U_ , gchar **err_info _U_,
         gint64 *data_offset) {
     *data_offset = file_tell(wth->fh);
 
-    return logcat_text_read_packet(wth->fh, &wth->phdr, wth->frame_buffer,
+    return logcat_text_read_packet(wth->fh, &wth->rec, wth->rec_data,
             wth->file_type_subtype);
 }
 
 static gboolean logcat_text_seek_read(wtap *wth, gint64 seek_off,
-        struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info _U_) {
+        wtap_rec *rec, Buffer *buf, int *err, gchar **err_info _U_) {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
-    if (!logcat_text_read_packet(wth->random_fh, phdr, buf,
+    if (!logcat_text_read_packet(wth->random_fh, rec, buf,
             wth->file_type_subtype)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
@@ -419,7 +419,7 @@ int logcat_text_long_dump_can_write_encap(int encap) {
 }
 
 static gboolean logcat_text_dump_text(wtap_dumper *wdh,
-    const struct wtap_pkthdr *phdr,
+    const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info)
 {
     gchar                          *buf;
@@ -443,7 +443,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     const struct dumper_t          *dumper        = (const struct dumper_t *) wdh->priv;
 
     /* We can only write packet records. */
-    if (phdr->rec_type != REC_TYPE_PACKET) {
+    if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
@@ -456,7 +456,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
             skipped_length = logcat_exported_pdu_length(pd);
             pd += skipped_length;
 
-            if (!wtap_dump_file_write(wdh, (const gchar*) pd, phdr->caplen - skipped_length, err)) {
+            if (!wtap_dump_file_write(wdh, (const gchar*) pd, rec->rec_header.packet_header.caplen - skipped_length, err)) {
                 return FALSE;
             }
         }
@@ -471,7 +471,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
 
             logcat_version = buffered_detect_version(pd);
         } else {
-            const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+            const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 
             logcat_version = pseudo_header->logcat.version;
         }
@@ -557,7 +557,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     case WTAP_ENCAP_LOGCAT_THREADTIME:
     case WTAP_ENCAP_LOGCAT_LONG:
         if (dumper->type == wdh->encap) {
-            if (!wtap_dump_file_write(wdh, (const gchar*) pd, phdr->caplen, err)) {
+            if (!wtap_dump_file_write(wdh, (const gchar*) pd, rec->rec_header.packet_header.caplen, err)) {
                 return FALSE;
             }
         } else {

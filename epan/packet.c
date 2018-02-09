@@ -466,12 +466,12 @@ final_registration_all_protocols(void)
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
 dissect_record(epan_dissect_t *edt, int file_type_subtype,
-    struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+    wtap_rec *rec, tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
 	const char *volatile record_type;
 	frame_data_t frame_dissector_data;
 
-	switch (phdr->rec_type) {
+	switch (rec->rec_type) {
 
 	case REC_TYPE_PACKET:
 		record_type = "Frame";
@@ -512,9 +512,24 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		edt->pi.presence_flags |= PINFO_HAS_TS;
 		edt->pi.abs_ts = fd->abs_ts;
 	}
+	switch (rec->rec_type) {
+
+	case REC_TYPE_PACKET:
+		edt->pi.pseudo_header = &rec->rec_header.packet_header.pseudo_header;
+		break;
+
+	case REC_TYPE_FT_SPECIFIC_EVENT:
+	case REC_TYPE_FT_SPECIFIC_REPORT:
+		edt->pi.pseudo_header = NULL;
+		break;
+
+	case REC_TYPE_SYSCALL:
+		edt->pi.pseudo_header = NULL;
+		break;
+	}
+
 	edt->pi.fd            = fd;
-	edt->pi.phdr          = phdr;
-	edt->pi.pseudo_header = &phdr->pseudo_header;
+	edt->pi.rec           = rec;
 	clear_address(&edt->pi.dl_src);
 	clear_address(&edt->pi.dl_dst);
 	clear_address(&edt->pi.net_src);
@@ -532,11 +547,11 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
-	/* pkt comment use first user, later from phdr */
+	/* pkt comment use first user, later from rec */
 	if (fd->flags.has_user_comment)
 		frame_dissector_data.pkt_comment = epan_get_user_comment(edt->session, fd);
 	else if (fd->flags.has_phdr_comment)
-		frame_dissector_data.pkt_comment = phdr->opt_comment;
+		frame_dissector_data.pkt_comment = rec->opt_comment;
 	else
 		frame_dissector_data.pkt_comment = NULL;
 	frame_dissector_data.file_type_subtype = file_type_subtype;
@@ -567,7 +582,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 
 /* Creates the top-most tvbuff and calls dissect_file() */
 void
-dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	       tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
 	file_data_t file_dissector_data;
@@ -579,8 +594,8 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.current_proto = "<Missing Filetype Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd    = fd;
-	edt->pi.phdr  = phdr;
-	edt->pi.pseudo_header = &phdr->pseudo_header;
+	edt->pi.rec   = rec;
+	edt->pi.pseudo_header = NULL;
 	clear_address(&edt->pi.dl_src);
 	clear_address(&edt->pi.dl_dst);
 	clear_address(&edt->pi.net_src);
@@ -601,11 +616,11 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 
 
 	TRY {
-		/* pkt comment use first user, later from phdr */
+		/* pkt comment use first user, later from rec */
 		if (fd->flags.has_user_comment)
 			file_dissector_data.pkt_comment = epan_get_user_comment(edt->session, fd);
 		else if (fd->flags.has_phdr_comment)
-			file_dissector_data.pkt_comment = phdr->opt_comment;
+			file_dissector_data.pkt_comment = rec->opt_comment;
 		else
 			file_dissector_data.pkt_comment = NULL;
 		file_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */

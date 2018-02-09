@@ -174,8 +174,8 @@ static struct time_adjustment strict_time_adj           = {{0, 0}, 0}; /* strict
 static nstime_t               previous_time             = {0, 0}; /* previous time */
 
 static int find_dct2000_real_data(guint8 *buf);
-static void handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
-                            const struct wtap_pkthdr *in_phdr, guint8 **buf,
+static void handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
+                            const wtap_packet_header *in_phdr, guint8 **buf,
                             gboolean adjlen);
 
 static gchar *
@@ -202,7 +202,7 @@ abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
 }
 
 static gchar *
-fileset_get_filename_by_pattern(guint idx, const struct wtap_pkthdr *phdr,
+fileset_get_filename_by_pattern(guint idx, const wtap_rec *rec,
                                 gchar *fprefix, gchar *fsuffix)
 {
     gchar  filenum[5+1];
@@ -210,8 +210,8 @@ fileset_get_filename_by_pattern(guint idx, const struct wtap_pkthdr *phdr,
     gchar *abs_str;
 
     g_snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
-    if (phdr->presence_flags & WTAP_HAS_TS) {
-        timestr = abs_time_to_str_with_sec_resolution(&phdr->ts);
+    if (rec->presence_flags & WTAP_HAS_TS) {
+        timestr = abs_time_to_str_with_sec_resolution(&rec->ts);
         abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
         g_free(timestr);
     } else
@@ -562,7 +562,7 @@ sll_remove_vlan_info(guint8* fd, guint32* len) {
 }
 
 static void
-remove_vlan_info(const struct wtap_pkthdr *phdr, guint8* fd, guint32* len) {
+remove_vlan_info(const wtap_packet_header *phdr, guint8* fd, guint32* len) {
     switch (phdr->pkt_encap) {
         case WTAP_ENCAP_SLL:
             sll_remove_vlan_info(fd, len);
@@ -979,12 +979,14 @@ main(int argc, char *argv[])
     gchar        *fsuffix            = NULL;
     guint32       change_offset      = 0;
     guint         max_packet_number  = 0;
-    const struct wtap_pkthdr    *phdr;
-    struct wtap_pkthdr           temp_phdr;
+    const wtap_rec              *rec;
+    wtap_rec                     temp_rec;
     wtapng_iface_descriptions_t *idb_inf = NULL;
     GArray                      *shb_hdrs = NULL;
     GArray                      *nrb_hdrs = NULL;
     char                        *shb_user_appl;
+    gboolean                     do_mutation;
+    guint32                      caplen;
     int                          ret = EXIT_SUCCESS;
 
     cmdarg_err_init(failure_warning_message, failure_message_cont);
@@ -1374,7 +1376,7 @@ main(int argc, char *argv[])
 
             read_count++;
 
-            phdr = wtap_phdr(wth);
+            rec = wtap_get_rec(wth);
 
             /* Extra actions for the first packet */
             if (read_count == 1) {
@@ -1384,7 +1386,7 @@ main(int argc, char *argv[])
                         goto clean_exit;
                     }
 
-                    filename = fileset_get_filename_by_pattern(block_cnt++, phdr, fprefix, fsuffix);
+                    filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
                 } else {
                     filename = g_strdup(argv[optind+1]);
                 }
@@ -1409,20 +1411,20 @@ main(int argc, char *argv[])
             } /* first packet only handling */
 
 
-            buf = wtap_buf_ptr(wth);
+            buf = wtap_get_buf_ptr(wth);
 
             /*
              * Not all packets have time stamps. Only process the time
              * stamp if we have one.
              */
-            if (phdr->presence_flags & WTAP_HAS_TS) {
+            if (rec->presence_flags & WTAP_HAS_TS) {
                 if (nstime_is_unset(&block_start)) {
-                    block_start = phdr->ts;
+                    block_start = rec->ts;
                 }
                 if (secs_per_block != 0) {
-                    while (((guint32)(phdr->ts.secs - block_start.secs) >  secs_per_block)
-                           || ((guint32)(phdr->ts.secs - block_start.secs) == secs_per_block
-                               && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
+                    while (((guint32)(rec->ts.secs - block_start.secs) >  secs_per_block)
+                           || ((guint32)(rec->ts.secs - block_start.secs) == secs_per_block
+                               && rec->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
                         if (!wtap_dump_close(pdh, &write_err)) {
                             cfile_close_failure_message(filename, write_err);
@@ -1431,7 +1433,7 @@ main(int argc, char *argv[])
                         }
                         block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
                         g_free(filename);
-                        filename = fileset_get_filename_by_pattern(block_cnt++, phdr, fprefix, fsuffix);
+                        filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
                         g_assert(filename);
 
                         if (verbose)
@@ -1462,7 +1464,7 @@ main(int argc, char *argv[])
                     }
 
                     g_free(filename);
-                    filename = fileset_get_filename_by_pattern(block_cnt++, phdr, fprefix, fsuffix);
+                    filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
                     g_assert(filename);
 
                     if (verbose)
@@ -1486,8 +1488,8 @@ main(int argc, char *argv[])
                  * Is the packet in the selected timeframe?
                  * If the packet has no time stamp, the answer is "no".
                  */
-                if (phdr->presence_flags & WTAP_HAS_TS)
-                    ts_okay = (phdr->ts.secs >= starttime) && (phdr->ts.secs < stoptime);
+                if (rec->presence_flags & WTAP_HAS_TS)
+                    ts_okay = (rec->ts.secs >= starttime) && (rec->ts.secs < stoptime);
                 else
                     ts_okay = FALSE;
             } else {
@@ -1507,34 +1509,9 @@ main(int argc, char *argv[])
                 /* We simply write it, perhaps after truncating it; we could
                  * do other things, like modify it. */
 
-                phdr = wtap_phdr(wth);
+                rec = wtap_get_rec(wth);
 
-                if (snaplen != 0) {
-                    /* Limit capture length to snaplen */
-                    if (phdr->caplen > snaplen) {
-                        /* Copy and change rather than modify returned phdr */
-                        temp_phdr = *phdr;
-                        temp_phdr.caplen = snaplen;
-                        phdr = &temp_phdr;
-                    }
-                    /* If -L, also set reported length to snaplen */
-                    if (adjlen && phdr->len > snaplen) {
-                        /* Copy and change rather than modify returned phdr */
-                        temp_phdr = *phdr;
-                        temp_phdr.len = snaplen;
-                        phdr = &temp_phdr;
-                    }
-                }
-
-                /*
-                 * CHOP
-                 * Copy and change rather than modify returned phdr.
-                 */
-                temp_phdr = *phdr;
-                handle_chopping(chop, &temp_phdr, phdr, &buf, adjlen);
-                phdr = &temp_phdr;
-
-                if (phdr->presence_flags & WTAP_HAS_TS) {
+                if (rec->presence_flags & WTAP_HAS_TS) {
                     /* Do we adjust timestamps to ensure strict chronological
                      * order? */
                     if (do_strict_time_adjustment) {
@@ -1543,7 +1520,7 @@ main(int argc, char *argv[])
                                 nstime_t current;
                                 nstime_t delta;
 
-                                current = phdr->ts;
+                                current = rec->ts;
 
                                 nstime_delta(&delta, &current, &previous_time);
 
@@ -1555,20 +1532,20 @@ main(int argc, char *argv[])
                                      * situation since trace files usually have packets in
                                      * chronological order (oldest to newest).
                                      * Copy and change rather than modify
-                                     * returned phdr.
+                                     * returned rec.
                                      */
                                     /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
-                                    temp_phdr = *phdr;
-                                    temp_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
-                                    temp_phdr.ts.nsecs = previous_time.nsecs;
-                                    if (temp_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
+                                    temp_rec = *rec;
+                                    temp_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
+                                    temp_rec.ts.nsecs = previous_time.nsecs;
+                                    if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
                                         /* carry */
-                                        temp_phdr.ts.secs++;
-                                        temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
+                                        temp_rec.ts.secs++;
+                                        temp_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                                     } else {
-                                        temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
+                                        temp_rec.ts.nsecs += strict_time_adj.tv.nsecs;
                                     }
-                                    phdr = &temp_phdr;
+                                    rec = &temp_rec;
                                 }
                             } else {
                                 /*
@@ -1576,102 +1553,100 @@ main(int argc, char *argv[])
                                  * Unconditionally set each timestamp to previous
                                  * packet's timestamp plus delta.
                                  * Copy and change rather than modify returned
-                                 * phdr.
+                                 * rec.
                                  */
-                                temp_phdr = *phdr;
-                                temp_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
-                                temp_phdr.ts.nsecs = previous_time.nsecs;
-                                if (temp_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
+                                temp_rec = *rec;
+                                temp_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
+                                temp_rec.ts.nsecs = previous_time.nsecs;
+                                if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
                                     /* carry */
-                                    temp_phdr.ts.secs++;
-                                    temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
+                                    temp_rec.ts.secs++;
+                                    temp_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                                 } else {
-                                    temp_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
+                                    temp_rec.ts.nsecs += strict_time_adj.tv.nsecs;
                                 }
-                                phdr = &temp_phdr;
+                                rec = &temp_rec;
                             }
                         }
-                        previous_time = phdr->ts;
+                        previous_time = rec->ts;
                     }
 
                     if (time_adj.tv.secs != 0) {
-                        /* Copy and change rather than modify returned phdr */
-                        temp_phdr = *phdr;
+                        /* Copy and change rather than modify returned rec */
+                        temp_rec = *rec;
                         if (time_adj.is_negative)
-                            temp_phdr.ts.secs -= time_adj.tv.secs;
+                            temp_rec.ts.secs -= time_adj.tv.secs;
                         else
-                            temp_phdr.ts.secs += time_adj.tv.secs;
-                        phdr = &temp_phdr;
+                            temp_rec.ts.secs += time_adj.tv.secs;
+                        rec = &temp_rec;
                     }
 
                     if (time_adj.tv.nsecs != 0) {
-                        /* Copy and change rather than modify returned phdr */
-                        temp_phdr = *phdr;
+                        /* Copy and change rather than modify returned rec */
+                        temp_rec = *rec;
                         if (time_adj.is_negative) { /* subtract */
-                            if (temp_phdr.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
-                                temp_phdr.ts.secs--;
-                                temp_phdr.ts.nsecs += ONE_BILLION;
+                            if (temp_rec.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
+                                temp_rec.ts.secs--;
+                                temp_rec.ts.nsecs += ONE_BILLION;
                             }
-                            temp_phdr.ts.nsecs -= time_adj.tv.nsecs;
+                            temp_rec.ts.nsecs -= time_adj.tv.nsecs;
                         } else {                  /* add */
-                            if (temp_phdr.ts.nsecs + time_adj.tv.nsecs > ONE_BILLION) {
+                            if (temp_rec.ts.nsecs + time_adj.tv.nsecs > ONE_BILLION) {
                                 /* carry */
-                                temp_phdr.ts.secs++;
-                                temp_phdr.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
+                                temp_rec.ts.secs++;
+                                temp_rec.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
                             } else {
-                                temp_phdr.ts.nsecs += time_adj.tv.nsecs;
+                                temp_rec.ts.nsecs += time_adj.tv.nsecs;
                             }
                         }
-                        phdr = &temp_phdr;
+                        rec = &temp_rec;
                     }
                 } /* time stamp adjustment */
 
-                /* remove vlan info */
-                if (rem_vlan) {
-                    /* Copy and change rather than modify returned phdr */
-                    temp_phdr = *phdr;
-                    remove_vlan_info(phdr, buf, &temp_phdr.caplen);
-                    phdr = &temp_phdr;
-                }
-
-                /* suppress duplicates by packet window */
-                if (dup_detect) {
-                    if (is_duplicate(buf, phdr->caplen)) {
-                        if (verbose) {
-                            fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
-                                    count, phdr->caplen);
-                            for (i = 0; i < 16; i++)
-                                fprintf(stderr, "%02x",
-                                        (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stderr, "\n");
+                if (rec->rec_type == REC_TYPE_PACKET) {
+                    if (snaplen != 0) {
+                        /* Limit capture length to snaplen */
+                        if (rec->rec_header.packet_header.caplen > snaplen) {
+                            /* Copy and change rather than modify returned wtap_rec */
+                            temp_rec = *rec;
+                            temp_rec.rec_header.packet_header.caplen = snaplen;
+                            rec = &temp_rec;
                         }
-                        duplicate_count++;
-                        count++;
-                        continue;
-                    } else {
-                        if (verbose) {
-                            fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
-                                    count, phdr->caplen);
-                            for (i = 0; i < 16; i++)
-                                fprintf(stderr, "%02x",
-                                        (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stderr, "\n");
+                        /* If -L, also set reported length to snaplen */
+                        if (adjlen && rec->rec_header.packet_header.len > snaplen) {
+                            /* Copy and change rather than modify returned phdr */
+                            temp_rec = *rec;
+                            temp_rec.rec_header.packet_header.len = snaplen;
+                            rec = &temp_rec;
                         }
                     }
-                } /* suppression of duplicates */
 
-                if (phdr->presence_flags & WTAP_HAS_TS) {
-                    /* suppress duplicates by time window */
-                    if (dup_detect_by_time) {
-                        nstime_t current;
+                    /*
+                     * CHOP
+                     * Copy and change rather than modify returned phdr.
+                     */
+                    temp_rec = *rec;
+                    handle_chopping(chop, &temp_rec.rec_header.packet_header,
+                                    &rec->rec_header.packet_header, &buf,
+                                    adjlen);
+                    rec = &temp_rec;
 
-                        current.secs  = phdr->ts.secs;
-                        current.nsecs = phdr->ts.nsecs;
+                    /* remove vlan info */
+                    if (rem_vlan) {
+                        /* Copy and change rather than modify returned rec */
+                        temp_rec = *rec;
+                        remove_vlan_info(&rec->rec_header.packet_header, buf,
+                                         &temp_rec.rec_header.packet_header.caplen);
+                        rec = &temp_rec;
+                    }
 
-                        if (is_duplicate_rel_time(buf, phdr->caplen, &current)) {
+                    /* suppress duplicates by packet window */
+                    if (dup_detect) {
+                        if (is_duplicate(buf, rec->rec_header.packet_header.caplen)) {
                             if (verbose) {
                                 fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
-                                        count, phdr->caplen);
+                                        count,
+                                        rec->rec_header.packet_header.caplen);
                                 for (i = 0; i < 16; i++)
                                     fprintf(stderr, "%02x",
                                             (unsigned char)fd_hash[cur_dup_entry].digest[i]);
@@ -1683,32 +1658,93 @@ main(int argc, char *argv[])
                         } else {
                             if (verbose) {
                                 fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
-                                        count, phdr->caplen);
+                                        count,
+                                        rec->rec_header.packet_header.caplen);
                                 for (i = 0; i < 16; i++)
                                     fprintf(stderr, "%02x",
                                             (unsigned char)fd_hash[cur_dup_entry].digest[i]);
                                 fprintf(stderr, "\n");
                             }
                         }
-                    }
-                } /* suppress duplicates by time window */
+                    } /* suppression of duplicates */
 
-                if (change_offset > phdr->caplen) {
-                    fprintf(stderr, "change offset %u is longer than caplen %u in packet %u\n",
-                        change_offset, phdr->caplen, count);
+                    if (rec->presence_flags & WTAP_HAS_TS) {
+                        /* suppress duplicates by time window */
+                        if (dup_detect_by_time) {
+                            nstime_t current;
+
+                            current.secs  = rec->ts.secs;
+                            current.nsecs = rec->ts.nsecs;
+
+                            if (is_duplicate_rel_time(buf,
+                                                      rec->rec_header.packet_header.caplen,
+                                                      &current)) {
+                                if (verbose) {
+                                    fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
+                                            count,
+                                            rec->rec_header.packet_header.caplen);
+                                    for (i = 0; i < 16; i++)
+                                        fprintf(stderr, "%02x",
+                                                (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                                    fprintf(stderr, "\n");
+                                }
+                                duplicate_count++;
+                                count++;
+                                continue;
+                            } else {
+                                if (verbose) {
+                                    fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
+                                            count,
+                                            rec->rec_header.packet_header.caplen);
+                                    for (i = 0; i < 16; i++)
+                                        fprintf(stderr, "%02x",
+                                                (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                                    fprintf(stderr, "\n");
+                                }
+                            }
+                        }
+                    } /* suppress duplicates by time window */
                 }
 
                 /* Random error mutation */
-                if (err_prob > 0.0 && change_offset <= phdr->caplen) {
+                do_mutation = FALSE;
+                caplen = 0;
+                if (err_prob > 0.0) {
+                    switch (rec->rec_type) {
+
+                    case REC_TYPE_PACKET:
+                        caplen = rec->rec_header.packet_header.caplen;
+                        do_mutation = TRUE;
+                        break;
+
+                    case REC_TYPE_SYSCALL:
+                        caplen = rec->rec_header.syscall_header.caplen;
+                        do_mutation = TRUE;
+                        break;
+                    }
+
+                    if (change_offset > caplen) {
+                        fprintf(stderr, "change offset %u is longer than caplen %u in packet %u\n",
+                            change_offset, caplen, count);
+                        do_mutation = FALSE;
+                    }
+                }
+
+                if (do_mutation) {
                     int real_data_start = 0;
 
                     /* Protect non-protocol data */
-                    if (wtap_file_type_subtype(wth) == WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000)
-                        real_data_start = find_dct2000_real_data(buf);
+                    switch (rec->rec_type) {
+
+                    case REC_TYPE_PACKET:
+                        if (wtap_file_type_subtype(wth) == WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000)
+                            real_data_start = find_dct2000_real_data(buf);
+                        break;
+                    }
 
                     real_data_start += change_offset;
 
-                    for (i = real_data_start; i < (int) phdr->caplen; i++) {
+                    for (i = real_data_start; i < (int) caplen; i++) {
                         if (rand() <= err_prob * RAND_MAX) {
                             err_type = rand() / (RAND_MAX / ERR_WT_TOTAL + 1);
 
@@ -1734,7 +1770,7 @@ main(int argc, char *argv[])
                             }
 
                             if (err_type < ERR_WT_FMT) {
-                                if ((unsigned int)i < phdr->caplen - 2)
+                                if ((unsigned int)i < caplen - 2)
                                     g_strlcpy((char*) &buf[i], "%s", 2);
                                 err_type = ERR_WT_TOTAL;
                             } else {
@@ -1742,9 +1778,9 @@ main(int argc, char *argv[])
                             }
 
                             if (err_type < ERR_WT_AA) {
-                                for (j = i; j < (int) phdr->caplen; j++)
+                                for (j = i; j < (int) caplen; j++)
                                     buf[j] = 0xAA;
-                                i = phdr->caplen;
+                                i = caplen;
                             }
                         }
                     }
@@ -1756,21 +1792,21 @@ main(int argc, char *argv[])
                         (const char*)g_tree_lookup(frames_user_comments, GUINT_TO_POINTER(read_count));
                     /* XXX: What about comment changed to no comment? */
                     if (comment != NULL) {
-                        /* Copy and change rather than modify returned phdr */
-                        temp_phdr = *phdr;
-                        temp_phdr.opt_comment = g_strdup(comment);
-                        temp_phdr.has_comment_changed = TRUE;
-                        phdr = &temp_phdr;
+                        /* Copy and change rather than modify returned rec */
+                        temp_rec = *rec;
+                        temp_rec.opt_comment = g_strdup(comment);
+                        temp_rec.has_comment_changed = TRUE;
+                        rec = &temp_rec;
                     } else {
-                        /* Copy and change rather than modify returned phdr */
-                        temp_phdr = *phdr;
-                        temp_phdr.has_comment_changed = FALSE;
-                        phdr = &temp_phdr;
+                        /* Copy and change rather than modify returned rec */
+                        temp_rec = *rec;
+                        temp_rec.has_comment_changed = FALSE;
+                        rec = &temp_rec;
                     }
                 }
 
                 /* Attempt to dump out current frame to the output file */
-                if (!wtap_dump(pdh, phdr, buf, &write_err, &write_err_info)) {
+                if (!wtap_dump(pdh, rec, buf, &write_err, &write_err_info)) {
                     cfile_write_failure_message("editcap", argv[optind],
                                                 filename,
                                                 write_err, write_err_info,
@@ -1875,14 +1911,10 @@ find_dct2000_real_data(guint8 *buf)
  * positive chop length, and one by the negative chop length.
  */
 static void
-handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
-                const struct wtap_pkthdr *in_phdr, guint8 **buf,
+handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
+                const wtap_packet_header *in_phdr, guint8 **buf,
                 gboolean adjlen)
 {
-    /* Only packets can be chopped. */
-    if (in_phdr->rec_type != REC_TYPE_PACKET)
-        return;
-
     /* If we're not chopping anything from one side, then the offset for that
      * side is meaningless. */
     if (chop.len_begin == 0)

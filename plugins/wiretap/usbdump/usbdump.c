@@ -66,10 +66,10 @@ typedef struct {
 static gboolean usbdump_read(wtap *wth, int *err, gchar **err_info,
                              gint64 *data_offset);
 static gboolean usbdump_seek_read(wtap *wth, gint64 seek_off,
-                                  struct wtap_pkthdr *phdr, Buffer *buf,
+                                  wtap_rec *rec, Buffer *buf,
                                   int *err, gchar **err_info);
 static gboolean usbdump_read_packet(wtap *wth, FILE_T fh,
-                                    struct wtap_pkthdr *phdr, Buffer *buf,
+                                    wtap_rec *rec, Buffer *buf,
                                     int *err, gchar **err_info);
 
 static int usbdump_file_type_subtype;
@@ -167,7 +167,7 @@ usbdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     *data_offset = file_tell(wth->fh);
 
     /* Try to read a packet worth of data */
-    if (!usbdump_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+    if (!usbdump_read_packet(wth, wth->fh, &wth->rec, wth->rec_data,
         err, err_info))
         return FALSE;
 
@@ -200,7 +200,7 @@ usbdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
  * in a buffer and fill in the packet header info.
  */
 static gboolean
-usbdump_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+usbdump_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
                   Buffer *buf, int *err, gchar **err_info)
 {
     /* Seek to the desired file position at the start of the frame */
@@ -208,7 +208,7 @@ usbdump_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
         return FALSE;
 
     /* Try to read a packet worth of data */
-    if (!usbdump_read_packet(wth, wth->random_fh, phdr, buf, err, err_info)) {
+    if (!usbdump_read_packet(wth, wth->random_fh, rec, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -227,7 +227,7 @@ usbdump_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
  * so that we can find the next multiframe size field.
  */
 static gboolean
-usbdump_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+usbdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
                     int *err, gchar **err_info)
 {
     usbdump_info_t *usbdump_info = (usbdump_info_t *)wth->priv;
@@ -259,31 +259,31 @@ usbdump_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     }
 
     /* Setup the per packet structure and fill it with info from this frame */
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
-    phdr->ts.secs = (guint32)bpf_hdr[3] << 24 | (guint32)bpf_hdr[2] << 16 |
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
+    rec->ts.secs = (guint32)bpf_hdr[3] << 24 | (guint32)bpf_hdr[2] << 16 |
                     (guint32)bpf_hdr[1] << 8 | (guint32)bpf_hdr[0];
-    phdr->ts.nsecs = ((guint32)bpf_hdr[7] << 24 | (guint32)bpf_hdr[6] << 16 |
+    rec->ts.nsecs = ((guint32)bpf_hdr[7] << 24 | (guint32)bpf_hdr[6] << 16 |
                      (guint32)bpf_hdr[5] << 8 | (guint32)bpf_hdr[4]) * 1000;
-    phdr->caplen = (guint32)bpf_hdr[11] << 24 | (guint32)bpf_hdr[10] << 16 |
+    rec->rec_header.packet_header.caplen = (guint32)bpf_hdr[11] << 24 | (guint32)bpf_hdr[10] << 16 |
                    (guint32)bpf_hdr[9] << 8 | (guint32)bpf_hdr[8];
-    phdr->len = (guint32)bpf_hdr[15] << 24 | (guint32)bpf_hdr[14] << 16 |
+    rec->rec_header.packet_header.len = (guint32)bpf_hdr[15] << 24 | (guint32)bpf_hdr[14] << 16 |
                 (guint32)bpf_hdr[13] << 8 | (guint32)bpf_hdr[12];
 
     /* Read the packet data */
-    if (!wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info))
+    if (!wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info))
         return FALSE;
 
     /* Keep track of multiframe_size and detect overrun */
-    if (usbdump_info->multiframe_size < phdr->caplen) {
+    if (usbdump_info->multiframe_size < rec->rec_header.packet_header.caplen) {
         usbdump_info->multiframe_overrun = TRUE;
     } else {
-        usbdump_info->multiframe_size -= phdr->caplen;
+        usbdump_info->multiframe_size -= rec->rec_header.packet_header.caplen;
     }
 
     /* Check for and apply alignment as defined in the frame header */
     guint8 pad_len = (guint32)alignment -
-                     (((guint32)bpf_hdr_len + phdr->caplen) &
+                     (((guint32)bpf_hdr_len + rec->rec_header.packet_header.caplen) &
                       ((guint32)alignment - 1));
     if (pad_len < alignment) {
         /* Read alignment from the file */

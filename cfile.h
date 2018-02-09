@@ -99,8 +99,8 @@ typedef struct _capture_file {
   search_direction dir;              /* Direction in which to do searches */
   gboolean     search_in_progress;   /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */
   /* packet data */
-  struct wtap_pkthdr phdr;           /* Packet header */
-  Buffer       buf;                  /* Packet data */
+  wtap_rec     rec;                  /* Record header */
+  Buffer       buf;                  /* Record data */
   /* packet provider */
   struct packet_provider_data provider;
   /* frames */

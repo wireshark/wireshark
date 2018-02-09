@@ -182,13 +182,13 @@ typedef struct {
 static gboolean iseries_read (wtap * wth, int *err, gchar ** err_info,
                               gint64 *data_offset);
 static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
-                                   struct wtap_pkthdr *phdr,
+                                   wtap_rec *rec,
                                    Buffer * buf, int *err, gchar ** err_info);
 static gboolean iseries_check_file_type (wtap * wth, int *err, gchar **err_info,
                                          int format);
 static gint64 iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info);
 static gboolean iseries_parse_packet (wtap * wth, FILE_T fh,
-                                      struct wtap_pkthdr *phdr,
+                                      wtap_rec *rec,
                                       Buffer * buf, int *err, gchar ** err_info);
 static int iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes);
 static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
@@ -391,7 +391,7 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
   /*
    * Parse the packet and extract the various fields
    */
-  return iseries_parse_packet (wth, wth->fh, &wth->phdr, wth->frame_buffer,
+  return iseries_parse_packet (wth, wth->fh, &wth->rec, wth->rec_data,
                                err, err_info);
 }
 
@@ -463,7 +463,7 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
  * Read packets in random-access fashion
  */
 static gboolean
-iseries_seek_read (wtap * wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+iseries_seek_read (wtap * wth, gint64 seek_off, wtap_rec *rec,
                    Buffer * buf, int *err, gchar ** err_info)
 {
 
@@ -474,7 +474,7 @@ iseries_seek_read (wtap * wth, gint64 seek_off, struct wtap_pkthdr *phdr,
   /*
    * Parse the packet and extract the various fields
    */
-  return iseries_parse_packet (wth, wth->random_fh, phdr, buf,
+  return iseries_parse_packet (wth, wth->random_fh, rec, buf,
                                err, err_info);
 }
 
@@ -575,7 +575,7 @@ csec_multiplier(guint32 csec)
 
 /* Parses a packet. */
 static gboolean
-iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
+iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
                       Buffer *buf, int *err, gchar **err_info)
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
@@ -738,8 +738,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       return FALSE;
     }
 
-  phdr->rec_type = REC_TYPE_PACKET;
-  phdr->presence_flags = WTAP_HAS_CAP_LEN;
+  rec->rec_type = REC_TYPE_PACKET;
+  rec->presence_flags = WTAP_HAS_CAP_LEN;
 
   /*
    * If we have Wiretap Header then populate it here
@@ -749,7 +749,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
    */
   if (iseries->have_date)
     {
-      phdr->presence_flags |= WTAP_HAS_TS;
+      rec->presence_flags |= WTAP_HAS_TS;
       tm.tm_year        = 100 + iseries->year;
       tm.tm_mon         = iseries->month - 1;
       tm.tm_mday        = iseries->day;
@@ -757,13 +757,13 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       tm.tm_min         = min;
       tm.tm_sec         = sec;
       tm.tm_isdst       = -1;
-      phdr->ts.secs = mktime (&tm);
-      phdr->ts.nsecs = csec * csec_multiplier(csec);
+      rec->ts.secs = mktime (&tm);
+      rec->ts.nsecs = csec * csec_multiplier(csec);
     }
 
-  phdr->len                       = pkt_len;
-  phdr->pkt_encap                 = WTAP_ENCAP_ETHERNET;
-  phdr->pseudo_header.eth.fcs_len = -1;
+  rec->rec_header.packet_header.len                       = pkt_len;
+  rec->rec_header.packet_header.pkt_encap                 = WTAP_ENCAP_ETHERNET;
+  rec->rec_header.packet_header.pseudo_header.eth.fcs_len = -1;
 
   /*
    * Allocate a buffer big enough to hold the claimed packet length
@@ -942,10 +942,10 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
    * XXX - this can happen for IPv6 packets if the next header isn't the
    * last header.
    */
-  phdr->caplen = ((guint32) ascii_offset)/2;
+  rec->rec_header.packet_header.caplen = ((guint32) ascii_offset)/2;
 
   /* Make sure we have enough room for the packet. */
-  ws_buffer_assure_space (buf, phdr->caplen);
+  ws_buffer_assure_space (buf, rec->rec_header.packet_header.caplen);
   /* Convert ascii data to binary and return in the frame buffer */
   iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (buf), ascii_offset);
 

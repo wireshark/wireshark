@@ -1898,8 +1898,8 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *se_tree, *syscall_tree;
-    guint       event_type = pinfo->phdr->pseudo_header.sysdig_event.event_type;
-    int         encoding = pinfo->phdr->pseudo_header.sysdig_event.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+    guint       event_type = pinfo->rec->rec_header.syscall_header.event_type;
+    int         encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
     const struct _event_col_info *cur_col_info;
     const struct _event_tree_info *cur_tree_info;
 
@@ -1959,9 +1959,9 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     se_tree = proto_item_add_subtree(ti, ett_sysdig_event);
 
-    proto_tree_add_uint(se_tree, hf_se_cpu_id, tvb, 0, 0, pinfo->phdr->pseudo_header.sysdig_event.cpu_id);
-    proto_tree_add_uint64(se_tree, hf_se_thread_id, tvb, 0, 0, pinfo->phdr->pseudo_header.sysdig_event.thread_id);
-    proto_tree_add_uint(se_tree, hf_se_event_length, tvb, 0, 0, pinfo->phdr->pseudo_header.sysdig_event.event_len);
+    proto_tree_add_uint(se_tree, hf_se_cpu_id, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.cpu_id);
+    proto_tree_add_uint64(se_tree, hf_se_thread_id, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.thread_id);
+    proto_tree_add_uint(se_tree, hf_se_event_length, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.event_len);
     ti = proto_tree_add_uint(se_tree, hf_se_event_type, tvb, 0, 0, event_type);
 
     syscall_tree = proto_item_add_subtree(ti, ett_sysdig_syscall);
@@ -1975,7 +1975,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* XXX */
     /* return offset; */
-    return pinfo->phdr->pseudo_header.sysdig_event.event_len;
+    return pinfo->rec->rec_header.syscall_header.event_len;
 }
 
 /* Register the protocol with Wireshark.

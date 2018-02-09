@@ -431,7 +431,7 @@ datagroup: dataln
 
 /* Run the parser. */
 int
-run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
+run_ascend_parser(FILE_T fh, wtap_rec *rec, guint8 *pd,
                   ascend_state_t *parser_state, int *err, gchar **err_info)
 {
   yyscan_t scanner = NULL;
@@ -449,7 +449,7 @@ run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
   parser_state->ascend_parse_error = NULL;
   parser_state->err = 0;
   parser_state->err_info = NULL;
-  parser_state->pseudo_header = &phdr->pseudo_header.ascend;
+  parser_state->pseudo_header = &rec->rec_header.packet_header.pseudo_header.ascend;
   parser_state->pkt_data = pd;
 
   /*

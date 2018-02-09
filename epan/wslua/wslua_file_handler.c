@@ -144,7 +144,7 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
                       gint64 *data_offset);
 static gboolean
 wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf,
+    wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info);
 static void
 wslua_filehandler_close(wtap *wth);
@@ -272,11 +272,11 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
         *err = errno = 0;
     }
 
-    wth->phdr.opt_comment = NULL;
+    wth->rec.opt_comment = NULL;
 
     fp = push_File(L, wth->fh);
     fc = push_CaptureInfo(L, wth, FALSE);
-    fi = push_FrameInfo(L, &wth->phdr, wth->frame_buffer);
+    fi = push_FrameInfo(L, &wth->rec, wth->rec_data);
 
     switch ( lua_pcall(L,3,1,1) ) {
         case 0:
@@ -312,7 +312,7 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
  */
 static gboolean
 wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf,
+    wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
@@ -328,11 +328,11 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     if (err) {
         *err = errno = 0;
     }
-    phdr->opt_comment = NULL;
+    rec->opt_comment = NULL;
 
     fp = push_File(L, wth->random_fh);
     fc = push_CaptureInfo(L, wth, FALSE);
-    fi = push_FrameInfo(L, phdr, buf);
+    fi = push_FrameInfo(L, rec, buf);
     lua_pushnumber(L, (lua_Number)seek_off);
 
     switch ( lua_pcall(L,4,1,1) ) {
@@ -468,7 +468,7 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 
 /* some declarations */
 static gboolean
-wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
                       const guint8 *pd, int *err, gchar **err_info);
 static gboolean
 wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err);
@@ -539,7 +539,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
  * else FALSE.
 */
 static gboolean
-wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
                       const guint8 *pd, int *err, gchar **err_info _U_)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
@@ -558,7 +558,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     fp = push_Wdh(L, wdh);
     fc = push_CaptureInfoConst(L,wdh);
-    fi = push_FrameInfoConst(L, phdr, pd);
+    fi = push_FrameInfoConst(L, rec, pd);
 
     errno = WTAP_ERR_CANT_WRITE;
     switch ( lua_pcall(L,3,1,1) ) {

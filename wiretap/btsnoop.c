@@ -62,9 +62,9 @@ static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* of
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
 wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -141,21 +141,21 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 {
     *data_offset = file_tell(wth->fh);
 
-    return btsnoop_read_record(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+    return btsnoop_read_record(wth, wth->fh, &wth->rec, wth->rec_data,
                                err, err_info);
 }
 
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-                                  struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+                                  wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
-    return btsnoop_read_record(wth, wth->random_fh, phdr, buf, err, err_info);
+    return btsnoop_read_record(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
 static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
-                                    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+                                    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     struct btsnooprec_hdr hdr;
     guint32 packet_size;
@@ -185,40 +185,40 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     ts = GINT64_FROM_BE(hdr.ts_usec);
     ts -= KUnixTimeBase;
 
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    phdr->ts.secs = (guint)(ts / 1000000);
-    phdr->ts.nsecs = (guint)((ts % 1000000) * 1000);
-    phdr->caplen = packet_size;
-    phdr->len = orig_size;
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    rec->ts.secs = (guint)(ts / 1000000);
+    rec->ts.nsecs = (guint)((ts % 1000000) * 1000);
+    rec->rec_header.packet_header.caplen = packet_size;
+    rec->rec_header.packet_header.len = orig_size;
     if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
     {
-        phdr->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+        rec->rec_header.packet_header.pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
     } else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI) {
-        phdr->pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+        rec->rec_header.packet_header.pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
         if(flags & KHciLoggerCommandOrEvent)
         {
-            if(phdr->pseudo_header.bthci.sent)
+            if(rec->rec_header.packet_header.pseudo_header.bthci.sent)
             {
-                phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
+                rec->rec_header.packet_header.pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
             }
             else
             {
-                phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
+                rec->rec_header.packet_header.pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
             }
         }
         else
         {
-            phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
+            rec->rec_header.packet_header.pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
         }
     } else  if (wth->file_encap == WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) {
-        phdr->pseudo_header.btmon.opcode = flags & 0xFFFF;
-        phdr->pseudo_header.btmon.adapter_id = flags >> 16;
+        rec->rec_header.packet_header.pseudo_header.btmon.opcode = flags & 0xFFFF;
+        rec->rec_header.packet_header.pseudo_header.btmon.adapter_id = flags >> 16;
     }
 
 
     /* Read packet data. */
-    return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
+    return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 /* Returns 0 if we could write the specified encapsulation type,
@@ -268,7 +268,7 @@ static guint8 btsnoop_lookup_flags(guint8 hci_type, gboolean sent, guint8 *flags
 }
 
 static gboolean btsnoop_format_partial_rec_hdr(
-    const struct wtap_pkthdr *phdr,
+    const wtap_rec *rec,
     const union wtap_pseudo_header *pseudo_header,
     const guint8 *pd, int *err, gchar **err_info,
     struct btsnooprec_hdr *rec_hdr)
@@ -285,8 +285,8 @@ static gboolean btsnoop_format_partial_rec_hdr(
         return FALSE;
     }
 
-    nsecs = phdr->ts.nsecs;
-    ts_usec  = ((gint64) phdr->ts.secs * 1000000) + (nsecs / 1000);
+    nsecs = rec->ts.nsecs;
+    ts_usec  = ((gint64) rec->ts.secs * 1000000) + (nsecs / 1000);
     ts_usec += KUnixTimeBase;
 
     rec_hdr->flags = GUINT32_TO_BE(flags);
@@ -298,14 +298,14 @@ static gboolean btsnoop_format_partial_rec_hdr(
 
 /* FIXME: How do we support multiple backends?*/
 static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
-    const struct wtap_pkthdr *phdr,
+    const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info)
 {
-    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+    const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     struct btsnooprec_hdr rec_hdr;
 
     /* We can only write packet records. */
-    if (phdr->rec_type != REC_TYPE_PACKET) {
+    if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
@@ -314,17 +314,17 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
      * Don't write out anything bigger than we can read.
      * (This will also fail on a caplen of 0, as it should.)
      */
-    if (phdr->caplen-1 > WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (rec->rec_header.packet_header.caplen-1 > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
 
-    if (!btsnoop_format_partial_rec_hdr(phdr, pseudo_header, pd, err, err_info,
+    if (!btsnoop_format_partial_rec_hdr(rec, pseudo_header, pd, err, err_info,
                                         &rec_hdr))
         return FALSE;
 
-    rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen-1);
-    rec_hdr.orig_len = GUINT32_TO_BE(phdr->len-1);
+    rec_hdr.incl_len = GUINT32_TO_BE(rec->rec_header.packet_header.caplen-1);
+    rec_hdr.orig_len = GUINT32_TO_BE(rec->rec_header.packet_header.len-1);
 
     if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
@@ -334,49 +334,49 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     /* Skip HCI packet type */
     ++pd;
 
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen-1, err))
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen-1, err))
         return FALSE;
 
-    wdh->bytes_dumped += phdr->caplen-1;
+    wdh->bytes_dumped += rec->rec_header.packet_header.caplen-1;
 
     return TRUE;
 }
 
 static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
-    const struct wtap_pkthdr *phdr,
+    const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info)
 {
-    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+    const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     struct btsnooprec_hdr rec_hdr;
 
     /* We can only write packet records. */
-    if (phdr->rec_type != REC_TYPE_PACKET) {
+    if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
 
     /* Don't write out anything bigger than we can read. */
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
 
-    if (!btsnoop_format_partial_rec_hdr(phdr, pseudo_header, pd, err, err_info,
+    if (!btsnoop_format_partial_rec_hdr(rec, pseudo_header, pd, err, err_info,
                                         &rec_hdr))
         return FALSE;
 
-    rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen);
-    rec_hdr.orig_len = GUINT32_TO_BE(phdr->len);
+    rec_hdr.incl_len = GUINT32_TO_BE(rec->rec_header.packet_header.caplen);
+    rec_hdr.orig_len = GUINT32_TO_BE(rec->rec_header.packet_header.len);
 
     if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof rec_hdr;
 
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
         return FALSE;
 
-    wdh->bytes_dumped += phdr->caplen;
+    wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
     return TRUE;
 }

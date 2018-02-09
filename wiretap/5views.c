@@ -87,12 +87,12 @@ typedef struct
 
 static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+static gboolean _5views_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info);
 static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
-    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
+    wtap_rec *rec, int *err, gchar **err_info);
 
-static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guint8 *pd, int *err, gchar **err_info);
+static gboolean _5views_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd, int *err, gchar **err_info);
 static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err);
 
 
@@ -186,7 +186,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 		/* Read record header. */
 		if (!_5views_read_header(wth, wth->fh, &TimeStamped_Header,
-		    &wth->phdr, err, err_info))
+		    &wth->rec, err, err_info))
 			return FALSE;
 
 		if (TimeStamped_Header.RecSubType == CST_5VW_FRAME_RECORD) {
@@ -203,23 +203,23 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			return FALSE;
 	} while (1);
 
-	if (wth->phdr.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+	if (wth->rec.rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("5views: File has %u-byte packet, bigger than maximum of %u",
-		    wth->phdr.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
+		    wth->rec.rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 
-	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
-	    wth->phdr.caplen, err, err_info);
+	return wtap_read_packet_bytes(wth->fh, wth->rec_data,
+	    wth->rec.rec_header.packet_header.caplen, err, err_info);
 }
 
 static gboolean
-_5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+_5views_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
@@ -231,7 +231,7 @@ _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	 * Read the header.
 	 */
 	if (!_5views_read_header(wth, wth->random_fh, &TimeStamped_Header,
-	    phdr, err, err_info)) {
+	    rec, err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -240,7 +240,7 @@ _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	/*
 	 * Read the packet data.
 	 */
-	return wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen,
+	return wtap_read_packet_bytes(wth->random_fh, buf, rec->rec_header.packet_header.caplen,
 	    err, err_info);
 }
 
@@ -248,7 +248,7 @@ _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
    on error. */
 static gboolean
 _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
-    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+    wtap_rec *rec, int *err, gchar **err_info)
 {
 	/* Read record header. */
 	if (!wtap_read_bytes_or_eof(fh, hdr, (unsigned int)sizeof(t_5VW_TimeStamped_Header),
@@ -268,18 +268,18 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 	hdr->Utc = pletoh32(&hdr->Utc);
 	hdr->NanoSecondes = pletoh32(&hdr->NanoSecondes);
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS;
-	phdr->ts.secs = hdr->Utc;
-	phdr->ts.nsecs = hdr->NanoSecondes;
-	phdr->caplen = hdr->RecSize;
-	phdr->len = hdr->RecSize;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS;
+	rec->ts.secs = hdr->Utc;
+	rec->ts.nsecs = hdr->NanoSecondes;
+	rec->rec_header.packet_header.caplen = hdr->RecSize;
+	rec->rec_header.packet_header.len = hdr->RecSize;
 
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
-		phdr->pseudo_header.eth.fcs_len = 0;
+		rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
 		break;
 	}
 
@@ -336,20 +336,20 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean _5views_dump(wtap_dumper *wdh,
-	const struct wtap_pkthdr *phdr,
+	const wtap_rec *rec,
 	const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_TimeStamped_Header HeaderFrame;
 
 	/* We can only write packet records. */
-	if (phdr->rec_type != REC_TYPE_PACKET) {
+	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
 		return FALSE;
 	}
 
 	/* Don't write out something bigger than we can read. */
-	if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+	if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}
@@ -364,9 +364,9 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	HeaderFrame.RecNb = GUINT32_TO_LE(1);
 
 	/* record-dependent fields */
-	HeaderFrame.Utc = GUINT32_TO_LE(phdr->ts.secs);
-	HeaderFrame.NanoSecondes = GUINT32_TO_LE(phdr->ts.nsecs);
-	HeaderFrame.RecSize = GUINT32_TO_LE(phdr->len);
+	HeaderFrame.Utc = GUINT32_TO_LE(rec->ts.secs);
+	HeaderFrame.NanoSecondes = GUINT32_TO_LE(rec->ts.nsecs);
+	HeaderFrame.RecSize = GUINT32_TO_LE(rec->rec_header.packet_header.len);
 	HeaderFrame.RecInfo = GUINT32_TO_LE(0);
 
 	/* write the record header */
@@ -375,7 +375,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 		return FALSE;
 
 	/* write the data */
-	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
 		return FALSE;
 
 	_5views->nframes ++;

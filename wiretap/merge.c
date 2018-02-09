@@ -245,7 +245,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
     int i;
     int ei = -1;
     nstime_t tv = { sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX };
-    struct wtap_pkthdr *phdr;
+    wtap_rec *rec;
 
     /*
      * Make sure we have a record available from each file that's not at
@@ -273,21 +273,21 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
         }
 
         if (in_files[i].state == RECORD_PRESENT) {
-            phdr = wtap_phdr(in_files[i].wth);
-            if (!(phdr->presence_flags & WTAP_HAS_TS)) {
+            rec = wtap_get_rec(in_files[i].wth);
+            if (!(rec->presence_flags & WTAP_HAS_TS)) {
                 /*
                  * No time stamp.  Pick this record, and stop looking.
                  */
                 ei = i;
                 break;
             }
-            if (is_earlier(&phdr->ts, &tv)) {
+            if (is_earlier(&rec->ts, &tv)) {
                 /*
                  * This record's time stamp is earlier than any of the
                  * records we've seen so far.  Pick it, for now, but
                  * keep looking.
                  */
-                tv = phdr->ts;
+                tv = rec->ts;
                 ei = i;
             }
         }
@@ -764,7 +764,7 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
                     /*
                      * It's the same as a previous IDB, so we're going to "merge"
                      * them into one by adding a map from its old IDB index to the new
-                     * one. This will be used later to change the phdr interface_id.
+                     * one. This will be used later to change the rec interface_id.
                      */
                     add_idb_index_map(&in_files[i], itf_count, merged_index);
                 }
@@ -787,26 +787,26 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
 }
 
 static gboolean
-map_phdr_interface_id(struct wtap_pkthdr *phdr, const merge_in_file_t *in_file)
+map_rec_interface_id(wtap_rec *rec, const merge_in_file_t *in_file)
 {
     guint current_interface_id = 0;
-    g_assert(phdr != NULL);
+    g_assert(rec != NULL);
     g_assert(in_file != NULL);
     g_assert(in_file->idb_index_map != NULL);
 
-    if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
-        current_interface_id = phdr->interface_id;
+    if (rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+        current_interface_id = rec->rec_header.packet_header.interface_id;
     }
 
     if (current_interface_id >= in_file->idb_index_map->len) {
         /* this shouldn't happen, but in a malformed input file it could */
-        merge_debug("merge::map_phdr_interface_id: current_interface_id (%u) >= in_file->idb_index_map->len (%u) (ERROR?)",
+        merge_debug("merge::map_rec_interface_id: current_interface_id (%u) >= in_file->idb_index_map->len (%u) (ERROR?)",
             current_interface_id, in_file->idb_index_map->len);
         return FALSE;
     }
 
-    phdr->interface_id = g_array_index(in_file->idb_index_map, guint, current_interface_id);
-    phdr->presence_flags |= WTAP_HAS_INTERFACE_ID;
+    rec->rec_header.packet_header.interface_id = g_array_index(in_file->idb_index_map, guint, current_interface_id);
+    rec->presence_flags |= WTAP_HAS_INTERFACE_ID;
 
     return TRUE;
 }
@@ -823,7 +823,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
     merge_in_file_t    *in_file;
     int                 count = 0;
     gboolean            stop_flag = FALSE;
-    struct wtap_pkthdr *phdr, snap_phdr;
+    wtap_rec *rec,      snap_rec;
 
     for (;;) {
         *err = 0;
@@ -858,21 +858,27 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
             break;
         }
 
-        phdr = wtap_phdr(in_file->wth);
+        rec = wtap_get_rec(in_file->wth);
 
-        if (phdr->presence_flags & WTAP_HAS_CAP_LEN) {
-            if (snaplen != 0 && phdr->caplen > snaplen) {
-                /*
-                 * The dumper will only write up to caplen bytes out,
-                 * so we only need to change that value, instead of
-                 * cloning the whole packet with fewer bytes.
-                 *
-                 * XXX: but do we need to change the IDBs' snap_len?
-                 */
-                snap_phdr = *phdr;
-                snap_phdr.caplen = snaplen;
-                phdr = &snap_phdr;
+        switch (rec->rec_type) {
+
+        case REC_TYPE_PACKET:
+            if (rec->presence_flags & WTAP_HAS_CAP_LEN) {
+                if (snaplen != 0 &&
+                    rec->rec_header.packet_header.caplen > snaplen) {
+                    /*
+                     * The dumper will only write up to caplen bytes out,
+                     * so we only need to change that value, instead of
+                     * cloning the whole packet with fewer bytes.
+                     *
+                     * XXX: but do we need to change the IDBs' snap_len?
+                     */
+                    snap_rec = *rec;
+                    snap_rec.rec_header.packet_header.caplen = snaplen;
+                    rec = &snap_rec;
+                }
             }
+            break;
         }
 
         if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
@@ -882,15 +888,15 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
              * now, we hardcode that, but we need to figure
              * out a more general way to handle this.
              */
-            if (phdr->rec_type == REC_TYPE_PACKET) {
-                if (!map_phdr_interface_id(phdr, in_file)) {
+            if (rec->rec_type == REC_TYPE_PACKET) {
+                if (!map_rec_interface_id(rec, in_file)) {
                     status = MERGE_ERR_BAD_PHDR_INTERFACE_ID;
                     break;
                 }
             }
         }
 
-        if (!wtap_dump(pdh, phdr, wtap_buf_ptr(in_file->wth), err, err_info)) {
+        if (!wtap_dump(pdh, rec, wtap_get_buf_ptr(in_file->wth), err, err_info)) {
             status = MERGE_ERR_CANT_WRITE_OUTFILE;
             break;
         }

@@ -60,7 +60,7 @@ dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   guint16     type;
   int         grh_size = 0;
 
-  if (pinfo->phdr->pkt_encap == WTAP_ENCAP_IP_OVER_IB_PCAP)
+  if (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_IP_OVER_IB_PCAP)
     grh_size = 40;
 
   /* load the top pane info. This should be overwritten by
@@ -74,7 +74,7 @@ dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     fh_tree = proto_item_add_subtree(ti, ett_raw);
 
     /* for PCAP data populate subtree with GRH pseudo header data */
-    if (pinfo->phdr->pkt_encap == WTAP_ENCAP_IP_OVER_IB_PCAP) {
+    if (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_IP_OVER_IB_PCAP) {
 
       /* Zero means GRH is not valid (unicast). Only destination
          address is set. */

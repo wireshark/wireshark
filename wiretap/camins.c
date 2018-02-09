@@ -291,7 +291,7 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
 
 
 static gboolean
-camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
     guint8      dat_trans_type;
@@ -327,11 +327,11 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
         return FALSE;
     offset += bytes_read;
 
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->pkt_encap = WTAP_ENCAP_DVBCI;
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_DVBCI;
     /* timestamps aren't supported for now */
-    phdr->caplen = offset;
-    phdr->len = offset;
+    rec->rec_header.packet_header.caplen = offset;
+    rec->rec_header.packet_header.len = offset;
 
     return TRUE;
 }
@@ -342,19 +342,19 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return camins_read_packet(wth->fh, &wth->phdr, wth->frame_buffer, err,
+    return camins_read_packet(wth->fh, &wth->rec, wth->rec_data, err,
         err_info);
 }
 
 
 static gboolean
-camins_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *pkthdr, Buffer *buf, int *err, gchar **err_info)
+camins_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
+                 int *err, gchar **err_info)
 {
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return FALSE;
 
-    return camins_read_packet(wth->random_fh, pkthdr, buf, err, err_info);
+    return camins_read_packet(wth->random_fh, rec, buf, err, err_info);
 }
 
 

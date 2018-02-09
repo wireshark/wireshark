@@ -109,8 +109,8 @@ typedef struct {
 static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean capsa_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static int capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static int capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
 
 wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
@@ -262,8 +262,8 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 	if (!file_seek(wth->fh, *data_offset, SEEK_SET, err))
 		return FALSE;
 
-	padbytes = capsa_read_packet(wth, wth->fh, &wth->phdr,
-	    wth->frame_buffer, err, err_info);
+	padbytes = capsa_read_packet(wth, wth->fh, &wth->rec,
+	    wth->rec_data, err, err_info);
 	if (padbytes == -1)
 		return FALSE;
 
@@ -282,12 +282,12 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 capsa_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (capsa_read_packet(wth, wth->random_fh, phdr, buf, err, err_info) == -1) {
+	if (capsa_read_packet(wth, wth->random_fh, rec, buf, err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -296,7 +296,7 @@ capsa_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static int
-capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
 	capsa_t *capsa = (capsa_t *)wth->priv;
@@ -402,14 +402,14 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	 * We assume there's no FCS in this frame.
 	 * XXX - is there ever one?
 	 */
-	phdr->pseudo_header.eth.fcs_len = 0;
+	rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->caplen = packet_size;
-	phdr->len = orig_size;
-	phdr->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
-	phdr->ts.secs = (time_t)(timestamp / 1000000);
-	phdr->ts.nsecs = ((int)(timestamp % 1000000))*1000;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->rec_header.packet_header.caplen = packet_size;
+	rec->rec_header.packet_header.len = orig_size;
+	rec->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
+	rec->ts.secs = (time_t)(timestamp / 1000000);
+	rec->ts.nsecs = ((int)(timestamp % 1000000))*1000;
 
 	/*
 	 * Read the packet data.

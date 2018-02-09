@@ -1599,7 +1599,7 @@ void RtpAnalysisDialog::findStreams()
     epan_dissect_init(&edt, cap_file_.capFile()->epan, TRUE, FALSE);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
-    epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->phdr,
+    epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
                      frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &cap_file_.capFile()->buf),
                      fdata, NULL);
 

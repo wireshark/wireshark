@@ -76,8 +76,8 @@
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
 	frame_data *frame;	   /* The frame being displayed */
-	struct wtap_pkthdr phdr;   /* Packet header */
-	guint8     *pd;		   /* Packet data */
+	wtap_rec    rec;           /* Record metadata */
+	guint8     *pd;		   /* Record data */
 	GtkWidget  *main;
 	GtkWidget  *tv_scrollw;
 	GtkWidget  *tree_view;
@@ -159,7 +159,7 @@ redissect_packet_window(gpointer object, gpointer user_data _U_)
 	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
 	epan_dissect_init(&(DataPtr->edt), cfile.epan, TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->phdr,
+	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->rec,
 	    frame_tvbuff_new(&cfile.provider, DataPtr->frame, DataPtr->pd),
 	    DataPtr->frame, NULL);
 	add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
@@ -224,12 +224,12 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 
 	/* XXX, protect cfile.epan from closing (ref counting?) */
 	DataPtr->frame = fd;
-	DataPtr->phdr  = cfile.phdr;
+	DataPtr->rec  = cfile.rec;
 	DataPtr->pd = (guint8 *)g_malloc(DataPtr->frame->cap_len);
 	memcpy(DataPtr->pd, ws_buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
 
 	epan_dissect_init(&(DataPtr->edt), cfile.epan, TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->phdr,
+	epan_dissect_run(&(DataPtr->edt), cfile.cd_t, &DataPtr->rec,
 	                 frame_tvbuff_new(&cfile.provider, DataPtr->frame, DataPtr->pd),
 			 DataPtr->frame, &cfile.cinfo);
 	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);

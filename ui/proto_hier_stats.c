@@ -150,22 +150,22 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps)
 process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
     epan_dissect_t	edt;
-    struct wtap_pkthdr  phdr;
+    wtap_rec            rec;
     Buffer		buf;
     double		cur_time;
 
-    wtap_phdr_init(&phdr);
+    wtap_rec_init(&rec);
 
     /* Load the record from the capture file */
     ws_buffer_init(&buf, 1500);
-    if (!cf_read_record_r(cf, frame, &phdr, &buf))
+    if (!cf_read_record_r(cf, frame, &rec, &buf))
         return FALSE;	/* failure */
 
     /* Dissect the record   tree  not visible */
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
     /* Don't fake protocols. We need them for the protocol hierarchy */
     epan_dissect_fake_protocols(&edt, FALSE);
-    epan_dissect_run(&edt, cf->cd_t, &phdr,
+    epan_dissect_run(&edt, cf->cd_t, &rec,
                      frame_tvbuff_new_buffer(&cf->provider, frame, &buf),
                      frame, cinfo);
 
@@ -183,7 +183,7 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats
 
     /* Free our memory. */
     epan_dissect_cleanup(&edt);
-    wtap_phdr_cleanup(&phdr);
+    wtap_rec_cleanup(&rec);
     ws_buffer_free(&buf);
 
     return TRUE;	/* success */

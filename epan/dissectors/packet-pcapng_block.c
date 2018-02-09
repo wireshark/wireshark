@@ -41,13 +41,13 @@ dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	 * is one.
 	 */
 	if (!dissector_try_uint(pcapng_block_type_dissector_table,
-	    pinfo->pseudo_header->ftsrec.record_type, tvb, pinfo, tree)) {
+	    pinfo->rec->rec_header.ft_specific_header.record_type, tvb, pinfo, tree)) {
 		/*
 		 * There isn't one; just do a minimal display.
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAPNG");
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Pcapng block, type %u",
-		    pinfo->pseudo_header->ftsrec.record_type);
+		    pinfo->rec->rec_header.ft_specific_header.record_type);
 
 		proto_tree_add_item(tree, proto_pcapng_block, tvb, 0, -1, ENC_NA);
 	}

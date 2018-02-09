@@ -200,24 +200,24 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols);
 WS_DLL_PUBLIC
 void
 epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
-        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+        wtap_rec *rec, tvbuff_t *tvb, frame_data *fd,
         struct epan_column_info *cinfo);
 
 WS_DLL_PUBLIC
 void
 epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
-        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+        wtap_rec *rec, tvbuff_t *tvb, frame_data *fd,
         struct epan_column_info *cinfo);
 
 /** run a single file packet dissection */
 WS_DLL_PUBLIC
 void
-epan_dissect_file_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+epan_dissect_file_run(epan_dissect_t *edt, wtap_rec *rec,
         tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
 
 WS_DLL_PUBLIC
 void
-epan_dissect_file_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+epan_dissect_file_run_with_taps(epan_dissect_t *edt, wtap_rec *rec,
         tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
 
 /** Prime an epan_dissect_t's proto_tree using the fields/protocols used in a dfilter. */

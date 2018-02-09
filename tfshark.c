@@ -123,7 +123,7 @@ static const char *separator = "";
 
 static gboolean process_file(capture_file *, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
-    epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
+    epan_dissect_t *edt, gint64 offset, wtap_rec *rec,
     const guchar *pd, guint tap_flags);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
@@ -1048,7 +1048,7 @@ tfshark_epan_new(capture_file *cf)
 
 static gboolean
 process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
-                          gint64 offset, struct wtap_pkthdr *whdr,
+                          gint64 offset, wtap_rec *rec,
                           const guchar *pd)
 {
   frame_data     fdlocal;
@@ -1064,7 +1064,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
      that all packets can be marked as 'passed'. */
   passed = TRUE;
 
-  frame_data_init(&fdlocal, framenum, whdr, offset, cum_bytes);
+  frame_data_init(&fdlocal, framenum, rec, offset, cum_bytes);
 
   /* If we're going to print packet information, or we're going to
      run a read filter, or display filter, or we're going to process taps, set up to
@@ -1086,7 +1086,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
       cf->provider.ref = &ref_frame;
     }
 
-    epan_dissect_file_run(edt, whdr,
+    epan_dissect_file_run(edt, rec,
                           file_tvbuff_new(&cf->provider, &fdlocal, pd),
                           &fdlocal, NULL);
 
@@ -1122,7 +1122,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 
 static gboolean
 process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
-                           frame_data *fdata, struct wtap_pkthdr *phdr,
+                           frame_data *fdata, wtap_rec *rec,
                            Buffer *buf, guint tap_flags)
 {
   column_info    *cinfo;
@@ -1167,7 +1167,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
       cf->provider.ref = &ref_frame;
     }
 
-    epan_dissect_file_run_with_taps(edt, phdr,
+    epan_dissect_file_run_with_taps(edt, rec,
         file_tvbuff_new_buffer(&cf->provider, fdata, buf), fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
@@ -1205,7 +1205,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 }
 
 static gboolean
-local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, gchar **err_info _U_, gint64 *data_offset _U_, guint8** data_buffer)
+local_wtap_read(capture_file *cf, wtap_rec *file_rec _U_, int *err, gchar **err_info _U_, gint64 *data_offset _U_, guint8** data_buffer)
 {
     /* int bytes_read; */
     gint64 packet_size = wtap_file_size(cf->provider.wth, err);
@@ -1226,8 +1226,8 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, g
 
 
     /* XXX - SET FRAME SIZE EQUAL TO TOTAL FILE SIZE */
-    file_phdr->caplen = (guint32)packet_size;
-    file_phdr->len = (guint32)packet_size;
+    file_rec->rec_header.packet_header.caplen = (guint32)packet_size;
+    file_rec->rec_header.packet_header.len = (guint32)packet_size;
 
     /*
      * Set the packet encapsulation to the file's encapsulation
@@ -1237,7 +1237,7 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, g
      * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
      * anyway.
      */
-    wth->phdr.pkt_encap = wth->file_encap;
+    wth->rec.rec_header.packet_header.pkt_encap = wth->file_encap;
 
     if (!wth->subtype_read(wth, err, err_info, data_offset)) {
         /*
@@ -1258,8 +1258,8 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, g
      * It makes no sense for the captured data length to be bigger
      * than the actual data length.
      */
-    if (wth->phdr.caplen > wth->phdr.len)
-        wth->phdr.caplen = wth->phdr.len;
+    if (wth->rec.rec_header.packet_header.caplen > wth->rec.rec_header.packet_header.len)
+        wth->rec.rec_header.packet_header.caplen = wth->rec.rec_header.packet_header.len;
 
     /*
      * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
@@ -1267,7 +1267,7 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, g
      * but the read routine didn't set this packet's
      * encapsulation type.
      */
-    g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
+    g_assert(wth->rec.rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
 #endif
 
     return TRUE; /* success */
@@ -1284,7 +1284,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
   guint        tap_flags;
   Buffer       buf;
   epan_dissect_t *edt = NULL;
-  struct wtap_pkthdr file_phdr;
+  wtap_rec     file_rec;
   guint8* raw_data;
 
   if (print_packet_info) {
@@ -1301,10 +1301,10 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
 
-  wtap_phdr_init(&file_phdr);
+  wtap_rec_init(&file_rec);
 
   /* XXX - TEMPORARY HACK TO ELF DISSECTOR */
-  file_phdr.pkt_encap = 1234;
+  file_rec.rec_header.packet_header.pkt_encap = 1234;
 
   if (perform_two_pass_analysis) {
     frame_data *fdata;
@@ -1331,9 +1331,9 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
          so it's not going to be "visible". */
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
-    while (local_wtap_read(cf, &file_phdr, &err, &err_info, &data_offset, &raw_data)) {
-      if (process_packet_first_pass(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->provider.wth)*/,
-                                    wtap_buf_ptr(cf->provider.wth))) {
+    while (local_wtap_read(cf, &file_rec, &err, &err_info, &data_offset, &raw_data)) {
+      if (process_packet_first_pass(cf, edt, data_offset, &file_rec/*wtap_get_rec(cf->provider.wth)*/,
+                                    wtap_get_buf_ptr(cf->provider.wth))) {
 
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
@@ -1397,10 +1397,10 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 #if 0
       if (wtap_seek_read(cf->provider.wth, fdata->file_off,
           &buf, fdata->cap_len, &err, &err_info)) {
-        process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags);
+        process_packet_second_pass(cf, edt, fdata, &cf->rec, &buf, tap_flags);
       }
 #else
-      if (!process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf,
+      if (!process_packet_second_pass(cf, edt, fdata, &cf->rec, &buf,
                                        tap_flags))
         return FALSE;
 #endif
@@ -1451,12 +1451,12 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
     }
 
-    while (local_wtap_read(cf, &file_phdr, &err, &err_info, &data_offset, &raw_data)) {
+    while (local_wtap_read(cf, &file_rec, &err, &err_info, &data_offset, &raw_data)) {
 
       framenum++;
 
       if (!process_packet_single_pass(cf, edt, data_offset,
-                                      &file_phdr/*wtap_phdr(cf->provider.wth)*/,
+                                      &file_rec/*wtap_get_rec(cf->provider.wth)*/,
                                       raw_data, tap_flags))
         return FALSE;
 
@@ -1477,7 +1477,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     }
   }
 
-  wtap_phdr_cleanup(&file_phdr);
+  wtap_rec_cleanup(&file_rec);
 
   if (err != 0) {
     /*
@@ -1564,7 +1564,7 @@ out:
 
 static gboolean
 process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-                           struct wtap_pkthdr *whdr, const guchar *pd,
+                           wtap_rec *rec, const guchar *pd,
                            guint tap_flags)
 {
   frame_data      fdata;
@@ -1579,7 +1579,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
      that all packets can be marked as 'passed'. */
   passed = TRUE;
 
-  frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
+  frame_data_init(&fdata, cf->count, rec, offset, cum_bytes);
 
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
@@ -1611,7 +1611,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
       cf->provider.ref = &ref_frame;
     }
 
-    epan_dissect_file_run_with_taps(edt, whdr,
+    epan_dissect_file_run_with_taps(edt, rec,
                                     frame_tvbuff_new(&cf->provider, &fdata, pd),
                                     &fdata, cinfo);
 

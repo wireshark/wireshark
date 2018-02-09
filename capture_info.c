@@ -40,7 +40,7 @@ void capture_info_new_packets(int to_read, info_data_t* cap_info)
     int err;
     gchar *err_info;
     gint64 data_offset;
-    struct wtap_pkthdr *phdr;
+    wtap_rec *rec;
     union wtap_pseudo_header *pseudo_header;
     int wtap_linktype;
     const guchar *buf;
@@ -53,15 +53,17 @@ void capture_info_new_packets(int to_read, info_data_t* cap_info)
     while (to_read > 0) {
         wtap_cleareof(cap_info->wtap);
         if (wtap_read(cap_info->wtap, &err, &err_info, &data_offset)) {
-            phdr = wtap_phdr(cap_info->wtap);
-            pseudo_header = &phdr->pseudo_header;
-            wtap_linktype = phdr->pkt_encap;
-            buf = wtap_buf_ptr(cap_info->wtap);
+            rec = wtap_get_rec(cap_info->wtap);
+            if (rec->rec_type == REC_TYPE_PACKET) {
+                pseudo_header = &rec->rec_header.packet_header.pseudo_header;
+                wtap_linktype = rec->rec_header.packet_header.pkt_encap;
+                buf = wtap_get_buf_ptr(cap_info->wtap);
 
-            capture_info_packet(cap_info, wtap_linktype, buf, phdr->caplen, pseudo_header);
+                capture_info_packet(cap_info, wtap_linktype, buf, rec->rec_header.packet_header.caplen, pseudo_header);
 
-            /*g_warning("new packet");*/
-            to_read--;
+                /*g_warning("new packet");*/
+                to_read--;
+            }
         }
     }
 

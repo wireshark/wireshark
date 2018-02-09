@@ -34,12 +34,12 @@ typedef struct packetlogger_header {
 static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info,
 				  gint64 *data_offset);
 static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
-				       struct wtap_pkthdr *phdr,
+				       wtap_rec *rec,
 				       Buffer *buf, int *err, gchar **err_info);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
 					 FILE_T fh, gboolean little_endian,
 					 int *err, gchar **err_info);
-static gboolean packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 					 Buffer *buf, int *err,
 					 gchar **err_info);
 
@@ -108,18 +108,18 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return packetlogger_read_packet(wth, wth->fh, &wth->phdr,
-	    wth->frame_buffer, err, err_info);
+	return packetlogger_read_packet(wth, wth->fh, &wth->rec,
+	    wth->rec_data, err, err_info);
 }
 
 static gboolean
-packetlogger_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+packetlogger_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
 		       Buffer *buf, int *err, gchar **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if(!packetlogger_read_packet(wth, wth->random_fh, phdr, buf, err, err_info)) {
+	if(!packetlogger_read_packet(wth, wth->random_fh, rec, buf, err, err_info)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -154,7 +154,7 @@ packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh,
 }
 
 static gboolean
-packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 			 int *err, gchar **err_info)
 {
 	packetlogger_t *packetlogger = (packetlogger_t *)wth->priv;
@@ -180,16 +180,16 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer 
 		return FALSE;
 	}
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS;
 
-	phdr->len = pl_hdr.len - 8;
-	phdr->caplen = pl_hdr.len - 8;
+	rec->rec_header.packet_header.len = pl_hdr.len - 8;
+	rec->rec_header.packet_header.caplen = pl_hdr.len - 8;
 
-	phdr->ts.secs = (time_t)pl_hdr.ts_secs;
-	phdr->ts.nsecs = (int)(pl_hdr.ts_usecs * 1000);
+	rec->ts.secs = (time_t)pl_hdr.ts_secs;
+	rec->ts.nsecs = (int)(pl_hdr.ts_usecs * 1000);
 
-	return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
+	return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 /*

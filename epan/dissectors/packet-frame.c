@@ -228,14 +228,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	DISSECTOR_ASSERT(fr_data);
 
-	switch (pinfo->phdr->rec_type) {
+	switch (pinfo->rec->rec_type) {
 
 	case REC_TYPE_PACKET:
 		pinfo->current_proto = "Frame";
-		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
-			if (pinfo->phdr->pack_flags & 0x00000001)
+		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
+			if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000001)
 				pinfo->p2p_dir = P2P_DIR_RECV;
-			if (pinfo->phdr->pack_flags & 0x00000002)
+			if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000002)
 				pinfo->p2p_dir = P2P_DIR_SENT;
 		}
 
@@ -245,7 +245,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		 * overrides the packet record.
 		 */
 		if (pinfo->pseudo_header != NULL) {
-			switch (pinfo->phdr->pkt_encap) {
+			switch (pinfo->rec->rec_header.packet_header.pkt_encap) {
 
 			case WTAP_ENCAP_WFLEET_HDLC:
 			case WTAP_ENCAP_CHDLC_WITH_PHDR:
@@ -340,13 +340,49 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		cap_plurality = plurality(cap_len, "", "s");
 		frame_plurality = plurality(frame_len, "", "s");
 
-		switch (pinfo->phdr->rec_type) {
+		switch (pinfo->rec->rec_type) {
 		case REC_TYPE_PACKET:
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			    "Frame %u: %u byte%s on wire",
+			    pinfo->num, frame_len, frame_plurality);
+			if (generate_bits_field)
+				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+			proto_item_append_text(ti, ", %u byte%s captured",
+			    cap_len, cap_plurality);
+			if (generate_bits_field) {
+				proto_item_append_text(ti, " (%u bits)",
+				    cap_len * 8);
+			}
+			if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+				proto_item_append_text(ti, " on interface %u",
+				    pinfo->rec->rec_header.packet_header.interface_id);
+			}
+			if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
+				if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000001)
+					proto_item_append_text(ti, " (inbound)");
+				if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000002)
+					proto_item_append_text(ti, " (outbound)");
+			}
+			break;
+
 		case REC_TYPE_FT_SPECIFIC_EVENT:
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			    "Event %u: %u byte%s on wire",
+			    pinfo->num, frame_len, frame_plurality);
+			if (generate_bits_field)
+				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+			proto_item_append_text(ti, ", %u byte%s captured",
+			cap_len, cap_plurality);
+			if (generate_bits_field) {
+				proto_item_append_text(ti, " (%u bits)",
+				cap_len * 8);
+			}
+			break;
+
 		case REC_TYPE_FT_SPECIFIC_REPORT:
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			"Frame %u: %u byte%s on wire",
-			pinfo->num, frame_len, frame_plurality);
+			    "Report %u: %u byte%s on wire",
+			    pinfo->num, frame_len, frame_plurality);
 			if (generate_bits_field)
 				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
 			proto_item_append_text(ti, ", %u byte%s captured",
@@ -366,39 +402,28 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			 * be preferred?
 			 */
 			ti = proto_tree_add_protocol_format(tree, proto_syscall, tvb, 0, tvb_captured_length(tvb),
-			"System Call %u: %u byte%s",
-			pinfo->num, frame_len, frame_plurality);
+			    "System Call %u: %u byte%s",
+			    pinfo->num, frame_len, frame_plurality);
 			break;
-		}
-
-		if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
-			proto_item_append_text(ti, " on interface %u",
-			    pinfo->phdr->interface_id);
-		}
-		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
-			if (pinfo->phdr->pack_flags & 0x00000001)
-				proto_item_append_text(ti, " (inbound)");
-			if (pinfo->phdr->pack_flags & 0x00000002)
-				proto_item_append_text(ti, " (outbound)");
 		}
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 
-		if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID &&
+		if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID &&
 		   (proto_field_is_referenced(tree, hf_frame_interface_id) || proto_field_is_referenced(tree, hf_frame_interface_name) || proto_field_is_referenced(tree, hf_frame_interface_description))) {
-			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->phdr->interface_id);
-			const char *interface_description = epan_get_interface_description(pinfo->epan, pinfo->phdr->interface_id);
+			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id);
+			const char *interface_description = epan_get_interface_description(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id);
 			proto_tree *if_tree;
 			proto_item *if_item;
 
 			if (interface_name) {
 				if_item = proto_tree_add_uint_format_value(fh_tree, hf_frame_interface_id, tvb, 0, 0,
-									   pinfo->phdr->interface_id, "%u (%s)",
-									   pinfo->phdr->interface_id, interface_name);
+									   pinfo->rec->rec_header.packet_header.interface_id, "%u (%s)",
+									   pinfo->rec->rec_header.packet_header.interface_id, interface_name);
 				if_tree = proto_item_add_subtree(if_item, ett_ifname);
 				proto_tree_add_string(if_tree, hf_frame_interface_name, tvb, 0, 0, interface_name);
 			} else {
-				if_item = proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->phdr->interface_id);
+				if_item = proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->rec->rec_header.packet_header.interface_id);
 			}
 
                         if (interface_description) {
@@ -407,7 +432,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                         }
 		}
 
-		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
+		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
 			proto_tree *flags_tree;
 			proto_item *flags_item;
 			static const int * flags[] = {
@@ -426,13 +451,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				NULL
 			};
 
-			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->phdr->pack_flags);
+			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pack_flags);
 			flags_tree = proto_item_add_subtree(flags_item, ett_flags);
-			proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pinfo->phdr->pack_flags);
+			proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pinfo->rec->rec_header.packet_header.pack_flags);
 		}
 
-		if (pinfo->phdr->rec_type == REC_TYPE_PACKET)
-			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->phdr->pkt_encap);
+		if (pinfo->rec->rec_type == REC_TYPE_PACKET)
+			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pkt_encap);
 
 		if (pinfo->presence_flags & PINFO_HAS_TS) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
@@ -512,16 +537,19 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		/* Check for existences of P2P pseudo header */
-		if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
-			proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
-					   0, 0, pinfo->p2p_dir);
-		}
+		if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
+			/* Check for existences of P2P pseudo header */
+			if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
+				proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
+						   0, 0, pinfo->p2p_dir);
+			}
 
-		/* Check for existences of MTP2 link number */
-		if ((pinfo->pseudo_header != NULL ) && (pinfo->phdr->pkt_encap == WTAP_ENCAP_MTP2_WITH_PHDR)) {
-			proto_tree_add_uint(fh_tree, hf_link_number, tvb,
-					    0, 0, pinfo->link_number);
+			/* Check for existences of MTP2 link number */
+			if ((pinfo->pseudo_header != NULL) &&
+			    (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_MTP2_WITH_PHDR)) {
+				proto_tree_add_uint(fh_tree, hf_link_number, tvb,
+						    0, 0, pinfo->link_number);
+			}
 		}
 
 		if (show_file_off) {
@@ -552,7 +580,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		*/
 		__try {
 #endif
-			switch (pinfo->phdr->rec_type) {
+			switch (pinfo->rec->rec_type) {
 
 			case REC_TYPE_PACKET:
 				if ((force_docsis_encap) && (docsis_handle)) {
@@ -561,12 +589,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					    (void *)pinfo->pseudo_header);
 				} else {
 					if (!dissector_try_uint_new(wtap_encap_dissector_table,
-					    pinfo->phdr->pkt_encap, tvb, pinfo,
+					    pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo,
 					    parent_tree, TRUE,
 					    (void *)pinfo->pseudo_header)) {
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-							     pinfo->phdr->pkt_encap);
+							     pinfo->rec->rec_header.packet_header.pkt_encap);
 						call_data_dissector(tvb, pinfo, parent_tree);
 					}
 				}

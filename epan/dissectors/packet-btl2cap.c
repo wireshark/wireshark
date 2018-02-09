@@ -705,8 +705,8 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         psm_data_t        *psm_data;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -767,8 +767,8 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            adapter_id;
         guint32            chandle;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -859,8 +859,8 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         guint32            chandle;
         psm_data_t        *psm_data;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -920,8 +920,8 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         guint32            adapter_id;
         guint32            chandle;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1006,8 +1006,8 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
         guint32            chandle;
         guint32            cid;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1268,8 +1268,8 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         guint32            cid;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1465,8 +1465,8 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         guint32            cid;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1556,8 +1556,8 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         guint32            cid;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1757,8 +1757,8 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            key_scid;
         guint32            key_dcid;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1849,8 +1849,8 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         guint32            key_dcid;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -2435,8 +2435,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     l2cap_data = wmem_new(wmem_packet_scope(), btl2cap_data_t);
 
-    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-        l2cap_data->interface_id = pinfo->phdr->interface_id;
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+        l2cap_data->interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
         l2cap_data->interface_id = HCI_INTERFACE_DEFAULT;
     if (acl_data) {
@@ -2712,8 +2712,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint32            chandle;
         guint32            key_cid;
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
         else
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;

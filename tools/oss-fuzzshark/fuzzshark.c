@@ -285,22 +285,22 @@ LLVMFuzzerTestOneInput(const guint8 *buf, size_t real_len)
 
 	guint32 len = (guint32) real_len;
 
-	struct wtap_pkthdr whdr;
+	wtap_rec rec;
 	frame_data fdlocal;
 
-	memset(&whdr, 0, sizeof(whdr));
+	memset(&rec, 0, sizeof(rec));
 
-	whdr.rec_type = REC_TYPE_PACKET;
-	whdr.caplen = len;
-	whdr.len = len;
+	rec.rec_type = REC_TYPE_PACKET;
+	rec.rec_header.packet_header.caplen = len;
+	rec.rec_header.packet_header.len = len;
 
 	/* whdr.pkt_encap = WTAP_ENCAP_ETHERNET; */
-	whdr.pkt_encap = G_MAXINT16;
-	whdr.presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN; /* most common flags... */
+	rec.rec_header.packet_header.pkt_encap = G_MAXINT16;
+	rec.presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN; /* most common flags... */
 
-	frame_data_init(&fdlocal, ++framenum, &whdr, /* offset */ 0, /* cum_bytes */ 0);
+	frame_data_init(&fdlocal, ++framenum, &rec, /* offset */ 0, /* cum_bytes */ 0);
 	/* frame_data_set_before_dissect() not needed */
-	epan_dissect_run(edt, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, &whdr, tvb_new_real_data(buf, len, len), &fdlocal, NULL /* &fuzz_cinfo */);
+	epan_dissect_run(edt, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, &rec, tvb_new_real_data(buf, len, len), &fdlocal, NULL /* &fuzz_cinfo */);
 	frame_data_destroy(&fdlocal);
 
 	epan_dissect_reset(edt);

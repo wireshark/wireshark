@@ -33,9 +33,9 @@ typedef struct {
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
         gint64 *data_offset);
 static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
-        struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+        wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean csids_read_packet(FILE_T fh, csids_t *csids,
-        struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+        wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
 struct csids_header {
   guint32 seconds; /* seconds since epoch */
@@ -130,7 +130,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 
   *data_offset = file_tell(wth->fh);
 
-  return csids_read_packet( wth->fh, csids, &wth->phdr, wth->frame_buffer,
+  return csids_read_packet( wth->fh, csids, &wth->rec, wth->rec_data,
                             err, err_info );
 }
 
@@ -138,7 +138,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 static gboolean
 csids_seek_read(wtap *wth,
                 gint64 seek_off,
-                struct wtap_pkthdr *phdr,
+                wtap_rec *rec,
                 Buffer *buf,
                 int *err,
                 gchar **err_info)
@@ -148,7 +148,7 @@ csids_seek_read(wtap *wth,
   if( file_seek( wth->random_fh, seek_off, SEEK_SET, err ) == -1 )
     return FALSE;
 
-  if( !csids_read_packet( wth->random_fh, csids, phdr, buf, err, err_info ) ) {
+  if( !csids_read_packet( wth->random_fh, csids, rec, buf, err, err_info ) ) {
     if( *err == 0 )
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;
@@ -157,7 +157,7 @@ csids_seek_read(wtap *wth,
 }
 
 static gboolean
-csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
+csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
                   Buffer *buf, int *err, gchar **err_info)
 {
   struct csids_header hdr;
@@ -173,23 +173,23 @@ csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
    * it.
    */
 
-  phdr->rec_type = REC_TYPE_PACKET;
-  phdr->presence_flags = WTAP_HAS_TS;
-  phdr->len = hdr.caplen;
-  phdr->caplen = hdr.caplen;
-  phdr->ts.secs = hdr.seconds;
-  phdr->ts.nsecs = 0;
+  rec->rec_type = REC_TYPE_PACKET;
+  rec->presence_flags = WTAP_HAS_TS;
+  rec->rec_header.packet_header.len = hdr.caplen;
+  rec->rec_header.packet_header.caplen = hdr.caplen;
+  rec->ts.secs = hdr.seconds;
+  rec->ts.nsecs = 0;
 
-  if( !wtap_read_packet_bytes( fh, buf, phdr->caplen, err, err_info ) )
+  if( !wtap_read_packet_bytes( fh, buf, rec->rec_header.packet_header.caplen, err, err_info ) )
     return FALSE;
 
   pd = ws_buffer_start_ptr( buf );
   if( csids->byteswapped ) {
-    if( phdr->caplen >= 2 ) {
+    if( rec->rec_header.packet_header.caplen >= 2 ) {
       PBSWAP16(pd);   /* the ip len */
-      if( phdr->caplen >= 4 ) {
+      if( rec->rec_header.packet_header.caplen >= 4 ) {
         PBSWAP16(pd+2); /* ip id */
-        if( phdr->caplen >= 6 )
+        if( rec->rec_header.packet_header.caplen >= 6 )
           PBSWAP16(pd+4); /* ip flags and fragoff */
       }
     }

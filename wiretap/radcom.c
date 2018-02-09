@@ -74,8 +74,8 @@ struct radcomrec_hdr {
 static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static gboolean radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info);
 
 wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
@@ -238,7 +238,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	*data_offset = file_tell(wth->fh);
 
 	/* Read record. */
-	if (!radcom_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+	if (!radcom_read_rec(wth, wth->fh, &wth->rec, wth->rec_data,
 	    err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;
@@ -258,14 +258,14 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 radcom_seek_read(wtap *wth, gint64 seek_off,
-		 struct wtap_pkthdr *phdr, Buffer *buf,
+		 wtap_rec *rec, Buffer *buf,
 		 int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* Read record. */
-	if (!radcom_read_rec(wth, wth->random_fh, phdr, buf, err,
+	if (!radcom_read_rec(wth, wth->random_fh, rec, buf, err,
 	    err_info)) {
 		/* Read error or EOF */
 		if (*err == 0) {
@@ -278,7 +278,7 @@ radcom_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static gboolean
-radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		int *err, gchar **err_info)
 {
 	struct radcomrec_hdr hdr;
@@ -308,8 +308,8 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	 * it.
 	 */
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	tm.tm_year = pletoh16(&hdr.date.year)-1900;
 	tm.tm_mon = (hdr.date.month&0x0f)-1;
@@ -319,18 +319,18 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	tm.tm_min = (sec%3600)/60;
 	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
-	phdr->ts.secs = mktime(&tm);
-	phdr->ts.nsecs = pletoh32(&hdr.date.usec) * 1000;
+	rec->ts.secs = mktime(&tm);
+	rec->ts.nsecs = pletoh32(&hdr.date.usec) * 1000;
 
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
 		/* XXX - is there an FCS? */
-		phdr->pseudo_header.eth.fcs_len = -1;
+		rec->rec_header.packet_header.pseudo_header.eth.fcs_len = -1;
 		break;
 
 	case WTAP_ENCAP_LAPB:
-		phdr->pseudo_header.x25.flags = (hdr.dce & 0x1) ?
+		rec->rec_header.packet_header.pseudo_header.x25.flags = (hdr.dce & 0x1) ?
 		    0x00 : FROM_DCE;
 		length -= 2; /* FCS */
 		real_length -= 2;
@@ -349,8 +349,8 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		break;
 	}
 
-	phdr->len = real_length;
-	phdr->caplen = length;
+	rec->rec_header.packet_header.len = real_length;
+	rec->rec_header.packet_header.caplen = length;
 
 	/*
 	 * Read the packet data.

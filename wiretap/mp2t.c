@@ -50,7 +50,7 @@ typedef struct {
 
 static gboolean
 mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
-                 struct wtap_pkthdr *phdr, Buffer *buf, int *err,
+                 wtap_rec *rec, Buffer *buf, int *err,
                  gchar **err_info)
 {
     guint64 tmp;
@@ -63,10 +63,10 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
     if (!wtap_read_bytes_or_eof(fh, ws_buffer_start_ptr(buf), MP2T_SIZE, err, err_info))
         return FALSE;
 
-    phdr->rec_type = REC_TYPE_PACKET;
+    rec->rec_type = REC_TYPE_PACKET;
 
     /* XXX - relative, not absolute, time stamps */
-    phdr->presence_flags = WTAP_HAS_TS;
+    rec->presence_flags = WTAP_HAS_TS;
 
     /*
      * Every packet in an MPEG2-TS stream is has a fixed size of
@@ -83,11 +83,11 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
      * doesn't get the right answer.
      */
     tmp = ((guint64)(offset - mp2t->start_offset) * 8); /* offset, in bits */
-    phdr->ts.secs = (time_t)(tmp / mp2t->bitrate);
-    phdr->ts.nsecs = (int)((tmp % mp2t->bitrate) * 1000000000 / mp2t->bitrate);
+    rec->ts.secs = (time_t)(tmp / mp2t->bitrate);
+    rec->ts.nsecs = (int)((tmp % mp2t->bitrate) * 1000000000 / mp2t->bitrate);
 
-    phdr->caplen = MP2T_SIZE;
-    phdr->len = MP2T_SIZE;
+    rec->rec_header.packet_header.caplen = MP2T_SIZE;
+    rec->rec_header.packet_header.len = MP2T_SIZE;
 
     return TRUE;
 }
@@ -101,8 +101,8 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     *data_offset = file_tell(wth->fh);
 
-    if (!mp2t_read_packet(mp2t, wth->fh, *data_offset, &wth->phdr,
-                          wth->frame_buffer, err, err_info)) {
+    if (!mp2t_read_packet(mp2t, wth->fh, *data_offset, &wth->rec,
+                          wth->rec_data, err, err_info)) {
         return FALSE;
     }
 
@@ -117,7 +117,7 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 }
 
 static gboolean
-mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+mp2t_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
         Buffer *buf, int *err, gchar **err_info)
 {
     mp2t_filetype_t *mp2t;
@@ -128,7 +128,7 @@ mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 
     mp2t = (mp2t_filetype_t*) wth->priv;
 
-    if (!mp2t_read_packet(mp2t, wth->random_fh, seek_off, phdr, buf,
+    if (!mp2t_read_packet(mp2t, wth->random_fh, seek_off, rec, buf,
                           err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;

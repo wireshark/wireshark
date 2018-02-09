@@ -167,8 +167,8 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
 
     frame_number = pinfo->num;
 
-    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-        interface_id = pinfo->phdr->interface_id;
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+        interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
         interface_id = 0;
 
@@ -391,8 +391,8 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return offset;
     }
 
-    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-        interface_id = pinfo->phdr->interface_id;
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+        interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
         interface_id = 0;
 

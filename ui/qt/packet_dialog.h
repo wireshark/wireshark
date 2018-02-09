@@ -44,7 +44,7 @@ private:
     ProtoTree *proto_tree_;
     ByteViewTab *byte_view_tab_;
     epan_dissect_t edt_;
-    struct wtap_pkthdr phdr_;
+    wtap_rec rec_;
     guint8 *packet_data_;
 };
 

@@ -23,8 +23,8 @@ typedef struct {
 static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static int i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static int i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
 
 /*
@@ -98,18 +98,18 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 {
 	*data_offset = file_tell(wth->fh);
 
-	return i4b_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+	return i4b_read_rec(wth, wth->fh, &wth->rec, wth->rec_data,
 	    err, err_info);
 }
 
 static gboolean
-i4btrace_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+i4btrace_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!i4b_read_rec(wth, wth->random_fh, phdr, buf, err, err_info)) {
+	if (!i4b_read_rec(wth, wth->random_fh, rec, buf, err, err_info)) {
 		/* Read error or EOF */
 		if (*err == 0) {
 			/* EOF means "short read" in random-access mode */
@@ -121,7 +121,7 @@ i4btrace_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
 	i4btrace_t *i4btrace = (i4btrace_t *)wth->priv;
@@ -163,14 +163,14 @@ i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	}
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS;
 
-	phdr->len = length;
-	phdr->caplen = length;
+	rec->rec_header.packet_header.len = length;
+	rec->rec_header.packet_header.caplen = length;
 
-	phdr->ts.secs = hdr.ts_sec;
-	phdr->ts.nsecs = hdr.ts_usec * 1000;
+	rec->ts.secs = hdr.ts_sec;
+	rec->ts.nsecs = hdr.ts_usec * 1000;
 
 	switch (hdr.type) {
 
@@ -180,35 +180,35 @@ i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		 * as that means it has a 4-byte AF_ type as the
 		 * encapsulation header.
 		 */
-		phdr->pkt_encap = WTAP_ENCAP_NULL;
+		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NULL;
 		break;
 
 	case TRC_CH_D:
 		/*
 		 * D channel, so it's LAPD; set "p2p.sent".
 		 */
-		phdr->pkt_encap = WTAP_ENCAP_ISDN;
-		phdr->pseudo_header.isdn.channel = 0;
+		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ISDN;
+		rec->rec_header.packet_header.pseudo_header.isdn.channel = 0;
 		break;
 
 	case TRC_CH_B1:
 		/*
 		 * B channel 1.
 		 */
-		phdr->pkt_encap = WTAP_ENCAP_ISDN;
-		phdr->pseudo_header.isdn.channel = 1;
+		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ISDN;
+		rec->rec_header.packet_header.pseudo_header.isdn.channel = 1;
 		break;
 
 	case TRC_CH_B2:
 		/*
 		 * B channel 2.
 		 */
-		phdr->pkt_encap = WTAP_ENCAP_ISDN;
-		phdr->pseudo_header.isdn.channel = 2;
+		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ISDN;
+		rec->rec_header.packet_header.pseudo_header.isdn.channel = 2;
 		break;
 	}
 
-	phdr->pseudo_header.isdn.uton = (hdr.dir == FROM_TE);
+	rec->rec_header.packet_header.pseudo_header.isdn.uton = (hdr.dir == FROM_TE);
 
 	/*
 	 * Read the packet data.

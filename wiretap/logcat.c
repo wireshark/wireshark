@@ -154,7 +154,7 @@ gint logcat_exported_pdu_length(const guint8 *pd) {
 }
 
 static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     gint                 packet_size;
     guint16              payload_length;
@@ -193,14 +193,14 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
         return FALSE;
     }
 
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->presence_flags = WTAP_HAS_TS;
-    phdr->ts.secs = (time_t) GINT32_FROM_LE(log_entry->sec);
-    phdr->ts.nsecs = GINT32_FROM_LE(log_entry->nsec);
-    phdr->caplen = packet_size;
-    phdr->len = packet_size;
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = WTAP_HAS_TS;
+    rec->ts.secs = (time_t) GINT32_FROM_LE(log_entry->sec);
+    rec->ts.nsecs = GINT32_FROM_LE(log_entry->nsec);
+    rec->rec_header.packet_header.caplen = packet_size;
+    rec->rec_header.packet_header.len = packet_size;
 
-    phdr->pseudo_header.logcat.version = logcat->version;
+    rec->rec_header.packet_header.pseudo_header.logcat.version = logcat->version;
 
     return TRUE;
 }
@@ -211,18 +211,18 @@ static gboolean logcat_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = file_tell(wth->fh);
 
     return logcat_read_packet((struct logcat_phdr *) wth->priv, wth->fh,
-        &wth->phdr, wth->frame_buffer, err, err_info);
+        &wth->rec, wth->rec_data, err, err_info);
 }
 
 static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf,
+    wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
     if (!logcat_read_packet((struct logcat_phdr *) wth->priv, wth->random_fh,
-         phdr, buf, err, err_info)) {
+         rec, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -305,18 +305,18 @@ int logcat_dump_can_write_encap(int encap)
 }
 
 static gboolean logcat_binary_dump(wtap_dumper *wdh,
-    const struct wtap_pkthdr *phdr,
+    const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info _U_)
 {
     int caplen;
 
     /* We can only write packet records. */
-    if (phdr->rec_type != REC_TYPE_PACKET) {
+    if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
 
-    caplen = phdr->caplen;
+    caplen = rec->rec_header.packet_header.caplen;
 
     /* Skip EXPORTED_PDU*/
     if (wdh->encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {

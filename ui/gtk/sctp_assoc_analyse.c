@@ -1003,7 +1003,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_with_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, cf->cd_t, &cf->phdr,
+	epan_dissect_run(&edt, cf->cd_t, &cf->rec,
 	    frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
 	    fdata, NULL);
 

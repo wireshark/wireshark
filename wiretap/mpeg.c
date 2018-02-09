@@ -61,7 +61,7 @@ mpeg_resync(FILE_T fh, int *err)
 #define SCRHZ 27000000
 
 static gboolean
-mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
     gboolean is_random, int *err, gchar **err_info)
 {
 	mpeg_t *mpeg = (mpeg_t *)wth->priv;
@@ -170,15 +170,15 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
 		return FALSE;
 
-	phdr->rec_type = REC_TYPE_PACKET;
+	rec->rec_type = REC_TYPE_PACKET;
 
 	/* XXX - relative, not absolute, time stamps */
 	if (!is_random) {
-		phdr->presence_flags = WTAP_HAS_TS;
-		phdr->ts = ts;
+		rec->presence_flags = WTAP_HAS_TS;
+		rec->ts = ts;
 	}
-	phdr->caplen = packet_size;
-	phdr->len = packet_size;
+	rec->rec_header.packet_header.caplen = packet_size;
+	rec->rec_header.packet_header.len = packet_size;
 
 	return TRUE;
 }
@@ -188,19 +188,19 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return mpeg_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+	return mpeg_read_packet(wth, wth->fh, &wth->rec, wth->rec_data,
 	    FALSE, err, err_info);
 }
 
 static gboolean
 mpeg_seek_read(wtap *wth, gint64 seek_off,
-		struct wtap_pkthdr *phdr, Buffer *buf,
+		wtap_rec *rec, Buffer *buf,
 		int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!mpeg_read_packet(wth, wth->random_fh, phdr, buf, TRUE, err,
+	if (!mpeg_read_packet(wth, wth->random_fh, rec, buf, TRUE, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;

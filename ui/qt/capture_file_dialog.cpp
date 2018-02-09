@@ -690,7 +690,7 @@ void CaptureFileDialog::preview(const QString & path)
     int          err = 0;
     gchar       *err_info;
     gint64       data_offset;
-    const struct wtap_pkthdr *phdr;
+    const wtap_rec *rec;
     double       start_time = 0; /* seconds, with nsec resolution */
     double       stop_time = 0;  /* seconds, with nsec resolution */
     gboolean     have_times = FALSE;
@@ -747,9 +747,9 @@ void CaptureFileDialog::preview(const QString & path)
 
     time(&time_preview);
     while ((wtap_read(wth, &err, &err_info, &data_offset))) {
-        phdr = wtap_phdr(wth);
-        if (phdr->presence_flags & WTAP_HAS_TS) {
-            cur_time = nstime_to_sec(&phdr->ts);
+        rec = wtap_get_rec(wth);
+        if (rec->presence_flags & WTAP_HAS_TS) {
+            cur_time = nstime_to_sec(&rec->ts);
             if (!have_times) {
                 start_time = cur_time;
                 stop_time = cur_time;

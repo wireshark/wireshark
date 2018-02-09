@@ -298,7 +298,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     Dumper d = checkDumper(L,1);
     PseudoHeader ph;
     ByteArray ba;
-    struct wtap_pkthdr pkthdr;
+    wtap_rec rec;
     double ts;
     int err;
     gchar *err_info;
@@ -320,25 +320,25 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
         return 0;
     }
 
-    memset(&pkthdr, 0, sizeof(pkthdr));
+    memset(&rec, 0, sizeof rec);
 
-    pkthdr.rec_type = REC_TYPE_PACKET;
+    rec.rec_type = REC_TYPE_PACKET;
 
-    pkthdr.presence_flags = WTAP_HAS_TS;
-    pkthdr.ts.secs  = (unsigned int)(floor(ts));
-    pkthdr.ts.nsecs = (unsigned int)(floor((ts - (double)pkthdr.ts.secs) * 1000000000));
+    rec.presence_flags = WTAP_HAS_TS;
+    rec.ts.secs  = (unsigned int)(floor(ts));
+    rec.ts.nsecs = (unsigned int)(floor((ts - (double)rec.ts.secs) * 1000000000));
 
-    pkthdr.len       = ba->len;
-    pkthdr.caplen    = ba->len;
-    pkthdr.pkt_encap = DUMPER_ENCAP(d);
+    rec.rec_header.packet_header.len       = ba->len;
+    rec.rec_header.packet_header.caplen    = ba->len;
+    rec.rec_header.packet_header.pkt_encap = DUMPER_ENCAP(d);
     if (ph->wph) {
-        pkthdr.pseudo_header = *ph->wph;
+        rec.rec_header.packet_header.pseudo_header = *ph->wph;
     }
 
     /* TODO: Can we get access to pinfo->pkt_comment here somehow? We
      * should be copying it to pkthdr.opt_comment if we can. */
 
-    if (! wtap_dump(d, &pkthdr, ba->data, &err, &err_info)) {
+    if (! wtap_dump(d, &rec, ba->data, &err, &err_info)) {
         switch (err) {
 
         case WTAP_ERR_UNWRITABLE_REC_DATA:
@@ -375,7 +375,11 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
         return 0;
     }
 
-    encap = lua_pinfo->phdr->pkt_encap;
+    if (lua_pinfo->rec->rec_type != REC_TYPE_PACKET) {
+        return 0;
+    }
+
+    encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
 
     d = wtap_dump_open(filename, filetype, encap, 0, FALSE, &err);
 
@@ -411,7 +415,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
      Dumps the current packet as it is.
      */
     Dumper d = checkDumper(L,1);
-    struct wtap_pkthdr pkthdr;
+    wtap_rec rec;
     const guchar* data;
     tvbuff_t* tvb;
     struct data_source *data_src;
@@ -425,32 +429,36 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
         return 0;
     }
 
+    if (lua_pinfo->rec->rec_type != REC_TYPE_PACKET) {
+        return 0;
+    }
+
     data_src = (struct data_source*) (lua_pinfo->data_src->data);
     if (!data_src)
         return 0;
 
     tvb = get_data_source_tvb(data_src);
 
-    memset(&pkthdr, 0, sizeof(pkthdr));
+    memset(&rec, 0, sizeof rec);
 
-    pkthdr.rec_type = REC_TYPE_PACKET;
-    pkthdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    pkthdr.ts        = lua_pinfo->abs_ts;
-    pkthdr.len       = tvb_reported_length(tvb);
-    pkthdr.caplen    = tvb_captured_length(tvb);
-    pkthdr.pkt_encap = lua_pinfo->phdr->pkt_encap;
-    pkthdr.pseudo_header = *lua_pinfo->pseudo_header;
+    rec.rec_type                           = REC_TYPE_PACKET;
+    rec.presence_flags                     = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    rec.ts                                 = lua_pinfo->abs_ts;
+    rec.rec_header.packet_header.len       = tvb_reported_length(tvb);
+    rec.rec_header.packet_header.caplen    = tvb_captured_length(tvb);
+    rec.rec_header.packet_header.pkt_encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
+    rec.rec_header.packet_header.pseudo_header = *lua_pinfo->pseudo_header;
 
     if (lua_pinfo->fd->flags.has_user_comment) {
-        pkthdr.opt_comment = wmem_strdup(wmem_packet_scope(), epan_get_user_comment(lua_pinfo->epan, lua_pinfo->fd));
-        pkthdr.has_comment_changed = TRUE;
+        rec.opt_comment = wmem_strdup(wmem_packet_scope(), epan_get_user_comment(lua_pinfo->epan, lua_pinfo->fd));
+        rec.has_comment_changed = TRUE;
     } else if (lua_pinfo->fd->flags.has_phdr_comment) {
-        pkthdr.opt_comment = wmem_strdup(wmem_packet_scope(), lua_pinfo->phdr->opt_comment);
+        rec.opt_comment = wmem_strdup(wmem_packet_scope(), lua_pinfo->rec->opt_comment);
     }
 
-    data = (const guchar *)tvb_memdup(wmem_packet_scope(),tvb,0,pkthdr.caplen);
+    data = (const guchar *)tvb_memdup(wmem_packet_scope(),tvb,0,rec.rec_header.packet_header.caplen);
 
-    if (! wtap_dump(d, &pkthdr, data, &err, &err_info)) {
+    if (! wtap_dump(d, &rec, data, &err, &err_info)) {
         switch (err) {
 
         case WTAP_ERR_UNWRITABLE_REC_DATA:

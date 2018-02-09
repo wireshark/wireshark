@@ -38,7 +38,7 @@ static gboolean is_valid_id(guint16 version_id)
   return TRUE;
 }
 
-static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
                                Buffer *buf, int *err, gchar **err_info)
 {
   stanag4607_t *stanag4607 = (stanag4607_t *)wth->priv;
@@ -60,7 +60,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     return FALSE;
   }
 
-  phdr->rec_type = REC_TYPE_PACKET;
+  rec->rec_type = REC_TYPE_PACKET;
 
   /* The next 4 bytes are the packet length */
   packet_size = pntoh32(&stanag_pkt_hdr[2]);
@@ -84,16 +84,16 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
       "smaller than minimum of %u", packet_size, PKT_HDR_SIZE+SEG_HDR_SIZE);
     return FALSE;
   }
-  phdr->caplen = packet_size;
-  phdr->len = packet_size;
+  rec->rec_header.packet_header.caplen = packet_size;
+  rec->rec_header.packet_header.len = packet_size;
 
   /* Sadly, the header doesn't contain times; but some segments do */
   /* So, get the segment header, which is just past the 32-byte header. */
-  phdr->presence_flags = WTAP_HAS_TS;
+  rec->presence_flags = WTAP_HAS_TS;
 
   /* If no time specified, it's the last baseline time */
-  phdr->ts.secs = stanag4607->base_secs;
-  phdr->ts.nsecs = 0;
+  rec->ts.secs = stanag4607->base_secs;
+  rec->ts.nsecs = 0;
   millisecs = 0;
 
 #define MISSION_SEGMENT 1
@@ -116,7 +116,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     tm.tm_sec = 0;
     tm.tm_isdst = -1;
     stanag4607->base_secs = mktime(&tm);
-    phdr->ts.secs = stanag4607->base_secs;
+    rec->ts.secs = stanag4607->base_secs;
   }
   else if (PLATFORM_LOCATION_SEGMENT == stanag_pkt_hdr[32]) {
     if (!wtap_read_bytes(fh, &millisecs, sizeof millisecs, err, err_info))
@@ -134,8 +134,8 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   if (0 != millisecs) {
     secs = millisecs/1000;
     nsecs = (millisecs - 1000 * secs) * 1000000;
-    phdr->ts.secs = stanag4607->base_secs + secs;
-    phdr->ts.nsecs = nsecs;
+    rec->ts.secs = stanag4607->base_secs + secs;
+    rec->ts.nsecs = nsecs;
   }
 
   /* wind back to the start of the packet ... */
@@ -155,17 +155,17 @@ static gboolean stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *d
 
   *data_offset = offset;
 
-  return stanag4607_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
+  return stanag4607_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
 }
 
 static gboolean stanag4607_seek_read(wtap *wth, gint64 seek_off,
-                               struct wtap_pkthdr *phdr,
+                               wtap_rec *rec,
                                Buffer *buf, int *err, gchar **err_info)
 {
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
-  return stanag4607_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
+  return stanag4607_read_file(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
 wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)

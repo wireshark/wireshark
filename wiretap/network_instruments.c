@@ -104,17 +104,17 @@ static const char *init_gmt_to_localtime_offset(void)
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, gchar **err_info);
 static gboolean process_packet_header(wtap *wth,
-    packet_entry_header *packet_header, struct wtap_pkthdr *phdr, int *err,
+    packet_entry_header *packet_header, wtap_rec *rec, int *err,
     gchar **err_info);
 static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
     Buffer *buf, int length, int *err, char **err_info);
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
-static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
 static gint observer_to_wtap_encap(int observer_encap);
 static gint wtap_to_observer_encap(int wtap_encap);
@@ -273,7 +273,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         *data_offset = file_tell(wth->fh);
 
         /* process the packet header, including TLVs */
-        header_bytes_consumed = read_packet_header(wth, wth->fh, &wth->phdr.pseudo_header, &packet_header, err,
+        header_bytes_consumed = read_packet_header(wth, wth->fh, &wth->rec.rec_header.packet_header.pseudo_header, &packet_header, err,
             err_info);
         if (header_bytes_consumed <= 0)
             return FALSE;    /* EOF or error */
@@ -288,13 +288,13 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         }
     }
 
-    if (!process_packet_header(wth, &packet_header, &wth->phdr, err, err_info))
+    if (!process_packet_header(wth, &packet_header, &wth->rec, err, err_info))
         return FALSE;
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->fh, packet_header.offset_to_frame,
-            header_bytes_consumed, wth->frame_buffer,
-            wth->phdr.caplen, err, err_info);
+            header_bytes_consumed, wth->rec_data,
+            wth->rec.rec_header.packet_header.caplen, err, err_info);
     if (data_bytes_consumed < 0) {
         return FALSE;
     }
@@ -310,9 +310,9 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 
 /* Reads a packet at an offset. */
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
-    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+    union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     packet_entry_header packet_header;
     int offset;
     int data_bytes_consumed;
@@ -326,12 +326,12 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     if (offset <= 0)
         return FALSE;    /* EOF or error */
 
-    if (!process_packet_header(wth, &packet_header, phdr, err, err_info))
+    if (!process_packet_header(wth, &packet_header, rec, err, err_info))
         return FALSE;
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->random_fh, packet_header.offset_to_frame,
-        offset, buf, phdr->caplen, err, err_info);
+        offset, buf, rec->rec_header.packet_header.caplen, err, err_info);
     if (data_bytes_consumed < 0) {
         return FALSE;
     }
@@ -451,15 +451,15 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
 
 static gboolean
 process_packet_header(wtap *wth, packet_entry_header *packet_header,
-    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+    wtap_rec *rec, int *err, gchar **err_info)
 {
-    /* set the wiretap packet header fields */
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    phdr->pkt_encap = observer_to_wtap_encap(packet_header->network_type);
+    /* set the wiretap record metadata fields */
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    rec->rec_header.packet_header.pkt_encap = observer_to_wtap_encap(packet_header->network_type);
     if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {
-        phdr->len = packet_header->network_size;
-        phdr->caplen = packet_header->captured_size;
+        rec->rec_header.packet_header.len = packet_header->network_size;
+        rec->rec_header.packet_header.caplen = packet_header->captured_size;
     } else {
         /*
          * XXX - what are those 4 bytes?
@@ -488,8 +488,8 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
             return FALSE;
         }
 
-        phdr->len = packet_header->network_size - 4;
-        phdr->caplen = MIN(packet_header->captured_size, phdr->len);
+        rec->rec_header.packet_header.len = packet_header->network_size - 4;
+        rec->rec_header.packet_header.caplen = MIN(packet_header->captured_size, rec->rec_header.packet_header.len);
     }
     /*
      * The maximum value of packet_header->captured_size is 65535, which
@@ -498,8 +498,8 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
      */
 
     /* set the wiretap timestamp, assuming for the moment that Observer encoded it in GMT */
-    phdr->ts.secs = (time_t) ((packet_header->nano_seconds_since_2000 / 1000000000) + ansi_to_observer_epoch_offset);
-    phdr->ts.nsecs = (int) (packet_header->nano_seconds_since_2000 % 1000000000);
+    rec->ts.secs = (time_t) ((packet_header->nano_seconds_since_2000 / 1000000000) + ansi_to_observer_epoch_offset);
+    rec->ts.nsecs = (int) (packet_header->nano_seconds_since_2000 % 1000000000);
 
     /* adjust to local time, if necessary, also accounting for DST if the frame
        was captured while it was in effect */
@@ -512,17 +512,17 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
 
         /* the Observer timestamp was encoded as local time, so add a
            correction from local time to GMT */
-        phdr->ts.secs += gmt_to_localtime_offset;
+        rec->ts.secs += gmt_to_localtime_offset;
 
         /* perform a DST adjustment if necessary */
-        tm = localtime(&phdr->ts.secs);
+        tm = localtime(&rec->ts.secs);
         if (tm != NULL) {
             standard_tm = *tm;
             if (standard_tm.tm_isdst > 0) {
                 daylight_tm = standard_tm;
                 standard_tm.tm_isdst = 0;
                 dst_offset = mktime(&standard_tm) - mktime(&daylight_tm);
-                 phdr->ts.secs -= dst_offset;
+                 rec->ts.secs -= dst_offset;
             }
         }
     }
@@ -700,7 +700,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd,
     int *err, gchar **err_info _U_)
 {
@@ -709,28 +709,28 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     guint64                       seconds_since_2000;
 
     /* We can only write packet records. */
-    if (phdr->rec_type != REC_TYPE_PACKET) {
+    if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
 
     /* The captured size field is 16 bits, so there's a hard limit of
        65535. */
-    if (phdr->caplen > 65535) {
+    if (rec->rec_header.packet_header.caplen > 65535) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
 
     /* convert the number of seconds since epoch from ANSI-relative to
        Observer-relative */
-    if (phdr->ts.secs < ansi_to_observer_epoch_offset) {
-        if(phdr->ts.secs > (time_t) 0) {
-            seconds_since_2000 = phdr->ts.secs;
+    if (rec->ts.secs < ansi_to_observer_epoch_offset) {
+        if(rec->ts.secs > (time_t) 0) {
+            seconds_since_2000 = rec->ts.secs;
         } else {
             seconds_since_2000 = (time_t) 0;
         }
     } else {
-        seconds_since_2000 = phdr->ts.secs - ansi_to_observer_epoch_offset;
+        seconds_since_2000 = rec->ts.secs - ansi_to_observer_epoch_offset;
     }
 
     /* populate the fields of the packet header */
@@ -739,18 +739,18 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     memset(&packet_header, 0x00, sizeof(packet_header));
     packet_header.packet_magic = observer_packet_magic;
     packet_header.network_speed = 1000000;
-    packet_header.captured_size = (guint16) phdr->caplen;
-    packet_header.network_size = (guint16) (phdr->len + 4);
+    packet_header.captured_size = (guint16) rec->rec_header.packet_header.caplen;
+    packet_header.network_size = (guint16) (rec->rec_header.packet_header.len + 4);
     packet_header.offset_to_frame = sizeof(packet_header);
     /* XXX - what if this doesn't fit in 16 bits?  It's not guaranteed to... */
-    packet_header.offset_to_next_packet = (guint16)sizeof(packet_header) + phdr->caplen;
+    packet_header.offset_to_next_packet = (guint16)sizeof(packet_header) + rec->rec_header.packet_header.caplen;
     packet_header.network_type = private_state->network_type;
     packet_header.flags = 0x00;
     packet_header.number_of_information_elements = 0;
     packet_header.packet_type = PACKET_TYPE_DATA_PACKET;
     packet_header.packet_number = private_state->packet_count;
     packet_header.original_packet_number = packet_header.packet_number;
-    packet_header.nano_seconds_since_2000 = seconds_since_2000 * 1000000000 + phdr->ts.nsecs;
+    packet_header.nano_seconds_since_2000 = seconds_since_2000 * 1000000000 + rec->ts.nsecs;
 
     private_state->packet_count++;
 
@@ -762,10 +762,10 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     wdh->bytes_dumped += sizeof(packet_header);
 
     /* write the packet data */
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) {
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err)) {
         return FALSE;
     }
-    wdh->bytes_dumped += phdr->caplen;
+    wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
     return TRUE;
 }

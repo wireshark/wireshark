@@ -201,11 +201,11 @@ static const int netmon_encap[] = {
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static void netmon_close(wtap *wth);
-static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
 static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err);
 
@@ -763,23 +763,23 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 }
 
 static void
-netmon_set_pseudo_header_info(struct wtap_pkthdr *phdr, Buffer *buf)
+netmon_set_pseudo_header_info(wtap_rec *rec, Buffer *buf)
 {
-	switch (phdr->pkt_encap) {
+	switch (rec->rec_header.packet_header.pkt_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
 		/*
 		 * Attempt to guess from the packet data, the VPI, and
 		 * the VCI information about the type of traffic.
 		 */
-		atm_guess_traffic_type(phdr, ws_buffer_start_ptr(buf));
+		atm_guess_traffic_type(rec, ws_buffer_start_ptr(buf));
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
 		/*
 		 * We assume there's no FCS in this frame.
 		 */
-		phdr->pseudo_header.eth.fcs_len = 0;
+		rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11_NETMON:
@@ -794,11 +794,11 @@ netmon_set_pseudo_header_info(struct wtap_pkthdr *phdr, Buffer *buf)
 		 *  do not have an FCS).
 		 * An "FCS length" of -2 means "NetMon weirdness".
 		 */
-		memset(&phdr->pseudo_header.ieee_802_11, 0, sizeof(phdr->pseudo_header.ieee_802_11));
-		phdr->pseudo_header.ieee_802_11.fcs_len = -2;
-		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
-		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
-		phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
+		memset(&rec->rec_header.packet_header.pseudo_header.ieee_802_11, 0, sizeof(rec->rec_header.packet_header.pseudo_header.ieee_802_11));
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = -2;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = FALSE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = FALSE;
+		rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 		break;
 	}
 }
@@ -810,7 +810,7 @@ typedef enum {
 } process_record_retval;
 
 static process_record_retval
-netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
@@ -872,7 +872,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		return FAILURE;
 	}
 
-	phdr->rec_type = REC_TYPE_PACKET;
+	rec->rec_type = REC_TYPE_PACKET;
 
 	/*
 	 * If this is an ATM packet, the first
@@ -894,7 +894,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			    packet_size);
 			return FAILURE;
 		}
-		if (!netmon_read_atm_pseudoheader(fh, &phdr->pseudo_header,
+		if (!netmon_read_atm_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header,
 		    err, err_info))
 			return FAILURE;	/* Read error */
 
@@ -976,16 +976,16 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	}
 	secs += (time_t)(t/1000000000);
 	nsecs = (int)(t%1000000000);
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	phdr->ts.secs = netmon->start_secs + secs;
-	phdr->ts.nsecs = nsecs;
-	phdr->caplen = packet_size;
-	phdr->len = orig_size;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->ts.secs = netmon->start_secs + secs;
+	rec->ts.nsecs = nsecs;
+	rec->rec_header.packet_header.caplen = packet_size;
+	rec->rec_header.packet_header.len = orig_size;
 
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info))
+	if (!wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info))
 		return FAILURE;
 
 	/*
@@ -1144,7 +1144,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			}
 		}
 
-		phdr->pkt_encap = pkt_encap;
+		rec->rec_header.packet_header.pkt_encap = pkt_encap;
 		if (netmon->version_major > 2 || netmon->version_minor > 2) {
 			guint64 d;
 
@@ -1155,7 +1155,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			 * and overwrite the time stamp obtained
 			 * from the record header.
 			 */
-			if (!filetime_to_nstime(&phdr->ts, d)) {
+			if (!filetime_to_nstime(&rec->ts, d)) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("netmon: time stamp outside supported range");
 				return FAILURE;
@@ -1163,7 +1163,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		}
 	}
 
-	netmon_set_pseudo_header_info(phdr, buf);
+	netmon_set_pseudo_header_info(rec, buf);
 
 	/* If any header specific information is present, set it as pseudo header data
 	 * and set the encapsulation type, so it can be handled to the netmon_header
@@ -1179,45 +1179,45 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		/* These are the current encapsulation types that NetMon uses.
 		 * Save them off so they can be copied to the NetMon pseudoheader
 		 */
-		switch (phdr->pkt_encap)
+		switch (rec->rec_header.packet_header.pkt_encap)
 		{
 		case WTAP_ENCAP_ATM_PDUS:
-			memcpy(&temp_header.atm, &phdr->pseudo_header.atm, sizeof(temp_header.atm));
+			memcpy(&temp_header.atm, &rec->rec_header.packet_header.pseudo_header.atm, sizeof(temp_header.atm));
 			break;
 		case WTAP_ENCAP_ETHERNET:
-			memcpy(&temp_header.eth, &phdr->pseudo_header.eth, sizeof(temp_header.eth));
+			memcpy(&temp_header.eth, &rec->rec_header.packet_header.pseudo_header.eth, sizeof(temp_header.eth));
 			break;
 		case WTAP_ENCAP_IEEE_802_11_NETMON:
-			memcpy(&temp_header.ieee_802_11, &phdr->pseudo_header.ieee_802_11, sizeof(temp_header.ieee_802_11));
+			memcpy(&temp_header.ieee_802_11, &rec->rec_header.packet_header.pseudo_header.ieee_802_11, sizeof(temp_header.ieee_802_11));
 			break;
 		}
-		memset(&phdr->pseudo_header.netmon, 0, sizeof(phdr->pseudo_header.netmon));
+		memset(&rec->rec_header.packet_header.pseudo_header.netmon, 0, sizeof(rec->rec_header.packet_header.pseudo_header.netmon));
 
 		/* Save the current encapsulation type to the NetMon pseudoheader */
-		phdr->pseudo_header.netmon.sub_encap = phdr->pkt_encap;
+		rec->rec_header.packet_header.pseudo_header.netmon.sub_encap = rec->rec_header.packet_header.pkt_encap;
 
 		/* Copy the comment data */
-		phdr->pseudo_header.netmon.titleLength = comment_rec->titleLength;
-		phdr->pseudo_header.netmon.title = comment_rec->title;
-		phdr->pseudo_header.netmon.descLength = comment_rec->descLength;
-		phdr->pseudo_header.netmon.description = comment_rec->description;
+		rec->rec_header.packet_header.pseudo_header.netmon.titleLength = comment_rec->titleLength;
+		rec->rec_header.packet_header.pseudo_header.netmon.title = comment_rec->title;
+		rec->rec_header.packet_header.pseudo_header.netmon.descLength = comment_rec->descLength;
+		rec->rec_header.packet_header.pseudo_header.netmon.description = comment_rec->description;
 
 		/* Copy the saved pseudoheaders to the netmon pseudoheader structure */
-		switch (phdr->pkt_encap)
+		switch (rec->rec_header.packet_header.pkt_encap)
 		{
 		case WTAP_ENCAP_ATM_PDUS:
-			memcpy(&phdr->pseudo_header.netmon.subheader.atm, &temp_header.atm, sizeof(temp_header.atm));
+			memcpy(&rec->rec_header.packet_header.pseudo_header.netmon.subheader.atm, &temp_header.atm, sizeof(temp_header.atm));
 			break;
 		case WTAP_ENCAP_ETHERNET:
-			memcpy(&phdr->pseudo_header.netmon.subheader.eth, &temp_header.eth, sizeof(temp_header.eth));
+			memcpy(&rec->rec_header.packet_header.pseudo_header.netmon.subheader.eth, &temp_header.eth, sizeof(temp_header.eth));
 			break;
 		case WTAP_ENCAP_IEEE_802_11_NETMON:
-			memcpy(&phdr->pseudo_header.netmon.subheader.ieee_802_11, &temp_header.ieee_802_11, sizeof(temp_header.ieee_802_11));
+			memcpy(&rec->rec_header.packet_header.pseudo_header.netmon.subheader.ieee_802_11, &temp_header.ieee_802_11, sizeof(temp_header.ieee_802_11));
 			break;
 		}
 
 		/* Encapsulation type is now something that can be passed to netmon_header dissector */
-		phdr->pkt_encap = WTAP_ENCAP_NETMON_HEADER;
+		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NETMON_HEADER;
 	}
 
 	return SUCCESS;
@@ -1256,8 +1256,8 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 
 		*data_offset = file_tell(wth->fh);
 
-		switch (netmon_process_record(wth, wth->fh, &wth->phdr,
-		    wth->frame_buffer, err, err_info)) {
+		switch (netmon_process_record(wth, wth->fh, &wth->rec,
+		    wth->rec_data, err, err_info)) {
 
 		case RETRY:
 			continue;
@@ -1273,12 +1273,12 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 netmon_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	switch (netmon_process_record(wth, wth->random_fh, phdr, buf, err,
+	switch (netmon_process_record(wth, wth->random_fh, rec, buf, err,
 	    err_info)) {
 
 	default:
@@ -1434,10 +1434,10 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info _U_)
 {
-	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	struct netmonrec_1_x_hdr rec_1_x_hdr;
 	struct netmonrec_2_x_hdr rec_2_x_hdr;
@@ -1451,7 +1451,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	gint32	nsecs;
 
 	/* We can only write packet records. */
-	if (phdr->rec_type != REC_TYPE_PACKET) {
+	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
 		return FALSE;
 	}
@@ -1463,7 +1463,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		 * The length fields are 16-bit, so there's a hard limit
 		 * of 65535.
 		 */
-		if (phdr->caplen > 65535) {
+		if (rec->rec_header.packet_header.caplen > 65535) {
 			*err = WTAP_ERR_PACKET_TOO_LARGE;
 			return FALSE;
 		}
@@ -1471,7 +1471,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
 		/* Don't write anything we're not willing to read. */
-		if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+		if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 			*err = WTAP_ERR_PACKET_TOO_LARGE;
 			return FALSE;
 		}
@@ -1488,9 +1488,9 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		/*
 		 * Is this network type supported?
 		 */
-		if (phdr->pkt_encap < 0 ||
-		    (unsigned) phdr->pkt_encap >= NUM_WTAP_ENCAPS ||
-		    wtap_encap[phdr->pkt_encap] == -1) {
+		if (rec->rec_header.packet_header.pkt_encap < 0 ||
+		    (unsigned) rec->rec_header.packet_header.pkt_encap >= NUM_WTAP_ENCAPS ||
+		    wtap_encap[rec->rec_header.packet_header.pkt_encap] == -1) {
 			/*
 			 * No.  Fail.
 			 */
@@ -1501,7 +1501,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		/*
 		 * Fill in the trailer with the network type.
 		 */
-		phtoles(rec_2_x_trlr.network, wtap_encap[phdr->pkt_encap]);
+		phtoles(rec_2_x_trlr.network, wtap_encap[rec->rec_header.packet_header.pkt_encap]);
 	}
 
 	/*
@@ -1527,9 +1527,9 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	 * sub-millisecond part of the time stamp off.
 	 */
 	if (!netmon->got_first_record_time) {
-		netmon->first_record_time.secs = phdr->ts.secs;
+		netmon->first_record_time.secs = rec->ts.secs;
 		netmon->first_record_time.nsecs =
-		    (phdr->ts.nsecs/1000000)*1000000;
+		    (rec->ts.nsecs/1000000)*1000000;
 		netmon->got_first_record_time = TRUE;
 	}
 
@@ -1537,8 +1537,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		atm_hdrsize = sizeof (struct netmon_atm_hdr);
 	else
 		atm_hdrsize = 0;
-	secs = (gint64)(phdr->ts.secs - netmon->first_record_time.secs);
-	nsecs = phdr->ts.nsecs - netmon->first_record_time.nsecs;
+	secs = (gint64)(rec->ts.secs - netmon->first_record_time.secs);
+	nsecs = rec->ts.nsecs - netmon->first_record_time.nsecs;
 	while (nsecs < 0) {
 		/*
 		 * Propagate a borrow into the seconds.
@@ -1568,16 +1568,16 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
 		rec_1_x_hdr.ts_delta = GUINT32_TO_LE(secs*1000 + (nsecs + 500000)/1000000);
-		rec_1_x_hdr.orig_len = GUINT16_TO_LE(phdr->len + atm_hdrsize);
-		rec_1_x_hdr.incl_len = GUINT16_TO_LE(phdr->caplen + atm_hdrsize);
+		rec_1_x_hdr.orig_len = GUINT16_TO_LE(rec->rec_header.packet_header.len + atm_hdrsize);
+		rec_1_x_hdr.incl_len = GUINT16_TO_LE(rec->rec_header.packet_header.caplen + atm_hdrsize);
 		hdrp = &rec_1_x_hdr;
 		hdr_size = sizeof rec_1_x_hdr;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
 		rec_2_x_hdr.ts_delta = GUINT64_TO_LE(secs*1000000 + (nsecs + 500)/1000);
-		rec_2_x_hdr.orig_len = GUINT32_TO_LE(phdr->len + atm_hdrsize);
-		rec_2_x_hdr.incl_len = GUINT32_TO_LE(phdr->caplen + atm_hdrsize);
+		rec_2_x_hdr.orig_len = GUINT32_TO_LE(rec->rec_header.packet_header.len + atm_hdrsize);
+		rec_2_x_hdr.incl_len = GUINT32_TO_LE(rec->rec_header.packet_header.caplen + atm_hdrsize);
 		hdrp = &rec_2_x_hdr;
 		hdr_size = sizeof rec_2_x_hdr;
 		break;
@@ -1613,9 +1613,9 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		rec_size += sizeof atm_hdr;
 	}
 
-	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
 		return FALSE;
-	rec_size += phdr->caplen;
+	rec_size += rec->rec_header.packet_header.caplen;
 
 	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
 		/*

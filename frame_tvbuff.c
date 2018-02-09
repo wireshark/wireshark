@@ -32,7 +32,7 @@ struct tvb_frame {
 };
 
 static gboolean
-frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
+frame_read(struct tvb_frame *frame_tvb, wtap_rec *rec, Buffer *buf)
 {
 	int    err;
 	gchar *err_info;
@@ -40,7 +40,7 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	/* XXX, what if phdr->caplen isn't equal to
 	 * frame_tvb->tvb.length + frame_tvb->offset?
 	 */
-	if (!wtap_seek_read(frame_tvb->prov->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
+	if (!wtap_seek_read(frame_tvb->prov->wth, frame_tvb->file_off, rec, buf, &err, &err_info)) {
 		/* XXX - report error! */
 		switch (err) {
 			case WTAP_ERR_BAD_FILE:
@@ -57,9 +57,9 @@ static GPtrArray *buffer_cache = NULL;
 static void
 frame_cache(struct tvb_frame *frame_tvb)
 {
-	struct wtap_pkthdr phdr; /* Packet header */
+	wtap_rec rec; /* Record metadata */
 
-	wtap_phdr_init(&phdr);
+	wtap_rec_init(&rec);
 
 	if (frame_tvb->buf == NULL) {
 		if G_UNLIKELY(!buffer_cache) buffer_cache = g_ptr_array_sized_new(1024);
@@ -72,13 +72,13 @@ frame_cache(struct tvb_frame *frame_tvb)
 
 		ws_buffer_init(frame_tvb->buf, frame_tvb->tvb.length + frame_tvb->offset);
 
-		if (!frame_read(frame_tvb, &phdr, frame_tvb->buf))
+		if (!frame_read(frame_tvb, &rec, frame_tvb->buf))
 			{ /* TODO: THROW(???); */ }
 	}
 
 	frame_tvb->tvb.real_data = ws_buffer_start_ptr(frame_tvb->buf) + frame_tvb->offset;
 
-	wtap_phdr_cleanup(&phdr);
+	wtap_rec_cleanup(&rec);
 }
 
 static void

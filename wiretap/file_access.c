@@ -1096,8 +1096,8 @@ fail:
 	return NULL;
 
 success:
-	wth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
-	ws_buffer_init(wth->frame_buffer, 1500);
+	wth->rec_data = (struct Buffer *)g_malloc(sizeof(struct Buffer));
+	ws_buffer_init(wth->rec_data, 1500);
 
 	if ((wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) ||
 		(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC)) {
@@ -2538,12 +2538,12 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compress
 }
 
 gboolean
-wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+wtap_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	  const guint8 *pd, int *err, gchar **err_info)
 {
 	*err = 0;
 	*err_info = NULL;
-	return (wdh->subtype_write)(wdh, phdr, pd, err, err_info);
+	return (wdh->subtype_write)(wdh, rec, pd, err, err_info);
 }
 
 void

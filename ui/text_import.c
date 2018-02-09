@@ -504,23 +504,23 @@ write_current_packet (void)
 
         {
             /* Write the packet */
-            struct wtap_pkthdr pkthdr;
+            wtap_rec rec;
             int err;
             gchar *err_info;
 
-            memset(&pkthdr, 0, sizeof(struct wtap_pkthdr));
+            memset(&rec, 0, sizeof rec);
 
-            pkthdr.rec_type = REC_TYPE_PACKET;
-            pkthdr.ts.secs = (guint32)ts_sec;
-            pkthdr.ts.nsecs = ts_usec * 1000;
+            rec.rec_type = REC_TYPE_PACKET;
+            rec.ts.secs = (guint32)ts_sec;
+            rec.ts.nsecs = ts_usec * 1000;
             if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */
-            pkthdr.caplen = pkthdr.len = prefix_length + curr_offset + eth_trailer_length;
-            pkthdr.pkt_encap = pcap_link_type;
-            pkthdr.pack_flags |= direction;
-            pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
+            rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
+            rec.rec_header.packet_header.pkt_encap = pcap_link_type;
+            rec.rec_header.packet_header.pack_flags |= direction;
+            rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
 
             /* XXX - report errors! */
-            if (!wtap_dump(wdh, &pkthdr, packet_buf, &err, &err_info)) {
+            if (!wtap_dump(wdh, &rec, packet_buf, &err, &err_info)) {
                 switch (err) {
 
                 case WTAP_ERR_UNWRITABLE_REC_DATA:

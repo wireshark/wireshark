@@ -68,8 +68,8 @@ extern CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean fir
 extern CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh);
 extern File* push_File(lua_State* L, FILE_T ft);
 extern File* push_Wdh(lua_State* L, wtap_dumper *wdh);
-extern FrameInfo* push_FrameInfo(lua_State* L, struct wtap_pkthdr *phdr, Buffer* buf);
-extern FrameInfoConst* push_FrameInfoConst(lua_State* L, const struct wtap_pkthdr *phdr, const guint8 *pd);
+extern FrameInfo* push_FrameInfo(lua_State* L, wtap_rec *rec, Buffer* buf);
+extern FrameInfoConst* push_FrameInfoConst(lua_State* L, const wtap_rec *rec, const guint8 *pd);
 
 
 /*

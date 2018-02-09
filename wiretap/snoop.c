@@ -74,15 +74,15 @@ struct shomiti_trailer {
 static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static int snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static int snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info,
     int *header_size);
-static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
 
 /*
@@ -424,8 +424,8 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = file_tell(wth->fh);
 
-	padbytes = snoop_read_packet(wth, wth->fh, &wth->phdr,
-	    wth->frame_buffer, err, err_info);
+	padbytes = snoop_read_packet(wth, wth->fh, &wth->rec,
+	    wth->rec_data, err, err_info);
 	if (padbytes == -1)
 		return FALSE;
 
@@ -442,12 +442,12 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 snoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (snoop_read_packet(wth, wth->random_fh, phdr, buf, err, err_info) == -1) {
+	if (snoop_read_packet(wth, wth->random_fh, rec, buf, err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -456,7 +456,7 @@ snoop_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static int
-snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
 	struct snooprec_hdr hdr;
@@ -521,7 +521,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			    packet_size);
 			return -1;
 		}
-		if (!snoop_read_atm_pseudoheader(fh, &phdr->pseudo_header,
+		if (!snoop_read_atm_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header,
 		    err, err_info))
 			return -1;	/* Read error */
 
@@ -540,9 +540,9 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		 * is.  (XXX - or should we treat it a "maybe"?)
 		 */
 		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_SHOMITI)
-			phdr->pseudo_header.eth.fcs_len = 4;
+			rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 4;
 		else
-			phdr->pseudo_header.eth.fcs_len = 0;
+			rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
@@ -557,7 +557,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			return -1;
 		}
 		if (!snoop_read_shomiti_wireless_pseudoheader(fh,
-		    &phdr->pseudo_header, err, err_info, &header_size))
+		    &rec->rec_header.packet_header.pseudo_header, err, err_info, &header_size))
 			return -1;	/* Read error */
 
 		/*
@@ -569,12 +569,12 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		break;
 	}
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	phdr->ts.secs = g_ntohl(hdr.ts_sec);
-	phdr->ts.nsecs = g_ntohl(hdr.ts_usec) * 1000;
-	phdr->caplen = packet_size;
-	phdr->len = orig_size;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->ts.secs = g_ntohl(hdr.ts_sec);
+	rec->ts.nsecs = g_ntohl(hdr.ts_usec) * 1000;
+	rec->rec_header.packet_header.caplen = packet_size;
+	rec->rec_header.packet_header.len = orig_size;
 
 	if (rec_size < (sizeof hdr + packet_size)) {
 		/*
@@ -597,8 +597,8 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	 * traffic it is based on the packet contents.
 	 */
 	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
-	    phdr->pseudo_header.atm.type == TRAF_LANE) {
-		atm_guess_lane_type(phdr, ws_buffer_start_ptr(buf));
+	    rec->rec_header.packet_header.pseudo_header.atm.type == TRAF_LANE) {
+		atm_guess_lane_type(rec, ws_buffer_start_ptr(buf));
 	}
 
 	return rec_size - ((guint)sizeof hdr + packet_size);
@@ -801,10 +801,10 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean snoop_dump(wtap_dumper *wdh,
-	const struct wtap_pkthdr *phdr,
+	const wtap_rec *rec,
 	const guint8 *pd, int *err, gchar **err_info _U_)
 {
-	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	struct snooprec_hdr rec_hdr;
 	int reclen;
 	guint padlen;
@@ -813,7 +813,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	int atm_hdrsize;
 
 	/* We can only write packet records. */
-	if (phdr->rec_type != REC_TYPE_PACKET) {
+	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
 		return FALSE;
 	}
@@ -824,7 +824,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 		atm_hdrsize = 0;
 
 	/* Record length = header length plus data length... */
-	reclen = (int)sizeof rec_hdr + phdr->caplen + atm_hdrsize;
+	reclen = (int)sizeof rec_hdr + rec->rec_header.packet_header.caplen + atm_hdrsize;
 
 
 	/* ... plus enough bytes to pad it to a 4-byte boundary. */
@@ -832,17 +832,17 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	reclen += padlen;
 
 	/* Don't write anything we're not willing to read. */
-	if (phdr->caplen + atm_hdrsize > WTAP_MAX_PACKET_SIZE_STANDARD) {
+	if (rec->rec_header.packet_header.caplen + atm_hdrsize > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}
 
-	rec_hdr.orig_len = g_htonl(phdr->len + atm_hdrsize);
-	rec_hdr.incl_len = g_htonl(phdr->caplen + atm_hdrsize);
+	rec_hdr.orig_len = g_htonl(rec->rec_header.packet_header.len + atm_hdrsize);
+	rec_hdr.incl_len = g_htonl(rec->rec_header.packet_header.caplen + atm_hdrsize);
 	rec_hdr.rec_len = g_htonl(reclen);
 	rec_hdr.cum_drops = 0;
-	rec_hdr.ts_sec = g_htonl(phdr->ts.secs);
-	rec_hdr.ts_usec = g_htonl(phdr->ts.nsecs / 1000);
+	rec_hdr.ts_sec = g_htonl(rec->ts.secs);
+	rec_hdr.ts_usec = g_htonl(rec->ts.nsecs / 1000);
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
 		return FALSE;
 
@@ -885,7 +885,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 			return FALSE;
 	}
 
-	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
 		return FALSE;
 
 	/* Now write the padding. */

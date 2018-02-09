@@ -1140,10 +1140,10 @@ wtap_sequential_close(wtap *wth)
 		wth->fh = NULL;
 	}
 
-	if (wth->frame_buffer) {
-		ws_buffer_free(wth->frame_buffer);
-		g_free(wth->frame_buffer);
-		wth->frame_buffer = NULL;
+	if (wth->rec_data) {
+		ws_buffer_free(wth->rec_data);
+		g_free(wth->rec_data);
+		wth->rec_data = NULL;
 	}
 }
 
@@ -1222,8 +1222,8 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 *
 	 * Do the same for the packet time stamp resolution.
 	 */
-	wth->phdr.pkt_encap = wth->file_encap;
-	wth->phdr.pkt_tsprec = wth->file_tsprec;
+	wth->rec.rec_header.packet_header.pkt_encap = wth->file_encap;
+	wth->rec.tsprec = wth->file_tsprec;
 
 	*err = 0;
 	*err_info = NULL;
@@ -1243,19 +1243,24 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	}
 
 	/*
-	 * It makes no sense for the captured data length to be bigger
-	 * than the actual data length.
+	 * Is this a packet record?
 	 */
-	if (wth->phdr.caplen > wth->phdr.len)
-		wth->phdr.caplen = wth->phdr.len;
+	if (wth->rec.rec_type == REC_TYPE_PACKET) {
+		/*
+		 * It makes no sense for the captured data length
+		 * to be bigger than the actual data length.
+		 */
+		if (wth->rec.rec_header.packet_header.caplen > wth->rec.rec_header.packet_header.len)
+			wth->rec.rec_header.packet_header.caplen = wth->rec.rec_header.packet_header.len;
 
-	/*
-	 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
-	 * probably means the file has that encapsulation type
-	 * but the read routine didn't set this packet's
-	 * encapsulation type.
-	 */
-	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
+		/*
+		 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
+		 * probably means the file has that encapsulation type
+		 * but the read routine didn't set this packet's
+		 * encapsulation type.
+		 */
+		g_assert(wth->rec.rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+	}
 
 	return TRUE;	/* success */
 }
@@ -1349,34 +1354,34 @@ wtap_read_so_far(wtap *wth)
 	return file_tell_raw(wth->fh);
 }
 
-struct wtap_pkthdr *
-wtap_phdr(wtap *wth)
+wtap_rec *
+wtap_get_rec(wtap *wth)
 {
-	return &wth->phdr;
+	return &wth->rec;
 }
 
 guint8 *
-wtap_buf_ptr(wtap *wth)
+wtap_get_buf_ptr(wtap *wth)
 {
-	return ws_buffer_start_ptr(wth->frame_buffer);
+	return ws_buffer_start_ptr(wth->rec_data);
 }
 
 void
-wtap_phdr_init(struct wtap_pkthdr *phdr)
+wtap_rec_init(wtap_rec *rec)
 {
-	memset(phdr, 0, sizeof(struct wtap_pkthdr));
-	ws_buffer_init(&phdr->ft_specific_data, 0);
+	memset(rec, 0, sizeof *rec);
+	ws_buffer_init(&rec->ft_specific_data, 0);
 }
 
 void
-wtap_phdr_cleanup(struct wtap_pkthdr *phdr)
+wtap_rec_cleanup(wtap_rec *rec)
 {
-	ws_buffer_free(&phdr->ft_specific_data);
+	ws_buffer_free(&rec->ft_specific_data);
 }
 
 gboolean
-wtap_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info)
 {
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
@@ -1388,28 +1393,33 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
 	 *
 	 * Do the same for the packet time stamp resolution.
 	 */
-	phdr->pkt_encap = wth->file_encap;
-	phdr->pkt_tsprec = wth->file_tsprec;
+	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
+	rec->tsprec = wth->file_tsprec;
 
 	*err = 0;
 	*err_info = NULL;
-	if (!wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info))
+	if (!wth->subtype_seek_read(wth, seek_off, rec, buf, err, err_info))
 		return FALSE;
 
 	/*
-	 * It makes no sense for the captured data length to be bigger
-	 * than the actual data length.
+	 * Is this a packet record?
 	 */
-	if (phdr->caplen > phdr->len)
-		phdr->caplen = phdr->len;
+	if (rec->rec_type == REC_TYPE_PACKET) {
+		/*
+		 * It makes no sense for the captured data length
+		 * to be bigger than the actual data length.
+		 */
+		if (rec->rec_header.packet_header.caplen > rec->rec_header.packet_header.len)
+			rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len;
 
-	/*
-	 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
-	 * probably means the file has that encapsulation type
-	 * but the read routine didn't set this packet's
-	 * encapsulation type.
-	 */
-	g_assert(phdr->pkt_encap != WTAP_ENCAP_PER_PACKET);
+		/*
+		 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
+		 * probably means the file has that encapsulation type
+		 * but the read routine didn't set this packet's
+		 * encapsulation type.
+		 */
+		g_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+	}
 
 	return TRUE;
 }

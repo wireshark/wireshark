@@ -101,8 +101,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     main_item = proto_tree_add_item(tree, proto_adb_cs, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_adb_cs);
 
-    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-        wireshark_interface_id = pinfo->phdr->interface_id;
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+        wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
 
     if (pinfo->destport == server_port) { /* Client sent to Server */
         client_request_t  *client_request;
@@ -117,8 +117,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Client");
 
-        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-            wireshark_interface_id = pinfo->phdr->interface_id;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+            wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
 
         key[0].length = 1;
         key[0].key = &wireshark_interface_id;
@@ -182,8 +182,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         if (!pinfo->fd->flags.visited && length > 0) { /* save Length to client_requests */
-            if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-                wireshark_interface_id = pinfo->phdr->interface_id;
+            if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+                wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
 
             key[0].length = 1;
             key[0].key = &wireshark_interface_id;
@@ -209,8 +209,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (!pinfo->fd->flags.visited && (length == -1 || (client_request && client_request->service_in == -1 && tvb_reported_length_remaining(tvb, offset) > 0))) { /* save Service to client_requests */
             if (!client_request) {
-                if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
-                    wireshark_interface_id = pinfo->phdr->interface_id;
+                if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+                    wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
 
                 key[0].length = 1;
                 key[0].key = &wireshark_interface_id;

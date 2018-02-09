@@ -73,8 +73,8 @@ static const char dbs_etherwatch_rec_magic[]  =
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh,
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+static gboolean parse_dbs_etherwatch_packet(wtap_rec *rec, FILE_T fh,
     Buffer* buf, int *err, gchar **err_info);
 static guint parse_single_hex_dump_line(char* rec, guint8 *buf,
     int byte_offset);
@@ -194,19 +194,19 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_dbs_etherwatch_packet(&wth->phdr, wth->fh,
-         wth->frame_buffer, err, err_info);
+    return parse_dbs_etherwatch_packet(&wth->rec, wth->fh,
+         wth->rec_data, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
 dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
 
-    return parse_dbs_etherwatch_packet(phdr, wth->random_fh, buf, err,
+    return parse_dbs_etherwatch_packet(rec, wth->random_fh, buf, err,
         err_info);
 }
 
@@ -255,7 +255,7 @@ unnumbered. Unnumbered has length 1, numbered 2.
 #define CTL_UNNUMB_MASK     0x03
 #define CTL_UNNUMB_VALUE    0x03
 static gboolean
-parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
+parse_dbs_etherwatch_packet(wtap_rec *rec, FILE_T fh, Buffer* buf,
     int *err, gchar **err_info)
 {
     guint8 *pd;
@@ -423,8 +423,8 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
         pd[length_pos+1] = (length) & 0xFF;
     }
 
-    phdr->rec_type = REC_TYPE_PACKET;
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     p = strstr(months, mon);
     if (p)
@@ -432,12 +432,12 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
     tm.tm_year -= 1900;
 
     tm.tm_isdst = -1;
-    phdr->ts.secs = mktime(&tm);
-    phdr->ts.nsecs = csec * 10000000;
-    phdr->caplen = eth_hdr_len + pkt_len;
-    phdr->len = eth_hdr_len + pkt_len;
+    rec->ts.secs = mktime(&tm);
+    rec->ts.nsecs = csec * 10000000;
+    rec->rec_header.packet_header.caplen = eth_hdr_len + pkt_len;
+    rec->rec_header.packet_header.len = eth_hdr_len + pkt_len;
 
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
          * Probably a corrupt capture file; return an error,
          * so that our caller doesn't blow up trying to allocate
@@ -445,18 +445,18 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
          */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("dbs_etherwatch: File has %u-byte packet, bigger than maximum of %u",
-                                    phdr->caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
+                                    rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }
 
     /* Make sure we have enough room, even for an oversized Ethernet packet */
-    ws_buffer_assure_space(buf, phdr->caplen);
+    ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
     pd = ws_buffer_start_ptr(buf);
 
     /*
      * We don't have an FCS in this frame.
      */
-    phdr->pseudo_header.eth.fcs_len = 0;
+    rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
 
     /* Parse the hex dump */
     count = 0;

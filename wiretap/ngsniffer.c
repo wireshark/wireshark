@@ -498,9 +498,9 @@ static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
 static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int ngsniffer_process_record(wtap *wth, gboolean is_random,
-    guint *padding, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
+    guint *padding, wtap_rec *rec, Buffer *buf, int *err,
     gchar **err_info);
 static void set_pseudo_header_frame2(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2);
@@ -513,7 +513,7 @@ static int fix_pseudo_header(int encap, Buffer *buf, int len,
     union wtap_pseudo_header *pseudo_header);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
-static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
 static gboolean ngsniffer_dump_finish(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
@@ -1025,7 +1025,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * Process the record.
 		 */
 		ret = ngsniffer_process_record(wth, FALSE, &padding,
-		    &wth->phdr, wth->frame_buffer, err, err_info);
+		    &wth->rec, wth->rec_data, err, err_info);
 		if (ret < 0) {
 			/* Read error or short read */
 			return FALSE;
@@ -1076,14 +1076,14 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
 	int	ret;
 
 	if (!ng_file_seek_rand(wth, seek_off, err, err_info))
 		return FALSE;
 
-	ret = ngsniffer_process_record(wth, TRUE, NULL, phdr, buf, err, err_info);
+	ret = ngsniffer_process_record(wth, TRUE, NULL, rec, buf, err, err_info);
 	if (ret < 0) {
 		/* Read error or short read */
 		return FALSE;
@@ -1118,7 +1118,7 @@ ngsniffer_seek_read(wtap *wth, gint64 seek_off,
  */
 static int
 ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
 	ngsniffer_t *ngsniffer;
 	char	record_type[2];
@@ -1179,7 +1179,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 
 		rec_length_remaining -= (guint)sizeof frame2;	/* we already read that much */
 
-		set_pseudo_header_frame2(wth, &phdr->pseudo_header, &frame2);
+		set_pseudo_header_frame2(wth, &rec->rec_header.packet_header.pseudo_header, &frame2);
 		break;
 
 	case REC_FRAME4:
@@ -1223,7 +1223,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 
 		rec_length_remaining -= (guint)sizeof frame4;	/* we already read that much */
 
-		set_pseudo_header_frame4(&phdr->pseudo_header, &frame4);
+		set_pseudo_header_frame4(&rec->rec_header.packet_header.pseudo_header, &frame4);
 		break;
 
 	case REC_FRAME6:
@@ -1247,7 +1247,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 
 		rec_length_remaining -= (guint)sizeof frame6;	/* we already read that much */
 
-		set_pseudo_header_frame6(wth, &phdr->pseudo_header, &frame6);
+		set_pseudo_header_frame6(wth, &rec->rec_header.packet_header.pseudo_header, &frame6);
 		break;
 
 	case REC_EOF:
@@ -1300,10 +1300,10 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		*padding = rec_length_remaining - size;
 	}
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
-	phdr->len = true_size ? true_size : size;
-	phdr->caplen = size;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
+	rec->rec_header.packet_header.len = true_size ? true_size : size;
+	rec->rec_header.packet_header.caplen = size;
 
 	/*
 	 * Read the packet data.
@@ -1313,8 +1313,8 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	    err, err_info))
 		return -1;
 
-	phdr->pkt_encap = fix_pseudo_header(wth->file_encap,
-	    buf, size, &phdr->pseudo_header);
+	rec->rec_header.packet_header.pkt_encap = fix_pseudo_header(wth->file_encap,
+	    buf, size, &rec->rec_header.packet_header.pseudo_header);
 
 	/*
 	 * 40-bit time stamp, in units of timeunit picoseconds.
@@ -1344,8 +1344,8 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	 */
 	tsecs += ngsniffer->start;
 
-	phdr->ts.secs = (time_t)tsecs;
-	phdr->ts.nsecs = (int)(tpsecs/1000);	/* psecs to nsecs */
+	rec->ts.secs = (time_t)tsecs;
+	rec->ts.nsecs = (int)(tpsecs/1000);	/* psecs to nsecs */
 
 	return rec_type;	/* success */
 }
@@ -2004,10 +2004,10 @@ ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean
-ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	       const guint8 *pd, int *err, gchar **err_info _U_)
 {
-	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;
 	struct frame2_rec rec_hdr;
 	char buf[6];
@@ -2021,14 +2021,14 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	struct tm *tm;
 
 	/* We can only write packet records. */
-	if (phdr->rec_type != REC_TYPE_PACKET) {
+	if (rec->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
 		return FALSE;
 	}
 
 	/* The captured length field is 16 bits, so there's a hard
 	   limit of 65535. */
-	if (phdr->caplen > 65535) {
+	if (rec->rec_header.packet_header.caplen > 65535) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}
@@ -2039,13 +2039,13 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	   date. */
 	if (ngsniffer->first_frame) {
 		ngsniffer->first_frame=FALSE;
-		tm = localtime(&phdr->ts.secs);
+		tm = localtime(&rec->ts.secs);
 		if (tm != NULL && tm->tm_year >= DOS_YEAR_OFFSET) {
 			start_date = (tm->tm_year - DOS_YEAR_OFFSET) << DOS_YEAR_SHIFT;
 			start_date |= (tm->tm_mon - DOS_MONTH_OFFSET) << DOS_MONTH_SHIFT;
 			start_date |= tm->tm_mday << DOS_DAY_SHIFT;
 			/* record the start date, not the start time */
-			ngsniffer->start = phdr->ts.secs - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
+			ngsniffer->start = rec->ts.secs - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
 		} else {
 			start_date = 0;
 			ngsniffer->start = 0;
@@ -2072,20 +2072,20 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	buf[0] = REC_FRAME2;
 	buf[1] = 0x00;
-	buf[2] = (char)((phdr->caplen + sizeof(struct frame2_rec))%256);
-	buf[3] = (char)((phdr->caplen + sizeof(struct frame2_rec))/256);
+	buf[2] = (char)((rec->rec_header.packet_header.caplen + sizeof(struct frame2_rec))%256);
+	buf[3] = (char)((rec->rec_header.packet_header.caplen + sizeof(struct frame2_rec))/256);
 	buf[4] = 0x00;
 	buf[5] = 0x00;
 	if (!wtap_dump_file_write(wdh, buf, 6, err))
 		return FALSE;
 	/* Seconds since the start of the capture */
-	tsecs = phdr->ts.secs - ngsniffer->start;
+	tsecs = rec->ts.secs - ngsniffer->start;
 	/* Extract the number of days since the start of the capture */
 	rec_hdr.time_day = (guint8)(tsecs / 86400);	/* # days of capture - 86400 secs/day */
 	tsecs -= rec_hdr.time_day * 86400;	/* time within day */
 	/* Convert to picoseconds */
 	t = tsecs*G_GUINT64_CONSTANT(1000000000000) +
-		phdr->ts.nsecs*G_GUINT64_CONSTANT(1000);
+		rec->ts.nsecs*G_GUINT64_CONSTANT(1000);
 	/* Convert to units of timeunit = 1 */
 	t /= Psec[1];
 	t_low = (guint16)((t >> 0) & 0xFFFF);
@@ -2094,7 +2094,7 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	rec_hdr.time_low = GUINT16_TO_LE(t_low);
 	rec_hdr.time_med = GUINT16_TO_LE(t_med);
 	rec_hdr.time_high = t_high;
-	rec_hdr.size = GUINT16_TO_LE(phdr->caplen);
+	rec_hdr.size = GUINT16_TO_LE(rec->rec_header.packet_header.caplen);
 	switch (wdh->encap) {
 
 	case WTAP_ENCAP_LAPB:
@@ -2130,11 +2130,11 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		break;
 	}
 	rec_hdr.flags = 0;
-	rec_hdr.true_size = phdr->len != phdr->caplen ? GUINT16_TO_LE(phdr->len) : 0;
+	rec_hdr.true_size = rec->rec_header.packet_header.len != rec->rec_header.packet_header.caplen ? GUINT16_TO_LE(rec->rec_header.packet_header.len) : 0;
 	rec_hdr.rsvd = 0;
 	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+	if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
 		return FALSE;
 	return TRUE;
 }

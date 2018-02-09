@@ -479,71 +479,71 @@ typedef struct nspr_pktracepart_v26
 } nspr_pktracepart_v26_t;
 #define nspr_pktracepart_v26_s    ((guint32)(sizeof(nspr_pktracepart_v26_t)))
 
-#define __TNDO(phdr,enumprefix,structname,hdrname)\
+#define __TNDO(rec,enumprefix,structname,hdrname)\
     static const guint8 enumprefix##_##hdrname##_offset = (guint8)sizeof(nspr_##structname##_t);
 
-#define __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNO(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
     static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structprefix##_##structfieldname));
 
-#define __TNL(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNL(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
     static const guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structprefix##_##structfieldname);
 
-#define __TNV1O(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNV1O(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
     static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structfieldname));
 
-#define __TNV1L(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNV1L(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
     static const guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structfieldname);
 
-#define TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    __TNV1O(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
-    __TNV1L(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
-    __TNV1O(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
-    __TNV1L(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
-    __TNDO(phdr,enumprefix,structname,eth)
+#define TRACE_V10_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    __TNV1O(rec,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
+    __TNV1L(rec,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
+    __TNV1O(rec,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
+    __TNV1L(rec,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
+    __TNDO(rec,enumprefix,structname,eth)
 
-#define TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    __TNO(phdr,enumprefix,structprefix,structname,dir,RecordType)\
-    __TNL(phdr,enumprefix,structprefix,structname,dir,RecordType)\
-    __TNO(phdr,enumprefix,structprefix,structname,nicno,DevNo)\
-    __TNL(phdr,enumprefix,structprefix,structname,nicno,DevNo)\
-    __TNDO(phdr,enumprefix,structname,eth)
+#define TRACE_V20_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    __TNO(rec,enumprefix,structprefix,structname,dir,RecordType)\
+    __TNL(rec,enumprefix,structprefix,structname,dir,RecordType)\
+    __TNO(rec,enumprefix,structprefix,structname,nicno,DevNo)\
+    __TNL(rec,enumprefix,structprefix,structname,nicno,DevNo)\
+    __TNDO(rec,enumprefix,structname,eth)
 
-#define TRACE_V21_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
-    __TNO(phdr,enumprefix,structprefix,structname,pcb,PcbDevNo)\
-    __TNO(phdr,enumprefix,structprefix,structname,l_pcb,lPcbDevNo)
+#define TRACE_V21_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    TRACE_V20_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
+    __TNO(rec,enumprefix,structprefix,structname,pcb,PcbDevNo)\
+    __TNO(rec,enumprefix,structprefix,structname,l_pcb,lPcbDevNo)
 
-#define TRACE_V22_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    TRACE_V21_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
-    __TNO(phdr,enumprefix,structprefix,structname,vlantag,VlanTag)
+#define TRACE_V22_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    TRACE_V21_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
+    __TNO(rec,enumprefix,structprefix,structname,vlantag,VlanTag)
 
-#define TRACE_V23_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    TRACE_V22_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
-    __TNO(phdr,enumprefix,structprefix,structname,coreid,Coreid)
+#define TRACE_V23_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    TRACE_V22_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
+    __TNO(rec,enumprefix,structprefix,structname,coreid,Coreid)
 
-#define TRACE_V24_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    TRACE_V23_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
-    __TNO(phdr,enumprefix,structprefix,structname,srcnodeid,srcNodeId)\
-    __TNO(phdr,enumprefix,structprefix,structname,destnodeid,destNodeId)\
-    __TNO(phdr,enumprefix,structprefix,structname,clflags,clFlags)
+#define TRACE_V24_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    TRACE_V23_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
+    __TNO(rec,enumprefix,structprefix,structname,srcnodeid,srcNodeId)\
+    __TNO(rec,enumprefix,structprefix,structname,destnodeid,destNodeId)\
+    __TNO(rec,enumprefix,structprefix,structname,clflags,clFlags)
 
-#define TRACE_V25_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    TRACE_V24_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
-    __TNO(phdr,enumprefix,structprefix,structname,src_vmname_len,src_vmname_len)\
-    __TNO(phdr,enumprefix,structprefix,structname,dst_vmname_len,dst_vmname_len)\
-    __TNDO(phdr,enumprefix,structname,data)
+#define TRACE_V25_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    TRACE_V24_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
+    __TNO(rec,enumprefix,structprefix,structname,src_vmname_len,src_vmname_len)\
+    __TNO(rec,enumprefix,structprefix,structname,dst_vmname_len,dst_vmname_len)\
+    __TNDO(rec,enumprefix,structname,data)
 
-#define TRACE_V26_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    TRACE_V25_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
-    __TNO(phdr,enumprefix,structprefix,structname,ns_activity,ns_activity)\
+#define TRACE_V26_REC_LEN_OFF(rec,enumprefix,structprefix,structname) \
+    TRACE_V25_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
+    __TNO(rec,enumprefix,structprefix,structname,ns_activity,ns_activity)\
 
-#define TRACE_V30_REC_LEN_OFF(phdr, enumprefix, structprefix, structname) \
-    TRACE_V26_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
+#define TRACE_V30_REC_LEN_OFF(rec, enumprefix, structprefix, structname) \
+    TRACE_V26_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
 
-#define TRACE_V35_REC_LEN_OFF(phdr, enumprefix, structprefix, structname) \
-    TRACE_V23_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
-    __TNDO(phdr,enumprefix,structname,data)\
-    __TNO(phdr,enumprefix,structprefix,structname,ns_activity,ns_activity)
+#define TRACE_V35_REC_LEN_OFF(rec, enumprefix, structprefix, structname) \
+    TRACE_V23_REC_LEN_OFF(rec,enumprefix,structprefix,structname)\
+    __TNDO(rec,enumprefix,structname,data)\
+    __TNO(rec,enumprefix,structprefix,structname,ns_activity,ns_activity)
 
     TRACE_V10_REC_LEN_OFF(NULL,v10_part,pp,pktracepart_v10)
     TRACE_V10_REC_LEN_OFF(NULL,v10_full,fp,pktracefull_v10)
@@ -610,15 +610,15 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
 static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info,
                                  gint64 *data_offset);
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-                                      struct wtap_pkthdr *phdr,
+                                      wtap_rec *rec,
                                       Buffer *buf,
                                       int *err, gchar **err_info);
 static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-                                      struct wtap_pkthdr *phdr,
+                                      wtap_rec *rec,
                                       Buffer *buf,
                                       int *err, gchar **err_info);
 static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
-                                      struct wtap_pkthdr *phdr,
+                                      wtap_rec *rec,
                                       Buffer *buf,
                                       int *err, gchar **err_info);
 static void nstrace_close(wtap *wth);
@@ -630,7 +630,7 @@ static gboolean nstrace_set_start_time_v20(wtap *wth, int *err,
 static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info);
 static guint64 ns_hrtime2nsec(guint32 tm);
 
-static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
                              const guint8 *pd, int *err, gchar **err_info);
 
 
@@ -803,8 +803,8 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     }
 
     wth->file_tsprec = WTAP_TSPREC_NSEC;
-    wth->phdr.ts.secs = nstrace->nspm_curtime;
-    wth->phdr.ts.nsecs = 0;
+    wth->rec.ts.secs = nstrace->nspm_curtime;
+    wth->rec.ts.nsecs = 0;
 
     *err = 0;
     return WTAP_OPEN_MINE;
@@ -941,20 +941,20 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
     return FALSE;
 }
 
-#define __TNDO(phdr,enumprefix,structname,hdrname)\
-    (phdr)->pseudo_header.nstr.hdrname##_offset = enumprefix##_##hdrname##_offset;
+#define __TNDO(rec,enumprefix,structname,hdrname)\
+    (rec)->rec_header.packet_header.pseudo_header.nstr.hdrname##_offset = enumprefix##_##hdrname##_offset;
 
-#define __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    (phdr)->pseudo_header.nstr.hdrname##_offset = enumprefix##_##hdrname##_offset;
+#define __TNO(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    (rec)->rec_header.packet_header.pseudo_header.nstr.hdrname##_offset = enumprefix##_##hdrname##_offset;
 
-#define __TNL(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    (phdr)->pseudo_header.nstr.hdrname##_len = enumprefix##_##hdrname##_len;
+#define __TNL(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    (rec)->rec_header.packet_header.pseudo_header.nstr.hdrname##_len = enumprefix##_##hdrname##_len;
 
-#define __TNV1O(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname)
+#define __TNV1O(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    __TNO(rec,enumprefix,structprefix,structname,hdrname,structfieldname)
 
-#define __TNV1L(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    __TNL(phdr,enumprefix,structprefix,structname,hdrname,structfieldname)
+#define __TNV1L(rec,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    __TNL(rec,enumprefix,structprefix,structname,hdrname,structfieldname)
 
 
 
@@ -964,28 +964,28 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
 ** The maximum value of the record data size is 65535, which is less than
 ** WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
 */
-#define TIMEDEFV10(phdr,fp,type) \
+#define TIMEDEFV10(rec,fp,type) \
     do {\
-        (phdr)->presence_flags = WTAP_HAS_TS;\
+        (rec)->presence_flags = WTAP_HAS_TS;\
         nsg_creltime += ns_hrtime2nsec(pletoh32(&type->type##_RelTimeHr));\
-        (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
     }while(0)
 
-#define PARTSIZEDEFV10(phdr,pp,ver) \
+#define PARTSIZEDEFV10(rec,pp,ver) \
     do {\
-        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
-        (phdr)->len = pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
-        (phdr)->caplen = pletoh16(&pp->nsprRecordSize);\
+        (rec)->presence_flags |= WTAP_HAS_CAP_LEN;\
+        (rec)->rec_header.packet_header.len = pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
+        (rec)->rec_header.packet_header.caplen = pletoh16(&pp->nsprRecordSize);\
     }while(0)
 
-#define FULLSIZEDEFV10(phdr,fp,ver) \
+#define FULLSIZEDEFV10(rec,fp,ver) \
     do {\
-        (phdr)->len = pletoh16(&(fp)->nsprRecordSize);\
-        (phdr)->caplen = (phdr)->len;\
+        (rec)->rec_header.packet_header.len = pletoh16(&(fp)->nsprRecordSize);\
+        (rec)->rec_header.packet_header.caplen = (rec)->rec_header.packet_header.len;\
     }while(0)
 
-#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,type,HEADERVER) \
+#define PACKET_DESCRIBE(rec,FULLPART,fullpart,ver,type,HEADERVER) \
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
@@ -1000,20 +1000,20 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
             *err_info = g_strdup("nstrace: record size is less than record header size");\
             return FALSE;\
         }\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver((phdr),fp,type);\
-        FULLPART##SIZEDEFV##ver((phdr),type,ver);\
-        TRACE_V##ver##_REC_LEN_OFF((phdr),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
+        (rec)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((rec),fp,type);\
+        FULLPART##SIZEDEFV##ver((rec),type,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((rec),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
         /* Make sure the record is entirely contained in the page */\
-        if ((nstrace_buflen - nstrace_buf_offset) < (phdr)->caplen) {\
+        if ((nstrace_buflen - nstrace_buf_offset) < (rec)->rec_header.packet_header.caplen) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record crosses page boundary");\
             return FALSE;\
         }\
-        ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-        memcpy(ws_buffer_start_ptr(wth->frame_buffer), type, (phdr)->caplen);\
+        ws_buffer_assure_space(wth->rec_data, (rec)->rec_header.packet_header.caplen);\
+        memcpy(ws_buffer_start_ptr(wth->rec_data), type, (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
-        nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->caplen;\
+        nstrace->nstrace_buf_offset = nstrace_buf_offset + (rec)->rec_header.packet_header.caplen;\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
         return TRUE;\
@@ -1021,6 +1021,7 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
 
 static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
+    wtap_rec *rec = &wth->rec;
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
     guint64 nsg_creltime = nstrace->nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
@@ -1035,22 +1036,22 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             ((nstrace_buflen - nstrace_buf_offset) >= ((gint32)sizeof((( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))))
         {
 
-#define GENERATE_CASE_FULL(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_FULL(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,full,ver,fp,HEADERVER);
+            PACKET_DESCRIBE(rec,FULL,full,ver,fp,HEADERVER);
 
-#define GENERATE_CASE_PART(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_PART(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
-            PACKET_DESCRIBE(phdr,PART,part,ver,pp,HEADERVER);
+            PACKET_DESCRIBE(rec,PART,part,ver,pp,HEADERVER);
 
             switch (pletoh16(&(( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))
             {
-                GENERATE_CASE_FULL(&wth->phdr,10,100)
-                GENERATE_CASE_PART(&wth->phdr,10,100)
+                GENERATE_CASE_FULL(rec,10,100)
+                GENERATE_CASE_PART(rec,10,100)
 
 #undef GENERATE_CASE_FULL
 #undef GENERATE_CASE_PART
@@ -1109,61 +1110,61 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
-#define TIMEDEFV20(phdr,fp,type) \
+#define TIMEDEFV20(rec,fp,type) \
     do {\
-        (phdr)->presence_flags = WTAP_HAS_TS;\
+        (rec)->presence_flags = WTAP_HAS_TS;\
         nsg_creltime += ns_hrtime2nsec(pletoh32(fp->type##_RelTimeHr));\
-        (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
     }while(0)
 
-#define TIMEDEFV23(phdr,fp,type) \
+#define TIMEDEFV23(rec,fp,type) \
     do {\
-        (phdr)->presence_flags = WTAP_HAS_TS;\
+        (rec)->presence_flags = WTAP_HAS_TS;\
         /* access _AbsTimeHr as a 64bit value */\
         nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
-        (phdr)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
-        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
     }while(0)
 
-#define TIMEDEFV21(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
-#define TIMEDEFV22(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
-#define TIMEDEFV24(phdr,fp,type) TIMEDEFV23(phdr,fp,type)
-#define TIMEDEFV25(phdr,fp,type) TIMEDEFV24(phdr,fp,type)
-#define TIMEDEFV26(phdr,fp,type) TIMEDEFV24(phdr,fp,type)
+#define TIMEDEFV21(rec,fp,type) TIMEDEFV20(rec,fp,type)
+#define TIMEDEFV22(rec,fp,type) TIMEDEFV20(rec,fp,type)
+#define TIMEDEFV24(rec,fp,type) TIMEDEFV23(rec,fp,type)
+#define TIMEDEFV25(rec,fp,type) TIMEDEFV24(rec,fp,type)
+#define TIMEDEFV26(rec,fp,type) TIMEDEFV24(rec,fp,type)
 
 /*
 ** The maximum value of the record data size is 65535, which is less than
 ** WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
 */
-#define PARTSIZEDEFV20(phdr,pp,ver) \
+#define PARTSIZEDEFV20(rec,pp,ver) \
     do {\
-        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
-        (phdr)->len = pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
-        (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)pp);\
+        (rec)->presence_flags |= WTAP_HAS_CAP_LEN;\
+        (rec)->rec_header.packet_header.len = pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
+        (rec)->rec_header.packet_header.caplen = nspr_getv20recordsize((nspr_hd_v20_t *)pp);\
     }while(0)
 
-#define PARTSIZEDEFV21(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
-#define PARTSIZEDEFV22(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
-#define PARTSIZEDEFV23(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
-#define PARTSIZEDEFV24(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
-#define PARTSIZEDEFV25(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
-#define PARTSIZEDEFV26(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
+#define PARTSIZEDEFV21(rec,pp,ver) PARTSIZEDEFV20(rec,pp,ver)
+#define PARTSIZEDEFV22(rec,pp,ver) PARTSIZEDEFV20(rec,pp,ver)
+#define PARTSIZEDEFV23(rec,pp,ver) PARTSIZEDEFV20(rec,pp,ver)
+#define PARTSIZEDEFV24(rec,pp,ver) PARTSIZEDEFV20(rec,pp,ver)
+#define PARTSIZEDEFV25(rec,pp,ver) PARTSIZEDEFV20(rec,pp,ver)
+#define PARTSIZEDEFV26(rec,pp,ver) PARTSIZEDEFV20(rec,pp,ver)
 
-#define FULLSIZEDEFV20(phdr,fp,ver)\
+#define FULLSIZEDEFV20(rec,fp,ver)\
     do {\
-        (phdr)->len = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
-        (phdr)->caplen = (phdr)->len;\
+        (rec)->rec_header.packet_header.len = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
+        (rec)->rec_header.packet_header.caplen = (rec)->rec_header.packet_header.len;\
     }while(0)
 
-#define FULLSIZEDEFV21(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
-#define FULLSIZEDEFV22(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
-#define FULLSIZEDEFV23(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
-#define FULLSIZEDEFV24(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
-#define FULLSIZEDEFV25(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
-#define FULLSIZEDEFV26(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
+#define FULLSIZEDEFV21(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
+#define FULLSIZEDEFV22(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
+#define FULLSIZEDEFV23(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
+#define FULLSIZEDEFV24(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
+#define FULLSIZEDEFV25(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
+#define FULLSIZEDEFV26(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
 
-#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)&nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
@@ -1178,19 +1179,19 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             *err_info = g_strdup("nstrace: record size is less than record header size");\
             return FALSE;\
         }\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver((phdr),fp,type);\
-        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
-        TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
-        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
+        (rec)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((rec),fp,type);\
+        FULLPART##SIZEDEFV##ver((rec),fp,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
+        (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         /* Make sure the record is entirely contained in the page */\
-        if ((nstrace_buflen - nstrace_buf_offset) < (phdr)->caplen) {\
+        if ((nstrace_buflen - nstrace_buf_offset) < (rec)->rec_header.packet_header.caplen) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record crosses page boundary");\
             return FALSE;\
         }\
-        ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-        memcpy(ws_buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
+        ws_buffer_assure_space(wth->rec_data, (rec)->rec_header.packet_header.caplen);\
+        memcpy(ws_buffer_start_ptr(wth->rec_data), fp, (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1200,6 +1201,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
+    wtap_rec *rec = &wth->rec;
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
     guint64 nsg_creltime = nstrace->nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
@@ -1216,46 +1218,46 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
             switch ((( nspr_hd_v20_t*)&nstrace_buf[nstrace_buf_offset])->phd_RecordType)
             {
 
-#define GENERATE_CASE_FULL(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_FULL(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_FULL_V25(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_FULL_V25(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
         case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_PART(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
-            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART_V25(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_PART_V25(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
         case NSPR_PDPKTRACEPARTNEWRX_V##ver:\
-            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
-                GENERATE_CASE_FULL(&wth->phdr,20,200);
-                GENERATE_CASE_PART(&wth->phdr,20,200);
-                GENERATE_CASE_FULL(&wth->phdr,21,201);
-                GENERATE_CASE_PART(&wth->phdr,21,201);
-                GENERATE_CASE_FULL(&wth->phdr,22,202);
-                GENERATE_CASE_PART(&wth->phdr,22,202);
-                GENERATE_CASE_FULL(&wth->phdr,23,203);
-                GENERATE_CASE_PART(&wth->phdr,23,203);
-                GENERATE_CASE_FULL_V25(&wth->phdr,24,204);
-                GENERATE_CASE_PART_V25(&wth->phdr,24,204);
-                GENERATE_CASE_FULL_V25(&wth->phdr,25,205);
-                GENERATE_CASE_PART_V25(&wth->phdr,25,205);
-                GENERATE_CASE_FULL_V25(&wth->phdr,26,206);
-                GENERATE_CASE_PART_V25(&wth->phdr,26,206);
+                GENERATE_CASE_FULL(rec,20,200);
+                GENERATE_CASE_PART(rec,20,200);
+                GENERATE_CASE_FULL(rec,21,201);
+                GENERATE_CASE_PART(rec,21,201);
+                GENERATE_CASE_FULL(rec,22,202);
+                GENERATE_CASE_PART(rec,22,202);
+                GENERATE_CASE_FULL(rec,23,203);
+                GENERATE_CASE_PART(rec,23,203);
+                GENERATE_CASE_FULL_V25(rec,24,204);
+                GENERATE_CASE_PART_V25(rec,24,204);
+                GENERATE_CASE_FULL_V25(rec,25,205);
+                GENERATE_CASE_PART_V25(rec,25,205);
+                GENERATE_CASE_FULL_V25(rec,26,206);
+                GENERATE_CASE_PART_V25(rec,26,206);
 
 #undef GENERATE_CASE_FULL
 #undef GENERATE_CASE_FULL_V25
@@ -1321,18 +1323,18 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
-#define SETETHOFFSET_35(phdr)\
-  (phdr)->pseudo_header.nstr.eth_offset = pletoh16(&fp->fp_headerlen);\
+#define SETETHOFFSET_35(rec)\
+  (rec)->rec_header.packet_header.pseudo_header.nstr.eth_offset = pletoh16(&fp->fp_headerlen);\
 
-#define SETETHOFFSET_30(phdr) ;\
+#define SETETHOFFSET_30(rec) ;\
 
-#define TIMEDEFV30(phdr,fp,type) \
+#define TIMEDEFV30(rec,fp,type) \
     do {\
-        (phdr)->presence_flags = WTAP_HAS_TS;\
+        (rec)->presence_flags = WTAP_HAS_TS;\
         /* access _AbsTimeHr as a 64bit value */\
         nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
-        (phdr)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
-        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (rec)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
+        (rec)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
     }while(0)
 
 #define TIMEDEFV35 TIMEDEFV30
@@ -1341,21 +1343,21 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 ** The maximum value of the record data size is 65535, which is less than
 ** WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
 */
-#define FULLSIZEDEFV30(phdr,fp,ver)\
+#define FULLSIZEDEFV30(rec,fp,ver)\
     do {\
-        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
-        (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s + fp->fp_src_vmname_len + fp->fp_dst_vmname_len;\
-        (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
+        (rec)->presence_flags |= WTAP_HAS_CAP_LEN;\
+        (rec)->rec_header.packet_header.len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s + fp->fp_src_vmname_len + fp->fp_dst_vmname_len;\
+        (rec)->rec_header.packet_header.caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
     }while(0)
 
-#define FULLSIZEDEFV35(phdr,fp,ver)\
+#define FULLSIZEDEFV35(rec,fp,ver)\
     do {\
-        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
-        (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + pletoh16(&fp->fp_headerlen);\
-        (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
+        (rec)->presence_flags |= WTAP_HAS_CAP_LEN;\
+        (rec)->rec_header.packet_header.len = pletoh16(&fp->fp_PktSizeOrg) + pletoh16(&fp->fp_headerlen);\
+        (rec)->rec_header.packet_header.caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
     }while(0)
 
-#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
@@ -1365,20 +1367,20 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
             g_free(nstrace_tmpbuff);\
             return FALSE;\
         }\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver((phdr),fp,type);\
-        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
-        TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
-        SETETHOFFSET_##ver(phdr)\
-        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
+        (rec)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((rec),fp,type);\
+        FULLPART##SIZEDEFV##ver((rec),fp,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
+        SETETHOFFSET_##ver(rec)\
+        (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         /* Check sanity of record size */\
-        if ((phdr)->caplen < sizeof *fp) {\
+        if ((rec)->rec_header.packet_header.caplen < sizeof *fp) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record size is less than record header size");\
             g_free(nstrace_tmpbuff);\
             return FALSE;\
         }\
-        ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+        ws_buffer_assure_space(wth->rec_data, (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         /* Copy record header */\
         while (nstrace_tmpbuff_off < nspr_##structname##_s) {\
@@ -1413,7 +1415,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         while (nstrace_tmpbuff_off < nst_dataSize) {\
             nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
         }\
-        memcpy(ws_buffer_start_ptr(wth->frame_buffer), nstrace_tmpbuff, (phdr)->caplen);\
+        memcpy(ws_buffer_start_ptr(wth->rec_data), nstrace_tmpbuff, (rec)->rec_header.packet_header.caplen);\
         nstrace->nstrace_buf_offset = nstrace_buf_offset;\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
@@ -1423,6 +1425,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
 static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
+    wtap_rec *rec = &wth->rec;
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
     guint64 nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
@@ -1432,6 +1435,7 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
     guint32 nstrace_tmpbuff_off=0,nst_dataSize=0,rec_size=0,nsg_nextPageOffset=0;
     nspr_hd_v20_t *hdp;
     int bytes_read = 0;
+
     *err = 0;
     *err_info = NULL;
     if(nstrace_buflen == 0){
@@ -1461,24 +1465,24 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
             switch (hdp->phd_RecordType)
             {
 
-#define GENERATE_CASE_FULL_V30(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_FULL_V30(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
         case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-                GENERATE_CASE_FULL_V30(&wth->phdr,30,300);
+                GENERATE_CASE_FULL_V30(rec,30,300);
 
 #undef GENERATE_CASE_FULL_V30
 
-#define GENERATE_CASE_FULL_V35(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_FULL_V35(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
         case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
-                GENERATE_CASE_FULL_V35(&wth->phdr,35,350);
+            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+                GENERATE_CASE_FULL_V35(rec,35,350);
 
 #undef GENERATE_CASE_FULL_V35
 
@@ -1523,23 +1527,23 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
  * routine, because the time stamps are relative.
  */
 #undef TIMEDEFV10
-#define TIMEDEFV10(phdr,fp,type) \
+#define TIMEDEFV10(rec,fp,type) \
     do {\
-        (phdr)->presence_flags = 0;\
+        (rec)->presence_flags = 0;\
     }while(0)
 
-#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,type,HEADERVER) \
+#define PACKET_DESCRIBE(rec,FULLPART,fullpart,ver,type,HEADERVER) \
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) pd;\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver((phdr),fp,type);\
-        FULLPART##SIZEDEFV##ver((phdr),type,ver);\
-        TRACE_V##ver##_REC_LEN_OFF(phdr,v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
-        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
+        (rec)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((rec),fp,type);\
+        FULLPART##SIZEDEFV##ver((rec),type,ver);\
+        TRACE_V##ver##_REC_LEN_OFF(rec,v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
+        (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
     }while(0)
 
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v10_t hdr;
     guint record_length;
@@ -1579,24 +1583,24 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     /*
     ** Fill in what part of the struct wtap_pkthdr we can.
     */
-#define GENERATE_CASE_FULL(phdr,type,HEADERVER) \
+#define GENERATE_CASE_FULL(rec,type,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,full,type,fp,HEADERVER);\
+            PACKET_DESCRIBE(rec,FULL,full,type,fp,HEADERVER);\
             break;
 
-#define GENERATE_CASE_PART(phdr,type,HEADERVER) \
+#define GENERATE_CASE_PART(rec,type,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,part,type,pp,HEADERVER);\
+            PACKET_DESCRIBE(rec,PART,part,type,pp,HEADERVER);\
             break;
 
     switch (pletoh16(&(( nspr_header_v10_t*)pd)->ph_RecordType))
     {
-        GENERATE_CASE_FULL(phdr,10,100)
-        GENERATE_CASE_PART(phdr,10,100)
+        GENERATE_CASE_FULL(rec,10,100)
+        GENERATE_CASE_PART(rec,10,100)
     }
 
 #undef GENERATE_CASE_FULL
@@ -1612,29 +1616,29 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
  * routine, because the time stamps are relative.
  */
 #undef TIMEDEFV20
-#define TIMEDEFV20(phdr,fp,type) \
+#define TIMEDEFV20(rec,fp,type) \
     do {\
-        (phdr)->presence_flags = 0;\
+        (rec)->presence_flags = 0;\
     }while(0)
 
 #undef TIMEDEFV21
 #undef TIMEDEFV22
-#define TIMEDEFV21(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
-#define TIMEDEFV22(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
+#define TIMEDEFV21(rec,fp,type) TIMEDEFV20(rec,fp,type)
+#define TIMEDEFV22(rec,fp,type) TIMEDEFV20(rec,fp,type)
 
-#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver((phdr),fp,type);\
-        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
-        TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
-        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
+        (rec)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((rec),fp,type);\
+        FULLPART##SIZEDEFV##ver((rec),fp,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
+        (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         return TRUE;\
     }while(0)
 
 static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v20_t hdr;
     guint record_length;
@@ -1683,48 +1687,48 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
             return FALSE;
     }
 
-#define GENERATE_CASE_FULL(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_FULL(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_FULL_V25(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_FULL_V25(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
         case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_PART(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
-            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART_V25(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_PART_V25(rec,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
         case NSPR_PDPKTRACEPARTNEWRX_V##ver:\
-            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
     switch ((( nspr_hd_v20_t*)pd)->phd_RecordType)
     {
-        GENERATE_CASE_FULL(phdr,20,200)
-        GENERATE_CASE_PART(phdr,20,200)
-        GENERATE_CASE_FULL(phdr,21,201)
-        GENERATE_CASE_PART(phdr,21,201)
-        GENERATE_CASE_FULL(phdr,22,202)
-        GENERATE_CASE_PART(phdr,22,202)
-        GENERATE_CASE_FULL(phdr,23,203)
-        GENERATE_CASE_PART(phdr,23,203)
-        GENERATE_CASE_FULL_V25(phdr,24,204)
-        GENERATE_CASE_PART_V25(phdr,24,204)
-        GENERATE_CASE_FULL_V25(phdr,25,205)
-        GENERATE_CASE_PART_V25(phdr,25,205)
-        GENERATE_CASE_FULL_V25(phdr,26,206)
-        GENERATE_CASE_PART_V25(phdr,26,206)
+        GENERATE_CASE_FULL(rec,20,200)
+        GENERATE_CASE_PART(rec,20,200)
+        GENERATE_CASE_FULL(rec,21,201)
+        GENERATE_CASE_PART(rec,21,201)
+        GENERATE_CASE_FULL(rec,22,202)
+        GENERATE_CASE_PART(rec,22,202)
+        GENERATE_CASE_FULL(rec,23,203)
+        GENERATE_CASE_PART(rec,23,203)
+        GENERATE_CASE_FULL_V25(rec,24,204)
+        GENERATE_CASE_PART_V25(rec,24,204)
+        GENERATE_CASE_FULL_V25(rec,25,205)
+        GENERATE_CASE_PART_V25(rec,25,205)
+        GENERATE_CASE_FULL_V25(rec,26,206)
+        GENERATE_CASE_PART_V25(rec,26,206)
     }
 
 #undef GENERATE_CASE_FULL
@@ -1739,27 +1743,27 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
 #undef SETETHOFFSET_35
 #undef SETETHOFFSET_30
 
-#define SETETHOFFSET_35(phdr)\
+#define SETETHOFFSET_35(rec)\
    {\
-    (phdr)->pseudo_header.nstr.eth_offset = pletoh16(&fp->fp_headerlen);\
+    (rec)->rec_header.packet_header.pseudo_header.nstr.eth_offset = pletoh16(&fp->fp_headerlen);\
    }
 
-#define SETETHOFFSET_30(phdr) ;\
+#define SETETHOFFSET_30(rec) ;\
 
-#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver((phdr),fp,type);\
-        SETETHOFFSET_##ver(phdr);\
-        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
-        TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
-        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
+        (rec)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((rec),fp,type);\
+        SETETHOFFSET_##ver(rec);\
+        FULLPART##SIZEDEFV##ver((rec),fp,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
+        (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         return TRUE;\
     }while(0)
 
 static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+    wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v20_t hdr;
     guint record_length;
@@ -1809,19 +1813,19 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
             return FALSE;
     }
 
-    (phdr)->caplen = (phdr)->len = record_length;
+    (rec)->rec_header.packet_header.caplen = (rec)->rec_header.packet_header.len = record_length;
 
-#define GENERATE_CASE_V30(phdr,ver,HEADERVER) \
+#define GENERATE_CASE_V30(rec,ver,HEADERVER) \
     case NSPR_PDPKTRACEFULLTX_V##ver:\
     case NSPR_PDPKTRACEFULLTXB_V##ver:\
     case NSPR_PDPKTRACEFULLRX_V##ver:\
     case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-        PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+        PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
         switch ((( nspr_hd_v20_t*)pd)->phd_RecordType)
         {
-            GENERATE_CASE_V30(phdr,30, 300);
-            GENERATE_CASE_V30(phdr,35, 350);
+            GENERATE_CASE_V30(rec,30, 300);
+            GENERATE_CASE_V30(rec,35, 350);
         }
 
     return TRUE;
@@ -1993,7 +1997,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 
 
 static gboolean
-nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
      const guint8 *pd, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
@@ -2016,7 +2020,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         nsg_creltime = ns_hrtime2nsec(reltime);
 
         memset(abs10.abs_RelTime, 0, sizeof abs10.abs_RelTime);
-        abstime = GUINT32_TO_LE((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+        abstime = GUINT32_TO_LE((guint32)rec->ts.secs - (guint32)(nsg_creltime/1000000000));
         memcpy(abs10.abs_Time, &abstime, sizeof abs10.abs_Time);
 
         /* Write the record into the file */
@@ -2040,7 +2044,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         nsg_creltime = ns_hrtime2nsec(reltime);
 
         memset(abs20.abs_RelTime, 0, sizeof abs20.abs_RelTime);
-        abstime = GUINT32_TO_LE((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+        abstime = GUINT32_TO_LE((guint32)rec->ts.secs - (guint32)(nsg_creltime/1000000000));
         memcpy(abs20.abs_RelTime, &abstime, sizeof abs20.abs_RelTime);
 
         /* Write the record into the file */
@@ -2062,13 +2066,13 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info _U_)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
     /* We can only write packet records. */
-    if (phdr->rec_type != REC_TYPE_PACKET) {
+    if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
@@ -2080,18 +2084,18 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
-                !nstrace_add_abstime(wdh, phdr, pd, err))
+                !nstrace_add_abstime(wdh, rec, pd, err))
                 return FALSE;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
-                !nstrace_add_abstime(wdh, phdr, pd, err))
+                !nstrace_add_abstime(wdh, rec, pd, err))
                 return FALSE;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0 ||
                    wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5 )
         {
             if (!nstrace_add_signature(wdh, err) ||
-                !nstrace_add_abstime(wdh, phdr, pd, err))
+                !nstrace_add_abstime(wdh, rec, pd, err))
                 return FALSE;
         } else
         {
@@ -2100,13 +2104,13 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         }
     }
 
-    switch (phdr->pseudo_header.nstr.rec_type)
+    switch (rec->rec_header.packet_header.pseudo_header.nstr.rec_type)
     {
     case NSPR_HEADER_VERSION100:
 
         if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
-            if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
+            if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
                 if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
@@ -2120,10 +2124,10 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             }
 
             /* Write the actual record as is */
-            if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+            if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
                 return FALSE;
 
-            nstrace->page_offset += (guint16) phdr->caplen;
+            nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
@@ -2145,7 +2149,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             return FALSE;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
-            if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
+            if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
                 if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
@@ -2159,10 +2163,10 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             }
 
             /* Write the actual record as is */
-            if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+            if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
                 return FALSE;
 
-            nstrace->page_offset += (guint16) phdr->caplen;
+            nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
         }
 
         break;
@@ -2179,7 +2183,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             return FALSE;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0 || wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5)
         {
-            if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
+            if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
                 if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
@@ -2193,10 +2197,10 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             }
 
             /* Write the actual record as is */
-            if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+            if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen, err))
                 return FALSE;
 
-            nstrace->page_offset += (guint16) phdr->caplen;
+            nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
         } else
         {
             g_assert_not_reached();

@@ -62,7 +62,7 @@ static const char dct3trace_magic_end[]  = "</dump>";
 static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
 /*
  * Following 3 functions taken from gsmdecode-0.7bis, with permission - http://wiki.thc.org/gsm
@@ -211,7 +211,7 @@ wtap_open_return_val dct3trace_open(wtap *wth, int *err, gchar **err_info)
 }
 
 
-static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info)
 {
 	char line[1024];
@@ -234,18 +234,18 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			if( have_data )
 			{
 				/* We've got a full packet! */
-				phdr->rec_type = REC_TYPE_PACKET;
-				phdr->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
-				phdr->ts.secs = 0;
-				phdr->ts.nsecs = 0;
-				phdr->caplen = len;
-				phdr->len = len;
+				rec->rec_type = REC_TYPE_PACKET;
+				rec->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
+				rec->ts.secs = 0;
+				rec->ts.nsecs = 0;
+				rec->rec_header.packet_header.caplen = len;
+				rec->rec_header.packet_header.len = len;
 
 				*err = 0;
 
 				/* Make sure we have enough room for the packet */
-				ws_buffer_assure_space(buf, phdr->caplen);
-				memcpy( ws_buffer_start_ptr(buf), databuf, phdr->caplen );
+				ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
+				memcpy( ws_buffer_start_ptr(buf), databuf, rec->rec_header.packet_header.caplen );
 
 				return TRUE;
 			}
@@ -263,38 +263,38 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			int channel, tmp;
 			char *ptr;
 
-			phdr->pseudo_header.gsm_um.uplink = !strstr(line, "direction=\"down\"");
+			rec->rec_header.packet_header.pseudo_header.gsm_um.uplink = !strstr(line, "direction=\"down\"");
 			if (!xml_get_int(&channel, line, "logicalchannel", err, err_info))
 				return FALSE;
 
 			/* Parse downlink only fields */
-			if( !phdr->pseudo_header.gsm_um.uplink )
+			if( !rec->rec_header.packet_header.pseudo_header.gsm_um.uplink )
 			{
 				if (!xml_get_int(&tmp, line, "physicalchannel", err, err_info))
 					return FALSE;
-				phdr->pseudo_header.gsm_um.arfcn = tmp;
+				rec->rec_header.packet_header.pseudo_header.gsm_um.arfcn = tmp;
 				if (!xml_get_int(&tmp, line, "sequence", err, err_info))
 					return FALSE;
-				phdr->pseudo_header.gsm_um.tdma_frame = tmp;
+				rec->rec_header.packet_header.pseudo_header.gsm_um.tdma_frame = tmp;
 				if (!xml_get_int(&tmp, line, "bsic", err, err_info))
 					return FALSE;
-				phdr->pseudo_header.gsm_um.bsic = tmp;
+				rec->rec_header.packet_header.pseudo_header.gsm_um.bsic = tmp;
 				if (!xml_get_int(&tmp, line, "error", err, err_info))
 					return FALSE;
-				phdr->pseudo_header.gsm_um.error = tmp;
+				rec->rec_header.packet_header.pseudo_header.gsm_um.error = tmp;
 				if (!xml_get_int(&tmp, line, "timeshift", err, err_info))
 					return FALSE;
-				phdr->pseudo_header.gsm_um.timeshift = tmp;
+				rec->rec_header.packet_header.pseudo_header.gsm_um.timeshift = tmp;
 			}
 
 			switch( channel )
 			{
-				case 128: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SDCCH; break;
-				case 112: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SACCH; break;
-				case 176: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_FACCH; break;
-				case 96: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_CCCH; break;
-				case 80: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_BCCH; break;
-				default: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_UNKNOWN; break;
+				case 128: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SDCCH; break;
+				case 112: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SACCH; break;
+				case 176: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_FACCH; break;
+				case 96: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_CCCH; break;
+				case 80: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_BCCH; break;
+				default: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_UNKNOWN; break;
 			}
 
 			/* Read data (if have it) into databuf */
@@ -306,7 +306,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 				if (len == -1)
 				{
 					*err = WTAP_ERR_BAD_FILE;
-					*err_info = g_strdup_printf("dct3trace: record length %d too long", phdr->caplen);
+					*err_info = g_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
 					return FALSE;
 				}
 			}
@@ -329,7 +329,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			 * We know we have no data already, so we know
 			 * we have enough room for the header.
 			 */
-			if( phdr->pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SACCH || phdr->pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_FACCH || phdr->pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SDCCH )
+			if( rec->rec_header.packet_header.pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SACCH || rec->rec_header.packet_header.pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_FACCH || rec->rec_header.packet_header.pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SDCCH )
 			{
 				/* Add LAPDm B header */
 				memset(bufp, 0x1, 2);
@@ -346,7 +346,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			if (data_len == -1)
 			{
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("dct3trace: record length %d too long", phdr->caplen);
+				*err_info = g_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
 				return FALSE;
 			}
 			len += data_len;
@@ -371,21 +371,21 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 {
 	*data_offset = file_tell(wth->fh);
 
-	return dct3trace_get_packet(wth->fh, &wth->phdr, wth->frame_buffer,
+	return dct3trace_get_packet(wth->fh, &wth->rec, wth->rec_data,
 	    err, err_info);
 }
 
 
 /* Used to read packets in random-access fashion */
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	{
 		return FALSE;
 	}
 
-	return dct3trace_get_packet(wth->random_fh, phdr, buf, err, err_info);
+	return dct3trace_get_packet(wth->random_fh, rec, buf, err, err_info);
 }
 
 /*

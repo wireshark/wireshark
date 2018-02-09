@@ -238,23 +238,23 @@ DIAG_ON(sign-compare)
 /* Fill in pkthdr */
 
 static gboolean
-k12text_set_headers(struct wtap_pkthdr *phdr, k12text_state_t *state,
+k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
     int *err, gchar **err_info)
 {
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-	phdr->ts.secs = 946681200 + (3600*state->g_h) + (60*state->g_m) + state->g_s;
-	phdr->ts.nsecs = 1000000*state->g_ms + 1000*state->g_ns;
+	rec->ts.secs = 946681200 + (3600*state->g_h) + (60*state->g_m) + state->g_s;
+	rec->ts.nsecs = 1000000*state->g_ms + 1000*state->g_ns;
 
-	phdr->caplen = phdr->len = state->ii;
+	rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = state->ii;
 
-	phdr->pkt_encap = state->g_encap;
+	rec->rec_header.packet_header.pkt_encap = state->g_encap;
 
 	/* The file-encap is WTAP_ENCAP_PER_PACKET */
 	switch(state->g_encap) {
 	    case WTAP_ENCAP_ETHERNET:
-		    phdr->pseudo_header.eth.fcs_len = 0;
+		    rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
 		    break;
 	    case WTAP_ENCAP_MTP3:
 	    case WTAP_ENCAP_CHDLC:
@@ -372,19 +372,19 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	*data_offset = k12text->next_frame_offset;           /* file position for beginning of this frame   */
 	k12text->next_frame_offset += state.file_bytes_read; /* file position after end of this frame       */
 
-	if (!k12text_set_headers(&wth->phdr, &state, err, err_info)) {
+	if (!k12text_set_headers(&wth->rec, &state, err, err_info)) {
 		g_free(state.bb);
 		return FALSE;
 	}
-	ws_buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	memcpy(ws_buffer_start_ptr(wth->frame_buffer), state.bb, wth->phdr.caplen);
+	ws_buffer_assure_space(wth->rec_data, wth->rec.rec_header.packet_header.caplen);
+	memcpy(ws_buffer_start_ptr(wth->rec_data), state.bb, wth->rec.rec_header.packet_header.caplen);
 
 	g_free(state.bb);
 	return TRUE;
 }
 
 static gboolean
-k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, char **err_info)
+k12text_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, char **err_info)
 {
 	k12text_state_t state;
 
@@ -410,12 +410,12 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 		return FALSE;
 	}
 
-	if (!k12text_set_headers(phdr, &state, err, err_info)) {
+	if (!k12text_set_headers(rec, &state, err, err_info)) {
 		g_free(state.bb);
 		return FALSE;
 	}
-	ws_buffer_assure_space(buf, phdr->caplen);
-	memcpy(ws_buffer_start_ptr(buf), state.bb, phdr->caplen);
+	ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen);
+	memcpy(ws_buffer_start_ptr(buf), state.bb, rec->rec_header.packet_header.caplen);
 
 	g_free(state.bb);
 	return TRUE;
@@ -471,7 +471,7 @@ static const struct { int e; const char* s; } encaps[] = {
 };
 
 static gboolean
-k12text_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	     const guint8 *pd, int *err, gchar **err_info _U_) {
 #define K12BUF_SIZE 196808
 	char *buf;
@@ -486,14 +486,14 @@ k12text_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	struct tm *tmp;
 
 	/* Don't write anything bigger than we're willing to read. */
-	if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+	if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}
 
 	str_enc = NULL;
 	for(i=0; encaps[i].s; i++) {
-		if (phdr->pkt_encap == encaps[i].e) {
+		if (rec->rec_header.packet_header.pkt_encap == encaps[i].e) {
 			str_enc = encaps[i].s;
 			break;
 		}
@@ -509,10 +509,10 @@ k12text_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	buf = (char *)g_malloc(K12BUF_SIZE);
 	p = buf;
 
-	ms = phdr->ts.nsecs / 1000000;
-	ns = (phdr->ts.nsecs - (1000000*ms))/1000;
+	ms = rec->ts.nsecs / 1000000;
+	ns = (rec->ts.nsecs - (1000000*ms))/1000;
 
-	tmp = gmtime(&phdr->ts.secs);
+	tmp = gmtime(&rec->ts.secs);
 	if (tmp == NULL)
 		g_snprintf(p, 90, "+---------+---------------+----------+\r\nXX:XX:XX,");
 	else
@@ -525,7 +525,7 @@ k12text_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	p += wl;
 	left -= wl;
 
-	for(i = 0; i < phdr->caplen && left > 2; i++) {
+	for(i = 0; i < rec->rec_header.packet_header.caplen && left > 2; i++) {
 		wl = g_snprintf(p, (gulong)left, "%.2x|", pd[i]);
 		p += wl;
 		left -= wl;

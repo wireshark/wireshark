@@ -50,7 +50,7 @@ typedef struct _packet_info {
   nstime_t rel_ts;                  /**< Relative timestamp (yes, it can be negative) */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
-  struct wtap_pkthdr *phdr;         /**< Record metadata */
+  wtap_rec *rec;                    /**< Record metadata */
   GSList *data_src;                 /**< Frame data sources */
   address dl_src;                   /**< link-layer source address */
   address dl_dst;                   /**< link-layer destination address */
