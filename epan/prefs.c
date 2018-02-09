@@ -21,9 +21,7 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/oids.h>
-#ifdef HAVE_GEOIP
-#include <epan/geoip_db.h>
-#endif
+#include <epan/maxmind_db.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
@@ -3506,9 +3504,7 @@ prefs_register_modules(void)
         "Name Resolution", NULL, TRUE);
     addr_resolve_pref_init(nameres_module);
     oid_pref_init(nameres_module);
-#ifdef HAVE_GEOIP
-    geoip_db_pref_init(nameres_module);
-#endif
+    maxmind_db_pref_init(nameres_module);
 
     /* Printing */
     printing = prefs_register_module(NULL, "print", "Printing",

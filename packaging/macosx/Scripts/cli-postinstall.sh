@@ -7,6 +7,7 @@ BINARIES="
     dumpcap
     editcap
     mergecap
+    mmdbresolve
     randpkt
     rawshark
     text2pcap

@@ -62,14 +62,8 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
-/* Define to use GeoIP library */
-#cmakedefine HAVE_GEOIP 1
-
-/* Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later) */
-#cmakedefine HAVE_GEOIP_V6 1
-
-/* Define if GeoIP has GeoIP_free */
-#cmakedefine HAVE_GEOIP_FREE 1
+/* Define to use the MaxMind DB library */
+#cmakedefine HAVE_MAXMINDDB 1
 
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #cmakedefine HAVE_IFADDRS_H 1

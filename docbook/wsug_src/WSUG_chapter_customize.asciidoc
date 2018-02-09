@@ -746,7 +746,7 @@ Configuration files stored in the Profiles:
 * ESS Category Attributes (ess_category_attributes)
   (<<ChEssCategoryAttributes>>)
 
-* GeoIP Database Paths (geoip_db_paths) (<<ChGeoIPDbPaths>>)
+* MaxMind Database Paths (maxmind_db_paths) (<<ChMaxMindDbPaths>>)
 
 * K12 Protocols (k12_protos) (<<ChK12ProtocolsSection>>)
 
@@ -876,28 +876,35 @@ The value (Label And Cert Value) representing the Category.
 Name::
 The textual representation for the value.
 
-[[ChGeoIPDbPaths]]
+[[ChMaxMindDbPaths]]
 
-=== GeoIP Database Paths
+=== MaxMind Database Paths
 
-If your copy of Wireshark supports link:http://www.maxmind.com/[MaxMind’s]
-GeoIP library, you can use their databases to match IP addresses to countries,
-cites, autonomous system numbers, ISPs, and other bits of information. Some
-databases are link:http://www.maxmind.com/download/geoip/database/[available
-at no cost], while others require a licensing fee. See
-link:http://www.maxmind.com/app/ip-location[the MaxMind web site] for more
-information.
+If your copy of Wireshark supports
+link:http://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use
+their databases to match IP addresses to countries, cites, autonomous
+system numbers, and other bits of information. Some databases are
+link:https://dev.maxmind.com/geoip/geoip2/downloadable/[available at no
+cost], while others require a licensing fee. See
+link:http://www.maxmind.com/[the MaxMind web site] for more information.
 
 This table is handled by an <<ChUserTable>> with the following fields.
 
 Database pathname::
-This specifies a directory containing GeoIP data files. Any files beginning with
-_Geo_ and ending with _.dat_ will be automatically loaded. A total of 8 files
-can be loaded.
-+
-The locations for your data files are up to you, but `/usr/share/GeoIP` (Linux),
-`C:\GeoIP` (Windows), `C:\Program Files\Wireshark\GeoIP` (Windows) might be good
-choices.
+This specifies a directory containing MaxMind data files. Any files
+ending with _.mmdb_ will be automatically loaded.
+
+The locations for your data files are up to you, but `/usr/share/GeoIP`
+and `/var/lib/GeoIP` are common on Linux and `C:\ProgramData\GeoIP`,
+`C:\Program Files\Wireshark\GeoIP` might be good choices on Windows.
+
+[[ChGeoIPDbPaths]]
+
+Previous versions of Wireshark supported MaxMind's original GeoIP Legacy
+database format. They were configured similar to MaxMindDB files above,
+except GeoIP files must begin with _Geo_ and end with _.dat_. They are
+no longer supported and MaxMind stopped distributing GeoLite Legacy
+databases in April 2018.
 
 [[ChIKEv2DecryptionSection]]
 

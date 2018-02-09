@@ -18,27 +18,13 @@ public:
     explicit EndpointTreeWidget(QWidget *parent, register_ct_t* table);
     ~EndpointTreeWidget();
 
-#ifdef HAVE_GEOIP
-    bool hasGeoIPData() const { return has_geoip_data_; }
-#endif
-
     static void tapReset(void *conv_hash_ptr);
     static void tapDraw(void *conv_hash_ptr);
 
-#ifdef HAVE_GEOIP
-public:
-    const QList<int> columnToDb(int column) const { return col_to_db_.value(column, QList<int>()); }
-
-signals:
-    void geoIPStatusChanged();
-
-private:
-    QMap<int, QList<int> > col_to_db_; // Map tree columns to GeoIP databases
-    bool has_geoip_data_;
-#endif
-
 private:
     void updateItems();
+
+    address_type table_address_type_;
 
 private slots:
     void filterActionTriggered();

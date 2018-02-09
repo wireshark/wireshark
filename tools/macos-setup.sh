@@ -155,12 +155,13 @@ SNAPPY_VERSION=1.1.4
 LIBXML2_VERSION=2.9.4
 LZ4_VERSION=1.7.5
 SBC_VERSION=1.3
-GEOIP_VERSION=1.6.10
 CARES_VERSION=1.12.0
 # Redmine used by libssh.org numbers the files available for download,
 # so using version only isn't enough
 LIBSSH_VERSION=0.7.4
 LIBSSH_FILENUM=210
+# mmdbresolve
+MAXMINDDB_VERSION=1.3.2
 
 NGHTTP2_VERSION=1.21.0
 SPANDSP_VERSION=0.0.6
@@ -1687,67 +1688,42 @@ uninstall_sbc() {
     fi
 }
 
-install_geoip() {
-    if [ "$GEOIP_VERSION" -a ! -f geoip-$GEOIP_VERSION-done ] ; then
-        echo "Downloading, building, and installing GeoIP API:"
-        GEOIP_MAJOR_VERSION="`expr $GEOIP_VERSION : '\([0-9][0-9]*\).*'`"
-        GEOIP_MINOR_VERSION="`expr $GEOIP_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        GEOIP_DOTDOT_VERSION="`expr $GEOIP_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        if [[ $GEOIP_MAJOR_VERSION -gt 1 ||
-             ($GEOIP_MAJOR_VERSION -eq 1 && $GEOIP_MINOR_VERSION -gt 6) ||
-             ($GEOIP_MAJOR_VERSION -eq 1 && $GEOIP_MINOR_VERSION -eq 6 && $GEOIP_DOTDOT_VERSION -ge 1) ]]
-        then
-            #
-            # Starting with GeoIP 1.6.1, the tarballs are on GitHub.
-            #
-            [ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O https://github.com/maxmind/geoip-api-c/releases/download/v$GEOIP_VERSION/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
-        else
-            [ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
-        fi
+install_maxminddb() {
+    if [ "$MAXMINDDB_VERSION" -a ! -f maxminddb-$MAXMINDDB_VERSION-done ] ; then
+        echo "Downloading, building, and installing MaxMindDB API:"
+        MAXMINDDB_MAJOR_VERSION="`expr $MAXMINDDB_VERSION : '\([0-9][0-9]*\).*'`"
+        MAXMINDDB_MINOR_VERSION="`expr $MAXMINDDB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        MAXMINDDB_DOTDOT_VERSION="`expr $MAXMINDDB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        [ -f libmaxminddb-$MAXMINDDB_VERSION.tar.gz ] || curl -L -O https://github.com/maxmind/libmaxminddb/releases/download/$MAXMINDDB_VERSION/libmaxminddb-$MAXMINDDB_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
-        gzcat GeoIP-$GEOIP_VERSION.tar.gz | tar xf - || exit 1
-        cd GeoIP-$GEOIP_VERSION
+        gzcat libmaxminddb-$MAXMINDDB_VERSION.tar.gz | tar xf - || exit 1
+        cd libmaxminddb-$MAXMINDDB_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-        #
-        # Grr.  Their man pages "helpfully" have an ISO 8859-1
-        # copyright symbol in the copyright notice, but macOS's
-        # default character encoding is UTF-8.  sed on Mountain
-        # Lion barfs at the "illegal character sequence" represented
-        # by an ISO 8859-1 copyright symbol, as it's not a valid
-        # UTF-8 sequence.
-        #
-        # iconv the relevant man pages into UTF-8.
-        #
-        for i in geoipupdate.1.in geoiplookup6.1.in geoiplookup.1.in
-        do
-            iconv -f iso8859-1 -t utf-8 man/"$i" >man/"$i".tmp &&
-                mv man/"$i".tmp man/"$i"
-        done
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-        touch geoip-$GEOIP_VERSION-done
+        touch maxminddb-$MAXMINDDB_VERSION-done
     fi
 }
 
-uninstall_geoip() {
-    if [ ! -z "$installed_geoip_version" ] ; then
-        echo "Uninstalling GeoIP API:"
-        cd GeoIP-$installed_geoip_version
+uninstall_maxminddb() {
+    if [ ! -z "$installed_maxminddb_version" ] ; then
+        echo "Uninstalling MaxMindDB API:"
+        cd libmaxminddb-$installed_maxminddb_version
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
-        rm geoip-$installed_geoip_version-done
+        rm maxminddb-$installed_maxminddb_version-done
 
         if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf GeoIP-$installed_geoip_version
-            rm -rf GeoIP-$installed_geoip_version.tar.gz
+            rm -rf libmaxminddb-$installed_maxminddb_version
+            rm -rf libmaxminddb-$installed_maxminddb_version.tar.gz
         fi
 
-        installed_geoip_version=""
+        installed_maxminddb_version=""
     fi
 }
 
@@ -2056,15 +2032,15 @@ install_all() {
         uninstall_c_ares -r
     fi
 
-    if [ ! -z "$installed_geoip_version" -a \
-              "$installed_geoip_version" != "$GEOIP_VERSION" ] ; then
-        echo "Installed GeoIP API version is $installed_geoip_version"
-        if [ -z "$GEOIP_VERSION" ] ; then
-            echo "GeoIP is not requested"
+    if [ ! -z "$installed_maxminddb_version" -a \
+              "$installed_maxminddb_version" != "$MAXMINDDB_VERSION" ] ; then
+        echo "Installed MaxMindDB API version is $installed_maxminddb_version"
+        if [ -z "$MAXMINDDB_VERSION" ] ; then
+            echo "MaxMindDB is not requested"
         else
-            echo "Requested GeoIP version is $GEOIP_VERSION"
+            echo "Requested MaxMindDB version is $MAXMINDDB_VERSION"
         fi
-        uninstall_geoip -r
+        uninstall_maxminddb -r
     fi
 
     if [ ! -z "$installed_sbc_version" -a \
@@ -2490,7 +2466,7 @@ install_all() {
     # Now we have reached a point where we can build everything including
     # the GUI (Wireshark), but not with any optional features such as
     # SNMP OID resolution, some forms of decryption, Lua scripting, playback
-    # of audio, or GeoIP mapping of IP addresses.
+    # of audio, or MaxMindDB mapping of IP addresses.
     #
     # We now conditionally download optional libraries to support them;
     # the default is to download them all.
@@ -2520,7 +2496,7 @@ install_all() {
 
     install_sbc
 
-    install_geoip
+    install_maxminddb
 
     install_c_ares
 
@@ -2561,7 +2537,7 @@ uninstall_all() {
 
         uninstall_c_ares
 
-        uninstall_geoip
+        uninstall_maxminddb
 
         uninstall_portaudio
 
@@ -2658,7 +2634,7 @@ fi
 dir=`dirname $0`
 cd $dir/..
 
-# 
+#
 #
 # If we have SDKs available, the default target OS is the major version
 # of the one we're running; get that and strip off the third component
@@ -2747,7 +2723,7 @@ then
     installed_libxml2_version=`ls libxml2-*-done 2>/dev/null | sed 's/libxml2-\(.*\)-done/\1/'`
     installed_lz4_version=`ls lz4-*-done 2>/dev/null | sed 's/lz4-\(.*\)-done/\1/'`
     installed_sbc_version=`ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/'`
-    installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
+    installed_maxminddb_version=`ls maxminddb-*-done 2>/dev/null | sed 's/maxminddb-\(.*\)-done/\1/'`
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
     installed_libssh_version=`ls libssh-*-done 2>/dev/null | sed 's/libssh-\(.*\)-done/\1/'`
     installed_nghttp2_version=`ls nghttp2-*-done 2>/dev/null | sed 's/nghttp2-\(.*\)-done/\1/'`

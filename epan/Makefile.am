@@ -31,8 +31,8 @@ SUBDIRS = crypt ftypes dfilter dissectors wmem $(wslua_dir)
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS) $(PCAP_CFLAGS) $(LUA_CFLAGS) $(LIBGNUTLS_CFLAGS) \
-	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) \
-	$(LZ4_CFLAGS) $(KRB5_CFLAGS) $(SNAPPY_CFLAGS) $(LIBXML2_CFLAGS)
+	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LZ4_CFLAGS) $(KRB5_CFLAGS) \
+	$(SNAPPY_CFLAGS) $(LIBXML2_CFLAGS)
 
 lib_LTLIBRARIES = libwireshark.la
 
@@ -71,12 +71,12 @@ LIBWIRESHARK_NONGENERATED_SRC = \
 	frame_data.c		\
 	frame_data_sequence.c	\
 	funnel.c		\
-	geoip_db.c		\
 	golay.c			\
 	guid-utils.c		\
 	iana_charsets.c		\
 	in_cksum.c		\
 	ipproto.c		\
+	maxmind_db.c		\
 	media_params.c		\
 	next_tvb.c		\
 	oids.c			\
@@ -212,7 +212,6 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	frame_data_sequence.h	\
 	funnel.h		\
 	garrayfix.h		\
-	geoip_db.h		\
 	golay.h			\
 	guid-utils.h		\
 	iana_charsets.h		\
@@ -224,6 +223,7 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	ipv6.h			\
 	lapd_sapi.h		\
 	llcsaps.h		\
+	maxmind_db.h		\
 	media_params.h		\
 	next_tvb.h		\
 	nlpid.h			\
@@ -321,7 +321,6 @@ libwireshark_la_LIBADD = \
 	${top_builddir}/wiretap/libwiretap.la	\
 	${top_builddir}/wsutil/libwsutil.la	\
 	@C_ARES_LIBS@		\
-	@GEOIP_LIBS@		\
 	@KRB5_LIBS@		\
 	@LIBGCRYPT_LIBS@	\
 	@LIBGNUTLS_LIBS@	\

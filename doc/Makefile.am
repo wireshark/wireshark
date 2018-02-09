@@ -65,7 +65,8 @@ man1_MANS = \
 	@ciscodump_man@		\
 	@sshdump_man@		\
 	@randpktdump_man@	\
-	@udpdump_man@
+	@udpdump_man@		\
+	@mmdbresolve_man@
 
 man4_MANS = \
 	@extcap_man@		\
@@ -81,7 +82,7 @@ pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html captype.html ciscodump.html \
 	editcap.html mergecap.html reordercap.html text2pcap.html dumpcap.html \
 	androiddump.html sshdump.html randpktdump.html rawshark.html dftest.html \
-	randpkt.html extcap.html udpdump.html
+	randpkt.html extcap.html udpdump.html mmdbresolve.html
 
 #
 # Build the short version of the authors file for the about dialog
@@ -278,6 +279,13 @@ udpdump.html: udpdump.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--noindex							\
 	$(srcdir)/udpdump.pod > udpdump.html
 
+mmdbresolve.html: mmdbresolve.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(AM_V_POD2HTML)$(POD2HTML)                     \
+	--title="mmdbresolve - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(POD_CSS_URL)						\
+	--noindex							\
+	$(srcdir)/mmdbresolve.pod > mmdbresolve.html
+
 CLEANFILES =		\
 	wireshark.pod	\
 	*.1		\
@@ -340,6 +348,7 @@ EXTRA_DIST =				\
 	text2pcap.pod			\
 	tshark.pod			\
 	udpdump.pod			\
+	mmdbresolve.pod			\
 	wireshark-filter.pod		\
 	wireshark.pod.template		\
 	CMakeLists.txt

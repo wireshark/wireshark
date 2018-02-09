@@ -85,9 +85,7 @@
 #if defined(HAVE_LIBSMI)
 #include "epan/oids.h"
 #endif
-#if defined(HAVE_GEOIP)
-#include "epan/geoip_db.h"
-#endif
+#include "epan/maxmind_db.h"
 #include "epan/register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
@@ -618,18 +616,16 @@ about_folders(void)
 
   g_strfreev(resultArray);
 
-#ifdef HAVE_GEOIP
-  /* GeoIP */
-  path = geoip_db_get_paths();
+  /* MaxMindDB */
+  path = maxmind_db_get_paths();
 
   resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
 
   for(i = 0; resultArray[i]; i++)
-    printf("%-21s\t%s\n", "GeoIP path:", g_strstrip(resultArray[i]));
+    printf("%-21s\t%s\n", "MaxMind database path:", g_strstrip(resultArray[i]));
 
   g_strfreev(resultArray);
   g_free(path);
-#endif
 
 #ifdef HAVE_LIBSMI
   /* SMI MIBs/PIBs */

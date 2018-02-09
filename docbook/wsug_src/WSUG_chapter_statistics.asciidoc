@@ -255,11 +255,12 @@ related page can still be selected).
 
 Each row in the list shows the statistical values for exactly one endpoint.
 
-_Name resolution_ will be done if selected in the window and if it is active for
-the specific protocol layer (MAC layer for the selected Ethernet endpoints
-page). _Limit to display filter_ will only show conversations matching the
-current display filter. Note that in this example we have GeoIP configured which
-gives us extra geographic columns. See <<ChGeoIPDbPaths>> for more information.
+_Name resolution_ will be done if selected in the window and if it is
+active for the specific protocol layer (MAC layer for the selected
+Ethernet endpoints page). _Limit to display filter_ will only show
+conversations matching the current display filter. Note that in this
+example we have MaxMind DB configured which gives us extra geographic
+columns. See <<ChMaxMindDbPaths>> for more information.
 
 The btn:[Copy] button will copy the list values to the clipboard in CSV
 (Comma Separated Values) or YAML format.

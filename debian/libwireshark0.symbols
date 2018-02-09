@@ -699,12 +699,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  gcamel_StatSRT@Base 1.9.1
  gcp_cmd_type@Base 1.9.1
  gcp_term_types@Base 1.9.1
- geoip_db_get_paths@Base 1.9.1
- geoip_db_lookup_ipv4@Base 1.9.1
- geoip_db_lookup_ipv6@Base 1.9.1
- geoip_db_name@Base 1.9.1
- geoip_db_num_dbs@Base 1.9.1
- geoip_db_type@Base 1.9.1
  get_8859_1_string@Base 1.12.0~rc1
  get_CDR_any@Base 1.9.1
  get_CDR_boolean@Base 1.9.1
@@ -902,6 +896,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  make_printable_string@Base 1.9.1
  manually_resolve_cleanup@Base 1.12.0~rc1
  mark_frame_as_depended_upon@Base 1.9.1
+ maxmind_db_get_paths@Base 2.5.0
+ maxmind_db_lookup_ipv4@Base 2.5.0
+ maxmind_db_lookup_ipv6@Base 2.5.0
  mbim_register_uuid_ext@Base 1.12.0~rc1
  memory_usage_component_register@Base 1.12.0~rc1
  memory_usage_gc@Base 1.12.0~rc1

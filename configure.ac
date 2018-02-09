@@ -2183,30 +2183,40 @@ else
 fi
 AC_SUBST(C_ARES_LIBS)
 
-dnl GEOIP Check
-GEOIP_LIBS=''
-AC_MSG_CHECKING(whether to use the GeoIP IP address mapping library if available)
+dnl MaxMind DB Check
+MAXMINDDB_LIBS=''
+AC_MSG_CHECKING(whether to use the MaxMind DB IP address mapping library if available)
 
-AC_ARG_WITH(geoip,
-  AC_HELP_STRING( [--with-geoip@<:@=DIR@:>@],
-		  [use GeoIP (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
+AC_ARG_WITH(maxminddb,
+  AC_HELP_STRING( [--with-maxminddb@<:@=DIR@:>@],
+		  [use MaxMind DB (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
-	want_geoip=no
+	want_maxminddb=no
 elif test "x$withval" = "xyes"; then
-	want_geoip=yes
+	want_maxminddb=yes
 elif test -d "$withval"; then
-	want_geoip=yes
+	want_maxminddb=yes
 	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 fi
 ])
-if test "x$want_geoip" = "xno"; then
+if test "x$want_maxminddb" = "xno"; then
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
-	AC_WIRESHARK_GEOIP_CHECK
+	AC_WIRESHARK_MAXMINDDB_CHECK
 fi
-AC_SUBST(GEOIP_LIBS)
+AC_SUBST(MAXMINDDB_LIBS)
+
+if test "x$have_good_maxminddb" = "xyes" ; then
+	mmdbresolve_bin="mmdbresolve\$(EXEEXT)"
+	mmdbresolve_man="mmdbresolve.1"
+else
+	mmdbresolve_bin=""
+	mmdbresolve_man=""
+fi
+AC_SUBST(mmdbresolve_bin)
+AC_SUBST(mmdbresolve_man)
 
 dnl LIBSSH Check
 LIBSSH=''
@@ -2901,10 +2911,10 @@ else
 	libcap_message="no"
 fi
 
-if test "x$have_good_geoip" = "xyes" ; then
-	geoip_message="yes"
+if test "x$have_good_maxminddb" = "xyes" ; then
+	maxminddb_message="yes"
 else
-	geoip_message="no"
+	maxminddb_message="no"
 fi
 
 if test "x$have_good_libssh" = "xyes" ; then
@@ -2969,6 +2979,7 @@ echo "                      Build sshdump : $enable_sshdump"
 echo "                    Build ciscodump : $enable_ciscodump"
 echo "                  Build randpktdump : $enable_randpktdump"
 echo "                      Build udpdump : $enable_udpdump"
+echo "          Build MaxMind DB resolver : $maxminddb_message"
 echo "                 Build User's Guide : $wsug_message"
 echo ""
 echo "    Save files as pcapng by default : $enable_pcap_ng_default"
@@ -2987,7 +2998,6 @@ echo "                Use SMI MIB library : $have_libsmi"
 echo "             Use GNU gcrypt library : yes"
 echo "                 Use GnuTLS library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
-echo "                  Use GeoIP library : $geoip_message"
 echo "                 Use libssh library : ${libssh_message}${ssh_userauth_agent_message}"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"

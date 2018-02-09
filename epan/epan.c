@@ -727,13 +727,13 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "without Kerberos");
 #endif /* HAVE_KERBEROS */
 
-	/* GeoIP */
+	/* MaxMindDB */
 	g_string_append(str, ", ");
-#ifdef HAVE_GEOIP
-	g_string_append(str, "with GeoIP");
+#ifdef HAVE_MAXMINDDB
+	g_string_append(str, "with MaxMind DB resolver");
 #else
-	g_string_append(str, "without GeoIP");
-#endif /* HAVE_GEOIP */
+	g_string_append(str, "without MaxMind DB resolver");
+#endif /* HAVE_MAXMINDDB */
 
 	/* nghttp2 */
 	g_string_append(str, ", ");

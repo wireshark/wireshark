@@ -893,9 +893,10 @@ There is a context menu (right mouse click) available. See details in
 Some protocol fields have special meanings.
 
 * *Generated fields.* Wireshark itself will generate additional protocol
-  information which isn’t present in the captured data. This information is
-  enclosed in square brackets (“[” and “]”). Generated information includes
-  response times, TCP analysis, GeoIP information, and checksum validation.
+  information which isn’t present in the captured data. This information
+  is enclosed in square brackets (“[” and “]”). Generated information
+  includes response times, TCP analysis, IP geolocation information, and
+  checksum validation.
 
 * *Links.* If Wireshark detects a relationship to another packet in the capture
   file it will generate a link to that packet. Links are underlined and

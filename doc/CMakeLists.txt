@@ -57,10 +57,12 @@ else()
 	)
 endif()
 
+pod2manhtml(${CMAKE_CURRENT_BINARY_DIR}/wireshark   1)
+
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/androiddump 1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/udpdump     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/capinfos    1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/captype     1)
+pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/ciscodump   1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dftest      1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dumpcap     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/editcap     1)
@@ -70,13 +72,16 @@ pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpktdump 1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/rawshark    1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/reordercap  1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/sshdump     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/ciscodump   1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/text2pcap   1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/tshark      1)
-pod2manhtml(${CMAKE_CURRENT_BINARY_DIR}/wireshark   1)
+pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/udpdump     1)
 
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/extcap           4)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/wireshark-filter 4)
+
+if(MAXMINDDB_FOUND)
+	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/mmdbresolve 1)
+endif()
 
 if (BUILD_corbaidl2wrs)
 	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/idl2wrs     1)
@@ -88,9 +93,9 @@ endif()
 
 set(MAN1_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/androiddump.1
-	${CMAKE_CURRENT_BINARY_DIR}/udpdump.1
 	${CMAKE_CURRENT_BINARY_DIR}/capinfos.1
 	${CMAKE_CURRENT_BINARY_DIR}/captype.1
+	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.1
 	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.1
 	${CMAKE_CURRENT_BINARY_DIR}/dftest.1
 	${CMAKE_CURRENT_BINARY_DIR}/dumpcap.1
@@ -101,11 +106,15 @@ set(MAN1_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/rawshark.1
 	${CMAKE_CURRENT_BINARY_DIR}/reordercap.1
 	${CMAKE_CURRENT_BINARY_DIR}/sshdump.1
-	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.1
 	${CMAKE_CURRENT_BINARY_DIR}/text2pcap.1
 	${CMAKE_CURRENT_BINARY_DIR}/tshark.1
+	${CMAKE_CURRENT_BINARY_DIR}/udpdump.1
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark.1
 )
+
+if(MAXMINDDB_FOUND)
+	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/mmdbresolve.1)
+endif()
 
 if (BUILD_corbaidl2wrs)
 	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.1)
@@ -132,9 +141,9 @@ add_custom_target(manpages DEPENDS
 
 set(HTML_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/androiddump.html
-	${CMAKE_CURRENT_BINARY_DIR}/udpdump.html
 	${CMAKE_CURRENT_BINARY_DIR}/capinfos.html
 	${CMAKE_CURRENT_BINARY_DIR}/captype.html
+	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.html
 	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.html
 	${CMAKE_CURRENT_BINARY_DIR}/dftest.html
 	${CMAKE_CURRENT_BINARY_DIR}/dumpcap.html
@@ -146,12 +155,16 @@ set(HTML_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/rawshark.html
 	${CMAKE_CURRENT_BINARY_DIR}/reordercap.html
 	${CMAKE_CURRENT_BINARY_DIR}/sshdump.html
-	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.html
 	${CMAKE_CURRENT_BINARY_DIR}/text2pcap.html
 	${CMAKE_CURRENT_BINARY_DIR}/tshark.html
-	${CMAKE_CURRENT_BINARY_DIR}/wireshark.html
+	${CMAKE_CURRENT_BINARY_DIR}/udpdump.html
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark-filter.html
+	${CMAKE_CURRENT_BINARY_DIR}/wireshark.html
 )
+
+if(MAXMINDDB_FOUND)
+	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/mmdbresolve.html)
+endif()
 
 if (BUILD_corbaidl2wrs)
 	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.html)

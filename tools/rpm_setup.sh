@@ -121,8 +121,8 @@ echo "lz4 devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST libcap-progs || echo "cap progs are unavailable" >&2
 
-add_package ADDITIONAL_LIST GeoIP-devel || add_package ADDITIONAL_LIST libGeoIP-devel ||
-echo "GeoIP devel is unavailable" >&2
+add_package ADDITIONAL_LIST libmaxminddb-devel ||
+echo "MaxMind DB devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST gnutls-devel || add_package ADDITIONAL_LIST libgnutls-devel ||
 echo "gnutls devel is unavailable" >&2

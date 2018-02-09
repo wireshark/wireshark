@@ -923,6 +923,11 @@ if(BUILD_wireshark)
 	endif()
 endif()
 
+# MaxMind DB address resolution
+if(BUILD_mmdbresolve)
+	set(PACKAGELIST ${PACKAGELIST} MaxMindDB)
+endif()
+
 # SMI SNMP
 if(ENABLE_SMI)
 	set(PACKAGELIST ${PACKAGELIST} SMI)
@@ -989,11 +994,6 @@ endif()
 # Embedded Lua interpreter
 if(ENABLE_LUA)
 	set(PACKAGELIST ${PACKAGELIST} LUA)
-endif()
-
-# GeoIP address resolving
-if(ENABLE_GEOIP)
-	set(PACKAGELIST ${PACKAGELIST} GEOIP)
 endif()
 
 if(ENABLE_NETLINK)
@@ -1117,8 +1117,8 @@ endif()
 if(HAVE_LIBKERBEROS)
 	set(HAVE_KERBEROS 1)
 endif()
-if(HAVE_LIBGEOIP)
-	set(HAVE_GEOIP 1)
+if(MAXMINDDB_FOUND)
+	set(HAVE_MAXMINDDB 1)
 endif()
 if(LIBSSH_FOUND)
 	set(HAVE_LIBSSH 1)
@@ -1647,6 +1647,10 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/doc/wireshark.html
 	${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
 )
+
+if(MAXMINDDB_FOUND)
+	list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/mmdbresolve.html)
+endif()
 
 if (BUILD_corbaidl2wrs)
 	list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/idl2wrs.html)
@@ -2919,6 +2923,20 @@ if(BUILD_randpktdump)
 	add_dependencies(extcaps randpktdump)
 endif()
 
+if (MAXMINDDB_FOUND)
+	set(mmdbresolve_LIBS
+		# Note: libmaxminddb is not GPL-2 compatible.
+		${MAXMINDDB_LIBRARY}
+	)
+	set(mmdbresolve_FILES
+		mmdbresolve.c
+	)
+	add_executable(mmdbresolve ${mmdbresolve_FILES})
+	set_extra_executable_properties(mmdbresolve "Executables")
+	target_link_libraries(mmdbresolve ${mmdbresolve_LIBS})
+	install(TARGETS mmdbresolve RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
 if(ENABLE_APPLICATION_BUNDLE)
 	add_custom_target(app_bundle)
 	set_target_properties(app_bundle PROPERTIES FOLDER "Copy Tasks")
@@ -2990,7 +3008,7 @@ set(CLEAN_C_FILES
 	${androiddump_FILES}
 	${sshdump_FILES}
 	${ciscodump_FILES}
-	${udpdump_FILES}
+	${mmdbresolve_FILES}
 )
 
 # Make sure we don't pass /WX to rc.exe. Rc doesn't have a /WX flag,

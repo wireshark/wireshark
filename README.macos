@@ -149,13 +149,6 @@ Newer versions don't have this problem, but still fail to build on Lion
 if a universal build is attempted.  The tools/macos-setup.sh script
 downloads a newer version, and also suppresses the universal build.
 
-GeoIP - Their man pages "helpfully" have an ISO 8859-1 copyright symbol
-in the copyright notice, but macOS's default character encoding is
-UTF-8.  sed on Mountain Lion barfs at the "illegal character sequence"
-represented by an ISO 8859-1 copyright symbol, as it's not a valid UTF-8
-sequence.  The tools/macos-setup.sh script uses iconv to convert the man
-page files from ISO 8859-1 to UTF-8.
-
 If you want to build Wireshark installer packages on a system that
 doesn't include Xcode 3.x or earlier, you will need to install some
 additional tools.  From the Xcode menu, select the Open Developer Tool

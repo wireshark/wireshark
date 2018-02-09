@@ -353,26 +353,19 @@ The PortAudio sources are downloaded from
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
 locally.
 
-[[ChLibsGeoIP]]
+[[ChLibsMaxMindDB]]
 
-=== GeoIP (optional)
+=== MaxMindDB (optional)
 
-MaxMind Inc. publishes a GeoIP database for use in open source software.
-It can be used to map IP addresses to geographical locations.
+MaxMind Inc. publishes a set of IP geolocation databases and related
+open source libraries. They can be used to map IP addresses to
+geographical locations and other information.
 
-[[ChLibsUnixGeoIP]]
-
-==== Unix
-
-If this library isn't already installed or available as a
+If libmaxminddb library isn't already installed or available as a
 package for your platform, you can get it at
-http://www.maxmind.com/app/c[].
+https://github.com/maxmind/libmaxminddb[].
 
-[[ChLibsWin32GeoIP]]
-
-==== Win32 MSVC
-
-We provide a package cross-compiled using MinGW32 at
+We provide a package for Windows at
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsWinSparkle]]

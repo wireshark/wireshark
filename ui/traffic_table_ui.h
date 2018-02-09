@@ -53,10 +53,15 @@ typedef enum
     ENDP_COLUMN_BYTES_AB,
     ENDP_COLUMN_PKT_BA,
     ENDP_COLUMN_BYTES_BA,
-    ENDP_NUM_COLUMNS
+    ENDP_NUM_COLUMNS,
+    ENDP_COLUMN_GEO_COUNTRY = ENDP_NUM_COLUMNS,
+    ENDP_COLUMN_GEO_CITY,
+    ENDP_COLUMN_GEO_AS_NUM,
+    ENDP_COLUMN_GEO_AS_ORG,
+    ENDP_NUM_GEO_COLUMNS,
 } endpoint_column_type_e;
 
-extern const char *endp_column_titles[ENDP_NUM_COLUMNS];
+extern const char *endp_column_titles[ENDP_NUM_GEO_COLUMNS];
 
 extern const char *endp_conn_title;
 

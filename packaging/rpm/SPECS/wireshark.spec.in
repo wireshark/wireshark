@@ -252,8 +252,8 @@ Requires:	libxml2
 %endif
 
 # Uncomment these if you want to be sure you get them...
-#BuildRequires:	GeoIP-devel
-#Requires:	GeoIP
+#BuildRequires:	libmaxminddb-devel
+#Requires:	libmaxminddb
 # Add this for more readable fonts on some distributions/versions
 #Requires:	dejavu-sans-mono-fonts
 

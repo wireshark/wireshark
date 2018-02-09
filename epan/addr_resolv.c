@@ -92,6 +92,7 @@
 
 #include <epan/strutil.h>
 #include <epan/to_str-int.h>
+#include <epan/maxmind_db.h>
 #include <epan/prefs.h>
 
 #define ENAME_HOSTS     "hosts"
@@ -245,12 +246,12 @@ static void add_serv_port_cb(const guint32 port, gpointer ptr);
 /* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
  * One-at-a-Time hash
  */
-static guint32
+guint
 ipv6_oat_hash(gconstpointer key)
 {
     int len = 16;
     const unsigned char *p = (const unsigned char *)key;
-    guint32 h = 0;
+    guint h = 0;
     int i;
 
     for ( i = 0; i < len; i++ ) {
@@ -266,7 +267,7 @@ ipv6_oat_hash(gconstpointer key)
     return h;
 }
 
-static gboolean
+gboolean
 ipv6_equal(gconstpointer v1, gconstpointer v2)
 {
 
@@ -2519,6 +2520,7 @@ host_name_lookup_process(void) {
     wmem_list_frame_t* head;
 
     new_resolved_objects = FALSE;
+    nro |= maxmind_db_lookup_process();
 
     if (!async_dns_initialized)
         /* c-ares not initialized. Bail out and cancel timers. */
@@ -2578,6 +2580,8 @@ host_name_lookup_process(void) {
     gboolean nro = new_resolved_objects;
 
     new_resolved_objects = FALSE;
+
+    nro |= maxmind_db_lookup_process();
 
     return nro;
 }

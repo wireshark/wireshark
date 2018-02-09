@@ -1162,36 +1162,24 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 ])
 
 #
-# AC_WIRESHARK_GEOIP_CHECK
+# AC_WIRESHARK_MAXMINDDB_CHECK
 #
-AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
+AC_DEFUN([AC_WIRESHARK_MAXMINDDB_CHECK],
 [
-	want_geoip=defaultyes
+	want_maxminddb=defaultyes
 
-	if test "x$want_geoip" = "xdefaultyes"; then
-		want_geoip=yes
+	if test "x$want_maxminddb" = "xdefaultyes"; then
+		want_maxminddb=yes
 	fi
 
-	if test "x$want_geoip" = "xyes"; then
-		AC_CHECK_LIB(GeoIP, GeoIP_new,
+	if test "x$want_maxminddb" = "xyes"; then
+		AC_CHECK_LIB(maxminddb, MMDB_open,
 		  [
-		    GEOIP_LIBS=-lGeoIP
-	    	AC_DEFINE(HAVE_GEOIP, 1, [Define to use GeoIP library])
-		have_good_geoip=yes
+		    MAXMINDDB_LIBS=-lmaxminddb
+		    AC_DEFINE(HAVE_MAXMINDDB, 1, [Define to use MaxMind DB library])
+		    have_good_maxminddb=yes
 		  ],,
 		)
-		if test "x$have_good_geoip" = "xyes"; then
-			AC_CHECK_LIB(GeoIP, GeoIP_country_name_by_ipnum_v6,
-			  [
-				AC_DEFINE(HAVE_GEOIP_V6, 1, [Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later)])
-			  ],,
-			)
-			AC_CHECK_LIB(GeoIP, GeoIP_free,
-			  [
-				AC_DEFINE(HAVE_GEOIP_FREE, 1, [Define if GeoIP has GeoIP_free])
-			  ],,
-			)
-		fi
 	else
 		AC_MSG_RESULT(not required)
 	fi

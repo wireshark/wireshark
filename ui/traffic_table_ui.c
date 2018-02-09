@@ -35,7 +35,7 @@ const char *conv_conn_a_title = "Connection A";
 const char *conv_conn_b_title = "Connection B";
 const char *conv_abs_start_title = "Abs Start";
 
-const char *endp_column_titles[ENDP_NUM_COLUMNS] = {
+const char *endp_column_titles[ENDP_NUM_GEO_COLUMNS] = {
     "Address",
     "Port",
     "Packets",
@@ -43,7 +43,11 @@ const char *endp_column_titles[ENDP_NUM_COLUMNS] = {
     "Tx Packets",
     "Tx Bytes",
     "Rx Packets",
-    "Rx Bytes"
+    "Rx Bytes",
+    "Country",
+    "City",
+    "AS Number",
+    "AS Organization"
 };
 
 const char *endp_conn_title = "Connection";
