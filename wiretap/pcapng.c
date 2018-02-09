@@ -695,21 +695,6 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
         return FALSE;
     }
 
-    /* Don't try to allocate memory for a huge number of options, as
-       that might fail and, even if it succeeds, it might not leave
-       any address space or memory+backing store for anything else.
-
-       We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
-       We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
-    if (bh->block_total_length > MAX_BLOCK_SIZE) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_if_descr_block: total block length %u is too large (> %u)",
-                                    bh->block_total_length, MAX_BLOCK_SIZE);
-        return FALSE;
-    }
-
     /* read block content */
     if (!wtap_read_bytes(fh, &idb, sizeof idb, err, err_info)) {
         pcapng_debug("pcapng_read_if_descr_block: failed to read IDB");
@@ -1028,21 +1013,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 #ifdef HAVE_PLUGINS
     option_handler *handler;
 #endif
-
-    /* Don't try to allocate memory for a huge number of options, as
-       that might fail and, even if it succeeds, it might not leave
-       any address space or memory+backing store for anything else.
-
-       We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
-       We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
-    if (bh->block_total_length > MAX_BLOCK_SIZE) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u is too large (> %u)",
-                                    bh->block_total_length, MAX_BLOCK_SIZE);
-        return FALSE;
-    }
 
     /* "(Enhanced) Packet Block" read fixed part */
     if (enhanced) {
@@ -1388,21 +1358,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         return FALSE;
     }
 
-    /* Don't try to allocate memory for a huge number of options, as
-       that might fail and, even if it succeeds, it might not leave
-       any address space or memory+backing store for anything else.
-
-       We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
-       We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
-    if (bh->block_total_length > MAX_BLOCK_SIZE) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_simple_packet_block: total block length %u is too large (> %u)",
-                                    bh->block_total_length, MAX_BLOCK_SIZE);
-        return FALSE;
-    }
-
     /* "Simple Packet Block" read fixed part */
     if (!wtap_read_bytes(fh, &spb, sizeof spb, err, err_info)) {
         pcapng_debug("pcapng_read_simple_packet_block: failed to read packet data");
@@ -1601,21 +1556,6 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u of an NRB is less than the minimum NRB size %u",
                                     bh->block_total_length, MIN_NRB_SIZE);
-        return FALSE;
-    }
-
-    /* Don't try to allocate memory for a huge number of options, as
-       that might fail and, even if it succeeds, it might not leave
-       any address space or memory+backing store for anything else.
-
-       We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
-       We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
-    if (bh->block_total_length > MAX_BLOCK_SIZE) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u is too large (> %u)",
-                                    bh->block_total_length, MAX_BLOCK_SIZE);
         return FALSE;
     }
 
@@ -1909,21 +1849,6 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too small (< %u)",
                                     bh->block_total_length, MIN_ISB_SIZE);
-        return FALSE;
-    }
-
-    /* Don't try to allocate memory for a huge number of options, as
-       that might fail and, even if it succeeds, it might not leave
-       any address space or memory+backing store for anything else.
-
-       We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
-       We check for this *after* checking the SHB for its byte
-       order magic number, so that non-pcap-ng files are less
-       likely to be treated as bad pcap-ng files. */
-    if (bh->block_total_length > MAX_BLOCK_SIZE) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too large (> %u)",
-                                    bh->block_total_length, MAX_BLOCK_SIZE);
         return FALSE;
     }
 
@@ -2358,6 +2283,19 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
             *err_info = NULL;
             return PCAPNG_BLOCK_NOT_SHB;
         }
+
+        /* Don't try to allocate memory for a huge number of options, as
+           that might fail and, even if it succeeds, it might not leave
+           any address space or memory+backing store for anything else.
+
+           We do that by imposing a maximum block size of MAX_BLOCK_SIZE. */
+        if (bh.block_total_length > MAX_BLOCK_SIZE) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("pcapng_read_block: total block length %u is too large (> %u)",
+                                        bh.block_total_length, MAX_BLOCK_SIZE);
+            return PCAPNG_BLOCK_ERROR;
+        }
+
         switch (bh.block_type) {
             case(BLOCK_TYPE_IDB):
                 if (!pcapng_read_if_descr_block(wth, fh, &bh, pn, wblock, err, err_info))
