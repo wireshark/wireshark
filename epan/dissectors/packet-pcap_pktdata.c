@@ -239,6 +239,14 @@ const value_string link_type_vals[] = {
     { 262,  "ZWAVE_R3" },
     { 263,  "WATTSTOPPER_DLM" },
     { 264,  "ISO_14443" },
+    { 265,  "RDS" },
+    { 266,  "USB_DARWIN" },
+    { 268,  "SDLC" },
+    { 270,  "LORATAP" },
+    { 271,  "VSOCK" },
+    { 272,  "NORDIC_BLE" },
+    { 273,  "DOCSIS31_XRA31" },
+    { 274,  "ETHERNET_MPACKET" },
     { 0, NULL }
 };
 
