@@ -547,6 +547,22 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
     while (tries < SOCKET_CONNECT_TIMEOUT_TRIES) {
         status = connect(sock, (struct sockaddr *) &server, (socklen_t)sizeof(server));
         tries += 1;
+
+#ifdef _WIN32
+        if ((status == SOCKET_ERROR) && (WSAGetLastError() == WSAEWOULDBLOCK)) {
+            const struct timeval timeout = {
+                .tv_sec = 0,
+                .tv_usec = SOCKET_CONNECT_DELAY_US,
+            };
+            fd_set fdset;
+            FD_ZERO(&fdset);
+            FD_SET(sock, &fdset);
+            if ((select(0, NULL, &fdset, NULL, &timeout) != 0) && (FD_ISSET(sock, &fdset))) {
+                status = 0;
+            }
+        }
+#endif
+
         if (status != SOCKET_ERROR)
             break;
         g_usleep(SOCKET_CONNECT_DELAY_US);
