@@ -22,12 +22,6 @@ typedef enum {
 } check_savability_t;
 
 typedef enum {
-    merge_append,
-    merge_chrono,
-    merge_prepend
-} merge_action_e;
-
-typedef enum {
     export_type_text = 1,
     export_type_ps,
     export_type_csv,

@@ -41,6 +41,12 @@
 
 #include "file_dlg_win32.h"
 
+typedef enum {
+    merge_append,
+    merge_chrono,
+    merge_prepend
+} merge_action_e;
+
 #define FILE_OPEN_DEFAULT 1 /* All Files */
 
 #define FILE_MERGE_DEFAULT FILE_OPEN_DEFAULT
