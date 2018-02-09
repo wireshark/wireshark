@@ -164,55 +164,22 @@ static void
 preview_do(GtkWidget *prev, wtap *wth)
 {
   GtkWidget    *label;
-  unsigned int  elapsed_time;
-  time_t        time_preview;
-  time_t        time_current;
-  int           err        = 0;
+  int           err;
   gchar        *err_info;
-  gint64        data_offset;
-  double        start_time   = 0; /* seconds, with nsec resolution */
-  double        stop_time    = 0; /* seconds, with nsec resolution */
-  gboolean      have_times   = FALSE;
-  double        cur_time;
-  unsigned int  packets    = 0;
-  gboolean      is_breaked = FALSE;
+  guint32       packets;
+  ws_file_preview_times times;
+  ws_file_preview_times_status status;
   gchar         string_buff[PREVIEW_STR_MAX];
   gchar         first_buff[PREVIEW_STR_MAX];
   time_t        ti_time;
   struct tm    *ti_tm;
-  const wtap_rec *rec;
+  unsigned int  elapsed_time;
 
+  status = get_times_for_preview(wth, &times, &packets, &err, &err_info);
 
-  time(&time_preview);
-  while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-    rec = wtap_get_rec(wth);
-    if (rec->presence_flags & WTAP_HAS_TS) {
-      cur_time = nstime_to_sec(&rec->ts);
-      if (!have_times) {
-        start_time = cur_time;
-        stop_time = cur_time;
-        have_times = TRUE;
-      }
-      if (cur_time < start_time) {
-        start_time = cur_time;
-      }
-      if (cur_time > stop_time) {
-        stop_time = cur_time;
-      }
-    }
-
-    packets++;
-    if (packets%1000 == 0) {
-      /* do we have a timeout? */
-      time(&time_current);
-      if (time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
-        is_breaked = TRUE;
-        break;
-      }
-    }
-  }
-
-  if (err != 0) {
+  if(status == PREVIEW_READ_ERROR) {
+    /* XXX - give error details? */
+    g_free(err_info);
     g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packets);
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
@@ -221,7 +188,7 @@ preview_do(GtkWidget *prev, wtap *wth)
   }
 
   /* packet count */
-  if (is_breaked) {
+  if(status == PREVIEW_TIMED_OUT) {
     g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packets);
   } else {
     g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packets);
@@ -229,11 +196,11 @@ preview_do(GtkWidget *prev, wtap *wth)
   label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
-  /* first packet */
-  if (!have_times) {
+  /* First packet */
+  if(status == PREVIEW_HAVE_NO_TIMES) {
     g_snprintf(first_buff, PREVIEW_STR_MAX, "unknown");
   } else {
-    ti_time = (long)start_time;
+    ti_time = (long)times.start_time;
     ti_tm = localtime( &ti_time );
     if (ti_tm) {
       g_snprintf(first_buff, PREVIEW_STR_MAX,
@@ -249,20 +216,19 @@ preview_do(GtkWidget *prev, wtap *wth)
     }
   }
 
-  /* elapsed time */
-  if (!have_times) {
+  /* Elapsed time */
+  if(status == PREVIEW_HAVE_NO_TIMES) {
     g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / unknown", first_buff);
   } else {
-    elapsed_time = (unsigned int)(stop_time-start_time);
-    if (elapsed_time/86400) {
+    elapsed_time = (unsigned int)(times.stop_time-times.start_time);
+    if(status == PREVIEW_TIMED_OUT) {
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / unknown", first_buff);
+    } else if (elapsed_time/86400) {
       g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u days %02u:%02u:%02u",
                  first_buff, elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     } else {
       g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / %02u:%02u:%02u",
                  first_buff, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-    }
-    if (is_breaked) {
-      g_snprintf(string_buff, PREVIEW_STR_MAX, "%s / unknown", first_buff);
     }
   }
   label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_ELAPSED_KEY);

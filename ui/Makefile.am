@@ -55,6 +55,7 @@ WIRESHARK_UI_SRC = \
 	export_object_ui.c	\
 	export_pdu_ui_utils.c	\
 	failure_message.c	\
+	file_dialog.c		\
 	filter_files.c		\
 	firewall_rules.c	\
 	iface_toolbar.c		\

@@ -37,6 +37,22 @@ typedef enum {
     export_type_json
 } export_type_e;
 
+typedef struct {
+    double start_time; /* seconds, with nsec resolution */
+    double stop_time;  /* seconds, with nsec resolution */
+} ws_file_preview_times;
+
+typedef enum {
+    PREVIEW_HAVE_TIMES,
+    PREVIEW_HAVE_NO_TIMES,
+    PREVIEW_TIMED_OUT,
+    PREVIEW_READ_ERROR
+} ws_file_preview_times_status;
+
+extern ws_file_preview_times_status
+get_times_for_preview(wtap *wth, ws_file_preview_times *times,
+                      guint32 *num_packets, int *err, gchar **err_info);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

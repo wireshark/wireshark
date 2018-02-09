@@ -687,23 +687,14 @@ int CaptureFileDialog::mergeType() {
 void CaptureFileDialog::preview(const QString & path)
 {
     wtap        *wth;
-    int          err = 0;
+    int          err;
     gchar       *err_info;
-    gint64       data_offset;
-    const wtap_rec *rec;
-    double       start_time = 0; /* seconds, with nsec resolution */
-    double       stop_time = 0;  /* seconds, with nsec resolution */
-    gboolean     have_times = FALSE;
-    double       cur_time;
-    unsigned int packets = 0;
-    bool         timed_out = FALSE;
-    time_t       time_preview;
-    time_t       time_current;
+    ws_file_preview_times times;
+    ws_file_preview_times_status status;
+    guint32      packets;
     time_t       ti_time;
     struct tm   *ti_tm;
     unsigned int elapsed_time;
-
-    // Follow the same steps as ui/win32/file_dlg_win32.c
 
     foreach (QLabel *lbl, preview_labels_) {
         lbl->setEnabled(false);
@@ -745,43 +736,18 @@ void CaptureFileDialog::preview(const QString & path)
     // Finder and Windows Explorer use IEC. What do the various Linux file managers use?
     QString size_str(gchar_free_to_qstring(format_size(filesize, format_size_unit_bytes|format_size_prefix_iec)));
 
-    time(&time_preview);
-    while ((wtap_read(wth, &err, &err_info, &data_offset))) {
-        rec = wtap_get_rec(wth);
-        if (rec->presence_flags & WTAP_HAS_TS) {
-            cur_time = nstime_to_sec(&rec->ts);
-            if (!have_times) {
-                start_time = cur_time;
-                stop_time = cur_time;
-                have_times = TRUE;
-            }
-            if (cur_time < start_time) {
-                start_time = cur_time;
-            }
-            if (cur_time > stop_time){
-                stop_time = cur_time;
-            }
-        }
+    status = get_times_for_preview(wth, &times, &packets, &err, &err_info);
 
-        packets++;
-        if(packets%1000 == 0) {
-            /* do we have a timeout? */
-            time(&time_current);
-            if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
-                timed_out = TRUE;
-                break;
-            }
-        }
-    }
-
-    if(err != 0) {
+    if(status == PREVIEW_READ_ERROR) {
+        // XXX - give error details?
+    	g_free(err_info);
         preview_size_.setText(tr("%1, error after %Ln packet(s)", "", packets)
                               .arg(size_str));
         return;
     }
 
     // Packet count
-    if(timed_out) {
+    if(status == PREVIEW_TIMED_OUT) {
         preview_size_.setText(tr("%1, timed out at %Ln packet(s)", "", packets)
                               .arg(size_str));
     } else {
@@ -791,10 +757,10 @@ void CaptureFileDialog::preview(const QString & path)
 
     // First packet + elapsed time
     QString first_elapsed;
-    if(!have_times) {
+    if(status == PREVIEW_HAVE_NO_TIMES) {
         first_elapsed = tr("unknown");
     } else {
-        ti_time = (long)start_time;
+        ti_time = (long)times.start_time;
         ti_tm = localtime(&ti_time);
         first_elapsed = "?";
         if(ti_tm) {
@@ -812,11 +778,11 @@ void CaptureFileDialog::preview(const QString & path)
 
     // Elapsed time
     first_elapsed += " / ";
-    if(!have_times) {
+    if(status == PREVIEW_HAVE_NO_TIMES) {
         first_elapsed += tr("unknown");
     } else {
-        elapsed_time = (unsigned int)(stop_time-start_time);
-        if(timed_out) {
+        elapsed_time = (unsigned int)(times.stop_time-times.start_time);
+        if(status == PREVIEW_TIMED_OUT) {
             first_elapsed += tr("unknown");
         } else if(elapsed_time/86400) {
             first_elapsed += QString().sprintf("%02u days %02u:%02u:%02u",
