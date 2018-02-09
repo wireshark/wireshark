@@ -1291,8 +1291,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
     /* Allocate enough memory to hold all options */
     opt_cont_buf_len = to_read;
-    ws_buffer_assure_space(&wblock->rec->ft_specific_data, opt_cont_buf_len);
-    opt_ptr = ws_buffer_start_ptr(&wblock->rec->ft_specific_data);
+    ws_buffer_assure_space(&wblock->rec->options_buf, opt_cont_buf_len);
+    opt_ptr = ws_buffer_start_ptr(&wblock->rec->options_buf);
 
     while (to_read != 0) {
         /* read option */

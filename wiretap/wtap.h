@@ -1286,9 +1286,10 @@ typedef struct {
     gboolean  has_comment_changed; /* TRUE if the comment has been changed. Currently only valid while dumping. */
 
     /*
-     * XXX - what is this used for?
+     * We use a Buffer so that we don't have to allocate and free
+     * a buffer for the options for each record.
      */
-    Buffer    ft_specific_data; /* file-type specific data */
+    Buffer    options_buf;      /* file-type specific data */
 } wtap_rec;
 
 /*

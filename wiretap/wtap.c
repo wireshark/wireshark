@@ -1370,13 +1370,13 @@ void
 wtap_rec_init(wtap_rec *rec)
 {
 	memset(rec, 0, sizeof *rec);
-	ws_buffer_init(&rec->ft_specific_data, 0);
+	ws_buffer_init(&rec->options_buf, 0);
 }
 
 void
 wtap_rec_cleanup(wtap_rec *rec)
 {
-	ws_buffer_free(&rec->ft_specific_data);
+	ws_buffer_free(&rec->options_buf);
 }
 
 gboolean
