@@ -2,7 +2,7 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <assemblyIdentity
     version="@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_MICRO@.0"
-    processorArchitecture="@PROCESSOR_ARCHITECTURE@"
+    processorArchitecture="@WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE@"
     name="WiresharkDevelopmentTeam.Wireshark"
     type="win32"
   />
@@ -13,7 +13,7 @@
         type="win32"
         name="Microsoft.Windows.Common-Controls"
         version="6.0.0.0"
-        processorArchitecture="@PROCESSOR_ARCHITECTURE@"
+        processorArchitecture="@WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE@"
         publicKeyToken="6595b64144ccf1df"
         language="*"
       />
