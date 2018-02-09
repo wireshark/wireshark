@@ -55,11 +55,13 @@ WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"));
     `write_open()`, `write()`, and `write_close()`, then the File object's `read()` and `lines()`
     functions are not usable and will raise an error if used.
 
-    Note: a `File` object should never be stored/saved beyond the scope of the callback function
+    Note: A `File` object should never be stored/saved beyond the scope of the callback function
     it is passed in to.
 
     For example:
-    @code
+
+    [source,lua]
+    ----
     function myfilehandler.read_open(file, capture)
         local position = file:seek()
 
@@ -74,7 +76,7 @@ WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"));
         -- return false because it's not our file type
         return false
     end
-    @endcode
+    ----
 
    @since 1.11.3
  */

@@ -60,7 +60,7 @@
 ** b/B   - signed/unsigned byte
 ** h/H   - signed/unsigned short
 ** in/In - signed/unsigned integer of size `n' bytes
-          Note: unpack of i/I is done to a Lua_number, typically a double,
+          Note: Unpack of i/I is done to a Lua_number, typically a double,
           so unpacking a 64-bit field (i8/I8) will lose precision.
           Use e/E to unpack into a Wireshark Int64/UInt64 object/userdata instead.
 ** e/E   - signed/unsigned eight-byte Integer (64bits, long long), to/from Int64/UInt64 object
@@ -89,7 +89,7 @@
 
   The Struct class offers basic facilities to convert Lua values to and from C-style structs
   in binary Lua strings.  This is based on Roberto Ierusalimschy's Lua struct library found
-  in [[http://www.inf.puc-rio.br/~roberto/struct/]], with some minor modifications as follows:
+  in http://www.inf.puc-rio.br/~roberto/struct/, with some minor modifications as follows:
     * Added support for `Int64`/`UInt64` being packed/unpacked, using 'e'/'E'.
     * Can handle 'long long' integers (i8 / I8); though they're converted to doubles.
     * Can insert/specify padding anywhere in a struct. ('X' eg. when a string is following a union).
@@ -98,7 +98,7 @@
       pascal-style strings using '`(`' & '`)`'.
 
   All but the first of those changes are based on an email from Flemming Madsen, on the lua-users
-  mailing list, which can be found [[http://lua-users.org/lists/lua-l/2009-10/msg00572.html|here]].
+  mailing list, which can be found http://lua-users.org/lists/lua-l/2009-10/msg00572.html[here].
 
   The main functions are `Struct.pack`, which packs multiple Lua values into a struct-like
   Lua binary string; and `Struct.unpack`, which unpacks multiple Lua values from a given
@@ -147,12 +147,15 @@
     * `++(++' to stop assigning items, and `++)++' start assigning (padding when packing).
     * `++=++' to return the current position / offset.
 
-  @note Using `i`, `I`, `h`, `H`, `l`, `L`, `f`, and `T` is strongly discouraged, as those sizes
+  [NOTE]
+  ====
+  Using `i`, `I`, `h`, `H`, `l`, `L`, `f`, and `T` is strongly discouraged, as those sizes
     are system-dependent. Use the explicitly sized variants instead, such as `i4` or `E`.
 
-  @note Unpacking of `i`/`I` is done to a Lua number, a double-precision floating point,
+  Unpacking of `i`/`I` is done to a Lua number, a double-precision floating point,
     so unpacking a 64-bit field (`i8`/`I8`) will lose precision.
     Use `e`/`E` to unpack into a Wireshark `Int64`/`UInt64` object instead.
+  ====
 
   @since 1.11.3
  */

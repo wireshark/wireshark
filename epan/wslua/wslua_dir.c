@@ -173,7 +173,10 @@ WSLUA_CONSTRUCTOR Dir_remove_all(lua_State* L) {
 WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
     /* Opens a directory and returns a `Dir` object representing the files in the directory.
 
-       @code for filename in Dir.open(path) do ... end @endcode
+    [source,lua]
+    ----
+    for filename in Dir.open(path) do ... end
+    ----
     */
 #define WSLUA_ARG_Dir_open_PATHNAME 1 /* The pathname of the directory. */
 #define WSLUA_OPTARG_Dir_open_EXTENSION 2 /* If given, only files with this extension will be returned. */

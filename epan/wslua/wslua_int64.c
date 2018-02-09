@@ -46,7 +46,7 @@ either expressed or implied, of the FreeBSD Project.
   it is often set to IEEE 754 double precision floating point, one cannot store a 64 bit integer
   with full precision.
 
-  For details, see [[https://wiki.wireshark.org/LuaAPI/Int64]].
+  For details, see https://wiki.wireshark.org/LuaAPI/Int64.
  */
 
 #define LUATYPE64_STRING_SIZE 21  /* string to hold 18446744073709551615 */
@@ -61,7 +61,7 @@ WSLUA_CLASS_DEFINE_BASE(Int64,NOP,0);
 /*
   `Int64` represents a 64 bit signed integer.
 
-  For details, see [[https://wiki.wireshark.org/LuaAPI/Int64]].
+  For details, see https://wiki.wireshark.org/LuaAPI/Int64.
  */
 
 /* A checkInt64 but that also auto-converts numbers, strings, and UINT64 to a gint64 */
@@ -614,7 +614,7 @@ LUALIB_API int Int64_register(lua_State* L) {
 WSLUA_CLASS_DEFINE_BASE(UInt64,NOP,0);
 /* `UInt64` represents a 64 bit unsigned integer, similar to `Int64`.
 
-   For details, see: [[https://wiki.wireshark.org/LuaAPI/Int64]].
+   For details, see: https://wiki.wireshark.org/LuaAPI/Int64.
 */
 
 /* A checkUInt64 but that also auto-converts numbers, strings, and `Int64` to a guint64. */

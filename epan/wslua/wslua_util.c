@@ -55,7 +55,9 @@ WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
         by other strings are ignored, and do not cause an error.
 
         Example:
-        @code
+
+        [source,lua]
+        ----
         local my_info = {
             version = "1.0.1",
             author = "Jane Doe",
@@ -63,7 +65,7 @@ WSLUA_FUNCTION wslua_set_plugin_info(lua_State* L) {
         }
 
         set_plugin_info(my_info)
-        @endcode
+        ----
 
         @since 1.99.8
      */

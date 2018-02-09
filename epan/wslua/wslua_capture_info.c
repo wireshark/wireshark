@@ -132,7 +132,11 @@ WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_SETTER(CaptureInfo,user_app,wth->shb_hdrs
 
     For example, if the capture file identifies one resolved IPv4 address of 1.2.3.4 to `foo.com`, then you must set
     `CaptureInfo.hosts` to a table of:
-    @code { ipv4_addresses = { { addr = "\01\02\03\04", name = "foo.com" } } } @endcode
+
+    [source,lua]
+    ----
+    { ipv4_addresses = { { addr = "\01\02\03\04", name = "foo.com" } } }
+    ----
 
     Note that either the `ipv4_addresses` or the `ipv6_addresses` table, or both, may be empty or nil.
     */
@@ -376,7 +380,11 @@ WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,user_app,wth->shb
 
     For example, if the current capture has one resolved IPv4 address of 1.2.3.4 to `foo.com`, then getting
     `CaptureInfoConst.hosts` will get a table of:
-    @code { ipv4_addresses = { { addr = "\01\02\03\04", name = "foo.com" } }, ipv6_addresses = { } } @endcode
+
+    [source,lua]
+    ----
+    { ipv4_addresses = { { addr = "\01\02\03\04", name = "foo.com" } }, ipv6_addresses = { } }
+    ----
 
     Note that either the `ipv4_addresses` or the `ipv6_addresses` table, or both, may be empty, however they will not
     be nil. */

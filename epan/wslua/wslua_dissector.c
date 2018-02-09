@@ -56,7 +56,7 @@ compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
 WSLUA_CONSTRUCTOR Dissector_list (lua_State *L) {
     /* Gets a Lua array table of all registered Dissector names.
 
-       Note: this is an expensive operation, and should only be used for troubleshooting.
+       Note: This is an expensive operation, and should only be used for troubleshooting.
 
        @since 1.11.3
      */
@@ -231,7 +231,7 @@ WSLUA_CONSTRUCTOR DissectorTable_list (lua_State *L) {
     /* Gets a Lua array table of all DissectorTable names - i.e., the string names you can
        use for the first argument to DissectorTable.get().
 
-       Note: this is an expensive operation, and should only be used for troubleshooting.
+       Note: This is an expensive operation, and should only be used for troubleshooting.
 
        @since 1.11.3
      */
@@ -259,7 +259,7 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_list (lua_State *L) {
     /* Gets a Lua array table of all heuristic list names - i.e., the string names you can
        use for the first argument in Proto:register_heuristic().
 
-       Note: this is an expensive operation, and should only be used for troubleshooting.
+       Note: This is an expensive operation, and should only be used for troubleshooting.
 
        @since 1.11.3
      */

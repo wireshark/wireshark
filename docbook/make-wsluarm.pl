@@ -57,20 +57,9 @@ sub gorolla {
 	$s =~ s/^([\n]|\s)*//ms;
 	# remove trailing newlines and spaces at end
 	$s =~ s/([\n]|\s)*$//s;
-	# escape HTML entities everywhere
 
-	# bold and italics - but don't change a star followed by space (it's a list item)
-	$s =~ s/(\*\*)([^*]+?)(\*\*)/`$2`/g; # bold=command??
-
-	# one backtick is quote/command
-	#$s =~ s/([^`]|^)(`)([^`]+?)(`)/$1<command>$3<\/command>/g; # quote=command??
-	# two backticks are one (...and don't appear anywhere?)
-	#$s =~ s/(``)([^`]+?)(``)/`$2`/g; # quote=command??
-
-	# Convert wiki-style '[[url]]'
-	$s =~ s/(\[\[)([^\]\|]+?)(\]\])/link:\$\$$2\$\$:[$2]/g;
-	# handle '[[url|pretty]]'
-	$s =~ s/(\[\[)(([^\]\|]+?)\|\s*([^\]]+?))(\]\])/link:\$\$$3\$\$:[$4]/g;
+	# Prior versions converted a custom markup syntax to DocBook.
+	# Markup must now be compatible with Asciidoctor.
 
 	$s;
 }
@@ -103,17 +92,22 @@ sub parse_desc_common {
 			# save number of spaces in case we need to know later
 			my $indent = length($1);
 
-			# if we find @code then treat it as a blob
-			if ($lines[$idx] =~ /^\@code\b/) {
-				my $line = $lines[$idx];
-				$line =~ s/\@code/[source,lua]\n----\n/;
-				# if this line didn't have ending token, keep eating paragraphs
-				while (!($line =~ /\@endcode\b/) && $idx <= $#lines) {
-					# also insert back the line separator we ate in earlier split()
-					$line .= $lines[++$idx] . "\n";
+			# if we find [source,...] then treat it as a blob
+			if ($lines[$idx] =~ /^\[source.*\]/) {
+				my $line = $lines[$idx] . "\n";
+				# the next line *should* be a delimiter...
+				my $block_delim = $lines[++$idx];
+				$block_delim =~ s/^\s+|\s+$//g;
+				$line .= $block_delim . "\n";
+				my $block_line = $lines[++$idx];
+				while (!($block_line =~ qr/^\s*$block_delim\s*$/) && $idx <= $#lines) {
+					# keep eating lines until the closing delimiter.
+					# XXX Strip $indent spaces?
+					$line .= $block_line . "\n";
+					$block_line = $lines[++$idx];
 				}
-				# fix ending token, and also remove trailing whitespace before it
-				$line =~ s/[\s\n]*\@endcode/\n----/;
+				$line .= $block_delim . "\n";
+
 				$r[++$#r] = $line . "\n";
 			} elsif ($lines[$idx] =~ /^\s*$/) {
 				# line is either empty or just whitespace, and we're not in a @code block
@@ -124,34 +118,8 @@ sub parse_desc_common {
 				# Add it as-is.
 				my $line = $lines[$idx];
 
-				# If line starts with "Note:" or "@note", make it an admonition
-				if ($line =~ /^[nN]ote:|^\@note /) {
-					$r[++$#r] = "[NOTE]\n";
-					$r[++$#r] = "====\n";
-					$line =~ s/^([nN]ote:\s*|\@note\s*)//;
-					$r[++$#r] = "" . $line . "\n";
-					# keep eating until we find a blank line or end
-					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
-						$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
-						$r[++$#r] = "" . $lines[$idx]. "\n";
-					}
-					$r[++$#r] = "====\n\n";
-
-				# If line starts with "Warning:"" or @warning", make it an admonition
-				} elsif ($line =~ /^[wW]arning:|^\@warning /) {
-					$r[++$#r] = "[WARNING]\n";
-					$r[++$#r] = "====\n";
-					$line =~ s/^(wW]arning:\s*|\@warning\s*)//;
-					# keep eating until we find a blank line or end
-					$r[++$#r] = "" . $line . "\n";
-					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
-						$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
-						$r[++$#r] = "" . $lines[$idx] . "\n";
-					}
-					$r[++$#r] = "====\n";
-
 				# if line starts with "@version" or "@since", make it a "Since:"
-				} elsif ($line =~ /^\@version |^\@since /) {
+				if ($line =~ /^\@version |^\@since /) {
 					$line =~ s/^\@version\s+|^\@since\s+/Since: /;
 					$r[++$#r] = "\n" . $line . "\n\n";
 

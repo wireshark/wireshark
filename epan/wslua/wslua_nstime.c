@@ -51,8 +51,8 @@ WSLUA_METAMETHOD NSTime__call(lua_State* L) { /* Creates a NSTime object. */
 
 WSLUA_METHOD NSTime_tonumber(lua_State* L) {
         /* Returns a Lua number of the `NSTime` representing seconds from epoch
-         *        @since 2.4.0
-         *             */
+           @since 2.4.0
+         */
         NSTime nstime = checkNSTime(L,1);
         lua_pushnumber(L, (lua_Number)nstime_to_sec(nstime));
         WSLUA_RETURN(1); /* The Lua number. */

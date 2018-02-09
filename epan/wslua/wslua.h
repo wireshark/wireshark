@@ -566,7 +566,7 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
     })
 
 /* to make this integral-safe, we treat it as int32 and then cast
-   Note: this will truncate 64-bit integers (but then Lua itself only has doubles */
+   Note: This will truncate 64-bit integers (but then Lua itself only has doubles */
 #define WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(C,name,member,cast) \
     WSLUA_ATTRIBUTE_SET(C,name, { \
         if (! lua_isnumber(L,-1) ) \

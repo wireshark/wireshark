@@ -609,7 +609,7 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
 WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     /* Creates a new FileHandler */
 #define WSLUA_ARG_FileHandler_new_NAME 1 /* The name of the file type, for display purposes only. E.g., "Wireshark - pcapng" */
-#define WSLUA_ARG_FileHandler_new_SHORTNAME 2 /* The file type short name, used as a shortcut in various places. E.g., "pcapng". Note: the name cannot already be in use. */
+#define WSLUA_ARG_FileHandler_new_SHORTNAME 2 /* The file type short name, used as a shortcut in various places. E.g., "pcapng". Note: The name cannot already be in use. */
 #define WSLUA_ARG_FileHandler_new_DESCRIPTION 3 /* Descriptive text about this file format, for display purposes only */
 #define WSLUA_ARG_FileHandler_new_TYPE 4 /* The type of FileHandler, "r"/"w"/"rw" for reader/writer/both, include "m" for magic, "s" for strong heuristic */
 
@@ -837,7 +837,9 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read);
 
     The called Lua function should return true if the read was successful, or false if it hit an error.
     Since 2.4.0, a number is also acceptable to signal success, this allows for reuse of `FileHandler:read`:
-    @code
+
+    [source,lua]
+    ----
     local function fh_read(file, capture, frame) ... end
     myfilehandler.read = fh_read
 
@@ -850,7 +852,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read);
         -- Now try to read one frame
         return fh_read(file, capture, frame)
     end
-    @endcode
+    ----
  */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,seek_read);
 

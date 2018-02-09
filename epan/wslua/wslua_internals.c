@@ -305,7 +305,7 @@ static int wslua_instancemeta_index_impl(lua_State *L, gboolean is_getter)
             lua_pop(L, 1);      /* Remove cfunction from stack */
             lua_remove(L, 2);   /* Remove key from stack */
             /*
-             * Note: this re-uses the current closure as optimization, exposing
+             * Note: This re-uses the current closure as optimization, exposing
              * its upvalues via pseudo-indices. The alternative is to create a
              * new C closure (via lua_call), but this is more expensive.
              * Callees should not rely on the availability of the upvalues.
@@ -501,7 +501,7 @@ static void wslua_push_attributes(lua_State *L, const wslua_attribute_table *t, 
 void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def)
 {
     /* Register metatable for use by class instances. STACK = { MT } */
-    /* NOTE: the name can be changed as long as luaL_checkudata is also adapted */
+    /* NOTE: The name can be changed as long as luaL_checkudata is also adapted */
     luaL_newmetatable(L, cls_def->name);
     if (cls_def->instance_meta) {
         wslua_setfuncs(L, cls_def->instance_meta, 0);
@@ -554,9 +554,9 @@ void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def)
  * This functions basically creates a class (type table) with this structure:
  *
  *  Class = { class_methods }
- *  Class.__typeof = "Class"                -- NOTE: might be removed in future
+ *  Class.__typeof = "Class"                -- NOTE: Might be removed in future
  *  Class.__metatable = { class_meta }
- *  Class.__metatable.__typeof = "Class"    -- NOTE: might be removed in future
+ *  Class.__metatable.__typeof = "Class"    -- NOTE: Might be removed in future
  *  Class.__metatable.__index = function_that_errors_out
  *  Class.__metatable.__newindex = function_that_errors_out
  *

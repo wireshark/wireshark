@@ -54,9 +54,12 @@ WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"));
    To create a `TvbRange` the `Tvb` must be called with offset and length as optional arguments;
    the offset defaults to 0 and the length to `tvb:len()`.
 
-   @warning Tvbs are usable only by the current listener or dissector call and are destroyed
+   [WARNING]
+   ====
+   Tvbs are usable only by the current listener or dissector call and are destroyed
    as soon as the listener/dissector returns, so references to them are unusable once the function
    has returned.
+   ====
 */
 
 static GPtrArray* outstanding_Tvb = NULL;
@@ -1131,8 +1134,11 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 
        On failure or error, nil is returned for both return values.
 
-       @note The encoding type of the hex string should also be set, for example
+       [NOTE]
+       ====
+       The encoding type of the hex string should also be set, for example
        `ENC_ASCII` or `ENC_UTF_8`, along with `ENC_STR_HEX`.
+       ====
      */
 #define WSLUA_OPTARG_TvbRange_bytes_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);

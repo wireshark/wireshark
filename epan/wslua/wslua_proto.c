@@ -174,7 +174,7 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
        It will be called for every frame after dissection. */
 #define WSLUA_ARG_register_postdissector_PROTO 1 /* the protocol to be used as post-dissector. */
 #define WSLUA_OPTARG_register_postdissector_ALLFIELDS 2 /* Whether to generate all fields.
-                                                           Note: this impacts performance (default=false). */
+                                                           Note: This impacts performance (default=false). */
 
     Proto proto = checkProto(L,WSLUA_ARG_register_postdissector_PROTO);
     const gboolean all_fields = wslua_optbool(L, WSLUA_OPTARG_register_postdissector_ALLFIELDS, FALSE);

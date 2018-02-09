@@ -625,7 +625,7 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
 WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
     /* Gets a Lua array table of all registered field filter names.
 
-       NOTE: this is an expensive operation, and should only be used for troubleshooting.
+       NOTE: This is an expensive operation, and should only be used for troubleshooting.
 
        @since 1.11.3
      */

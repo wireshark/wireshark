@@ -136,7 +136,10 @@ static int FrameInfo_get_time (lua_State* L) {
 
 /* WSLUA_ATTRIBUTE FrameInfo_data RW The data buffer containing the packet.
 
-   @note This cannot be cleared once set.
+   [NOTE]
+   ====
+   This cannot be cleared once set.
+   ====
  */
 static int FrameInfo_set_data (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
