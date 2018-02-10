@@ -713,7 +713,7 @@ quic_derive_cleartext_secrets(guint64 cid,
         0xaf, 0xc8, 0x24, 0xec, 0x5f, 0xc7, 0x7e, 0xca, 0x1e, 0x9d,
         0x36, 0xf3, 0x7f, 0xb2, 0xd4, 0x65, 0x18, 0xc3, 0x66, 0x39
     };
-    guint           tls13_draft_version = QUIC_TLS13_VERSION;
+    const char     *label_prefix;
     gcry_error_t    err;
     guint8          secret_bytes[HASH_SHA2_256_LENGTH];
     StringInfo      secret = { (guchar *) &secret_bytes, HASH_SHA2_256_LENGTH };
@@ -729,14 +729,16 @@ quic_derive_cleartext_secrets(guint64 cid,
         return FALSE;
     }
 
-    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, client_label,
-                                 "", HASH_SHA2_256_LENGTH, client_cleartext_secret)) {
+    label_prefix = "tls13 ";
+
+    if (!tls13_hkdf_expand_label_common(GCRY_MD_SHA256, &secret, label_prefix, client_label,
+                                 HASH_SHA2_256_LENGTH, client_cleartext_secret)) {
         *error = "Key expansion (client) failed";
         return FALSE;
     }
 
-    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, server_label,
-                                 "", HASH_SHA2_256_LENGTH, server_cleartext_secret)) {
+    if (!tls13_hkdf_expand_label_common(GCRY_MD_SHA256, &secret, label_prefix, server_label,
+                                 HASH_SHA2_256_LENGTH, server_cleartext_secret)) {
         wmem_free(NULL, *client_cleartext_secret);
         *client_cleartext_secret = NULL;
         *error = "Key expansion (server) failed";

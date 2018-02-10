@@ -2755,76 +2755,73 @@ static gint tls12_handshake_hash(SslDecryptSession* ssl, gint md, StringInfo* ou
     return 0;
 }
 
+/*
+ * Computes HKDF-Expand-Label(Secret, Label, "", Length) with a custom label
+ * prefix.
+ */
 gboolean
-tls13_hkdf_expand_label(guchar draft_version,
-                        int md, const StringInfo *secret, const char *label, const char *hash_value,
+tls13_hkdf_expand_label_common(int md, const StringInfo *secret,
+                        const char *label_prefix, const char *label,
                         guint16 out_len, guchar **out)
 {
-    /* draft-ietf-tls-tls13-20:
-     * HKDF-Expand-Label(Secret, Label, HashValue, Length) =
+    /* draft-ietf-tls-tls13-23:
+     * HKDF-Expand-Label(Secret, Label, Context, Length) =
      *      HKDF-Expand(Secret, HkdfLabel, Length)
      * struct {
      *     uint16 length = Length;
-     *     opaque label<7..255> = "tls13 " + Label;
-     *     opaque hash_value<0..255> = HashValue;
+     *     opaque label<7..255> = "tls13 " + Label; // "tls13 " is label prefix.
+     *     opaque context<0..255> = Context;
      * } HkdfLabel;
      *
      * RFC 5869 HMAC-based Extract-and-Expand Key Derivation Function (HKDF):
      * HKDF-Expand(PRK, info, L) -> OKM
      */
-    guchar  lastoutput[DIGEST_MAX_SIZE];
-    gcry_md_hd_t h;
     gcry_error_t err;
+    const guint label_prefix_length = (guint) strlen(label_prefix);
     const guint label_length = (guint) strlen(label);
-    const guint hash_value_length = (guint) strlen(hash_value);
-    const guint hash_len = gcry_md_get_algo_dlen(md);
 
     /* Some sanity checks */
-    DISSECTOR_ASSERT(out_len > 0 && out_len <= 255 * hash_len);
-    DISSECTOR_ASSERT(label_length > 0 && label_length <= 255 - 6);
-    DISSECTOR_ASSERT(hash_value_length <= 255);
-    DISSECTOR_ASSERT(hash_len > 0 && hash_len <= DIGEST_MAX_SIZE);
+    DISSECTOR_ASSERT(label_length > 0 && label_prefix_length + label_length <= 255);
 
-    err = gcry_md_open(&h, md, GCRY_MD_FLAG_HMAC);
+    /* info = HkdfLabel { length, label, context } */
+    GByteArray *info = g_byte_array_new();
+    const guint16 length = g_htons(out_len);
+    g_byte_array_append(info, (const guint8 *)&length, sizeof(length));
+
+    const guint8 label_vector_length = label_prefix_length + label_length;
+    g_byte_array_append(info, &label_vector_length, 1);
+    g_byte_array_append(info, label_prefix, label_prefix_length);
+    g_byte_array_append(info, label, label_length);
+
+    const guint8 context_length = 0;
+    g_byte_array_append(info, &context_length, 1);
+
+    *out = (guchar *)wmem_alloc(NULL, out_len);
+    err = hkdf_expand(md, secret->data, secret->data_len, info->data, info->len, *out, out_len);
+    g_byte_array_free(info, TRUE);
+
     if (err) {
-        ssl_debug_printf("%s failed to invoke hash func %d: %s\n", G_STRFUNC, md, gcry_strerror(err));
+        ssl_debug_printf("%s failed  %d: %s\n", G_STRFUNC, md, gcry_strerror(err));
+        wmem_free(NULL, *out);
+        *out = NULL;
         return FALSE;
     }
 
-    *out = (guchar *)wmem_alloc(NULL, out_len);
-
-    for (guint offset = 0; offset < out_len; offset += hash_len) {
-        gcry_md_reset(h);
-        gcry_md_setkey(h, secret->data, secret->data_len);  /* Set PRK */
-
-        if (offset > 0) {
-            gcry_md_write(h, lastoutput, hash_len);         /* T(1..N) */
-        }
-
-        /* info = HkdfLabel { length, label, hash_value } */
-        gcry_md_putc(h, out_len >> 8);                      /* length */
-        gcry_md_putc(h, (guint8) out_len);
-        if (draft_version && draft_version < 20) {
-            /* Draft -19 and before use a different prefix.
-             * TODO remove this once implementations are updated for D20. */
-            gcry_md_putc(h, 9 + label_length);              /* label */
-            gcry_md_write(h, "TLS 1.3, ", 9);
-        } else {
-            gcry_md_putc(h, 6 + label_length);              /* label */
-            gcry_md_write(h, "tls13 ", 6);
-        }
-        gcry_md_write(h, label, label_length);
-        gcry_md_putc(h, hash_value_length);                 /* hash_value */
-        gcry_md_write(h, hash_value, hash_value_length);
-
-        gcry_md_putc(h, (guint8) (offset / hash_len + 1));  /* constant 0x01..N */
-
-        memcpy(lastoutput, gcry_md_read(h, md), hash_len);
-        memcpy(*out + offset, lastoutput, MIN(hash_len, out_len - offset));
-    }
-
-    gcry_md_close(h);
     return TRUE;
+}
+
+static gboolean
+tls13_hkdf_expand_label(guchar draft_version,
+                        int md, const StringInfo *secret, const char *label,
+                        guint16 out_len, guchar **out)
+{
+    if (draft_version && draft_version < 20) {
+        /* Draft -19 and before use a different prefix.
+         * TODO remove this once implementations are updated for D20. */
+        return tls13_hkdf_expand_label_common(md, secret, "TLS 1.3, ", label, out_len, out);
+    } else {
+        return tls13_hkdf_expand_label_common(md, secret, "tls13 ", label, out_len, out);
+    }
 }
 /* HMAC and the Pseudorandom function }}} */
 
@@ -3037,11 +3034,11 @@ tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode
     key_length = (guint) gcry_cipher_get_algo_keylen(cipher_algo);
     iv_length = TLS13_AEAD_NONCE_LENGTH;
 
-    if (!tls13_hkdf_expand_label(tls13_draft_version, hash_algo, secret, "key", "", key_length, &write_key)) {
+    if (!tls13_hkdf_expand_label(tls13_draft_version, hash_algo, secret, "key", key_length, &write_key)) {
         *error = "Key expansion (key) failed";
         return NULL;
     }
-    if (!tls13_hkdf_expand_label(tls13_draft_version, hash_algo, secret, "iv", "", iv_length, &write_iv)) {
+    if (!tls13_hkdf_expand_label(tls13_draft_version, hash_algo, secret, "iv", iv_length, &write_iv)) {
         *error = "Key expansion (IV) failed";
         goto end;
     }
@@ -3592,11 +3589,11 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
     iv_length = 12;
     ssl_debug_printf("%s key_length %u iv_length %u\n", G_STRFUNC, key_length, iv_length);
 
-    if (!tls13_hkdf_expand_label(ssl_session->session.tls13_draft_version, hash_algo, secret, "key", "", key_length, &write_key)) {
+    if (!tls13_hkdf_expand_label(ssl_session->session.tls13_draft_version, hash_algo, secret, "key", key_length, &write_key)) {
         ssl_debug_printf("%s write_key expansion failed\n", G_STRFUNC);
         return FALSE;
     }
-    if (!tls13_hkdf_expand_label(ssl_session->session.tls13_draft_version, hash_algo, secret, "iv", "", iv_length, &write_iv)) {
+    if (!tls13_hkdf_expand_label(ssl_session->session.tls13_draft_version, hash_algo, secret, "iv", iv_length, &write_iv)) {
         ssl_debug_printf("%s write_iv expansion failed\n", G_STRFUNC);
         goto end;
     }
@@ -5072,7 +5069,7 @@ tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
     const guint hash_len = app_secret->data_len;
     guchar *new_secret;
     if (!tls13_hkdf_expand_label(ssl->session.tls13_draft_version,
-                                 hash_algo, app_secret, "application traffic secret", "",
+                                 hash_algo, app_secret, "application traffic secret",
                                  hash_len, &new_secret)) {
         ssl_debug_printf("%s traffic_secret_N+1 expansion failed\n", G_STRFUNC);
         return;
