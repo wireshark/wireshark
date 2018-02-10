@@ -689,9 +689,8 @@ void CaptureFileDialog::preview(const QString & path)
     wtap        *wth;
     int          err;
     gchar       *err_info;
-    ws_file_preview_times times;
-    ws_file_preview_times_status status;
-    guint32      packets;
+    ws_file_preview_stats stats;
+    ws_file_preview_stats_status status;
     time_t       ti_time;
     struct tm   *ti_tm;
     unsigned int elapsed_time;
@@ -736,31 +735,35 @@ void CaptureFileDialog::preview(const QString & path)
     // Finder and Windows Explorer use IEC. What do the various Linux file managers use?
     QString size_str(gchar_free_to_qstring(format_size(filesize, format_size_unit_bytes|format_size_prefix_iec)));
 
-    status = get_times_for_preview(wth, &times, &packets, &err, &err_info);
+    status = get_stats_for_preview(wth, &stats, &err, &err_info);
 
     if(status == PREVIEW_READ_ERROR) {
         // XXX - give error details?
         g_free(err_info);
-        preview_size_.setText(tr("%1, error after %Ln packet(s)", "", packets)
+        preview_size_.setText(tr("%1, error after %Ln record(s)", "", stats.records)
                               .arg(size_str));
         return;
     }
 
     // Packet count
     if(status == PREVIEW_TIMED_OUT) {
-        preview_size_.setText(tr("%1, timed out at %Ln packet(s)", "", packets)
+        preview_size_.setText(tr("%1, timed out at %Ln data record(s)", "", stats.data_records)
                               .arg(size_str));
     } else {
-        preview_size_.setText(tr("%1, %Ln packet(s)", "", packets)
+        preview_size_.setText(tr("%1, %Ln data record(s)", "", stats.data_records)
                               .arg(size_str));
     }
 
     // First packet + elapsed time
     QString first_elapsed;
-    if(status == PREVIEW_HAVE_NO_TIMES) {
-        first_elapsed = tr("unknown");
-    } else {
-        ti_time = (long)times.start_time;
+    if(stats.have_times) {
+        //
+        // We saw at least one record with a time stamp, so we can give
+        // a start time (if we have a mix of records with and without
+        // time stamps, and there were records without time stamps
+        // before the first one with a time stamp, this may be inaccurate).
+        //
+        ti_time = (long)stats.start_time;
         ti_tm = localtime(&ti_time);
         first_elapsed = "?";
         if(ti_tm) {
@@ -774,23 +777,31 @@ void CaptureFileDialog::preview(const QString & path)
                      ti_tm->tm_sec
                      );
         }
+    } else {
+        first_elapsed = tr("unknown");
     }
 
     // Elapsed time
     first_elapsed += " / ";
-    if(status == PREVIEW_HAVE_NO_TIMES) {
-        first_elapsed += tr("unknown");
-    } else {
-        elapsed_time = (unsigned int)(times.stop_time-times.start_time);
-        if(status == PREVIEW_TIMED_OUT) {
-            first_elapsed += tr("unknown");
-        } else if(elapsed_time/86400) {
+    if(status == PREVIEW_SUCCEEDED && stats.have_times) {
+        //
+        // We didn't time out, so we looked at all packets, and we got
+        // at least one packet with a time stamp, so we can calculate
+        // an elapsed time from the time stamp of the last packet with
+        // with a time stamp (if we have a mix of records with and without
+        // time stamps, and there were records without time stamps after
+        // the last one with a time stamp, this may be inaccurate).
+        //
+        elapsed_time = (unsigned int)(stats.stop_time-stats.start_time);
+        if(elapsed_time/86400) {
             first_elapsed += QString().sprintf("%02u days %02u:%02u:%02u",
                     elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
         } else {
             first_elapsed += QString().sprintf("%02u:%02u:%02u",
                     elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
         }
+    } else {
+        first_elapsed += tr("unknown");
     }
     preview_first_elapsed_.setText(first_elapsed);
 

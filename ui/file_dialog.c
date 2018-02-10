@@ -21,22 +21,26 @@
 
 #include "ui/file_dialog.h"
 
-ws_file_preview_times_status
-get_times_for_preview(wtap *wth, ws_file_preview_times *times,
-                      guint32 *num_packets, int *err, gchar **err_info)
+ws_file_preview_stats_status
+get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
+                      int *err, gchar **err_info)
 {
     gint64       data_offset;
     const wtap_rec *rec;
-    guint32      packets;
+    guint32      records;
+    guint32      data_records;
+    double       start_time;
+    double       stop_time;
     gboolean     have_times;
     gboolean     timed_out;
     time_t       time_preview, time_current;
     double       cur_time;
 
-    times->start_time = 0;
-    times->stop_time = 0;
-    packets = 0;
     have_times = FALSE;
+    start_time = 0;
+    stop_time = 0;
+    records = 0;
+    data_records = 0;
     timed_out = FALSE;
     time(&time_preview);
     while ((wtap_read(wth, err, err_info, &data_offset))) {
@@ -44,20 +48,30 @@ get_times_for_preview(wtap *wth, ws_file_preview_times *times,
         if (rec->presence_flags & WTAP_HAS_TS) {
             cur_time = nstime_to_sec(&rec->ts);
             if (!have_times) {
-                times->start_time = cur_time;
-                times->stop_time = cur_time;
+                start_time = cur_time;
+                stop_time = cur_time;
                 have_times = TRUE;
             }
-            if (cur_time < times->start_time) {
-                times->start_time = cur_time;
+            if (cur_time < start_time) {
+                start_time = cur_time;
             }
-            if (cur_time > times->stop_time){
-                times->stop_time = cur_time;
+            if (cur_time > stop_time){
+                stop_time = cur_time;
             }
         }
 
-        packets++;
-        if (packets%1000 == 0) {
+        switch (rec->rec_type) {
+
+        case REC_TYPE_PACKET:
+        case REC_TYPE_FT_SPECIFIC_EVENT:
+        case REC_TYPE_FT_SPECIFIC_REPORT:
+        case REC_TYPE_SYSCALL:
+            data_records++;
+            break;
+        }
+
+        records++;
+        if ((records % 1000) == 0) {
             /* do we have a timeout? */
             time(&time_current);
             if (time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
@@ -66,19 +80,18 @@ get_times_for_preview(wtap *wth, ws_file_preview_times *times,
             }
         }
     }
-    *num_packets = packets;
+
+    stats->have_times = have_times;
+    stats->start_time = start_time;
+    stats->stop_time = stop_time;
+    stats->records = records;
+    stats->data_records = data_records;
+
     if (*err != 0) {
         /* Read error. */
         return PREVIEW_READ_ERROR;
     }
-
-    if (have_times) {
-        if (timed_out)
-            return PREVIEW_TIMED_OUT;
-        else
-            return PREVIEW_HAVE_TIMES;
-    } else
-        return PREVIEW_HAVE_NO_TIMES;
+    return timed_out ? PREVIEW_TIMED_OUT : PREVIEW_SUCCEEDED;
 }
 
 /*

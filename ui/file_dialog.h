@@ -32,20 +32,22 @@ typedef enum {
 } export_type_e;
 
 typedef struct {
-    double start_time; /* seconds, with nsec resolution */
-    double stop_time;  /* seconds, with nsec resolution */
-} ws_file_preview_times;
+    gboolean have_times;  /* TRUE if we have start and stop times */
+    double start_time;    /* seconds, with nsec resolution */
+    double stop_time;     /* seconds, with nsec resolution */
+    guint32 records;      /* total number of records */
+    guint32 data_records; /* number of data records */
+} ws_file_preview_stats;
 
 typedef enum {
-    PREVIEW_HAVE_TIMES,
-    PREVIEW_HAVE_NO_TIMES,
+    PREVIEW_SUCCEEDED,
     PREVIEW_TIMED_OUT,
     PREVIEW_READ_ERROR
-} ws_file_preview_times_status;
+} ws_file_preview_stats_status;
 
-extern ws_file_preview_times_status
-get_times_for_preview(wtap *wth, ws_file_preview_times *times,
-                      guint32 *num_packets, int *err, gchar **err_info);
+extern ws_file_preview_stats_status
+get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
+                      int *err, gchar **err_info);
 
 #ifdef __cplusplus
 }
