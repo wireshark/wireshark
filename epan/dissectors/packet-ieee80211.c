@@ -5096,8 +5096,8 @@ static int hf_he_ndp_feedback_report_support = -1;
 static int hf_he_ops_support = -1;
 static int hf_he_a_msdu_in_a_mpdu_support = -1;
 static int hf_he_reserved = -1;
+static int hf_he_reserved_bit_18 = -1;
 static int hf_he_reserved_bit_19 = -1;
-static int hf_he_reserved_bit_20 = -1;
 static int hf_he_reserved_bit_25 = -1;
 static int hf_he_reserved_bits_5_7 = -1;
 static int hf_he_reserved_bits_8_9 = -1;
@@ -17098,8 +17098,8 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   /* Change some header fields depending on HE_HTC_HE_SUPPORT and FRAGMENTATION */
   if (!(he_mac_caps & HE_HTC_HE_SUPPORT)) {
     he_mac_headers[8] = &hf_he_reserved_bits_15_16;
-    he_mac_headers[10] = &hf_he_reserved_bit_19;
-    he_mac_headers[11] = &hf_he_reserved_bit_20;
+    he_mac_headers[10] = &hf_he_reserved_bit_18;
+    he_mac_headers[11] = &hf_he_reserved_bit_19;
     he_mac_headers[17] = &hf_he_reserved_bit_25;
   }
   if (!(he_mac_caps & HE_FRAGMENTATION_SUPPORT)) {
@@ -30237,12 +30237,12 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bits_15_16",
       FT_UINT40, BASE_HEX, NULL, 0x0000018000, NULL, HFILL }},
 
-    {&hf_he_reserved_bit_19,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_19",
+    {&hf_he_reserved_bit_18,
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_18",
       FT_UINT40, BASE_HEX, NULL, 0x0000000400, NULL, HFILL }},
 
-    {&hf_he_reserved_bit_20,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_20",
+    {&hf_he_reserved_bit_19,
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_19",
       FT_UINT40, BASE_HEX, NULL, 0x0000000800, NULL, HFILL }},
 
     {&hf_he_reserved_bit_25,
