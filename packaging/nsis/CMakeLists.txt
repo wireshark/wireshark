@@ -177,11 +177,13 @@ endif()
 file(WRITE "${_gtk_dll_manifest}" "${_gtk_dll_manifest_contents}")
 
 file(TO_NATIVE_PATH "${DATAFILE_DIR}" _staging_dir)
+file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _outfile_dir)
 file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _nsis_include_dir)
 
 # Variables we can't set via config.nsh.
 set(NSIS_DEFINES
 	-DSTAGING_DIR=${_staging_dir}
+	-DOUTFILE_DIR=${_outfile_dir}
 	-DNSIS_INCLUDE_DIR=${_nsis_include_dir}
 	PARENT_SCOPE
 )

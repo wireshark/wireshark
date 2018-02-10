@@ -36,7 +36,7 @@ ${StrRep}
 ; ============================================================================
 
 ; The file to write
-OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
+OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 ; Installer icon
 Icon "${TOP_SRC_DIR}\image\wiresharkinst.ico"
 
