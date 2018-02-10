@@ -47,11 +47,11 @@ typedef enum packet_direction_t
 /***********************************************************************/
 /* For each line, store (in case we need to dump):                     */
 /* - String before time field                                          */
-/* - String beween time field and data (if NULL assume " l ")          */
+/* - Whether or not " l " appears after timestamp                      */
 typedef struct
 {
     gchar *before_time;
-    gchar *after_time;
+    gboolean has_l;
 } line_prefix_info_t;
 
 
@@ -400,20 +400,9 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             memcpy(line_prefix_info->before_time, linebuff, before_time_offset);
             line_prefix_info->before_time[before_time_offset] = '\0';
 
-            /* Create and use buffer for contents before time.
-               Do this only if it doesn't correspond to " l ", which is by far the most
-               common case. */
-            if (((size_t)(dollar_offset - after_time_offset -1) == strlen(" l ")) &&
-                (strncmp(linebuff+after_time_offset, " l ", strlen(" l ")) == 0)) {
-
-                line_prefix_info->after_time = NULL;
-            }
-            else {
-                /* Allocate & write buffer for line between timestamp and data */
-                line_prefix_info->after_time = (gchar *)g_malloc(dollar_offset - after_time_offset);
-                memcpy(line_prefix_info->after_time, linebuff+after_time_offset, dollar_offset - after_time_offset);
-                line_prefix_info->after_time[dollar_offset - after_time_offset-1] = '\0';
-            }
+            /* There is usually a ' l ' between the timestamp and the data.  Set flag to record this. */
+            line_prefix_info->has_l =  ((size_t)(dollar_offset - after_time_offset -1) == strlen(" l ")) &&
+                                        (strncmp(linebuff+after_time_offset, " l ", 3) == 0);
 
             /* Add packet entry into table */
             pkey = (gint64 *)g_malloc(sizeof(*pkey));
@@ -680,18 +669,11 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
     }
 
     /* Write out text between timestamp and start of hex data */
-    if (prefix->after_time == NULL) {
-        if (!wtap_dump_file_write(wdh, " l ", strlen(" l "), err)) {
+    if (prefix->has_l) {
+        if (!wtap_dump_file_write(wdh, " l ", 3, err)) {
             return FALSE;
         }
     }
-    else {
-        if (!wtap_dump_file_write(wdh, prefix->after_time,
-                                  strlen(prefix->after_time), err)) {
-            return FALSE;
-        }
-    }
-
 
     /****************************************************************/
     /* Need to skip stub header at start of pd before we reach data */
@@ -1654,9 +1636,8 @@ free_line_prefix_info(gpointer key, gpointer value,
     /* Free the 64-bit key value */
     g_free(key);
 
-    /* Free the strings inside */
+    /* Free string */
     g_free(info->before_time);
-    g_free(info->after_time);
 
     /* And the structure itself */
     g_free(info);
