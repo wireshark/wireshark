@@ -2392,14 +2392,14 @@ static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogo
     if(is_server) {
         key->dstport = pinfo->srcport;
         key->srcport = pinfo->destport;
-        copy_address(&key->dst,&pinfo->src);
-        copy_address(&key->src,&pinfo->dst);
+        copy_address_shallow(&key->dst,&pinfo->src);
+        copy_address_shallow(&key->src,&pinfo->dst);
         /* name has been durably allocated */
         key->name = name;
     }
     else {
-        copy_address(&key->dst,&pinfo->dst);
-        copy_address(&key->src,&pinfo->src);
+        copy_address_shallow(&key->dst,&pinfo->dst);
+        copy_address_shallow(&key->src,&pinfo->src);
         key->dstport = pinfo->destport;
         key->srcport = pinfo->srcport;
         /* name has been durably allocated */
@@ -2423,7 +2423,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     /*int oldoffset = offset;*/
     netlogon_auth_vars *vars;
     netlogon_auth_vars *existing_vars;
-    netlogon_auth_key *key;
+    netlogon_auth_key key;
     guint8 tab[8] = { 0,0,0,0,0,0,0,0};
     dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
@@ -2448,12 +2448,14 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     vars->next_start = -1;
     vars->next = NULL;
 
-    key = wmem_new(wmem_file_scope(), netlogon_auth_key);
-    generate_hash_key(pinfo,0,key,NULL);
-    existing_vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, key);
+    generate_hash_key(pinfo,0,&key,NULL);
+    existing_vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
     if (!existing_vars) {
+        netlogon_auth_key *k = (netlogon_auth_key *)wmem_memdup(wmem_file_scope(), &key, sizeof(netlogon_auth_key));
+        copy_address_wmem(wmem_file_scope(), &k->src, &key.src);
+        copy_address_wmem(wmem_file_scope(), &k->dst, &key.dst);
         debugprintf("Adding initial vars with this start packet = %d\n",vars->start);
-        g_hash_table_insert(netlogon_auths, key, vars);
+        g_hash_table_insert(netlogon_auths, k, vars);
     }
     else {
         while(existing_vars->next != NULL && existing_vars->start < vars->start) {
@@ -2462,7 +2464,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         }
         if(existing_vars->next != NULL || existing_vars->start == vars->start) {
             debugprintf("It seems that I already record this vars start packet = %d\n",vars->start);
-            /* is it worth wmem_free-ing vars ? */
+            wmem_free(wmem_file_scope(), vars);
         }
         else {
             debugprintf("Adding a new entry with this start packet = %d\n",vars->start);
@@ -2472,12 +2474,15 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     }
     /* used by other rpc that use schannel ie lsa */
 #if 0
-    generate_hash_key(pinfo,0,key,vars->client_name);
+    generate_hash_key(pinfo,0,&key,vars->client_name);
     existing_vars = NULL;
     existing_vars = g_hash_table_lookup(schannel_auths, key);
     if (!existing_vars)
     {
-        g_hash_table_insert(schannel_auths, key, vars);
+        netlogon_auth_key *k = (netlogon_auth_key *)wmem_memdup(wmem_file_scope(), &key, sizeof(netlogon_auth_key));
+        copy_address_wmem(wmem_file_scope(), &k->src, &key.src);
+        copy_address_wmem(wmem_file_scope(), &k->dst, &key.dst);
+        g_hash_table_insert(schannel_auths, k, vars);
     }
     else
     {
