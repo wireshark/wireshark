@@ -770,7 +770,7 @@ alpes             463/udp # alpes [Alain_Durand] [Alain_Durand]
 kpasswd           464/tcp # kpasswd [Theodore_Ts_o] [Theodore_Ts_o]
 kpasswd           464/udp # kpasswd [Theodore_Ts_o] [Theodore_Ts_o]
 urd               465/tcp # URL Rendezvous Directory for SSM [Toerless_Eckert] [Toerless_Eckert]
-submissions       465/tcp # Message Submission over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC-ietf-uta-email-deep-12]
+submissions       465/tcp # Message Submission over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC8314]
 igmpv3lite        465/udp # IGMP over UDP for SSM [Toerless_Eckert] [Toerless_Eckert]
 digital-vrc       466/tcp # digital-vrc [Peter_Higginson] [Peter_Higginson]
 digital-vrc       466/udp # digital-vrc [Peter_Higginson] [Peter_Higginson]
@@ -1411,9 +1411,9 @@ nas               991/tcp # Netnews Administration System [Vera_Heinau][Heiko_Sc
 nas               991/udp # Netnews Administration System [Vera_Heinau][Heiko_Schlichting] [Vera_Heinau][Heiko_Schlichting] 2017-02-10 [RFC4707]
 telnets           992/tcp # telnet protocol over TLS/SSL
 telnets           992/udp # telnet protocol over TLS/SSL
-imaps             993/tcp # IMAP over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC-ietf-uta-email-deep-12]
+imaps             993/tcp # IMAP over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC8314]
 imaps             993/udp # imap4 protocol over TLS/SSL
-pop3s             995/tcp # POP3 over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC-ietf-uta-email-deep-12]
+pop3s             995/tcp # POP3 over TLS protocol [IESG] [IETF_Chair] 2017-12-12 [RFC8314]
 pop3s             995/udp # pop3 protocol over TLS/SSL (was spop3) [Gordon_Mangione] [Gordon_Mangione]
 vsinet            996/tcp # vsinet [Rob_Juergens] [Rob_Juergens]
 vsinet            996/udp # vsinet [Rob_Juergens] [Rob_Juergens]
@@ -3636,8 +3636,8 @@ idonix-metanet   2112/tcp # Idonix MetaNet [Paul_Harrison] [Paul_Harrison]
 idonix-metanet   2112/udp # Idonix MetaNet [Paul_Harrison] [Paul_Harrison]
 hsl-storm        2113/tcp # HSL StoRM [Jost_Faganel] [Jost_Faganel]
 hsl-storm        2113/udp # HSL StoRM [Jost_Faganel] [Jost_Faganel]
-newheights       2114/tcp # NEWHEIGHTS [Michael_Levy] [Michael_Levy]
-newheights       2114/udp # NEWHEIGHTS [Michael_Levy] [Michael_Levy]
+ariascribe       2114/tcp # Classical Music Meta-Data Access and Enhancement [Aria_Scribe_Software_Ltd] [Michael_Levy] 2018-02-05
+ariascribe       2114/udp # Classical Music Meta-Data Access and Enhancement [Aria_Scribe_Software_Ltd] [Michael_Levy] 2018-02-05
 kdm              2115/tcp # Key Distribution Manager [Mike_Little] [Mike_Little]
 kdm              2115/udp # Key Distribution Manager [Mike_Little] [Mike_Little]
 ccowcmr          2116/tcp # CCOWCMR [Mark_Morwood] [Mark_Morwood]
@@ -9790,6 +9790,8 @@ pmdfmgt          7633/tcp # PMDF Management [Hunter_Goatley] [Hunter_Goatley]
 pmdfmgt          7633/udp # PMDF Management [Hunter_Goatley] [Hunter_Goatley]
 cuseeme          7648/tcp # bonjour-cuseeme [Marc_Manthey] [Marc_Manthey] 2006-07
 cuseeme          7648/udp # bonjour-cuseeme [Marc_Manthey] [Marc_Manthey] 2006-07
+rome             7663/tcp # Proprietary immutable distributed data storage [TFOR] [David_von_Vistauxx] 2018-02-07
+rome             7663/udp # Proprietary immutable distributed data storage [TFOR] [David_von_Vistauxx] 2018-02-07
 imqstomp         7672/tcp # iMQ STOMP Server [Amy_Kang] [Amy_Kang] 2009-03-10
 imqstomps        7673/tcp # iMQ STOMP Server over SSL [Amy_Kang] [Amy_Kang] 2009-03-10
 imqtunnels       7674/tcp # iMQ SSL tunnel [Shailesh_S_Bavadeka] [Shailesh_S_Bavadeka] 2002-04
