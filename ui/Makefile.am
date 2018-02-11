@@ -22,6 +22,7 @@
 
 include $(top_srcdir)/Makefile.am.inc
 
+# The installation location and DOC_DIR in ui/help_url.c must match.
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DDOC_DIR=\"$(docdir)\" \
 	$(GLIB_CFLAGS) $(PCAP_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
 

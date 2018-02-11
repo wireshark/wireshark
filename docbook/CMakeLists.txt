@@ -78,6 +78,7 @@ set(WSUG_TOOLS_HELP_COMMANDS
 # being able to build our documentation.
 set(WSUG_TOOLS_HELP_FILES)
 set(WSUG_TOOLS_PHONY_DEPS)
+set(GUIDE_INSTALL_DIRS)
 
 # General help output
 foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
@@ -424,6 +425,7 @@ if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	)
 	set_docbook_target_properties(user_guide_html)
 	add_dependencies(user_guides user_guide_html)
+	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsug_html_chunked)
 endif()
 
 if(ASCIIDOCTOR_EXECUTABLE)
@@ -475,6 +477,7 @@ if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	)
 	set_docbook_target_properties(developer_guide_html)
 	add_dependencies(developer_guides developer_guide_html)
+	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsdg_html_chunked)
 endif()
 
 if(ASCIIDOCTOR_EXECUTABLE)
@@ -499,6 +502,20 @@ if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
 	)
 	set_docbook_target_properties(developer_guide_chm)
 	add_dependencies(developer_guides developer_guide_chm)
+endif()
+
+if (GUIDE_INSTALL_DIRS)
+	# The installation location and DOC_DIR in ui/help_url.c must
+	# match.
+	add_custom_target(install_guides
+		COMMAND ${CMAKE_COMMAND} -P
+			${CMAKE_SOURCE_DIR}/cmake/modules/FileInstall.cmake
+			${GUIDE_INSTALL_DIRS}
+			${CMAKE_INSTALL_FULL_DOCDIR}
+		DEPENDS
+			user_guide_html developer_guide_html
+	)
+	set_docbook_target_properties(install_guides)
 endif()
 
 # release_notes: release-notes.html release-notes.txt
