@@ -499,6 +499,7 @@ clean-local:
 EXTRA_DIST = \
 	$(WSUG_DIST)		\
 	$(WSDG_DIST)		\
+	asciidoctor-macros	\
 	$(RELEASE_NOTES_SOURCE)	\
 	make-wsluarm.pl		\
 	README.adoc		\
