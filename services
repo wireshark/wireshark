@@ -1827,7 +1827,7 @@ umsp		2110/tcp/udp	# UMSP
 dsatp		2111/tcp/udp	# OPNET Dynamic Sampling Agent Transaction Protocol
 idonix-metanet	2112/tcp/udp	# Idonix MetaNet
 hsl-storm	2113/tcp/udp	# HSL StoRM
-newheights	2114/tcp/udp	# NEWHEIGHTS
+ariascribe	2114/tcp/udp	# Classical Music Meta-Data Access and Enhancement
 kdm		2115/tcp/udp	# Key Distribution Manager
 ccowcmr		2116/tcp/udp	# CCOWCMR
 mentaclient	2117/tcp/udp	# MENTACLIENT
@@ -5057,6 +5057,7 @@ hawk		7630/tcp	# HA Web Konsole
 tesla-sys-msg	7631/tcp	# TESLA System Messaging
 pmdfmgt		7633/tcp/udp	# PMDF Management
 cuseeme		7648/tcp/udp	# bonjour-cuseeme
+rome		7663/tcp/udp	# Proprietary immutable distributed data storage
 imqstomp	7672/tcp	# iMQ STOMP Server
 imqstomps	7673/tcp	# iMQ STOMP Server over SSL
 imqtunnels	7674/tcp/udp	# iMQ SSL tunnel

@@ -44,6 +44,10 @@
         <translation>プラグイン</translation>
     </message>
     <message>
+        <source>No plugins found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Search Plugins</source>
         <translation type="unfinished"></translation>
     </message>
@@ -73,10 +77,6 @@
     </message>
     <message>
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No plugins found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -744,26 +744,6 @@
         <source>Automatically detect file type</source>
         <translation type="unfinished"></translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前にパケットを挿入</translation>
@@ -835,6 +815,24 @@
     <message>
         <source>error opening file</source>
         <translation>ファイルオープンエラー</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>unknown</source>
@@ -6553,6 +6551,14 @@ a:hover {
     <message>
         <source>HTTP load distribution</source>
         <translation>HTTP負荷分散</translation>
+    </message>
+    <message>
+        <source>Referers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP referers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet Lengths</source>

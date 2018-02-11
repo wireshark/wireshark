@@ -44,12 +44,12 @@
         <translation>Wtyczki</translation>
     </message>
     <message>
-        <source>Search Plugins</source>
+        <source>No plugins found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Search plugins</source>
-        <translation type="vanished">Szukaj wtyczek</translation>
+        <source>Search Plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Filter by type:</source>
@@ -78,10 +78,6 @@
     <message>
         <source>Copy Row(s)</source>
         <translation>Kopiuj wiersz(e)</translation>
-    </message>
-    <message>
-        <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -748,32 +744,6 @@
         <source>Automatically detect file type</source>
         <translation>Automatycznie wykryj typ pliku</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Dodaj pakiety na początku</translation>
@@ -845,6 +815,30 @@
     <message>
         <source>error opening file</source>
         <translation>błąd podczas otwierania pliku</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>unknown</source>
@@ -6602,6 +6596,14 @@ text-decoration: underline;
     <message>
         <source>HTTP load distribution</source>
         <translation>Rozkład obciążenia HTPP</translation>
+    </message>
+    <message>
+        <source>Referers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP referers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet Lengths</source>

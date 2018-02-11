@@ -44,12 +44,12 @@
         <translation>Plugin</translation>
     </message>
     <message>
-        <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <source>No plugins found.</source>
+        <translation>Non è stato trovato alcun plugin.</translation>
     </message>
     <message>
-        <source>Search plugins</source>
-        <translation type="vanished">Plugin di ricerca</translation>
+        <source>Search Plugins</source>
+        <translation>Cerca plugin</translation>
     </message>
     <message>
         <source>Filter by type:</source>
@@ -78,10 +78,6 @@
     <message>
         <source>Copy Row(s)</source>
         <translation>Copia righe</translation>
-    </message>
-    <message>
-        <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -751,7 +747,7 @@
     <message numerus="yes">
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
-        <translation>
+        <translation type="vanished">
             <numerusform>%1, errore dopo %Ln pacchetto</numerusform>
             <numerusform>%1, errore dopo %Ln pacchetti</numerusform>
         </translation>
@@ -759,14 +755,14 @@
     <message numerus="yes">
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation>
+        <translation type="vanished">
             <numerusform>%1, scaduto dopo %Ln pacchetto</numerusform>
             <numerusform>%1, scaduto dopo %Ln pacchetti</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln packet(s)</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%1, %Ln pacchetto</numerusform>
             <numerusform>%1, %Ln pacchetti</numerusform>
         </translation>
@@ -842,6 +838,27 @@
     <message>
         <source>error opening file</source>
         <translation>errore nell&apos;apertura del file</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>unknown</source>
@@ -6600,6 +6617,14 @@ a:hover {
     <message>
         <source>HTTP load distribution</source>
         <translation>Distribuzione di carico HTTP</translation>
+    </message>
+    <message>
+        <source>Referers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP referers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet Lengths</source>

@@ -44,6 +44,10 @@
         <translation>插件</translation>
     </message>
     <message>
+        <source>No plugins found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Search Plugins</source>
         <translation type="unfinished"></translation>
     </message>
@@ -73,10 +77,6 @@
     </message>
     <message>
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No plugins found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -747,20 +747,20 @@
     <message numerus="yes">
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
-        <translation>
+        <translation type="vanished">
             <numerusform>%1，在 %Ln 个分组后出错</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation>
+        <translation type="vanished">
             <numerusform>%1，在 %Ln 个分组后超时</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln packet(s)</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%1，%Ln 个分组</numerusform>
         </translation>
     </message>
@@ -835,6 +835,24 @@
     <message>
         <source>error opening file</source>
         <translation>打开文件出错</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln data record(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>unknown</source>
@@ -6580,6 +6598,14 @@ text-decoration: underline;
     <message>
         <source>HTTP load distribution</source>
         <translation>HTTP 负载分配</translation>
+    </message>
+    <message>
+        <source>Referers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP referers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet Lengths</source>
