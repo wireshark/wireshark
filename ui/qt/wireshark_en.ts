@@ -882,7 +882,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="capture_file_dialog.cpp" line="787"/>
+        <location filename="capture_file_dialog.cpp" line="791"/>
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
         <translation>
@@ -891,7 +891,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="capture_file_dialog.cpp" line="794"/>
+        <location filename="capture_file_dialog.cpp" line="798"/>
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
         <translation>
@@ -900,7 +900,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="capture_file_dialog.cpp" line="797"/>
+        <location filename="capture_file_dialog.cpp" line="801"/>
         <source>%1, %Ln packet(s)</source>
         <translation>
             <numerusform>%1, %Ln packet</numerusform>
@@ -982,22 +982,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="733"/>
+        <location filename="capture_file_dialog.cpp" line="734"/>
         <source>directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="740"/>
+        <location filename="capture_file_dialog.cpp" line="741"/>
         <source>unknown file format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="742"/>
+        <location filename="capture_file_dialog.cpp" line="743"/>
         <source>error opening file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="821"/>
+        <location filename="capture_file_dialog.cpp" line="808"/>
+        <location filename="capture_file_dialog.cpp" line="829"/>
+        <location filename="capture_file_dialog.cpp" line="833"/>
         <source>unknown</source>
         <translation type="unfinished"></translation>
     </message>
