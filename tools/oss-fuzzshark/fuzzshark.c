@@ -34,6 +34,7 @@
 #include <epan/column.h>
 #include <epan/print.h>
 #include <epan/epan_dissect.h>
+#include <epan/disabled_protos.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -156,6 +157,22 @@ fuzz_init(int argc _U_, char **argv)
 	char                *err_msg = NULL;
 	e_prefs             *prefs_p;
 	int                  ret = EXIT_SUCCESS;
+	size_t               i;
+
+	const char *fuzz_target =
+#if defined(FUZZ_DISSECTOR_TARGET)
+		FUZZ_DISSECTOR_TARGET;
+#else
+		getenv("FUZZSHARK_TARGET");
+#endif
+
+	const char *disabled_dissector_list[] =
+	{
+#ifdef FUZZ_DISSECTOR_LIST
+		FUZZ_DISSECTOR_LIST ,
+#endif
+		"snort"
+	};
 
 	dissector_handle_t fuzz_handle = NULL;
 
@@ -237,6 +254,19 @@ fuzz_init(int argc _U_, char **argv)
 		g_free(err_msg);
 	}
 
+	for (i = 0; i < G_N_ELEMENTS(disabled_dissector_list); i++)
+	{
+		const char *item = disabled_dissector_list[i];
+
+		/* XXX, need to think how to disallow chains like: IP -> .... -> IP,
+		 * best would be to disable dissector always, but allow it during initial call. */
+		if (fuzz_target == NULL || strcmp(fuzz_target, item))
+		{
+			fprintf(stderr, "oss-fuzzshark: disabling: %s\n", item);
+			proto_disable_proto_by_name(item);
+		}
+	}
+
 	/* Notify all registered modules that have had any of their preferences
 	   changed either from one of the preferences file or from the command
 	   line that their preferences have changed. */
@@ -247,18 +277,18 @@ fuzz_init(int argc _U_, char **argv)
 
 #if defined(FUZZ_DISSECTOR_TABLE) && defined(FUZZ_DISSECTOR_TARGET)
 # define FUZZ_EPAN 1
-	fprintf(stderr, "oss-fuzzshark: configured for dissector: %s in table: %s\n", FUZZ_DISSECTOR_TARGET, FUZZ_DISSECTOR_TABLE);
-	fuzz_handle = get_dissector_handle(FUZZ_DISSECTOR_TABLE, FUZZ_DISSECTOR_TARGET);
+	fprintf(stderr, "oss-fuzzshark: configured for dissector: %s in table: %s\n", fuzz_target, FUZZ_DISSECTOR_TABLE);
+	fuzz_handle = get_dissector_handle(FUZZ_DISSECTOR_TABLE, fuzz_target);
 
 #elif defined(FUZZ_DISSECTOR_TARGET)
 # define FUZZ_EPAN 2
-	fprintf(stderr, "oss-fuzzshark: configured for dissector: %s\n", FUZZ_DISSECTOR_TARGET);
-	fuzz_handle = get_dissector_handle(NULL, FUZZ_DISSECTOR_TARGET);
+	fprintf(stderr, "oss-fuzzshark: configured for dissector: %s\n", fuzz_target);
+	fuzz_handle = get_dissector_handle(NULL, fuzz_target);
 
 #else
 # define FUZZ_EPAN 3
-	fprintf(stderr, "oss-fuzzshark: target not configured. Using env\n");
-	fuzz_handle = get_dissector_handle(getenv("FUZZSHARK_TABLE"), getenv("FUZZSHARK_TARGET"));
+	fprintf(stderr, "oss-fuzzshark: env for dissector: %s\n", fuzz_target);
+	fuzz_handle = get_dissector_handle(getenv("FUZZSHARK_TABLE"), fuzz_target);
 #endif
 
 #ifdef FUZZ_EPAN

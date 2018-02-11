@@ -15,6 +15,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# List of dissectors compiled below, which should be turned off.
+# This is done to avoid single fuzzer (like IP) to call UDP protocols, which can go back to IP, and so on..
+# While doing so might find some bugs, but it's likely to be the problem for too big corpus in oss-fuzzer
+# (see: https://github.com/google/oss-fuzz/issues/1087).
+DISSECTOR_LIST='"ip", "udp", "ospf", "bgp", "bootp", "json"'
+
 FUZZ_DISSECTORS="ip"
 
 FUZZ_IP_PROTO_DISSECTORS="udp ospf"
@@ -41,7 +47,7 @@ generate_fuzzer()
   $CC $CFLAGS -I $SRC/wireshark/ `pkg-config --cflags glib-2.0` \
       $SRC/wireshark/tools/oss-fuzzshark/fuzzshark.c \
       -c -o $WORK/${fuzzer_name}.o \
-      $fuzzer_cflags
+      $fuzzer_cflags -DFUZZ_DISSECTOR_LIST="$DISSECTOR_LIST"
 
   $CXX $CXXFLAGS $WORK/${fuzzer_name}.o \
       -o $OUT/${fuzzer_name} \
