@@ -168,7 +168,7 @@ void SupportedProtocolsModel::populate()
 
         protocol = find_protocol_by_id(proto_id);
         protoItem = new SupportedProtocolsItem(protocol, proto_get_protocol_short_name(protocol), proto_get_protocol_filter_name(proto_id), FT_PROTOCOL, proto_get_protocol_long_name(protocol), root_);
-        root_->appendChild(protoItem);
+        root_->prependChild(protoItem);
 
         for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo != NULL;
              hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
@@ -176,7 +176,7 @@ void SupportedProtocolsModel::populate()
                 continue;
 
             fieldItem = new SupportedProtocolsItem(protocol, hfinfo->name, hfinfo->abbrev, hfinfo->type, hfinfo->blurb, protoItem);
-            protoItem->appendChild(fieldItem);
+            protoItem->prependChild(fieldItem);
             field_count_++;
         }
     }

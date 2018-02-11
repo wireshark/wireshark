@@ -267,7 +267,7 @@ static void addHeuristicItem(gpointer data, gpointer user_data)
     ProtocolTreeItem* protocol_item = (ProtocolTreeItem*)user_data;
 
     HeuristicTreeItem* heuristic_row = new HeuristicTreeItem(heur, protocol_item);
-    protocol_item->appendChild(heuristic_row);
+    protocol_item->prependChild(heuristic_row);
 }
 
 void EnabledProtocolsModel::populate()
@@ -284,7 +284,7 @@ void EnabledProtocolsModel::populate()
         {
             protocol = find_protocol_by_id(i);
             ProtocolTreeItem* protocol_row = new ProtocolTreeItem(protocol, root_);
-            root_->appendChild(protocol_row);
+            root_->prependChild(protocol_row);
 
             proto_heuristic_dissector_foreach(protocol, addHeuristicItem, protocol_row);
         }

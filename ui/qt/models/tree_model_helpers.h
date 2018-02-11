@@ -37,7 +37,7 @@ public:
         childItems_.clear();
     }
 
-    void appendChild(Item* child)
+    void prependChild(Item* child)
     {
         childItems_.prepend(VariantPointer<Item>::asQVariant(child));
     }

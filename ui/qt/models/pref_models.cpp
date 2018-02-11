@@ -261,7 +261,7 @@ fill_prefs(module_t *module, gpointer root_ptr)
         return 0;
 
     PrefsItem* module_item = new PrefsItem(module, NULL, root_item);
-    root_item->appendChild(module_item);
+    root_item->prependChild(module_item);
 
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
         pref_t *pref = (pref_t *) pref_l->data;
@@ -276,7 +276,7 @@ fill_prefs(module_t *module, gpointer root_ptr)
         pref_stash(pref, NULL);
 
         PrefsItem* item = new PrefsItem(module, pref, module_item);
-        module_item->appendChild(item);
+        module_item->prependChild(item);
 
         // .uat is a void * so it wins the "useful key value" prize.
         if (prefs_get_uat_value(pref)) {
@@ -311,23 +311,23 @@ void PrefsModel::populate()
     PrefsItem *appearance_item, *appearance_subitem, *special_item;
 
     appearance_item = new PrefsItem(APPEARANCE_PREFERENCE_TREE_NAME, root_);
-    root_->appendChild(appearance_item);
+    root_->prependChild(appearance_item);
 
     appearance_subitem = new PrefsItem(LAYOUT_PREFERENCE_TREE_NAME, appearance_item);
-    appearance_item->appendChild(appearance_subitem);
+    appearance_item->prependChild(appearance_subitem);
     appearance_subitem = new PrefsItem(COLUMNS_PREFERENCE_TREE_NAME, appearance_item);
-    appearance_item->appendChild(appearance_subitem);
+    appearance_item->prependChild(appearance_subitem);
     appearance_subitem = new PrefsItem(FONT_AND_COLORS_PREFERENCE_TREE_NAME, appearance_item);
-    appearance_item->appendChild(appearance_subitem);
+    appearance_item->prependChild(appearance_subitem);
 
     special_item = new PrefsItem(CAPTURE_PREFERENCE_TREE_NAME, root_);
-    root_->appendChild(special_item);
+    root_->prependChild(special_item);
     special_item = new PrefsItem(EXPERT_PREFERENCE_TREE_NAME, root_);
-    root_->appendChild(special_item);
+    root_->prependChild(special_item);
     special_item = new PrefsItem(FILTER_BUTTONS_PREFERENCE_TREE_NAME, root_);
-    root_->appendChild(special_item);
+    root_->prependChild(special_item);
     special_item = new PrefsItem(ADVANCED_PREFERENCE_TREE_NAME, root_);
-    root_->appendChild(special_item);
+    root_->prependChild(special_item);
 }
 
 

@@ -196,7 +196,7 @@ static void gatherProtocolDecodes(const char *, ftenum_t selector_type, gpointer
     case FT_UINT24:
     case FT_UINT32:
         ti = new IntegerTablesItem(GPOINTER_TO_UINT(key), proto_name, pdl_ptr);
-        pdl_ptr->appendChild(ti);
+        pdl_ptr->prependChild(ti);
         break;
 
     case FT_STRING:
@@ -204,12 +204,12 @@ static void gatherProtocolDecodes(const char *, ftenum_t selector_type, gpointer
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
         ti = new DissectorTablesItem((const char *)key, proto_name, pdl_ptr);
-        pdl_ptr->appendChild(ti);
+        pdl_ptr->prependChild(ti);
         break;
 
     case FT_BYTES:
         ti = new DissectorTablesItem(dissector_handle_get_dissector_name(handle), proto_name, pdl_ptr);
-        pdl_ptr->appendChild(ti);
+        pdl_ptr->prependChild(ti);
         break;
 
     default:
@@ -239,18 +239,18 @@ static void gatherTableNames(const char *short_name, const char *table_name, gpo
     case FT_UINT24:
     case FT_UINT32:
         dt_ti = new DissectorTablesItem(table_name, short_name, tables->integer_table);
-        tables->integer_table->appendChild(dt_ti);
+        tables->integer_table->prependChild(dt_ti);
         break;
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
         dt_ti = new DissectorTablesItem(table_name, short_name, tables->string_table);
-        tables->string_table->appendChild(dt_ti);
+        tables->string_table->prependChild(dt_ti);
         break;
     case FT_BYTES:
         dt_ti = new DissectorTablesItem(table_name, short_name, tables->custom_table);
-        tables->custom_table->appendChild(dt_ti);
+        tables->custom_table->prependChild(dt_ti);
         break;
     default:
         // Assert?
@@ -268,7 +268,7 @@ static void gatherHeurProtocolDecodes(const char *, struct heur_dtbl_entry *dtbl
 
     if (dtbl_entry->protocol) {
         DissectorTablesItem *heur = new DissectorTablesItem(proto_get_protocol_long_name(dtbl_entry->protocol), proto_get_protocol_short_name(dtbl_entry->protocol), hdl_ptr);
-        hdl_ptr->appendChild(heur);
+        hdl_ptr->prependChild(heur);
     }
 }
 
@@ -279,7 +279,7 @@ static void gatherHeurTableNames(const char *table_name, heur_dissector_list *li
         return;
 
     DissectorTablesItem *heur = new DissectorTablesItem(table_name, QString(""), table);
-    table->appendChild(heur);
+    table->prependChild(heur);
 
     if (list) {
         heur_dissector_table_foreach(table_name, gatherHeurProtocolDecodes, heur);
@@ -293,16 +293,16 @@ void DissectorTablesModel::populate()
     struct tables_root tables;
 
     tables.custom_table = new DissectorTablesItem(tr(CUSTOM_TABLE_NAME), QString(""), root_);
-    root_->appendChild(tables.custom_table);
+    root_->prependChild(tables.custom_table);
     tables.integer_table = new DissectorTablesItem(tr(INTEGER_TABLE_NAME), QString(""), root_);
-    root_->appendChild(tables.integer_table);
+    root_->prependChild(tables.integer_table);
     tables.string_table = new DissectorTablesItem(tr(STRING_TABLE_NAME), QString(""), root_);
-    root_->appendChild(tables.string_table);
+    root_->prependChild(tables.string_table);
 
     dissector_all_tables_foreach_table(gatherTableNames, &tables, NULL);
 
     DissectorTablesItem* heuristic_table = new DissectorTablesItem(tr(HEURISTIC_TABLE_NAME), QString(""), root_);
-    root_->appendChild(heuristic_table);
+    root_->prependChild(heuristic_table);
 
     dissector_all_heur_tables_foreach_table(gatherHeurTableNames, heuristic_table, NULL);
 
