@@ -4520,7 +4520,7 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    length = tvb_captured_length_remaining(tvb,offset);
+    length = tvb_reported_length(tvb);
 
 try_again:
     /* create display subtree for the protocol */
