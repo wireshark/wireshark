@@ -458,9 +458,7 @@ wsdg_html_chunked/index.html: developer-guide.xml
 # Release notes
 if HAVE_ASCIIDOCTOR
 release_note_deps = release-notes.html
-if HAVE_LYNX
 release_note_deps += release-notes.txt
-endif
 endif
 release_notes: $(release_note_deps)
 
@@ -475,8 +473,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 # create txt single page file (through HTML)
 release-notes.txt: release-notes.html
 	@ echo --- RELEASE NOTES - TXT ---
-	$(LYNX) \
-		-dump \
+	$(PYTHON) $(srcdir)/tools/html2text.py \
 		$(builddir)/release-notes.html \
 		> $(builddir)/release-notes.txt
 

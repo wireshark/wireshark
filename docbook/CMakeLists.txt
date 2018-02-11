@@ -12,7 +12,6 @@
 # - Make the build targets top-level on Windows, similar to the NSIS,
 #   WiX, and PortableApps targets?
 
-find_package( LYNX )
 find_package( Asciidoctor 1.5 )
 find_package( XSLTPROC )
 

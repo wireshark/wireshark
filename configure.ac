@@ -463,12 +463,6 @@ AS_IF([test ! -x "$XSLTPROC"],
 
 AM_CONDITIONAL(BUILD_USER_GUIDE, [test "x$have_wsug" = xyes -a "x$want_wsug" != xno])
 
-# HTML to text processor. Executable must support "-dump".
-AC_MSG_CHECKING([for an HTML to text processor])
-AC_PATH_PROGS(LYNX, [lynx w3m links])
-AC_CHECK_PROGS(HAVE_LYNX, [lynx w3m links], "yes", "no")
-AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
-
 # RPM
 AC_CHECK_PROGS(RPMBUILD, [rpmbuild], [rpmbuild])
 

@@ -87,8 +87,8 @@ $PCAP $ZLIB lua-devel lua $CARES $GTK3 $GTK2 desktop-file-utils $QT fop
 asciidoc git git-review $PERLPODS"
 
 PKGS_OPT="libnl3-devel libnghttp2-devel $NGHTTP2 $SNAPPY $LZ4 libcap $CAP_PROGS
-libcap-devel lynx $GEOIP libgcrypt-devel $GNUTLS $GETTEXT libssh-devel
-krb5-devel perl-Parse-Yapp sbc-devel libsmi-devel $POD2HTML $QT5"
+libcap-devel $GEOIP libgcrypt-devel $GNUTLS $GETTEXT libssh-devel
+krb5-devel perl-Parse-Yapp sbc-devel libsmi-devel $POD2HTML $QT5 asciidoctor"
 
 echo "Run this command (as root):"
 echo

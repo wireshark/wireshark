@@ -89,26 +89,23 @@ if(ASCIIDOCTOR_EXECUTABLE)
     ENDMACRO()
 
     MACRO( ASCIIDOCTOR2TXT _asciidocsource )
-        if( LYNX_EXECUTABLE )
-            GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-            set( _output_html ${_source_base_name}.html )
-            set( _output_txt ${_source_base_name}.txt )
+        GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
+        set( _output_html ${_source_base_name}.html )
+        set( _output_txt ${_source_base_name}.txt )
 
-            ADD_CUSTOM_COMMAND(
-                OUTPUT
-                    ${_output_txt}
-                COMMAND ${LYNX_EXECUTABLE}
-                    -dump
-                    ${_output_html}
-                    > ${_output_txt}
-                DEPENDS
-                    ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-                    ${_output_html}
-                    ${ARGN}
-            )
-            unset(_output_html)
-            unset(_output_txt)
-        endif( LYNX_EXECUTABLE )
+        ADD_CUSTOM_COMMAND(
+        OUTPUT
+                ${_output_txt}
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
+                ${_output_html}
+                > ${_output_txt}
+        DEPENDS
+                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+                ${_output_html}
+                ${ARGN}
+        )
+        unset(_output_html)
+        unset(_output_txt)
     ENDMACRO()
 
     # news: release-notes.txt

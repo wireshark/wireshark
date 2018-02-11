@@ -54,8 +54,8 @@ BASIC_LIST="libgtk2.0-dev libpcap-dev bison flex make automake \
 	libtool python perl libgcrypt-dev"
 
 ADDITIONAL_LIST="libnl-3-dev qttools5-dev qttools5-dev-tools libgtk-3-dev \
-		libc-ares-dev libkrb5-dev libqt5svg5-dev lynx libsmi2-dev \
-		portaudio19-dev asciidoc libsbc-dev libgeoip-dev \
+		libc-ares-dev libkrb5-dev libqt5svg5-dev libsmi2-dev \
+		portaudio19-dev asciidoctor libsbc-dev libgeoip-dev \
 		qtmultimedia5-dev liblua5.2-dev libnl-cli-3-dev \
 		libparse-yapp-perl qt5-default cmake libcap-dev \
 		liblz4-dev libsnappy-dev libspandsp-dev libxml2-dev"
