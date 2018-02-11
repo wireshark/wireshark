@@ -1421,6 +1421,7 @@ typedef struct _c_node {
 static
 void c_node_init(c_node *n)
 {
+	clear_address(&n->addr);
 	c_node_name_init(&n->name);
 	n->port = 0xFFFF;
 	n->state = C_STATE_NEW;
