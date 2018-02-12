@@ -2483,7 +2483,7 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
  */
 static guint16
 dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
-                       proto_tree *tree, guint8 parameter_type, guint16 offset,
+                       proto_tree *tree, guint8 parameter_type, int offset,
                        guint16 parameter_length, sccp_decode_context_t *sccp_info)
 {
   tvbuff_t *parameter_tvb;
@@ -2636,7 +2636,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 static guint16
 dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *sccp_tree, proto_tree *tree,
-                                guint8 parameter_type, guint16 offset, sccp_decode_context_t* sccp_info)
+                                guint8 parameter_type, int offset, sccp_decode_context_t* sccp_info)
 {
   guint16     parameter_length;
   guint8      length_length;
@@ -2676,7 +2676,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *sccp_tree, proto_tree *tree,
-                                 guint16 offset, sccp_decode_context_t* sccp_info)
+                                 int offset, sccp_decode_context_t* sccp_info)
 {
   guint8 parameter_type;
 
@@ -2739,7 +2739,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 {
   guint16   variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
   guint16   optional_pointer  = 0, orig_opt_ptr = 0;
-  guint16   offset = 0;
+  int   offset = 0;
   gboolean  save_fragmented;
   tvbuff_t *new_tvb = NULL;
   fragment_head *frag_msg = NULL;
