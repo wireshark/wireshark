@@ -12648,7 +12648,7 @@ dissect_nbap_CommonMACFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, 
 
     /* Set address for collection of common entries */
     common_macdflow_id = private_data_get_common_macdflow_id(actx->pinfo);
-    copy_address(&(nbap_common_channel_info[common_macdflow_id].crnc_address),&dst_addr);
+    copy_address_wmem(actx->pinfo->pool,&(nbap_common_channel_info[common_macdflow_id].crnc_address),&dst_addr);
     nbap_common_channel_info[common_macdflow_id].crnc_port = private_data_get_binding_id_port(actx->pinfo);
 
 
@@ -19341,7 +19341,7 @@ private_data_set_binding_id_port(actx->pinfo, 0);
 
                 /* Set address for collection of DDI entries */
                 e_dch_macdflow_id = private_data_get_e_dch_macdflow_id(actx->pinfo);
-                copy_address(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
+                copy_address_wmem(actx->pinfo->pool,&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
                 nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = bindingID;
 
 
@@ -24171,7 +24171,7 @@ dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_
 
     /* Set address for collection of HSDSCH entries */
     hsdsch_macdflow_id = private_data_get_hsdsch_macdflow_id(actx->pinfo);
-    copy_address(&(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
+    copy_address_wmem(actx->pinfo->pool,&(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
     nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port = bindingID;
 
 
@@ -24613,7 +24613,7 @@ dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int 
     set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
     /* Set address for collection of HSDSCH entries */
-    copy_address(&(nbap_hsdsch_channel_info[private_data_get_hsdsch_macdflow_id(actx->pinfo)].crnc_address),&dst_addr);
+    copy_address_wmem(actx->pinfo->pool,&(nbap_hsdsch_channel_info[private_data_get_hsdsch_macdflow_id(actx->pinfo)].crnc_address),&dst_addr);
     nbap_hsdsch_channel_info[private_data_get_hsdsch_macdflow_id(actx->pinfo)].crnc_port = bindingID;
 
 
@@ -29619,7 +29619,7 @@ private_data_set_binding_id_port(actx->pinfo, 0);
                 }
 
                 /* Set address for collection of DDI entries */
-                copy_address(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
+                copy_address_wmem(actx->pinfo->pool,&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
                 nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = bindingID;
 
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
