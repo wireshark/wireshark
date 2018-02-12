@@ -51,8 +51,27 @@ HandoverToUTRANCommand_PDU
 SysInfoType1_PDU
 SysInfoType2_PDU
 SysInfoType3_PDU
+SysInfoType4_PDU
+SysInfoType5_PDU
+SysInfoType6_PDU
 SysInfoType7_PDU
+SysInfoType11_PDU
 SysInfoType12_PDU
+SysInfoType13_PDU
+SysInfoType13-1_PDU
+SysInfoType13-2_PDU
+SysInfoType13-3_PDU
+SysInfoType13-4_PDU
+SysInfoType14_PDU
+SysInfoType15_PDU
+SysInfoType15-1_PDU
+SysInfoType15-2_PDU
+SysInfoType15-3_PDU
+SysInfoType15-4_PDU
+SysInfoType16_PDU
+SysInfoType17_PDU
+SysInfoType18_PDU
+SysInfoType19_PDU
 MasterInformationBlock_PDU
 
 #.OMIT_ASSIGNMENT
