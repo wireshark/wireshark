@@ -70,6 +70,7 @@ static gint ett_flags   = -1;
 static gint ett_flags_nd = -1;
 
 static expert_field ei_rpkirtr_wrong_version_router_key = EI_INIT;
+static expert_field ei_rpkirtr_bad_length = EI_INIT;
 
 
 /* http://www.iana.org/assignments/rpki/rpki.xml#rpki-rtr-pdu */
@@ -144,7 +145,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint8 pdu_type, version;
     guint length;
 
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
         ti = proto_tree_add_item(tree, proto_rpkirtr, tvb, 0, -1, ENC_NA);
 
@@ -298,7 +299,12 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             }
             break;
             default:
-                /* No default ? */
+                /* No default ? At least sanity check the length*/
+                if (length > tvb_reported_length(tvb)) {
+                    expert_add_info(pinfo, ti_type, &ei_rpkirtr_bad_length);
+                    return tvb_reported_length(tvb);
+                }
+
                 offset += length;
                 break;
         }
@@ -453,6 +459,7 @@ proto_register_rpkirtr(void)
 
     static ei_register_info ei[] = {
         { &ei_rpkirtr_wrong_version_router_key, { "rpkirtr.router_key.wrong_version", PI_MALFORMED, PI_WARN, "Wrong version for Router Key type", EXPFILL }},
+        { &ei_rpkirtr_bad_length, { "rpkirtr.bad_length", PI_MALFORMED, PI_ERROR, "Invalid length field", EXPFILL }},
     };
 
     expert_module_t *expert_rpkirtr;
