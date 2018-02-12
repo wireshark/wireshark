@@ -2342,12 +2342,12 @@ dissect_pfcp_linked_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 static const value_string pfcp_outer_hdr_desc_vals[] = {
 
-    { 0x01, "GTP-U/UDP/IPv4 " },
-    { 0x02, "GTP-U/UDP/IPv6 " },
-    { 0x03, "GTP-U/UDP/IPv4/IPv6 " },
-    { 0x04, "UDP/IPv4 " },
-    { 0x08, "UDP/IPv6 " },
-    { 0x0C, "UDP/IPv4/IPv6 " },
+    { 0x0100, "GTP-U/UDP/IPv4 " },
+    { 0x0200, "GTP-U/UDP/IPv6 " },
+    { 0x0300, "GTP-U/UDP/IPv4/IPv6 " },
+    { 0x0400, "UDP/IPv4 " },
+    { 0x0800, "UDP/IPv6 " },
+    { 0x0C00, "UDP/IPv4/IPv6 " },
     { 0, NULL }
 };
 
@@ -2365,7 +2365,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
      * The TEID field shall be present if the Outer Header Creation Description requests the creation of a GTP-U header.
      * Otherwise it shall not be present
      */
-    if ((value & 0x01) || (value & 0x02)) {
+    if ((value & 0x0100) || (value & 0x0200)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -2374,7 +2374,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * p to (p+3)   IPv4
     * The IPv4 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv4 header
     */
-    if ((value & 0x01) || (value & 0x04)) {
+    if ((value & 0x0100) || (value & 0x0400)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -2383,7 +2383,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * q to (q+15)   IPv6
     * The IPv6 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv6 header
     */
-    if ((value & 0x02) || (value & 0x08)) {
+    if ((value & 0x0200) || (value & 0x0800)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
     }
@@ -2392,7 +2392,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * r to (r+1)   Port Number
     * The Port Number field shall be present if the Outer Header Creation Description requests the creation of a UDP/IP header
     */
-    if ((value & 0x04) || (value & 0x08)) {
+    if ((value & 0x0400) || (value & 0x0800)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
@@ -4334,7 +4334,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_outer_hdr_desc,
         { "Outer Header Creation Description", "pfcp.outer_hdr_desc",
-            FT_UINT8, BASE_DEC, VALS(pfcp_outer_hdr_desc_vals), 0x0,
+            FT_UINT16, BASE_DEC, VALS(pfcp_outer_hdr_desc_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_outer_hdr_creation_teid,
