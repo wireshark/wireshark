@@ -2050,6 +2050,8 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint l
   for (i=0; i < number_of_elements; i++) {
     new_length=dissect_wccp2_web_cache_value_element(tvb, offset, length, pinfo, value_tree, addr_table);
     total_length += length - new_length;
+    if (total_length < 0)
+        return length;
     NOTE_EATEN_LENGTH(new_length);
   }
   proto_item_set_len(header, total_length);
