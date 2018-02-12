@@ -2173,7 +2173,7 @@ add_ipv6_address_slaac(proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_slaa
     };
     proto_item *ti;
     for (int i = 0; i < 2; i++) {
-        ti = proto_tree_add_ether(tree, hf[i].mac, tvb, offset + 8, 6, mac_addr);
+        ti = proto_tree_add_ether(tree, hf[i].mac, tvb, offset + 8, 8, mac_addr);
         ADDRESS_SET_GENERATED_HIDDEN(ti);
     }
 }
