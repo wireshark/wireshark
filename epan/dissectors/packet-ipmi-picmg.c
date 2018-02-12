@@ -1205,8 +1205,12 @@ rq17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{ 0x02, "Notify" },
 		{ 0, NULL }
 	};
-	guint to_shmm = ipmi_get_hdr(pinfo)->rs_sa == 0x20;
 	guint cmd = tvb_get_guint8(tvb, 0);
+	const ipmi_header_t *header = ipmi_get_hdr(pinfo);
+	if (header == NULL)
+		return;
+
+	guint to_shmm = header->rs_sa == 0x20;
 
 	ipmi_set_data(pinfo, 0, (to_shmm << 8) | cmd);
 
