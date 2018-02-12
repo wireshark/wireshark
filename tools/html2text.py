@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # html2text.py - converts HTML to text
 #
@@ -19,6 +20,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+from __future__ import unicode_literals
 
 __author__      = "Peter Wu <peter@lekensteyn.nl>"
 __copyright__   = "Copyright 2015, Peter Wu"
@@ -60,7 +63,7 @@ class TextHTMLParser(HTMLParser):
         # Indentation (for heading and paragraphs)
         self.indent_levels = [0, 0]
         # Don't dump CSS, scripts, etc.
-        self.ignore_tags = ('style', 'script')
+        self.ignore_tags = ('head', 'style', 'script')
         self.ignore_level = 0
         # href footnotes.
         self.footnotes = []
@@ -102,7 +105,7 @@ class TextHTMLParser(HTMLParser):
         if tag == 'ol':
             self.ordered_list_index = 1
         if tag == 'ul':
-            self.list_item_prefix = '  * '
+            self.list_item_prefix = '  • '
         if tag == 'li' and self.ordered_list_index:
             self.list_item_prefix =  ' %d. ' % (self.ordered_list_index)
             self.ordered_list_index += 1
