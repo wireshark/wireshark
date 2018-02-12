@@ -30227,11 +30227,11 @@ proto_register_ieee80211(void)
 
     {&hf_he_reserved_bit_18,
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_18",
-      FT_UINT40, BASE_HEX, NULL, 0x0000000400, NULL, HFILL }},
+      FT_UINT40, BASE_HEX, NULL, 0x0000040000, NULL, HFILL }},
 
     {&hf_he_reserved_bit_19,
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_19",
-      FT_UINT40, BASE_HEX, NULL, 0x0000000800, NULL, HFILL }},
+      FT_UINT40, BASE_HEX, NULL, 0x0000080000, NULL, HFILL }},
 
     {&hf_he_reserved_bit_25,
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_25",
@@ -30686,7 +30686,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_srg_information_present,
      {"SRG Information Present", "wlan.ext_tag.spatial_reuse.sr_control.srg_info_present",
-     FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+     FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
 
     {&hf_he_hesiga_spatial_reuse_value15_allowed,
      {"HESIGA Spatial Reuse value 15 allowed", "wlan.ext_tag.spatial_reuse.sr_control.hesiga_val_15_allowed",
