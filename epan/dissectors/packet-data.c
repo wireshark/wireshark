@@ -34,6 +34,12 @@ static header_field_info hfi_data_data DATA_HFI_INIT =
 static header_field_info hfi_data_text DATA_HFI_INIT =
 	  { "Text", "data.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
+static header_field_info hfi_data_uncompressed_data DATA_HFI_INIT =
+	  { "Uncompressed Data", "data.uncompressed.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_data_uncompressed_len DATA_HFI_INIT =
+	  { "Uncompressed Length", "data.uncompressed.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
 static header_field_info hfi_data_len DATA_HFI_INIT =
 	  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
@@ -41,6 +47,7 @@ static header_field_info hfi_data_md5_hash DATA_HFI_INIT =
 	  { "Payload MD5 hash", "data.md5_hash", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static gboolean new_pane = FALSE;
+static gboolean uncompress_data = FALSE;
 static gboolean show_as_text = FALSE;
 static gboolean generate_md5_hash = FALSE;
 
@@ -55,6 +62,8 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		bytes = tvb_captured_length(tvb);
 		if (bytes > 0) {
 			tvbuff_t   *data_tvb;
+			tvbuff_t   *uncompr_tvb = NULL;
+			gint        uncompr_len = 0;
 			proto_item *ti;
 			proto_tree *data_tree;
 			if (new_pane) {
@@ -72,8 +81,24 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 			proto_tree_add_item(data_tree, &hfi_data_data, data_tvb, 0, bytes, ENC_NA);
 
+			if (uncompress_data) {
+				uncompr_tvb = tvb_child_uncompress(data_tvb, data_tvb, 0, tvb_reported_length(data_tvb));
+
+				if (uncompr_tvb) {
+					uncompr_len = tvb_reported_length(uncompr_tvb);
+					add_new_data_source(pinfo, uncompr_tvb, "Uncompressed Data");
+					proto_tree_add_item(data_tree, &hfi_data_uncompressed_data, uncompr_tvb, 0, uncompr_len, ENC_NA);
+					ti = proto_tree_add_int(data_tree, &hfi_data_uncompressed_len, uncompr_tvb, 0, 0, uncompr_len);
+					PROTO_ITEM_SET_GENERATED (ti);
+				}
+			}
+
 			if (show_as_text) {
-				proto_tree_add_item(data_tree, &hfi_data_text, data_tvb, 0, bytes, ENC_ASCII|ENC_NA);
+				if (uncompr_tvb && uncompr_len > 0) {
+					proto_tree_add_item(data_tree, &hfi_data_text, uncompr_tvb, 0, uncompr_len, ENC_ASCII|ENC_NA);
+				} else {
+					proto_tree_add_item(data_tree, &hfi_data_text, data_tvb, 0, bytes, ENC_ASCII|ENC_NA);
+				}
 			}
 
 			if(generate_md5_hash) {
@@ -102,6 +127,8 @@ proto_register_data(void)
 #ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_data_data,
+		&hfi_data_uncompressed_data,
+		&hfi_data_uncompressed_len,
 		&hfi_data_text,
 		&hfi_data_md5_hash,
 		&hfi_data_len,
@@ -131,6 +158,13 @@ proto_register_data(void)
 		"Show not dissected data on new Packet Bytes pane",
 		"Show not dissected data on new Packet Bytes pane",
 		&new_pane);
+#ifdef HAVE_ZLIB
+	prefs_register_bool_preference(module_data,
+		"uncompress_data",
+		"Try to uncompress zlib compressed data",
+		"Try to uncompress zlib compressed data and show as uncompressed if successful",
+		&uncompress_data);
+#endif
 	prefs_register_bool_preference(module_data,
 		"show_as_text",
 		"Show data as text",
