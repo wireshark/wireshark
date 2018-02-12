@@ -12037,11 +12037,11 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 				if (flags & PROTO_CHECKSUM_ZERO) {
 					proto_item_append_text(ti, " [incorrect]");
 					if (bad_checksum_expert != NULL)
-						expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum");
+						expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
 				} else {
 					proto_item_append_text(ti, " incorrect, should be 0x%0*x", len*2, computed_checksum);
 					if (bad_checksum_expert != NULL)
-						expert_add_info_format(pinfo, ti, bad_checksum_expert, "Bad checksum [should be 0x%0*x]", len*2, computed_checksum);
+						expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s [should be 0x%0*x]", expert_get_summary(bad_checksum_expert), len * 2, computed_checksum);
 				}
 			}
 		} else {

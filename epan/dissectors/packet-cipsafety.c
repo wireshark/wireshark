@@ -1584,7 +1584,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             {
                proto_item_append_text(crc_s5_item, " incorrect, should be 0x%08x", test_crc_c5);
                crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, 5, 0, PROTO_CHECKSUM_E_BAD);
-               expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "Bad checksum [should be 0x%08x]", test_crc_c5);
+               expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "%s [should be 0x%08x]", expert_get_summary(&ei_cipsafety_crc_s5), test_crc_c5);
             }
          }
          else
@@ -1831,7 +1831,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
                {
                    proto_item_append_text(crc_s5_item, " incorrect, should be 0x%08x", test_crc_c5);
                    crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, io_data_size+5, 0, PROTO_CHECKSUM_E_BAD);
-                   expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "Bad checksum [should be 0x%08x]", test_crc_c5);
+                   expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "%s [should be 0x%08x]", expert_get_summary(&ei_cipsafety_crc_s5), test_crc_c5);
                }
             }
             else
@@ -1933,7 +1933,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
                {
                    proto_item_append_text(crc_s5_item, " incorrect, should be 0x%08x", test_crc_c5);
                    crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, (io_data_size*2)+7, 0, PROTO_CHECKSUM_E_BAD);
-                   expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "Bad checksum [should be 0x%08x]", test_crc_c5);
+                   expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "%s [should be 0x%08x]", expert_get_summary(&ei_cipsafety_crc_s5), test_crc_c5);
                }
             }
             else
