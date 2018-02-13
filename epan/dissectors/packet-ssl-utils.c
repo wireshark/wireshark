@@ -7463,18 +7463,25 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
      *  } NewSessionTicket;
      */
     proto_tree *subtree;
+    proto_item *subitem;
     guint32     ticket_len;
     gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
     guchar      draft_version = session->tls13_draft_version;
+    guint32     lifetime_hint;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
                                      hf->ett.session_ticket, NULL,
                                      "TLS Session Ticket");
 
     /* ticket lifetime hint */
-    proto_tree_add_item(subtree, hf->hf.hs_session_ticket_lifetime_hint,
-                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    subitem = proto_tree_add_item_ret_uint(subtree, hf->hf.hs_session_ticket_lifetime_hint,
+                                           tvb, offset, 4, ENC_BIG_ENDIAN, &lifetime_hint);
     offset += 4;
+
+    if (lifetime_hint >= 60) {
+        gchar *time_str = unsigned_time_secs_to_str(wmem_packet_scope(), lifetime_hint);
+        proto_item_append_text(subitem, " (%s)", time_str);
+    }
 
     if (is_tls13) {
 
