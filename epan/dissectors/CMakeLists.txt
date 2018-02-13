@@ -1821,6 +1821,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-xmpp-utils.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-xmpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-xot.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-xra.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-xtp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-xyplex.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-yami.c
