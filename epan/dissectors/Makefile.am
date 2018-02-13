@@ -517,6 +517,10 @@ DISSECTOR_SRC = \
 	packet-dmx.c		\
 	packet-dnp.c		\
 	packet-dns.c		\
+	packet-docsis.c		\
+	packet-docsis-macmgmt.c	\
+	packet-docsis-tlv.c	\
+	packet-docsis-vendor.c	\
 	packet-dof.c		\
 	packet-dplay.c		\
 	packet-dpnet.c		\
@@ -1563,6 +1567,7 @@ DISSECTOR_INCLUDES = \
 	packet-diffserv-mpls-common.h	\
 	packet-disp.h		\
 	packet-dns.h		\
+	packet-docsis-tlv.h	\
 	packet-dop.h		\
 	packet-dsp.h		\
 	packet-dtls.h		\

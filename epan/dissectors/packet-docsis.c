@@ -22,6 +22,10 @@
  * available on Cisco Cable Modem Termination Systems :
  * http://www.cisco.com/univercd/cc/td/doc/product/cable/cab_rout/cmtsfg/ufg_cmon.htm
  *
+ * Captures of DOCSIS 1.1 and DOCSIS 2.0 frames can be facilitated using
+ * the ARRIS Cadant C4 and the ARRIS Cadant C3:
+ * http://www.arrisi.com/products_solutions/product_families/Cadant/index.asp
+ *
  * This dissector depends on the presence of a DOCSIS enapsulation type.
  * There is no simple way to distinguish DOCSIS Frames from Ethernet frames,
  * since the frames are copied from the RF interface on the CMTS to

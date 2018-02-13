@@ -17,12 +17,12 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include "packet-tlv.h"
+#include "packet-docsis-tlv.h"
 
 /* This module will dissect the Appendix C TLV's.  Please see:
  * http://www.cablemodem.com/specifications/specifications.html
  *
- * The main dissector is dissect_tlv.  This routine will dissect
+ * The main dissector is dissect_docsis_tlv.  This routine will dissect
  * top level TLV's and call sub-dissectors for the sub-TLV's.
  */
 
@@ -4263,7 +4263,7 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, i
 
 
 static int
-dissect_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *tlv_tree;
@@ -6487,7 +6487,7 @@ proto_register_docsis_tlv (void)
   expert_docsis_tlv = expert_register_protocol(proto_docsis_tlv);
   expert_register_field_array(expert_docsis_tlv, ei, array_length(ei));
 
-  register_dissector ("docsis_tlv", dissect_tlv, proto_docsis_tlv);
+  register_dissector ("docsis_tlv", dissect_docsis_tlv, proto_docsis_tlv);
 }
 
 void

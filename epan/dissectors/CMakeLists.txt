@@ -317,6 +317,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-diffserv-mpls-common.h
 	packet-disp.h
 	packet-dns.h
+	packet-docsis-tlv.h
 	packet-dop.h
 	packet-dsp.h
 	packet-dtls.h
@@ -894,6 +895,10 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dmx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dnp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dns.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis-macmgmt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis-tlv.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis-vendor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dof.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dplay.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnet.c

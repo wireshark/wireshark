@@ -4,9 +4,6 @@
   <!-- Plugins -->
     <Fragment>
         <DirectoryRef Id="dirPluginsVersionEpan">
-            <Component Id="cmpDocsis_dll" Guid="*">
-                <File Id="filDocsis_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\docsis.dll" />
-            </Component>
             <Component Id="cmpEthercat_dll" Guid="*">
                 <File Id="filEthercat_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\epan\ethercat.dll" />
             </Component>
@@ -39,7 +36,6 @@
     </Fragment>
     <Fragment>
         <ComponentGroup Id="CG.Plugins.Dissector">
-            <ComponentRef Id="cmpDocsis_dll" />
             <ComponentRef Id="cmpEthercat_dll" />
             <ComponentRef Id="cmpGryphon_dll" />
             <ComponentRef Id="cmpIrda_dll" />

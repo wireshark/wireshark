@@ -23,7 +23,6 @@
 
 SUBDIRS = \
 	$(_CUSTOM_SUBDIRS_) \
-	epan/docsis		\
 	epan/ethercat		\
 	epan/gryphon		\
 	epan/irda		\

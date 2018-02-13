@@ -2800,7 +2800,6 @@ AC_CONFIG_FILES(
   packaging/rpm/SPECS/wireshark.spec
   packaging/wix/Makefile
   plugins/Makefile
-  plugins/epan/docsis/Makefile
   plugins/epan/ethercat/Makefile
   plugins/epan/gryphon/Makefile
   plugins/epan/irda/Makefile

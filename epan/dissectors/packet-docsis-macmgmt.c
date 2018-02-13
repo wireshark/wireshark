@@ -63,7 +63,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <wsutil/utf8_entities.h>
-#include "packet-tlv.h"
+#include "packet-docsis-tlv.h"
 
 void proto_register_docsis_mgmt(void);
 void proto_reg_handoff_docsis_mgmt(void);
