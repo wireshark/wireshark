@@ -33,6 +33,7 @@ set( EXT_ASN_FILE_LIST
 set( ASN_FILE_LIST
 	CryptographicMessageSyntax.asn
 	AttributeCertificateVersion1.asn
+	CMSFirmwareWrapper.asn
 )
 
 set( EXTRA_DIST

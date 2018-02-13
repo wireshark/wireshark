@@ -60,6 +60,21 @@ RC2WrapParameter	B "1.2.840.113549.1.9.16.3.7" "id-alg-cmsrc2-wrap"
 # RFC 2798 Attributes - see master list in x509sat.cnf
 SignedData		B "2.16.840.1.113730.3.1.40"      "userSMIMECertificate"
 
+# RFC 4108 Attributes (in CMSFirmwareWrapper.asn)
+FirmwarePkgData		              B "1.2.840.113549.1.9.9.16.1.16"	"id-ct-firmwarePackage"
+FirmwarePackageIdentifier		    B "1.2.840.113549.1.9.9.16.2.35"	"id-aa-firmwarePackageID"
+TargetHardwareIdentifiers		    B "1.2.840.113549.1.9.9.16.2.36"	"id-aa-targetHardwareIDs"
+DecryptKeyIdentifier		        B "1.2.840.113549.1.9.9.16.2.37"	"id-aa-decryptKeyID"
+ImplementedCryptoAlgorithms		  B "1.2.840.113549.1.9.9.16.2.38"	"id-aa-implCryptoAlgs"
+ImplementedCompressAlgorithms		B "1.2.840.113549.1.9.9.16.2.43"	"id-aa-implCompressAlgs"
+CommunityIdentifiers		        B "1.2.840.113549.1.9.9.16.2.40"	"id-aa-communityIdentifiers"
+FirmwarePackageInfo		          B "1.2.840.113549.1.9.9.16.2.42"	"id-aa-firmwarePackageInfo"
+WrappedFirmwareKey		          B "1.2.840.113549.1.9.9.16.2.39"	"id-aa-wrappedFirmwareKey"
+FirmwarePackageLoadReceipt	    B "1.2.840.113549.1.9.9.16.1.17"	"id-ct-firmwareLoadReceipt"
+FirmwarePackageLoadError		    B "1.2.840.113549.1.9.9.16.1.18"	"id-ct-firmwareLoadError"
+HardwareModuleName		          B "1.3.6.1.5.5.7.8.4"	            "id-on-hardwareModuleName"
+FirmwarePackageMessageDigest		B "1.2.840.113549.1.9.9.16.2.41"	"id-aa-fwPkgMessageDigest"
+
 #.NO_EMIT
 
 #.TYPE_RENAME
@@ -75,6 +90,8 @@ AttributeCertificateInfoV1/issuer	issuer_v1
 AttributeCertificateInfoV1/signature	signature_v1
 AttributeCertificateInfoV1/version	version_v1
 RevocationInfoChoice/other		otherRIC
+FirmwarePackageLoadReceipt/version		fwReceiptVersion
+FirmwarePackageLoadError/version		fwErrorVersion
 
 #.FN_BODY ContentInfo
   top_tree = tree;

@@ -27,7 +27,8 @@ EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
 	CryptographicMessageSyntax.asn \
-	AttributeCertificateVersion1.asn
+	AttributeCertificateVersion1.asn \
+	CMSFirmwareWrapper.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.

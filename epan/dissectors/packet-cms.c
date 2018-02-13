@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cms.c                                                               */
-/* asn2wrs.py -b -C -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn */
+/* asn2wrs.py -b -C -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn */
 
 /* Input file: packet-cms-template.c */
 
@@ -61,6 +61,19 @@ static int hf_cms_RC2WrapParameter_PDU = -1;      /* RC2WrapParameter */
 static int hf_cms_SMIMECapabilities_PDU = -1;     /* SMIMECapabilities */
 static int hf_cms_SMIMEEncryptionKeyPreference_PDU = -1;  /* SMIMEEncryptionKeyPreference */
 static int hf_cms_RC2CBCParameters_PDU = -1;      /* RC2CBCParameters */
+static int hf_cms_FirmwarePkgData_PDU = -1;       /* FirmwarePkgData */
+static int hf_cms_FirmwarePackageIdentifier_PDU = -1;  /* FirmwarePackageIdentifier */
+static int hf_cms_TargetHardwareIdentifiers_PDU = -1;  /* TargetHardwareIdentifiers */
+static int hf_cms_DecryptKeyIdentifier_PDU = -1;  /* DecryptKeyIdentifier */
+static int hf_cms_ImplementedCryptoAlgorithms_PDU = -1;  /* ImplementedCryptoAlgorithms */
+static int hf_cms_ImplementedCompressAlgorithms_PDU = -1;  /* ImplementedCompressAlgorithms */
+static int hf_cms_CommunityIdentifiers_PDU = -1;  /* CommunityIdentifiers */
+static int hf_cms_FirmwarePackageInfo_PDU = -1;   /* FirmwarePackageInfo */
+static int hf_cms_WrappedFirmwareKey_PDU = -1;    /* WrappedFirmwareKey */
+static int hf_cms_FirmwarePackageLoadReceipt_PDU = -1;  /* FirmwarePackageLoadReceipt */
+static int hf_cms_FirmwarePackageLoadError_PDU = -1;  /* FirmwarePackageLoadError */
+static int hf_cms_HardwareModuleName_PDU = -1;    /* HardwareModuleName */
+static int hf_cms_FirmwarePackageMessageDigest_PDU = -1;  /* FirmwarePackageMessageDigest */
 static int hf_cms_contentType = -1;               /* ContentType */
 static int hf_cms_content = -1;                   /* T_content */
 static int hf_cms_version = -1;                   /* CMSVersion */
@@ -169,6 +182,42 @@ static int hf_cms_attributes_v1 = -1;             /* SEQUENCE_OF_Attribute */
 static int hf_cms_attributes_v1_item = -1;        /* Attribute */
 static int hf_cms_issuerUniqueID = -1;            /* UniqueIdentifier */
 static int hf_cms_extensions = -1;                /* Extensions */
+static int hf_cms_name = -1;                      /* PreferredOrLegacyPackageIdentifier */
+static int hf_cms_stale = -1;                     /* PreferredOrLegacyStalePackageIdentifier */
+static int hf_cms_preferred = -1;                 /* PreferredPackageIdentifier */
+static int hf_cms_legacy = -1;                    /* OCTET_STRING */
+static int hf_cms_fwPkgID = -1;                   /* OBJECT_IDENTIFIER */
+static int hf_cms_verNum = -1;                    /* INTEGER_0_MAX */
+static int hf_cms_preferredStaleVerNum = -1;      /* INTEGER_0_MAX */
+static int hf_cms_legacyStaleVersion = -1;        /* OCTET_STRING */
+static int hf_cms_TargetHardwareIdentifiers_item = -1;  /* OBJECT_IDENTIFIER */
+static int hf_cms_ImplementedCryptoAlgorithms_item = -1;  /* OBJECT_IDENTIFIER */
+static int hf_cms_ImplementedCompressAlgorithms_item = -1;  /* OBJECT_IDENTIFIER */
+static int hf_cms_CommunityIdentifiers_item = -1;  /* CommunityIdentifier */
+static int hf_cms_communityOID = -1;              /* OBJECT_IDENTIFIER */
+static int hf_cms_hwModuleList = -1;              /* HardwareModules */
+static int hf_cms_hwType = -1;                    /* OBJECT_IDENTIFIER */
+static int hf_cms_hwSerialEntries = -1;           /* SEQUENCE_OF_HardwareSerialEntry */
+static int hf_cms_hwSerialEntries_item = -1;      /* HardwareSerialEntry */
+static int hf_cms_all = -1;                       /* NULL */
+static int hf_cms_single = -1;                    /* OCTET_STRING */
+static int hf_cms_block = -1;                     /* T_block */
+static int hf_cms_low = -1;                       /* OCTET_STRING */
+static int hf_cms_high = -1;                      /* OCTET_STRING */
+static int hf_cms_fwPkgType = -1;                 /* INTEGER */
+static int hf_cms_dependencies = -1;              /* SEQUENCE_OF_PreferredOrLegacyPackageIdentifier */
+static int hf_cms_dependencies_item = -1;         /* PreferredOrLegacyPackageIdentifier */
+static int hf_cms_fwReceiptVersion = -1;          /* FWReceiptVersion */
+static int hf_cms_hwSerialNum = -1;               /* OCTET_STRING */
+static int hf_cms_fwPkgName = -1;                 /* PreferredOrLegacyPackageIdentifier */
+static int hf_cms_trustAnchorKeyID = -1;          /* OCTET_STRING */
+static int hf_cms_decryptKeyID = -1;              /* OCTET_STRING */
+static int hf_cms_fwErrorVersion = -1;            /* FWErrorVersion */
+static int hf_cms_errorCode = -1;                 /* FirmwarePackageLoadErrorCode */
+static int hf_cms_vendorErrorCode = -1;           /* VendorLoadErrorCode */
+static int hf_cms_config = -1;                    /* SEQUENCE_OF_CurrentFWConfig */
+static int hf_cms_config_item = -1;               /* CurrentFWConfig */
+static int hf_cms_msgDigest = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-cms-hf.c ---*/
 #line 51 "./asn1/cms/packet-cms-template.c"
@@ -232,6 +281,27 @@ static gint ett_cms_AttributeCertificateV1 = -1;
 static gint ett_cms_AttributeCertificateInfoV1 = -1;
 static gint ett_cms_T_subject = -1;
 static gint ett_cms_SEQUENCE_OF_Attribute = -1;
+static gint ett_cms_FirmwarePackageIdentifier = -1;
+static gint ett_cms_PreferredOrLegacyPackageIdentifier = -1;
+static gint ett_cms_PreferredPackageIdentifier = -1;
+static gint ett_cms_PreferredOrLegacyStalePackageIdentifier = -1;
+static gint ett_cms_TargetHardwareIdentifiers = -1;
+static gint ett_cms_ImplementedCryptoAlgorithms = -1;
+static gint ett_cms_ImplementedCompressAlgorithms = -1;
+static gint ett_cms_CommunityIdentifiers = -1;
+static gint ett_cms_CommunityIdentifier = -1;
+static gint ett_cms_HardwareModules = -1;
+static gint ett_cms_SEQUENCE_OF_HardwareSerialEntry = -1;
+static gint ett_cms_HardwareSerialEntry = -1;
+static gint ett_cms_T_block = -1;
+static gint ett_cms_FirmwarePackageInfo = -1;
+static gint ett_cms_SEQUENCE_OF_PreferredOrLegacyPackageIdentifier = -1;
+static gint ett_cms_FirmwarePackageLoadReceipt = -1;
+static gint ett_cms_FirmwarePackageLoadError = -1;
+static gint ett_cms_SEQUENCE_OF_CurrentFWConfig = -1;
+static gint ett_cms_CurrentFWConfig = -1;
+static gint ett_cms_HardwareModuleName = -1;
+static gint ett_cms_FirmwarePackageMessageDigest = -1;
 
 /*--- End of included file: packet-cms-ett.c ---*/
 #line 54 "./asn1/cms/packet-cms-template.c"
@@ -301,7 +371,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
 int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 89 "./asn1/cms/cms.cnf"
+#line 106 "./asn1/cms/cms.cnf"
   	const char *name = NULL;
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -321,7 +391,7 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "./asn1/cms/cms.cnf"
+#line 116 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -339,7 +409,7 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 int
 dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "./asn1/cms/cms.cnf"
+#line 97 "./asn1/cms/cms.cnf"
   top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
@@ -398,7 +468,7 @@ dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "./asn1/cms/cms.cnf"
+#line 120 "./asn1/cms/cms.cnf"
 
   offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &content_tvb);
 
@@ -432,7 +502,7 @@ dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "./asn1/cms/cms.cnf"
+#line 150 "./asn1/cms/cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -452,7 +522,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cms_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "./asn1/cms/cms.cnf"
+#line 160 "./asn1/cms/cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -714,7 +784,7 @@ dissect_cms_T_otherRevInfoFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cms_T_otherRevInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 127 "./asn1/cms/cms.cnf"
+#line 144 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1051,7 +1121,7 @@ dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "./asn1/cms/cms.cnf"
+#line 139 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1239,7 +1309,7 @@ dissect_cms_T_oriType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cms_T_oriValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "./asn1/cms/cms.cnf"
+#line 133 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1316,14 +1386,14 @@ dissect_cms_ContentEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbu
 
 static int
 dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 193 "./asn1/cms/cms.cnf"
+#line 210 "./asn1/cms/cms.cnf"
 	tvbuff_t *encrypted_tvb;
 	proto_item *item;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
-#line 198 "./asn1/cms/cms.cnf"
+#line 215 "./asn1/cms/cms.cnf"
 
 	item = actx->created_item;
 
@@ -1481,7 +1551,7 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 147 "./asn1/cms/cms.cnf"
+#line 164 "./asn1/cms/cms.cnf"
   proto_item *pi;
   int old_offset = offset;
 
@@ -1556,7 +1626,7 @@ dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 183 "./asn1/cms/cms.cnf"
+#line 200 "./asn1/cms/cms.cnf"
   guint32 length = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1624,7 +1694,7 @@ dissect_cms_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "./asn1/cms/cms.cnf"
+#line 182 "./asn1/cms/cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -1645,7 +1715,7 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cms_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 176 "./asn1/cms/cms.cnf"
+#line 193 "./asn1/cms/cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1724,6 +1794,494 @@ dissect_cms_RC2CBCParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RC2CBCParameters_choice, hf_index, ett_cms_RC2CBCParameters,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_FirmwarePkgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_INTEGER_0_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t PreferredPackageIdentifier_sequence[] = {
+  { &hf_cms_fwPkgID         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+  { &hf_cms_verNum          , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_cms_INTEGER_0_MAX },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_PreferredPackageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PreferredPackageIdentifier_sequence, hf_index, ett_cms_PreferredPackageIdentifier);
+
+  return offset;
+}
+
+
+static const value_string cms_PreferredOrLegacyPackageIdentifier_vals[] = {
+  {   0, "preferred" },
+  {   1, "legacy" },
+  { 0, NULL }
+};
+
+static const ber_choice_t PreferredOrLegacyPackageIdentifier_choice[] = {
+  {   0, &hf_cms_preferred       , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_PreferredPackageIdentifier },
+  {   1, &hf_cms_legacy          , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_PreferredOrLegacyPackageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PreferredOrLegacyPackageIdentifier_choice, hf_index, ett_cms_PreferredOrLegacyPackageIdentifier,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string cms_PreferredOrLegacyStalePackageIdentifier_vals[] = {
+  {   0, "preferredStaleVerNum" },
+  {   1, "legacyStaleVersion" },
+  { 0, NULL }
+};
+
+static const ber_choice_t PreferredOrLegacyStalePackageIdentifier_choice[] = {
+  {   0, &hf_cms_preferredStaleVerNum, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_cms_INTEGER_0_MAX },
+  {   1, &hf_cms_legacyStaleVersion, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_PreferredOrLegacyStalePackageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PreferredOrLegacyStalePackageIdentifier_choice, hf_index, ett_cms_PreferredOrLegacyStalePackageIdentifier,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t FirmwarePackageIdentifier_sequence[] = {
+  { &hf_cms_name            , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_PreferredOrLegacyPackageIdentifier },
+  { &hf_cms_stale           , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_PreferredOrLegacyStalePackageIdentifier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_FirmwarePackageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FirmwarePackageIdentifier_sequence, hf_index, ett_cms_FirmwarePackageIdentifier);
+
+  return offset;
+}
+
+
+static const ber_sequence_t TargetHardwareIdentifiers_sequence_of[1] = {
+  { &hf_cms_TargetHardwareIdentifiers_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+};
+
+static int
+dissect_cms_TargetHardwareIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      TargetHardwareIdentifiers_sequence_of, hf_index, ett_cms_TargetHardwareIdentifiers);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_DecryptKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ImplementedCryptoAlgorithms_sequence_of[1] = {
+  { &hf_cms_ImplementedCryptoAlgorithms_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+};
+
+static int
+dissect_cms_ImplementedCryptoAlgorithms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ImplementedCryptoAlgorithms_sequence_of, hf_index, ett_cms_ImplementedCryptoAlgorithms);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ImplementedCompressAlgorithms_sequence_of[1] = {
+  { &hf_cms_ImplementedCompressAlgorithms_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+};
+
+static int
+dissect_cms_ImplementedCompressAlgorithms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ImplementedCompressAlgorithms_sequence_of, hf_index, ett_cms_ImplementedCompressAlgorithms);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_block_sequence[] = {
+  { &hf_cms_low             , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { &hf_cms_high            , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_T_block(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_block_sequence, hf_index, ett_cms_T_block);
+
+  return offset;
+}
+
+
+static const value_string cms_HardwareSerialEntry_vals[] = {
+  {   0, "all" },
+  {   1, "single" },
+  {   2, "block" },
+  { 0, NULL }
+};
+
+static const ber_choice_t HardwareSerialEntry_choice[] = {
+  {   0, &hf_cms_all             , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_cms_NULL },
+  {   1, &hf_cms_single          , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  {   2, &hf_cms_block           , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_T_block },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_HardwareSerialEntry(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 HardwareSerialEntry_choice, hf_index, ett_cms_HardwareSerialEntry,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_HardwareSerialEntry_sequence_of[1] = {
+  { &hf_cms_hwSerialEntries_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_HardwareSerialEntry },
+};
+
+static int
+dissect_cms_SEQUENCE_OF_HardwareSerialEntry(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_HardwareSerialEntry_sequence_of, hf_index, ett_cms_SEQUENCE_OF_HardwareSerialEntry);
+
+  return offset;
+}
+
+
+static const ber_sequence_t HardwareModules_sequence[] = {
+  { &hf_cms_hwType          , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+  { &hf_cms_hwSerialEntries , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_SEQUENCE_OF_HardwareSerialEntry },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_HardwareModules(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   HardwareModules_sequence, hf_index, ett_cms_HardwareModules);
+
+  return offset;
+}
+
+
+static const value_string cms_CommunityIdentifier_vals[] = {
+  {   0, "communityOID" },
+  {   1, "hwModuleList" },
+  { 0, NULL }
+};
+
+static const ber_choice_t CommunityIdentifier_choice[] = {
+  {   0, &hf_cms_communityOID    , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+  {   1, &hf_cms_hwModuleList    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_HardwareModules },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_CommunityIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 CommunityIdentifier_choice, hf_index, ett_cms_CommunityIdentifier,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CommunityIdentifiers_sequence_of[1] = {
+  { &hf_cms_CommunityIdentifiers_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_CommunityIdentifier },
+};
+
+static int
+dissect_cms_CommunityIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CommunityIdentifiers_sequence_of, hf_index, ett_cms_CommunityIdentifiers);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_PreferredOrLegacyPackageIdentifier_sequence_of[1] = {
+  { &hf_cms_dependencies_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_PreferredOrLegacyPackageIdentifier },
+};
+
+static int
+dissect_cms_SEQUENCE_OF_PreferredOrLegacyPackageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_PreferredOrLegacyPackageIdentifier_sequence_of, hf_index, ett_cms_SEQUENCE_OF_PreferredOrLegacyPackageIdentifier);
+
+  return offset;
+}
+
+
+static const ber_sequence_t FirmwarePackageInfo_sequence[] = {
+  { &hf_cms_fwPkgType       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cms_INTEGER },
+  { &hf_cms_dependencies    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cms_SEQUENCE_OF_PreferredOrLegacyPackageIdentifier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_FirmwarePackageInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FirmwarePackageInfo_sequence, hf_index, ett_cms_FirmwarePackageInfo);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_WrappedFirmwareKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_cms_EnvelopedData(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string cms_FWReceiptVersion_vals[] = {
+  {   1, "v1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cms_FWReceiptVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t FirmwarePackageLoadReceipt_sequence[] = {
+  { &hf_cms_fwReceiptVersion, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cms_FWReceiptVersion },
+  { &hf_cms_hwType          , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+  { &hf_cms_hwSerialNum     , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { &hf_cms_fwPkgName       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_PreferredOrLegacyPackageIdentifier },
+  { &hf_cms_trustAnchorKeyID, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { &hf_cms_decryptKeyID    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cms_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_FirmwarePackageLoadReceipt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FirmwarePackageLoadReceipt_sequence, hf_index, ett_cms_FirmwarePackageLoadReceipt);
+
+  return offset;
+}
+
+
+static const value_string cms_FWErrorVersion_vals[] = {
+  {   1, "v1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cms_FWErrorVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string cms_FirmwarePackageLoadErrorCode_vals[] = {
+  {   1, "decodeFailure" },
+  {   2, "badContentInfo" },
+  {   3, "badSignedData" },
+  {   4, "badEncapContent" },
+  {   5, "badCertificate" },
+  {   6, "badSignerInfo" },
+  {   7, "badSignedAttrs" },
+  {   8, "badUnsignedAttrs" },
+  {   9, "missingContent" },
+  {  10, "noTrustAnchor" },
+  {  11, "notAuthorized" },
+  {  12, "badDigestAlgorithm" },
+  {  13, "badSignatureAlgorithm" },
+  {  14, "unsupportedKeySize" },
+  {  15, "signatureFailure" },
+  {  16, "contentTypeMismatch" },
+  {  17, "badEncryptedData" },
+  {  18, "unprotectedAttrsPresent" },
+  {  19, "badEncryptContent" },
+  {  20, "badEncryptAlgorithm" },
+  {  21, "missingCiphertext" },
+  {  22, "noDecryptKey" },
+  {  23, "decryptFailure" },
+  {  24, "badCompressAlgorithm" },
+  {  25, "missingCompressedContent" },
+  {  26, "decompressFailure" },
+  {  27, "wrongHardware" },
+  {  28, "stalePackage" },
+  {  29, "notInCommunity" },
+  {  30, "unsupportedPackageType" },
+  {  31, "missingDependency" },
+  {  32, "wrongDependencyVersion" },
+  {  33, "insufficientMemory" },
+  {  34, "badFirmware" },
+  {  35, "unsupportedParameters" },
+  {  36, "breaksDependency" },
+  {  99, "otherError" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_cms_FirmwarePackageLoadErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_VendorLoadErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CurrentFWConfig_sequence[] = {
+  { &hf_cms_fwPkgType       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cms_INTEGER },
+  { &hf_cms_fwPkgName       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_PreferredOrLegacyPackageIdentifier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_CurrentFWConfig(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CurrentFWConfig_sequence, hf_index, ett_cms_CurrentFWConfig);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_CurrentFWConfig_sequence_of[1] = {
+  { &hf_cms_config_item     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_CurrentFWConfig },
+};
+
+static int
+dissect_cms_SEQUENCE_OF_CurrentFWConfig(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_CurrentFWConfig_sequence_of, hf_index, ett_cms_SEQUENCE_OF_CurrentFWConfig);
+
+  return offset;
+}
+
+
+static const ber_sequence_t FirmwarePackageLoadError_sequence[] = {
+  { &hf_cms_fwErrorVersion  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cms_FWErrorVersion },
+  { &hf_cms_hwType          , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+  { &hf_cms_hwSerialNum     , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { &hf_cms_errorCode       , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_cms_FirmwarePackageLoadErrorCode },
+  { &hf_cms_vendorErrorCode , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cms_VendorLoadErrorCode },
+  { &hf_cms_fwPkgName       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_cms_PreferredOrLegacyPackageIdentifier },
+  { &hf_cms_config          , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cms_SEQUENCE_OF_CurrentFWConfig },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_FirmwarePackageLoadError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FirmwarePackageLoadError_sequence, hf_index, ett_cms_FirmwarePackageLoadError);
+
+  return offset;
+}
+
+
+static const ber_sequence_t HardwareModuleName_sequence[] = {
+  { &hf_cms_hwType          , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_cms_OBJECT_IDENTIFIER },
+  { &hf_cms_hwSerialNum     , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_HardwareModuleName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   HardwareModuleName_sequence, hf_index, ett_cms_HardwareModuleName);
+
+  return offset;
+}
+
+
+static const ber_sequence_t FirmwarePackageMessageDigest_sequence[] = {
+  { &hf_cms_algorithm       , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509af_AlgorithmIdentifier },
+  { &hf_cms_msgDigest       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_FirmwarePackageMessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FirmwarePackageMessageDigest_sequence, hf_index, ett_cms_FirmwarePackageMessageDigest);
 
   return offset;
 }
@@ -1835,6 +2393,97 @@ static int dissect_RC2CBCParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset = dissect_cms_RC2CBCParameters(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_RC2CBCParameters_PDU);
   return offset;
 }
+static int dissect_FirmwarePkgData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_FirmwarePkgData(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_FirmwarePkgData_PDU);
+  return offset;
+}
+static int dissect_FirmwarePackageIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_FirmwarePackageIdentifier(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_FirmwarePackageIdentifier_PDU);
+  return offset;
+}
+static int dissect_TargetHardwareIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_TargetHardwareIdentifiers(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_TargetHardwareIdentifiers_PDU);
+  return offset;
+}
+static int dissect_DecryptKeyIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_DecryptKeyIdentifier(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_DecryptKeyIdentifier_PDU);
+  return offset;
+}
+static int dissect_ImplementedCryptoAlgorithms_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_ImplementedCryptoAlgorithms(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_ImplementedCryptoAlgorithms_PDU);
+  return offset;
+}
+static int dissect_ImplementedCompressAlgorithms_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_ImplementedCompressAlgorithms(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_ImplementedCompressAlgorithms_PDU);
+  return offset;
+}
+static int dissect_CommunityIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_CommunityIdentifiers(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_CommunityIdentifiers_PDU);
+  return offset;
+}
+static int dissect_FirmwarePackageInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_FirmwarePackageInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_FirmwarePackageInfo_PDU);
+  return offset;
+}
+static int dissect_WrappedFirmwareKey_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_WrappedFirmwareKey(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_WrappedFirmwareKey_PDU);
+  return offset;
+}
+static int dissect_FirmwarePackageLoadReceipt_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_FirmwarePackageLoadReceipt(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_FirmwarePackageLoadReceipt_PDU);
+  return offset;
+}
+static int dissect_FirmwarePackageLoadError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_FirmwarePackageLoadError(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_FirmwarePackageLoadError_PDU);
+  return offset;
+}
+static int dissect_HardwareModuleName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_HardwareModuleName(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_HardwareModuleName_PDU);
+  return offset;
+}
+static int dissect_FirmwarePackageMessageDigest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_cms_FirmwarePackageMessageDigest(FALSE, tvb, offset, &asn1_ctx, tree, hf_cms_FirmwarePackageMessageDigest_PDU);
+  return offset;
+}
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
@@ -1911,6 +2560,58 @@ void proto_register_cms(void) {
     { &hf_cms_RC2CBCParameters_PDU,
       { "RC2CBCParameters", "cms.RC2CBCParameters",
         FT_UINT32, BASE_DEC, VALS(cms_RC2CBCParameters_vals), 0,
+        NULL, HFILL }},
+    { &hf_cms_FirmwarePkgData_PDU,
+      { "FirmwarePkgData", "cms.FirmwarePkgData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_FirmwarePackageIdentifier_PDU,
+      { "FirmwarePackageIdentifier", "cms.FirmwarePackageIdentifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_TargetHardwareIdentifiers_PDU,
+      { "TargetHardwareIdentifiers", "cms.TargetHardwareIdentifiers",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_DecryptKeyIdentifier_PDU,
+      { "DecryptKeyIdentifier", "cms.DecryptKeyIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_ImplementedCryptoAlgorithms_PDU,
+      { "ImplementedCryptoAlgorithms", "cms.ImplementedCryptoAlgorithms",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_ImplementedCompressAlgorithms_PDU,
+      { "ImplementedCompressAlgorithms", "cms.ImplementedCompressAlgorithms",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_CommunityIdentifiers_PDU,
+      { "CommunityIdentifiers", "cms.CommunityIdentifiers",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_FirmwarePackageInfo_PDU,
+      { "FirmwarePackageInfo", "cms.FirmwarePackageInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_WrappedFirmwareKey_PDU,
+      { "WrappedFirmwareKey", "cms.WrappedFirmwareKey_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_FirmwarePackageLoadReceipt_PDU,
+      { "FirmwarePackageLoadReceipt", "cms.FirmwarePackageLoadReceipt_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_FirmwarePackageLoadError_PDU,
+      { "FirmwarePackageLoadError", "cms.FirmwarePackageLoadError_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_HardwareModuleName_PDU,
+      { "HardwareModuleName", "cms.HardwareModuleName_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_FirmwarePackageMessageDigest_PDU,
+      { "FirmwarePackageMessageDigest", "cms.FirmwarePackageMessageDigest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cms_contentType,
       { "contentType", "cms.contentType",
@@ -2344,6 +3045,150 @@ void proto_register_cms(void) {
       { "extensions", "cms.extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_cms_name,
+      { "name", "cms.name",
+        FT_UINT32, BASE_DEC, VALS(cms_PreferredOrLegacyPackageIdentifier_vals), 0,
+        "PreferredOrLegacyPackageIdentifier", HFILL }},
+    { &hf_cms_stale,
+      { "stale", "cms.stale",
+        FT_UINT32, BASE_DEC, VALS(cms_PreferredOrLegacyStalePackageIdentifier_vals), 0,
+        "PreferredOrLegacyStalePackageIdentifier", HFILL }},
+    { &hf_cms_preferred,
+      { "preferred", "cms.preferred_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PreferredPackageIdentifier", HFILL }},
+    { &hf_cms_legacy,
+      { "legacy", "cms.legacy",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_fwPkgID,
+      { "fwPkgID", "cms.fwPkgID",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_cms_verNum,
+      { "verNum", "cms.verNum",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "INTEGER_0_MAX", HFILL }},
+    { &hf_cms_preferredStaleVerNum,
+      { "preferredStaleVerNum", "cms.preferredStaleVerNum",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "INTEGER_0_MAX", HFILL }},
+    { &hf_cms_legacyStaleVersion,
+      { "legacyStaleVersion", "cms.legacyStaleVersion",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_TargetHardwareIdentifiers_item,
+      { "TargetHardwareIdentifiers item", "cms.TargetHardwareIdentifiers_item",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_cms_ImplementedCryptoAlgorithms_item,
+      { "ImplementedCryptoAlgorithms item", "cms.ImplementedCryptoAlgorithms_item",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_cms_ImplementedCompressAlgorithms_item,
+      { "ImplementedCompressAlgorithms item", "cms.ImplementedCompressAlgorithms_item",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_cms_CommunityIdentifiers_item,
+      { "CommunityIdentifier", "cms.CommunityIdentifier",
+        FT_UINT32, BASE_DEC, VALS(cms_CommunityIdentifier_vals), 0,
+        NULL, HFILL }},
+    { &hf_cms_communityOID,
+      { "communityOID", "cms.communityOID",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_cms_hwModuleList,
+      { "hwModuleList", "cms.hwModuleList_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HardwareModules", HFILL }},
+    { &hf_cms_hwType,
+      { "hwType", "cms.hwType",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_cms_hwSerialEntries,
+      { "hwSerialEntries", "cms.hwSerialEntries",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_HardwareSerialEntry", HFILL }},
+    { &hf_cms_hwSerialEntries_item,
+      { "HardwareSerialEntry", "cms.HardwareSerialEntry",
+        FT_UINT32, BASE_DEC, VALS(cms_HardwareSerialEntry_vals), 0,
+        NULL, HFILL }},
+    { &hf_cms_all,
+      { "all", "cms.all_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_single,
+      { "single", "cms.single",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_block,
+      { "block", "cms.block_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_low,
+      { "low", "cms.low",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_high,
+      { "high", "cms.high",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_fwPkgType,
+      { "fwPkgType", "cms.fwPkgType",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_cms_dependencies,
+      { "dependencies", "cms.dependencies",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_PreferredOrLegacyPackageIdentifier", HFILL }},
+    { &hf_cms_dependencies_item,
+      { "PreferredOrLegacyPackageIdentifier", "cms.PreferredOrLegacyPackageIdentifier",
+        FT_UINT32, BASE_DEC, VALS(cms_PreferredOrLegacyPackageIdentifier_vals), 0,
+        NULL, HFILL }},
+    { &hf_cms_fwReceiptVersion,
+      { "version", "cms.version",
+        FT_INT32, BASE_DEC, VALS(cms_FWReceiptVersion_vals), 0,
+        "FWReceiptVersion", HFILL }},
+    { &hf_cms_hwSerialNum,
+      { "hwSerialNum", "cms.hwSerialNum",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_fwPkgName,
+      { "fwPkgName", "cms.fwPkgName",
+        FT_UINT32, BASE_DEC, VALS(cms_PreferredOrLegacyPackageIdentifier_vals), 0,
+        "PreferredOrLegacyPackageIdentifier", HFILL }},
+    { &hf_cms_trustAnchorKeyID,
+      { "trustAnchorKeyID", "cms.trustAnchorKeyID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_decryptKeyID,
+      { "decryptKeyID", "cms.decryptKeyID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_cms_fwErrorVersion,
+      { "version", "cms.version",
+        FT_INT32, BASE_DEC, VALS(cms_FWErrorVersion_vals), 0,
+        "FWErrorVersion", HFILL }},
+    { &hf_cms_errorCode,
+      { "errorCode", "cms.errorCode",
+        FT_UINT32, BASE_DEC, VALS(cms_FirmwarePackageLoadErrorCode_vals), 0,
+        "FirmwarePackageLoadErrorCode", HFILL }},
+    { &hf_cms_vendorErrorCode,
+      { "vendorErrorCode", "cms.vendorErrorCode",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "VendorLoadErrorCode", HFILL }},
+    { &hf_cms_config,
+      { "config", "cms.config",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_CurrentFWConfig", HFILL }},
+    { &hf_cms_config_item,
+      { "CurrentFWConfig", "cms.CurrentFWConfig_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_msgDigest,
+      { "msgDigest", "cms.msgDigest",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/
 #line 125 "./asn1/cms/packet-cms-template.c"
@@ -2409,6 +3254,27 @@ void proto_register_cms(void) {
     &ett_cms_AttributeCertificateInfoV1,
     &ett_cms_T_subject,
     &ett_cms_SEQUENCE_OF_Attribute,
+    &ett_cms_FirmwarePackageIdentifier,
+    &ett_cms_PreferredOrLegacyPackageIdentifier,
+    &ett_cms_PreferredPackageIdentifier,
+    &ett_cms_PreferredOrLegacyStalePackageIdentifier,
+    &ett_cms_TargetHardwareIdentifiers,
+    &ett_cms_ImplementedCryptoAlgorithms,
+    &ett_cms_ImplementedCompressAlgorithms,
+    &ett_cms_CommunityIdentifiers,
+    &ett_cms_CommunityIdentifier,
+    &ett_cms_HardwareModules,
+    &ett_cms_SEQUENCE_OF_HardwareSerialEntry,
+    &ett_cms_HardwareSerialEntry,
+    &ett_cms_T_block,
+    &ett_cms_FirmwarePackageInfo,
+    &ett_cms_SEQUENCE_OF_PreferredOrLegacyPackageIdentifier,
+    &ett_cms_FirmwarePackageLoadReceipt,
+    &ett_cms_FirmwarePackageLoadError,
+    &ett_cms_SEQUENCE_OF_CurrentFWConfig,
+    &ett_cms_CurrentFWConfig,
+    &ett_cms_HardwareModuleName,
+    &ett_cms_FirmwarePackageMessageDigest,
 
 /*--- End of included file: packet-cms-ettarr.c ---*/
 #line 130 "./asn1/cms/packet-cms-template.c"
@@ -2455,6 +3321,19 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("1.2.840.113549.3.4", dissect_RC2CBCParameters_PDU, proto_cms, "id-alg-rc4");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.3.7", dissect_RC2WrapParameter_PDU, proto_cms, "id-alg-cmsrc2-wrap");
   register_ber_oid_dissector("2.16.840.1.113730.3.1.40", dissect_SignedData_PDU, proto_cms, "userSMIMECertificate");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.1.16", dissect_FirmwarePkgData_PDU, proto_cms, "id-ct-firmwarePackage");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.35", dissect_FirmwarePackageIdentifier_PDU, proto_cms, "id-aa-firmwarePackageID");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.36", dissect_TargetHardwareIdentifiers_PDU, proto_cms, "id-aa-targetHardwareIDs");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.37", dissect_DecryptKeyIdentifier_PDU, proto_cms, "id-aa-decryptKeyID");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.38", dissect_ImplementedCryptoAlgorithms_PDU, proto_cms, "id-aa-implCryptoAlgs");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.43", dissect_ImplementedCompressAlgorithms_PDU, proto_cms, "id-aa-implCompressAlgs");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.40", dissect_CommunityIdentifiers_PDU, proto_cms, "id-aa-communityIdentifiers");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.42", dissect_FirmwarePackageInfo_PDU, proto_cms, "id-aa-firmwarePackageInfo");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.39", dissect_WrappedFirmwareKey_PDU, proto_cms, "id-aa-wrappedFirmwareKey");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.1.17", dissect_FirmwarePackageLoadReceipt_PDU, proto_cms, "id-ct-firmwareLoadReceipt");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.1.18", dissect_FirmwarePackageLoadError_PDU, proto_cms, "id-ct-firmwareLoadError");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.8.4", dissect_HardwareModuleName_PDU, proto_cms, "id-on-hardwareModuleName");
+  register_ber_oid_dissector("1.2.840.113549.1.9.9.16.2.41", dissect_FirmwarePackageMessageDigest_PDU, proto_cms, "id-aa-fwPkgMessageDigest");
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/

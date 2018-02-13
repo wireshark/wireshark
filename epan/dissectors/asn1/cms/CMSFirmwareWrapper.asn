@@ -1,0 +1,220 @@
+-- Verbatim copy of Appendix A of RFC 4108 followed by Errata ID 4093
+
+CMSFirmwareWrapper
+	{ iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1)
+		pkcs-9(9) smime(16) modules(0) cms-firmware-wrap(22) }
+
+DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+IMPORTS
+	EnvelopedData
+	FROM CryptographicMessageSyntax -- [CMS]
+		{ iso(1) member-body(2) us(840) rsadsi(113549)
+			pkcs(1) pkcs-9(9) smime(16) modules(0) cms-2004(24) };
+
+
+-- Firmware Package Content Type and Object Identifier
+
+id-ct-firmwarePackage OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) ct(1) 16 }
+
+FirmwarePkgData ::= OCTET STRING
+
+
+-- Firmware Package Signed Attributes and Object Identifiers
+
+id-aa-firmwarePackageID OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 35 }
+
+FirmwarePackageIdentifier ::= SEQUENCE {
+	name PreferredOrLegacyPackageIdentifier,
+	stale PreferredOrLegacyStalePackageIdentifier OPTIONAL }
+
+PreferredOrLegacyPackageIdentifier ::= CHOICE {
+	preferred PreferredPackageIdentifier,
+	legacy OCTET STRING }
+
+PreferredPackageIdentifier ::= SEQUENCE {
+	fwPkgID OBJECT IDENTIFIER,
+	verNum INTEGER (0..MAX) }
+
+PreferredOrLegacyStalePackageIdentifier ::= CHOICE {
+	preferredStaleVerNum INTEGER (0..MAX),
+	legacyStaleVersion OCTET STRING }
+
+
+id-aa-targetHardwareIDs OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 36 }
+
+TargetHardwareIdentifiers ::= SEQUENCE OF OBJECT IDENTIFIER
+
+
+id-aa-decryptKeyID OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 37 }
+
+DecryptKeyIdentifier ::= OCTET STRING
+
+
+id-aa-implCryptoAlgs OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 38 }
+
+ImplementedCryptoAlgorithms ::= SEQUENCE OF OBJECT IDENTIFIER
+
+id-aa-implCompressAlgs OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 43 }
+
+ImplementedCompressAlgorithms ::= SEQUENCE OF OBJECT IDENTIFIER
+
+
+id-aa-communityIdentifiers OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 40 }
+
+CommunityIdentifiers ::= SEQUENCE OF CommunityIdentifier
+
+CommunityIdentifier ::= CHOICE {
+	communityOID OBJECT IDENTIFIER,
+	hwModuleList HardwareModules }
+
+HardwareModules ::= SEQUENCE {
+	hwType OBJECT IDENTIFIER,
+	hwSerialEntries SEQUENCE OF HardwareSerialEntry }
+
+
+HardwareSerialEntry ::= CHOICE {
+	all NULL,
+	single OCTET STRING,
+	block SEQUENCE {
+	low OCTET STRING,
+	high OCTET STRING } }
+
+
+id-aa-firmwarePackageInfo OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 42 }
+
+FirmwarePackageInfo ::= SEQUENCE {
+	fwPkgType INTEGER OPTIONAL,
+	dependencies SEQUENCE OF
+	PreferredOrLegacyPackageIdentifier OPTIONAL }
+
+
+-- Firmware Package Unsigned Attributes and Object Identifiers
+
+id-aa-wrappedFirmwareKey OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 39 }
+
+WrappedFirmwareKey ::= EnvelopedData
+
+
+-- Firmware Package Load Receipt Content Type and Object Identifier
+
+id-ct-firmwareLoadReceipt OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) ct(1) 17 }
+
+FirmwarePackageLoadReceipt ::= SEQUENCE {
+	version FWReceiptVersion DEFAULT v1,
+	hwType OBJECT IDENTIFIER,
+	hwSerialNum OCTET STRING,
+	fwPkgName PreferredOrLegacyPackageIdentifier,
+	trustAnchorKeyID OCTET STRING OPTIONAL,
+	decryptKeyID [1] OCTET STRING OPTIONAL }
+
+FWReceiptVersion ::= INTEGER { v1(1) }
+
+
+-- Firmware Package Load Error Report Content Type
+-- and Object Identifier
+
+id-ct-firmwareLoadError OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) ct(1) 18 }
+
+FirmwarePackageLoadError ::= SEQUENCE {
+	version FWErrorVersion DEFAULT v1,
+	hwType OBJECT IDENTIFIER,
+	hwSerialNum OCTET STRING,
+	errorCode FirmwarePackageLoadErrorCode,
+	vendorErrorCode VendorLoadErrorCode OPTIONAL,
+	fwPkgName PreferredOrLegacyPackageIdentifier OPTIONAL,
+	config [1] SEQUENCE OF CurrentFWConfig OPTIONAL }
+
+FWErrorVersion ::= INTEGER { v1(1) }
+
+CurrentFWConfig ::= SEQUENCE {
+	fwPkgType INTEGER OPTIONAL,
+	fwPkgName PreferredOrLegacyPackageIdentifier }
+
+FirmwarePackageLoadErrorCode ::= ENUMERATED {
+	decodeFailure                (1),
+	badContentInfo               (2),
+	badSignedData                (3),
+	badEncapContent              (4),
+	badCertificate               (5),
+	badSignerInfo                (6),
+	badSignedAttrs               (7),
+	badUnsignedAttrs             (8),
+	missingContent               (9),
+	noTrustAnchor               (10),
+	notAuthorized               (11),
+	badDigestAlgorithm          (12),
+	badSignatureAlgorithm       (13),
+	unsupportedKeySize          (14),
+	signatureFailure            (15),
+	contentTypeMismatch         (16),
+	badEncryptedData            (17),
+	unprotectedAttrsPresent     (18),
+	badEncryptContent           (19),
+	badEncryptAlgorithm         (20),
+	missingCiphertext           (21),
+	noDecryptKey                (22),
+	decryptFailure              (23),
+	badCompressAlgorithm        (24),
+	missingCompressedContent    (25),
+	decompressFailure           (26),
+	wrongHardware               (27),
+	stalePackage                (28),
+	notInCommunity              (29),
+	unsupportedPackageType      (30),
+	missingDependency           (31),
+	wrongDependencyVersion      (32),
+	insufficientMemory          (33),
+	badFirmware                 (34),
+	unsupportedParameters       (35),
+	breaksDependency            (36),
+	otherError                  (99) }
+
+VendorLoadErrorCode ::= INTEGER
+
+
+-- Other Name syntax for Hardware Module Name
+
+id-on-hardwareModuleName OBJECT IDENTIFIER ::= {
+	iso(1) identified-organization(3) dod(6) internet(1) security(5)
+	mechanisms(5) pkix(7) on(8) 4 }
+
+HardwareModuleName ::= SEQUENCE {
+	hwType OBJECT IDENTIFIER,
+	hwSerialNum OCTET STRING }
+
+
+
+-- From Errata ID 4093: Elements defined Section 2.2.10 and missing in the appendix
+
+id-aa-fwPkgMessageDigest OBJECT IDENTIFIER ::= {
+	iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+	smime(16) aa(2) 41 }
+
+FirmwarePackageMessageDigest ::= SEQUENCE {
+	algorithm AlgorithmIdentifier,
+	msgDigest OCTET STRING }
+
+END
