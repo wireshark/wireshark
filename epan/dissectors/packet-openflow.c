@@ -50,11 +50,12 @@ static gboolean openflow_desegment = TRUE;
 #define OFP_VERSION_1_5 6
 
 static const value_string openflow_version_values[] = {
-    { 0x01, "1.0" },
-    { 0x02, "1.1" },
-    { 0x03, "1.2" },
-    { 0x04, "1.3" },
-    { 0x05, "1.4" },
+    { OFP_VERSION_1_0, "1.0" },
+    { OFP_VERSION_1_1, "1.1" },
+    { OFP_VERSION_1_2, "1.2" },
+    { OFP_VERSION_1_3, "1.3" },
+    { OFP_VERSION_1_4, "1.4" },
+    { OFP_VERSION_1_5, "1.5" },
     { 0, NULL }
 };
 
