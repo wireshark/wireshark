@@ -670,8 +670,6 @@ sub parselicense {
 			$license = "GPL$gplver$extrainfo $license";
 		}
 
-
-
 		if ($licensetext =~ /is distributed under the terms of the GNU General Public License,/
 				and length $gplver) {
 			$license = "GPL$gplver$extrainfo $license";
@@ -697,7 +695,6 @@ sub parselicense {
 			$license = 'BSD (3 clause)';
 		}
 
- 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+MIT/i) {
 			$license = 'MIT/X11 (BSD like)';
 		}
