@@ -278,6 +278,7 @@ extern "C" {
 #define WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6       196
 #define WTAP_ENCAP_JUNIPER_ST                   197
 #define WTAP_ENCAP_ETHERNET_MPACKET             198
+#define WTAP_ENCAP_DOCSIS31_XRA31               199
 
 /* After adding new item here, please also add new item to encap_table_base array */
 

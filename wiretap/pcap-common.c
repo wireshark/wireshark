@@ -455,6 +455,9 @@ static const struct {
 	/* Nordic BLE Sniffer */
 	{ 272,		WTAP_ENCAP_NORDIC_BLE },
 
+	/* DOCSIS31 XRA31 Sniffer */
+	{ 273,		WTAP_ENCAP_DOCSIS31_XRA31 },
+
 	/* mPackets as specified by 802.3br */
 	{ 274,		WTAP_ENCAP_ETHERNET_MPACKET },
 

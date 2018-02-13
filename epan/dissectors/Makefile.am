@@ -1443,6 +1443,7 @@ DISSECTOR_SRC = \
 	packet-xmpp-utils.c	\
 	packet-xmpp.c		\
 	packet-xot.c		\
+	packet-xra.c		\
 	packet-xtp.c		\
 	packet-xyplex.c		\
 	packet-yami.c		\
