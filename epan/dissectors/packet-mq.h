@@ -17,11 +17,11 @@
 #define GET_VALSV(A) mq_##A##_vals
 #define GET_VALSV2(A) GET_VALSV(A)
 #define DEF_VALSX(A) extern value_string GET_VALSV(A)[]
-/* This Macro is used to cast a value_string to a const gchar *
-*  Used in value_string MQCFINT_Parse, because this value_string
-*  don't return a string for a specific value, but a value_string
-*  that can be used in another call to try_val_to_str
-*/
+ /* This Macro is used to cast a value_string to a const gchar *
+ *  Used in value_string MQCFINT_Parse, because this value_string
+ *  don't return a string for a specific value, but a value_string
+ *  that can be used in another call to try_val_to_str
+ */
 #define GET_VALSP(F) (const gchar *)GET_VALSV(F)
 #define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
 {
@@ -33,7 +33,7 @@
 { 0, NULL } \
 }
 
-/* VALS_EXT_STRING */
+ /* VALS_EXT_STRING */
 #define GET_VALS_EXTV(A) mq_##A##_xvals
 #define GET_VALS_EXTP(A) (value_string_ext *)&GET_VALS_EXTV(A)
 #define DEF_VALS_EXTB(A) static value_string_ext GET_VALS_EXTV(A) = VALUE_STRING_EXT_INIT(mq_##A##_vals)
@@ -493,15 +493,15 @@ typedef struct _mq_ccsid_t
 
 typedef struct _mq_parm_t
 {
-    guint32    mq_convID ;
+    guint32    mq_convID;
     guint32    mq_rqstID;
-    guint32    mq_strucID ;
-    guint32    mq_int_enc ;
-    guint32    mq_str_enc ;
-    guint32    mq_FAPLvl  ;
-    guint8     mq_ctlf1   ;
-    guint8     mq_ctlf2   ;
-    guint8     mq_opcode  ;
+    guint32    mq_strucID;
+    guint32    mq_int_enc;
+    guint32    mq_str_enc;
+    guint32    mq_FAPLvl;
+    guint8     mq_ctlf1;
+    guint8     mq_ctlf2;
+    guint8     mq_opcode;
     mq_ccsid_t mq_tsh_ccsid;
     mq_ccsid_t mq_id_ccsid;
     mq_ccsid_t mq_md_ccsid;

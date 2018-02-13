@@ -16,7 +16,7 @@
 
 #include "packet-mq.h"
 
-/* This routine truncates the string at the first blank space */
+ /* This routine truncates the string at the first blank space */
 gint32 strip_trailing_blanks(guint8* a_str, guint32 a_size)
 {
     gint32 i = 0;
