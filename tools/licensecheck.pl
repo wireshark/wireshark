@@ -688,7 +688,7 @@ sub parselicense {
 		}
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+Zlib/i) {
-			$license = "Zlib";
+			$license = "zlib/libpng $license";
 		}
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+BSD-3-Clause/i) {
