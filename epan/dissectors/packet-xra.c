@@ -415,7 +415,7 @@ dissect_xra_tlv_cw_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
   it = proto_tree_add_item (tree, hf_xra_tlv_cw_info, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_cw_info_tree = proto_item_add_subtree (it, ett_xra_tlv_cw_info);
 
-  guint16 tlv_index =0;
+  guint32 tlv_index =0;
   while (tlv_index < tlv_length) {
     guint8 type = tvb_get_guint8 (tvb, tlv_index);
     ++tlv_index;
@@ -450,7 +450,7 @@ dissect_xra_tlv_cw_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
         proto_tree_add_item (xra_tlv_cw_info_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
         break;
     }
-  tlv_index+=length;
+    tlv_index+=length;
   }
 
   return tvb_captured_length(tvb);
@@ -464,7 +464,7 @@ dissect_xra_tlv_ms_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
   it = proto_tree_add_item (tree, hf_xra_tlv_ms_info, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_ms_info_tree = proto_item_add_subtree (it, ett_xra_tlv_ms_info);
 
-  guint16 tlv_index =0;
+  guint32 tlv_index =0;
   while (tlv_index < tlv_length) {
     guint8 type = tvb_get_guint8 (tvb, tlv_index);
     ++tlv_index;
@@ -484,7 +484,7 @@ dissect_xra_tlv_ms_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
         proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
         break;
     }
-  tlv_index+=length;
+    tlv_index+=length;
   }
 
   return tvb_captured_length(tvb);
@@ -498,7 +498,7 @@ dissect_xra_tlv_burst_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, gu
   it = proto_tree_add_item (tree, hf_xra_tlv_burst_info, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_burst_info_tree = proto_item_add_subtree (it, ett_xra_tlv_burst_info);
 
-  guint16 tlv_index =0;
+  guint32 tlv_index =0;
   while (tlv_index < tlv_length) {
     guint8 type = tvb_get_guint8 (tvb, tlv_index);
     ++tlv_index;
@@ -512,7 +512,7 @@ dissect_xra_tlv_burst_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, gu
         proto_tree_add_item (xra_tlv_burst_info_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
         break;
     }
-  tlv_index+=length;
+    tlv_index+=length;
   }
 
   return tvb_captured_length(tvb);
