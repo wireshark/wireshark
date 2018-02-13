@@ -3963,12 +3963,10 @@ static void rtps_util_format_typename(gchar * type_name, gchar ** output) {
    gchar * result_caps;
    /* The standard specifies that the max size of a type name
       can be 255 bytes */
-   tokens = g_strsplit(type_name, "::", 255);
-   result_caps = g_strjoinv("_", tokens);
-   *output = g_ascii_strdown(result_caps, -1);
+   tokens = wmem_strsplit(wmem_packet_scope(), type_name, "::", 255);
+   result_caps = wmem_strjoinv(wmem_packet_scope(), "_", tokens);
+   *output = wmem_ascii_strdown(wmem_packet_scope(), result_caps, -1);
 
-   g_strfreev(tokens);
-   g_free(result_caps);
 }
 
 static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
@@ -4015,18 +4013,12 @@ static gboolean rtps_util_topic_info_add_column_info_and_try_dissector(proto_tre
       }
       /* This part tries to dissect the content using a dissector */
       next_tvb = tvb_new_subset_remaining(tvb, offset);
-      /* After calling this API, we must call g_free in dissector_name */
+
       rtps_util_format_typename(type_mapping_object->type_name, &dissector_name);
-      if (dissector_try_string(rtps_type_name_table, dissector_name,
-              next_tvb, pinfo, tree, data)) {
-          g_free(dissector_name);
-          return TRUE;
-      } else {
-          g_free(dissector_name);
-          return FALSE;
+      return dissector_try_string(rtps_type_name_table, dissector_name,
+              next_tvb, pinfo, tree, data);
       }
     }
-  }
   /* Return false so the content is dissected by the codepath following this one */
   return FALSE;
 }

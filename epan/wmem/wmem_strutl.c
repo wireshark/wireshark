@@ -168,6 +168,87 @@ wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
     return concat;
 }
 
+gchar *
+wmem_strjoin(wmem_allocator_t *allocator,
+             const gchar *separator, const gchar *first, ...)
+{
+    gsize   len;
+    va_list args;
+    gsize separator_len;
+    gchar   *s;
+    gchar   *concat;
+    gchar   *ptr;
+
+    if (!first)
+        return NULL;
+
+    if (separator == NULL) {
+        separator = "";
+    }
+
+    separator_len = strlen (separator);
+
+    len = 1 + strlen(first); /* + 1 for null byte */
+    va_start(args, first);
+    while ((s = va_arg(args, gchar*))) {
+        len += (separator_len + strlen(s));
+    }
+    va_end(args);
+
+    ptr = concat = (gchar *)wmem_alloc(allocator, len);
+    ptr = g_stpcpy(ptr, first);
+    va_start(args, first);
+    while ((s = va_arg(args, gchar*))) {
+        ptr = g_stpcpy(ptr, separator);
+        ptr = g_stpcpy(ptr, s);
+    }
+    va_end(args);
+
+    return concat;
+
+}
+
+gchar *
+wmem_strjoinv(wmem_allocator_t *allocator,
+              const gchar *separator, gchar **str_array)
+{
+    gchar *string = NULL;
+
+    if (!str_array)
+        return NULL;
+
+    if (separator == NULL) {
+        separator = "";
+    }
+
+    if (str_array[0]) {
+        gint i;
+        gchar *ptr;
+        gsize len, separator_len;
+
+        separator_len = strlen(separator);
+
+        /* Get first part of length. Plus one for null byte. */
+        len = 1 + strlen(str_array[0]);
+        /* Get the full length, including the separators. */
+        for (i = 1; str_array[i] != NULL; i++) {
+            len += separator_len;
+            len += strlen(str_array[i]);
+        }
+
+        /* Allocate and build the string. */
+        string = (gchar *)wmem_alloc(allocator, len);
+        ptr = g_stpcpy(string, str_array[0]);
+        for (i = 1; str_array[i] != NULL; i++) {
+            ptr = g_stpcpy(ptr, separator);
+            ptr = g_stpcpy(ptr, str_array[i]);
+        }
+    }
+
+    return string;
+
+}
+
 gchar **
 wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
         const gchar *delimiter, int max_tokens)

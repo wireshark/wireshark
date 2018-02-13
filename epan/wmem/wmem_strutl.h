@@ -54,6 +54,18 @@ gchar *
 wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
 G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
+WS_DLL_PUBLIC
+gchar *
+wmem_strjoin(wmem_allocator_t *allocator,
+             const gchar *separator, const gchar *first, ...)
+G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
+
+WS_DLL_PUBLIC
+gchar *
+wmem_strjoinv(wmem_allocator_t *allocator,
+              const gchar *separator, gchar **str_array)
+G_GNUC_MALLOC;
+
 /**
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
