@@ -4464,7 +4464,7 @@ proto_register_enip(void)
    register_conversation_filter("enip", "ENIP IO", enip_io_conv_valid, enip_io_conv_filter);
    register_conversation_filter("enip", "ENIP Explicit", enip_exp_conv_valid, enip_exp_conv_filter);
 
-   subdissector_io_table = register_decode_as_next_proto(proto_enip, "ENIP I/O", "enip.io", "ENIP IO Payload", (build_label_func*)&enip_prompt);
+   subdissector_io_table = register_decode_as_next_proto(proto_enip, "ENIP I/O", "enip.io", "ENIP IO Payload", enip_prompt);
 } /* end of proto_register_enip() */
 
 

@@ -7224,7 +7224,7 @@ proto_register_bthci_cmd(void)
             "Version of protocol supported by this dissector.");
 
     vendor_dissector_table = register_decode_as_next_proto(proto_bthci_cmd, "Vendor", "bthci_cmd.vendor",
-                                                           "BT HCI Vendor", (build_label_func*)&bthci_cmd_vendor_prompt);
+                                                           "BT HCI Vendor", bthci_cmd_vendor_prompt);
 }
 
 

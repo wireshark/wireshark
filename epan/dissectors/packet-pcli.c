@@ -234,7 +234,7 @@ proto_register_pcli(void)
         &pcli_summary_in_tree);
 
     pcli_subdissector_table = register_decode_as_next_proto(proto_pcli, "PCLI payload", "pcli.payload",
-                                                             "PCLI payload dissector", (build_label_func*)&pcli_prompt);
+                                                             "PCLI payload dissector", pcli_prompt);
 }
 
 /* The registration hand-off routing */

@@ -57,7 +57,7 @@ static build_valid_func next_proto_values[] = { next_proto_value };
 static decode_as_value_t next_proto_da_values =
                         { next_proto_prompt, 1, next_proto_values };
 
-dissector_table_t register_decode_as_next_proto(int proto, const gchar *title, const gchar *table_name, const gchar *ui_name, build_label_func* label_func)
+dissector_table_t register_decode_as_next_proto(int proto, const gchar *title, const gchar *table_name, const gchar *ui_name, build_label_func label_func)
 {
     decode_as_t *da;
 
@@ -75,7 +75,7 @@ dissector_table_t register_decode_as_next_proto(int proto, const gchar *title, c
     else
     {
         da->values = wmem_new(wmem_epan_scope(), decode_as_value_t);
-        da->values->label_func = *label_func;
+        da->values->label_func = label_func;
         da->values->num_values = 1;
         da->values->build_values = next_proto_values;
     }

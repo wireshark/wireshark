@@ -8730,7 +8730,7 @@ void proto_register_infiniband(void)
                                              table_destroy_notify, table_destroy_notify);
 
     subdissector_table = register_decode_as_next_proto(proto_infiniband, "Network", "infiniband", "Infiniband Payload",
-                                                       (build_label_func*)&infiniband_payload_prompt);
+                                                       infiniband_payload_prompt);
 
     register_shutdown_routine(infiniband_shutdown);
 }

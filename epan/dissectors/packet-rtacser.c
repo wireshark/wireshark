@@ -280,7 +280,7 @@ proto_register_rtacser(void)
     prefs_register_obsolete_preference(rtacser_module, "rtacserial_payload_proto");
 
     subdissector_table = register_decode_as_next_proto(proto_rtacser, "RTAC Serial", "rtacser.data",
-                                                       "RTAC Serial Data Subdissector", (build_label_func*)&rtacser_ppi_prompt);
+                                                       "RTAC Serial Data Subdissector", rtacser_ppi_prompt);
 }
 
 /******************************************************************************************************/
