@@ -3,6 +3,6 @@
 
 RUBY_ENGINE == 'opal' ? (require 'ws_salink-inline-macro/extension') : (require_relative 'ws_salink-inline-macro/extension')
 
-Extensions.register :uri_schemes do
+Extensions.register do
   inline_macro WSSALinkInlineMacro
 end

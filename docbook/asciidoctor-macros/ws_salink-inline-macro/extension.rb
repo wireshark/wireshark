@@ -14,10 +14,9 @@ class WSSALinkInlineMacro < Extensions::InlineMacroProcessor
 
   named :'ws_salink'
 
-  def process parent, target, attrs
-    sanum = target
-    satext = "wnpa-sec-#{target}"
-    target = %(https://www.wireshark.org/security/wnpa-sec-{sanum})
+  def process parent, sanum, attrs
+    satext = "wnpa-sec-#{sanum}"
+    target = %(https://www.wireshark.org/security/wnpa-sec-#{sanum})
     if parent.document.basebackend? 'html'
       parent.document.register :links, target
       %(#{(create_anchor parent, satext, type: :link, target: target).render})

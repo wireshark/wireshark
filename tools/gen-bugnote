@@ -60,7 +60,7 @@ bug_title=$(
         -e 's/\\/{backslash}/' \
     )
 
-echo -e "* $bug_title (ws-buglink:$bug_id[])\n" \
+echo -e "* $bug_title (ws_buglink:$bug_id[])\n" \
         | $recode_cmd \
         | $clipboard_cmd
 

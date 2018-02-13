@@ -3,6 +3,6 @@
 
 RUBY_ENGINE == 'opal' ? (require 'cve_idlink-inline-macro/extension') : (require_relative 'cve_idlink-inline-macro/extension')
 
-Extensions.register :uri_schemes do
+Extensions.register do
   inline_macro CVEIdLinkInlineMacro
 end

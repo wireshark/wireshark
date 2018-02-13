@@ -13,17 +13,17 @@ include ::Asciidoctor
 class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
   use_dsl
 
-  named :'ws_buglink'
+  named :ws_buglink
+  parse_content_as :text
   name_positional_attributes 'bugtext'
 
-  def process parent, target, attrs
-    bugnum = target
+  def process parent, bugnum, attrs
     bugtext = if (attrs['bugtext'])
       attrs['bugtext']
     else
-      'Bug'
+      %(Bug #{bugnum})
     end
-    target = %(https://bugs.wireshark.org/bugzilla/show_bug.cgi?id={bugnum})
+    target = %(https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=#{bugnum})
     if parent.document.basebackend? 'html'
       parent.document.register :links, target
       %(#{(create_anchor parent, bugtext, type: :link, target: target).render})

@@ -14,11 +14,10 @@ class CVEIdLinkInlineMacro < Extensions::InlineMacroProcessor
 
   named :cve_idlink
 
-  def process parent, target, attrs
-    cvename = "CVE-#{target}"
-    cvenum = target
+  def process parent, cvenum, attrs
+    cvename = "CVE-#{cvenum}"
     suffix = ''
-    target = %(https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-{cvenum})
+    target = %(https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-#{cvenum})
     if parent.document.basebackend? 'html'
       parent.document.register :links, target
       %(#{(create_anchor parent, cvename, type: :link, target: target).render})

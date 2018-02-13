@@ -3,6 +3,6 @@
 
 RUBY_ENGINE == 'opal' ? (require 'ws_buglink-inline-macro/extension') : (require_relative 'ws_buglink-inline-macro/extension')
 
-Extensions.register :uri_schemes do
+Extensions.register do
   inline_macro WSBugLinkInlineMacro
 end
