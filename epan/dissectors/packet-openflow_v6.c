@@ -2623,6 +2623,7 @@ static int
 dissect_openflow_port_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_tree *prop_tree;
+    proto_item *prop_item;
     guint16 prop_type;
     guint16 prop_length;
 
@@ -2636,7 +2637,7 @@ dissect_openflow_port_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset+=2;
 
     /* uint16_t len; */
-    proto_tree_add_item(prop_tree, hf_openflow_v6_port_desc_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    prop_item = proto_tree_add_item(prop_tree, hf_openflow_v6_port_desc_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     switch (prop_type) {
@@ -2649,6 +2650,11 @@ dissect_openflow_port_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         break;
 
     case OFPPDPT_EXPERIMENTER:
+        if (prop_length <= 12) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         /* uint32_t experimenter; */
         proto_tree_add_item(tree, hf_openflow_v6_port_desc_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -2663,6 +2669,11 @@ dissect_openflow_port_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         break;
 
     default:
+        if (prop_length <= 4) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v6_port_desc_prop_undecoded,
                                      tvb, offset, prop_length - 4, "Unknown port desc. property.");
         offset += prop_length - 4;
@@ -3242,6 +3253,7 @@ static int
 dissect_openflow_portmod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_tree *prop_tree;
+    proto_item *prop_item;
     guint16 prop_type;
     guint16 prop_length;
 
@@ -3255,7 +3267,7 @@ dissect_openflow_portmod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset+=2;
 
     /* uint16_t len; */
-    proto_tree_add_item(prop_tree, hf_openflow_v6_portmod_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    prop_item = proto_tree_add_item(prop_tree, hf_openflow_v6_portmod_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     switch (prop_type) {
@@ -3268,6 +3280,11 @@ dissect_openflow_portmod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         break;
 
     case OFPPMPT_EXPERIMENTER:
+        if (prop_length <= 12) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         /* uint32_t experimenter; */
         proto_tree_add_item(tree, hf_openflow_v6_portmod_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -3282,6 +3299,11 @@ dissect_openflow_portmod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         break;
 
     default:
+        if (prop_length <= 4) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v6_portmod_prop_undecoded,
                                      tvb, offset, prop_length - 4, "Unknown port desc. property.");
         offset += prop_length - 4;
@@ -3358,7 +3380,7 @@ static const value_string openflow_v6_tablemod_prop_type_values[] = {
 static int
 dissect_openflow_tablemod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
+    proto_item *ti, *prop_item;
     proto_tree *prop_tree, *flags_tree;
 
     guint16 prop_type;
@@ -3374,7 +3396,7 @@ dissect_openflow_tablemod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset+=2;
 
     /* uint16_t len; */
-    proto_tree_add_item(prop_tree, hf_openflow_v6_tablemod_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    prop_item = proto_tree_add_item(prop_tree, hf_openflow_v6_tablemod_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     switch (prop_type) {
@@ -3408,6 +3430,11 @@ dissect_openflow_tablemod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         break;
 
     case OFPTMPT_EXPERIMENTER:
+        if (prop_length <= 12) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         /* uint32_t experimenter; */
         proto_tree_add_item(tree, hf_openflow_v6_tablemod_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -3422,6 +3449,11 @@ dissect_openflow_tablemod_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         break;
 
     default:
+        if (prop_length <= 4) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v6_tablemod_prop_undecoded,
                                      tvb, offset, prop_length - 4, "Unknown table mod. property.");
         offset += prop_length - 4;
@@ -4341,6 +4373,7 @@ static int
 dissect_openflow_queue_stats_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_tree *prop_tree;
+    proto_item *prop_item;
     guint16 prop_type;
     guint16 prop_length;
 
@@ -4354,11 +4387,16 @@ dissect_openflow_queue_stats_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     offset+=2;
 
     /* uint16_t len; */
-    proto_tree_add_item(prop_tree, hf_openflow_v6_queue_stats_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    prop_item = proto_tree_add_item(prop_tree, hf_openflow_v6_queue_stats_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     switch (prop_type) {
     case OFPMP_EXPERIMENTER:
+        if (prop_length <= 12) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         /* uint32_t experimenter; */
         proto_tree_add_item(tree, hf_openflow_v6_queue_stats_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -4374,6 +4412,11 @@ dissect_openflow_queue_stats_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         break;
 
     default:
+        if (prop_length <= 4) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v6_queue_stats_prop_undecoded,
                                      tvb, offset, length - 4, "Unknown queue stats prop body.");
         offset += prop_length - 4;
@@ -5336,7 +5379,7 @@ static const value_string openflow_v6_async_config_prop_type_values[] = {
 static int
 dissect_openflow_async_config_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-    proto_item *ti;
+    proto_item *ti, *prop_item;
     proto_tree *prop_tree, *pi_tree, *ps_tree, *fr_tree, *rs_tree, *ts_tree, *rf_tree;
     guint16 prop_type;
     guint16 prop_len;
@@ -5351,7 +5394,7 @@ dissect_openflow_async_config_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     offset += 2;
 
     /* uint16_t length; */
-    proto_tree_add_item(prop_tree, hf_openflow_v6_async_config_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    prop_item = proto_tree_add_item(prop_tree, hf_openflow_v6_async_config_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     switch (prop_type) {
@@ -5433,6 +5476,11 @@ dissect_openflow_async_config_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
     case OFPACPT_EXPERIMENTER_SLAVE:
     case OFPACPT_EXPERIMENTER_MASTER:
+        if (prop_len <= 12) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         /* uint32_t experimenter; */
         proto_tree_add_item(prop_tree, hf_openflow_v6_async_config_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -5448,6 +5496,11 @@ dissect_openflow_async_config_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         break;
 
     default:
+        if (prop_len <= 4) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v6_async_config_prop_undecoded,
                                      tvb, offset, prop_len - 4, "Unknown async config prop body.");
         offset += prop_len - 4;
@@ -5585,9 +5638,10 @@ static const value_string openflow_v6_bundle_prop_type_values[] = {
 };
 
 static int
-dissect_openflow_bundle_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_bundle_prop_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
 {
     proto_tree *prop_tree;
+    proto_item *prop_item;
     guint16 prop_type;
     guint16 prop_len;
 
@@ -5600,10 +5654,15 @@ dissect_openflow_bundle_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item(prop_tree, hf_openflow_v6_bundle_prop_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* uint16_t length; */
-    proto_tree_add_item(prop_tree, hf_openflow_v6_bundle_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    prop_item = proto_tree_add_item(prop_tree, hf_openflow_v6_bundle_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     switch (prop_type) {
     case OFPBPT_EXPERIMENTER:
+        if (prop_len <= 12) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         /* uint32_t experimenter; */
         proto_tree_add_item(tree, hf_openflow_v6_bundle_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -5619,6 +5678,11 @@ dissect_openflow_bundle_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         break;
 
     default:
+        if (prop_len <= 4) {
+            expert_add_info(pinfo, prop_item, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v6_bundle_prop_undecoded,
                                      tvb, offset, prop_len - 4, "Unknown bundle prop body.");
         offset += prop_len - 4;
