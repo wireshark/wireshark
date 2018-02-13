@@ -19,12 +19,8 @@
  * Updates are backward compatible with previous DOCSIS spcifications.
  *
  * DOCSIS Captures can be facilitated using the Cable Monitor Feature
- * available on Cisco Cable Modem Termination Systems :
- * http://www.cisco.com/univercd/cc/td/doc/product/cable/cab_rout/cmtsfg/ufg_cmon.htm
- *
- * Captures of DOCSIS 1.1 and DOCSIS 2.0 frames can be facilitated using
- * the ARRIS Cadant C4 and the ARRIS Cadant C3:
- * http://www.arrisi.com/products_solutions/product_families/Cadant/index.asp
+ * available on Cisco Cable Modem Termination Systems:
+ * https://www.cisco.com/c/en/us/td/docs/cable/cmts/config_guide/b_cmts_security_and_cable_monitoring_features/b_cmts_security_and_cable_monitoring_features_chapter_010.html
  *
  * This dissector depends on the presence of a DOCSIS enapsulation type.
  * There is no simple way to distinguish DOCSIS Frames from Ethernet frames,
@@ -36,7 +32,8 @@
  * some interfaces on some platforms; for Ethernet interfaces, they allow
  * DOCSIS to be specified.  If an Ethernet capture is done with a link-layer
  * type of DOCSIS, the file will have a link-layer header type of DLT_DOCSIS;
- * Wireshark will treat the frames in that capture as DOCSIS frames.
+ * Wireshark will treat the frames in that capture as DOCSIS frames, even
+ * if the preference mentioned above isn't enabled.
  */
 
 #include "config.h"
