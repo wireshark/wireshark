@@ -230,6 +230,7 @@ proto_register_nb_rtpmux(void)
 
     /* Register the protocol name and description */
     proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex", "NB_RTPMUX", "nb_rtpmux");
+    register_dissector("nb_rtpmux", dissect_nb_rtpmux, proto_nb_rtpmux);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
