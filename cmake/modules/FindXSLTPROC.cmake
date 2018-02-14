@@ -16,13 +16,16 @@ if(ENABLE_CHM_GUIDES)
     find_package(SED)
 endif()
 
+# Strawberry Perl ships with xsltproc but no DocBook XML files, which
+# is detrimental to our interests. Search for the Chocolatey and Cygwin
+# versions first.
 find_program(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
-  PATHS
+  HINTS
+    ${ChocolateyInstall}/bin
     ${CYGWIN_INSTALL_PATH}/bin
-    /bin
-    /usr/bin
+  PATHS
     /usr/local/bin
     /sbin
 )
