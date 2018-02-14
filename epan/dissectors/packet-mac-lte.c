@@ -510,6 +510,9 @@ static const value_string carrier_id_vals[] =
     { carrier_id_secondary_2,   "Secondary-2"},
     { carrier_id_secondary_3,   "Secondary-3"},
     { carrier_id_secondary_4,   "Secondary-4"},
+    { carrier_id_secondary_5,   "Secondary-5"},
+    { carrier_id_secondary_6,   "Secondary-6"},
+    { carrier_id_secondary_7,   "Secondary-7"},
     { 0, NULL }
 };
 

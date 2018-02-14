@@ -60,12 +60,16 @@ typedef enum mac_lte_crc_status {
     crc_false_dci = 5
 } mac_lte_crc_status;
 
+/* N.B. for SCellIndex-r13 extends to 31 */
 typedef enum mac_lte_carrier_id {
     carrier_id_primary,
     carrier_id_secondary_1,
     carrier_id_secondary_2,
     carrier_id_secondary_3,
-    carrier_id_secondary_4
+    carrier_id_secondary_4,
+    carrier_id_secondary_5,
+    carrier_id_secondary_6,
+    carrier_id_secondary_7
 } mac_lte_carrier_id;
 
 typedef enum mac_lte_ce_mode {

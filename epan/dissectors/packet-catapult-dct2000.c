@@ -1750,9 +1750,9 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
     /* Populate the struct from outhdr values */
     p_mac_lte_info->crcStatusValid = FALSE;  /* not set yet */
 
-    p_mac_lte_info->radioType = outhdr_values[i++] + 1;
-    p_mac_lte_info->rntiType = outhdr_values[i++];
-    p_mac_lte_info->direction = outhdr_values[i++];
+    p_mac_lte_info->radioType = outhdr_values[i++] + 1;        // 1
+    p_mac_lte_info->rntiType = outhdr_values[i++];             // 2
+    p_mac_lte_info->direction = outhdr_values[i++];            // 3
     /* Set these extra PHY present flags to FALSE by default */
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         p_mac_lte_info->detailed_phy_info.ul_info.present = FALSE;
@@ -1761,22 +1761,23 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
         p_mac_lte_info->detailed_phy_info.dl_info.present = FALSE;
     }
 
-    p_mac_lte_info->subframeNumber = outhdr_values[i++];
-    p_mac_lte_info->isPredefinedData = outhdr_values[i++];
-    p_mac_lte_info->rnti = outhdr_values[i++];
-    p_mac_lte_info->ueid = outhdr_values[i++];
-    p_mac_lte_info->length = outhdr_values[i++];
+    p_mac_lte_info->subframeNumber = outhdr_values[i++];       // 4
+    p_mac_lte_info->isPredefinedData = outhdr_values[i++];     // 5
+    p_mac_lte_info->rnti = outhdr_values[i++];                 // 6
+    p_mac_lte_info->ueid = outhdr_values[i++];                 // 7
+    p_mac_lte_info->length = outhdr_values[i++];               // 8
     if (outhdr_values_found > 8) {
-        p_mac_lte_info->reTxCount = outhdr_values[i++];
+        p_mac_lte_info->reTxCount = outhdr_values[i++];        // 9
     }
+    /* TODO: delete if won't see this special case anymore? */
     if (outhdr_values_found == 10) {
         /* CRC only valid for Downlink */
         if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
             p_mac_lte_info->crcStatusValid = TRUE;
-            p_mac_lte_info->crcStatus = (mac_lte_crc_status)outhdr_values[i++];
+            p_mac_lte_info->crcStatus = (mac_lte_crc_status)outhdr_values[i++]; // 10
         }
         else {
-            i++;
+            i++;     // 10 (ignoring for UL)
         }
     }
 
@@ -1785,49 +1786,46 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
     if (outhdr_values_found > 10) {
         /* Extra PHY parameters */
         if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
-            p_mac_lte_info->detailed_phy_info.dl_info.present = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.dl_info.dci_format = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.dl_info.mcs_index = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index = outhdr_values[i++];
-            if (outhdr_values[i++]) {
-                p_mac_lte_info->dl_retx = dl_retx_yes;
-            }
-            else {
-                p_mac_lte_info->dl_retx = dl_retx_no;
-            }
-            p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++];
-            p_mac_lte_info->crcStatusValid = TRUE;
+            p_mac_lte_info->detailed_phy_info.dl_info.present = outhdr_values[i++];         // 10
+            p_mac_lte_info->detailed_phy_info.dl_info.dci_format = outhdr_values[i++];      // 11
+            p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type = outhdr_values[i++]; // 12
+            p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level = outhdr_values[i++];  // 13
+            p_mac_lte_info->detailed_phy_info.dl_info.mcs_index = outhdr_values[i++];          // 14
+            p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index = outhdr_values[i++]; // 15
+            p_mac_lte_info->dl_retx = (outhdr_values[i++]) ? dl_retx_yes : dl_retx_no;  // 16
+
+            p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++]; // 17
+            p_mac_lte_info->crcStatusValid = TRUE;                                                // 18
             p_mac_lte_info->crcStatus = (mac_lte_crc_status)outhdr_values[i++];
             if (outhdr_values_found > 18) {
-                p_mac_lte_info->detailed_phy_info.dl_info.harq_id = outhdr_values[i++];
-                p_mac_lte_info->detailed_phy_info.dl_info.ndi = outhdr_values[i++];
+                p_mac_lte_info->detailed_phy_info.dl_info.harq_id = outhdr_values[i++];    // 19
+                p_mac_lte_info->detailed_phy_info.dl_info.ndi = outhdr_values[i++];        // 20
             }
             if (outhdr_values_found > 20) {
-                p_mac_lte_info->detailed_phy_info.dl_info.transport_block = outhdr_values[i++];
+                p_mac_lte_info->detailed_phy_info.dl_info.transport_block = outhdr_values[i++];  // 21
             }
         }
         else {
             /* Uplink */
-            p_mac_lte_info->detailed_phy_info.ul_info.present = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.ul_info.modulation_type = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length = outhdr_values[i++];
-            p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = outhdr_values[i++];
+            p_mac_lte_info->detailed_phy_info.ul_info.present = outhdr_values[i++];          // 10
+            p_mac_lte_info->detailed_phy_info.ul_info.modulation_type = outhdr_values[i++];  // 11
+            p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = outhdr_values[i++];        // 12
+            p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length = outhdr_values[i++]; // 13
+            p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = outhdr_values[i++];  // 14
             /* Skip retx flag */
-            i++;
+            i++;                                                                                  // 15
 
+            /* TODO: delete if won't see this special case anymore? */
             if (outhdr_values_found == 16) {
                 p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
-                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];   // 16
             }
             if (outhdr_values_found > 16) {
-                p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++];
-                p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];
+                p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++]; // 16
+                p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];     // 17
 
                 p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
-                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];             // 18
             }
         }
     }
@@ -1840,12 +1838,26 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
     if ((p_mac_lte_info->direction == DIRECTION_UPLINK) &&
         (i < outhdr_values_found)) {
 
-        p_mac_lte_info->isPHICHNACK = outhdr_values[i];
+        p_mac_lte_info->isPHICHNACK = outhdr_values[i++];
     }
 
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         /* R10 parameter not set yet */
         p_mac_lte_info->isExtendedBSRSizes = FALSE;
+    }
+
+    if (i < outhdr_values_found) {
+        /* Carrier ID */
+        p_mac_lte_info->carrierId = (mac_lte_carrier_id)outhdr_values[i++];
+    }
+
+    /* Remaining fields not (yet?) supported in
+       the mac-lte dissector. */
+    if (i++ < outhdr_values_found) {
+        /* Serving cell index */
+    }
+    if (i < outhdr_values_found) {
+        /* UE Type */
     }
 
     /* Store info in packet */
