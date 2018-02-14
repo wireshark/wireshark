@@ -37,6 +37,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
   - $CC --version
 before_script:
-  if [ ${BUILD_CMAKE} == "yes" ]; then mkdir build && cd build && cmake ${CMAKE_OPTS} ..; else ./autogen.sh && ./configure ${AUTOTOOLS_OPTS} ; fi
+  - sudo gem install asciidoctor
+  - if [ ${BUILD_CMAKE} == "yes" ]; then mkdir build && cd build && cmake ${CMAKE_OPTS} ..; else ./autogen.sh && ./configure ${AUTOTOOLS_OPTS} ; fi
 script:
   - make
