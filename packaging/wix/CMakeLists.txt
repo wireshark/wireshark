@@ -113,9 +113,15 @@ endif()
 set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm")
 set (PF86_ENV "ProgramFiles(x86)")
 
+set(VC_TOOLS_MERGE_MODULES_DIR)
+if (DEFINED ENV{VCToolsRedistDir})
+	set(VC_TOOLS_MERGE_MODULES_DIR "$ENV{VCToolsRedistDir}/MergeModules")
+endif()
+
 find_path(MERGE_MODULE_DIR ${MERGE_MODULE}
 	PATHS
 		#"$ENV{VCINSTALLDIR}/VC/Redist/MSVC/how-do-we-get-this-version/Merge Modules"
+		${VC_TOOLS_MERGE_MODULES_DIR}
 		"$ENV{${PF86_ENV}}/Common Files/Merge Modules"
 		"$ENV{PROGRAMFILES}/Common Files/Merge Modules"
 	NO_DEFAULT_PATH
