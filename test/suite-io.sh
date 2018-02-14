@@ -121,7 +121,7 @@ io_step_input_piping() {
 		cat ./testout.txt
 		cat ./testout2.txt
 		$TSHARK -D
-		test_step_failed "No or not enough traffic captsured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
+		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
 
