@@ -99,6 +99,22 @@ failure_message_cont(const char *msg_format, va_list ap)
 	fprintf(stderr, "\n");
 }
 
+static int
+fuzzshark_pref_set(const char *name, const char *value)
+{
+	char pref[4096];
+	char *errmsg = NULL;
+
+	prefs_set_pref_e ret;
+
+	g_snprintf(pref, sizeof(pref), "%s:%s", name, value);
+
+	ret = prefs_set_pref(pref, &errmsg);
+	g_free(errmsg);
+
+	return (ret == PREFS_SET_OK);
+}
+
 static const nstime_t *
 fuzzshark_get_frame_ts(struct packet_provider_data *prov _U_, guint32 frame_num _U_)
 {
@@ -145,6 +161,19 @@ get_dissector_handle(const char *table, const char *target)
 	}
 
 	return fuzz_handle;
+}
+
+static void
+fuzz_prefs_apply(void)
+{
+	/* Turn off fragmentation for some protocols */
+	fuzzshark_pref_set("ip.defragment", "FALSE");
+	fuzzshark_pref_set("ipv6.defragment", "FALSE");
+	fuzzshark_pref_set("wlan.defragment", "FALSE");
+	fuzzshark_pref_set("tcp.desegment_tcp_streams", "FALSE");
+
+	/* Notify all registered modules that have had any of their preferences changed. */
+	prefs_apply_all();
 }
 
 static int
@@ -267,10 +296,7 @@ fuzz_init(int argc _U_, char **argv)
 		}
 	}
 
-	/* Notify all registered modules that have had any of their preferences
-	   changed either from one of the preferences file or from the command
-	   line that their preferences have changed. */
-	prefs_apply_all();
+	fuzz_prefs_apply();
 
 	/* Build the column format array */
 	build_column_format_array(&fuzz_cinfo, prefs_p->num_cols, TRUE);
