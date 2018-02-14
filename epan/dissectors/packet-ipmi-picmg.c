@@ -1207,10 +1207,12 @@ rq17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	};
 	guint cmd = tvb_get_guint8(tvb, 0);
 	const ipmi_header_t *header = ipmi_get_hdr(pinfo);
+	guint to_shmm;
+
 	if (header == NULL)
 		return;
 
-	guint to_shmm = header->rs_sa == 0x20;
+	to_shmm = header->rs_sa == 0x20;
 
 	ipmi_set_data(pinfo, 0, (to_shmm << 8) | cmd);
 
