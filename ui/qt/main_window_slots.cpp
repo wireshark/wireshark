@@ -921,7 +921,9 @@ void MainWindow::filterExpressionsChanged()
     }
 
     if (actions_added) {
-        main_ui_->displayFilterToolBar->adjustSize();
+        // QToolButton calls updateGeometry+update all over the place.
+        // updateGeometry should be sufficient here.
+        main_ui_->displayFilterToolBar->updateGeometry();
     }
 }
 
