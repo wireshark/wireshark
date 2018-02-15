@@ -634,17 +634,6 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
 tls13_cipher *
 tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, const StringInfo *secret, const gchar **error);
 
-/*
- * Calculate HKDF-Extract(salt, IKM) -> PRK according to RFC 5869.
- * Caller must ensure that 'prk' is large enough to store the digest.
- */
-static inline gcry_error_t
-hkdf_extract(int algo, const guint8 *salt, size_t salt_len, const guint8 *ikm, size_t ikm_len, guint8 *prk)
-{
-    /* PRK = HMAC-Hash(salt, IKM) where salt is key, and IKM is input. */
-    return ws_hmac_buffer(algo, prk, ikm, ikm_len, salt, salt_len);
-}
-
 
 /* Common part bitween SSL and DTLS dissectors */
 /* Hash Functions for RSA private keys table */

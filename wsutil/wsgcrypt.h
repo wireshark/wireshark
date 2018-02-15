@@ -63,5 +63,17 @@ WS_DLL_PUBLIC gcry_error_t
 hkdf_expand(int hashalgo, const guint8 *prk, guint prk_len, const guint8 *info, guint info_len,
             guint8 *out, guint out_len);
 
+/*
+ * Calculate HKDF-Extract(salt, IKM) -> PRK according to RFC 5869.
+ * Caller MUST ensure that 'prk' is large enough to store the digest from hash
+ * algorithm 'hashalgo' (e.g. 32 bytes for SHA-256).
+ */
+static inline gcry_error_t
+hkdf_extract(int hashalgo, const guint8 *salt, size_t salt_len, const guint8 *ikm, size_t ikm_len, guint8 *prk)
+{
+    /* PRK = HMAC-Hash(salt, IKM) where salt is key, and IKM is input. */
+    return ws_hmac_buffer(hashalgo, prk, ikm, ikm_len, salt, salt_len);
+}
+
 
 #endif /* __WSGCRYPT_H__ */
