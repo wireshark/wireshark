@@ -320,6 +320,7 @@ static int hf_pfcp_upiri_teid_range = -1;
 static int hf_pfcp_upiri_ipv4 = -1;
 static int hf_pfcp_upiri_ipv6 = -1;
 static int hf_pfcp_upiri_network_instance = -1;
+static int hf_pfcp_user_plane_inactivity_timer = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -3252,6 +3253,33 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
 
 }
 
+/*
+ * 8.2.83    User Plane Inactivity Timer
+ */
+static void
+dissect_pfcp_user_plane_inactivity_timer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /*
+    * The User Plane Inactivity Timer field shall be encoded as an Unsigned32 binary integer value.
+    * The timer value "0" shall be interpreted as an indication that
+    * user plane inactivity detection and reporting is stopped.
+    */
+
+    /* 5 to 8   Inactivity Timer */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_user_plane_inactivity_timer, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    if(value == 0)
+        proto_item_append_text(item, " (Stopped)");
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /* Array of functions to dissect IEs
 * (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 */
@@ -3377,6 +3405,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    114 */    { dissect_pfcp_failed_rule_id },                                /* Failed Rule ID                                  Extendable / Subclause 8.2.80 */
 /*    115 */    { dissect_pfcp_time_qouta_mechanism },                          /* Time Quota Mechanism                            Extendable / Subclause 8.2.81 */
 /*    116 */    { dissect_pfcp_user_plane_ip_resource_infomation },             /* User Plane IP Resource Information              Extendable / Subclause 8.2.82 */
+/*    117 */    { dissect_pfcp_user_plane_inactivity_timer },             	/* User Plane Inactivity Timer 			   Extendable / Subclause 8.2.83 */
     { NULL },                                                        /* End of List */
 };
 
@@ -5199,6 +5228,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_upiri_network_instance,
         { "Network Instance", "pfcp.upiri.network_instance",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_user_plane_inactivity_timer,
+        { "User Plane Inactivity Timer", "pfcp.user_plane_inactivity_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
             NULL, HFILL }
         },
 
