@@ -2866,6 +2866,15 @@ dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+   // TCP connections for EtherNet/IP are typically open for extended periods of time.
+   // This means that mostly likely, for real world traffic, a capture initiated for
+   // EtherNet/IP traffic will start in the middle of a TCP connection. This check
+   // ignores one byte TCP payloads because it is far more likely that a one byte TCP
+   // payload is a TCP keep alive message, than a client actually sending real EtherNet/IP
+   // messages in one byte chunks.
+   if (tvb_captured_length(tvb) < 2)
+      return 0;
+
    tcp_dissect_pdus(tvb, pinfo, tree, enip_desegment, 4, get_enip_pdu_len, dissect_enip_pdu, data);
    return tvb_captured_length(tvb);
 }
