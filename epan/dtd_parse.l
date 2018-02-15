@@ -1,6 +1,12 @@
 %top {
 /* Include this before everything else, for various large-file definitions */
 #include "config.h"
+
+// warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4267)
+#endif
 }
 
 /*
