@@ -96,7 +96,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	    expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
 	}
 	if (tlv_length != 16) {
-	    expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_length);
+	    expert_add_info(pinfo, tlv_length_item, &ei_marker_wrong_tlv_length);
 	}
         proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_port, tvb,
             offset, 2, ENC_BIG_ENDIAN, &port);
