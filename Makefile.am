@@ -571,11 +571,7 @@ text2pcap_SOURCES = \
 
 text2pcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
-# Don't turn on -Werror for text2pcap: its source includes text2pcap-scanner.c
-# which is generated (and therefore not always clean).
-# We could generate text2pcap.o as a library with -Werror but for now it
-# doesn't seem worth the effort.
-text2pcap_CFLAGS = $(GENERATED_CFLAGS)
+text2pcap_CFLAGS = $(AM_CFLAGS)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
