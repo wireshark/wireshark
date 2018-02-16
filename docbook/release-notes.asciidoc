@@ -15,8 +15,11 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Many user interface improvements have been made. See the New and Updated
-Features section below for more details.
+Wireshark 2.6 is the last release that will support the legacy (GTK+)
+user interface. It will not be supported or available in Wireshark 3.0.
+
+Many user interface improvements have been made. See the “New and Updated
+Features” section below for more details.
 
 //=== Bug Fixes
 
@@ -30,6 +33,12 @@ Features section below for more details.
 //_Non-empty section placeholder._
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated)
+since version 2.5.0:
+
+* HTTP Referer statistics are now supported.
+* The Windows packages are now built using Microsoft Visual Studio 2017.
 
 The following features are new (or have been significantly updated)
 since version 2.4.0:
