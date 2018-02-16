@@ -1,6 +1,6 @@
 image: crondaemon/wireshark
 before_script:
-  - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" > /etc/apt/sources.list.d/clang4.list
+  - rm -rf /etc/apt/sources.list.d/*
   - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main" > /etc/apt/sources.list.d/clang5.list
   - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main" > /etc/apt/sources.list.d/clang6.list
   - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
