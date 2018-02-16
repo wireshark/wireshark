@@ -2609,18 +2609,15 @@ if(BUILD_text2pcap)
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
 	)
-	set(text2pcap_CLEAN_FILES
+	set(text2pcap_FILES
 		text2pcap.c
 		version_info.c
 	)
-	set(text2pcap_FILES
-		${text2pcap_CLEAN_FILES}
-		${CMAKE_BINARY_DIR}/image/text2pcap.rc
-	)
-	add_lex_files(text2pcap_LEX_FILES text2pcap_GENERATED_FILES
+	add_lex_files(text2pcap_LEX_FILES text2pcap_FILES
 		text2pcap-scanner.l
 	)
-	add_executable(text2pcap ${text2pcap_FILES} ${text2pcap_GENERATED_FILES})
+	add_executable(text2pcap ${text2pcap_FILES}
+		${CMAKE_BINARY_DIR}/image/text2pcap.rc)
 	add_dependencies(text2pcap version)
 	set_extra_executable_properties(text2pcap "Executables")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
@@ -3012,7 +3009,7 @@ set(CLEAN_C_FILES
 	${randpkt_FILES}
 	${randpktdump_FILES}
 	${udpdump_FILES}
-	${text2pcap_CLEAN_FILES}
+	${text2pcap_FILES}
 	${mergecap_FILES}
 	${capinfos_FILES}
 	${captype_FILES}
