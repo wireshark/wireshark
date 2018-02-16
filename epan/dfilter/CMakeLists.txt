@@ -31,7 +31,7 @@ set(DFILTER_PUBLIC_HEADERS
 	drange.h
 )
 
-set(DFILTER_FILES
+set(DFILTER_NONGENERATED_FILES
 	dfilter.c
 	dfilter-macro.c
 	dfunctions.c
@@ -48,26 +48,28 @@ set(DFILTER_FILES
 	sttype-test.c
 	syntax-tree.c
 )
-source_group(dfilter FILES ${DFILTER_FILES})
+source_group(dfilter FILES ${DFILTER_NONGENERATED_FILES})
 
+set(DFILTER_FILES ${DFILTER_NONGENERATED_FILES})
+
+add_lex_files(LEX_FILES DFILTER_FILES
+	scanner.l
+)
+
+add_lemon_files(LEMON_FILES DFILTER_FILES
+	grammar.lemon
+)
+
+#
+# All files are warning-clean.  (Let's keep it that way.)
+#
 set_source_files_properties(
 	${DFILTER_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-add_lex_files(LEX_FILES GENERATED_FILES
-	scanner.l
-)
-
-add_lemon_files(LEMON_FILES GENERATED_FILES
-	grammar.lemon
-)
-
-add_library(dfilter OBJECT
-	${DFILTER_FILES}
-	${GENERATED_FILES}
-)
+add_library(dfilter OBJECT ${DFILTER_FILES})
 
 set_target_properties(dfilter PROPERTIES
 	FOLDER "Libs/epan/dfilter"
@@ -86,7 +88,7 @@ CHECKAPI(
 	SWITCHES
 	  -g termoutput -build
 	SOURCES
-	  ${DFILTER_FILES}
+	  ${DFILTER_NONGENERATED_FILES}
 # LEX files commented out due to use of malloc, free etc.
 #	  ${LEX_FILES}
 	  ${LEMON_FILES}

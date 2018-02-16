@@ -30,7 +30,7 @@ set(WIRETAP_PUBLIC_HEADERS
 	wtap_opttypes.h
 )
 
-set(WIRETAP_FILES
+set(WIRETAP_NONGENERATED_FILES
 	5views.c
 	aethra.c
 	ascendtext.c
@@ -93,19 +93,24 @@ set(WIRETAP_FILES
 	${CMAKE_SOURCE_DIR}/version_info.c
 )
 
-set_source_files_properties(
-	${WIRETAP_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
+set(WIRETAP_FILES ${WIRETAP_NONGENERATED_FILES})
 
-add_lex_files(LEX_FILES GENERATED_FILES
+add_lex_files(LEX_FILES WIRETAP_FILES
 	ascend_scanner.l
 	k12text.l
 )
 
-add_yacc_files(YACC_FILES GENERATED_FILES
+add_yacc_files(YACC_FILES WIRETAP_FILES
 	ascend.y
+)
+
+#
+# All files are warning-clean.  (Let's keep it that way.)
+#
+set_source_files_properties(
+	${WIRETAP_FILES}
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 set(wiretap_LIBS
@@ -117,7 +122,6 @@ set(wiretap_LIBS
 
 add_library(wiretap
 	${WIRETAP_FILES}
-	${GENERATED_FILES}
 	${CMAKE_BINARY_DIR}/image/wiretap.rc
 )
 
@@ -173,7 +177,7 @@ CHECKAPI(
 ##	  -g abort -g termoutput
 	  -g termoutput -build
 	SOURCES
-	  ${WIRETAP_FILES}
+	  ${WIRETAP_NONGENERATED_FILES}
 # LEX files commented out due to use of malloc, free etc.
 #	  ${LEX_FILES}
 	  ${YACC_FILES}

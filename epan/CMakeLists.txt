@@ -263,17 +263,26 @@ set(LIBWIRESHARK_CLEAN_FILES
 	${LIBWIRESHARK_FILES}
 )
 
-add_lex_files(LEX_FILES GENERATED_FILES
+add_lex_files(LEX_FILES CLEAN_GENERATED_FILES
 	diam_dict.l
 	dtd_parse.l
 	dtd_preparse.l
-	radius_dict.l
 	uat_load.l
 )
+#
+# There's still a warning when we clean up generated value_strings,
+# because the string pointer is a const pointer, but it's allocated
+# and we free it
+#
+add_lex_files(LEX_FILES GENERATED_FILES
+	radius_dict.l
+)
 
-add_lemon_files(LEMON_FILES GENERATED_FILES
+add_lemon_files(LEMON_FILES CLEAN_GENERATED_FILES
 	dtd_grammar.lemon
 )
+
+set(GENERATED_FILES ${GENERATED_FILES} ${CLEAN_GENERATED_FILES})
 
 set(epan_LIBS
 	wiretap
@@ -298,6 +307,7 @@ set(epan_LIBS
 
 set(CLEAN_FILES
 	${LIBWIRESHARK_CLEAN_FILES}
+	${CLEAN_GENERATED_FILES}
 )
 
 set_source_files_properties(
