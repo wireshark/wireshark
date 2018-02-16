@@ -213,13 +213,13 @@
 #define TDS_CAPABILITY_TOKEN      226  /* 0xE2                              */
 #define TDS_ENVCHG_TOKEN          227  /* 0xE3                              */
 #define TDS_SESSIONSTATE_TOKEN    228  /* 0xE4    Introduced TDS 7.4        */
-#define TDS_EED_TOKEN             229  /* 0xE5                              */
+#define TDS5_EED_TOKEN            229  /* 0xE5    TDS 5.0 only              */
 #define TDS_DBRPC_TOKEN           230  /* 0xE6                              */
 #define TDS5_DYNAMIC_TOKEN        231  /* 0xE7    TDS 5.0 only              */
 #define TDS5_PARAMFMT_TOKEN       236  /* 0xEC    TDS 5.0 only              */
 #define TDS_AUTH_TOKEN            237  /* 0xED                              */  /* DUPLICATE! */
 #define TDS_SSPI_TOKEN            237  /* 0xED                              */  /* DUPLICATE! */
-#define TDS_RESULT_TOKEN          238  /* 0xEE                              */  /* DUPLICATE! */
+#define TDS5_ROWFMT_TOKEN         238  /* 0xEE    TDS 5.0 only              */  /* DUPLICATE! */
 #define TDS_FEDAUTHINFO_TOKEN     238  /* 0xEE    Introduced TDS 7.4        */  /* DUPLICATE! */
 #define TDS_DONE_TOKEN            253  /* 0xFD                              */
 #define TDS_DONEPROC_TOKEN        254  /* 0xFE                              */
@@ -891,8 +891,20 @@ static int hf_tds_doneinproc_status = -1;
 static int hf_tds_doneinproc_donerowcount_32 = -1;
 static int hf_tds_doneinproc_donerowcount_64 = -1;
 
-/* EED token (TDS_EED_TOKEN) */
+/* EED token (TDS5_EED_TOKEN) */
 static int hf_tds_eed = -1;
+static int hf_tds_eed_length = -1;
+static int hf_tds_eed_number = -1;
+static int hf_tds_eed_state = -1;
+static int hf_tds_eed_class = -1;
+static int hf_tds_eed_sql_state = -1;
+static int hf_tds_eed_status = -1;
+static int hf_tds_eed_transtate = -1;
+static int hf_tds_eed_msgtext = -1;
+static int hf_tds_eed_servername = -1;
+static int hf_tds_eed_procname = -1;
+static int hf_tds_eed_linenumber = -1;
+
 /* ENVCHANGE token (TDS_ENVCHG_TOKEN) */
 static int hf_tds_envchg = -1;
 static int hf_tds_envchg_length = -1;
@@ -980,6 +992,36 @@ static int hf_tds_returnstatus_value = -1;
 /* ROW token (TDS_ROW_TOKEN) */
 static int hf_tds_row = -1;
 static int hf_tds_row_field = -1;
+
+/* ROWFMT token (TDS5_ROWFMT_TOKEN) */
+static int hf_tds_rowfmt = -1;
+static int hf_tds_rowfmt_length = -1;
+static int hf_tds_rowfmt_numcols = -1;
+static int hf_tds_rowfmt_colname = -1;
+static int hf_tds_rowfmt_status = -1;
+static int hf_tds_rowfmt_utype = -1;
+static int hf_tds_rowfmt_ctype = -1;
+static int hf_tds_rowfmt_csize = -1;
+static int hf_tds_rowfmt_csize_long = -1;
+static int hf_tds_rowfmt_text_tablename = -1;
+static int hf_tds_rowfmt_locale_info = -1;
+
+/* ROWFMT2 token (TDS5_ROW_TOKEN) */
+static int hf_tds_rowfmt2 = -1;
+static int hf_tds_rowfmt2_length = -1;
+static int hf_tds_rowfmt2_numcols = -1;
+static int hf_tds_rowfmt2_labelname = -1;
+static int hf_tds_rowfmt2_catalogname = -1;
+static int hf_tds_rowfmt2_schemaname = -1;
+static int hf_tds_rowfmt2_tablename = -1;
+static int hf_tds_rowfmt2_colname = -1;
+static int hf_tds_rowfmt2_status = -1;
+static int hf_tds_rowfmt2_utype = -1;
+static int hf_tds_rowfmt2_ctype = -1;
+static int hf_tds_rowfmt2_csize = -1;
+static int hf_tds_rowfmt2_csize_long = -1;
+static int hf_tds_rowfmt2_text_tablename = -1;
+static int hf_tds_rowfmt2_locale_info = -1;
 
 /* SESSIONSTATE token (TDS_SESSIONSTATE_TOKEN) */
 static int hf_tds_sessionstate = -1;
@@ -1326,9 +1368,9 @@ static const value_string token_names[] = {
     {TDS_ROW_TOKEN,             "Row"},
     {TDS_CAPABILITY_TOKEN,      "Capabilities"},
     {TDS_ENVCHG_TOKEN,          "Environment Change"},
-    {TDS_EED_TOKEN,             "Extended Error"},
+    {TDS5_EED_TOKEN,             "Extended Error"},
     {TDS_AUTH_TOKEN,            "Authentication"},
-    {TDS_RESULT_TOKEN,          "Results"},
+    {TDS5_ROWFMT_TOKEN,         "Rowfmt"},
     {TDS_DONE_TOKEN,            "Done"},
     {TDS_DONEPROC_TOKEN,        "Done Proc"},
     {TDS_DONEINPROC_TOKEN,      "Done In Proc"},
@@ -1531,11 +1573,11 @@ static const value_string tds_mars_type[] = {
  */
 struct _tds_col {
     const guint8 *name;
+    guint csize;
     guint32 utype;
     guint8 ctype;
     guint8 precision;
     guint8 scale;
-    guint csize;
 };
 
 struct _netlib_data {
@@ -1607,7 +1649,7 @@ tds_char_encoding_is_two_byte(tds_conv_info_t *tds_info)
 }
 
 static int
-tds_token_is_fixed_size(guint8 token)
+tds_token_is_fixed_size_sybase(guint8 token)
 {
     switch (token) {
         case TDS_DONE_TOKEN:
@@ -1624,17 +1666,13 @@ tds_token_is_fixed_size(guint8 token)
 }
 
 static int
-tds_get_fixed_token_size(guint8 token, tds_conv_info_t *tds_info)
+tds_get_fixed_token_size_sybase(guint8 token, tds_conv_info_t *tds_info _U_)
 {
     switch(token) {
         case TDS_DONE_TOKEN:
         case TDS_DONEPROC_TOKEN:
         case TDS_DONEINPROC_TOKEN:
-            if (TDS_PROTO_TDS7_1_OR_LESS(tds_info)) {
-                return 8;
-            } else {
-                return 12;
-            }
+            return 8;
         case TDS_PROCID_TOKEN:
             return 8;
         case TDS_RET_STAT_TOKEN:
@@ -1649,9 +1687,10 @@ tds_get_fixed_token_size(guint8 token, tds_conv_info_t *tds_info)
 }
 
 static guint
-tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 token,
-                            tds_conv_info_t *tds_info,
-                            guint *len_field_size_p, guint *len_field_val_p)
+tds_get_variable_token_size_sybase(tvbuff_t *tvb, gint offset, guint8 token,
+                                   tds_conv_info_t *tds_info,
+                                   guint *len_field_size_p,
+                                   guint *len_field_val_p)
 {
     switch(token) {
         /* some tokens have a 4 byte length field */
@@ -1666,12 +1705,18 @@ tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 token,
             *len_field_val_p = tvb_get_guint32(tvb, offset,
                                                tds_get_int4_encoding(tds_info));
             break;
-            /* some have a 1 byte length field */
+        /* some have a 1 byte length field */
         case TDS5_MSG_TOKEN:
             *len_field_size_p = 1;
             *len_field_val_p = tvb_get_guint8(tvb, offset);
             break;
-            /* and most have a 2 byte length field */
+        /* Some have no length field at all. */
+        case TDS5_PARAMS_TOKEN:
+        case TDS_ROW_TOKEN:
+            *len_field_size_p = 0;
+            *len_field_val_p = 0;
+            break;
+        /* and most have a 2 byte length field */
         default:
             *len_field_size_p = 2;
             *len_field_val_p = tvb_get_guint16(tvb, offset,
@@ -2124,12 +2169,12 @@ dissect_tds5_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, t
 
         /* our token */
         token = tvb_get_guint8(tvb, pos);
-        if (tds_token_is_fixed_size(token))
-            token_sz = tds_get_fixed_token_size(token, tds_info) + 1;
+        if (tds_token_is_fixed_size_sybase(token))
+            token_sz = tds_get_fixed_token_size_sybase(token, tds_info) + 1;
         else
-            token_sz = tds_get_variable_token_size(tvb, pos+1, token, tds_info,
-                                                   &token_len_field_size, &token_len_field_val);
-
+            token_sz = tds_get_variable_token_size_sybase(tvb, pos+1, token, tds_info,
+                                                          &token_len_field_size,
+                                                          &token_len_field_val);
         token_tree = proto_tree_add_subtree_format(query_tree, tvb, pos, token_sz,
                                          ett_tds_token, &token_item, "Token 0x%02x %s", token,
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
@@ -2143,7 +2188,7 @@ dissect_tds5_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, t
          * If it's a variable token, put the length field in here
          * instead of replicating this for each token subdissector.
          */
-        if (!tds_token_is_fixed_size(token))
+        if (!tds_token_is_fixed_size_sybase(token))
         {
             token_item = proto_tree_add_uint(token_tree, hf_tds_token_len, tvb, pos + 1, 1, token_len_field_val);
             proto_item_set_len(token_item, token_len_field_size);
@@ -2825,7 +2870,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         proto_item_append_text(item, " %i", fieldnum);
 
     proto_item_append_text(item, " (%s)", val_to_str(data_type, tds_data_type_names, "Invalid data type: %02X"));
-    if (name) {
+    if (name && strlen(name) > 0) {
         proto_item *pi;
         pi = proto_tree_add_string(sub_tree, hf_tds_type_varbyte_column_name, tvb, 0, (gint) strlen(name),
                                    (const char *)name);
@@ -3375,13 +3420,11 @@ dissect_tds_col_name_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
     guint next, cur, len, col=0;
     cur = offset;
 
-    /* TODO: fill in nl_data as necessary. */
-
-    proto_tree_add_item_ret_uint(tree, hf_tds_colname_length, tvb, cur, 2,
+    proto_tree_add_item_ret_uint(tree, hf_tds_colname_length, tvb, offset, 2,
                                  tds_get_int2_encoding(tds_info), &len);
-    cur += 2;
-
+    cur = offset + 2;
     next = cur + len;
+
     while (cur < next) {
         proto_item *col_item;
         proto_tree *col_tree;
@@ -3428,7 +3471,7 @@ dissect_tds_col_name_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
 }
 
 /*
- * Process TDS 4 "COL_INFO" token and store relevant information in the
+ * Process TDS 4 "COLFMT" token and store relevant information in the
  * _netlib_data structure for later use (see tds_get_row_size)
  *
  */
@@ -3437,14 +3480,13 @@ dissect_tds_colfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
                          struct _netlib_data *nl_data)
 {
     guint next, cur;
-    guint col, len;
+    guint col = 0, len;
 
     proto_tree_add_item_ret_uint(tree, hf_tds_colfmt_length, tvb, offset, 2,
                                  tds_get_int2_encoding(tds_info), &len);
-    next = offset + len + 2;
     cur = offset + 2;
+    next = cur + len;
 
-    col = 0;
     while (cur < next) {
         proto_item *col_item;
         proto_tree *col_tree;
@@ -3529,6 +3571,262 @@ dissect_tds_colfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
     nl_data->num_cols = col;
     return cur - offset;
 }
+
+/*
+ * Process TDS 5 "ROWFMT" token and store relevant information in the
+ * _netlib_data structure for later use (see tds_get_row_size)
+ *
+ */
+static guint
+dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info,
+                           struct _netlib_data *nl_data)
+{
+    guint next, cur;
+    guint col, len, numcols;
+
+    proto_tree_add_item_ret_uint(tree, hf_tds_rowfmt_length, tvb, offset, 2,
+        tds_get_int4_encoding(tds_info), &len);
+    proto_tree_add_item_ret_uint(tree, hf_tds_rowfmt_numcols, tvb, offset + 2, 2,
+        tds_get_int2_encoding(tds_info), &numcols);
+    next = offset + len + 2; /* Only skip the length field. */
+    cur = offset + 4; /* Skip the length and numcols field. */
+
+    col = 0;
+    while (cur < next) {
+        proto_item *col_item;
+        proto_tree *col_tree;
+        guint colstart = cur;
+        gboolean first = TRUE;
+        guint colnamelen;
+        gint localelen;
+        const guint8 *colname = NULL;
+
+        if (col >= TDS_MAX_COLUMNS) {
+            nl_data->num_cols = TDS_MAX_COLUMNS;
+            return 0;
+        }
+
+        col_tree = proto_tree_add_subtree_format(tree, tvb, cur, 0,
+                       ett_tds_col, &col_item,
+                       "Column %d", col + 1);
+
+        if (!(nl_data->columns[col])) {
+            nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
+        }
+
+        proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt_colname,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &colname, &colnamelen);
+
+        if (colnamelen > 1) {
+            proto_item_append_text(col_item, " (%s", colname);
+            first = FALSE;
+        }
+        cur += colnamelen;
+
+        proto_tree_add_item(col_tree, hf_tds_rowfmt_status, tvb, cur, 1, ENC_NA);
+        cur += 1;
+
+        nl_data->columns[col]->utype = tvb_get_guint32(tvb, cur,
+                                                       tds_get_int4_encoding(tds_info));
+        proto_tree_add_item(col_tree, hf_tds_rowfmt_utype, tvb, cur, 4,
+            tds_get_int4_encoding(tds_info));
+        cur += 4;
+
+        nl_data->columns[col]->ctype = tvb_get_guint8(tvb,cur);
+        proto_tree_add_item(col_tree, hf_tds_rowfmt_ctype, tvb, cur, 1, ENC_NA);
+        cur++;
+
+        if (first) {
+            proto_item_append_text(col_item, " (%s)",
+                val_to_str_const(nl_data->columns[col]->ctype,
+                    tds_data_type_names, "Unknown type"));
+            }
+        else {
+            proto_item_append_text(col_item, ", %s)",
+                val_to_str_const(nl_data->columns[col]->ctype,
+                    tds_data_type_names, "Unknown type"));
+        }
+
+        if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
+            if (is_image_type_tds(nl_data->columns[col]->ctype)) {
+                guint tnamelen;
+                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_csize_long, tvb, cur, 4,
+                    tds_get_int4_encoding(tds_info),
+                    &nl_data->columns[col]->csize);
+                cur += 4;
+                proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt_text_tablename,
+                    tvb, cur, 2, tds_get_char_encoding(tds_info)|ENC_NA,
+                    &tnamelen);
+                cur += tnamelen;
+            }
+            else {
+                nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
+                proto_tree_add_item(col_tree, hf_tds_rowfmt_csize, tvb, cur, 1, ENC_NA);
+                cur ++;
+            }
+        } else {
+            nl_data->columns[col]->csize =
+                get_size_by_coltype(nl_data->columns[col]->ctype);
+        }
+
+        proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt_locale_info,
+            tvb, cur, 1, ENC_NA, &localelen);
+        cur += localelen;
+
+        proto_item_set_len(col_item, cur - colstart);
+
+        col += 1;
+
+    } /* while */
+
+    nl_data->num_cols = col;
+    return cur - offset;
+}
+
+/*
+ * Process TDS 5 "ROWFMT2" token and store relevant information in the
+ * _netlib_data structure for later use (see tds_get_row_size)
+ *
+ */
+static guint
+dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info,
+                           struct _netlib_data *nl_data)
+{
+    guint next, cur;
+    guint col, len, numcols;
+
+    proto_tree_add_item_ret_uint(tree, hf_tds_rowfmt2_length, tvb, offset, 4,
+        tds_get_int4_encoding(tds_info), &len);
+    proto_tree_add_item_ret_uint(tree, hf_tds_rowfmt2_numcols, tvb, offset + 4, 2,
+        tds_get_int2_encoding(tds_info), &numcols);
+    next = offset + len + 4; /* Only skip the length field. */
+    cur = offset + 6; /* Skip the length and numcols field. */
+
+    col = 0;
+    while (cur < next) {
+        proto_item *col_item;
+        proto_tree *col_tree;
+        guint colstart = cur;
+        guint labelnamelen, catalognamelen, schemanamelen, tablenamelen, colnamelen, localelen;
+        const guint8 *labelname = NULL, *catalogname = "", *schemaname = "",
+                     *tablename = "", *colname = "";
+        const guint8 *name;
+
+        if (col >= TDS_MAX_COLUMNS) {
+            nl_data->num_cols = TDS_MAX_COLUMNS;
+            return 0;
+        }
+
+        col_tree = proto_tree_add_subtree_format(tree, tvb, cur, 0,
+                       ett_tds_col, &col_item,
+                       "Column %d", col + 1);
+
+        if (!(nl_data->columns[col])) {
+            nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
+        }
+        proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_labelname,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &labelname, &labelnamelen);
+        cur += labelnamelen;
+
+        proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_catalogname,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &catalogname, &catalognamelen);
+        cur += catalognamelen;
+
+        proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_schemaname,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &schemaname, &schemanamelen);
+        cur += schemanamelen;
+
+        proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_tablename,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &tablename, &tablenamelen);
+        cur += tablenamelen;
+
+        proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_colname,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &colname, &colnamelen);
+        cur += colnamelen;
+
+        if (catalognamelen > 1) {
+            name = wmem_strjoin(wmem_packet_scope(), ".",
+                       catalogname, schemaname, tablename, colname, NULL);
+        }
+        else if (schemanamelen > 1) {
+            name = wmem_strjoin(wmem_packet_scope(), ".",
+                       schemaname, tablename, colname, NULL);
+        }
+        else if (tablenamelen > 1) {
+            name = wmem_strjoin(wmem_packet_scope(), ".",
+                       tablename, colname, NULL);
+        }
+        else {
+            name = colname;
+        }
+
+        if (labelnamelen > 1) {
+            if (strlen(name) > 0) {
+                name = wmem_strjoin(wmem_packet_scope(), " AS ",
+                           name, labelname, NULL);
+            }
+            else {
+                name = labelname;
+            }
+        }
+
+        nl_data->columns[col]->name = name;
+
+        proto_tree_add_item(col_tree, hf_tds_rowfmt2_status, tvb, cur, 4, tds_get_int4_encoding(tds_info));
+        cur += 4;
+
+        nl_data->columns[col]->utype = tvb_get_guint32(tvb, cur,
+                                                       tds_get_int4_encoding(tds_info));
+        proto_tree_add_item(col_tree, hf_tds_rowfmt2_utype, tvb, cur, 4,
+            tds_get_int4_encoding(tds_info));
+        cur += 4;
+
+        nl_data->columns[col]->ctype = tvb_get_guint8(tvb,cur);
+        proto_tree_add_item(col_tree, hf_tds_rowfmt2_ctype, tvb, cur, 1, ENC_NA);
+        cur++;
+
+        if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
+            if (is_image_type_tds(nl_data->columns[col]->ctype)) {
+                guint tnamelen;
+                proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt2_csize_long, tvb, cur, 4,
+                    tds_get_int4_encoding(tds_info),
+                    &nl_data->columns[col]->csize);
+                cur += 4;
+                proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt2_text_tablename,
+                    tvb, cur, 2, tds_get_char_encoding(tds_info)|ENC_NA,
+                    &tnamelen);
+                cur += tnamelen;
+            }
+            else {
+                nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
+                proto_tree_add_item(col_tree, hf_tds_rowfmt2_csize, tvb, cur, 1, ENC_NA);
+                cur ++;
+            }
+        } else {
+            nl_data->columns[col]->csize =
+                get_size_by_coltype(nl_data->columns[col]->ctype);
+        }
+
+        proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt2_locale_info,
+            tvb, cur, 1, ENC_NA, &localelen);
+        cur += localelen;
+
+        proto_item_set_len(col_item, cur - colstart);
+
+        col += 1;
+
+    } /* while */
+
+    nl_data->num_cols = col;
+    return cur - offset;
+}
+
 /*
  * Process TDS "CONTROL" token and store relevant information in the
  * _netlib_data structure for later use (see tds_get_row_size)
@@ -3572,63 +3870,6 @@ dissect_tds_control_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
     return cur - offset;
 }
 
-
-/*
- * Read the results token and store the relevant information in the
- * _netlib_data structure for later use (see tds_get_row_size).
- *
- * TODO: check we don't go past end of the token
- */
-static gboolean
-read_results_tds5_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
-{
-    guint name_len;
-    guint cur;
-    guint i;
-    int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
-
-    cur = offset;
-
-    /*
-     * This would be the logical place to check for little/big endianess
-     * if we didn't see the login packet.
-     * XXX: We'll take a hint
-     */
-    nl_data->num_cols = tvb_get_guint16(tvb, cur, encoding);
-    if (nl_data->num_cols > TDS_MAX_COLUMNS) {
-        nl_data->num_cols = 0;
-        return FALSE;
-    }
-
-    cur += 2;
-
-    for (i = 0; i < nl_data->num_cols; i++) {
-        nl_data->columns[i] = wmem_new(wmem_packet_scope(), struct _tds_col);
-        name_len = tvb_get_guint8(tvb,cur);
-        cur ++;
-        cur += name_len;
-
-        cur++; /* unknown */
-
-        nl_data->columns[i]->utype = tvb_get_guint16(tvb, cur, encoding);
-        cur += 2;
-
-        cur += 2; /* unknown */
-
-        nl_data->columns[i]->ctype = tvb_get_guint8(tvb,cur);
-        cur++;
-
-        if (!is_fixedlen_type_tds(nl_data->columns[i]->ctype)) {
-            nl_data->columns[i]->csize = tvb_get_guint8(tvb,cur);
-            cur ++;
-        } else {
-            nl_data->columns[i]->csize =
-                get_size_by_coltype(nl_data->columns[i]->ctype);
-        }
-        cur++; /* unknown */
-    }
-    return TRUE;
-}
 
 /*
  * If the packet type from the netlib header is a login packet, then dig into
@@ -4013,6 +4254,55 @@ dissect_tds_envchg_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv
     case 20:
         break;
     }
+
+    return cur - offset;
+}
+static int
+dissect_tds_eed_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
+{
+    guint cur = offset;
+    guint32 msg_len, len;
+
+    proto_tree_add_item(tree, hf_tds_eed_length, tvb, cur, 2,
+                        tds_get_int2_encoding(tds_info));
+    cur += 2;
+
+    proto_tree_add_item(tree, hf_tds_eed_number, tvb, cur, 4,
+                              tds_get_int4_encoding(tds_info));
+    cur += 4;
+    proto_tree_add_item(tree, hf_tds_eed_state, tvb, cur, 1, ENC_NA);
+    cur += 1;
+    proto_tree_add_item(tree, hf_tds_eed_class, tvb, cur, 1, ENC_NA);
+    cur += 1;
+
+    proto_tree_add_item_ret_length(tree, hf_tds_eed_sql_state, tvb, cur, 1,
+        ENC_NA, &len);
+    cur += len;
+
+    proto_tree_add_item(tree, hf_tds_eed_status, tvb, cur, 1, ENC_NA);
+    cur += 1;
+
+    proto_tree_add_item(tree, hf_tds_eed_transtate, tvb, cur, 2,
+                        tds_get_int2_encoding(tds_info));
+    cur += 2;
+
+    proto_tree_add_item_ret_length(tree, hf_tds_eed_msgtext, tvb, cur, 2,
+         tds_get_char_encoding(tds_info)|ENC_NA, &msg_len);
+    cur += msg_len;
+
+    proto_tree_add_item_ret_length(tree, hf_tds_eed_servername, tvb, cur, 1,
+         tds_get_char_encoding(tds_info)|ENC_NA, &msg_len);
+    cur += msg_len;
+
+    proto_tree_add_item_ret_length(tree, hf_tds_eed_procname, tvb, cur, 1,
+         tds_get_char_encoding(tds_info)|ENC_NA, &msg_len);
+    cur += msg_len;
+
+    proto_tree_add_item(tree, hf_tds_eed_linenumber, tvb, cur, 2,
+                        tds_get_int2_encoding(tds_info));
+    cur += 2;
+
+    /* TODO Handle EED follows? Maybe handled as separate tokens. */
 
     return cur - offset;
 }
@@ -4971,7 +5261,7 @@ tds45_token_to_idx(guint8 token)
         case TDS_DONE_TOKEN: return hf_tds_done;
         case TDS_DONEPROC_TOKEN: return hf_tds_doneproc;
         case TDS_DONEINPROC_TOKEN: return hf_tds_doneinproc;
-        case TDS_EED_TOKEN: return hf_tds_eed;
+        case TDS5_EED_TOKEN: return hf_tds_eed;
         case TDS_ENVCHG_TOKEN: return hf_tds_envchg;
         case TDS_ERR_TOKEN: return hf_tds_error;
         case TDS_INFO_TOKEN: return hf_tds_info;
@@ -4981,6 +5271,8 @@ tds45_token_to_idx(guint8 token)
         case TDS_PROCID_TOKEN: return hf_tds_procid;
         case TDS_RET_STAT_TOKEN: return hf_tds_returnstatus;
         /*case TDS_RETURNVAL_TOKEN: return hf_tds_returnvalue;*/
+        case TDS5_ROWFMT_TOKEN: return hf_tds_rowfmt;
+        case TDS5_ROWFMT2_TOKEN: return hf_tds_rowfmt2;
         case TDS_ROW_TOKEN: return hf_tds_row;
         /*case TDS_TABNAME_TOKEN: return hf_tds_tabname;*/
     }
@@ -5080,6 +5372,9 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                 case TDS_DONEINPROC_TOKEN:
                     token_sz = dissect_tds_doneinproc_token(tvb, pos + 1, token_tree, tds_info) + 1;
                     break;
+                case TDS5_EED_TOKEN:
+                    token_sz = dissect_tds_eed_token(tvb, pos + 1, token_tree, tds_info) + 1;
+                    break;
                 case TDS_ENVCHG_TOKEN:
                     token_sz = dissect_tds_envchg_token(tvb, pos + 1, token_tree, tds_info) + 1;
                     break;
@@ -5110,19 +5405,11 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                 case TDS_ROW_TOKEN:
                     token_sz = dissect_tds_row_token(tvb, pinfo, &nl_data, pos + 1, token_tree, tds_info) + 1;
                     break;
-                case TDS_SESSIONSTATE_TOKEN:
-                    token_sz = dissect_tds_sessionstate_token(tvb, pos + 1, token_tree) + 1;
+                case TDS5_ROWFMT_TOKEN:
+                    token_sz = dissect_tds_rowfmt_token(token_tree, tvb, pos + 1, tds_info, &nl_data) + 1;
                     break;
-                case TDS_SSPI_TOKEN:
-                    token_sz = dissect_tds_sspi_token(tvb, pos + 1, token_tree) + 1;
-                    break;
-
-                case TDS_RESULT_TOKEN:
-                    /*
-                     * If it's a result token, we need to stash the
-                     * column info.
-                     */
-                    read_results_tds5_token(tvb, &nl_data, pos + 3);
+                case TDS5_ROWFMT2_TOKEN:
+                    token_sz = dissect_tds_rowfmt2_token(token_tree, tvb, pos + 1, tds_info, &nl_data) + 1;
                     break;
 
                 default:
@@ -6811,12 +7098,68 @@ proto_register_tds(void)
             NULL, HFILL }
           },
 
-        /* EED token (TDS_EED_TOKEN) */
+        /* EED token (TDS5_EED_TOKEN) */
         { &hf_tds_eed,
           { "Token - ExtendedErrorDiagnostic", "tds.eed",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_tds_eed_length,
+          { "Token length", "tds.eed.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_number,
+          { "SQL Error Number", "tds.eed.number",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_state,
+          { "State", "tds.eed.state",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_class,
+          { "Class (Severity)", "tds.eed.class",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_sql_state,
+          { "SQL State", "tds.eed.sql_state",
+            FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_status,
+          { "EED Following", "tds.eed.status",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_transtate,
+          { "Transaction state", "tds.eed.transtate",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_msgtext,
+          { "Error message", "tds.eed.msgtext",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_servername,
+          { "Server name", "tds.eed.servername",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_procname,
+          { "Procedure name", "tds.eed.procname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_eed_linenumber,
+          { "Line number", "tds.eed.linenumber",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+        },
+
         /* ENVCHANGE token (TDS_ENVCHG_TOKEN) */
         { &hf_tds_envchg,
           { "Token - EnvChange", "tds.envchange",
@@ -7150,6 +7493,140 @@ proto_register_tds(void)
         { &hf_tds_row_field,
           { "Field", "tds.row.field",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        /* ROWFMT token (TDS5_ROWFMT_TOKEN) */
+        { &hf_tds_rowfmt,
+          { "Token - Rowfmt", "tds.rowfmt",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_length,
+          { "Token length - Rowfmt", "tds.rowfmt.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_numcols,
+          { "Number of Columns", "tds.rowfmt.numcols",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_colname,
+          { "Column name", "tds.rowfmt.colname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_status,
+          { "Column Status", "tds.rowfmt.status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_utype,
+          { "Column Usertype", "tds.rowfmt.utype",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_ctype,
+          { "Column Datatype", "tds.rowfmt.ctype",
+            FT_UINT8, BASE_DEC, &tds_data_type_names, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_csize,
+          { "Column size", "tds.rowfmt.csize",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_csize_long,
+          { "Column size - long", "tds.rowfmt.csize_long",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_text_tablename,
+          { "Text Tablename", "tds.rowfmt.text_tablename",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt_locale_info,
+          { "Locale info", "tds.rowfmt.locale_info",
+            FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        /* ROWFMT2 token (TDS5_ROWFMT2_TOKEN) */
+        { &hf_tds_rowfmt2,
+          { "Token - Rowfmt2", "tds.rowfmt2",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_length,
+          { "Token length - Rowfmt2", "tds.rowfmt2.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_numcols,
+          { "Number of Columns", "tds.rowfmt2.numcols",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_labelname,
+          { "Label name", "tds.rowfmt2.labelname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_catalogname,
+          { "Catalog name", "tds.rowfmt2.catalogname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_schemaname,
+          { "Schema name", "tds.rowfmt2.schemaname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_tablename,
+          { "Table name", "tds.rowfmt2.tablename",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_colname,
+          { "Column name", "tds.rowfmt2.colname",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_status,
+          { "Column Status", "tds.rowfmt2.status",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_utype,
+          { "Column Usertype", "tds.rowfmt2.utype",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_ctype,
+          { "Column Datatype", "tds.rowfmt2.ctype",
+            FT_UINT8, BASE_DEC, &tds_data_type_names, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_csize,
+          { "Column size", "tds.rowfmt2.csize",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_csize_long,
+          { "Column size - long", "tds.rowfmt2.csize_long",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_text_tablename,
+          { "Text Tablename", "tds.rowfmt2.text_tablename",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rowfmt2_locale_info,
+          { "Locale info", "tds.rowfmt2.locale_info",
+            FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
             NULL, HFILL }
         },
 
