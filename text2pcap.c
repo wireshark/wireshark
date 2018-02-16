@@ -1908,7 +1908,7 @@ main(int argc, char *argv[])
     curr_offset = header_length;
 
     text2pcap_in = input_file;
-    if (text2pcap_lex() == EXIT_SUCCESS) {
+    if (text2pcap_scan() == EXIT_SUCCESS) {
         if (write_current_packet(FALSE) != EXIT_SUCCESS)
             ret = EXIT_FAILURE;
     } else {
@@ -1923,7 +1923,6 @@ main(int argc, char *argv[])
                 bytes_written, (bytes_written == 1) ? "" : "s");
     }
 clean_exit:
-    text2pcap_lex_destroy();
     if (input_file) {
         fclose(input_file);
     }

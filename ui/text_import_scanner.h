@@ -34,7 +34,7 @@ void write_current_packet(void);
 
 extern FILE *text_importin;
 
-int text_importlex(void);
+int text_import_scan(FILE *input_file);
 
 #ifdef __cplusplus
 }

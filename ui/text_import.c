@@ -905,7 +905,6 @@ parse_token (token_t token, char *str)
 int
 text_import(text_import_info_t *info)
 {
-    yyscan_t scanner;
     int ret;
     struct tm *now_tm;
 
@@ -1029,21 +1028,9 @@ text_import(text_import_info_t *info)
 
     max_offset = info->max_frame_length;
 
-    if (text_import_lex_init(&scanner) != 0) {
-        ret = errno;
-        g_free(packet_buf);
-        return ret;
-    }
-
-    text_import_set_in(info->import_text_file, scanner);
-
-    text_import_lex(scanner);
-
-    text_import_lex_destroy(scanner);
-
+    ret = text_import_scan(info->import_text_file);
     g_free(packet_buf);
-
-    return 0;
+    return ret;
 }
 
 /*

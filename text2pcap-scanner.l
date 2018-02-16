@@ -113,3 +113,13 @@ eol \r?\n\r?
  * Turn diagnostics back on, so we check the code that we've written.
  */
 DIAG_ON_FLEX
+
+int
+text2pcap_scan(void)
+{
+    int ret;
+
+    ret = text2pcap_lex();
+    text2pcap_lex_destroy();
+    return ret;
+}

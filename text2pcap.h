@@ -27,9 +27,7 @@ typedef enum {
 
 int parse_token(token_t token, char *str);
 
-int text2pcap_lex(void);
-
-int text2pcap_lex_destroy(void);
+int text2pcap_scan(void);
 
 #endif
 

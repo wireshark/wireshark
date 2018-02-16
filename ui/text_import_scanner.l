@@ -142,3 +142,20 @@ eol \r?\n\r?
  * Turn diagnostics back on, so we check the code that we've written.
  */
 DIAG_ON_FLEX
+
+int
+text_import_scan(FILE *input_file)
+{
+    yyscan_t scanner;
+
+    if (text_import_lex_init(&scanner) != 0)
+        return errno;
+
+    text_import_set_in(input_file, scanner);
+
+    text_import_lex(scanner);
+
+    text_import_lex_destroy(scanner);
+
+    return 0;
+}
