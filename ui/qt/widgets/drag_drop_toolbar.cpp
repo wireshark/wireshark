@@ -6,6 +6,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later*/
 
+#include <wsutil/utf8_entities.h>
+
 #include <ui/qt/widgets/drag_drop_toolbar.h>
 #include <ui/qt/widgets/drag_label.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
@@ -27,15 +29,28 @@
 DragDropToolBar::DragDropToolBar(const QString &title, QWidget *parent) :
     QToolBar(title, parent)
 {
-    childCounter = 0;
-    setAcceptDrops(true);
+    setupToolbar();
 }
 
 DragDropToolBar::DragDropToolBar(QWidget *parent) :
     QToolBar(parent)
 {
+    setupToolbar();
+}
+
+void DragDropToolBar::setupToolbar()
+{
     childCounter = 0;
     setAcceptDrops(true);
+
+    // Each QToolBar has a QToolBarExtension button. Its icon looks
+    // terrible. We might want to create our own icon, but the double
+    // angle quote is a similar, nice-looking shape.
+    QToolButton *ext_button = findChild<QToolButton*>();
+    if (ext_button) {
+        ext_button->setIcon(QIcon());
+        ext_button->setText(UTF8_RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK);
+    }
 }
 
 DragDropToolBar::~DragDropToolBar()

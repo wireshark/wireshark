@@ -36,6 +36,7 @@
 #define UTF8_SUPERSCRIPT_TWO                "\xc2\xb2"      /*   178 /   0xb2 */
 #define UTF8_MICRO_SIGN                     "\xc2\xb5"      /*   181 /   0xb5 */
 #define UTF8_MIDDLE_DOT                     "\xc2\xb7"      /*   183 /   0xb7 */
+#define UTF8_RIGHT_POINTING_DOUBLE_ANGLE_QUOTATION_MARK "\xc2\xbb" /* 187 / 0xbb */
 
 #define UTF8_BULLET                     "\xe2\x80\xa2"      /*  8226 / 0x2024 */
 #define UTF8_EM_DASH                    "\xe2\x80\x94"      /*  8212 / 0x2014 */

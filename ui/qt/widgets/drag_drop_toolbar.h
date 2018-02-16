@@ -41,6 +41,7 @@ private:
     QPoint dragStartPosition;
     int childCounter;
 
+    void setupToolbar();
     void moveToolbarItems(int fromPos, int toPos);
 
 };
