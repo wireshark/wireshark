@@ -135,3 +135,10 @@ eol \r?\n\r?
 {text}            { parse_token(T_TEXT, yytext); }
 
 <<EOF>>           { write_current_packet(); yyterminate(); }
+
+%%
+
+/*
+ * Turn diagnostics back on, so we check the code that we've written.
+ */
+DIAG_ON_FLEX

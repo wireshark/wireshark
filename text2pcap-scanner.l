@@ -106,3 +106,10 @@ eol \r?\n\r?
 	if (parse_token(T_EOL, NULL) != EXIT_SUCCESS) return EXIT_FAILURE; }
 {comment}         { if (parse_token(T_EOL, NULL) != EXIT_SUCCESS) return EXIT_FAILURE; }
 {text}            { if (parse_token(T_TEXT, yytext) != EXIT_SUCCESS) return EXIT_FAILURE; }
+
+%%
+
+/*
+ * Turn diagnostics back on, so we check the code that we've written.
+ */
+DIAG_ON_FLEX
