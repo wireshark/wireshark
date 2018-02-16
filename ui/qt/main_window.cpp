@@ -50,29 +50,29 @@ DIAG_ON(frame-larger-than=)
 #include "capture_interfaces_dialog.h"
 #endif
 #include "conversation_colorize_action.h"
-#include "export_object_action.h"
-#include <ui/qt/widgets/display_filter_edit.h>
 #include "export_dissection_dialog.h"
+#include "export_object_action.h"
 #include "file_set_dialog.h"
 #include "filter_dialog.h"
 #include "funnel_statistics.h"
 #include "import_text_dialog.h"
 #include "interface_toolbar.h"
 #include "packet_list.h"
-#include "wireless_timeline.h"
 #include "proto_tree.h"
 #include "simple_dialog.h"
-#include <ui/qt/utils/stock_icon.h>
 #include "tap_parameter_dialog.h"
 #include "wireless_frame.h"
+#include "wireless_timeline.h"
 #include "wireshark_application.h"
 
 #include <ui/qt/widgets/additional_toolbar.h>
-#include <ui/qt/utils/variant_pointer.h>
-
-#include <ui/qt/utils/qt_ui_utils.h>
-
+#include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/drag_drop_toolbar.h>
+
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -397,7 +397,20 @@ MainWindow::MainWindow(QWidget *parent) :
     // larger toolbar. We do this by adding them to a child toolbar.
     // https://bugreports.qt.io/browse/QTBUG-2472
     filter_expression_toolbar_ = new DragDropToolBar();
-    filter_expression_toolbar_->setStyleSheet("QToolBar { background: none; border: none; }");
+    // Try to draw separator lines from the button label ascent to its baseline.
+    int sep_margin = (filter_expression_toolbar_->fontMetrics().height() * 0.5) - 1;
+    QColor sep_color = ColorUtils::alphaBlend(filter_expression_toolbar_->palette().text(),
+                                              filter_expression_toolbar_->palette().base(), 0.5);
+    sep_color.setAlphaF(0.3);
+    filter_expression_toolbar_->setStyleSheet(QString(
+                "QToolBar { background: none; border: none; spacing: 1px; }"
+                "QToolBar::separator {"
+                "  width: 1px; max-width: 1px;"
+                "  margin-top: %1px; margin-bottom: %2px;"
+                "  background: %3; }"
+                "}"
+                ).arg(sep_margin).arg(sep_margin - 1).arg(sep_color.name()));
+
     filter_expression_toolbar_->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(filter_expression_toolbar_, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(filterToolbarCustomMenuHandler(QPoint)));
