@@ -22,11 +22,25 @@
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include <wsutil/pint.h>
+#include <wmem/wmem_map.h>
+#include <wmem/wmem_tree.h>
 
 #include "packet-ieee802154.h"
 
 void proto_register_wisun(void);
 void proto_reg_handoff_wisun(void);
+
+/* EDFE support */
+typedef struct {
+    ieee802154_map_rec initiator;  // use start_fnum and end_fnum to record exchange start/end
+    ieee802154_map_rec target;
+} edfe_exchange_t;
+
+// for each exchange, maps both source address and destination address to a
+// (distinct) tree that uses the frame number of the first exchange frame to
+// map to the shared edfe_exchange_t
+static wmem_map_t* edfe_byaddr;
+
 
 /* Wi-SUN Header IE Sub-ID Values. */
 #define WISUN_SUBID_UTT     1
@@ -243,6 +257,7 @@ static expert_field ei_wisun_subid_unsupported = EI_INIT;
 static expert_field ei_wisun_wsie_short_format = EI_INIT;
 static expert_field ei_wisun_wsie_unsupported = EI_INIT;
 static expert_field ei_wisun_usie_channel_plan_invalid = EI_INIT;
+static expert_field ei_wisun_edfe_start_not_found = EI_INIT;
 
 static int
 wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, guint offset)
@@ -288,15 +303,71 @@ dissect_wisun_btie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
     return 6;
 }
 
+static void
+edfe_insert_exchange(guint64* addr, edfe_exchange_t* exchange)
+{
+    wmem_tree_t* byframe = (wmem_tree_t *)wmem_map_lookup(edfe_byaddr, addr);
+    if (!byframe) {
+        byframe = wmem_tree_new(wmem_file_scope());
+        wmem_map_insert(edfe_byaddr, addr, byframe);
+    }
+    wmem_tree_insert32(byframe, exchange->initiator.start_fnum, exchange);
+}
+
 static int
-dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, ieee802154_packet *packet)
 {
     nstime_t ts;
     ts.secs = 0;
-    ts.nsecs = tvb_get_guint8(tvb, offset) * 1000000UL;
+    guint8 tx = tvb_get_guint8(tvb, offset);
+    ts.nsecs = tx * 1000000;
     proto_tree_add_time(tree, hf_wisun_fcie_tx, tvb, offset, 1, &ts);
-    ts.nsecs = tvb_get_guint8(tvb, offset+1) * 1000000UL;
+    guint8 rx = tvb_get_guint8(tvb, offset + 1);
+    ts.nsecs = rx * 1000000;
     proto_tree_add_time(tree, hf_wisun_fcie_rx, tvb, offset + 1, 1, &ts);
+
+    // EDFE processing
+    ieee802154_hints_t* hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                                                                       proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    if (packet && hints && packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+        // first packet has source address
+        if (!hints->map_rec && packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+            edfe_exchange_t* ex = wmem_new(wmem_file_scope(), edfe_exchange_t);
+            ex->initiator.proto = ex->target.proto = "Wi-SUN";
+            ex->initiator.addr64 = packet->src64;
+            ex->target.addr64 = packet->dst64;
+            ex->initiator.start_fnum = pinfo->num;
+            ex->initiator.end_fnum = ~(guint)0;
+            edfe_insert_exchange(&ex->initiator.addr64, ex);
+            edfe_insert_exchange(&ex->target.addr64, ex);
+        } else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+            if (!hints->map_rec) {
+                wmem_tree_t* byframe = (wmem_tree_t *)wmem_map_lookup(edfe_byaddr, &packet->dst64);
+                if (byframe) {
+                    edfe_exchange_t *ex = (edfe_exchange_t *)wmem_tree_lookup32_le(byframe, pinfo->num);
+                    if (ex && pinfo->num <= ex->initiator.end_fnum) {
+                        hints->map_rec = ex->initiator.addr64 == packet->dst64 ? &ex->target : &ex->initiator;
+                        if (tx == 0 && rx == 0) {
+                            // last frame
+                            ex->initiator.end_fnum = pinfo->num;
+                        }
+                    }
+                }
+            }
+            if (hints->map_rec) {
+                // Set address to ensure that 6LoWPAN reassembly works
+                // Adapted from packet-ieee802.15.4.c
+                guint64 *p_addr = wmem_new(pinfo->pool, guint64);
+                /* Copy and convert the address to network byte order. */
+                *p_addr = pntoh64(&(hints->map_rec->addr64));
+                set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
+                copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+            } else {
+                expert_add_info(pinfo, tree, &ei_wisun_edfe_start_not_found);
+            }
+        }
+    }
+
     return 2;
 }
 
@@ -321,6 +392,7 @@ dissect_wisun_hie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint offset;
     proto_tree *subtree;
     guint8 subid = tvb_get_guint8(tvb, 2);
+    ieee802154_packet *packet = (ieee802154_packet*)data;
 
     offset = 3;
     switch (subid) {
@@ -336,7 +408,7 @@ dissect_wisun_hie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         case WISUN_SUBID_FC:
             subtree = wisun_create_hie_tree(tvb, tree, hf_wisun_fcie, ett_wisun_fcie);
-            offset += dissect_wisun_fcie(tvb, pinfo, subtree, offset);
+            offset += dissect_wisun_fcie(tvb, pinfo, subtree, offset, packet);
             break;
 
         case WISUN_SUBID_RSL:
@@ -1057,6 +1129,8 @@ void proto_register_wisun(void)
                 "Invalid Channel Plan", EXPFILL }},
         { &ei_wisun_wsie_unsupported, { "wisun.wsie.unsupported", PI_PROTOCOL, PI_WARN,
                 "Unsupported Sub-IE ID", EXPFILL }},
+        { &ei_wisun_edfe_start_not_found, { "wisun.edfe.start_not_found", PI_SEQUENCE, PI_WARN,
+                "EDFE Transfer: start frame not found", EXPFILL }},
     };
 
     expert_module_t* expert_wisun;
@@ -1071,6 +1145,8 @@ void proto_register_wisun(void)
     expert_register_field_array(expert_wisun, ei, array_length(ei));
 
     register_dissector("wisun.sec", dissect_wisun_sec, proto_wisun_sec);
+
+    edfe_byaddr = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);
 }
 
 void proto_reg_handoff_wisun(void)
