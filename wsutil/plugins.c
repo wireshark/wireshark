@@ -93,7 +93,7 @@ free_plugin(gpointer data)
 static gint
 compare_plugins(gconstpointer a, gconstpointer b)
 {
-    return g_strcmp0((*(const plugin **)a)->name, (*(const plugin **)b)->name);
+    return g_strcmp0((*(plugin *const *)a)->name, (*(plugin *const *)b)->name);
 }
 
 static void
