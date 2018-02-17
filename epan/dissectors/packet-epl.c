@@ -1317,7 +1317,7 @@ struct object_mapping {
 	struct {
 		guint32 first, last;
 	} frame; /* frames for which object_mapping applies */
-	struct od_entry *info;
+	const struct od_entry *info;
 	const char *index_name;
 	char title[32];
 };
@@ -1334,7 +1334,7 @@ struct read_req {
 	guint8 sendsequence;
 
 	const char *index_name;
-	struct od_entry *info;
+	const struct od_entry *info;
 };
 
 struct epl_convo {
@@ -1912,7 +1912,7 @@ profile_new(wmem_allocator_t *parent_pool)
 }
 
 static struct object *object_lookup(struct profile *profile, guint16 idx);
-static struct subobject *subobject_lookup(struct object *obj, guint8 subindex);
+static const struct subobject *subobject_lookup(struct object *obj, guint8 subindex);
 
 struct object *
 epl_profile_object_add(struct profile *profile, guint16 idx)
@@ -1981,7 +1981,7 @@ epl_profile_object_mappings_update(struct profile *profile)
 		{
 			struct object_mapping *map = &mappings[i];
 			struct object *mapping_obj;
-			struct subobject *mapping_subobj;
+			const struct subobject *mapping_subobj;
 
 			if (!(mapping_obj = object_lookup(profile, map->pdo.idx)))
 				continue;
@@ -2271,11 +2271,11 @@ object_lookup(struct profile *profile, guint16 idx)
 	return (struct object*)wmem_map_lookup(profile->objects, GUINT_TO_POINTER(idx));
 }
 
-static struct subobject *
+static const struct subobject *
 subobject_lookup(struct object *obj, guint8 subindex)
 {
 	if (!obj || !obj->subindices) return NULL;
-	return (struct subobject*)epl_wmem_iarray_find(obj->subindices, subindex);
+	return (const struct subobject*)epl_wmem_iarray_find(obj->subindices, subindex);
 }
 
 /* epl duplication table hash function */
@@ -2507,9 +2507,9 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 		 * so we need to check we can actually index into the buffer
 		 */
 		if (pinfo->net_dst.type == AT_IPv4)
-			pinfo->destport = ((guint8*)pinfo->net_dst.data)[3];
+			pinfo->destport = ((const guint8*)pinfo->net_dst.data)[3];
 		if (pinfo->net_src.type == AT_IPv4)
-			pinfo->srcport  = ((guint8*)pinfo->net_src.data)[3];
+			pinfo->srcport  = ((const guint8*)pinfo->net_src.data)[3];
 	}
 	else
 	{
@@ -3885,7 +3885,7 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 	const gchar *index_str, *sub_str, *sub_index_str;
 	fragment_head *frag_msg = NULL;
 	struct object *obj = NULL;
-	struct subobject *subobj = NULL;
+	const struct subobject *subobj = NULL;
 
 	/* get the current frame number */
 	frame = pinfo->num;
@@ -4134,7 +4134,7 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 	struct object_mapping map = OBJECT_MAPPING_INITIALIZER;
 	struct object *mapping_obj;
 	int *ett;
-	struct subobject *mapping_subobj;
+	const struct subobject *mapping_subobj;
 	gboolean nosub = FALSE;
 
 	/* If we don't populate the tree or record mappings, skip over it */
@@ -4222,7 +4222,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 	proto_item *psf_item;
 	proto_tree *psf_od_tree;
 	struct object *obj = NULL;
-	struct subobject *subobj = NULL;
+	const struct subobject *subobj = NULL;
 
 
 	/* Offset is calculated simply by only applying EPL payload offset, not packet offset.
@@ -4562,7 +4562,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 	proto_item *psf_item, *psf_od_item;
 	proto_tree *psf_tree, *psf_od_tree;
 	struct object *obj = NULL;
-	struct subobject *subobj = NULL;
+	const struct subobject *subobj = NULL;
 	const char *name;
 
 	/* Offset is calculated simply by only applying EPL payload offset, not packet offset.
@@ -4943,7 +4943,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 	gboolean end_segment = FALSE;
 	fragment_head *frag_msg = NULL;
 	struct object *obj = NULL;
-	struct subobject *subobj = NULL;
+	const struct subobject *subobj = NULL;
 	struct read_req *req;
 	const struct epl_datatype *type = NULL;
 
