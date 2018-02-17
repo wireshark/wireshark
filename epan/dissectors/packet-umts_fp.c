@@ -3891,14 +3891,14 @@ check_header_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
 {
     guint8 crc = 0;
     guint8 calc_crc = 0;
-    guint8 * data = NULL;
+    const guint8 * data = NULL;
 
     if (header_length > tvb_captured_length(tvb))
         return FALSE;
 
     crc = tvb_get_guint8(tvb, 0) >> 1;
     /* Get data of header excluding the first byte */
-    data = (guint8 *)tvb_get_ptr(tvb, 1, header_length - 1);
+    data = tvb_get_ptr(tvb, 1, header_length - 1);
 
     calc_crc = crc7update(0, data, header_length - 1);
     calc_crc = crc7finalize(calc_crc);
@@ -3916,7 +3916,7 @@ check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
     guint16 calc_crc = 0;
     guint16 payload_index;
     guint16 payload_length;
-    guint8 *data = NULL;
+    const guint8 *data = NULL;
 
     reported_length = tvb_reported_length(tvb);
     if (reported_length < 2 || reported_length > tvb_captured_length(tvb)) {
@@ -3928,7 +3928,7 @@ check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
 
     payload_index = header_length; /* payload first index is the same as the header length */
     payload_length = (reported_length - payload_index) - 2;
-    data = (guint8 *)tvb_get_ptr(tvb, payload_index, payload_length);
+    data = tvb_get_ptr(tvb, payload_index, payload_length);
     calc_crc = crc16_8005_noreflect_noxor(data, payload_length);
 
     return calc_crc == crc;
@@ -3946,12 +3946,12 @@ generate_ue_id_for_heur(packet_info *pinfo)
         /* srcXor: [ ------- Source Address ------- ] (4 bytes)*/
         /*                         XOR                         */
         /*         [  Source Port  ][  Source Port  ] (4 bytes)*/
-        int srcXor = *((guint32*)pinfo->src.data) ^ ((pinfo->srcport << 16) | (pinfo->srcport));
+        int srcXor = *((const guint32*)pinfo->src.data) ^ ((pinfo->srcport << 16) | (pinfo->srcport));
 
         /* dstXor: [ ---- Destination  Address ---- ] (4 bytes)*/
         /*                         XOR                         */
         /*         [ - Dest Port - ][ - Dest Port - ] (4 bytes)*/
-        int dstXor = *((guint32*)pinfo->dst.data) ^ ((pinfo->destport << 16) | (pinfo->destport));
+        int dstXor = *((const guint32*)pinfo->dst.data) ^ ((pinfo->destport << 16) | (pinfo->destport));
         return srcXor ^ dstXor;
     }
     else {
