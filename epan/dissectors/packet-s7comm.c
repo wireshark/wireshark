@@ -2630,12 +2630,12 @@ s7comm_decode_response_write_data(tvbuff_t *tvb,
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
 
-    for (i = 1; i <= item_count; i++) {
+    for (i = 0; i < item_count; i++) {
         ret_val = tvb_get_guint8(tvb, offset);
         /* Insert a new tree for every item */
         item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, 1, ENC_NA);
         item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-        proto_item_append_text(item, " [%d]: (%s)", i, val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+        proto_item_append_text(item, " [%d]: (%s)", i+1, val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
         proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
         offset += 1;
     }
@@ -2662,7 +2662,7 @@ s7comm_decode_response_read_data(tvbuff_t *tvb,
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
 
-    for (i = 1; i <= item_count; i++) {
+    for (i = 0; i < item_count; i++) {
         ret_val = tvb_get_guint8(tvb, offset);
         if (ret_val == S7COMM_ITEM_RETVAL_RESERVED ||
             ret_val == S7COMM_ITEM_RETVAL_DATA_OK ||
@@ -2684,7 +2684,7 @@ s7comm_decode_response_read_data(tvbuff_t *tvb,
             }
 
             /* the PLC places extra bytes at the end of all but last result, if length is not a multiple of 2 */
-            if ((len % 2) && (i < item_count)) {
+            if ((len % 2) && (i < (item_count-1))) {
                 len2 = len + 1;
             } else {
                 len2 = len;
@@ -2693,7 +2693,7 @@ s7comm_decode_response_read_data(tvbuff_t *tvb,
         /* Insert a new tree for every item */
         item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, len + head_len, ENC_NA);
         item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-        proto_item_append_text(item, " [%d]: (%s)", i, val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+        proto_item_append_text(item, " [%d]: (%s)", i+1, val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
 
         proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
         proto_tree_add_uint(item_tree, hf_s7comm_data_transport_size, tvb, offset + 1, 1, tsize);
@@ -3873,11 +3873,11 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
     nr_objects = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(msg_item_tree, hf_s7comm_cpu_alarm_message_nr_objects, tvb, offset, 1, nr_objects);
     offset += 1;
-    for (i = 1; i <= nr_objects; i++) {
+    for (i = 0; i < nr_objects; i++) {
         msg_obj_start_offset = offset;
         msg_obj_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_obj_item, tvb, offset, 0, ENC_NA);
         msg_obj_item_tree = proto_item_add_subtree(msg_obj_item, ett_s7comm_cpu_alarm_message_object);
-        proto_item_append_text(msg_obj_item_tree, " [%d]", i);
+        proto_item_append_text(msg_obj_item_tree, " [%d]", i+1);
         if (type == S7COMM_UD_TYPE_REQ || type == S7COMM_UD_TYPE_PUSH) {
             proto_tree_add_item(msg_obj_item_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -4494,7 +4494,7 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
                     offset = s7comm_decode_param_item(tvb, offset, data_tree, i);
                     /* if length is not a multiple of 2 and this is not the last item, then add a fill-byte */
                     len_item = offset - offset_old;
-                    if ((len_item % 2) && (i < item_count)) {
+                    if ((len_item % 2) && (i < (item_count-1))) {
                         offset += 1;
                     }
                 }
@@ -4872,7 +4872,7 @@ s7comm_decode_req_resp(tvbuff_t *tvb,
                         offset = s7comm_decode_param_item(tvb, offset, param_tree, i);
                         /* if length is not a multiple of 2 and this is not the last item, then add a fill-byte */
                         len = offset - offset_old;
-                        if ((len % 2) && (i < item_count)) {
+                        if ((len % 2) && (i < (item_count-1))) {
                             offset += 1;
                         }
                     }
