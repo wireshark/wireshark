@@ -1025,16 +1025,17 @@ void MainWindow::filterExpressionsChanged()
     data.window = this;
     data.actions_added = false;
 
+    // Hiding and showing seems to be the only way to get the layout to
+    // work correctly in some cases. See bug 14121 for details.
+    setUpdatesEnabled(false);
+    filter_expression_toolbar_->hide();
     filter_expression_toolbar_->clear();
 
     // XXX Add a context menu for removing and changing buttons.
     filter_expression_iterate_expressions(filter_expression_add_action, &data);
 
-    if (data.actions_added) {
-        // QToolButton calls updateGeometry+update all over the place.
-        // updateGeometry should be sufficient here.
-        main_ui_->displayFilterToolBar->updateGeometry();
-    }
+    filter_expression_toolbar_->show();
+    setUpdatesEnabled(true);
 }
 
 //
