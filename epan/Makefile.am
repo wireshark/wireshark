@@ -353,7 +353,7 @@ nodist_libwireshark_generated_la_SOURCES = \
 	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
 	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES)
 
-libwireshark_generated_la_CFLAGS = $(GENERATED_CFLAGS)
+libwireshark_generated_la_CFLAGS = $(AM_CFLAGS)
 
 EXTRA_DIST = \
 	.editorconfig		\
