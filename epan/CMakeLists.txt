@@ -173,7 +173,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	xdlc.h
 )
 
-set(LIBWIRESHARK_FILES
+set(LIBWIRESHARK_NONGENERATED_FILES
 	addr_and_mask.c
 	addr_resolv.c
 	address_types.c
@@ -259,30 +259,19 @@ set(LIBWIRESHARK_FILES
 	${CMAKE_SOURCE_DIR}/version_info.c
 )
 
-set(LIBWIRESHARK_CLEAN_FILES
-	${LIBWIRESHARK_FILES}
-)
+set(LIBWIRESHARK_FILES ${LIBWIRESHARK_NONGENERATED_FILES})
 
-add_lex_files(LEX_FILES CLEAN_GENERATED_FILES
+add_lex_files(LEX_FILES LIBWIRESHARK_FILES
 	diam_dict.l
 	dtd_parse.l
 	dtd_preparse.l
+	radius_dict.l
 	uat_load.l
 )
-#
-# There's still a warning when we clean up generated value_strings,
-# because the string pointer is a const pointer, but it's allocated
-# and we free it
-#
-add_lex_files(LEX_FILES GENERATED_FILES
-	radius_dict.l
-)
 
-add_lemon_files(LEMON_FILES CLEAN_GENERATED_FILES
+add_lemon_files(LEMON_FILES LIBWIRESHARK_FILES
 	dtd_grammar.lemon
 )
-
-set(GENERATED_FILES ${GENERATED_FILES} ${CLEAN_GENERATED_FILES})
 
 set(epan_LIBS
 	wiretap
@@ -305,13 +294,8 @@ set(epan_LIBS
 	${LIBXML2_LIBRARIES}
 )
 
-set(CLEAN_FILES
-	${LIBWIRESHARK_CLEAN_FILES}
-	${CLEAN_GENERATED_FILES}
-)
-
 set_source_files_properties(
-	${CLEAN_FILES}
+	${LIBWIRESHARK_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
@@ -325,7 +309,6 @@ else()
 endif()
 add_library(epan
 	${LIBWIRESHARK_FILES}
-	${GENERATED_FILES}
 	$<TARGET_OBJECTS:crypt>
 	$<TARGET_OBJECTS:dfilter>
 	$<TARGET_OBJECTS:dissectors>
@@ -450,7 +433,7 @@ CHECKAPI(
 	SWITCHES
 	  -g termoutput -build
 	SOURCES
-	  ${LIBWIRESHARK_FILES}
+	  ${LIBWIRESHARK_NONGENERATED_FILES}
 )
 
 #
