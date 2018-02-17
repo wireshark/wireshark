@@ -91,8 +91,8 @@ extern "C" {
 #endif
 
 /*
- * Suppress complaints about conversion of size_t to int and about
- * signed vs. unsigned comparison.
+ * Suppress complaints about narrowing converstions and about signed vs.
+ * unsigned comparison.
  *
  * XXX - this is done solely to squelch complaints from code generated
  * by Flex, but newer versions of Flex might fix the code; can we
@@ -104,11 +104,13 @@ extern "C" {
    * Suppress:
    *
    *   warning C4018: signed/unsigned mismatch
+   *   warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
    *   warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
    */
   #define DIAG_OFF_FLEX \
     __pragma(warning(push)) \
     __pragma(warning(disable:4018)) \
+    __pragma(warning(disable:4244)) \
     __pragma(warning(disable:4267))
   #define DIAG_ON_FLEX	__pragma(warning(pop))
 #else
