@@ -1260,6 +1260,11 @@ the HTTP status codes and the HTTP request methods.
 Calculate the HTTP packet distribution. Displayed values are the
 HTTP request modes and the HTTP status codes.
 
+=item B<-z> http_ref,tree
+
+Calculate the HTTP requests by referer. Displayed values are the
+referring URI.
+
 =item B<-z> http_req,tree
 
 Calculate the HTTP requests by server. Displayed values are the
