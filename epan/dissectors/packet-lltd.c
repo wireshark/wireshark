@@ -322,10 +322,10 @@ const true_false_string tfs_full_half_duplex = { "Full Duplex", "Half Duplex" };
 static int
 dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean* end)
 {
-    guint8     i, type, length = 0;
+    guint8     type, length = 0;
     proto_item *tlv_item, *type_item;
     proto_tree *tlv_tree, *type_tree;
-    guint32 temp32;
+    guint32 i, temp32;
 
     type = tvb_get_guint8(tvb, offset);
     if (type == 0)
