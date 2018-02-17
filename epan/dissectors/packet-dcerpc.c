@@ -977,24 +977,24 @@ decode_dcerpc_binding_reset(const char *name _U_, gconstpointer pattern)
 static gboolean
 dcerpc_decode_as_change(const char *name, gconstpointer pattern, gpointer handle, gchar* list_name)
 {
-    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t*)pattern;
+    const decode_dcerpc_bind_values_t *binding = (const decode_dcerpc_bind_values_t*)pattern;
     decode_dcerpc_bind_values_t *stored_binding;
     guid_key     *key = *((guid_key**)handle);
-
-
-    binding->ifname = g_string_new(list_name);
-    binding->uuid = key->guid;
-    binding->ver = key->ver;
 
     /* remove a probably existing old binding */
     decode_dcerpc_binding_reset(name, binding);
 
-    /* clone the new binding and append it to the list */
+    /*
+     * Clone the new binding, update the changing parts, and append it
+     * to the list.
+     */
     stored_binding = g_new(decode_dcerpc_bind_values_t,1);
     *stored_binding = *binding;
     copy_address(&stored_binding->addr_a, &binding->addr_a);
     copy_address(&stored_binding->addr_b, &binding->addr_b);
-    stored_binding->ifname = g_string_new(binding->ifname->str);
+    stored_binding->ifname = g_string_new(list_name);
+    stored_binding->uuid = key->guid;
+    stored_binding->ver = key->ver;
 
     decode_dcerpc_bindings = g_slist_append (decode_dcerpc_bindings, stored_binding);
 
