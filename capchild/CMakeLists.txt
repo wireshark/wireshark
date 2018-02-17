@@ -26,12 +26,8 @@ set(CAPCHILD_SRC
 	capture_sync.c
 )
 
-set(CLEAN_FILES
-	${CAPCHILD_SRC}
-)
-
 set_source_files_properties(
-	${CLEAN_FILES}
+	${CAPCHILD_SRC}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )

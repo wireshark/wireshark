@@ -23,12 +23,8 @@ set(WRITECAP_SRC
 	pcapio.c
 )
 
-set(CLEAN_FILES
-	${WRITECAP_SRC}
-)
-
 set_source_files_properties(
-	${CLEAN_FILES}
+	${WRITECAP_SRC}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )

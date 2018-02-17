@@ -248,12 +248,8 @@ IF(WIN32)
 	set(wsutil_LIBS ${wsutil_LIBS} "iphlpapi.lib" "ws2_32.lib")
 ENDIF(WIN32)
 
-set(CLEAN_FILES
-	${WSUTIL_FILES}
-)
-
 set_source_files_properties(
-	${CLEAN_FILES}
+	${WSUTIL_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )

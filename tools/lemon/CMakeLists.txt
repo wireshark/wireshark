@@ -23,12 +23,8 @@ set(lemon_FILES
 	lemon.c
 )
 
-set(CLEAN_FILES
-	${lemon_FILES}
-)
-
 set_source_files_properties(
-	${CLEAN_FILES}
+	${lemon_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS} ${NO_SANITIZE_CFLAGS}"
 )

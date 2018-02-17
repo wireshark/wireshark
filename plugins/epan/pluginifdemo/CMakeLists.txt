@@ -45,17 +45,11 @@ set(PLUGIN_FILES
 	${DISSECTOR_SRC}
 )
 
-set(CLEAN_FILES
+set_source_files_properties(
 	${PLUGIN_FILES}
+	PROPERTIES
+	COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
 )
-
-if (WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${CLEAN_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

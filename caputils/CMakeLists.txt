@@ -48,12 +48,8 @@ if (AIRPCAP_FOUND)
 	)
 endif()
 
-set(CLEAN_FILES
-	${CAPUTILS_SRC}
-)
-
 set_source_files_properties(
-	${CLEAN_FILES}
+	${CAPUTILS_SRC}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )

@@ -33,20 +33,15 @@ set(PLUGIN_FILES
 	${DISSECTOR_SRC}
 )
 
-set(CLEAN_FILES
-	${PLUGIN_FILES}
+add_lex_files(LEX_FILES PLUGIN_FILES
+	wimaxasncp_dict.l
 )
 
 set_source_files_properties(
-	${CLEAN_FILES}
+	${PLUGIN_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
-
-add_lex_files(LEX_FILES GENERATED_FILES
-	wimaxasncp_dict.l
-)
-list(APPEND PLUGIN_FILES ${GENERATED_FILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
