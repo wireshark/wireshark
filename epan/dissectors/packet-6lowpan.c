@@ -1296,6 +1296,9 @@ dissect_6lowpan_6loRH(tvbuff_t *tvb, guint offset, proto_tree *tree)
                         }
                         offset += 2 + loRHE_length;
                     }
+                    else {
+                        condition -= 1;
+                    }
                     break; /* case LOWPAN_PATTERN_6LORHE */
 
                 case (LOWPAN_PATTERN_6LORHC): /*Critical Routing Header*/
@@ -1385,6 +1388,9 @@ dissect_6lowpan_6loRH(tvbuff_t *tvb, guint offset, proto_tree *tree)
                                 break; /**/
                             } /* switch loRHE_type */
                         } /* else if (loRHE_type <= 4) */
+                    else {
+                        condition -= 1;
+                    }
                     break; /* case LOWPAN_PATTERN_6LORHC */
 
                     default:
