@@ -4253,7 +4253,7 @@ dissect_darwin_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree, usb_he
         frame_header_length = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
         frame_length        = tvb_get_guint32(tvb, offset + 4, ENC_LITTLE_ENDIAN);
 
-        if (len < frame_header_length) {
+        if ((len < frame_header_length) || (frame_header_length < 20)) {
             break;
         }
 
