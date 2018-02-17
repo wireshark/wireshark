@@ -885,8 +885,8 @@ get_chancount(tvbuff_t *tvb)
                     int i, j;
                     guint8 entries = 0;
                     gint32 check_len = tlv_len;
-                    guint8 check_offset = offset + 1; /* Channel page first */
-                    guint8 masklen;
+                    gint check_offset = offset + 1; /* Channel page first */
+                    guint16 masklen;
 
                     /* Check consistency of entries */
                     while (check_len > 0) {
@@ -1729,8 +1729,8 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     int i;
                     guint8 entries = 0;
                     gint32 check_len = tlv_len;
-                    guint8 check_offset = offset + 1; /* Channel page first */
-                    guint8 masklen;
+                    gint check_offset = offset + 1; /* Channel page first */
+                    guint16 masklen;
 
                     /* Check consistency of entries */
                     while (check_len > 0) {
