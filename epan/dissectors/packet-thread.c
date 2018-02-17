@@ -2103,12 +2103,12 @@ static int
 dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     coap_info           *coinfo;
-    gchar               *uri;
+    const gchar         *uri;
     gchar               **tokens;
 
     /* Obtain the CoAP info */
     coinfo = (coap_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_coap, 0);
-    uri = (gchar *)wmem_strbuf_get_str(coinfo->uri_str_strbuf);
+    uri = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
 
     tokens = wmem_strsplit(wmem_packet_scope(), uri, "/", 3);
     if ((tokens[0] != NULL) && (tokens[1] != NULL)) {
