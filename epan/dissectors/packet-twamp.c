@@ -176,15 +176,15 @@ static const value_string twamp_control_state_vals[] = {
 static
 gint find_twamp_session_by_sender_port (gconstpointer element, gconstpointer compared)
 {
-    guint16 *sender_port = (guint16*) compared;
-    twamp_session_t *session = (twamp_session_t*) element;
+    const guint16 *sender_port = (const guint16*) compared;
+    const twamp_session_t *session = (const twamp_session_t*) element;
     return !(session->sender_port == *sender_port);
 }
 
 static
 gint find_twamp_session_by_first_accept_waiting (gconstpointer element)
 {
-    twamp_session_t *session = (twamp_session_t*) element;
+    const twamp_session_t *session = (const twamp_session_t*) element;
     if (session->accepted == 0)
         return 0;
 
