@@ -20,7 +20,7 @@
 
 #include <wsutil/str_util.h>
 
-#define STR_NONNULL(str) ((str) ? ((gchar*)str) : "(null)")
+#define STR_NONNULL(str) ((str) ? ((const gchar*)str) : "(null)")
 
 #define TYPE_HOST            0x0000
 #define TYPE_TIME            0x0001
