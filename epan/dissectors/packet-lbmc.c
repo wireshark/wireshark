@@ -6082,9 +6082,9 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
     }
     if (stream_info->endpoint_a.type == lbm_uim_instance_stream)
     {
-        rc = memcmp((void *)stream_info->endpoint_a.stream_info.ctxinst.ctxinst,
-            (void *)stream_info->endpoint_b.stream_info.ctxinst.ctxinst,
-            LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+        rc = memcmp((const void *)stream_info->endpoint_a.stream_info.ctxinst.ctxinst,
+                    (const void *)stream_info->endpoint_b.stream_info.ctxinst.ctxinst,
+                    LBM_CONTEXT_INSTANCE_BLOCK_SZ);
         if (rc <= 0)
         {
             swap_endpoints = FALSE;
