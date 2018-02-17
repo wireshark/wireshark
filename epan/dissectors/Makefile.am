@@ -1897,7 +1897,7 @@ libdirtydissectors_la_SOURCES = \
 	$(DIRTY_ASN1_DISSECTOR_SRC) \
 	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)
 
-libdirtydissectors_la_CFLAGS = $(GENERATED_CFLAGS)
+libdirtydissectors_la_CFLAGS = $(DIRTY_CFLAGS)
 
 libfiledissectors_la_SOURCES = \
 	$(FILE_DISSECTOR_SRC)

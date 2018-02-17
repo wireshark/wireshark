@@ -74,7 +74,7 @@ nodist_wimaxasncp_la_SOURCES = \
 
 wimaxasncp_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-wimaxasncp_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
+wimaxasncp_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 wimaxasncp_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 

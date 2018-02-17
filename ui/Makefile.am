@@ -153,7 +153,7 @@ libui_a_SOURCES = \
 
 libui_generated_a_SOURCES = $(GENERATED_FILES)
 
-libui_generated_a_CFLAGS = $(GENERATED_CFLAGS)
+libui_generated_a_CFLAGS = $(AM_CFLAGS)
 
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\

@@ -201,7 +201,7 @@ libwiretap_la_DEPENDENCIES = libwiretap_generated.la ${top_builddir}/wsutil/libw
 libwiretap_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)
 
-libwiretap_generated_la_CFLAGS = $(GENERATED_CFLAGS)
+libwiretap_generated_la_CFLAGS = $(AM_CFLAGS)
 
 subpkgincludedir = $(pkgincludedir)/wiretap
 

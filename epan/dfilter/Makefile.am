@@ -120,7 +120,7 @@ libdfilter_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)	\
 	$(GENERATED_HEADER_FILES)
 
-libdfilter_generated_la_CFLAGS = $(GENERATED_CFLAGS)
+libdfilter_generated_la_CFLAGS = $(AM_CFLAGS)
 
 nodist_libdfilter_generated_la_SOURCES = \
 	$(NODIST_GENERATED_C_FILES)	\
