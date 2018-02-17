@@ -253,7 +253,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
  * name, and there is no vendor description.  ("Other UN*Xes"
  * currently means "FreeBSD and OpenBSD".)
  */
-void
+static void
 add_unix_interface_ifinfo(if_info_t *if_info, const char *name _U_,
 			  const char *description)
 {
