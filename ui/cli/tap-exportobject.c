@@ -86,7 +86,7 @@ static GHashTable* eo_opts = NULL;
 static gboolean
 list_exportobject_protocol(const void *key, void *value _U_, void *userdata _U_)
 {
-    fprintf(stderr, "     %s\n", (gchar*)key);
+    fprintf(stderr, "     %s\n", (const gchar*)key);
     return FALSE;
 }
 
