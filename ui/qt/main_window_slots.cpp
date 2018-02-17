@@ -897,8 +897,6 @@ void MainWindow::captureFileSaveStarted(const QString &file_path)
 
 void MainWindow::filterExpressionsChanged()
 {
-    bool actions_added = false;
-
     // Recreate filter buttons
     foreach (QAction *act, filter_expression_toolbar_->actions()) {
         // Permanent actions shouldn't have data
@@ -907,6 +905,9 @@ void MainWindow::filterExpressionsChanged()
             delete act;
         }
     }
+
+    setUpdatesEnabled(false);
+    filter_expression_toolbar_->hide();
 
     // XXX Add a context menu for removing and changing buttons.
     for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
@@ -917,14 +918,10 @@ void MainWindow::filterExpressionsChanged()
         dfb_action->setProperty(dfe_property_, true);
         filter_expression_toolbar_->addAction(dfb_action);
         connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
-        actions_added = true;
     }
 
-    if (actions_added) {
-        // QToolButton calls updateGeometry+update all over the place.
-        // updateGeometry should be sufficient here.
-        main_ui_->displayFilterToolBar->updateGeometry();
-    }
+    filter_expression_toolbar_->show();
+    setUpdatesEnabled(true);
 }
 
 //
