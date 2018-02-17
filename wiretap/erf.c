@@ -1462,7 +1462,8 @@ static gboolean erf_update_host_id_ext_hdrs_list(erf_dump_t *dump_priv, const un
  * modified frame header to include a Host ID extension header and
  * a Anchor ID extension header to link the records together.
  * @param wdh the wtap_dumper structure
- * @param phdr packet header to get user comment from
+ * @param dump_priv private data for the dump stream
+ * @param rec record metadata from which to get user comment
  * @param mutable_hdr pseudo_header to update with Anchor ID for comment record
  * @param err the error value
  * @return A gboolean value to indicate whether the dump was successful
