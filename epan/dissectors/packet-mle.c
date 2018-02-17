@@ -459,8 +459,8 @@ dissect_mle_decrypt(tvbuff_t * tvb,
 
         DISSECTOR_ASSERT(pinfo->src.len == 16);
         DISSECTOR_ASSERT(pinfo->dst.len == 16);
-        memcpy(d_a, (guint8 *)pinfo->src.data, pinfo->src.len);
-        memcpy(d_a+16, (guint8 *)pinfo->dst.data, pinfo->dst.len);
+        memcpy(d_a, (const guint8 *)pinfo->src.data, pinfo->src.len);
+        memcpy(d_a+16, (const guint8 *)pinfo->dst.data, pinfo->dst.len);
 
         tvb_memcpy(tvb, d_a+32, payload_info->aux_offset, payload_info->aux_length);
         l_a = 32 + payload_info->aux_length;
