@@ -26,6 +26,9 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
+void proto_register_xra(void);
+void proto_reg_handoff_xra(void);
+
 /* Initialize the protocol and registered fields */
 static dissector_handle_t docsis_handle;
 static dissector_handle_t xra_handle;
@@ -601,14 +604,14 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   return tvb_captured_length(tvb);
 }
 
-void
+static void
 dissect_timestamp_mb(tvbuff_t * tvb, proto_tree* tree) {
   proto_tree_add_item (tree, hf_plc_mb_ts_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (tree, hf_plc_mb_ts_timestamp, tvb, 1, 8, ENC_BIG_ENDIAN);
   proto_tree_add_item (tree, hf_plc_mb_ts_crc24d, tvb, 9, 3, ENC_NA);
 }
 
-void
+static void
 dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree, guint16 remaining_length) {
   proto_tree_add_item (tree, hf_plc_mb_mc_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
 
