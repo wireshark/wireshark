@@ -388,7 +388,7 @@ static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
 {
     gchar* stream_name;
     gchar* ft_name;
-    struct osmux_hdr *osmuxh = (struct osmux_hdr*) p;
+    const struct osmux_hdr *osmuxh = (const struct osmux_hdr*) p;
     struct osmux_stream *stream = osmuxh->stream;
 
     stream_name = stream_str(stream, pinfo);
