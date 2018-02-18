@@ -6310,7 +6310,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 ett, &tag_pitem, tag_summary);
                 vl_max = 0;         /* We don't know who long this sequence/item is */
         }
-        else if (offset + vl <= endpos) {
+        else if ((offset + vl <= endpos) &&
+                 (offset + vl > offset)) { /* Ensure no wraparound */
                 /* Show real length of item */
                 tag_ptree = proto_tree_add_subtree(tree, tvb, offset_tag, offset + vl - offset_tag,
                                 ett, &tag_pitem, tag_summary);
