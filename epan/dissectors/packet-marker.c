@@ -88,38 +88,38 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             offset, 1, ENC_BIG_ENDIAN, &tlv_length);
         offset += 1;
 
-	if (tlv_type == MARKERPDU_MARKER_INFO) {
-	    col_set_str(pinfo->cinfo, COL_INFO, "Information");
-	} else if (tlv_type == MARKERPDU_MARKER_RESPONSE) {
-	    col_set_str(pinfo->cinfo, COL_INFO, "Response");
-	} else {
-	    expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
-	}
-	if (tlv_length != 16) {
-	    expert_add_info(pinfo, tlv_length_item, &ei_marker_wrong_tlv_length);
-	}
+        if (tlv_type == MARKERPDU_MARKER_INFO) {
+            col_set_str(pinfo->cinfo, COL_INFO, "Information");
+        } else if (tlv_type == MARKERPDU_MARKER_RESPONSE) {
+            col_set_str(pinfo->cinfo, COL_INFO, "Response");
+        } else {
+            expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
+        }
+        if (tlv_length != 16) {
+            expert_add_info(pinfo, tlv_length_item, &ei_marker_wrong_tlv_length);
+        }
         proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_port, tvb,
             offset, 2, ENC_BIG_ENDIAN, &port);
         offset += 2;
 
         proto_tree_add_item(marker_tree, hf_marker_req_system, tvb,
             offset, 6, ENC_NA);
-	sysidstr = tvb_ether_to_str(tvb, offset);
+        sysidstr = tvb_ether_to_str(tvb, offset);
         offset += 6;
 
         proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_trans_id, tvb,
             offset, 4, ENC_BIG_ENDIAN, &transactionid);
-	offset += 4;
+        offset += 4;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " SysId=%s, P=%d, TId=%d",
-	    sysidstr, port, transactionid);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " SysId=%s, P=%d, TId=%d",
+            sysidstr, port, transactionid);
 
         pad_item = proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_pad, tvb,
             offset, 2, ENC_BIG_ENDIAN, &pad);
-	if (pad != 0) {
-	    expert_add_info(pinfo, pad_item, &ei_marker_wrong_pad_value);
-	}
-	offset += 2;
+        if (pad != 0) {
+            expert_add_info(pinfo, pad_item, &ei_marker_wrong_pad_value);
+        }
+        offset += 2;
 
         proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_type, tvb,
             offset, 1, ENC_BIG_ENDIAN, &tlv_type);
@@ -130,12 +130,12 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 1;
 
         if (tlv_type == MARKER_TERMINATOR) {
-	    if (tlv_length != 0) {
-	        expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_length);
-	    }
-	} else {
-	        expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
-	}
+            if (tlv_length != 0) {
+                expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_length);
+            }
+        } else {
+            expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
+        }
 
         proto_tree_add_item(marker_tree, hf_marker_reserved, tvb,
             offset, 90, ENC_NA);
@@ -199,9 +199,9 @@ proto_register_marker(void)
     };
 
     static ei_register_info ei[] = {
-	{ &ei_marker_wrong_tlv_type,   { "marker.wrong_tlv_type",   PI_MALFORMED, PI_ERROR, "TLV is not expected type",   EXPFILL }},
-	{ &ei_marker_wrong_tlv_length, { "marker.wrong_tlv_length", PI_MALFORMED, PI_ERROR, "TLV is not expected length", EXPFILL }},
-	{ &ei_marker_wrong_pad_value,  { "marker.wrong_pad_value",  PI_PROTOCOL,  PI_WARN,  "pad value is not 0",         EXPFILL }},
+    { &ei_marker_wrong_tlv_type,   { "marker.wrong_tlv_type",   PI_MALFORMED, PI_ERROR, "TLV is not expected type",   EXPFILL }},
+    { &ei_marker_wrong_tlv_length, { "marker.wrong_tlv_length", PI_MALFORMED, PI_ERROR, "TLV is not expected length", EXPFILL }},
+    { &ei_marker_wrong_pad_value,  { "marker.wrong_pad_value",  PI_PROTOCOL,  PI_WARN,  "pad value is not 0",         EXPFILL }},
     };
 
     expert_module_t* expert_marker;
