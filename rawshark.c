@@ -759,11 +759,6 @@ main(int argc, char *argv[])
     }
 #endif /* _WIN32 */
 
-    /* At this point MATE will have registered its field array so we can
-       have a tap filter with one of MATE's late-registered fields as part
-       of the filter.  We can now process all the "-z" arguments. */
-    start_requested_stats();
-
     /*
      * Enabled and disabled protocols and heuristic dissectors as per
      * command-line options.
