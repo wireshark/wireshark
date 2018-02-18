@@ -4445,14 +4445,14 @@ static stat_tap_table_item stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "
         {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "  %d  "}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Total Bytes", "  %d  "},
         {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "  %8.2f  "}};
 
-static void ansi_map_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     int num_fields = sizeof(stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table* table = new_stat_tap_init_table("ANSI MAP Operation Statistics", num_fields, 0, "ansi_map.op_code", gui_callback, gui_data);
+    stat_tap_table* table = stat_tap_init_table("ANSI MAP Operation Statistics", num_fields, 0, "ansi_map.op_code", gui_callback, gui_data);
     int i = 0;
     stat_tap_table_item_type items[sizeof(stat_fields)/sizeof(stat_tap_table_item)];
 
-    new_stat_tap_add_table(new_stat, table);
+    stat_tap_add_table(new_stat, table);
 
     /* Add a fow for each value type */
     while (ansi_map_opr_code_strings[i].strptr)
@@ -4468,7 +4468,7 @@ static void ansi_map_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_ini
         items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
         items[AVG_BYTES_COLUMN].value.float_value = 0.0f;
 
-        new_stat_tap_init_table_row(table, ansi_map_opr_code_strings[i].value, num_fields, items);
+        stat_tap_init_table_row(table, ansi_map_opr_code_strings[i].value, num_fields, items);
         i++;
     }
 }
@@ -4477,7 +4477,7 @@ static void ansi_map_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_ini
 static gboolean
 ansi_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
-    new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+    stat_data_t* stat_data = (stat_data_t*)tapdata;
     const ansi_map_tap_rec_t    *data_p = (const ansi_map_tap_rec_t *)data;
     stat_tap_table* table;
     stat_tap_table_item_type* item_data;
@@ -4489,19 +4489,19 @@ ansi_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 
     table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
-    item_data = new_stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
+    item_data = stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
     item_data->value.uint_value++;
     count = item_data->value.uint_value;
-    new_stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, item_data);
+    stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, item_data);
 
-    item_data = new_stat_tap_get_field_data(table, data_p->message_type, TOTAL_BYTES_COLUMN);
+    item_data = stat_tap_get_field_data(table, data_p->message_type, TOTAL_BYTES_COLUMN);
     item_data->value.uint_value += data_p->size;
     total_bytes = item_data->value.uint_value;
-    new_stat_tap_set_field_data(table, data_p->message_type, TOTAL_BYTES_COLUMN, item_data);
+    stat_tap_set_field_data(table, data_p->message_type, TOTAL_BYTES_COLUMN, item_data);
 
-    item_data = new_stat_tap_get_field_data(table, data_p->message_type, AVG_BYTES_COLUMN);
+    item_data = stat_tap_get_field_data(table, data_p->message_type, AVG_BYTES_COLUMN);
     item_data->value.float_value = (float)total_bytes/(float)count;
-    new_stat_tap_set_field_data(table, data_p->message_type, AVG_BYTES_COLUMN, item_data);
+    stat_tap_set_field_data(table, data_p->message_type, AVG_BYTES_COLUMN, item_data);
 
     return TRUE;
 }
@@ -4514,17 +4514,17 @@ ansi_map_stat_reset(stat_tap_table* table)
 
     for (element = 0; element < table->num_elements; element++)
     {
-        item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, COUNT_COLUMN);
         item_data->value.uint_value = 0;
-        new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
 
-        item_data = new_stat_tap_get_field_data(table, element, TOTAL_BYTES_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, TOTAL_BYTES_COLUMN);
         item_data->value.uint_value = 0;
-        new_stat_tap_set_field_data(table, element, TOTAL_BYTES_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, TOTAL_BYTES_COLUMN, item_data);
 
-        item_data = new_stat_tap_get_field_data(table, element, AVG_BYTES_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, AVG_BYTES_COLUMN);
         item_data->value.float_value = 0.0f;
-        new_stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
     }
 
 }

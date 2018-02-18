@@ -11,7 +11,7 @@
 
 #include "tap_parameter_dialog.h"
 
-struct _new_stat_data_t;
+struct _stat_data_t;
 
 class SimpleStatisticsDialog : public TapParameterDialog
 {
@@ -27,7 +27,7 @@ protected:
      * @param stat_data The table to add.
      */
     // gtk:service_response_table.h:init_srt_table
-    void addMissingRows(struct _new_stat_data_t *stat_data);
+    void addMissingRows(struct _stat_data_t *stat_data);
 
 private:
     struct _stat_tap_table_ui *stu_;

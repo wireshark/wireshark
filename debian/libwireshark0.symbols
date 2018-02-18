@@ -914,14 +914,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ncp_nds_verb_vals@Base 2.1.0
  new_frame_data_sequence@Base 1.12.0~rc1
  new_page@Base 1.12.0~rc1
- new_stat_tap_add_table@Base 1.99.8
- new_stat_tap_by_name@Base 2.3.0
- new_stat_tap_get_field_data@Base 1.99.8
- new_stat_tap_get_filter@Base 1.99.8
- new_stat_tap_init_table@Base 1.99.8
- new_stat_tap_init_table_row@Base 1.99.8
- new_stat_tap_iterate_tables@Base 1.99.8
- new_stat_tap_set_field_data@Base 1.99.8
  next_tvb_add_handle@Base 1.9.1
  next_tvb_add_string@Base 1.9.1
  next_tvb_add_uint@Base 1.9.1
@@ -1458,6 +1450,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  sss_verb_enum@Base 2.1.0
  start_requested_stats@Base 1.9.1
  stat_node_array_sortcmp@Base 1.12.0~rc1
+ stat_tap_add_table@Base 2.5.1
+ stat_tap_by_name@Base 2.5.1
+ stat_tap_get_field_data@Base 2.5.1
+ stat_tap_get_filter@Base 2.5.1
+ stat_tap_init_table@Base 2.5.1
+ stat_tap_init_table_row@Base 2.5.1
+ stat_tap_iterate_tables@Base 2.5.1
+ stat_tap_set_field_data@Base 2.5.1
  stats_tree_branch_max_namelen@Base 1.9.1
  stats_tree_create_node@Base 1.9.1
  stats_tree_create_node_by_pname@Base 1.9.1

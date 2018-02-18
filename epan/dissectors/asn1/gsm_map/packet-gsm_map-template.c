@@ -2763,7 +2763,7 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
   {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%d"},
 };
 
-static void gsm_map_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
@@ -2783,8 +2783,8 @@ static void gsm_map_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init
   items[TOT_BYTES_COLUMN].type = TABLE_ITEM_UINT;
   items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
 
-  table = new_stat_tap_init_table("GSM MAP Operation Statistics", num_fields, 0, NULL, gui_callback, gui_data);
-  new_stat_tap_add_table(new_stat, table);
+  table = stat_tap_init_table("GSM MAP Operation Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+  stat_tap_add_table(new_stat, table);
 
   /* Add a row for each value type */
   for (i = 0; i < GSM_MAP_MAX_NUM_OPR_CODES; i++)
@@ -2799,14 +2799,14 @@ static void gsm_map_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init
 
     items[ID_COLUMN].value.uint_value = i;
     items[OP_CODE_COLUMN].value.string_value = col_str;
-    new_stat_tap_init_table_row(table, i, num_fields, items);
+    stat_tap_init_table_row(table, i, num_fields, items);
   }
 }
 
 static gboolean
 gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gmtr_ptr)
 {
-  new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+  stat_data_t* stat_data = (stat_data_t*)tapdata;
   const gsm_map_tap_rec_t *gmtr = (const gsm_map_tap_rec_t *)gmtr_ptr;
   stat_tap_table* table;
   stat_tap_table_item_type *invoke_data, *fwd_bytes_data, *result_data, *rev_bytes_data, *avg_data;
@@ -2815,26 +2815,26 @@ gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _
 
   table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
-  invoke_data = new_stat_tap_get_field_data(table, gmtr->opcode, INVOKES_COLUMN);
-  fwd_bytes_data = new_stat_tap_get_field_data(table, gmtr->opcode, NUM_BYTES_FWD_COLUMN);
-  result_data = new_stat_tap_get_field_data(table, gmtr->opcode, RET_RES_COLUMN);
-  rev_bytes_data = new_stat_tap_get_field_data(table, gmtr->opcode, NUM_BYTES_REV_COLUMN);
+  invoke_data = stat_tap_get_field_data(table, gmtr->opcode, INVOKES_COLUMN);
+  fwd_bytes_data = stat_tap_get_field_data(table, gmtr->opcode, NUM_BYTES_FWD_COLUMN);
+  result_data = stat_tap_get_field_data(table, gmtr->opcode, RET_RES_COLUMN);
+  rev_bytes_data = stat_tap_get_field_data(table, gmtr->opcode, NUM_BYTES_REV_COLUMN);
 
   if (gmtr->invoke)
   {
     invoke_data->value.uint_value++;
-    new_stat_tap_set_field_data(table, gmtr->opcode, INVOKES_COLUMN, invoke_data);
+    stat_tap_set_field_data(table, gmtr->opcode, INVOKES_COLUMN, invoke_data);
 
     fwd_bytes_data->value.uint_value += gmtr->size;
-    new_stat_tap_set_field_data(table, gmtr->opcode, NUM_BYTES_FWD_COLUMN, fwd_bytes_data);
+    stat_tap_set_field_data(table, gmtr->opcode, NUM_BYTES_FWD_COLUMN, fwd_bytes_data);
   }
   else
   {
     result_data->value.uint_value++;
-    new_stat_tap_set_field_data(table, gmtr->opcode, RET_RES_COLUMN, result_data);
+    stat_tap_set_field_data(table, gmtr->opcode, RET_RES_COLUMN, result_data);
 
     rev_bytes_data->value.uint_value += gmtr->size;
-    new_stat_tap_set_field_data(table, gmtr->opcode, NUM_BYTES_REV_COLUMN, rev_bytes_data);
+    stat_tap_set_field_data(table, gmtr->opcode, NUM_BYTES_REV_COLUMN, rev_bytes_data);
   }
 
   invokes = invoke_data->value.uint_value;
@@ -2844,20 +2844,20 @@ gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _
 
   if (gmtr->invoke)
   {
-    avg_data = new_stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_FWD_COLUMN);
+    avg_data = stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_FWD_COLUMN);
     avg_data->value.float_value += (float) fwd_bytes / invokes;
-    new_stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_FWD_COLUMN, avg_data);
+    stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_FWD_COLUMN, avg_data);
   }
   else
   {
-    avg_data = new_stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_REV_COLUMN);
+    avg_data = stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_REV_COLUMN);
     avg_data->value.float_value += (float) rev_bytes / results;
-    new_stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_REV_COLUMN, avg_data);
+    stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_REV_COLUMN, avg_data);
   }
 
-  avg_data = new_stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN);
+  avg_data = stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN);
   avg_data->value.float_value += (float) (fwd_bytes + rev_bytes) / (invokes + results);
-  new_stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN, avg_data);
+  stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN, avg_data);
   return TRUE;
 }
 
@@ -2869,9 +2869,9 @@ gsm_map_stat_reset(stat_tap_table* table)
 
   for (element = 0; element < table->num_elements; element++)
   {
-    item_data = new_stat_tap_get_field_data(table, element, INVOKES_COLUMN);
+    item_data = stat_tap_get_field_data(table, element, INVOKES_COLUMN);
     item_data->value.uint_value = 0;
-    new_stat_tap_set_field_data(table, element, INVOKES_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, INVOKES_COLUMN, item_data);
   }
 }
 

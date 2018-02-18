@@ -55,8 +55,8 @@ typedef struct _gtk_simplestat_t {
 typedef struct _simple_stat_t {
 	const char *filter;
 	gtk_simplestat_t_t gtk_data;
-	stat_tap_table_ui *new_stat_tap;
-	new_stat_data_t data;
+	stat_tap_table_ui *stat_tap;
+	stat_data_t data;
 } simple_stat_t;
 
 static void
@@ -66,7 +66,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	remove_tap_listener(&ss->data);
 
-    free_stat_tables(ss->new_stat_tap, NULL, NULL);
+    free_stat_tables(ss->stat_tap, NULL, NULL);
 
 	g_free(ss);
 }
@@ -75,7 +75,7 @@ static void
 init_gtk_simple_stat_table(stat_tap_table* stat_table, void* gui_data)
 {
 	guint i;
-	new_stat_data_t* stat_data = (new_stat_data_t*)gui_data;
+	stat_data_t* stat_data = (stat_data_t*)gui_data;
 	simple_stat_t *ss = (simple_stat_t*)stat_data->user_data;
 	stat_column *start_columns = g_new(stat_column, stat_table->num_fields),
 				*columns;
@@ -123,7 +123,7 @@ static void
 simple_stat_draw(void *arg)
 {
 	GtkListStore *store;
-	new_stat_data_t *stats = (new_stat_data_t*)arg;
+	stat_data_t *stats = (stat_data_t*)arg;
 	simple_stat_t *ss = (simple_stat_t*)stats->user_data;
 	stat_tap_table* table;
 	stat_tap_table_item* field;
@@ -141,7 +141,7 @@ simple_stat_draw(void *arg)
 	for (element = 0; element < table->num_elements; element++)
 	{
 		field_index = 0;
-		field_data = new_stat_tap_get_field_data(table, element, field_index);
+		field_data = stat_tap_get_field_data(table, element, field_index);
 		if (field_data->type == TABLE_ITEM_NONE) /* Nothing for us here */
 			continue;
 
@@ -149,7 +149,7 @@ simple_stat_draw(void *arg)
 
 		for (field = stats->stat_tap_data->fields; field_index < table->num_fields; field_index++, field++)
 		{
-			field_data = new_stat_tap_get_field_data(table, element, field_index);
+			field_data = stat_tap_get_field_data(table, element, field_index);
 
 			switch(field_data->type)
 			{
@@ -188,16 +188,16 @@ reset_table_data(stat_tap_table* table _U_, void* gui_data)
 static void
 simple_stat_reset(void *arg)
 {
-	new_stat_data_t *stats = (new_stat_data_t*)arg;
+	stat_data_t *stats = (stat_data_t*)arg;
 	simple_stat_t *ss = (simple_stat_t*)stats->user_data;
 
 	reset_stat_table(stats->stat_tap_data, reset_table_data, &ss->gtk_data);
 
-	set_window_title(ss->gtk_data.win, ss->new_stat_tap->title);
+	set_window_title(ss->gtk_data.win, ss->stat_tap->title);
 }
 
 static void
-init_simple_stat_tables(stat_tap_table_ui *new_stat_tap, const char *filter)
+init_simple_stat_tables(stat_tap_table_ui *stat_tap, const char *filter)
 {
 	simple_stat_t *ss;
 	GString *error_string;
@@ -206,28 +206,28 @@ init_simple_stat_tables(stat_tap_table_ui *new_stat_tap, const char *filter)
 
 	ss = g_new0(simple_stat_t, 1);
 
-	ss->gtk_data.win=dlg_window_new(new_stat_tap->title);  /* transient_for top_level */
+	ss->gtk_data.win=dlg_window_new(stat_tap->title);  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->gtk_data.win), TRUE);
 
 	ss->gtk_data.vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 
-	init_main_stat_window(ss->gtk_data.win, ss->gtk_data.vbox, new_stat_tap->title, filter);
+	init_main_stat_window(ss->gtk_data.win, ss->gtk_data.vbox, stat_tap->title, filter);
 
 	/* init a scrolled window*/
 	ss->gtk_data.scrolled_window = scrolled_window_new(NULL, NULL);
 
 	ss->filter = g_strdup(filter);
-	ss->new_stat_tap = new_stat_tap;
-	ss->data.stat_tap_data = new_stat_tap;
+	ss->stat_tap = stat_tap;
+	ss->data.stat_tap_data = stat_tap;
 	ss->data.user_data = ss;
 
-	new_stat_tap->stat_tap_init_cb(new_stat_tap, init_gtk_simple_stat_table, &ss->data);
+	stat_tap->stat_tap_init_cb(stat_tap, init_gtk_simple_stat_table, &ss->data);
 
-	error_string = register_tap_listener(new_stat_tap->tap_name, &ss->data, filter, 0, simple_stat_reset, new_stat_tap->packet_func, simple_stat_draw);
+	error_string = register_tap_listener(stat_tap->tap_name, &ss->data, filter, 0, simple_stat_reset, stat_tap->packet_func, simple_stat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		free_stat_tables(ss->new_stat_tap, NULL, NULL);
+		free_stat_tables(ss->stat_tap, NULL, NULL);
 		g_free(ss);
 		return;
 	}
@@ -252,11 +252,11 @@ init_simple_stat_tables(stat_tap_table_ui *new_stat_tap, const char *filter)
 static void
 gtk_simple_stat_init(const char *opt_arg, void *userdata)
 {
-	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)userdata;
+	stat_tap_table_ui *stat_tap = (stat_tap_table_ui*)userdata;
 	const char *filter=NULL;
 	char* err;
 
-	new_stat_tap_get_filter(new_stat_tap, opt_arg, &filter, &err);
+	stat_tap_get_filter(stat_tap, opt_arg, &filter, &err);
 
 	if (err != NULL)
 	{
@@ -265,27 +265,27 @@ gtk_simple_stat_init(const char *opt_arg, void *userdata)
 		return;
 	}
 
-	init_simple_stat_tables(new_stat_tap, filter);
+	init_simple_stat_tables(stat_tap, filter);
 }
 
 gboolean register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 {
-	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)value;
+	stat_tap_table_ui *stat_tap = (stat_tap_table_ui*)value;
 	tap_param_dlg* stat_dlg;
 
 	stat_dlg = g_new(tap_param_dlg, 1);
 
-	stat_dlg->win_title = new_stat_tap->title;
+	stat_dlg->win_title = stat_tap->title;
 	stat_dlg->init_string = (const char*)key;
 	stat_dlg->tap_init_cb = gtk_simple_stat_init;
 	stat_dlg->index = -1;
 
-	stat_dlg->nparams = new_stat_tap->nparams;
-	stat_dlg->params = new_stat_tap->params;
+	stat_dlg->nparams = stat_tap->nparams;
+	stat_dlg->params = stat_tap->params;
 
-	stat_dlg->user_data = new_stat_tap;
+	stat_dlg->user_data = stat_tap;
 
-	register_param_stat(stat_dlg, new_stat_tap->title, new_stat_tap->group);
+	register_param_stat(stat_dlg, stat_tap->title, stat_tap->group);
 	return FALSE;
 }
 

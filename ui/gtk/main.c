@@ -2228,7 +2228,7 @@ main(int argc, char *argv[])
     hostlist_table_set_gui_info(init_hostlist_table);
     srt_table_iterate_tables(register_service_response_tables, NULL);
     rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
-    new_stat_tap_iterate_tables(register_simple_stat_tables, NULL);
+    stat_tap_iterate_tables(register_simple_stat_tables, NULL);
 
     splash_update(RA_EXTCAP, NULL, (gpointer)splash_win);
     extcap_register_preferences();

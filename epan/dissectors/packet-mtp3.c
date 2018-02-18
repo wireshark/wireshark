@@ -824,19 +824,19 @@ static stat_tap_table_item mtp3_stat_fields[] = {
   {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%f"},
 };
 
-static void mtp3_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void mtp3_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
 
-  table = new_stat_tap_init_table("MTP3 Statistics", num_fields, 0, NULL, gui_callback, gui_data);
-  new_stat_tap_add_table(new_stat, table);
+  table = stat_tap_init_table("MTP3 Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+  stat_tap_add_table(new_stat, table);
 }
 
 static gboolean
 mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *m3tr_ptr)
 {
-  new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+  stat_data_t* stat_data = (stat_data_t*)tapdata;
   const mtp3_tap_rec_t  *m3tr = (const mtp3_tap_rec_t *)m3tr_ptr;
   gboolean found = FALSE;
   guint element;
@@ -862,9 +862,9 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   for (element = 0; element < table->num_elements; element++)
   {
     stat_tap_table_item_type *opc_data, *dpc_data, *si_data;
-    opc_data = new_stat_tap_get_field_data(table, element, OPC_COLUMN);
-    dpc_data = new_stat_tap_get_field_data(table, element, DPC_COLUMN);
-    si_data = new_stat_tap_get_field_data(table, element, SI_COLUMN);
+    opc_data = stat_tap_get_field_data(table, element, OPC_COLUMN);
+    dpc_data = stat_tap_get_field_data(table, element, DPC_COLUMN);
+    si_data = stat_tap_get_field_data(table, element, SI_COLUMN);
 
     if (memcmp(&m3tr->addr_opc, opc_data->user_data.ptr_value, sizeof(mtp3_addr_pc_t)) == 0)
     {
@@ -897,19 +897,19 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     items[NUM_BYTES_COLUMN].type = TABLE_ITEM_UINT;
     items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
 
-    new_stat_tap_init_table_row(table, element, num_fields, items);
+    stat_tap_init_table_row(table, element, num_fields, items);
 
-    item_data = new_stat_tap_get_field_data(table, element, OPC_COLUMN);
+    item_data = stat_tap_get_field_data(table, element, OPC_COLUMN);
     mtp3_addr_to_str_buf(&m3tr->addr_opc, str, 256);
     item_data->value.string_value = g_strdup(str);
     item_data->user_data.ptr_value = g_memdup(&m3tr->addr_opc, sizeof(mtp3_tap_rec_t));
-    new_stat_tap_set_field_data(table, element, OPC_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, OPC_COLUMN, item_data);
 
-    item_data = new_stat_tap_get_field_data(table, element, DPC_COLUMN);
+    item_data = stat_tap_get_field_data(table, element, DPC_COLUMN);
     mtp3_addr_to_str_buf(&m3tr->addr_dpc, str, 256);
     item_data->value.string_value = g_strdup(str);
     item_data->user_data.ptr_value = g_memdup(&m3tr->addr_dpc, sizeof(mtp3_tap_rec_t));
-    new_stat_tap_set_field_data(table, element, DPC_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, DPC_COLUMN, item_data);
 
     sis = try_val_to_str(m3tr->mtp3_si_code, mtp3_service_indicator_code_short_vals);
     if (sis) {
@@ -918,28 +918,28 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
       col_str = g_strdup_printf("Unknown service indicator %d", m3tr->mtp3_si_code);
     }
 
-    item_data = new_stat_tap_get_field_data(table, element, SI_COLUMN);
+    item_data = stat_tap_get_field_data(table, element, SI_COLUMN);
     item_data->value.string_value = col_str;
     item_data->user_data.uint_value = m3tr->mtp3_si_code;
-    new_stat_tap_set_field_data(table, element, SI_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, SI_COLUMN, item_data);
   }
 
-  item_data = new_stat_tap_get_field_data(table, element, NUM_MSUS_COLUMN);
+  item_data = stat_tap_get_field_data(table, element, NUM_MSUS_COLUMN);
   item_data->value.uint_value++;
   msu_count = item_data->value.uint_value;
-  new_stat_tap_set_field_data(table, element, NUM_MSUS_COLUMN, item_data);
+  stat_tap_set_field_data(table, element, NUM_MSUS_COLUMN, item_data);
 
-  item_data = new_stat_tap_get_field_data(table, element, NUM_BYTES_COLUMN);
+  item_data = stat_tap_get_field_data(table, element, NUM_BYTES_COLUMN);
   item_data->value.uint_value += m3tr->size;
   byte_count = item_data->value.uint_value;
-  new_stat_tap_set_field_data(table, element, NUM_BYTES_COLUMN, item_data);
+  stat_tap_set_field_data(table, element, NUM_BYTES_COLUMN, item_data);
 
   if (msu_count > 0) {
     avg_bytes = (double) byte_count / msu_count;
   }
-  item_data = new_stat_tap_get_field_data(table, element, AVG_BYTES_COLUMN);
+  item_data = stat_tap_get_field_data(table, element, AVG_BYTES_COLUMN);
   item_data->value.float_value = avg_bytes;
-  new_stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
+  stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
 
   return TRUE;
 }
@@ -952,13 +952,13 @@ mtp3_stat_reset(stat_tap_table* table)
 
   for (element = 0; element < table->num_elements; element++)
   {
-    item_data = new_stat_tap_get_field_data(table, element, NUM_MSUS_COLUMN);
+    item_data = stat_tap_get_field_data(table, element, NUM_MSUS_COLUMN);
     item_data->value.uint_value = 0;
-    new_stat_tap_set_field_data(table, element, NUM_MSUS_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, NUM_MSUS_COLUMN, item_data);
 
-    item_data = new_stat_tap_get_field_data(table, element, NUM_BYTES_COLUMN);
+    item_data = stat_tap_get_field_data(table, element, NUM_BYTES_COLUMN);
     item_data->value.uint_value = 0;
-    new_stat_tap_set_field_data(table, element, NUM_BYTES_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, NUM_BYTES_COLUMN, item_data);
   }
 }
 

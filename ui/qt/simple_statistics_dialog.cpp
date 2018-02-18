@@ -177,7 +177,7 @@ TapParameterDialog *SimpleStatisticsDialog::createSimpleStatisticsDialog(QWidget
     return new SimpleStatisticsDialog(parent, cf, stu, filter);
 }
 
-void SimpleStatisticsDialog::addMissingRows(struct _new_stat_data_t *stat_data)
+void SimpleStatisticsDialog::addMissingRows(struct _stat_data_t *stat_data)
 {
     // Hierarchy:
     // - tables (GTK+ UI only supports one currently)
@@ -200,7 +200,7 @@ void SimpleStatisticsDialog::addMissingRows(struct _new_stat_data_t *stat_data)
             ti = statsTreeWidget()->topLevelItem(table_idx);
         }
         for (guint element = ti->childCount(); element < st_table->num_elements; element++) {
-            stat_tap_table_item_type* fields = new_stat_tap_get_field_data(st_table, element, 0);
+            stat_tap_table_item_type* fields = stat_tap_get_field_data(st_table, element, 0);
             SimpleStatisticsTreeWidgetItem *ss_ti = new SimpleStatisticsTreeWidgetItem(ti, st_table->num_fields, fields);
             for (int col = 0; col < (int) stu_->nfields; col++) {
                 if (stu_->fields[col].align == TAP_ALIGN_RIGHT) {
@@ -213,7 +213,7 @@ void SimpleStatisticsDialog::addMissingRows(struct _new_stat_data_t *stat_data)
 
 void SimpleStatisticsDialog::tapReset(void *sd_ptr)
 {
-    new_stat_data_t *sd = (new_stat_data_t*) sd_ptr;
+    stat_data_t *sd = (stat_data_t*) sd_ptr;
     SimpleStatisticsDialog *ss_dlg = static_cast<SimpleStatisticsDialog *>(sd->user_data);
     if (!ss_dlg) return;
 
@@ -223,7 +223,7 @@ void SimpleStatisticsDialog::tapReset(void *sd_ptr)
 
 void SimpleStatisticsDialog::tapDraw(void *sd_ptr)
 {
-    new_stat_data_t *sd = (new_stat_data_t*) sd_ptr;
+    stat_data_t *sd = (stat_data_t*) sd_ptr;
     SimpleStatisticsDialog *ss_dlg = static_cast<SimpleStatisticsDialog *>(sd->user_data);
     if (!ss_dlg) return;
 
@@ -245,7 +245,7 @@ void SimpleStatisticsDialog::tapDraw(void *sd_ptr)
 
 void SimpleStatisticsDialog::fillTree()
 {
-    new_stat_data_t stat_data;
+    stat_data_t stat_data;
     stat_data.stat_tap_data = stu_;
     stat_data.user_data = this;
 

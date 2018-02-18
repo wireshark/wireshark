@@ -3883,20 +3883,20 @@ static stat_tap_table_item rpc_prog_stat_fields[] = {
 	{TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg SRT (s)", "%.2f"}
 };
 
-static void rpc_prog_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void rpc_prog_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
 	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
 	stat_tap_table* table;
 
-	table = new_stat_tap_init_table("ONC-RPC Program Statistics", num_fields, 0, NULL, gui_callback, gui_data);
-	new_stat_tap_add_table(new_stat, table);
+	table = stat_tap_init_table("ONC-RPC Program Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+	stat_tap_add_table(new_stat, table);
 
 }
 
 static gboolean
 rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rciv_ptr)
 {
-	new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+	stat_data_t* stat_data = (stat_data_t*)tapdata;
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)rciv_ptr;
 	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
 	nstime_t delta;
@@ -3912,8 +3912,8 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 	for (element = 0; element < table->num_elements; element++)
 	{
 		stat_tap_table_item_type *program_data, *version_data;
-		program_data = new_stat_tap_get_field_data(table, element, PROGRAM_NUM_COLUMN);
-		version_data = new_stat_tap_get_field_data(table, element, VERSION_COLUMN);
+		program_data = stat_tap_get_field_data(table, element, PROGRAM_NUM_COLUMN);
+		version_data = stat_tap_get_field_data(table, element, VERSION_COLUMN);
 
 		if ((ri->prog == program_data->value.uint_value) && (ri->vers == version_data->value.uint_value)) {
 			found = TRUE;
@@ -3937,7 +3937,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 		items[MAX_SRT_COLUMN].type = TABLE_ITEM_FLOAT;
 		items[AVG_SRT_COLUMN].type = TABLE_ITEM_FLOAT;
 
-		new_stat_tap_init_table_row(table, element, num_fields, items);
+		stat_tap_init_table_row(table, element, num_fields, items);
 	}
 
 	/* we are only interested in reply packets */
@@ -3945,31 +3945,31 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 		return FALSE;
 	}
 
-	item_data = new_stat_tap_get_field_data(table, element, CALLS_COLUMN);
+	item_data = stat_tap_get_field_data(table, element, CALLS_COLUMN);
 	item_data->value.uint_value++;
 	call_count = item_data->value.uint_value;
-	new_stat_tap_set_field_data(table, element, CALLS_COLUMN, item_data);
+	stat_tap_set_field_data(table, element, CALLS_COLUMN, item_data);
 
 	/* calculate time delta between request and reply */
 	nstime_delta(&delta, &pinfo->abs_ts, &ri->req_time);
 	delta_s = nstime_to_sec(&delta);
 
-	item_data = new_stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);
+	item_data = stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);
 	if (item_data->value.float_value == 0.0 || delta_s < item_data->value.float_value) {
 		item_data->value.float_value = delta_s;
-		new_stat_tap_set_field_data(table, element, MIN_SRT_COLUMN, item_data);
+		stat_tap_set_field_data(table, element, MIN_SRT_COLUMN, item_data);
 	}
 
-	item_data = new_stat_tap_get_field_data(table, element, MAX_SRT_COLUMN);
+	item_data = stat_tap_get_field_data(table, element, MAX_SRT_COLUMN);
 	if (item_data->value.float_value == 0.0 || delta_s > item_data->value.float_value) {
 		item_data->value.float_value = delta_s;
-		new_stat_tap_set_field_data(table, element, MAX_SRT_COLUMN, item_data);
+		stat_tap_set_field_data(table, element, MAX_SRT_COLUMN, item_data);
 	}
 
-	item_data = new_stat_tap_get_field_data(table, element, AVG_SRT_COLUMN);
+	item_data = stat_tap_get_field_data(table, element, AVG_SRT_COLUMN);
 	item_data->user_data.float_value += delta_s;
 	item_data->value.float_value = item_data->user_data.float_value / call_count;
-	new_stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
+	stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
 
 	return TRUE;
 }
@@ -3982,18 +3982,18 @@ rpc_prog_stat_reset(stat_tap_table* table)
 
 	for (element = 0; element < table->num_elements; element++)
 	{
-		item_data = new_stat_tap_get_field_data(table, element, CALLS_COLUMN);
+		item_data = stat_tap_get_field_data(table, element, CALLS_COLUMN);
 		item_data->value.uint_value = 0;
-		new_stat_tap_set_field_data(table, element, CALLS_COLUMN, item_data);
-		item_data = new_stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);
+		stat_tap_set_field_data(table, element, CALLS_COLUMN, item_data);
+		item_data = stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);
 		item_data->value.float_value = 0.0;
-		new_stat_tap_set_field_data(table, element, MIN_SRT_COLUMN, item_data);
-		item_data = new_stat_tap_get_field_data(table, element, MAX_SRT_COLUMN);
+		stat_tap_set_field_data(table, element, MIN_SRT_COLUMN, item_data);
+		item_data = stat_tap_get_field_data(table, element, MAX_SRT_COLUMN);
 		item_data->value.float_value = 0.0;
-		new_stat_tap_set_field_data(table, element, MAX_SRT_COLUMN, item_data);
-		item_data = new_stat_tap_get_field_data(table, element, AVG_SRT_COLUMN);
+		stat_tap_set_field_data(table, element, MAX_SRT_COLUMN, item_data);
+		item_data = stat_tap_get_field_data(table, element, AVG_SRT_COLUMN);
 		item_data->value.float_value = 0.0;
-		new_stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
+		stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
 	}
 }
 

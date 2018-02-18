@@ -5557,17 +5557,17 @@ static stat_tap_table_item sip_stat_fields[] = {
     {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Max Setup (s)", "%8.2f"},
 };
 
-static void sip_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void sip_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     /* XXX Should we have a single request + response table instead? */
     int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table *req_table = new_stat_tap_init_table("SIP Requests", num_fields, 0, NULL, gui_callback, gui_data);
-    stat_tap_table *resp_table = new_stat_tap_init_table("SIP Responses", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table *req_table = stat_tap_init_table("SIP Requests", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table *resp_table = stat_tap_init_table("SIP Responses", num_fields, 0, NULL, gui_callback, gui_data);
     stat_tap_table_item_type items[sizeof(sip_stat_fields)/sizeof(stat_tap_table_item)];
     guint i;
 
-    new_stat_tap_add_table(new_stat, resp_table);
-    new_stat_tap_add_table(new_stat, req_table);
+    stat_tap_add_table(new_stat, resp_table);
+    stat_tap_add_table(new_stat, req_table);
 
 
     // These values are fixed for all entries.
@@ -5586,7 +5586,7 @@ static void sip_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb 
     // For req_table, first column value is method.
     for (i = 1; i < array_length(sip_methods); i++) {
         items[REQ_RESP_METHOD_COLUMN].value.string_value = g_strdup(sip_methods[i]);
-        new_stat_tap_init_table_row(req_table, i-1, num_fields, items);
+        stat_tap_init_table_row(req_table, i-1, num_fields, items);
     }
 
     // For responses entries, first column gets code and description.
@@ -5595,14 +5595,14 @@ static void sip_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb 
         items[REQ_RESP_METHOD_COLUMN].value.string_value =
                 g_strdup_printf("%u %s", response_code, response_code_vals[i].strptr);
         items[REQ_RESP_METHOD_COLUMN].user_data.uint_value = response_code;
-        new_stat_tap_init_table_row(resp_table, i-1, num_fields, items);
+        stat_tap_init_table_row(resp_table, i-1, num_fields, items);
     }
 }
 
 static gboolean
 sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *siv_ptr)
 {
-    new_stat_data_t* stat_data = (new_stat_data_t*) tapdata;
+    stat_data_t* stat_data = (stat_data_t*) tapdata;
     const sip_info_value_t *info_value = (const sip_info_value_t *) siv_ptr;
     stat_tap_table *cur_table = NULL;
     guint cur_row = 0;  /* 0 = Unknown for both tables */
@@ -5615,7 +5615,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 
         cur_table = req_table;
         for (element = 0; element < req_table->num_elements; element++) {
-            item_data = new_stat_tap_get_field_data(req_table, element, REQ_RESP_METHOD_COLUMN);
+            item_data = stat_tap_get_field_data(req_table, element, REQ_RESP_METHOD_COLUMN);
             if (g_ascii_strcasecmp(info_value->request_method, item_data->value.string_value) == 0) {
                 cur_row = element;
                 break;
@@ -5637,7 +5637,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         }
 
         for (element = 0; element < resp_table->num_elements; element++) {
-            item_data = new_stat_tap_get_field_data(resp_table, element, REQ_RESP_METHOD_COLUMN);
+            item_data = stat_tap_get_field_data(resp_table, element, REQ_RESP_METHOD_COLUMN);
             if (item_data->user_data.uint_value == response_code) {
                 cur_row = element;
                 break;
@@ -5651,20 +5651,20 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
     if (cur_table) {
         stat_tap_table_item_type *item_data;
 
-        item_data = new_stat_tap_get_field_data(cur_table, cur_row, COUNT_COLUMN);
+        item_data = stat_tap_get_field_data(cur_table, cur_row, COUNT_COLUMN);
         item_data->value.uint_value++;
-        new_stat_tap_set_field_data(cur_table, cur_row, COUNT_COLUMN, item_data);
+        stat_tap_set_field_data(cur_table, cur_row, COUNT_COLUMN, item_data);
 
         if (info_value->resend) {
-            item_data = new_stat_tap_get_field_data(cur_table, cur_row, RESENT_COLUMN);
+            item_data = stat_tap_get_field_data(cur_table, cur_row, RESENT_COLUMN);
             item_data->value.uint_value++;
-            new_stat_tap_set_field_data(cur_table, cur_row, RESENT_COLUMN, item_data);
+            stat_tap_set_field_data(cur_table, cur_row, RESENT_COLUMN, item_data);
         }
 
         if (info_value->setup_time > 0) {
-            stat_tap_table_item_type *min_item_data = new_stat_tap_get_field_data(cur_table, cur_row, MIN_SETUP_COLUMN);
-            stat_tap_table_item_type *avg_item_data = new_stat_tap_get_field_data(cur_table, cur_row, AVG_SETUP_COLUMN);
-            stat_tap_table_item_type *max_item_data = new_stat_tap_get_field_data(cur_table, cur_row, MAX_SETUP_COLUMN);
+            stat_tap_table_item_type *min_item_data = stat_tap_get_field_data(cur_table, cur_row, MIN_SETUP_COLUMN);
+            stat_tap_table_item_type *avg_item_data = stat_tap_get_field_data(cur_table, cur_row, AVG_SETUP_COLUMN);
+            stat_tap_table_item_type *max_item_data = stat_tap_get_field_data(cur_table, cur_row, MAX_SETUP_COLUMN);
             double setup_time = (double) info_value->setup_time / 1000;
             unsigned count;
 
@@ -5686,9 +5686,9 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
                 }
             }
 
-            new_stat_tap_set_field_data(cur_table, cur_row, MIN_SETUP_COLUMN, min_item_data);
-            new_stat_tap_set_field_data(cur_table, cur_row, AVG_SETUP_COLUMN, avg_item_data);
-            new_stat_tap_set_field_data(cur_table, cur_row, MAX_SETUP_COLUMN, max_item_data);
+            stat_tap_set_field_data(cur_table, cur_row, MIN_SETUP_COLUMN, min_item_data);
+            stat_tap_set_field_data(cur_table, cur_row, AVG_SETUP_COLUMN, avg_item_data);
+            stat_tap_set_field_data(cur_table, cur_row, MAX_SETUP_COLUMN, max_item_data);
         }
     }
 
@@ -5703,31 +5703,31 @@ sip_stat_reset(stat_tap_table* table)
 
     for (element = 0; element < table->num_elements; element++)
     {
-        item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, COUNT_COLUMN);
         item_data->value.uint_value = 0;
-        new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
 
-        item_data = new_stat_tap_get_field_data(table, element, RESENT_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, RESENT_COLUMN);
         item_data->value.uint_value = 0;
-        new_stat_tap_set_field_data(table, element, RESENT_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, RESENT_COLUMN, item_data);
 
-        item_data = new_stat_tap_get_field_data(table, element, RESENT_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, RESENT_COLUMN);
         item_data->value.uint_value = 0;
-        new_stat_tap_set_field_data(table, element, RESENT_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, RESENT_COLUMN, item_data);
 
-        item_data = new_stat_tap_get_field_data(table, element, MIN_SETUP_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, MIN_SETUP_COLUMN);
         item_data->user_data.uint_value = 0;
         item_data->value.float_value = 0.0f;
-        new_stat_tap_set_field_data(table, element, MIN_SETUP_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, MIN_SETUP_COLUMN, item_data);
 
-        item_data = new_stat_tap_get_field_data(table, element, AVG_SETUP_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, AVG_SETUP_COLUMN);
         item_data->user_data.float_value = 0;
         item_data->value.float_value = 0.0f;
-        new_stat_tap_set_field_data(table, element, AVG_SETUP_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, AVG_SETUP_COLUMN, item_data);
 
-        item_data = new_stat_tap_get_field_data(table, element, MAX_SETUP_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, MAX_SETUP_COLUMN);
         item_data->value.float_value = 0.0f;
-        new_stat_tap_set_field_data(table, element, MAX_SETUP_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, MAX_SETUP_COLUMN, item_data);
     }
 }
 

@@ -19,13 +19,13 @@
 
 typedef struct _table_stat_t {
 	const char *filter;
-	new_stat_data_t stats;
+	stat_data_t stats;
 } table_stat_t;
 
 static void
 simple_draw(void *arg)
 {
-	new_stat_data_t* stat_data = (new_stat_data_t*)arg;
+	stat_data_t* stat_data = (stat_data_t*)arg;
 	table_stat_t* stats = (table_stat_t*)stat_data->user_data;
 	size_t i;
 	guint table_index, element, field_index;
@@ -55,7 +55,7 @@ simple_draw(void *arg)
 		{
 			for (field_index = 0, field = stat_data->stat_tap_data->fields; field_index < table->num_fields; field_index++, field++)
 			{
-				field_data = new_stat_tap_get_field_data(table, element, field_index);
+				field_data = stat_tap_get_field_data(table, element, field_index);
 				if (field_data->type == TABLE_ITEM_NONE) /* Nothing for us here */
 					break;
 
@@ -88,19 +88,19 @@ simple_draw(void *arg)
 }
 
 static void
-init_stat_table(stat_tap_table_ui *new_stat_tap, const char *filter)
+init_stat_table(stat_tap_table_ui *stat_tap, const char *filter)
 {
 	GString *error_string;
 	table_stat_t* ui;
 
 	ui = g_new0(table_stat_t, 1);
 	ui->filter = g_strdup(filter);
-	ui->stats.stat_tap_data = new_stat_tap;
+	ui->stats.stat_tap_data = stat_tap;
 	ui->stats.user_data = ui;
 
-	new_stat_tap->stat_tap_init_cb(new_stat_tap, NULL, NULL);
+	stat_tap->stat_tap_init_cb(stat_tap, NULL, NULL);
 
-	error_string = register_tap_listener(new_stat_tap->tap_name, &ui->stats, filter, 0, NULL, new_stat_tap->packet_func, simple_draw);
+	error_string = register_tap_listener(stat_tap->tap_name, &ui->stats, filter, 0, NULL, stat_tap->packet_func, simple_draw);
 	if (error_string) {
 /*		free_rtd_table(&ui->rtd.stat_table, NULL, NULL); */
 		fprintf(stderr, "tshark: Couldn't register tap: %s\n", error_string->str);
@@ -112,11 +112,11 @@ init_stat_table(stat_tap_table_ui *new_stat_tap, const char *filter)
 static void
 simple_stat_init(const char *opt_arg, void* userdata)
 {
-	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)userdata;
+	stat_tap_table_ui *stat_tap = (stat_tap_table_ui*)userdata;
 	const char *filter=NULL;
 	char* err = NULL;
 
-	new_stat_tap_get_filter(new_stat_tap, opt_arg, &filter, &err);
+	stat_tap_get_filter(stat_tap, opt_arg, &filter, &err);
 	if (err != NULL)
 	{
 		fprintf(stderr, "tshark: %s\n", err);
@@ -124,23 +124,23 @@ simple_stat_init(const char *opt_arg, void* userdata)
 		exit(1);
 	}
 
-	init_stat_table(new_stat_tap, filter);
+	init_stat_table(stat_tap, filter);
 }
 
 gboolean
 register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 {
-	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)value;
+	stat_tap_table_ui *stat_tap = (stat_tap_table_ui*)value;
 	stat_tap_ui ui_info;
 
-	ui_info.group = new_stat_tap->group;
-	ui_info.title = new_stat_tap->title;   /* construct this from the protocol info? */
+	ui_info.group = stat_tap->group;
+	ui_info.title = stat_tap->title;   /* construct this from the protocol info? */
 	ui_info.cli_string = (char*)key;
 	ui_info.tap_init_cb = simple_stat_init;
-	ui_info.nparams = new_stat_tap->nparams;
-	ui_info.params = new_stat_tap->params;
+	ui_info.nparams = stat_tap->nparams;
+	ui_info.params = stat_tap->params;
 
-	register_stat_tap_ui(&ui_info, new_stat_tap);
+	register_stat_tap_ui(&ui_info, stat_tap);
 	return FALSE;
 }
 

@@ -3539,7 +3539,7 @@ static stat_tap_table_item gsm_a_stat_fields[] = {
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}
     };
 
-static void gsm_a_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data, const char *table_title, const value_string *msg_strings)
+static void gsm_a_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data, const char *table_title, const value_string *msg_strings)
 {
     int num_fields = sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item);
     stat_tap_table* table;
@@ -3551,8 +3551,8 @@ static void gsm_a_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_c
     items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
     items[COUNT_COLUMN].value.uint_value = 0;
 
-    table = new_stat_tap_init_table(table_title, num_fields, 0, NULL, gui_callback, gui_data);
-    new_stat_tap_add_table(new_stat, table);
+    table = stat_tap_init_table(table_title, num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_add_table(new_stat, table);
 
     /* Add a row for each value type */
     for (i = 0; i < 256; i++)
@@ -3567,65 +3567,65 @@ static void gsm_a_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_c
 
         items[IEI_COLUMN].value.uint_value = i;
         items[MSG_NAME_COLUMN].value.string_value = col_str;
-        new_stat_tap_init_table_row(table, i, num_fields, items);
+        stat_tap_init_table_row(table, i, num_fields, items);
     }
 }
 
-static void gsm_a_bssmap_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_bssmap_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F BSSMAP Statistics", gsm_a_bssmap_msg_strings);
 }
 
-static void gsm_a_dtap_mm_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_mm_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP Mobility Management Statistics", gsm_a_dtap_msg_mm_strings);
 }
 
-static void gsm_a_dtap_rr_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_rr_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP Radio Resource Management Statistics", gsm_a_dtap_msg_rr_strings);
 }
 
-static void gsm_a_dtap_cc_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_cc_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP Call Control Statistics", gsm_a_dtap_msg_cc_strings);
 }
 
-static void gsm_a_dtap_gmm_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_gmm_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP GPRS Mobility Management Statistics", gsm_a_dtap_msg_gmm_strings);
 }
 
-static void gsm_a_dtap_sm_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_sm_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP GPRS Session Management Statistics", gsm_a_dtap_msg_sm_strings);
 }
 
-static void gsm_a_dtap_sms_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_sms_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP Short Message Service Statistics", gsm_a_dtap_msg_sms_strings);
 }
 
-static void gsm_a_dtap_tp_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_tp_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP Special Conformance Testing Functions", gsm_a_dtap_msg_tp_strings);
 }
 
-static void gsm_a_dtap_ss_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_dtap_ss_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F DTAP Supplementary Services Statistics", gsm_a_dtap_msg_ss_strings);
 }
 
-static void gsm_a_sacch_rr_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_a_sacch_rr_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     gsm_a_stat_init(new_stat, gui_callback, gui_data,
                     "GSM A-I/F SACCH Statistics", gsm_a_rr_short_pd_msg_strings);
@@ -3634,7 +3634,7 @@ static void gsm_a_sacch_rr_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_g
 static gboolean
 gsm_a_stat_packet(void *tapdata, const void *gatr_ptr, guint8 pdu_type, int protocol_disc)
 {
-    new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
+    stat_data_t* stat_data = (stat_data_t*)tapdata;
     const gsm_a_tap_rec_t *gatr = (const gsm_a_tap_rec_t *) gatr_ptr;
     stat_tap_table* table;
     stat_tap_table_item_type* msg_data;
@@ -3645,9 +3645,9 @@ gsm_a_stat_packet(void *tapdata, const void *gatr_ptr, guint8 pdu_type, int prot
     if (pdu_type == GSM_A_PDU_TYPE_SACCH && gatr->protocol_disc != 0) return FALSE;
 
     table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
-    msg_data = new_stat_tap_get_field_data(table, gatr->message_type, COUNT_COLUMN);
+    msg_data = stat_tap_get_field_data(table, gatr->message_type, COUNT_COLUMN);
     msg_data->value.uint_value++;
-    new_stat_tap_set_field_data(table, gatr->message_type, COUNT_COLUMN, msg_data);
+    stat_tap_set_field_data(table, gatr->message_type, COUNT_COLUMN, msg_data);
 
     return TRUE;
 }
@@ -3720,9 +3720,9 @@ gsm_a_stat_reset(stat_tap_table* table)
 
     for (element = 0; element < table->num_elements; element++)
     {
-        item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+        item_data = stat_tap_get_field_data(table, element, COUNT_COLUMN);
         item_data->value.uint_value = 0;
-        new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+        stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
     }
 }
 
