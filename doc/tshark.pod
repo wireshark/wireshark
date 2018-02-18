@@ -669,7 +669,8 @@ promiscuous mode.
 =item --print
 
 Decode and display the packet summary or details, even if writing raw
-packet data using the B<-w> option.
+packet data using the B<-w> option, and even if packet output is
+otherwise suppressed with B<-Q>.
 
 =item -q
 
