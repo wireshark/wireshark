@@ -169,7 +169,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
 	/* Array to hold the instructions that need to jump to
 	 * an instruction if they fail. */
-	jmps = (dfvm_value_t **)g_malloc(num_params * sizeof(dfvm_value_t*));
+	jmps = (dfvm_value_t **)g_malloc0(num_params * sizeof(dfvm_value_t*));
 
 	/* Create the new DFVM instruction */
 	insn = dfvm_insn_new(CALL_FUNCTION);
@@ -185,7 +185,6 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
 	i = 0;
 	while (params) {
-		jmps[i] = NULL;
 		reg = gen_entity(dfw, (stnode_t *)params->data, &jmps[i]);
 
 		val = dfvm_value_new(REGISTER);
