@@ -878,11 +878,6 @@ main(int argc, char *argv[])
      line that their preferences have changed. */
   prefs_apply_all();
 
-  /* At this point MATE will have registered its field array so we can
-     have a tap filter with one of MATE's late-registered fields as part
-     of the filter.  We can now process all the "-z" arguments. */
-  start_requested_stats();
-
   /*
    * Enabled and disabled protocols and heuristic dissectors as per
    * command-line options.
@@ -957,6 +952,14 @@ main(int argc, char *argv[])
       exit_status = OPEN_ERROR;
       goto clean_exit;
     }
+
+    /* Start statistics taps; we do so after successfully opening the
+       capture file, so we know we have something to compute stats
+       on, and after registering all dissectors, so that MATE will
+       have registered its field array so we can have a tap filter
+       with one of MATE's late-registered fields as part of the
+       filter. */
+    start_requested_stats();
 
     /* Process the packets in the file */
     TRY {
