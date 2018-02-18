@@ -397,17 +397,17 @@ MainWindow::MainWindow(QWidget *parent) :
     // larger toolbar. We do this by adding them to a child toolbar.
     // https://bugreports.qt.io/browse/QTBUG-2472
     filter_expression_toolbar_ = new DragDropToolBar();
-    // Try to draw separator lines from the button label ascent to its baseline.
+    // Try to draw 1-pixel-wide separator lines from the button label
+    // ascent to its baseline.
     int sep_margin = (filter_expression_toolbar_->fontMetrics().height() * 0.5) - 1;
     QColor sep_color = ColorUtils::alphaBlend(filter_expression_toolbar_->palette().text(),
-                                              filter_expression_toolbar_->palette().base(), 0.5);
-    sep_color.setAlphaF(0.3);
+                                              filter_expression_toolbar_->palette().base(), 0.3);
     filter_expression_toolbar_->setStyleSheet(QString(
                 "QToolBar { background: none; border: none; spacing: 1px; }"
-                "QToolBar::separator {"
-                "  width: 1px; max-width: 1px;"
-                "  margin-top: %1px; margin-bottom: %2px;"
-                "  background: %3; }"
+                "QFrame {"
+                "  min-width: 1px; max-width: 1px;"
+                "  margin: %1px 0 %2px 0; padding: 0;"
+                "  background-color: %3;"
                 "}"
                 ).arg(sep_margin).arg(sep_margin - 1).arg(sep_color.name()));
 

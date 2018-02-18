@@ -1009,8 +1009,10 @@ gboolean MainWindow::filter_expression_add_action(const void *key _U_, void *val
     dfb_action->setProperty(dfe_property_label_, QString(fe->label));
     dfb_action->setProperty(dfe_property_expression_, QString(fe->expression));
 
-    if (data->window->filter_expression_toolbar_->actions().count() > 0) {
-        data->window->filter_expression_toolbar_->addSeparator();
+    if (data->actions_added) {
+        QFrame *sep = new QFrame();
+        sep->setEnabled(false);
+        data->window->filter_expression_toolbar_->addWidget(sep);
     }
     data->window->filter_expression_toolbar_->addAction(dfb_action);
     connect(dfb_action, SIGNAL(triggered()), data->window, SLOT(displayFilterButtonClicked()));
