@@ -7865,7 +7865,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             const guint8 *epp_buf = tvb_get_ptr(tvb, 0, -1);
             guint a_len = offset;
             guint16 e_off;
-            guint8 *buf = (guint8 *)g_malloc(e_len);
+            guint8 *buf = (guint8 *)g_malloc0(e_len);
             tvbuff_t *app;
 
             /* The default nonce is a function of whether or not this is the server
