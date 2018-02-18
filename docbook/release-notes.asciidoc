@@ -97,8 +97,10 @@ CAN-ETH
 Excentis DOCSIS31 XRA header
 FP Mux
 GRPC (gRPC)
-IEEE 1905.1a
 IEEE 802.3br Frame Preemption Protocol
+IEEE 802.11ax (High Efficiency WLAN (HEW))
+IEEE 802.15.9 IEEE Recommended Practice for Transport of Key Management Protocol (KMP) Datagrams
+IEEE 1905.1a
 ISOBUS
 LoRaTap
 LoRaWAN
@@ -110,13 +112,14 @@ NXP 802.15.4 Sniffer Protocol
 PFCP (Packet Forwarding Control Protocol)
 Protobuf (Protocol Buffers)
 QUIC (IETF)
+RFC 4108 Using CMS to Protect Firmware Packages
 SolarEdge monitoring protocol
 Session Multiplex Protocol
 Steam In-Home Streaming Discovery Protocol
 Tibia
 TWAMP and OWAMP
 Wi-Fi Device Provisioning Protocol
-802.11ax (High Efficiency WLAN (HEW))
+Wi-SUN FAN Protocol
 --
 
 === Updated Protocol Support
