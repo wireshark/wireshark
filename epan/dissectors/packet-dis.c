@@ -5059,7 +5059,7 @@ static int dissect_DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS(tvbuff_t *tvb, proto_tree *t
 {
     proto_tree  *sub_tree;
 
-    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_modulation_parameters, NULL, "Modulation Parameters");
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_modulation_parameters, NULL, "Modulation Parameters");
 
     proto_tree_add_item(sub_tree, hf_dis_mod_param_ts_allocation_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
