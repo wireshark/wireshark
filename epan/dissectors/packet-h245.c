@@ -202,7 +202,7 @@ typedef enum _IndicationMessage_enum {
 } IndicationMessage_enum;
 
 /*--- End of included file: packet-h245-val.h ---*/
-#line 87 "./asn1/h245/packet-h245-template.c"
+#line 75 "./asn1/h245/packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -1909,7 +1909,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 387 "./asn1/h245/packet-h245-template.c"
+#line 375 "./asn1/h245/packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2410,7 +2410,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 392 "./asn1/h245/packet-h245-template.c"
+#line 380 "./asn1/h245/packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14497,7 +14497,7 @@ static int dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 401 "./asn1/h245/packet-h245-template.c"
+#line 389 "./asn1/h245/packet-h245-template.c"
 
 static int
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
@@ -20196,7 +20196,7 @@ void proto_register_h245(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 487 "./asn1/h245/packet-h245-template.c"
+#line 475 "./asn1/h245/packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20699,7 +20699,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 494 "./asn1/h245/packet-h245-template.c"
+#line 482 "./asn1/h245/packet-h245-template.c"
   };
   module_t *h245_module;
 

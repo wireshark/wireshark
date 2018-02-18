@@ -61,7 +61,7 @@ int dissect_x509sat_TimeAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 int dissect_x509sat_LocaleContextSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-x509sat-exp.h ---*/
-#line 28 "./asn1/x509sat/packet-x509sat-template.h"
+#line 16 "./asn1/x509sat/packet-x509sat-template.h"
 
 #endif  /* PACKET_X509SAT_H */
 

@@ -476,7 +476,7 @@ static int hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange = -1;
 static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 48 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 36 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
@@ -576,7 +576,7 @@ static gint ett_gprscdr_UserCSGInformation = -1;
 static gint ett_gprscdr_UWANUserLocationInfo = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 57 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 45 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
 static expert_field ei_gprscdr_choice_not_found = EI_INIT;
@@ -4710,7 +4710,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 125 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 113 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -6445,7 +6445,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 135 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 123 "./asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -6548,7 +6548,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UWANUserLocationInfo,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 147 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 135 "./asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {

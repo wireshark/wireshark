@@ -207,7 +207,7 @@ static int hf_x509sat_T_bitNamedDays_friday = -1;
 static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- End of included file: packet-x509sat-hf.c ---*/
-#line 45 "./asn1/x509sat/packet-x509sat-template.c"
+#line 33 "./asn1/x509sat/packet-x509sat-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -262,7 +262,7 @@ static gint ett_x509sat_T_between = -1;
 static gint ett_x509sat_LocaleContextSyntax = -1;
 
 /*--- End of included file: packet-x509sat-ett.c ---*/
-#line 48 "./asn1/x509sat/packet-x509sat-template.c"
+#line 36 "./asn1/x509sat/packet-x509sat-template.c"
 
 
 /*--- Included file: packet-x509sat-fn.c ---*/
@@ -1895,7 +1895,7 @@ static int dissect_GUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
-#line 50 "./asn1/x509sat/packet-x509sat-template.c"
+#line 38 "./asn1/x509sat/packet-x509sat-template.c"
 
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -2564,7 +2564,7 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509sat-hfarr.c ---*/
-#line 58 "./asn1/x509sat/packet-x509sat-template.c"
+#line 46 "./asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* List of subtrees */
@@ -2621,7 +2621,7 @@ void proto_register_x509sat(void) {
     &ett_x509sat_LocaleContextSyntax,
 
 /*--- End of included file: packet-x509sat-ettarr.c ---*/
-#line 63 "./asn1/x509sat/packet-x509sat-template.c"
+#line 51 "./asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* Register protocol */
@@ -2674,7 +2674,7 @@ void proto_register_x509sat(void) {
   register_ber_syntax_dissector("X121Address", proto_x509sat, dissect_X121Address_PDU);
 
 /*--- End of included file: packet-x509sat-syn-reg.c ---*/
-#line 73 "./asn1/x509sat/packet-x509sat-template.c"
+#line 61 "./asn1/x509sat/packet-x509sat-template.c"
 
 }
 
@@ -2867,7 +2867,7 @@ void proto_reg_handoff_x509sat(void) {
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
-#line 80 "./asn1/x509sat/packet-x509sat-template.c"
+#line 68 "./asn1/x509sat/packet-x509sat-template.c"
 
   /* OBJECT CLASSES */
 

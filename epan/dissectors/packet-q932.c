@@ -83,7 +83,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 49 "./asn1/q932/packet-q932-template.c"
+#line 37 "./asn1/q932/packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -106,7 +106,7 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 54 "./asn1/q932/packet-q932-template.c"
+#line 42 "./asn1/q932/packet-q932-template.c"
 
 static expert_field ei_q932_dse_not_supported = EI_INIT;
 static expert_field ei_q932_acse_not_supported = EI_INIT;
@@ -704,7 +704,7 @@ static int dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 143 "./asn1/q932/packet-q932-template.c"
+#line 131 "./asn1/q932/packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 static void
@@ -1027,7 +1027,7 @@ void proto_register_q932(void) {
         "AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 313 "./asn1/q932/packet-q932-template.c"
+#line 301 "./asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -1052,7 +1052,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 320 "./asn1/q932/packet-q932-template.c"
+#line 308 "./asn1/q932/packet-q932-template.c"
   };
 
   static ei_register_info ei[] = {

@@ -222,7 +222,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 67 "./asn1/cmp/packet-cmp-template.c"
+#line 55 "./asn1/cmp/packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -278,7 +278,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 71 "./asn1/cmp/packet-cmp-template.c"
+#line 59 "./asn1/cmp/packet-cmp-template.c"
 
 /*--- Included file: packet-cmp-fn.c ---*/
 #line 1 "./asn1/cmp/packet-cmp-fn.c"
@@ -1470,7 +1470,7 @@ static int dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 72 "./asn1/cmp/packet-cmp-template.c"
+#line 60 "./asn1/cmp/packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2350,7 +2350,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 319 "./asn1/cmp/packet-cmp-template.c"
+#line 307 "./asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2408,7 +2408,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 325 "./asn1/cmp/packet-cmp-template.c"
+#line 313 "./asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2495,7 +2495,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 390 "./asn1/cmp/packet-cmp-template.c"
+#line 378 "./asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

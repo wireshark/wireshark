@@ -125,7 +125,7 @@ static int hf_tcap_AARQ_protocol_version_version1 = -1;
 static int hf_tcap_AARE_protocol_version_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 61 "./asn1/tcap/packet-tcap-template.c"
+#line 49 "./asn1/tcap/packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -181,7 +181,7 @@ static gint ett_tcap_ABRT_user_information = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 79 "./asn1/tcap/packet-tcap-template.c"
+#line 67 "./asn1/tcap/packet-tcap-template.c"
 
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
@@ -1422,7 +1422,7 @@ static int dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 155 "./asn1/tcap/packet-tcap-template.c"
+#line 143 "./asn1/tcap/packet-tcap-template.c"
 
 /*
  * DEBUG functions
@@ -3208,7 +3208,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 1933 "./asn1/tcap/packet-tcap-template.c"
+#line 1921 "./asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3550,7 +3550,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 2006 "./asn1/tcap/packet-tcap-template.c"
+#line 1994 "./asn1/tcap/packet-tcap-template.c"
   };
 
 /* Setup protocol subtree array */
@@ -3598,7 +3598,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2016 "./asn1/tcap/packet-tcap-template.c"
+#line 2004 "./asn1/tcap/packet-tcap-template.c"
   };
 
   /*static enum_val_t tcap_options[] = {

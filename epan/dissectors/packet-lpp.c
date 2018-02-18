@@ -1312,7 +1312,7 @@ static int hf_lpp_T_bt_MeasSupported_r13_rssi_r13 = -1;
 static int dummy_hf_lpp_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lpp-hf.c ---*/
-#line 49 "./asn1/lpp/packet-lpp-template.c"
+#line 37 "./asn1/lpp/packet-lpp-template.c"
 static int hf_lpp_svHealthExt_v1240_e5bhs = -1;
 static int hf_lpp_svHealthExt_v1240_e1_bhs = -1;
 static int hf_lpp_kepSV_StatusINAV_e5bhs = -1;
@@ -1753,7 +1753,7 @@ static gint ett_lpp_BT_LocationServerErrorCauses_r13 = -1;
 static gint ett_lpp_BT_TargetDeviceErrorCauses_r13 = -1;
 
 /*--- End of included file: packet-lpp-ett.c ---*/
-#line 71 "./asn1/lpp/packet-lpp-template.c"
+#line 59 "./asn1/lpp/packet-lpp-template.c"
 
 /* Include constants */
 
@@ -1791,7 +1791,7 @@ typedef enum _T_GNSS_ID_enum {
 } T_GNSS_ID_enum;
 
 /*--- End of included file: packet-lpp-val.h ---*/
-#line 74 "./asn1/lpp/packet-lpp-template.c"
+#line 62 "./asn1/lpp/packet-lpp-template.c"
 
 static const value_string lpp_ePDU_ID_vals[] = {
   { 1, "OMA LPP extensions (LPPe)"},
@@ -15223,7 +15223,7 @@ int dissect_lpp_Polygon_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-lpp-fn.c ---*/
-#line 1725 "./asn1/lpp/packet-lpp-template.c"
+#line 1713 "./asn1/lpp/packet-lpp-template.c"
 
 static int dissect_lpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_tree *subtree;
@@ -20303,7 +20303,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lpp-hfarr.c ---*/
-#line 1744 "./asn1/lpp/packet-lpp-template.c"
+#line 1732 "./asn1/lpp/packet-lpp-template.c"
     { &hf_lpp_svHealthExt_v1240_e5bhs,
       { "E5b Signal Health Status", "lpp.svHealthExt_v1240.e5bhs",
         FT_UINT8, BASE_DEC, VALS(lpp_signal_health_status_vals), 0,
@@ -20769,7 +20769,7 @@ void proto_register_lpp(void) {
     &ett_lpp_BT_TargetDeviceErrorCauses_r13,
 
 /*--- End of included file: packet-lpp-ettarr.c ---*/
-#line 1791 "./asn1/lpp/packet-lpp-template.c"
+#line 1779 "./asn1/lpp/packet-lpp-template.c"
   };
 
 

@@ -37,7 +37,7 @@ int dissect_p22_DiscardReasonField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 int dissect_p22_ReceiptTimeField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-p22-exp.h ---*/
-#line 28 "./asn1/p22/packet-p22-template.h"
+#line 16 "./asn1/p22/packet-p22-template.h"
 
 void proto_reg_handoff_p22(void);
 void proto_register_p22(void);

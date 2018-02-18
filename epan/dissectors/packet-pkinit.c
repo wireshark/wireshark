@@ -66,7 +66,7 @@ static int hf_pkinit_dhNonce = -1;                /* INTEGER */
 static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
-#line 45 "./asn1/pkinit/packet-pkinit-template.c"
+#line 33 "./asn1/pkinit/packet-pkinit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -83,7 +83,7 @@ static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
-#line 48 "./asn1/pkinit/packet-pkinit-template.c"
+#line 36 "./asn1/pkinit/packet-pkinit-template.c"
 
 static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
@@ -300,7 +300,7 @@ static int dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-pkinit-fn.c ---*/
-#line 55 "./asn1/pkinit/packet-pkinit-template.c"
+#line 43 "./asn1/pkinit/packet-pkinit-template.c"
 
 int
 dissect_pkinit_PA_PK_AS_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
@@ -445,7 +445,7 @@ void proto_register_pkinit(void) {
         "KerberosTime", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
-#line 99 "./asn1/pkinit/packet-pkinit-template.c"
+#line 87 "./asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* List of subtrees */
@@ -464,7 +464,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_KDCDHKeyInfo,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
-#line 104 "./asn1/pkinit/packet-pkinit-template.c"
+#line 92 "./asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* Register protocol */
@@ -488,6 +488,6 @@ void proto_reg_handoff_pkinit(void) {
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/
-#line 119 "./asn1/pkinit/packet-pkinit-template.c"
+#line 107 "./asn1/pkinit/packet-pkinit-template.c"
 }
 

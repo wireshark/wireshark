@@ -165,7 +165,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 61 "./asn1/disp/packet-disp-template.c"
+#line 49 "./asn1/disp/packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -228,7 +228,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 65 "./asn1/disp/packet-disp-template.c"
+#line 53 "./asn1/disp/packet-disp-template.c"
 
 static expert_field ei_disp_unsupported_opcode = EI_INIT;
 static expert_field ei_disp_unsupported_errcode = EI_INIT;
@@ -1467,7 +1467,7 @@ static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 74 "./asn1/disp/packet-disp-template.c"
+#line 62 "./asn1/disp/packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -2025,7 +2025,7 @@ void proto_register_disp(void) {
         "ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 199 "./asn1/disp/packet-disp-template.c"
+#line 187 "./asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2090,7 +2090,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 205 "./asn1/disp/packet-disp-template.c"
+#line 193 "./asn1/disp/packet-disp-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2139,7 +2139,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 243 "./asn1/disp/packet-disp-template.c"
+#line 231 "./asn1/disp/packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

@@ -25,7 +25,7 @@
 #line 1 "./asn1/credssp/packet-credssp-val.h"
 
 /*--- End of included file: packet-credssp-val.h ---*/
-#line 28 "./asn1/credssp/packet-credssp-template.h"
+#line 16 "./asn1/credssp/packet-credssp-template.h"
 
 void proto_reg_handoff_credssp(void);
 void proto_register_credssp(void);

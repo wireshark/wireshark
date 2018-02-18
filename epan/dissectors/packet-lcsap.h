@@ -30,6 +30,6 @@ int dissect_lcsap_Correlation_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 int dissect_lcsap_Positioning_Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lcsap-exp.h ---*/
-#line 31 "./asn1/lcsap/packet-lcsap-template.h"
+#line 19 "./asn1/lcsap/packet-lcsap-template.h"
 
 #endif  /* PACKET_LCSAP_H */

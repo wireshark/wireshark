@@ -82,7 +82,7 @@ WS_DLL_PUBLIC const value_string t38_T30_indicator_vals[];
 WS_DLL_PUBLIC const value_string t38_T30_data_vals[];
 
 /*--- End of included file: packet-t38-exp.h ---*/
-#line 83 "./asn1/t38/packet-t38-template.h"
+#line 71 "./asn1/t38/packet-t38-template.h"
 
 
 

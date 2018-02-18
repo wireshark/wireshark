@@ -77,7 +77,7 @@ static int hf_novell_pkis_amount = -1;            /* INTEGER */
 static int hf_novell_pkis_amtExp10 = -1;          /* INTEGER */
 
 /*--- End of included file: packet-novell_pkis-hf.c ---*/
-#line 35 "./asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 23 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 
 /*--- Included file: packet-novell_pkis-ett.c ---*/
 #line 1 "./asn1/novell_pkis/packet-novell_pkis-ett.c"
@@ -99,7 +99,7 @@ static gint ett_novell_pkis_RelianceLimits = -1;
 static gint ett_novell_pkis_MonetaryValue = -1;
 
 /*--- End of included file: packet-novell_pkis-ett.c ---*/
-#line 36 "./asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 24 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 
 /*--- Included file: packet-novell_pkis-fn.c ---*/
 #line 1 "./asn1/novell_pkis/packet-novell_pkis-fn.c"
@@ -497,7 +497,7 @@ static int dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-novell_pkis-fn.c ---*/
-#line 37 "./asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 25 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 
 void proto_register_novell_pkis (void);
 void proto_reg_handoff_novell_pkis(void);
@@ -514,7 +514,7 @@ void proto_reg_handoff_novell_pkis(void)
 
 
 /*--- End of included file: packet-novell_pkis-dis-tab.c ---*/
-#line 46 "./asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 34 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 }
 
 void proto_register_novell_pkis (void)
@@ -705,7 +705,7 @@ void proto_register_novell_pkis (void)
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-novell_pkis-hfarr.c ---*/
-#line 52 "./asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 40 "./asn1/novell_pkis/packet-novell_pkis-template.c"
   };
   static gint *ett[] = {
 
@@ -729,7 +729,7 @@ void proto_register_novell_pkis (void)
     &ett_novell_pkis_MonetaryValue,
 
 /*--- End of included file: packet-novell_pkis-ettarr.c ---*/
-#line 55 "./asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 43 "./asn1/novell_pkis/packet-novell_pkis-template.c"
   };
 
   /* execute protocol initialization only once */

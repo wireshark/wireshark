@@ -40,6 +40,6 @@ int dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb
 int dissect_inap_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-inap-exp.h ---*/
-#line 29 "./asn1/inap/packet-inap-template.h"
+#line 17 "./asn1/inap/packet-inap-template.h"
 
 #endif  /* PACKET_INAP_H */

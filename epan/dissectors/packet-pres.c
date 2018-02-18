@@ -164,7 +164,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 89 "./asn1/pres/packet-pres-template.c"
+#line 77 "./asn1/pres/packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -210,7 +210,7 @@ static gint ett_pres_User_session_requirements = -1;
 static gint ett_pres_UD_type = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 94 "./asn1/pres/packet-pres-template.c"
+#line 82 "./asn1/pres/packet-pres-template.c"
 
 static expert_field ei_pres_dissector_not_available = EI_INIT;
 static expert_field ei_pres_wrong_spdu_type = EI_INIT;
@@ -1331,7 +1331,7 @@ static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 208 "./asn1/pres/packet-pres-template.c"
+#line 196 "./asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1813,7 +1813,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 377 "./asn1/pres/packet-pres-template.c"
+#line 365 "./asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1860,7 +1860,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 383 "./asn1/pres/packet-pres-template.c"
+#line 371 "./asn1/pres/packet-pres-template.c"
   };
 
   static ei_register_info ei[] = {

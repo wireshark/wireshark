@@ -27,7 +27,7 @@
 int dissect_ess_ESSSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-ess-exp.h ---*/
-#line 29 "./asn1/ess/packet-ess-template.h"
+#line 17 "./asn1/ess/packet-ess-template.h"
 
 #endif  /* PACKET_ESS_H */
 

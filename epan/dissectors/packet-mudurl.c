@@ -42,7 +42,7 @@ static int proto_mudurl = -1;
 static int hf_mudurl_MUDURLSyntax_PDU = -1;       /* MUDURLSyntax */
 
 /*--- End of included file: packet-mudurl-hf.c ---*/
-#line 44 "./asn1/mudurl/packet-mudurl-template.c"
+#line 32 "./asn1/mudurl/packet-mudurl-template.c"
 
 /* Initialize the subtree pointers */
 /* #include "packet-mudurl-ett.c" */
@@ -75,7 +75,7 @@ static int dissect_MUDURLSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-mudurl-fn.c ---*/
-#line 51 "./asn1/mudurl/packet-mudurl-template.c"
+#line 39 "./asn1/mudurl/packet-mudurl-template.c"
 
 
 /*--- proto_register_mudurl ----------------------------------------------*/
@@ -92,7 +92,7 @@ void proto_register_mudurl(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mudurl-hfarr.c ---*/
-#line 59 "./asn1/mudurl/packet-mudurl-template.c"
+#line 47 "./asn1/mudurl/packet-mudurl-template.c"
   };
 
   /* List of subtrees */
@@ -119,5 +119,5 @@ void proto_reg_handoff_mudurl(void) {
 
 
 /*--- End of included file: packet-mudurl-dis-tab.c ---*/
-#line 79 "./asn1/mudurl/packet-mudurl-template.c"
+#line 67 "./asn1/mudurl/packet-mudurl-template.c"
 }

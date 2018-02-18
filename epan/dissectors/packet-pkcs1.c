@@ -65,7 +65,7 @@ static int hf_pkcs1_r = -1;                       /* INTEGER */
 static int hf_pkcs1_s = -1;                       /* INTEGER */
 
 /*--- End of included file: packet-pkcs1-hf.c ---*/
-#line 44 "./asn1/pkcs1/packet-pkcs1-template.c"
+#line 32 "./asn1/pkcs1/packet-pkcs1-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -82,7 +82,7 @@ static gint ett_pkcs1_DSA_Sig_Value = -1;
 static gint ett_pkcs1_ECDSA_Sig_Value = -1;
 
 /*--- End of included file: packet-pkcs1-ett.c ---*/
-#line 47 "./asn1/pkcs1/packet-pkcs1-template.c"
+#line 35 "./asn1/pkcs1/packet-pkcs1-template.c"
 
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
@@ -332,7 +332,7 @@ static int dissect_ECParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-pkcs1-fn.c ---*/
-#line 49 "./asn1/pkcs1/packet-pkcs1-template.c"
+#line 37 "./asn1/pkcs1/packet-pkcs1-template.c"
 
 /*--- proto_register_pkcs1 ----------------------------------------------*/
 void proto_register_pkcs1(void) {
@@ -440,7 +440,7 @@ void proto_register_pkcs1(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-pkcs1-hfarr.c ---*/
-#line 56 "./asn1/pkcs1/packet-pkcs1-template.c"
+#line 44 "./asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* List of subtrees */
@@ -459,7 +459,7 @@ void proto_register_pkcs1(void) {
     &ett_pkcs1_ECDSA_Sig_Value,
 
 /*--- End of included file: packet-pkcs1-ettarr.c ---*/
-#line 61 "./asn1/pkcs1/packet-pkcs1-template.c"
+#line 49 "./asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* Register protocol */
@@ -488,7 +488,7 @@ void proto_reg_handoff_pkcs1(void) {
 
 
 /*--- End of included file: packet-pkcs1-dis-tab.c ---*/
-#line 76 "./asn1/pkcs1/packet-pkcs1-template.c"
+#line 64 "./asn1/pkcs1/packet-pkcs1-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.2.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2");
 	register_ber_oid_dissector("1.2.840.113549.2.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4");

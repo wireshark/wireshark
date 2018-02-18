@@ -94,7 +94,7 @@ static int hf_pkix1explicit_min_01 = -1;          /* ASId */
 static int hf_pkix1explicit_max_01 = -1;          /* ASId */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
-#line 54 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 42 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -124,7 +124,7 @@ static gint ett_pkix1explicit_ASIdOrRange = -1;
 static gint ett_pkix1explicit_ASRange = -1;
 
 /*--- End of included file: packet-pkix1explicit-ett.c ---*/
-#line 57 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 45 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 int
 dissect_pkix1explicit_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
@@ -812,7 +812,7 @@ static int dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
-#line 98 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 86 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
@@ -1008,7 +1008,7 @@ void proto_register_pkix1explicit(void) {
         "ASId", HFILL }},
 
 /*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-#line 117 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 105 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
@@ -1041,7 +1041,7 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_ASRange,
 
 /*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-#line 123 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 111 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -1068,6 +1068,6 @@ void proto_reg_handoff_pkix1explicit(void) {
 
 
 /*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 140 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 128 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 }
 

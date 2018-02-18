@@ -50,7 +50,7 @@ int dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag _U_, tvbu
 int dissect_x509af_Certificate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-x509af-exp.h ---*/
-#line 28 "./asn1/x509af/packet-x509af-template.h"
+#line 16 "./asn1/x509af/packet-x509af-template.h"
 
 extern const char* x509af_get_last_algorithm_id(void);
 

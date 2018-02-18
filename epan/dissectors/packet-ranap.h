@@ -36,7 +36,7 @@ int dissect_ranap_TargetRNC_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 int dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-ranap-exp.h ---*/
-#line 27 "./asn1/ranap/packet-ranap-template.h"
+#line 15 "./asn1/ranap/packet-ranap-template.h"
 
 #endif  /* PACKET_RANAP_H */
 

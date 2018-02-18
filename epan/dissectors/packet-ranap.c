@@ -445,7 +445,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-ranap-val.h ---*/
-#line 61 "./asn1/ranap/packet-ranap-template.c"
+#line 49 "./asn1/ranap/packet-ranap-template.c"
 
 void proto_register_ranap(void);
 void proto_reg_handoff_ranap(void);
@@ -1259,7 +1259,7 @@ static int hf_ranap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_valu
 static int hf_ranap_value = -1;                   /* T_value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 79 "./asn1/ranap/packet-ranap-template.c"
+#line 67 "./asn1/ranap/packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -1622,7 +1622,7 @@ static gint ett_ranap_UnsuccessfulOutcome = -1;
 static gint ett_ranap_Outcome = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 86 "./asn1/ranap/packet-ranap-template.c"
+#line 74 "./asn1/ranap/packet-ranap-template.c"
 
 /*****************************************************************************/
 /* Packet private data                                                       */
@@ -14956,7 +14956,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 210 "./asn1/ranap/packet-ranap-template.c"
+#line 198 "./asn1/ranap/packet-ranap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -18336,7 +18336,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 421 "./asn1/ranap/packet-ranap-template.c"
+#line 409 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -18700,7 +18700,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 429 "./asn1/ranap/packet-ranap-template.c"
+#line 417 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -19127,7 +19127,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 478 "./asn1/ranap/packet-ranap-template.c"
+#line 466 "./asn1/ranap/packet-ranap-template.c"
   } else {
     dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
   }

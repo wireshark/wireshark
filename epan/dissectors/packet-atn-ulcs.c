@@ -260,7 +260,7 @@ static int hf_atn_ulcs_ACSE_requirements_authentication = -1;
 static int hf_atn_ulcs_ACSE_requirements_application_context_negotiation = -1;
 
 /*--- End of included file: packet-atn-ulcs-hf.c ---*/
-#line 190 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 178 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 
 /*--- Included file: packet-atn-ulcs-ett.c ---*/
@@ -292,7 +292,7 @@ static gint ett_atn_ulcs_RelativeDistinguishedName = -1;
 static gint ett_atn_ulcs_AttributeTypeAndValue = -1;
 
 /*--- End of included file: packet-atn-ulcs-ett.c ---*/
-#line 192 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 180 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
 static gint ett_atn_ulcs = -1;
 static gint ett_atn_acse = -1;
 
@@ -1583,7 +1583,7 @@ static int dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-atn-ulcs-fn.c ---*/
-#line 196 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 184 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 #if 0
 /* re-implementing external data: packet-per.c */
@@ -2468,7 +2468,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 788 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 776 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
         {&hf_atn_ses_type,
         { "SPDU Type",
           "atn-ulcs.ses.type",
@@ -2554,7 +2554,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 844 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 832 "./asn1/atn-ulcs/packet-atn-ulcs-template.c"
         &ett_atn_ses,
         &ett_atn_pres,
         &ett_atn_acse,

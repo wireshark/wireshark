@@ -472,7 +472,7 @@ static int hf_h282_deviceEventNotifyIndication = -1;  /* DeviceEventNotifyIndica
 static int hf_h282_nonStandardIndication = -1;    /* NonStandardPDU */
 
 /*--- End of included file: packet-h282-hf.c ---*/
-#line 42 "./asn1/h282/packet-h282-template.c"
+#line 30 "./asn1/h282/packet-h282-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h282 = -1;
@@ -624,7 +624,7 @@ static gint ett_h282_ResponsePDU = -1;
 static gint ett_h282_IndicationPDU = -1;
 
 /*--- End of included file: packet-h282-ett.c ---*/
-#line 46 "./asn1/h282/packet-h282-template.c"
+#line 34 "./asn1/h282/packet-h282-template.c"
 
 /* Dissectors */
 
@@ -4383,7 +4383,7 @@ static int dissect_RDCPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 /*--- End of included file: packet-h282-fn.c ---*/
-#line 52 "./asn1/h282/packet-h282-template.c"
+#line 40 "./asn1/h282/packet-h282-template.c"
 
 static int
 dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -6141,7 +6141,7 @@ void proto_register_h282(void) {
         "NonStandardPDU", HFILL }},
 
 /*--- End of included file: packet-h282-hfarr.c ---*/
-#line 73 "./asn1/h282/packet-h282-template.c"
+#line 61 "./asn1/h282/packet-h282-template.c"
   };
 
   /* List of subtrees */
@@ -6295,7 +6295,7 @@ void proto_register_h282(void) {
     &ett_h282_IndicationPDU,
 
 /*--- End of included file: packet-h282-ettarr.c ---*/
-#line 79 "./asn1/h282/packet-h282-template.c"
+#line 67 "./asn1/h282/packet-h282-template.c"
   };
 
   /* Register protocol */

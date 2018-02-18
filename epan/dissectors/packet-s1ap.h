@@ -54,7 +54,7 @@ int dissect_s1ap_SONtransferResponseContainer_PDU(tvbuff_t *tvb _U_, packet_info
 int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-s1ap-exp.h ---*/
-#line 39 "./asn1/s1ap/packet-s1ap-template.h"
+#line 27 "./asn1/s1ap/packet-s1ap-template.h"
 
 #endif  /* PACKET_S1AP_H */
 

@@ -478,7 +478,7 @@ static const value_string qsig_str_operation[] = {
   { 120, "mIDMailboxID" },
 
 /*--- End of included file: packet-qsig-table10.c ---*/
-#line 273 "./asn1/qsig/packet-qsig-template.c"
+#line 261 "./asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -670,7 +670,7 @@ static const value_string qsig_str_error[] = {
   { 1008, "unspecified" },
 
 /*--- End of included file: packet-qsig-table20.c ---*/
-#line 278 "./asn1/qsig/packet-qsig-template.c"
+#line 266 "./asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -1565,7 +1565,7 @@ static int hf_qsig_mid_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
 static int hf_qsig_mid_multipleExtension_item = -1;  /* Extension */
 
 /*--- End of included file: packet-qsig-hf.c ---*/
-#line 294 "./asn1/qsig/packet-qsig-template.c"
+#line 282 "./asn1/qsig/packet-qsig-template.c"
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -2025,7 +2025,7 @@ static gint ett_qsig_mid_MIDExtensions = -1;
 static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
-#line 311 "./asn1/qsig/packet-qsig-template.c"
+#line 299 "./asn1/qsig/packet-qsig-template.c"
 static gint ett_cnq_PSS1InformationElement = -1;
 
 /* static expert_field ei_qsig_unsupported_arg_type = EI_INIT; */
@@ -11917,7 +11917,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 329 "./asn1/qsig/packet-qsig-template.c"
+#line 317 "./asn1/qsig/packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12139,7 +12139,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 338 "./asn1/qsig/packet-qsig-template.c"
+#line 326 "./asn1/qsig/packet-qsig-template.c"
 };
 
 typedef struct _qsig_err_t {
@@ -12335,7 +12335,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 347 "./asn1/qsig/packet-qsig-template.c"
+#line 335 "./asn1/qsig/packet-qsig-template.c"
 };
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -15871,7 +15871,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 645 "./asn1/qsig/packet-qsig-template.c"
+#line 633 "./asn1/qsig/packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16322,7 +16322,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 653 "./asn1/qsig/packet-qsig-template.c"
+#line 641 "./asn1/qsig/packet-qsig-template.c"
     &ett_cnq_PSS1InformationElement,
   };
 

@@ -130,7 +130,7 @@ static int hf_ess_issuer = -1;                    /* GeneralNames */
 static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 
 /*--- End of included file: packet-ess-hf.c ---*/
-#line 63 "./asn1/ess/packet-ess-template.c"
+#line 51 "./asn1/ess/packet-ess-template.c"
 
 
 /*--- Included file: packet-ess-val.h ---*/
@@ -154,7 +154,7 @@ static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 #define id_sha256                      "2.16.840.1.101.3.4.2.1"
 
 /*--- End of included file: packet-ess-val.h ---*/
-#line 65 "./asn1/ess/packet-ess-template.c"
+#line 53 "./asn1/ess/packet-ess-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -193,7 +193,7 @@ static gint ett_ess_ESSCertID = -1;
 static gint ett_ess_IssuerSerial = -1;
 
 /*--- End of included file: packet-ess-ett.c ---*/
-#line 68 "./asn1/ess/packet-ess-template.c"
+#line 56 "./asn1/ess/packet-ess-template.c"
 
 static const char *object_identifier_id;
 
@@ -1141,7 +1141,7 @@ static int dissect_SigningCertificateV2_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-ess-fn.c ---*/
-#line 139 "./asn1/ess/packet-ess-template.c"
+#line 127 "./asn1/ess/packet-ess-template.c"
 
 /*--- proto_register_ess ----------------------------------------------*/
 void proto_register_ess(void) {
@@ -1439,7 +1439,7 @@ void proto_register_ess(void) {
         "CertificateSerialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
-#line 152 "./asn1/ess/packet-ess-template.c"
+#line 140 "./asn1/ess/packet-ess-template.c"
   };
 
   /* List of subtrees */
@@ -1481,7 +1481,7 @@ void proto_register_ess(void) {
     &ett_ess_IssuerSerial,
 
 /*--- End of included file: packet-ess-ettarr.c ---*/
-#line 158 "./asn1/ess/packet-ess-template.c"
+#line 146 "./asn1/ess/packet-ess-template.c"
   };
 
   static uat_field_t attributes_flds[] = {
@@ -1549,6 +1549,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-#line 204 "./asn1/ess/packet-ess-template.c"
+#line 192 "./asn1/ess/packet-ess-template.c"
 }
 

@@ -244,7 +244,7 @@ static int hf_x509ce_EntrustInfoFlags_webCategory = -1;
 static int hf_x509ce_EntrustInfoFlags_sETCategory = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-#line 50 "./asn1/x509ce/packet-x509ce-template.c"
+#line 38 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -312,7 +312,7 @@ static gint ett_x509ce_EntrustInfoFlags = -1;
 static gint ett_x509ce_ScramblerCapabilities = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-#line 53 "./asn1/x509ce/packet-x509ce-template.c"
+#line 41 "./asn1/x509ce/packet-x509ce-template.c"
 
 /*--- Included file: packet-x509ce-fn.c ---*/
 #line 1 "./asn1/x509ce/packet-x509ce-fn.c"
@@ -1934,7 +1934,7 @@ static int dissect_CicamBrandId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-#line 54 "./asn1/x509ce/packet-x509ce-template.c"
+#line 42 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
     that use OIDs which are not officially assigned
@@ -2788,7 +2788,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 119 "./asn1/x509ce/packet-x509ce-template.c"
+#line 107 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2858,7 +2858,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_ScramblerCapabilities,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 124 "./asn1/x509ce/packet-x509ce-template.c"
+#line 112 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2921,7 +2921,7 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 139 "./asn1/x509ce/packet-x509ce-template.c"
+#line 127 "./asn1/x509ce/packet-x509ce-template.c"
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }

@@ -419,7 +419,7 @@ typedef enum _TriggeringMessage_enum {
 } TriggeringMessage_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
-#line 60 "./asn1/x2ap/packet-x2ap-template.c"
+#line 48 "./asn1/x2ap/packet-x2ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
@@ -1324,7 +1324,7 @@ static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-x2ap-hf.c ---*/
-#line 125 "./asn1/x2ap/packet-x2ap-template.c"
+#line 113 "./asn1/x2ap/packet-x2ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
@@ -1785,7 +1785,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 154 "./asn1/x2ap/packet-x2ap-template.c"
+#line 142 "./asn1/x2ap/packet-x2ap-template.c"
 
 typedef enum {
   RRC_CONTAINER_TYPE_UNKNOWN,
@@ -15309,7 +15309,7 @@ static int dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 251 "./asn1/x2ap/packet-x2ap-template.c"
+#line 239 "./asn1/x2ap/packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -18959,7 +18959,7 @@ void proto_register_x2ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 556 "./asn1/x2ap/packet-x2ap-template.c"
+#line 544 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -19422,7 +19422,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 587 "./asn1/x2ap/packet-x2ap-template.c"
+#line 575 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   module_t *x2ap_module;
@@ -19810,7 +19810,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 633 "./asn1/x2ap/packet-x2ap-template.c"
+#line 621 "./asn1/x2ap/packet-x2ap-template.c"
   } else {
     if (SctpPort != 0) {
       dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);

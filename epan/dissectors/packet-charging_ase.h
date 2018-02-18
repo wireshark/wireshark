@@ -27,6 +27,6 @@ int dissect_charging_ase_ChargingMessageType(gboolean implicit_tag _U_, tvbuff_t
 int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-charging_ase-exp.h ---*/
-#line 27 "./asn1/charging_ase/packet-charging_ase-template.h"
+#line 15 "./asn1/charging_ase/packet-charging_ase-template.h"
 
 #endif  /* PACKET_CHARGING_ASE_H */

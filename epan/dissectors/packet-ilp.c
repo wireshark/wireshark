@@ -442,7 +442,7 @@ static int hf_ilp_GANSSSignals_signal7 = -1;
 static int hf_ilp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ilp-hf.c ---*/
-#line 64 "./asn1/ilp/packet-ilp-template.c"
+#line 52 "./asn1/ilp/packet-ilp-template.c"
 static int hf_ilp_mobile_directory_number = -1;
 
 /* Initialize the subtree pointers */
@@ -588,7 +588,7 @@ static gint ett_ilp_T_lPPPayload = -1;
 static gint ett_ilp_T_tia801Payload = -1;
 
 /*--- End of included file: packet-ilp-ett.c ---*/
-#line 70 "./asn1/ilp/packet-ilp-template.c"
+#line 58 "./asn1/ilp/packet-ilp-template.c"
 
 /* Include constants */
 
@@ -605,7 +605,7 @@ static gint ett_ilp_T_tia801Payload = -1;
 #define maxPosSize                     1024
 
 /*--- End of included file: packet-ilp-val.h ---*/
-#line 73 "./asn1/ilp/packet-ilp-template.c"
+#line 61 "./asn1/ilp/packet-ilp-template.c"
 
 
 
@@ -4135,7 +4135,7 @@ static int dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ilp-fn.c ---*/
-#line 76 "./asn1/ilp/packet-ilp-template.c"
+#line 64 "./asn1/ilp/packet-ilp-template.c"
 
 
 static guint
@@ -5686,7 +5686,7 @@ void proto_register_ilp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ilp-hfarr.c ---*/
-#line 102 "./asn1/ilp/packet-ilp-template.c"
+#line 90 "./asn1/ilp/packet-ilp-template.c"
     { &hf_ilp_mobile_directory_number,
       { "Mobile Directory Number", "ilp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -5837,7 +5837,7 @@ void proto_register_ilp(void) {
     &ett_ilp_T_tia801Payload,
 
 /*--- End of included file: packet-ilp-ettarr.c ---*/
-#line 113 "./asn1/ilp/packet-ilp-template.c"
+#line 101 "./asn1/ilp/packet-ilp-template.c"
   };
 
   module_t *ilp_module;

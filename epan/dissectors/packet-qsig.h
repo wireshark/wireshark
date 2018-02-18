@@ -119,7 +119,7 @@ WS_DLL_PUBLIC int dissect_qsig_na_Name(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 /*--- End of included file: packet-qsig-exp.h ---*/
-#line 28 "./asn1/qsig/packet-qsig-template.h"
+#line 16 "./asn1/qsig/packet-qsig-template.h"
 
 #endif  /* PACKET_QSIG_H */
 

@@ -159,7 +159,7 @@ static int hf_idmp_present = -1;                  /* INTEGER */
 static int hf_idmp_absent = -1;                   /* NULL */
 
 /*--- End of included file: packet-idmp-hf.c ---*/
-#line 130 "./asn1/idmp/packet-idmp-template.c"
+#line 118 "./asn1/idmp/packet-idmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_idmp = -1;
@@ -178,7 +178,7 @@ static gint ett_idmp_Code = -1;
 static gint ett_idmp_InvokeId = -1;
 
 /*--- End of included file: packet-idmp-ett.c ---*/
-#line 134 "./asn1/idmp/packet-idmp-template.c"
+#line 122 "./asn1/idmp/packet-idmp-template.c"
 
 
 /*--- Included file: packet-idmp-fn.c ---*/
@@ -606,7 +606,7 @@ dissect_idmp_IDM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-idmp-fn.c ---*/
-#line 136 "./asn1/idmp/packet-idmp-template.c"
+#line 124 "./asn1/idmp/packet-idmp-template.c"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name)
@@ -914,7 +914,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 311 "./asn1/idmp/packet-idmp-template.c"
+#line 299 "./asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -937,7 +937,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 319 "./asn1/idmp/packet-idmp-template.c"
+#line 307 "./asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 

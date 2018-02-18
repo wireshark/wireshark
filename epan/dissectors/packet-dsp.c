@@ -189,7 +189,7 @@ static int hf_dsp_signed = -1;                    /* BOOLEAN */
 static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
-#line 55 "./asn1/dsp/packet-dsp-template.c"
+#line 43 "./asn1/dsp/packet-dsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dsp = -1;
@@ -269,7 +269,7 @@ static gint ett_dsp_AuthenticationLevel = -1;
 static gint ett_dsp_T_basicLevels = -1;
 
 /*--- End of included file: packet-dsp-ett.c ---*/
-#line 59 "./asn1/dsp/packet-dsp-template.c"
+#line 47 "./asn1/dsp/packet-dsp-template.c"
 
 static expert_field ei_dsp_unsupported_opcode = EI_INIT;
 static expert_field ei_dsp_unsupported_errcode = EI_INIT;
@@ -1676,7 +1676,7 @@ static int dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-dsp-fn.c ---*/
-#line 66 "./asn1/dsp/packet-dsp-template.c"
+#line 54 "./asn1/dsp/packet-dsp-template.c"
 
 static dissector_handle_t dsp_handle;
 
@@ -2434,7 +2434,7 @@ void proto_register_dsp(void) {
         "EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 271 "./asn1/dsp/packet-dsp-template.c"
+#line 259 "./asn1/dsp/packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2516,7 +2516,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 277 "./asn1/dsp/packet-dsp-template.c"
+#line 265 "./asn1/dsp/packet-dsp-template.c"
   };
   static ei_register_info ei[] = {
     { &ei_dsp_unsupported_opcode, { "dsp.unsupported_opcode", PI_UNDECODED, PI_WARN, "Unsupported DSP opcode", EXPFILL }},
@@ -2565,7 +2565,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 315 "./asn1/dsp/packet-dsp-template.c"
+#line 303 "./asn1/dsp/packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

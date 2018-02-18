@@ -1263,7 +1263,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
-#line 49 "./asn1/rnsap/packet-rnsap-template.c"
+#line 37 "./asn1/rnsap/packet-rnsap-template.c"
 
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
@@ -4384,7 +4384,7 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 61 "./asn1/rnsap/packet-rnsap-template.c"
+#line 49 "./asn1/rnsap/packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -5821,7 +5821,7 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 66 "./asn1/rnsap/packet-rnsap-template.c"
+#line 54 "./asn1/rnsap/packet-rnsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -49033,7 +49033,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 92 "./asn1/rnsap/packet-rnsap-template.c"
+#line 80 "./asn1/rnsap/packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -61511,7 +61511,7 @@ void proto_register_rnsap(void) {
         "Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 149 "./asn1/rnsap/packet-rnsap-template.c"
+#line 137 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -62949,7 +62949,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 155 "./asn1/rnsap/packet-rnsap-template.c"
+#line 143 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -63910,7 +63910,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 190 "./asn1/rnsap/packet-rnsap-template.c"
+#line 178 "./asn1/rnsap/packet-rnsap-template.c"
 }
 
 

@@ -138,7 +138,7 @@ int dissect_h245_UnicastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 int dissect_h245_MulticastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-h245-exp.h ---*/
-#line 126 "./asn1/h245/packet-h245-template.h"
+#line 114 "./asn1/h245/packet-h245-template.h"
 void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 

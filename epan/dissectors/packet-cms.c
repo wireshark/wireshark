@@ -220,7 +220,7 @@ static int hf_cms_config_item = -1;               /* CurrentFWConfig */
 static int hf_cms_msgDigest = -1;                 /* OCTET_STRING */
 
 /*--- End of included file: packet-cms-hf.c ---*/
-#line 51 "./asn1/cms/packet-cms-template.c"
+#line 39 "./asn1/cms/packet-cms-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -304,7 +304,7 @@ static gint ett_cms_HardwareModuleName = -1;
 static gint ett_cms_FirmwarePackageMessageDigest = -1;
 
 /*--- End of included file: packet-cms-ett.c ---*/
-#line 54 "./asn1/cms/packet-cms-template.c"
+#line 42 "./asn1/cms/packet-cms-template.c"
 
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
@@ -2487,7 +2487,7 @@ static int dissect_FirmwarePackageMessageDigest_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
-#line 114 "./asn1/cms/packet-cms-template.c"
+#line 102 "./asn1/cms/packet-cms-template.c"
 
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
@@ -3191,7 +3191,7 @@ void proto_register_cms(void) {
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/
-#line 125 "./asn1/cms/packet-cms-template.c"
+#line 113 "./asn1/cms/packet-cms-template.c"
   };
 
   /* List of subtrees */
@@ -3277,7 +3277,7 @@ void proto_register_cms(void) {
     &ett_cms_FirmwarePackageMessageDigest,
 
 /*--- End of included file: packet-cms-ettarr.c ---*/
-#line 130 "./asn1/cms/packet-cms-template.c"
+#line 118 "./asn1/cms/packet-cms-template.c"
   };
 
   /* Register protocol */
@@ -3337,7 +3337,7 @@ void proto_reg_handoff_cms(void) {
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
-#line 153 "./asn1/cms/packet-cms-template.c"
+#line 141 "./asn1/cms/packet-cms-template.c"
 
   oid_add_from_string("id-data","1.2.840.113549.1.7.1");
   oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");
