@@ -1780,11 +1780,6 @@ main(int argc, char *argv[])
      line that their preferences have changed. */
   prefs_apply_all();
 
-  /* At this point MATE will have registered its field array so we can
-     have a tap filter with one of MATE's late-registered fields as part
-     of the filter.  We can now process all the "-z" arguments. */
-  start_requested_stats();
-
   /* We can also enable specified taps for export object */
   start_exportobjects();
 
@@ -2012,6 +2007,14 @@ main(int argc, char *argv[])
       goto clean_exit;
     }
 
+    /* Start statistics taps; we do so after successfully opening the
+       capture file, so we know we have something to compute stats
+       on, and after registering all dissectors, so that MATE will
+       have registered its field array so we can have a tap filter
+       with one of MATE's late-registered fields as part of the
+       filter. */
+    start_requested_stats();
+
     /* Process the packets in the file */
     tshark_debug("tshark: invoking process_cap_file() to process the packets");
     TRY {
@@ -2147,6 +2150,17 @@ main(int argc, char *argv[])
     }
 
     tshark_debug("tshark: performing live capture");
+
+    /* Start statistics taps; we should only do so after the capture
+       started successfully, so we know we have something to compute
+       stats, but we currently don't check for that - see below.
+
+       We do so after registering all dissectors, so that MATE will
+       have registered its field array so we can have a tap filter
+       with one of MATE's late-registered fields as part of the
+       filter. */
+    start_requested_stats();
+
     /*
      * XXX - this returns FALSE if an error occurred, but it also
      * returns FALSE if the capture stops because a time limit
