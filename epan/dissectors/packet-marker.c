@@ -66,82 +66,78 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *marker_tree;
     proto_item *marker_item, *tlv_type_item, *tlv_length_item, *pad_item;
 
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Marker");
     col_set_str(pinfo->cinfo, COL_INFO, "Marker Protocol");
 
-    if (tree)
-    {
-        marker_item = proto_tree_add_protocol_format(tree, proto_marker, tvb,
-            0, -1, "Marker Protocol");
-        marker_tree = proto_item_add_subtree(marker_item, ett_marker);
+    marker_item = proto_tree_add_protocol_format(tree, proto_marker, tvb,
+        0, -1, "Marker Protocol");
+    marker_tree = proto_item_add_subtree(marker_item, ett_marker);
 
-        proto_tree_add_item(marker_tree, hf_marker_version_number, tvb,
-            offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(marker_tree, hf_marker_version_number, tvb,
+        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        tlv_type_item = proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_type, tvb,
-            offset, 1, ENC_BIG_ENDIAN, &tlv_type);
-        offset += 1;
+    tlv_type_item = proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_type, tvb,
+        offset, 1, ENC_BIG_ENDIAN, &tlv_type);
+    offset += 1;
 
-        tlv_length_item = proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_length, tvb,
-            offset, 1, ENC_BIG_ENDIAN, &tlv_length);
-        offset += 1;
+    tlv_length_item = proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_length, tvb,
+        offset, 1, ENC_BIG_ENDIAN, &tlv_length);
+    offset += 1;
 
-        if (tlv_type == MARKERPDU_MARKER_INFO) {
-            col_set_str(pinfo->cinfo, COL_INFO, "Information");
-        } else if (tlv_type == MARKERPDU_MARKER_RESPONSE) {
-            col_set_str(pinfo->cinfo, COL_INFO, "Response");
-        } else {
-            expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
-        }
-        if (tlv_length != 16) {
-            expert_add_info(pinfo, tlv_length_item, &ei_marker_wrong_tlv_length);
-        }
-        proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_port, tvb,
-            offset, 2, ENC_BIG_ENDIAN, &port);
-        offset += 2;
-
-        proto_tree_add_item(marker_tree, hf_marker_req_system, tvb,
-            offset, 6, ENC_NA);
-        sysidstr = tvb_ether_to_str(tvb, offset);
-        offset += 6;
-
-        proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_trans_id, tvb,
-            offset, 4, ENC_BIG_ENDIAN, &transactionid);
-        offset += 4;
-
-        col_append_fstr(pinfo->cinfo, COL_INFO, " SysId=%s, P=%d, TId=%d",
-            sysidstr, port, transactionid);
-
-        pad_item = proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_pad, tvb,
-            offset, 2, ENC_BIG_ENDIAN, &pad);
-        if (pad != 0) {
-            expert_add_info(pinfo, pad_item, &ei_marker_wrong_pad_value);
-        }
-        offset += 2;
-
-        proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_type, tvb,
-            offset, 1, ENC_BIG_ENDIAN, &tlv_type);
-        offset += 1;
-
-        proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_length, tvb,
-            offset, 1, ENC_BIG_ENDIAN, &tlv_length);
-        offset += 1;
-
-        if (tlv_type == MARKER_TERMINATOR) {
-            if (tlv_length != 0) {
-                expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_length);
-            }
-        } else {
-            expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
-        }
-
-        proto_tree_add_item(marker_tree, hf_marker_reserved, tvb,
-            offset, 90, ENC_NA);
-        offset += 90;
+    if (tlv_type == MARKERPDU_MARKER_INFO) {
+        col_set_str(pinfo->cinfo, COL_INFO, "Information");
+    } else if (tlv_type == MARKERPDU_MARKER_RESPONSE) {
+        col_set_str(pinfo->cinfo, COL_INFO, "Response");
+    } else {
+        expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
     }
-    return tvb_captured_length(tvb);
+    if (tlv_length != 16) {
+        expert_add_info(pinfo, tlv_length_item, &ei_marker_wrong_tlv_length);
+    }
+    proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_port, tvb,
+        offset, 2, ENC_BIG_ENDIAN, &port);
+    offset += 2;
+
+    proto_tree_add_item(marker_tree, hf_marker_req_system, tvb,
+        offset, 6, ENC_NA);
+    sysidstr = tvb_ether_to_str(tvb, offset);
+    offset += 6;
+
+    proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_trans_id, tvb,
+        offset, 4, ENC_BIG_ENDIAN, &transactionid);
+    offset += 4;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " SysId=%s, P=%d, TId=%d",
+        sysidstr, port, transactionid);
+
+    pad_item = proto_tree_add_item_ret_uint(marker_tree, hf_marker_req_pad, tvb,
+        offset, 2, ENC_BIG_ENDIAN, &pad);
+    if (pad != 0) {
+        expert_add_info(pinfo, pad_item, &ei_marker_wrong_pad_value);
+    }
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_type, tvb,
+        offset, 1, ENC_BIG_ENDIAN, &tlv_type);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint(marker_tree, hf_marker_tlv_length, tvb,
+        offset, 1, ENC_BIG_ENDIAN, &tlv_length);
+    offset += 1;
+
+    if (tlv_type == MARKER_TERMINATOR) {
+        if (tlv_length != 0) {
+            expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_length);
+        }
+    } else {
+        expert_add_info(pinfo, tlv_type_item, &ei_marker_wrong_tlv_type);
+    }
+
+    proto_tree_add_item(marker_tree, hf_marker_reserved, tvb,
+        offset, 90, ENC_NA);
+    offset += 90;
+    return offset;
 }
 
 /* Register the protocol with Wireshark */
