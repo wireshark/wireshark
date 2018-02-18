@@ -79,6 +79,7 @@
 #endif
 
 #define INVALID_OPTION 1
+#define NO_FILE_SPECIFIED 1
 #define INIT_ERROR 2
 #define INVALID_FILTER 2
 #define OPEN_ERROR 2
@@ -818,20 +819,23 @@ main(int argc, char *argv[])
         goto clean_exit;
   }
 
-  /* If no capture filter or display filter has been specified, and there are
-     still command-line arguments, treat them as the tokens of a capture
-     filter (if no "-r" flag was specified) or a display filter (if a "-r"
-     flag was specified. */
+  /* We require a -r flag specifying a file to read. */
+  if (cf_name == NULL) {
+    cmdarg_err("A file to read must be specified with \"-r\".");
+    exit_status = NO_FILE_SPECIFIED;
+    goto clean_exit;
+  }
+
+  /* If no display filter has been specified, and there are still command-
+     line arguments, treat them as the tokens of a display filter. */
   if (optind < argc) {
-    if (cf_name != NULL) {
-      if (dfilter != NULL) {
-        cmdarg_err("Display filters were specified both with \"-d\" "
-            "and with additional command-line arguments.");
-        exit_status = INVALID_OPTION;
-        goto clean_exit;
-      }
-      dfilter = get_args_as_string(argc, argv, optind);
+    if (dfilter != NULL) {
+      cmdarg_err("Display filters were specified both with \"-d\" "
+          "and with additional command-line arguments.");
+      exit_status = INVALID_OPTION;
+      goto clean_exit;
     }
+    dfilter = get_args_as_string(argc, argv, optind);
   }
 
   /* if "-q" wasn't specified, we should print packet information */
@@ -941,48 +945,46 @@ main(int argc, char *argv[])
         we're using any taps that need dissection. */
   do_dissection = print_packet_info || rfcode || dfcode || tap_listeners_require_dissection();
 
-  if (cf_name) {
-    /*
-     * We're reading a capture file.
-     */
+  /*
+   * Read the file.
+   */
 
-    /* TODO: if tfshark is ever changed to give the user a choice of which
-       open_routine reader to use, then the following needs to change. */
-    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
-      exit_status = OPEN_ERROR;
-      goto clean_exit;
-    }
+  /* TODO: if tfshark is ever changed to give the user a choice of which
+     open_routine reader to use, then the following needs to change. */
+  if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
+    exit_status = OPEN_ERROR;
+    goto clean_exit;
+  }
 
-    /* Start statistics taps; we do so after successfully opening the
-       capture file, so we know we have something to compute stats
-       on, and after registering all dissectors, so that MATE will
-       have registered its field array so we can have a tap filter
-       with one of MATE's late-registered fields as part of the
-       filter. */
-    start_requested_stats();
+  /* Start statistics taps; we do so after successfully opening the
+     capture file, so we know we have something to compute stats
+     on, and after registering all dissectors, so that MATE will
+     have registered its field array so we can have a tap filter
+     with one of MATE's late-registered fields as part of the
+     filter. */
+  start_requested_stats();
 
-    /* Process the packets in the file */
-    TRY {
-      /* XXX - for now there is only 1 packet */
-      success = process_file(&cfile, 1, 0);
-    }
-    CATCH(OutOfMemoryError) {
-      fprintf(stderr,
-              "Out Of Memory.\n"
-              "\n"
-              "Sorry, but TFShark has to terminate now.\n"
-              "\n"
-              "Some infos / workarounds can be found at:\n"
-              "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
-      success = FALSE;
-    }
-    ENDTRY;
+  /* Process the packets in the file */
+  TRY {
+    /* XXX - for now there is only 1 packet */
+    success = process_file(&cfile, 1, 0);
+  }
+  CATCH(OutOfMemoryError) {
+    fprintf(stderr,
+            "Out Of Memory.\n"
+            "\n"
+            "Sorry, but TFShark has to terminate now.\n"
+            "\n"
+            "Some infos / workarounds can be found at:\n"
+            "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
+    success = FALSE;
+  }
+  ENDTRY;
 
-    if (!success) {
-      /* We still dump out the results of taps, etc., as we might have
-         read some packets; however, we exit with an error status. */
-      exit_status = 2;
-    }
+  if (!success) {
+    /* We still dump out the results of taps, etc., as we might have
+       read some packets; however, we exit with an error status. */
+    exit_status = 2;
   }
 
   g_free(cf_name);
