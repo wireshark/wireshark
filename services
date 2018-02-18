@@ -9597,6 +9597,8 @@ arcp             7070/tcp # ARCP [Jude_George] [Jude_George]
 arcp             7070/udp # ARCP [Jude_George] [Jude_George]
 iwg1             7071/tcp # IWGADTS Aircraft Housekeeping Message [Don_Sullivan] [Don_Sullivan] 2010-02-16
 iwg1             7071/udp # IWGADTS Aircraft Housekeeping Message [Don_Sullivan] [Don_Sullivan] 2010-02-16
+iba-cfg          7072/tcp # iba Device Configuration Protocol [iba_AG] [Alexander_Melamed] 2018-02-12
+iba-cfg-disc     7072/udp # iba Device Configuration Protocol [iba_AG] [Alexander_Melamed] 2018-02-12
 martalk          7073/tcp # MarTalk protocol [Mahr_GmbH_Göttingen] [Kevin_Bube] 2013-09-02
 empowerid        7080/tcp # EmpowerID Communication [Matthew_Whited] [Matthew_Whited] 2008-01-16
 empowerid        7080/udp # EmpowerID Communication [Matthew_Whited] [Matthew_Whited] 2008-01-16
@@ -11568,6 +11570,7 @@ nimgtw          48003/tcp # Nimbus Gateway [Carstein_Seeberg_2] [Carstein_Seeber
 nimgtw          48003/udp # Nimbus Gateway [Carstein_Seeberg_2] [Carstein_Seeberg_2]
 nimbusdb        48004/tcp # NimbusDB Connector [Stephen_Harrison] [Stephen_Harrison] 2011-01-24
 nimbusdbctrl    48005/tcp # NimbusDB Control [Stephen_Harrison] [Stephen_Harrison] 2011-01-24
+juliar          48048/tcp # Juliar Programming Language Protocol [Juliar] [Andrei_Mak] 2018-02-16
 3gpp-cbsp       48049/tcp # 3GPP Cell Broadcast Service Protocol [Gert_Thomasen] [Gert_Thomasen] 2009-12-07
 weandsf         48050/tcp # WeFi Access Network Discovery and Selection Function [WeFi_Inc] [Eran_Naveh] 2013-07-19
 isnetserv       48128/tcp # Image Systems Network Services [Bengt_Gustafsson] [Bengt_Gustafsson] 2006-05
