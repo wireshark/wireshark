@@ -841,23 +841,23 @@
     </message>
     <message numerus="yes">
         <source>%1, error after %Ln record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, errore dopo %Ln record</numerusform>
+            <numerusform>%1, errore dopo %Ln record</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, tempo scaduto a %Ln record di dati</numerusform>
+            <numerusform>%1, tempo scaduto a %Ln record di dati</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, %Ln record di dati</numerusform>
+            <numerusform>%1, %Ln record di dati</numerusform>
         </translation>
     </message>
     <message>
@@ -1454,6 +1454,13 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
+    <name>ColoringRulesDelegate</name>
+    <message>
+        <source>the &quot;@&quot; symbol will be ignored.</source>
+        <translation type="unfinished">il simbolo &quot;@&quot; sarà ignorato.</translation>
+    </message>
+</context>
+<context>
     <name>ColoringRulesDialog</name>
     <message>
         <source>Dialog</source>
@@ -1461,11 +1468,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation type="vanished">Nome</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation>Filtro</translation>
+        <translation type="vanished">Filtro</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1509,7 +1516,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Coloring Rules</source>
-        <translation>Regole di colorazione</translation>
+        <translation type="vanished">Regole di colorazione</translation>
     </message>
     <message>
         <source>Import</source>
@@ -1529,7 +1536,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation>il simbolo &quot;@&quot; sarà ignorato.</translation>
+        <translation type="vanished">il simbolo &quot;@&quot; sarà ignorato.</translation>
+    </message>
+    <message>
+        <source>Coloring Rules %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1553,7 +1564,22 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %s</source>
-        <translation>Impossibile salvare le regole di colorazione: %s</translation>
+        <translation type="vanished">Impossibile salvare le regole di colorazione: %s</translation>
+    </message>
+</context>
+<context>
+    <name>ColoringRulesModel</name>
+    <message>
+        <source>Unable to save coloring rules: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtro</translation>
     </message>
 </context>
 <context>
@@ -6620,11 +6646,11 @@ a:hover {
     </message>
     <message>
         <source>Referers</source>
-        <translation type="unfinished"></translation>
+        <translation>Referer</translation>
     </message>
     <message>
         <source>HTTP referers</source>
-        <translation type="unfinished"></translation>
+        <translation>Referer HTTP</translation>
     </message>
     <message>
         <source>Packet Lengths</source>

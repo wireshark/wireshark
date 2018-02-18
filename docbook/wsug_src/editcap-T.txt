@@ -25,6 +25,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     dbus - D-Bus
     dct2000 - Catapult DCT2000
     docsis - Data Over Cable Service Interface Specification
+    docsis31_xra31 - DOCSIS31 XRA31
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
     enc - OpenBSD enc(4) encapsulating interface
