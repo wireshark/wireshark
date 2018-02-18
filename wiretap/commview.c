@@ -8,7 +8,8 @@
  *
  * Based on csids.c and nettl.c
  *
-* SPDX-License-Identifier: GPL-2.0-or-later */
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* A brief description of this file format is available at:
  *    http://www.tamos.com/htmlhelp/commview/logformat.htm

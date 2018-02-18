@@ -11,7 +11,8 @@
  * remains. Borrowed many snippets from dbs-etherwatch.c, the
  * daintree_sna_process_hex_data function having the largest chunk.
  *
-* SPDX-License-Identifier: GPL-2.0-or-later */
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /* This module reads capture files saved by Daintree's Sensor Network Analyzer.
  * Daintree captures are plain text files with a two line header,

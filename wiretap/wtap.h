@@ -3,7 +3,8 @@
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
-* SPDX-License-Identifier: GPL-2.0-or-later */
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __WTAP_H__
 #define __WTAP_H__

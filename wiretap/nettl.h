@@ -6,7 +6,8 @@
  * Enhancements by Mark C. Brown <mbrown@hp.com>
  * Copyright (C) 2003, 2005 Hewlett-Packard Development Company, L.P.
  *
-* SPDX-License-Identifier: GPL-2.0-or-later */
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef __NETTL_H__
 #define __NETTL_H__

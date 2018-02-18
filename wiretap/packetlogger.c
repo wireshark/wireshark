@@ -9,7 +9,8 @@
  * Based on commview.c, Linux's BlueZ-Gnome Analyzer program and hexdumps of
  * the output files from Apple's PacketLogger tool.
  *
-* SPDX-License-Identifier: GPL-2.0-or-later */
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
