@@ -453,7 +453,7 @@ typedef enum {
     DECRYPT_PACKET_NO_KEY,
     DECRYPT_PACKET_DECRYPT_FAILED,
     DECRYPT_PACKET_MIC_CHECK_FAILED
-} ws_decrypt_status;
+} ieee802154_decrypt_status;
 
 /* UAT key structure. */
 typedef struct {
@@ -476,20 +476,28 @@ gboolean ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_l
 proto_tree *ieee802154_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett);
 proto_tree *ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett);
 
+/* Results for the decryption */
 typedef struct {
-    unsigned char* rx_mic;
-    guint*         rx_mic_length;
-    guint          aux_offset;
-    guint          aux_length;
-    ws_decrypt_status* status;
-    unsigned char *key;
+    /* Set by decrypt_ieee802154_payload */
+    unsigned char *key;  // not valid after return of decrypt_ieee802154_payload
     guint key_number;
-} ieee802154_payload_info_t;
+    /* Set by the ieee802154_decrypt_func */
+    unsigned char* rx_mic;
+    guint* rx_mic_length;
+    guint aux_offset;
+    guint aux_length;
+    ieee802154_decrypt_status* status;
+} ieee802154_decrypt_info_t;
 
+/** Fill key and alt_key based on the provided information from the frame and an IEEE 802.15.4 preference table entry */
 typedef gboolean (*ieee802154_set_key_func) (ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* key_info);
-typedef tvbuff_t* (*ieee802154_payload_func) (tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_payload_info_t*);
-tvbuff_t *dissect_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info * pinfo, proto_tree* key_tree, ieee802154_packet * packet,
-                                     ieee802154_payload_info_t* payload_info, ieee802154_set_key_func set_key_func, ieee802154_payload_func payload_func);
+/** Decrypt the payload with the provided information */
+typedef tvbuff_t* (*ieee802154_decrypt_func) (tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
+/** Loop over the keys specified in the IEEE 802.15.4 preferences, try to use them with the specified set_key_func
+ * and try to decrypt with the specified decrypt_func
+ */
+tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info * pinfo, proto_tree* key_tree, ieee802154_packet * packet,
+                                     ieee802154_decrypt_info_t* decrypt_info, ieee802154_set_key_func set_key_func, ieee802154_decrypt_func decrypt_func);
 
 
 typedef gboolean (*ieee802154_set_mac_key_func) (ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key);

@@ -279,7 +279,7 @@ static void dissect_ieee802154_realign         (tvbuff_t *, packet_info *, proto
 static void dissect_ieee802154_gtsreq          (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 
 /* Decryption helpers. */
-static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_payload_info_t*);
+static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
 
 static gboolean ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t* uat_key);
 
@@ -1085,9 +1085,9 @@ void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo
     }
 }
 
-tvbuff_t *dissect_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info * pinfo, proto_tree* key_tree,
-                                     ieee802154_packet * packet, ieee802154_payload_info_t* payload_info,
-                                     ieee802154_set_key_func set_key_func, ieee802154_payload_func payload_func)
+tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info * pinfo, proto_tree* key_tree,
+                                     ieee802154_packet * packet, ieee802154_decrypt_info_t* decrypt_info,
+                                     ieee802154_set_key_func set_key_func, ieee802154_decrypt_func decrypt_func)
 {
     proto_item* ti;
     unsigned char key[IEEE802154_CIPHER_SIZE];
@@ -1095,29 +1095,29 @@ tvbuff_t *dissect_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info *
     tvbuff_t * payload_tvb = NULL;
 
     /* Lookup the key. */
-    for (payload_info->key_number = 0; payload_info->key_number < num_ieee802154_keys; payload_info->key_number++) {
-        if (set_key_func(packet, key, alt_key, &ieee802154_keys[payload_info->key_number])) {
+    for (decrypt_info->key_number = 0; decrypt_info->key_number < num_ieee802154_keys; decrypt_info->key_number++) {
+        if (set_key_func(packet, key, alt_key, &ieee802154_keys[decrypt_info->key_number])) {
             /* Try with the initial key */
-            payload_info->key = key;
-            payload_tvb = payload_func(tvb, offset, pinfo, packet, payload_info);
-            if (!((*payload_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*payload_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
+            decrypt_info->key = key;
+            payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
+            if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
             }
             /* Try with the alternate key */
-            payload_info->key = alt_key;
-            payload_tvb = payload_func(tvb, offset, pinfo, packet, payload_info);
-            if (!((*payload_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*payload_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
+            decrypt_info->key = alt_key;
+            payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
+            if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
             }
         }
     }
-    if (payload_info->key_number == num_ieee802154_keys) {
+    if (decrypt_info->key_number == num_ieee802154_keys) {
         /* None of the stored keys seemed to work */
-        *payload_info->status = DECRYPT_PACKET_NO_KEY;
+        *decrypt_info->status = DECRYPT_PACKET_NO_KEY;
     }
 
     /* Store the key number used for retrieval */
-    ti = proto_tree_add_uint(key_tree, hf_ieee802154_key_number, tvb, 0, 0, payload_info->key_number);
+    ti = proto_tree_add_uint(key_tree, hf_ieee802154_key_number, tvb, 0, 0, decrypt_info->key_number);
     PROTO_ITEM_SET_HIDDEN(ti);
     return payload_tvb;
 }
@@ -1324,7 +1324,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     guint                   offset = 0;
     volatile gboolean       fcs_ok = TRUE;
     const char              *saved_proto;
-    ws_decrypt_status       status;
+    ieee802154_decrypt_status status;
     gboolean                dstPanPresent = FALSE;
     gboolean                srcPanPresent = FALSE;
     unsigned char           rx_mic[IEEE802154_CIPHER_SIZE];
@@ -1825,14 +1825,14 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Encrypted Payload. */
     if (packet->security_enable) {
-        ieee802154_payload_info_t payload_info;
+        ieee802154_decrypt_info_t decrypt_info;
 
-        payload_info.rx_mic = rx_mic;
-        payload_info.rx_mic_length = &rx_mic_len;
-        payload_info.status = &status;
-        payload_info.key = NULL; /* payload function will fill that in */
+        decrypt_info.rx_mic = rx_mic;
+        decrypt_info.rx_mic_length = &rx_mic_len;
+        decrypt_info.status = &status;
+        decrypt_info.key = NULL; /* payload function will fill that in */
 
-        payload_tvb = dissect_ieee802154_payload(tvb, offset, pinfo, header_tree, packet, &payload_info,
+        payload_tvb = decrypt_ieee802154_payload(tvb, offset, pinfo, header_tree, packet, &decrypt_info,
                                      ieee802154_set_mac_key, dissect_ieee802154_decrypt);
 
         /* Get the unencrypted data if decryption failed.  */
@@ -1854,7 +1854,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         case DECRYPT_PACKET_SUCCEEDED:
         case DECRYPT_NOT_ENCRYPTED:
             /* No problem */
-            proto_item_append_text(mic_item, " [correct (key no. %d)]", payload_info.key_number);
+            proto_item_append_text(mic_item, " [correct (key no. %d)]", decrypt_info.key_number);
             break;
 
         case DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED:
@@ -3520,7 +3520,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
                            guint offset,
                            packet_info *pinfo,
                            ieee802154_packet *packet,
-                           ieee802154_payload_info_t* payload_info)
+                           ieee802154_decrypt_info_t* decrypt_info)
 {
     tvbuff_t           *ptext_tvb;
     gboolean            have_mic = FALSE;
@@ -3533,7 +3533,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
 
     /* 802.15.4-2015 TSCH mode with frame counter suppression is not supported yet */
     if (packet->frame_counter_suppression) {
-        *payload_info->status = DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED;
+        *decrypt_info->status = DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED;
         return NULL;
     }
 
@@ -3541,11 +3541,11 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
 
     /* Get the captured and on-the-wire length of the payload. */
     M = IEEE802154_MIC_LENGTH(packet->security_level);
-    *payload_info->rx_mic_length = M;
+    *decrypt_info->rx_mic_length = M;
 
     reported_len = tvb_reported_length_remaining(tvb, offset) - IEEE802154_FCS_LEN - M;
     if (reported_len < 0) {
-        *payload_info->status = DECRYPT_PACKET_TOO_SMALL;
+        *decrypt_info->status = DECRYPT_PACKET_TOO_SMALL;
         return NULL;
     }
     /* Check of the payload is truncated.  */
@@ -3559,7 +3559,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     /* Check if the MIC is present in the captured data. */
     have_mic = tvb_bytes_exist(tvb, offset + reported_len, M);
     if (have_mic) {
-        tvb_memcpy(tvb, payload_info->rx_mic, offset + reported_len, M);
+        tvb_memcpy(tvb, decrypt_info->rx_mic, offset + reported_len, M);
     }
 
     /*
@@ -3582,7 +3582,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
         }
         else {
             /* Lookup failed.  */
-            *payload_info->status = DECRYPT_PACKET_NO_EXT_SRC_ADDR;
+            *decrypt_info->status = DECRYPT_PACKET_NO_EXT_SRC_ADDR;
             return NULL;
         }
     }
@@ -3609,28 +3609,28 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
         text = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. */
-        if (!ccm_ctr_encrypt(payload_info->key, tmp, payload_info->rx_mic, text, captured_len)) {
+        if (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, text, captured_len)) {
             g_free(text);
-            *payload_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
+            *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
             return NULL;
         }
 
         /* Create a tvbuff for the plaintext. */
         ptext_tvb = tvb_new_child_real_data(tvb, text, captured_len, reported_len);
         add_new_data_source(pinfo, ptext_tvb, "Decrypted IEEE 802.15.4 payload");
-        *payload_info->status = DECRYPT_PACKET_SUCCEEDED;
+        *decrypt_info->status = DECRYPT_PACKET_SUCCEEDED;
     }
     /* There is no ciphertext. Wrap the plaintext in a new tvb. */
     else {
         /* Decrypt the MIC (if present). */
-        if ((have_mic) && (!ccm_ctr_encrypt(payload_info->key, tmp, payload_info->rx_mic, NULL, 0))) {
-            *payload_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
+        if ((have_mic) && (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, NULL, 0))) {
+            *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
             return NULL;
         }
 
         /* Create a tvbuff for the plaintext. This might result in a zero-length tvbuff. */
         ptext_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
-        *payload_info->status = DECRYPT_PACKET_SUCCEEDED;
+        *decrypt_info->status = DECRYPT_PACKET_SUCCEEDED;
     }
 
     /*
@@ -3666,12 +3666,12 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
          * already points to contiguous memory, since we just allocated it in
          * decryption phase.
          */
-        if (!ccm_cbc_mac(payload_info->key, tmp, (const gchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
-            *payload_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
+        if (!ccm_cbc_mac(decrypt_info->key, tmp, (const gchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
+            *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
         /* Compare the received MIC with the one we generated. */
-        else if (memcmp(payload_info->rx_mic, dec_mic, M) != 0) {
-            *payload_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
+        else if (memcmp(decrypt_info->rx_mic, dec_mic, M) != 0) {
+            *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
     }
 
