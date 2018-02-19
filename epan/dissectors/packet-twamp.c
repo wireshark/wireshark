@@ -26,6 +26,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include "packet-tcp.h"
 
 
 void proto_reg_handoff_twamp(void);
@@ -191,6 +192,12 @@ gint find_twamp_session_by_first_accept_waiting (gconstpointer element)
     return 1;
 }
 
+static
+guint get_server_greeting_len(packet_info *pinfo _U_, tvbuff_t *tvb _U_, int offset _U_, void *data _U_)
+{
+    return TWAMP_CONTROL_SERVER_GREETING_LEN;
+}
+
 static int
 dissect_twamp_control (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -221,15 +228,16 @@ dissect_twamp_control (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     conversation = find_or_create_conversation(pinfo);
     ct = (twamp_control_transaction_t *) conversation_get_proto_data(conversation, proto_twamp_control);
     if (ct == NULL) {
-        if (is_request == FALSE && tvb_reported_length(tvb) == TWAMP_CONTROL_SERVER_GREETING_LEN) {
+        if (is_request == FALSE && tvb_reported_length(tvb) >= TWAMP_CONTROL_SERVER_GREETING_LEN) {
             /* We got server greeting */
             ct = wmem_new0(wmem_file_scope(), twamp_control_transaction_t);
             conversation_add_proto_data(conversation, proto_twamp_control, ct);
             ct->last_state = CONTROL_STATE_UNKNOWN;
             ct->first_data_frame = pinfo->fd->num;
         } else {
-            /* Can't do anything until we get a greeting */
-            return 0;
+            /* Try to reassemble server greeting message */
+            tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 0, get_server_greeting_len, dissect_twamp_control, data);
+            return tvb_captured_length(tvb);
         }
     }
     if ((cp = (twamp_control_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_twamp_control, 0)) == NULL) {
