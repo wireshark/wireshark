@@ -602,7 +602,8 @@ static const value_string pfcp_ie_type[] = {
     { 114, "Failed Rule ID" },                                      /* Extendable / Subclause 8.2.80 */
     { 115, "Time Quota Mechanism" },                                /* Extendable / Subclause 8.2.81 */
     { 116, "User Plane IP Resource Information" },                  /* Extendable / Subclause 8.2.82 */
-    //117 to 65535	Spare. For future use.
+    { 117, "User Plane Inactivity Timer" },                         /* Extendable / Subclause 8.2.83 */
+    //118 to 65535	Spare. For future use.
     {0, NULL}
 };
 
