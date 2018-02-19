@@ -515,17 +515,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   tvbuff_t *mgt_tvb = NULL;
   gint pdulen = 0;
   guint16 payload_length = 0;
-  guint16 framelen = 0;
+  /* guint16 framelen = 0; */
   gboolean save_fragmented;
 
   proto_item *ti;
   proto_tree *docsis_tree;
-
-  /* concatlen and concatpos are declared static to allow for recursive calls to
-   * the dissect_docsis routine when dissecting Concatenated frames
-   */
-  static guint16 concatlen;
-  static guint16 concatpos;
 
   /* Extract Frame Control parts */
   fc = tvb_get_guint8 (tvb, 0); /* Frame Control Byte */
@@ -555,12 +549,14 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   if ((fctype == FCTYPE_MACSPC) && (fcparm == FCPARM_RQST_FRM || fcparm == FCPARM_QUEUE_DEPTH_REQ_FRM))
   {
     pdulen = 0;
+    /*
     if (fcparm == FCPARM_QUEUE_DEPTH_REQ_FRM)
       framelen = DOCSIS_MIN_HEADER_LEN + 1;
     else
       framelen = DOCSIS_MIN_HEADER_LEN;
+    */
   } else {
-    framelen = DOCSIS_MIN_HEADER_LEN + len_sid;
+    /* framelen = DOCSIS_MIN_HEADER_LEN + len_sid; */
     pdulen = len_sid - (mac_parm + 2);
   }
 
@@ -618,11 +614,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
       }
-      if (concatlen > 0)
-      {
-        concatlen = concatlen - framelen;
-        concatpos += framelen;
-      }
       break;
     }
     case FCTYPE_RESERVED:
@@ -634,12 +625,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length);
       /* Dissect Header Check Sequence field for a PDU */
       dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-      if (concatlen > 0)
-      {
-        concatlen = concatlen - framelen;
-        concatpos += framelen;
-      }
 
       /* Don't do anything for a Reserved Frame */
       next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
@@ -659,11 +644,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       {
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
-      }
-      if (concatlen > 0)
-      {
-        concatlen = concatlen - framelen;
-        concatpos += framelen;
       }
       break;
     }
@@ -687,12 +667,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
           call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
 
-          if (concatlen > 0)
-          {
-            concatlen = concatlen - framelen;
-            concatpos += framelen;
-          }
-
           break;
         }
         case FCPARM_RQST_FRM:
@@ -702,12 +676,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 2, 2, len_sid);
           /* Dissect Header Check Sequence field for a PDU */
           dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-          if (concatlen > 0)
-          {
-            concatlen = concatlen - framelen;
-            concatpos += framelen;
-          }
 
           /* Don't do anything for a Request Frame, there is no data following it*/
           break;
@@ -773,12 +741,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
           pinfo->fragmented = save_fragmented;
 
-          if (concatlen > 0)
-          {
-            concatlen = concatlen - framelen;
-            concatpos += framelen;
-          }
-
           break;
         }
         case FCPARM_QUEUE_DEPTH_REQ_FRM:
@@ -788,12 +750,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 3, 2, len_sid);
           /* Dissect Header Check Sequence field for a PDU */
           dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-          if (concatlen > 0)
-          {
-            concatlen = concatlen - framelen;
-            concatpos += framelen;
-          }
 
           /* No PDU Payload for this frame */
           break;
@@ -807,30 +763,25 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           /* Dissect Header Check Sequence field for a PDU */
           dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
 
-          /* If this is a concatenated frame setup the length of the concatenated
-           * frame and set the position to the first byte of the first frame
-           */
-          concatlen = len_sid;
-          concatpos = DOCSIS_MIN_HEADER_LEN;
-
-          /* Call the docsis dissector on the same frame
-           * to dissect DOCSIS frames within the concatenated
-           * frame.  concatpos and concatlen are declared
-           * static and are decremented and incremented
-           * respectively when the inner
-           * docsis frames are dissected. */
-          while (concatlen > 0)
-          {
-            next_tvb = tvb_new_subset_length_caplen (tvb, concatpos, -1, concatlen);
-            call_dissector (docsis_handle, next_tvb, pinfo, docsis_tree);
-          }
-          concatlen = 0;
-          concatpos = 0;
+          // There used to be a section of code here that recursively
+          // called dissect_docsis. It has been removed. If you plan on
+          // adding concatenated PDU support back you should consider
+          // doing something like the following:
+          // dissect_docsis(...) {
+          //   while(we_have_pdus_remaining) {
+          //     int pdu_len = dissect_docsis_pdu(...)
+          //     if (pdu_len < 1) {
+          //       add_expert...
+          //       break;
+          //     }
+          //   }
+          // }
+          // Adding back this functionality using recursion might result
+          // in this dissector being disabled by default or removed entirely.
           break;
         }
         default:
             /* Unknown parameter, stop dissection */
-          concatlen = 0;
           break;
       } /* switch fcparm */
       break;
