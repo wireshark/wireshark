@@ -645,6 +645,25 @@ about_folders(void)
 
 }
 
+static gboolean
+must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
+                   gchar *volatile pdu_export_arg)
+{
+  /* We have to dissect each packet if:
+
+        we're printing information about each packet;
+
+        we're using a read filter on the packets;
+
+        we're using a display filter on the packets;
+
+        we're exporting PDUs;
+
+        we're using any taps that need dissection. */
+  return print_packet_info || rfcode || dfcode || pdu_export_arg ||
+      tap_listeners_require_dissection() || dissect_color;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1980,19 +1999,6 @@ main(int argc, char *argv[])
       }
   }
 
-  /* We have to dissect each packet if:
-
-        we're printing information about each packet;
-
-        we're using a read filter on the packets;
-
-        we're using a display filter on the packets;
-
-        we're exporting PDUs;
-
-        we're using any taps that need dissection. */
-  do_dissection = print_packet_info || rfcode || dfcode || pdu_export_arg ||
-      tap_listeners_require_dissection() || dissect_color;
   tshark_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
 
   if (cf_name) {
@@ -2014,6 +2020,11 @@ main(int argc, char *argv[])
        with one of MATE's late-registered fields as part of the
        filter. */
     start_requested_stats();
+
+    /* Do we need to do dissection of packets?  That depends on, among
+       other things, what taps are listening, so determine that after
+       starting the statistics taps. */
+    do_dissection = must_do_dissection(rfcode, dfcode, pdu_export_arg);
 
     /* Process the packets in the file */
     tshark_debug("tshark: invoking process_cap_file() to process the packets");
@@ -2160,6 +2171,11 @@ main(int argc, char *argv[])
        with one of MATE's late-registered fields as part of the
        filter. */
     start_requested_stats();
+
+    /* Do we need to do dissection of packets?  That depends on, among
+       other things, what taps are listening, so determine that after
+       starting the statistics taps. */
+    do_dissection = must_do_dissection(rfcode, dfcode, pdu_export_arg);
 
     /*
      * XXX - this returns FALSE if an error occurred, but it also
