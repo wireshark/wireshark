@@ -166,6 +166,21 @@ extern value_string_ext gmr1_ie_rr_strings_ext;
 extern elem_fcn gmr1_ie_rr_func[];
 extern gint ett_gmr1_ie_rr[];
 
+extern value_string_ext nas_5gs_common_elem_strings_ext;
+extern gint ett_nas_5gs_common_elem[];
+extern elem_fcn nas_5gs_common_elem_fcn[];
+extern int hf_nas_5gs_common_elem_id;
+
+extern value_string_ext nas_5gs_mm_elem_strings_ext;
+extern gint ett_nas_5gs_mm_elem[];
+extern elem_fcn nas_5gs_mm_elem_fcn[];
+extern int hf_nas_5gs_mm_elem_id;
+
+extern value_string_ext nas_5gs_sm_elem_strings_ext;
+extern gint ett_nas_5gs_sm_elem[];
+extern elem_fcn nas_5gs_sm_elem_fcn[];
+extern int hf_nas_5gs_sm_elem_id;
+
 extern sccp_assoc_info_t* sccp_assoc;
 
 extern int gsm_a_tap;
@@ -206,6 +221,9 @@ extern int hf_gsm_a_lac;
 #define BSSGP_PDU_TYPE              13
 #define GMR1_IE_COMMON              14
 #define GMR1_IE_RR                  15
+#define NAS_5GS_PDU_TYPE_COMMON     16
+#define NAS_5GS_PDU_TYPE_MM         17
+#define NAS_5GS_PDU_TYPE_SM         18
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -313,6 +331,21 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
         SEV_elem_names_ext = gmr1_ie_rr_strings_ext; \
         SEV_elem_ett = ett_gmr1_ie_rr; \
         SEV_elem_funcs = gmr1_ie_rr_func; \
+        break; \
+    case NAS_5GS_PDU_TYPE_COMMON: \
+        SEV_elem_names_ext = nas_5gs_common_elem_strings_ext; \
+        SEV_elem_ett = ett_nas_5gs_common_elem; \
+        SEV_elem_funcs = nas_5gs_common_elem_fcn; \
+        break; \
+    case NAS_5GS_PDU_TYPE_MM: \
+        SEV_elem_names_ext = nas_5gs_mm_elem_strings_ext; \
+        SEV_elem_ett = ett_nas_5gs_mm_elem; \
+        SEV_elem_funcs = nas_5gs_mm_elem_fcn; \
+        break; \
+    case NAS_5GS_PDU_TYPE_SM: \
+        SEV_elem_names_ext = nas_5gs_sm_elem_strings_ext; \
+        SEV_elem_ett = ett_nas_5gs_sm_elem; \
+        SEV_elem_funcs = nas_5gs_sm_elem_fcn; \
         break; \
     default: \
         proto_tree_add_expert_format(tree, pinfo, ei_unknown, \

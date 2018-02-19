@@ -1242,6 +1242,15 @@ static int get_hf_elem_id(int pdu_type)
     case GMR1_IE_RR:
         hf_elem_id = hf_gmr1_elem_id;
         break;
+    case NAS_5GS_PDU_TYPE_COMMON:
+        hf_elem_id = hf_nas_5gs_common_elem_id;
+        break;
+    case NAS_5GS_PDU_TYPE_MM:
+        hf_elem_id = hf_nas_5gs_mm_elem_id;
+        break;
+    case NAS_5GS_PDU_TYPE_SM:
+        hf_elem_id = hf_nas_5gs_sm_elem_id;
+        break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
     }
