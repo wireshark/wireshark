@@ -504,7 +504,7 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 ==== Optional: Create User’s and Developer’s Guide
 
 Detailed information to build these guides can be found in the file
-_docbook\README.txt_ in the Wireshark sources.
+_docbook\README.adoc_ in the Wireshark sources.
 
 ==== Optional: Create a Wireshark Installer
 
