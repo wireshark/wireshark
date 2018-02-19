@@ -2606,7 +2606,7 @@ dissect_statans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 off
 
   kind_responses_length = tvb_get_ntohl(tvb, offset);
 
-  if (4 + kind_responses_length > length) {
+  if (kind_responses_length > G_MAXUINT16 || 4 + kind_responses_length > length) {
     ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_statans, &ei_reload_truncated_field, "Truncated StatAns");
     return length;
