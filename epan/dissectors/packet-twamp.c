@@ -553,23 +553,26 @@ dissect_twamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_bitmask(twamp_tree, tvb, offset, hf_twamp_error_estimate, ett_twamp_error_estimate, twamp_error_estimate_flags, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (twamp_tree, hf_twamp_mbz1, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-    proto_tree_add_item(twamp_tree, hf_twamp_receive_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
-    offset += 8;
+    /* Responder sends TWAMP-Test packets with additional fields */
+    if (tvb_reported_length(tvb) - offset >= 27) {
+        proto_tree_add_item (twamp_tree, hf_twamp_mbz1, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(twamp_tree, hf_twamp_receive_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+        offset += 8;
 
-    proto_tree_add_item (twamp_tree, hf_twamp_sender_seq_number, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
+        proto_tree_add_item (twamp_tree, hf_twamp_sender_seq_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-    proto_tree_add_item(twamp_tree, hf_twamp_sender_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
-    offset += 8;
+        proto_tree_add_item(twamp_tree, hf_twamp_sender_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+        offset += 8;
 
-    proto_tree_add_item (twamp_tree, hf_twamp_sender_error_estimate, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-    proto_tree_add_item (twamp_tree, hf_twamp_mbz2, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-    proto_tree_add_item (twamp_tree, hf_twamp_sender_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+        proto_tree_add_item (twamp_tree, hf_twamp_sender_error_estimate, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item (twamp_tree, hf_twamp_mbz2, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item (twamp_tree, hf_twamp_sender_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
 
     padding = tvb_reported_length(tvb) - offset;
     if (padding > 0) {
