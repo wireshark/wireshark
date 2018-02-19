@@ -319,7 +319,6 @@ EXTRA_DIST =				\
 	dumpcap.pod			\
 	editcap.pod			\
 	extcap.pod			\
-	eproto2sgml			\
 	idl2deb.pod			\
 	idl2wrs.pod			\
 	make-authors-format.pl		\
