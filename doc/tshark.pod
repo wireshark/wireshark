@@ -77,82 +77,118 @@ standard output or writing the packets to a file.  B<TShark>'s native
 capture file format is B<pcap> format, which is also the format used
 by B<tcpdump> and various other tools.
 
-Without any options set, B<TShark> will work much like B<tcpdump>.  It will
-use the pcap library to capture traffic from the first available network
-interface and displays a summary line on stdout for each received packet.
+Without any options set, B<TShark> will work much like B<tcpdump>.  It
+will use the pcap library to capture traffic from the first available
+network interface and displays a summary line on the standard output for
+each received packet.
 
-B<TShark> is able to detect, read and write the same capture files that
-are supported by B<Wireshark>.
-The input file doesn't need a specific filename extension; the file
-format and an optional gzip compression will be automatically detected.
-Near the beginning of the DESCRIPTION section of wireshark(1) or
-L<https://www.wireshark.org/docs/man-pages/wireshark.html>
-is a detailed description of the way B<Wireshark> handles this, which is
-the same way B<Tshark> handles this.
+When run with the B<-r> option, specifying a capture file from which to
+read, B<TShark> will again work much like B<tcpdump>, reading packets
+from the file and displaying a summary line on the standard output for
+each packet read.  B<TShark> is able to detect, read and write the same
+capture files that are supported by B<Wireshark>.  The input file
+doesn't need a specific filename extension; the file format and an
+optional gzip compression will be automatically detected.  Near the
+beginning of the DESCRIPTION section of wireshark(1) or
+L<https://www.wireshark.org/docs/man-pages/wireshark.html> is a detailed
+description of the way B<Wireshark> handles this, which is the same way
+B<Tshark> handles this.
 
-Compressed file support uses (and therefore requires) the zlib library.
-If the zlib library is not present, B<TShark> will compile, but will
-be unable to read compressed files.
+Compressed file support uses (and therefore requires) the zlib library. 
+If the zlib library is not present when compiling B<TShark>, it will be
+possible to compile it, but the resulting program will be unable to read
+compressed files.
 
-If the B<-w> option is not specified, B<TShark> writes to the standard
-output the text of a decoded form of the packets it captures or reads.
-If the B<-w> option is specified, B<TShark> writes to the file
-specified by that option the raw data of the packets, along with the
-packets' time stamps.
-
-When writing a decoded form of packets, B<TShark> writes, by
+When displaying packets on the standard output, B<TShark> writes, by
 default, a summary line containing the fields specified by the
 preferences file (which are also the fields displayed in the packet list
 pane in B<Wireshark>), although if it's writing packets as it captures
 them, rather than writing packets from a saved capture file, it won't
 show the "frame number" field.  If the B<-V> option is specified, it
-writes instead a view of the details of the packet, showing all the
-fields of all protocols in the packet.  If the B<-O> option is specified,
-it will only show the full protocols specified.  Use the output of
-"B<tshark -G protocols>" to find the abbreviations of the protocols you can
-specify.
+instead writes a view of the details of the packet, showing all the
+fields of all protocols in the packet.  If the B<-O> option is
+specified, it will only show the full details for the protocols
+specified, and show only the top-level detail line for all other
+protocols.  Use the output of "B<tshark -G protocols>" to find the
+abbreviations of the protocols you can specify.  If the B<-P> option is
+specified with either the B<-V> or B<-O> options, both the summary line
+for the entire packet and the details will be displayed.
 
-If you want to write the decoded form of packets to a file, run
-B<TShark> without the B<-w> option, and redirect its standard output to
-the file (do I<not> use the B<-w> option).
+Packet capturing is performed with the pcap library.  That library
+supports specifying a filter expression; packets that don't match that
+filter are discarded.  The B<-f> option is used to specify a capture
+filter.  The syntax of a capture filter is defined by the pcap library;
+this syntax is different from the read filter syntax described below,
+and the filtering mechanism is limited in its abilities.
 
-When writing packets to a file, B<TShark>, by default, writes the
-file in B<pcap> format, and writes all of the packets it sees to the
-output file.  The B<-F> option can be used to specify the format in which
-to write the file.  This list of available file formats is displayed by
-the B<-F> flag without a value.  However, you can't specify a file format
-for a live capture.
+Read filters in B<TShark>, which allow you to select which packets are
+to be decoded or written to a file, are very powerful; more fields are
+filterable in B<TShark> than in other protocol analyzers, and the syntax
+you can use to create your filters is richer.  As B<TShark> progresses,
+expect more and more protocol fields to be allowed in read filters. 
+Read filters use the same syntax as display and color filters in
+B<Wireshark>; a read filter is specified with the B<-R> option.
 
-Read filters in B<TShark>, which allow you to select which packets
-are to be decoded or written to a file, are very powerful; more fields
-are filterable in B<TShark> than in other protocol analyzers, and the
-syntax you can use to create your filters is richer.  As B<TShark>
-progresses, expect more and more protocol fields to be allowed in read
-filters.
-
-Packet capturing is performed with the pcap library.  The capture filter
-syntax follows the rules of the pcap library.  This syntax is different
-from the read filter syntax.  A read filter can also be specified when
-capturing, and only packets that pass the read filter will be displayed
-or saved to the output file; note, however, that capture filters are much
-more efficient than read filters, and it may be more difficult for
-B<TShark> to keep up with a busy network if a read filter is
-specified for a live capture.
+Read filters can be specified when capturing or when reading from a
+capture file.  Note that that capture filters are much more efficient
+than read filters, and it may be more difficult for B<TShark> to keep up
+with a busy network if a read filter is specified for a live capture, so
+you might be more likely to lose packets if you're using a read filter.
 
 A capture or read filter can either be specified with the B<-f> or B<-R>
 option, respectively, in which case the entire filter expression must be
 specified as a single argument (which means that if it contains spaces,
 it must be quoted), or can be specified with command-line arguments
 after the option arguments, in which case all the arguments after the
-filter arguments are treated as a filter expression.  Capture filters
-are supported only when doing a live capture; read filters are supported
-when doing a live capture and when reading a capture file, but require
-TShark to do more work when filtering, so you might be more likely to
-lose packets under heavy load if you're using a read filter.  If the
-filter is specified with command-line arguments after the option
-arguments, it's a capture filter if a capture is being done (i.e., if no
-B<-r> option was specified) and a read filter if a capture file is being
-read (i.e., if a B<-r> option was specified).
+filter arguments are treated as a filter expression.  If the filter is
+specified with command-line arguments after the option arguments, it's a
+capture filter if a capture is being done (i.e., if no B<-r> option was
+specified) and a read filter if a capture file is being read (i.e., if a
+B<-r> option was specified).
+
+If the B<-w> option is specified when capturing packets or reading from
+a capture file, B<TShark> does not display packets on the standard
+output.  Instead, it writes the packets to a capture file with the name
+specified by the B<-w> option.
+
+If you want to write the decoded form of packets to a file, run
+B<TShark> without the B<-w> option, and redirect its standard output to
+the file (do I<not> use the B<-w> option).
+
+If you want the packets to be displayed to the standard output and also
+saved to a file, specify the B<-P> option in addition to the B<-w>
+option to have the summary line displayed, specify the B<-V> option
+in addition to the B<-w> option to have the details of the packet
+displayed, and specify the B<-O> option, with a list of protocols, to
+have the full details of the specified protocols and the top-level
+detail line for all other protocols to be displayed.  If the B<-P>
+option is used together with the B<-V> or B<-O> option, the summary line
+will be displayed along with the detail lines.
+
+When writing packets to a file, B<TShark>, by default, writes the file
+in B<pcapng> format, and writes all of the packets it sees to the output
+file.  The B<-F> option can be used to specify the format in which to
+write the file.  This list of available file formats is displayed by the
+B<-F> option without a value.  However, you can't specify a file format
+for a live capture.
+
+When capturing packets, B<TShark> writes to the standard error an
+initial line listing the interfaces from which packets are being
+captured and, if packet information isn't being displayed to the
+terminal, writes a continuous count of packets captured to the standard
+output.  If the B<-q> option is specified, neither the continuous count
+nor the packet information will be displayed; instead, at the end of the
+capture, a count of packets captured will be displayed.  If the B<-Q>
+option is specified, neither the initial line, nor the packet
+information, nor any packet counts will be displayed.  If the B<-q> or
+B<-Q> option is used, the B<-P>, B<-V>, or B<-O> option can be used to
+cause the corresponding output to be displayed even though other output
+is suppressed.
+
+When reading packets, the B<-q> and B<-Q> option will suppress the
+display of the packet summary or details; this would be used if B<-z>
+options are specified in order to display statistics, so that only the
+statistics, not the packet information, is displayed.
 
 The B<-G> option is a special mode that simply causes B<Tshark>
 to dump one of several types of internal glossaries and then exit.
@@ -610,15 +646,15 @@ link types can be used for the B<-y> option.
 =item -n
 
 Disable network object name resolution (such as hostname, TCP and UDP port
-names); the B<-N> flag might override this one.
+names); the B<-N> option might override this one.
 
 =item -N  E<lt>name resolving flagsE<gt>
 
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
-numbers turned off.  This flag overrides B<-n> if both B<-N> and B<-n> are
-present.  If both B<-N> and B<-n> flags are not present, all name resolutions
-are turned on.
+numbers turned off.  This option overrides B<-n> if both B<-N> and B<-n>
+are present.  If both B<-N> and B<-n> options are not present, all name
+resolutions are turned on.
 
 The argument is a string that may contain the letters:
 
@@ -643,10 +679,11 @@ file), and I<value> is the value to which it should be set.
 
 =item -O  E<lt>protocolsE<gt>
 
-Similar to the B<-V> option, but causes B<TShark> to only show a detailed view
-of the comma-separated list of I<protocols> specified, rather than a detailed
-view of all protocols.  Use the output of "B<tshark -G protocols>" to find the
-abbreviations of the protocols you can specify.
+Similar to the B<-V> option, but causes B<TShark> to only show a
+detailed view of the comma-separated list of I<protocols> specified, and
+show only the top-level detail line for all other protocols, rather than
+a detailed view of all protocols.  Use the output of "B<tshark -G
+protocols>" to find the abbreviations of the protocols you can specify.
 
 =item -p
 
@@ -690,9 +727,21 @@ printed, just the statistics.
 
 =item -Q
 
-When capturing packets, only display true errors.  This outputs less
+When capturing packets, don't display, on the standard error, the
+initial message indicating on which interfaces the capture is being
+done, the continuous count of packets captured shown when saving a
+capture to a file, and the final message giving the count of packets
+captured.  Only true errors are displayed on the standard error.
+
+only display true errors; don't display the
+inital message indicating the.  This outputs less
 than the B<-q> option, so the interface name and total packet
 count and the end of a capture are not sent to stderr.
+
+When reading a capture file, or when capturing and not saving to a file,
+don't print packet information; this is useful if you're using a B<-z>
+option to calculate statistics and don't want the packet information
+printed, just the statistics.
 
 =item -r  E<lt>infileE<gt>
 
@@ -794,29 +843,29 @@ form specified by the B<-E> option.  For example,
 would generate comma-separated values (CSV) output suitable for importing
 into your favorite spreadsheet program.
 
-B<json> JSON file format. It can be used with B<-j> or B<-J> including
-the JSON filter or with B<-x> flag to include raw hex-encoded packet data.
-Example of usage:
+B<json> JSON file format.  It can be used with B<-j> or B<-J> including
+the JSON filter or with B<-x> option to include raw hex-encoded packet
+data.  Example of usage:
 
   tshark -T json -r file.pcap
   tshark -T json -j "http tcp ip" -x -r file.pcap
 
 B<jsonraw> JSON file format including only raw hex-encoded packet data.
-It can be used with B<-j> including or B<-J >the JSON filter flag.
+It can be used with B<-j> including or B<-J> the JSON filter option.
 Example of usage:
 
   tshark -T jsonraw -r file.pcap
   tshark -T jsonraw -j "http tcp ip" -x -r file.pcap
 
-B<pdml> Packet Details Markup Language, an XML-based format for the details of
-a decoded packet.  This information is equivalent to the packet details
-printed with the B<-V> flag.
-Using the --color option will add color attributes to B<pdml> output. These
-attributes are nonstandard.
+B<pdml> Packet Details Markup Language, an XML-based format for the
+details of a decoded packet.  This information is equivalent to the
+packet details printed with the B<-V> option.  Using the --color option
+will add color attributes to B<pdml> output.  These attributes are
+nonstandard.
 
-B<ps> PostScript for a human-readable one-line summary of each of the packets,
-or a multi-line view of the details of each of the packets, depending on
-whether the B<-V> flag was specified.
+B<ps> PostScript for a human-readable one-line summary of each of the
+packets, or a multi-line view of the details of each of the packets,
+depending on whether the B<-V> option was specified.
 
 B<psml> Packet Summary Markup Language, an XML-based format for the summary
 information of a decoded packet.  This information is equivalent to the
@@ -830,7 +879,7 @@ as a delimiter between each column.
 
 B<text> Text of a human-readable one-line summary of each of the packets, or a
 multi-line view of the details of each of the packets, depending on
-whether the B<-V> flag was specified.  This is the default.
+whether the B<-V> option was specified.  This is the default.
 
 =item -u E<lt>seconds typeE<gt>
 
@@ -944,10 +993,10 @@ This feature does not support -2 two-pass analysis
 
 =item -z  E<lt>statisticsE<gt>
 
-Get B<TShark> to collect various types of statistics and display the result
-after finishing reading the capture file.  Use the B<-q> flag if you're
-reading a capture file and only want the statistics printed, not any
-per-packet information.
+Get B<TShark> to collect various types of statistics and display the
+result after finishing reading the capture file.  Use the B<-q> option
+if you're reading a capture file and only want the statistics printed,
+not any per-packet information.
 
 Note that the B<-z proto> option is different - it doesn't cause
 statistics to be gathered and printed when the capture is complete, it
