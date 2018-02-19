@@ -1665,8 +1665,6 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     tvbuff_t *sub_tvb;
                     guint16 src_port;
                     guint16 dst_port;
-                    udp_hdr_t *udp_hdr;
-                    guint8 *buffer;
 
                     src_port = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_udp_encap_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1678,10 +1676,9 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     if (tlv_len >= 4)
                     {
                         /* Allocate a buffer for the fake UDP datagram and create the fake header. */
-                        buffer = (guint8 *)wmem_alloc(pinfo->pool, sizeof(udp_hdr_t) + (tlv_len - 4));
+                        udp_hdr_t* udp_hdr = (udp_hdr_t *)wmem_alloc(pinfo->pool, sizeof(udp_hdr_t) + (tlv_len - 4));
 
                         /* Create pseudo UDP header */
-                        udp_hdr = (udp_hdr_t *)buffer;
                         udp_hdr->src_port = g_htons(src_port);
                         udp_hdr->dst_port = g_htons(dst_port);
                         udp_hdr->length = g_htons(tlv_len + 4); /* Includes UDP header length */
@@ -1689,7 +1686,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         /* Copy UDP payload in */
                         tvb_memcpy(tvb, udp_hdr + 1, offset, tlv_len - 4);
                         /* Create child tvb */
-                        sub_tvb = tvb_new_child_real_data(tvb, buffer, tlv_len + 4, tvb_reported_length(tvb) + 4);
+                        sub_tvb = tvb_new_child_real_data(tvb, (guint8 *)udp_hdr, tlv_len + 4, tvb_reported_length(tvb) + 4);
                         call_dissector(thread_udp_handle, sub_tvb, pinfo, tree);
                     }
                     offset += (tlv_len-4);
