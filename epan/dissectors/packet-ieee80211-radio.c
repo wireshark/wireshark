@@ -1059,11 +1059,6 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         assumed_no_extension_streams = TRUE;
       }
 
-      /* calculate number of HT-LTF training symbols.
-       * see ieee80211n-2009 20.3.9.4.6 table 20-11 */
-      Nsts = ieee80211_ht_streams[info_n->mcs_index] + stbc_streams;
-      preamble += 4 * (Nhtdltf[Nsts-1] + Nhteltf[ness]);
-
       if (!info_n->has_fec) {
         assumed_bcc_fec = TRUE;
       }
