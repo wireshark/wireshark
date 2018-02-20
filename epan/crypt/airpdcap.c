@@ -441,6 +441,11 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_
         }
 
         if (key_found){
+            if (decrypted_data[key_index+1] <= 6) {
+                g_free(decrypted_data);
+                g_free(szEncryptedKey);
+                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+            }
             key_length = decrypted_data[key_index+1] - 6;
 
             if (key_index+8 >= key_bytes_len ||
@@ -2176,6 +2181,7 @@ AirPDcapTDLSDeriveKey(
     const guint8 *snonce, *anonce, *initiator, *responder, *bssid;
     guint8 key_input[SHA256_DIGEST_LEN];
     guint8 mic[16], iter[2], length[2], seq_num = action + 1;
+    guint cmac_write_len;
 
     /* Get key input */
     anonce = &data[offset_fte + 20];
@@ -2223,7 +2229,12 @@ AirPDcapTDLSDeriveKey(
     aes_cmac_encrypt_update(&aes_ctx, &data[offset_fte], 4);
     memset(mic, 0, 16);
     aes_cmac_encrypt_update(&aes_ctx, mic, 16);
-    aes_cmac_encrypt_update(&aes_ctx, &data[offset_fte + 20], data[offset_fte + 1] + 2 - 20);
+    cmac_write_len = data[offset_fte + 1] + 2;
+    if (cmac_write_len < 20) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "Bad MAC len", AIRPDCAP_DEBUG_LEVEL_3);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+    aes_cmac_encrypt_update(&aes_ctx, &data[offset_fte + 20], cmac_write_len - 20);
     aes_cmac_encrypt_finish(&aes_ctx, mic);
 
     if (memcmp(mic, &data[offset_fte + 4],16)) {
