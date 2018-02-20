@@ -486,15 +486,17 @@ follow_register(const void *key _U_, void *value, void *userdata _U_)
 {
   register_follow_t *follower = (register_follow_t*)value;
   stat_tap_ui follow_ui;
+  gchar *cli_string;
 
+  cli_string = follow_get_stat_tap_string(follower);
   follow_ui.group = REGISTER_STAT_GROUP_GENERIC;
   follow_ui.title = NULL;   /* construct this from the protocol info? */
-  follow_ui.cli_string = follow_get_stat_tap_string(follower);
+  follow_ui.cli_string = cli_string;
   follow_ui.tap_init_cb = follow_stream;
   follow_ui.nparams = 0;
   follow_ui.params = NULL;
   register_stat_tap_ui(&follow_ui, follower);
-  g_free((char*)follow_ui.cli_string);
+  g_free(cli_string);
   return FALSE;
 }
 

@@ -135,7 +135,7 @@ register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 
 	ui_info.group = stat_tap->group;
 	ui_info.title = stat_tap->title;   /* construct this from the protocol info? */
-	ui_info.cli_string = (char*)key;
+	ui_info.cli_string = (const char *)key;
 	ui_info.tap_init_cb = simple_stat_init;
 	ui_info.nparams = stat_tap->nparams;
 	ui_info.params = stat_tap->params;

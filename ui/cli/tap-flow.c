@@ -110,17 +110,19 @@ flow_register(const void *key _U_, void *value, void *userdata _U_)
     register_analysis_t* analysis = (register_analysis_t*)value;
     stat_tap_ui flow_ui;
     GString *cmd_str = g_string_new(STR_FLOW);
+    gchar *cli_string;
 
     g_string_append(cmd_str, sequence_analysis_get_name(analysis));
+    cli_string = g_string_free(cmd_str, FALSE);
 
     flow_ui.group = REGISTER_STAT_GROUP_GENERIC;
     flow_ui.title = NULL;   /* construct this from the protocol info? */
-    flow_ui.cli_string = g_string_free(cmd_str, FALSE);
+    flow_ui.cli_string = cli_string;
     flow_ui.tap_init_cb = flow_init;
     flow_ui.nparams = 0;
     flow_ui.params = NULL;
     register_stat_tap_ui(&flow_ui, analysis);
-    g_free((char*)flow_ui.cli_string);
+    g_free(cli_string);
     return FALSE;
 }
 
