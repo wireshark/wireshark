@@ -68,6 +68,7 @@ WSUTIL_PUBLIC_INCLUDES = \
 	os_version_info.h	\
 	pint.h			\
 	plugins.h		\
+	pow2.h			\
 	privileges.h		\
 	processes.h		\
 	report_message.h	\

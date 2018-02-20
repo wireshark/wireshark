@@ -25,15 +25,16 @@
 
 
 #include "config.h"
-#include <math.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <epan/reassemble.h>
-#include <wiretap/wtap.h>
 #include <epan/crc16-tvb.h>
 
+#include <wiretap/wtap.h>
+
+#include <wsutil/pow2.h>
 
 /* Proximity Integrated Circuit Card, i.e. the smartcard */
 #define ADDR_PICC "PICC"
@@ -541,8 +542,8 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
         col_set_str(pinfo->cinfo, COL_INFO, msg_type);
         proto_item_append_text(ti, ": %s", msg_type);
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_n,
-                tvb, offset*8+5, 3, (guint8)pow(2, param&0x07),
-                "%d", (guint8)pow(2, param&0x07));
+                tvb, offset*8+5, 3, pow2(guint32, param&0x07),
+                "%u", pow2(guint32, param&0x07));
         offset++;
 
         if (!crc_dropped) {

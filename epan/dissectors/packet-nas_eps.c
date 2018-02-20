@@ -14,13 +14,13 @@
 
 #include "config.h"
 
-#include <math.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <wsutil/pow2.h>
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
@@ -3538,16 +3538,16 @@ get_ext_ambr_unit(guint32 byte, const char **unit_str)
         mult = 0;
         *unit_str = "";
     } else if (byte <= 0x06) {
-        mult = (guint32)pow(4, byte-0x02);
+        mult = pow4(guint32, byte-0x02);
         *unit_str = "Mbps";
     } else if (byte <= 0x0b) {
-        mult = (guint32)pow(4, byte-0x07);
+        mult = pow4(guint32, byte-0x07);
         *unit_str = "Gbps";
     } else if (byte <= 0x10) {
-        mult = (guint32)pow(4, byte-0x0c);
+        mult = pow4(guint32, byte-0x0c);
         *unit_str = "Tbps";
     } else if (byte <= 0x15) {
-        mult = (guint32)pow(4, byte-0x11);
+        mult = pow4(guint32, byte-0x11);
         *unit_str = "Pbps";
     } else {
         mult = 256;
@@ -3622,16 +3622,16 @@ get_ext_eps_qos_unit(guint32 byte, const char **unit_str)
         mult = 200;
         *unit_str = "kbps";
     } else if (byte <= 0x06) {
-        mult = (guint32)pow(4, byte-0x02);
+        mult = pow4(guint32, byte-0x02);
         *unit_str = "Mbps";
     } else if (byte <= 0x0b) {
-        mult = (guint32)pow(4, byte-0x07);
+        mult = pow4(guint32, byte-0x07);
         *unit_str = "Gbps";
     } else if (byte <= 0x10) {
-        mult = (guint32)pow(4, byte-0x0c);
+        mult = pow4(guint32, byte-0x0c);
         *unit_str = "Tbps";
     } else if (byte <= 0x15) {
-        mult = (guint32)pow(4, byte-0x11);
+        mult = pow4(guint32, byte-0x11);
         *unit_str = "Pbps";
     } else {
         mult = 256;

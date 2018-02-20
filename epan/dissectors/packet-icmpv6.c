@@ -34,6 +34,8 @@
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 
+#include <wsutil/pow2.h>
+
 #include "packet-ber.h"
 #include "packet-dns.h"
 #include "packet-x509af.h"
@@ -2995,7 +2997,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             }
                         }
 
-                        proto_item_append_text(ti_opt_lifetime, " (%u sec)", 1U << ((lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_L) >> 6)*2);
+                        proto_item_append_text(ti_opt_lifetime, " (%u sec)", pow4(guint32, (lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_L) >> 6));
 
                         if (!(lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_MR_NH)) {
                             proto_item_append_text(ti_opt_mr_nh, " (Infinity)");
