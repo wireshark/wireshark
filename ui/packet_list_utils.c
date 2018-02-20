@@ -20,6 +20,8 @@ right_justify_column (gint col, capture_file *cf)
 {
     header_field_info *hfi;
     gboolean right_justify = FALSE;
+    guint num_fields, *field_idx, ii;
+    guint right_justify_count = 0;
 
     if (!cf) return FALSE;
 
@@ -40,15 +42,27 @@ right_justify_column (gint col, capture_file *cf)
             break;
 
         case COL_CUSTOM:
-            hfi = proto_registrar_get_byname(cf->cinfo.columns[col].col_custom_fields);
-            /* Check if this is a valid field and we have no strings lookup table */
-            if ((hfi != NULL) && ((hfi->strings == NULL) || !get_column_resolved(col))) {
-                /* Check for bool, framenum and decimal/octal integer types */
-                if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-                        (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-                         (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
-                    right_justify = TRUE;
+            num_fields = g_slist_length(cf->cinfo.columns[col].col_custom_fields_ids);
+            for (ii = 0; ii < num_fields; ii++) {
+                field_idx = (guint *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
+                hfi = proto_registrar_get_nth(*field_idx);
+
+                /* Check if this is a valid field and we have no strings lookup table */
+                if ((hfi != NULL) && ((hfi->strings == NULL) || !get_column_resolved(col))) {
+                    /* Check for bool, framenum, double, float, relative time and decimal/octal integer types */
+                    if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) || (hfi->type == FT_DOUBLE) ||
+                        (hfi->type == FT_FLOAT) || (hfi->type == FT_RELATIVE_TIME) ||
+                        (((FIELD_DISPLAY(hfi->display) == BASE_DEC) || (FIELD_DISPLAY(hfi->display) == BASE_OCT)) &&
+                         (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))))
+                    {
+                        right_justify_count++;
+                    }
                 }
+            }
+
+            if ((num_fields > 0) && (right_justify_count == num_fields)) {
+                /* All custom fields must meet the right-justify criteria */
+                right_justify = TRUE;
             }
             break;
 
