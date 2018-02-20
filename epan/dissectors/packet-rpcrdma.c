@@ -178,8 +178,13 @@ static guint get_read_list_chunk_count(tvbuff_t *tvb, guint offset)
 static guint get_write_chunk_size(tvbuff_t *tvb, guint offset)
 {
     guint segment_count;
+    guint max_count = (guint)tvb_reported_length_remaining(tvb, offset + 4) / 16;
 
     segment_count = tvb_get_ntohl(tvb, offset);
+    if (segment_count > max_count) {
+        /* XXX We should throw an exception here. */
+        segment_count = max_count;
+    }
     return 4 + (segment_count * 16);
 }
 
@@ -197,8 +202,8 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
             break;
 
         chunk_size = get_write_chunk_size(tvb, offset);
-        if ((offset + chunk_size) < offset ||
-            (offset + chunk_size) > max_offset)
+        if ((offset > max_offset) ||
+            (max_offset - offset < chunk_size))
             return 0;
         offset += chunk_size;
     }
@@ -220,7 +225,7 @@ static guint get_write_list_chunk_count(tvbuff_t *tvb, guint offset)
 
         num_chunks++;
         chunk_size = get_write_chunk_size(tvb, offset);
-        if ((offset + chunk_size) < offset)
+        if (chunk_size == 0)
             break;
     }
 
