@@ -526,7 +526,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   tvbuff_t *mgt_tvb = NULL;
   gint pdulen = 0;
   guint16 payload_length = 0;
-  guint16 framelen = 0;
   gboolean save_fragmented;
 
   proto_item *ti;
@@ -560,12 +559,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   if ((fctype == FCTYPE_MACSPC) && (fcparm == FCPARM_RQST_FRM || fcparm == FCPARM_QUEUE_DEPTH_REQ_FRM))
   {
     pdulen = 0;
-    if (fcparm == FCPARM_QUEUE_DEPTH_REQ_FRM)
-      framelen = DOCSIS_MIN_HEADER_LEN + 1;
-    else
-      framelen = DOCSIS_MIN_HEADER_LEN;
   } else {
-    framelen = DOCSIS_MIN_HEADER_LEN + len_sid;
     pdulen = len_sid - (mac_parm + 2);
   }
 
