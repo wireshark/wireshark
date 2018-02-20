@@ -445,6 +445,11 @@ static int hf_bthci_evt_suggested_max_tx_time = -1;
 static int hf_bthci_evt_suggested_max_rx_octets = -1;
 static int hf_bthci_evt_suggested_max_rx_time = -1;
 static int hf_bthci_evt_resolving_list_size = -1;
+static int hf_bthci_evt_primary_phy = -1;
+static int hf_bthci_evt_secondary_phy = -1;
+static int hf_bthci_evt_advertising_sid = -1;
+static int hf_bthci_evt_advertising_tx_power = -1;
+static int hf_bthci_evt_periodic_advertising_interval = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -479,6 +484,27 @@ static expert_field ei_manufacturer_data_changed = EI_INIT;
 static dissector_table_t vendor_dissector_table;
 static dissector_table_t hci_vendor_table;
 
+static int hf_bthci_evt_ext_advts_event_type = -1;
+static int hf_bthci_evt_ext_advts_event_type_connectable = -1;
+static int hf_bthci_evt_ext_advts_event_type_scannable = -1;
+static int hf_bthci_evt_ext_advts_event_type_directed = -1;
+static int hf_bthci_evt_ext_advts_event_type_scan_response = -1;
+static int hf_bthci_evt_ext_advts_event_type_legacy = -1;
+static int hf_bthci_evt_ext_advts_event_type_data_status = -1;
+static int hf_bthci_evt_ext_advts_event_type_reserved = -1;
+
+static const int *hfx_bthci_evt_le_ext_advts_evt_type[] = {
+    &hf_bthci_evt_ext_advts_event_type_connectable,
+    &hf_bthci_evt_ext_advts_event_type_scannable,
+    &hf_bthci_evt_ext_advts_event_type_directed,
+    &hf_bthci_evt_ext_advts_event_type_scan_response,
+    &hf_bthci_evt_ext_advts_event_type_legacy,
+    &hf_bthci_evt_ext_advts_event_type_data_status,
+    &hf_bthci_evt_ext_advts_event_type_reserved,
+    NULL
+};
+
+
 /* Initialize the subtree pointers */
 static gint ett_bthci_evt = -1;
 static gint ett_opcode = -1;
@@ -496,6 +522,7 @@ static gint ett_mws_to_mws_baud_rates_transport_item = -1;
 static gint ett_mws_from_mws_baud_rates = -1;
 static gint ett_mws_from_mws_baud_rates_transport_item = -1;
 static gint ett_expert = -1;
+static gint ett_le_ext_advts_event_type = -1;
 
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
@@ -892,6 +919,28 @@ const value_string bthci_evt_codec_id_vals[] = {
     { 0x05,  "mSBC" },
     { 0xFF,  "Vendor Specific" },
     { 0, NULL }
+};
+
+static const value_string ext_adv_data_status_vals[] = {
+    {0x00, "Complete" },
+    {0x01, "Incoplete, more data to come"},
+    {0x02, "Incoplete, data truncated, no more data to come"},
+    {0x03, "Reserved"},
+    {0, NULL }
+};
+
+static const value_string bthci_evt_primary_phy_vals[] = {
+    {0x01, "LE 1M"},
+    {0x03, "LE Coded"},
+    {0, NULL }
+};
+
+static const value_string bthci_evt_secondary_phy_vals[] = {
+    {0x00, "No packets on the secondary advertising channel"},
+    {0x01, "LE 1M"},
+    {0x02, "LE 2M"},
+    {0x03, "LE Coded"},
+    {0, NULL }
 };
 
 
@@ -2478,6 +2527,72 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_evt_le_rx_phy, tvb, offset, 1, ENC_NA);
             offset += 1;
 
+            break;
+        case 0x0D: /* LE Extended Advertising Report */
+            {
+            guint8 i, num_reports, length;
+
+            num_reports = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_bthci_evt_num_reports, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            for (i = 0; i < num_reports; i++) {
+
+                proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_evt_ext_advts_event_type, ett_le_ext_advts_event_type, hfx_bthci_evt_le_ext_advts_evt_type, ENC_LITTLE_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+                offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
+
+                proto_tree_add_item(tree, hf_bthci_evt_primary_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(tree, hf_bthci_evt_secondary_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+                item = proto_tree_add_item(tree, hf_bthci_evt_advertising_sid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                if (tvb_get_guint8(tvb, offset) == 0xFF)
+                    proto_item_append_text(item, " (not available)");
+                offset += 1;
+
+                item = proto_tree_add_item(tree, hf_bthci_evt_advertising_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                if (tvb_get_guint8(tvb, offset) == 127)
+                    proto_item_append_text(item, " (not available)");
+                offset += 1;
+
+                item = proto_tree_add_item(tree, hf_bthci_evt_rssi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                if (tvb_get_guint8(tvb, offset) == 127)
+                    proto_item_append_text(item, " (not available)");
+                offset += 1;
+
+                item = proto_tree_add_item(tree, hf_bthci_evt_periodic_advertising_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                if (tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) == 0x0000)
+                    proto_item_append_text(item, " (no periodic advertising)");
+                else
+                    proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
+                offset += 2;
+
+                proto_tree_add_item(tree, hf_bthci_evt_le_direct_address_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                offset = dissect_bd_addr(hf_bthci_evt_le_direct_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+
+                length = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_bthci_evt_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+
+                if (length > 0) {
+                    bluetooth_eir_ad_data_t *ad_data;
+
+                    ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                    ad_data->interface_id = bluetooth_data->interface_id;
+                    ad_data->adapter_id = bluetooth_data->adapter_id;
+                    ad_data->bd_addr = bd_addr;
+
+                    call_dissector_with_data(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree, ad_data);
+                    save_remote_device_name(tvb, offset, pinfo, length, bd_addr, bluetooth_data);
+                    offset += length;
+                }
+            }
+
+            }
             break;
         default:
             break;
@@ -7297,6 +7412,11 @@ proto_register_bthci_evt(void)
             FT_UINT8, BASE_HEX, VALS(evt_le_advertising_evt_types), 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_evt_ext_advts_event_type,
+          { "Event Type", "bthci_evt.le_ext_advts_event_type",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_le_states,
           { "Supported LE States", "bthci_evt.le_states",
             FT_NONE, BASE_NONE, NULL, 0x00,
@@ -7931,7 +8051,68 @@ proto_register_bthci_evt(void)
           { "Resolving List Size",        "bthci_evt.resolving_list_size",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
-        }
+        },
+        { &hf_bthci_evt_ext_advts_event_type_connectable,
+          { "Connectable",     "bthci_evt.le_ext_advts_event_type.connectable",
+            FT_BOOLEAN, 16, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ext_advts_event_type_scannable,
+          { "Scannable",     "bthci_evt.le_ext_advts_event_type.scannable",
+            FT_BOOLEAN, 16, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ext_advts_event_type_directed,
+          { "Directed",     "bthci_evt.le_ext_advts_event_type.directed",
+            FT_BOOLEAN, 16, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ext_advts_event_type_scan_response,
+          { "Scan Response",     "bthci_evt.le_ext_advts_event_type.scan_response",
+            FT_BOOLEAN, 16, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ext_advts_event_type_legacy,
+          { "Legacy",     "bthci_evt.le_ext_advts_event_type.legacy",
+            FT_BOOLEAN, 16, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ext_advts_event_type_data_status,
+          { "Data Status",     "bthci_evt.le_ext_advts_event_type.data_status",
+            FT_UINT16, BASE_HEX, VALS(ext_adv_data_status_vals), 0x60,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ext_advts_event_type_reserved,
+          { "Reserved",     "bthci_evt.le_ext_advts_event_type.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFF80,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_primary_phy,
+          { "Primary PHY", "bthci_evt.primary_phy",
+            FT_UINT8, BASE_HEX, VALS(bthci_evt_primary_phy_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_secondary_phy,
+          { "Secondary PHY", "bthci_evt.secondary_phy",
+            FT_UINT8, BASE_HEX, VALS(bthci_evt_secondary_phy_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_advertising_sid,
+          { "Advertising SID", "bthci_evt.advertising_sid",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_advertising_tx_power,
+          { "TX Power", "bthci_evt.tx_power",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_periodic_advertising_interval,
+          { "Periodic Advertising Interval", "bthci_evt.periodic_advertisign_interval",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+
     };
 
     static ei_register_info ei[] = {
@@ -7961,7 +8142,8 @@ proto_register_bthci_evt(void)
         &ett_mws_to_mws_baud_rates_transport_item,
         &ett_mws_from_mws_baud_rates,
         &ett_mws_from_mws_baud_rates_transport_item,
-        &ett_expert
+        &ett_expert,
+        &ett_le_ext_advts_event_type
     };
 
     /* Decode As handling
