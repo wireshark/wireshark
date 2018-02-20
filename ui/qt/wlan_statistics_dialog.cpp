@@ -51,7 +51,7 @@ enum {
 class WlanStationTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    WlanStationTreeWidgetItem(address *addr) :
+    WlanStationTreeWidgetItem(const address *addr) :
         QTreeWidgetItem (wlan_station_row_type_),
         packets_(0),
         retry_(0),
@@ -66,10 +66,10 @@ public:
         copy_address(&addr_, addr);
         setText(col_bssid_, address_to_qstring(&addr_));
     }
-    bool isMatch(address *addr) {
+    bool isMatch(const address *addr) {
         return addresses_equal(&addr_, addr);
     }
-    void update(wlan_hdr_t *wlan_hdr) {
+    void update(const wlan_hdr_t *wlan_hdr) {
         bool is_sender = addresses_equal(&addr_, &wlan_hdr->src);
 
         if (wlan_hdr->stats.fc_retry != 0) {
@@ -199,7 +199,7 @@ private:
 class WlanNetworkTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    WlanNetworkTreeWidgetItem(QTreeWidget *parent, wlan_hdr_t *wlan_hdr) :
+    WlanNetworkTreeWidgetItem(QTreeWidget *parent, const wlan_hdr_t *wlan_hdr) :
         QTreeWidgetItem (parent, wlan_network_row_type_),
         beacon_(0),
         data_packet_(0),
@@ -229,7 +229,7 @@ public:
         setText(col_ssid_, ssid_text);
     }
 
-    bool isMatch(wlan_hdr_t *wlan_hdr) {
+    bool isMatch(const wlan_hdr_t *wlan_hdr) {
         bool is_bssid_match = false;
         bool is_ssid_match = false;
         bool update_bssid = false;
@@ -303,7 +303,7 @@ public:
         return is_bssid_match && is_ssid_match;
     }
 
-    void update(wlan_hdr_t *wlan_hdr) {
+    void update(const wlan_hdr_t *wlan_hdr) {
         if (channel_ == 0 && wlan_hdr->stats.channel != 0) {
             channel_ = wlan_hdr->stats.channel;
         }
@@ -468,7 +468,7 @@ private:
     // and add them all at once later.
     QList<QTreeWidgetItem *>stations_;
 
-    void updateBssid(wlan_hdr_t *wlan_hdr) {
+    void updateBssid(const wlan_hdr_t *wlan_hdr) {
         copy_address(&bssid_, &wlan_hdr->bssid);
         is_broadcast_ = is_broadcast_bssid(&bssid_);
         setText(col_bssid_, address_to_qstring(&bssid_));
@@ -560,7 +560,7 @@ void WlanStatisticsDialog::tapReset(void *ws_dlg_ptr)
 gboolean WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info *, epan_dissect *, const void *wlan_hdr_ptr)
 {
     WlanStatisticsDialog *ws_dlg = static_cast<WlanStatisticsDialog *>(ws_dlg_ptr);
-    wlan_hdr_t *wlan_hdr  = (wlan_hdr_t *)wlan_hdr_ptr;
+    const wlan_hdr_t *wlan_hdr  = (const wlan_hdr_t *)wlan_hdr_ptr;
     if (!ws_dlg || !wlan_hdr) return FALSE;
 
     guint16 frame_type = wlan_hdr->type & 0xff0;
