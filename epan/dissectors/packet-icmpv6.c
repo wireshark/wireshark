@@ -23,8 +23,6 @@
 
 #include "config.h"
 
-#include "math.h"
-
 #include <epan/packet.h>
 #include <epan/in_cksum.h>
 #include <epan/ipproto.h>
@@ -2997,7 +2995,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             }
                         }
 
-                        proto_item_append_text(ti_opt_lifetime, " (%d sec)", (int) pow(4.0, (lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_L) >> 6));
+                        proto_item_append_text(ti_opt_lifetime, " (%u sec)", 1U << ((lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_L) >> 6)*2);
 
                         if (!(lt_mr_nh & RPL_OPT_ROUTE_DISCOVERY_MR_NH)) {
                             proto_item_append_text(ti_opt_mr_nh, " (Infinity)");
