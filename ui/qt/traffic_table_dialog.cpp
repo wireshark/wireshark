@@ -114,7 +114,7 @@ public:
 gboolean TrafficTableDialog::fillTypeMenuFunc(const void *key, void *value, void *userdata)
 {
     register_ct_t* ct = (register_ct_t*)value;
-    QString title = (gchar*)key;
+    const QString title = (const gchar*)key;
     fillTypeMenuData* data = (fillTypeMenuData*)userdata;
     int proto_id = get_conversation_proto_id(ct);
 
