@@ -716,7 +716,7 @@ gboolean LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 {
     // Look up dialog and tap info.
     LteMacStatisticsDialog *ws_dlg = static_cast<LteMacStatisticsDialog *>(ws_dlg_ptr);
-    const mac_lte_tap_info *mlt_info  = (mac_lte_tap_info *) mac_lte_tap_info_ptr;
+    const mac_lte_tap_info *mlt_info  = (const mac_lte_tap_info *) mac_lte_tap_info_ptr;
     if (!ws_dlg || !mlt_info) {
         return FALSE;
     }

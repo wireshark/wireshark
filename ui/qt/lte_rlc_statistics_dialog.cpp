@@ -775,7 +775,7 @@ gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 {
     // Look up dialog.
     LteRlcStatisticsDialog *ws_dlg = static_cast<LteRlcStatisticsDialog *>(ws_dlg_ptr);
-    const rlc_lte_tap_info *rlt_info  = (rlc_lte_tap_info *) rlc_lte_tap_info_ptr;
+    const rlc_lte_tap_info *rlt_info  = (const rlc_lte_tap_info *) rlc_lte_tap_info_ptr;
     if (!ws_dlg || !rlt_info) {
         return FALSE;
     }
