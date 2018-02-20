@@ -214,7 +214,7 @@ static int hf_radiotap_he_spatial_reuse_3_known = -1;
 static int hf_radiotap_he_spatial_reuse_4_known = -1;
 static int hf_radiotap_he_data_bw_ru_allocation_known = -1;
 static int hf_radiotap_he_doppler_known = -1;
-static int hf_radiotap_he_d2_reserved_b1 = -1;
+static int hf_radiotap_he_pri_sec_80_mhz_known = -1;
 static int hf_radiotap_he_gi_known = -1;
 static int hf_radiotap_he_ltf_symbols_known = -1;
 static int hf_radiotap_he_pre_fec_padding_factor_known = -1;
@@ -222,7 +222,9 @@ static int hf_radiotap_he_txbf_known = -1;
 static int hf_radiotap_he_pe_disambiguity_known = -1;
 static int hf_radiotap_he_txop_known = -1;
 static int hf_radiotap_he_midamble_periodicity_known = -1;
-static int hf_radiotap_he_d2_reserved_ff00 = -1;
+static int hf_radiotap_he_ru_allocation_offset = -1;
+static int hf_radiotap_he_ru_allocation_offset_known = -1;
+static int hf_radiotap_he_pri_sec_80_mhz = -1;
 static int hf_radiotap_he_bss_color = -1;
 static int hf_radiotap_he_bss_color_unknown = -1;
 static int hf_radiotap_he_beam_change = -1;
@@ -776,7 +778,7 @@ static const value_string he_pdu_format_vals[] = {
 };
 
 static const int *data2_headers[] = {
-	&hf_radiotap_he_d2_reserved_b1,
+	&hf_radiotap_he_pri_sec_80_mhz_known,
 	&hf_radiotap_he_gi_known,
 	&hf_radiotap_he_ltf_symbols_known,
 	&hf_radiotap_he_pre_fec_padding_factor_known,
@@ -784,8 +786,15 @@ static const int *data2_headers[] = {
 	&hf_radiotap_he_pe_disambiguity_known,
 	&hf_radiotap_he_txop_known,
 	&hf_radiotap_he_midamble_periodicity_known,
-	&hf_radiotap_he_d2_reserved_ff00,
+	&hf_radiotap_he_ru_allocation_offset,
+	&hf_radiotap_he_ru_allocation_offset_known,
+	&hf_radiotap_he_pri_sec_80_mhz,
 	NULL
+};
+
+static const true_false_string tfs_pri_sec_80_mhz = {
+	"secondary",
+	"primary"
 };
 
 static const int *data3_headers[] = {
@@ -3417,9 +3426,9 @@ void proto_register_radiotap(void)
 		  FT_UINT16, BASE_HEX, NULL, 0x0,
 		  "Data 1 of the HE Info field", HFILL}},
 
-		{&hf_radiotap_he_d2_reserved_b1,
-		 {"Reserved", "radiotap.he.data_2.reserved_ff00",
-		  FT_UINT16, BASE_HEX, NULL, IEEE80211_RADIOTAP_HE_RESERVED_D2_B1,
+		{&hf_radiotap_he_pri_sec_80_mhz_known,
+		 {"pri/sec 80 MHz known", "radiotap.he.data_2.pri_sec_80_mhz_known",
+		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_HE_PRI_SEC_80_MHZ_KNOWN,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_he_gi_known,
@@ -3457,9 +3466,21 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown), IEEE80211_RADIOTAP_HE_MIDAMBLE_PERIODICITY_KNOWN,
 		  NULL, HFILL}},
 
-		{&hf_radiotap_he_d2_reserved_ff00,
-		 {"Reserved", "radiotap.he.data_2.reserved_ff00",
-		  FT_UINT16, BASE_HEX, NULL, IEEE80211_RADIOTAP_HE_RESERVED_D2_FF00,
+		{&hf_radiotap_he_ru_allocation_offset,
+		 {"RU allocation offset", "radiotap.he.data_2.ru_allocation_offset",
+		  FT_UINT16, BASE_HEX, NULL, IEEE80211_RADIOTAP_HE_RU_ALLOCATION_OFFSET,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_he_ru_allocation_offset_known,
+		 {"RU allocation offset known", "radiotap.he.data_2.ru_allocation_offseti_known",
+		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown),
+			IEEE80211_RADIOTAP_HE_RU_ALLOCATION_OFFSET_KNOWN,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_he_pri_sec_80_mhz,
+		 {"pri/sec 80 MHz", "radiotap.he.data_2.pri_sec_80_mhz",
+		  FT_BOOLEAN, 16, TFS(&tfs_pri_sec_80_mhz),
+			IEEE80211_RADIOTAP_HE_PRI_SEC_80_MHZ,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_he_bss_color,
