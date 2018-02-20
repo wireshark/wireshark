@@ -335,7 +335,7 @@ void DisplayFilterExpressionDialog::on_fieldTreeWidget_itemSelectionChanged()
                     } else { // Plain old value_string / VALS
                         const value_string *vals = (const value_string *)hfinfo->strings;
                         if (hfinfo->display & BASE_EXT_STRING)
-                            vals = VALUE_STRING_EXT_VS_P((value_string_ext *)vals);
+                            vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)vals);
                         fillEnumIntValues(vals, base);
                     }
                 }
