@@ -2107,17 +2107,16 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
     }
 
     if (id == FLEX_ID_RX_TX_DURATION) {
-      // Decode the u16 time value into a string
+      // Decode the u16 time value into a double
       guint16 encoded_micros = tvb_get_ntohs(tvb, offset);
-      char str[32];
-      guint64 decoded_micros = (guint64)pow(encoded_micros, 1.74) / 2;
-      g_snprintf(str, 32, "%" G_GUINT64_FORMAT "us", decoded_micros);
-      proto_tree_add_string(frame_tree,
-                            hf_flex_frame_tracing_duration,
-                            tvb,
-                            offset,
-                            2,
-                            str);
+      double decoded_micros = pow(encoded_micros, 1.74) / 2;
+      proto_tree_add_double_format(frame_tree,
+                                   hf_flex_frame_tracing_duration,
+                                   tvb,
+                                   offset,
+                                   2,
+                                   decoded_micros,
+                                   "%g us", decoded_micros);
     } else {
         expert_add_info_format(pinfo,
                                frame,
@@ -2365,7 +2364,7 @@ proto_register_couchbase(void)
     { &hf_flex_frame_id_esc, {"Flexible Frame ID (escaped)", "couchbase.flex_frame.frame.id", FT_UINT16, BASE_DEC, VALS(flex_frame_ids), 0xF0, NULL, HFILL } },
     { &hf_flex_frame_len, {"Flexible Frame Len", "couchbase.flex_frame.frame.len", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
     { &hf_flex_frame_len_esc, {"Flexible Frame Len (escaped)", "couchbase.flex_frame.frame.len", FT_UINT16, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
-    { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_DOUBLE, BASE_NONE, NULL, 0, NULL, HFILL } },
 
     { &hf_extras, { "Extras", "couchbase.extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_flags, { "Flags", "couchbase.extras.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
