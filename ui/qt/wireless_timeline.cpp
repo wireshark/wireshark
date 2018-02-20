@@ -574,7 +574,7 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
             first_packet = packet;
 
         if (fdata->color_filter) {
-            const color_t *c = &((color_filter_t *) fdata->color_filter)->fg_color;
+            const color_t *c = &((const color_filter_t *) fdata->color_filter)->fg_color;
             red = c->red / 65535.0;
             green = c->green / 65535.0;
             blue = c->blue / 65535.0;
