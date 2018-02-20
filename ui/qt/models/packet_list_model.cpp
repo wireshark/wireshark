@@ -365,16 +365,11 @@ bool PacketListModel::isNumericColumn(int column)
         return false;
     }
 
-    gchar **fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
-            sort_cap_file_->cinfo.columns[column].col_custom_fields,
-            G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+    guint num_fields = g_slist_length(sort_cap_file_->cinfo.columns[column].col_custom_fields_ids);
+    for (guint i = 0; i < num_fields; i++) {
+        guint *field_idx = (guint *) g_slist_nth_data(sort_cap_file_->cinfo.columns[column].col_custom_fields_ids, i);
+        header_field_info *hfi = proto_registrar_get_nth(*field_idx);
 
-    for (guint i = 0; i < g_strv_length(fields); i++) {
-        if (!*fields[i]) {
-            continue;
-        }
-
-        header_field_info *hfi = proto_registrar_get_byname(fields[i]);
         /*
          * Reject a field when there is no numeric field type or when:
          * - there are (value_string) "strings"
@@ -392,12 +387,10 @@ bool PacketListModel::isNumericColumn(int column)
                 (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
                 (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
                 (hfi->type == FT_RELATIVE_TIME))) {
-            g_strfreev(fields);
             return false;
         }
     }
 
-    g_strfreev(fields);
     return true;
 }
 
