@@ -84,7 +84,7 @@ end:
 }
 
 gboolean
-do_export_pdu(const char *filter, gchar *tap_name, exp_pdu_t *exp_pdu_tap_data)
+do_export_pdu(const char *filter, const gchar *tap_name, exp_pdu_t *exp_pdu_tap_data)
 {
     char *error;
     error = exp_pdu_pre_open(tap_name, filter, exp_pdu_tap_data);

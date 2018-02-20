@@ -41,7 +41,7 @@ void ExportPDUDialog::on_buttonBox_accepted()
     const QByteArray& filter = ui->displayFilterLineEdit->text().toUtf8();
     const QByteArray& tap_name = ui->comboBox->currentText().toUtf8();
 
-    do_export_pdu(filter.constData(), (gchar *)tap_name.constData(), &exp_pdu_data);
+    do_export_pdu(filter.constData(), tap_name.constData(), &exp_pdu_data);
 }
 ExportPDUDialog::~ExportPDUDialog()
 {
