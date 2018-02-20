@@ -226,7 +226,7 @@ void funnel_statistics_set_filter(funnel_ops_id_t *ops_id, const char* filter_st
 
 void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string) {
     gchar *err_msg = NULL;
-    if (!color_filters_set_tmp(filter_num, (gchar *)filter_string, FALSE, &err_msg)) {
+    if (!color_filters_set_tmp(filter_num, filter_string, FALSE, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
