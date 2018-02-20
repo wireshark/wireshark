@@ -1040,10 +1040,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         assumed_no_stbc = TRUE;
       }
 
-      if (info_n->has_ness) {
-        ness = info_n->ness;
-      } else {
-        ness = 0;
+      if (!info_n->has_ness) {
         assumed_no_extension_streams = TRUE;
       }
 
