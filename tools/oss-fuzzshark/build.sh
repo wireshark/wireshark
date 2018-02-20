@@ -19,7 +19,8 @@
 # This is done to avoid single fuzzer (like IP) to call UDP protocols, which can go back to IP, and so on..
 # While doing so might find some bugs, but it's likely to be the problem for too big corpus in oss-fuzzer
 # (see: https://github.com/google/oss-fuzz/issues/1087).
-DISSECTOR_LIST='"ip", "udp", "ospf", "bgp", "bootp", "json"'
+# + udplite - it's sharing most of code with UDP.
+DISSECTOR_LIST='"ip", "udp", "udplite", "ospf", "bgp", "bootp", "json"'
 
 FUZZ_DISSECTORS="ip"
 
