@@ -360,10 +360,10 @@ void WirelessTimeline::tap_timeline_reset(void* tapdata)
 gboolean WirelessTimeline::tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt _U_, const void *data)
 {
     WirelessTimeline* timeline = (WirelessTimeline*)tapdata;
-    struct wlan_radio *wlan_radio_info = (struct wlan_radio *)data;
+    const struct wlan_radio *wlan_radio_info = (const struct wlan_radio *)data;
 
     /* Save the radio information in our own (GUI) hashtable */
-    g_hash_table_insert(timeline->radio_packet_list, GUINT_TO_POINTER(pinfo->num), wlan_radio_info);
+    g_hash_table_insert(timeline->radio_packet_list, GUINT_TO_POINTER(pinfo->num), (gpointer)wlan_radio_info);
     return FALSE;
 }
 
