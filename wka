@@ -30,6 +30,7 @@
 # Network Load Balancing Technical Overview
 # White Paper
 #
+00-00-00-00-FE-21	Checkpoint-Uninitialized-Cluster-Member
 00-00-0C-07-AC/40	All-HSRP-routers
 00-00-5E-00-01/40	IETF-VRRP-VRID
 00-BF-00-00-00-00/16	MS-NLB-VirtServer
