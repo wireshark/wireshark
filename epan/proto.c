@@ -7149,8 +7149,18 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
 				g_free ((gchar *)tf->false_string);
 				break;
 			}
+			case FT_UINT40:
+			case FT_INT40:
+			case FT_UINT48:
+			case FT_INT48:
+			case FT_UINT56:
+			case FT_INT56:
 			case FT_UINT64:
 			case FT_INT64: {
+				/*
+				 * XXX - if it's BASE_RANGE_STRING, or
+				 * BASE_EXT_STRING, should we free it?
+				 */
 				if (hfi->display & BASE_UNIT_STRING) {
 					unit_name_string *unit = (unit_name_string*)hfi->strings;
 					g_free ((gchar *)unit->singular);
@@ -7164,8 +7174,21 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
 				}
 				break;
 			}
-			default: {
-				/* Other Integer types */
+			case FT_CHAR:
+			case FT_UINT8:
+			case FT_INT8:
+			case FT_UINT16:
+			case FT_INT16:
+			case FT_UINT24:
+			case FT_INT24:
+			case FT_UINT32:
+			case FT_INT32:
+			case FT_FLOAT:
+			case FT_DOUBLE: {
+				/*
+				 * XXX - if it's BASE_RANGE_STRING, or
+				 * BASE_EXT_STRING, should we free it?
+				 */
 				if (hfi->display & BASE_UNIT_STRING) {
 					unit_name_string *unit = (unit_name_string*)hfi->strings;
 					g_free ((gchar *)unit->singular);
@@ -7177,6 +7200,8 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
 						vs++;
 					}
 				}
+				break;
+			default:
 				break;
 			}
 		}
@@ -9767,7 +9792,9 @@ proto_registrar_dump_values(void)
 			     hfinfo->type == FT_INT40  ||
 			     hfinfo->type == FT_INT48  ||
 			     hfinfo->type == FT_INT56  ||
-			     hfinfo->type == FT_INT64)) {
+			     hfinfo->type == FT_INT64  ||
+			     hfinfo->type == FT_FLOAT  ||
+			     hfinfo->type == FT_DOUBLE)) {
 
 				if (hfinfo->display & BASE_RANGE_STRING) {
 					range = (const range_string *)hfinfo->strings;
