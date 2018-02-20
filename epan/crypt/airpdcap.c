@@ -444,6 +444,11 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_
         }
 
         if (key_found){
+            if (decrypted_data[key_index+1] <= 6) {
+                g_free(decrypted_data);
+                g_free(szEncryptedKey);
+                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+            }
             key_length = decrypted_data[key_index+1] - 6;
 
             if (key_index+8 >= key_bytes_len ||
@@ -2203,6 +2208,7 @@ AirPDcapTDLSDeriveKey(
     guint8 zeros[16] = { 0 };
     gcry_mac_hd_t cmac_handle;
     size_t cmac_len = 16;
+    size_t cmac_write_len;
 #endif
 
     /* Get key input */
@@ -2264,7 +2270,13 @@ AirPDcapTDLSDeriveKey(
     gcry_mac_write(cmac_handle, &data[offset_timeout], data[offset_timeout + 1] + 2);
     gcry_mac_write(cmac_handle, &data[offset_fte], 4);
     gcry_mac_write(cmac_handle, zeros, 16);
-    gcry_mac_write(cmac_handle, &data[offset_fte + 20], data[offset_fte + 1] + 2 - 20);
+    cmac_write_len = data[offset_fte + 1] + 2;
+    if (cmac_write_len < 20) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "Bad MAC len", AIRPDCAP_DEBUG_LEVEL_3);
+        gcry_mac_close(cmac_handle);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+    gcry_mac_write(cmac_handle, &data[offset_fte + 20], cmac_write_len - 20);
     gcry_mac_read(cmac_handle, mic, &cmac_len);
     if (memcmp(mic, &data[offset_fte + 4], 16)) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "MIC verification failed", AIRPDCAP_DEBUG_LEVEL_3);
