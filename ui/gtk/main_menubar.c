@@ -2417,7 +2417,7 @@ menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 {
     conversation_filter_t  *filter_entry = (conversation_filter_t *)callback_data;
     GtkWidget               *filter_te;
-    const char              *buf;
+    char                    *buf;
 
     filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY)));
 
@@ -2920,7 +2920,7 @@ menus_init(void)
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         gtk_action_group_add_toggle_actions(packet_list_heading_action_group,                     /* the action group */
-                                    (GtkToggleActionEntry *)packet_list_heading_menu_toggle_action_entries,     /* an array of action descriptions */
+                                    (const GtkToggleActionEntry *)packet_list_heading_menu_toggle_action_entries,     /* an array of action descriptions */
                                     G_N_ELEMENTS(packet_list_heading_menu_toggle_action_entries), /* the number of entries */
                                     NULL);                                                        /* data to pass to the action callbacks */
 
@@ -2947,13 +2947,13 @@ menus_init(void)
         packet_list_action_group = gtk_action_group_new ("PacketListPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
-            (GtkActionEntry *)packet_list_menu_popup_action_entries,                       /* an array of action descriptions */
+            (const GtkActionEntry *)packet_list_menu_popup_action_entries,                       /* an array of action descriptions */
             G_N_ELEMENTS(packet_list_menu_popup_action_entries),                   /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         /* Add the filter menu items */
         gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
-            (GtkActionEntry *)apply_prepare_filter_action_entries,                         /* an array of action descriptions */
+            (const GtkActionEntry *)apply_prepare_filter_action_entries,                         /* an array of action descriptions */
             G_N_ELEMENTS(apply_prepare_filter_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
@@ -2983,13 +2983,13 @@ menus_init(void)
         packet_list_details_action_group = gtk_action_group_new ("PacketListDetailsMenuPopUpActionGroup");
 
         gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
-            (GtkActionEntry *)tree_view_menu_popup_action_entries,                 /* an array of action descriptions */
+            (const GtkActionEntry *)tree_view_menu_popup_action_entries,                 /* an array of action descriptions */
             G_N_ELEMENTS(tree_view_menu_popup_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         /* Add the filter menu items */
         gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
-            (GtkActionEntry *)apply_prepare_filter_action_entries,                 /* an array of action descriptions */
+            (const GtkActionEntry *)apply_prepare_filter_action_entries,                 /* an array of action descriptions */
             G_N_ELEMENTS(apply_prepare_filter_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
@@ -3028,7 +3028,7 @@ menus_init(void)
 
 
         gtk_action_group_add_radio_actions  (packet_list_byte_menu_action_group,            /* the action group */
-                                    (GtkRadioActionEntry *)bytes_menu_radio_action_entries, /* an array of radio action descriptions  */
+                                    (const GtkRadioActionEntry *)bytes_menu_radio_action_entries, /* an array of radio action descriptions  */
                                     G_N_ELEMENTS(bytes_menu_radio_action_entries),          /* the number of entries */
                                     recent.gui_bytes_view,                                  /* the value of the action to activate initially, or -1 if no action should be activated  */
                                     G_CALLBACK(select_bytes_view_cb),                       /* the callback to connect to the changed signal  */
@@ -3137,7 +3137,7 @@ menus_init(void)
         statusbar_profiles_action_group = gtk_action_group_new ("StatusBarProfilesPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (statusbar_profiles_action_group,   /* the action group */
-            (GtkActionEntry *)statusbar_profiles_menu_action_entries,    /* an array of action descriptions */
+            (const GtkActionEntry *)statusbar_profiles_menu_action_entries,    /* an array of action descriptions */
             G_N_ELEMENTS(statusbar_profiles_menu_action_entries),        /* the number of entries */
             popup_menu_object);                                          /* data to pass to the action callbacks */
 
@@ -3237,8 +3237,8 @@ typedef struct _menu_item {
 static gint
 insert_sorted_by_label(gconstpointer aparam, gconstpointer bparam)
 {
-    const menu_item_t *a = (menu_item_t *)aparam;
-    const menu_item_t *b = (menu_item_t *)bparam;
+    const menu_item_t *a = (const menu_item_t *)aparam;
+    const menu_item_t *b = (const menu_item_t *)bparam;
 
     return g_ascii_strcasecmp(a->label, b->label);
 }
@@ -5115,7 +5115,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 
         if (hfinfo->parent == -1) {
             abbrev = hfinfo->abbrev;
-            id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((protocol_t *)hfinfo->strings) : -1;
+            id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((const protocol_t *)hfinfo->strings) : -1;
         } else {
             abbrev = proto_registrar_get_abbrev(hfinfo->parent);
             id = hfinfo->parent;
