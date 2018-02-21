@@ -588,10 +588,11 @@ void WiresharkApplication::checkForDbar()
         if (inproc_default.isEmpty()) continue;
 
         foreach (QString dbar_dll, dbar_dlls) {
+            if (! inproc_default.contains(dbar_dll, Qt::CaseInsensitive)) continue;
             // XXX We don't expand environment variables in the path.
             unsigned int dll_version = fileVersion(inproc_default);
             unsigned int bad_version = 1 << 16 | 8; // Offending DBAR version is 1.8.
-            if (inproc_default.contains(dbar_dll, Qt::CaseInsensitive) && dll_version == bad_version) {
+            if (dll_version == bad_version) {
                 QMessageBox dbar_msgbox;
                 dbar_msgbox.setIcon(QMessageBox::Warning);
                 dbar_msgbox.setStandardButtons(QMessageBox::Ok);
