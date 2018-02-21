@@ -300,6 +300,7 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_MSG_REL_CONF                 8   /* 0x08 */
 #define RSL_MSG_REL_IND                  9   /* 0x09 */
 #define RSL_MSG_UNIT_DATA_REQ           10  /* 0x0a */
+#define RSL_MSG_UNIT_DATA_IND           11  /* 0x0b */
 /* Common Channel Management messages */
 #define RSL_MSG_BCCH_INFO               17  /* 0x11 */
 #define RSL_MSG_CCCH_LOAD_IND           18  /* 0x12 */
@@ -413,6 +414,7 @@ static const value_string rsl_msg_type_vals[] = {
 /* 0x08 */ {  RSL_MSG_REL_CONF,          "RELease CONFirm" },                            /* 8.3.8 */
 /* 0x09 */ {  RSL_MSG_REL_IND,           "RELease INDication" },                         /* 8.3.9 */
 /* 0x0a */ {  RSL_MSG_UNIT_DATA_REQ,     "UNIT DATA REQuest" },                          /* 8.3.10 */
+/* 0x0b */ {  RSL_MSG_UNIT_DATA_IND,     "UNIT DATA INDication" },                       /* 8.3.11 */
     /* 0 0 0 1 - - - - Common Channel Management/TRX Management messages: */
 /* 0x11 */ {  RSL_MSG_BCCH_INFO,         "BCCH INFOrmation" },                           /* 8.5.1 */
 /* 0x12 */ {  RSL_MSG_CCCH_LOAD_IND,     "CCCH LOAD INDication" },                       /* 8.5.2 */
@@ -3629,6 +3631,15 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /*  L3 Information          9.3.11  O (note 1) TLV 3-23  */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_OTHER);
+        break;
+    /* 8.3.11 UNIT DATA INDICATION */
+    case RSL_MSG_UNIT_DATA_IND:
+        /*  Channel number          9.3.1   M TV 2               */
+        offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
+        /*  Link Identifier         9.3.2   M TV 2               */
+        offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
+        /*  L3 Information          9.3.11  M TLV 3-25           */
+        offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, TRUE, L3_INF_OTHER);
         break;
 /* Common Channel Management/TRX Management messages */
     /* 8.5.1 BCCH INFORMATION 17*/
