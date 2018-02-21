@@ -5125,10 +5125,9 @@ make_fake_lchid(packet_info *pinfo _U_, gint trchld)
     return fake_map[trchld];
 }
 
-/* Figures the best "UE ID" to use in RLC reassembly logic */
-static guint32 get_ue_id_from_conv(umts_fp_conversation_info_t *p_conv_data)
+/* Tries to resolve the U-RNTI of a channel user based on info in the fp conv info */
+static void fp_conv_resolve_urnti(umts_fp_conversation_info_t *p_conv_data)
 {
-    guint32 user_identity;
     /* Trying to resolve the U-RNTI of the user if missing */
     /* Resolving based on the 'C-RNC Communication Context' field found in NBAP */
     if (!p_conv_data->urnti && p_conv_data->com_context_id != 0) {
@@ -5137,6 +5136,12 @@ static guint32 get_ue_id_from_conv(umts_fp_conversation_info_t *p_conv_data)
             p_conv_data->urnti = GPOINTER_TO_UINT(mapped_urnti);
         }
     }
+}
+
+/* Figures the best "UE ID" to use in RLC reassembly logic */
+static guint32 get_ue_id_from_conv(umts_fp_conversation_info_t *p_conv_data)
+{
+    guint32 user_identity;
     /* Choosing RLC 'UE ID': */
     /* 1. Preferring the U-RNTI if attached */
     /* 2. Fallback - Using the 'C-RNC Communication Context' used in NBAP for this user */
@@ -5194,6 +5199,9 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     fpi->destport = pinfo->destport;
 
     fpi->com_context_id = p_conv_data->com_context_id;
+    if(!p_conv_data->urnti) {
+        fp_conv_resolve_urnti(p_conv_data);
+    }
     fpi->urnti = p_conv_data->urnti;
 
     if (pinfo->link_dir == P2P_DIR_UL) {
