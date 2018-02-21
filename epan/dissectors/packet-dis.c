@@ -6597,10 +6597,10 @@ static int dissect_DIS_PARSER_TRANSMITTER_PDU(tvbuff_t *tvb, packet_info *pinfo,
         switch(systemModulation)
         {
         case DIS_SYSTEM_MOD_CCTT_SINCGARS:
-            offset = dissect_DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS(tvb, sub_tree, offset);
+            offset = dissect_DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS(tvb, tree, offset);
             break;
         case DIS_SYSTEM_MOD_JTIDS_MIDS:
-            offset = dissect_DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS(tvb, sub_tree, offset);
+            offset = dissect_DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS(tvb, tree, offset);
             break;
         default: /* just dump what is available */
             proto_tree_add_item(tree, hf_dis_mod_param_dump, tvb, offset, modulationParamLength, ENC_NA);
