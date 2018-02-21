@@ -27,9 +27,9 @@ typedef struct unit_name_string {
     char *plural;          /* name to use for < 1 or > 1 units */
 } unit_name_string;
 
-WS_DLL_PUBLIC char* unit_name_string_get_value(guint32 value, unit_name_string* units);
-WS_DLL_PUBLIC char* unit_name_string_get_value64(guint64 value, unit_name_string* units);
-WS_DLL_PUBLIC char* unit_name_string_get_double(double value, unit_name_string* units);
+WS_DLL_PUBLIC const char* unit_name_string_get_value(guint32 value, const unit_name_string* units);
+WS_DLL_PUBLIC const char* unit_name_string_get_value64(guint64 value, const unit_name_string* units);
+WS_DLL_PUBLIC const char* unit_name_string_get_double(double value, const unit_name_string* units);
 
 /*
  * A default set of unit strings that dissectors can use for

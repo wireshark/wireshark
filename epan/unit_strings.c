@@ -14,7 +14,7 @@
 #include <wsutil/str_util.h>
 #include "unit_strings.h"
 
-char* unit_name_string_get_value(guint32 value, unit_name_string* units)
+const char* unit_name_string_get_value(guint32 value, const unit_name_string* units)
 {
     if (units->plural == NULL)
         return units->singular;
@@ -22,7 +22,7 @@ char* unit_name_string_get_value(guint32 value, unit_name_string* units)
     return plurality(value, units->singular, units->plural);
 }
 
-char* unit_name_string_get_value64(guint64 value, unit_name_string* units)
+const char* unit_name_string_get_value64(guint64 value, const unit_name_string* units)
 {
     if (units->plural == NULL)
         return units->singular;
@@ -30,7 +30,7 @@ char* unit_name_string_get_value64(guint64 value, unit_name_string* units)
     return plurality(value, units->singular, units->plural);
 }
 
-char* unit_name_string_get_double(double value, unit_name_string* units)
+const char* unit_name_string_get_double(double value, const unit_name_string* units)
 {
     if (units->plural == NULL)
         return units->singular;
