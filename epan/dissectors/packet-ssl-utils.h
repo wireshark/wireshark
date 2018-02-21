@@ -632,7 +632,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
  * and mode are Libgcrypt identifiers.
  */
 tls13_cipher *
-tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, const StringInfo *secret, const gchar **error);
+tls13_cipher_create(const char *label_prefix, int cipher_algo, int cipher_mode, int hash_algo, const StringInfo *secret, const gchar **error);
 
 
 /* Common part bitween SSL and DTLS dissectors */
@@ -1073,9 +1073,9 @@ tls_dissect_sct_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo
                      guint32 offset, guint32 offset_end, guint16 version);
 
 extern gboolean
-tls13_hkdf_expand_label_common(int md, const StringInfo *secret,
-                               const char *label_prefix, const char *label,
-                               guint16 out_len, guchar **out);
+tls13_hkdf_expand_label(int md, const StringInfo *secret,
+                        const char *label_prefix, const char *label,
+                        guint16 out_len, guchar **out);
 
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \

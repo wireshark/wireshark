@@ -588,8 +588,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 }
 #endif /* HAVE_LIBGCRYPT_AEAD */
 
-/* TLS 1.3 draft used by the draft-ietf-quic-tls-07 */
-#define QUIC_TLS13_VERSION          21
 #define QUIC_LONG_HEADER_LENGTH     17
 
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -719,13 +717,13 @@ quic_derive_cleartext_secrets(guint64 cid,
 
     label_prefix = "tls13 ";
 
-    if (!tls13_hkdf_expand_label_common(GCRY_MD_SHA256, &secret, label_prefix, client_label,
+    if (!tls13_hkdf_expand_label(GCRY_MD_SHA256, &secret, label_prefix, client_label,
                                  HASH_SHA2_256_LENGTH, client_cleartext_secret)) {
         *error = "Key expansion (client) failed";
         return FALSE;
     }
 
-    if (!tls13_hkdf_expand_label_common(GCRY_MD_SHA256, &secret, label_prefix, server_label,
+    if (!tls13_hkdf_expand_label(GCRY_MD_SHA256, &secret, label_prefix, server_label,
                                  HASH_SHA2_256_LENGTH, server_cleartext_secret)) {
         wmem_free(NULL, *client_cleartext_secret);
         *client_cleartext_secret = NULL;
@@ -743,6 +741,7 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
     tls13_cipher   *client_cipher, *server_cipher;
     StringInfo      client_secret = { NULL, HASH_SHA2_256_LENGTH };
     StringInfo      server_secret = { NULL, HASH_SHA2_256_LENGTH };
+    const char     *hkdf_label_prefix = "tls13 ";
 
     /* TODO extract from packet/conversation */
     if (!quic_derive_cleartext_secrets(cid, &client_secret.data, &server_secret.data, quic_info, error)) {
@@ -751,8 +750,8 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
     }
 
     /* Cleartext packets are protected with AEAD_AES_128_GCM */
-    client_cipher = tls13_cipher_create(QUIC_TLS13_VERSION, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &client_secret, error);
-    server_cipher = tls13_cipher_create(QUIC_TLS13_VERSION, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &server_secret, error);
+    client_cipher = tls13_cipher_create(hkdf_label_prefix, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &client_secret, error);
+    server_cipher = tls13_cipher_create(hkdf_label_prefix, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &server_secret, error);
 
     wmem_free(NULL, client_secret.data);
     wmem_free(NULL, server_secret.data);
