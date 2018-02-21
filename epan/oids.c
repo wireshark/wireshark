@@ -624,23 +624,27 @@ static void register_mibs(void) {
 			if ( typedata && oid_data->value_hfid == -2 ) {
 				SmiNamedNumber* smiEnum;
 				hf_register_info hf;
+				char *name;
+				char *blurb;
+
+				name = g_strdup(oid_data->name);
+				blurb = smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL);
+				/* Don't allow duplicate blurb/name */
+				if (strcmp(blurb, name) == 0) {
+					smi_free(blurb);
+					blurb = NULL;
+				}
 
 				hf.p_id                     = &(oid_data->value_hfid);
-				hf.hfinfo.name              = g_strdup(oid_data->name);
+				hf.hfinfo.name              = name;
 				hf.hfinfo.abbrev            = alnumerize(oid_data->name);
 				hf.hfinfo.type              = typedata->ft_type;
 				hf.hfinfo.display           = typedata->display;
 				hf.hfinfo.strings           = NULL;
 				hf.hfinfo.bitmask           = 0;
-				hf.hfinfo.blurb             = smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL);
+				hf.hfinfo.blurb             = blurb;
 				/* HFILL */
 				HFILL_INIT(hf);
-
-				/* Don't allow duplicate blurb/name */
-				if (strcmp(hf.hfinfo.blurb, hf.hfinfo.name) == 0) {
-					smi_free((void *) hf.hfinfo.blurb);
-					hf.hfinfo.blurb = NULL;
-				}
 
 				oid_data->value_hfid = -1;
 
