@@ -702,27 +702,25 @@ static void register_mibs(void) {
 
 			if ((key = oid_data->key)) {
 				for(; key; key = key->next) {
-					hf_register_info hf;
-
-					hf.p_id                     = &(key->hfid);
-					hf.hfinfo.name              = key->name;
-					hf.hfinfo.abbrev            = alnumerize(key->name);
-					hf.hfinfo.type              = key->ft_type;
-					hf.hfinfo.display           = key->display;
-					hf.hfinfo.strings           = NULL;
-					hf.hfinfo.bitmask           = 0;
-					hf.hfinfo.blurb             = NULL;
-					/* HFILL */
-					HFILL_INIT(hf);
-
 					D(5,("\t\t\tIndex: name=%s subids=%u key_type=%d",
 						 key->name, key->num_subids, key->key_type ));
 
 					if (key->hfid == -2) {
+						hf_register_info hf;
+
+						hf.p_id                     = &(key->hfid);
+						hf.hfinfo.name              = key->name;
+						hf.hfinfo.abbrev            = alnumerize(key->name);
+						hf.hfinfo.type              = key->ft_type;
+						hf.hfinfo.display           = key->display;
+						hf.hfinfo.strings           = NULL;
+						hf.hfinfo.bitmask           = 0;
+						hf.hfinfo.blurb             = NULL;
+						/* HFILL */
+						HFILL_INIT(hf);
+
 						wmem_array_append_one(hfa,hf);
 						key->hfid = -1;
-					} else {
-						g_free((void*)hf.hfinfo.abbrev);
 					}
 				}
 			}
