@@ -1,4 +1,4 @@
-/* packet-ieee802154.c
+/* packet-wisun.c
  *
  * Wi-SUN IE Dissectors for Wireshark
  * By Owen Kirby <osk@exegin.com>
