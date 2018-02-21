@@ -3507,7 +3507,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
 static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
                                            proto_tree *tree,
                                            const gchar **label_string,
-                                           gint offset, guint8 ext)
+                                           gint offset, guint8 ext, gboolean extended)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf = NULL, *tr = NULL;
@@ -3588,9 +3588,9 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     tr = proto_tree_add_item (field_tree, hf_message_sec_cat_extended, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((message & 0x01) && (message & 0x02)) {
       expert_add_info(pinfo, tr, &ei_reserved_value);
-    } else if (message & 0x01 || message & 0x02) {
+    } else if ((message & 0x01 || message & 0x02) && !extended) {
       proto_item_append_text (tf, " (extended)");
-      offset = dissect_dmp_security_category (tvb, pinfo, tree, label_string, offset+1, message & 0x03);
+      offset = dissect_dmp_security_category (tvb, pinfo, tree, label_string, offset+1, message & 0x03, TRUE);
     }
 
     if (country_code) {
@@ -3807,7 +3807,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
 
   /* Security Categories */
   if (dmp_sec_pol == NATO || dmp_sec_pol == NATIONAL || dmp_sec_pol == EXTENDED_NATIONAL) {
-    offset = dissect_dmp_security_category (tvb, pinfo, message_tree, &label_string, offset, 0);
+    offset = dissect_dmp_security_category (tvb, pinfo, message_tree, &label_string, offset, 0, FALSE);
     proto_item_append_text (en, ", Security Label: %s", label_string);
     tf = proto_tree_add_string (message_tree, hf_message_sec_label, tvb, loffset,
                                 offset - loffset + 1, label_string);
