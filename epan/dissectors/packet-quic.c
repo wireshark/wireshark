@@ -673,39 +673,61 @@ static gboolean
 quic_derive_cleartext_secrets(guint64 cid,
                               guint8 **client_cleartext_secret,
                               guint8 **server_cleartext_secret,
-                              quic_info_data_t *quic_info _U_,
+                              quic_info_data_t *quic_info,
                               const gchar **error)
 {
 
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-08#section-5.2.1
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-09#section-5.2.1
      *
      * quic_version_1_salt = afc824ec5fc77eca1e9d36f37fb2d46518c36639
      *
-     * cleartext_secret = HKDF-Extract(quic_version_1_salt,
+     * handshake_secret = HKDF-Extract(quic_version_1_salt,
      *                                 client_connection_id)
      *
-     * client_cleartext_secret =
-     *                    HKDF-Expand-Label(cleartext_secret,
-     *                                      "QUIC client handshake secret",
+     * client_handshake_secret =
+     *                    QHKDF-Expand-Label(handshake_secret,
+     *                                      "client hs",
      *                                      "", Hash.length)
-     * server_cleartext_secret =
-     *                    HKDF-Expand-Label(cleartext_secret,
-     *                                      "QUIC server handshake secret",
+     * server_handshake_secret =
+     *                    QHKDF-Expand-Label(handshake_secret,
+     *                                      "server hs",
      *                                      "", Hash.length)
-     * Hash for cleartext packets is SHA-256 (output size 32).
+     * Hash for handshake packets is SHA-256 (output size 32).
+     *
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-09#section-5.2.3
+     *
+     * HKDF-Expand-Label uses HKDF-Expand [RFC5869] as shown:
+     *
+     * QHKDF-Expand(Secret, Label, Length) =
+     *      HKDF-Expand(Secret, QuicHkdfLabel, Length)
+     *
+     *  Where the info parameter, QuicHkdfLabel, is specified as:
+     *
+     *  struct {
+     *      uint16 length = Length;
+     *      opaque label<6..255> = "QUIC " + Label;
+     *      uint8 hashLength = 0;
+     *  } QuicHkdfLabel;
      */
     static const guint8 quic_version_1_salt[20] = {
         0xaf, 0xc8, 0x24, 0xec, 0x5f, 0xc7, 0x7e, 0xca, 0x1e, 0x9d,
         0x36, 0xf3, 0x7f, 0xb2, 0xd4, 0x65, 0x18, 0xc3, 0x66, 0x39
     };
-    const char     *label_prefix;
+    const char     *label_prefix = "QUIC ";
     gcry_error_t    err;
     guint8          secret_bytes[HASH_SHA2_256_LENGTH];
     StringInfo      secret = { (guchar *) &secret_bytes, HASH_SHA2_256_LENGTH };
     guint8          cid_bytes[8];
-    const gchar     *client_label = "QUIC client handshake secret";
-    const gchar     *server_label = "QUIC server handshake secret";
+    const gchar     *client_label = "client hs";
+    const gchar     *server_label = "server hs";
+
+    /* draft-08 don't use the same prefix label and label... */
+    if (quic_info->version == 0xFF000008) {
+        label_prefix = "tls13 ";
+        client_label = "QUIC client handshake secret";
+        server_label = "QUIC server handshake secret";
+    }
 
     phton64(cid_bytes, cid);
     err = hkdf_extract(GCRY_MD_SHA256, quic_version_1_salt, sizeof(quic_version_1_salt),
@@ -715,7 +737,7 @@ quic_derive_cleartext_secrets(guint64 cid,
         return FALSE;
     }
 
-    label_prefix = "tls13 ";
+
 
     if (!tls13_hkdf_expand_label(GCRY_MD_SHA256, &secret, label_prefix, client_label,
                                  HASH_SHA2_256_LENGTH, client_cleartext_secret)) {
@@ -741,7 +763,12 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
     tls13_cipher   *client_cipher, *server_cipher;
     StringInfo      client_secret = { NULL, HASH_SHA2_256_LENGTH };
     StringInfo      server_secret = { NULL, HASH_SHA2_256_LENGTH };
-    const char     *hkdf_label_prefix = "tls13 ";
+    const char     *hkdf_label_prefix = "QUIC ";
+
+    /* draft-08 uses a different label prefix for HKDF-Expand-Label. */
+    if (quic_info->version == 0xFF000008) {
+        hkdf_label_prefix = "tls13 ";
+    }
 
     /* TODO extract from packet/conversation */
     if (!quic_derive_cleartext_secrets(cid, &client_secret.data, &server_secret.data, quic_info, error)) {
