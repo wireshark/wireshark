@@ -571,6 +571,7 @@ static expert_field ei_ieee802154_ie_unknown_extra_content = EI_INIT;
 static expert_field ei_ieee802159_mpx_invalid_transfer_type = EI_INIT;
 static expert_field ei_ieee802159_mpx_unsupported_kmp = EI_INIT;
 static expert_field ei_ieee802159_mpx_unknown_kmp = EI_INIT;
+static expert_field ei_ieee802154_missing_payload_ie = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -1908,7 +1909,11 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Presence of Payload IEs is defined by the termination of the Header IEs */
     if (packet->payload_ie_present) {
-        offset += dissect_ieee802154_payload_ie(payload_tvb, pinfo, ieee802154_tree, offset, packet);
+        if (tvb_reported_length_remaining(payload_tvb, offset) > 2) {
+            offset += dissect_ieee802154_payload_ie(payload_tvb, pinfo, ieee802154_tree, offset, packet);
+        } else {
+            expert_add_info(pinfo, proto_root, &ei_ieee802154_missing_payload_ie);
+        }
     }
 
     if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_CMD)) {
@@ -5015,6 +5020,8 @@ void proto_register_ieee802154(void)
                 "Unsupported KMP ID", EXPFILL }},
         { &ei_ieee802159_mpx_unknown_kmp, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
                 "Unknown KMP ID (cf. IEEE 802.15.9 Table 21)", EXPFILL }},
+        { &ei_ieee802154_missing_payload_ie, { "wpan.payload_ie.missing",  PI_MALFORMED, PI_WARN,
+                "Payload IE indicated by Header Termination, but no Payload IE present", EXPFILL }},
     };
 
     /* Preferences. */
