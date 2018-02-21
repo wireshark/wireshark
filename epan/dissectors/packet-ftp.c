@@ -50,9 +50,11 @@ static int hf_ftp_epsv_ip = -1;
 static int hf_ftp_epsv_ipv6 = -1;
 static int hf_ftp_epsv_port = -1;
 static int hf_ftp_command_response_frames = -1;
+static int hf_ftp_command_response_bytes = -1;
 static int hf_ftp_command_response_first_frame_num = -1;
 static int hf_ftp_command_response_last_frame_num = -1;
 static int hf_ftp_command_response_duration = -1;
+static int hf_ftp_command_response_kbps = -1;
 static int hf_ftp_command_setup_frame = -1;
 static int hf_ftp_command_command_frame = -1;
 static int hf_ftp_command_command = -1;
@@ -165,6 +167,7 @@ typedef struct ftp_data_conversation_t
     guint         last_frame_num;
     nstime_t      last_frame_time;
     guint         frames_seen;
+    guint         bytes_seen;
 } ftp_data_conversation_t;
 
 /* Data to associate with individual FTP frame */
@@ -1259,6 +1262,11 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                          tvb, 0, 0, ftp_data->frames_seen);
                 PROTO_ITEM_SET_GENERATED(ti);
 
+                /* Number of bytes */
+                ti = proto_tree_add_uint(tree, hf_ftp_command_response_bytes,
+                                         tvb, 0, 0, ftp_data->bytes_seen);
+                PROTO_ITEM_SET_GENERATED(ti);
+
                 /* First frame */
                 ti = proto_tree_add_uint(tree, hf_ftp_command_response_first_frame_num,
                                          tvb, 0, 0, ftp_data->first_frame_num);
@@ -1281,6 +1289,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     gint gap_ms = (seconds*1000) + ((nseconds+500000) / 1000000);
                     ti = proto_tree_add_uint(tree, hf_ftp_command_response_duration,
                                          tvb, 0, 0, gap_ms);
+                    PROTO_ITEM_SET_GENERATED(ti);
+
+                    /* Bitrate (kbps)*/
+                    guint bitrate = (guint)(((ftp_data->bytes_seen*8.0)/(gap_ms/1000.0))/1000);
+                    ti = proto_tree_add_uint(tree, hf_ftp_command_response_kbps,
+                                             tvb, offset, 0, bitrate);
                     PROTO_ITEM_SET_GENERATED(ti);
                 }
 
@@ -1345,6 +1359,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                     p_ftp_data_conv->last_frame_time = pinfo->abs_ts;
                 }
                 p_ftp_data_conv->frames_seen++;
+                p_ftp_data_conv->bytes_seen += tvb_reported_length(tvb);
 
                 /* Also store setup_frame here for benefit of ftp (control) */
                 p_ftp_data_conv->setup_frame = p_conv->setup_frame;
@@ -1529,10 +1544,20 @@ proto_register_ftp(void)
             FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0,
             "Duration of command response in ms", HFILL }},
 
+        { &hf_ftp_command_response_kbps,
+          { "Response bitrate", "ftp.command-response.bitrate",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0,
+            "Bitrate of command response", HFILL }},
+
         { &hf_ftp_command_response_frames,
           { "Command response frames", "ftp.command-response.frames",
             FT_UINT32, BASE_DEC, NULL, 0,
             "Number of frames seen in resulting ftp-data stream", HFILL }},
+
+        { &hf_ftp_command_response_bytes,
+          { "Command response bytes", "ftp.command-response.bytes",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Number of bytes seen in resulting ftp-data stream", HFILL }},
 
         { &hf_ftp_command_setup_frame,
           { "Setup frame", "ftp.setup-frame",
