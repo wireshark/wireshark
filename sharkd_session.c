@@ -2849,7 +2849,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 			for (i = 0; i < count; i++)
 			{
-				struct data_source *src = (struct data_source *) g_slist_nth_data((GSList *) data_src, i);
+				const struct data_source *src = (const struct data_source *) g_slist_nth_data((GSList *) data_src, i);
 
 				tvbs[i] = get_data_source_tvb(src);
 			}
