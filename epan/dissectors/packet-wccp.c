@@ -769,7 +769,13 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
 
 #define EAT_AND_CHECK(x,next) {length -= x; offset += x; if (length < next) return length - next;}
 
-#define NOTE_EATEN_LENGTH(new_length) {if (new_length<0) return new_length;  offset += length-new_length; length = new_length; }
+#define CHECK_LENGTH_ADVANCE_OFFSET(new_length) { \
+  int old_offset = offset; \
+  if (new_length<0) return new_length; \
+  offset += length-new_length; \
+  if (old_offset <= offset) return old_offset - offset; \
+  length = new_length; \
+  }
 
 
 /* 5.1.1 Security Info Component */
@@ -1102,7 +1108,7 @@ dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset, gint length,
   EAT(4);
 
   new_length=dissect_wccp2_assignment_key_element(tvb, offset, length, pinfo, info_tree, addr_table);
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   n_routers = tvb_get_ntohl(tvb, offset);
   proto_tree_add_uint(info_tree, hf_router_router_num, tvb, offset, 4, n_routers);
@@ -1243,7 +1249,7 @@ dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, gint length,
 
 
   new_length=dissect_wccp2_assignment_key_element(tvb, offset, length, pinfo, info_tree, addr_table);
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   n_routers = tvb_get_ntohl(tvb, offset);
   proto_tree_add_uint(info_tree, hf_assignment_info_router_num, tvb, offset, 4, n_routers);
@@ -1262,7 +1268,7 @@ dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, gint length,
   }
 
   new_length = dissect_wccp2_hash_buckets_assignment_element(tvb, offset, length, pinfo, info_tree, addr_table);
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
   return length;
 }
 
@@ -1379,7 +1385,7 @@ dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, gint length,
   while (length >= 8) {
     capability_length = dissect_wccp2_capability_element(tvb,offset,length,pinfo,info_tree);
 
-    NOTE_EATEN_LENGTH(capability_length);
+    CHECK_LENGTH_ADVANCE_OFFSET(capability_length);
   }
   return length;
 }
@@ -1587,7 +1593,7 @@ static gint dissect_wccp2_assignment_map(tvbuff_t *tvb, int offset,
 
   new_length=dissect_wccp2_mask_value_set_list(tvb, offset, length, pinfo, info_tree, addr_table);
 
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   return length;
 }
@@ -1698,13 +1704,13 @@ dissect_wccp2_mask_assignment_data_element(tvbuff_t *tvb, int offset, gint lengt
 
   new_length=dissect_wccp2_mask_value_set_list(tvb, offset, length, pinfo, mask_tree, addr_table);
 
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   if (length < 2)
     return length-4;
 
   new_length =  dissect_wccp2_assignment_weight_and_status_element(tvb, offset, length, pinfo, info_tree);
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   proto_item_set_len(mask_item, offset-start);
   return length;
@@ -1731,7 +1737,7 @@ dissect_wccp2_alternate_mask_assignment_data_element(tvbuff_t *tvb, int offset, 
 
         new_length=dissect_wccp2_alternate_mask_value_set_list(tvb, offset, length, pinfo, mask_tree, addr_table);
 
-        NOTE_EATEN_LENGTH(new_length);
+        CHECK_LENGTH_ADVANCE_OFFSET(new_length);
       }
 
   if (length < 2)
@@ -1940,7 +1946,7 @@ dissect_wccp2_mask_value_set_list(tvbuff_t *tvb, int offset,
 
       new_length=dissect_wccp2_mask_value_set_element(tvb, offset, length, i, pinfo, element_tree, addr_table);
 
-      NOTE_EATEN_LENGTH(new_length);
+      CHECK_LENGTH_ADVANCE_OFFSET(new_length);
     }
 
   proto_item_set_len(te, offset-start);
@@ -1999,7 +2005,7 @@ static gint dissect_wccp2_alternate_mask_value_set_list(tvbuff_t *tvb, int offse
 
     new_length=dissect_wccp2_alternate_mask_value_set_element(tvb, offset, length, i, pinfo, list_tree, addr_table);
 
-    NOTE_EATEN_LENGTH(new_length);
+    CHECK_LENGTH_ADVANCE_OFFSET(new_length);
   }
   return length;
 }
@@ -2024,7 +2030,7 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint l
 
   new_length=dissect_wccp2_mask_element(tvb,offset,length,pinfo,element_tree);
   total_length += length - new_length;
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   if (length < 4)
     return length - 4;
@@ -2035,12 +2041,11 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint l
   total_length += 4;
   EAT(4);
 
+  /* XXX Add a bounds check for number_of_elements? */
   for (i=0; i < number_of_elements; i++) {
     new_length=dissect_wccp2_web_cache_value_element(tvb, offset, length, pinfo, value_tree, addr_table);
     total_length += length - new_length;
-    if (total_length < 0)
-        return length;
-    NOTE_EATEN_LENGTH(new_length);
+    CHECK_LENGTH_ADVANCE_OFFSET(new_length);
   }
   proto_item_set_len(header, total_length);
 
@@ -2265,7 +2270,7 @@ dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, int
                            ett_mv_set_element, &tl, "Mask/Value Set Element(%d)", idx);
 
   new_length = dissect_wccp2_mask_element(tvb,offset,length,pinfo,element_tree);
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   if (length < 4)
     return length-4;
@@ -2280,7 +2285,7 @@ dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, int
     {
       new_length=dissect_wccp2_value_element(tvb, offset, length, i, pinfo,  value_tree, addr_table);
 
-      NOTE_EATEN_LENGTH(new_length);
+      CHECK_LENGTH_ADVANCE_OFFSET(new_length);
     }
 
   proto_item_set_len(tl, 16+num_of_val_elements*16);
@@ -2329,7 +2334,7 @@ dissect_wccp2_alternate_assignment_info(tvbuff_t *tvb, int offset, gint length,
   }
 
   new_length=dissect_wccp2_assignment_key_element(tvb, offset, length, pinfo,  info_tree, addr_table);
-  NOTE_EATEN_LENGTH(new_length);
+  CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   n_routers = tvb_get_ntohl(tvb, offset);
   proto_tree_add_uint(info_tree, hf_alt_assignment_info_num_routers, tvb, offset, 4, n_routers);
