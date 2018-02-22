@@ -738,7 +738,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_version,
 				    tvb, 0, 1, version);
 		proto_tree_add_item(radiotap_tree, hf_radiotap_pad,
-				    tvb, 1, 1, ENC_BIG_ENDIAN);
+				    tvb, 1, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
 				    tvb, 2, 2, length);
 	}
@@ -929,7 +929,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 						    offset, 3, NULL,
 						    "%s", manuf_name);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_subns,
-					    tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+					    tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_skip, tvb,
 					    offset + 4, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb,
@@ -1224,13 +1224,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		case IEEE80211_RADIOTAP_TX_ATTENUATION:
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_tx_attenuation, tvb,
-					    offset, 2, ENC_BIG_ENDIAN);
+					    offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
 		case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_db_tx_attenuation, tvb,
-					    offset, 2, ENC_BIG_ENDIAN);
+					    offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_TX_POWER:
