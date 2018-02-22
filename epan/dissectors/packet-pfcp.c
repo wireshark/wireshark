@@ -105,10 +105,12 @@ static int hf_pfcp_sdf_filter_b1_ttc = -1;
 static int hf_pfcp_sdf_filter_b2_spi = -1;
 static int hf_pfcp_sdf_filter_b3_fl = -1;
 static int hf_pfcp_flow_desc_len = -1;
-static int hf_pfcp_fd = -1;
-static int hf_pfcp_ttc = -1;
+static int hf_pfcp_flow_desc = -1;
+static int hf_pfcp_traffic_class = -1;
+static int hf_pfcp_traffic_mask = -1;
 static int hf_pfcp_spi = -1;
-static int hf_pfcp_fl = -1;
+static int hf_pfcp_flow_label_spare_bit = -1;
+static int hf_pfcp_flow_label = -1;
 static int hf_pfcp_out_hdr_desc = -1;
 static int hf_pfcp_far_id_flg = -1;
 static int hf_pfcp_far_id = -1;
@@ -791,7 +793,7 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * The Flow Description field, when present, shall be encoded as an OctetString
          * as specified in subclause 5.4.2 of 3GPP TS 29.212
          */
-        proto_tree_add_item(tree, hf_pfcp_fd, tvb, offset, fd_length, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, fd_length, ENC_ASCII|ENC_NA);
         offset += fd_length;
     }
     if ((flags_val & 0x2) == 2) {
@@ -799,8 +801,10 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /* ToS Traffic Class field, when present, shall be encoded as an OctetString on two octets
          * as specified in subclause 5.3.15 of 3GPP TS 29.212
          */
-        proto_tree_add_item(tree, hf_pfcp_ttc, tvb, offset, 2, ENC_NA);
-        offset += 2;
+        proto_tree_add_item(tree, hf_pfcp_traffic_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_pfcp_traffic_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
     }
 
     if ((flags_val & 0x4) == 4) {
@@ -808,7 +812,7 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * contain the IPsec security parameter index (which is a 32-bit field),
          * as specified in subclause 5.3.51 of 3GPP TS 29.212
          */
-        proto_tree_add_item(tree, hf_pfcp_spi, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
     if ((flags_val & 0x8) == 8) {
@@ -816,7 +820,8 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * subclause 5.3.52 of 3GPP TS 29.212 and shall contain an IPv6 flow label (which is a 20-bit field).
          * The bits 8 to 5 of the octet "v" shall be spare and set to zero, and the remaining 20 bits shall
          * contain the IPv6 flow label.*/
-        proto_tree_add_item(tree, hf_pfcp_fl, tvb, offset, 3, ENC_NA);
+        proto_tree_add_bits_item(tree, hf_pfcp_flow_label_spare_bit, tvb, (offset<<3), 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_flow_label, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
     }
 
@@ -1822,7 +1827,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (m+2) to p   Flow Description */
-        proto_tree_add_item(tree, hf_pfcp_fd, tvb, offset, len, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, len, ENC_ASCII|ENC_NA);
         offset += len;
     }
 
@@ -2525,7 +2530,7 @@ dissect_pfcp_flow_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
     * The Flow Description field, when present, shall be encoded as an OctetString
     * as specified in subclause 5.4.2 of 3GPP TS 29.212
     */
-    proto_tree_add_item(tree, hf_pfcp_fd, tvb, offset, len, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
 
     if (offset < length) {
@@ -4187,24 +4192,34 @@ proto_register_pfcp(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_fd,
-        { "Flow Description field", "pfcp.fd",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+        { &hf_pfcp_flow_desc,
+        { "Flow Description", "pfcp.flow_desc",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_ttc,
-        { "ToS Traffic Class field", "pfcp.ttc",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+        { &hf_pfcp_traffic_class,
+        { "ToS Traffic Class", "pfcp.traffic_class",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_traffic_mask,
+        { "Mask field", "pfcp.traffic_mask",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_spi,
-        { "Security Parameter Index field", "pfcp.spi",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+        { "Security Parameter Index", "pfcp.spi",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_fl,
-        { "Flow Label field", "pfcp.fl",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+        { &hf_pfcp_flow_label_spare_bit,
+        { "Spare bit", "pfcp.flow_label_spare_bit",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_flow_label,
+        { "Flow Label", "pfcp.flow_label",
+            FT_UINT24, BASE_HEX, NULL, 0x0FFFFF,
             NULL, HFILL }
         },
         { &hf_pfcp_out_hdr_desc,
