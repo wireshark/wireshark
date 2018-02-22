@@ -84,7 +84,7 @@ done
 
 cs_binary_list=
 
-# Location for libraries (macosx-setup.sh defaults to whatever the
+# Location for libraries (tools/macos-setup.sh defaults to whatever the
 # various support libraries use as their standard installation location,
 # which is /usr/local)
 if [ -z $LIBPREFIX ]; then
@@ -261,7 +261,7 @@ while $endl; do
 	#
 	# libssh, for some reason, has its "install name" set to
 	# just libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
-	# when built by macosx-setup.sh.  We have to fix that; that's
+	# when built by tools/macos-setup.sh.  We have to fix that; that's
 	# what the sed command does.
 	#
 	libs="`\
