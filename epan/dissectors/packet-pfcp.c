@@ -4417,7 +4417,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_time_threshold,
         { "Time Threshold", "pfcp.time_threshold",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_forwarding_policy_id_len,
