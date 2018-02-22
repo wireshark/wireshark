@@ -236,83 +236,84 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if ((cp = (twamp_control_packet_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_twamp_control, 0)) == NULL) {
         cp = wmem_new0(wmem_file_scope(), twamp_control_packet_t);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_twamp_control, 0, cp);
-    }
-    /* detect state */
-    if (pinfo->fd->num == ct->first_data_frame) {
-        ct->last_state = CONTROL_STATE_GREETING;
-    } else if (ct->last_state == CONTROL_STATE_GREETING) {
-        ct->last_state = CONTROL_STATE_SETUP_RESPONSE;
-    } else if (ct->last_state == CONTROL_STATE_SETUP_RESPONSE) {
-        ct->last_state = CONTROL_STATE_SERVER_START;
-    } else if (ct->last_state == CONTROL_STATE_SERVER_START) {
-        ct->last_state = CONTROL_STATE_REQUEST_SESSION;
-        sender_port = tvb_get_ntohs(tvb, 12);
-        receiver_port = tvb_get_ntohs(tvb, 14);
-        /* try to find session from past visits */
-        if ((list = g_slist_find_custom(ct->sessions, &sender_port,
-                (GCompareFunc) find_twamp_session_by_sender_port)) == NULL) {
-            session = (twamp_session_t *) g_malloc0(sizeof(twamp_session_t));
-            session->sender_port = sender_port;
-            session->receiver_port = receiver_port;
-            session->accepted = 0;
-            ipvn = tvb_get_guint8(tvb, 1) & 0x0F;
 
-            if (ipvn == 6) {
-                tvb_get_ipv6(tvb, 16, (struct e_in6_addr*) &session->sender_address);
-                tvb_get_ipv6(tvb, 32, (struct e_in6_addr*) &session->receiver_address);
+        /* detect state */
+        if (pinfo->fd->num == ct->first_data_frame) {
+            ct->last_state = CONTROL_STATE_GREETING;
+        } else if (ct->last_state == CONTROL_STATE_GREETING) {
+            ct->last_state = CONTROL_STATE_SETUP_RESPONSE;
+        } else if (ct->last_state == CONTROL_STATE_SETUP_RESPONSE) {
+            ct->last_state = CONTROL_STATE_SERVER_START;
+        } else if (ct->last_state == CONTROL_STATE_SERVER_START) {
+            ct->last_state = CONTROL_STATE_REQUEST_SESSION;
+            sender_port = tvb_get_ntohs(tvb, 12);
+            receiver_port = tvb_get_ntohs(tvb, 14);
+            /* try to find session from past visits */
+            if ((list = g_slist_find_custom(ct->sessions, &sender_port,
+                    (GCompareFunc) find_twamp_session_by_sender_port)) == NULL) {
+                session = (twamp_session_t *) g_malloc0(sizeof(twamp_session_t));
+                session->sender_port = sender_port;
+                session->receiver_port = receiver_port;
+                session->accepted = 0;
+                ipvn = tvb_get_guint8(tvb, 1) & 0x0F;
 
-            } else {
-                session->sender_address[0] = tvb_get_ipv4(tvb, 16);
-                session->receiver_address[0] = tvb_get_ipv4(tvb, 32);
-            }
-            /*
-                * If ip addresses not specified in control protocol, we have to choose from IP header.
-                * It is a design decision by TWAMP and we need that ports for identifying future UDP conversations
-                */
-            if (session->sender_address[0] == 0) {
-                memcpy(&session->sender_address[0], pinfo->src.data, pinfo->src.len);
-            }
-            if (session->receiver_address[0] == 0) {
-                memcpy(&session->receiver_address[0], pinfo->dst.data, pinfo->dst.len);
-            }
-            session->padding = tvb_get_ntohl(tvb, 64);
-            ct->sessions = g_slist_append(ct->sessions, session);
-        }
-    } else if (ct->last_state == CONTROL_STATE_REQUEST_SESSION) {
-        ct->last_state = CONTROL_STATE_ACCEPT_SESSION;
-        accept = tvb_get_guint8(tvb, 0);
-        if (accept == TWAMP_SESSION_ACCEPT_OK) {
-            receiver_port = tvb_get_ntohs(tvb, 2);
+                if (ipvn == 6) {
+                    tvb_get_ipv6(tvb, 16, (struct e_in6_addr*) &session->sender_address);
+                    tvb_get_ipv6(tvb, 32, (struct e_in6_addr*) &session->receiver_address);
 
-            if ((list = g_slist_find_custom(ct->sessions, NULL,
-                    (GCompareFunc) find_twamp_session_by_first_accept_waiting)) == NULL) {
-                return 0;
+                } else {
+                    session->sender_address[0] = tvb_get_ipv4(tvb, 16);
+                    session->receiver_address[0] = tvb_get_ipv4(tvb, 32);
+                }
+                /*
+                 * If ip addresses not specified in control protocol, we have to choose from IP header.
+                 * It is a design decision by TWAMP and we need that ports for identifying future UDP conversations
+                 */
+                if (session->sender_address[0] == 0) {
+                    memcpy(&session->sender_address[0], pinfo->src.data, pinfo->src.len);
+                }
+                if (session->receiver_address[0] == 0) {
+                    memcpy(&session->receiver_address[0], pinfo->dst.data, pinfo->dst.len);
+                }
+                session->padding = tvb_get_ntohl(tvb, 64);
+                ct->sessions = g_slist_append(ct->sessions, session);
             }
-            session = (twamp_session_t*) list->data;
-            session->receiver_port = receiver_port;
+        } else if (ct->last_state == CONTROL_STATE_REQUEST_SESSION) {
+            ct->last_state = CONTROL_STATE_ACCEPT_SESSION;
+            accept = tvb_get_guint8(tvb, 0);
+            if (accept == TWAMP_SESSION_ACCEPT_OK) {
+                receiver_port = tvb_get_ntohs(tvb, 2);
 
-            cp->conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
-                    session->sender_port, session->receiver_port, 0);
-            if (cp->conversation == NULL /*|| cp->conversation->dissector_handle != twamp_test_handle*/) {
-                cp->conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
+                if ((list = g_slist_find_custom(ct->sessions, NULL,
+                        (GCompareFunc) find_twamp_session_by_first_accept_waiting)) == NULL) {
+                    return 0;
+                }
+                session = (twamp_session_t*) list->data;
+                session->receiver_port = receiver_port;
+
+                cp->conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
                         session->sender_port, session->receiver_port, 0);
-                if (cp->conversation) {
-                    /* create conversation specific data for test sessions */
-                    conversation_add_proto_data(cp->conversation, proto_twamp_test, session);
-                    conversation_set_dissector(cp->conversation, twamp_test_handle);
+                if (cp->conversation == NULL /*|| cp->conversation->dissector_handle != twamp_test_handle*/) {
+                    cp->conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
+                            session->sender_port, session->receiver_port, 0);
+                    if (cp->conversation) {
+                        /* create conversation specific data for test sessions */
+                        conversation_add_proto_data(cp->conversation, proto_twamp_test, session);
+                        conversation_set_dissector(cp->conversation, twamp_test_handle);
+                    }
                 }
             }
+        } else if (ct->last_state == CONTROL_STATE_ACCEPT_SESSION) {
+            ct->last_state = CONTROL_STATE_START_SESSIONS;
+        } else if (ct->last_state == CONTROL_STATE_START_SESSIONS) {
+            ct->last_state = CONTROL_STATE_START_SESSIONS_ACK;
+        } else if (ct->last_state == CONTROL_STATE_START_SESSIONS_ACK) {
+            ct->last_state = CONTROL_STATE_STOP_SESSIONS;
+        } else {
+            /* response */
         }
-    } else if (ct->last_state == CONTROL_STATE_ACCEPT_SESSION) {
-        ct->last_state = CONTROL_STATE_START_SESSIONS;
-    } else if (ct->last_state == CONTROL_STATE_START_SESSIONS) {
-        ct->last_state = CONTROL_STATE_START_SESSIONS_ACK;
-    } else if (ct->last_state == CONTROL_STATE_START_SESSIONS_ACK) {
-        ct->last_state = CONTROL_STATE_STOP_SESSIONS;
-    } else {
-        /* response */
+        cp->state = ct->last_state;
     }
-    cp->state = ct->last_state;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TWAMP-Control");
 
