@@ -818,7 +818,7 @@ file_fdopen(int fd)
         return NULL;
 
     /* allocate FILE_T structure to return */
-    state = (FILE_T)g_try_malloc(sizeof *state);
+    state = (FILE_T)g_try_malloc0(sizeof *state);
     if (state == NULL)
         return NULL;
 
