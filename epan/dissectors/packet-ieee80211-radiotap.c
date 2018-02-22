@@ -1140,25 +1140,25 @@ dissect_radiotap_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		phdr->fcs_len = 0;
 
 	ft = proto_tree_add_item(tree, hf_radiotap_flags, tvb, offset,
-				1, ENC_BIG_ENDIAN);
+				1, ENC_LITTLE_ENDIAN);
 	flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
 
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_cfp, tvb, offset,
-				1, ENC_BIG_ENDIAN);
+				1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_preamble, tvb, offset,
-				1, ENC_BIG_ENDIAN);
+				1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_wep, tvb, offset, 1,
-				ENC_BIG_ENDIAN);
+				ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_frag, tvb, offset, 1,
-				ENC_BIG_ENDIAN);
+				ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_fcs, tvb, offset, 1,
-				ENC_BIG_ENDIAN);
+				ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_datapad, tvb, offset,
-				1, ENC_BIG_ENDIAN);
+				1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_badfcs, tvb, offset,
-				1, ENC_BIG_ENDIAN);
+				1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_radiotap_flags_shortgi, tvb, offset,
-				1, ENC_BIG_ENDIAN);
+				1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1353,9 +1353,9 @@ dissect_radiotap_fhss(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	phdr->phy_info.info_11_fhss.has_hop_pattern = TRUE;
 	phdr->phy_info.info_11_fhss.hop_pattern = tvb_get_guint8(tvb, offset + 1);
 	proto_tree_add_item(tree, hf_radiotap_fhss_hopset, tvb, offset, 1,
-			    ENC_BIG_ENDIAN);
+			    ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_radiotap_fhss_pattern, tvb, offset + 1, 1,
-			    ENC_BIG_ENDIAN);
+			    ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1668,7 +1668,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_version,
 				    tvb, 0, 1, version);
 		proto_tree_add_item(radiotap_tree, hf_radiotap_pad,
-				    tvb, 1, 1, ENC_BIG_ENDIAN);
+				    tvb, 1, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
 				    tvb, 2, 2, length);
 	}
@@ -1858,10 +1858,16 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 							 "%s-%d",
 							 manuf_name, subns);
 			ven_tree = proto_item_add_subtree(vt, ett_radiotap_vendor);
+			/*
+			 * This is defined on the Radiotap site as an array
+			 * of 3 octets, containing an OUI, but we show fields
+			 * of that sort as a 24-bit big-endian field, so
+			 * ENC_BIG_ENDIAN is correct here.
+			 */
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_oui,
 					    tvb, offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_subns,
-					    tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+					    tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_skip, tvb,
 					    offset + 4, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb,
@@ -1920,13 +1926,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		case IEEE80211_RADIOTAP_TX_ATTENUATION:
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_tx_attenuation, tvb,
-					    offset, 2, ENC_BIG_ENDIAN);
+					    offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
 		case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_db_tx_attenuation, tvb,
-					    offset, 2, ENC_BIG_ENDIAN);
+					    offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_TX_POWER:
