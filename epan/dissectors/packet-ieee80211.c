@@ -3669,7 +3669,6 @@ static int hf_ieee80211_block_ack_control_type = -1;
 static int hf_ieee80211_block_ack_control_reserved = -1;
 static int hf_ieee80211_block_ack_control_tid_info = -1;
 
-static int hf_ieee80211_block_ack_multi_tid_info = -1;
 static int hf_ieee80211_block_ack_multi_tid_reserved = -1;
 static int hf_ieee80211_block_ack_multi_tid_value = -1;
 static int hf_ieee80211_block_ack_bitmap = -1;
@@ -19191,11 +19190,6 @@ static const value_string block_ack_type_vals[] = {
   { 0, NULL }
 };
 
-static const true_false_string control_ack_policy_tfs = {
-  "No Acknowledgement",
-  "Normal Acknowledgement"
-};
-
 static int
 dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, gboolean isDMG, gboolean is_req)
@@ -19821,7 +19815,7 @@ dissect_ieee80211_vht_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
     else
        proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_reserved,
                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
-       offset += 2;
+    offset += 2;
   }
 
   return offset;
@@ -22526,11 +22520,6 @@ proto_register_ieee80211(void)
      {"TID for which a Basic BlockAck frame is requested", "wlan.ba.basic.tidinfo",
       FT_UINT16, BASE_HEX, NULL, 0xf000,
       "Traffic Identifier (TID) for which a Basic BlockAck frame is requested", HFILL }},
-
-    {&hf_ieee80211_block_ack_multi_tid_info,
-     {"Traffic Identifier (TID) Info", "wlan.ba.mtid.tid",
-      FT_UINT8, BASE_DEC, 0, 0,
-      NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_multi_tid_reserved,
      {"Reserved", "wlan.bar.mtid.tidinfo.reserved",
