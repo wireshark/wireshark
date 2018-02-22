@@ -139,6 +139,7 @@ extern "C" {
    *
    *   -Wsigned-compare warnings
    *   -Wshorten-64-to-32 warnings, if the compiler *has* -Wshorten-64-to-32
+   *   -Wunreachable-code warnings
    *
    * We use DIAG_OFF() and DIAG_ON(), so we only use features that the
    * compiler supports.
@@ -155,8 +156,10 @@ extern "C" {
   #if defined(__clang__) || defined(__APPLE__)
     #define DIAG_OFF_FLEX \
       DIAG_OFF(sign-compare) \
-      DIAG_OFF(shorten-64-to-32)
+      DIAG_OFF(shorten-64-to-32) \
+      DIAG_OFF(unreachable-code)
     #define DIAG_ON_FLEX \
+      DIAG_OFF(unreachable-code) \
       DIAG_ON(shorten-64-to-32) \
       DIAG_ON(sign-compare)
   #else
