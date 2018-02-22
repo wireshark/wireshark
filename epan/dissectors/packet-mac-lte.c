@@ -19,7 +19,6 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
@@ -3548,7 +3547,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
     DLHARQResult *result = NULL;
     DLHARQResult *original_result = NULL;
 
-    /* If don't have detailed DL PHy info, just give up */
+    /* If don't have detailed DL PHY info, just give up */
     if (!p_mac_lte_info->detailed_phy_info.dl_info.present) {
         return;
     }
@@ -6041,12 +6040,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* Was this a Msg3 that led to a CR answer? */
     if (PINFO_FD_VISITED(pinfo)) {
-        guint32 cr_frame = GPOINTER_TO_UINT (g_hash_table_lookup(mac_lte_msg3_cr_hash,
-                                                                 GUINT_TO_POINTER(pinfo->num)));
-        if (cr_frame != 0) {
-            proto_item *cr_ti = proto_tree_add_uint(tree, hf_mac_lte_control_msg3_to_cr,
-                                     tvb, 0, 0, cr_frame);
-            PROTO_ITEM_SET_GENERATED(cr_ti);
+        if ((p_mac_lte_info->direction == DIRECTION_UPLINK) &&
+            (number_of_headers >= 1) &&
+            (lcids[0] == 0)) {
+
+            guint32 cr_frame = GPOINTER_TO_UINT (g_hash_table_lookup(mac_lte_msg3_cr_hash,
+                                                                     GUINT_TO_POINTER(pinfo->num)));
+            if (cr_frame != 0) {
+                proto_item *cr_ti = proto_tree_add_uint(tree, hf_mac_lte_control_msg3_to_cr,
+                                                        tvb, 0, 0, cr_frame);
+                PROTO_ITEM_SET_GENERATED(cr_ti);
+            }
         }
     }
 
