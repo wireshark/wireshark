@@ -489,6 +489,21 @@ get_os_version_info(GString *str)
 		 *
 		 * and the Lib/Platform.py file in recent Python 2.x
 		 * releases.
+		 *
+		 * And then there's
+		 *
+		 *	http://0pointer.de/blog/projects/os-release
+		 *
+		 * which, apparently, is something that all distributions
+		 * with systemd have, which seems to mean "most distributions"
+		 * these days.  It also has a list of several of the assorted
+		 * *other* such files that various distributions have.
+		 *
+		 * Maybe look at what pre-version-43 systemd does?  43
+		 * removed support for the old files, but I guess that
+		 * means older versions *did* support them:
+		 *
+		 *	https://lists.freedesktop.org/archives/systemd-devel/2012-February/004475.html
 		 */
 		g_string_append_printf(str, "%s %s", name.sysname, name.release);
 #endif /* HAVE_MACOS_FRAMEWORKS */
