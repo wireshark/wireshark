@@ -2012,14 +2012,23 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     struct mac_lte_info *p_mac_lte_info;
     guint16              n;
 
-    /* Look for strings matching expected formats */
-    if (sscanf(string, ">> RACH Preamble Request[UE =  %u]    [RAPID =  %u]    [Attempt = %u]",
-               &ueids[0], &rapid, &rach_attempt_number) == 3) {
+    /* Current strings of interest begin with ">> ", so if don't see, avoid sscanf() calls. */
+    if (strncmp(string, ">> ", 3) != 0) {
+        return;
+    }
+
+    /*********************************************/
+    /* Look for strings matching formats         */
+
+    /* RACH Preamble request */
+    if (sscanf(string, ">> RACH Preamble Request [CarrierId=%u] [LTE UE = %u] [RAPID = %u] [Attempt = %u",
+               &temp, &ueids[0], &rapid, &rach_attempt_number) == 4) {
         oob_event = ltemac_send_preamble;
     }
-    else
-    if (sscanf(string, ">> Schedule Requests (%u)  [UE=%u][RNTI=%u]",
-               &number_of_ues, &ueids[0], &rntis[0]) == 3) {
+
+    /* Scheduling Requests */
+    else if (sscanf(string, ">> Schedule Requests (%u)  [CarrierId=%u][UE=%u][RNTI=%u]",
+                    &number_of_ues, &temp, &ueids[0], &rntis[0]) == 4) {
         const char *current_position;
 
         /* Newer, multi-UE format */
@@ -2051,59 +2060,51 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
             }
         }
     }
-    else
-    /* Support both old and new formats of SR failure */
-    if ((sscanf(string, ">> INFO (inst %u) MAC:    [UE = %u]    SR failed (CRNTI=%u)",
-                &temp, &ueids[0], &rntis[0]) == 3) ||
-        (sscanf(string, ">> INFO MAC:    SR failed for UE %u (CRNTI=%u",
-                &ueids[0], &rntis[0]) == 2))
-    {
+
+    /* SR failures */
+    else if (sscanf(string, ">> INFO (inst %u) MAC:    [UE = %u]    SR failed (CRNTI=%u)",
+                    &temp, &ueids[0], &rntis[0]) == 3) {
         oob_event = ltemac_sr_failure;
     }
-    else {
-        /* No events found */
-        return;
+
+    /* No events found */
+    else return;
+
+
+    /********************************************/
+    /* We have an event. Allocate & zero struct */
+    p_mac_lte_info = wmem_new0(wmem_file_scope(), mac_lte_info);
+
+    /* This indicates to MAC dissector that it has an oob event */
+    p_mac_lte_info->length = 0;
+
+    switch (oob_event) {
+        case ltemac_send_preamble:
+            p_mac_lte_info->ueid = ueids[0];
+            p_mac_lte_info->rapid = rapid;
+            p_mac_lte_info->rach_attempt_number = rach_attempt_number;
+            p_mac_lte_info->direction = DIRECTION_UPLINK;
+           break;
+        case ltemac_send_sr:
+            for (n=0; n < number_of_ues; n++) {
+                p_mac_lte_info->oob_ueid[n] = ueids[n];
+                p_mac_lte_info->oob_rnti[n] = rntis[n];
+            }
+            p_mac_lte_info->number_of_srs = number_of_ues;
+            p_mac_lte_info->direction = DIRECTION_UPLINK;
+            break;
+        case ltemac_sr_failure:
+            p_mac_lte_info->rnti = rntis[0];
+            p_mac_lte_info->ueid = ueids[0];
+            p_mac_lte_info->direction = DIRECTION_DOWNLINK;
+            break;
     }
 
-    /* We have an event */
-    /* Only need to set info once per session. */
-    p_mac_lte_info = get_mac_lte_proto_data(pinfo);
-    if (p_mac_lte_info == NULL) {
+    p_mac_lte_info->radioType = FDD_RADIO; /* TODO: will be the same as rest of log... */
+    p_mac_lte_info->oob_event = oob_event;
 
-        /* Allocate & zero struct */
-        p_mac_lte_info = wmem_new0(wmem_file_scope(), mac_lte_info);
-
-        /* This indicates to MAC dissector that it has an oob event */
-        p_mac_lte_info->length = 0;
-
-        switch (oob_event) {
-            case ltemac_send_preamble:
-                p_mac_lte_info->ueid = ueids[0];
-                p_mac_lte_info->rapid = rapid;
-                p_mac_lte_info->rach_attempt_number = rach_attempt_number;
-                p_mac_lte_info->direction = DIRECTION_UPLINK;
-                break;
-            case ltemac_send_sr:
-                for (n=0; n < number_of_ues; n++) {
-                    p_mac_lte_info->oob_ueid[n] = ueids[n];
-                    p_mac_lte_info->oob_rnti[n] = rntis[n];
-                }
-                p_mac_lte_info->number_of_srs = number_of_ues;
-                p_mac_lte_info->direction = DIRECTION_UPLINK;
-                break;
-            case ltemac_sr_failure:
-                p_mac_lte_info->rnti = rntis[0];
-                p_mac_lte_info->ueid = ueids[0];
-                p_mac_lte_info->direction = DIRECTION_DOWNLINK;
-                break;
-        }
-
-        p_mac_lte_info->radioType = FDD_RADIO; /* TODO: will be the same as rest of log... */
-        p_mac_lte_info->oob_event = oob_event;
-
-        /* Store info in packet */
-        set_mac_lte_proto_data(pinfo, p_mac_lte_info);
-    }
+    /* Store info in packet */
+    set_mac_lte_proto_data(pinfo, p_mac_lte_info);
 
     /* Call MAC dissector */
     call_dissector_only(mac_lte_handle, tvb, pinfo, tree, NULL);
