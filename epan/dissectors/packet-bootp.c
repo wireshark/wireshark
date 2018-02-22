@@ -52,7 +52,13 @@
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
  * RFC 5969: IPv6 Rapid Deployment on IPv4 Infrastructures (6rd)
+ * RFC 6225: Dynamic Host Configuration Protocol Options for Coordinate-Based Location Configuration Information
  * RFC 6607: Virtual Subnet Selection Options for DHCPv4 and DHCPv6
+ * RFC 6704: Forcerenew Nonce Authentication
+ * RFC 6731: Improved Recursive DNS Server Selection for Multi-Interfaced Nodes
+ * RFC 6926: DHCPv4 Bulk Leasequery
+ * RFC 7291: DHCP Options for the Port Control Protocol (PCP)
+ * RFC 7618: Dynamic Allocation of Shared IPv4 Addresses
  * RFC 7710: Captive-Portal Identification Using DHCP or Router Advertisements (RAs)
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: http://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
@@ -532,7 +538,27 @@ static int hf_bootp_option125_cl_modem_capabilities = -1;		/* 125:CL 5 */
 static int hf_bootp_option_subnet_selection_option = -1;		/* 118 */
 static int hf_bootp_option_lost_server_domain_name = -1;		/* 137 */
 static int hf_bootp_option_capwap_access_controller = -1;		/* 138 */
+static int hf_bootp_option_andsf_server = -1;				/* 142 */
+static int hf_bootp_option_forcerenew_nonce_algo = -1;			/* 145 */
+static int hf_bootp_option_rdnss_reserved = -1;				/* 146 */
+static int hf_bootp_option_rdnss_pref = -1;				/* 146 */
+static int hf_bootp_option_rdnss_prim_dns_server = -1;			/* 146 */
+static int hf_bootp_option_rdnss_sec_dns_server = -1;			/* 146 */
+static int hf_bootp_option_rdnss_domain = -1;				/* 146 */
 static int hf_bootp_option_tftp_server_address = -1;			/* 150 */
+static int hf_bootp_option_bulk_lease_status_code = -1;			/* 151 */
+static int hf_bootp_option_bulk_lease_status_message = -1;		/* 151 */
+static int hf_bootp_option_bulk_lease_base_time = -1;			/* 152 */
+static int hf_bootp_option_bulk_lease_start_time_of_state = -1;		/* 153 */
+static int hf_bootp_option_bulk_lease_query_start = -1;			/* 154 */
+static int hf_bootp_option_bulk_lease_query_end = -1;			/* 155 */
+static int hf_bootp_option_bulk_lease_dhcp_state = -1;			/* 156 */
+static int hf_bootp_option_bulk_lease_data_source = -1;			/* 157 */
+static int hf_bootp_option_pcp_list_length = -1;			/* 158 */
+static int hf_bootp_option_pcp_server = -1;				/* 158 */
+static int hf_bootp_option_portparams_offset = -1;			/* 159 */
+static int hf_bootp_option_portparams_psid_length = -1;			/* 159 */
+static int hf_bootp_option_portparams_psid = -1;			/* 159 */
 static int hf_bootp_option_captive_portal = -1;				/* 160 */
 static int hf_bootp_option_mudurl = -1;					/* 161 */
 static int hf_bootp_option_pxe_config_file = -1;			/* 209 */
@@ -601,6 +627,7 @@ static gint ett_bootp_o43_bsdp_attributes = -1;
 static gint ett_bootp_o43_bsdp_image_desc_list = -1;
 static gint ett_bootp_o43_bsdp_image_desc = -1;
 static gint ett_bootp_o43_bsdp_attributes_flags = -1;
+static gint ett_bootp_option158_pcp_list = -1;
 
 static expert_field ei_bootp_bad_length = EI_INIT;
 static expert_field ei_bootp_bad_bitfield = EI_INIT;
@@ -852,6 +879,40 @@ static const value_string duidtype_vals[] =
 	{ 0, NULL }
 };
 
+static const value_string forcerenew_nonce_algo_vals[] = {
+	{ 1, "HMAC-MD5" },
+	{ 0, NULL },
+};
+
+static const value_string rdnss_pref_vals[] = {
+	{ 0, "Medium" },
+	{ 1, "High" },
+	{ 2, "Reserved" },
+	{ 3, "Low" },
+	{ 0, NULL },
+};
+
+static const value_string bulk_lease_dhcp_status_code_vals[] = {
+	{ 0, "Success" },
+	{ 1, "UpsecFail" },
+	{ 2, "QueryTerminated" },
+	{ 3, "MalformedQuery" },
+	{ 4, "NotAllowed" },
+	{ 0, NULL },
+};
+
+static const value_string bulk_lease_dhcp_state_vals[] = {
+	{ 1, "Available" },
+	{ 2, "Active" },
+	{ 3, "Expired" },
+	{ 4, "Released" },
+	{ 5, "Abandoned" },
+	{ 6, "Reset" },
+	{ 7, "Remote" },
+	{ 8, "Transitioning" },
+	{ 0, NULL },
+};
+
 static gboolean novell_string = FALSE;
 
 static guint bootp_uuid_endian = ENC_LITTLE_ENDIAN;
@@ -934,6 +995,11 @@ static const true_false_string tfs_isns_function_dd_based_auth = {
 static const true_false_string tfs_isns_functions_sec_distrib = {
 	"Download from iSNS server",
 	"By other means",
+};
+
+static const true_false_string tfs_bulk_lease_data_source = {
+	"Remote",
+	"Local"
 };
 
 enum field_type {
@@ -1202,7 +1268,7 @@ static const string_string option242_avaya_static_vals[] = {
 #define BOOTP_OPT_NUM	256
 
 /* All of the options that have a "basic" type that can be handled by dissect_bootpopt_basic_type() */
-#define BOOTP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-93,100-101,112-113,116,118,137-138,150,161,209-210,252"
+#define BOOTP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-93,100-101,112-113,116,118,137-138,142,150,153,156-157,161,209-210,252"
 
 /* Re-define structure.	 Values to be updated by bootp_init_protocol */
 static struct opt_info bootp_opt[BOOTP_OPT_NUM];
@@ -1350,24 +1416,24 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 139 */ { "IPv4 Address-MoS",				opaque, NULL },
 /* 140 */ { "IPv4 FQDN-MoS",				opaque, NULL },
 /* 141 */ { "SIP UA Configuration Domains",		opaque, NULL },
-/* 142 */ { "Unassigned",				opaque, NULL },
-/* 143 */ { "Unassigned",				opaque, NULL },
-/* 144 */ { "Unassigned",				opaque, NULL },
-/* 145 */ { "Unassigned",				opaque, NULL },
-/* 146 */ { "Unassigned",				opaque, NULL },
+/* 142 */ { "IPv4 Address ANDSF",			ipv4_list, &hf_bootp_option_andsf_server },
+/* 143 */ { "Zerotouch Redirect [TODO: draft-ietf-netconf-zerotouch]",	opaque, NULL },
+/* 144 */ { "Geospatial Location [TODO:RFC6225]",	opaque, NULL },
+/* 145 */ { "Forcerenew Nonce Capable",			special, NULL },
+/* 146 */ { "RDNSS Selection",				special, NULL },
 /* 147 */ { "Unassigned",				opaque, NULL },
 /* 148 */ { "Unassigned",				opaque, NULL },
 /* 149 */ { "Unassigned",				opaque, NULL },
 /* 150 */ { "TFTP Server Address",			ipv4_list, &hf_bootp_option_tftp_server_address },
-/* 151 */ { "Unassigned",				opaque, NULL },
-/* 152 */ { "Unassigned",				opaque, NULL },
-/* 153 */ { "Unassigned",				opaque, NULL },
-/* 154 */ { "Unassigned",				opaque, NULL },
-/* 155 */ { "Unassigned",				opaque, NULL },
-/* 156 */ { "Unassigned",				opaque, NULL },
-/* 157 */ { "Unassigned",				opaque, NULL },
-/* 158 */ { "Unassigned",				opaque, NULL },
-/* 159 */ { "Unassigned",				opaque, NULL },
+/* 151 */ { "Leasequery Status code",			special, NULL },
+/* 152 */ { "Leasequery Base Time",			special, NULL },
+/* 153 */ { "Leasequery Start Time of State",		time_in_u_secs, &hf_bootp_option_bulk_lease_start_time_of_state },
+/* 154 */ { "Leasequery Query Start Time",		special, NULL },
+/* 155 */ { "Leasequery Query End Time",		special, NULL },
+/* 156 */ { "Leasequery Dhcp State",			val_u_byte, &hf_bootp_option_bulk_lease_dhcp_state },
+/* 157 */ { "Leasequery Data Source",			val_boolean, &hf_bootp_option_bulk_lease_data_source },
+/* 158 */ { "PCP Server",				special, NULL },
+/* 159 */ { "Portparams",				special, NULL },
 /* 160 */ { "DHCP Captive-Portal",			special, NULL },
 /* 161 */ { "Manufacturer Usage Description",		string, &hf_bootp_option_mudurl},
 /* 162 */ { "Unassigned",				opaque, NULL },
@@ -2860,11 +2926,145 @@ dissect_bootpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static int
+dissect_bootpopt_forcerenew_nonce(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+	while ( tvb_reported_length_remaining(tvb, offset) > 0) {
+		proto_tree_add_item(tree, hf_bootp_option_forcerenew_nonce_algo, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		}
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+	const guchar *dns_name;
+	guint dns_name_len;
+
+	if (tvb_reported_length(tvb) < 10) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length must be >= 10");
+		return 1;
+	}
+	proto_tree_add_item(tree, hf_bootp_option_rdnss_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bootp_option_rdnss_pref, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	proto_tree_add_item(tree, hf_bootp_option_rdnss_prim_dns_server, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_bootp_option_rdnss_sec_dns_server, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	get_dns_name(tvb, offset, tvb_reported_length_remaining(tvb,offset), offset, &dns_name, &dns_name_len);
+	proto_tree_add_string(tree, hf_bootp_option_rdnss_domain, tvb, offset,
+			tvb_reported_length_remaining(tvb,offset), format_text(wmem_packet_scope(), dns_name, dns_name_len));
+
+	return tvb_captured_length(tvb);
+}
+
+static int
 dissect_bootpopt_dhcp_captive_portal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti_cp;
 	ti_cp = proto_tree_add_item(tree, hf_bootp_option_captive_portal, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
 	PROTO_ITEM_SET_URL(ti_cp);
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_bulk_lease_query_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	if (tvb_reported_length(tvb) != 4) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length must be 4");
+		return 1;
+	}
+	proto_tree_add_item(tree, hf_bootp_option_bulk_lease_query_start, tvb, 0, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_bulk_lease_query_end(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	if (tvb_reported_length(tvb) != 4) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length must be 4");
+		return 1;
+	}
+	proto_tree_add_item(tree, hf_bootp_option_bulk_lease_query_end, tvb, 0, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_bulk_lease_base_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	if (tvb_reported_length(tvb) != 4) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length must be 4");
+		return 1;
+	}
+	proto_tree_add_item(tree, hf_bootp_option_bulk_lease_base_time, tvb, 0, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_bulk_lease_status_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	if (tvb_reported_length(tvb) < 1) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length must >= 1");
+		return 1;
+	}
+	proto_tree_add_item(tree, hf_bootp_option_bulk_lease_status_code, tvb, 0, 1, ENC_BIG_ENDIAN);
+	if ( tvb_reported_length_remaining(tvb, 1) > 0) {
+		proto_tree_add_item(tree, hf_bootp_option_bulk_lease_status_message, tvb, 1, tvb_reported_length_remaining(tvb, 1), ENC_UTF_8|ENC_NA);
+		}
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_pcp_server(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	proto_tree *tree_pcp;
+	int offset = 0;
+	guint8 list_length;
+	guint8 ip_list_length;
+	proto_item *ti_pcp;
+
+	if (tvb_reported_length(tvb) < 5) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length must >= 5");
+		return 1;
+	}
+	while (tvb_reported_length_remaining(tvb, offset) >= 5) {
+		ip_list_length = 0;
+		list_length = tvb_get_guint8(tvb, offset);
+		tree_pcp = proto_tree_add_subtree(tree, tvb, offset, list_length, ett_bootp_option158_pcp_list,
+						&ti_pcp, "PCP server list");
+		proto_tree_add_item(tree_pcp, hf_bootp_option_pcp_list_length, tvb, offset, 1, ENC_NA);
+		offset += 1;
+		ip_list_length += 1;
+		while (((list_length - 1)%4 == 0) && (ip_list_length < list_length) && tvb_reported_length_remaining(tvb,offset) >= 4) {
+			proto_tree_add_item(tree_pcp, hf_bootp_option_pcp_server, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			ip_list_length += 4;
+		}
+	}
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_portparams(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	if (tvb_reported_length(tvb) != 4) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length must be 4");
+		return 1;
+	}
+	proto_tree_add_item(tree, hf_bootp_option_portparams_offset, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_bootp_option_portparams_psid_length, tvb, 1, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_bootp_option_portparams_psid, tvb, 2, 2, ENC_NA);
 
 	return tvb_captured_length(tvb);
 }
@@ -8600,10 +8800,110 @@ proto_register_bootp(void)
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 138: CAPWAP Access Controllers", HFILL }},
 
+		{ &hf_bootp_option_andsf_server,
+		  { "ANDSF Server", "bootp.option.andsf_server",
+		    FT_IPv4, BASE_NONE, NULL, 0x00,
+		    "ANDSF (Access Network Discovery and Selection Function) Server", HFILL }},
+
+		{ &hf_bootp_option_forcerenew_nonce_algo,
+		  { "Algorithm", "bootp.option.forcerenew_nonce.algorithm",
+		    FT_UINT8, BASE_DEC, VALS(forcerenew_nonce_algo_vals), 0x00,
+		    "Forcenew Nonce Algorithm", HFILL }},
+
+		{ &hf_bootp_option_rdnss_reserved,
+		  { "Reserved", "bootp.option.rdnss.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0xfc,
+		    "RDNSS Reserved", HFILL }},
+
+		{ &hf_bootp_option_rdnss_pref,
+		  { "Preference", "bootp.option.rdnss.preference",
+		    FT_UINT8, BASE_DEC, VALS(rdnss_pref_vals), 0x03,
+		    "RDNSS (Recursive DNS Server) Preference", HFILL }},
+
+		{ &hf_bootp_option_rdnss_prim_dns_server,
+		  { "Primary DNS", "bootp.option.rdnss.primary_dns",
+		    FT_IPv4, BASE_NONE, NULL, 0x00,
+		    "RDNSS Primary DNS-recursive-name-server's IPv4 address", HFILL }},
+
+		{ &hf_bootp_option_rdnss_sec_dns_server,
+		  { "Secondary DNS", "bootp.option.rdnss.secondary_dns",
+		    FT_IPv4, BASE_NONE, NULL, 0x00,
+		    "RDNSS Secondary DNS-recursive-name-server's IPv4 address", HFILL }},
+
+		{ &hf_bootp_option_rdnss_domain,
+		  { "Domains and networks", "bootp.option.rdnss.domain",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "RDNSS Domains and networks", HFILL }},
+
 		{ &hf_bootp_option_tftp_server_address,
 		  { "TFTP Server Address", "bootp.option.tftp_server_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 150: TFTP Server Address", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_status_code,
+		  { "Status Code", "bootp.option.bulk_lease.status_code",
+		    FT_UINT8, BASE_DEC, VALS(bulk_lease_dhcp_status_code_vals), 0x00,
+		    "DHCPv4 Bulk Leasequery Status Code", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_status_message,
+		  { "Status Code Message", "bootp.option.bulk_lease.status_code_message",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "DHCPv4 Bulk Leasequery Status Code Message", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_base_time,
+		  { "Base Time", "bootp.option.bulk_lease.base_time",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+		    "DHCPv4 Bulk Leasequery Base Time", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_start_time_of_state,
+		  { "Start Time Of State", "bootp.option.bulk_lease.start_time_of_state",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    "DHCPv4 Bulk Leasequery Start Time Of State", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_query_start,
+		  { "Query Start Time", "bootp.option.bulk_lease.query_start_time",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+		    "DHCPv4 Bulk Leasequery Query Start Time", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_query_end,
+		  { "Query End Time", "bootp.option.bulk_lease.query_end_time",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+		    "DHCPv4 Bulk Leasequery Query End Time", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_dhcp_state,
+		  { "Dhcp State", "bootp.option.bulk_lease.dhcp_state",
+		    FT_UINT8, BASE_DEC, VALS(bulk_lease_dhcp_state_vals), 0x00,
+		    "DHCPv4 Bulk Leasequery Dhcp State", HFILL }},
+
+		{ &hf_bootp_option_bulk_lease_data_source,
+		  { "Data Source", "bootp.option.bulk_lease.data_source",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_bulk_lease_data_source), 0x00,
+		    "DHCPv4 Bulk Leasequery Data Source", HFILL }},
+
+		{ &hf_bootp_option_pcp_list_length,
+		  { "List-Length", "bootp.option.pcp.list_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Port Control Protocol (PCP) List Length", HFILL }},
+
+		{ &hf_bootp_option_pcp_server,
+		  { "PCP Server", "bootp.option.pcp.server",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "Port Control Protocol (PCP) Server", HFILL }},
+
+		{ &hf_bootp_option_portparams_offset,
+		  { "Offset", "bootp.option.portparams.offset",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Port Set ID (PSID) offset", HFILL }},
+
+		{ &hf_bootp_option_portparams_psid_length,
+		  { "PSID-Length", "bootp.option.portparams.psid_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Port Set ID (PSID) Length", HFILL }},
+
+		{ &hf_bootp_option_portparams_psid,
+		  { "PSID", "bootp.option.portparams.psid",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Port Set ID (PSID)", HFILL }},
 
 		{ &hf_bootp_option_mudurl,
 		  { "MUDURL", "bootp.option.mudurl",
@@ -8850,6 +9150,7 @@ proto_register_bootp(void)
 		&ett_bootp_o43_bsdp_image_desc_list,
 		&ett_bootp_o43_bsdp_image_desc,
 		&ett_bootp_o43_bsdp_attributes_flags,
+		&ett_bootp_option158_pcp_list,
 	};
 
 	static ei_register_info ei[] = {
@@ -9019,6 +9320,14 @@ proto_reg_handoff_bootp(void)
 	dissector_add_uint("bootp.option", 123, create_dissector_handle( dissect_bootpopt_coordinate_based_location, -1 ));
 	dissector_add_uint("bootp.option", 124, create_dissector_handle( dissect_bootpopt_vi_vendor_class, -1 ));
 	dissector_add_uint("bootp.option", 125, create_dissector_handle( dissect_bootpopt_vi_vendor_specific_info, -1 ));
+	dissector_add_uint("bootp.option", 145, create_dissector_handle( dissect_bootpopt_forcerenew_nonce, -1 ));
+	dissector_add_uint("bootp.option", 146, create_dissector_handle( dissect_bootpopt_rdnss, -1 ));
+	dissector_add_uint("bootp.option", 151, create_dissector_handle( dissect_bootpopt_bulk_lease_status_code, -1 ));
+	dissector_add_uint("bootp.option", 152, create_dissector_handle( dissect_bootpopt_bulk_lease_base_time, -1 ));
+	dissector_add_uint("bootp.option", 154, create_dissector_handle( dissect_bootpopt_bulk_lease_query_start, -1 ));
+	dissector_add_uint("bootp.option", 155, create_dissector_handle( dissect_bootpopt_bulk_lease_query_end, -1 ));
+	dissector_add_uint("bootp.option", 158, create_dissector_handle( dissect_bootpopt_pcp_server, -1 ));
+	dissector_add_uint("bootp.option", 159, create_dissector_handle( dissect_bootpopt_portparams, -1 ));
 	dissector_add_uint("bootp.option", 160, create_dissector_handle( dissect_bootpopt_dhcp_captive_portal, -1 ));
 	dissector_add_uint("bootp.option", 212, create_dissector_handle( dissect_bootpopt_6RD_option, -1 ));
 	dissector_add_uint("bootp.option", 242, create_dissector_handle( dissect_bootpopt_avaya_ip_telephone, -1 ));
