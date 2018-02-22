@@ -250,22 +250,32 @@ echo -e "\nFixing up $bundle...\n"
 a=1
 nfiles=0
 endl=true
-lib_dep_search_list="
-	$pkglib/*
-	$pkgexec/*
-	$pkgexec/extcap/*
-	"
-
 while $endl; do
 	echo -e "Looking for dependencies. Round" $a
 	#
-	# libssh, for some reason, has its "install name" set to
-	# just libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
-	# when built by tools/macos-setup.sh.  We have to fix that; that's
-	# what the sed command does.
+	# To find dependencies, we:
+	#
+	#    find all plain files under $pkglib and $pkgexec;
+	#
+	#    run otool -L on them to find all the libraries they depend on;
+	#
+	#    filter out all lines that don't contain "compatibility" to
+	#    remove lines of output that don't correspond to dependencies;
+	#
+	#    use cut to extract the library name from the output;
+	#
+	#    replace "libssh" with "/usr/local/lib/libssh" because
+	#    libssh, for some reason, has its "install name" set to
+	#    just libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
+	#    when built by tools/macos-setup.sh;
+	#
+	#    strip out system libraries, as we don't bundle them with
+	#    Wireshark;
+	#
+	#    eliminate duplicates.
 	#
 	libs="`\
-		otool -L $lib_dep_search_list 2>/dev/null \
+		find "$pkglib" "$pkgexec" -type f -print0 | xargs -0 otool -L 2>/dev/null \
 		| fgrep compatibility \
 		| cut -d\( -f1 \
 		| sed '1,$s;^	libssh;	/usr/local/lib/libssh;' \
