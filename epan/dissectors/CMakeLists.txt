@@ -1520,6 +1520,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-osi-options.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-osi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ositp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-osmo_trx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ospf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ossp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ouch.c
