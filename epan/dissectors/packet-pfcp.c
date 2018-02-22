@@ -147,7 +147,6 @@ static int hf_pfcp_outer_hdr_creation_teid = -1;
 static int hf_pfcp_outer_hdr_creation_ipv4 = -1;
 static int hf_pfcp_outer_hdr_creation_ipv6 = -1;
 static int hf_pfcp_outer_hdr_creation_port = -1;
-static int hf_pfcp_tos_traf_class = -1;
 static int hf_pfcp_time_threshold = -1;
 static int hf_pfcp_forwarding_policy_id_len = -1;
 static int hf_pfcp_forwarding_policy_id = -1;
@@ -992,8 +991,10 @@ dissect_pfcp_transport_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     * The ToS/Traffic Class shall be encoded on two octets as an OctetString.
     * The first octet shall contain the IPv4 Type-of-Service or the IPv6 Traffic-Class field and the second octet shall contain the ToS/Traffic Class mask field
     */
-    proto_tree_add_item(tree, hf_pfcp_tos_traf_class, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    proto_tree_add_item(tree, hf_pfcp_traffic_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_pfcp_traffic_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -2726,8 +2727,10 @@ dissect_pfcp_dl_flow_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         * The first octet shall contain the IPv4 Type-of-Service or the IPv6 Traffic-Class field and
         * the second octet shall contain the ToS/Traffic Class mask field
         */
-        proto_tree_add_item(tree, hf_pfcp_tos_traf_class, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        proto_tree_add_item(tree, hf_pfcp_traffic_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_pfcp_traffic_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
     }
     /* SCI (Service Class Indicator): If this bit is set to "1",
      * then the Service Class Indicator field shall be present
@@ -4409,11 +4412,6 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_outer_hdr_creation_port,
         { "Port Number", "pfcp.outer_hdr_creation.port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_tos_traf_class,
-        { "ToS/Traffic Class", "pfcp.tos_traf_class.port",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
