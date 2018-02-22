@@ -671,7 +671,6 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 		switch (*err) {
 
 		case WTAP_ERR_UNWRITABLE_REC_DATA:
-			g_free(err_info);
 			break;
 
 		default:
@@ -871,8 +870,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		switch (wrt_err) {
 
 		case WTAP_ERR_UNWRITABLE_REC_DATA:
-			g_free(wrt_err_info);
-			wrt_err_info = NULL;
 			break;
 
 		default:
