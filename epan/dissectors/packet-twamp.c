@@ -469,7 +469,17 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 static
 guint get_server_greeting_len(packet_info *pinfo _U_, tvbuff_t *tvb _U_, int offset _U_, void *data _U_)
 {
-    return TWAMP_CONTROL_SERVER_GREETING_LEN;
+    conversation_t *conversation;
+    twamp_control_transaction_t *ct;
+
+    conversation = find_or_create_conversation(pinfo);
+    ct = (twamp_control_transaction_t *) conversation_get_proto_data(conversation, proto_twamp_control);
+
+    if (ct == NULL) {
+        return TWAMP_CONTROL_SERVER_GREETING_LEN;
+    } else {
+        return tvb_captured_length(tvb);
+    }
 }
 
 static int
