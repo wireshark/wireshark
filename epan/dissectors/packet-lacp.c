@@ -1,6 +1,6 @@
 /* packet-lacp.c
  * Routines for Link Aggregation Control Protocol dissection.
- * IEEE Std 802.1AX
+ * IEEE Std 802.1AX-2014 Section 6.4.2.3
  *
  * Copyright 2002 Steve Housley <steve_housley@3com.com>
  *
@@ -14,11 +14,27 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
+#include <epan/expert.h>
 #include <epan/slow_protocol_subtypes.h>
 
 /* General declarations */
 void proto_register_lacp(void);
 void proto_reg_handoff_lacp(void);
+
+/* TLV Types */
+#define LACPDU_TYPE_TERMINATOR			0x00
+#define LACPDU_TYPE_ACTOR_INFORMATION		0x01
+#define LACPDU_TYPE_PARTNER_INFORMATION		0x02
+#define LACPDU_TYPE_COLLECTOR_INFORMATION	0x03
+
+static const value_string lacp_type_vals[] = {
+    { LACPDU_TYPE_TERMINATOR,			"Terminator" },
+    { LACPDU_TYPE_ACTOR_INFORMATION,		"Actor Information" },
+    { LACPDU_TYPE_PARTNER_INFORMATION,		"Partner Information" },
+    { LACPDU_TYPE_COLLECTOR_INFORMATION,	"Collector Information" },
+    { 0, NULL }
+};
 
 /* Actor and Partner Flag bits */
 #define LACPDU_FLAGS_ACTIVITY           0x01
@@ -34,8 +50,9 @@ void proto_reg_handoff_lacp(void);
 static int proto_lacp = -1;
 
 static int hf_lacp_version_number = -1;
-static int hf_lacp_actor_type = -1;
-static int hf_lacp_actor_info_len = -1;
+static int hf_lacp_tlv_type = -1;
+static int hf_lacp_tlv_length = -1;
+
 static int hf_lacp_actor_sys_priority = -1;
 static int hf_lacp_actor_sys = -1;
 static int hf_lacp_actor_key = -1;
@@ -53,8 +70,6 @@ static int hf_lacp_flags_a_defaulted = -1;
 static int hf_lacp_flags_a_expired = -1;
 static int hf_lacp_actor_reserved = -1;
 
-static int hf_lacp_partner_type = -1;
-static int hf_lacp_partner_info_len = -1;
 static int hf_lacp_partner_sys_priority = -1;
 static int hf_lacp_partner_sys = -1;
 static int hf_lacp_partner_key = -1;
@@ -72,14 +87,10 @@ static int hf_lacp_flags_p_defaulted = -1;
 static int hf_lacp_flags_p_expired = -1;
 static int hf_lacp_partner_reserved = -1;
 
-static int hf_lacp_coll_type = -1;
-static int hf_lacp_coll_info_len = -1;
 static int hf_lacp_coll_max_delay = -1;
 static int hf_lacp_coll_reserved = -1;
 
-static int hf_lacp_term_type = -1;
-static int hf_lacp_term_len = -1;
-static int hf_lacp_term_reserved = -1;
+static int hf_lacp_pad = -1;
 
 static int hf_lacp_vendor = -1;
 
@@ -92,10 +103,13 @@ static int hf_lacp_vendor_hp_unknown = -1;
 
 
 /* Initialise the subtree pointers */
-
 static gint ett_lacp = -1;
 static gint ett_lacp_a_flags = -1;
 static gint ett_lacp_p_flags = -1;
+
+/* Expert Items */
+static expert_field ei_lacp_wrong_tlv_type = EI_INIT;
+static expert_field ei_lacp_wrong_tlv_length = EI_INIT;
 
 static const true_false_string tfs_active_passive = { "Active", "Passive" };
 static const true_false_string tfs_short_long_timeout = { "Short Timeout", "Long Timeout" };
@@ -139,12 +153,16 @@ static const char * lacp_state_flags_to_str(guint32 value)
 static int
 dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int     offset = 0, length_remaining;
-    guint16 raw_word;
-    guint8  raw_octet;
+    int          offset = 0, length_remaining;
+    guint        tlv_type, tlv_length;
+    guint        port;
+    guint8       raw_octet;
+    const gchar  *sysidstr;
 
-    proto_tree *lacpdu_tree;
-    proto_item *lacpdu_item, *ti;
+    proto_tree *lacp_tree;
+    proto_item *lacp_item, *tlv_type_item, *tlv_length_item;
+    proto_item *ti;
+
     static const int * actor_flags[] = {
         &hf_lacp_flags_a_activity,
         &hf_lacp_flags_a_timeout,
@@ -172,197 +190,188 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
 
     /* Add LACP Heading */
-    lacpdu_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
+    lacp_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
                                                  0, -1, "Link Aggregation Control Protocol");
-    lacpdu_tree = proto_item_add_subtree(lacpdu_item, ett_lacp);
+    lacp_tree = proto_item_add_subtree(lacp_item, ett_lacp);
 
     /* Version Number */
 
     raw_octet = tvb_get_guint8(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Version %d.  ", raw_octet);
-    proto_tree_add_uint(lacpdu_tree, hf_lacp_version_number, tvb,
-                        offset, 1, raw_octet);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "V%d", raw_octet);
+    proto_tree_add_uint(lacp_tree, hf_lacp_version_number, tvb, offset, 1, raw_octet);
     offset += 1;
 
-    /* Actor Type */
+    /* Actor */
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_type, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
+    tlv_type_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
     offset += 1;
 
-    /* Actor Info Length */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_info_len, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
+    tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
     offset += 1;
 
-    /* Actor System Priority */
+    if (tlv_type != LACPDU_TYPE_ACTOR_INFORMATION) {
+        expert_add_info(pinfo, tlv_type_item, &ei_lacp_wrong_tlv_type);
+    }
+    if (tlv_length != 20) {
+        expert_add_info(pinfo, tlv_length_item, &ei_lacp_wrong_tlv_length);
+    }
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_sys_priority, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_actor_sys_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* Actor System */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_sys, tvb,
-                        offset, 6, ENC_NA);
+    proto_tree_add_item(lacp_tree, hf_lacp_actor_sys, tvb, offset, 6, ENC_NA);
+    sysidstr = tvb_ether_to_str(tvb, offset);
     offset += 6;
 
-    /* Actor Key */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_key, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_actor_key, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* Actor Port Priority */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_port_priority, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_actor_port_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* Actor Port */
-
-    raw_word = tvb_get_ntohs(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Actor Port = %d ", raw_word);
-    proto_tree_add_uint(lacpdu_tree, hf_lacp_actor_port, tvb,
-                        offset, 2, raw_word);
+    proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_actor_port, tvb, offset, 2, ENC_BIG_ENDIAN, &port);
     offset += 2;
 
-    /* Actor State */
-    proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_actor_state,
+    proto_tree_add_bitmask_with_flags(lacp_tree, tvb, offset, hf_lacp_actor_state,
                            ett_lacp_a_flags, actor_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
-    ti = proto_tree_add_string(lacpdu_tree, hf_lacp_actor_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
+    ti = proto_tree_add_string(lacp_tree, hf_lacp_actor_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
     PROTO_ITEM_SET_GENERATED(ti);
     offset += 1;
 
-    /* Actor Reserved */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_reserved, tvb,
-                        offset, 3, ENC_NA);
+    proto_tree_add_item(lacp_tree, hf_lacp_actor_reserved, tvb, offset, 3, ENC_NA);
     offset += 3;
 
-    /* Partner Type */
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ACTOR SysID: %s, P: %d ", sysidstr, port);
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_type, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
+    /* Partner */
+
+    tlv_type_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
     offset += 1;
 
-    /* Partner Info Length */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_info_len, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
+    tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
     offset += 1;
 
-    /* Partner System Priority */
+    if (tlv_type != LACPDU_TYPE_PARTNER_INFORMATION) {
+        expert_add_info(pinfo, tlv_type_item, &ei_lacp_wrong_tlv_type);
+    }
+    if (tlv_length != 20) {
+        expert_add_info(pinfo, tlv_length_item, &ei_lacp_wrong_tlv_length);
+    }
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_sys_priority, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_partner_sys_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* Partner System */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_sys, tvb,
-                        offset, 6, ENC_NA);
+    proto_tree_add_item(lacp_tree, hf_lacp_partner_sys, tvb, offset, 6, ENC_NA);
+    sysidstr = tvb_ether_to_str(tvb, offset);
     offset += 6;
 
-    /* Partner Key */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_key, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_partner_key, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* Partner Port Priority */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_port_priority, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_partner_port_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* Partner Port */
-
-    raw_word = tvb_get_ntohs(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Partner Port = %d ", raw_word);
-    proto_tree_add_uint(lacpdu_tree, hf_lacp_partner_port, tvb,
-                        offset, 2, raw_word);
+    proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_partner_port, tvb, offset, 2, ENC_BIG_ENDIAN, &port);
     offset += 2;
 
-    proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_partner_state, ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
+    proto_tree_add_bitmask_with_flags(lacp_tree, tvb, offset, hf_lacp_partner_state, ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
 
-    ti = proto_tree_add_string(lacpdu_tree, hf_lacp_partner_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
+    ti = proto_tree_add_string(lacp_tree, hf_lacp_partner_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
     PROTO_ITEM_SET_GENERATED(ti);
     offset += 1;
 
-    /* Partner Reserved */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_reserved, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(lacp_tree, hf_lacp_partner_reserved, tvb, offset, 3, ENC_NA);
     offset += 3;
 
-    /* Collector Type */
+    col_append_fstr(pinfo->cinfo, COL_INFO, " PARTNER SysID: %s, P: %d ", sysidstr, port);
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Collector */
+
+    tlv_type_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
     offset += 1;
 
-    /* Collector Info Length */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_info_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
     offset += 1;
 
-    /* Collector Max Delay */
+    if (tlv_type != LACPDU_TYPE_COLLECTOR_INFORMATION) {
+        expert_add_info(pinfo, tlv_type_item, &ei_lacp_wrong_tlv_type);
+    }
+    if (tlv_length != 16) {
+        expert_add_info(pinfo, tlv_length_item, &ei_lacp_wrong_tlv_length);
+    }
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_max_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_coll_max_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* Collector Reserved */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_coll_reserved, tvb, offset, 12, ENC_NA);
+    proto_tree_add_item(lacp_tree, hf_lacp_coll_reserved, tvb, offset, 12, ENC_NA);
     offset += 12;
 
-    /* Terminator Type */
+    col_append_fstr(pinfo->cinfo, COL_INFO, " COLLECTOR");
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_term_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Other TLVs (LACP version 2) */
+
+    tlv_type_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
     offset += 1;
 
-    /* Terminator Info Length */
-
-    proto_tree_add_item(lacpdu_tree, hf_lacp_term_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
     offset += 1;
 
-    /* Terminator Reserved */
+    while (tlv_type != LACPDU_TYPE_TERMINATOR) {
+        offset += (tlv_length - 2);
+        tlv_type_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
+        offset += 1;
 
-    proto_tree_add_item(lacpdu_tree, hf_lacp_term_reserved, tvb, offset, 50, ENC_NA);
-    offset += 50;
+        tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
+        offset += 1;
+    }
+
+    /* Terminator - already handled */
+
+    if (tlv_length != 0) {
+        expert_add_info(pinfo, tlv_length_item, &ei_lacp_wrong_tlv_length);
+    }
+
+    /* Pad */
+
+    if (offset < (128 - 1 - 18)) {  /* LACPv1 fixed size - Eth */
+        proto_tree_add_item(lacp_tree, hf_lacp_pad, tvb, offset, (128 - 1 - 18)-offset, ENC_NA);
+        offset += ((128 - 1 - 18)-offset);
+    }
+
+    /* HP specific stuff (in violation of standard) */
 
     length_remaining = tvb_reported_length_remaining(tvb, offset);
+    if (length_remaining) {
+        proto_tree_add_item(lacp_tree, hf_lacp_vendor, tvb, offset, length_remaining, ENC_NA);
 
-    if(length_remaining) {
-        proto_tree_add_item(lacpdu_tree, hf_lacp_vendor, tvb, offset, length_remaining, ENC_NA);
         /* HP LACP MAD IRF, first bytes is always 0x64 and second bytes is the rest of length */
         if (length_remaining > 2 && (tvb_get_guint8(tvb, offset) == 0x64) && ((length_remaining -2) == tvb_get_guint8(tvb, offset+1)) )
         {
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_length, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_irf_domain, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_domain, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_irf_mac, tvb, offset, 6, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_mac, tvb, offset, 6, ENC_NA);
             offset += 6;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 8, ENC_NA);
             offset += 8;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_irf_switch, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_switch, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_irf_port, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_port, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            proto_tree_add_item(lacpdu_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
             offset += 2;
 
         } else {
@@ -385,15 +394,15 @@ proto_register_lacp(void)
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
             "Identifies the LACP version", HFILL }},
 
-        { &hf_lacp_actor_type,
-          { "Actor Information",    "lacp.actorInfo",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "TLV type = Actor", HFILL }},
+        { &hf_lacp_tlv_type,
+          { "TLV Type",               "lacp.tlv_type",
+            FT_UINT8,    BASE_HEX,    VALS(lacp_type_vals),    0x0,
+            NULL, HFILL }},
 
-        { &hf_lacp_actor_info_len,
-          { "Actor Information Length",            "lacp.actorInfoLen",
+        { &hf_lacp_tlv_length,
+          { "TLV Length",             "lacp.tlv_length",
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "The length of the Actor TLV", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_actor_sys_priority,
           { "Actor System Priority",  "lacp.actorSysPriority",
@@ -475,16 +484,6 @@ proto_register_lacp(void)
             FT_BYTES,    BASE_NONE,    NULL,    0x0,
             NULL, HFILL }},
 
-        { &hf_lacp_partner_type,
-          { "Partner Information",    "lacp.partnerInfo",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "TLV type = Partner", HFILL }},
-
-        { &hf_lacp_partner_info_len,
-          { "Partner Information Length",            "lacp.partnerInfoLen",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "The length of the Partner TLV", HFILL }},
-
         { &hf_lacp_partner_sys_priority,
           { "Partner System Priority",  "lacp.partnerSysPriority",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
@@ -565,16 +564,6 @@ proto_register_lacp(void)
             FT_BYTES,    BASE_NONE,    NULL,    0x0,
             NULL, HFILL }},
 
-        { &hf_lacp_coll_type,
-          { "Collector Information",    "lacp.collectorInfo",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "TLV type = Collector", HFILL }},
-
-        { &hf_lacp_coll_info_len,
-          { "Collector Information Length",            "lacp.collectorInfoLen",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "The length of the Collector TLV", HFILL }},
-
         { &hf_lacp_coll_max_delay,
           { "Collector Max Delay",  "lacp.collectorMaxDelay",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
@@ -585,18 +574,8 @@ proto_register_lacp(void)
             FT_BYTES,    BASE_NONE,    NULL,    0x0,
             NULL, HFILL }},
 
-        { &hf_lacp_term_type,
-          { "Terminator Information",    "lacp.termInfo",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "TLV type = Terminator", HFILL }},
-
-        { &hf_lacp_term_len,
-          { "Terminator Length",            "lacp.termLen",
-            FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "The length of the Terminator TLV", HFILL }},
-
-        { &hf_lacp_term_reserved,
-          { "Reserved",        "lacp.term_reserved",
+        { &hf_lacp_pad,
+          { "Pad",        "lacp.pad",
             FT_BYTES,    BASE_NONE,    NULL,    0x0,
             NULL, HFILL }},
 
@@ -640,6 +619,14 @@ proto_register_lacp(void)
         &ett_lacp_p_flags,
     };
 
+    static ei_register_info ei[] = {
+    { &ei_lacp_wrong_tlv_type,   { "lacp.wrong_tlv_type",   PI_MALFORMED, PI_ERROR, "TLV is not expected type",   EXPFILL }},
+    { &ei_lacp_wrong_tlv_length, { "lacp.wrong_tlv_length", PI_MALFORMED, PI_ERROR, "TLV is not expected length", EXPFILL }},
+    };
+
+    expert_module_t* expert_lacp;
+
+
     /* Register the protocol name and description */
 
     proto_lacp = proto_register_protocol("LACP", "Link Aggregation Control Protocol", "lacp");
@@ -648,6 +635,9 @@ proto_register_lacp(void)
 
     proto_register_field_array(proto_lacp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_lacp = expert_register_protocol(proto_lacp);
+    expert_register_field_array(expert_lacp, ei, array_length(ei));
+
 }
 
 void
