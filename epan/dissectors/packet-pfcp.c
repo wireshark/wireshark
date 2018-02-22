@@ -357,6 +357,11 @@ static int ett_pfcp_remote_gtp_u_peer = -1;
 static int ett_pfcp_oci_flags = -1;
 static int ett_sx_assoc_rel_req_flags = -1;
 static int ett_pfcp_upiri_flags = -1;
+static int ett_pfcp_flow_desc = -1;
+static int ett_pfcp_tos = -1;
+static int ett_pfcp_spi = -1;
+static int ett_pfcp_flow_label = -1;
+
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -760,11 +765,12 @@ dissect_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
  * 8.2.5    SDF Filter
  */
 static void
-dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
+dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_)
 {
     int offset = 0;
     guint64 flags_val;
     guint32 fd_length;
+    proto_tree *flow_desc_tree, *tos_tree, *spi_tree, *flow_label_tree;
 
     static const int * pfcp_sdf_filter_flags[] = {
         &hf_pfcp_spare_h1,
@@ -786,14 +792,15 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /* FD (Flow Description): If this bit is set to "1",
          * then the Length of Flow Description and the Flow Description fields shall be present
          */
+        flow_desc_tree = proto_item_add_subtree(item, ett_pfcp_flow_desc);
         /* m to (m+1)	Length of Flow Description */
-        proto_tree_add_item_ret_uint(tree, hf_pfcp_flow_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN, &fd_length);
+        proto_tree_add_item_ret_uint(flow_desc_tree, hf_pfcp_flow_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN, &fd_length);
         offset += 2;
         /* Flow Description
          * The Flow Description field, when present, shall be encoded as an OctetString
          * as specified in subclause 5.4.2 of 3GPP TS 29.212
          */
-        proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, fd_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(flow_desc_tree, hf_pfcp_flow_desc, tvb, offset, fd_length, ENC_ASCII|ENC_NA);
         offset += fd_length;
     }
     if ((flags_val & 0x2) == 2) {
@@ -801,9 +808,10 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /* ToS Traffic Class field, when present, shall be encoded as an OctetString on two octets
          * as specified in subclause 5.3.15 of 3GPP TS 29.212
          */
-        proto_tree_add_item(tree, hf_pfcp_traffic_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+        tos_tree = proto_item_add_subtree(item, ett_pfcp_tos);
+        proto_tree_add_item(tos_tree, hf_pfcp_traffic_class, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item(tree, hf_pfcp_traffic_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tos_tree, hf_pfcp_traffic_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
 
@@ -812,7 +820,8 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * contain the IPsec security parameter index (which is a 32-bit field),
          * as specified in subclause 5.3.51 of 3GPP TS 29.212
          */
-        proto_tree_add_item(tree, hf_pfcp_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
+        spi_tree = proto_item_add_subtree(item, ett_pfcp_spi);
+        proto_tree_add_item(spi_tree, hf_pfcp_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
     if ((flags_val & 0x8) == 8) {
@@ -820,8 +829,9 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * subclause 5.3.52 of 3GPP TS 29.212 and shall contain an IPv6 flow label (which is a 20-bit field).
          * The bits 8 to 5 of the octet "v" shall be spare and set to zero, and the remaining 20 bits shall
          * contain the IPv6 flow label.*/
-        proto_tree_add_bits_item(tree, hf_pfcp_flow_label_spare_bit, tvb, (offset<<3), 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_pfcp_flow_label, tvb, offset, 3, ENC_BIG_ENDIAN);
+        flow_label_tree = proto_item_add_subtree(item, ett_pfcp_flow_label);
+        proto_tree_add_bits_item(flow_label_tree, hf_pfcp_flow_label_spare_bit, tvb, (offset<<3), 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flow_label_tree, hf_pfcp_flow_label, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
     }
 
@@ -5255,7 +5265,7 @@ proto_register_pfcp(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    33
+#define NUM_INDIVIDUAL_ELEMS_PFCP    37
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -5292,6 +5302,10 @@ proto_register_pfcp(void)
     ett[30] = &ett_pfcp_oci_flags;
     ett[31] = &ett_sx_assoc_rel_req_flags;
     ett[32] = &ett_pfcp_upiri_flags;
+    ett[33] = &ett_pfcp_flow_desc;
+    ett[34] = &ett_pfcp_tos;
+    ett[35] = &ett_pfcp_spi;
+    ett[36] = &ett_pfcp_flow_label;
 
 
     static ei_register_info ei[] = {
