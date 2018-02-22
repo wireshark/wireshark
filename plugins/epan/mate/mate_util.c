@@ -1058,7 +1058,7 @@ extern AVPL* new_avpl_pairs_match(const gchar* name, AVPL* src, AVPL* op, gboole
 	cs = src->null.next;
 	co = op->null.next;
 	while (cs->avp && co->avp) {
-		int name_diff = strcmp(co->avp->n, cs->avp->n);
+		int name_diff = g_strcmp0(co->avp->n, cs->avp->n);
 		const gchar *failed_match = NULL;
 
 		if (name_diff < 0) {
