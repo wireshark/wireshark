@@ -297,7 +297,7 @@ fi
 # This may not work on Qt 5.5.0 or 5.5.1:
 # https://bugreports.qt.io/browse/QTBUG-47868
 #
-macdeployqt "$bundle" -verbose=2 || exit 1
+macdeployqt "$bundle" -no-strip -verbose=2 || exit 1
 
 #
 # The build process added to the Wireshark binary an rpath entry
