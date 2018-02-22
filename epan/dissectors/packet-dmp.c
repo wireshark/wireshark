@@ -492,6 +492,7 @@ static expert_field ei_analysis_ack_dup_no = EI_INIT;
 static expert_field ei_analysis_ack_unexpected = EI_INIT;
 static expert_field ei_analysis_msg_missing = EI_INIT;
 static expert_field ei_analysis_retrans_no = EI_INIT;
+static expert_field ei_too_many_sec_cat = EI_INIT;
 
 static dissector_handle_t dmp_handle;
 
@@ -3507,7 +3508,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
 static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
                                            proto_tree *tree,
                                            const gchar **label_string,
-                                           gint offset, guint8 ext, gboolean extended)
+                                           gint offset, guint8 *ext)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf = NULL, *tr = NULL;
@@ -3520,7 +3521,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
                                    offset, 1, message, "Security Categories");
   field_tree = proto_item_add_subtree (tf, ett_message_sec_cat);
 
-  switch (ext) {
+  switch (*ext) {
 
   case SEC_CAT_EXT_NONE:
     proto_tree_add_item (field_tree, hf_message_sec_cat_cl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3574,6 +3575,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   proto_item_append_text (tf, " (0x%2.2x)", message);
+  *ext = 0; /* Reset extended bits */
 
   if (dmp.version == 1) {
     tr = proto_tree_add_item (field_tree, hf_reserved_0x02, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3584,20 +3586,22 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     if (message & 0x01) {
       expert_add_info(pinfo, tr, &ei_reserved_value);
     }
+    offset += 1;
   } else {
     tr = proto_tree_add_item (field_tree, hf_message_sec_cat_extended, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((message & 0x01) && (message & 0x02)) {
       expert_add_info(pinfo, tr, &ei_reserved_value);
-    } else if ((message & 0x01 || message & 0x02) && !extended) {
+    } else if (message & 0x01 || message & 0x02) {
       proto_item_append_text (tf, " (extended)");
-      offset = dissect_dmp_security_category (tvb, pinfo, tree, label_string, offset+1, message & 0x03, TRUE);
+      *ext = message & 0x03;
     }
+    offset += 1;
 
     if (country_code) {
-      proto_tree_add_item (field_tree, hf_message_sec_cat_country_code, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-      proto_item_append_text (tf, " (rel-to country-code: %d)", tvb_get_guint8 (tvb, offset+1));
+      proto_tree_add_item (field_tree, hf_message_sec_cat_country_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text (tf, " (rel-to country-code: %d)", tvb_get_guint8 (tvb, offset));
       proto_item_set_len (tf, 2);
-      offset++;
+      offset += 1;
     }
   }
 
@@ -3807,10 +3811,19 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
 
   /* Security Categories */
   if (dmp_sec_pol == NATO || dmp_sec_pol == NATIONAL || dmp_sec_pol == EXTENDED_NATIONAL) {
-    offset = dissect_dmp_security_category (tvb, pinfo, message_tree, &label_string, offset, 0, FALSE);
+    guint8 ext = 0;
+    guint  sec_cat_count = 0;
+    do {
+      offset = dissect_dmp_security_category (tvb, pinfo, message_tree, &label_string, offset, &ext);
+      sec_cat_count++;
+    } while (ext != 0 && sec_cat_count < G_MAXUINT8);
+    if (sec_cat_count == G_MAXUINT8) {
+      /* This is a arbitrary limit to avoid a long dissector loop. */
+      expert_add_info(pinfo, en, &ei_too_many_sec_cat);
+    }
     proto_item_append_text (en, ", Security Label: %s", label_string);
     tf = proto_tree_add_string (message_tree, hf_message_sec_label, tvb, loffset,
-                                offset - loffset + 1, label_string);
+                                offset - loffset, label_string);
     PROTO_ITEM_SET_GENERATED (tf);
   } else {
     tf = proto_tree_add_item (message_tree, hf_message_sec_cat_val, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3824,8 +3837,8 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item (field_tree, hf_message_sec_cat_bit2, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (field_tree, hf_message_sec_cat_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (field_tree, hf_message_sec_cat_bit0, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
   }
-  offset += 1;
 
   if (dmp.msg_type == STANAG || dmp.msg_type == IPM) {
     /* Expiry Time */
@@ -4968,6 +4981,7 @@ void proto_register_dmp (void)
      { &ei_message_compr, { "dmp.body.compression.unknown", PI_UNDECODED, PI_WARN, "Unknown compression algorithm", EXPFILL }},
      { &ei_message_body_uncompress, { "dmp.body.uncompress.fail", PI_UNDECODED, PI_WARN, "Error: Unable to uncompress content", EXPFILL }},
      { &ei_checksum_bad, { "dmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+    { &ei_too_many_sec_cat, { "dmp.too_many_security_categories", PI_PROTOCOL, PI_ERROR, "Too many security categories", EXPFILL }},
   };
 
   static uat_field_t attributes_flds[] = {
