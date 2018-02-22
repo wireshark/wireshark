@@ -16,12 +16,108 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2018-05[]
 +
-A dissector went awry.
-(ws-buglink:xxxx[])
-cve-idlink:2018-xxxx[]
-// Fixed in master: xxxx
-// Fixed in master-2.4: xxxx
-// Fixed in master-2.2: xxxx
+The IEEE 802.11 dissector could crash.
+(ws-buglink:14442[])
+cve-idlink:2018-7335[]
+// Fixed in master: 9c5803ff76
+// Fixed in master-2.4: 569fb1e21d
+// Fixed in master-2.2: 2743040cd4
+
+* ws-salink:2018-06[]
++
+Multiple dissectors could go into large infinite loops.
+All ASN.1 BER dissectors (ws-buglink:14444[]),
+along with the DICOM (ws-buglink:14411[]),
+DMP (ws-buglink:14408[]),
+LLTD (ws-buglink:14419[]),
+OpenFlow (ws-buglink:14420[]),
+RELOAD (ws-buglink:14445[]),
+RPCoRDMA (ws-buglink:14449[]),
+RPKI-Router (ws-buglink:14414[]),
+S7COMM (ws-buglink:14423[]),
+SCCP (ws-buglink:14413[]),
+Thread (ws-buglink:14428[]),
+Thrift (ws-buglink:14379[]),
+USB (ws-buglink:14421[]),
+and WCCP (ws-buglink:14412[])
+dissectors were susceptible.
+// cve-idlink:2018-xxxx[]
+// Fixed in master: lots
+// Fixed in master-2.4: lots
+// Fixed in master-2.2: lots
+
+* ws-salink:2018-07[]
++
+The UMTS MAC dissector could crash.
+(ws-buglink:14339[])
+cve-idlink:2018-7334[]
+// Fixed in master: 9dfd17b104
+// Fixed in master-2.4: 8d4398752e
+// Fixed in master-2.2: 8ed705e122
+
+* ws-salink:2018-08[]
++
+The DOCSIS dissector could crash.
+(ws-buglink:14446[])
+cve-idlink:2018-7337[]
+// Fixed in master: 91409213ad
+// Fixed in master-2.4: 511a8b0b54
+// Fixed in master-2.2: N/A
+
+* ws-salink:2018-09[]
++
+The FCP dissector could crash.
+(ws-buglink:14374[])
+cve-idlink:2018-7336[]
+// Fixed in master: f4f44caa35
+// Fixed in master-2.4: af5943168b
+// Fixed in master-2.2: b56f598f1b
+
+* ws-salink:2018-10[]
++
+The SIGCOMP dissector could crash.
+(ws-buglink:14398[])
+cve-idlink:2018-7320[]
+// Fixed in master: 7da66f8676
+// Fixed in master-2.4: 5173221082
+// Fixed in master-2.2: 015e339939
+
+* ws-salink:2018-11[]
++
+The pcapng file parser could crash.
+(ws-buglink:14403[])
+// cve-idlink:2018-xxxx[]
+// Fixed in master: f73ae69ba9
+// Fixed in master-2.4: 52ac26f131
+// Fixed in master-2.2: 129e41f9f6
+
+* ws-salink:2018-12[]
++
+The IPMI dissector could crash.
+(ws-buglink:14409[])
+// cve-idlink:2018-xxxx[]
+// Fixed in master: 0bd863ae46
+// Fixed in master-2.4: 81216a176b
+// Fixed in master-2.2: 72ed2229e5,536650a419
+
+* ws-salink:2018-13[]
++
+The SIGCOMP dissector could crash.
+(ws-buglink:14410[])
+// cve-idlink:2018-xxxx[]
+// Fixed in master: 32ab83436d
+// Fixed in master-2.4: 29d920b830
+// Fixed in master-2.2: 0a2f323977
+
+* ws-salink:2018-14[]
++
+The NBAP disssector could crash.
+(ws-buglink:14443[])
+// cve-idlink:2018-xxxx[]
+// Fixed in master: 47726eafe5
+// Fixed in master-2.4: f87bd6f978
+// Fixed in master-2.2: bebd3a1f50
+
 
 The following bugs have been fixed:
 
@@ -29,7 +125,30 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.5rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.5rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Change placement of "double chevron" in Filter Toolbar to eliminate overlap. (ws-buglink:14121[])
+
+* AutoScroll does not work. (ws-buglink:14257[])
+
+* BOOTP/DHCP: malformed packet -> when user class option (77) is present. (ws-buglink:14312[])
+
+* GET MAX LUN wLength decoded as big-endian - USB Mass Storage. (ws-buglink:14360[])
+
+* Unable to create Filter Expression Button for a yellow filter. (ws-buglink:14369[])
+
+* Buildbot crash output: fuzz-2018-01-28-15874.pcap. (ws-buglink:14371[])
+
+* NetScaler RPC segmentation fault / stack overflow. (ws-buglink:14399[])
+
+* [oss-fuzz] #6028 RPC_NETLOGON: Direct-leak in g_malloc (generate_hash_key). (ws-buglink:14407[])
+
+* Newline "{backslash}n" in packet list field increase line height for all rows. (ws-buglink:14424[])
+
+* ieee80211-radio.c preamble duration calculation not correct. (ws-buglink:14439[])
+
+* DIS: Malformed packet in SISO-STD-002 transmitter. (ws-buglink:14441[])
+
 
 === New and Updated Features
 
@@ -46,13 +165,48 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+ASN.1 BER
+BOOTP/DHCP
+DCE RPC NETLOGON
+DICOM
+DIS
+DMP
+DOCSIS
+EPL
+HSRP
+IAX2
+IEEE 802.11
+Infiniband
+IPMI
+IPv6
+FCP
+GSM A RR
+LDAP
+LLTD
+NBAP
+NetScaler RPC
+OpenFlow
+RELOAD
+RPCoRDMA
+RPKI-Router
+S7COMM
+SCCP
+SIGCOMP
+Thread
+Thrift
+TLS/SSL
+UMTS MAC
+USB
+USB Mass Storage
+WCCP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+//There is no new or updated capture file support in this release.
+--sort-and-group--
+pcap, pcapng
+--sort-and-group--
 
 //=== New and Updated Capture Interfaces support
 
