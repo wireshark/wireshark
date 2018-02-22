@@ -4757,7 +4757,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_gate_status_b3b2_ulgate,
         { "UL Gate", "pfcp.gate_status.ulgate",
-            FT_UINT8, BASE_DEC, VALS(pfcp_gate_status_vals), 0x0e,
+            FT_UINT8, BASE_DEC, VALS(pfcp_gate_status_vals), 0x0c,
             NULL, HFILL }
         },
         { &hf_pfcp_ul_mbr,
