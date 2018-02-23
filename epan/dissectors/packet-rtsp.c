@@ -860,7 +860,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * of a server closing the connection indicating the end of
      * a reply body.
      *
-     * We assume that an absent content length in a request means
+     * To support pipelining, we check if line behind blank line
+     * looks like RTSP header. If so, we process rest of packet with
+     * RTSP loop.
+     *
+     * If no, we assume that an absent content length in a request means
      * that we don't have a body, and that an absent content length
      * in a reply means that the reply body runs to the end of
      * the connection.  If the first line is neither, we assume
@@ -1316,41 +1320,53 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         new_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen,
                 reported_datalen);
 
-        if (media_type_str_lower_case &&
-            dissector_try_string(media_type_dissector_table,
-                media_type_str_lower_case,
-                new_tvb, pinfo, rtsp_tree, NULL)){
-
-        }else {
-            /*
-             * Fix up the top-level item so that it doesn't
-             * include the SDP stuff.
-             */
-            if (ti_top != NULL)
-                proto_item_set_len(ti_top, offset);
-
-            if (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR) {
-                /*
-                 * This is interleaved stuff; don't
-                 * treat it as raw data - set "datalen"
-                 * to 0, so we won't skip the offset
-                 * past it, which will cause our
-                 * caller to process that stuff itself.
-                 */
-                datalen = 0;
-            } else {
-                proto_tree_add_bytes_format(rtsp_tree, hf_rtsp_data, tvb, offset,
-                    datalen, NULL, "Data (%d bytes)",
-                    reported_datalen);
-            }
-        }
-
         /*
-         * We've processed "datalen" bytes worth of data
-         * (which may be no data at all); advance the
-         * offset past whatever data we've processed.
+         * Check if next line is RTSP message - pipelining
+         * If yes, stop processing and start next loop
+         * If no, process rest of packet with dissectors
          */
-        offset += datalen;
+        first_linelen = tvb_find_line_end(new_tvb, 0, -1, &next_offset, FALSE);
+        line = tvb_get_ptr(new_tvb, 0, first_linelen);
+        is_request_or_reply = is_rtsp_request_or_reply(line, first_linelen,
+            &rtsp_type_packet);
+
+        if (!is_request_or_reply){
+            if (media_type_str_lower_case &&
+                dissector_try_string(media_type_dissector_table,
+                    media_type_str_lower_case,
+                    new_tvb, pinfo, rtsp_tree, NULL)){
+
+            } else {
+                /*
+                 * Fix up the top-level item so that it doesn't
+                 * include the SDP stuff.
+                 */
+                if (ti_top != NULL)
+                    proto_item_set_len(ti_top, offset);
+
+                if (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR) {
+                    /*
+                     * This is interleaved stuff; don't
+                     * treat it as raw data - set "datalen"
+                     * to 0, so we won't skip the offset
+                     * past it, which will cause our
+                     * caller to process that stuff itself.
+                     */
+                    datalen = 0;
+                } else {
+                    proto_tree_add_bytes_format(rtsp_tree, hf_rtsp_data, tvb, offset,
+                        datalen, NULL, "Data (%d bytes)",
+                        reported_datalen);
+                }
+            }
+
+            /*
+             * We've processed "datalen" bytes worth of data
+             * (which may be no data at all); advance the
+             * offset past whatever data we've processed.
+             */
+            offset += datalen;
+        }
     }
 
     tap_queue_packet(rtsp_tap, pinfo, rtsp_stat_info);
