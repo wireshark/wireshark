@@ -344,6 +344,9 @@ if [ -z "$cs_binary_list" ]; then
 	for binary in Wireshark $cli_binary_list ; do
 		cs_binary_list="$cs_binary_list $pkgexec/$binary"
 	done
+	for binary in $extcap_binaries ; do
+		cs_binary_list="$cs_binary_list $pkgexec/extcap/$binary"
+	done
 fi
 
 
