@@ -2321,42 +2321,44 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_dbm_antsignal,
 		 {"SSI Signal", "radiotap.dbm_antsignal",
 		  FT_INT32, BASE_DEC, NULL, 0x0,
-		  "RF signal power at the antenna from a fixed,"
-		  " arbitrary value in decibels from one milliwatt", HFILL}},
+		  "RF signal power at the antenna expressed as decibels"
+		  " from one milliwatt", HFILL}},
 
 		{&hf_radiotap_db_antsignal,
 		 {"SSI Signal", "radiotap.db_antsignal",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "RF signal power at the antenna from a fixed, arbitrary value in decibels", HFILL}},
+		  "RF signal power at the antenna expressed as decibels"
+		  " from a fixed, arbitrary value", HFILL}},
 
 		{&hf_radiotap_dbm_antnoise,
 		 {"SSI Noise", "radiotap.dbm_antnoise",
 		  FT_INT32, BASE_DEC, NULL, 0x0,
-		  "RF noise power at the antenna from a fixed, arbitrary value"
-		  " in decibels per one milliwatt", HFILL}},
+		  "RF noise power at the antenna expressed as decibels"
+		  " from one milliwatt", HFILL}},
 
 		{&hf_radiotap_db_antnoise,
 		 {"SSI Noise", "radiotap.db_antnoise",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "RF noise power at the antenna from a fixed, arbitrary value"
-		  " in decibels", HFILL}},
+		  "RF noise power at the antenna expressed as decibels"
+		  " from a fixed, arbitrary value", HFILL}},
 
 		{&hf_radiotap_tx_attenuation,
 		 {"Transmit attenuation", "radiotap.txattenuation",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Transmit power expressed as unitless distance from max power"
-		  " set at factory (0 is max power)", HFILL}},
+		  " set at factory calibration (0 is max power)", HFILL}},
 
 		{&hf_radiotap_db_tx_attenuation,
 		 {"Transmit attenuation (dB)", "radiotap.db_txattenuation",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Transmit power expressed as decibels from max power"
-		  " set at factory (0 is max power)", HFILL}},
+		  " set at factory calibration (0 is max power)", HFILL}},
 
 		{&hf_radiotap_txpower,
 		 {"Transmit power", "radiotap.txpower",
 		  FT_INT32, BASE_DEC, NULL, 0x0,
-		  "Transmit power in decibels per one milliwatt (dBm)", HFILL}},
+		  "Transmit power at the antenna port expressed as decibels"
+		  " from one milliwatt (dBm)", HFILL}},
 
 		{&hf_radiotap_mcs,
 		 {"MCS information", "radiotap.mcs",
