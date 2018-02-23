@@ -1624,32 +1624,33 @@ dissect_pfcp_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     offset++;
 
     unit = unit >> 5;
-    switch (unit) {
-    case 0:
-        proto_item_append_text(item, "%u s", value * 2);
-        break;
-    case 1:
-        proto_item_append_text(item, "%u min", value);
-        break;
-    case 2:
-        proto_item_append_text(item, "%u min", value * 10);
-        break;
-    case 3:
-        proto_item_append_text(item, "%u hours", value);
-        break;
-    case 4:
-        proto_item_append_text(item, "%u hours", value * 10);
-        break;
-    case 7:
-        proto_item_append_text(item, "%u Infinite", value);
-        break;
-        /* Value 5 and 6 */
-    default:
-        proto_item_append_text(item, "%u min", value * 10);
-        break;
-    }
-    if ((unit != 7) && (value == 0)) {
+    if ((unit == 0) && (value == 0)) {
         proto_item_append_text(item, " Stopped");
+    } else {
+        switch (unit) {
+        case 0:
+            proto_item_append_text(item, "%u s", value * 2);
+            break;
+        case 1:
+            proto_item_append_text(item, "%u min", value);
+            break;
+        case 2:
+            proto_item_append_text(item, "%u min", value * 10);
+            break;
+        case 3:
+            proto_item_append_text(item, "%u hours", value);
+            break;
+        case 4:
+            proto_item_append_text(item, "%u hours", value * 10);
+            break;
+        case 7:
+            proto_item_append_text(item, "%u Infinite", value);
+            break;
+            /* Value 5 and 6 */
+        default:
+            proto_item_append_text(item, "%u min", value * 1);
+            break;
+        }
     }
 
     if (offset < length) {
