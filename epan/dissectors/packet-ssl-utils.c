@@ -6445,7 +6445,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                                     proto_tree *tree, guint32 offset, guint32 offset_end,
                                                     guint8 hnd_type, SslDecryptSession *ssl _U_)
 {
-    guint32 quic_length, parameter_length, supported_versions_length, next_offset, version;
+    guint32 quic_length, parameter_length, supported_versions_length, next_offset;
 
     /* https://tools.ietf.org/html/draft-ietf-quic-transport-08#section-7.4
      *  uint32 QuicVersion;
@@ -6481,23 +6481,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      */
     switch (hnd_type) {
     case SSL_HND_CLIENT_HELLO:
-        version = tvb_get_ntohl(tvb, offset);
-        if(version <= 0xff000007){ /* No longer negotiated_version on Client Hello with >= draft-07 */
-            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
-                                tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-        }
         proto_tree_add_item(tree, hf->hf.hs_ext_quictp_initial_version,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     case SSL_HND_ENCRYPTED_EXTENSIONS:
-        version = tvb_get_ntohl(tvb, offset);
-        if(version > 0xff000007){ /* Now negotiated_version on Encrypted Extensions (>= draft-08) */
-            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
-                                tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-        }
+        proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         /* QuicVersion supported_versions<4..2^8-4>;*/
         if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &supported_versions_length,
                             hf->hf.hs_ext_quictp_supported_versions_len, 4, G_MAXUINT8-3)) {
