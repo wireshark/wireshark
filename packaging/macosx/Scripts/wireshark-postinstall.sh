@@ -19,6 +19,13 @@ do
 	rm -f "$PLUGINS_PATH"/$plugin.so "$PLUGINS_PATH"/$plugin.la
 done
 
+#
+# Get rid of any ipmap.html file that was dropped into Contents/MacOS;
+# it belongs in, and is installed in, Contents/Resources/share/wireshark,
+# and we don't need the extra copy.
+#
+rm -f "$2/Wireshark.app/Contents/MacOS/ipmap.html"
+
 # Setting PATH
 # if /etc/paths.d/Wireshark already exists we overwrite it.
 #
