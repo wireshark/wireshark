@@ -1,9 +1,7 @@
 #!/bin/bash
 #
 # USAGE
-# osx-app [-s] [-l /path/to/libraries] -bp /path/to/wireshark/bin
-#     -lp /path/to/wireshark/lib -ep /path/to/wireshark/extcap/binaries
-#     -pp /path/to/wireshark/plugins -p /path/to/Info.plist
+# osx-app [-s] [-l /path/to/libraries]
 #
 # This script attempts to build an Wireshark.app bundle for macOS, resolving
 # dynamic libraries, etc.
@@ -37,50 +35,11 @@
 
 # Defaults
 strip=false
-binary_path="/tmp/inst/bin"
-library_path="/tmp/inst/lib"
-plugin_path="/tmp/inst/lib/wireshark/plugins"
-extcap_path="/tmp/inst/lib/wireshark/extcap"
-plist="./Info.plist"
 exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@executable_path"
-create_bundle=false
 
 # Bundle always has the same name. Version information is stored in
 # the Info.plist file which is filled in by the configure script.
 bundle="Wireshark.app"
-
-# Name of the Wireshark executable
-wireshark_bin_name="wireshark"
-
-#
-# Command-line executables
-#
-cli_binary_list="
-	capinfos
-	dftest
-	dumpcap
-	editcap
-	mergecap
-	randpkt
-	rawshark
-	text2pcap
-	tshark
-"
-
-extcap_binaries="
-	androiddump
-	ciscodump
-	randpktdump
-	sshdump
-	udpdump
-"
-
-for extcap_binary in $extcap_binaries
-do
-	if [ -x "extcap/$extcap_binary" ]; then
-		extcap_binary_list="$extcap_binary_list extcap/$extcap_binary"
-	fi
-done
 
 # Location for libraries (tools/macos-setup.sh defaults to whatever the
 # various support libraries use as their standard installation location,
@@ -98,7 +57,7 @@ echo -e "
 Create an app bundle for macOS
 
 USAGE
-	$0 [-s] [-l /path/to/libraries] -bp /path/to/wireshark/binaries -p /path/to/Info.plist
+	$0 [-s] [-l /path/to/libraries]
 
 OPTIONS
 	-h,--help
@@ -109,27 +68,11 @@ OPTIONS
 		Specify the path to the libraries Wireshark depends on
 		(typically /sw or /opt/local). By default it is
 		/usr/local.
-	-bp,--binary-path
-		Specify the path to the Wireshark binaries. By default it
-		is /tmp/inst/bin.
-	-lp,--library-path
-		Specify the path to the Wireshark libraries. By default it
-		is /tmp/inst/lib.
-	-pp,--plugin-path
-		Specify the path to the Wireshark plugins. By default it
-		is /tmp/inst/lib/wireshark/plugins.
-	-ep,--extcap-path
-		Specify the path to the Wireshark extcap binaries. By
-		default it is /tmp/inst/lib/wireshark/extcap.
-	-p,--plist
-		Specify the path to Info.plist. Info.plist can be found
-		in the base directory of the source code once configure
-		has been run.
 	-sdkroot
 		Specify the root of the SDK to use.
 
 EXAMPLE
-	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist -sdkroot /Developer/SDKs/MacOSX10.5.sdk
+	$0 -s -l /opt/local -sdkroot /Developer/SDKs/MacOSX10.5.sdk
 "
 }
 
@@ -143,23 +86,6 @@ do
 			strip=true ;;
 		-l|--libraries)
 			LIBPREFIX="$2"
-			shift 1 ;;
-		-bp|--binary-path)
-			binary_path="$2"
-			shift 1 ;;
-		-lp|--library-path)
-			library_path="$2"
-			shift 1 ;;
-		-pp|--plugin-path)
-			plugin_path="$2"
-			shift 1 ;;
-		-ep|--extcap-path)
-			extcap_path="$2"
-			shift 1 ;;
-		-cb|--create-bundle)
-			create_bundle=true;;
-		-p|--plist)
-			plist="$2"
 			shift 1 ;;
 		-h|--help)
 			help
@@ -180,39 +106,10 @@ if [ ! -e "$LIBPREFIX" ]; then
 	exit 1
 fi
 
-if [ "$create_bundle" = "true" ]; then
-	echo -e "\nCREATE WIRESHARK APP BUNDLE\n"
-
-	if [ ! -x "$binary_path/$wireshark_bin_name" ]; then
-		echo "Couldn't find $binary_path/$wireshark_bin_name (or it's not executable)" >&2
-		exit 1
-	fi
-
-	for binary in $cli_binary_list ; do
-		binary=$( basename $binary )
-		if [ ! -x "$binary_path/$binary" ]; then
-			echo "Couldn't find $binary (or it's not executable)" >&2
-			exit 1
-		fi
-	done
-
-	for binary in $extcap_binary_list ; do
-		binary=$( basename $binary )
-		if [ ! -x "$extcap_path/$binary" ]; then
-			echo "Couldn't find $binary (or it's not executable)" >&2
-			exit 1
-		fi
-	done
-
-	if [ ! -f "$plist" ]; then
-		echo "Need plist file" >&2
-		exit 1
-	fi
-elif [ ! -d "$bundle" ] ; then
+if [ ! -d "$bundle" ] ; then
 	echo "$bundle not found" >&2
 	exit 1
 fi
-
 
 qt_frameworks_dir=$( qmake -query QT_INSTALL_LIBS )
 if [ ! -d "$qt_frameworks_dir" ] ; then
@@ -237,16 +134,10 @@ resdir=`pwd`
 
 #
 # Get a list of all binaries in the bundle.
+# Treat all plain files with read and execute permissions for all as
+# binaries.
 #
-bundle_binary_list=
-if [ -z "$bundle_binary_list" ]; then
-	for binary in Wireshark $cli_binary_list ; do
-		bundle_binary_list="$bundle_binary_list $pkgexec/$binary"
-	done
-	for binary in $extcap_binaries ; do
-		bundle_binary_list="$bundle_binary_list $pkgexec/extcap/$binary"
-	done
-fi
+bundle_binary_list=`find $pkgexec -type f -perm -0555 -print`
 
 echo -e "\nFixing up $bundle...\n"
 
