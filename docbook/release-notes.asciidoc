@@ -75,7 +75,7 @@ cve-idlink:2018-7320[]
 +
 The pcapng file parser could crash.
 (ws-buglink:14403[])
-// cve-idlink:2018-xxxx[]
+cve-idlink:2018-7420[]
 // Fixed in master: f73ae69ba9
 // Fixed in master-2.4: 52ac26f131
 // Fixed in master-2.2: 129e41f9f6
@@ -84,7 +84,7 @@ The pcapng file parser could crash.
 +
 The IPMI dissector could crash.
 (ws-buglink:14409[])
-// cve-idlink:2018-xxxx[]
+cve-idlink:2018-7417[]
 // Fixed in master: 0bd863ae46
 // Fixed in master-2.4: 81216a176b
 // Fixed in master-2.2: 72ed2229e5,536650a419
@@ -93,7 +93,7 @@ The IPMI dissector could crash.
 +
 The SIGCOMP dissector could crash.
 (ws-buglink:14410[])
-// cve-idlink:2018-xxxx[]
+cve-idlink:2018-7418[]
 // Fixed in master: 32ab83436d
 // Fixed in master-2.4: 29d920b830
 // Fixed in master-2.2: 0a2f323977
@@ -102,7 +102,7 @@ The SIGCOMP dissector could crash.
 +
 The NBAP disssector could crash.
 (ws-buglink:14443[])
-// cve-idlink:2018-xxxx[]
+cve-idlink:2018-7419[]
 // Fixed in master: 47726eafe5
 // Fixed in master-2.4: f87bd6f978
 // Fixed in master-2.2: bebd3a1f50
