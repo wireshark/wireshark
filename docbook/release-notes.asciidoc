@@ -17,7 +17,7 @@ The following vulnerabilities have been fixed:
 * ws-salink:2018-05[]
 +
 The IEEE 802.11 dissector could crash.
-(ws-buglink:14442[])
+ws-buglink:14442[],
 cve-idlink:2018-7335[]
 // Fixed in master: 9c5803ff76
 // Fixed in master-2.4: 569fb1e21d
@@ -49,7 +49,7 @@ dissectors were susceptible.
 * ws-salink:2018-07[]
 +
 The UMTS MAC dissector could crash.
-(ws-buglink:14339[])
+ws-buglink:14339[],
 cve-idlink:2018-7334[]
 // Fixed in master: 9dfd17b104
 // Fixed in master-2.4: 8d4398752e
@@ -58,7 +58,7 @@ cve-idlink:2018-7334[]
 * ws-salink:2018-08[]
 +
 The DOCSIS dissector could crash.
-(ws-buglink:14446[])
+ws-buglink:14446[],
 cve-idlink:2018-7337[]
 // Fixed in master: 91409213ad
 // Fixed in master-2.4: 511a8b0b54
@@ -67,7 +67,7 @@ cve-idlink:2018-7337[]
 * ws-salink:2018-09[]
 +
 The FCP dissector could crash.
-(ws-buglink:14374[])
+ws-buglink:14374[],
 cve-idlink:2018-7336[]
 // Fixed in master: f4f44caa35
 // Fixed in master-2.4: af5943168b
@@ -76,7 +76,7 @@ cve-idlink:2018-7336[]
 * ws-salink:2018-10[]
 +
 The SIGCOMP dissector could crash.
-(ws-buglink:14398[])
+ws-buglink:14398[],
 cve-idlink:2018-7320[]
 // Fixed in master: 7da66f8676
 // Fixed in master-2.4: 5173221082
@@ -85,7 +85,7 @@ cve-idlink:2018-7320[]
 * ws-salink:2018-11[]
 +
 The pcapng file parser could crash.
-(ws-buglink:14403[])
+ws-buglink:14403[],
 cve-idlink:2018-7420[]
 // Fixed in master: f73ae69ba9
 // Fixed in master-2.4: 52ac26f131
@@ -94,7 +94,7 @@ cve-idlink:2018-7420[]
 * ws-salink:2018-12[]
 +
 The IPMI dissector could crash.
-(ws-buglink:14409[])
+ws-buglink:14409[],
 cve-idlink:2018-7417[]
 // Fixed in master: 0bd863ae46
 // Fixed in master-2.4: 81216a176b
@@ -103,7 +103,7 @@ cve-idlink:2018-7417[]
 * ws-salink:2018-13[]
 +
 The SIGCOMP dissector could crash.
-(ws-buglink:14410[])
+ws-buglink:14410[],
 cve-idlink:2018-7418[]
 // Fixed in master: 32ab83436d
 // Fixed in master-2.4: 29d920b830
@@ -112,7 +112,7 @@ cve-idlink:2018-7418[]
 * ws-salink:2018-14[]
 +
 The NBAP disssector could crash.
-(ws-buglink:14443[])
+ws-buglink:14443[],
 cve-idlink:2018-7419[]
 // Fixed in master: 47726eafe5
 // Fixed in master-2.4: f87bd6f978
