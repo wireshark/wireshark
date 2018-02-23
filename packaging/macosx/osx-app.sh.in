@@ -120,7 +120,6 @@ exclude_prefixes="$exclude_prefixes|$qt_frameworks_dir"
 # Package paths
 pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
-pkgbin="$pkgres/bin"
 pkglib="$bundle/Contents/Frameworks"
 pkgplugin="$bundle/Contents/PlugIns/wireshark/@VERSION_MAJOR@.@VERSION_MINOR@"
 
@@ -392,9 +391,6 @@ else
 	echo "Could not rewrite dylib paths for bundled libraries.  This requires" >&2
 	echo "the support libraries to be installed in a PREFIX of at least 6 characters in length." >&2
 	echo "" >&2
-	echo "The bundle will still work if the following line is uncommented in" >&2
-	echo "Wireshark.app/Contents/Resources/bin/{various scripts}:" >&2
-	echo '        export DYLD_LIBRARY_PATH="$TOP/lib"' >&2
 	exit 1
 
 fi
