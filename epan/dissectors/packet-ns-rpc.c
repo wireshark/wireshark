@@ -1128,7 +1128,7 @@ dissect_ns_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	ns_rpc_tree = proto_item_add_subtree(ti, ett_nsrpc);
 
 	proto_tree_add_item_ret_uint(ns_rpc_tree, hf_nsrpc_dlen, tvb, offset, 4, ENC_LITTLE_ENDIAN, &datalen);
-	offset += 8;
+	offset += 8;	/* skip length, signature, and 2 more bytes */
 	proto_tree_add_item_ret_uint(ns_rpc_tree, hf_nsrpc_cmd, tvb, offset, 1, ENC_LITTLE_ENDIAN, &rpc_cmd);
 	offset += 2;
 	if (rpc_cmd & 0x80)
@@ -1164,14 +1164,10 @@ dissect_ns_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 static gboolean
 dissect_ns_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	guint16 ns_rpc_sig;
+	static const guint8 ns_rpc_sig[2] = { 0xA5, 0xA5 };
 
-	if (tvb_captured_length(tvb) < 6)
-		return FALSE;
-
-	/* Get the signature */
-	ns_rpc_sig = tvb_get_letohs(tvb, 4);
-	if (ns_rpc_sig != 0xA5A5)
+	/* Check the signature */
+	if (tvb_memeql(tvb, 4, ns_rpc_sig, sizeof ns_rpc_sig) != 0)
 		return FALSE;
 
 	dissect_ns_rpc(tvb, pinfo, tree, data);
