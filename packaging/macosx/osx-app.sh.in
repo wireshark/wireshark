@@ -82,8 +82,6 @@ do
 	fi
 done
 
-cs_binary_list=
-
 # Location for libraries (tools/macos-setup.sh defaults to whatever the
 # various support libraries use as their standard installation location,
 # which is /usr/local)
@@ -237,12 +235,16 @@ pkgplugin="$bundle/Contents/PlugIns/wireshark/@VERSION_MAJOR@.@VERSION_MINOR@"
 # Set the 'macosx' directory, usually the current directory.
 resdir=`pwd`
 
-if [ -z "$cs_binary_list" ]; then
+#
+# Get a list of all binaries in the bundle.
+#
+bundle_binary_list=
+if [ -z "$bundle_binary_list" ]; then
 	for binary in Wireshark $cli_binary_list ; do
-		cs_binary_list="$cs_binary_list $pkgexec/$binary"
+		bundle_binary_list="$bundle_binary_list $pkgexec/$binary"
 	done
 	for binary in $extcap_binaries ; do
-		cs_binary_list="$cs_binary_list $pkgexec/extcap/$binary"
+		bundle_binary_list="$bundle_binary_list $pkgexec/extcap/$binary"
 	done
 fi
 
@@ -258,9 +260,14 @@ while $endl; do
 	#
 	# To find dependencies, we:
 	#
-	#    find all plain files under $pkglib and $pkgexec;
-	#
-	#    run otool -L on them to find all the libraries they depend on;
+	#    run otool -L on all the binaries in the bundle, and on all
+	#    the shared libraries in the $pkglib directory, to find all
+	#    the libraries they depend on (we don't bother with the
+	#    frameworks, as the only frameworks we ship are the Qt
+	#    frameworks, which don't depend on any libraries that
+	#    don't ship with the OS, and as it's hard to find the
+	#    framework libraries under $pkglib without getting
+	#    non-framework files);
 	#
 	#    filter out all lines that don't contain "compatibility" to
 	#    remove lines of output that don't correspond to dependencies;
@@ -278,7 +285,7 @@ while $endl; do
 	#    eliminate duplicates.
 	#
 	libs="`\
-		find "$pkglib" "$pkgexec" -type f -print0 | xargs -0 otool -L 2>/dev/null \
+		otool -L $bundle_binary_list "$pkglib"/*.dylib 2>/dev/null \
 		| fgrep compatibility \
 		| cut -d\( -f1 \
 		| sed '1,$s;^	libssh;	/usr/local/lib/libssh;' \
@@ -516,11 +523,11 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	security find-identity -v -s "$CODE_SIGN_IDENTITY" -p codesigning
 
 	echo "Signing executables"
-	if [ -z "$cs_binary_list" ] ; then
+	if [ -z "$bundle_binary_list" ] ; then
 		echo "No executables specified for code signing."
 		exit 1
 	fi
-	for binary in $cs_binary_list ; do
+	for binary in $bundle_binary_list ; do
 		if [ -e "$binary" ];then
 			codesign_file "$binary"
 		fi
