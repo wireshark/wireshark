@@ -10,7 +10,7 @@
 # will just silently and harmlessly fail to remove files that aren't
 # there in the first place.
 #
-PLUGINS="coseventcomm cosnaming interlink parlay sercosiii tango"
+PLUGINS="coseventcomm cosnaming docsis interlink parlay sercosiii tango"
 
 PLUGINS_PATH="$2/Wireshark.app/Contents/Resources/lib/wireshark/plugins"
 
