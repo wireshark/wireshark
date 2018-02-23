@@ -129,11 +129,9 @@ OPTIONS
 		Specify the path to Info.plist. Info.plist can be found
 		in the base directory of the source code once configure
 		has been run.
-	-sdkroot
-		Specify the root of the SDK to use.
 
 EXAMPLE
-	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist -sdkroot /Developer/SDKs/MacOSX10.5.sdk
+	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist
 "
 }
 
@@ -168,9 +166,6 @@ do
 		-h|--help)
 			help
 			exit 0 ;;
-		-sdkroot)
-			sdkroot="$2"
-			shift 1 ;;
 		*)
 			echo "Invalid command line option: $1"
 			exit 2 ;;
