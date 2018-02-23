@@ -799,14 +799,12 @@ static int hf_tds_colfmt_utype = -1;
 static int hf_tds_colfmt_ctype = -1;
 static int hf_tds_colfmt_csize = -1;
 static int hf_tds_colfmt_csize_long = -1;
-static int hf_tds_colfmt_text_tablename_length = -1;
 static int hf_tds_colfmt_text_tablename = -1;
 
 /* COLNAME token (TDS_COL_NAME_TOKEN) */
 static int hf_tds_colname = -1;
 static int hf_tds_colname_length = -1;
 static int hf_tds_colname_column = -1;
-static int hf_tds_colname_name_length = -1;
 static int hf_tds_colname_name = -1;
 
 /* COLMETADATA token (TDS7_COL_METADATA_TOKEN) */
@@ -858,7 +856,6 @@ static int hf_tds_colmetadata_xmlschemacollection = -1;
 /* CONTROL token (TDS_CONTROL_TOKEN) */
 static int hf_tds_control = -1;
 static int hf_tds_control_length = -1;
-static int hf_tds_control_fmt_length = -1;
 static int hf_tds_control_fmt = -1;
 
 /* DONE token (TDS_DONE_TOKEN) */
@@ -3441,26 +3438,19 @@ dissect_tds_col_name_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
         if (!(nl_data->columns[col])) {
             nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
         }
-        proto_tree_add_item_ret_uint(col_tree, hf_tds_colname_name_length, tvb, cur, 1, ENC_NA, &len);
-        cur += 1;
+        proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_colname_name,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
+            wmem_packet_scope(), &colname, &len);
 
-        if (tds_char_encoding_is_two_byte(tds_info)) {
-            /* This will never really be reached, because this token is TDS 4.x which is
-             * single-byte chars only. */
-            len *= 2;
-        }
-        proto_tree_add_item_ret_string(col_tree, hf_tds_colname_name, tvb, cur, len,
-                                       tds_get_char_encoding(tds_info),
-                                       wmem_packet_scope(), &colname);
         nl_data->columns[col]->name = colname;
 
-        if (len > 0) {
+        if (len > 1) {
             proto_item_set_text(col_item, "Column %d (%s)", col + 1, colname);
         }
         else {
             proto_item_set_text(col_item, "Column %d", col + 1);
         }
-        proto_item_set_len(col_item, len + 1);
+        proto_item_set_len(col_item, len);
 
         col++;
         cur += len;
@@ -3543,13 +3533,11 @@ dissect_tds_colfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
                                              tds_get_int4_encoding(tds_info),
                                              &nl_data->columns[col]->csize);
                 cur += 4;
-                proto_tree_add_item_ret_uint(col_tree, hf_tds_colfmt_text_tablename_length,
-                                             tvb, cur, 2,
-                                             tds_get_int2_encoding(tds_info), &tnamelen);
-                proto_tree_add_item(col_tree, hf_tds_colfmt_text_tablename,
-                                    tvb, cur + 2, tnamelen,
-                                    tds_get_char_encoding(tds_info));
-                cur += (2 + tnamelen);
+                proto_tree_add_item_ret_length(col_tree, hf_tds_colfmt_text_tablename,
+                    tvb, cur, 2,
+                    tds_get_char_encoding(tds_info)|tds_get_int2_encoding(tds_info),
+                    &tnamelen);
+                cur += tnamelen;
 
             }
             else {
@@ -3656,7 +3644,8 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv
                     &nl_data->columns[col]->csize);
                 cur += 4;
                 proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt_text_tablename,
-                    tvb, cur, 2, tds_get_char_encoding(tds_info)|ENC_NA,
+                    tvb, cur, 2,
+                    tds_get_char_encoding(tds_info)|tds_get_int2_encoding(tds_info),
                     &tnamelen);
                 cur += tnamelen;
             }
@@ -3799,7 +3788,8 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
                     &nl_data->columns[col]->csize);
                 cur += 4;
                 proto_tree_add_item_ret_length(col_tree, hf_tds_rowfmt2_text_tablename,
-                    tvb, cur, 2, tds_get_char_encoding(tds_info)|ENC_NA,
+                    tvb, cur, 2,
+                    tds_get_char_encoding(tds_info)|tds_get_int2_encoding(tds_info),
                     &tnamelen);
                 cur += tnamelen;
             }
@@ -3856,14 +3846,9 @@ dissect_tds_control_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
         if (!(nl_data->columns[col])) {
             nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
         }
-        proto_tree_add_item_ret_uint(tree, hf_tds_control_fmt_length, tvb, cur, 1, ENC_NA, &len);
-        cur += 1;
+        proto_tree_add_item_ret_length(tree, hf_tds_control_fmt, tvb, cur, 1, ENC_NA, &len);
 
-        if (len > 0) {
-            proto_tree_add_item(tree, hf_tds_control_fmt, tvb, cur, len,
-                                tds_get_char_encoding(tds_info));
-            cur += len;
-        }
+        cur += len;
         col += 1;
     }
 
@@ -6690,14 +6675,9 @@ proto_register_tds(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_tds_colfmt_text_tablename_length,
-          { "ColFormat - Text Tablename length", "tds.colfmt.text_tablename_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_tds_colfmt_text_tablename,
           { "ColFormat - Text Tablename", "tds.colfmt.text_tablename",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -6717,14 +6697,9 @@ proto_register_tds(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_tds_colname_name_length,
-          { "Column name length", "tds.colname.name_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_tds_colname_name,
           { "Column name", "tds.colname.name",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -6961,14 +6936,9 @@ proto_register_tds(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_tds_control_fmt_length,
-          { "Control - Fmt length", "tds.control.fmt_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_tds_control_fmt,
           { "Control - Fmt", "tds.control.fmt",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -7126,7 +7096,7 @@ proto_register_tds(void)
         },
         { &hf_tds_eed_sql_state,
           { "SQL State", "tds.eed.sql_state",
-            FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_eed_status,
