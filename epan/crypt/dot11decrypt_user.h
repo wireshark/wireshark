@@ -1,4 +1,4 @@
-/* airpdcap_user.h
+/* dot11decrypt_user.h
  *
  * Copyright (c) 2006 CACE Technologies, Davis (California)
  * All rights reserved.
@@ -32,13 +32,13 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	_AIRPDCAP_USER_H
-#define	_AIRPDCAP_USER_H
+#ifndef	_DOT11DECRYPT_USER_H
+#define	_DOT11DECRYPT_USER_H
 
 /******************************************************************************/
 /*	File includes																					*/
 /*																										*/
-#include "airpdcap_interop.h"
+#include "dot11decrypt_interop.h"
 #include "ws_symbol_export.h"
 
 /*																										*/
@@ -49,26 +49,26 @@
 /*	Constant definitions																			*/
 /*																										*/
 /*	Decryption key types																			*/
-#define	AIRPDCAP_KEY_TYPE_WEP		0
-#define	AIRPDCAP_KEY_TYPE_WEP_40	1
-#define	AIRPDCAP_KEY_TYPE_WEP_104	2
-#define	AIRPDCAP_KEY_TYPE_WPA_PWD	3
-#define	AIRPDCAP_KEY_TYPE_WPA_PSK	4
-#define	AIRPDCAP_KEY_TYPE_WPA_PMK	5
-#define	AIRPDCAP_KEY_TYPE_TKIP		6
-#define	AIRPDCAP_KEY_TYPE_CCMP		7
+#define	DOT11DECRYPT_KEY_TYPE_WEP		0
+#define	DOT11DECRYPT_KEY_TYPE_WEP_40	1
+#define	DOT11DECRYPT_KEY_TYPE_WEP_104	2
+#define	DOT11DECRYPT_KEY_TYPE_WPA_PWD	3
+#define	DOT11DECRYPT_KEY_TYPE_WPA_PSK	4
+#define	DOT11DECRYPT_KEY_TYPE_WPA_PMK	5
+#define	DOT11DECRYPT_KEY_TYPE_TKIP		6
+#define	DOT11DECRYPT_KEY_TYPE_CCMP		7
 
 /*	Decryption algorithms fields size definition (bytes)								*/
-#define	AIRPDCAP_WEP_KEY_MINLEN		1
-#define	AIRPDCAP_WEP_KEY_MAXLEN		32
-#define	AIRPDCAP_WEP_40_KEY_LEN		5
-#define	AIRPDCAP_WEP_104_KEY_LEN	13
+#define	DOT11DECRYPT_WEP_KEY_MINLEN		1
+#define	DOT11DECRYPT_WEP_KEY_MAXLEN		32
+#define	DOT11DECRYPT_WEP_40_KEY_LEN		5
+#define	DOT11DECRYPT_WEP_104_KEY_LEN	13
 
-#define	AIRPDCAP_WPA_PASSPHRASE_MIN_LEN	8
-#define	AIRPDCAP_WPA_PASSPHRASE_MAX_LEN	63	/* null-terminated string, the actual length of the storage is 64	*/
-#define	AIRPDCAP_WPA_SSID_MIN_LEN			0
-#define	AIRPDCAP_WPA_SSID_MAX_LEN			32
-#define	AIRPDCAP_WPA_PSK_LEN				32
+#define	DOT11DECRYPT_WPA_PASSPHRASE_MIN_LEN	8
+#define	DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN	63	/* null-terminated string, the actual length of the storage is 64	*/
+#define	DOT11DECRYPT_WPA_SSID_MIN_LEN			0
+#define	DOT11DECRYPT_WPA_SSID_MAX_LEN			32
+#define	DOT11DECRYPT_WPA_PSK_LEN				32
 /*																										*/
 /*																										*/
 /******************************************************************************/
@@ -95,13 +95,13 @@ typedef struct {
 /**
  * Key item used during the decryption process.
  */
-typedef struct _AIRPDCAP_KEY_ITEM {
+typedef struct _DOT11DECRYPT_KEY_ITEM {
 	/**
 	 * Type of key. The type will remain unchanged during the
 	 * processing, even if some fields could be changed (e.g., WPA
 	 * fields).
 	 * @note
-	 * You can use constants AIRPDCAP_KEY_TYPE_xxx to indicate the
+	 * You can use constants DOT11DECRYPT_KEY_TYPE_xxx to indicate the
 	 * key type.
 	 */
 	UINT8 KeyType;
@@ -121,22 +121,22 @@ typedef struct _AIRPDCAP_KEY_ITEM {
 	 * For WPA and WPA2 this implementation will use standards as
 	 * defined in 802.11i (2004) and 802.1X (2004).
 	 */
-	union AIRPDCAP_KEY_ITEMDATA {
-		struct AIRPDCAP_KEY_ITEMDATA_WEP {
+	union DOT11DECRYPT_KEY_ITEMDATA {
+		struct DOT11DECRYPT_KEY_ITEMDATA_WEP {
 			/**
 			 * The binary value of the WEP key.
 			 * @note
 			 * It is accepted a key of length between
-			 * AIRPDCAP_WEP_KEY_MINLEN and
-			 * AIRPDCAP_WEP_KEY_MAXLEN. A WEP key
+			 * DOT11DECRYPT_WEP_KEY_MINLEN and
+			 * DOT11DECRYPT_WEP_KEY_MAXLEN. A WEP key
 			 * standard-compliante should be either 40 bits
 			 * (10 hex-digits, 5 bytes) for WEP-40 or 104 bits
 			 * (26 hex-digits, 13 bytes) for WEP-104.
 			 */
-			UCHAR WepKey[AIRPDCAP_WEP_KEY_MAXLEN];
+			UCHAR WepKey[DOT11DECRYPT_WEP_KEY_MAXLEN];
 			/**
 			 * The length of the WEP key. Acceptable range
-			 * is [AIRPDCAP_WEP_KEY_MINLEN;AIRPDCAP_WEP_KEY_MAXLEN].
+			 * is [DOT11DECRYPT_WEP_KEY_MINLEN;DOT11DECRYPT_WEP_KEY_MAXLEN].
 			 */
 			size_t WepKeyLen;
 		} Wep;
@@ -148,36 +148,36 @@ typedef struct _AIRPDCAP_KEY_ITEM {
 		 * three fields and necessary fields will be automatically
 		 * calculated.
 		 */
-		struct AIRPDCAP_KEY_ITEMDATA_WPA {
-			UCHAR Psk[AIRPDCAP_WPA_PSK_LEN];
-			UCHAR Ptk[AIRPDCAP_WPA_PTK_LEN];
+		struct DOT11DECRYPT_KEY_ITEMDATA_WPA {
+			UCHAR Psk[DOT11DECRYPT_WPA_PSK_LEN];
+			UCHAR Ptk[DOT11DECRYPT_WPA_PTK_LEN];
 		} Wpa;
 	} KeyData;
 
-        struct AIRPDCAP_KEY_ITEMDATA_PWD {
+        struct DOT11DECRYPT_KEY_ITEMDATA_PWD {
                 /**
                  * The string (null-terminated) value of
                  * the passphrase.
                  */
-                CHAR Passphrase[AIRPDCAP_WPA_PASSPHRASE_MAX_LEN+1];
+                CHAR Passphrase[DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN+1];
                 /**
                  * The value of the SSID (up to
-                 * AIRPDCAP_WPA_SSID_MAX_LEN octets).
+                 * DOT11DECRYPT_WPA_SSID_MAX_LEN octets).
                  * @note
                  * A zero-length SSID indicates broadcast.
                  */
-                CHAR Ssid[AIRPDCAP_WPA_SSID_MAX_LEN];
+                CHAR Ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
                 /**
                  *The length of the SSID
                  */
                 size_t SsidLen;
         } UserPwd;
-} AIRPDCAP_KEY_ITEM, *PAIRPDCAP_KEY_ITEM;
+} DOT11DECRYPT_KEY_ITEM, *PDOT11DECRYPT_KEY_ITEM;
 
 /**
  * Collection of keys to use to decrypt packets
  */
-typedef struct _AIRPDCAP_KEYS_COLLECTION {
+typedef struct _DOT11DECRYPT_KEYS_COLLECTION {
 	/**
 	 * Number of stored keys
 	 */
@@ -186,8 +186,8 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
 	/**
 	 * Array of nKeys keys
 	 */
-	AIRPDCAP_KEY_ITEM Keys[256];
-} AIRPDCAP_KEYS_COLLECTION, *PAIRPDCAP_KEYS_COLLECTION;
+	DOT11DECRYPT_KEY_ITEM Keys[256];
+} DOT11DECRYPT_KEYS_COLLECTION, *PDOT11DECRYPT_KEYS_COLLECTION;
 /*																										*/
 /******************************************************************************/
 
@@ -205,10 +205,10 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
  * - MyPassword:MySSID (WPA + plaintext password + specific SSID)
  * - 01020304... (WPA + 256-bit raw key)
  * @param key_type [IN] Type of key used for string. Possibilities include:
- * - AIRPDCAP_KEY_TYPE_WEP (40/64-bit and 104/128-bit WEP)
- * - AIRPDCAP_KEY_TYPE_WPA_PWD (WPA + plaintext password + "wildcard" SSID or
+ * - DOT11DECRYPT_KEY_TYPE_WEP (40/64-bit and 104/128-bit WEP)
+ * - DOT11DECRYPT_KEY_TYPE_WPA_PWD (WPA + plaintext password + "wildcard" SSID or
  * WPA + plaintext password + specific SSID)
- * - AIRPDCAP_KEY_TYPE_WPA_PSK (WPA + 256-bit raw key)
+ * - DOT11DECRYPT_KEY_TYPE_WPA_PSK (WPA + 256-bit raw key)
  * @return A pointer to a freshly-g_malloc()ed decryption_key_t struct on
  *   success, or NULL on failure.
  * @see get_key_string(), free_key_string()
@@ -239,4 +239,4 @@ free_key_string(decryption_key_t *dk);
 
 /******************************************************************************/
 
-#endif /* _AIRPDCAP_USER_H */
+#endif /* _DOT11DECRYPT_USER_H */

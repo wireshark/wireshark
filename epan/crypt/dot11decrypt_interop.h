@@ -1,4 +1,4 @@
-/* airpdcap_interop.h
+/* dot11decrypt_interop.h
  *
  * Copyright (c) 2006 CACE Technologies, Davis (California)
  * All rights reserved.
@@ -32,8 +32,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	_AIRPDCAP_INTEROP_H
-#define	_AIRPDCAP_INTEROP_H
+#ifndef	_DOT11DECRYPT_INTEROP_H
+#define	_DOT11DECRYPT_INTEROP_H
 
 /**
  * Cast data types commonly used (e.g. UINT16) to their
@@ -87,17 +87,4 @@ typedef	gchar	CHAR;
 typedef guchar	UCHAR;
 #endif
 
-#ifdef _WIN32
-#include <winsock2.h>  /* ntohs() */
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h> /* ntohs() */
-#endif
-
-#ifndef	ntohs
-#undef     ntohs
-#define	ntohs(value)	g_ntohs(value)
-#endif
-
-#endif /* _AIRPDCAP_INTEROP_H */
+#endif /* _DOT11DECRYPT_INTEROP_H */

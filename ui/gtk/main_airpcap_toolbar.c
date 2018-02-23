@@ -44,7 +44,7 @@
 #include "airpcap_dlg.h"
 #include "airpcap_gui_utils.h"
 
-#include <epan/crypt/airpdcap_ws.h>
+#include <epan/crypt/dot11decrypt_ws.h>
 
 
 gboolean block_toolbar_signals = FALSE;

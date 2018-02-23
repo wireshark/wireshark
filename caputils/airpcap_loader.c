@@ -13,7 +13,7 @@
 
 #include <glib.h>
 
-#include <epan/crypt/airpdcap_ws.h>
+#include <epan/crypt/dot11decrypt_ws.h>
 #include <epan/strutil.h>
 #include <wsutil/file_util.h>
 #include <wsutil/frequency-utils.h>

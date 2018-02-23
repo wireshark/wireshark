@@ -1,5 +1,5 @@
 libwsutil.so.0 libwsutil0 #MINVER#
- AirPDcapWepDecrypt@Base 1.10.0
+ Dot11DecryptWepDecrypt@Base 2.5.0
  Eax_Decrypt@Base 1.12.0~rc1
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1

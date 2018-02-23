@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for the airpdcap for Wireshark
+# Automake file for 802.11 decryption for Wireshark
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -23,28 +23,28 @@ include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
-noinst_LTLIBRARIES = libairpdcap.la
+noinst_LTLIBRARIES = libdot11decrypt.la
 
 include Custom.common
 
 CRYPT_SOURCES =			\
-	airpdcap.c		\
-	airpdcap_ccmp.c		\
-	airpdcap_rijndael.c	\
-	airpdcap_tkip.c
+	dot11decrypt.c		\
+	dot11decrypt_ccmp.c		\
+	dot11decrypt_rijndael.c	\
+	dot11decrypt_tkip.c
 
 CRYPT_INCLUDES = 		\
-	airpdcap_debug.h	\
-	airpdcap_interop.h	\
-	airpdcap_int.h		\
-	airpdcap_rijndael.h	\
-	airpdcap_system.h	\
-	airpdcap_user.h		\
-	airpdcap_ws.h		\
+	dot11decrypt_debug.h	\
+	dot11decrypt_interop.h	\
+	dot11decrypt_int.h		\
+	dot11decrypt_rijndael.h	\
+	dot11decrypt_system.h	\
+	dot11decrypt_user.h		\
+	dot11decrypt_ws.h		\
 	kasumi.h		\
 	wep-wpadefs.h
 
-libairpdcap_la_SOURCES =	\
+libdot11decrypt_la_SOURCES =	\
 	$(CRYPT_SOURCES)	\
 	$(CRYPT_INCLUDES)	\
 	$(CUSTOM_CRYPTO_SRC)

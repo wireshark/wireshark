@@ -1,4 +1,4 @@
-/* airpdcap_ws.h
+/* dot11decrypt_ws.h
  *
  * Copyright (c) 2006 CACE Technologies, Davis (California)
  * All rights reserved.
@@ -32,20 +32,20 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	_AIRPDCAP_WS_H
-#define	_AIRPDCAP_WS_H
+#ifndef	_DOT11DECRYPT_WS_H
+#define	_DOT11DECRYPT_WS_H
 
-#include "airpdcap_system.h"
+#include "dot11decrypt_system.h"
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC AIRPDCAP_CONTEXT airpdcap_ctx;
+WS_DLL_PUBLIC DOT11DECRYPT_CONTEXT dot11decrypt_ctx;
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* _AIRPDCAP_WS_H */
+#endif /* _DOT11DECRYPT_WS_H */

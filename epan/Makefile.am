@@ -310,7 +310,7 @@ endif
 # Add the object files for missing routines, if any.
 #
 libwireshark_la_LIBADD = \
-	crypt/libairpdcap.la			\
+	crypt/libdot11decrypt.la		\
 	ftypes/libftypes.la			\
 	dfilter/libdfilter.la			\
 	dissectors/libdissectors.la		\
@@ -333,7 +333,7 @@ libwireshark_la_LIBADD = \
 	@GLIB_LIBS@
 
 libwireshark_la_DEPENDENCIES = \
-	crypt/libairpdcap.la			\
+	crypt/libdot11decrypt.la		\
 	ftypes/libftypes.la			\
 	dfilter/libdfilter.la			\
 	dissectors/libdissectors.la		\

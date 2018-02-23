@@ -32,66 +32,66 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	_AIRPDCAP_DEBUG_H
-#define	_AIRPDCAP_DEBUG_H
+#ifndef	_DOT11DECRYPT_DEBUG_H
+#define	_DOT11DECRYPT_DEBUG_H
 
-#include "airpdcap_interop.h"
+#include "dot11decrypt_interop.h"
 
-/* #define AIRPDCAP_DEBUG 1 */
+/* #define DOT11DECRYPT_DEBUG 1 */
 
-#ifdef AIRPDCAP_DEBUG
+#ifdef DOT11DECRYPT_DEBUG
 #ifdef	__FUNCTION__
-#define	AIRPDCAP_DEBUG_PRINT_LINE(notdefined, msg, level) print_debug_line(__FUNCTION__, msg, level);
+#define	DOT11DECRYPT_DEBUG_PRINT_LINE(notdefined, msg, level) print_debug_line(__FUNCTION__, msg, level);
 #else
-#define	AIRPDCAP_DEBUG_PRINT_LINE(function, msg, level) print_debug_line(function, msg, level);
+#define	DOT11DECRYPT_DEBUG_PRINT_LINE(function, msg, level) print_debug_line(function, msg, level);
 #endif
 #else
 #ifdef	__FUNCTION__
-#define	AIRPDCAP_DEBUG_PRINT_LINE(notdefined, msg, level)
+#define	DOT11DECRYPT_DEBUG_PRINT_LINE(notdefined, msg, level)
 #else
-#define	AIRPDCAP_DEBUG_PRINT_LINE(function, msg, level)
+#define	DOT11DECRYPT_DEBUG_PRINT_LINE(function, msg, level)
 #endif
 #endif
 
 /******************************************************************************/
 /* Debug section: internal function to print debug information						*/
 /*																										*/
-#ifdef AIRPDCAP_DEBUG
+#ifdef DOT11DECRYPT_DEBUG
 #include <stdio.h>
 #include <time.h>
 
 #include <epan/to_str.h>
 
 /*	Debug level definition																		*/
-#define	AIRPDCAP_DEBUG_LEVEL_1	1
-#define	AIRPDCAP_DEBUG_LEVEL_2	2
-#define	AIRPDCAP_DEBUG_LEVEL_3	3
-#define	AIRPDCAP_DEBUG_LEVEL_4	4
-#define	AIRPDCAP_DEBUG_LEVEL_5	5
+#define	DOT11DECRYPT_DEBUG_LEVEL_1	1
+#define	DOT11DECRYPT_DEBUG_LEVEL_2	2
+#define	DOT11DECRYPT_DEBUG_LEVEL_3	3
+#define	DOT11DECRYPT_DEBUG_LEVEL_4	4
+#define	DOT11DECRYPT_DEBUG_LEVEL_5	5
 
-#define	AIRPDCAP_DEBUG_USED_LEVEL	AIRPDCAP_DEBUG_LEVEL_3
+#define	DOT11DECRYPT_DEBUG_USED_LEVEL	DOT11DECRYPT_DEBUG_LEVEL_3
 
 static inline void print_debug_line(const CHAR *function, const CHAR *msg, const INT level)
 {
-    if (level<=AIRPDCAP_DEBUG_USED_LEVEL)
+    if (level<=DOT11DECRYPT_DEBUG_USED_LEVEL)
         g_warning("dbg(%d)|(%s) %s", level, function, msg);
 }
 
 #ifdef	_TRACE
 #ifdef	__FUNCTION__
-#define	AIRPDCAP_DEBUG_TRACE_START(notdefined) print_debug_line(__FUNCTION__, "Start!", AIRPDCAP_DEBUG_USED_LEVEL);
-#define	AIRPDCAP_DEBUG_TRACE_END(notdefined) print_debug_line(__FUNCTION__, "End!", AIRPDCAP_DEBUG_USED_LEVEL);
+#define	DOT11DECRYPT_DEBUG_TRACE_START(notdefined) print_debug_line(__FUNCTION__, "Start!", DOT11DECRYPT_DEBUG_USED_LEVEL);
+#define	DOT11DECRYPT_DEBUG_TRACE_END(notdefined) print_debug_line(__FUNCTION__, "End!", DOT11DECRYPT_DEBUG_USED_LEVEL);
 #else
-#define	AIRPDCAP_DEBUG_TRACE_START(function) print_debug_line(function, "Start!", AIRPDCAP_DEBUG_USED_LEVEL);
-#define	AIRPDCAP_DEBUG_TRACE_END(function) print_debug_line(function, "End!", AIRPDCAP_DEBUG_USED_LEVEL);
+#define	DOT11DECRYPT_DEBUG_TRACE_START(function) print_debug_line(function, "Start!", DOT11DECRYPT_DEBUG_USED_LEVEL);
+#define	DOT11DECRYPT_DEBUG_TRACE_END(function) print_debug_line(function, "End!", DOT11DECRYPT_DEBUG_USED_LEVEL);
 #endif
 #else
 #ifdef	__FUNCTION__
-#define	AIRPDCAP_DEBUG_TRACE_START(notdefined)
-#define	AIRPDCAP_DEBUG_TRACE_END(notdefined)
+#define	DOT11DECRYPT_DEBUG_TRACE_START(notdefined)
+#define	DOT11DECRYPT_DEBUG_TRACE_END(notdefined)
 #else
-#define	AIRPDCAP_DEBUG_TRACE_START(function)
-#define	AIRPDCAP_DEBUG_TRACE_END(function)
+#define	DOT11DECRYPT_DEBUG_TRACE_START(function)
+#define	DOT11DECRYPT_DEBUG_TRACE_END(function)
 #endif
 #endif
 
@@ -102,20 +102,20 @@ static inline void DEBUG_DUMP(const char* x, const guint8* y, int z)
     wmem_free(NULL, tmp_str);
 }
 
-#else	/* !defined AIRPDCAP_DEBUG	*/
+#else	/* !defined DOT11DECRYPT_DEBUG	*/
 
-#define	AIRPDCAP_DEBUG_LEVEL_1
-#define	AIRPDCAP_DEBUG_LEVEL_2
-#define	AIRPDCAP_DEBUG_LEVEL_3
-#define	AIRPDCAP_DEBUG_LEVEL_4
-#define	AIRPDCAP_DEBUG_LEVEL_5
+#define	DOT11DECRYPT_DEBUG_LEVEL_1
+#define	DOT11DECRYPT_DEBUG_LEVEL_2
+#define	DOT11DECRYPT_DEBUG_LEVEL_3
+#define	DOT11DECRYPT_DEBUG_LEVEL_4
+#define	DOT11DECRYPT_DEBUG_LEVEL_5
 
-#define	AIRPDCAP_DEBUG_TRACE_START(function)
-#define	AIRPDCAP_DEBUG_TRACE_END(function)
+#define	DOT11DECRYPT_DEBUG_TRACE_START(function)
+#define	DOT11DECRYPT_DEBUG_TRACE_END(function)
 
 #define DEBUG_DUMP(x,y,z)
 
-#endif	/* ?defined AIRPDCAP_DEBUG	*/
+#endif	/* ?defined DOT11DECRYPT_DEBUG	*/
 
 
-#endif	/* ?defined _AIRPDCAP_DEBUG_H	*/
+#endif	/* ?defined _DOT11DECRYPT_DEBUG_H	*/

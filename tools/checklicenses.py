@@ -184,37 +184,37 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
         'UNKNOWN',
     ],
     # The airpcap code is using BSD (3 clause)
-    'epan/crypt/airpdcap_interop.h': [
+    'epan/crypt/dot11decrypt_interop.h': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap_tkip.c': [
+    'epan/crypt/dot11decrypt_tkip.c': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap_ws.h': [
+    'epan/crypt/dot11decrypt_ws.h': [
         'BSD (3 clause) GPL (v2)'
     ],
     'epan/crypt/wep-wpadefs.h': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap_system.h': [
+    'epan/crypt/dot11decrypt_system.h': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap_user.h': [
+    'epan/crypt/dot11decrypt_user.h': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap_ccmp.c': [
+    'epan/crypt/dot11decrypt_ccmp.c': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap_int.h': [
+    'epan/crypt/dot11decrypt_int.h': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap.c': [
+    'epan/crypt/dot11decrypt.c': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'epan/crypt/airpdcap_debug.h': [
+    'epan/crypt/dot11decrypt_debug.h': [
         'BSD (3 clause) GPL (v2)'
     ],
-    'wsutil/airpdcap_wep.c': [
+    'wsutil/dot11decrypt_wep.c': [
         'BSD (3 clause) GPL (v2)'
     ],
 }

@@ -87,7 +87,6 @@ set(WSUTIL_PUBLIC_HEADERS
 
 set(WSUTIL_COMMON_FILES
 	adler32.c
-	airpdcap_wep.c
 	base32.c
 	base64.c
 	bitswap.c
@@ -104,6 +103,7 @@ set(WSUTIL_COMMON_FILES
 	crc7.c
 	crc8.c
 	crc11.c
+	dot11decrypt_wep.c
 	eax.c
 	filesystem.c
 	frequency-utils.c

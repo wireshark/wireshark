@@ -1,4 +1,4 @@
-/* airpdcap_system.h
+/* dot11decrypt_system.h
  *
  * Copyright (c) 2006 CACE Technologies, Davis (California)
  * All rights reserved.
@@ -32,8 +32,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	_AIRPDCAP_SYSTEM_H
-#define	_AIRPDCAP_SYSTEM_H
+#ifndef	_DOT11DECRYPT_SYSTEM_H
+#define	_DOT11DECRYPT_SYSTEM_H
 
 /************************************************************************/
 /*	Constant definitions						*/
@@ -46,43 +46,43 @@
 #define	FALSE	0
 #endif
 
-#define	AIRPDCAP_RET_SUCCESS                      0
-#define	AIRPDCAP_RET_UNSUCCESS                    1
+#define	DOT11DECRYPT_RET_SUCCESS                      0
+#define	DOT11DECRYPT_RET_UNSUCCESS                    1
 
-#define	AIRPDCAP_RET_NO_DATA		          1
-#define	AIRPDCAP_RET_WRONG_DATA_SIZE	          2
-#define	AIRPDCAP_RET_REQ_DATA		          3
-#define	AIRPDCAP_RET_NO_VALID_HANDSHAKE	          4
-#define	AIRPDCAP_RET_NO_DATA_ENCRYPTED	          5
+#define	DOT11DECRYPT_RET_NO_DATA		          1
+#define	DOT11DECRYPT_RET_WRONG_DATA_SIZE	          2
+#define	DOT11DECRYPT_RET_REQ_DATA		          3
+#define	DOT11DECRYPT_RET_NO_VALID_HANDSHAKE	          4
+#define	DOT11DECRYPT_RET_NO_DATA_ENCRYPTED	          5
 
-#define	AIRPDCAP_RET_SUCCESS_HANDSHAKE  	 -1
+#define	DOT11DECRYPT_RET_SUCCESS_HANDSHAKE  	 -1
 
-#define	AIRPDCAP_MAX_KEYS_NR	        	 64
-#define	AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR	256
+#define	DOT11DECRYPT_MAX_KEYS_NR	        	 64
+#define	DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR	256
 
 /*	Decryption algorithms fields size definition (bytes)		*/
-#define	AIRPDCAP_WPA_NONCE_LEN		         32
-#define	AIRPDCAP_WPA_PTK_LEN			 64	/* TKIP uses 48 bytes, CCMP uses 64 bytes	*/
-#define	AIRPDCAP_WPA_MICKEY_LEN		         16
+#define	DOT11DECRYPT_WPA_NONCE_LEN		         32
+#define	DOT11DECRYPT_WPA_PTK_LEN			 64	/* TKIP uses 48 bytes, CCMP uses 64 bytes	*/
+#define	DOT11DECRYPT_WPA_MICKEY_LEN		         16
 
-#define	AIRPDCAP_WEP_128_KEY_LEN	         16	/* 128 bits	*/
+#define	DOT11DECRYPT_WEP_128_KEY_LEN	         16	/* 128 bits	*/
 
 /* General 802.11 constants						*/
-#define	AIRPDCAP_MAC_LEN			   6
-#define	AIRPDCAP_RADIOTAP_HEADER_LEN	          24
+#define	DOT11DECRYPT_MAC_LEN			   6
+#define	DOT11DECRYPT_RADIOTAP_HEADER_LEN	          24
 
-#define	AIRPDCAP_EAPOL_MAX_LEN			1024
+#define	DOT11DECRYPT_EAPOL_MAX_LEN			1024
 
-#define AIRPDCAP_TK_LEN                           16
+#define DOT11DECRYPT_TK_LEN                           16
 
 /* Max length of capture data						*/
-#define	AIRPDCAP_MAX_CAPLEN			8192
+#define	DOT11DECRYPT_MAX_CAPLEN			8192
 
-#define	AIRPDCAP_WEP_IVLEN	3       /* 24bit */
-#define	AIRPDCAP_WEP_KIDLEN	1       /* 1 octet */
-#define	AIRPDCAP_WEP_ICV	4
-#define	AIRPDCAP_WEP_HEADER	AIRPDCAP_WEP_IVLEN + AIRPDCAP_WEP_KIDLEN
-#define	AIRPDCAP_WEP_TRAILER	AIRPDCAP_WEP_ICV
+#define	DOT11DECRYPT_WEP_IVLEN	3       /* 24bit */
+#define	DOT11DECRYPT_WEP_KIDLEN	1       /* 1 octet */
+#define	DOT11DECRYPT_WEP_ICV	4
+#define	DOT11DECRYPT_WEP_HEADER	DOT11DECRYPT_WEP_IVLEN + DOT11DECRYPT_WEP_KIDLEN
+#define	DOT11DECRYPT_WEP_TRAILER	DOT11DECRYPT_WEP_ICV
 
 /*
  * 802.11i defines an extended IV for use with non-WEP ciphers.
@@ -91,25 +91,25 @@
  * EXTIV bit is likewise set but the 8 bytes represent the
  * CCMP header rather than IV+extended-IV.
  */
-#define	AIRPDCAP_RSNA_EXTIV	0x20
-#define	AIRPDCAP_RSNA_EXTIVLEN	4       /* extended IV length */
-#define	AIRPDCAP_RSNA_MICLEN	8       /* trailing MIC */
+#define	DOT11DECRYPT_RSNA_EXTIV	0x20
+#define	DOT11DECRYPT_RSNA_EXTIVLEN	4       /* extended IV length */
+#define	DOT11DECRYPT_RSNA_MICLEN	8       /* trailing MIC */
 
-#define	AIRPDCAP_RSNA_HEADER	AIRPDCAP_WEP_HEADER + AIRPDCAP_RSNA_EXTIVLEN
+#define	DOT11DECRYPT_RSNA_HEADER	DOT11DECRYPT_WEP_HEADER + DOT11DECRYPT_RSNA_EXTIVLEN
 
-#define	AIRPDCAP_CCMP_HEADER	AIRPDCAP_RSNA_HEADER
-#define	AIRPDCAP_CCMP_TRAILER	AIRPDCAP_RSNA_MICLEN
+#define	DOT11DECRYPT_CCMP_HEADER	DOT11DECRYPT_RSNA_HEADER
+#define	DOT11DECRYPT_CCMP_TRAILER	DOT11DECRYPT_RSNA_MICLEN
 
-#define	AIRPDCAP_TKIP_HEADER	AIRPDCAP_RSNA_HEADER
-#define	AIRPDCAP_TKIP_TRAILER	AIRPDCAP_RSNA_MICLEN + AIRPDCAP_WEP_ICV
+#define	DOT11DECRYPT_TKIP_HEADER	DOT11DECRYPT_RSNA_HEADER
+#define	DOT11DECRYPT_TKIP_TRAILER	DOT11DECRYPT_RSNA_MICLEN + DOT11DECRYPT_WEP_ICV
 
-#define	AIRPDCAP_CRC_LEN	4
+#define	DOT11DECRYPT_CRC_LEN	4
 
 /************************************************************************/
 /*      File includes                                                   */
 
-#include "airpdcap_interop.h"
-#include "airpdcap_user.h"
+#include "dot11decrypt_interop.h"
+#include "dot11decrypt_user.h"
 #include "ws_symbol_export.h"
 
 /************************************************************************/
@@ -118,52 +118,52 @@
 /************************************************************************/
 /*	Type definitions						*/
 
-typedef struct _AIRPDCAP_SEC_ASSOCIATION_ID {
-	UCHAR bssid[AIRPDCAP_MAC_LEN];
-	UCHAR sta[AIRPDCAP_MAC_LEN];
-} AIRPDCAP_SEC_ASSOCIATION_ID, *PAIRPDCAP_SEC_ASSOCIATION_ID;
+typedef struct _DOT11DECRYPT_SEC_ASSOCIATION_ID {
+	UCHAR bssid[DOT11DECRYPT_MAC_LEN];
+	UCHAR sta[DOT11DECRYPT_MAC_LEN];
+} DOT11DECRYPT_SEC_ASSOCIATION_ID, *PDOT11DECRYPT_SEC_ASSOCIATION_ID;
 
-typedef struct _AIRPDCAP_SEC_ASSOCIATION {
+typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
     /* This is for reassociations. A linked list of old security
      * associations is kept.  GCS
      */
-    struct _AIRPDCAP_SEC_ASSOCIATION* next;
+    struct _DOT11DECRYPT_SEC_ASSOCIATION* next;
 
 	/**
 	 * This flag define whether this item is used or not. Accepted
      * values are TRUE and FALSE
 	 */
 	UINT8 used;
-	AIRPDCAP_SEC_ASSOCIATION_ID saId;
-	AIRPDCAP_KEY_ITEM *key;
+	DOT11DECRYPT_SEC_ASSOCIATION_ID saId;
+	DOT11DECRYPT_KEY_ITEM *key;
 	UINT8 handshake;
 	UINT8 validKey;
 
 	struct {
 		UINT8 key_ver;		/* Key descriptor version	*/
 		UINT64 pn;		/* only used with CCMP AES -if needed replay check- */
-		UCHAR nonce[AIRPDCAP_WPA_NONCE_LEN];
+		UCHAR nonce[DOT11DECRYPT_WPA_NONCE_LEN];
 		/* used to derive PTK, ANonce stored, SNonce taken	*/
 		/* the 2nd packet of the 4W handshake			*/
 
-		UCHAR ptk[AIRPDCAP_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
+		UCHAR ptk[DOT11DECRYPT_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
 	} wpa;
 
 
-} AIRPDCAP_SEC_ASSOCIATION, *PAIRPDCAP_SEC_ASSOCIATION;
+} DOT11DECRYPT_SEC_ASSOCIATION, *PDOT11DECRYPT_SEC_ASSOCIATION;
 
-typedef struct _AIRPDCAP_CONTEXT {
-	AIRPDCAP_SEC_ASSOCIATION sa[AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR];
+typedef struct _DOT11DECRYPT_CONTEXT {
+	DOT11DECRYPT_SEC_ASSOCIATION sa[DOT11DECRYPT_MAX_SEC_ASSOCIATIONS_NR];
 	INT sa_index;
-	AIRPDCAP_KEY_ITEM keys[AIRPDCAP_MAX_KEYS_NR];
+	DOT11DECRYPT_KEY_ITEM keys[DOT11DECRYPT_MAX_KEYS_NR];
 	size_t keys_nr;
 
-        CHAR pkt_ssid[AIRPDCAP_WPA_SSID_MAX_LEN];
+        CHAR pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
         size_t pkt_ssid_len;
 
 	INT index;
 	INT first_free_index;
-} AIRPDCAP_CONTEXT, *PAIRPDCAP_CONTEXT;
+} DOT11DECRYPT_CONTEXT, *PDOT11DECRYPT_CONTEXT;
 
 /************************************************************************/
 /*	Function prototype declarations					*/
@@ -183,7 +183,7 @@ extern "C" {
  * @param data_len [IN] Total length of the MAC header and the payload
  * @param decrypt_data [OUT] Pointer to a buffer that will contain
  *   decrypted data. If this parameter is set to NULL, decrypted data will
- *   be discarded. Must have room for at least AIRPDCAP_MAX_CAPLEN bytes.
+ *   be discarded. Must have room for at least DOT11DECRYPT_MAX_CAPLEN bytes.
  * @param decrypt_len [OUT] Length of decrypted data if decrypt_data
  *   is not NULL.
  * @param key [OUT] Pointer to a preallocated key structure containing
@@ -193,22 +193,22 @@ extern "C" {
  *   the 802.11 frame data is pointing to has key information and if so use
  *   it to setup potential decryption keys. Enables handshake return codes.
  * @return
- * - AIRPDCAP_RET_SUCCESS: Decryption has been done (decrypt_data and
+ * - DOT11DECRYPT_RET_SUCCESS: Decryption has been done (decrypt_data and
  *   decrypt_length will contain the packet data decrypted and the length of
  *   the new packet)
- * - AIRPDCAP_RET_NO_DATA: The packet is not a data packet
- * - AIRPDCAP_RET_WRONG_DATA_SIZE: The size of the packet is below the
+ * - DOT11DECRYPT_RET_NO_DATA: The packet is not a data packet
+ * - DOT11DECRYPT_RET_WRONG_DATA_SIZE: The size of the packet is below the
  *   accepted minimum
- * - AIRPDCAP_RET_REQ_DATA: Required data is not available and the
+ * - DOT11DECRYPT_RET_REQ_DATA: Required data is not available and the
  *   processing must be interrupted (can also occur after decryption when
  *   scanHandshake is TRUE)
- * - AIRPDCAP_RET_NO_DATA_ENCRYPTED: Not encrypted and no attempt to
+ * - DOT11DECRYPT_RET_NO_DATA_ENCRYPTED: Not encrypted and no attempt to
  *   extract key information
- * - AIRPDCAP_RET_UNSUCCESS: Generic unspecified error (decrypt_data
+ * - DOT11DECRYPT_RET_UNSUCCESS: Generic unspecified error (decrypt_data
  *   and decrypt_length will be not modified).
- * - AIRPDCAP_RET_SUCCESS_HANDSHAKE: An eapol handshake packet was successfuly parsed
+ * - DOT11DECRYPT_RET_SUCCESS_HANDSHAKE: An eapol handshake packet was successfuly parsed
  *   and key information extracted
- * - AIRPDCAP_RET_NO_VALID_HANDSHAKE: The handshake is invalid or was not used
+ * - DOT11DECRYPT_RET_NO_VALID_HANDSHAKE: The handshake is invalid or was not used
  *   for some reason. For encrypted packets decryption was still successful.
  * @note
  * The decrypted buffer should be allocated for a size equal or greater
@@ -223,14 +223,14 @@ extern "C" {
  * This function is not thread-safe when used in parallel with context
  *  management functions on the same context.
  */
-extern INT AirPDcapPacketProcess(
-	PAIRPDCAP_CONTEXT ctx,
+extern INT Dot11DecryptPacketProcess(
+	PDOT11DECRYPT_CONTEXT ctx,
 	const guint8 *data,
 	const guint data_off,
 	const guint data_len,
 	UCHAR *decrypt_data,
 	guint32 *decrypt_len,
-	PAIRPDCAP_KEY_ITEM key,
+	PDOT11DECRYPT_KEY_ITEM key,
 	gboolean scanHandshake)
 	;
 
@@ -239,11 +239,11 @@ extern INT AirPDcapPacketProcess(
  * Any key should be well-formed, thus: it should have a defined key
  * type and the specified length should be conforming WEP or WPA/WPA2
  * standards. A general WEP keys could be of any length (in the range
- * defined in AIRPDCAP_KEY_ITEM), if a specific WEP key is used, the
+ * defined in DOT11DECRYPT_KEY_ITEM), if a specific WEP key is used, the
  * length of the key will be the one specified in 802.11i-2004 (40 bits or
  * 104 bits).
  * For WPA/WPA2 the password (passphrase and SSID), the PSK and the PMK
- * are in alternative, as explain in the AIRPDCAP_KEY_ITEM structure
+ * are in alternative, as explain in the DOT11DECRYPT_KEY_ITEM structure
  * description.
  * @param ctx [IN] pointer to the current context
  * @param keys [IN] an array of keys to set.
@@ -255,9 +255,9 @@ extern INT AirPDcapPacketProcess(
  * management functions and the packet process function on the same
  * context.
  */
-extern INT AirPDcapSetKeys(
-	PAIRPDCAP_CONTEXT ctx,
-	AIRPDCAP_KEY_ITEM keys[],
+extern INT Dot11DecryptSetKeys(
+	PDOT11DECRYPT_CONTEXT ctx,
+	DOT11DECRYPT_KEY_ITEM keys[],
 	const size_t keys_nr)
 	;
 
@@ -269,15 +269,15 @@ extern INT AirPDcapSetKeys(
  * be able to contain at least keys_nr keys)
  * @return The number of keys returned
  * @note
- * Any key could be modified, as stated in the AIRPDCAP_KEY_ITEM description.
+ * Any key could be modified, as stated in the DOT11DECRYPT_KEY_ITEM description.
  * @note
  * This function is not thread-safe when used in parallel with context
  * management functions and the packet process function on the same
  * context.
  */
-INT AirPDcapGetKeys(
-	const PAIRPDCAP_CONTEXT ctx,
-	AIRPDCAP_KEY_ITEM keys[],
+INT Dot11DecryptGetKeys(
+	const PDOT11DECRYPT_CONTEXT ctx,
+	DOT11DECRYPT_KEY_ITEM keys[],
 	const size_t keys_nr)
 	;
 
@@ -289,12 +289,12 @@ INT AirPDcapGetKeys(
  * @param pkt_ssid [IN] pointer to the packet's SSID
  * @param pkt_ssid_len [IN] length of the packet's SSID
  * @return
- *   AIRPDCAP_RET_SUCCESS: The key has been set.
- *   AIRPDCAP_RET_UNSUCCESS: The has not been set, e.g. the length was
+ *   DOT11DECRYPT_RET_SUCCESS: The key has been set.
+ *   DOT11DECRYPT_RET_UNSUCCESS: The has not been set, e.g. the length was
  *   too long.
  */
-INT AirPDcapSetLastSSID(
-        PAIRPDCAP_CONTEXT ctx,
+INT Dot11DecryptSetLastSSID(
+        PDOT11DECRYPT_CONTEXT ctx,
         CHAR *pkt_ssid,
         size_t pkt_ssid_len)
 	;
@@ -303,8 +303,8 @@ INT AirPDcapSetLastSSID(
  * Initialize a context used to manage decryption and keys collection.
  * @param ctx [IN|OUT] pointer to a preallocated context structure
  * @return
- *   AIRPDCAP_RET_SUCCESS: the context has been successfully initialized
- *   AIRPDCAP_RET_UNSUCCESS: the context has not been initialized
+ *   DOT11DECRYPT_RET_SUCCESS: the context has been successfully initialized
+ *   DOT11DECRYPT_RET_UNSUCCESS: the context has not been initialized
  * @note
  * Only a correctly initialized context can be used to manage decryption
  * processes and keys.
@@ -313,8 +313,8 @@ INT AirPDcapSetLastSSID(
  * management functions and the packet process function on the same context.
  */
 WS_DLL_PUBLIC
-INT AirPDcapInitContext(
-        PAIRPDCAP_CONTEXT ctx)
+INT Dot11DecryptInitContext(
+        PDOT11DECRYPT_CONTEXT ctx)
 	;
 
 /**
@@ -322,33 +322,33 @@ INT AirPDcapInitContext(
  * not be used anymore.
  * @param ctx [IN|OUT] pointer to the current context structure
  * @return
- *  AIRPDCAP_RET_SUCCESS: the context has been successfully initialized
- *  AIRPDCAP_RET_UNSUCCESS: the context has not been initialized
+ *  DOT11DECRYPT_RET_SUCCESS: the context has been successfully initialized
+ *  DOT11DECRYPT_RET_UNSUCCESS: the context has not been initialized
  * @note
  * This function is not thread-safe when used in parallel with context
  * management functions and the packet process function on the same
  * context.
  */
 WS_DLL_PUBLIC
-INT AirPDcapDestroyContext(
-	PAIRPDCAP_CONTEXT ctx)
+INT Dot11DecryptDestroyContext(
+	PDOT11DECRYPT_CONTEXT ctx)
 	;
 
-extern INT AirPDcapCcmpDecrypt(
+extern INT Dot11DecryptCcmpDecrypt(
 	UINT8 *m,
         gint mac_header_len,
 	INT len,
 	UCHAR TK1[16])
 	;
-extern INT AirPDcapTkipDecrypt(
+extern INT Dot11DecryptTkipDecrypt(
 	UCHAR *tkip_mpdu,
 	size_t mpdu_len,
-	UCHAR TA[AIRPDCAP_MAC_LEN],
-	UCHAR TK[AIRPDCAP_TK_LEN])
+	UCHAR TA[DOT11DECRYPT_MAC_LEN],
+	UCHAR TK[DOT11DECRYPT_TK_LEN])
 	;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* _AIRPDCAP_SYSTEM_H */
+#endif /* _DOT11DECRYPT_SYSTEM_H */

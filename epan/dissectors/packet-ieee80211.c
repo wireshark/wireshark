@@ -76,7 +76,7 @@
 #include "packet-sflow.h"
 #include "packet-gre.h"
 
-#include <epan/crypt/airpdcap_ws.h>
+#include <epan/crypt/dot11decrypt_ws.h>
 
 void proto_register_ieee80211(void);
 void proto_reg_handoff_ieee80211(void);
@@ -161,22 +161,22 @@ uat_wep_key_record_update_cb(void* r, char** err)
     dk_type = dk->type;
     free_key_string(dk);
     switch (dk_type) {
-      case AIRPDCAP_KEY_TYPE_WEP:
-      case AIRPDCAP_KEY_TYPE_WEP_40:
-      case AIRPDCAP_KEY_TYPE_WEP_104:
-        if (rec->key != AIRPDCAP_KEY_TYPE_WEP) {
+      case DOT11DECRYPT_KEY_TYPE_WEP:
+      case DOT11DECRYPT_KEY_TYPE_WEP_40:
+      case DOT11DECRYPT_KEY_TYPE_WEP_104:
+        if (rec->key != DOT11DECRYPT_KEY_TYPE_WEP) {
           *err = g_strdup("Invalid key format");
           return FALSE;
         }
         break;
-      case AIRPDCAP_KEY_TYPE_WPA_PWD:
-        if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PWD) {
+      case DOT11DECRYPT_KEY_TYPE_WPA_PWD:
+        if (rec->key != DOT11DECRYPT_KEY_TYPE_WPA_PWD) {
           *err = g_strdup("Invalid key format");
           return FALSE;
         }
         break;
-      case AIRPDCAP_KEY_TYPE_WPA_PSK:
-        if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PSK) {
+      case DOT11DECRYPT_KEY_TYPE_WPA_PSK:
+        if (rec->key != DOT11DECRYPT_KEY_TYPE_WPA_PSK) {
           *err = g_strdup("Invalid key format");
           return FALSE;
         }
@@ -211,7 +211,7 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype,
                                   association_sanity_check_t *association_sanity_check);
 
-static tvbuff_t *try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key);
+static tvbuff_t *try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PDOT11DECRYPT_KEY_ITEM used_key);
 
 static int weak_iv(guchar *iv);
 
@@ -2804,9 +2804,9 @@ static const value_string service_interval_granularity_vals[] = {
 };
 
 static const value_string wep_type_vals[] = {
-  { AIRPDCAP_KEY_TYPE_WEP, STRING_KEY_TYPE_WEP },
-  { AIRPDCAP_KEY_TYPE_WPA_PWD, STRING_KEY_TYPE_WPA_PWD },
-  { AIRPDCAP_KEY_TYPE_WPA_PSK, STRING_KEY_TYPE_WPA_PSK },
+  { DOT11DECRYPT_KEY_TYPE_WEP, STRING_KEY_TYPE_WEP },
+  { DOT11DECRYPT_KEY_TYPE_WPA_PWD, STRING_KEY_TYPE_WPA_PWD },
+  { DOT11DECRYPT_KEY_TYPE_WPA_PSK, STRING_KEY_TYPE_WPA_PSK },
   { 0x00, NULL }
 };
 
@@ -5680,7 +5680,7 @@ static const val64_string number_of_taps_values[] = {
   {0, NULL}
 };
 
-AIRPDCAP_CONTEXT airpdcap_ctx;
+DOT11DECRYPT_CONTEXT dot11decrypt_ctx;
 
 #define PSMP_STA_INFO_BROADCAST 0
 #define PSMP_STA_INFO_MULTICAST 1
@@ -15068,7 +15068,7 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    * assume that it's *valid* ASCII or *valid* UTF-8.)
    *
    * So we really should extract it as an array of ssid_len bytes,
-   * pass those bytes to AirPDcapSetLastSSID(), and:
+   * pass those bytes to Dot11DecryptSetLastSSID(), and:
    *
    *    If the UTF-8 SSID subfield isn't set to 1, put the SSID in
    *    as an ENC_ASCII string;
@@ -15102,7 +15102,7 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    */
   ssid = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ssid_len, ENC_ASCII);
   if (ssid_len == (gint)tag_len) {
-    AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, ssid_len);
+    Dot11DecryptSetLastSSID(&dot11decrypt_ctx, (CHAR *) ssid, ssid_len);
   }
   proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset, tag_len,
                       ENC_ASCII|ENC_NA);
@@ -20017,7 +20017,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   tvbuff_t   *next_tvb = NULL;
   wlan_hdr_t *whdr;
 
-  AIRPDCAP_KEY_ITEM  used_key;
+  DOT11DECRYPT_KEY_ITEM  used_key;
 
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
 
@@ -20937,7 +20937,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       if (enable_decryption && !pinfo->fd->flags.visited) {
         const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
         /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
-        AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE);
+        Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE);
 
       }
       /*
@@ -21024,9 +21024,9 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     guint32     iv;
     guint8      key, keybyte;
 
-#define PROTECTION_ALG_WEP  AIRPDCAP_KEY_TYPE_WEP
-#define PROTECTION_ALG_TKIP  AIRPDCAP_KEY_TYPE_TKIP
-#define PROTECTION_ALG_CCMP  AIRPDCAP_KEY_TYPE_CCMP
+#define PROTECTION_ALG_WEP  DOT11DECRYPT_KEY_TYPE_WEP
+#define PROTECTION_ALG_TKIP  DOT11DECRYPT_KEY_TYPE_TKIP
+#define PROTECTION_ALG_CCMP  DOT11DECRYPT_KEY_TYPE_CCMP
 #define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
     guint8 algorithm=G_MAXUINT8;
 #define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) == \
@@ -21109,16 +21109,16 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           can_decrypt   = TRUE;
 
           /* Add Key information to packet */
-          bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Ptk+32, AIRPDCAP_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
-          out_buff[2*AIRPDCAP_TK_LEN] = '\0';
+          bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Ptk+32, DOT11DECRYPT_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
+          out_buff[2*DOT11DECRYPT_TK_LEN] = '\0';
 
           if (key == 0) { /* encrypted with pairwise key */
             ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_tk, tvb, 0, 0, out_buff);
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* Also add the PMK used to to decrypt the packet. (PMK==PSK) */
-            bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, AIRPDCAP_WPA_PSK_LEN); /* 32 bytes */
-            out_buff[2*AIRPDCAP_WPA_PSK_LEN] = '\0';
+            bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, DOT11DECRYPT_WPA_PSK_LEN); /* 32 bytes */
+            out_buff[2*DOT11DECRYPT_WPA_PSK_LEN] = '\0';
             ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_pmk, tvb, 0, 0, out_buff);
             PROTO_ITEM_SET_GENERATED(ti);
 
@@ -21898,12 +21898,12 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 /* It returns the algorithm used for decryption and the header and trailer lengths. */
 static tvbuff_t *
-try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key)
+try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PDOT11DECRYPT_KEY_ITEM used_key)
 {
   const guint8      *enc_data;
   tvbuff_t          *decr_tvb = NULL;
   guint32            dec_caplen;
-  guchar             dec_data[AIRPDCAP_MAX_CAPLEN];
+  guchar             dec_data[DOT11DECRYPT_MAX_CAPLEN];
 
   if (!enable_decryption)
     return NULL;
@@ -21911,24 +21911,24 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *
   /* get the entire packet                                  */
   enc_data = tvb_get_ptr(tvb, 0, len+offset);
 
-  /*  process packet with AirPDcap                              */
-  if (AirPDcapPacketProcess(&airpdcap_ctx, enc_data, offset, offset+len, dec_data, &dec_caplen,
-                            used_key, FALSE)==AIRPDCAP_RET_SUCCESS)
+  /*  process packet with Dot11Decrypt                              */
+  if (Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, offset, offset+len, dec_data, &dec_caplen,
+                            used_key, FALSE)==DOT11DECRYPT_RET_SUCCESS)
   {
     guint8 *tmp;
     *algorithm=used_key->KeyType;
     switch (*algorithm) {
-      case AIRPDCAP_KEY_TYPE_WEP:
-        *sec_header=AIRPDCAP_WEP_HEADER;
-        *sec_trailer=AIRPDCAP_WEP_TRAILER;
+      case DOT11DECRYPT_KEY_TYPE_WEP:
+        *sec_header=DOT11DECRYPT_WEP_HEADER;
+        *sec_trailer=DOT11DECRYPT_WEP_TRAILER;
         break;
-      case AIRPDCAP_KEY_TYPE_CCMP:
-        *sec_header=AIRPDCAP_RSNA_HEADER;
-        *sec_trailer=AIRPDCAP_CCMP_TRAILER;
+      case DOT11DECRYPT_KEY_TYPE_CCMP:
+        *sec_header=DOT11DECRYPT_RSNA_HEADER;
+        *sec_trailer=DOT11DECRYPT_CCMP_TRAILER;
         break;
-      case AIRPDCAP_KEY_TYPE_TKIP:
-        *sec_header=AIRPDCAP_RSNA_HEADER;
-        *sec_trailer=AIRPDCAP_TKIP_TRAILER;
+      case DOT11DECRYPT_KEY_TYPE_TKIP:
+        *sec_header=DOT11DECRYPT_RSNA_HEADER;
+        *sec_trailer=DOT11DECRYPT_TKIP_TRAILER;
         break;
       default:
         return NULL;
@@ -21948,10 +21948,10 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *
 
 /* Collect our WEP and WPA keys */
 static void
-set_airpdcap_keys(void)
+set_dot11decrypt_keys(void)
 {
   guint                     i;
-  AIRPDCAP_KEYS_COLLECTION  *keys = g_new(AIRPDCAP_KEYS_COLLECTION, 1);
+  DOT11DECRYPT_KEYS_COLLECTION  *keys = g_new(DOT11DECRYPT_KEYS_COLLECTION, 1);
   GByteArray                *bytes = NULL;
 
   keys->nKeys = 0;
@@ -21963,21 +21963,21 @@ set_airpdcap_keys(void)
 
     if (dk != NULL)
     {
-      AIRPDCAP_KEY_ITEM          key;
-      if (dk->type == AIRPDCAP_KEY_TYPE_WEP)
+      DOT11DECRYPT_KEY_ITEM          key;
+      if (dk->type == DOT11DECRYPT_KEY_TYPE_WEP)
       {
         gboolean res;
-        key.KeyType = AIRPDCAP_KEY_TYPE_WEP;
+        key.KeyType = DOT11DECRYPT_KEY_TYPE_WEP;
 
         bytes = g_byte_array_new();
         res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
-        if (dk->key->str && res && (bytes->len > 0) && (bytes->len <= AIRPDCAP_WEP_KEY_MAXLEN))
+        if (dk->key->str && res && (bytes->len > 0) && (bytes->len <= DOT11DECRYPT_WEP_KEY_MAXLEN))
         {
           /*
            * WEP key is correct (well, the can be even or odd, so it is not
            * a real check, I think... is a check performed somewhere in the
-           * AirPDcap function???)
+           * Dot11Decrypt function???)
            */
           memcpy(key.KeyData.Wep.WepKey, bytes->data, bytes->len);
           key.KeyData.Wep.WepKeyLen = bytes->len;
@@ -21985,16 +21985,16 @@ set_airpdcap_keys(void)
           keys->nKeys += 1;
         }
       }
-      else if (dk->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+      else if (dk->type == DOT11DECRYPT_KEY_TYPE_WPA_PWD)
       {
-        key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PWD;
+        key.KeyType = DOT11DECRYPT_KEY_TYPE_WPA_PWD;
 
         /* XXX - This just lops the end if the key off if it's too long.
          *       Should we handle this more gracefully? */
-        g_strlcpy(key.UserPwd.Passphrase, dk->key->str, AIRPDCAP_WPA_PASSPHRASE_MAX_LEN+1);
+        g_strlcpy(key.UserPwd.Passphrase, dk->key->str, DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN+1);
 
         key.UserPwd.SsidLen = 0;
-        if ((dk->ssid != NULL) && (dk->ssid->len <= AIRPDCAP_WPA_SSID_MAX_LEN))
+        if ((dk->ssid != NULL) && (dk->ssid->len <= DOT11DECRYPT_WPA_SSID_MAX_LEN))
         {
           memcpy(key.UserPwd.Ssid, dk->ssid->data, dk->ssid->len);
           key.UserPwd.SsidLen = dk->ssid->len;
@@ -22003,15 +22003,15 @@ set_airpdcap_keys(void)
         keys->Keys[keys->nKeys] = key;
         keys->nKeys += 1;
       }
-      else if (dk->type == AIRPDCAP_KEY_TYPE_WPA_PSK)
+      else if (dk->type == DOT11DECRYPT_KEY_TYPE_WPA_PSK)
       {
-        key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PSK;
+        key.KeyType = DOT11DECRYPT_KEY_TYPE_WPA_PSK;
 
         bytes = g_byte_array_new();
         hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
         /* XXX - Pass the correct array of bytes... */
-        if (bytes->len <= AIRPDCAP_WPA_PSK_LEN) {
+        if (bytes->len <= DOT11DECRYPT_WPA_PSK_LEN) {
           memcpy(key.KeyData.Wpa.Psk, bytes->data, bytes->len);
 
           keys->Keys[keys->nKeys] = key;
@@ -22027,7 +22027,7 @@ set_airpdcap_keys(void)
   }
 
   /* Now set the keys */
-  AirPDcapSetKeys(&airpdcap_ctx, keys->Keys, keys->nKeys);
+  Dot11DecryptSetKeys(&dot11decrypt_ctx, keys->Keys, keys->nKeys);
   g_free(keys);
 }
 
@@ -22036,12 +22036,12 @@ init_wepkeys(void)
 {
 
   /*
-   * XXX - AirPDcap - That God sends it to us beautiful (che dio ce la mandi bona)
-   * The next lines will add a key to the AirPDcap context. The keystring will be added
+   * XXX - Dot11Decrypt - That God sends it to us beautiful (che dio ce la mandi bona)
+   * The next lines will add a key to the Dot11Decrypt context. The keystring will be added
    * to the old WEP array too, but we don't care, because the packets will come here
    * already decrypted... One of these days we will fix this too
    */
-  set_airpdcap_keys();
+  set_dot11decrypt_keys();
 }
 
 /*

@@ -1,5 +1,5 @@
 /**
- * airpdcap_rijndael.c
+ * dot11decrypt_rijndael.c
  *
  * @version 3.0 (December 2000)
  *
@@ -24,9 +24,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "config.h"
-#include "airpdcap_rijndael.h"
+#include "dot11decrypt_rijndael.h"
 
-#include "airpdcap_debug.h"
+#include "dot11decrypt_debug.h"
 #include <glib.h>
 #include <wsutil/wsgcrypt.h>
 

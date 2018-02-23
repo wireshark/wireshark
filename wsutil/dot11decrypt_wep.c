@@ -1,4 +1,4 @@
-/* airpcap_wep.c
+/* dot11decrypt_wep.c
  *
  * Copyright (c) 2002-2005 Sam Leffler, Errno Consulting
  * Copyright (c) 2006 CACE Technologies, Davis (California)
@@ -45,7 +45,7 @@
 
 /* Note: copied from FreeBSD source code, RELENG 6,			*/
 /*		sys/net80211/ieee80211_crypto_wep.c, 391		*/
-int AirPDcapWepDecrypt(
+int Dot11DecryptWepDecrypt(
 	const guchar *seed,
 	const size_t seed_len,
 	guchar *cypher_text,
@@ -90,11 +90,11 @@ int AirPDcapWepDecrypt(
 		S_SWAP(i, j);
 		if ((icv[k] ^ S[(S[i] + S[j]) & 0xff]) != *cypher_text++) {
 			/* ICV mismatch - drop frame */
-			return 1/*AIRPDCAP_RET_UNSUCCESS*/;
+			return 1/*DOT11DECRYPT_RET_UNSUCCESS*/;
 		}
 	}
 
-	return 0/*AIRPDCAP_RET_SUCCESS*/;
+	return 0/*DOT11DECRYPT_RET_SUCCESS*/;
 }
 
 /*

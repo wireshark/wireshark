@@ -1,5 +1,5 @@
 /**
- * airpdcap_rijndael.h
+ * dot11decrypt_rijndael.h
  *
  * @version 3.0 (December 2000)
  *
@@ -24,13 +24,13 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef	_AIRPDCAP_RIJNDAEL
-#define	_AIRPDCAP_RIJNDAEL
+#ifndef	_DOT11DECRYPT_RIJNDAEL
+#define	_DOT11DECRYPT_RIJNDAEL
 
 /******************************************************************************/
 /*	File includes																					*/
 /*																										*/
-#include "airpdcap_interop.h"
+#include "dot11decrypt_interop.h"
 /*																										*/
 /*																										*/
 /******************************************************************************/

@@ -112,7 +112,7 @@
 //#  include "airpcap_gui_utils.h"
 #endif
 
-#include "epan/crypt/airpdcap_ws.h"
+#include "epan/crypt/dot11decrypt_ws.h"
 
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QTextCodec>
@@ -544,7 +544,7 @@ int main(int argc, char *qt_argv[])
     // xxx qtshark
     //initialize_funnel_ops();
 
-    AirPDcapInitContext(&airpdcap_ctx);
+    Dot11DecryptInitContext(&dot11decrypt_ctx);
 
     QString cf_name;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
@@ -940,7 +940,7 @@ int main(int argc, char *qt_argv[])
 
     extcap_cleanup();
 
-    AirPDcapDestroyContext(&airpdcap_ctx);
+    Dot11DecryptDestroyContext(&dot11decrypt_ctx);
 
 #ifdef _WIN32
     /* Shutdown windows sockets */

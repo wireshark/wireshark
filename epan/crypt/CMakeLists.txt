@@ -27,10 +27,10 @@ include_directories(
 )
 
 set(CRYPT_FILES
-	airpdcap.c
-	airpdcap_ccmp.c
-	airpdcap_rijndael.c
-	airpdcap_tkip.c
+	dot11decrypt.c
+	dot11decrypt_ccmp.c
+	dot11decrypt_rijndael.c
+	dot11decrypt_tkip.c
 	${CUSTOM_CRYPT_SRC}
 )
 source_group(crypt FILES ${CRYPT_FILES})

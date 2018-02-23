@@ -35,10 +35,10 @@
 /*																										*/
 #include <wsutil/pint.h>
 #include <wsutil/crc32.h>
-#include "airpdcap_system.h"
-#include "airpdcap_int.h"
+#include "dot11decrypt_system.h"
+#include "dot11decrypt_int.h"
 
-#include "airpdcap_debug.h"
+#include "dot11decrypt_debug.h"
 /*																										*/
 /******************************************************************************/
 
@@ -47,21 +47,21 @@
 /*																										*/
 #define PHASE1_LOOP_COUNT	8
 
-#define AIRPDCAP_TTAK_LEN	6
+#define DOT11DECRYPT_TTAK_LEN	6
 /*																										*/
 /******************************************************************************/
 
 /******************************************************************************/
 /*	Internal function prototypes declarations												*/
 /*																										*/
-static void AirPDcapTkipMixingPhase1(
+static void Dot11DecryptTkipMixingPhase1(
 	UINT16 *TTAK,
 	const UINT8 *TK,
 	const UINT8 *TA,
 	UINT32 TSC)
 	;
 
-static void AirPDcapTkipMixingPhase2(
+static void Dot11DecryptTkipMixingPhase2(
 	UINT8 *wep_seed,
 	const UINT8 *TK,
 	UINT16 *PPK,
@@ -144,7 +144,7 @@ static const UINT16 Sbox[256] = {
 /******************************************************************************/
 /*	Function definitions																			*/
 
-static void AirPDcapTkipMixingPhase1(
+static void Dot11DecryptTkipMixingPhase1(
 	UINT16 *TTAK,
 	const UINT8 *TK,
 	const UINT8 *TA,
@@ -169,7 +169,7 @@ static void AirPDcapTkipMixingPhase1(
 	}
 }
 
-static void AirPDcapTkipMixingPhase2(
+static void Dot11DecryptTkipMixingPhase2(
 	UINT8 *wep_seed,
 	const UINT8 *TK,
 	UINT16 *TTAK,
@@ -209,18 +209,18 @@ static void AirPDcapTkipMixingPhase2(
 
 /* Note: taken from FreeBSD source code, RELENG 6,										*/
 /*		sys/net80211/ieee80211_crypto_tkip.c, 936											*/
-INT AirPDcapTkipDecrypt(
+INT Dot11DecryptTkipDecrypt(
 	UCHAR *tkip_mpdu,
 	size_t mpdu_len,
-	UCHAR TA[AIRPDCAP_MAC_LEN],
-	UCHAR TK[AIRPDCAP_TK_LEN])
+	UCHAR TA[DOT11DECRYPT_MAC_LEN],
+	UCHAR TK[DOT11DECRYPT_TK_LEN])
 {
 	UINT64 TSC64;
 	UINT32 TSC;
 	UINT16 TSC16;
 	UINT8 *IV;
-	UINT16 TTAK[AIRPDCAP_TTAK_LEN];
-	UINT8 wep_seed[AIRPDCAP_WEP_128_KEY_LEN];
+	UINT16 TTAK[DOT11DECRYPT_TTAK_LEN];
+	UINT8 wep_seed[DOT11DECRYPT_WEP_128_KEY_LEN];
 
 	/* DEBUG_DUMP("TA", TA, 6); */
 
@@ -233,15 +233,15 @@ INT AirPDcapTkipDecrypt(
 	/* We instead have to have READ_6() be returned to a UINT64 and shift *that* value. */
 	TSC = (UINT32)(TSC64 >> 16);
 
-	AirPDcapTkipMixingPhase1(TTAK, TK, TA, TSC);
+	Dot11DecryptTkipMixingPhase1(TTAK, TK, TA, TSC);
 
-	AirPDcapTkipMixingPhase2(wep_seed, TK, TTAK, TSC16);
+	Dot11DecryptTkipMixingPhase2(wep_seed, TK, TTAK, TSC16);
 
-	return AirPDcapWepDecrypt(
+	return Dot11DecryptWepDecrypt(
 		wep_seed,
-		AIRPDCAP_WEP_128_KEY_LEN,
-		tkip_mpdu + AIRPDCAP_TKIP_HEADER,
-		mpdu_len-(AIRPDCAP_TKIP_HEADER+AIRPDCAP_WEP_ICV));	/* MPDU - TKIP_HEADER - MIC	*/
+		DOT11DECRYPT_WEP_128_KEY_LEN,
+		tkip_mpdu + DOT11DECRYPT_TKIP_HEADER,
+		mpdu_len-(DOT11DECRYPT_TKIP_HEADER+DOT11DECRYPT_WEP_ICV));	/* MPDU - TKIP_HEADER - MIC	*/
 
 	/* TODO check (IEEE 802.11i-2004, pg. 44)												*/
 

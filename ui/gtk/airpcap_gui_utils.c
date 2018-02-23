@@ -38,7 +38,7 @@
 #include <epan/prefs-int.h>
 #include <epan/uat-int.h>
 #include <epan/strutil.h>
-#include <epan/crypt/airpdcap_ws.h>
+#include <epan/crypt/dot11decrypt_ws.h>
 #include <epan/crypt/wep-wpadefs.h>
 
 #include <epan/packet.h>
@@ -293,7 +293,7 @@ static guint
 get_wep_key(pref_t *pref, gpointer ud)
 {
     gchar *key_string = NULL;
-    guint8 key_type = AIRPDCAP_KEY_TYPE_WEP;
+    guint8 key_type = DOT11DECRYPT_KEY_TYPE_WEP;
     keys_cb_data_t* user_data;
     uat_t *uat;
     guint i;
@@ -322,16 +322,16 @@ get_wep_key(pref_t *pref, gpointer ud)
         {
             /* strip out key type if present */
             if (g_ascii_strncasecmp(wep_keys->string, STRING_KEY_TYPE_WEP ":", 4) == 0) {
-                key_type = AIRPDCAP_KEY_TYPE_WEP;
+                key_type = DOT11DECRYPT_KEY_TYPE_WEP;
                 key_string = (gchar*)wep_keys->string+4;
             }
             else if (g_ascii_strncasecmp(wep_keys->string, STRING_KEY_TYPE_WPA_PWD ":", 8) == 0) {
                 key_string = (gchar*)wep_keys->string+8;
-                key_type = AIRPDCAP_KEY_TYPE_WPA_PWD;
+                key_type = DOT11DECRYPT_KEY_TYPE_WPA_PWD;
             }
             else if (g_ascii_strncasecmp(wep_keys->string, STRING_KEY_TYPE_WPA_PSK ":", 8) == 0) {
                 key_string = (gchar*)wep_keys->string+8;
-                key_type = AIRPDCAP_KEY_TYPE_WPA_PSK;
+                key_type = DOT11DECRYPT_KEY_TYPE_WPA_PSK;
             }
             else {
                 key_type = wep_keys->key;
@@ -435,7 +435,7 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
      */
     n = g_list_length(key_list);
     for(k = 0; k < n; k++ )
-        if (((decryption_key_t*)g_list_nth_data(key_list,k))->type == AIRPDCAP_KEY_TYPE_WEP)
+        if (((decryption_key_t*)g_list_nth_data(key_list,k))->type == DOT11DECRYPT_KEY_TYPE_WEP)
             keys_in_list++;
 
     /*
@@ -471,14 +471,14 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
         key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
 
         /*
-         * XXX - The AIRPDCAP_KEY_TYPE_WEP is the only supported right now!
+         * XXX - The DOT11DECRYPT_KEY_TYPE_WEP is the only supported right now!
          * We will have to modify the AirpcapKey structure in order to
          * support the other two types! What happens now, is that simply the
          * not supported keys will just be discarded (they will be saved in Wireshark though)
          */
-        if (key_item->type == AIRPDCAP_KEY_TYPE_WEP)
+        if (key_item->type == DOT11DECRYPT_KEY_TYPE_WEP)
         {
-            KeysCollection->Keys[y].KeyType = AIRPDCAP_KEY_TYPE_WEP;
+            KeysCollection->Keys[y].KeyType = DOT11DECRYPT_KEY_TYPE_WEP;
 
             new_key = g_string_new(key_item->key->str);
 
@@ -497,11 +497,11 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
             y++;
             g_string_free(new_key,TRUE);
         }
-        else if (key_item->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+        else if (key_item->type == DOT11DECRYPT_KEY_TYPE_WPA_PWD)
         {
             /* XXX - The driver cannot deal with this kind of key yet... */
         }
-        else if (key_item->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+        else if (key_item->type == DOT11DECRYPT_KEY_TYPE_WPA_PMK)
         {
             /* XXX - The driver cannot deal with this kind of key yet... */
         }
@@ -622,7 +622,7 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
 
     for(i = 0; i < keys_in_list; i++)
     {
-        KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
+        KeysCollection->Keys[i].KeyType = DOT11DECRYPT_KEY_TYPE_WEP;
 
         /* Retrieve the Item corresponding to the i-th key */
         key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
@@ -679,7 +679,7 @@ airpcap_get_key_string(AirpcapKey key)
     dst = NULL;
     src = NULL;
 
-    if (key.KeyType == AIRPDCAP_KEY_TYPE_WEP)
+    if (key.KeyType == DOT11DECRYPT_KEY_TYPE_WEP)
     {
         if (key.KeyLen != 0)
         {
@@ -699,11 +699,11 @@ airpcap_get_key_string(AirpcapKey key)
             g_free(src);
         }
     }
-    else if (key.KeyType == AIRPDCAP_KEY_TYPE_WPA_PWD)
+    else if (key.KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD)
     {
         /* XXX - Add code here */
     }
-    else if (key.KeyType == AIRPDCAP_KEY_TYPE_WPA_PMK)
+    else if (key.KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PMK)
     {
         /* XXX - Add code here */
     }
@@ -748,7 +748,7 @@ save_wlan_driver_wep_keys(void)
     for(i=0; i<keys_in_list; i++)
     {
     /* Only if it is a WEP key... */
-        if (fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
+        if (fake_info_if->keysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WEP)
         {
             tmp_key = airpcap_get_key_string(fake_info_if->keysCollection->Keys[i]);
             key_list = g_list_append(key_list,g_strdup(tmp_key));
@@ -902,11 +902,11 @@ print_key_list(GList* key_list)
 
         g_print("BITS: %d\n",tmp->bits);
 
-        if (tmp->type == AIRPDCAP_KEY_TYPE_WEP)
+        if (tmp->type == DOT11DECRYPT_KEY_TYPE_WEP)
             g_print("TYPE: %s\n",AIRPCAP_WEP_KEY_STRING);
-        else if (tmp->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+        else if (tmp->type == DOT11DECRYPT_KEY_TYPE_WPA_PWD)
             g_print("TYPE: %s\n",AIRPCAP_WPA_PWD_KEY_STRING);
-        else if (tmp->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+        else if (tmp->type == DOT11DECRYPT_KEY_TYPE_WPA_PMK)
             g_print("TYPE: %s\n",AIRPCAP_WPA_BIN_KEY_STRING);
         else
             g_print("TYPE: %s\n","???");
@@ -945,7 +945,7 @@ get_airpcap_device_keys(airpcap_if_info_t* info_if)
     for(i=0; i<keys_in_list; i++)
     {
         /* Different things to do depending on the key type  */
-        if (info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
+        if (info_if->keysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WEP)
         {
             /* allocate memory for the new key item */
             new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
@@ -968,11 +968,11 @@ get_airpcap_device_keys(airpcap_if_info_t* info_if)
             /* Append the new element in the list */
             key_list = g_list_append(key_list,(gpointer)new_key);
         }
-        else if (info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PWD)
+        else if (info_if->keysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD)
         {
             /* XXX - Not supported yet */
         }
-        else if (info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PMK)
+        else if (info_if->keysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PMK)
         {
             /* XXX - Not supported yet */
         }
@@ -1017,7 +1017,7 @@ get_airpcap_driver_keys(void)
     for(i=0; i<keys_in_list; i++)
     {
         /* Different things to do depending on the key type  */
-        if (fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
+        if (fake_info_if->keysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WEP)
         {
             /* allocate memory for the new key item */
             new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
@@ -1040,11 +1040,11 @@ get_airpcap_driver_keys(void)
             /* Append the new element in the list */
             key_list = g_list_append(key_list,(gpointer)new_key);
         }
-        else if (fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PWD)
+        else if (fake_info_if->keysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD)
         {
             /* XXX - Not supported yet */
         }
-        else if (fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PMK)
+        else if (fake_info_if->keysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PMK)
         {
             /* XXX - Not supported yet */
         }
@@ -1295,7 +1295,7 @@ keys_are_equals(decryption_key_t *k1,decryption_key_t *k2)
         return FALSE;
 
     /* XXX - Remove this check when we will have the WPA/WPA2 decryption in the Driver! */
-    /** if ( (k1->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k1->type == AIRPDCAP_KEY_TYPE_WPA_PMK) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PMK) ) **/
+    /** if ( (k1->type == DOT11DECRYPT_KEY_TYPE_WPA_PWD) || (k2->type == DOT11DECRYPT_KEY_TYPE_WPA_PWD) || (k1->type == DOT11DECRYPT_KEY_TYPE_WPA_PMK) || (k2->type == DOT11DECRYPT_KEY_TYPE_WPA_PMK) ) **/
     /**         return TRUE;  **/
 
     if (g_string_equal(k1->key,k2->key) &&
@@ -1341,7 +1341,7 @@ key_lists_are_equal(GList* list1, GList* list2)
     for(i=0;i<n1;i++)
     {
         dk1=(decryption_key_t*)g_list_nth_data(list1,i);
-        if (dk1->type == AIRPDCAP_KEY_TYPE_WEP)
+        if (dk1->type == DOT11DECRYPT_KEY_TYPE_WEP)
         {
             wep_list1 = g_list_append(wep_list1,(gpointer)dk1);
             wep_n1++;
@@ -1350,7 +1350,7 @@ key_lists_are_equal(GList* list1, GList* list2)
     for(i=0;i<n2;i++)
     {
         dk2=(decryption_key_t*)g_list_nth_data(list2,i);
-        if (dk2->type == AIRPDCAP_KEY_TYPE_WEP)
+        if (dk2->type == DOT11DECRYPT_KEY_TYPE_WEP)
         {
             wep_list2 = g_list_append(wep_list2,(gpointer)dk2);
             wep_n2++;
@@ -1584,7 +1584,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
     {
         curr_key = (decryption_key_t*)g_list_nth_data(wireshark_key_list,i);
 
-        if (curr_key->type == AIRPDCAP_KEY_TYPE_WEP)
+        if (curr_key->type == DOT11DECRYPT_KEY_TYPE_WEP)
         {
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
                 KL_COL_TYPE, AIRPCAP_WEP_KEY_STRING,
@@ -1592,7 +1592,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
                 KL_COL_SSID, "",
                 -1);
         }
-        else if (curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+        else if (curr_key->type == DOT11DECRYPT_KEY_TYPE_WPA_PWD)
         {
             if (curr_key->ssid != NULL)
             {
@@ -1613,7 +1613,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
                 -1);
             }
         }
-        else if (curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+        else if (curr_key->type == DOT11DECRYPT_KEY_TYPE_WPA_PMK)
         {
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
                 KL_COL_TYPE, AIRPCAP_WPA_BIN_KEY_STRING,
@@ -2044,11 +2044,11 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
                            -1);
 
         if (g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
-            KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
+            KeysCollection->Keys[i].KeyType = DOT11DECRYPT_KEY_TYPE_WEP;
         else if (g_ascii_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
-            KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WPA_PWD;
+            KeysCollection->Keys[i].KeyType = DOT11DECRYPT_KEY_TYPE_WPA_PWD;
         else if (g_ascii_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
-            KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
+            KeysCollection->Keys[i].KeyType = DOT11DECRYPT_KEY_TYPE_WPA_PMK;
 
         /* Retrieve the Item corresponding to the i-th key */
         key_len = strlen(row_key);
@@ -2057,7 +2057,7 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
         memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
         /* Key must be saved in a different way, depending on its type... */
-        if (KeysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
+        if (KeysCollection->Keys[i].KeyType == DOT11DECRYPT_KEY_TYPE_WEP)
         {
             for(j = 0 ; j < key_len; j += 2)
             {
@@ -2127,7 +2127,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
             tmp_dk->ssid = NULL;
-            tmp_dk->type = AIRPDCAP_KEY_TYPE_WEP;
+            tmp_dk->type = DOT11DECRYPT_KEY_TYPE_WEP;
             tmp_dk->bits = (guint) tmp_dk->key->len * 4;
             key_list = g_list_append(key_list,tmp_dk);
         }
@@ -2137,7 +2137,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
             tmp_dk->key = g_string_new(tmp_key);
             tmp_dk->ssid = g_byte_array_new();
             uri_str_to_bytes(tmp_ssid?tmp_ssid:"", tmp_dk->ssid);
-            tmp_dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
+            tmp_dk->type = DOT11DECRYPT_KEY_TYPE_WPA_PWD;
             tmp_dk->bits = 256;
             key_list = g_list_append(key_list,tmp_dk);
         }
@@ -2146,7 +2146,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
             tmp_dk->ssid = NULL; /* No SSID in this case */
-            tmp_dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
+            tmp_dk->type = DOT11DECRYPT_KEY_TYPE_WPA_PMK;
             tmp_dk->bits = 256;
             key_list = g_list_append(key_list,tmp_dk);
         }

@@ -13,7 +13,7 @@
 #ifndef __AIRPCAP_LOADER_H__
 #define __AIRPCAP_LOADER_H__
 
-#include <epan/crypt/airpdcap_system.h>
+#include <epan/crypt/dot11decrypt_system.h>
 
 #ifdef __cplusplus
 extern "C" {

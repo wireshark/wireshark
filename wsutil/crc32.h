@@ -93,7 +93,7 @@ WS_DLL_PUBLIC guint32 crc32_0x0AA725CF_seed(const guint8 *buf, guint len, guint3
  */
 WS_DLL_PUBLIC guint32 crc32_0x5D6DCB_seed(const guint8 *buf, guint len, guint32 seed);
 
-WS_DLL_PUBLIC int AirPDcapWepDecrypt(
+WS_DLL_PUBLIC int Dot11DecryptWepDecrypt(
 	const guchar *seed,
 	const size_t seed_len,
 	guchar *cypher_text,
