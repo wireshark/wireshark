@@ -414,7 +414,7 @@ chmod 755 "$pkglib"/*.dylib
 if [ "$strip" = "true" ]; then
 	echo -e "\nStripping debugging symbols...\n"
 	strip -x "$pkglib"/*.dylib
-	strip -ur "$binpath"
+	strip -ur "$bundle_binary_list"
 fi
 
 #
