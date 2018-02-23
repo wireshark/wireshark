@@ -68,11 +68,9 @@ OPTIONS
 		Specify the path to the libraries Wireshark depends on
 		(typically /sw or /opt/local). By default it is
 		/usr/local.
-	-sdkroot
-		Specify the root of the SDK to use.
 
 EXAMPLE
-	$0 -s -l /opt/local -sdkroot /Developer/SDKs/MacOSX10.5.sdk
+	$0 -s -l /opt/local
 "
 }
 
@@ -90,9 +88,6 @@ do
 		-h|--help)
 			help
 			exit 0 ;;
-		-sdkroot)
-			sdkroot="$2"
-			shift 1 ;;
 		*)
 			echo "Invalid command line option: $1"
 			exit 2 ;;
