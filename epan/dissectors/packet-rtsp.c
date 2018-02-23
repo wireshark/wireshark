@@ -720,6 +720,11 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
             rtp_add_address(pinfo, PT_UDP, &dst_addr, c_data_port, s_data_port,
                             "RTSP", pinfo->num, is_video, NULL);
         }
+        else if (s_data_port)
+        {
+            rtp_add_address(pinfo, PT_UDP, &src_addr, s_data_port, 0,
+                            "RTSP", pinfo->num, is_video, NULL);
+        }
 
         /* RTCP only if indicated */
         if (c_mon_port)
