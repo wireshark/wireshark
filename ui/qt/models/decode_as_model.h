@@ -49,11 +49,11 @@ public:
     DecodeAsModel(QObject *parent, capture_file *cf = NULL);
 
     enum DecodeAsColumn {
-        colTable = 0,
-        colSelector,
-        colType,
-        colDefault, // aka "initial"
-        colProtocol, // aka "current"
+        colTable = 0, // aka "Field" (or dissector table like "TCP Port")
+        colSelector, // the actual table value (e.g., port number 80)
+        colType,    // field type (e.g. "Integer, base 16")
+        colDefault, // aka "initial" protocol chosen by Wireshark
+        colProtocol, // aka "current" protocol selected by user
         colDecodeAsMax //not used
     };
 

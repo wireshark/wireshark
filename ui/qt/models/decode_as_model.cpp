@@ -259,7 +259,7 @@ bool DecodeAsModel::setData(const QModelIndex &cur_index, const QVariant &value,
         if (IS_FT_STRING(selector_type)) {
             item->selectorString_ = value.toString();
         } else if (IS_FT_UINT(selector_type)) {
-            item->selectorUint_ = value.toUInt();
+            item->selectorUint_ = value.toString().toUInt(Q_NULLPTR, 0);
         }
         }
         break;
