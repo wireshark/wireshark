@@ -681,7 +681,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	guint32     freq;
 	proto_item *rate_ti;
 	gint8       dbm;
-	guint8       db;
+	guint8      db;
 	gboolean    have_rflags       = FALSE;
 	guint8      rflags            = 0;
 	guint32     xcflags;
@@ -2360,7 +2360,7 @@ void proto_register_radiotap(void)
 		  "Antenna number this frame was sent/received over (starting at 0)", HFILL}},
 
 		{&hf_radiotap_dbm_antsignal,
-		 {"antenna signal", "radiotap.dbm_antsignal",
+		 {"Antenna signal", "radiotap.dbm_antsignal",
 		  FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
 		  "RF signal power at the antenna expressed as decibels"
 		  " from one milliwatt", HFILL}},
