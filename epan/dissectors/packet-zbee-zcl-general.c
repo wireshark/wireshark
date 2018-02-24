@@ -49,6 +49,7 @@
 #define ZBEE_ZCL_ATTR_ID_BASIC_DEVICE_ENABLED           0x0012  /* Device Enabled */
 #define ZBEE_ZCL_ATTR_ID_BASIC_ALARM_MASK               0x0013  /* Alarm Mask */
 #define ZBEE_ZCL_ATTR_ID_BASIC_DISABLE_LOCAL_CFG        0x0014  /* Disable Local Config */
+#define ZBEE_ZCL_ATTR_ID_BASIC_SW_BUILD_ID              0x4000  /* SW Build Id */
 
 /* Server Commands Received */
 #define ZBEE_ZCL_CMD_ID_BASIC_RESET_FACTORY_DEFAULTS    0x00  /* Reset to Factory Defaults */
@@ -129,6 +130,7 @@ static const value_string zbee_zcl_basic_attr_names[] = {
     { ZBEE_ZCL_ATTR_ID_BASIC_DEVICE_ENABLED,        "Device Enabled" },
     { ZBEE_ZCL_ATTR_ID_BASIC_ALARM_MASK,            "Alarm Mask" },
     { ZBEE_ZCL_ATTR_ID_BASIC_DISABLE_LOCAL_CFG,     "Disable Local Config" },
+    { ZBEE_ZCL_ATTR_ID_BASIC_SW_BUILD_ID,           "Software Build Id" },
     { 0, NULL }
 };
 
@@ -283,6 +285,7 @@ dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guin
         case ZBEE_ZCL_ATTR_ID_BASIC_DATE_CODE:
         case ZBEE_ZCL_ATTR_ID_BASIC_PHY_ENVIRONMENT:
         case ZBEE_ZCL_ATTR_ID_BASIC_LOCATION_DESCR:
+        case ZBEE_ZCL_ATTR_ID_BASIC_SW_BUILD_ID:
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
             break;
