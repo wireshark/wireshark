@@ -495,3 +495,5 @@ yyerror (void *yyscanner, ascend_state_t *state _U_, FILE_T fh _U_, const char *
 {
   ascendget_extra(yyscanner)->ascend_parse_error = s;
 }
+
+DIAG_OFF_BYACC
