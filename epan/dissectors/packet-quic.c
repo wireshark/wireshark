@@ -46,6 +46,7 @@ static int hf_quic_short_kp_flag = -1;
 static int hf_quic_short_packet_type = -1;
 static int hf_quic_initial_payload = -1;
 static int hf_quic_handshake_payload = -1;
+static int hf_quic_retry_payload = -1;
 static int hf_quic_protected_payload = -1;
 
 static int hf_quic_frame = -1;
@@ -881,6 +882,43 @@ dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
 }
 
 static int
+dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint32 pkn){
+    proto_item *ti;
+
+    ti = proto_tree_add_item(quic_tree, hf_quic_retry_payload, tvb, offset, -1, ENC_NA);
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+    tls13_cipher *cipher = NULL;
+    const gchar *error = NULL;
+    tvbuff_t *decrypted_tvb;
+
+    /* Retry coming always from server */
+    cipher = quic_info->server_cleartext_cipher;
+
+    if (cipher) {
+        /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
+        DISSECTOR_ASSERT(offset == QUIC_LONG_HEADER_LENGTH);
+
+        decrypted_tvb = quic_decrypt_message(cipher, tvb, pinfo, QUIC_LONG_HEADER_LENGTH, pkn, &error);
+        if (decrypted_tvb) {
+            guint decrypted_offset = 0;
+            while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0){
+                decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, quic_tree, decrypted_offset, quic_info);
+            }
+        } else {
+            expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to decrypt retry: %s", error);
+        }
+    }
+#else /* !HAVE_LIBGCRYPT_AEAD */
+    expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
+#endif /* !HAVE_LIBGCRYPT_AEAD */
+    offset += tvb_reported_length_remaining(tvb, offset);
+
+
+    return offset;
+}
+
+static int
 dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info){
     guint32 long_packet_type, pkn;
     guint64 cid;
@@ -906,6 +944,9 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         break;
         case QUIC_LPT_HANDSHAKE: /* Handshake */
             offset = dissect_quic_handshake(tvb, pinfo, quic_tree, offset, quic_info, pkn);
+        break;
+        case QUIC_LPT_RETRY: /* Retry */
+            offset = dissect_quic_retry(tvb, pinfo, quic_tree, offset, quic_info, pkn);
         break;
         default:
             /* Protected (Encrypted) Payload */
@@ -1096,6 +1137,11 @@ proto_register_quic(void)
         },
         { &hf_quic_handshake_payload,
           { "Handshake Payload", "quic.handshake_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_retry_payload,
+          { "Retry Payload", "quic.retry_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
