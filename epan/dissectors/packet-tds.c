@@ -3415,7 +3415,6 @@ dissect_tds_col_name_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
                            struct _netlib_data *nl_data)
 {
     guint next, cur, len, col=0;
-    cur = offset;
 
     proto_tree_add_item_ret_uint(tree, hf_tds_colname_length, tvb, offset, 2,
                                  tds_get_int2_encoding(tds_info), &len);
