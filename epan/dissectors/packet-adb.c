@@ -65,6 +65,7 @@ static gint ett_adb_magic                                                  = -1;
 
 static expert_field ei_invalid_magic                                  = EI_INIT;
 static expert_field ei_invalid_crc                                    = EI_INIT;
+static expert_field ei_invalid_data                                   = EI_INIT;
 
 static dissector_handle_t  adb_handle;
 static dissector_handle_t  adb_service_handle;
@@ -102,6 +103,7 @@ typedef struct command_data_t {
     guint32   completed_in_frame;
     guint32   reassemble_data_length;
     guint8   *reassemble_data;
+    guint32   reassemble_error_in_frame;
 } command_data_t;
 
 static guint32 max_in_frame = G_MAXUINT32;
@@ -258,6 +260,7 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
         command_data->completed_in_frame = max_in_frame;
     command_data->reassemble_data_length = 0;
     command_data->reassemble_data = (guint8 *) wmem_alloc(wmem_file_scope(), command_data->data_length);
+    command_data->reassemble_error_in_frame = 0;
 
     key[3].length = 1;
     key[3].key = &frame_number;
@@ -626,15 +629,31 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint32 crc = 0;
         guint32 i_offset;
 
-        if ((!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (guint32) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
-            if (!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) {
-                tvb_memcpy(tvb, command_data->reassemble_data + command_data->reassemble_data_length, offset, tvb_captured_length_remaining(tvb, offset));
-                command_data->reassemble_data_length += tvb_captured_length_remaining(tvb, offset);
-
-                if (command_data->reassemble_data_length >= command_data->data_length)
-                    command_data->completed_in_frame = frame_number;
+        /* First pass: store message payload (usually a single packet, but
+         * potentially multiple fragments). */
+        if (!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) {
+            guint chunklen = tvb_captured_length_remaining(tvb, offset);
+            if (chunklen > command_data->data_length - command_data->reassemble_data_length) {
+                chunklen = command_data->data_length - command_data->reassemble_data_length;
+                /* This should never happen, but when it does, then either we
+                 * have a malicious application OR we failed to correctly match
+                 * this payload with a message header. */
+                command_data->reassemble_error_in_frame = frame_number;
             }
 
+            tvb_memcpy(tvb, command_data->reassemble_data + command_data->reassemble_data_length, offset, chunklen);
+            command_data->reassemble_data_length += chunklen;
+
+            if (command_data->reassemble_data_length >= command_data->data_length)
+                command_data->completed_in_frame = frame_number;
+        }
+
+        if (frame_number == command_data->reassemble_error_in_frame) {
+            /* data reassembly error was detected in the first pass. */
+            proto_tree_add_expert(main_tree, pinfo, &ei_invalid_data, tvb, offset, -1);
+        }
+
+        if ((!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (guint32) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
             proto_tree_add_item(main_tree, hf_data_fragment, tvb, offset, -1, ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO, "Data Fragment");
             offset = tvb_captured_length(tvb);
@@ -874,6 +893,7 @@ proto_register_adb(void)
     static ei_register_info ei[] = {
         { &ei_invalid_magic,          { "adb.expert.invalid_magic", PI_PROTOCOL, PI_WARN, "Invalid Magic", EXPFILL }},
         { &ei_invalid_crc,            { "adb.expert.crc_error", PI_PROTOCOL, PI_ERROR, "CRC32 Error", EXPFILL }},
+        { &ei_invalid_data,           { "adb.expert.data_error", PI_PROTOCOL, PI_ERROR, "Mismatch between message payload size and data length", EXPFILL }},
     };
 
     command_info         = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
