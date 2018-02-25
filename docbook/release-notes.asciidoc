@@ -1,5 +1,6 @@
 include::attributes.asciidoc[]
 :stylesheet: ws.css
+:linkcss:
 
 = Wireshark {wireshark-version} Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc

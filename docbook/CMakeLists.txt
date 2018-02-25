@@ -544,7 +544,7 @@ add_custom_target(
 set_docbook_target_properties(news)
 
 if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( release-notes.asciidoc )
+	ASCIIDOCTOR2HTML( release-notes.asciidoc ws.css )
 	ASCIIDOCTOR2TXT( release-notes.asciidoc )
 endif()
 
