@@ -268,7 +268,6 @@ static const int * wisun_format_nested_ie_short[] = {
 };
 
 static expert_field ei_wisun_subid_unsupported = EI_INIT;
-static expert_field ei_wisun_wsie_short_format = EI_INIT;
 static expert_field ei_wisun_wsie_unsupported = EI_INIT;
 static expert_field ei_wisun_usie_channel_plan_invalid = EI_INIT;
 static expert_field ei_wisun_edfe_start_not_found = EI_INIT;
@@ -1180,8 +1179,6 @@ void proto_register_wisun(void)
     static ei_register_info ei[] = {
         { &ei_wisun_subid_unsupported, { "wisun.subid.unsupported", PI_PROTOCOL, PI_WARN,
                 "Unsuppoted Header Sub ID", EXPFILL }},
-        { &ei_wisun_wsie_short_format, { "wisun.wsie.short_format", PI_PROTOCOL, PI_WARN,
-                "Wi-SUN Sub-IE are not valid for the short format", EXPFILL }},
         { &ei_wisun_usie_channel_plan_invalid, { "wisun.usie.channel.plan.invalid", PI_PROTOCOL, PI_WARN,
                 "Invalid Channel Plan", EXPFILL }},
         { &ei_wisun_wsie_unsupported, { "wisun.wsie.unsupported", PI_PROTOCOL, PI_WARN,
