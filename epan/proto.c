@@ -7428,7 +7428,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				if ((start_values[m].value == current->value) &&
 				    (strcmp(start_values[m].strptr, current->strptr) != 0)) {
 					ws_g_warning("Field '%s' (%s) has a conflicting entry in its"
-						  " value_string: %u is at indices %u (%s) and %u (%s))\n",
+						  " value_string: %u is at indices %u (%s) and %u (%s)\n",
 						  hfinfo->name, hfinfo->abbrev,
 						  current->value, m, start_values[m].strptr, n, current->strptr);
 				}
