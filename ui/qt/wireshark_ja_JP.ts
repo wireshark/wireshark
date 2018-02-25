@@ -1249,48 +1249,48 @@
 <context>
     <name>CaptureFilterEdit</name>
     <message>
-        <location filename="capture_filter_edit.cpp" line="123"/>
+        <location filename="capture_filter_edit.cpp" line="174"/>
         <source>Capture filter entry</source>
         <translation>キャプチャフィルタ入力</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="280"/>
+        <location filename="capture_filter_edit.cpp" line="331"/>
         <source>Enter a capture filter %1</source>
         <translation>キャプチャフィルタ %1 を入力</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="136"/>
+        <location filename="capture_filter_edit.cpp" line="187"/>
         <source>Manage saved bookmarks.</source>
         <translation>保存したブックマークを管理します</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="173"/>
+        <location filename="capture_filter_edit.cpp" line="224"/>
         <source>Apply this filter string to the display.</source>
         <translation>このフィルタ文字列を表示に適用します</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="275"/>
+        <location filename="capture_filter_edit.cpp" line="326"/>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
         <translation>複数のフィルタが選択されています。選択を上書きするかあるいは空白のままにしておいてください</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="276"/>
+        <location filename="capture_filter_edit.cpp" line="327"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;選択したインターフェースには異なるキャプチャフィルタがあります。ここにフィルタを入力すれば上書きされます。なにもしなければそのまま保存します&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="378"/>
+        <location filename="capture_filter_edit.cpp" line="429"/>
         <source>Save this filter</source>
         <translation>このフィルタを保存</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="380"/>
+        <location filename="capture_filter_edit.cpp" line="431"/>
         <source>Remove this filter</source>
         <translation>このフィルタを削除</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="382"/>
+        <location filename="capture_filter_edit.cpp" line="433"/>
         <source>Manage Capture Filters</source>
         <translation>キャプチャフィルタ管理</translation>
     </message>
@@ -9558,47 +9558,47 @@ a:hover {
         <translation>保存中 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="943"/>
+        <location filename="main_window_slots.cpp" line="940"/>
         <source>No interface selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="953"/>
+        <location filename="main_window_slots.cpp" line="950"/>
         <source>Invalid capture filter</source>
         <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1201"/>
+        <location filename="main_window_slots.cpp" line="1198"/>
         <source>Clear Menu</source>
         <translation>メニューをクリア</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1699"/>
+        <location filename="main_window_slots.cpp" line="1696"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wiresharkが初期化している間お待ちください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1803"/>
+        <location filename="main_window_slots.cpp" line="1800"/>
         <source> before closing the file</source>
         <translation>ファイルを閉じる前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1885"/>
+        <location filename="main_window_slots.cpp" line="1882"/>
         <source>Export Selected Packet Bytes</source>
         <translation>選択したパケットバイト列をエクスポート</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1951"/>
+        <location filename="main_window_slots.cpp" line="1948"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1952"/>
+        <location filename="main_window_slots.cpp" line="1949"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存するSSLセッション鍵はありません</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1958"/>
+        <location filename="main_window_slots.cpp" line="1955"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9606,7 +9606,7 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1887"/>
+        <location filename="main_window_slots.cpp" line="1884"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
     </message>
@@ -9616,64 +9616,64 @@ a:hover {
         <translation>ファイルを結合します</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1962"/>
+        <location filename="main_window_slots.cpp" line="1959"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2080"/>
+        <location filename="main_window_slots.cpp" line="2077"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2498"/>
-        <location filename="main_window_slots.cpp" line="3607"/>
+        <location filename="main_window_slots.cpp" line="2495"/>
+        <location filename="main_window_slots.cpp" line="3604"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2656"/>
-        <location filename="main_window_slots.cpp" line="2669"/>
+        <location filename="main_window_slots.cpp" line="2653"/>
+        <location filename="main_window_slots.cpp" line="2666"/>
         <source> before reloading the file</source>
         <translation>ファイルを再読み込みする前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2703"/>
+        <location filename="main_window_slots.cpp" line="2700"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別のものを試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3614"/>
+        <location filename="main_window_slots.cpp" line="3611"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3623"/>
+        <location filename="main_window_slots.cpp" line="3620"/>
         <source>No previous/next packet in conversation.</source>
         <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3700"/>
+        <location filename="main_window_slots.cpp" line="3697"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3707"/>
+        <location filename="main_window_slots.cpp" line="3704"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3725"/>
+        <location filename="main_window_slots.cpp" line="3722"/>
         <source> before restarting the capture</source>
         <translation>キャプチャを再スタートする前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3936"/>
+        <location filename="main_window_slots.cpp" line="3933"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3937"/>
+        <location filename="main_window_slots.cpp" line="3934"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
@@ -15919,22 +15919,22 @@ a:hover {
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="598"/>
+        <location filename="wireshark_application.cpp" line="599"/>
         <source>Dell Backup and Recovery Found</source>
         <translation>Dell Backup and Recovery が見つかりました</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="599"/>
+        <location filename="wireshark_application.cpp" line="600"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation>Dell Backup and Recovery 1.8 が起動しています</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="600"/>
+        <location filename="wireshark_application.cpp" line="601"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation>DBARは &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;Wiresharkを含めて&lt;/a&gt;多くのアプリケーションのクラッシュを起こします</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="604"/>
+        <location filename="wireshark_application.cpp" line="605"/>
         <source>Offending DLL: %1</source>
         <translation>問題DLL: %1</translation>
     </message>
