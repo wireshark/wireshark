@@ -90,6 +90,8 @@ static int hf_wisun_btie_bfio = -1;
 static int hf_wisun_fcie = -1;
 static int hf_wisun_fcie_tx = -1;
 static int hf_wisun_fcie_rx = -1;
+static int hf_wisun_fcie_src = -1;
+static int hf_wisun_fcie_initial_frame = -1;
 static int hf_wisun_rslie = -1;
 static int hf_wisun_rslie_rsl = -1;
 static int hf_wisun_vhie = -1;
@@ -360,11 +362,15 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         // first packet has source address
         if (!hints->map_rec && packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
             edfe_exchange_t* ex = wmem_new(wmem_file_scope(), edfe_exchange_t);
-            ex->initiator.proto = ex->target.proto = "Wi-SUN";
+            ex->initiator.proto = "Wi-SUN";
+            ex->target.proto = "Wi-SUN";
+            ex->initiator.start_fnum = pinfo->num;
+            ex->target.start_fnum = pinfo->num;
+            ex->initiator.end_fnum = ~(guint)0;
+            ex->target.end_fnum = ~(guint)0;
+
             ex->initiator.addr64 = packet->src64;
             ex->target.addr64 = packet->dst64;
-            ex->initiator.start_fnum = pinfo->num;
-            ex->initiator.end_fnum = ~(guint)0;
             edfe_insert_exchange(&ex->initiator.addr64, ex);
             edfe_insert_exchange(&ex->target.addr64, ex);
         } else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
@@ -389,6 +395,10 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
                 *p_addr = pntoh64(&(hints->map_rec->addr64));
                 set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
                 copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+                proto_item* src = proto_tree_add_eui64(tree, hf_wisun_fcie_src, tvb, 0, 0, hints->map_rec->addr64);
+                PROTO_ITEM_SET_GENERATED(src);
+                proto_item* frm = proto_tree_add_uint(tree, hf_wisun_fcie_initial_frame, tvb, 0, 0, hints->map_rec->start_fnum);
+                PROTO_ITEM_SET_GENERATED(frm);
             } else {
                 expert_add_info(pinfo, tree, &ei_wisun_edfe_start_not_found);
             }
@@ -914,6 +924,16 @@ void proto_register_wisun(void)
             NULL, HFILL }
         },
 
+        { &hf_wisun_fcie_src,
+          { "Source Address", "wisun.fcie.src", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_fcie_initial_frame,
+          { "Initial Frame", "wisun.fcie.initial_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_wisun_rslie,
           { "Received Signal Level IE", "wisun.rslie", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
@@ -940,7 +960,7 @@ void proto_register_wisun(void)
         },
 
         { &hf_wisun_eaie_eui,
-          { "Vendor ID", "wisun.eaie.eui", FT_EUI64, BASE_NONE, NULL, 0x0,
+          { "Authenticator EUI-64", "wisun.eaie.eui", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
