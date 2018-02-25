@@ -1255,7 +1255,7 @@ const value_string isup_parameter_type_value[] = {
 /* 142 */  { 142,                                  "Forward CAT indicators"},   /* Q.763 Amendment 6(10/2009) */
 /* 143 */  { 143,                                  "Backward CAT indicators"},  /* Q.763 Amendment 6(10/2009) */
 /* 150 */  { 150,                                  "Automatic re-routing" },    /* Q.763 Amendment 3(04/2004) */
-/* 166 */  { 168,                                  "IEPS call information" },   /* Q.763 Amendment 4(01/2006) */
+/* 166 */  { 166,                                  "IEPS call information" },   /* Q.763 Amendment 4(01/2006) */
 /* 168 */  { 168,                                  "VED information" },         /* Q.763 Amendment 5(09/2006) */
 /* 192 */  { PARAM_TYPE_GENERIC_NR,                "Generic number"},
 /* 193 */  { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
