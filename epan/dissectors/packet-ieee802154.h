@@ -516,4 +516,6 @@ extern gboolean ieee802154_long_addr_invalidate(guint64, guint);
 
 extern ieee802154_map_tab_t ieee802154_map;
 
+extern const value_string ieee802154_mpx_kmp_id_vals[];
+
 #endif /* PACKET_IEEE802154_H */

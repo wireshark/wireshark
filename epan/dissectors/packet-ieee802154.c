@@ -880,7 +880,8 @@ static const value_string mpx_multiplex_id_vals[] = {
     { 0, NULL }
 };
 
-static const value_string mpx_kmp_id_vals[] = {
+// used by the Wi-SUN dissector
+const value_string ieee802154_mpx_kmp_id_vals[] = {
     { IEEE802159_MPX_KMP_ID_IEEE8021X, "IEEE 802.1X/MKA" },
     { IEEE802159_MPX_KMP_ID_HIP, "HIP" },
     { IEEE802159_MPX_KMP_ID_IKEV2, "IKEv2" },
@@ -4687,7 +4688,7 @@ void proto_register_ieee802154(void)
         },
 
         { &hf_ieee802159_mpx_kmp_id,
-          { "KMP ID", "wpan.mpx.kmp.id", FT_UINT8, BASE_DEC, VALS(mpx_kmp_id_vals), 0x0,
+          { "KMP ID", "wpan.mpx.kmp.id", FT_UINT8, BASE_DEC, VALS(ieee802154_mpx_kmp_id_vals), 0x0,
             NULL, HFILL }
         },
 

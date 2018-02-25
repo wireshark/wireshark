@@ -41,6 +41,8 @@ typedef struct {
 // map to the shared edfe_exchange_t
 static wmem_map_t* edfe_byaddr;
 
+static dissector_handle_t eapol_handle;  // for the eapol relay
+
 
 /* Wi-SUN Header IE Sub-ID Values. */
 #define WISUN_SUBID_UTT     1
@@ -73,6 +75,8 @@ static wmem_map_t* edfe_byaddr;
 #define WISUN_CHANNEL_EXCLUDE_NONE      0
 #define WISUN_CHANNEL_EXCLUDE_RANGE     1
 #define WISUN_CHANNEL_EXCLUDE_MASK      2
+
+#define WISUN_EAPOL_RELAY_UDP_PORT 10253
 
 static int proto_wisun = -1;
 static int hf_wisun_subid = -1;
@@ -146,6 +150,14 @@ static int hf_wisun_sec_function = -1;
 static int hf_wisun_sec_error_type = -1;
 static int hf_wisun_sec_error_nonce = -1;
 
+// EAPOL Relay
+static dissector_handle_t wisun_eapol_relay_handle;
+static int proto_wisun_eapol_relay = -1;
+static int hf_wisun_eapol_relay_sup = -1;
+static int hf_wisun_eapol_relay_kmp_id = -1;
+static int hf_wisun_eapol_relay_direction = -1;
+
+
 static gint ett_wisun_unknown_ie = -1;
 static gint ett_wisun_uttie = -1;
 static gint ett_wisun_btie = -1;
@@ -165,6 +177,7 @@ static gint ett_wisun_netnameie = -1;
 static gint ett_wisun_panverie = -1;
 static gint ett_wisun_gtkhashie = -1;
 static gint ett_wisun_sec = -1;
+static gint ett_wisun_eapol_relay = -1;
 
 static const value_string wisun_wsie_types[] = {
     { 0, "Short" },
@@ -804,6 +817,41 @@ dissect_wisun_sec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 }
 
+
+/*-----------------------------------------------
+ * Wi-SUN FAN EAPOL Relay
+ *---------------------------------------------*/
+
+static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    proto_item *subitem = proto_tree_add_item(tree, proto_wisun_eapol_relay, tvb, offset, 9, ENC_NA);
+    proto_tree *subtree = proto_item_add_subtree(subitem, ett_wisun_eapol_relay);
+
+    proto_tree_add_item(subtree, hf_wisun_eapol_relay_sup, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(subtree, hf_wisun_eapol_relay_kmp_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    int up = 0;
+    // eapol.type == EAP_PACKET?
+    if (tvb_get_guint8(tvb, offset+1) == 0) {
+        up = tvb_get_guint8(tvb, offset+4) == 2;  // eap.code == EAP_CODE_RESPONSE
+    } else {
+        up = (tvb_get_guint8(tvb, offset+6) & 0x80) == 0;  // Key Info ACK==0
+    }
+    proto_item* diritem = proto_tree_add_boolean(subtree, hf_wisun_eapol_relay_direction, tvb, offset, 0, (guint32) up);
+    PROTO_ITEM_SET_GENERATED(diritem);
+
+    int r = call_dissector(eapol_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+
+    // UTF-8 arrow up or down
+    col_append_str(pinfo->cinfo, COL_INFO, up ? " [Relay \xe2\x86\x91]" : " [Relay \xe2\x86\x93]");
+
+    return offset + r;
+}
+
+
 /*-----------------------------------------------
  * Wi-SUN Protocol Registration
  *---------------------------------------------*/
@@ -1152,6 +1200,20 @@ void proto_register_wisun(void)
           { "Initiator Nonce", "wisun.sec.nonce", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
+        /* EAPOL Relay */
+        { &hf_wisun_eapol_relay_sup,
+          { "SUP EUI-64", "wisun.eapol_relay.sup", FT_EUI64, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_wisun_eapol_relay_kmp_id,
+          { "KMP ID", "wisun.eapol_relay.kmp_id", FT_UINT8, BASE_DEC, VALS(ieee802154_mpx_kmp_id_vals), 0x0,
+          NULL, HFILL }},
+
+        { &hf_wisun_eapol_relay_direction,
+          { "Direction", "wisun.eapol_relay.direction", FT_BOOLEAN, BASE_NONE, TFS(&tfs_up_down), 0x0,
+          NULL, HFILL }},
+
     };
 
     /* Subtrees */
@@ -1173,7 +1235,8 @@ void proto_register_wisun(void)
         &ett_wisun_netnameie,
         &ett_wisun_panverie,
         &ett_wisun_gtkhashie,
-        &ett_wisun_sec
+        &ett_wisun_sec,
+        &ett_wisun_eapol_relay,
     };
 
     static ei_register_info ei[] = {
@@ -1191,6 +1254,7 @@ void proto_register_wisun(void)
 
     proto_wisun = proto_register_protocol("Wi-SUN Field Area Network", "Wi-SUN", "wisun");
     proto_wisun_sec = proto_register_protocol("Wi-SUN FAN Security Extension", "Wi-SUN WM-SEC", "wisun.sec");
+    proto_wisun_eapol_relay = proto_register_protocol("Wi-SUN FAN EAPOL Relay", "Wi-SUN EAPOL-Relay", "wisun.eapol_relay");
 
     proto_register_field_array(proto_wisun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1201,12 +1265,18 @@ void proto_register_wisun(void)
     register_dissector("wisun.sec", dissect_wisun_sec, proto_wisun_sec);
 
     edfe_byaddr = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);
+
+    wisun_eapol_relay_handle = register_dissector("wisun.eapol_relay", dissect_wisun_eapol_relay, proto_wisun_eapol_relay);
 }
 
 void proto_reg_handoff_wisun(void)
 {
     dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_WISUN, create_dissector_handle(dissect_wisun_hie, proto_wisun));
     dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_WISUN, create_dissector_handle(dissect_wisun_pie, proto_wisun));
+
+    // For EAPOL relay
+    dissector_add_uint("udp.port", WISUN_EAPOL_RELAY_UDP_PORT, wisun_eapol_relay_handle);
+    eapol_handle = find_dissector("eapol");
 }
 
 /*
