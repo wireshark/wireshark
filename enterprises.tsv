@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-02-17)
+# (last updated 2018-02-24)
 
 0	Reserved
 1	NxNetworks
@@ -102,7 +102,7 @@
 92	Webster Computer Corporation
 93	Frontier Technologies Corporation
 94	Nokia
-95	Allen-Bradely Company
+95	Rockwell Automation, Inc.	# formerly 'Allen-Bradley Company'
 96	CERN
 97	Sigma Network Systems, Inc.
 98	Emerging Technologies, Inc.
@@ -29745,7 +29745,7 @@
 29904	abacon products GmbH
 29905	Perrit
 29906	Dybala
-29907	Webmedia AS
+29907	Nortal AS
 29908	IndigoVision Ltd
 29909	Cicero Networks Limited
 29910	Open Systems Management Ltd.
@@ -30083,7 +30083,7 @@
 30242	Info Consultoria e Informatica Ltda.
 30243	network.co.at GmbH
 30244	Dazzle
-30245	The Washington Post Company
+30245	Graham Holdings Company
 30246	Diventus GmbH
 30247	Coopers Peele (France) SARL
 30248	Webkuteer
@@ -35614,7 +35614,7 @@
 35781	Matej Bel University Banska Bystrica
 35782	Universidad de Extremadura
 35783	Nika Ltd
-35784	ECKD GmbH
+35784	ECKD Service GmbH
 35785	Xcira, Inc.
 35786	Continuant Inc
 35787	Computaris
@@ -51266,3 +51266,54 @@
 51450	Nokia
 51451	Beijing mission communication co.,Ltd
 51452	Evolution Travel Network
+51453	Lekkerland information systems GmbH
+51454	Pionica Poland
+51455	Ministry of Foreign Affairs of Estonia
+51456	Dedon Inc
+51457	Linkedin
+51458	Empower Psychiatry & Sleep LLC
+51459	DataEngrave S.L.
+51460	ALEXIUS M BISHOP, MD PSC
+51461	DIESEL-NETWORKS.COM
+51462	Saudi Aramco
+51463	Ortana Electronics Software Inc.
+51464	Zehetner-Elektronik GmbH
+51465	Synvina
+51466	Avantium
+51467	Chrisse Corporation
+51468	Vertis Solutions
+51469	CARDIOLOGY ASSOCIATES, INC.
+51470	Hole kommune
+51471	DR. WILLIAM STRAZZELLA
+51472	Arkessa
+51473	thyssenkrupp System Engineering GmbH
+51474	Crayon Group AS
+51475	tlacuache.us
+51476	Rega
+51477	XZS
+51478	ITW Food Equipment Group
+51479	VeChain
+51480	Ace Supply Company, Inc.
+51481	Curve Dental
+51482	R2H Flavor Technology, LLC
+51483	CTIA
+51484	Exonar Ltd
+51485	mm-lab GmbH
+51486	Revi Comp. Network Technologies
+51487	UnicusID, Inc.
+51488	Netnod Internet Exchange i Sverige AB
+51489	SliceOne
+51490	Ashfords LLP
+51491	SCRT SA
+51492	SuitePad GmbH
+51493	Smart Flows
+51494	Alan N Yager MD
+51495	Real-World-Systems, Inc.
+51496	CC-Link Partner Association
+51497	ChatVoice Corporation
+51498	KeeeX SAS
+51499	FLEXXIBLE INFORMATION TECHNOLOGY SL
+51500	Milwaukee Foot and Ankle Specialists
+51501	Nebraska Foot & Ankle, P.C.
+51502	Cludo
+51503	ARS Traffic & Transport Technology

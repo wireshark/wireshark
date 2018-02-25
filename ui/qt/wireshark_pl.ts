@@ -1435,7 +1435,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished">Symbol &quot;@&quot; będzie zignorowany.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1443,14 +1443,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Dialog</source>
         <translation>Okno</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nazwa</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filtr</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1493,10 +1485,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Zastosuj filtr</translation>
     </message>
     <message>
-        <source>Coloring Rules</source>
-        <translation type="vanished">Reguły kolorowania</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation>Importuj</translation>
     </message>
@@ -1511,10 +1499,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Save filters in a file.</source>
         <translation>Zapisz filtry w pliku.</translation>
-    </message>
-    <message>
-        <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="vanished">Symbol &quot;@&quot; będzie zignorowany.</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
@@ -1539,10 +1523,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to save coloring rules: %s</source>
-        <translation type="vanished">Nie można zapisać reguł kolorowania: %s</translation>
     </message>
 </context>
 <context>

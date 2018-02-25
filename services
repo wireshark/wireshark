@@ -4937,6 +4937,7 @@ ctdp		7022/tcp/udp	# CT Discovery Protocol
 ct2nmcs		7023/tcp/udp	# Comtech T2 NMCS
 vmsvc		7024/tcp/udp	# Vormetric service
 vmsvc-2		7025/tcp/udp	# Vormetric Service II
+loreji-panel	7026/tcp	# Loreji Webhosting Panel
 op-probe	7030/tcp/udp	# ObjectPlanet probe
 iposplanet	7031/tcp	# IPOSPLANET retailing multi devices protocol
 quest-disc	7040/udp	# Quest application level network service discovery

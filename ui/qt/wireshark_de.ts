@@ -1457,7 +1457,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished">das &quot;@&quot; Symbol wird ignoriert.</translation>
+        <translation>das &quot;@&quot; Symbol wird ignoriert.</translation>
     </message>
 </context>
 <context>
@@ -1465,14 +1465,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Name</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filter</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1515,10 +1507,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Als Filter anwenden</translation>
     </message>
     <message>
-        <source>Coloring Rules</source>
-        <translation type="vanished">Einfärbungsregeln</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation>Importieren</translation>
     </message>
@@ -1535,12 +1523,8 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Filter in eine Datei sichern.</translation>
     </message>
     <message>
-        <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="vanished">das &quot;@&quot; Symbol wird ignoriert.</translation>
-    </message>
-    <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfärbungsregeln %1</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1562,24 +1546,20 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation>Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Diese wurden deaktiviert.</translation>
     </message>
-    <message>
-        <source>Unable to save coloring rules: %s</source>
-        <translation type="vanished">Einfärbungsregeln können nicht gespeichert werden: %s</translation>
-    </message>
 </context>
 <context>
     <name>ColoringRulesModel</name>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfärbungsregeln können nicht gespeichert werden: %1</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filter</translation>
+        <translation>Filter</translation>
     </message>
 </context>
 <context>

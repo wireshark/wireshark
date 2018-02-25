@@ -1450,7 +1450,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished">忽略&quot;@&quot;符号。</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1458,14 +1458,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名称</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">过滤器</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1508,10 +1500,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Coloring Rules</source>
-        <translation type="vanished">着色规则</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation>导入</translation>
     </message>
@@ -1526,10 +1514,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Save filters in a file.</source>
         <translation>保存过滤器到文件。</translation>
-    </message>
-    <message>
-        <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="vanished">忽略&quot;@&quot;符号。</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
@@ -1554,10 +1538,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation>Wireshark 无法识别您的一个或多个着色规则。它们已被禁用。</translation>
-    </message>
-    <message>
-        <source>Unable to save coloring rules: %s</source>
-        <translation type="vanished">无法保存着色规则: %s</translation>
     </message>
 </context>
 <context>

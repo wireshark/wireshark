@@ -1429,7 +1429,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished">この &quot;@&quot; シンボルは無視されます</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1437,14 +1437,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名前</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">フィルタ</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1487,10 +1479,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Coloring Rules</source>
-        <translation type="vanished">色付けルール</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation>インポート</translation>
     </message>
@@ -1505,10 +1493,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Save filters in a file.</source>
         <translation>ファイルにフィルタを保存します</translation>
-    </message>
-    <message>
-        <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="vanished">この &quot;@&quot; シンボルは無視されます</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
@@ -1533,10 +1517,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to save coloring rules: %s</source>
-        <translation type="vanished">色付けルール %s を保存できません</translation>
     </message>
 </context>
 <context>

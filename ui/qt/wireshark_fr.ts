@@ -1434,7 +1434,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished">le caractère &quot;@&quot; sera ignoré.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1442,14 +1442,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Dialog</source>
         <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nom</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filtre</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -1492,10 +1484,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Coloring Rules</source>
-        <translation type="vanished">Règles de coloration</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation>Importer</translation>
     </message>
@@ -1510,10 +1498,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Save filters in a file.</source>
         <translation>Sauvegarder les filtres dans un fichier.</translation>
-    </message>
-    <message>
-        <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="vanished">le caractère &quot;@&quot; sera ignoré.</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
