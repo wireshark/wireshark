@@ -2941,7 +2941,6 @@ guint32 msgtype;
 static const value_string kerberos_PADATA_TYPE_vals[] = {
   {   0, "kRB5-PADATA-NONE" },
   {   1, "kRB5-PADATA-TGS-REQ" },
-  {   1, "kRB5-PADATA-AP-REQ" },
   {   2, "kRB5-PADATA-ENC-TIMESTAMP" },
   {   3, "kRB5-PADATA-PW-SALT" },
   {   5, "kRB5-PADATA-ENC-UNIX-TIME" },
@@ -2979,7 +2978,6 @@ static const value_string kerberos_PADATA_TYPE_vals[] = {
   { 129, "kRB5-PADATA-FOR-USER" },
   { 130, "kRB5-PADATA-FOR-X509-USER" },
   { 131, "kRB5-PADATA-FOR-CHECK-DUPS" },
-  { 132, "kRB5-PADATA-AS-CHECKSUM" },
   { 132, "kRB5-PADATA-PK-AS-09-BINDING" },
   { 133, "kRB5-PADATA-FX-COOKIE" },
   { 134, "kRB5-PADATA-AUTHENTICATION-SET" },
