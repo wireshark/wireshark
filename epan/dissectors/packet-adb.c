@@ -540,10 +540,10 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             col_append_fstr(pinfo->cinfo, COL_INFO, "(local=%u, 0)", tvb_get_letohl(tvb, offset - 8));
             break;
         case A_WRTE:
-            proto_tree_add_item(arg0_tree, hf_zero, tvb, offset - 8, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(arg0_tree, hf_local_id, tvb, offset - 8, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(arg1_tree, hf_remote_id, tvb, offset - 4, 4, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(0, remote=%u)", tvb_get_letohl(tvb, offset - 4));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(local=%u, remote=%u)", arg0, arg1);
             break;
         case A_CLSE:
         case A_OKAY:
