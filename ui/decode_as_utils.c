@@ -171,7 +171,7 @@ find_protocol_name_func(const gchar *table _U_, gpointer handle, gpointer user_d
 gboolean decode_as_command_option(const gchar *cl_param)
 {
     gchar                        *table_name;
-    guint32                       selector, selector2;
+    guint32                       selector = 0, selector2 = 0;
     gchar                        *decoded_param;
     gchar                        *remaining_param;
     gchar                        *selector_str = NULL;
@@ -181,7 +181,7 @@ gboolean decode_as_command_option(const gchar *cl_param)
     ftenum_t                      dissector_table_selector_type;
     struct protocol_name_search   user_protocol_name;
     guint64                       i;
-    char                          op;
+    char                          op = '\0';
 
     /* The following code will allocate and copy the command-line options in a string pointed by decoded_param */
 
@@ -283,19 +283,42 @@ gboolean decode_as_command_option(const gchar *cl_param)
     case FT_UINT16:
     case FT_UINT24:
     case FT_UINT32:
+    {
         /* The selector for this table is an unsigned number.  Parse it as such.
-        There's no need to remove leading and trailing spaces from the
-        selector number string, because sscanf will do that for us. */
-        switch (sscanf(selector_str, "%u%c%u", &selector, &op, &selector2)) {
-        case 1:
+        Skip leading spaces for backwards compatibility (previously sscanf was used). */
+        gchar *str = selector_str;
+        gchar *end;
+        guint64 val;
+
+        while (g_ascii_isspace(*str)) {
+            str++;
+        }
+
+        val = g_ascii_strtoull(str, &end, 0);
+        if (str == end || val > G_MAXUINT32) {
+            cmdarg_err("Invalid selector number \"%s\"", selector_str);
+            g_free(decoded_param);
+            return FALSE;
+        }
+        selector = (guint32) val;
+
+        if (*end == '\0') {
+            /* not a range, but a single (valid) value */
             op = '\0';
-            break;
-        case 3:
-            if (op != ':' && op != '-') {
+            selector2 = 0;
+        } else if (*end == ':' || *end == '-') {
+            /* range value such as "8888:3" or "8888-8890" */
+            op = *end;
+            str = end + 1;
+
+            val = g_ascii_strtoull(str, &end, 0);
+            if (str == end || val > G_MAXUINT32 || *end != '\0') {
                 cmdarg_err("Invalid selector numeric range \"%s\"", selector_str);
                 g_free(decoded_param);
                 return FALSE;
             }
+            selector2 = (guint32) val;
+
             if (op == ':') {
                 if ((selector2 == 0) || ((guint64)selector + selector2 - 1) > G_MAXUINT32) {
                     cmdarg_err("Invalid selector numeric range \"%s\"", selector_str);
@@ -310,13 +333,14 @@ gboolean decode_as_command_option(const gchar *cl_param)
                 g_free(decoded_param);
                 return FALSE;
             }
-            break;
-        default:
+        } else {
+            /* neither a valid single value, nor a range. */
             cmdarg_err("Invalid selector number \"%s\"", selector_str);
             g_free(decoded_param);
             return FALSE;
         }
         break;
+    }
 
     case FT_STRING:
     case FT_STRINGZ:
