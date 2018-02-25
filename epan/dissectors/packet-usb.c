@@ -1746,6 +1746,12 @@ static const char* usb_host_get_filter_type(hostlist_talker_t* host, conv_filter
     return CONV_FILTER_INVALID;
 }
 
+static const char*
+usb_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+    return is_src ? "usb.src" : "usb.dst";
+}
+
 static hostlist_dissector_info_t usb_host_dissector_info = {&usb_host_get_filter_type};
 
 static int
@@ -6340,7 +6346,7 @@ proto_register_usb(void)
     register_decode_as(&usb_product_da);
     register_decode_as(&usb_device_da);
 
-    usb_address_type = address_type_dissector_register("AT_USB", "USB Address", usb_addr_to_str, usb_addr_str_len, NULL, NULL, NULL, NULL, NULL);
+    usb_address_type = address_type_dissector_register("AT_USB", "USB Address", usb_addr_to_str, usb_addr_str_len, NULL, usb_col_filter_str, NULL, NULL, NULL);
 
     register_conversation_table(proto_usb, TRUE, usb_conversation_packet, usb_hostlist_packet);
 }

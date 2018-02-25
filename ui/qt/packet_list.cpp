@@ -1002,6 +1002,7 @@ QString PacketList::getFilterFromRowAndColumn()
              */
             if (strlen(cap_file_->cinfo.col_expr.col_expr[ctx_column_]) != 0 &&
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]) != 0) {
+                gboolean is_string_value = FALSE;
                 if (cap_file_->cinfo.columns[ctx_column_].col_fmt == COL_CUSTOM) {
                     header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[ctx_column_].col_custom_fields);
                     if (hfi && hfi->parent == -1) {
@@ -1009,15 +1010,26 @@ QString PacketList::getFilterFromRowAndColumn()
                         filter.append(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);
                     } else if (hfi && hfi->type == FT_STRING) {
                         /* Custom string, add quotes */
+                        is_string_value = TRUE;
+                    }
+                } else {
+                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);
+                    if (hfi && hfi->type == FT_STRING) {
+                        /* Could be an address type such as usb.src which must be quoted. */
+                        is_string_value = TRUE;
+                    }
+                }
+
+                if (filter.isEmpty()) {
+                    if (is_string_value) {
                         filter.append(QString("%1 == \"%2\"")
                                       .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
                                       .arg(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]));
+                    } else {
+                        filter.append(QString("%1 == %2")
+                                      .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
+                                      .arg(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]));
                     }
-                }
-                if (filter.isEmpty()) {
-                    filter.append(QString("%1 == %2")
-                                  .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
-                                  .arg(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]));
                 }
             }
         }
