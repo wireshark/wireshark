@@ -3995,7 +3995,7 @@ proto_reg_handoff_zbee_zcl_drlc(void)
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_MONTH_MAX_ENERGY_CARR_DEM, 0x0413, "Current Month Max Energy Carrier Demand" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_MONTH_MIN_ENERGY_CARR_DEM, 0x0414, "Current Month Min Energy Carrier Demand" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_YEAR_MAX_ENERGY_CARR_DEM,  0x0415, "Current Year Max Energy Carrier Demand" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_YEAR_MIN_ENERGY_CARR_DEM,  0x0415, "Current Year Min Energy Carrier Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_YEAR_MIN_ENERGY_CARR_DEM,  0x0416, "Current Year Min Energy Carrier Demand" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_2_DAY_CON_DEL,                0x0420, "Previous Day 2 Consumption Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_2_DAY_CON_RECV,               0x0421, "Previous Day 2 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_3_DAY_CON_DEL,                0x0422, "Previous Day 3 Consumption Delivered" ) \
