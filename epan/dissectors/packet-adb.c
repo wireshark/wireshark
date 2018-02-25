@@ -683,13 +683,18 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Service: %s", tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, NULL, ENC_ASCII));
                 offset = tvb_captured_length(tvb);
             } else if (command_data && command_data->command == A_CNXN) {
-                    gchar       *info;
-                    gint         len;
+                const guint8    *info;
 
-                info = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII);
+                /*
+                 * Format: "<systemtype>:<serialno>:<banner>".
+                 * Previously adb used "device::ro.product.name=...;...;\0" as
+                 * human-readable banner, but since platform/system/core commit
+                 * 1792c23cb8 (2015-05-18) it is a ";"-separated feature list.
+                 */
+
+                proto_tree_add_item_ret_string(main_tree, hf_connection_info, tvb, offset, -1, ENC_ASCII | ENC_NA, wmem_packet_scope(), &info);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Connection Info: %s", info);
-                proto_tree_add_item(main_tree, hf_connection_info, tvb, offset, len, ENC_ASCII | ENC_NA);
-                offset += len;
+                offset = tvb_captured_length(tvb);
             } else {
                 col_append_str(pinfo->cinfo, COL_INFO, "Data");
 
@@ -858,7 +863,7 @@ proto_register_adb(void)
         },
         { &hf_connection_info,
             { "Info",                            "adb.connection_info",
-            FT_STRINGZ, STR_ASCII, NULL, 0x00,
+            FT_STRING, STR_ASCII, NULL, 0x00,
             NULL, HFILL }
         }
     };
