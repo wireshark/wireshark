@@ -2248,17 +2248,6 @@ if(BUILD_wireshark AND QT_FOUND)
 		BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
 
-	if(NOT ENABLE_APPLICATION_BUNDLE)
-		# Map for endpoints dialog
-		ADD_CUSTOM_COMMAND(
-			TARGET wireshark
-			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${PROJECT_SOURCE_DIR}/ipmap.html"
-				$<TARGET_FILE_DIR:wireshark>
-		)
-	endif()
-
 	if(WIN32 AND Qt5Core_FOUND)
 		# Use windeployqt to copy our required DLLs to the run path.
 		# Ideally one of the modules in ${QTDIR}/lib/cmake would expose
