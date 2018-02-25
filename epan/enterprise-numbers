@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-02-17)
+(last updated 2018-02-24)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -394,9 +394,9 @@ Decimal
     Teemu Savolainen
       teemu.savolainen&nokia.com
 95
-  Allen-Bradely Company
-    Bill King
-      abvax!calvin.icd.ab.com!wrk&uunet.UU.NET
+  Rockwell Automation, Inc. (formerly 'Allen-Bradley Company')
+    Amir S. Ansari
+      asansari&ra.rockwell.com
 96
   CERN
     Frédéric Hemmer
@@ -119207,9 +119207,9 @@ Decentralization / Helenic Public Administra
     Krzysztof Dybala
       krzych&stud.ics.p.lodz.pl
 29907
-  Webmedia AS
+  Nortal AS
     Erik Matt
-      erik.matt&webmedia.ee
+      erik.matt&nortal.com
 29908
   IndigoVision Ltd
     Keith Manning
@@ -120559,9 +120559,9 @@ Decentralization / Helenic Public Administra
     Vesa Auvinen
       vesa.auvinen&dazzle.fi
 30245
-  The Washington Post Company
-    Paul Bailey
-      corpitadmin&washpost.com
+  Graham Holdings Company
+    Scott McClure
+      corpitadmin&ghco.com
 30246
   Diventus GmbH
     Hans-Juergen Rux
@@ -142716,8 +142716,8 @@ Decentralization / Helenic Public Administra
     Andrej Taran
       fant&nika.vin.ua
 35784
-  ECKD GmbH
-    Michael Mößinger
+  ECKD Service GmbH
+    Michael Moessinger
       technik&eckd.de
 35785
   Xcira, Inc.
@@ -147986,7 +147986,7 @@ Decentralization / Helenic Public Administra
 37101
   Quelltext AG
     Arndt Schönewald
-      pen&iana881x7712.mc.schoenewald.de
+      pen-37101&iana20180219.mc.schoenewald.de
 37102
   Wind mobile
     Henry Zheng
@@ -157453,7 +157453,7 @@ Decentralization / Helenic Public Administra
       wolfgang.hennerbichler&risc-software.at
 39468
   Kettering University
-    Tomas Hajek
+    Winfred Harrelson
       root&kettering.edu
 39469
   Neosho Memorial Regional Medical Center
@@ -198241,7 +198241,7 @@ Decentralization / Helenic Public Administra
       msalinas&bcn.sia.es
 49665
   Tessares SA
-    Raphaël Bauduin
+    Christophe Aubry
       account&tessares.net
 49666
   Gribskov Kommune
@@ -205391,6 +205391,210 @@ Decentralization / Helenic Public Administra
   Evolution Travel Network
     arvit varfaj
       avarfaj86&gmail.com
+51453
+  Lekkerland information systems GmbH
+    Frank Peters
+      frank.peters&lekkerland.com
+51454
+  Pionica Poland
+    Marcin Zawadzki
+      info&pionica.com
+51455
+  Ministry of Foreign Affairs of Estonia
+    Madis Peedimaa
+      madis.peedimaa&mfa.ee
+51456
+  Dedon Inc
+    Jason Mozingo
+      itdepartment&dedon.us
+51457
+  Linkedin
+    Yuval Bachar
+      yuval&linkedin.com
+51458
+  Empower Psychiatry & Sleep LLC
+    Ravi Singareddy
+      rsingare&gmail.com
+51459
+  DataEngrave S.L.
+    Ramón Martínez
+      ramon.martinez&dataengrave.com
+51460
+  ALEXIUS M BISHOP, MD PSC
+    Denah Clinebell
+      billingoffice&ambishoppeds.com
+51461
+  DIESEL-NETWORKS.COM
+    Dan Erlichman
+      dan&diesel-networks.com
+51462
+  Saudi Aramco
+    Gary Simmons
+      x500OIDAdmin&aramco.com
+51463
+  Ortana Electronics Software Inc.
+    Hayal Senyurt
+      hayal.senyurt&ortana.com
+51464
+  Zehetner-Elektronik GmbH
+    Zehetner Klaus
+      office&zehetner-elektronik.at
+51465
+  Synvina
+    Riaan van Staden
+      itsupport&synvina.com
+51466
+  Avantium
+    Riaan van Staden
+      itsupport&avantium.com
+51467
+  Chrisse Corporation
+    Christoffer Andersson
+      christoffer.andersson&chrisse.se
+51468
+  Vertis Solutions
+    Jose Gregorio Gutiérrez 
+      jose.gutierrez&vertis-solutions.com 
+51469
+  CARDIOLOGY ASSOCIATES, INC.
+    NANCY GRUNE
+      cj&cardiohawaii.com
+51470
+  Hole kommune
+    Roger Halvorsen
+      admin&hole.kommune.no
+51471
+  DR. WILLIAM STRAZZELLA
+    DAWN DOSCHER
+      DAWNCEE366&YAHOO.COM
+51472
+  Arkessa
+    Martin Hostacny
+      martin.hostacny&arkessa.com
+51473
+  thyssenkrupp System Engineering GmbH
+    Lars Gloistein
+      lars.gloistein&thyssenkrupp.com
+51474
+  Crayon Group AS
+    Erik Larsen
+      erik.larsen&crayon.com
+51475
+  tlacuache.us
+    Jacob L Lemus Peschel
+      jacob&tlacuache.us
+51476
+  Rega
+    Wagner AG
+      sascha.doerr&wagner.ch
+51477
+  XZS
+    Sam Schmidt
+      webmaster&xzs.be
+51478
+  ITW Food Equipment Group
+    Todd Davis
+      Todd.Davis&itwfeg.com
+51479
+  VeChain
+    GU Jianliang
+      jianliang.gu&vechain.com
+51480
+  Ace Supply Company, Inc.
+    Shawn Fonley
+      shawn.f&ace-aircontrolessentials.com
+51481
+  Curve Dental
+    Steven Hines
+      infrastructure&curvedental.com
+51482
+  R2H Flavor Technology, LLC
+    Michael Piety
+      mpiety&r2hflavortech.com
+51483
+  CTIA
+    Robert Cantu
+      ctiacybersecurity&ctia.org
+51484
+  Exonar Ltd
+    Russell Foster
+      russ.foster&exonar.com
+51485
+  mm-lab GmbH
+    Andreas Lemmer
+      alr&mmlab.de
+51486
+  Revi Comp. Network Technologies
+    Oliver Geist
+      Webmaster&ReviComp.de
+51487
+  UnicusID, Inc.
+    Scott Pierce
+      pierce&unicusid.com
+51488
+  Netnod Internet Exchange i Sverige AB
+    Henrik Melwin
+      ops&netnod.se
+51489
+  SliceOne
+    Xudong Zheng
+      admin&sliceone.com
+51490
+  Ashfords LLP
+    Sam Quick
+      sysops&ashfords.co.uk
+51491
+  SCRT SA
+    Sergio Alves Domingues
+      sergio&scrt.ch
+51492
+  SuitePad GmbH
+    Mario Olivio Flores
+      mario.flores&suitepad.de
+51493
+  Smart Flows
+    Hervieu Olivier
+      ohervieu&smart-flows.com
+51494
+  Alan N Yager MD
+    sabrina green
+      sabrina.green&alanyagermd.com
+51495
+  Real-World-Systems, Inc.
+    Dennis German
+      DGermania&Real-World-Systems.com
+51496
+  CC-Link Partner Association
+    Yoshiyuki Mamada
+      Mamada.Yoshiyuki&cc-link.org
+51497
+  ChatVoice Corporation
+    Takayuki Uehara
+      uehara&chatvoice.jp
+51498
+  KeeeX SAS
+    Laurent HENOCQUE
+      certmaster&keeex.net
+51499
+  FLEXXIBLE INFORMATION TECHNOLOGY SL
+    RICARD SANCHEZ
+      ricards&flexxible.com
+51500
+  Milwaukee Foot and Ankle Specialists
+    LORI ABRAMOWSKI
+      INFO&MILWAUKEEFOOT.COM
+51501
+  Nebraska Foot & Ankle, P.C.
+    Melissa Beeck
+      mbeeck&nfaortho.com
+51502
+  Cludo
+    Andrzej Pierscionek
+      noc&cludo.pl
+51503
+  ARS Traffic & Transport Technology
+    Jonathan Prins
+      snmp&ars-traffic.com
 
 
 End of Document

@@ -1189,58 +1189,58 @@
 <context>
     <name>CaptureFilterEdit</name>
     <message>
-        <location filename="capture_filter_edit.cpp" line="123"/>
+        <location filename="capture_filter_edit.cpp" line="174"/>
         <source>Capture filter entry</source>
         <translation>Wpis filtru przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="304"/>
+        <location filename="capture_filter_edit.cpp" line="355"/>
         <source>Enter a capture filter %1</source>
         <translation>Wpisz filtr przechwytywania %1</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="136"/>
+        <location filename="capture_filter_edit.cpp" line="187"/>
         <source>Manage saved bookmarks.</source>
         <translation>Zarządzaj zapisanymi zakładkami.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="173"/>
+        <location filename="capture_filter_edit.cpp" line="224"/>
         <source>Apply this filter string to the display.</source>
         <translation>Zastosuj ten filtr.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="299"/>
+        <location filename="capture_filter_edit.cpp" line="350"/>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
         <translation>Wybrano wiele filtrów. Nadpisz je lub pozostaw puste by ich nie zmieniać.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="300"/>
+        <location filename="capture_filter_edit.cpp" line="351"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wybrano interfejsy, które wymagają różnich filtrów przechwytywania. Wpisanie tutaj filtru spowoduje zastąpienie ich. W przeciwnym przypadku zostaną użyte.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="404"/>
+        <location filename="capture_filter_edit.cpp" line="455"/>
         <source>Save this filter</source>
         <translation>Zapisz filtr</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="406"/>
+        <location filename="capture_filter_edit.cpp" line="457"/>
         <source>Remove this filter</source>
         <translation>Usuń filtr</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="408"/>
+        <location filename="capture_filter_edit.cpp" line="459"/>
         <source>Manage Capture Filters</source>
         <translation>Zarządzaj filtrami przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="541"/>
+        <location filename="capture_filter_edit.cpp" line="592"/>
         <source>Unable to save capture filter settings.</source>
         <translation>Nie można zapisać ustawień filtru przechwytywania.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="542"/>
+        <location filename="capture_filter_edit.cpp" line="593"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
         <translation>Nie można zapisać do pliku filtrów przechwytywania
@@ -9270,47 +9270,47 @@ text-decoration: underline;
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="869"/>
+        <location filename="main_window_slots.cpp" line="866"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="879"/>
+        <location filename="main_window_slots.cpp" line="876"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1127"/>
+        <location filename="main_window_slots.cpp" line="1124"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1615"/>
+        <location filename="main_window_slots.cpp" line="1612"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1705"/>
+        <location filename="main_window_slots.cpp" line="1702"/>
         <source> before closing the file</source>
         <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1787"/>
+        <location filename="main_window_slots.cpp" line="1784"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1853"/>
+        <location filename="main_window_slots.cpp" line="1850"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1854"/>
+        <location filename="main_window_slots.cpp" line="1851"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1860"/>
+        <location filename="main_window_slots.cpp" line="1857"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9320,69 +9320,69 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1789"/>
+        <location filename="main_window_slots.cpp" line="1786"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1864"/>
+        <location filename="main_window_slots.cpp" line="1861"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2002"/>
+        <location filename="main_window_slots.cpp" line="1999"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2392"/>
-        <location filename="main_window_slots.cpp" line="3481"/>
+        <location filename="main_window_slots.cpp" line="2389"/>
+        <location filename="main_window_slots.cpp" line="3478"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2542"/>
-        <location filename="main_window_slots.cpp" line="2555"/>
+        <location filename="main_window_slots.cpp" line="2539"/>
+        <location filename="main_window_slots.cpp" line="2552"/>
         <source> before reloading the file</source>
         <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2589"/>
+        <location filename="main_window_slots.cpp" line="2586"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3488"/>
+        <location filename="main_window_slots.cpp" line="3485"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3497"/>
+        <location filename="main_window_slots.cpp" line="3494"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3574"/>
+        <location filename="main_window_slots.cpp" line="3571"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3581"/>
+        <location filename="main_window_slots.cpp" line="3578"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3599"/>
+        <location filename="main_window_slots.cpp" line="3596"/>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3802"/>
+        <location filename="main_window_slots.cpp" line="3799"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3803"/>
+        <location filename="main_window_slots.cpp" line="3800"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>

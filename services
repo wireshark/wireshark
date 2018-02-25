@@ -8937,9 +8937,9 @@ auriga-router    5680/udp # Auriga Router Service [Vincent_Gaudeul] [Vincent_Gau
 ncxcp            5681/tcp # Net-coneX Control Protocol [Ryan_Werber] [Ryan_Werber] 2006-06
 ncxcp            5681/udp # Net-coneX Control Protocol [Ryan_Werber] [Ryan_Werber] 2006-06
 brightcore       5682/udp # BrightCore control & data transfer exchange [Marko_Bjelac] [Marko_Bjelac] 2010-06-10
-coap             5683/tcp # Constrained Application Protocol (CoAP) [IESG] [IETF_Chair] 2017-12-22 [RFC-ietf-core-coap-tcp-tls-11]
+coap             5683/tcp # Constrained Application Protocol (CoAP) [IESG] [IETF_Chair] 2017-12-22 [RFC8323]
 coap             5683/udp # Constrained Application Protocol [IESG] [IETF_Chair] 2011-06-13 2013-07-25 [RFC7252]
-coaps            5684/tcp # Constrained Application Protocol (CoAP) [IESG] [IETF_Chair] 2017-12-22 [RFC7301][RFC-ietf-core-coap-tcp-tls-11]
+coaps            5684/tcp # Constrained Application Protocol (CoAP) [IESG] [IETF_Chair] 2017-12-22 [RFC7301][RFC8323]
 coaps            5684/udp # DTLS-secured CoAP [IESG] [IETF_Chair] 2013-07-25 [RFC7252]
 gog-multiplayer  5687/udp # GOG multiplayer game protocol [GOG.com] [Michal_Gruchala] 2014-07-31 2014-10-09
 ggz              5688/tcp # GGZ Gaming Zone [Josef_Spillner] [Josef_Spillner] 2003-01
@@ -9589,6 +9589,7 @@ vmsvc            7024/tcp # Vormetric service [Tom_Boyle] [Tom_Boyle] 2005-06
 vmsvc            7024/udp # Vormetric service [Tom_Boyle] [Tom_Boyle] 2005-06
 vmsvc-2          7025/tcp # Vormetric Service II [Tom_Boyle] [Tom_Boyle] 2005-06
 vmsvc-2          7025/udp # Vormetric Service II [Tom_Boyle] [Tom_Boyle] 2005-06
+loreji-panel     7026/tcp # Loreji Webhosting Panel [J.A._Smit] [DALTCORE] 2018-02-21
 op-probe         7030/tcp # ObjectPlanet probe [Bjorn_Jarle_Kvande] [Bjorn_Jarle_Kvande] 2002-04
 op-probe         7030/udp # ObjectPlanet probe [Bjorn_Jarle_Kvande] [Bjorn_Jarle_Kvande] 2002-04
 iposplanet       7031/tcp # IPOSPLANET retailing multi devices protocol [Fabrice_Paget] [Fabrice_Paget] 2012-10-23

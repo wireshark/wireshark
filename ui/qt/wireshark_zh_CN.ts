@@ -1189,58 +1189,58 @@
 <context>
     <name>CaptureFilterEdit</name>
     <message>
-        <location filename="capture_filter_edit.cpp" line="123"/>
+        <location filename="capture_filter_edit.cpp" line="174"/>
         <source>Capture filter entry</source>
         <translation>捕获过滤器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="304"/>
+        <location filename="capture_filter_edit.cpp" line="355"/>
         <source>Enter a capture filter %1</source>
         <translation>输入捕获过滤器 %1</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="136"/>
+        <location filename="capture_filter_edit.cpp" line="187"/>
         <source>Manage saved bookmarks.</source>
         <translation>管理保存的书签。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="173"/>
+        <location filename="capture_filter_edit.cpp" line="224"/>
         <source>Apply this filter string to the display.</source>
         <translation>应用此过滤器字符串进行显示。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="299"/>
+        <location filename="capture_filter_edit.cpp" line="350"/>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
         <translation>多个过滤器已选中。在这里覆盖它们，或者留空以保留。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="300"/>
+        <location filename="capture_filter_edit.cpp" line="351"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;您已选择多个不同的捕获过滤器。在这里输入一个过滤器将覆盖它们。不操作将保留它们。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="404"/>
+        <location filename="capture_filter_edit.cpp" line="455"/>
         <source>Save this filter</source>
         <translation>保存此过滤器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="406"/>
+        <location filename="capture_filter_edit.cpp" line="457"/>
         <source>Remove this filter</source>
         <translation>移除此过滤器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="408"/>
+        <location filename="capture_filter_edit.cpp" line="459"/>
         <source>Manage Capture Filters</source>
         <translation>管理捕获筛选器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="541"/>
+        <location filename="capture_filter_edit.cpp" line="592"/>
         <source>Unable to save capture filter settings.</source>
         <translation>无法保存捕获筛选器设置。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="542"/>
+        <location filename="capture_filter_edit.cpp" line="593"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
         <translation>未能保存您的捕获过滤器文件
@@ -9259,47 +9259,47 @@ text-decoration: underline;
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="869"/>
+        <location filename="main_window_slots.cpp" line="866"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="879"/>
+        <location filename="main_window_slots.cpp" line="876"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1127"/>
+        <location filename="main_window_slots.cpp" line="1124"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1615"/>
+        <location filename="main_window_slots.cpp" line="1612"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1705"/>
+        <location filename="main_window_slots.cpp" line="1702"/>
         <source> before closing the file</source>
         <translation>关闭文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1787"/>
+        <location filename="main_window_slots.cpp" line="1784"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1853"/>
+        <location filename="main_window_slots.cpp" line="1850"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1854"/>
+        <location filename="main_window_slots.cpp" line="1851"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1860"/>
+        <location filename="main_window_slots.cpp" line="1857"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9307,69 +9307,69 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1789"/>
+        <location filename="main_window_slots.cpp" line="1786"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1864"/>
+        <location filename="main_window_slots.cpp" line="1861"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2002"/>
+        <location filename="main_window_slots.cpp" line="1999"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2392"/>
-        <location filename="main_window_slots.cpp" line="3481"/>
+        <location filename="main_window_slots.cpp" line="2389"/>
+        <location filename="main_window_slots.cpp" line="3478"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2542"/>
-        <location filename="main_window_slots.cpp" line="2555"/>
+        <location filename="main_window_slots.cpp" line="2539"/>
+        <location filename="main_window_slots.cpp" line="2552"/>
         <source> before reloading the file</source>
         <translation>重新载入文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2589"/>
+        <location filename="main_window_slots.cpp" line="2586"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3488"/>
+        <location filename="main_window_slots.cpp" line="3485"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3497"/>
+        <location filename="main_window_slots.cpp" line="3494"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3574"/>
+        <location filename="main_window_slots.cpp" line="3571"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3581"/>
+        <location filename="main_window_slots.cpp" line="3578"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3599"/>
+        <location filename="main_window_slots.cpp" line="3596"/>
         <source> before restarting the capture</source>
         <translation>重新开始捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3802"/>
+        <location filename="main_window_slots.cpp" line="3799"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3803"/>
+        <location filename="main_window_slots.cpp" line="3800"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
@@ -13447,17 +13447,17 @@ text-decoration: underline;
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;选择一个命令并根据需要输入过滤器，然后按应用。&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSI 服务响应时间</translation>
     </message>
 </context>
 <context>
