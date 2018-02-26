@@ -98,7 +98,7 @@ This is the common Windows file open dialog - plus some Wireshark extensions.
 
 Specific for this dialog:
 
-* The btn:[Help] button will lead you to this section of this “User”s Guide”.
+* The btn:[Help] button will lead you to this section of this “User’s Guide”.
 
 [[ChIOOpenFileDialog]]
 
