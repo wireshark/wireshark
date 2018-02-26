@@ -590,6 +590,11 @@ main_window_update(void)
         gtk_main_iteration();
 }
 
+void exit_application(int status)
+{
+    exit(status);
+}
+
 #ifdef HAVE_LIBPCAP
 
 /* quit a nested main window */

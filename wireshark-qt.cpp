@@ -151,7 +151,6 @@ void main_window_update(void)
 /* quit a nested main window */
 void main_window_nested_quit(void)
 {
-//    if (gtk_main_level() > 0)
     wsApp->quit();
 }
 
@@ -159,6 +158,13 @@ void main_window_nested_quit(void)
 void main_window_quit(void)
 {
     wsApp->quit();
+}
+
+void exit_application(int status) {
+    if (wsApp) {
+        wsApp->quit();
+    }
+    exit(status);
 }
 
 #endif /* HAVE_LIBPCAP */
@@ -534,7 +540,7 @@ int main(int argc, char *qt_argv[])
     // https://bugreports.qt.io/browse/QTBUG-53022 - The device pixel ratio is pretty much bogus on Windows.
     // https://bugreports.qt.io/browse/QTBUG-55510 - Windows have wrong size
 #if defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
     /* Create The Wireshark app */
@@ -716,10 +722,6 @@ int main(int argc, char *qt_argv[])
         read_filter = QString(global_commandline_info.rfilter);
     if (global_commandline_info.dfilter != NULL)
         dfilter = QString(global_commandline_info.dfilter);
-
-    /* Removed thread code:
-     * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
-     */
 
     timestamp_set_type(recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
@@ -933,6 +935,7 @@ int main(int argc, char *qt_argv[])
     profile_store_persconffiles(FALSE);
 
     ret_val = wsApp->exec();
+    wsApp = NULL;
 
     delete main_w;
     recent_cleanup();
@@ -960,7 +963,7 @@ clean_exit:
     codecs_cleanup();
     wtap_cleanup();
     free_progdirs();
-    return ret_val;
+    exit_application(ret_val);
 }
 
 /*

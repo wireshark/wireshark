@@ -706,6 +706,8 @@ void WiresharkApplication::cleanup()
 
     qDeleteAll(recent_captures_);
     recent_captures_.clear();
+    // We might end up here via exit_application.
+    QThreadPool::globalInstance()->waitForDone();
 }
 
 void WiresharkApplication::itemStatusFinished(const QString filename, qint64 size, bool accessible) {
@@ -883,6 +885,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
 WiresharkApplication::~WiresharkApplication()
 {
+    wsApp = NULL;
     clearDynamicMenuGroupItems();
     free_filter_lists();
 }

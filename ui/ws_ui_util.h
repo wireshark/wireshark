@@ -40,7 +40,7 @@ typedef struct window_geometry_s {
 
 /* update the main window */
 extern void main_window_update(void);
-/* quit a nested main window */
+/* quit a nested main window. GTK+ only. */
 extern void main_window_nested_quit(void);
 /* quit the main window */
 extern void main_window_quit(void);

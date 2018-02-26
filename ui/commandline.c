@@ -427,7 +427,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 status = capture_opts_add_opt(&global_capture_opts, opt, optarg,
                                               &global_commandline_info.start_capture);
                 if(status != 0) {
-                    exit(status);
+                    exit_application(status);
                 }
 #else
                 capture_option_specified = TRUE;
@@ -485,7 +485,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                         cmdarg_err("Invalid -o flag \"%s\"%s%s", optarg,
                                 errmsg ? ": " : "", errmsg ? errmsg : "");
                         g_free(errmsg);
-                        exit(1);
+                        exit_application(1);
                         break;
                     case PREFS_SET_NO_SUCH_PREF:
                     /* not a preference, might be a recent setting */
@@ -495,13 +495,13 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                             case PREFS_SET_SYNTAX_ERR:
                                 /* shouldn't happen, checked already above */
                                 cmdarg_err("Invalid -o flag \"%s\"", optarg);
-                                exit(1);
+                                exit_application(1);
                                 break;
                             case PREFS_SET_NO_SUCH_PREF:
                             case PREFS_SET_OBSOLETE:
                                 cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
                                            optarg);
-                                exit(1);
+                                exit_application(1);
                                 break;
                             default:
                                 g_assert_not_reached();
@@ -510,7 +510,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                     case PREFS_SET_OBSOLETE:
                         cmdarg_err("-o flag \"%s\" specifies obsolete preference",
                                    optarg);
-                        exit(1);
+                        exit_application(1);
                         break;
                     default:
                         g_assert_not_reached();
@@ -544,13 +544,13 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 if (strcmp("help", optarg) == 0) {
                   fprintf(stderr, "wireshark: The available statistics for the \"-z\" option are:\n");
                   list_stat_cmd_args();
-                  exit(0);
+                  exit_application(0);
                 }
                 if (!process_stat_cmd_arg(optarg)) {
                     cmdarg_err("Invalid -z argument.");
                     cmdarg_err_cont("  -z argument must be one of :");
                     list_stat_cmd_args();
-                    exit(1);
+                    exit_application(1);
                 }
                 break;
             case 'd':        /* Decode as rule */
@@ -564,7 +564,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
             case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
                 if (!dissect_opts_handle_opt(opt, optarg))
-                   exit(1);
+                   exit_application(1);
                 break;
             case LONGOPT_FULL_SCREEN:
                 global_commandline_info.full_screen = TRUE;
@@ -620,14 +620,14 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
         }
 #endif
         commandline_print_usage(FALSE);
-        exit(1);
+        exit_application(1);
     }
 
 #ifdef HAVE_LIBPCAP
     if (global_commandline_info.start_capture && list_option_supplied) {
         /* Specifying *both* is bogus. */
         cmdarg_err("You can't specify both %s and a live capture.", list_option_supplied);
-        exit(1);
+        exit_application(1);
     }
 
     if (list_option_supplied) {
@@ -636,12 +636,12 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
         if (global_commandline_info.cf_name) {
             /* Yes - that's bogus. */
             cmdarg_err("You can't specify %s and a capture file to be read.", list_option_supplied);
-            exit(1);
+            exit_application(1);
         }
         /* No - did they specify a ring buffer option? */
         if (global_capture_opts.multi_files_on) {
             cmdarg_err("Ring buffer requested, but a capture isn't being done.");
-            exit(1);
+            exit_application(1);
         }
     } else {
         /* We're supposed to do a live capture; did the user also specify
@@ -649,7 +649,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
         if (global_commandline_info.start_capture && global_commandline_info.cf_name) {
             /* Yes - that's bogus. */
             cmdarg_err("You can't specify both a live capture and a capture file to be read.");
-            exit(1);
+            exit_application(1);
         }
 
         /* No - was the ring buffer option specified and, if so, does it make

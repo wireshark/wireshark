@@ -14,6 +14,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* UI-specific exit routine. */
+extern void exit_application(int status);
+
 extern void commandline_print_usage(gboolean for_help_option);
 
 extern void commandline_early_options(int argc, char *argv[],
