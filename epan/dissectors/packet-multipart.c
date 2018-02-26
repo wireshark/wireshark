@@ -607,6 +607,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
         hdr_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, next_offset - offset, ENC_ASCII);
 
+        colon_offset = 0;
         header_str = unfold_and_compact_mime_header(hdr_str, &colon_offset);
         if (colon_offset <= 0) {
             /* if there is no colon it's no header, so break and add complete line to the body */
