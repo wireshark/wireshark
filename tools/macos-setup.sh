@@ -168,6 +168,9 @@ LIBSSH_FILENUM=210
 # mmdbresolve
 MAXMINDDB_VERSION=1.3.2
 
+ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-1.5.7.1}
+ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.5.0.alpha.16}
+
 NGHTTP2_VERSION=1.21.0
 SPANDSP_VERSION=0.0.6
 if [ "$SPANDSP_VERSION" ]; then
@@ -442,6 +445,60 @@ uninstall_ninja() {
         fi
 
         installed_ninja_version=""
+    fi
+}
+
+install_asciidoctor() {
+    if [ ! -f asciidoctor-${ASCIIDOCTOR_VERSION}-done ]; then
+        echo "Downloading and installing Asciidoctor:"
+        sudo gem install -V asciidoctor --version "=${ASCIIDOCTOR_VERSION}"
+        touch asciidoctor-${ASCIIDOCTOR_VERSION}-done
+    fi
+}
+
+uninstall_asciidoctor() {
+    if [ ! -z "$installed_asciidoctor_version" ]; then
+        echo "Uninstalling Asciidoctor:"
+        sudo gem uninstall -V asciidoctor --version "=${installed_asciidoctor_version}"
+        rm asciidoctor-$installed_asciidoctor_version-done
+
+        ##if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version,
+            # whatever it might happen to be called.
+            #
+        ##    rm -f asciidoctor-$installed_asciidoctor_version
+        ##fi
+        installed_asciidoctor_version=""
+    fi
+}
+
+install_asciidoctorpdf() {
+    if [ ! -f asciidoctorpdf-${ASCIIDOCTORPDF_VERSION}-done ]; then
+        ## XXX gem does not track dependencies that are installed for asciidoctor-pdf
+        ## record them for uninstallation
+        ## ttfunk, pdf-core, prawn, prawn-table, Ascii85, ruby-rc4, hashery, afm, pdf-reader, prawn-templates, public_suffix, addressable, css_parser, prawn-svg, prawn-icon, safe_yaml, thread_safe, polyglot, treetop, asciidoctor-pdf
+        echo "Downloading and installing Asciidoctor-pdf:"
+        sudo gem install -V asciidoctor-pdf --prerelease --version "=${ASCIIDOCTORPDF_VERSION}"
+        touch asciidoctorpdf-${ASCIIDOCTORPDF_VERSION}-done
+    fi
+}
+
+uninstall_asciidoctorpdf() {
+    if [ ! -z "$installed_asciidoctorpdf_version" ]; then
+        echo "Uninstalling Asciidoctor:"
+        sudo gem uninstall -V asciidoctor-pdf --version "=${installed_asciidoctorpdf_version}"
+        ## XXX uninstall dependencies
+        rm asciidoctorpdf-$installed_asciidoctorpdf_version-done
+
+        ##if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version,
+            # whatever it might happen to be called.
+            #
+        ##    rm -f asciidoctorpdf-$installed_asciidoctorpdf_version
+        ##fi
+        installed_asciidoctorpdf_version=""
     fi
 }
 
@@ -1863,6 +1920,36 @@ install_all() {
         uninstall_ninja -r
     fi
 
+    if [ ! -z "$installed_asciidoctorpdf_version" -a \
+              "$installed_asciidoctorpdf_version" != "$ASCIIDOCTORPDF_VERSION" ] ; then
+        echo "Installed Asciidoctor-pdf version is $installed_asciidoctorpdf_version"
+        if [ -z "$ASCIIDOCTORPDF_VERSION" ] ; then
+            echo "Asciidoctor-pdf is not requested"
+        else
+            echo "Requested Asciidoctor-pdf version is $ASCIIDOCTORPDF_VERSION"
+        fi
+        # XXX - really remove this?
+        # Or should we remember it as installed only if this script
+        # installed it?
+        #
+        uninstall_asciidoctorpdf -r
+    fi
+
+    if [ ! -z "$installed_asciidoctor_version" -a \
+              "$installed_asciidoctor_version" != "$ASCIIDOCTOR_VERSION" ] ; then
+        echo "Installed Asciidoctor version is $installed_asciidoctor_version"
+        if [ -z "$ASCIIDOCTOR_VERSION" ] ; then
+            echo "Asciidoctor is not requested"
+        else
+            echo "Requested Asciidoctor version is $ASCIIDOCTOR_VERSION"
+        fi
+        # XXX - really remove this?
+        # Or should we remember it as installed only if this script
+        # installed it?
+        #
+        uninstall_asciidoctor -r
+    fi
+
     if [ ! -z "$installed_cmake_version" -a \
               "$installed_cmake_version" != "$CMAKE_VERSION" ] ; then
         echo "Installed CMake version is $installed_cmake_version"
@@ -1961,6 +2048,10 @@ install_all() {
     install_cmake
 
     install_ninja
+
+    install_asciidoctor
+
+    install_asciidoctorpdf
 
     #
     # Start with GNU gettext; GLib requires it, and macOS doesn't have it
@@ -2102,6 +2193,10 @@ uninstall_all() {
         # Or should we remember it as installed only if this script
         # installed it?
         #
+	uninstall_asciidoctorpdf
+
+	uninstall_asciidoctor
+
         uninstall_cmake
 
         uninstall_libtool
@@ -2227,6 +2322,8 @@ then
     installed_libtool_version=`ls libtool-*-done 2>/dev/null | sed 's/libtool-\(.*\)-done/\1/'`
     installed_cmake_version=`ls cmake-*-done 2>/dev/null | sed 's/cmake-\(.*\)-done/\1/'`
     installed_ninja_version=`ls ninja-*-done 2>/dev/null | sed 's/ninja-\(.*\)-done/\1/'`
+    installed_asciidoctor_version=`ls asciidoctor-*-done 2>/dev/null | sed 's/asciidoctor-\(.*\)-done/\1/'`
+    installed_asciidoctorpdf_version=`ls asciidoctorpdf-*-done 2>/dev/null | sed 's/asciidoctorpdf-\(.*\)-done/\1/'`
     installed_gettext_version=`ls gettext-*-done 2>/dev/null | sed 's/gettext-\(.*\)-done/\1/'`
     installed_pkg_config_version=`ls pkg-config-*-done 2>/dev/null | sed 's/pkg-config-\(.*\)-done/\1/'`
     installed_glib_version=`ls glib-*-done 2>/dev/null | sed 's/glib-\(.*\)-done/\1/'`
