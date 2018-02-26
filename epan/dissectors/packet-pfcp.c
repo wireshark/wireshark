@@ -2861,17 +2861,17 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         ett_pfcp_remote_gtp_u_peer, pfcp_remote_gtp_u_peer_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags);
     offset += 1;
 
-    /* IPv6 address (if present)*/
-    if ((flags & 0x1) == 1) {
-        proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
-        offset += 16;
-    }
     /* IPv4 address (if present)*/
     if ((flags & 0x2) == 2) {
         proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
         offset += 4;
+    }
+    /* IPv6 address (if present)*/
+    if ((flags & 0x1) == 1) {
+        proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        offset += 16;
     }
 
     if (offset < length) {
