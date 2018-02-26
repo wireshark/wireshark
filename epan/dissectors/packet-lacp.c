@@ -49,12 +49,12 @@ static const value_string lacp_type_vals[] = {
 /* Initialise the protocol and registered fields */
 static int proto_lacp = -1;
 
-static int hf_lacp_version_number = -1;
+static int hf_lacp_version = -1;
 static int hf_lacp_tlv_type = -1;
 static int hf_lacp_tlv_length = -1;
 
-static int hf_lacp_actor_sys_priority = -1;
-static int hf_lacp_actor_sys = -1;
+static int hf_lacp_actor_sysid_priority = -1;
+static int hf_lacp_actor_sysid = -1;
 static int hf_lacp_actor_key = -1;
 static int hf_lacp_actor_port_priority = -1;
 static int hf_lacp_actor_port = -1;
@@ -70,8 +70,8 @@ static int hf_lacp_flags_a_defaulted = -1;
 static int hf_lacp_flags_a_expired = -1;
 static int hf_lacp_actor_reserved = -1;
 
-static int hf_lacp_partner_sys_priority = -1;
-static int hf_lacp_partner_sys = -1;
+static int hf_lacp_partner_sysid_priority = -1;
+static int hf_lacp_partner_sysid = -1;
 static int hf_lacp_partner_key = -1;
 static int hf_lacp_partner_port_priority = -1;
 static int hf_lacp_partner_port = -1;
@@ -155,9 +155,8 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     int          offset = 0, length_remaining;
     guint        tlv_type, tlv_length;
-    guint        port;
-    guint8       raw_octet;
-    const gchar  *sysidstr;
+    guint        version, port, key;
+    const gchar  *sysidstr, *flagstr;
 
     proto_tree *lacp_tree;
     proto_item *lacp_item, *tlv_type_item, *tlv_length_item;
@@ -189,17 +188,17 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
     col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
 
-    /* Add LACP Heading */
+    /* Add LACP Heading - Note: 1 byte for slowprotocol has been consumed already */
     lacp_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
                                                  0, -1, "Link Aggregation Control Protocol");
     lacp_tree = proto_item_add_subtree(lacp_item, ett_lacp);
 
     /* Version Number */
 
-    raw_octet = tvb_get_guint8(tvb, offset);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "V%d", raw_octet);
-    proto_tree_add_uint(lacp_tree, hf_lacp_version_number, tvb, offset, 1, raw_octet);
+    proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_version, tvb, offset, 1, ENC_NA, &version);
     offset += 1;
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "v%d", version);
 
     /* Actor */
 
@@ -216,14 +215,14 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         expert_add_info(pinfo, tlv_length_item, &ei_lacp_wrong_tlv_length);
     }
 
-    proto_tree_add_item(lacp_tree, hf_lacp_actor_sys_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_actor_sysid_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(lacp_tree, hf_lacp_actor_sys, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(lacp_tree, hf_lacp_actor_sysid, tvb, offset, 6, ENC_NA);
     sysidstr = tvb_ether_to_str(tvb, offset);
     offset += 6;
 
-    proto_tree_add_item(lacp_tree, hf_lacp_actor_key, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_actor_key, tvb, offset, 2, ENC_BIG_ENDIAN, &key);
     offset += 2;
 
     proto_tree_add_item(lacp_tree, hf_lacp_actor_port_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -234,14 +233,15 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     proto_tree_add_bitmask_with_flags(lacp_tree, tvb, offset, hf_lacp_actor_state,
                            ett_lacp_a_flags, actor_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
-    ti = proto_tree_add_string(lacp_tree, hf_lacp_actor_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
+    flagstr = lacp_state_flags_to_str(tvb_get_guint8(tvb, offset));
+    ti = proto_tree_add_string(lacp_tree, hf_lacp_actor_state_str, tvb, offset, 1, flagstr);
     PROTO_ITEM_SET_GENERATED(ti);
     offset += 1;
 
     proto_tree_add_item(lacp_tree, hf_lacp_actor_reserved, tvb, offset, 3, ENC_NA);
     offset += 3;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " ACTOR SysID: %s, P: %d ", sysidstr, port);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ACTOR %s P: %d K: %d %s", sysidstr, port, key, flagstr);
 
     /* Partner */
 
@@ -258,14 +258,14 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         expert_add_info(pinfo, tlv_length_item, &ei_lacp_wrong_tlv_length);
     }
 
-    proto_tree_add_item(lacp_tree, hf_lacp_partner_sys_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lacp_tree, hf_lacp_partner_sysid_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(lacp_tree, hf_lacp_partner_sys, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(lacp_tree, hf_lacp_partner_sysid, tvb, offset, 6, ENC_NA);
     sysidstr = tvb_ether_to_str(tvb, offset);
     offset += 6;
 
-    proto_tree_add_item(lacp_tree, hf_lacp_partner_key, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_partner_key, tvb, offset, 2, ENC_BIG_ENDIAN, &key);
     offset += 2;
 
     proto_tree_add_item(lacp_tree, hf_lacp_partner_port_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -275,15 +275,15 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += 2;
 
     proto_tree_add_bitmask_with_flags(lacp_tree, tvb, offset, hf_lacp_partner_state, ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
-
-    ti = proto_tree_add_string(lacp_tree, hf_lacp_partner_state_str, tvb, offset, 1, lacp_state_flags_to_str(tvb_get_guint8(tvb, offset)));
+    flagstr = lacp_state_flags_to_str(tvb_get_guint8(tvb, offset));
+    ti = proto_tree_add_string(lacp_tree, hf_lacp_partner_state_str, tvb, offset, 1, flagstr);
     PROTO_ITEM_SET_GENERATED(ti);
     offset += 1;
 
     proto_tree_add_item(lacp_tree, hf_lacp_partner_reserved, tvb, offset, 3, ENC_NA);
     offset += 3;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " PARTNER SysID: %s, P: %d ", sysidstr, port);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " PARTNER %s P: %d K: %d %s", sysidstr, port, key, flagstr);
 
     /* Collector */
 
@@ -306,7 +306,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(lacp_tree, hf_lacp_coll_reserved, tvb, offset, 12, ENC_NA);
     offset += 12;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " COLLECTOR");
+    /* col_append_fstr(pinfo->cinfo, COL_INFO, " COLLECTOR"); */
 
     /* Other TLVs (LACP version 2) */
 
@@ -389,10 +389,10 @@ proto_register_lacp(void)
 /* Setup list of header fields */
 
     static hf_register_info hf[] = {
-        { &hf_lacp_version_number,
-          { "LACP Version Number",    "lacp.version",
+        { &hf_lacp_version,
+          { "LACP Version",          "lacp.version",
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "Identifies the LACP version", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_tlv_type,
           { "TLV Type",               "lacp.tlv_type",
@@ -404,170 +404,170 @@ proto_register_lacp(void)
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
             NULL, HFILL }},
 
-        { &hf_lacp_actor_sys_priority,
-          { "Actor System Priority",  "lacp.actorSysPriority",
+        { &hf_lacp_actor_sysid_priority,
+          { "Actor System Priority",  "lacp.actor.sys_priority",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The priority assigned to this System by management or admin", HFILL }},
+            NULL, HFILL }},
 
-        { &hf_lacp_actor_sys,
-          { "Actor System",            "lacp.actorSystem",
+        { &hf_lacp_actor_sysid,
+          { "Actor System ID",         "lacp.actor.sysid",
             FT_ETHER,    BASE_NONE,    NULL,    0x0,
-            "The Actor's System ID encoded as a MAC address", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_actor_key,
-          { "Actor Key",            "lacp.actorKey",
+          { "Actor Key",            "lacp.actor.key",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The operational Key value assigned to the port by the Actor", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_actor_port_priority,
-          { "Actor Port Priority",            "lacp.actorPortPriority",
+          { "Actor Port Priority",            "lacp.actor.port_priority",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The priority assigned to the port by the Actor (via Management or Admin)", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_actor_port,
-          { "Actor Port",            "lacp.actorPort",
+          { "Actor Port",            "lacp.actor.port",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The port number assigned to the port by the Actor (via Management or Admin)", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_actor_state,
-          { "Actor State",            "lacp.actorState",
+          { "Actor State",            "lacp.actor.state",
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "The Actor's state variables for the port, encoded as bits within a single octet", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_actor_state_str,
-          { "Actor State Flags",            "lacp.actorState.str",
+          { "Actor State Flags",            "lacp.actor.state_str",
             FT_STRING,    BASE_NONE,    NULL,    0x0,
-            "The Actor's state flags as a string value", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_flags_a_activity,
-          { "LACP Activity",        "lacp.actorState.activity",
+          { "LACP Activity",        "lacp.actor.state.activity",
             FT_BOOLEAN,    8,        TFS(&tfs_active_passive),    LACPDU_FLAGS_ACTIVITY,
             NULL, HFILL }},
 
         { &hf_lacp_flags_a_timeout,
-          { "LACP Timeout",        "lacp.actorState.timeout",
+          { "LACP Timeout",        "lacp.actor.state.timeout",
             FT_BOOLEAN,    8,        TFS(&tfs_short_long_timeout),    LACPDU_FLAGS_TIMEOUT,
             NULL, HFILL }},
 
         { &hf_lacp_flags_a_aggregation,
-          { "Aggregation",        "lacp.actorState.aggregation",
+          { "Aggregation",        "lacp.actor.state.aggregation",
             FT_BOOLEAN,    8,        TFS(&tfs_aggregatable_individual),    LACPDU_FLAGS_AGGREGATION,
             NULL, HFILL }},
 
         { &hf_lacp_flags_a_sync,
-          { "Synchronization",        "lacp.actorState.synchronization",
+          { "Synchronization",        "lacp.actor.state.synchronization",
             FT_BOOLEAN,    8,        TFS(&tfs_in_sync_out_sync),    LACPDU_FLAGS_SYNC,
             NULL, HFILL }},
 
         { &hf_lacp_flags_a_collecting,
-          { "Collecting",        "lacp.actorState.collecting",
+          { "Collecting",        "lacp.actor.state.collecting",
             FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_COLLECTING,
             NULL, HFILL }},
 
         { &hf_lacp_flags_a_distrib,
-          { "Distributing",        "lacp.actorState.distributing",
+          { "Distributing",        "lacp.actor.state.distributing",
             FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_DISTRIB,
             NULL, HFILL }},
 
         { &hf_lacp_flags_a_defaulted,
-          { "Defaulted",        "lacp.actorState.defaulted",
+          { "Defaulted",        "lacp.actor.state.defaulted",
             FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
             "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
         { &hf_lacp_flags_a_expired,
-          { "Expired",        "lacp.actorState.expired",
+          { "Expired",        "lacp.actor.state.expired",
             FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
-            "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_actor_reserved,
-          { "Reserved",        "lacp.reserved",
+          { "Reserved",        "lacp.actor.reserved",
             FT_BYTES,    BASE_NONE,    NULL,    0x0,
             NULL, HFILL }},
 
-        { &hf_lacp_partner_sys_priority,
-          { "Partner System Priority",  "lacp.partnerSysPriority",
+        { &hf_lacp_partner_sysid_priority,
+          { "Partner System Priority",  "lacp.partner.sys_priority",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The priority assigned to the Partner System by management or admin", HFILL }},
+            NULL, HFILL }},
 
-        { &hf_lacp_partner_sys,
-          { "Partner System",            "lacp.partnerSystem",
+        { &hf_lacp_partner_sysid,
+          { "Partner System",            "lacp.partner.sysid",
             FT_ETHER,    BASE_NONE,    NULL,    0x0,
-            "The Partner's System ID encoded as a MAC address", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_partner_key,
-          { "Partner Key",            "lacp.partnerKey",
+          { "Partner Key",            "lacp.partner.key",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The operational Key value assigned to the port associated with this link by the Partner", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_partner_port_priority,
-          { "Partner Port Priority",            "lacp.partnerPortPriority",
+          { "Partner Port Priority",            "lacp.partner.port_priority",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The priority assigned to the port by the Partner (via Management or Admin)", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_partner_port,
-          { "Partner Port",            "lacp.partnerPort",
+          { "Partner Port",            "lacp.partner.port",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
             "The port number associated with this link assigned to the port by the Partner (via Management or Admin)", HFILL }},
 
         { &hf_lacp_partner_state,
-          { "Partner State",            "lacp.partnerState",
+          { "Partner State",            "lacp.partner.state",
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
-            "The Partner's state variables for the port, encoded as bits within a single octet", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_partner_state_str,
-          { "Partner State Flags",            "lacp.partnerState.str",
+          { "Partner State Flags",            "lacp.partner.state_str",
             FT_STRING,    BASE_NONE,    NULL,    0x0,
-            "The Partner's state flags as a string value", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_flags_p_activity,
-          { "LACP Activity",        "lacp.partnerState.activity",
+          { "LACP Activity",        "lacp.partner.state.activity",
             FT_BOOLEAN,    8,        TFS(&tfs_active_passive),    LACPDU_FLAGS_ACTIVITY,
             NULL, HFILL }},
 
         { &hf_lacp_flags_p_timeout,
-          { "LACP Timeout",        "lacp.partnerState.timeout",
+          { "LACP Timeout",        "lacp.partner.state.timeout",
             FT_BOOLEAN,    8,        TFS(&tfs_short_long_timeout),    LACPDU_FLAGS_TIMEOUT,
             NULL, HFILL }},
 
         { &hf_lacp_flags_p_aggregation,
-          { "Aggregation",        "lacp.partnerState.aggregation",
+          { "Aggregation",        "lacp.partner.state.aggregation",
             FT_BOOLEAN,    8,        TFS(&tfs_aggregatable_individual),    LACPDU_FLAGS_AGGREGATION,
             NULL, HFILL }},
 
         { &hf_lacp_flags_p_sync,
-          { "Synchronization",        "lacp.partnerState.synchronization",
+          { "Synchronization",        "lacp.partner.state.synchronization",
             FT_BOOLEAN,    8,        TFS(&tfs_in_sync_out_sync),    LACPDU_FLAGS_SYNC,
             NULL, HFILL }},
 
         { &hf_lacp_flags_p_collecting,
-          { "Collecting",        "lacp.partnerState.collecting",
+          { "Collecting",        "lacp.partner.state.collecting",
             FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_COLLECTING,
             NULL, HFILL }},
 
         { &hf_lacp_flags_p_distrib,
-          { "Distributing",        "lacp.partnerState.distributing",
+          { "Distributing",        "lacp.partner.state.distributing",
             FT_BOOLEAN,    8,        TFS(&tfs_enabled_disabled),    LACPDU_FLAGS_DISTRIB,
             NULL, HFILL }},
 
         { &hf_lacp_flags_p_defaulted,
-          { "Defaulted",        "lacp.partnerState.defaulted",
+          { "Defaulted",        "lacp.partner.state.defaulted",
             FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
             "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
         { &hf_lacp_flags_p_expired,
-          { "Expired",        "lacp.partnerState.expired",
+          { "Expired",        "lacp.partner.state.expired",
             FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
-            "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
+            NULL, HFILL }},
 
         { &hf_lacp_partner_reserved,
-          { "Reserved",        "lacp.reserved",
+          { "Reserved",        "lacp.partner.reserved",
             FT_BYTES,    BASE_NONE,    NULL,    0x0,
             NULL, HFILL }},
 
         { &hf_lacp_coll_max_delay,
-          { "Collector Max Delay",  "lacp.collectorMaxDelay",
+          { "Collector Max Delay",  "lacp.collector.max_delay",
             FT_UINT16,    BASE_DEC,    NULL,    0x0,
-            "The max delay of the station tx'ing the LACPDU (in tens of usecs)", HFILL }},
+            "The max delay of the station sending the LACPDU (in tens of usecs)", HFILL }},
 
         { &hf_lacp_coll_reserved,
           { "Reserved",        "lacp.coll_reserved",
