@@ -391,6 +391,7 @@ static int hf_diameter_3gpp_acc_res_dat_flags_bit4 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit5 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit6 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit7 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit8 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_spare_bits = -1;
 static int hf_diameter_3gpp_ida_flags_spare_bits = -1;
 static int hf_diameter_3gpp_pua_flags_spare_bits = -1;
@@ -1815,6 +1816,7 @@ dissect_diameter_3gpp_acc_res_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
     static const int *flags[] = {
         &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit8,
         &hf_diameter_3gpp_acc_res_dat_flags_bit7,
         &hf_diameter_3gpp_acc_res_dat_flags_bit6,
         &hf_diameter_3gpp_acc_res_dat_flags_bit5,
@@ -3881,9 +3883,14 @@ proto_register_diameter_3gpp(void)
                 FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000080,
                 NULL, HFILL }
             },
-            { &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit8,
+        { "NR as Secondary RAT Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit8",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000100,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
         { "Spare", "diameter.3gpp.acc_res_dat_flags_spare",
-            FT_UINT32, BASE_HEX, NULL, 0xFFFFFF00,
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFE00,
             NULL, HFILL }
         },
 
