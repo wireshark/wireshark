@@ -1493,6 +1493,46 @@ typedef enum
 }
 nas_emm_elem_idx_t;
 
+/* 9.9.4 EPS Session Management (ESM) information elements */
+typedef enum
+{
+    DE_ESM_APN,                     /* 9.9.4.1 Access point name */
+    DE_ESM_APN_AGR_MAX_BR,          /* 9.9.4.2 APN aggregate maximum bit rate */
+    DE_ESM_CONNECTIVITY_TYPE,       /* 9.9.4.2A Connectivity type */
+    DE_ESM_EPS_QOS,                 /* 9.9.4.3 EPS quality of service */
+    DE_ESM_CAUSE,                   /* 9.9.4.4 ESM cause */
+    DE_ESM_INF_TRF_FLG,             /* 9.9.4.5 ESM information transfer flag */
+    DE_ESM_LNKED_EPS_B_ID,          /* 9.9.4.6 Linked EPS bearer identity  */
+    DE_ESM_LLC_SAPI,                /* 9.9.4.7 LLC service access point identifier */
+    DE_ESM_NOTIF_IND,               /* 9.9.4.7a Notification indicator */
+    DE_ESM_P_FLW_ID,                /* 9.9.4.8 Packet flow identifier  */
+    DE_ESM_PDN_ADDR,                /* 9.9.4.9 PDN address */
+    DE_ESM_PDN_TYPE,                /* 9.9.4.10 PDN type */
+    DE_ESM_PROT_CONF_OPT,           /* 9.9.4.11 Protocol configuration options */
+    DE_ESM_QOS,                     /* 9.9.4.12 Quality of service */
+    DE_ESM_RA_PRI,                  /* 9.9.4.13 Radio priority  */
+    DE_ESM_RE_ATTEMPT_IND,          /* 9.9.4.13a Re-attempt indicator */
+    DE_ESM_REQ_TYPE,                /* 9.9.4.14 Request type */
+    DE_ESM_TRAF_FLOW_AGR_DESC,      /* 9.9.4.15 Traffic flow aggregate description */
+    DE_ESM_TRAF_FLOW_TEMPL,         /* 9.9.4.16 Traffic flow template */
+    DE_ESM_TID,                     /* 9.9.4.17 Transaction identifier */
+    DE_ESM_WLAN_OFFLOAD_ACCEPT,     /* 9.9.4.18 WLAN offload acceptability */
+    DE_ESM_NBIFOM_CONT,             /* 9.9.4.19 NBIFOM container */
+    DE_ESM_REMOTE_UE_CONTEXT_LIST,  /* 9.9.4.20 Remote UE context list */
+    DE_ESM_PKMF_ADDRESS,            /* 9.9.4.21 PKMF address */
+    DE_ESM_HDR_COMPR_CONFIG,        /* 9.9.4.22 Header compression configuration */
+    DE_ESM_CTRL_PLANE_ONLY_IND,     /* 9.9.4.23 Control plane only indication */
+    DE_ESM_USER_DATA_CONT,          /* 9.9.4.24 User data container */
+    DE_ESM_REL_ASSIST_IND,          /* 9.9.4.25 Release assistance indication */
+    DE_ESM_EXT_PCO,                 /* 9.9.4.26 Extended protocol configuration options */
+    DE_ESM_HDR_COMPR_CONFIG_STATUS, /* 9.9.4.27 Header compression configuration status */
+    DE_ESM_SERV_PLMN_RATE_CTRL,     /* 9.9.4.28 Serving PLMN rate control */
+    DE_ESM_EXT_APN_AGR_MAX_BR,      /* 9.9.4.29 Extended APN aggregate maximum bit rate */
+    DE_ESM_EXT_EPS_QOS,             /* 9.9.4.30 Extended EPS quality of service */
+    DE_ESM_NONE                     /* NONE */
+}
+nas_esm_elem_idx_t;
+
 typedef enum
 {
 

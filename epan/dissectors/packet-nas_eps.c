@@ -3740,6 +3740,8 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,   /* NONE */
 };
 
+#if 0
+defined in packet-gsm_a_common.h
 /* 9.9.4 EPS Session Management (ESM) information elements */
 typedef enum
 {
@@ -3779,6 +3781,7 @@ typedef enum
     DE_ESM_NONE                     /* NONE */
 }
 nas_esm_elem_idx_t;
+#endif
 
 static const value_string nas_esm_elem_strings[] = {
     { DE_ESM_APN, "Access point name" },                                          /* 9.9.4.1 Access point name */
