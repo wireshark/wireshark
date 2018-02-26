@@ -366,9 +366,12 @@ get_or_create_cipher_info(fp_info *fpinf, rlc_info *rlcinf) {
   guint32 ueid;
   int i;
 
-  ueid = rlcinf->ueid[fpinf->cur_tb];
+  if (!fpinf || !rlcinf)
+    return NULL;
 
+  ueid = rlcinf->ueid[fpinf->cur_tb];
   cipher_info = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((gint)ueid));
+
   if( cipher_info == NULL ){
     cipher_info = g_new0(rrc_ciphering_info,1);
 
