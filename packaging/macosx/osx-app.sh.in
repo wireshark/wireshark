@@ -395,6 +395,34 @@ else
 
 fi
 
+echo "Dsymifying executables"
+if [ -z "$bundle_binary_list" ] ; then
+	echo "No executables specified for dsymifying."
+	exit 1
+fi
+for binary in $bundle_binary_list ; do
+	if [ -e "$binary" ];then
+		dsymutil "$binary"
+	fi
+done
+
+echo "Dsymifying frameworks"
+for framework in $pkglib/*.framework/Versions/*/* ; do
+	if [ -f "$framework" ];then
+		dsymutil "$framework"
+	fi
+done
+
+echo "Dsymifying libraries"
+for library in $pkglib/*.dylib ; do
+	dsymutil "$library"
+done
+
+echo "Dsymifying plugins"
+for plugin in $pkgplugin/*/*.so ; do
+	dsymutil "$plugin"
+done
+
 codesign_file () {
 	codesign --sign "Developer ID Application: $CODE_SIGN_IDENTITY" --verbose "$1"
 	codesign --verify --verbose "$1" || exit 1
