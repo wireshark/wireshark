@@ -415,7 +415,11 @@ done
 
 echo "Dsymifying libraries"
 for library in $pkglib/*.dylib ; do
-	dsymutil "$library"
+	#
+	# Squelch warnings, in case the .o files from building
+	# support libraries aren't around any more.
+	#
+	dsymutil "$library" | egrep -v 'unable to open object file'
 done
 
 echo "Dsymifying plugins"
