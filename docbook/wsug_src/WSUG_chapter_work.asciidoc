@@ -25,8 +25,8 @@ header selected, which shows up in the byte view as the selected bytes.
 image::wsug_graphics/ws-packet-selected.png[{screenshot-attrs}]
 
 You can also select and view packets the same way while Wireshark is capturing
-if you selected ``Update list of packets in real time'' in the ``Capture
-Preferences'' dialog box.
+if you selected “Update list of packets in real time” in the “Capture
+Preferences” dialog box.
 
 In addition you can view individual packets in a separate window as shown in
 <<ChWorkPacketSepView>>. You can do this by double-clicking on an item in the
@@ -51,16 +51,16 @@ number of other ways to open a new packet window:
 
 === Pop-up menus
 
-You can bring up a pop-up menu over either the ``Packet List'', its column header,
-or ``Packet Details'' pane by clicking your right mouse button at the
+You can bring up a pop-up menu over either the “Packet List”, its column header,
+or “Packet Details” pane by clicking your right mouse button at the
 corresponding pane.
 
 [[ChWorkColumnHeaderPopUpMenuSection]]
 
-==== Pop-up menu of the ``Packet List'' column header
+==== Pop-up menu of the “Packet List” column header
 
 [[ChWorkColumnHeaderPopUpMenu]]
-.Pop-up menu of the ``Packet List'' column header
+.Pop-up menu of the “Packet List” column header
 image::wsug_graphics/ws-column-header-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available in this
@@ -68,7 +68,7 @@ header, where to find the corresponding function in the main menu, and a short
 description of each item.
 
 [[ColumnHeaderPopupMenuTable]]
-.The menu items of the ``Packet List'' column header pop-up menu
+.The menu items of the “Packet List” column header pop-up menu
 [options="header",cols="3,2,5"]
 |===============
 |Item|Identical to main menu’s item:|Description
@@ -88,17 +88,17 @@ description of each item.
 
 [[ChWorkPacketListPanePopUpMenuSection]]
 
-==== Pop-up menu of the ``Packet List'' pane
+==== Pop-up menu of the “Packet List” pane
 
 [[ChWorkPacketListPanePopUpMenu]]
 
-.Pop-up menu of the ``Packet List'' pane
+.Pop-up menu of the “Packet List” pane
 image::wsug_graphics/ws-packet-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available  in this pane, where to find the corresponding function in the main menu,  and a short description of each item.
 
 [[PacketListPopupMenuTable]]
-.The menu items of the ``Packet List'' pop-up menu
+.The menu items of the “Packet List” pop-up menu
 [options="header",cols="3,2,5"]
 |===============
 |Item|Identical to main menu’s item:|Description
@@ -113,7 +113,7 @@ The following table gives an overview of which functions are available  in this 
 |menu:SCTP[]|| Allows you to analyze and prepare a filter for this SCTP association.
 |menu:Follow TCP Stream[]|menu:Analyze[]| Allows you to view all the data on a TCP  stream between a pair of nodes.
 |menu:Follow UDP Stream[]|menu:Analyze[]| Allows you to view all the data on a UDP datagram stream between a pair of nodes.
-|menu:Follow SSL Stream[]|menu:Analyze[]| Same as ``Follow TCP Stream'' but for SSL. XXX - add a new section describing this better.
+|menu:Follow SSL Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for SSL. XXX - add a new section describing this better.
 |menu:Copy/ Summary (Text)[]|| Copy the summary fields as displayed to the clipboard, as tab-separated text.
 |menu:Copy/ Summary (CSV)[]|| Copy the summary fields as displayed to the clipboard, as comma-separated text.
 |menu:Copy/ As Filter[]|| Prepare a display filter based on the currently selected item and copy that filter to the clipboard.
@@ -130,11 +130,11 @@ The following table gives an overview of which functions are available  in this 
 
 [[ChWorkPacketDetailsPanePopUpMenuSection]]
 
-==== Pop-up menu of the ``Packet Details'' pane
+==== Pop-up menu of the “Packet Details” pane
 
 [[ChWorkPacketDetailsPanePopUpMenu]]
 
-.Pop-up menu of the ``Packet Details'' pane
+.Pop-up menu of the “Packet Details” pane
 image::wsug_graphics/ws-details-pane-popup-menu.png[{screenshot-attrs}]
 
 The following table gives an overview of which functions are available in this
@@ -143,7 +143,7 @@ description of each item.
 
 [[PacketDetailsPopupMenuTable]]
 
-.The menu items of the ``Packet Details'' pop-up menu
+.The menu items of the “Packet Details” pop-up menu
 [options="header",cols="3,2,5"]
 |===============
 |Item|Identical to main menu’s item:|Description
@@ -157,7 +157,7 @@ description of each item.
 |menu:Colorize with Filter[]|| This menu item uses a display filter with the information from the selected protocol item to build a new colorizing rule.
 |menu:Follow TCP Stream[]|menu:Analyze[]| Allows you to view all the data on a TCP stream between a pair of nodes.
 |menu:Follow UDP Stream[]|menu:Analyze[]| Allows you to view all the data on a UDP datagram stream between a pair of nodes.
-|menu:Follow SSL Stream[]|menu:Analyze[]| Same as ``Follow TCP Stream'' but for SSL. XXX - add a new section describing this better.
+|menu:Follow SSL Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for SSL. XXX - add a new section describing this better.
 |menu:Copy/ Description[]|menu:Edit[]| Copy the displayed text of the selected field to the system  clipboard.
 |menu:Copy/ Fieldname[]|menu:Edit[]| Copy the name of the selected field to the system clipboard.
 |menu:Copy/ Value[]|menu:Edit[]| Copy the value of the selected field to the system clipboard.
@@ -208,7 +208,7 @@ example of what happens when you type _tcp_ in the filter field.
 
 [NOTE]
 ====
-All protocol and field names are entered in lowercase.  Also, don't  forget to press enter after entering the filter expression.
+All protocol and field names are entered in lowercase.  Also, don’t  forget to press enter after entering the filter expression.
 ====
 
 
@@ -263,8 +263,8 @@ result in showing only the packets where this field exists. For example: the
 filter string: _tcp_ will show all packets containing the tcp protocol.
 
 There is a complete list of all filter fields available through the menu item
-menu:Help[Supported Protocols] in the page ``Display Filter Fields'' of the
-``Supported Protocols'' dialog.
+menu:Help[Supported Protocols] in the page “Display Filter Fields” of the
+“Supported Protocols” dialog.
 
 // XXX - add some more info here and a link to the statusbar info.
 
@@ -366,11 +366,11 @@ http.host matches "acme\.(org|com|net)"
 ----
 The example above match HTTP packets where the HOST header contains acme.org or acme.com
 or acme.net. Comparisons are case-insensitive. Note: Wireshark needs to be built with
-libpcre in order to be able to use the `matches` resp. `~`` operator.
+libpcre in order to be able to use the `matches` resp. `{tilde}` operator.
 ----
 tcp.flags & 0x02
 ----
-That expression will match all packets that contain a "tcp.flags" field with the 0x02 bit,
+That expression will match all packets that contain a “tcp.flags” field with the 0x02 bit,
 i.e. the SYN bit, set.
 
 ==== Combining expressions
@@ -387,8 +387,8 @@ You can combine filter expressions in Wireshark using the  logical operators sho
 |or      |\|\|      | Logical OR. `ip.scr==10.0.0.5 or ip.src==192.1.1.1`
 |xor     |^^        | Logical XOR. `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
 |not     |!         | Logical NOT. `not llc`
-|[...]   |          | See ``Substring Operator'' below.
-|in      |          | See ``Membership Operator'' below.
+|[...]   |          | See “Substring Operator” below.
+|in      |          | See “Membership Operator” below.
 |===============
 
 ==== Substring Operator
@@ -455,39 +455,39 @@ address 1.2.3.4 in it. Unfortunately, this does _not_ do the expected.
 
 Instead, that expression will even be true for packets where either source or
 destination IP address equals 1.2.3.4. The reason for this, is that the
-expression `ip.addr != 1.2.3.4` must be read as ``the packet contains a field
-named ip.addr with a value different from 1.2.3.4''. As an IP datagram contains
+expression `ip.addr != 1.2.3.4` must be read as “the packet contains a field
+named ip.addr with a value different from 1.2.3.4”. As an IP datagram contains
 both a source and a destination address, the expression will evaluate to true
 whenever at least one of the two addresses differs from 1.2.3.4.
 
 If you want to filter out all packets containing IP datagrams to or from IP
 address 1.2.3.4, then the correct filter is `!(ip.addr == 1.2.3.4)` as it reads
-``show me all the packets for which it is not true that a field named ip.addr
-exists with a value of 1.2.3.4'', or in other words, ``filter out all packets
+“show me all the packets for which it is not true that a field named ip.addr
+exists with a value of 1.2.3.4”, or in other words, “filter out all packets
 for which there are no occurrences of a field named ip.addr with the value
-1.2.3.4''.
+1.2.3.4”.
 
 [[ChWorkFilterAddExpressionSection]]
 
 
-=== The ``Filter Expression'' dialog box
+=== The “Filter Expression” dialog box
 
 When you are accustomed to Wireshark’s filtering system and know what labels you
 wish to use in your filters it can be very quick to simply type a filter string.
 However if you are new to Wireshark or are working with a slightly unfamiliar
 protocol it can be very confusing to try to figure out what to type. The
-``Filter Expression'' dialog box helps with this.
+“Filter Expression” dialog box helps with this.
 
 [TIP]
 ====
-The ``Filter Expression'' dialog box is an excellent way to learn how to write
+The “Filter Expression” dialog box is an excellent way to learn how to write
 Wireshark display filter strings.
 ====
 
 
 [[ChWorkFilterAddExpression1]]
 
-.The ``Filter Expression'' dialog box
+.The “Filter Expression” dialog box
 image::wsug_graphics/ws-filter-add-expression.png[{screenshot-attrs}]
 
 When you first bring up the Filter Expression dialog box you are shown a tree
@@ -528,7 +528,7 @@ When you have built a satisfactory expression click btn:[OK] and a filter string
 will be built for you.
 
 _Cancel_::
-You can leave the ``Add Expression...'' dialog box without any effect by
+You can leave the “Add Expression...” dialog box without any effect by
 clicking the btn:[Cancel] button.
 
 [[ChWorkDefineFilterSection]]
@@ -557,7 +557,7 @@ Wireshark.
 
 [[FiltersDialog]]
 
-.The ``Capture Filters'' and ``Display Filters'' dialog boxes
+.The “Capture Filters” and “Display Filters” dialog boxes
 image::wsug_graphics/ws-filters.png[{screenshot-attrs}]
 
 _New_::
@@ -626,11 +626,11 @@ a previously saved capture file. Simply select the _Find Packet..._ menu item
 from the _Edit_ menu. Wireshark will pop up the dialog box shown in
 <<ChWorkFindPacketDialog>>.
 
-==== The ``Find Packet'' dialog box
+==== The “Find Packet” dialog box
 
 [[ChWorkFindPacketDialog]]
 
-.The ``Find Packet'' dialog box
+.The “Find Packet” dialog box
 image::wsug_graphics/ws-find-packet.png[{screenshot-attrs}]
 
 You might first select the kind of thing to search for:
@@ -669,14 +669,14 @@ Search upwards in the packet list (decreasing packet numbers).
 +
 Search downwards in the packet list (increasing packet numbers).
 
-==== The ``Find Next'' command
+==== The “Find Next” command
 
-``Find Next'' will continue searching with the same options used in the last
-``Find Packet''.
+“Find Next” will continue searching with the same options used in the last
+“Find Packet”.
 
-==== The ``Find Previous'' command
+==== The “Find Previous” command
 
-``Find Previous'' will do the same thing as ``Find Next'', but in the reverse
+“Find Previous” will do the same thing as “Find Next”, but in the reverse
 direction.
 
 [[ChWorkGoToPacketSection]]
@@ -685,25 +685,25 @@ direction.
 
 You can easily jump to specific packets with one of the menu items in the  Go menu.
 
-==== The ``Go Back'' command
+==== The “Go Back” command
 
 Go back in the packet history, works much like the page history in current  web browsers.
 
-==== The ``Go Forward'' command
+==== The “Go Forward” command
 
 Go forward in the packet history, works much like the page history in  current web browsers.
 
-==== The ``Go to Packet'' dialog box
+==== The “Go to Packet” dialog box
 
 [[ChWorkGoToPacketDialog]]
 
-.The ``Go To Packet'' dialog box
+.The “Go To Packet” dialog box
 image::wsug_graphics/ws-goto-packet.png[{screenshot-attrs}]
 
 This dialog box will let you enter a packet number. When you press btn:[OK],
 Wireshark will jump to that packet.
 
-==== The ``Go to Corresponding Packet'' command
+==== The “Go to Corresponding Packet” command
 
 If a protocol field is selected which points to another packet in the capture
 file, this command will jump to that packet.
@@ -711,11 +711,11 @@ file, this command will jump to that packet.
 As these protocol fields now work like links (just as in your Web browser), it’s
 easier to simply double-click on the field to jump to the corresponding field.
 
-==== The ``Go to First Packet'' command
+==== The “Go to First Packet” command
 
 This command will simply jump to the first packet displayed.
 
-==== The ``Go to Last Packet'' command
+==== The “Go to Last Packet” command
 
 This command will simply jump to the last packet displayed.
 
@@ -723,7 +723,7 @@ This command will simply jump to the last packet displayed.
 
 === Marking packets
 
-You can mark packets in the ``Packet List'' pane. A marked packet will be shown
+You can mark packets in the “Packet List” pane. A marked packet will be shown
 with black background, regardless of the coloring rules set. Marking a packet
 can be useful to find it later while analyzing in a large capture file.
 
@@ -742,21 +742,21 @@ There are three functions to manipulate the marked state of a packet:
 
 * _Unmark all packets_ reset the mark state of all  packets.
 
-These mark functions are available from the “Edit” menu, and the ``Mark packet
-(toggle)'' function is also available from the pop-up menu of the ``Packet
-List'' pane.
+These mark functions are available from the “Edit” menu, and the “Mark packet
+(toggle)” function is also available from the pop-up menu of the “Packet
+List” pane.
 
 [[ChWorkIgnorePacketSection]]
 
 === Ignoring packets
 
-You can ignore packets in the ``Packet List'' pane. Wireshark will then pretend
+You can ignore packets in the “Packet List” pane. Wireshark will then pretend
 that this packets does not exist in the capture file. An ignored packet will be
 shown with white background and gray foreground, regardless of the coloring
 rules set.
 
 The packet ignored marks are not stored in the capture file or anywhere else.
-All ``packet ignored'' marks will be lost when you close the capture file.
+All “packet ignored” marks will be lost when you close the capture file.
 
 There are three functions to manipulate the ignored state of a packet:
 
@@ -766,9 +766,9 @@ There are three functions to manipulate the ignored state of a packet:
 
 * _Un-Ignore all packets_ reset the ignored state of all  packets.
 
-These ignore functions are available from the “Edit” menu, and the ``Ignore
-packet (toggle)'' function is also available from the pop-up menu of the
-``Packet List'' pane.
+These ignore functions are available from the “Edit” menu, and the “Ignore
+packet (toggle)” function is also available from the pop-up menu of the
+“Packet List” pane.
 
 [[ChWorkTimeFormatsSection]]
 
@@ -792,7 +792,7 @@ The available presentation formats are:
   was captured.
 
 * _Seconds Since Beginning of Capture: 123.123456_ The time relative to the
-  start of the capture file or the first ``Time Reference'' before this packet
+  start of the capture file or the first “Time Reference” before this packet
   (see <<ChWorkTimeReferencePacketSection>>).
 
 * _Seconds Since Previous Captured Packet: 1.123456_ The time relative to the
@@ -814,8 +814,8 @@ The available precisions (aka. the number of displayed decimal places) are:
   the actually available precision is smaller, zeros will be appended. If the
   precision is larger, the remaining decimal places will be cut off.
 
-Precision example: If you have a timestamp and it’s displayed using, ``Seconds
-Since Previous Packet'' the value might be 1.123456. This will be displayed
+Precision example: If you have a timestamp and it’s displayed using, “Seconds
+Since Previous Packet” the value might be 1.123456. This will be displayed
 using the “Automatic” setting for libpcap files (which is microseconds). If
 you use Seconds it would show simply 1 and if you use Nanoseconds it shows
 1.123456000.
@@ -833,20 +833,20 @@ The time references will not be saved permanently and will be lost when you
 close the capture file.
 
 Time referencing will only be useful if the time display format is set to
-``Seconds Since Beginning of Capture''. If one of the other time display formats
+“Seconds Since Beginning of Capture”. If one of the other time display formats
 are used, time referencing will have no effect (and will make no sense either).
 
 To work with time references, choose one of the menu:Time Reference[] items in
-the menu:[Edit] menu or from the pop-up menu of the ``Packet List'' pane. See
+the menu:[Edit] menu or from the pop-up menu of the “Packet List” pane. See
 <<ChUseEditMenuSection>>.
 
 * _Set Time Reference (toggle)_ Toggles the time reference state of the
   currently selected packet to on or off.
 
-* _Find Next_ Find the next time referenced packet in the ``Packet List'' pane.
+* _Find Next_ Find the next time referenced packet in the “Packet List” pane.
 
-* _Find Previous_ Find the previous time referenced packet in the ``Packet
-  List'' pane.
+* _Find Previous_ Find the previous time referenced packet in the “Packet
+  List” pane.
 
 [[ChWorkTimeReference]]
 

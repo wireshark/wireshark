@@ -20,7 +20,7 @@ link:{wireshark-man-page-url}[the web site].
 === __tshark__: Terminal-based Wireshark
 
 TShark is a terminal oriented version of Wireshark designed for capturing and
-displaying packets when an interactive user interface isn't necessary or
+displaying packets when an interactive user interface isn’t necessary or
 available. It supports the same options as `wireshark`. For more information on
 `tshark` consult your local manual page (`man tshark`) or
 link:{wireshark-man-page-url}tshark.html[the online version].
@@ -36,8 +36,8 @@ include::tshark-h.txt[]
 === __tcpdump__: Capturing with “tcpdump” for viewing with Wireshark
 
 It’s often more useful to capture packets using `tcpdump` rather than
-`wireshark`. For example, you might want to do a remote capture and either don't
-have GUI access or don't have Wireshark installed on the remote machine.
+`wireshark`. For example, you might want to do a remote capture and either don’t
+have GUI access or don’t have Wireshark installed on the remote machine.
 
 Older versions of `tcpdump` truncate packets to 68 or 96 bytes. If this is the case,
 use `-s` to capture full-sized packets:
@@ -65,7 +65,7 @@ is pcapng, which is also the format used by Wireshark.
 
 Without any options set it will use the pcap library to capture traffic
 from the first available network interface and write the received raw
-packet data, along with the packets' time stamps into a pcapng file. The
+packet data, along with the packets’ time stamps into a pcapng file. The
 capture filter syntax follows the rules of the pcap library. For more
 information on `dumpcap` consult your local manual page (`man dumpcap`)
 or link:{wireshark-man-page-url}dumpcap.html[the online version].

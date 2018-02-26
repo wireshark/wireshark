@@ -47,7 +47,7 @@ Capture interface:
   -f <capfilter|predef:>   packet filter in libpcap filter syntax or
                            predef:filtername - predefined filtername from GUI
   -s <snaplen>             packet snapshot length (def: 262144)
-  -p                       don't capture in promiscuous mode
+  -p                       don’t capture in promiscuous mode
   -k                       start capturing immediately (def: do nothing)
   -S                       update packet display when new packets are captured
   -l                       turn on automatic scrolling while -S is in use
@@ -78,7 +78,7 @@ Processing:
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
-                           "Decode As", see the man page for details
+                           "Decode As”, see the man page for details
                            Example: tcp.port==8888,http
   --disable-protocol <proto_name>
                            disable dissection of proto_name
@@ -144,14 +144,14 @@ is one of:
 
 -b <capture ring buffer option>::
 If a maximum capture file size was specified, this option causes Wireshark to run
-in ``ring buffer'' mode, with the specified number of files. In ``ring
-buffer'' mode, Wireshark will write to several capture files. Their
+in “ring buffer” mode, with the specified number of files. In “ring
+buffer” mode, Wireshark will write to several capture files. Their
 name is based on the number of the file and on the creation date and
 time.
 +
 When the first capture file fills up Wireshark will switch to writing
 to the next file, and so on.  With the <command>files</command> option it’s
-also possible to form a ``ring buffer.''  This will fill up new files until the
+also possible to form a “ring buffer.”  This will fill up new files until the
 number of files specified, at which point the data in the first file will be
 discarded so a new file can be written.
 +
@@ -192,11 +192,11 @@ each network interface, a number and an interface name, possibly followed by a
 text description of the interface, is printed. The interface name or the number
 can be supplied to the `-i` flag to specify an interface on which to capture.
 +
-This can be useful on systems that don't have a command to list them (e.g.,
+This can be useful on systems that don’t have a command to list them (e.g.,
 Windows systems, or UNIX systems lacking `ifconfig -a`). The number can be
 especially useful on Windows, where the interface name is a GUID.
 +
-Note that ``can capture'' means that Wireshark was able to open that device to
+Note that “can capture” means that Wireshark was able to open that device to
 do a live capture. If, on your system, a program doing a network capture must be
 run from an account with special privileges (for example, as root), then, if
 Wireshark is run with the `-D` flag and is not run from such an account, it will
@@ -223,7 +223,7 @@ Set the name of the network interface or pipe to use for live packet capture.
 +
 Network interface names should match one of the names listed in `wireshark -D`
 (described above). A number, as reported by `wireshark -D`, can also be used. If
-you're using UNIX, `netstat -i` or `ifconfig -a` might also work to list
+you’re using UNIX, `netstat -i` or `ifconfig -a` might also work to list
 interface names, although not all versions of UNIX support the `-a` flag to
 `ifconfig`.
 +
@@ -231,7 +231,7 @@ If no interface is specified, Wireshark searches the list of interfaces,
 choosing the first non-loopback interface if there are any non-loopback
 interfaces, and choosing the first loopback interface if there are no
 non-loopback interfaces; if there are no interfaces, Wireshark reports an error
-and doesn't start the capture.
+and doesn’t start the capture.
 +
 Pipe names should be either the name of a FIFO (named pipe) or “-” to read
 data from the standard input. Data read from pipes must be in standard libpcap
@@ -333,7 +333,7 @@ HTTP, just as if you had configured it in the DLT_USER protocol preferences.
 
 -p::
 
-Don't put the interface into promiscuous mode. Note that the interface might be
+Don’t put the interface into promiscuous mode. Note that the interface might be
 in promiscuous mode for some other reason. Hence, `-p` cannot be used to ensure
 that the only traffic that is captured is traffic sent to or from the machine on
 which Wireshark is running, broadcast traffic, and multicast traffic to
@@ -384,8 +384,8 @@ Wireshark will only capture _snaplen_ bytes of data for each packet.
 
 This option specifies that Wireshark will display packets as it captures them.
 This is done by capturing in one process and displaying them in a separate
-process. This is the same as ``Update list of packets in real time'' in the
-``Capture Options'' dialog box.
+process. This is the same as “Update list of packets in real time” in the
+“Capture Options” dialog box.
 
 -t <time stamp format>::
 
@@ -487,14 +487,14 @@ filters can also be created by selecting the menu:Colorize with Filter[Color X]
 menu items when right-clicking in the packet detail pane.
 
 To permanently colorize packets, select menu:View[Coloring Rules...]. Wireshark
-will display the ``Coloring Rules'' dialog box as shown in
+will display the “Coloring Rules” dialog box as shown in
 <<ChCustColoringRulesDialog>>.
 
 [[ChCustColoringRulesDialog]]
-.The ``Coloring Rules'' dialog box
+.The “Coloring Rules” dialog box
 image::wsug_graphics/ws-coloring-rules-dialog.png[{screenshot-attrs}]
 
-If this is the first time using the Coloring Rules dialog and you're using the
+If this is the first time using the Coloring Rules dialog and you’re using the
 default configuration profile you should see the default rules, shown above.
 
 [NOTE]
@@ -511,7 +511,7 @@ one or more rules by clicking the btn:[-] button. The “copy” button will
 duplicate a rule.
 
 You can edit a rule by double-clicking on its name or filter. In
-<<ChCustColoringRulesDialog>> the name of the rule ``Checksum Errors'' is being
+<<ChCustColoringRulesDialog>> the name of the rule “Checksum Errors” is being
 edited. Clicking on the btn:[Foreground] and btn:[Background] buttons will
 open a color chooser (<<ChCustChooseColorDialog>>) for the foreground (text) and
 background colors respectively.
@@ -525,7 +525,7 @@ picker is shown. Select the color you desire for the selected packets and click
 btn:[OK].
 
 <<ChCustColorFilterMany>> shows an example of several color filters being used
-in Wireshark. Note that the frame detail shows that the ``Bad TCP'' rule rule
+in Wireshark. Note that the frame detail shows that the “Bad TCP” rule rule
 was applied, along with the matching filter.
 
 [[ChCustColorFilterMany]]
@@ -541,9 +541,9 @@ The user can control how protocols are dissected.
 
 Each protocol has its own dissector, so dissecting a complete packet will
 typically involve several dissectors. As Wireshark tries to find the right
-dissector for each packet (using static “routes” and heuristics ``guessing"),
+dissector for each packet (using static “routes” and heuristics “guessing”),
 it might choose the wrong dissector in your specific case. For example,
-Wireshark won't know if you use a common protocol on an uncommon TCP port, e.g.
+Wireshark won’t know if you use a common protocol on an uncommon TCP port, e.g.
 using HTTP on TCP port 800 instead of the standard port 80.
 
 There are two ways to control the relations between protocol dissectors: disable
@@ -552,7 +552,7 @@ the dissectors.
 
 [[ChAdvEnabledProtocols]]
 
-==== The ``Enabled Protocols'' dialog box
+==== The “Enabled Protocols” dialog box
 
 The Enabled Protocols dialog box lets you enable or disable specific protocols.
 All protocols are enabled by default. When a protocol is disabled, Wireshark
@@ -568,11 +568,11 @@ disabling IP would prevent it and the other protocols from being displayed.
 ====
 
 To enable or disable protocols select menu:Analyze[Enabled Protocols...].
-Wireshark will pop up the ``Enabled Protocols'' dialog box as shown in
+Wireshark will pop up the “Enabled Protocols” dialog box as shown in
 <<ChAdvEnabledProtocolsFig>>.
 
 [[ChAdvEnabledProtocolsFig]]
-.The ``Enabled Protocols'' dialog box
+.The “Enabled Protocols” dialog box
 image::wsug_graphics/ws-enabled-protocols.png[{screenshot-attrs}]
 
 To disable or enable a protocol, simply click on it using the mouse or press the
@@ -605,15 +605,15 @@ You can choose from the following actions:
 
 ==== User Specified Decodes
 
-The ``Decode As'' functionality lets you temporarily divert specific protocol
+The “Decode As” functionality lets you temporarily divert specific protocol
 dissections. This might be useful for example, if you do some uncommon
 experiments on your network.
 
 Decode As is accessed by selecting the menu:Analyze[Decode As...]. Wireshark
-will pop up the ``Decode As'' dialog box as shown in <<ChAdvDecodeAsFig>>.
+will pop up the “Decode As” dialog box as shown in <<ChAdvDecodeAsFig>>.
 
 [[ChAdvDecodeAsFig]]
-.The ``Decode As'' dialog box
+.The “Decode As” dialog box
 image::wsug_graphics/ws-decode-as.png[{screenshot-attrs}]
 
 The content of this dialog box depends on the selected packet when it was opened.
@@ -626,8 +626,8 @@ save the entries in the _Show User Specified Decodes..._ windows
 
 . btn:[Do not decode]: Do not decode packets the selected way.
 
-. btn:[Link/Network/Transport]: Specify the network layer at which ``Decode
-  As'' should take place. Which of these pages are available depends on the
+. btn:[Link/Network/Transport]: Specify the network layer at which “Decode
+  As” should take place. Which of these pages are available depends on the
   content of the selected packet when this dialog box is opened.
 
 . btn:[Show Current]: Open a dialog box showing the current list of user
@@ -648,7 +648,7 @@ This dialog box shows the currently active user specified decodes. These entries
 can be saved into current profile for later session.
 
 [[ChAdvDecodeAsShowFig]]
-.The ``Decode As: Show'' dialog box
+.The “Decode As: Show” dialog box
 image::wsug_graphics/ws-decode-as-show.png[{screenshot-attrs}]
 
 . btn:[OK]: Close this dialog box.
@@ -664,7 +664,7 @@ image::wsug_graphics/ws-decode-as-show.png[{screenshot-attrs}]
 There are a number of preferences you can set. Simply select the
 menu:Edit[Preferences...] (menu:Wireshark[Preferences...] on macOS) and
 Wireshark will pop up the Preferences dialog box as shown in
-<<ChCustGUIPrefPage>>, with the ``User Interface'' page as default. On the left
+<<ChCustGUIPrefPage>>, with the “User Interface” page as default. On the left
 side is a tree where you can select the page to be shown.
 
 * The btn:[OK] button will apply the preferences settings and close the dialog.
@@ -785,7 +785,7 @@ image::wsug_graphics/ws-gui-config-profiles.png[{screenshot-attrs}]
 
 New::
 This button adds a new profile to the profiles list. The name of the created
-profile is ``New profile'' and can be changed in the Properties field.
+profile is “New profile” and can be changed in the Properties field.
 
 Copy::
 This button adds a new profile to the profiles list, copying all configuration
@@ -805,8 +805,8 @@ Profile name::
 You can change the name of the currently selected profile here.
 +
 --
-The profile name will be used as a folder name in the configured ``Personal
-configurations'' folder. If adding multiple profiles with the same name, only
+The profile name will be used as a folder name in the configured “Personal
+configurations” folder. If adding multiple profiles with the same name, only
 one profile will be created.
 
 On Windows the profile name cannot start or end with a period (.), and cannot
@@ -880,7 +880,7 @@ The textual representation for the value.
 
 === GeoIP Database Paths
 
-If your copy of Wireshark supports link:http://www.maxmind.com/[MaxMind's]
+If your copy of Wireshark supports link:http://www.maxmind.com/[MaxMind’s]
 GeoIP library, you can use their databases to match IP addresses to countries,
 cites, autonomous system numbers, ISPs, and other bits of information. Some
 databases are link:http://www.maxmind.com/download/geoip/database/[available
@@ -1036,7 +1036,7 @@ MIB and PIB modules here.
 
 Directory name::
 A module directory, e.g. `/usr/local/snmp/mibs`. Wireshark automatically uses
-the standard SMI path for your system, so you usually don't have to add anything
+the standard SMI path for your system, so you usually don’t have to add anything
 here.
 
 [[ChSNMPEnterpriseSpecificTrapTypes]]
@@ -1089,7 +1089,7 @@ _\x01\x02\x03\x04\x05\x06_. The _\_ character must be treated as an unprintable
 character, i.e. it must be entered as _\x5C_ or _\x5c_.
 
 Privacy protocol::
-Which encryption algorithm to use (either “DES” or ``AES").
+Which encryption algorithm to use (either “DES” or “AES”).
 
 Privacy password::
 The privacy password. Use _\xDD_ for unprintable characters. An hexadecimal
@@ -1103,7 +1103,7 @@ as _\x5C_ or _\x5c_.
 === Tektronix K12xx/15 RF5 protocols Table
 
 The Tektronix K12xx/15 rf5 file format uses helper files (*.stk) to identify the
-various protocols that are used by a certain interface. Wireshark doesn't read
+various protocols that are used by a certain interface. Wireshark doesn’t read
 these stk files, it uses a table that helps it identify which lowest layer
 protocol to use.
 

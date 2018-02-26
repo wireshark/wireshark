@@ -29,17 +29,17 @@ TCP stream laid out in order, as shown in <<ChAdvFollowStream>>.
 
 [TIP]
 ====
-Opening the ``Follow TCP Stream'' applies a display filter which selects
+Opening the “Follow TCP Stream” applies a display filter which selects
 all the packets in the TCP stream you have selected. Some people open the
-``Follow TCP Stream'' dialog and immediately close it as a quick way to
+“Follow TCP Stream” dialog and immediately close it as a quick way to
 isolate a particular stream.
 ====
 
-==== The ``Follow TCP Stream'' dialog box
+==== The “Follow TCP Stream” dialog box
 
 [[ChAdvFollowStream]]
 
-.The ``Follow TCP Stream'' dialog box
+.The “Follow TCP Stream” dialog box
 image::wsug_graphics/ws-follow-stream.png[{screenshot-attrs}]
 
 The stream content is displayed in the same sequence as it appeared on the
@@ -51,8 +51,8 @@ Non-printable characters will be replaced by dots.
 
 // XXX - What about line wrapping (maximum line length) and CRNL conversions?
 
-The stream content won't be updated while doing a live capture. To get the
-latest content you'll have to reopen the dialog.
+The stream content won’t be updated while doing a live capture. To get the
+latest content you’ll have to reopen the dialog.
 
 You can choose from the following actions:
 
@@ -60,8 +60,8 @@ You can choose from the following actions:
 
 . __Print__: Print the stream data in the currently selected format.
 
-. __Direction__: Choose the stream direction to be displayed (``Entire
-  conversation'', ``data from A to B only'' or ``data from B to A only'').
+. __Direction__: Choose the stream direction to be displayed (“Entire
+  conversation”, “data from A to B only” or “data from B to A only”).
 
 . __Filter out this stream__: Apply a display filter removing the current TCP
   stream data from the display.
@@ -84,7 +84,7 @@ You can choose to view the data in one of the following formats:
 
 . __Raw__: This allows you to load the unaltered stream data into a different
   program for further examination. The display will look the same as the ASCII
-  setting, but ``Save As'' will result in a binary file.
+  setting, but “Save As” will result in a binary file.
 
 [[ChAdvShowPacketBytes]]
 
@@ -101,7 +101,7 @@ It’s also possible to select a subset of bytes setting the start byte and end 
 You can choose from the following actions:
 
 . __Find__: Search for the given text.  Matching text will be highlighted,
-  and the ``Find Next'' will search for more.  In the context menu for the
+  and the “Find Next” will search for more.  In the context menu for the
   find text it’s possible to configure to use regular expression find.
 
 . __Print__: Print the bytes in the currently selected format.
@@ -152,7 +152,7 @@ You can choose to view the data in one of the following formats:
 
 *Raw*:: This allows you to load the unaltered stream data into a different
   program for further examination. The display will show HEX data, but
-  ``Save As'' will result in a binary file.
+  “Save As” will result in a binary file.
 
 *UTF8*:: In this view you see the bytes as UTF-8.
 
@@ -165,7 +165,7 @@ You can choose to view the data in one of the following formats:
 The expert infos is a kind of log of the anomalies found by Wireshark in a
 capture file.
 
-The general idea behind the following ``Expert Info'' is to have a better
+The general idea behind the following “Expert Info” is to have a better
 display of “uncommon” or just notable network behaviour. This way, both novice
 and expert users will hopefully find probable network problems a lot faster,
 compared to scanning the packet list “manually” .
@@ -174,12 +174,12 @@ compared to scanning the packet list “manually” .
 .Expert infos are only a hint
 ====
 Take expert infos as a hint what’s worth looking at, but not more. For example,
-the absence of expert infos doesn't necessarily mean everything is OK.
+the absence of expert infos doesn’t necessarily mean everything is OK.
 ====
 
 The amount of expert infos largely depends on the protocol being used. While
 some common protocols like TCP/IP will show detailed expert infos, most other
-protocols currently won't show any expert infos at all.
+protocols currently won’t show any expert infos at all.
 
 The following will first describe the components of a single expert info, then
 the User Interface.
@@ -230,7 +230,7 @@ There are some common groups of expert infos. The following are currently implem
 
 * __Checksum__: a checksum was invalid
 
-* __Sequence__: protocol sequence suspicious, e.g. sequence wasn't continuous or
+* __Sequence__: protocol sequence suspicious, e.g. sequence wasn’t continuous or
   a retransmission was detected or ...
 
 * __Response Code__: problem with application response code, e.g. HTTP 404 page
@@ -239,7 +239,7 @@ There are some common groups of expert infos. The following are currently implem
 * __Request Code__: an application request (e.g. File Handle == x), usually Chat
   level
 
-* __Undecoded__: dissector incomplete or data can't be decoded for other reasons
+* __Undecoded__: dissector incomplete or data can’t be decoded for other reasons
 
 * __Reassemble__: problems while reassembling, e.g. not all fragments were
   available or an exception happened while reassembling
@@ -268,13 +268,13 @@ Each expert info will also have a short additional text with some further explan
 
 [[ChAdvExpertDialog]]
 
-==== ``Expert Info'' dialog
+==== “Expert Info” dialog
 
 You can open the expert info dialog by selecting menu:Analyze[Expert Info].
 
 // XXX - add explanation of the dialogs context menu.
 
-.The ``Expert Info'' dialog box
+.The “Expert Info” dialog box
 image::wsug_graphics/ws-expert-infos.png[{screenshot-attrs}]
 
 [[ChAdvExpertDialogTabs]]
@@ -295,7 +295,7 @@ sign shows the individual packet numbers in a tree view.
 
 ===== Details tab
 
-The Details tab provides the expert infos in a ``log like'' view, each entry on
+The Details tab provides the expert infos in a “log like” view, each entry on
 its own line (much like the packet list). As the amount of expert infos for a
 capture file can easily become very large, getting an idea of the interesting
 infos with this view can take quite a while. The advantage of this tab is to
@@ -314,7 +314,7 @@ background for a note severity level. This color is propagated to the toplevel
 protocol item in the tree, so it’s easy to find the field that caused the expert
 info.
 
-For the example screenshot above, the IP ``Time to live'' value is very low
+For the example screenshot above, the IP “Time to live” value is very low
 (only 1), so the corresponding protocol field is marked with a cyan background.
 To easier find that item in the packet tree, the IP protocol toplevel item is
 marked cyan as well.
@@ -326,7 +326,7 @@ marked cyan as well.
 .The “Expert” packet list column
 image::wsug_graphics/ws-expert-column.png[{screenshot-attrs}]
 
-An optional ``Expert Info Severity'' packet list column is available that
+An optional “Expert Info Severity” packet list column is available that
 displays the most significant severity of a packet or stays empty if everything
 seems OK. This column is not displayed by default but can be easily added using
 the Preferences Columns page described in <<ChCustPreferencesSection>>.
@@ -340,15 +340,15 @@ session and provides additional information when problems or potential
 problems are detected. Analysis is done once for each TCP packet when a
 capture file is first opened. Packets are processed in the order in
 which they appear in the packet list. You can enable or disable this
-feature via the ``Analyze TCP sequence numbers'' TCP dissector preference.
+feature via the “Analyze TCP sequence numbers” TCP dissector preference.
 
-.``TCP Analysis'' packet detail items
+.“TCP Analysis” packet detail items
 image::wsug_graphics/ws-tcp-analysis.png[{screenshot-attrs}]
 
-TCP Analysis flags are added to the TCP protocol tree under ``SEQ/ACK
-analysis''. Each flag is described below. Terms such as ``next expected
-sequence number'' and ``next expected acknowledgement number'' refer to
-the following'':
+TCP Analysis flags are added to the TCP protocol tree under “SEQ/ACK
+analysis”. Each flag is described below. Terms such as “next expected
+sequence number” and “next expected acknowledgement number” refer to
+the following”:
 
 // tcp_analyze_seq_info->nextseq
 Next expected sequence number:: The last-seen sequence number plus
@@ -383,7 +383,7 @@ direction and it’s less than the current acknowledgement number.
 Set when all of the following are true:
 
 - The segment size is zero.
-- The window size is non-zero and hasn't changed.
+- The window size is non-zero and hasn’t changed.
 - The next expected sequence number and last-seen acknowledgment number are non-zero (i.e. the connection has been established).
 - SYN, FIN, and RST are not set.
 
@@ -400,7 +400,7 @@ Set when all of the following are true:
 - The current sequence number equals the next expected acknowledgement number.
 - We saw the last acknowledgement less than 20ms ago.
 
-Supersedes “Out-Of-Order”, ``Spurious Retransmission'', and “Retransmission”.
+Supersedes “Out-Of-Order”, “Spurious Retransmission”, and “Retransmission”.
 
 // TCP_A_KEEP_ALIVE
 [float]
@@ -410,8 +410,8 @@ Set when the segment size is zero or one, the current sequence number
 is one byte less than the next expected sequence number, and any of SYN,
 FIN, or RST are set.
 
-Supersedes ``Fast Retransmission'', “Out-Of-Order”, ``Spurious
-Retransmission'', and “Retransmission”.
+Supersedes “Fast Retransmission”, “Out-Of-Order”, “Spurious
+Retransmission”, and “Retransmission”.
 
 // TCP_A_KEEP_ALIVE_ACK
 [float]
@@ -420,13 +420,13 @@ Retransmission'', and “Retransmission”.
 Set when all of the following are true:
 
 - The segment size is zero.
-- The window size is non-zero and hasn't changed.
+- The window size is non-zero and hasn’t changed.
 - The current sequence number is the same as the next expected sequence number.
 - The current acknowledgement number is the same as the last-seen acknowledgement number.
 - The most recently seen packet in the reverse direction was a keepalive.
 - The packet is not a SYN, FIN, or RST.
 
-Supersedes ``Dup ACK'' and “ZeroWindowProbeAck”.
+Supersedes “Dup ACK” and “ZeroWindowProbeAck”.
 
 // TCP_A_OUT_OF_ORDER
 [float]
@@ -440,7 +440,7 @@ Set when all of the following are true:
 - The next expected sequence number and the next sequence number differ.
 - The last segment arrived within the calculated RTT (3ms by default).
 
-Supersedes ``Spurious Retransmission'' and “Retransmission”.
+Supersedes “Spurious Retransmission” and “Retransmission”.
 
 // TCP_A_REUSED_PORTS
 [float]
@@ -525,7 +525,7 @@ Set when the all of the following are true:
 - The acknowledgement number is equal to the last-seen acknowledgement number.
 - The last-seen packet in the reverse direction was a zero window probe.
 
-Supersedes ``TCP Dup ACK''.
+Supersedes “TCP Dup ACK”.
 
 [[ChAdvTimestamps]]
 
@@ -549,7 +549,7 @@ Wireshark obviously gets the data from that file.
 The internal format that Wireshark uses to keep a packet time stamp consists of
 the date (in days since 1.1.1970) and the time of day (in nanoseconds since
 midnight). You can adjust the way Wireshark displays the time stamp data in the
-packet list, see the ``Time Display Format'' item in the
+packet list, see the “Time Display Format” item in the
 <<ChUseViewMenuSection>> for details.
 
 While reading or writing capture files, Wireshark converts the time stamp data
@@ -571,7 +571,7 @@ some file formats are even capable of storing the time stamp precision itself
 The common libpcap capture file format that is used by Wireshark (and a lot of
 other tools) supports a fixed microsecond resolution “0.123456” only.
 
-Writing data into a capture file format that doesn't provide the capability to
+Writing data into a capture file format that doesn’t provide the capability to
 store the actual precision will lead to loss of information. For example, if you
 load a capture file with nanosecond resolution and store the capture data in a
 libpcap file (with microsecond resolution) Wireshark obviously must reduce the
@@ -579,21 +579,21 @@ precision from nanosecond to microsecond.
 
 ==== Accuracy
 
-People often ask ``Which time stamp accuracy is provided by Wireshark?''. Well,
-Wireshark doesn't create any time stamps itself but simply gets them from
-``somewhere else'' and displays them. So accuracy will depend on the capture
+People often ask “Which time stamp accuracy is provided by Wireshark?”. Well,
+Wireshark doesn’t create any time stamps itself but simply gets them from
+“somewhere else” and displays them. So accuracy will depend on the capture
 system (operating system, performance, etc) that you use. Because of this, the
 above question is difficult to answer in a general way.
 
 [NOTE]
 ====
 USB connected network adapters often provide a very bad time stamp accuracy. The
-incoming packets have to take ``a long and winding road'' to travel through the
+incoming packets have to take “a long and winding road” to travel through the
 USB cable until they actually reach the kernel. As the incoming packets are time
 stamped when they are processed by the kernel, this time stamping mechanism
 becomes very inaccurate.
 
-Don't use USB connected NICs when you need precise time stamp
+Don’t use USB connected NICs when you need precise time stamp
 accuracy.
 ====
 
@@ -612,10 +612,10 @@ First of all, there are two reasons why you may not need to think about time
 zones at all:
 
 * You are only interested in the time differences between the packet time stamps
-  and don't need to know the exact date and time of the captured packets (which
+  and don’t need to know the exact date and time of the captured packets (which
   is often the case).
 
-* You don't get capture files from different time zones than your own, so there
+* You don’t get capture files from different time zones than your own, so there
   are simply no time zone problems. For example, everyone in your team is
   working in the same time zone as yourself.
 
@@ -631,16 +631,16 @@ For that reason, the earth is split into several different time zones, each zone
 with a local time that corresponds to the local sunset.
 
 The time zone’s base time is UTC (Coordinated Universal Time) or Zulu Time
-(military and aviation). The older term GMT (Greenwich Mean Time) shouldn't be
+(military and aviation). The older term GMT (Greenwich Mean Time) shouldn’t be
 used as it is slightly incorrect (up to 0.9 seconds difference to UTC). The UTC
 base time equals to 0 (based at Greenwich, England) and all time zones have an
 offset to UTC between -12 to +14 hours!
 
 For example: If you live in Berlin you are in a time zone one hour earlier than
 UTC, so you are in time zone “+1” (time difference in hours compared to UTC).
-If it’s 3 o'clock in Berlin it’s 2 o'clock in UTC ``at the same moment''.
+If it’s 3 o’clock in Berlin it’s 2 o’clock in UTC “at the same moment”.
 
-Be aware that at a few places on earth don't use time zones with even hour
+Be aware that at a few places on earth don’t use time zones with even hour
 offsets (e.g. New Delhi uses UTC+05:30)!
 
 Further information can be found at: {wikipedia-main-url}Time_zone and
@@ -654,8 +654,8 @@ Further information can be found at: {wikipedia-main-url}Time_zone and
 Daylight Saving Time (DST), also known as Summer Time is intended to “save”
 some daylight during the summer months. To do this, a lot of countries (but not
 all!) add a DST hour to the already existing UTC offset. So you may need to take
-another hour (or in very rare cases even two hours!) difference into your ``time
-zone calculations''.
+another hour (or in very rare cases even two hours!) difference into your “time
+zone calculations”.
 
 Unfortunately, the date at which DST actually takes effect is different
 throughout the world. You may also note, that the northern and southern
@@ -689,7 +689,7 @@ networking gear to UTC in order to make coordination and troubleshooting easier.
 [TIP]
 ====
 If you travel around the world, it’s an often made mistake to adjust the hours
-of your computer clock to the local time. Don't adjust the hours but your time
+of your computer clock to the local time. Don’t adjust the hours but your time
 zone setting instead! For your computer, the time is essentially the same as
 before, you are simply in a different time zone with a different local time.
 ====
@@ -707,7 +707,7 @@ So what’s the relationship between Wireshark and time zones anyway?
 Wireshark’s native capture file format (libpcap format), and some other capture
 file formats, such as the Windows Sniffer, EtherPeek, AiroPeek, and Sun snoop
 formats, save the arrival time of packets as UTC values. UN*X systems, and
-``Windows NT based'' systems represent time internally as UTC. When Wireshark is
+“Windows NT based” systems represent time internally as UTC. When Wireshark is
 capturing, no conversion is necessary. However, if the system time zone is not
 set correctly, the system’s UTC time might not be correctly set even if the
 system clock appears to display correct local time. When capturing, WinPcap has
@@ -746,21 +746,21 @@ in which the packet was captured.
 |===============
 
 For example let’s assume that someone in Los Angeles captured a packet with
-Wireshark at exactly 2 o'clock local time and sends you this capture file. The
-capture file’s time stamp will be represented in UTC as 10 o'clock. You are
-located in Berlin and will see 11 o'clock on your Wireshark display.
+Wireshark at exactly 2 o’clock local time and sends you this capture file. The
+capture file’s time stamp will be represented in UTC as 10 o’clock. You are
+located in Berlin and will see 11 o’clock on your Wireshark display.
 
 Now you have a phone call, video conference or Internet meeting with that one to
 talk about that capture file. As you are both looking at the displayed time on
-your local computers, the one in Los Angeles still sees 2 o'clock but you in
-Berlin will see 11 o'clock. The time displays are different as both Wireshark
+your local computers, the one in Los Angeles still sees 2 o’clock but you in
+Berlin will see 11 o’clock. The time displays are different as both Wireshark
 displays will show the (different) local times at the same point in time.
 
 __Conclusion__: You may not bother about the date/time of the time stamp you
 currently look at unless you must make sure that the date/time is as expected.
-So, if you get a capture file from a different time zone and/or DST, you'll have
+So, if you get a capture file from a different time zone and/or DST, you’ll have
 to find out the time zone/DST difference between the two local times and
-``mentally adjust'' the time stamps accordingly. In any case, make sure that
+“mentally adjust” the time stamps accordingly. In any case, make sure that
 every computer in question has the correct time and time zone setting.
 
 [[ChAdvReassemblySection]]
@@ -773,7 +773,7 @@ every computer in question has the correct time and time zone setting.
 Network protocols often need to transport large chunks of data which are
 complete in themselves, e.g. when transferring a file. The underlying protocol
 might not be able to handle that chunk size (e.g. limitation of the network
-packet size), or is stream-based like TCP, which doesn't know data chunks at
+packet size), or is stream-based like TCP, which doesn’t know data chunks at
 all.
 
 In that case the network protocol has to handle the chunk boundaries itself and
@@ -789,16 +789,16 @@ defragmentation, etc).
 For some of the network protocols Wireshark knows of, a mechanism is implemented
 to find, decode and display these chunks of data. Wireshark will try to find the
 corresponding packets of this chunk, and will show the combined data as
-additional pages in the ``Packet Bytes'' pane (for information about this pane.
+additional pages in the “Packet Bytes” pane (for information about this pane.
 See <<ChUsePacketBytesPaneSection>>).
 
 [[ChAdvWiresharkBytesPaneTabs]]
 
-.The ``Packet Bytes'' pane with a reassembled tab
+.The “Packet Bytes” pane with a reassembled tab
 image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
 
 Reassembly might take place at several protocol layers, so it’s possible that
-multiple tabs in the ``Packet Bytes'' pane appear.
+multiple tabs in the “Packet Bytes” pane appear.
 
 [NOTE]
 ====
@@ -807,7 +807,7 @@ You will find the reassembled data in the last packet of the chunk.
 
 For example, in a _HTTP_ GET response, the requested data (e.g. an HTML page) is
 returned. Wireshark will show the hex dump of the data in a new tab
-``Uncompressed entity body'' in the ``Packet Bytes'' pane.
+“Uncompressed entity body” in the “Packet Bytes” pane.
 
 Reassembly is enabled in the preferences by default but can be disabled in the
 preferences for the protocol in question. Enabling or disabling reassembly
@@ -849,7 +849,7 @@ you hours of work. Unfortunately, it also has its drawbacks.
 * _The resolved names are not stored in the capture file or somewhere else._ So
   the resolved names might not be available if you open the capture file later
   or on a different machine. Each time you open a capture file it may look
-  ``slightly different'' simply because you can't connect to the name server
+  “slightly different” simply because you can’t connect to the name server
   (which you could connect to before).
 
 * _DNS may add additional packets to your capture file._ You may see packets
@@ -860,22 +860,22 @@ you hours of work. Unfortunately, it also has its drawbacks.
 
 * _Resolved DNS names are cached by Wireshark._ This is required for acceptable
   performance. However, if the name resolution information should change while
-  Wireshark is running, Wireshark won't notice a change in the name resolution
+  Wireshark is running, Wireshark won’t notice a change in the name resolution
   information once it gets cached. If this information changes while Wireshark
-  is running, e.g. a new DHCP lease takes effect, Wireshark won't notice it.
+  is running, e.g. a new DHCP lease takes effect, Wireshark won’t notice it.
 
 // XXX Is this true for all or only for DNS info?
 
 Name resolution in the packet list is done while the list is filled. If a name
-can be resolved after a packet is added to the list, its former entry won't be
+can be resolved after a packet is added to the list, its former entry won’t be
 changed. As the name resolution results are cached, you can use
 menu:View[Reload] to rebuild the packet list with the correctly resolved names.
-However, this isn't possible while a capture is in progress.
+However, this isn’t possible while a capture is in progress.
 
 ==== Ethernet name resolution (MAC layer)
 
 Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to something
-more ``human readable''.
+more “human readable”.
 
 __ARP name resolution (system service)__: Wireshark will ask the operating
 system to convert an Ethernet address to the corresponding IP address (e.g.
@@ -893,8 +893,8 @@ an abbreviated manufacturer name, which has been assigned by the IEEE (e.g.
 
 ==== IP name resolution (network layer)
 
-Try to resolve an IP address (e.g. 216.239.37.99) to something more ``human
-readable''.
+Try to resolve an IP address (e.g. 216.239.37.99) to something more “human
+readable”.
 
 __DNS name resolution (system/library service)__: Wireshark will use a name
 resolver to convert an IP address to the hostname associated with it
@@ -915,13 +915,13 @@ server is unavailable, this might take quite a while (several seconds).
 [WARNING]
 ====
 To provide acceptable performance Wireshark depends on
-an asynchronous DNS library to do name resolution. If one isn't available
+an asynchronous DNS library to do name resolution. If one isn’t available
 during compilation the feature will be unavailable.
 ====
 
 The asynchronous DNS service works a bit differently. It will also ask the DNS
-server, but it won't wait for the answer. It will just return to Wireshark in a
-very short amount of time. The actual (and the following) address fields won't
+server, but it won’t wait for the answer. It will just return to Wireshark in a
+very short amount of time. The actual (and the following) address fields won’t
 show the resolved name until the DNS server returns an answer. As mentioned
 above, the values get cached, so you can use menu:View[Reload] to “update” these
 fields to show the resolved values.
@@ -932,7 +932,7 @@ hosts file provided by the user (e.g. 216.239.37.99 -> www.google.com).
 
 ==== TCP/UDP port name resolution (transport layer)
 
-Try to resolve a TCP/UDP port (e.g. 80) to something more ``human readable''.
+Try to resolve a TCP/UDP port (e.g. 80) to something more “human readable”.
 
 __TCP/UDP port conversion (system service)__: Wireshark will ask the operating
 system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
@@ -941,7 +941,7 @@ system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
 
 To get a descriptive name for a VLAN tag ID a vlans file can be used.
 
-// XXX - mention the role of the /etc/services file (but don't forget the files and folders section)!
+// XXX - mention the role of the /etc/services file (but don’t forget the files and folders section)!
 
 [[ChAdvChecksums]]
 
@@ -965,7 +965,7 @@ Because of these transmission errors, network protocols very often use checksums
 to detect such errors. The transmitter will calculate a checksum of the data and
 transmits the data together with the checksum. The receiver will calculate the
 checksum of the received data with the same algorithm as the transmitter. If the
-received and calculated checksums don't match a transmission error has occurred.
+received and calculated checksums don’t match a transmission error has occurred.
 
 Some checksum algorithms are able to recover (simple) errors by calculating
 where the expected error must be and repairing it.
@@ -994,7 +994,7 @@ Further information about checksums can be found at:
 
 Wireshark will validate the checksums of many protocols, e.g. IP, TCP, UDP, etc.
 
-It will do the same calculation as a ``normal receiver'' would do, and shows the
+It will do the same calculation as a “normal receiver” would do, and shows the
 checksum fields in the packet details with a comment, e.g. [correct] or
 [invalid, must be 0x12345678].
 
@@ -1002,7 +1002,7 @@ Checksum validation can be switched off for various protocols in the Wireshark
 protocol preferences, e.g. to (very slightly) increase performance.
 
 If the checksum validation is enabled and it detected an invalid checksum,
-features like packet reassembly won't be processed. This is avoided as
+features like packet reassembly won’t be processed. This is avoided as
 incorrect connection data could “confuse” the internal database.
 
 ==== Checksum offloading
@@ -1012,14 +1012,14 @@ even in hardware.
 
 For example: The Ethernet transmitting hardware calculates the Ethernet CRC32
 checksum and the receiving hardware validates this checksum. If the received
-checksum is wrong Wireshark won't even see the packet, as the Ethernet hardware
+checksum is wrong Wireshark won’t even see the packet, as the Ethernet hardware
 internally throws away the packet.
 
 Higher level checksums are “traditionally” calculated by the protocol
 implementation and the completed packet is then handed over to the hardware.
 
 Recent network hardware can perform advanced features such as IP checksum
-calculation, also known as checksum offloading. The network driver won't
+calculation, also known as checksum offloading. The network driver won’t
 calculate the checksum itself but will simply hand over an empty (zero or
 garbage filled) checksum field to the hardware.
 

@@ -22,7 +22,7 @@ can even be played.
 The RTP analysis function takes the selected RTP stream (and the reverse stream,
 if possible) and generates a list of statistics on it.
 
-.The ``RTP Stream Analysis'' window
+.The “RTP Stream Analysis” window
 image::wsug_graphics/ws-tel-rtpstream-analysis.png[{screenshot-attrs}]
 
 Starting with basic data as packet number and sequence number, further
@@ -40,7 +40,7 @@ a to export and plot various statistics on the RTP streams.
 
 === IAX2 Analysis
 
-The ``IAX2 Analysis'' dialog shows statistics for the forward and reverse
+The “IAX2 Analysis” dialog shows statistics for the forward and reverse
 streams of a selected IAX2 call along with a graph.
 
 [[ChTelVoipCalls]]
@@ -68,7 +68,7 @@ More details can be found on the
 Statistics of the captured LTE MAC traffic. This window will summarize the LTE
 MAC traffic found in the capture.
 
-.The ``LTE MAC Traffic Statistics'' window
+.The “LTE MAC Traffic Statistics” window
 image::wsug_graphics/ws-stats-lte-mac-traffic.png[{screenshot-attrs}]
 
 The top pane shows statistics for common channels. Each row in the middle pane
@@ -83,7 +83,7 @@ individual channel.
 Statistics of the captured LTE RLC traffic. This window will summarize the LTE
 RLC traffic found in the capture.
 
-.The ``LTE RLC Traffic Statistics'' window
+.The “LTE RLC Traffic Statistics” window
 image::wsug_graphics/ws-stats-lte-rlc-traffic.png[{screenshot-attrs}]
 
 At the top, the check-box allows this window to include RLC PDUs found within

@@ -91,8 +91,8 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 |kbd:[Tab] or kbd:[Shift+Tab]|Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
 |kbd:[↓]                   |Move to the next packet or detail item.
 |kbd:[↑]                   |Move to the previous packet or detail item.
-|kbd:[Ctrl+↓] or kbd:[F8]  |Move to the next packet, even if the packet list isn't focused.
-|kbd:[Ctrl+↑] or kbd:[F7]  |Move to the previous packet, even if the packet list isn't focused.
+|kbd:[Ctrl+↓] or kbd:[F8]  |Move to the next packet, even if the packet list isn’t focused.
+|kbd:[Ctrl+↑] or kbd:[F7]  |Move to the previous packet, even if the packet list isn’t focused.
 |kbd:[Ctrl+.]              |Move to the next packet of the conversation (TCP, UDP or IP).
 |kbd:[Ctrl+&#44;]          |Move to the previous packet of the conversation (TCP, UDP or IP).
 |kbd:[Alt+→] or kbd:[Option+→] (macOS) |Move to the next packet in the selection history.
@@ -120,8 +120,8 @@ Linux) or at the top of your main screen (macOS). An example is shown in
 
 [NOTE]
 ====
-Some menu items will be disabled (greyed out) if the corresponding feature isn't
-available. For example, you cannot save a capture file if you haven't captured
+Some menu items will be disabled (greyed out) if the corresponding feature isn’t
+available. For example, you cannot save a capture file if you haven’t captured
 or loaded any packets.
 ====
 
@@ -187,7 +187,7 @@ Each of these menu items is described in more detail in the sections that follow
 ====
 Most common menu items have keyboard shortcuts. For example, you can
 press the Control (or Strg in German) and the K keys together to open the
-``Capture Options'' dialog.
+“Capture Options” dialog.
 ====
 
 [[ChUseFileMenuSection]]
@@ -225,7 +225,7 @@ text file containing a hex dump into a new temporary capture. It is discussed in
 more detail in <<ChIOImportSection>>.
 
 |menu:Close[]                         |kbd:[Ctrl+W]|
-This menu item closes the current capture. If you haven't saved the capture, you
+This menu item closes the current capture. If you haven’t saved the capture, you
 will be asked to do so first (this can be disabled by a preference setting).
 
 |menu:Save[]                          |kbd:[Ctrl+S]|
@@ -251,12 +251,12 @@ Wireshark List File Set dialog box (which is discussed further in
 
 |menu:File Set[Next File]             ||
 If the currently loaded file is part of a file set, jump to the next file in the
-set. If it isn't part of a file set or just the last file in that set, this item
+set. If it isn’t part of a file set or just the last file in that set, this item
 is greyed out.
 
 |menu:File Set[Previous File]         ||
 If the currently loaded file is part of a file set, jump to the previous file in
-the set. If it isn't part of a file set or just the first file in that set, this
+the set. If it isn’t part of a file set or just the first file in that set, this
 item is greyed out.
 
 |menu:Export Specified Packets...[]                 ||
@@ -281,7 +281,7 @@ file. It pops up the Wireshark Print dialog box (which is discussed further in
 
 |menu:Quit[]                          |kbd:[Ctrl+Q]|
 This menu item allows you to quit from Wireshark. Wireshark will ask to save
-your capture file if you haven't previously saved it (this can be disabled by a
+your capture file if you haven’t previously saved it (this can be disabled by a
 preference setting).
 
 |===============
@@ -311,12 +311,12 @@ criteria. There is further information on finding packets in
 <<ChWorkFindPacketSection>>.
 
 |menu:Find Next[]                             |kbd:[Ctrl+N]      |
-This menu item tries to find the next packet matching the settings from ``Find
-Packet...''.
+This menu item tries to find the next packet matching the settings from “Find
+Packet...”.
 
 |menu:Find Previous[]                         |kbd:[Ctrl+B]      |
 This menu item tries to find the previous packet matching the settings from
-``Find Packet...''.
+“Find Packet...”.
 
 |menu:Mark/Unmark Packet[]                    |kbd:[Ctrl+M]      |
 This menu item marks the currently selected packet. See
@@ -408,9 +408,9 @@ image::wsug_graphics/ws-view-menu.png[{screenshot-attrs}]
 |menu:Packet Bytes[]    ||This menu item hides or shows the packet bytes pane, see <<ChUsePacketBytesPaneSection>>.
 |menu:Time Display Format[Date and Time of Day: 1970-01-01 01:02:03.123456]|| Selecting this tells Wireshark to display the time stamps in date and time of day format, see <<ChWorkTimeFormatsSection>>.
 
-The fields "Time of Day", "Date and Time of Day", "Seconds Since Beginning of
-Capture", "Seconds Since Previous Captured Packet" and "Seconds Since Previous
-Displayed Packet" are mutually exclusive.
+The fields “Time of Day”, “Date and Time of Day”, “Seconds Since Beginning of
+Capture”, “Seconds Since Previous Captured Packet” and “Seconds Since Previous
+Displayed Packet” are mutually exclusive.
 
 |menu:Time Display Format[Time of Day: 01:02:03.123456]||Selecting this tells Wireshark to display time stamps in time of day format, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[Seconds Since Epoch (1970-01-01): 1234567890.123456]||Selecting this tells Wireshark to display time stamps in seconds since 1970-01-01 00:00:00, see <<ChWorkTimeFormatsSection>>.
@@ -419,7 +419,7 @@ Displayed Packet" are mutually exclusive.
 |menu:Time Display Format[Seconds Since Previous Displayed Packet: 1.123456]||Selecting this tells Wireshark to display time stamps in seconds since previous displayed packet format, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[Automatic (File Format Precision)]||Selecting this tells Wireshark to display time stamps with the precision given by the capture file format used, see <<ChWorkTimeFormatsSection>>.
 
-The fields "Automatic", "Seconds" and "...seconds" are mutually exclusive.
+The fields “Automatic”, “Seconds” and “...seconds” are mutually exclusive.
 
 |menu:Time Display Format[Seconds: 0]||Selecting this tells Wireshark to display time stamps with a precision of one second, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[...seconds: 0....]||Selecting this tells Wireshark to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see <<ChWorkTimeFormatsSection>>.
@@ -472,13 +472,13 @@ image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 |menu:Back[]                            |kbd:[Alt+←] |Jump to the recently visited packet in the packet history, much like the page history in a web browser.
 |menu:Forward[]                         |kbd:[Alt+→] |Jump to the next visited packet in the packet history, much like the page history in a web browser.
 |menu:Go to Packet...[]                 |kbd:[Ctrl+G]       |Bring up a window frame that allows you to specify a packet number, and then goes to that packet. See <<ChWorkGoToPacketSection>> for details.
-|menu:Go to Corresponding Packet[]      |                   |Go to the corresponding packet of the currently selected protocol field. If the selected field doesn't correspond to a packet, this item is greyed out.
-|menu:Previous Packet[]                 |kbd:[Ctrl+↑]|Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
-|menu:Next Packet[]                     |kbd:[Ctrl+↓]|Move to the next packet in the list.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
+|menu:Go to Corresponding Packet[]      |                   |Go to the corresponding packet of the currently selected protocol field. If the selected field doesn’t correspond to a packet, this item is greyed out.
+|menu:Previous Packet[]                 |kbd:[Ctrl+↑]|Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
+|menu:Next Packet[]                     |kbd:[Ctrl+↓]|Move to the next packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |menu:First Packet[]                    |kbd:[Ctrl+Home]    |Jump to the first packet of the capture file.
 |menu:Last Packet[]                     |kbd:[Ctrl+End]     |Jump to the last packet of the capture file.
-|menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#44;]  |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
-|menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn't have keyboard focus.
+|menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#44;]  |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
+|menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |===============
 
 [[ChUseCaptureMenuSection]]
@@ -523,13 +523,13 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 |menu:Display Filter Macros...[]    ||This menu item brings up a dialog box that allows you to create and edit display filter macros. You can name filter macros, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterMacrosSection>>
 |menu:Apply as Column[]             ||This menu item adds the selected protocol item in the packet details pane as a column to the packet list.
 |menu:Apply as Filter[...]          ||These menu items will change the current display filter and apply the changed filter immediately. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.
-|menu:Prepare a Filter[...]         ||These menu items will change the current display filter but won't apply the changed filter. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.
+|menu:Prepare a Filter[...]         ||These menu items will change the current display filter but won’t apply the changed filter. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.
 |menu:Enabled Protocols...[]        |kbd:[Shift+Ctrl+E]|This menu item allows the user to enable/disable protocol dissectors, see <<ChAdvEnabledProtocols>>
 |menu:Decode As...[]                ||This menu item allows the user to force Wireshark to decode certain packets as a particular protocol, see <<ChAdvDecodeAs>>
 |menu:User Specified Decodes...[]   ||This menu item allows the user to force Wireshark to decode certain packets as a particular protocol, see <<ChAdvDecodeAsShow>>
 |menu:Follow TCP Stream[]           ||This menu item brings up a separate window and displays all the TCP segments captured that are on the same TCP connection as a selected packet, see <<ChAdvFollowTCPSection>>
-|menu:Follow UDP Stream[]           ||Same functionality as ``Follow TCP Stream'' but for UDP streams.
-|menu:Follow SSL Stream[]           ||Same functionality as ``Follow TCP Stream'' but for SSL streams. See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions on providing SSL keys.
+|menu:Follow UDP Stream[]           ||Same functionality as “Follow TCP Stream” but for UDP streams.
+|menu:Follow SSL Stream[]           ||Same functionality as “Follow TCP Stream” but for SSL streams. See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions on providing SSL keys.
 |menu:Expert Info[]                 ||Open a dialog showing some expert information about the captured packets. The amount of information will depend on the protocol and varies from  very detailed to non-existent. XXX - add a new section about this and link from here
 |menu:Conversation Filter[...]      ||In this menu you will find conversation filter for various protocols.
 |===============
@@ -628,7 +628,7 @@ image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
 
 It is assumed that the rules will be applied to an outside interface.
 
-|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark. See the ``Lua Support in Wireshark'' in the Wireshark Developer’s Guide.
+|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark. See the “Lua Support in Wireshark” in the Wireshark Developer’s Guide.
 |===============
 
 [[ChUseInternalsMenuSection]]
@@ -696,7 +696,7 @@ View menu, if the space on the screen is needed to show even more packet data.
 
 As in the menu, only the items useful in the current program state will be
 available. The others will be greyed out (e.g. you cannot save a capture file if
-you haven't loaded one).
+you haven’t loaded one).
 
 [[ChUseWiresharkMainToolbar]]
 
@@ -760,12 +760,12 @@ image::wsug_graphics/ws-filter-toolbar.png[{screenshot-attrs}]
 |image:wsug_graphics/toolbar/display_filter_24.png[{toolbar-icon-attrs}]|btn:[Filter:]|Brings up the filter construction dialog, described in <<FiltersDialog>>.
 ||_Filter input_|The area to enter or edit a display filter string, see <<ChWorkBuildDisplayFilterSection>>. A syntax check of your filter string is done while you are typing. The background will turn red if you enter an incomplete or invalid string, and will become green when you enter a valid string. You can click on the pull down arrow to select a previously-entered filter string from a list. The entries in the pull down list will remain available even after a program restart.
 
-After you've changed something in this field, don't forget to press the Apply
+After you’ve changed something in this field, don’t forget to press the Apply
 button (or the Enter/Return key), to apply this filter string to the display.
 
 This field is also where the current filter in effect is displayed.
 
-|image:wsug_graphics/toolbar/stock_add_24.png[{toolbar-icon-attrs}]     |btn:[Expression...]|The middle button labeled "Add Expression..." opens a dialog box that lets you edit a display filter from a list of protocol fields, described in <<ChWorkFilterAddExpressionSection>>
+|image:wsug_graphics/toolbar/stock_add_24.png[{toolbar-icon-attrs}]     |btn:[Expression...]|The middle button labeled “Add Expression...” opens a dialog box that lets you edit a display filter from a list of protocol fields, described in <<ChWorkFilterAddExpressionSection>>
 |image:wsug_graphics/toolbar/stock_clear_24.png[{toolbar-icon-attrs}]   |btn:[Clear]|Reset the current display filter and clears the edit area.
 |image:wsug_graphics/toolbar/stock_apply_20.png[{toolbar-icon-attrs}]   |btn:[Apply]|Apply the current value in the edit area as the new display filter.
 
@@ -775,17 +775,17 @@ Applying a display filter on large capture files might take quite a long time.
 
 [[ChUsePacketListPaneSection]]
 
-=== The ``Packet List'' pane
+=== The “Packet List” pane
 
 The packet list pane displays all the packets in the current capture file.
 
 [[ChUseWiresharkListPane]]
-.The ``Packet List'' pane
+.The “Packet List” pane
 image::wsug_graphics/ws-list-pane.png[{screenshot-attrs}]
 
 Each line in the packet list corresponds to one packet in the capture file. If
-you select a line in this pane, more details will be displayed in the ``Packet
-Details'' and ``Packet Bytes'' panes.
+you select a line in this pane, more details will be displayed in the “Packet
+Details” and “Packet Bytes” panes.
 
 While dissecting a packet, Wireshark will place information from the protocol
 dissectors into the columns. As higher level protocols might overwrite
@@ -802,7 +802,7 @@ be selected by preference settings, see <<ChCustPreferencesSection>>.
 
 The default columns will show:
 
-* btn:[No.] The number of the packet in the capture file. This number won't
+* btn:[No.] The number of the packet in the capture file. This number won’t
   change, even if a display filter is used.
 
 * btn:[Time] The timestamp of the packet. The presentation format of this
@@ -873,18 +873,18 @@ Right clicking will show a context menu, described in
 
 [[ChUsePacketDetailsPaneSection]]
 
-=== The ``Packet Details'' pane
+=== The “Packet Details” pane
 
-The packet details pane shows the current packet (selected in the ``Packet List''
+The packet details pane shows the current packet (selected in the “Packet List”
 pane) in a more detailed form.
 
 [[ChUseWiresharkDetailsPane]]
 
-.The ``Packet Details'' pane
+.The “Packet Details” pane
 image::wsug_graphics/ws-details-pane.png[{screenshot-attrs}]
 
 This pane shows the protocols and protocol fields of the packet selected in the
-``Packet List'' pane. The protocols and fields of the packet shown in a tree
+“Packet List” pane. The protocols and fields of the packet shown in a tree
 which can be expanded and collapsed.
 
 There is a context menu (right mouse click) available. See details in
@@ -893,7 +893,7 @@ There is a context menu (right mouse click) available. See details in
 Some protocol fields have special meanings.
 
 * *Generated fields.* Wireshark itself will generate additional protocol
-  information which isn't present in the captured data. This information is
+  information which isn’t present in the captured data. This information is
   enclosed in square brackets (“[” and “]”). Generated information includes
   response times, TCP analysis, GeoIP information, and checksum validation.
 
@@ -904,17 +904,17 @@ Some protocol fields have special meanings.
 
 [[ChUsePacketBytesPaneSection]]
 
-=== The ``Packet Bytes'' pane
+=== The “Packet Bytes” pane
 
 The packet bytes pane shows the data of the current packet (selected in the
-``Packet List'' pane) in a hexdump style.
+“Packet List” pane) in a hexdump style.
 
 [[ChUseWiresharkBytesPane]]
 
-.The ``Packet Bytes'' pane
+.The “Packet Bytes” pane
 image::wsug_graphics/ws-bytes-pane.png[{screenshot-attrs}]
 
-The ``Packet Bytes'' pane shows a canonical
+The “Packet Bytes” pane shows a canonical
 https://en.wikipedia.org/wiki/Hex_dump[hex dump] of the packet data. Each line
 contains the data offset, sixteen hexadecimal bytes, and sixteen ASCII bytes.
 Non-printalbe bytes are replaced with a period (“.”).
@@ -925,7 +925,7 @@ when Wireshark has reassembled some packets into a single chunk of data. (See
 source by clicking its corresponding tab at the bottom of the pane.
 
 [[ChUseWiresharkBytesPaneTabs]]
-.The ``Packet Bytes'' pane with tabs
+.The “Packet Bytes” pane with tabs
 image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
 
 Additional pages typically contain data reassembled from multiple packets or
@@ -998,8 +998,8 @@ For a detailed description of configuration profiles, see <<ChCustConfigProfiles
 .The Statusbar with a selected protocol field
 image::wsug_graphics/ws-statusbar-selected.png[{statusbar-attrs}]
 
-This is displayed if you have selected a protocol field from the ``Packet
-Details'' pane.
+This is displayed if you have selected a protocol field from the “Packet
+Details” pane.
 
 
 [TIP]

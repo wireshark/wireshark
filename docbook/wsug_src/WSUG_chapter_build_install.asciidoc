@@ -80,7 +80,7 @@ On the _Choose Components_ page of the installer you can select from the followi
 
 * *Wireshark* - The network protocol analyzer that we all know and mostly love.
 
-* *TShark* - A command-line network protocol analyzer. If you haven't tried it
+* *TShark* - A command-line network protocol analyzer. If you haven’t tried it
   you should.
 
 * *Wireshark 1 Legacy* - The old (GTK+) user interface in case you need it.
@@ -141,9 +141,9 @@ Files\Wireshark` on most systems.
 
 The Wireshark installer contains the latest WinPcap installer.
 
-If you don't have WinPcap installed you won't be able to capture live network
+If you don’t have WinPcap installed you won’t be able to capture live network
 traffic but you will still be able to open saved capture files. By default the
-latest version of WinPcap will be installed. If you don't wish to do this or if
+latest version of WinPcap will be installed. If you don’t wish to do this or if
 you wish to reinstall WinPcap you can check the _Install WinPcap_ box as needed.
 
 For more information about WinPcap see {winpcap-main-url} and
@@ -160,11 +160,11 @@ For special cases, there are some command line parameters available:
   silent installer *will not* install WinPCap.
 
 * `/desktopicon` installation of the desktop icon, `=yes` - force installation,
-  `=no` - don't install, otherwise use default settings. This option can be
+  `=no` - don’t install, otherwise use default settings. This option can be
   useful for a silent installer.
 
 * `/quicklaunchicon` installation of the quick launch icon, `=yes` - force
-  installation, `=no` - don't install, otherwise use default settings.
+  installation, `=no` - don’t install, otherwise use default settings.
 
 * `/D` sets the default installation directory ($INSTDIR), overriding InstallDir
   and InstallDirRegKey. It must be the last parameter used in the command line
@@ -221,7 +221,7 @@ version.
 ==== Uninstall Wireshark
 
 You can uninstall Wireshark using the _Programs and Features_ control panel.
-Select the "Wireshark" entry to start the uninstallation procedure.
+Select the “Wireshark” entry to start the uninstallation procedure.
 
 The Wireshark uninstaller provides several options for removal. The default is
 to remove the core components but keep your personal settings and WinPcap.
@@ -233,7 +233,7 @@ WinPcap is left installed by default in case other programs need it.
 
 You can uninstall WinPcap independently of Wireshark using the _WinPcap_ entry
 in the _Programs and Features_ control panel. Remember that if you uninstall
-WinPcap you won't be able to capture anything with Wireshark.
+WinPcap you won’t be able to capture anything with Wireshark.
 
 //
 // macOS
@@ -339,7 +339,7 @@ together with the Qt GUI:
 yum install wireshark wireshark-qt
 ----
 
-If you've built your own RPMs from the Wireshark sources you can install them
+If you’ve built your own RPMs from the Wireshark sources you can install them
 by running, for example:
 
 ----
@@ -365,13 +365,13 @@ Use the following command to install downloaded Wireshark debs under Debian:
 $ dpkg -i wireshark-common_2.0.5.0-1_i386.deb wireshark_wireshark-2.0.5.0-1_i386.deb
 ----
 
-dpkg doesn't take care of all dependencies, but reports what’s missing.
+dpkg doesn’t take care of all dependencies, but reports what’s missing.
 
 
 [NOTE]
 .Capturing requires privileges
 ====
-By installing Wireshark packages non-root users won't gain rights automatically
+By installing Wireshark packages non-root users won’t gain rights automatically
 to capture packets. To allow non-root users to capture packets follow the
 procedure described in
 file:///usr/share/doc/wireshark-common/README.Debian[/usr/share/doc/wireshark-common/README.Debian]
@@ -408,8 +408,8 @@ file `config.log` in the source directory to find out what failed. The last few
 lines of this file should help in determining the problem.
 
 The standard problems are that you do not have a required development package on
-your system or that the development package isn't new enough. Note that
-installing a library package isn't enough. You need to install its development
+your system or that the development package isn’t new enough. Note that
+installing a library package isn’t enough. You need to install its development
 package as well. `configure` will also fail if you do not have libpcap (at least
 the required include files) on your system.
 

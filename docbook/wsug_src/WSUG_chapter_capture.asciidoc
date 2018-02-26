@@ -37,7 +37,7 @@ The capture engine still lacks the following features:
 === Prerequisites
 
 Setting up Wireshark to capture packets for the first time can be
-tricky. A comprehensive guide ``How To setup a Capture'' is available at
+tricky. A comprehensive guide “How To setup a Capture” is available at
 {wireshark-wiki-url}CaptureSetup.
 
 Here are some common pitfalls:
@@ -60,8 +60,8 @@ The following methods can be used to start capturing packets with Wireshark:
 
 * You can double-click on an interface in the main window.
 
-* You can get an overview of the available interfaces using the ``Capture
-  Interfaces'' dialog box (menu:Capture[Options...]). See
+* You can get an overview of the available interfaces using the “Capture
+  Interfaces” dialog box (menu:Capture[Options...]). See
   <<ChCapCaptureInterfacesDialogWin32>> or <<ChCapCaptureInterfacesDialog>> for
   more information. You can start a capture from this dialog box using the
   btn:[Start] button.
@@ -81,17 +81,17 @@ at <<ChCustCommandLine>>.
 
 [[ChCapInterfaceSection]]
 
-=== The ``Capture Interfaces'' dialog box
+=== The “Capture Interfaces” dialog box
 
 When you select menu:Capture[Options...] from the main menu Wireshark pops up
-the ``Capture Interfaces'' dialog box as shown in
+the “Capture Interfaces” dialog box as shown in
 <<ChCapCaptureInterfacesDialogWin32>> or <<ChCapCaptureInterfacesDialog>>.
 
 // XXX Not sure this is the case any more
 //[WARNING]
 //.This dialog consumes lots of system resources
 //====
-//As the ``Capture Interfaces'' dialog is showing live captured data, it is
+//As the “Capture Interfaces” dialog is showing live captured data, it is
 //consuming a lot of system resources. Close this dialog as soon as possible to
 //prevent excessive system load.
 //====
@@ -111,12 +111,12 @@ simultaneously.
 
 [[ChCapCaptureInterfacesDialogWin32]]
 
-.The ``Capture Interfaces'' dialog box on Microsoft Windows
+.The “Capture Interfaces” dialog box on Microsoft Windows
 image::wsug_graphics/ws-capture-interfaces-win32.png[{screenshot-attrs}]
 
 [[ChCapCaptureInterfacesDialog]]
 
-.The ``Capture Interfaces'' dialog box on Unix/Linux
+.The “Capture Interfaces” dialog box on Unix/Linux
 image::wsug_graphics/ws-capture-interfaces.png[{screenshot-attrs}]
 
 _Device (Unix/Linux only)_::
@@ -163,14 +163,14 @@ Close this dialog box.
 
 [[ChCapCaptureOptions]]
 
-=== The ``Capture Options'' dialog box
+=== The “Capture Options” dialog box
 
 When you select menu:Capture[Options...] (or use the corresponding item in the
-main toolbar), Wireshark pops up the ``Capture Options'' dialog box as shown in
+main toolbar), Wireshark pops up the “Capture Options” dialog box as shown in
 <<ChCapCaptureOptionsDialog>>.
 
 [[ChCapCaptureOptionsDialog]]
-.The ``Capture Options'' dialog box
+.The “Capture Options” dialog box
 image::wsug_graphics/ws-capture-options.png[{screenshot-attrs}]
 
 [TIP]
@@ -207,7 +207,7 @@ Loopback interfaces are not available on Windows platforms.
 * The chosen capture filter.
 
 By marking the checkboxes in the first column the interfaces are selected to be
-captured from. By double-clicking on an interface the ``Edit Interface Settings''
+captured from. By double-clicking on an interface the “Edit Interface Settings”
 dialog box as shown in <<ChCapEditInterfacesSettingsDialog>> will be opened.
 
 _Capture on all interfaces_::
@@ -301,7 +301,7 @@ Stop capturing after the given number of packets have been captured.
 _... after n megabytes(s)_::
 Stop capturing after the given number of
 byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been captured. This option is
-greyed out if ``Use multiple files'' is selected.
+greyed out if “Use multiple files” is selected.
 
 _... after n minute(s)_::
 Stop capturing after the given number of second(s)/minutes(s)/hours(s)/days(s)
@@ -320,7 +320,7 @@ This option allows you to specify that Wireshark should scroll the packet list
 pane as new packets come in, so you are always looking at the last packet. If
 you do not specify this Wireshark simply adds new packets onto the end of the
 list but does not scroll the packet list pane. This option is greyed out if
-``Update list of packets in real time'' is disabled.
+“Update list of packets in real time” is disabled.
 
 // XXX ChCapRunningSection currently disabled
 //_Hide capture info dialog_::
@@ -352,12 +352,12 @@ cancel the capture.
 
 [[ChCapEditInterfaceSettingsSection]]
 
-=== The ``Edit Interface Settings'' dialog box
+=== The “Edit Interface Settings” dialog box
 
 If you double-click on an interface in <<ChCapCaptureOptionsDialog>> the following dialog box pops up.
 
 [[ChCapEditInterfacesSettingsDialog]]
-.The ``Edit Interface Settings'' dialog box
+.The “Edit Interface Settings” dialog box
 image::wsug_graphics/ws-capture-options-settings.png[{screenshot-attrs}]
 
 You can set the following fields in this dialog box:
@@ -389,7 +389,7 @@ segment).
 If some other process has put the interface in promiscuous mode you may be
 capturing in promiscuous mode even if you turn off this option.
 
-Even in promiscuous mode you still won't necessarily see all packets on your LAN
+Even in promiscuous mode you still won’t necessarily see all packets on your LAN
 segment. See link:{wireshark-faq-url}#promiscsniff[the Wireshark FAQ] for more information.
 ====
 
@@ -401,14 +401,14 @@ most protocols. Some rules of thumb:
 
 * If you are unsure just keep the default value.
 
-* If you don't need or don't want all of the data in a packet - for example, if
+* If you don’t need or don’t want all of the data in a packet - for example, if
   you only need the link-layer, IP, and TCP headers - you might want to choose a
   small snapshot length, as less CPU time is required for copying packets, less
   buffer space is required for packets, and thus perhaps fewer packets will be
   dropped if traffic is very heavy.
 
-* If you don't capture all of the data in a packet you might find that the
-  packet data you want is in the part that’s dropped or that reassembly isn't
+* If you don’t capture all of the data in a packet you might find that the
+  packet data you want is in the part that’s dropped or that reassembly isn’t
   possible as the data required for reassembly is missing.
 
 _Buffer size: n megabyte(s)_::
@@ -435,7 +435,7 @@ in more details in <<ChCapCaptureFilterSection>>. It defaults to empty, or no
 filter.
 +
 You can also click on the btn:[Capture Filter] button and Wireshark will
-bring up the ``Capture Filters'' dialog box and allow you to create and/or
+bring up the “Capture Filters” dialog box and allow you to create and/or
 select a filter. Please see <<ChWorkDefineFilterSection>>
 
 _Compile BPF_::
@@ -445,12 +445,12 @@ working of the capture filter you created.
 
 [[ChCapCompileSelectedBpfsSection]]
 
-=== The ``Compile Results'' dialog box
+=== The “Compile Results” dialog box
 
 This figure shows the compile results of the selected interfaces.
 
 [[ChCapCompileSelectedBpfsDialog]]
-.The ``Compile Results'' dialog box
+.The “Compile Results” dialog box
 image::wsug_graphics/ws-capture-options-compile-selected-bpfs.png[{screenshot-attrs}]
 
 In the left window the interface names are listed. The results of an individual
@@ -458,19 +458,19 @@ interface are shown in the right window when it is selected.
 
 [[ChCapManageInterfacesSection]]
 
-=== The ``Add New Interfaces'' dialog box
+=== The “Add New Interfaces” dialog box
 
 As a central point to manage interfaces this dialog box consists of three tabs
 to add or remove interfaces.
 
 [[ChCapManageInterfacesDialog]]
-.The ``Add New Interfaces'' dialog box
+.The “Add New Interfaces” dialog box
 image::wsug_graphics/ws-capture-options-manage-interfaces.png[{screenshot-attrs}]
 
 ==== Add or remove pipes
 
 [[ChCapManageInterfacesPipesDialog]]
-.The ``Add New Interfaces - Pipes'' dialog box
+.The “Add New Interfaces - Pipes” dialog box
 image::wsug_graphics/ws-capture-options-manage-interfaces-pipes.png[{screenshot-attrs}]
 
 To successfully add a pipe, this pipe must have already been created. Click the
@@ -485,10 +485,10 @@ click the btn:[Delete] button.
 ==== Add or hide local interfaces
 
 [[ChCapManageInterfacesLocalDialog]]
-.The ``Add New Interfaces - Local Interfaces'' dialog box
+.The “Add New Interfaces - Local Interfaces” dialog box
 image::wsug_graphics/ws-capture-options-manage-interfaces-local.png[{screenshot-attrs}]
 
-The tab ``Local Interfaces'' contains a list of available local interfaces,
+The tab “Local Interfaces” contains a list of available local interfaces,
 including the hidden ones, which are not shown in the other lists.
 
 If a new local interface is added, for example, a wireless interface has been
@@ -498,13 +498,13 @@ rescan can be done.
 
 One way to hide an interface is to change the preferences. If the “Hide”
 checkbox is activated and the btn:[Apply] button clicked, the interface will
-not be seen in the lists of the ``Capture Interfaces'' dialog box any more. The
+not be seen in the lists of the “Capture Interfaces” dialog box any more. The
 changes are also saved in the `preferences` file.
 
 ==== Add or hide remote interfaces
 
 [[ChCapManageInterfacesRemoteDialog]]
-.The ``Add New Interfaces - Remote Interfaces'' dialog box
+.The “Add New Interfaces - Remote Interfaces” dialog box
 image::wsug_graphics/ws-capture-options-manage-interfaces-remote.png[{screenshot-attrs}]
 
 In this tab interfaces on remote hosts can be added. One or more of these
@@ -518,7 +518,7 @@ For a detailed description see <<ChCapInterfaceRemoteSection>>
 
 [[ChCapInterfaceRemoteSection]]
 
-=== The ``Remote Capture Interfaces'' dialog box
+=== The “Remote Capture Interfaces” dialog box
 
 Besides doing capture on local interfaces Wireshark is capable of reaching out
 across the network to a so called capture daemon or service processes to receive
@@ -544,13 +544,13 @@ the port where the Remote Packet Capture Protocol service can be reached by
 default.
 ====
 
-To access the Remote Capture Interfaces dialog use the ``Add New Interfaces -
-Remote'' dialog. See <<ChCapManageInterfacesRemoteDialog>> and select btn:[Add].
+To access the Remote Capture Interfaces dialog use the “Add New Interfaces -
+Remote” dialog. See <<ChCapManageInterfacesRemoteDialog>> and select btn:[Add].
 
 ==== Remote Capture Interfaces
 
 [[ChCapInterfaceRemoteDialog]]
-.The ``Remote Capture Interfaces'' dialog box
+.The “Remote Capture Interfaces” dialog box
 image::wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png[{screenshot-attrs}]
 
 You have to set the following parameters in this dialog:
@@ -559,14 +559,14 @@ _Host_::
 Enter the IP address or host name of the target platform where the Remote Packet
 Capture Protocol service is listening. The drop down list contains the hosts
 that have previously been successfully contacted. The list can be emptied by
-choosing ``Clear list'' from the drop down list.
+choosing “Clear list” from the drop down list.
 
 _Port_::
 Set the port number where the Remote Packet Capture Protocol service is
 listening on. Leave open to use the default port (2002).
 
 _Null authentication_::
-Select this if you don't need authentication to take place for a remote capture
+Select this if you don’t need authentication to take place for a remote capture
 to be started. This depends on the target platform. Configuring the target
 platform like this makes it insecure.
 
@@ -582,14 +582,14 @@ you this option. It pops up the dialog shown in
 <<ChCapInterfaceRemoteSettingsDialog>>.
 
 [[ChCapInterfaceRemoteSettingsDialog]]
-.The ``Remote Capture Settings'' dialog box
+.The “Remote Capture Settings” dialog box
 image::wsug_graphics/ws-capture-options-remote-settings.png[{screenshot-attrs}]
 
 You can set the following parameters in this dialog:
 
 _Do not capture own RPCAP traffic_::
 This option sets a capture filter so that the traffic flowing back from the
-Remote Packet Capture Protocol service to Wireshark isn't captured as well and
+Remote Packet Capture Protocol service to Wireshark isn’t captured as well and
 also send back. The recursion in this saturates the link with duplicate traffic.
 +
 You only should switch this off when capturing on an interface other than the
@@ -618,10 +618,10 @@ narrow band capture session of a higher bandwidth interface.
 
 [[ChCapInterfaceDetailsSection]]
 
-=== The ``Interface Details'' dialog box
+=== The “Interface Details” dialog box
 
 When you select Details from the Capture Interface menu, Wireshark pops up the
-``Interface Details'' dialog box as shown in <<ChCapInterfaceDetailsDialog>>. This
+“Interface Details” dialog box as shown in <<ChCapInterfaceDetailsDialog>>. This
 dialog shows various characteristics and statistics for the selected interface.
 
 [NOTE]
@@ -631,7 +631,7 @@ This dialog is only available on Microsoft Windows
 ====
 
 [[ChCapInterfaceDetailsDialog]]
-.The ``Interface Details'' dialog box
+.The “Interface Details” dialog box
 image::wsug_graphics/ws-capture-interface-details.png[{screenshot-attrs}]
 
 [[ChCapCaptureFiles]]
@@ -646,7 +646,7 @@ By default Wireshark saves packets to a temporary file. You can also tell
 Wireshark to save to a specific (“permanent”) file and switch to a
 different file after a given time has elapsed or a given number of packets
 have been captured. These options are controlled in the “Output” tab in
-the ``Capture Options'' dialog.
+the “Capture Options” dialog.
 
 [[ChCapCaptureOptionsOutputDialog]]
 .Capture output options
@@ -656,7 +656,7 @@ image::wsug_graphics/ws-capture-options-output.png[{screenshot-attrs}]
 ====
 Working with large files (several hundred MB) can be quite slow. If you plan to do
 a long term capture or capturing from a high traffic network, think about using
-one of the ``Multiple files'' options. This will spread the captured packets over
+one of the “Multiple files” options. This will spread the captured packets over
 several smaller files which can be much more pleasant to work with.
 ====
 
@@ -676,7 +676,7 @@ Information about the folders used for capture files can be found in
 .Capture file mode selected by capture options
 [options="header",cols="2,2,2,3,5"]
 |===============
-|File Name|``Create a new file...''|``Use a ring buffer...''|Mode|Resulting filename(s) used
+|File Name|“Create a new file...”|“Use a ring buffer...”|Mode|Resulting filename(s) used
 |-|-|-|_Single temporary file_|wiresharkXXXXXX (where XXXXXX is a unique number)
 |foo.cap|-|-|_Single named file_|foo.cap
 |foo.cap|x|-|_Multiple files, continuous_|foo_00001_20100205110102.cap, foo_00002_20100205110318.cap, ...
@@ -692,14 +692,14 @@ _Single named file_::
   a specific folder choose this mode.
 
 _Multiple files, continuous_::
-  Like the ``Single named file'' mode, but a new file is created and used after
-  reaching one of the multiple file switch conditions (one of the ``Next file every
-  ...'' values).
+  Like the “Single named file” mode, but a new file is created and used after
+  reaching one of the multiple file switch conditions (one of the “Next file every
+  ...” values).
 
 _Multiple files, ring buffer_::
-  Much like ``Multiple files continuous'', reaching one of the multiple files switch
-  conditions (one of the ``Next file every ...'' values) will switch to the next
-  file. This will be a newly created file if value of ``Ring buffer with n files''
+  Much like “Multiple files continuous”, reaching one of the multiple files switch
+  conditions (one of the “Next file every ...” values) will switch to the next
+  file. This will be a newly created file if value of “Ring buffer with n files”
   is not reached, otherwise it will replace the oldest of the formerly used files
   (thus forming a “ring”).
   +
@@ -710,7 +710,7 @@ _Multiple files, ring buffer_::
 
 === Link-layer header type
 
-In most cases you won't have to modify link-layer header type. Some exceaptions
+In most cases you won’t have to modify link-layer header type. Some exceaptions
 are as follows:
 
 If you are capturing on an Ethernet device you might be offered a choice of
@@ -722,19 +722,19 @@ If you are capturing on an 802.11 device on some versions of BSD you might be
 offered a choice of “Ethernet” or “802.11”. “Ethernet” will cause the
 captured packets to have fake (“cooked”) Ethernet headers. “802.11” will
 cause them to have full IEEE 802.11 headers. Unless the capture needs to be read
-by an application that doesn't support 802.11 headers you should select
+by an application that doesn’t support 802.11 headers you should select
 “802.11”.
 
 If you are capturing on an Endace DAG card connected to a synchronous serial
-line you might be offered a choice of ``PPP over serial'' or ``Cisco HDLC''. If
-the protocol on the serial line is PPP, select ``PPP over serial'' and if the
-protocol on the serial line is Cisco HDLC, select ``Cisco HDLC''.
+line you might be offered a choice of “PPP over serial” or “Cisco HDLC”. If
+the protocol on the serial line is PPP, select “PPP over serial” and if the
+protocol on the serial line is Cisco HDLC, select “Cisco HDLC”.
 
 If you are capturing on an Endace DAG card connected to an ATM network you might
-be offered a choice of ``RFC 1483 IP-over-ATM'' or ``Sun raw ATM''. If the only
+be offered a choice of “RFC 1483 IP-over-ATM” or “Sun raw ATM”. If the only
 traffic being captured is RFC 1483 LLC-encapsulated IP, or if the capture needs
-to be read by an application that doesn't support SunATM headers, select ``RFC
-1483 IP-over-ATM'', otherwise select ``Sun raw ATM''.
+to be read by an application that doesn’t support SunATM headers, select “RFC
+1483 IP-over-ATM”, otherwise select “Sun raw ATM”.
 
 [[ChCapCaptureFilterSection]]
 
@@ -746,7 +746,7 @@ the link:{pcap-filter-man-page-url}[pcap-filter man page]. You can find
 a lot of Capture Filter examples at {wireshark-wiki-url}CaptureFilters.
 
 You enter the capture filter into the “Filter” field of the Wireshark
-``Capture Options'' dialog box, as shown in <<ChCapCaptureOptionsDialog>>.
+“Capture Options” dialog box, as shown in <<ChCapCaptureOptionsDialog>>.
 
 A capture filter takes the form of a series of primitive expressions connected
 by conjunctions (__and/or__) and optionally preceded by __not__:
@@ -889,7 +889,7 @@ On Windows it asks the operating system if it’s running in a Remote Desktop Se
 While a capture is running, the following dialog box is shown:
 
 [[ChCapCaptureInfoDialog]]
-.The ``Capture Info'' dialog box
+.The “Capture Info” dialog box
 image::wsug_graphics/ws-capture-info.png[{screenshot-attrs}]
 
 This dialog box will inform you about the number of captured packets and the
@@ -898,8 +898,8 @@ cannot be changed.
 
 [TIP]
 ====
-This ``Capture Info'' dialog box can be hidden using the ``Hide capture info
-dialog'' option in the Capture Options dialog box.
+This “Capture Info” dialog box can be hidden using the “Hide capture info
+dialog” option in the Capture Options dialog box.
 ====
 ////
 
@@ -909,12 +909,12 @@ dialog'' option in the Capture Options dialog box.
 
 A running capture session will be stopped in one of the following ways:
 
-. Using the btn:[Stop] button from the ``Capture Info'' dialog box.
+. Using the btn:[Stop] button from the “Capture Info” dialog box.
 
 [NOTE]
 ====
-The ``Capture Info'' dialog box might be hidden if the ``Hide capture info
-dialog'' option is used.
+The “Capture Info” dialog box might be hidden if the “Hide capture info
+dialog” option is used.
 ====
 
 . Using the menu:Capture[Stop] menu item.

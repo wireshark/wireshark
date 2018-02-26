@@ -38,7 +38,7 @@ When Wireshark starts, a lot of things are done:
 Each protocol has its own protocol dissector. A dissector is called from
 Wireshark, if the packet data seems to be of that corresponding protocol. The
 dissector will then process the packet data and call back Wireshark if it
-couldn't dissect all the data in that packet to do any further dissections.
+couldn’t dissect all the data in that packet to do any further dissections.
 
 So Wireshark will dissect a packet from the lowest to the highest protocol
 layers.
@@ -61,7 +61,7 @@ There are two ways for a dissector to register itself for packet data:
   contains some characteristic data of that protocol. So the dissector can
   accept or reject to dissect that packet.
 
-Let’s look at an example. We'll assume, Wireshark loads a TCP/IP/Ethernet
+Let’s look at an example. We’ll assume, Wireshark loads a TCP/IP/Ethernet
 packet. Wireshark will call the Ethernet dissector, which will dissect the
 Ethernet related data (usually the first 6 + 6 + 2 bytes). Then this dissector calls
 back into Wireshark and will pass the rest of the data back to Wireshark.

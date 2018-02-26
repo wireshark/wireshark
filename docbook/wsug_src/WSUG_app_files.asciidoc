@@ -22,8 +22,8 @@ Wireshark also supports the
 link:https://wiki.wireshark.org/Development/LibpcapFileFormat[libpcap] file
 format. This is a much simpler format and is well established. However, it has
 some drawbacks: it’s not extensible and lacks some information that would be
-really helpful (e.g. being able to add a comment to a packet such as ``the
-problems start here'' would be really nice).
+really helpful (e.g. being able to add a comment to a packet such as “the
+problems start here” would be really nice).
 
 In addition to the libpcap format, Wireshark supports several different capture
 file formats. However, the problems described above also applies for these
@@ -42,7 +42,7 @@ The following data is saved for each packet:
 
 * The timestamp with millisecond resolution
 
-* The packet length as it was ``on the wire''
+* The packet length as it was “on the wire”
 
 * The packet length as it’s saved in the file
 
@@ -63,14 +63,14 @@ You should also know the things that are _not saved_ in capture files:
 +
 --
 Pcapng files can optionally save name resolution information. Libpcap files
-can't. Other file formats have varying levels of support.
+can’t. Other file formats have varying levels of support.
 --
 
 * The number of packets dropped while capturing
 
-* Packet marks set with ``Edit/Mark Packet''
+* Packet marks set with “Edit/Mark Packet”
 
-* Time references set with ``Edit/Time Reference''
+* Time references set with “Edit/Time Reference”
 
 * The current display filter
 
@@ -117,7 +117,7 @@ _/Applications/Wireshark.app_.  Otherwise, _INSTALLDIR_ is the top-level
 directory under which reside the subdirectories in which components of
 Wireshark are installed.  This will typically be `/usr` if Wireshark is
 bundled with the system (for example, provided as a package with a Linux
-distribution) and _/usr/local_ if, for example, you've build Wireshark
+distribution) and _/usr/local_ if, for example, you’ve build Wireshark
 from source and installed it.
 
 [[ChAppFilesConfigurationSection]]
@@ -220,11 +220,11 @@ consists of one or more lines, where each line has the following format:
 ----
 
 At program start, if there is a _cfilters_ file in the personal
-configuration folder, it is read.  If there isn't a _cfilters_ file in
+configuration folder, it is read.  If there isn’t a _cfilters_ file in
 the personal configuration folder, then, if there is a _cfilters_ file
 in the global configuration folder, it is read.
 
-When you press the Save button in the ``Capture Filters'' dialog box,
+When you press the Save button in the “Capture Filters” dialog box,
 all the current capture filters are written to the personal capture
 filters file.
 --
@@ -239,11 +239,11 @@ consists of one or more lines, where each line has the following format:
 ----
 
 At program start, if there is a _dfilters_ file in the personal
-configuration folder, it is read.  If there isn't a _dfilters_ file in
+configuration folder, it is read.  If there isn’t a _dfilters_ file in
 the personal configuration folder, then, if there is a _dfilters_ file
 in the global configuration folder, it is read.
 
-When you press the Save button in the ``Display Filters'' dialog box,
+When you press the Save button in the “Display Filters” dialog box,
 all the current capture filters are written to the personal display
 filters file.
 --
@@ -258,11 +258,11 @@ consists of one or more lines, where each line has the following format:
 ----
 
 At program start, if there is a _colorfilters_ file in the personal
-configuration folder, it is read.  If there isn't a _colorfilters_ file
+configuration folder, it is read.  If there isn’t a _colorfilters_ file
 in the personal configuration folder, then, if there is a _colorfilters_
 file in the global configuration folder, it is read.
 
-Wwhen you press the Save button in the ``Coloring Rules'' dialog box,
+Wwhen you press the Save button in the “Coloring Rules” dialog box,
 all the current color filters are written to the personal color filters
 file.
 --
@@ -284,7 +284,7 @@ read; if there is an entry for a protocol set in both files, the setting
 in the personal disabled protocols file overrides the setting in the
 global disabled protocols file.
 
-When you press the Save button in the ``Enabled Protocols'' dialog box,
+When you press the Save button in the “Enabled Protocols” dialog box,
 the current set of disabled protocols is written to the personal
 disabled protocols file.
 --
@@ -400,7 +400,7 @@ An example is:
 
 A partially matched name will be printed as “subnet-name.remaining-address”.
 For example, “192.168.0.1” under the subnet above would be printed as
-``ws_test_network.1"; if the mask length above had been 16 rather than 24, the
+“ws_test_network.1”; if the mask length above had been 16 rather than 24, the
 printed address would be “ws_test_network.0.1”.
 
 The settings from these files are read in at program start and never
@@ -495,21 +495,21 @@ _INSTALLDIR/lib/wireshark/plugins_.
 Here you will find some details about the folders used in Wireshark on different
 Windows versions.
 
-As already mentioned, you can find the currently used folders in the ``About
-Wireshark'' dialog.
+As already mentioned, you can find the currently used folders in the “About
+Wireshark” dialog.
 
 [[ChWindowsProfiles]]
 
 ==== Windows profiles
 
 Windows uses some special directories to store user configuration files which
-define the ``user profile''. This can be confusing, as the default directory
+define the “user profile”. This can be confusing, as the default directory
 location changed from Windows version to version and might also be different for
 English and internationalized versions of Windows.
 
 [NOTE]
 ====
-If you've upgraded to a new Windows version, your profile might be kept in the
+If you’ve upgraded to a new Windows version, your profile might be kept in the
 former location. The defaults mentioned here might not apply.
 ====
 
@@ -520,8 +520,8 @@ Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated ser
 _C:\Users{backslash}**username**\AppData\Roaming\Wireshark_.
 
 Windows XP, Windows Server 2003, and Windows 2000 footnoteref:[historical,No longer supported by Wireshark. For historical reference only.]::
-_C:\Documents and Settings{backslash}**username**\Application Data_. ``Documents and
-Settings'' and ``Application Data'' might be internationalized.
+_C:\Documents and Settings{backslash}**username**\Application Data_. “Documents and
+Settings” and “Application Data” might be internationalized.
 
 Windows NT 4 footnoteref:[historical]::
 _C:\WINNT\Profiles{backslash}**username**\Application Data\Wireshark_
@@ -540,11 +540,11 @@ _C:\windows\Application Data\Wireshark_.
 ==== Windows roaming profiles
 
 Some larger Windows environments use roaming profiles. If this is the case the
-configurations of all programs you use won't be saved on your local hard drive.
+configurations of all programs you use won’t be saved on your local hard drive.
 They will be stored on the domain server instead.
 
 Your settings will travel with you from computer to computer with one exception.
-The ``Local Settings'' folder in your profile data (typically something like:
+The “Local Settings” folder in your profile data (typically something like:
 _C:\Documents and Settings{backslash}**username**\Local Settings_) will not be
 transferred to the domain server. This is the default for temporary capture
 files.

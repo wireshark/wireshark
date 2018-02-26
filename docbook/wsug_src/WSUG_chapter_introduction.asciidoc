@@ -118,13 +118,13 @@ Wireshark, either as plugins, or built into the source, and they often do!
 
 Here are some things Wireshark does not provide:
 
-* Wireshark isn't an intrusion detection system. It will not warn you when
-  someone does strange things on your network that he/she isn't allowed to do.
+* Wireshark isn’t an intrusion detection system. It will not warn you when
+  someone does strange things on your network that he/she isn’t allowed to do.
   However, if strange things happen, Wireshark might help you figure out what is
   really going on.
 
-* Wireshark will not manipulate things on the network, it will only "measure"
-  things from it. Wireshark doesn't send packets on the network or do other
+* Wireshark will not manipulate things on the network, it will only “measure”
+  things from it. Wireshark doesn’t send packets on the network or do other
   active things (except for name resolutions, but even that can be disabled).
 
 [[ChIntroPlatforms]]
@@ -149,7 +149,7 @@ If Wireshark runs out of memory it will crash. See
 {wireshark-wiki-url}KnownBugs/OutOfMemory for details and workarounds.
 
 Although Wireshark captures packets using a separate process the main interface
-is single-threaded and won't benefit much from multi-core systems.
+is single-threaded and won’t benefit much from multi-core systems.
 
 ==== Microsoft Windows
 
@@ -268,7 +268,7 @@ started applying patches and contributing dissectors to Ethereal.
 
 In late 1998 Richard Sharpe, who was giving TCP/IP courses, saw its potential
 on such courses and started looking at it to see if it supported the protocols
-he needed. While it didn't at that point new protocols could be easily added.
+he needed. While it didn’t at that point new protocols could be easily added.
 So he started contributing dissectors and contributing patches.
 
 The list of people who have contributed to the project has become very long
@@ -361,7 +361,7 @@ The Wireshark Q&amp;A site at {wireshark-qa-url} offers a resource where
 questions and answers come together. You have the option to search what
 questions were asked before and what answers were given by people who
 knew about the issue. Answers are graded, so you can pick out the best
-ones easily. If your question hasn't been discussed before you can post
+ones easily. If your question hasn’t been discussed before you can post
 one yourself.
 
 [[ChIntroFAQ]]
@@ -415,7 +415,7 @@ list.  The links to the archives are included on that page as well.
 .The lists are archived
 ====
 You can search in the list archives to see if someone asked the same question
-some time before and maybe already got an answer. That way you don't have to
+some time before and maybe already got an answer. That way you don’t have to
 wait until someone answers your question.
 ====
 
@@ -440,11 +440,11 @@ When reporting problems with Wireshark please supply the following information:
 
 . If you get an error/warning message, copy the text of that message (and also a
   few lines before and after it, if there are some) so others may find the
-  place where things go wrong. Please don't give something like: "I get a
-  warning while doing x" as this won't give a good idea where to look.
+  place where things go wrong. Please don’t give something like: “I get a
+  warning while doing x” as this won’t give a good idea where to look.
 
 [NOTE]
-.Don't send large files
+.Don’t send large files
 ====
 Do not send large files (> 1 MB) to the mailing lists. Just place a note that
 further data is available on request. Large files will only annoy a lot of
@@ -453,9 +453,9 @@ you will be asked for further data by the persons who really can help you.
 ====
 
 [WARNING]
-.Don't send confidential information!
+.Don’t send confidential information!
 ====
-If you send capture files to the mailing lists be sure they don't contain any
+If you send capture files to the mailing lists be sure they don’t contain any
 sensitive or confidential information like passwords or personally identifiable
 information (PII).
 ====
@@ -463,7 +463,7 @@ information (PII).
 ==== Reporting Crashes on UNIX/Linux platforms
 
 When reporting crashes with Wireshark it is helpful if you supply the traceback
-information along with the information mentioned in "Reporting Problems".
+information along with the information mentioned in “Reporting Problems”.
 
 You can obtain this traceback information with the following commands on UNIX or
 Linux (note the backticks):
@@ -480,7 +480,7 @@ Mail _backtrace.txt_ to mailto:{wireshark-dev-list-email}[].
 
 ==== Reporting Crashes on Windows platforms
 
-The Windows distributions don't contain the symbol files (.pdb) because they are
+The Windows distributions don’t contain the symbol files (.pdb) because they are
 very large. You can download them separately at
 {wireshark-main-url}download/win32/all-versions/ and
 {wireshark-main-url}download/win64/all-versions/ .

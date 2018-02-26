@@ -49,12 +49,12 @@ more details on capturing with _tcpdump_, see <<Ch05tcpdump>>.
 
 In the old days of Ethernet, all network traffic was spread over one “yellow”
 cable through the whole network. Capturing data was easy, as all packets from
-the network could be captured using the ``promiscuous mode'' at any place in the
+the network could be captured using the “promiscuous mode” at any place in the
 network. The only devices blocking network traffic, were routers. But as routers
 were extremely expensive, they were not widely used.
 
 Then Ethernet wiring using hubs become the state of the art. As the hubs still
-spaded the packets all over the network, things regarding capturing didn't
+spaded the packets all over the network, things regarding capturing didn’t
 change.
 
 At the next stage, Ethernet switches became widely available. This complicated
@@ -65,9 +65,9 @@ the promiscuous mode of the capturing network card.
 
 There are some ways to circumvent this.
 
-Many vendor’s switches support a feature known as ``port spanning'' or ``port
-mirroring'' in which all of the traffic to and from port A are also sent out
-port B. An excellent reference on the ``port spanning'' feature of Cisco
+Many vendor’s switches support a feature known as “port spanning” or “port
+mirroring” in which all of the traffic to and from port A are also sent out
+port B. An excellent reference on the “port spanning” feature of Cisco
 switches can be found at
 link:$$http://www.cisco.com/warp/public/473/41.html$$[Configuring the Catalyst Switched Port Analyzer (SPAN) Feature]
 

@@ -9,7 +9,7 @@ Wireshark distinguishes between protocols (e.g. tcp) and protocol fields (e.g.
 tcp.port).
 
 A comprehensive list of all protocols and protocol fields can be found
-in the ``Display Filter Reference'' at
+in the “Display Filter Reference” at
 {wireshark-display-filter-reference-url}
 
 // End of WSUG Appendix Protocols
