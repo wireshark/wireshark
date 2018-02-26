@@ -1134,6 +1134,7 @@ proto_reg_handoff_zbee_zcl_device_temperature_configuration(void)
 /* Server Commands Received */
 #define ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY               0x00  /* Identify */
 #define ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY         0x01  /* Identify Query */
+#define ZBEE_ZCL_CMD_ID_IDENTIFY_TRIGGER_EFFECT         0x40  /* Trigger Effect */
 
 /* Server Commands Generated */
 #define ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY_RSP     0x00  /* Identify Query Response */
@@ -1149,6 +1150,7 @@ void proto_reg_handoff_zbee_zcl_identify(void);
 /* Command Dissector Helpers */
 static void dissect_zcl_identify_identify               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_identify_identifyqueryrsp       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_identify_triggereffect          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_identify_attr_data              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
 /* Private functions prototype */
@@ -1162,6 +1164,8 @@ static int proto_zbee_zcl_identify = -1;
 static int hf_zbee_zcl_identify_attr_id = -1;
 static int hf_zbee_zcl_identify_identify_time = -1;
 static int hf_zbee_zcl_identify_identify_timeout = -1;
+static int hf_zbee_zcl_identify_effect_id = -1;
+static int hf_zbee_zcl_identify_effect_variant = -1;
 static int hf_zbee_zcl_identify_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_identify_srv_tx_cmd_id = -1;
 
@@ -1178,12 +1182,24 @@ static const value_string zbee_zcl_identify_attr_names[] = {
 static const value_string zbee_zcl_identify_srv_rx_cmd_names[] = {
     { ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY,            "Identify" },
     { ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY,      "Identify Query" },
+    { ZBEE_ZCL_CMD_ID_IDENTIFY_TRIGGER_EFFECT,      "Trigger Effect" },
     { 0, NULL }
 };
 
 /* Server Commands Generated */
 static const value_string zbee_zcl_identify_srv_tx_cmd_names[] = {
     { ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY_RSP,  "Identify Query Response" },
+    { 0, NULL }
+};
+
+/* Trigger Effects */
+static const value_string zbee_zcl_identify_effect_id_names[] = {
+    { 0x00,     "Blink" },
+    { 0x01,     "Breathe" },
+    { 0x02,     "Okay" },
+    { 0x0b,     "Channel change" },
+    { 0xfe,     "Finish" },
+    { 0xff,     "Stop" },
     { 0, NULL }
 };
 
@@ -1243,6 +1259,10 @@ dissect_zbee_zcl_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
                 case ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY:
                     /* without payload*/
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_IDENTIFY_TRIGGER_EFFECT:
+                    dissect_zcl_identify_triggereffect(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -1325,6 +1345,33 @@ dissect_zcl_identify_identifyqueryrsp(tvbuff_t *tvb, proto_tree *tree, guint *of
 
 } /*dissect_zcl_identify_identifyqueryrsp*/
 
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_identify_triggereffect
+ *  DESCRIPTION
+ *      this function decodes the Trigger Effect payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_identify_triggereffect(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Trigger Effect Id" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_identify_effect_id, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Retrieve "Trigger Effect Variant" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_identify_effect_variant, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+} /*dissect_zcl_identify_triggereffect*/
+
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zcl_identify_attr_data
@@ -1387,6 +1434,14 @@ proto_register_zbee_zcl_identify(void)
 
         { &hf_zbee_zcl_identify_identify_timeout,
             { "Identify Timeout", "zbee_zcl_general.identify.identify_timeout", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_seconds),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_identify_effect_id,
+            { "Effect", "zbee_zcl_general.identify.effect_id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_identify_effect_id_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_identify_effect_variant,
+            { "Variant", "zbee_zcl_general.identify.effect_variant", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_identify_srv_rx_cmd_id,
