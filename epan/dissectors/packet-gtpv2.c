@@ -591,6 +591,7 @@ static int hf_gtpv2_timestamp_value = -1;
 static int hf_gtpv2_counter_value = -1;
 static int hf_gtpv2_uli_flags = -1;
 static int hf_gtpv2_rohc_profile_flags = -1;
+static int hf_gtpv2_dcnr = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -993,12 +994,16 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 /*
 195	SCEF PDN Connection
 */
-#define GTPV2_IE_HEADER_COMP_CONF       196
-#define GTPV2_IE_EXTENDED_PCO           197
-#define GTPV2_IE_SERV_PLMN_RATE_CONTROL 198
-#define GTPV2_IE_COUNTER                199
+#define GTPV2_IE_HEADER_COMP_CONF           196
+#define GTPV2_IE_EXTENDED_PCO               197
+#define GTPV2_IE_SERV_PLMN_RATE_CONTROL     198
+#define GTPV2_IE_COUNTER                    199
+
+/* 200	Mapped UE Usage Type */
+/* 201	Secondary RAT Usage Data Report */
+#define GTPV2_IE_UP_FUNC_SEL_INDI_FLG       202
 /*
-200 to 253	Spare. For future use.
+203 to 253	Spare. For future use.
 254	Special IE type for IE Type Extension
 255	Private Extension
 256 to 65535	Spare. For future use.
@@ -1174,7 +1179,10 @@ static const value_string gtpv2_element_type_vals[] = {
     {197, "Extended Protocol Configuration Options(ePCO)"},                     /* Variable Length / 8.128 */
     {198, "Serving PLMN Rate Control"},                                         /* Extendable / 8.129 */
     {199, "Counter" },                                                          /* Extendable / 8.130 */
-                                                                                /* 200 to 254    Spare. For future use.    */
+    {200, "Mapped UE Usage Type" },                                             /* Extendable / 8.131 */
+    {201, "Secondary RAT Usage Data Report" },                                  /* Extendable / 8.132 */
+    {202, "UP Function Selection Indication Flags" },                           /* Extendable / 8.133 */
+                                                                                /* 203 to 254    Spare. For future use.    */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -6657,6 +6665,25 @@ dissect_gtpv2_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
     proto_tree_add_item(tree, hf_gtpv2_counter_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
+/*
+ * 8.131 Mapped UE Usage Type
+ */
+
+/*
+ *8.132 Secondary RAT Usage Data Report
+ */
+/*
+ * 8.133 UP Function Selection Indication Flags
+ */
+
+static void
+dissect_gtpv2_up_func_slec_indic_flg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_gtpv2_dcnr, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+}
 
 typedef struct _gtpv2_ie {
     int ie_type;
@@ -6812,6 +6839,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_EXTENDED_PCO, dissect_gtpv2_pco},                              /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
     {GTPV2_IE_SERV_PLMN_RATE_CONTROL, dissect_gtpv2_serv_plmn_rate_control}, /* 198, 8.129 Serving PLMN Rate Control */
     {GTPV2_IE_COUNTER, dissect_gtpv2_counter},                               /* 199, 8.130 Counter */
+    {GTPV2_IE_UP_FUNC_SEL_INDI_FLG, dissect_gtpv2_up_func_slec_indic_flg },  /* 202, 8.1333 UP Function Selection Indication Flags */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
 
@@ -9527,6 +9555,11 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_uli_flags,
       { "ULI Flags", "gtpv2.uli_flags",
           FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_dcnr,
+      { "DCNR (Dual connectivity with NR)", "gtpv2.dcnr",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
           NULL, HFILL }
       },
     };
