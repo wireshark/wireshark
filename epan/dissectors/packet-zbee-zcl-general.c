@@ -429,6 +429,7 @@ proto_reg_handoff_zbee_zcl_basic(void)
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MAX_THR   0x0012  /* Mains Voltage Max Threshold */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_DWELL_TP  0x0013  /* Mains Voltage Dwell Trip Point */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE         0x0020  /* Battery Voltage */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_PERCENTAGE      0x0021  /* Battery Percentage Remaining */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_MANUFACTURER    0x0030  /* Battery Manufacturer */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_SIZE            0x0031  /* Battery Size */
 #define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_AH_RATING       0x0032  /* Battery AHr Rating */
@@ -492,6 +493,7 @@ static int hf_zbee_zcl_power_config_mains_voltage_min_thr = -1;
 static int hf_zbee_zcl_power_config_mains_voltage_max_thr = -1;
 static int hf_zbee_zcl_power_config_mains_voltage_dwell_tp = -1;
 static int hf_zbee_zcl_power_config_batt_voltage = -1;
+static int hf_zbee_zcl_power_config_batt_percentage = -1;
 static int hf_zbee_zcl_power_config_batt_ah_rating = -1;
 static int hf_zbee_zcl_power_config_batt_rated_voltage = -1;
 static int hf_zbee_zcl_power_config_batt_voltage_min_thr = -1;
@@ -509,6 +511,7 @@ static const value_string zbee_zcl_power_config_attr_names[] = {
     { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MAX_THR,   "Mains Voltage Max Threshold" },
     { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_DWELL_TP,  "Mains Voltage Dwell Trip Point" },
     { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE,         "Battery Voltage" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_PERCENTAGE,      "Battery Percentage Remaining" },
     { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_MANUFACTURER,    "Battery Manufacturer" },
     { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_SIZE,            "Battery Size" },
     { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_AH_RATING,       "Battery AHr Rating" },
@@ -576,7 +579,26 @@ decode_power_conf_voltage(gchar *s, guint32 value)
     return;
 } /*decode_power_conf_voltage*/
 
-/*FUNCTION:------------------------------------------------------
+  /*FUNCTION:------------------------------------------------------
+  *  NAME
+  *    decode_power_conf_percentage
+  *  DESCRIPTION
+  *    this function decodes percentage values
+  *  PARAMETERS
+  *      guint *s        - string to display
+  *      guint32 value   - value to decode
+  *  RETURNS
+  *    none
+  *---------------------------------------------------------------
+  */
+static void
+decode_power_conf_percentage(gchar *s, guint32 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f [%%]", value/2.0);
+    return;
+} /*decode_power_conf_percentage*/
+
+  /*FUNCTION:------------------------------------------------------
  *  NAME
  *    decode_power_conf_frequency
  *  DESCRIPTION
@@ -689,6 +711,10 @@ dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offse
             proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_voltage, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
             *offset += 1;
             break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_PERCENTAGE:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_percentage, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
         case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_AH_RATING:
             proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_ah_rating, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
@@ -791,6 +817,10 @@ proto_register_zbee_zcl_power_config(void)
 
         { &hf_zbee_zcl_power_config_batt_voltage,
             { "Measured Battery Voltage", "zbee_zcl_general.power_config.attr.batt_voltage", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_percentage,
+            { "Remaining Battery Percentage", "zbee_zcl_general.power_config.attr.batt_percentage", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_percentage),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_power_config_batt_ah_rating,
