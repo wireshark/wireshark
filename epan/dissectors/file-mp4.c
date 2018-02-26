@@ -26,10 +26,16 @@
 
 #define MAKE_TYPE_VAL(a, b, c, d)   ((a)<<24 | (b)<<16 | (c)<<8 | (d))
 
+/* Although the dissection of each box consumes a couple of bytes, it's
+   possible to craft a file whose boxes recurse so deeply that wireshark
+   crashes before we processed all data. Therefore, we limit the
+   recursion level for boxes to a reasonable depth. */
+#define MP4_BOX_MAX_REC_LVL  20
+
 void proto_register_mp4(void);
 void proto_reg_handoff_mp4(void);
 
-static gint dissect_mp4_box(guint32 parent_box_type _U_,
+static gint dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 
 static int proto_mp4 = -1;
@@ -69,6 +75,7 @@ static int hf_mp4_dref_entry_cnt = -1;
 static int hf_mp4_stsd_entry_cnt = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
+static expert_field ei_mp4_too_many_rec_lvls = EI_INIT;
 static expert_field ei_mp4_mvhd_next_tid_unknown = EI_INIT;
 
 /* a box must at least have a 32bit len field and a 32bit type */
@@ -168,7 +175,7 @@ make_fract(guint x)
 
 static gint
 dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
-        packet_info *pinfo, proto_tree *tree)
+        packet_info *pinfo, guint depth _U_, proto_tree *tree)
 {
     gint        offset_start;
     guint8      version;
@@ -232,7 +239,7 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 static gint
 dissect_mp4_mfhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     gint offset_start;
 
@@ -254,7 +261,7 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 static gint
 dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     gint     offset_start;
     guint8   version;
@@ -315,7 +322,7 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 static gint
 dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     gint offset_start;
 
@@ -339,7 +346,7 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
 
 static gint
 dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     gint offset_start;
     guint32  sample_size, sample_count, i;
@@ -372,7 +379,7 @@ dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
  
 static gint
 dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
     gint   offset_start;
     guint  hdlr_name_len;
@@ -407,7 +414,7 @@ dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 static gint
 dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
-        packet_info *pinfo, proto_tree *tree)
+        packet_info *pinfo, guint depth, proto_tree *tree)
 {
     gint     offset_start;
     guint32  entry_cnt, i;
@@ -429,7 +436,7 @@ dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
     offset += 4;
 
     for(i=0; i<entry_cnt; i++) {
-        ret = dissect_mp4_box(BOX_TYPE_DREF, tvb, offset, pinfo, tree);
+        ret = dissect_mp4_box(BOX_TYPE_DREF, depth, tvb, offset, pinfo, tree);
         if (ret<=0)
             break;
 
@@ -442,7 +449,7 @@ dissect_mp4_dref_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 static gint
 dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo _U_, guint depth _U_, proto_tree *tree)
 {
 #if 0
     guint32  flags;
@@ -475,7 +482,7 @@ dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
 
 static gint
 dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
-        packet_info *pinfo, proto_tree *tree)
+        packet_info *pinfo, guint depth, proto_tree *tree)
 {
     guint32  entry_cnt, i;
     gint     ret;
@@ -503,7 +510,7 @@ dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
            this depends on the handler_type, we could add an optional
            void *data parameter to dissect_mp4_box() and handle sample
            entry boxes based on parent box and data parameter */
-        ret = dissect_mp4_box(BOX_TYPE_STSD, tvb, offset, pinfo, tree);
+        ret = dissect_mp4_box(BOX_TYPE_STSD, depth, tvb, offset, pinfo, tree);
         if (ret<=0)
             break;
 
@@ -514,9 +521,10 @@ dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
 }
 
  
-/* dissect a box, return its (standard or extended) length or 0 for error */
+/* dissect a box, return its (standard or extended) length or 0 for error
+   depth is the recursion level of the parent box */
 static gint
-dissect_mp4_box(guint32 parent_box_type _U_,
+dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
     gint        offset_start;
@@ -571,6 +579,13 @@ dissect_mp4_box(guint32 parent_box_type _U_,
     proto_item_set_len(type_pi, (gint)box_size);
     body_size = (gint)box_size - (offset-offset_start);
 
+    depth++;
+    if (depth > MP4_BOX_MAX_REC_LVL) {
+        proto_tree_add_expert(tree, pinfo, &ei_mp4_too_many_rec_lvls,
+                tvb, offset_start, (gint)box_size);
+        return -1;
+    }
+
     /* we do not dissect full box version and flags here
        these two components are required by the function dissecting the body
        some fields of the body depend on the version and flags */
@@ -578,31 +593,31 @@ dissect_mp4_box(guint32 parent_box_type _U_,
     /* XXX - check parent box if supplied */
     switch (box_type) {
         case BOX_TYPE_FTYP:
-            dissect_mp4_ftyp_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_ftyp_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_MVHD:
-            dissect_mp4_mvhd_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_mvhd_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_MFHD:
-            dissect_mp4_mfhd_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_mfhd_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_TKHD:
-            dissect_mp4_tkhd_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_tkhd_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_STSZ:
-            dissect_mp4_stsz_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_stsz_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_HDLR:
-            dissect_mp4_hdlr_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_hdlr_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_DREF:
-            dissect_mp4_dref_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_dref_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_URL_:
-            dissect_mp4_url_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_url_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_STSD:
-            dissect_mp4_stsd_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_stsd_body(tvb, offset, body_size, pinfo, depth, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
@@ -615,7 +630,8 @@ dissect_mp4_box(guint32 parent_box_type _U_,
         case BOX_TYPE_DINF:
         case BOX_TYPE_UDTA:
             while (offset-offset_start < (gint)box_size) {
-                ret = dissect_mp4_box(box_type, tvb, offset, pinfo, box_tree);
+                ret = dissect_mp4_box(box_type, depth,
+                        tvb, offset, pinfo, box_tree);
                 if (ret <= 0)
                     break;
                 offset += ret;
@@ -658,7 +674,7 @@ dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     mp4_tree = proto_item_add_subtree(pi, ett_mp4);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        ret = dissect_mp4_box(BOX_TYPE_NONE, tvb, offset, pinfo, mp4_tree);
+        ret = dissect_mp4_box(BOX_TYPE_NONE, 0, tvb, offset, pinfo, mp4_tree);
         if (ret <= 0)
             break;
         offset += ret;
@@ -772,6 +788,9 @@ proto_register_mp4(void)
         { &ei_mp4_box_too_large,
             { "mp4.box_too_large", PI_PROTOCOL, PI_WARN,
                 "box size too large, dissection of this box is not supported", EXPFILL }},
+        { &ei_mp4_too_many_rec_lvls,
+            { "mp4.too_many_levels", PI_UNDECODED, PI_WARN,
+                "too many recursion levels", EXPFILL }},
         { &ei_mp4_mvhd_next_tid_unknown,
             { "mp4.mvhd.next_tid_unknown", PI_PROTOCOL, PI_CHAT,
                 "Next track ID is unknown. Search for an unused track ID if you want to insert a new track.", EXPFILL }}
