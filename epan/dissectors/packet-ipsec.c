@@ -661,6 +661,8 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 
   if((ipv6_addr == NULL) || (strcmp(ipv6_addr, "") == 0))  return -1;
 
+  memset(ipv6_addr_expanded, 0x0, IPSEC_STRLEN_IPV6);
+
   mask_begin = strchr(ipv6_addr, '/');
   if(mask_begin)
   {
