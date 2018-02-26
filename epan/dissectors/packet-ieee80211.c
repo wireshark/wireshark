@@ -21295,32 +21295,40 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(qos_tree, hf_ieee80211_qos_amsdu_present, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
             is_amsdu = QOS_AMSDU_PRESENT(qos_control);
           }
-          if (qos_eosp) {
-            /* queue size */
-            qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_queue_size, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
-            switch (qos_field_content) {
-            case 0:
-              proto_item_append_text(qos_ti, " (no buffered traffic in the queue)");
-              break;
+          /*
+           * Only QoS Data, Qos CF-ACK and NULL frames To-DS have a Queue Size
+           * field.
+           */
+          if ((DATA_FRAME_IS_NULL(frame_type_subtype) ||
+               (frame_type_subtype & 0x7) == 0 ||
+               DATA_FRAME_IS_CF_ACK(frame_type_subtype))) {
+            if (qos_eosp) {
+              /* queue size */
+              qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_queue_size, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+              switch (qos_field_content) {
+              case 0:
+                proto_item_append_text(qos_ti, " (no buffered traffic in the queue)");
+                break;
 
-            default:
-              proto_item_append_text(qos_ti, " (%u bytes)", qos_field_content*256);
-              break;
+              default:
+                proto_item_append_text(qos_ti, " (%u bytes)", qos_field_content*256);
+                break;
 
-            case 254:
-              proto_item_append_text(qos_ti, " (more than 64768 octets)");
-              break;
+              case 254:
+                proto_item_append_text(qos_ti, " (more than 64768 octets)");
+                break;
 
-            case 255:
-              proto_item_append_text(qos_ti, " (unspecified or unknown)");
-              break;
-            }
-          } else {
-            /* txop duration requested */
-            qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_txop_dur_req,
+              case 255:
+                proto_item_append_text(qos_ti, " (unspecified or unknown)");
+                break;
+              }
+            } else {
+              /* txop duration requested */
+              qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_txop_dur_req,
                                    tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
-            if (qos_field_content == 0) {
-              proto_item_append_text(qos_ti, " (no TXOP requested)");
+              if (qos_field_content == 0) {
+                proto_item_append_text(qos_ti, " (no TXOP requested)");
+              }
             }
           }
         }
