@@ -1309,7 +1309,7 @@ static gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offs
                     num_timestamp = tvb_get_guint8(tvb, offset);
                     offset += 1;
 
-                    if(num_timestamp){
+                    if(num_timestamp > 0){
 
                         /* Delta Largest Acked */
                         offset += 1;
@@ -1318,7 +1318,7 @@ static gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offs
                         offset += 4;
 
                         /* Num Timestamp x (Delta Largest Acked + Time Since Previous Timestamp) */
-                        offset += num_timestamp*(1+2);
+                        offset += (num_timestamp - 1)*(1+2);
                     }
 
                 }
@@ -1949,6 +1949,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                     proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_time_since_largest_acked, tvb, offset, 4, gquic_info->encoding);
                     offset += 4;
 
+                    num_timestamp -= 1;
                     /* Num Timestamp x (Delta Largest Acked + Time Since Previous Timestamp) */
                     while(num_timestamp){
                         proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_delta_largest_acked, tvb, offset, 1, ENC_NA);
