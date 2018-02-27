@@ -1358,12 +1358,12 @@ if(state_dec >= 0 && state_dec <= 3) {
       private_data_set_ciphering_info(actx, ciphering_info);
 
       /*Retrieve and store the value*/
-      start = g_new(guint32,1);
-      *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
-      if(ciphering_info && ciphering_info->start_ps)
+      if(ciphering_info && ciphering_info->start_ps) {
+        start = g_new(guint32,1);
+        *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
         /*Insert the value based on current frame num since this might vary over time*/
         g_tree_insert(ciphering_info->start_ps, GUINT_TO_POINTER(actx->pinfo->num), start);
-
+      }
       break;
     default:
       break;
