@@ -1051,6 +1051,12 @@ SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\wiretap'
 File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\wiretap\usbdump.dll"
 SectionEnd
 
+Section "Codec plugins" SecCodec
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\codecs'
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\codecs\l16mono.dll"
+SectionEnd
+
 Section "Configuration Profiles" SecProfiles
 ;-------------------------------------------
 ; This should be a function or macro

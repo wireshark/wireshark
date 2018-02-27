@@ -35,7 +35,8 @@ SUBDIRS = \
 	epan/wimax		\
 	epan/wimaxasncp		\
 	epan/wimaxmacphy	\
-	wiretap/usbdump
+	wiretap/usbdump		\
+	codecs/l16_mono
 
 EXTRA_DIST = \
 	$(_CUSTOM_EXTRA_DIST_) \

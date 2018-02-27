@@ -1388,6 +1388,7 @@ if(ENABLE_PLUGINS)
 		plugins/epan/wimaxasncp
 		plugins/epan/wimaxmacphy
 		plugins/wiretap/usbdump
+		plugins/codecs/l16_mono
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
 
