@@ -271,6 +271,7 @@ static void extcap_free_toolbar_value(iface_toolbar_value *v) {
 
     g_free(v->value);
     g_free(v->display);
+    g_free(v);
 }
 
 static void extcap_free_toolbar_control(iface_toolbar_control *c) {
