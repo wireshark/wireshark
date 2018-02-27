@@ -57,18 +57,16 @@ rtsp_init_hash( rtspstat_t *sp)
 {
 	int i;
 
-	sp->hash_responses = g_hash_table_new( g_int_hash, g_int_equal);
+	sp->hash_responses = g_hash_table_new(g_direct_hash, g_direct_equal);
 
 	for (i=0 ; rtsp_status_code_vals[i].strptr ; i++ )
 	{
-		gint *key = g_new (gint, 1);
 		rtsp_response_code_t *sc = g_new (rtsp_response_code_t, 1);
-		*key = rtsp_status_code_vals[i].value;
 		sc->packets = 0;
-		sc->response_code =  *key;
+		sc->response_code = rtsp_status_code_vals[i].value;
 		sc->name = rtsp_status_code_vals[i].strptr;
 		sc->sp = sp;
-		g_hash_table_insert( sc->sp->hash_responses, key, sc);
+		g_hash_table_insert( sc->sp->hash_responses, GINT_TO_POINTER(rtsp_status_code_vals[i].value), sc);
 	}
 	sp->hash_requests = g_hash_table_new( g_str_hash, g_str_equal);
 }
@@ -81,10 +79,10 @@ rtsp_draw_hash_requests( gchar *key _U_ , rtsp_request_methode_t *data, gchar * 
 }
 
 static void
-rtsp_draw_hash_responses( gint * key _U_ , rtsp_response_code_t *data, char * format)
+rtsp_draw_hash_responses( gpointer* key _U_ , rtsp_response_code_t *data, char * format)
 {
 	if (data == NULL) {
-		g_warning("No data available, key=%d\n", *key);
+		g_warning("No data available, key=%d\n", GPOINTER_TO_INT(key));
 		exit(EXIT_FAILURE);
 	}
 	if (data->packets == 0)
@@ -134,14 +132,13 @@ rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 	/* We are only interested in reply packets with a status code */
 	/* Request or reply packets ? */
 	if (value->response_code != 0) {
-		guint *key = g_new(guint, 1);
 		rtsp_response_code_t *sc;
 
-		*key = value->response_code;
 		sc =  (rtsp_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
-				key);
+				GINT_TO_POINTER(value->response_code));
 		if (sc == NULL) {
+			gint key;
 			/* non standard status code ; we classify it as others
 			 * in the relevant category (Informational,Success,Redirection,Client Error,Server Error)
 			 */
@@ -150,23 +147,23 @@ rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 				return 0;
 			}
 			else if (i < 200) {
-				*key = 199;	/* Hopefully, this status code will never be used */
+				key = 199;	/* Hopefully, this status code will never be used */
 			}
 			else if (i < 300) {
-				*key = 299;
+				key = 299;
 			}
 			else if (i < 400) {
-				*key = 399;
+				key = 399;
 			}
 			else if (i < 500) {
-				*key = 499;
+				key = 499;
 			}
 			else {
-				*key = 599;
+				key = 599;
 			}
 			sc =  (rtsp_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
-				key);
+				GINT_TO_POINTER(key));
 			if (sc == NULL)
 				return 0;
 		}
