@@ -297,13 +297,13 @@ static int hf_pfcp_dl_data_service_inf_flags = -1;
 static int hf_pfcp_dl_data_service_inf_b0_ppi = -1;
 static int hf_pfcp_ppi = -1;
 
-static int hf_pfcp_sxsmreq_flags = -1;
-static int hf_pfcp_sxsmreq_flags_b0_drobu = -1;
-static int hf_pfcp_sxsmreq_flags_b1_sndem = -1;
-static int hf_pfcp_sxsmreq_flags_b2_qaurr = -1;
+static int hf_pfcp_pfcpsmreq_flags = -1;
+static int hf_pfcp_pfcpsmreq_flags_b0_drobu = -1;
+static int hf_pfcp_pfcpsmreq_flags_b1_sndem = -1;
+static int hf_pfcp_pfcpsmreq_flags_b2_qaurr = -1;
 
-static int hf_pfcp_sxsrrsp_flags = -1;
-static int hf_pfcp_sxsrrsp_flags_b0_drobu = -1;
+static int hf_pfcp_pfcpsrrsp_flags = -1;
+static int hf_pfcp_pfcpsrrsp_flags_b0_drobu = -1;
 
 static int hf_pfcp_pfd_contents_flags = -1;
 static int hf_pfcp_pfd_contents_flags_b3_cp = -1;
@@ -381,8 +381,8 @@ static int ett_pfcp_usage_information = -1;
 static int ett_pfcp_packet_rate = -1;
 static int ett_pfcp_pfcp_dl_flow_level_marking = -1;
 static int ett_pfcp_dl_data_service_inf = -1;
-static int ett_pfcp_sxsmreq = -1;
-static int ett_pfcp_sxsrrsp = -1;
+static int ett_pfcp_pfcpsmreq = -1;
+static int ett_pfcp_pfcpsrrsp = -1;
 static int ett_pfcp_measurement_info = -1;
 static int ett_pfcp_node_report_type = -1;
 static int ett_pfcp_remote_gtp_u_peer = -1;
@@ -573,8 +573,8 @@ static const value_string pfcp_ie_type[] = {
     { 46, "Downlink Data Notification Delay" },                     /* Extendable / Subclause 8.2.28 */
     { 47, "DL Buffering Duration" },                                /* Extendable / Subclause 8.2.29 */
     { 48, "DL Buffering Suggested Packet Count" },                  /* Variable / Subclause 8.2.30 */
-    { 49, "SxSMReq-Flags" },                                        /* Extendable / Subclause 8.2.31 */
-    { 50, "SxSRRsp-Flags" },                                        /* Extendable / Subclause 8.2.32 */
+    { 49, "PFCPSMReq-Flags" },                                      /* Extendable / Subclause 8.2.31 */
+    { 50, "PFCPSRRsp-Flags" },                                      /* Extendable / Subclause 8.2.32 */
     { 51, "Load Control Information" },                             /* Extendable / Table 7.5.3.3-1 */
     { 52, "Sequence Number" },                                      /* Fixed Length / Subclause 8.2.33 */
     { 53, "Metric" },                                               /* Fixed Length / Subclause 8.2.34 */
@@ -1579,23 +1579,23 @@ dissect_pfcp_dl_buffering_suggested_packet_count(tvbuff_t *tvb, packet_info *pin
     proto_tree_add_item(tree, hf_pfcp_packet_count, tvb, 0, length, ENC_BIG_ENDIAN);
 }
 /*
- * 8.2.31   SxSMReq-Flags
+ * 8.2.31   PFCPSMReq-Flags
  */
 static void
-dissect_pfcp_sxsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_pfcp_pfcpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
 
-    static const int * pfcp_sxsmreq_flags[] = {
+    static const int * pfcp_pfcpsmreq_flags[] = {
         &hf_pfcp_spare_b7_b3,
-        &hf_pfcp_sxsmreq_flags_b2_qaurr,
-        &hf_pfcp_sxsmreq_flags_b1_sndem,
-        &hf_pfcp_sxsmreq_flags_b0_drobu,
+        &hf_pfcp_pfcpsmreq_flags_b2_qaurr,
+        &hf_pfcp_pfcpsmreq_flags_b1_sndem,
+        &hf_pfcp_pfcpsmreq_flags_b0_drobu,
         NULL
     };
     /* Octet 5  Spare   Spare   Spare   Spare   Spare   QAURR   SNDEM   DROBU */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_sxsmreq_flags,
-        ett_pfcp_sxsmreq, pfcp_sxsmreq_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_pfcpsmreq_flags,
+        ett_pfcp_pfcpsmreq, pfcp_pfcpsmreq_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
 
     if (offset < length) {
@@ -1604,21 +1604,21 @@ dissect_pfcp_sxsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 }
 /*
- * 8.2.32   SxSRRsp-Flags
+ * 8.2.32   PFCPSRRsp-Flags
  */
 static void
-dissect_pfcp_sxsrrsp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_pfcp_pfcpsrrsp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
 
-    static const int * pfcp_sxsrrsp_flags[] = {
+    static const int * pfcp_pfcpsrrsp_flags[] = {
         &hf_pfcp_spare_b7_b1,
-        &hf_pfcp_sxsrrsp_flags_b0_drobu,
+        &hf_pfcp_pfcpsrrsp_flags_b0_drobu,
         NULL
     };
     /* Octet 5  Spare   Spare   Spare   Spare   Spare   Spare   Spare   DROBU */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_sxsrrsp_flags,
-        ett_pfcp_sxsrrsp, pfcp_sxsrrsp_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_pfcpsrrsp_flags,
+        ett_pfcp_pfcpsrrsp, pfcp_pfcpsrrsp_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
 
     if (offset < length) {
@@ -3410,8 +3410,8 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     46 */    { dissect_pfcp_dl_data_notification_delay },                    /* Downlink Data Notification Delay                Extendable / Subclause 8.2.28 */
 /*     47 */    { dissect_pfcp_dl_buffering_dur },                              /* DL Buffering Duration                           Extendable / Subclause 8.2.29 */
 /*     48 */    { dissect_pfcp_dl_buffering_suggested_packet_count },           /* DL Buffering Suggested Packet Count             Variable / Subclause 8.2.30 */
-/*     49 */    { dissect_pfcp_sxsmreq_flags },                                 /* SxSMReq-Flags                                   Extendable / Subclause 8.2.31 */
-/*     50 */    { dissect_pfcp_sxsrrsp_flags },                                 /* SxSRRsp-Flags                                   Extendable / Subclause 8.2.32 */
+/*     49 */    { dissect_pfcp_pfcpsmreq_flags },                               /* PFCPSMReq-Flags                                 Extendable / Subclause 8.2.31 */
+/*     50 */    { dissect_pfcp_pfcpsrrsp_flags },                               /* PFCPSRRsp-Flags                                 Extendable / Subclause 8.2.32 */
 /*     51 */    { dissect_pfcp_load_control_information },                      /* Load Control Information                        Extendable / Table 7.5.3.3-1 */
 /*     52 */    { dissect_pfcp_sequence_number },                               /* Sequence Number                                 Fixed Length / Subclause 8.2.33 */
 /*     53 */    { dissect_pfcp_metric },                                        /* Metric                                          Fixed Length / Subclause 8.2.34 */
@@ -5103,33 +5103,33 @@ proto_register_pfcp(void)
             FT_UINT16, BASE_DEC, NULL, 0x7f,
             NULL, HFILL }
         },
-        { &hf_pfcp_sxsmreq_flags,
-        { "Flags", "pfcp.sxsmreq_flags",
+        { &hf_pfcp_pfcpsmreq_flags,
+        { "Flags", "pfcp.smreq_flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_sxsmreq_flags_b0_drobu,
-        { "DROBU (Drop Buffered Packets)", "pfcp.sxsmreq_flags.drobu",
+        { &hf_pfcp_pfcpsmreq_flags_b0_drobu,
+        { "DROBU (Drop Buffered Packets)", "pfcp.smreq_flags.drobu",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_sxsmreq_flags_b1_sndem,
-        { "SNDEM (Send End Marker Packets)", "pfcp.sxsmreq_flags.sndem",
+        { &hf_pfcp_pfcpsmreq_flags_b1_sndem,
+        { "SNDEM (Send End Marker Packets)", "pfcp.smreq_flags.sndem",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_pfcp_sxsmreq_flags_b2_qaurr,
-        { "QAURR (Query All URRs)", "pfcp.sxsmreq_flags.qaurr",
+        { &hf_pfcp_pfcpsmreq_flags_b2_qaurr,
+        { "QAURR (Query All URRs)", "pfcp.smreq_flags.qaurr",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_pfcp_sxsrrsp_flags,
-        { "Flags", "pfcp.sxsrrsp_flags",
+        { &hf_pfcp_pfcpsrrsp_flags,
+        { "Flags", "pfcp.srrsp_flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_sxsrrsp_flags_b0_drobu,
-        { "DROBU (Drop Buffered Packets)", "pfcp.sxsrrsp_flags.drobu",
+        { &hf_pfcp_pfcpsrrsp_flags_b0_drobu,
+        { "DROBU (Drop Buffered Packets)", "pfcp.srrsp_flags.drobu",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
@@ -5376,8 +5376,8 @@ proto_register_pfcp(void)
     ett[22] = &ett_pfcp_packet_rate;
     ett[23] = &ett_pfcp_pfcp_dl_flow_level_marking;
     ett[24] = &ett_pfcp_dl_data_service_inf;
-    ett[25] = &ett_pfcp_sxsmreq;
-    ett[26] = &ett_pfcp_sxsrrsp;
+    ett[25] = &ett_pfcp_pfcpsmreq;
+    ett[26] = &ett_pfcp_pfcpsrrsp;
     ett[27] = &ett_pfcp_measurement_info;
     ett[28] = &ett_pfcp_node_report_type;
     ett[29] = &ett_pfcp_remote_gtp_u_peer;
