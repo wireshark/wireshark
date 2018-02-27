@@ -1850,7 +1850,11 @@ if(WIN32)
 		file(TO_NATIVE_PATH "${_pdb_zip}" _pdb_zip_win)
 		add_custom_command(TARGET pdb_zip_package POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove -f "${_pdb_zip}"
-			COMMAND ${ZIP_EXECUTABLE} a -tzip -mmt=on "${_pdb_zip_win}" *.pdb *.lib
+			COMMAND ${ZIP_EXECUTABLE} a -tzip -mmt=on "${_pdb_zip_win}"
+				*.pdb *.lib
+				extcap/*.pdb
+				${PLUGIN_VERSION_DIR}/epan/*.pdb
+				${PLUGIN_VERSION_DIR}/wiretap/*.pdb
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
 		add_dependencies(pdb_zip_package epan)
