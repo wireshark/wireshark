@@ -339,8 +339,8 @@ static int hf_pfcp_ur_seqn = -1;
 static int hf_pfcp_oci_flags = -1;
 static int hf_pfcp_oci_flags_b0_aoci = -1;
 
-static int hf_pfcp_sx_assoc_rel_req_flags = -1;
-static int hf_pfcp_sx_assoc_rel_req_b0_sarr = -1;
+static int hf_pfcp_pfcp_assoc_rel_req_flags = -1;
+static int hf_pfcp_pfcp_assoc_rel_req_b0_sarr = -1;
 
 static int hf_pfcp_upiri_flags = -1;
 static int hf_pfcp_upiri_flags_b0_v4 = -1;
@@ -3068,17 +3068,17 @@ dissect_pfcp_oci_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
  * 8.2.77   Sx Association Release Request
  */
 static void
-dissect_pfcp_sx_assoc_rel_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_pfcp_pfcp_assoc_rel_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
 
     static const int * pfcp_sx_assoc_rel_req_flags[] = {
         &hf_pfcp_spare_b7_b1,
-        &hf_pfcp_sx_assoc_rel_req_b0_sarr,
+        &hf_pfcp_pfcp_assoc_rel_req_b0_sarr,
         NULL
     };
     /* Octet 5  Spare    SARR */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_sx_assoc_rel_req_flags,
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_pfcp_assoc_rel_req_flags,
         ett_sx_assoc_rel_req_flags, pfcp_sx_assoc_rel_req_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
 
@@ -3468,7 +3468,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    108 */    { dissect_pfcp_far_id },                                        /* FAR ID                                          Extendable / Subclause 8.2.74 */
 /*    109 */    { dissect_pfcp_qer_id },                                        /* QER ID                                          Extendable / Subclause 8.2.75 */
 /*    110 */    { dissect_pfcp_oci_flags },                                     /* OCI Flags                                       Extendable / Subclause 8.2.76 */
-/*    111 */    { dissect_pfcp_sx_assoc_rel_req },                              /* Sx Association Release Request                  Extendable / Subclause 8.2.77 */
+/*    111 */    { dissect_pfcp_pfcp_assoc_rel_req },                            /* PFCP Association Release Request                Extendable / Subclause 8.2.77 */
 /*    112 */    { dissect_pfcp_graceful_release_period },                       /* Graceful Release Period                         Extendable / Subclause 8.2.78 */
 /*    113 */    { dissect_pfcp_pdn_type },                                      /* PDN Type                                        Fixed Length / Subclause 8.2.79 */
 /*    114 */    { dissect_pfcp_failed_rule_id },                                /* Failed Rule ID                                  Extendable / Subclause 8.2.80 */
@@ -5269,13 +5269,13 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_sx_assoc_rel_req_flags,
-        { "Flags", "pfcp.sx_assoc_rel_req",
+        { &hf_pfcp_pfcp_assoc_rel_req_flags,
+        { "Flags", "pfcp.assoc_rel_req",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_sx_assoc_rel_req_b0_sarr,
-        { "SARR (Sx Association Release Request)", "pfcp.sx_assoc_rel_req.sarr",
+        { &hf_pfcp_pfcp_assoc_rel_req_b0_sarr,
+        { "SARR (PFCP Association Release Request)", "pfcp.assoc_rel_req.sarr",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
