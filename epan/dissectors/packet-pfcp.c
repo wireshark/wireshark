@@ -325,6 +325,7 @@ static int hf_pfcp_hf_val = -1;
 static int hf_pfcp_measurement_info = -1;
 static int hf_pfcp_measurement_info_b0_mbqe = -1;
 static int hf_pfcp_measurement_info_b1_inam = -1;
+static int hf_pfcp_measurement_info_b2_radi = -1;
 
 static int hf_pfcp_node_report_type = -1;
 static int hf_pfcp_node_report_type_b0_upfr = -1;
@@ -2851,7 +2852,8 @@ dissect_pfcp_measurement_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     int offset = 0;
 
     static const int * pfcp_measurement_info_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_measurement_info_b2_radi,
         &hf_pfcp_measurement_info_b1_inam,
         &hf_pfcp_measurement_info_b0_mbqe,
         NULL
@@ -5217,6 +5219,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_measurement_info_b1_inam,
         { "INAM (Inactive Measurement)", "pfcp.measurement_info.inam",
             FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_measurement_info_b2_radi,
+        { "RADI (Reduced Application Detection Information)", "pfcp.measurement_info.radi",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_pfcp_node_report_type,
