@@ -219,6 +219,7 @@ static int hf_pfcp_ul_gbr = -1;
 static int hf_pfcp_dl_gbr = -1;
 
 static int hf_pfcp_report_type = -1;
+static int hf_pfcp_report_type_b3_upir = -1;
 static int hf_pfcp_report_type_b2_erir = -1;
 static int hf_pfcp_report_type_b1_usar = -1;
 static int hf_pfcp_report_type_b0_dldr = -1;
@@ -1304,13 +1305,14 @@ dissect_pfcp_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
     int offset = 0;
 
     static const int * pfcp_report_type_flags[] = {
-        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_report_type_b3_upir,
         &hf_pfcp_report_type_b2_erir,
         &hf_pfcp_report_type_b1_usar,
         &hf_pfcp_report_type_b0_dldr,
         NULL
     };
-    /* Octet 5  Spare   ERIR    USAR    DLDR */
+    /* Octet 5  Spare   UPIR   ERIR    USAR    DLDR */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_report_type,
         ett_pfcp_report_type, pfcp_report_type_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
@@ -4838,6 +4840,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_report_type,
         { "Flags", "pfcp.report_type",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_report_type_b3_upir,
+        { "UPIR (User Plane Inactivity Report)", "pfcp.report_type.upir",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_pfcp_report_type_b2_erir,
