@@ -189,6 +189,7 @@ static expert_field ei_gquic_version_invalid = EI_INIT;
 typedef struct gquic_info_data {
     guint8 version;
     gboolean version_valid;
+    gboolean encoding;
     guint16 server_port;
 } gquic_info_data_t;
 
@@ -2024,6 +2025,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!gquic_info) {
         gquic_info = wmem_new(wmem_file_scope(), gquic_info_data_t);
         gquic_info->version = 0;
+        gquic_info->encoding = ENC_LITTLE_ENDIAN;
         gquic_info->version_valid = TRUE;
         gquic_info->server_port = 443;
         conversation_add_proto_data(conv, proto_gquic, gquic_info);
@@ -2049,6 +2051,9 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info(pinfo, gquic_tree, &ei_gquic_version_invalid);
     }
 
+    if(gquic_info->version >= 39){ /* After Q039, Integers and floating numbers are written in big endian*/
+        gquic_info->encoding = ENC_BIG_ENDIAN;
+    }
     ti_puflags = proto_tree_add_item(gquic_tree, hf_gquic_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     puflags_tree = proto_item_add_subtree(ti_puflags, ett_gquic_puflags);
     proto_tree_add_item(puflags_tree, hf_gquic_puflags_vrsn, tvb, offset, 1, ENC_NA);
@@ -2124,7 +2129,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Get len of packet number */
     len_pkn = get_len_packet_number(puflags);
-    proto_tree_add_item_ret_uint64(gquic_tree, hf_gquic_packet_number, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN, &pkn);
+    proto_tree_add_item_ret_uint64(gquic_tree, hf_gquic_packet_number, tvb, offset, len_pkn, gquic_info->encoding, &pkn);
     offset += len_pkn;
 
     /* Unencrypt Message (Handshake or Connection Close...) */
