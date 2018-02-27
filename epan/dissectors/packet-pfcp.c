@@ -92,6 +92,9 @@ static int hf_pfcp_pdn_type = -1;
 static int hf_pfcp_failed_rule_id_type = -1;
 static int hf_pfcp_time_qouta_mechanism_bti_type = -1;
 static int hf_pfcp_time_qouta_mechanism_bti = -1;
+static int hf_pfcp_multiplier_value_digits = -1;
+static int hf_pfcp_multiplier_exponent = -1;
+static int hf_pfcp_aggregated_urr_id_ie_urr_id = -1;
 
 static int hf_pfcp_ue_ip_address_flags = -1;
 static int hf_pfcp_ue_ip_address_flag_b0_v6 = -1;
@@ -441,6 +444,7 @@ static void dissect_pfcp_remove_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void dissect_pfcp_error_indication_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 static void dissect_pfcp_user_plane_path_failure_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 static void dissect_pfcp_update_duplicating_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
+static void dissect_pfcp_aggregated_urrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -521,6 +525,7 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_ERROR_INDICATION_REPORT           99
 #define PFCP_USER_PLANE_PATH_FAILURE_REPORT   102
 #define PFCP_UPDATE_DUPLICATING_PARAMETERS    105
+#define PFCP_AGGREGATED_URRS                  118
 
 static const value_string pfcp_ie_type[] = {
 
@@ -642,7 +647,10 @@ static const value_string pfcp_ie_type[] = {
     { 115, "Time Quota Mechanism" },                                /* Extendable / Subclause 8.2.81 */
     { 116, "User Plane IP Resource Information" },                  /* Extendable / Subclause 8.2.82 */
     { 117, "User Plane Inactivity Timer" },                         /* Extendable / Subclause 8.2.83 */
-    //118 to 65535	Spare. For future use.
+    { 118, "Aggregated URRs" },                                     /* Extendable / Table 7.5.2.4-2 */
+    { 119, "Multiplier" },                                          /* Fixed Length / Subclause 8.2.84 */
+    { 120, "Aggregated URR ID IE" },                                /* Fixed Length / Subclause 8.2.85 */
+    //121 to 65535	Spare. For future use.
     {0, NULL}
 };
 
@@ -3353,6 +3361,33 @@ dissect_pfcp_user_plane_inactivity_timer(tvbuff_t *tvb, packet_info *pinfo, prot
 
 }
 
+/*
+ * 8.2.84    Multiplier
+ */
+static void
+dissect_pfcp_multiplier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
+{
+
+    /* 5 to 12  Value-Digits */
+    proto_tree_add_item(tree, hf_pfcp_multiplier_value_digits, tvb, 0, 8, ENC_BIG_ENDIAN);
+
+    /* 12 to 15  Exponent */
+    proto_tree_add_item(tree, hf_pfcp_multiplier_exponent, tvb, 8, 4, ENC_BIG_ENDIAN);
+
+}
+
+/*
+ * 8.2.85    Aggregated URR ID IE
+ */
+static void
+dissect_pfcp_aggregated_urr_id_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
+{
+
+    /* 5 to 8  URR ID */
+    proto_tree_add_item(tree, hf_pfcp_aggregated_urr_id_ie_urr_id, tvb, 0, 4, ENC_BIG_ENDIAN);
+
+}
+
 /* Array of functions to dissect IEs
 * (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 */
@@ -3478,7 +3513,10 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    114 */    { dissect_pfcp_failed_rule_id },                                /* Failed Rule ID                                  Extendable / Subclause 8.2.80 */
 /*    115 */    { dissect_pfcp_time_qouta_mechanism },                          /* Time Quota Mechanism                            Extendable / Subclause 8.2.81 */
 /*    116 */    { dissect_pfcp_user_plane_ip_resource_infomation },             /* User Plane IP Resource Information              Extendable / Subclause 8.2.82 */
-/*    117 */    { dissect_pfcp_user_plane_inactivity_timer },             	/* User Plane Inactivity Timer 			   Extendable / Subclause 8.2.83 */
+/*    117 */    { dissect_pfcp_user_plane_inactivity_timer },                   /* User Plane Inactivity Timer                     Extendable / Subclause 8.2.83 */
+/*    118 */    { dissect_pfcp_aggregated_urrs },                               /* Aggregated URRs                                 Extendable / Table 7.5.2.4-2 */
+/*    119 */    { dissect_pfcp_multiplier },                                    /* Multiplier                                      Fixed Length / Subclause 8.2.84 */
+/*    120 */    { dissect_pfcp_aggregated_urr_id_ie },                          /* Aggregated URR ID IE                            Fixed Length / Subclause 8.2.85 */
     { NULL },                                                        /* End of List */
 };
 
@@ -3708,6 +3746,11 @@ dissect_pfcp_update_duplicating_parameters(tvbuff_t *tvb, packet_info *pinfo, pr
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_UPDATE_DUPLICATING_PARAMETERS]);
 }
 
+static void
+dissect_pfcp_aggregated_urrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_AGGREGATED_URRS]);
+}
 
 static void
 dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint offset, guint8 message_type)
@@ -4177,6 +4220,21 @@ proto_register_pfcp(void)
         { &hf_pfcp_pdn_type,
         { "PDN Type", "pfcp.pdn_type",
             FT_UINT8, BASE_DEC, VALS(pfcp_pdn_type_vals), 0x7,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_multiplier_value_digits,
+        { "Value Digits", "pfcp.multiplier.value_digits",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_multiplier_exponent,
+        { "Exponent", "pfcp.multiplier.exponent",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_aggregated_urr_id_ie_urr_id,
+        { "URR ID", "pfcp.aggregated_urr_id_ie.urr_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_failed_rule_id_type,
