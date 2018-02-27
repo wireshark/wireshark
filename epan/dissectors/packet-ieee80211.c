@@ -17351,8 +17351,11 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree_add_item(ppe_tree, hf_he_ppe_thresholds_ru_index_bitmask, tvb,
                         offset, 1, ENC_NA);
 
-    /* Now, for each of the nss values, add a sub-tree with its thresholds */
-    while (nss_index < nss_count) {
+    /*
+     * Now, for each of the nss values, add a sub-tree with its thresholds.
+     * The actual count is one more than the number in the first three bits.
+     */
+    while (nss_index < nss_count + 1) {
       int start_offset = 0;
       proto_tree *nss_tree = NULL;
       proto_item *nssti = NULL;
@@ -17383,9 +17386,9 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
           } else { /* We need two adjacent bytes */
             the_bits = (tvb_get_guint8(tvb, offset) >> bit_offset);
             offset++;
-            the_bits = the_bits >> bit_offset |
+            the_bits = the_bits |
                         ((tvb_get_guint8(tvb, offset) &
-                                ((1 << bits_needed) - 1)) << (6 - bits_needed));
+                                ((1 << bits_needed) - 1)) << bits_avail);
           }
           /*
            * Now we have two three bit fields, use them.
