@@ -2089,7 +2089,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         guint16         udp_src_port, udp_dst_port;
 
         /* Create a tree for the UDP header. */
-        nhc_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_6lowpan_nhc_udp, NULL, "UDP header compression");
+        nhc_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_6lowpan_nhc_udp, NULL, "UDP header compression");
         /* Display the UDP NHC ID pattern. */
         proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_UDP_BITS, ENC_BIG_ENDIAN);
 
