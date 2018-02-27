@@ -108,6 +108,7 @@ static const gchar *default_media_types[] = {
     "application/rlmi+xml",
     "application/rls-services+xml",
     "application/rss+xml",
+    "application/rs-metadata+xml",
     "application/smil",
     "application/simple-filter+xml",
     "application/simple-message-summary+xml",   /*RFC3842*/
