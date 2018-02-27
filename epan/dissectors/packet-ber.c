@@ -4170,6 +4170,8 @@ static const ber_choice_t T_encoding_choice[] = {
 
 static int
 dissect_ber_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+    // This assertion is used to remove clang's warning.
+    DISSECTOR_ASSERT(actx);
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                 T_encoding_choice, hf_index, ett_ber_T_encoding,
                                 &actx->external.encoding);

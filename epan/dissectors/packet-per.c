@@ -2600,6 +2600,8 @@ static const per_choice_t External_encoding_choice[] = {
 
 static int
 dissect_per_External_encoding(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+	// This assertion is used to remove clang's warning.
+	DISSECTOR_ASSERT(actx);
 	offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
 				    ett_per_External_encoding, External_encoding_choice,
 				    &actx->external.encoding);
