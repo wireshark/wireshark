@@ -310,7 +310,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Other TLVs (LACP version 2) */
 
-    tlv_type_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
+    proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
     offset += 1;
 
     tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
@@ -318,7 +318,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     while (tlv_type != LACPDU_TYPE_TERMINATOR) {
         offset += (tlv_length - 2);
-        tlv_type_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
+        proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
         offset += 1;
 
         tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
