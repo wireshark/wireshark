@@ -392,10 +392,12 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_
         DEBUG_DUMP("FullDecrKey:", new_key, 32);
 
         if (gcry_cipher_open (&rc4_handle, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0)) {
+          g_free(szEncryptedKey);
           return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
         if (gcry_cipher_setkey(rc4_handle, new_key, sizeof(new_key))) {
           gcry_cipher_close(rc4_handle);
+          g_free(szEncryptedKey);
           return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
 
