@@ -734,7 +734,7 @@ capture to a file, and the final message giving the count of packets
 captured.  Only true errors are displayed on the standard error.
 
 only display true errors; don't display the
-inital message indicating the.  This outputs less
+initial message indicating the.  This outputs less
 than the B<-q> option, so the interface name and total packet
 count and the end of a capture are not sent to stderr.
 
