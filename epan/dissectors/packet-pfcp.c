@@ -702,10 +702,12 @@ static const value_string pfcp_cause_vals[] = {
 };
 
 static void
-dissect_pfcp_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
+dissect_pfcp_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_)
 {
+    guint32 value;
     /* Octet 5 Cause value */
-    proto_tree_add_item(tree, hf_pfcp2_cause, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp2_cause, tvb, 0, 1, ENC_BIG_ENDIAN, &value);
+    proto_item_append_text(item, "%s", val_to_str_const(value, pfcp_cause_vals, "Unknown"));
 }
 /*
  * 8.2.2    Source Interface
@@ -739,7 +741,7 @@ dissect_pfcp_source_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * 8.2.3    F-TEID
  */
 static void
-dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
     guint64 fteid_flags_val;
@@ -780,16 +782,19 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 
         /* Octet 6 to 9    TEID */
         proto_tree_add_item(tree, hf_pfcp_f_teid_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, "TEID: 0x%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 4));
         offset += 4;
 
         if ((fteid_flags_val & 0x1) == 1) {
             /* m to (m+3)    IPv4 address */
             proto_tree_add_item(tree, hf_pfcp_f_teid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
             offset += 4;
         }
         if ((fteid_flags_val & 0x2) == 2) {
             /* p to (p+15)   IPv6 address */
             proto_tree_add_item(tree, hf_pfcp_f_teid_ipv6, tvb, offset, 16, ENC_NA);
+            proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
             offset += 16;
         }
         /* If the value of CH bit is set to "0", but the value of CHID bit is "1" */
@@ -1592,12 +1597,15 @@ dissect_pfcp_dl_buffering_dur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
  * 8.2.30   DL Buffering Suggested Packet Count
  */
 static void
-dissect_pfcp_dl_buffering_suggested_packet_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_pfcp_dl_buffering_suggested_packet_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
 {
+    guint32 value;
     /* Octet 5 to n+4 Packet Count Value
     * The length shall be set to 1 or 2 octets.
     */
-    proto_tree_add_item(tree, hf_pfcp_packet_count, tvb, 0, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_packet_count, tvb, 0, length, ENC_BIG_ENDIAN, &value);
+
+    proto_item_append_text(item, "%u", value);
 }
 /*
  * 8.2.31   PFCPSMReq-Flags
@@ -1756,7 +1764,7 @@ dissect_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
  * 8.2.37   F-SEID
  */
 static void
-dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
     guint64 f_seid_flags;
@@ -1783,15 +1791,18 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     }
     /* Octet 6 to 13    SEID  */
     proto_tree_add_item(tree, hf_pfcp_seid, tvb, offset, 8, ENC_BIG_ENDIAN);
+    proto_item_append_text(item, "SEID: 0x%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 8));
     offset += 8;
     /* IPv4 address (if present)*/
     if ((f_seid_flags & 0x2) == 2) {
         proto_tree_add_item(tree, hf_pfcp_f_seid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
         offset += 4;
     }
     /* IPv6 address (if present)*/
     if ((f_seid_flags & 0x1) == 1) {
         proto_tree_add_item(tree, hf_pfcp_f_seid_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
         offset += 16;
     }
     if (offset < length) {
@@ -1821,19 +1832,20 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     /* Octet 5    Spare Node ID Type*/
     proto_tree_add_item(tree, hf_pfcp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint(tree, hf_pfcp_node_id_type, tvb, offset, 1, ENC_BIG_ENDIAN, &node_id_type);
+    proto_item_append_text(item, "%s: ", val_to_str_const(node_id_type, pfcp_node_id_type_vals, "Unknown"));
     offset++;
 
     switch (node_id_type) {
         case 0:
             /* IPv4 address */
             proto_tree_add_item(tree, hf_pfcp_node_id_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-            proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
+            proto_item_append_text(item, "%s", tvb_ip_to_str(tvb, offset));
             offset += 4;
             break;
         case 1:
             /* IPv6 address */
             proto_tree_add_item(tree, hf_pfcp_node_id_ipv6, tvb, offset, 16, ENC_NA);
-            proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
+            proto_item_append_text(item, "%s", tvb_ip6_to_str(tvb, offset));
             offset += 16;
             break;
         case 2:
@@ -2421,7 +2433,7 @@ dissect_pfcp_linked_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree_add_item_ret_uint(tree, hf_pfcp_linked_urr_id, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
     offset += 4;
 
-    proto_item_append_text(item, "%u s", value);
+    proto_item_append_text(item, "%u", value);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -2498,12 +2510,14 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * 8.2.57   BAR ID
  */
 static int
-decode_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 offset)
+decode_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 offset)
 {
+    guint32 value;
     /* Octet 5 BAR ID value
     * The BAR ID value shall be encoded as a binary integer value
     */
-    proto_tree_add_item(tree, hf_pfcp_bar_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_bar_id, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    proto_item_append_text(item, "%u", value);
     offset++;
 
     return offset;
@@ -2937,13 +2951,13 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* IPv4 address (if present)*/
     if ((flags & 0x2) == 2) {
         proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv4 %s ", tvb_ip_to_str(tvb, offset));
         offset += 4;
     }
     /* IPv6 address (if present)*/
     if ((flags & 0x1) == 1) {
         proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv6 %s ", tvb_ip6_to_str(tvb, offset));
         offset += 16;
     }
 
@@ -3090,7 +3104,7 @@ dissect_pfcp_oci_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 }
 
 /*
- * 8.2.77   Sx Association Release Request
+ * 8.2.77   PFCP Association Release Request
  */
 static void
 dissect_pfcp_pfcp_assoc_rel_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
@@ -3393,12 +3407,13 @@ dissect_pfcp_multiplier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
  * 8.2.85    Aggregated URR ID IE
  */
 static void
-dissect_pfcp_aggregated_urr_id_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
+dissect_pfcp_aggregated_urr_id_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_)
 {
-
+    guint32 value;
     /* 5 to 8  URR ID */
-    proto_tree_add_item(tree, hf_pfcp_aggregated_urr_id_ie_urr_id, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_aggregated_urr_id_ie_urr_id, tvb, 0, 4, ENC_BIG_ENDIAN, &value);
 
+    proto_item_append_text(item, "%u", value);
 }
 
 /*
@@ -4059,12 +4074,12 @@ proto_register_pfcp(void)
         NULL, HFILL }
         },
         { &hf_pfcp_mp_flag,
-        { "MP", "pfcp.mp_flag",
+        { "Message Priority (MP)", "pfcp.mp_flag",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }
         },
         { &hf_pfcp_s_flag,
-        { "S", "pfcp.s",
+        { "SEID (S)", "pfcp.s",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }
         },
