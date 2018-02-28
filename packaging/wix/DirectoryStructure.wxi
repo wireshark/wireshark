@@ -30,6 +30,8 @@
           <Directory Id="dirPlugins" Name="plugins">
             <Directory Id="dirPluginsVersion" Name="$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)">
               <Directory Id="dirPluginsVersionEpan" Name="epan"/>
+              <Directory Id="dirPluginsVersionWtap" Name="wiretap"/>
+              <Directory Id="dirPluginsVersionCodecs" Name="codecs"/>
             </Directory>
           </Directory>
           <Directory Id="dirProfiles" Name="profiles"/>

@@ -91,4 +91,32 @@
     </ComponentGroup>
   </Fragment>
 
+    <!-- wiretap -->
+    <Fragment>
+        <DirectoryRef Id="dirPluginsVersionWtap">
+            <Component Id="cmpUsbdump_dll" Guid="*">
+                <File Id="filUsbdump_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\wiretap\usbdump.dll" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.Plugins.Usbdump">
+            <ComponentRef Id="cmpUsbdump_dll" />
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- codecs -->
+    <Fragment>
+        <DirectoryRef Id="dirPluginsVersionCodecs">
+            <Component Id="cmpL16mono_dll" Guid="*">
+                <File Id="filL16mono_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\l16mono.dll" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.Plugins.L16mono">
+            <ComponentRef Id="cmpL16mono_dll" />
+        </ComponentGroup>
+    </Fragment>
+
 </Include>
