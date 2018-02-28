@@ -106,12 +106,25 @@ extern "C" {
    *   warning C4018: signed/unsigned mismatch
    *   warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
    *   warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+   *
+   * as well as Visual Studio Code Analyzer warnings:
+   *
+   *   warning C6011: Dereferencing NULL pointer
+   *   warning C6308: 'realloc' might return null pointer
+   *   warning C6386: Buffer overrun
+   *   warning C6387: 'XXX' could be '0'
+   *   warning C28182: Dereferencing NULL pointer
    */
   #define DIAG_OFF_FLEX \
     __pragma(warning(push)) \
     __pragma(warning(disable:4018)) \
     __pragma(warning(disable:4244)) \
-    __pragma(warning(disable:4267))
+    __pragma(warning(disable:4267)) \
+    __pragma(warning(disable:6011)) \
+    __pragma(warning(disable:6308)) \
+    __pragma(warning(disable:6386)) \
+    __pragma(warning(disable:6387)) \
+    __pragma(warning(disable:28182))
   #define DIAG_ON_FLEX	__pragma(warning(pop))
 
   /*
