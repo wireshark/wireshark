@@ -118,6 +118,14 @@ static const value_string peekremote_mcs_index_vals_ac[] = {
   { 0, NULL }
 };
 
+static const value_string spatialstreams_vals[] = {
+  { 0, "1" },
+  { 1, "2" },
+  { 2, "3" },
+  { 3, "4" },
+  { 0, NULL }
+};
+
 static const value_string peekremote_type_vals[] = {
   { 6, "kMediaSpecificHdrType_Wireless3" },
   { 0, NULL }
@@ -143,7 +151,10 @@ static const value_string peekremote_type_vals[] = {
 #define EXT_FLAG_AMSDU                          0x00000040
 #define EXT_FLAG_802_11ac                       0x00000080
 #define EXT_FLAG_MCS_INDEX_USED                 0x00000100
-#define EXT_FLAGS_RESERVED                      0xFFFFFE00
+#define EXT_FLAG_80MHZ                          0x00000200
+#define EXT_FLAG_SHORTPREAMBLE                  0x00000400
+#define EXT_FLAG_SPATIALSTREAMS                 0x0001C000
+#define EXT_FLAGS_RESERVED                      0xFFFE0000
 
 /* hfi elements */
 #define THIS_HF_INIT HFI_INIT(proto_peekremote)
@@ -300,6 +311,18 @@ static header_field_info hfi_peekremote_extflags_future_use THIS_HF_INIT =
       { "MCS index used",     "peekremote.extflags.future_use", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         EXT_FLAG_MCS_INDEX_USED, NULL, HFILL };
 
+static header_field_info hfi_peekremote_extflags_80mhz THIS_HF_INIT =
+      { "80 Mhz",     "peekremote.extflags.80mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+        EXT_FLAG_80MHZ, NULL, HFILL };
+
+static header_field_info hfi_peekremote_extflags_shortpreamble THIS_HF_INIT =
+      { "Short preamble",     "peekremote.extflags.shortpreamble", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+        EXT_FLAG_SHORTPREAMBLE, NULL, HFILL };
+
+static header_field_info hfi_peekremote_extflags_spatialstreams THIS_HF_INIT =
+      { "Spatial streams",     "peekremote.extflags.spatialstreams", FT_UINT32, BASE_DEC, VALS(spatialstreams_vals),
+        EXT_FLAG_SPATIALSTREAMS, NULL, HFILL };
+
 static header_field_info hfi_peekremote_extflags_reserved THIS_HF_INIT =
       { "Reserved",     "peekremote.extflags.reserved", FT_UINT32, BASE_HEX, NULL,
         EXT_FLAGS_RESERVED, "Must be zero", HFILL };
@@ -365,6 +388,9 @@ dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_amsdu, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_11ac, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_future_use, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_80mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_shortpreamble, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_spatialstreams, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
   return 4;
@@ -651,6 +677,9 @@ proto_register_peekremote(void)
     &hfi_peekremote_extflags_amsdu,
     &hfi_peekremote_extflags_11ac,
     &hfi_peekremote_extflags_future_use,
+    &hfi_peekremote_extflags_80mhz,
+    &hfi_peekremote_extflags_shortpreamble,
+    &hfi_peekremote_extflags_spatialstreams,
     &hfi_peekremote_extflags_reserved,
     &hfi_peekremote_signal_1_dbm,
     &hfi_peekremote_signal_2_dbm,
