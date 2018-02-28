@@ -7864,8 +7864,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             gint e_len = tvb_captured_length(tvb) - offset;
             const guint8 *epp_buf = tvb_get_ptr(tvb, 0, -1);
             guint a_len = offset;
-            guint16 e_off;
-            guint8 *buf = (guint8 *)g_malloc0(e_len);
+            guint8 *buf = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, e_len);
             tvbuff_t *app;
 
             /* The default nonce is a function of whether or not this is the server
@@ -7889,8 +7888,6 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             * This is a function of the sending node, the previous state and the
             * current PDU.
             */
-            for (e_off = 0; e_off < e_len; e_off++)
-                buf[e_off] = tvb_get_guint8(tvb, offset + e_off);
 
             app = NULL;
 
@@ -7900,7 +7897,6 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 /* There is still a MAC involved, and even though we don't need a new
                 * buffer we need to adjust the length of the existing buffer.
                 */
-                g_free(buf);
                 app = tvb_new_subset_length_caplen(tvb, offset, e_len - session->mac_len, e_len - session->mac_len);
                 dof_packet->decrypted_tvb = app;
                 dof_packet->decrypted_offset = 0;
@@ -7920,7 +7916,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 {
                     if (decrypt(session, pdata, nonce, epp_buf, a_len, buf, e_len))
                     {
-                        guint8 *cache = (guint8 *)wmem_alloc0(wmem_file_scope(), e_len - session->mac_len);
+                        guint8 *cache = (guint8 *)wmem_alloc0(pinfo->pool, e_len - session->mac_len);
                         memcpy(cache, buf, e_len - session->mac_len);
                         app = tvb_new_real_data(cache, e_len - session->mac_len, e_len - session->mac_len);
                         tvb_set_child_real_data_tvbuff(tvb, app);
@@ -7928,8 +7924,6 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         dof_packet->decrypted_buffer = cache;
                         dof_packet->decrypted_offset = 0;
                         dof_packet->decrypted_tvb = app;
-
-                        g_free(buf);
                     }
                     else
                     {
@@ -7937,8 +7931,6 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         * The packet is secure, so there is nothing we can do!
                         */
                         dof_packet->decrypted_buffer_error = "[Encrypted packet - decryption failure]";
-
-                        g_free(buf);
                     }
                 }
             }
