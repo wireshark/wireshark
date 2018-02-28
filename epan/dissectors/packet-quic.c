@@ -112,6 +112,8 @@ typedef struct quic_info_data {
     tls13_cipher *server_cleartext_cipher;
 } quic_info_data_t;
 
+#define QUIC_DRAFT 0xff0000
+
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
     { 0xff000004, "draft-04" },
@@ -1072,6 +1074,43 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+
+    conversation_t *conversation = NULL;
+    int offset = 0;
+    guint8 flags;
+    guint32 version;
+
+    /* Verify packet size  (Flag (1 byte) + Connection ID (8 bytes) + Version (4 bytes)) */
+    if (tvb_captured_length(tvb) < 13)
+    {
+        return FALSE;
+    }
+
+    flags = tvb_get_guint8(tvb, offset);
+    /* Check if long Packet is set */
+    if((flags & 0x80) == 0) {
+        return FALSE;
+    }
+    offset += 1;
+
+    /* Connection ID */
+    offset += 8;
+
+    /* Check if version start with 0xFF0000... (QUIC draft release)*/
+    version = tvb_get_ntoh24(tvb, offset);
+    if ( version == QUIC_DRAFT ) {
+        conversation = find_or_create_conversation(pinfo);
+        conversation_set_dissector(conversation, quic_handle);
+        dissect_quic(tvb, pinfo, tree, data);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
 
 void
 proto_register_quic(void)
@@ -1421,7 +1460,8 @@ void
 proto_reg_handoff_quic(void)
 {
     ssl_handle = find_dissector("ssl");
-    dissector_add_uint_with_preference("udp.port", 443, quic_handle);
+    dissector_add_uint_with_preference("udp.port", 0, quic_handle);
+    heur_dissector_add("udp", dissect_quic_heur, "QUIC", "quic", proto_quic, HEURISTIC_ENABLE);
 }
 
 /*
