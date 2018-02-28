@@ -2032,7 +2032,7 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
     fputc('\n', fh);
 }
 
-static void format_field_values(output_fields_t* fields, gpointer field_index, const gchar* value)
+static void format_field_values(output_fields_t* fields, gpointer field_index, gchar* value)
 {
     guint      indx;
     GPtrArray* fv_p;
@@ -2055,8 +2055,11 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, c
     switch (fields->occurrence) {
     case 'f':
         /* print the value of only the first occurrence of the field */
-        if (g_ptr_array_len(fv_p) != 0)
+        /* the value won't be used, free it */
+        if (g_ptr_array_len(fv_p) != 0) {
+            g_free(value);
             return;
+        }
         break;
     case 'l':
         /* print the value of only the last occurrence of the field */
