@@ -359,6 +359,16 @@ static int hf_pfcp_upiri_network_instance = -1;
 
 static int hf_pfcp_user_plane_inactivity_timer = -1;
 
+static int hf_pfcp_subsequent_volume_quota = -1;
+static int hf_pfcp_subsequent_volume_quota_b2_dlvol = -1;
+static int hf_pfcp_subsequent_volume_quota_b1_ulvol = -1;
+static int hf_pfcp_subsequent_volume_quota_b0_tovol = -1;
+static int hf_pfcp_subsequent_volume_quota_tovol = -1;
+static int hf_pfcp_subsequent_volume_quota_ulvol = -1;
+static int hf_pfcp_subsequent_volume_quota_dlvol = -1;
+
+static int hf_pfcp_subsequent_time_quota = -1;
+
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
 static int ett_pfcp_ie = -1;
@@ -396,6 +406,7 @@ static int ett_pfcp_flow_desc = -1;
 static int ett_pfcp_tos = -1;
 static int ett_pfcp_spi = -1;
 static int ett_pfcp_flow_label = -1;
+static int ett_pfcp_subsequent_volume_quota = -1;
 
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
@@ -650,7 +661,9 @@ static const value_string pfcp_ie_type[] = {
     { 118, "Aggregated URRs" },                                     /* Extendable / Table 7.5.2.4-2 */
     { 119, "Multiplier" },                                          /* Fixed Length / Subclause 8.2.84 */
     { 120, "Aggregated URR ID IE" },                                /* Fixed Length / Subclause 8.2.85 */
-    //121 to 65535	Spare. For future use.
+    { 121, "Subsequent Volume Quota" },                             /* Extendable / Subclause 8.2.86 */
+    { 122, "Subsequent Time Quota" },                               /* Extendable / Subclause 8.2.87 */
+    //123 to 65535	Spare. For future use.
     {0, NULL}
 };
 
@@ -3388,6 +3401,81 @@ dissect_pfcp_aggregated_urr_id_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 }
 
+/*
+ * 8.2.86   Subsequent Volume Quota
+ */
+static void
+dissect_pfcp_subsequent_volume_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_subsequent_volume_quota_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_subsequent_volume_quota_b2_dlvol,
+        &hf_pfcp_subsequent_volume_quota_b1_ulvol,
+        &hf_pfcp_subsequent_volume_quota_b0_tovol,
+        NULL
+    };
+    /* Octet 5  Spare   DLVOL   ULVOL   TOVOL*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_subsequent_volume_quota,
+        ett_pfcp_subsequent_volume_quota, pfcp_subsequent_volume_quota_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+    /* The Total Volume, Uplink Volume and Downlink Volume fields shall be encoded as an Unsigned64 binary integer value.
+    * They shall contain the total, uplink or downlink number of octets respectively.
+    */
+    if ((flags_val & 0x1) == 1) {
+        /* m to (m+7)   Total Volume
+        * TOVOL: If this bit is set to "1", then the Total Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_subsequent_volume_quota_tovol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x2) == 2) {
+        /* p to (p+7)	Uplink Volume
+        * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_subsequent_volume_quota_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x4) == 4) {
+        /* q to (q+7)   Downlink Volume
+        * DLVOL: If this bit is set to "1", then the Downlink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_subsequent_volume_quota_dlvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.87   Subsequent Time Quota
+ */
+static void
+dissect_pfcp_subsequent_time_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint value;
+
+    /* Octet 5 to 8 Time Quota
+    * The Time Quota field shall be encoded as an Unsigned32 binary integer value.
+    * It shall contain the duration in seconds.
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_subsequent_time_quota, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u s", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /* Array of functions to dissect IEs
 * (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 */
@@ -3517,6 +3605,8 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    118 */    { dissect_pfcp_aggregated_urrs },                               /* Aggregated URRs                                 Extendable / Table 7.5.2.4-2 */
 /*    119 */    { dissect_pfcp_multiplier },                                    /* Multiplier                                      Fixed Length / Subclause 8.2.84 */
 /*    120 */    { dissect_pfcp_aggregated_urr_id_ie },                          /* Aggregated URR ID IE                            Fixed Length / Subclause 8.2.85 */
+/*    121 */    { dissect_pfcp_subsequent_volume_quota },                       /* Subsequent Volume Quota                         Extendable / Subclause 8.2.86 */
+/*    122 */    { dissect_pfcp_subsequent_time_quota },                         /* Subsequent Time Quota                           Extendable / Subclause 8.2.87 */
     { NULL },                                                        /* End of List */
 };
 
@@ -5402,10 +5492,52 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
+        { &hf_pfcp_subsequent_volume_quota,
+        { "Flags", "pfcp.subsequent_volume_quota",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subsequent_volume_quota_b0_tovol,
+        { "TOVOL", "pfcp.subsequent_volume_quota_flags.tovol",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subsequent_volume_quota_b1_ulvol,
+        { "ULVOL", "pfcp.subsequent_volume_quota_flags.ulvol",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subsequent_volume_quota_b2_dlvol,
+        { "DLVOL", "pfcp.subsequent_volume_quota_flags.dlvol",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subsequent_volume_quota_tovol,
+        { "Total Volume", "pfcp.subsequent_volume_quota.tovol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subsequent_volume_quota_ulvol,
+        { "Uplink Volume", "pfcp.subsequent_volume_quota.ulvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subsequent_volume_quota_dlvol,
+        { "Downlink Volume", "pfcp.subsequent_volume_quota.dlvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_subsequent_time_quota,
+        { "Subsequent Time Quota", "pfcp.subsequent_time_quota",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    37
+#define NUM_INDIVIDUAL_ELEMS_PFCP    38
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -5446,6 +5578,7 @@ proto_register_pfcp(void)
     ett[34] = &ett_pfcp_tos;
     ett[35] = &ett_pfcp_spi;
     ett[36] = &ett_pfcp_flow_label;
+    ett[37] = &ett_pfcp_subsequent_volume_quota;
 
 
     static ei_register_info ei[] = {
