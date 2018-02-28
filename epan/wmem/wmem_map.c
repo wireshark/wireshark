@@ -68,7 +68,7 @@ struct _wmem_map_t {
 
 /* Macro for calculating the real capacity of the map by using a left-shift to
  * do the 2^x operation. */
-#define CAPACITY(MAP) ((size_t)(1 << (MAP)->capacity))
+#define CAPACITY(MAP) (((size_t)1) << (MAP)->capacity)
 
 /* Efficient universal integer hashing:
  * https://en.wikipedia.org/wiki/Universal_hashing#Avoiding_modular_arithmetic
