@@ -19247,13 +19247,12 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
      * depending on the values of the fragment number subfield in the
      * SSC! All values other that 0 and 2 in bits B1 & B2 are reserved.
      */
-    frag_num = tvb_get_guint8(tvb, offset) & 0x0F;
+    ssn = tvb_get_letohs(tvb, offset);
+    frag_num = ssn & 0x0F;
+    ssn >>= 4;
     offset += add_ff_block_ack_ssc(ba_tree, tvb, pinfo, offset);
 
     if (!is_req) {
-      ssn = tvb_get_letohs(tvb, offset);
-      ssn >>= 4;
-
       if ((frag_num & 0x06) == 0) {
         bmap = tvb_get_letoh64(tvb, offset);
         ba_bitmap_item = proto_tree_add_item(ba_tree,
