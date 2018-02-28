@@ -1248,7 +1248,8 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
                 first_buff, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
         }
     } else {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%s / unknown"));
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%s / unknown"),
+            first_buff);
     }
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_START_ELAPSED);
     SetWindowText(cur_ctrl, string_buff);
@@ -2326,7 +2327,7 @@ export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param
     switch(msg) {
         case WM_INITDIALOG:
             StringCchPrintf(raw_msg, STATIC_LABEL_CHARS, _T("%d byte%s of raw binary data will be written"),
-                    ofnp->lCustData, utf_8to16(plurality(ofnp->lCustData, "", "s")));
+                    (int)ofnp->lCustData, utf_8to16(plurality(ofnp->lCustData, "", "s")));
             cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
             SetWindowText(cur_ctrl, raw_msg);
             break;
@@ -2354,7 +2355,7 @@ export_sslkeys_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_p
     switch(msg) {
         case WM_INITDIALOG:
             StringCchPrintf(sslkeys_msg, STATIC_LABEL_CHARS, _T("%d SSL Session Key%s will be written"),
-                    ofnp->lCustData, utf_8to16(plurality(ofnp->lCustData, "", "s")));
+                    (int)ofnp->lCustData, utf_8to16(plurality(ofnp->lCustData, "", "s")));
             cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTSSLKEYS_ST);
             SetWindowText(cur_ctrl, sslkeys_msg);
             break;
