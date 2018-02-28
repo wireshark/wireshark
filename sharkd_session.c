@@ -1552,7 +1552,7 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 						break;
 
 					case TABLE_ITEM_INT:
-						printf("%d", field_data->value.uint_value);
+						printf("%d", field_data->value.int_value);
 						break;
 
 					case TABLE_ITEM_STRING:
