@@ -2054,7 +2054,8 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 		return;
 
 	if ((hfinfo->type == FT_STRINGZ) ||
-		((encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) && (IS_FT_UINT(hfinfo->type) ||  IS_FT_UINT(hfinfo->type)))) {
+	    ((encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC)) &&
+	     (IS_FT_UINT(hfinfo->type) || IS_FT_INT(hfinfo->type)))) {
 		/* If we're fetching until the end of the TVB, only validate
 		 * that the offset is within range.
 		 */
