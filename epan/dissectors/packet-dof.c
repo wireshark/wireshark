@@ -7872,10 +7872,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             * or the client and the packet count. The packet count either comes from
             * the PDU or is a function of the previous value (of the sending node).
             */
-            guint8 nonce[] = { 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00,
-                0x00,
-                0x00, 0x00, 0x00, 0x00 };
+            guint8 nonce[11];
 
             nonce[0] = (pdata->nid) >> 24;
             nonce[1] = (pdata->nid) >> 16;
