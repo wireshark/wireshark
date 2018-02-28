@@ -1365,16 +1365,15 @@ rfc1867_angle(tvbuff_t *tvb, int offset, gboolean longitude)
   guint32     degrees, minutes, secs, tsecs;
               /* "%u deg %u min %u.%03u sec %c" */
   static char buf[10+1+3+1 + 2+1+3+1 + 2+1+3+1+3+1 + 1 + 1];
-  static char *nsew = "NSEW";
 
   angle = tvb_get_ntohl(tvb, offset);
 
   if (angle < 0x80000000U) {
     angle = 0x80000000U - angle;
-    direction = nsew[1 + longitude ? 2 : 0];
+    direction = longitude ? 'W' : 'S';
   } else {
     angle = angle - 0x80000000U;
-    direction = nsew[longitude ? 2 : 0];
+    direction = longitude ? 'E' : 'N';
   }
 
   if (longitude ? (angle > 648000000) : (angle > 324000000))
