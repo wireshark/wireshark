@@ -181,6 +181,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
         else if(pDescr->may_be_null)
         {
+          pui8  = pui8DATA(data, pDescr->offset);
           *pui8 = 0;
           proto_tree_add_none_format(tree, hf_null_data, tvb, 0, 0, "[NULL data]: %s Not Present", proto_registrar_get_name(*(pDescr->hf_ptr)));
         }
