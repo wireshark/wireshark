@@ -134,7 +134,6 @@ static int hf_zbee_aps_t2_cluster = -1;
 static int hf_zbee_aps_t2_btres_octet_sequence = -1;
 static int hf_zbee_aps_t2_btres_octet_sequence_length_requested = -1;
 static int hf_zbee_aps_t2_btres_status = -1;
-static int hf_zbee_aps_t2_btreq_octet_sequence = -1;
 static int hf_zbee_aps_t2_btreq_octet_sequence_length = -1;
 
 /* ZDP indices. */
@@ -1736,8 +1735,6 @@ dissect_zbee_t2(tvbuff_t *tvb, proto_tree *tree, guint16 cluster_id)
             payload_length = tvb_get_guint8(tvb, offset);
             proto_tree_add_uint(t2_tree, hf_zbee_aps_t2_btreq_octet_sequence_length, tvb, offset, 1, payload_length);
             offset += 1;
-            proto_tree_add_item(t2_tree, hf_zbee_aps_t2_btreq_octet_sequence, tvb, offset, payload_length, ENC_NA);
-            offset += payload_length;
             break;
     }
     return offset;
@@ -2073,9 +2070,6 @@ void proto_register_zbee_aps(void)
             { &hf_zbee_aps_t2_btres_status,
                 { "Status", "zbee_aps.t2.btres.status", FT_UINT8, BASE_HEX, VALS(zbee_aps_t2_btres_status_names), 0x0,
                     NULL, HFILL }},
-
-            { &hf_zbee_aps_t2_btreq_octet_sequence,
-                { "Octet Sequence", "zbee_aps.t2.btreq.octet_sequence", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
             { &hf_zbee_aps_t2_btreq_octet_sequence_length,
                 { "Octet Sequence Length", "zbee_aps.t2.btreq.octet_sequence_length", FT_UINT8, BASE_DEC, NULL, 0x0,
