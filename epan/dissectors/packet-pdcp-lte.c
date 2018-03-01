@@ -1997,7 +1997,6 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 switch (control_pdu_type) {
                     case 0:    /* PDCP status report */
                         {
-                            guint8  bits;
                             guint32 fms;
                             guint32 modulo;
                             guint   not_received = 0;
@@ -2069,21 +2068,28 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                                 offset, -1, ENC_NA);
                                 bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
 
-                                 buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
-                                 len = tvb_reported_length_remaining(tvb, offset);
-                                 bit_offset = offset<<3;
+                                buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
+                                len = tvb_reported_length_remaining(tvb, offset);
+                                bit_offset = offset<<3;
+
                                 /* For each byte... */
                                 for (i=0; i<len; i++) {
-                                    bits = tvb_get_bits8(tvb, bit_offset, 8);
+                                    guint8 bits = tvb_get_bits8(tvb, bit_offset, 8);
                                     for (l=0, j=0; l<8; l++) {
                                         if ((bits << l) & 0x80) {
-                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "%6u,", (unsigned)(sn+(8*i)+l)%modulo);
+                                            if (bitmap_tree) {
+                                                j += g_snprintf(&buff[j], BUFF_SIZE-j, "%6u,", (unsigned)(sn+(8*i)+l)%modulo);
+                                            }
                                         } else {
-                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "      ,");
+                                            if (bitmap_tree) {
+                                                j += (guint)g_strlcpy(&buff[j], "      ,", BUFF_SIZE-j);
+                                            }
                                             not_received++;
                                         }
                                     }
-                                    proto_tree_add_uint_format(bitmap_tree, hf_pdcp_lte_bitmap_byte, tvb, bit_offset/8, 1, bits, "%s", buff);
+                                    if (bitmap_tree) {
+                                        proto_tree_add_uint_format(bitmap_tree, hf_pdcp_lte_bitmap_byte, tvb, bit_offset/8, 1, bits, "%s", buff);
+                                    }
                                     bit_offset += 8;
                                 }
                             }
