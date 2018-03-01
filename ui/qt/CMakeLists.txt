@@ -697,6 +697,10 @@ if(NOT CMAKE_VERSION VERSION_LESS "3.0.2")
 	)
 endif()
 
+if (WIN32)
+	target_link_libraries(qtui "UxTheme.lib")
+endif()
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

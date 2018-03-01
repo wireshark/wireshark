@@ -69,6 +69,7 @@
 #ifdef Q_OS_WIN
 #include "wsutil/file_util.h"
 #include <QSysInfo>
+#include <Uxtheme.h>
 #endif
 
 // To do:
@@ -264,18 +265,8 @@ PacketList::PacketList(QWidget *parent) :
 
 #ifdef Q_OS_WIN // && Qt version >= 4.8.6
     if (QSysInfo::windowsVersion() < QSysInfo::WV_WINDOWS8) {
-        // See if we're running Vista or 7 and we have a theme applied.
-        HMODULE uxtheme_lib = (HMODULE) ws_load_library("uxtheme.dll");
-
-        if (uxtheme_lib) {
-            typedef BOOL (WINAPI *IsAppThemedHandler)(void);
-            typedef BOOL (WINAPI *IsThemeActiveHandler)(void);
-
-            IsAppThemedHandler PIsAppThemed = (IsAppThemedHandler) GetProcAddress(uxtheme_lib, "IsAppThemed");
-            IsThemeActiveHandler PIsThemeActive = (IsThemeActiveHandler) GetProcAddress(uxtheme_lib, "IsThemeActive");
-            if (PIsAppThemed && PIsAppThemed() && PIsThemeActive && PIsThemeActive()) {
-                style_inactive_selected = false;
-            }
+        if (IsAppThemed() && IsThemeActive()) {
+            style_inactive_selected = false;
         }
     }
 #endif

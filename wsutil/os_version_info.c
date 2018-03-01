@@ -28,10 +28,6 @@
 
 #include <wsutil/os_version_info.h>
 
-#ifdef _WIN32
-typedef void (WINAPI *nativesi_func_ptr)(LPSYSTEM_INFO);
-#endif
-
 /*
  * Handles the rather elaborate process of getting OS version information
  * from macOS (we want the macOS version, not the Darwin version, the latter
@@ -190,10 +186,8 @@ void
 get_os_version_info(GString *str)
 {
 #if defined(_WIN32)
-	HMODULE kernel_dll_handle;
 	OSVERSIONINFOEX info;
 	SYSTEM_INFO system_info;
-	nativesi_func_ptr nativesi_func;
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
 #endif
@@ -228,21 +222,9 @@ get_os_version_info(GString *str)
 	}
 
 	memset(&system_info, '\0', sizeof system_info);
-	/* Look for and use the GetNativeSystemInfo() function if available to get the correct processor
-	 * architecture even when running 32-bit Wireshark in WOW64 (x86 emulation on 64-bit Windows) */
-	kernel_dll_handle = GetModuleHandle(_T("kernel32.dll"));
-	if (kernel_dll_handle == NULL) {
-		/*
-		 * XXX - get the failure reason.
-		 */
-		g_string_append(str, "unknown Windows version");
-		return;
-	}
-	nativesi_func = (nativesi_func_ptr)GetProcAddress(kernel_dll_handle, "GetNativeSystemInfo");
-	if(nativesi_func)
-		nativesi_func(&system_info);
-	else
-		GetSystemInfo(&system_info);
+	/* Look for and use the GetNativeSystemInfo() function to get the correct processor architecture
+	 * even when running 32-bit Wireshark in WOW64 (x86 emulation on 64-bit Windows) */
+	GetNativeSystemInfo(&system_info);
 
 	switch (info.dwPlatformId) {
 

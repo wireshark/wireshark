@@ -31,14 +31,6 @@
 void
 init_process_policies(void)
 {
-	HMODULE kernel32Handle;
-	typedef BOOL (WINAPI *SetProcessDEPPolicyHandler)(DWORD);
-	SetProcessDEPPolicyHandler PSetProcessDEPPolicy;
-
-#ifndef PROCESS_DEP_ENABLE
-#define PROCESS_DEP_ENABLE 1
-#endif
-
 	/*
 	 * If we have SetProcessDEPPolicy(), turn "data execution
 	 * prevention" on - i.e., if the MMU lets you set execute
@@ -48,17 +40,8 @@ init_process_policies(void)
 	 * we don't care (we did our best), so we don't check for
 	 * errors.
 	 *
-	 * XXX - if the GetModuleHandle() call fails, should we report
-	 * an error?  That "shouldn't happen" - it's the equivalent
-	 * of libc.{so,sl,a} or libSystem.dylib being missing on UN*X.
 	 */
-	kernel32Handle = GetModuleHandle(_T("kernel32.dll"));
-	if (kernel32Handle != NULL) {
-		PSetProcessDEPPolicy = (SetProcessDEPPolicyHandler) GetProcAddress(kernel32Handle, "SetProcessDEPPolicy");
-		if (PSetProcessDEPPolicy) {
-			PSetProcessDEPPolicy(PROCESS_DEP_ENABLE);
-		}
-	}
+	SetProcessDEPPolicy(PROCESS_DEP_ENABLE);
 }
 
 /*
