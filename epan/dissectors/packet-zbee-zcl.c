@@ -1945,9 +1945,19 @@ static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto
 } /* zcl_dump_data */
 
 /**
- *This function decodes second time type variable
+ *This function decodes tenth of second time type variable
  *
 */
+void decode_zcl_time_in_100ms(gchar *s, guint16 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d seconds", value/10, value%10);
+    return;
+} /* decode_zcl_time_in_100ms*/
+
+  /**
+  *This function decodes second time type variable
+  *
+  */
 void decode_zcl_time_in_seconds(gchar *s, guint16 value)
 {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", value);

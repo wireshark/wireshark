@@ -199,6 +199,7 @@ extern void dissect_zcl_write_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tre
 extern void dissect_zcl_read_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 
 /* Helper functions */
+void decode_zcl_time_in_100ms (gchar *s, guint16 value);
 void decode_zcl_time_in_seconds (gchar *s, guint16 value);
 void decode_zcl_time_in_minutes (gchar *s, guint16 value);
 void dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);

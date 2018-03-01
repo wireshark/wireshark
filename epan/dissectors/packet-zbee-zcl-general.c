@@ -2125,6 +2125,10 @@ proto_reg_handoff_zbee_zcl_groups(void)
 #define ZBEE_ZCL_SCENES_NAME_SUPPORTED                          0x80  /* Scene Names Supported */
 #define ZBEE_ZCL_SCENES_NAME_NOT_SUPPORTED                      0x00  /* Scene Names Not Supported */
 
+/* Copy Mode */
+#define ZBEE_ZCL_SCENES_COPY_SPECIFIED                          0x00  /* Copy Specified Scenes */
+#define ZBEE_ZCL_SCENES_COPY_ALL                                0x01  /* Copy All Scenes */
+
 /* Server Commands Received */
 #define ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE                        0x00  /* Add Scene */
 #define ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE                       0x01  /* View Scene */
@@ -2133,6 +2137,9 @@ proto_reg_handoff_zbee_zcl_groups(void)
 #define ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE                      0x04  /* Store Scene */
 #define ZBEE_ZCL_CMD_ID_SCENES_RECALL_SCENE                     0x05  /* Recall Scene */
 #define ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP             0x06  /* Get Scene Membership */
+#define ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_ADD_SCENE               0x40  /* Enhanced Add Scene */
+#define ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_VIEW_SCENE              0x41  /* Enhanced View Scene */
+#define ZBEE_ZCL_CMD_ID_SCENES_COPY_SCENE                       0x42  /* Copy Scene */
 #define ZBEE_ZCL_CMD_ID_SCENES_NAME_SUPPORT_MASK                0x80
 
 /* Server Commands Generated */
@@ -2142,7 +2149,13 @@ proto_reg_handoff_zbee_zcl_groups(void)
 #define ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES_RESPONSE       0x03  /* Remove all Scenes Response */
 #define ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE_RESPONSE             0x04  /* Store Scene Response */
 #define ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP_RESPONSE    0x06  /* Get Scene Membership Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_ADD_SCENE_RESPONSE      0x40  /* Enhanced Add Scene Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_VIEW_SCENE_RESPONSE     0x41  /* Enhanced View Scene Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_COPY_SCENE_RESPONSE              0x42  /* Copy Scene Response */
 
+/* Enhanced */
+#define IS_ENHANCED                                             TRUE
+#define IS_NOT_ENHANCED                                         FALSE
 
 /*************************/
 /* Function Declarations */
@@ -2152,13 +2165,15 @@ void proto_register_zbee_zcl_scenes(void);
 void proto_reg_handoff_zbee_zcl_scenes(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_scenes_add_scene                                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_add_scene                                    (tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced);
 static void dissect_zcl_scenes_view_remove_store_recall_scene               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_scenes_remove_all_get_scene_membership              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_copy_scene                                   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_scenes_add_remove_store_scene_response              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_scenes_view_scene_response                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_view_scene_response                          (tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced);
 static void dissect_zcl_scenes_remove_all_scenes_response                   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_scenes_get_scene_membership_response                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_copy_scene_response                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
 static void dissect_zcl_scenes_attr_data                                    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
@@ -2174,8 +2189,13 @@ static int hf_zbee_zcl_scenes_attr_id = -1;
 static int hf_zbee_zcl_scenes_attr_id_scene_valid = -1;
 static int hf_zbee_zcl_scenes_attr_id_name_support = -1;
 static int hf_zbee_zcl_scenes_group_id = -1;
+static int hf_zbee_zcl_scenes_group_id_from = -1;
+static int hf_zbee_zcl_scenes_group_id_to = -1;
 static int hf_zbee_zcl_scenes_scene_id = -1;
+static int hf_zbee_zcl_scenes_scene_id_from = -1;
+static int hf_zbee_zcl_scenes_scene_id_to = -1;
 static int hf_zbee_zcl_scenes_transit_time = -1;
+static int hf_zbee_zcl_scenes_enh_transit_time = -1;
 static int hf_zbee_zcl_scenes_extension_set_field = -1;
 static int hf_zbee_zcl_scenes_status = -1;
 static int hf_zbee_zcl_scenes_capacity = -1;
@@ -2185,6 +2205,7 @@ static int hf_zbee_zcl_scenes_attr_str = -1;
 static int hf_zbee_zcl_scenes_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_scenes_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_scenes_scene_list = -1;
+static int hf_zbee_zcl_scenes_copy_mode = -1;
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_scenes = -1;
 static gint ett_zbee_zcl_scenes_scene_ctrl = -1;
@@ -2209,6 +2230,9 @@ static const value_string zbee_zcl_scenes_srv_rx_cmd_names[] = {
     { ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE,           "Store Scene" },
     { ZBEE_ZCL_CMD_ID_SCENES_RECALL_SCENE,          "Recall Scene" },
     { ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP,  "Get Scene Membership" },
+    { ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_ADD_SCENE,    "Enhanced Add Scene" },
+    { ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_VIEW_SCENE,   "Enhanced View Scene" },
+    { ZBEE_ZCL_CMD_ID_SCENES_COPY_SCENE,            "Copy Scene" },
     { 0, NULL }
 };
 
@@ -2220,6 +2244,9 @@ static const value_string zbee_zcl_scenes_srv_tx_cmd_names[] = {
     { ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES_RESPONSE,    "Remove all Scene Response" },
     { ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE_RESPONSE,          "Store Scene Response" },
     { ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP_RESPONSE, "Get Scene Membership Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_ADD_SCENE_RESPONSE,   "Enhanced Add Scene Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_VIEW_SCENE_RESPONSE,  "Enhanced View Scene Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_COPY_SCENE_RESPONSE,           "Copy Scene Response" },
     { 0, NULL }
 };
 
@@ -2230,6 +2257,12 @@ static const value_string zbee_zcl_scenes_group_names_support_values[] = {
     { 0, NULL }
 };
 
+/* Scene Copy Mode Values */
+static const value_string zbee_zcl_scenes_copy_mode_values[] = {
+    { ZBEE_ZCL_SCENES_COPY_SPECIFIED,   "Copy Specified Scenes" },
+    { ZBEE_ZCL_SCENES_COPY_ALL,         "Copy All Scenes" },
+    { 0, NULL }
+};
 
 /*************************/
 /* Function Bodies       */
@@ -2281,19 +2314,28 @@ dissect_zbee_zcl_scenes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             /* Call the appropriate command dissector */
             switch (cmd_id) {
                 case ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE:
-                    dissect_zcl_scenes_add_scene(tvb, payload_tree, &offset);
+                    dissect_zcl_scenes_add_scene(tvb, payload_tree, &offset, IS_NOT_ENHANCED);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_ADD_SCENE:
+                    dissect_zcl_scenes_add_scene(tvb, payload_tree, &offset, IS_ENHANCED);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE:
                 case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE:
                 case ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE:
                 case ZBEE_ZCL_CMD_ID_SCENES_RECALL_SCENE:
+                case ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_VIEW_SCENE:
                     dissect_zcl_scenes_view_remove_store_recall_scene(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES:
                 case ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP:
                     dissect_zcl_scenes_remove_all_get_scene_membership(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_COPY_SCENE:
+                    dissect_zcl_scenes_copy_scene(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -2320,11 +2362,16 @@ dissect_zbee_zcl_scenes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 case ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE_RESPONSE:
                 case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE_RESPONSE:
                 case ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE_RESPONSE:
+                case ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_ADD_SCENE_RESPONSE:
                     dissect_zcl_scenes_add_remove_store_scene_response(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE_RESPONSE:
-                    dissect_zcl_scenes_view_scene_response(tvb, payload_tree, &offset);
+                    dissect_zcl_scenes_view_scene_response(tvb, payload_tree, &offset, IS_NOT_ENHANCED);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_ENHANCED_VIEW_SCENE_RESPONSE:
+                    dissect_zcl_scenes_view_scene_response(tvb, payload_tree, &offset, IS_ENHANCED);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES_RESPONSE:
@@ -2333,6 +2380,10 @@ dissect_zbee_zcl_scenes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
                 case ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP_RESPONSE:
                     dissect_zcl_scenes_get_scene_membership_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_COPY_SCENE_RESPONSE:
+                    dissect_zcl_scenes_copy_scene_response(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -2351,15 +2402,16 @@ dissect_zbee_zcl_scenes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  *  DESCRIPTION
  *      this function decodes the Add Scene payload.
  *  PARAMETERS
- *      tvb     - the tv buffer of the current data_type
- *      tree    - the tree to append this item to
- *      offset  - offset of data in tvb
+ *      tvb      - the tv buffer of the current data_type
+ *      tree     - the tree to append this item to
+ *      offset   - offset of data in tvb
+ *      enhanced - use enhanced transition time
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_scenes_add_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_scenes_add_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced)
 {
     guint attr_uint;
     guint8 *attr_string;
@@ -2373,7 +2425,7 @@ dissect_zcl_scenes_add_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Retrieve "Transition Time" field */
-    proto_tree_add_item(tree, hf_zbee_zcl_scenes_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, enhanced ? hf_zbee_zcl_scenes_enh_transit_time : hf_zbee_zcl_scenes_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Retrieve Scene Name */
@@ -2413,7 +2465,7 @@ dissect_zcl_scenes_add_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_scenes_view_remove_store_recall_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    /* Retrieve "Scenes Timeout" field */
+    /* Retrieve "Group ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
@@ -2445,6 +2497,45 @@ dissect_zcl_scenes_remove_all_get_scene_membership(tvbuff_t *tvb, proto_tree *tr
     *offset += 2;
 
 } /*dissect_zcl_scenes_remove_all_get_scene_membership*/
+
+
+/*FUNCTION:--------------------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_scenes_copy_scene
+ *  DESCRIPTION
+ *      this function decodes the Copy Scene payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *------------------------------------------------------------------------------
+ */
+static void
+dissect_zcl_scenes_copy_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Mode" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_copy_mode, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Retrieve "Group ID From" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id_from, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Scene ID From" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_id_from, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Retrieve "Group ID To" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id_to, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Scene ID To" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_id_to, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+} /*dissect_zcl_scenes_copy_scene*/
 
 
 /*FUNCTION:------------------------------------------------------
@@ -2484,15 +2575,16 @@ dissect_zcl_scenes_add_remove_store_scene_response(tvbuff_t *tvb, proto_tree *tr
 *  DESCRIPTION
 *      this function decodes the View Scene Response payload.
 *  PARAMETERS
-*      tvb     - the tv buffer of the current data_type
-*      tree    - the tree to append this item to
-*      offset  - offset of data in tvb
+*      tvb      - the tv buffer of the current data_type
+*      tree     - the tree to append this item to
+*      offset   - offset of data in tvb
+*      enhanced - use enhanced transition time
 *  RETURNS
 *      none
 *---------------------------------------------------------------
 */
 static void
-dissect_zcl_scenes_view_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_scenes_view_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced)
 {
     guint8 status, *attr_string;
     guint attr_uint;
@@ -2513,7 +2605,7 @@ dissect_zcl_scenes_view_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *o
     if(status == ZBEE_ZCL_STAT_SUCCESS)
     {
         /* Retrieve "Transition Time" field */
-        proto_tree_add_item(tree, hf_zbee_zcl_scenes_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, enhanced ? hf_zbee_zcl_scenes_enh_transit_time : hf_zbee_zcl_scenes_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
 
         /* Retrieve Scene Name */
@@ -2624,6 +2716,37 @@ dissect_zcl_scenes_get_scene_membership_response(tvbuff_t *tvb, proto_tree *tree
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      dissect_zcl_scenes_copy_scene_response
+ *  DESCRIPTION
+ *      this function decodes the Copy Scene payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_scenes_copy_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Status" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_status, tvb, *offset, 1, ENC_NA);
+   *offset += 1;
+
+   /* Retrieve "Group ID From" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id_from, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+   /* Retrieve "Scene ID From" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_id_from, tvb, *offset, 1, ENC_NA);
+   *offset += 1;
+
+} /*dissect_zcl_scenes_copy_scene_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      dissect_zcl_scenes_attr_data
  *  DESCRIPTION
  *      this function is called by ZCL foundation dissector in order to decode
@@ -2695,12 +2818,32 @@ proto_register_zbee_zcl_scenes(void)
             { "Group ID", "zbee_zcl_general.scenes.group_id", FT_UINT16, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_scenes_group_id_from,
+            { "Group ID From", "zbee_zcl_general.scenes.group_id_from", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_group_id_to,
+            { "Group ID To", "zbee_zcl_general.scenes.group_id_to", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_scenes_scene_id,
             { "Scene ID", "zbee_zcl_general.scenes.scene_id", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_scenes_scene_id_from,
+            { "Scene ID From", "zbee_zcl_general.scenes.scene_id_from", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_scene_id_to,
+            { "Scene ID To", "zbee_zcl_general.scenes.scene_id_to", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_scenes_transit_time,
-            { "Transition Time", "zbee_zcl_general.scenes.transit_time", FT_UINT16, BASE_HEX, NULL,
+            { "Transition Time", "zbee_zcl_general.scenes.transit_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_seconds),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_enh_transit_time,
+            { "Transition Time", "zbee_zcl_general.scenes.enh_transit_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_scenes_status,
@@ -2734,6 +2877,10 @@ proto_register_zbee_zcl_scenes(void)
         { &hf_zbee_zcl_scenes_extension_set_field,
             { "Extension Set", "zbee_zcl_general.scenes.extension_set", FT_BYTES, BASE_NONE, NULL,
             0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_copy_mode,
+            { "Scene Copy Mode", "zbee_zcl_general.scenes.copy_mode", FT_UINT8, BASE_DEC, VALS(zbee_zcl_scenes_copy_mode_values),
+            0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_scenes_srv_rx_cmd_id,
           { "Command", "zbee_zcl_general.scenes.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_scenes_srv_rx_cmd_names),
