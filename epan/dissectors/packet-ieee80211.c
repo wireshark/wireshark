@@ -4181,7 +4181,6 @@ static int hf_ieee80211_vht_ndp_annc_token = -1;
 static int hf_ieee80211_vht_ndp_annc_token_number = -1;
 static int hf_ieee80211_vht_ndp_annc_he_subfield = -1;
 static int hf_ieee80211_vht_ndp_annc_token_reserved = -1;
-static int hf_ieee80211_vht_ndp_annc_sta_info = -1;
 static int hf_ieee80211_vht_ndp_annc_sta_info_aid12 = -1;
 static int hf_ieee80211_vht_ndp_annc_sta_info_feedback_type = -1;
 static int hf_ieee80211_vht_ndp_annc_sta_info_nc_index = -1;
@@ -5354,6 +5353,7 @@ static gint ett_vht_tpe_info_tree = -1;
 
 static gint ett_vht_ndp_annc = -1;
 static gint ett_vht_ndp_annc_sta_info_tree = -1;
+static gint ett_vht_ndp_annc_sta_list = -1;
 
 static gint ett_he_mimo_control = -1;
 
@@ -19771,13 +19771,13 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static const true_false_string he_ndp_annc_he_subfield_vals = {
   "HE NDP Announcement frame",
-  "VHT NDP Anncouncement frame"
+  "VHT NDP Announcement frame"
 };
 
 static const int *vht_ndp_headers[] = {
-  &hf_ieee80211_vht_ndp_annc_token_number,
-  &hf_ieee80211_vht_ndp_annc_he_subfield,
   &hf_ieee80211_vht_ndp_annc_token_reserved,
+  &hf_ieee80211_vht_ndp_annc_he_subfield,
+  &hf_ieee80211_vht_ndp_annc_token_number,
   NULL
 };
 
@@ -19787,8 +19787,10 @@ dissect_ieee80211_vht_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
   guint16          sta_info;
   guint8           len_fcs = 0;
-  proto_tree      *sta_info_tree;
-  proto_item      *sta_info_item;
+  proto_tree      *sta_list;
+  proto_item      *sta_info_item, *pi;
+  int              saved_offset = 0;
+  int              sta_index = 0;
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset,
                         hf_ieee80211_vht_ndp_annc_token, ett_vht_ndp_annc,
@@ -19799,27 +19801,32 @@ dissect_ieee80211_vht_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
     len_fcs = 4;
   }
 
+  sta_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_vht_ndp_annc_sta_list, &pi, "STA list");
+  saved_offset = offset;
+
   while (tvb_reported_length_remaining(tvb, offset) > len_fcs) {
-    sta_info_item = proto_tree_add_item(tree, hf_ieee80211_vht_ndp_annc_sta_info,
-                                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    sta_info_tree = proto_item_add_subtree(sta_info_item, ett_vht_ndp_annc_sta_info_tree);
-    proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_aid12,
+    sta_info_item = proto_tree_add_subtree_format(sta_list, tvb, offset, 2,
+                        ett_vht_ndp_annc_sta_info_tree, NULL, "STA %d",
+                        sta_index++);
+    proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_aid12,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_feedback_type,
+    proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_feedback_type,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
     sta_info = tvb_get_letohs(tvb, offset);
 
     if (sta_info & 0x1000)
-       proto_tree_add_uint(sta_info_tree,
+       proto_tree_add_uint(sta_info_item,
                            hf_ieee80211_vht_ndp_annc_sta_info_nc_index,
                            tvb, offset, 2, sta_info);
     else
-       proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_reserved,
+       proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_reserved,
                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
   }
 
+  proto_item_set_len(pi, offset - saved_offset);
   return offset;
 }
 
@@ -19835,9 +19842,9 @@ partial_bw_info_base_custom(gchar *result, guint32 partial_bw)
 }
 
 static const int *he_ndp_headers[] = {
-  &hf_he_ndp_sounding_dialog_token_number,
-  &hf_he_ndp_annc_he_subfield,
   &hf_he_ndp_annc_reserved,
+  &hf_he_ndp_annc_he_subfield,
+  &hf_he_ndp_sounding_dialog_token_number,
   NULL
 };
 
@@ -20473,7 +20480,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_VHT_NDP_ANNC:
           set_src_addr_cols(pinfo, tvb, offset, "TA");
 
-          dissect_ieee80211_vht_he_ndp_annc(tvb, pinfo, tree, offset, has_fcs);
+          dissect_ieee80211_vht_he_ndp_annc(tvb, pinfo, hdr_tree, offset, has_fcs);
           break;
 
         case CTRL_GRANT_ACK:
@@ -22575,11 +22582,6 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vht_ndp_annc_token_reserved,
      {"Reserved", "wlan.vht_ndp.token.reserved",
       FT_UINT8, BASE_HEX, NULL, 0x01,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_vht_ndp_annc_sta_info,
-     {"STA Info", "wlan.vht_ndp.sta_info",
-      FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_aid12,
@@ -30093,7 +30095,7 @@ proto_register_ieee80211(void)
        NULL, HFILL }},
 
     {&hf_he_ndp_annc_feedback_type_and_ng,
-     {"Feedback Type and Ng", "wlan.he.sta_info.feedback_type_and_ng",
+     {"Feedback Type and Ng", "wlan.he_ndp.sta_info.feedback_type_and_ng",
       FT_UINT32, BASE_HEX, NULL, 0x06000000, NULL, HFILL }},
 
     {&hf_he_ndp_annc_disambiguation,
@@ -31785,6 +31787,7 @@ proto_register_ieee80211(void)
 
     &ett_vht_ndp_annc,
     &ett_vht_ndp_annc_sta_info_tree,
+    &ett_vht_ndp_annc_sta_list,
 
     &ett_he_mimo_control,
 
