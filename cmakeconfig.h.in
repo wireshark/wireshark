@@ -411,11 +411,11 @@
 #  if defined(NTDDI_VERSION)
 #    error NTDDI_VERSION already defined.
 #  endif
-#  define NTDDI_VERSION NTDDI_VISTA
+#  define NTDDI_VERSION NTDDI_WIN7
 #  if defined(_WIN32_WINNT)
 #    error _WIN32_WINNT already defined.
 #  endif
-#  define _WIN32_WINNT _WIN32_WINNT_VISTA
+#  define _WIN32_WINNT _WIN32_WINNT_WIN7
 
    /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */
 #  ifndef WIN32
