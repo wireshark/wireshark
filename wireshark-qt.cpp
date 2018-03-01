@@ -160,14 +160,14 @@ void main_window_quit(void)
     wsApp->quit();
 }
 
+#endif /* HAVE_LIBPCAP */
+
 void exit_application(int status) {
     if (wsApp) {
         wsApp->quit();
     }
     exit(status);
 }
-
-#endif /* HAVE_LIBPCAP */
 
 /*
  * Report an error in command-line arguments.
