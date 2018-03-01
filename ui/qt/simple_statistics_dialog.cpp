@@ -201,10 +201,12 @@ void SimpleStatisticsDialog::addMissingRows(struct _stat_data_t *stat_data)
         }
         for (guint element = ti->childCount(); element < st_table->num_elements; element++) {
             stat_tap_table_item_type* fields = stat_tap_get_field_data(st_table, element, 0);
-            SimpleStatisticsTreeWidgetItem *ss_ti = new SimpleStatisticsTreeWidgetItem(ti, st_table->num_fields, fields);
-            for (int col = 0; col < (int) stu_->nfields; col++) {
-                if (stu_->fields[col].align == TAP_ALIGN_RIGHT) {
-                    ss_ti->setTextAlignment(col, Qt::AlignRight);
+            if (stu_->nfields > 0) {
+                SimpleStatisticsTreeWidgetItem *ss_ti = new SimpleStatisticsTreeWidgetItem(ti, st_table->num_fields, fields);
+                for (int col = 0; col < (int) stu_->nfields; col++) {
+                    if (stu_->fields[col].align == TAP_ALIGN_RIGHT) {
+                        ss_ti->setTextAlignment(col, Qt::AlignRight);
+                    }
                 }
             }
         }
