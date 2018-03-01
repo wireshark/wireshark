@@ -1382,9 +1382,9 @@ extcap_init_interfaces(capture_options *capture_opts)
     return TRUE;
 }
 
-gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode _U_)
-{
 #ifdef _WIN32
+gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode)
+{
     gchar timestr[ 14 + 1 ];
     time_t current_time;
     gchar *pipename = NULL;
@@ -1409,7 +1409,8 @@ gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe
     pipe_h = CreateNamedPipe(
                  utf_8to16(pipename),
                  PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-                 byte_mode ? PIPE_TYPE_BYTE : PIPE_TYPE_MESSAGE | byte_mode ? PIPE_READMODE_BYTE : PIPE_READMODE_MESSAGE | PIPE_WAIT,
+                 (byte_mode ? (PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT) :
+                              (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT)),
                  1, 65536, 65536,
                  300,
                  &security);
@@ -1425,7 +1426,12 @@ gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nWireshark Created pipe =>(%s)", pipename);
         *fifo = g_strdup(pipename);
     }
+
+    return TRUE;
+}
 #else
+gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode _U_)
+{
     gchar *temp_name = NULL;
     int fd = 0;
 
@@ -1451,10 +1457,10 @@ gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe
     {
         *fifo = g_strdup(temp_name);
     }
-#endif
 
     return TRUE;
 }
+#endif
 
 /************* EXTCAP LOAD INTERFACE LIST ***************
  *
