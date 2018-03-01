@@ -198,15 +198,19 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     }
     case PREF_ENUM:
     {
-        QActionGroup *ag = new QActionGroup(this);
         QMenu *enum_menu = addMenu(prefs_get_title(pref));
-        for (const enum_val_t *enum_valp = prefs_get_enumvals(pref); enum_valp->name; enum_valp++) {
-            EnumPreferenceAction *epa = new EnumPreferenceAction(pref, enum_valp->description, enum_valp->value, ag);
-            if (prefs_get_enum_value(pref, pref_current) == enum_valp->value) {
-                epa->setChecked(true);
+        const enum_val_t *enum_valp = prefs_get_enumvals(pref);
+        if (enum_valp && enum_valp->name) {
+            QActionGroup *ag = new QActionGroup(this);
+            while (enum_valp->name) {
+                EnumPreferenceAction *epa = new EnumPreferenceAction(pref, enum_valp->description, enum_valp->value, ag);
+                if (prefs_get_enum_value(pref, pref_current) == enum_valp->value) {
+                    epa->setChecked(true);
+                }
+                enum_menu->addAction(epa);
+                connect(epa, SIGNAL(triggered(bool)), this, SLOT(enumPreferenceTriggered()));
+                enum_valp++;
             }
-            enum_menu->addAction(epa);
-            connect(epa, SIGNAL(triggered(bool)), this, SLOT(enumPreferenceTriggered()));
         }
         break;
     }
