@@ -798,7 +798,11 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
 #endif /* HAVE_LIBGCRYPT_AEAD */
 
 static int
+#ifdef HAVE_LIBGCRYPT_AEAD
 dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint32 pkn, guint64 cid){
+#else
+dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint32 pkn _U_, guint64 cid _U_){
+#endif /* HAVE_LIBGCRYPT_AEAD */
     proto_item *ti;
 
     ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
@@ -845,7 +849,11 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
 }
 
 static int
+#ifdef HAVE_LIBGCRYPT_AEAD
 dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint32 pkn){
+#else
+dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint32 pkn _U_){
+#endif /* HAVE_LIBGCRYPT_AEAD */
     proto_item *ti;
 
     ti = proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
@@ -884,7 +892,11 @@ dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
 }
 
 static int
+#ifdef HAVE_LIBGCRYPT_AEAD
 dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint32 pkn){
+#else
+dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint32 pkn _U_){
+#endif /* HAVE_LIBGCRYPT_AEAD */
     proto_item *ti;
 
     ti = proto_tree_add_item(quic_tree, hf_quic_retry_payload, tvb, offset, -1, ENC_NA);
