@@ -87,14 +87,16 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     case PREF_ENUM:
     {
         const enum_val_t *ev;
-        if (prefs_get_enumvals(pref) == NULL) return 0;
+        ev = prefs_get_enumvals(pref);
+        if (!ev || !ev->description)
+            return 0;
 
         if (prefs_get_enum_radiobuttons(pref)) {
             QLabel *label = new QLabel(prefs_get_title(pref));
             label->setToolTip(tooltip);
             vb->addWidget(label);
             QButtonGroup *enum_bg = new QButtonGroup(vb);
-            for (ev = prefs_get_enumvals(pref); ev && ev->description; ev++) {
+            while (ev->description) {
                 QRadioButton *enum_rb = new QRadioButton(title_to_shortcut(ev->description));
                 enum_rb->setToolTip(tooltip);
                 QStyleOption style_opt;
@@ -107,6 +109,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
                                   .arg(enum_rb->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left()));
                 enum_bg->addButton(enum_rb, ev->value);
                 vb->addWidget(enum_rb);
+                ev++;
             }
         } else {
             QHBoxLayout *hb = new QHBoxLayout();
