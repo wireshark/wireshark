@@ -1237,6 +1237,8 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     struct rlc_seqlist  lookup, *list;
     struct rlc_seq      seq_item, *seq_new;
     guint16 snmod;
+    nstime_t delta;
+    gboolean is_duplicate,is_unseen;
 
     if (rlc_channel_assign(&lookup.ch, mode, pinfo, atm) == -1)
         return FALSE;
@@ -1262,26 +1264,39 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
         }
     }
 
+    is_duplicate = FALSE;
+    is_unseen = TRUE;
     element = g_list_find_custom(list->list, &seq_item, rlc_cmp_seq);
-    if (element) {
+    while(element) {
+        /* Check if this is a different frame (by comparing frame numbers) which arrived less than */
+        /* RLC_RETRANSMISSION_TIMEOUT seconds ago */
         seq_new = (struct rlc_seq *)element->data;
-        if (seq_new->frame_num != seq_item.frame_num) {
-            nstime_t delta;
+        if (seq_new->frame_num < seq_item.frame_num) {
             nstime_delta(&delta, &pinfo->abs_ts, &seq_new->arrival);
             if (delta.secs < RLC_RETRANSMISSION_TIMEOUT) {
-                if (original)
+                /* This is a duplicate. */
+                if (original) {
+                    /* Save the frame number where our sequence number was previously seen */
                     *original = seq_new->frame_num;
-                return TRUE;
+                }
+                is_duplicate = TRUE;
             }
-            return FALSE;
         }
-        return FALSE; /* we revisit the seq that was already seen */
+        else if (seq_new->frame_num == seq_item.frame_num) {
+            /* Check if our frame is already in the list and this is a secondary check.*/
+            /* in this case raise a flag so the frame isn't entered more than once to the list */
+            is_unseen = FALSE;
+        }
+        element = g_list_find_custom(element->next, &seq_item, rlc_cmp_seq);
     }
-    seq_new = (struct rlc_seq *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_seq));
-    *seq_new = seq_item;
-    seq_new->arrival = pinfo->abs_ts;
-    list->list = g_list_append(list->list, seq_new); /* insert in order of arrival */
-    return FALSE;
+    if(is_unseen) {
+        /* Add to list for the first time this frame is checked */
+        seq_new = (struct rlc_seq *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_seq));
+        *seq_new = seq_item;
+        seq_new->arrival = pinfo->abs_ts;
+        list->list = g_list_append(list->list, seq_new); /* insert in order of arrival */
+    }
+    return is_duplicate;
 }
 
 static void
