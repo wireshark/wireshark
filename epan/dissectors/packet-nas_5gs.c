@@ -79,6 +79,43 @@ static int hf_nas_5gs_mm_length = -1;
 static int hf_nas_5gs_mm_pdu_ses_id = -1;
 static int hf_nas_5gs_mm_old_pdu_ses_id = -1;
 static int hf_nas_5gs_mm_pld_cont = -1;
+static int hf_nas_5gs_mm_all_acc_b1b0 = -1;
+static int hf_nas_5gs_mm_sup_acc_b1b0 = -1;
+static int hf_nas_5gs_mm_req_type = -1;
+static int hf_nas_5gs_mm_serv_type = -1;
+static int hf_nas_5gs_mm_5g_ea0 = -1;
+static int hf_nas_5gs_mm_128_5g_ea1 = -1;
+static int hf_nas_5gs_mm_128_5g_ea2 = -1;
+static int hf_nas_5gs_mm_128_5g_ea3 = -1;
+static int hf_nas_5gs_mm_5g_ea4 = -1;
+static int hf_nas_5gs_mm_5g_ea5 = -1;
+static int hf_nas_5gs_mm_5g_ea6 = -1;
+static int hf_nas_5gs_mm_5g_ea7 = -1;
+static int hf_nas_5gs_mm_5g_ia0 = -1;
+static int hf_nas_5gs_mm_5g_128_ia1 = -1;
+static int hf_nas_5gs_mm_5g_128_ia2 = -1;
+static int hf_nas_5gs_mm_5g_128_ia3 = -1;
+static int hf_nas_5gs_mm_5g_ia4 = -1;
+static int hf_nas_5gs_mm_5g_ia5 = -1;
+static int hf_nas_5gs_mm_5g_ia6 = -1;
+static int hf_nas_5gs_mm_5g_ia7 = -1;
+static int hf_nas_5gs_mm_eea0 = -1;
+static int hf_nas_5gs_mm_128eea1 = -1;
+static int hf_nas_5gs_mm_128eea2 = -1;
+static int hf_nas_5gs_mm_eea3 = -1;
+static int hf_nas_5gs_mm_eea4 = -1;
+static int hf_nas_5gs_mm_eea5 = -1;
+static int hf_nas_5gs_mm_eea6 = -1;
+static int hf_nas_5gs_mm_eea7 = -1;
+static int hf_nas_5gs_mm_eia0 = -1;
+static int hf_nas_5gs_mm_128eia1 = -1;
+static int hf_nas_5gs_mm_128eia2 = -1;
+static int hf_nas_5gs_mm_eia3 = -1;
+static int hf_nas_5gs_mm_eia4 = -1;
+static int hf_nas_5gs_mm_eia5 = -1;
+static int hf_nas_5gs_mm_eia6 = -1;
+static int hf_nas_5gs_mm_eia7 = -1;
+
 
 static int hf_nas_5gs_sm_pdu_session_type = -1;
 static int hf_nas_5gs_sm_sc_mode = -1;
@@ -478,6 +515,8 @@ de_nas_5gs_mm_eap_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     /* EAP message as specified in IETF RFC 3748 */
     if (eap_handle) {
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+        col_set_fence(pinfo->cinfo, COL_PROTOCOL);
         call_dissector(eap_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
     }
 
@@ -494,6 +533,8 @@ de_nas_5gs_mm_eps_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 {
     /* an EPS NAS message as specified in 3GPP TS 24.301 */
     if (nas_eps_handle) {
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+        col_set_fence(pinfo->cinfo, COL_PROTOCOL);
         call_dissector(eap_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
     }
 
@@ -617,6 +658,8 @@ de_nas_5gs_mm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     /* a NAS message without NAS security heade */
     if (nas_eps_plain_handle) {
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+        col_set_fence(pinfo->cinfo, COL_PROTOCOL);
         call_dissector(nas_eps_plain_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
     }
 
@@ -862,7 +905,7 @@ de_nas_5gs_mm_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    /* SST	octet 3
+    /* SST    octet 3
      * This field contains the 8 bit SST value. The coding of the SST value part is defined in 3GPP TS 23.003
      */
     proto_tree_add_item(tree, hf_nas_5gs_mm_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -870,19 +913,19 @@ de_nas_5gs_mm_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return len;
     }
     offset += 1;
-    /* SD	octet 4 - octet 6* */
+    /* SD    octet 4 - octet 6* */
     proto_tree_add_item(tree, hf_nas_5gs_mm_sd, tvb, offset, 3, ENC_BIG_ENDIAN);
     if (len == 4) {
         return len;
     }
     offset += 3;
-    /* Mapped configured SST	octet 7* */
+    /* Mapped configured SST    octet 7* */
     proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_conf_sst, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (len == 5) {
         return len;
     }
     offset += 1;
-    /* Mapped configured SD	octet 8 - octet 10* */
+    /* Mapped configured SD    octet 8 - octet 10* */
     proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_conf_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     return len;
@@ -920,12 +963,28 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  *     9.8.3.40    SMS allowed
  */
 
+static const value_string nas_5gs_mm_all_acc_vals[] = {
+    { 0x00, "SMS over NAS not allowed" },
+    { 0x01, "SMS over NAS allowed via 3GPP access only" },
+    { 0x02, "SMS over NAS allowed via both 3GPP access and non-3GPP access" },
+    { 0x03, "reserved" },
+    {    0, NULL } };
+
 static guint16
-de_nas_5gs_mm_sms_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_mm_sms_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, 1);
+
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_mm_all_acc_b1b0,
+        NULL
+    };
+
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return 1;
 }
@@ -934,42 +993,81 @@ de_nas_5gs_mm_sms_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  *     9.8.3.41    SMS requested
  */
 
+static const value_string nas_5gs_mm_sup_acc_vals[] = {
+    { 0x00, "SMS over NAS not supported" },
+    { 0x01, "SMS over NAS supported via 3GPP access only" },
+    { 0x02, "SMS over NAS supported via both 3GPP access and non-3GPP access" },
+    { 0x03, "Reserved" },
+    {    0, NULL } };
+
 static guint16
-de_nas_5gs_mm_sms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
+de_nas_5gs_mm_sms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
 
-    return len;
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_mm_sup_acc_b1b0,
+        NULL
+    };
+
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+
+    return 1;
 }
+
 
 /*
  *     9.8.3.42    Request type
  */
+static const value_string nas_5gs_mm_req_type_vals[] = {
+    { 0x01, "Initial request" },
+    { 0x02, "Existing PDU session" },
+    { 0x03, "Initial emergency request" },
+    { 0x03, "Existing emergency PDU session" },
+    {    0, NULL } };
 
 static guint16
-de_nas_5gs_mm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
+de_nas_5gs_mm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
 
-    return len;
+    proto_tree_add_item(tree, hf_nas_5gs_mm_req_type, tvb, offset, 3, ENC_BIG_ENDIAN);
+
+    return 1;
 }
 
 /*
  *     9.8.3.43    Service type
  */
 
+static const value_string nas_5gs_mm_serv_type_vals[] = {
+    { 0x00, "Signalling" },
+    { 0x01, "Data" },
+    { 0x02, "Paging response" },
+    { 0x03, "Reserved" },
+    { 0x04, "Emergency services fallback" },
+    {    0, NULL } };
+
 static guint16
-de_nas_5gs_mm_serv_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
+de_nas_5gs_mm_serv_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_mm_serv_type,
+        NULL
+    };
 
-    return len;
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+
+    return 1;
 }
 
 /*
@@ -997,11 +1095,82 @@ de_nas_5gs_mm_serv_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  */
 
 static guint16
-de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    guint32 curr_offset;
+
+    static const int * oct3_flags[] = {
+        &hf_nas_5gs_mm_5g_ea0,
+        &hf_nas_5gs_mm_128_5g_ea1,
+        &hf_nas_5gs_mm_128_5g_ea2,
+        &hf_nas_5gs_mm_128_5g_ea3,
+        &hf_nas_5gs_mm_5g_ea4,
+        &hf_nas_5gs_mm_5g_ea5,
+        &hf_nas_5gs_mm_5g_ea6,
+        &hf_nas_5gs_mm_5g_ea7,
+        NULL
+    };
+
+    static const int * oct4_flags[] = {
+        &hf_nas_5gs_mm_5g_ia0,
+        &hf_nas_5gs_mm_5g_128_ia1,
+        &hf_nas_5gs_mm_5g_128_ia2,
+        &hf_nas_5gs_mm_5g_128_ia3,
+        &hf_nas_5gs_mm_5g_ia4,
+        &hf_nas_5gs_mm_5g_ia5,
+        &hf_nas_5gs_mm_5g_ia6,
+        &hf_nas_5gs_mm_5g_ia7,
+        NULL
+    };
+
+    static const int * oct5_flags[] = {
+        &hf_nas_5gs_mm_eea0,
+        &hf_nas_5gs_mm_128eea1,
+        &hf_nas_5gs_mm_128eea2,
+        &hf_nas_5gs_mm_eea3,
+        &hf_nas_5gs_mm_eea4,
+        &hf_nas_5gs_mm_eea5,
+        &hf_nas_5gs_mm_eea6,
+        &hf_nas_5gs_mm_eea7,
+        NULL
+    };
+
+    static const int * oct6_flags[] = {
+        &hf_nas_5gs_mm_eia0,
+        &hf_nas_5gs_mm_128eia1,
+        &hf_nas_5gs_mm_128eia2,
+        &hf_nas_5gs_mm_eia3,
+        &hf_nas_5gs_mm_eia4,
+        &hf_nas_5gs_mm_eia5,
+        &hf_nas_5gs_mm_eia6,
+        &hf_nas_5gs_mm_eia7,
+        NULL
+    };
+
+    curr_offset = offset;
+
+
+    /* 5G-EA0    128-5G-EA1    128-5G-EA2    128-5G-EA3    5G-EA4    5G-EA5    5G-EA6    5G-EA7    octet 3 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct3_flags, ENC_NA);
+    curr_offset++;
+
+    /* 5G-IA0    128-5G-IA1    128-5G-IA2    128-5G-IA3    5G-IA4    5G-IA5    5G-IA6    5G-IA7 octet 4 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
+    curr_offset++;
+
+    if (len == 4) {
+        return len;
+    }
+
+    /* EEA0    128-EEA1    128-EEA2    128-EEA3    EEA4    EEA5    EEA6    EEA7 octet 5 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct5_flags, ENC_NA);
+    curr_offset++;
+
+    /* EIA0    128-EIA1    128-EIA2    128-EIA3    EIA4    EIA5    EIA6    EIA7 octet 6 */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct6_flags, ENC_NA);
+
 
     return len;
 }
@@ -1186,7 +1355,7 @@ de_nas_5gs_sm_ssc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 static guint16
 de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
-    guint32 offset, guint len,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
 
@@ -1205,7 +1374,7 @@ de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
-    return len;
+    return 1;
 }
 
 
@@ -3165,6 +3334,187 @@ proto_register_nas_5gs(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_all_acc_b1b0,
+        { "Allowed accesses",   "nas_5gs.mm.all_acc_b1b0",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_all_acc_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_sup_acc_b1b0,
+        { "Supported accesses",   "nas_5gs.mm.sup_acc_b1b0",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_sup_acc_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_req_type,
+        { "Request type",   "nas_5gs.mm.req_typ",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_req_type_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_serv_type,
+        { "Service type",   "nas_5gs.mm.serv_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_serv_type_vals), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ea0,
+        { "5G-EA0","nas_5gs.mm.5g_ea0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_128_5g_ea1,
+        { "128-5G-EA1","nas_5gs.mm.128_5g_ea1",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_128_5g_ea2,
+        { "128-5G-EA2","nas_5gs.mm.128_5g_ea2",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_128_5g_ea3,
+        { "128-5G-EA3","nas_5gs.mm.128_5g_ea3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ea4,
+        { "5G-EA4","nas_5gs.mm.5g_ea4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ea5,
+        { "5G-EA5","nas_5gs.mm.5g_ea5",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ea6,
+        { "5G-EA6","nas_5gs.mm.5g_ea6",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ea7,
+        { "5G-EA7","nas_5gs.mm.5g_ea7",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ia0,
+        { "EIA0","nas_5gs.mm.ia0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_128_ia1,
+        { "128-EIA1","nas_5gs.mm.5g_128_ia1",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_128_ia2,
+        { "128-EIA2","nas_5gs.mm.5g_128_ia2",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_128_ia3,
+        { "128-EIA3","nas_5gs.mm.5g_128_ia4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ia4,
+        { "EIA4","nas_5gs.mm.5g_128_ia4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ia5,
+        { "EIA5","nas_5gs.mm.5g_ia5",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ia6,
+        { "EIA6","nas_5gs.mm.5g_ia6",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ia7,
+        { "EIA7","nas_5gs.mm.5g_ia7",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eea0,
+        { "EEA0","nas_5gs.mm.eea0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_128eea1,
+        { "128-EEA1","nas_5gs.mm.128eea1",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_128eea2,
+        { "128-EEA2","nas_5gs.mm.128eea2",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eea3,
+        { "128-EEA3","nas_5gs.mm.eea3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eea4,
+        { "EEA4","nas_5gs.mm.eea4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eea5,
+        { "EEA5","nas_5gs.mm.eea5",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eea6,
+        { "EEA6","nas_5gs.mm.eea6",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eea7,
+        { "EEA7","nas_5gs.mm.eea7",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eia0,
+        { "EIA0","nas_5gs.mm.eia0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_128eia1,
+        { "128-EIA1","nas_5gs.mm.128eia1",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_128eia2,
+        { "128-EIA2","nas_5gs.mm.128eia2",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eia3,
+        { "128-EIA3","nas_5gs.mm.eia3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eia4,
+        { "EIA4","nas_5gs.mm.eia4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eia5,
+        { "EIA5","nas_5gs.mm.eia5",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eia6,
+        { "EIA6","nas_5gs.mm.eia6",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eia7,
+        { "EIA7","nas_5gs.mm.eia7",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+
         { &hf_nas_5gs_sm_pdu_session_type,
         { "PDU session type",   "nas_5gs.sm.pdu_session_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_type_values), 0x0f,
