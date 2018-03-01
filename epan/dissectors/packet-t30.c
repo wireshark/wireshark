@@ -987,7 +987,12 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             break;
         case T30_FC_CIG:
         case T30_FC_PWD:
+        case T30_FC_SEP:
+        case T30_FC_PSA:
             dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif, t38);
+            break;
+        case T30_FC_NSC:
+            dissect_t30_non_standard_cap(tvb, offset, pinfo, frag_len, tr_fif);
             break;
         default:
             switch (octet & 0x7F) {
@@ -999,14 +1004,11 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 break;
             case T30_FC_CSI:
             case T30_FC_TSI:
-            case T30_FC_SEP:
             case T30_FC_SUB:
             case T30_FC_SID:
-            case T30_FC_PSA:
                 dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif, t38);
                 break;
             case T30_FC_NSF:
-            case T30_FC_NSC:
             case T30_FC_NSS:
                 dissect_t30_non_standard_cap(tvb, offset, pinfo, frag_len, tr_fif);
                 break;
