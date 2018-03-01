@@ -110,8 +110,8 @@ static const value_string nas_5gs_security_header_type_vals[] = {
 };
 
 
-#define TGPP_PD_5GMM 0x0e
-#define TGPP_PD_5GSM 0x1e
+#define TGPP_PD_5GMM 0x7e
+#define TGPP_PD_5GSM 0x2e
 
 static const value_string nas_5gs_epd_vals[] = {
     { 0x00,              "Group call control" },
@@ -130,8 +130,8 @@ static const value_string nas_5gs_epd_vals[] = {
     { 0x0d,              "Unknown" },
     /*{0x0e,            "Reserved for extension of the PD to one octet length "},*/
     { 0x0f,              "Tests procedures described in 3GPP TS 44.014, 3GPP TS 34.109 and 3GPP TS 36.509" },
-    { TGPP_PD_5GMM,     "5G mobility management messages" },
-    { TGPP_PD_5GSM,     "5G session management messages" },
+    { TGPP_PD_5GSM,      "5G session management messages" },
+    { TGPP_PD_5GMM,      "5G mobility management messages" },
     { 0,    NULL }
 };
 
