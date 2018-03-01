@@ -1577,7 +1577,6 @@ set(SHARK_COMMON_SRC
 	version_info.c
 	extcap.c
 	extcap_parser.c
-	extcap_spawn.c
 )
 
 set(TSHARK_TAP_SRC

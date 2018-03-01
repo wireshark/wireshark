@@ -49,7 +49,6 @@
 
 #include "extcap.h"
 #include "extcap_parser.h"
-#include "extcap_spawn.h"
 
 #ifdef _WIN32
 static HANDLE pipe_h = INVALID_HANDLE_VALUE;
@@ -319,7 +318,7 @@ static gboolean extcap_foreach(gint argc, gchar **args,
                     continue;
                 }
 
-                if (extcap_spawn_sync((gchar *) dirname, extcap_path->str, argc, args, &command_output))
+                if (ws_pipe_spawn_sync((gchar *) dirname, extcap_path->str, argc, args, &command_output))
                 {
                     cb_info.output = command_output;
                     cb_info.extcap = extcap_path->str;
@@ -957,7 +956,7 @@ extcap_has_toolbar(const char *ifname)
 void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 {
     interface_options *interface_opts;
-    extcap_userdata *userdata;
+    ws_pipe_t *pipedata;
     guint icnt = 0;
     gboolean overwrite_exitcode;
     gchar *buffer;
@@ -1031,17 +1030,17 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
               "Extcap [%s] - Closing spawned PID: %d", interface_opts->name,
               interface_opts->extcap_pid);
 
-        userdata = (extcap_userdata *) interface_opts->extcap_userdata;
-        if (userdata)
+        pipedata = (ws_pipe_t *) interface_opts->extcap_pipedata;
+        if (pipedata)
         {
-            if (userdata->extcap_stderr_rd > 0 && ws_pipe_data_available(userdata->extcap_stderr_rd))
+            if (pipedata->stderr_fd > 0 && ws_pipe_data_available(pipedata->stderr_fd))
             {
                 buffer = (gchar *)g_malloc0(STDERR_BUFFER_SIZE + 1);
-                ws_read_string_from_pipe(ws_get_pipe_handle(userdata->extcap_stderr_rd), buffer, STDERR_BUFFER_SIZE + 1);
+                ws_read_string_from_pipe(ws_get_pipe_handle(pipedata->stderr_fd), buffer, STDERR_BUFFER_SIZE + 1);
                 if (strlen(buffer) > 0)
                 {
-                    userdata->extcap_stderr = g_strdup_printf("%s", buffer);
-                    userdata->exitcode = 1;
+                    pipedata->stderr_msg = g_strdup_printf("%s", buffer);
+                    pipedata->exitcode = 1;
                 }
                 g_free(buffer);
             }
@@ -1050,37 +1049,37 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             /* Final child watch may not have been called */
             if (interface_opts->extcap_child_watch != 0)
             {
-                extcap_child_watch_cb(userdata->pid, 0, capture_opts);
+                extcap_child_watch_cb(pipedata->pid, 0, capture_opts);
                 /* it will have changed in extcap_child_watch_cb */
                 interface_opts = &g_array_index(capture_opts->ifaces, interface_options,
                                                icnt);
             }
 #endif
 
-            if (userdata->extcap_stderr != NULL)
+            if (pipedata->stderr_msg != NULL)
             {
                 overwrite_exitcode = TRUE;
             }
 
-            if (overwrite_exitcode || userdata->exitcode != 0)
+            if (overwrite_exitcode || pipedata->exitcode != 0)
             {
-                if (userdata->extcap_stderr != 0)
+                if (pipedata->stderr_msg != 0)
                 {
                     if (*errormsg == NULL)
                     {
-                        *errormsg = g_strdup_printf("Error by extcap pipe: %s", userdata->extcap_stderr);
+                        *errormsg = g_strdup_printf("Error by extcap pipe: %s", pipedata->stderr_msg);
                     }
                     else
                     {
-                        gchar *temp = g_strconcat(*errormsg, "\nError by extcap pipe: " , userdata->extcap_stderr, NULL);
+                        gchar *temp = g_strconcat(*errormsg, "\nError by extcap pipe: " , pipedata->stderr_msg, NULL);
                         g_free(*errormsg);
                         *errormsg = temp;
                     }
-                    g_free(userdata->extcap_stderr);
+                    g_free(pipedata->stderr_msg);
                 }
 
-                userdata->extcap_stderr = NULL;
-                userdata->exitcode = 0;
+                pipedata->stderr_msg = NULL;
+                pipedata->exitcode = 0;
             }
         }
 
@@ -1098,8 +1097,8 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             g_spawn_close_pid(interface_opts->extcap_pid);
             interface_opts->extcap_pid = INVALID_EXTCAP_PID;
 
-            g_free(interface_opts->extcap_userdata);
-            interface_opts->extcap_userdata = NULL;
+            g_free(interface_opts->extcap_pipedata);
+            interface_opts->extcap_pipedata = NULL;
         }
     }
 }
@@ -1128,7 +1127,7 @@ void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data)
 {
     guint i;
     interface_options *interface_opts;
-    extcap_userdata *userdata = NULL;
+    ws_pipe_t *pipedata = NULL;
     capture_options *capture_opts = (capture_options *)(user_data);
 
     if (capture_opts == NULL || capture_opts->ifaces == NULL || capture_opts->ifaces->len == 0)
@@ -1145,32 +1144,32 @@ void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data)
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         if (interface_opts->extcap_pid == pid)
         {
-            userdata = (extcap_userdata *)interface_opts->extcap_userdata;
-            if (userdata != NULL)
+            pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
+            if (pipedata != NULL)
             {
                 interface_opts->extcap_pid = INVALID_EXTCAP_PID;
-                userdata->exitcode = 0;
+                pipedata->exitcode = 0;
 #ifndef _WIN32
                 if (WIFEXITED(status))
                 {
                     if (WEXITSTATUS(status) != 0)
                     {
-                        userdata->exitcode = WEXITSTATUS(status);
+                        pipedata->exitcode = WEXITSTATUS(status);
                     }
                 }
                 else
                 {
-                    userdata->exitcode = G_SPAWN_ERROR_FAILED;
+                    pipedata->exitcode = G_SPAWN_ERROR_FAILED;
                 }
 #else
                 if (status != 0)
                 {
-                    userdata->exitcode = status;
+                    pipedata->exitcode = status;
                 }
 #endif
-                if (status == 0 && userdata->extcap_stderr != NULL)
+                if (status == 0 && pipedata->stderr_msg != NULL)
                 {
-                    userdata->exitcode = 1;
+                    pipedata->exitcode = 1;
                 }
             }
             g_source_remove(interface_opts->extcap_child_watch);
@@ -1288,7 +1287,7 @@ extcap_init_interfaces(capture_options *capture_opts)
 {
     guint i;
     interface_options *interface_opts;
-    extcap_userdata *userdata;
+    ws_pipe_t *pipedata;
 
     for (i = 0; i < capture_opts->ifaces->len; i++)
     {
@@ -1331,16 +1330,16 @@ extcap_init_interfaces(capture_options *capture_opts)
         /* Create extcap call */
         args = extcap_prepare_arguments(interface_opts);
 
-        userdata = g_new0(extcap_userdata, 1);
+        pipedata = g_new0(ws_pipe_t, 1);
 
-        pid = extcap_spawn_async(userdata, args);
+        pid = ws_pipe_spawn_async(pipedata, args);
 
         g_ptr_array_foreach(args, (GFunc)g_free, NULL);
         g_ptr_array_free(args, TRUE);
 
         if (pid == INVALID_EXTCAP_PID)
         {
-            g_free(userdata);
+            g_free(pipedata);
             continue;
         }
 
@@ -1356,8 +1355,6 @@ extcap_init_interfaces(capture_options *capture_opts)
          * connect to named pipe (including user interaction).
          * Wait on multiple object in case of extcap termination
          * without opening pipe.
-         *
-         * Minimum supported version of Windows: XP / Server 2003.
          */
         if (pid != INVALID_EXTCAP_PID)
         {
@@ -1372,11 +1369,11 @@ extcap_init_interfaces(capture_options *capture_opts)
                 num_pipe_handles += 2;
              }
 
-            extcap_wait_for_pipe(pipe_handles, num_pipe_handles, pid);
+            ws_pipe_wait_for_pipe(pipe_handles, num_pipe_handles, pid);
         }
 #endif
 
-        interface_opts->extcap_userdata = (gpointer) userdata;
+        interface_opts->extcap_pipedata = (gpointer) pipedata;
     }
 
     return TRUE;

@@ -380,8 +380,7 @@ SHARK_COMMON_SRC = \
 	frame_tvbuff.c		\
 	sync_pipe_write.c	\
 	extcap.c		\
-	extcap_parser.c		\
-	extcap_spawn.c
+	extcap_parser.c
 
 # wireshark specifics
 WIRESHARK_COMMON_SRC = \
@@ -722,7 +721,6 @@ noinst_HEADERS = \
 	conditions.h		\
 	extcap.h		\
 	extcap_parser.h		\
-	extcap_spawn.h		\
 	fileset.h		\
 	frame_tvbuff.h		\
 	ringbuffer.h		\
