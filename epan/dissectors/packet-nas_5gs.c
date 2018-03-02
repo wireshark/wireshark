@@ -115,16 +115,29 @@ static int hf_nas_5gs_mm_eia4 = -1;
 static int hf_nas_5gs_mm_eia5 = -1;
 static int hf_nas_5gs_mm_eia6 = -1;
 static int hf_nas_5gs_mm_eia7 = -1;
-
+static int hf_nas_5gs_mm_s1_mode_reg_b0 = -1;
 
 static int hf_nas_5gs_sm_pdu_session_type = -1;
 static int hf_nas_5gs_sm_sc_mode = -1;
 static int hf_nas_5gs_sm_rqos_b0 = -1;
 static int hf_nas_5gs_sm_5gsm_cause = -1;
+static int hf_nas_5gs_sm_pdu_ses_type = -1;
+static int hf_nas_5gs_sm_pdu_addr_inf_ipv4 = -1;
+static int hf_nas_5gs_sm_pdu_addr_inf_ipv6 = -1;
+static int hf_nas_5gs_sm_qos_rule_id = -1;
+static int hf_nas_5gs_sm_length = -1;
+static int hf_nas_5gs_sm_rop = -1;
+static int hf_nas_5gs_sm_dqr = -1;
+static int hf_nas_5gs_sm_nof_pkt_filters = -1;
+static int hf_nas_5gs_sm_pkt_flt_id = -1;
+static int hf_nas_5gs_sm_pkt_flt_dir = -1;
+static int hf_nas_5gs_sm_pf_len = -1;
+static int hf_nas_5gs_sm_pf_type = -1;
 
 static int ett_nas_5gs = -1;
 static int ett_nas_5gs_mm_nssai = -1;
 static int ett_nas_5gs_mm_pdu_ses_id = -1;
+static int ett_nas_5gs_sm_qos_rules = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -134,6 +147,10 @@ static expert_field ei_nas_5gs_msg_not_dis = EI_INIT;
 static expert_field ei_nas_5gs_ie_not_dis = EI_INIT;
 static expert_field ei_nas_5gs_missing_mandatory_elemen = EI_INIT;
 static expert_field ei_nas_5gs_dnn_too_long = EI_INIT;
+static expert_field ei_nas_5gs_unknown_value = EI_INIT;
+static expert_field ei_nas_5gs_num_pkt_flt = EI_INIT;
+static expert_field ei_nas_5gs_not_diss = EI_INIT;
+
 
 static guint16 de_nas_5gs_mm_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 
@@ -1179,14 +1196,35 @@ de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  *     9.8.3.49    UE status
  */
 
+static true_false_string tfs_nas_5gs_mm_s1_mod = {
+    "UE is in EMM-REGISTERED state",
+    "UE is not in EMM-REGISTERED state"
+};
+
+
+
 static guint16
-de_nas_5gs_mm_ue_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
+de_nas_5gs_mm_ue_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_spare_b1,
+        &hf_nas_5gs_mm_s1_mode_reg_b0,
+        NULL
+    };
 
-    return len;
+    /* 0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    S1 mode reg
+*/
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+
+    return 1;
 }
 
 /*
@@ -1248,13 +1286,39 @@ de_nas_5gs_sm_5gsm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  *     9.8.4.4    PDU address
  */
 
+static const value_string nas_5gs_sm_pdu_ses_type_vals[] = {
+    { 0x2, "IPv4" },
+    { 0x3, "IPv6" },
+    { 0,    NULL }
+};
+
+
 static guint16
 de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_item *ti;
+    guint32 value;
 
+    /* 0 Spare    0 Spare    0 Spare    0 Spare    PDU session type value */
+    ti = proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_pdu_ses_type, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    /* PDU address information */
+    switch (value) {
+    case 2:
+        /* IPv4 */
+        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
+    case 3:
+        /* IPv6 */
+        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 16, ENC_NA);
+        break;
+    default:
+        expert_add_info(pinfo, ti, &ei_nas_5gs_unknown_value);
+        break;
+    }
     return len;
 }
 
@@ -1287,12 +1351,154 @@ de_nas_5gs_sm_pdu_session_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  *     9.8.4.6    QoS rules
  */
 
+static true_false_string tfs_nas_5gs_sm_dqr = {
+    "The QoS rule is the default QoS rule",
+    "The QoS rule is not the default QoS rule"
+};
+
+static const value_string nas_5gs_rule_operation_code_values[] = {
+    { 0x0, "Reserved" },
+    { 0x1, "Create new QoS rule" },
+    { 0x2, "Delete existing QoS rule" },
+    { 0x3, "Modify existing QoS rule and add packet filters" },
+    { 0x4, "Modify existing QoS rule and replace packet filters" },
+    { 0x5, "Modify existing QoS rule and delete packet filters" },
+    { 0x6, "Modify existing QoS rule without modifying packet filters" },
+    { 0x7, "Reserved" },
+    { 0, NULL }
+ };
+
+static const value_string nas_5gs_sm_pf_type_values[] = {
+    { 0x10, "IPv4 remote address type" },
+    { 0x11, "IPv4 local address type" },
+    { 0x21, "IPv6 remote address/prefix length type" },
+    { 0x23, "IPv6 local address/prefix length type" },
+    { 0x30, "Protocol identifier/Next header type" },
+    { 0x40, "Single local port type" },
+    { 0x41, "Local port range type" },
+    { 0x50, "Single remote port type" },
+    { 0x51, "Remote port range type" },
+    { 0x60, "Security parameter index type" },
+    { 0x70, "Type of service/Traffic class type" },
+    { 0x80, "Flow label type" },
+    { 0x81, "Destination MAC address type" },
+    { 0x82, "Source MAC address type" },
+    { 0x83, "802.1Q C-TAG VID type" },
+    { 0x84, "802.1Q S-TAG VID type" },
+    { 0x85, "802.1Q C-TAG PCP/DEI type" },
+    { 0x86, "802.1Q S-TAG PCP/DEI type" },
+    { 0x87, "Ethertype type" },
+    { 0, NULL }
+ };
+
+
 static guint16
 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    proto_tree *sub_tree, *sub_tree2;
+    proto_item *item;
+    int i = 1, j = 1;
+    gint32 length, pf_len, pf_type;
+    guint32 curr_offset, start_offset, rule_start_offset;
+    guint8 num_pkt_flt, rop;
+
+    static const int * flags[] = {
+        &hf_nas_5gs_sm_rop,
+        &hf_nas_5gs_sm_dqr,
+        &hf_nas_5gs_sm_nof_pkt_filters,
+        NULL
+    };
+
+    curr_offset = offset;
+
+    while ((curr_offset - offset) < len) {
+
+        /* QoS Rule */
+        rule_start_offset = curr_offset;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "QoS rule %u", i);
+
+        /* QoS rule identifier */
+        proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qos_rule_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset += 1;
+        /* Length of QoS rule */
+        proto_tree_add_item_ret_int(sub_tree, hf_nas_5gs_sm_length, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &length);
+        curr_offset += 2;
+
+        proto_item_set_len(item, length + 3);
+
+        /* Rule operation code    DQR bit    Number of packet filters */
+        num_pkt_flt = tvb_get_guint8(tvb, curr_offset);
+        rop = num_pkt_flt >> 5;
+        num_pkt_flt = num_pkt_flt & 0x0f;
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        /* For the "delete existing QoS rule" operation and for the "modify existing QoS rule without modifying packet filters"
+         * operation, the number of packet filters shall be coded as 0.
+         */
+        if ((rop == 0) || (rop == 7)) {
+            /* Reserved */
+            proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_unknown_value, tvb, curr_offset, length - 1);
+            i++;
+            curr_offset += (length - 1);
+            continue;
+        }
+        if ((rop == 2) || (rop == 6)) {
+            if (rop != 0) {
+                proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_num_pkt_flt, tvb, curr_offset, length - 1);
+                i++;
+                curr_offset += (length - 1);
+                continue;
+            }
+        }
+
+        while (num_pkt_flt > 0) {
+            /* Packet filter list */
+            sub_tree2 = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Packet filter %u", j);
+            start_offset = curr_offset;
+            if (rop == 5) {
+                /* modify existing QoS rule and delete packet filters */
+                /* 0    0    0    0    Packet filter identifier x*/
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+            } else {
+                /* "create new QoS rule", or "modify existing QoS rule and add packet filters"
+                 * or "modify existing QoS rule and replace packet filters"
+                 */
+                /* 0    0    Packet filter direction 1    Packet filter identifier 1*/
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                /* Length of packet filter contents */
+                proto_tree_add_item_ret_int(sub_tree2, hf_nas_5gs_sm_pf_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_len);
+                curr_offset++;
+                /* Packet filter contents */
+                /* Each packet filter component shall be encoded as a sequence of a one octet packet filter component type identifier
+                 * and a fixed length packet filter component value field.
+                 * The packet filter component type identifier shall be transmitted first.
+                 */
+                proto_tree_add_item_ret_int(sub_tree2, hf_nas_5gs_sm_pf_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_type);
+                curr_offset++;
+                switch (pf_type) {
+                default:
+                    proto_tree_add_expert(sub_tree2, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, pf_len - 1);
+                    break;
+                }
+                curr_offset += (pf_len - 1);
+            }
+            num_pkt_flt--;
+            j++;
+            proto_item_set_len(item, curr_offset - start_offset);
+
+        }
+        /* 0 Spare    E    Number of parameters */
+        i++;
+        curr_offset = rule_start_offset + length + 3;
+    }
+
 
     return len;
 }
@@ -3514,7 +3720,11 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             NULL, HFILL }
         },
-
+        { &hf_nas_5gs_mm_s1_mode_reg_b0,
+        { "S1 mode reg","nas_5gs.mm.s1_mode_reg_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_mm_s1_mod), 0x01,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_sm_pdu_session_type,
         { "PDU session type",   "nas_5gs.sm.pdu_session_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_type_values), 0x0f,
@@ -3535,13 +3745,73 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_cause_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_sm_pdu_ses_type,
+        { "PDU session type",   "nas_5gs.sm.pdu_ses_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pdu_ses_type_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_pdu_addr_inf_ipv4,
+        { "PDU address information", "nas_5gs.sm.pdu_addr_inf_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_pdu_addr_inf_ipv6,
+        { "PDU address information", "nas_5gs.sm.pdu_addr_inf_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_qos_rule_id,
+        { "QoS rule identifier",   "nas_5gs.sm.qos_rule_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_length,
+        { "Length",   "nas_5gs.sm.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_rop,
+        { "Rule operation code",   "nas_5gs.sm.rop",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_rule_operation_code_values), 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_dqr,
+        { "DQR",   "nas_5gs.sm.dqr",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_sm_dqr), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_nof_pkt_filters,
+        { "Number of packet filters",   "nas_5gs.sm.nof_pkt_filters",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_pkt_flt_dir,
+        { "Packet filter direction",   "nas_5gs.sm.pkt_flt_dir",
+            FT_UINT8, BASE_DEC, NULL, 0x30,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_pkt_flt_id,
+        { "Packet filter identifier",   "nas_5gs.sm.pkt_flt_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_pf_len,
+        { "Length",   "nas_5gs.sm.pf_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_pf_type,
+        { "Packet filter component type",   "nas_5gs.sm.pf_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pf_type_values), 0x0,
+            NULL, HFILL }
+        },
     };
 
     guint     i;
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    3
+#define NUM_INDIVIDUAL_ELEMS    4
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -3551,6 +3821,7 @@ proto_register_nas_5gs(void)
     ett[0] = &ett_nas_5gs;
     ett[1] = &ett_nas_5gs_mm_nssai;
     ett[2] = &ett_nas_5gs_mm_pdu_ses_id;
+    ett[3] = &ett_nas_5gs_sm_qos_rules;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -3594,6 +3865,9 @@ proto_register_nas_5gs(void)
     { &ei_nas_5gs_ie_not_dis,{ "nas_5gs.ie_not_dis", PI_PROTOCOL, PI_WARN, "IE not dissected yet", EXPFILL } },
     { &ei_nas_5gs_missing_mandatory_elemen,{ "nas_5gs.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL } },
     { &ei_nas_5gs_dnn_too_long,{ "nas_5gs.dnn_to_long", PI_PROTOCOL, PI_ERROR, "DNN encoding has more than 100 octets", EXPFILL } },
+    { &ei_nas_5gs_unknown_value,{ "nas_5gs.unknown_value", PI_PROTOCOL, PI_ERROR, "Value not according to (decoded)specification", EXPFILL } },
+    { &ei_nas_5gs_num_pkt_flt,{ "nas_5gs.num_pkt_flt", PI_PROTOCOL, PI_ERROR, "num_pkt_flt != 0", EXPFILL } },
+    { &ei_nas_5gs_not_diss,{ "nas_5gs.not_diss", PI_PROTOCOL, PI_NOTE, "Not dissected yet", EXPFILL } },
     };
 
     expert_module_t* expert_nas_5gs;
