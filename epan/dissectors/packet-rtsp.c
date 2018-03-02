@@ -653,13 +653,13 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     }
 
     /* Deal with RTSP TCP-interleaved conversations. */
-    if (strstr(buf, rtsp_inter) != NULL) {
+    tmp = strstr(buf, rtsp_inter);
+    if (tmp != NULL) {
         rtsp_conversation_data_t    *data;
         guint               s_data_chan, s_mon_chan;
         int             i;
 
-        /* Move tmp to beyone interleaved string */
-        tmp = strstr(buf, rtsp_inter);
+        /* Move tmp to beyond interleaved string */
         tmp += strlen(rtsp_inter);
         /* Look for channel number(s) */
         i = sscanf(tmp, "%u-%u", &s_data_chan, &s_mon_chan);
