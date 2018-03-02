@@ -3932,6 +3932,7 @@ void MainWindow::extcap_options_finished(int result)
 void MainWindow::showExtcapOptionsDialog(QString &device_name)
 {
     ExtcapOptionsDialog * extcap_options_dialog = ExtcapOptionsDialog::createForDevice(device_name, this);
+    extcap_options_dialog->setModal(true);
     /* The dialog returns null, if the given device name is not a valid extcap device */
     if (extcap_options_dialog) {
         connect(extcap_options_dialog, SIGNAL(finished(int)),
