@@ -37,6 +37,9 @@ MIN_PLUGINS=0
 # Did we catch a signal?
 DONE=0
 
+# Currently running children
+RUNNER_PIDS=
+
 # Perform a two pass analysis on the capture file?
 TWO_PASS=
 
@@ -152,8 +155,20 @@ echo "($HOWMANY)"
 echo ""
 
 # Clean up on <ctrl>C, etc
-trap "DONE=1; echo 'Caught signal'" HUP INT TERM
+trap_all() {
+    DONE=1
+    echo 'Caught signal'
+}
 
+trap_abrt() {
+    for RUNNER_PID in $RUNNER_PIDS ; do
+        kill -ABRT $RUNNER_PID
+    done
+    trap_all
+}
+
+trap trap_all HUP INT TERM
+trap trap_abrt ABRT
 
 # Iterate over our capture files.
 PASS=0
