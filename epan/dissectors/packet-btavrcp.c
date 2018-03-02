@@ -3122,6 +3122,8 @@ proto_register_btavrcp(void)
         &ett_btavrcp_attribute_entries,
         &ett_btavrcp_element,
         &ett_btavrcp_player,
+        &ett_btavrcp_features,
+        &ett_btavrcp_features_not_used,
         &ett_btavrcp_folder,
         &ett_btavrcp_path,
     };
