@@ -1482,6 +1482,13 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     int len;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
+        /*
+         * Add separator between multiple messages in column info text
+         */
+        if (offset > 0) {
+                col_set_str(pinfo->cinfo, COL_INFO, ", ");
+                col_set_fence(pinfo->cinfo, COL_INFO);
+        }
         len = (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR)
             ? dissect_rtspinterleaved(tvb, offset, pinfo, tree)
             : dissect_rtspmessage(tvb, offset, pinfo, tree);
