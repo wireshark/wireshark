@@ -211,7 +211,7 @@ typedef struct interface_options_tag {
     gchar            *extcap;
     gchar            *extcap_fifo;
     GHashTable       *extcap_args;
-    GPid              extcap_pid;           /* pid of running process or INVALID_EXTCAP_PID */
+    GPid              extcap_pid;           /* pid of running process or WS_INVALID_PID */
     gpointer          extcap_pipedata;
     guint             extcap_child_watch;
 #ifdef _WIN32

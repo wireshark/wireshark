@@ -1089,13 +1089,13 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             interface_opts->extcap_child_watch = 0;
         }
 
-        if (interface_opts->extcap_pid != INVALID_EXTCAP_PID)
+        if (interface_opts->extcap_pid != WS_INVALID_PID)
         {
 #ifdef _WIN32
             TerminateProcess(interface_opts->extcap_pid, 0);
 #endif
             g_spawn_close_pid(interface_opts->extcap_pid);
-            interface_opts->extcap_pid = INVALID_EXTCAP_PID;
+            interface_opts->extcap_pid = WS_INVALID_PID;
 
             g_free(interface_opts->extcap_pipedata);
             interface_opts->extcap_pipedata = NULL;
@@ -1147,7 +1147,7 @@ void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data)
             pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
             if (pipedata != NULL)
             {
-                interface_opts->extcap_pid = INVALID_EXTCAP_PID;
+                interface_opts->extcap_pid = WS_INVALID_PID;
                 pipedata->exitcode = 0;
 #ifndef _WIN32
                 if (WIFEXITED(status))
@@ -1292,7 +1292,7 @@ extcap_init_interfaces(capture_options *capture_opts)
     for (i = 0; i < capture_opts->ifaces->len; i++)
     {
         GPtrArray *args = NULL;
-        GPid pid = INVALID_EXTCAP_PID;
+        GPid pid = WS_INVALID_PID;
 
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
 
@@ -1337,12 +1337,13 @@ extcap_init_interfaces(capture_options *capture_opts)
         g_ptr_array_foreach(args, (GFunc)g_free, NULL);
         g_ptr_array_free(args, TRUE);
 
-        if (pid == INVALID_EXTCAP_PID)
+        if (pid == WS_INVALID_PID)
         {
             g_free(pipedata);
             continue;
         }
 
+        ws_close(pipedata->stdin_fd);
         interface_opts->extcap_pid = pid;
 
         interface_opts->extcap_child_watch =
@@ -1356,7 +1357,7 @@ extcap_init_interfaces(capture_options *capture_opts)
          * Wait on multiple object in case of extcap termination
          * without opening pipe.
          */
-        if (pid != INVALID_EXTCAP_PID)
+        if (pid != WS_INVALID_PID)
         {
             HANDLE pipe_handles[3];
             int num_pipe_handles = 1;

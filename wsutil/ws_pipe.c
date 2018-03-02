@@ -170,9 +170,16 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
     return result;
 }
 
+void ws_pipe_init(ws_pipe_t *ws_pipe)
+{
+    if (!ws_pipe) return;
+    memset(ws_pipe, 0, sizeof(ws_pipe_t));
+    ws_pipe->pid = WS_INVALID_PID;
+}
+
 GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 {
-    GPid pid = INVALID_EXTCAP_PID;
+    GPid pid = WS_INVALID_PID;
 
 #ifdef _WIN32
     gint cnt = 0;
@@ -256,9 +263,14 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 
     g_setenv("PATH", oldpath, TRUE);
 #else
-    g_spawn_async_with_pipes(NULL, (gchar **)args->pdata, NULL,
+    GError *error = NULL;
+    gboolean spawned = g_spawn_async_with_pipes(NULL, (gchar **)args->pdata, NULL,
                              (GSpawnFlags) G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
-                             &pid, &ws_pipe->stdin_fd, &ws_pipe->stdout_fd, &ws_pipe->stderr_fd, NULL);
+                             &pid, &ws_pipe->stdin_fd, &ws_pipe->stdout_fd, &ws_pipe->stderr_fd, &error);
+    if (!spawned) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Error creating async pipe: %s", error->message);
+        g_free(error->message);
+    }
 #endif
 
     ws_pipe->pid = pid;

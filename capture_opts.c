@@ -55,7 +55,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.extcap_fifo     = NULL;
     capture_opts->default_options.extcap_args     = NULL;
     capture_opts->default_options.extcap_pipedata = NULL;
-    capture_opts->default_options.extcap_pid      = INVALID_EXTCAP_PID;
+    capture_opts->default_options.extcap_pid      = WS_INVALID_PID;
 #ifdef _WIN32
     capture_opts->default_options.extcap_pipe_h   = INVALID_HANDLE_VALUE;
     capture_opts->default_options.extcap_control_in_h  = INVALID_HANDLE_VALUE;
@@ -684,7 +684,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
     interface_opts.extcap_fifo = g_strdup(capture_opts->default_options.extcap_fifo);
     interface_opts.extcap_args = NULL;
-    interface_opts.extcap_pid = INVALID_EXTCAP_PID;
+    interface_opts.extcap_pid = WS_INVALID_PID;
     interface_opts.extcap_pipedata = NULL;
 #ifdef _WIN32
     interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
@@ -1126,7 +1126,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     g_free(interface_opts->extcap_fifo);
     if (interface_opts->extcap_args)
         g_hash_table_unref(interface_opts->extcap_args);
-    if (interface_opts->extcap_pid != INVALID_EXTCAP_PID)
+    if (interface_opts->extcap_pid != WS_INVALID_PID)
         g_spawn_close_pid(interface_opts->extcap_pid);
     g_free(interface_opts->extcap_pipedata);
     g_free(interface_opts->extcap_control_in);
@@ -1177,7 +1177,7 @@ collect_ifaces(capture_options *capture_opts)
             interface_opts.extcap_fifo = NULL;
             interface_opts.extcap_pipedata = NULL;
             interface_opts.extcap_args = device->external_cap_args_settings;
-            interface_opts.extcap_pid = INVALID_EXTCAP_PID;
+            interface_opts.extcap_pid = WS_INVALID_PID;
             if (interface_opts.extcap_args)
                 g_hash_table_ref(interface_opts.extcap_args);
             interface_opts.extcap_pipedata = NULL;
