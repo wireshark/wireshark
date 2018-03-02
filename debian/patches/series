@@ -1,4 +1,3 @@
-02_use_packaged_openlayers_js.patch
 04_asn2wrs_ply.patch
 05_note-README-when-running-as-root.patch
 06_release-version.patch

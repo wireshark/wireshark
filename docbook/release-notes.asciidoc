@@ -41,6 +41,7 @@ since version 2.5.0:
 
 * HTTP Referer statistics are now supported.
 * The Windows packages are now built using Microsoft Visual Studio 2017.
+* The IP map feature (the “Map” button in the “Endpoints” dialog) has been removed.
 
 The following features are new (or have been significantly updated)
 since version 2.4.0:

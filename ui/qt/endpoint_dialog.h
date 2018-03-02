@@ -64,17 +64,10 @@ public slots:
     void captureFileClosing();
 
 private:
-#ifdef HAVE_GEOIP
-    QPushButton *map_bt_;
-#endif
 
     bool addTrafficTable(register_ct_t* table);
 
 private slots:
-#ifdef HAVE_GEOIP
-    void tabChanged();
-    void createMap();
-#endif
     void on_buttonBox_helpRequested();
 };
 

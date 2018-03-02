@@ -451,7 +451,6 @@ File "${STAGING_DIR}\wireshark-filter.html"
 File "${STAGING_DIR}\dumpcap.exe"
 File "${STAGING_DIR}\dumpcap.html"
 File "${STAGING_DIR}\extcap.html"
-File "${STAGING_DIR}\ipmap.html"
 
 ; C-runtime redistributable
 !ifdef VCREDIST_EXE

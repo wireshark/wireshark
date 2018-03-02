@@ -35,14 +35,6 @@ static const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
-#ifdef HAVE_GEOIP
-    map_bt_ = buttonBox()->addButton(tr("Map"), QDialogButtonBox::ActionRole);
-    map_bt_->setToolTip(tr("Draw IPv4 or IPv6 endpoints on a map."));
-    connect(map_bt_, SIGNAL(clicked()), this, SLOT(createMap()));
-
-    connect(trafficTableTabWidget(), SIGNAL(currentChanged(int)), this, SLOT(tabChanged()));
-#endif
-
     addProgressFrame(&parent);
 
     QList<int> endp_protos;
@@ -69,10 +61,6 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
     }
 
     fillTypeMenu(endp_protos);
-
-#ifdef HAVE_GEOIP
-    tabChanged();
-#endif
 
     QPushButton *close_bt = buttonBox()->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -156,37 +144,8 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
                         EndpointTreeWidget::tapReset,
                         get_hostlist_packet_func(table),
                         EndpointTreeWidget::tapDraw);
-
-#ifdef HAVE_GEOIP
-    connect(endp_tree, SIGNAL(geoIPStatusChanged()), this, SLOT(tabChanged()));
-#endif
     return true;
 }
-
-#ifdef HAVE_GEOIP
-void EndpointDialog::tabChanged()
-{
-    EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
-    map_bt_->setEnabled(cur_tree && cur_tree->hasGeoIPData());
-}
-
-void EndpointDialog::createMap()
-{
-    EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
-    if (!cur_tree) {
-        return;
-    }
-
-    gchar *err_str;
-    gchar *map_path = create_endpoint_geoip_map(cur_tree->trafficTreeHash()->conv_array, &err_str);
-    if (!map_path) {
-        QMessageBox::warning(this, tr("Map file error"), err_str);
-        g_free(err_str);
-        return;
-    }
-    QDesktopServices::openUrl(QUrl::fromLocalFile(gchar_free_to_qstring(map_path)));
-}
-#endif
 
 void EndpointDialog::on_buttonBox_helpRequested()
 {

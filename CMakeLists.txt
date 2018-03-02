@@ -1629,7 +1629,6 @@ set(INSTALL_FILES
 	colorfilters
 	dfilters
 	enterprises.tsv
-	ipmap.html
 	manuf
 	pdml2html.xsl
 	services
@@ -2375,15 +2374,6 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	)
 	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
 	install(TARGETS wireshark-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-	# Map for endpoints dialog
-	ADD_CUSTOM_COMMAND(
-		TARGET wireshark-gtk
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${PROJECT_SOURCE_DIR}/ipmap.html"
-			$<TARGET_FILE_DIR:wireshark-gtk>
-	)
 
 	if(WIN32)
 		add_custom_target(copy_gtk_dlls)

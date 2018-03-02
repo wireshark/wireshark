@@ -195,7 +195,7 @@ Package: libwireshark-data
 Section: libs
 Architecture: all
 Multi-Arch: foreign
-Depends: ${misc:Depends}, libjs-openlayers
+Depends: ${misc:Depends}
 Conflicts: wireshark-common (<< 1.4.0~rc2-1)
 Replaces: wireshark-common (<< 1.4.0~rc2-1)
 Recommends: geoip-database, geoip-database-extra

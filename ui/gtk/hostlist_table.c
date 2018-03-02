@@ -49,10 +49,6 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
-#ifdef HAVE_GEOIP
-#include "ui/gtk/webbrowser.h"
-#include "ui/gtk/stock_icons.h"
-#endif
 
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -776,45 +772,6 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     g_string_free(csv.CSV_str, TRUE);                    /* Free the memory */
 }
 
-#ifdef HAVE_GEOIP
-
-static void
-open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
-{
-    gchar          *err_str;
-    gchar          *file_uri;
-    gboolean        uri_open;
-    hostlist_table *talkers;
-    gchar          *map_filename;
-
-
-    talkers = (hostlist_table *)g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
-    if (!talkers) {
-        return;
-    }
-
-    map_filename = create_endpoint_geoip_map(talkers->hash.conv_array, &err_str);
-
-    if (!map_filename) {
-        simple_error_message_box("%s", err_str);
-        g_free(err_str);
-        return;
-    }
-
-    /* open the webbrowser */
-    file_uri = g_filename_to_uri(map_filename, NULL, NULL);
-    g_free(map_filename);
-    uri_open = browser_open_url (file_uri);
-    if(!uri_open) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in your web browser", file_uri);
-        g_free(file_uri);
-        return;
-    }
-
-    g_free(file_uri);
-}
-#endif /* HAVE_GEOIP */
-
 static gint default_col_size[ENDP_NUM_COLUMNS+ENDP_NUM_GEOIP_COLUMNS];
 
 static void
@@ -1026,9 +983,6 @@ init_hostlist_table(struct register_ct* ct, const char *filter)
     GtkWidget *close_bt, *help_bt;
     gboolean ret;
     GtkWidget *copy_bt;
-#ifdef HAVE_GEOIP
-    GtkWidget *map_bt;
-#endif
     window_geometry_t tl_geom;
 
     hosttable=g_new0(hostlist_table,1);
@@ -1059,15 +1013,7 @@ init_hostlist_table(struct register_ct* ct, const char *filter)
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-#ifdef HAVE_GEOIP
-    if( strstr(hosttable->name, "IPv4") || strstr(hosttable->name, "IPv6") ) {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_MAP, GTK_STOCK_HELP, NULL);
-    } else {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
-    }
-#else
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
-#endif
 
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
@@ -1078,15 +1024,6 @@ init_hostlist_table(struct register_ct* ct, const char *filter)
     gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, hosttable);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
-
-#ifdef HAVE_GEOIP
-    map_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
-    if(map_bt != NULL) {
-        gtk_widget_set_tooltip_text(map_bt, "Show a map of the IP addresses (internet connection required).");
-        g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, hosttable);
-        g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
-    }
-#endif /* HAVE_GEOIP */
 
     help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_ENDPOINTS_DIALOG);
@@ -1114,28 +1051,6 @@ ct_nb_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer dat
         g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, pages[page]);
     }
 }
-
-#ifdef HAVE_GEOIP
-static void
-ct_nb_map_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer data)
-{
-    GtkWidget *map_bt = (GtkWidget *) data;
-    void ** pages = (void **)g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
-
-    page++;
-
-    if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && map_bt) {
-        g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, pages[page]);
-        if( strstr(((hostlist_table *)pages[page])->name, "IPv4") ||
-            strstr(((hostlist_table *)pages[page])->name, "IPv6") ) {
-            gtk_widget_set_sensitive(map_bt, TRUE);
-        } else {
-            gtk_widget_set_sensitive(map_bt, FALSE);
-        }
-    }
-}
-#endif /* HAVE_GEOIP */
-
 
 static void
 hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
@@ -1264,9 +1179,6 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     void ** pages;
     GtkWidget *nb;
     GtkWidget *copy_bt;
-#ifdef HAVE_GEOIP
-    GtkWidget *map_bt;
-#endif
     window_geometry_t tl_geom;
     init_host_page_data host_page_iter_data;
 
@@ -1318,11 +1230,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(filter_cb, "toggled", G_CALLBACK(hostlist_filter_toggle_dest), pages);
 
     /* Button row. */
-#ifdef HAVE_GEOIP
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_MAP, GTK_STOCK_HELP, NULL);
-#else
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
-#endif
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     /* Close */
@@ -1334,15 +1242,6 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, pages[host_page_iter_data.page]);
-
-#ifdef HAVE_GEOIP
-    map_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
-    gtk_widget_set_tooltip_text(map_bt, "Show a map of the IP addresses (internet connection required).");
-    g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, pages[host_page_iter_data.page]);
-    g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
-    g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_map_switch_page_cb), map_bt);
-    gtk_widget_set_sensitive(map_bt, FALSE);
-#endif /* HAVE_GEOIP */
 
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_switch_page_cb), copy_bt);
 
