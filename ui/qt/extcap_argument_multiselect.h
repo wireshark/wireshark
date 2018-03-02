@@ -23,7 +23,7 @@ class ExtArgMultiSelect : public ExtcapArgument
 {
     Q_OBJECT
 public:
-    ExtArgMultiSelect(extcap_arg * argument);
+    ExtArgMultiSelect(extcap_arg * argument, QObject *parent = Q_NULLPTR);
     virtual ~ExtArgMultiSelect();
 
     virtual QString value();

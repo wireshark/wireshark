@@ -21,7 +21,7 @@ class ExtcapArgumentFileSelection : public ExtcapArgument
     Q_OBJECT
 
 public:
-    ExtcapArgumentFileSelection(extcap_arg * argument);
+    ExtcapArgumentFileSelection(extcap_arg * argument, QObject * parent = Q_NULLPTR);
     virtual ~ExtcapArgumentFileSelection();
 
     virtual QWidget * createEditor(QWidget * parent);

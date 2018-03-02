@@ -25,8 +25,8 @@
 #include <extcap_parser.h>
 #include <extcap_argument_multiselect.h>
 
-ExtArgMultiSelect::ExtArgMultiSelect(extcap_arg * argument) :
-        ExtcapArgument(argument), treeView(0), viewModel(0) {}
+ExtArgMultiSelect::ExtArgMultiSelect(extcap_arg * argument, QObject *parent) :
+        ExtcapArgument(argument, parent), treeView(0), viewModel(0) {}
 
 ExtArgMultiSelect::~ExtArgMultiSelect()
 {

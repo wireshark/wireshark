@@ -36,6 +36,8 @@ public:
     ~ExtcapOptionsDialog();
     static ExtcapOptionsDialog * createForDevice(QString &device_name, QWidget *parent = 0);
 
+    ExtcapValueList loadValuesFor(int argNum, QString call, QString parent = "");
+
 private Q_SLOTS:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
@@ -56,8 +58,10 @@ private:
     void loadArguments();
 
     bool saveOptionToCaptureInfo();
+    GHashTable * getArgumentSettings(bool useCallsAsKey = false);
     void storeValues();
     void resetValues();
+
 };
 
 #endif // EXTCAP_OPTIONS_DIALOG_H

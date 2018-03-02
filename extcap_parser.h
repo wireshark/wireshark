@@ -64,6 +64,7 @@ typedef enum {
     EXTCAP_PARAM_FILE_EXTENSION,
     EXTCAP_PARAM_PARENT,
     EXTCAP_PARAM_REQUIRED,
+    EXTCAP_PARAM_RELOAD,
     EXTCAP_PARAM_SAVE,
     EXTCAP_PARAM_VALIDATION,
     EXTCAP_PARAM_VERSION,
@@ -107,6 +108,8 @@ typedef struct _extcap_arg {
 
     gboolean is_required;
     gboolean save;
+
+    gboolean reload;
 
     gchar * regexp;
 
@@ -186,6 +189,9 @@ void extcap_free_arg_list(GList *a);
 
 /* Parse all sentences for args and values */
 GList * extcap_parse_args(gchar *output);
+
+/* Parse all sentences for values */
+GList * extcap_parse_values(gchar *output);
 
 /* Parse all sentences for interfaces */
 GList * extcap_parse_interfaces(gchar *output, GList **control_items);

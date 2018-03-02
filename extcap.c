@@ -807,6 +807,69 @@ extcap_get_if_configuration(const char *ifname)
     return ret;
 }
 
+static gboolean cb_reload_preference(extcap_callback_info_t cb_info)
+{
+    GList *arguments = NULL, * walker = NULL;
+    GList **il = (GList **) cb_info.data;
+
+    arguments = extcap_parse_values(cb_info.output);
+
+    walker = g_list_first((GList *)(arguments));
+    while (walker != NULL)
+    {
+        extcap_value * val = (extcap_value *)walker->data;
+        *il = g_list_append(*il, val);
+        walker = g_list_next(walker);
+    }
+    g_list_free(arguments);
+
+    /* By returning false, extcap_foreach will break on first found */
+    return FALSE;
+}
+
+GList *
+extcap_get_if_configuration_values(const char * ifname, const char * argname, GHashTable *arguments)
+{
+    GList * args = NULL;
+    GList *ret = NULL;
+    gchar **err_str = NULL;
+
+    if (extcap_if_exists(ifname))
+    {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
+              get_extcap_dir());
+
+        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_CONFIG) );
+        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_INTERFACE) );
+        args = g_list_append(args, g_strdup(ifname) );
+        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_RELOAD_OPTION) );
+        args = g_list_append(args, g_strdup(argname) );
+
+        if ( arguments )
+        {
+            GList * keys = g_hash_table_get_keys(arguments);
+            while ( keys )
+            {
+                const gchar * key_data = (const gchar *)keys->data;
+                args = g_list_append(args, g_strdup(key_data) );
+                args = g_list_append(args, g_strdup((const gchar *)g_hash_table_lookup(arguments, key_data)) );
+                keys = g_list_next(keys);
+            }
+        }
+
+        extcap_callback_info_t cb_info;
+        cb_info.data = &ret;
+        cb_info.err_str = err_str;
+        cb_info.ifname = ifname;
+
+        extcap_foreach(args, cb_reload_preference, cb_info);
+
+        g_list_free_full(args, g_free);
+    }
+
+    return ret;
+}
+
 /**
  * If is_required is FALSE: returns TRUE if the extcap interface has
  * configurable options.

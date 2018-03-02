@@ -70,8 +70,8 @@ class ExtcapArgument: public QObject
     Q_OBJECT
 
 public:
-	ExtcapArgument(QObject *parent=0);
-    ExtcapArgument(extcap_arg * argument, QObject *parent=0);
+    ExtcapArgument(QObject *parent = Q_NULLPTR);
+    ExtcapArgument(extcap_arg * argument, QObject *parent = Q_NULLPTR);
     ExtcapArgument(const ExtcapArgument &obj);
     virtual ~ExtcapArgument();
 
@@ -86,13 +86,14 @@ public:
     bool isDefault();
     virtual bool isValid();
     bool isRequired();
+    bool reload();
 
     QString prefKey(const QString & device_name);
     virtual QString prefValue();
 
     void resetValue();
 
-    static ExtcapArgument * create(extcap_arg * argument = 0);
+    static ExtcapArgument * create(extcap_arg * argument = Q_NULLPTR, QObject * parent = Q_NULLPTR);
 
 Q_SIGNALS:
     void valueChanged();
@@ -102,6 +103,7 @@ protected:
     bool fileExists();
 
     ExtcapValueList loadValues(QString parent);
+    bool reloadValues();
 
     ExtcapValueList values;
 
@@ -122,7 +124,7 @@ class ExtArgText : public ExtcapArgument
 {
 
 public:
-    ExtArgText(extcap_arg * argument);
+    ExtArgText(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
@@ -136,7 +138,7 @@ protected:
 class ExtArgNumber : public ExtArgText
 {
 public:
-    ExtArgNumber(extcap_arg * argument);
+    ExtArgNumber(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString defaultValue();
@@ -144,8 +146,10 @@ public:
 
 class ExtArgSelector : public ExtcapArgument
 {
+    Q_OBJECT
+
 public:
-    ExtArgSelector(extcap_arg * argument);
+    ExtArgSelector(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
@@ -154,12 +158,16 @@ public:
 private:
 
     QComboBox * boxSelection;
+
+private Q_SLOTS:
+    void onReloadTriggered();
+
 };
 
 class ExtArgRadio : public ExtcapArgument
 {
 public:
-    ExtArgRadio(extcap_arg * argument);
+    ExtArgRadio(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
@@ -174,7 +182,7 @@ private:
 class ExtArgBool : public ExtcapArgument
 {
 public:
-    ExtArgBool(extcap_arg * argument);
+    ExtArgBool(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
     virtual QWidget * createLabel(QWidget * parent);
     virtual QWidget * createEditor(QWidget * parent);
@@ -197,7 +205,7 @@ class ExtArgTimestamp : public ExtcapArgument
     Q_OBJECT
 
 public:
-    ExtArgTimestamp(extcap_arg * argument);
+    ExtArgTimestamp(extcap_arg * argument, QObject *parent = Q_NULLPTR);
     virtual QWidget * createEditor(QWidget * parent);
 
     virtual bool isValid();

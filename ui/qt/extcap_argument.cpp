@@ -42,8 +42,10 @@
 #include <extcap_argument_file.h>
 #include <extcap_argument_multiselect.h>
 
-ExtArgTimestamp::ExtArgTimestamp(extcap_arg * argument) :
-    ExtcapArgument(argument) {}
+#include <ui/qt/extcap_options_dialog.h>
+
+ExtArgTimestamp::ExtArgTimestamp(extcap_arg * argument, QObject * parent) :
+    ExtcapArgument(argument, parent) {}
 
 QWidget * ExtArgTimestamp::createEditor(QWidget * parent)
 {
@@ -102,8 +104,8 @@ QString ExtArgTimestamp::prefValue()
     return value();
 }
 
-ExtArgSelector::ExtArgSelector(extcap_arg * argument) :
-        ExtcapArgument(argument), boxSelection(0) {}
+ExtArgSelector::ExtArgSelector(extcap_arg * argument, QObject * parent) :
+        ExtcapArgument(argument, parent), boxSelection(0) {}
 
 QWidget * ExtArgSelector::createEditor(QWidget * parent)
 {
@@ -112,7 +114,11 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
     const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
     QString stored(prefval ? prefval : "");
 
+    QWidget * editor = new QWidget(parent);
+    QHBoxLayout * layout = new QHBoxLayout();
+
     boxSelection = new QComboBox(parent);
+    layout->addWidget(boxSelection);
 
     if ( values.length() > 0 )
     {
@@ -135,9 +141,64 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
             boxSelection->setCurrentIndex(selected);
     }
 
+    if ( reload() )
+    {
+        QString btnText(tr("Reload data"));
+        if ( _argument->placeholder )
+            btnText = QString(_argument->placeholder);
+
+        QPushButton * reloadButton = new QPushButton(btnText, editor);
+        layout->addWidget(reloadButton);
+        reloadButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        boxSelection->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+        connect(reloadButton, SIGNAL(clicked()), this, SLOT(onReloadTriggered()));
+    }
+
     connect ( boxSelection, SIGNAL(currentIndexChanged(int)), SLOT(onIntChanged(int)) );
 
-    return boxSelection;
+    editor->setLayout(layout);
+
+    return editor;
+}
+
+void ExtArgSelector::onReloadTriggered()
+{
+    int counter = 0;
+    int selected = -1;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+    QString call = boxSelection->currentData().toString();
+#else
+    QString call = boxSelection->itemData(boxSelection->currentIndex()).toString();
+#endif
+    const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
+    QString stored(prefval ? prefval : "");
+    if ( call != stored )
+        stored = call;
+
+    if ( reloadValues() && values.length() > 0 )
+    {
+        boxSelection->clear();
+
+        ExtcapValueList::const_iterator iter = values.constBegin();
+
+        while ( iter != values.constEnd() )
+        {
+            boxSelection->addItem((*iter).value(), (*iter).call());
+
+            if ( stored.compare((*iter).call()) == 0 )
+                selected = counter;
+            else if ( (*iter).isDefault() && selected == -1 )
+                selected = counter;
+
+            counter++;
+            ++iter;
+        }
+
+        if ( selected > -1 && selected < boxSelection->count() )
+            boxSelection->setCurrentIndex(selected);
+    }
 }
 
 bool ExtArgSelector::isValid()
@@ -147,9 +208,12 @@ bool ExtArgSelector::isValid()
     if ( value().length() == 0 && isRequired() )
         valid = false;
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
-    QString cmbBoxStyle("QComboBox { background-color: %1; } ");
-    boxSelection->setStyleSheet( cmbBoxStyle.arg(valid ? QString("") : lblInvalidColor) );
+    if ( boxSelection )
+    {
+        QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+        QString cmbBoxStyle("QComboBox { background-color: %1; } ");
+        boxSelection->setStyleSheet( cmbBoxStyle.arg(valid ? QString("") : lblInvalidColor) );
+    }
 
     return valid;
 }
@@ -168,8 +232,8 @@ QString ExtArgSelector::value()
     return data.toString();
 }
 
-ExtArgRadio::ExtArgRadio(extcap_arg * argument) :
-        ExtcapArgument(argument), selectorGroup(0), callStrings(0) {}
+ExtArgRadio::ExtArgRadio(extcap_arg * argument, QObject * parent) :
+        ExtcapArgument(argument, parent), selectorGroup(0), callStrings(0) {}
 
 QWidget * ExtArgRadio::createEditor(QWidget * parent)
 {
@@ -260,8 +324,8 @@ bool ExtArgRadio::isValid()
     return valid;
 }
 
-ExtArgBool::ExtArgBool(extcap_arg * argument) :
-        ExtcapArgument(argument), boolBox(0) {}
+ExtArgBool::ExtArgBool(extcap_arg * argument, QObject * parent) :
+        ExtcapArgument(argument, parent), boolBox(0) {}
 
 QWidget * ExtArgBool::createLabel(QWidget * parent)
 {
@@ -343,8 +407,8 @@ QString ExtArgBool::defaultValue()
     return defaultBool() ? QString("true") : QString("false");
 }
 
-ExtArgText::ExtArgText(extcap_arg * argument) :
-    ExtcapArgument(argument), textBox(0)
+ExtArgText::ExtArgText(extcap_arg * argument, QObject * parent) :
+    ExtcapArgument(argument, parent), textBox(0)
 {
 }
 
@@ -411,8 +475,8 @@ bool ExtArgText::isValid()
     return valid;
 }
 
-ExtArgNumber::ExtArgNumber(extcap_arg * argument) :
-        ExtArgText(argument) {}
+ExtArgNumber::ExtArgNumber(extcap_arg * argument, QObject * parent) :
+        ExtArgText(argument, parent) {}
 
 QWidget * ExtArgNumber::createEditor(QWidget * parent)
 {
@@ -600,6 +664,25 @@ ExtcapValueList ExtcapArgument::loadValues(QString parent)
     return elements;
 }
 
+bool ExtcapArgument::reloadValues()
+{
+    if ( ! qobject_cast<ExtcapOptionsDialog*> ( parent() ) )
+        return false;
+
+    ExtcapOptionsDialog * dialog = qobject_cast<ExtcapOptionsDialog*>(parent());
+    ExtcapValueList list = dialog->loadValuesFor(_argument->arg_num, _argument->call);
+
+    if ( list.size() > 0 )
+    {
+        values.clear();
+        values << list;
+
+        return true;
+    }
+
+    return false;
+}
+
 ExtcapArgument::~ExtcapArgument() {
 }
 
@@ -698,6 +781,14 @@ bool ExtcapArgument::isRequired()
     return FALSE;
 }
 
+bool ExtcapArgument::reload()
+{
+    if ( _argument != NULL )
+        return _argument->reload;
+
+    return false;
+}
+
 bool ExtcapArgument::fileExists()
 {
     if ( _argument != NULL )
@@ -714,7 +805,7 @@ bool ExtcapArgument::isDefault()
     return false;
 }
 
-ExtcapArgument * ExtcapArgument::create(extcap_arg * argument)
+ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, QObject *parent)
 {
     if ( argument == 0 || argument->display == 0 )
         return 0;
@@ -722,26 +813,26 @@ ExtcapArgument * ExtcapArgument::create(extcap_arg * argument)
     ExtcapArgument * result = 0;
 
     if ( argument->arg_type == EXTCAP_ARG_STRING || argument->arg_type == EXTCAP_ARG_PASSWORD )
-        result = new ExtArgText(argument);
+        result = new ExtArgText(argument, parent);
     else if ( argument->arg_type == EXTCAP_ARG_INTEGER || argument->arg_type == EXTCAP_ARG_LONG ||
             argument->arg_type == EXTCAP_ARG_UNSIGNED || argument->arg_type == EXTCAP_ARG_DOUBLE )
-        result = new ExtArgNumber(argument);
+        result = new ExtArgNumber(argument, parent);
     else if ( argument->arg_type == EXTCAP_ARG_BOOLEAN || argument->arg_type == EXTCAP_ARG_BOOLFLAG )
-        result = new ExtArgBool(argument);
+        result = new ExtArgBool(argument, parent);
     else if ( argument->arg_type == EXTCAP_ARG_SELECTOR )
-        result = new ExtArgSelector(argument);
+        result = new ExtArgSelector(argument, parent);
     else if ( argument->arg_type == EXTCAP_ARG_RADIO )
-        result = new ExtArgRadio(argument);
+        result = new ExtArgRadio(argument, parent);
     else if ( argument->arg_type == EXTCAP_ARG_FILESELECT )
-        result = new ExtcapArgumentFileSelection(argument);
+        result = new ExtcapArgumentFileSelection(argument, parent);
     else if ( argument->arg_type == EXTCAP_ARG_MULTICHECK )
-        result = new ExtArgMultiSelect(argument);
+        result = new ExtArgMultiSelect(argument, parent);
     else if ( argument->arg_type == EXTCAP_ARG_TIMESTAMP )
-        result = new ExtArgTimestamp(argument);
+        result = new ExtArgTimestamp(argument, parent);
     else
     {
         /* For everything else, we just print the label */
-        result = new ExtcapArgument(argument);
+        result = new ExtcapArgument(argument, parent);
     }
 
     return result;

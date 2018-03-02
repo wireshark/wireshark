@@ -29,8 +29,8 @@
 
 #include <extcap_parser.h>
 
-ExtcapArgumentFileSelection::ExtcapArgumentFileSelection (extcap_arg * argument) :
-    ExtcapArgument(argument), textBox(0)
+ExtcapArgumentFileSelection::ExtcapArgumentFileSelection (extcap_arg * argument, QObject *parent) :
+    ExtcapArgument(argument, parent), textBox(0)
 {
 }
 

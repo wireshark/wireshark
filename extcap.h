@@ -32,6 +32,7 @@
 #define EXTCAP_CONTROL_OUT_PREFIX "wireshark_control_ws_to_ext"
 
 #define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
+#define EXTCAP_ARGUMENT_RELOAD_OPTION           "--extcap-reload-option"
 #define EXTCAP_ARGUMENT_LIST_INTERFACES         "--extcap-interfaces"
 #define EXTCAP_ARGUMENT_INTERFACE               "--extcap-interface"
 #define EXTCAP_ARGUMENT_LIST_DLTS               "--extcap-dlts"
@@ -99,9 +100,19 @@ void
 extcap_clear_interfaces(void);
 
 /* returns the configuration for the given interface name, or an
- * empty list, if no configuration has been found */
+ * empty list, if no configuration has been found
+ * @param ifname the interface name
+ */
 GList *
 extcap_get_if_configuration(const char * ifname);
+
+/* returns the configuration values for the given argument, or an
+ * empty list, if no values could been found
+ * @param ifname the interface name
+ * @param argname the name of the argument, for which the values should be retrieved
+ */
+GList *
+extcap_get_if_configuration_values(const char * ifname, const char * argname, GHashTable * arguments);
 
 /**
  * Check if the capture filter for the given interface name is valid.

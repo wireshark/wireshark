@@ -108,14 +108,14 @@ This method prints the extcap configuration, which will be picked up by the
 interface in Wireshark to present a interface specific configuration for
 this extcap plugin
 """
-def extcap_config(interface):
+def extcap_config(interface, option):
     args = []
     values = []
 
     args.append ( (0, '--delay', 'Time delay', 'Time delay between packages', 'integer', '{range=1,15}{default=5}') )
     args.append ( (1, '--message', 'Message', 'Package message content', 'string', '{required=true}{placeholder=Please enter a message here ...}') )
     args.append ( (2, '--verify', 'Verify', 'Verify package content', 'boolflag', '{default=yes}') )
-    args.append ( (3, '--remote', 'Remote Channel', 'Remote Channel Selector', 'selector', ''))
+    args.append ( (3, '--remote', 'Remote Channel', 'Remote Channel Selector', 'selector', '{reload=true}{placeholder=Load interfaces ...}'))
     args.append ( (4, '--fake_ip', 'Fake IP Address', 'Use this ip address as sender', 'string', '{save=false}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}'))
     args.append ( (5, '--ltest', 'Long Test', 'Long Test Value', 'long', '{default=123123123123123123}'))
     args.append ( (6, '--d1test', 'Double 1 Test', 'Long Test Value', 'double', '{default=123.456}'))
@@ -126,17 +126,30 @@ def extcap_config(interface):
     args.append ( (11, '--radio', 'Radio Test', 'Radio Test Value', 'radio', '') )
     args.append ( (12, '--multi', 'MultiCheck Test', 'MultiCheck Test Value', 'multicheck', '') )
 
-    values.append ( (3, "if1", "Remote1", "true" ) )
-    values.append ( (3, "if2", "Remote2", "false" ) )
+    if ( option == "remote" ):
+        values.append ( (3, "if1", "Remote Interface 1", "false" ) )
+        values.append ( (3, "if2", "Remote Interface 2", "true" ) )
+        values.append ( (3, "if3", "Remote Interface 3", "false" ) )
+        values.append ( (3, "if4", "Remote Interface 4", "false" ) )
 
-    values.append ( (11, "r1", "Radio1", "false" ) )
-    values.append ( (11, "r2", "Radio2", "true" ) )
+    if ( option == "radio" ):
+        values.append ( (11, "r1", "Radio Option 1", "false" ) )
+        values.append ( (11, "r2", "Radio Option 2", "false" ) )
+        values.append ( (11, "r3", "Radio Option 3", "true" ) )
 
-    values.append ( (12, "m1", "MultiCheck1", "false" ) )
-    values.append ( (12, "m2", "MultiCheck2", "false" ) )
 
-    for arg in args:
-        print ("arg {number=%d}{call=%s}{display=%s}{tooltip=%s}{type=%s}%s" % arg)
+    if ( len(option) <= 0 ):
+        for arg in args:
+            print ("arg {number=%d}{call=%s}{display=%s}{tooltip=%s}{type=%s}%s" % arg)
+
+        values.append ( (3, "if1", "Remote1", "true" ) )
+        values.append ( (3, "if2", "Remote2", "false" ) )
+
+        values.append ( (11, "r1", "Radio1", "false" ) )
+        values.append ( (11, "r2", "Radio2", "true" ) )
+
+        values.append ( (12, "m1", "MultiCheck1", "false" ) )
+        values.append ( (12, "m2", "MultiCheck2", "false" ) )
 
     for value in values:
         print ("value {arg=%d}{value=%s}{display=%s}{default=%s}" % value)
@@ -385,6 +398,7 @@ def usage():
 
 if __name__ == '__main__':
     interface = ""
+    option = ""
 
     # Capture options
     delay = 0
@@ -408,11 +422,12 @@ if __name__ == '__main__':
     parser.add_argument("--extcap-control-in", help="Used to get control messages from toolbar")
     parser.add_argument("--extcap-control-out", help="Used to send control messages to toolbar")
     parser.add_argument("--extcap-version", help="Shows the version of this utility", action="store_true")
+    parser.add_argument("--extcap-reload-option", help="Reload elements for the given option")
 
     # Interface Arguments
     parser.add_argument("--verify", help="Demonstrates a verification bool flag", action="store_true" )
     parser.add_argument("--delay", help="Demonstrates an integer variable", type=int, default=0, choices=[0, 1, 2, 3, 4, 5, 6] )
-    parser.add_argument("--remote", help="Demonstrates a selector choice", default="if1", choices=["if1", "if2"] )
+    parser.add_argument("--remote", help="Demonstrates a selector choice", default="if1", choices=["if1", "if2", "if3", "if4"] )
     parser.add_argument("--message", help="Demonstrates string variable", nargs='?', default="" )
     parser.add_argument("--fake_ip", help="Add a fake sender IP adress", nargs='?', default="127.0.0.1" )
     parser.add_argument("--ts", help="Capture start time", action="store_true" )
@@ -467,8 +482,11 @@ if __name__ == '__main__':
 
     ts = args.ts
 
+    if ( args.extcap_reload_option and len(args.extcap_reload_option) > 0 ):
+        option = args.extcap_reload_option
+
     if args.extcap_config:
-        extcap_config(interface)
+        extcap_config(interface, option)
     elif args.extcap_dlts:
         extcap_dlts(interface)
     elif args.capture:

@@ -205,7 +205,7 @@ void ExtcapOptionsDialog::loadArguments()
         item = g_list_first((GList *)(walker->data));
         while ( item != NULL )
         {
-            argument = ExtcapArgument::create((extcap_arg *)(item->data));
+            argument = ExtcapArgument::create((extcap_arg *)(item->data), this);
             if ( argument != NULL )
             {
                 if ( argument->isRequired() )
@@ -252,7 +252,6 @@ void ExtcapOptionsDialog::updateWidgets()
 
     /* Load all extcap arguments */
     loadArguments();
-
 
     ExtcapArgumentList::iterator iter = extcapArguments.begin();
     while ( iter != extcapArguments.end() )
@@ -424,7 +423,7 @@ void ExtcapOptionsDialog::resetValues()
     }
 }
 
-void ExtcapOptionsDialog::storeValues()
+GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
 {
     GHashTable * entries = g_hash_table_new(g_str_hash, g_str_equal);
     ExtcapArgumentList::const_iterator iter;
@@ -476,6 +475,9 @@ void ExtcapOptionsDialog::storeValues()
             value = (*iter)->prefValue();
 
         QString key = argument->prefKey(device_name);
+        if ( useCallsAsKey )
+            key = argument->call();
+
         if (key.length() > 0)
         {
             gchar * val = g_strdup(value.length() == 0 ? " " : value.toStdString().c_str());
@@ -484,12 +486,75 @@ void ExtcapOptionsDialog::storeValues()
         }
     }
 
+    return entries;
+}
+
+void ExtcapOptionsDialog::storeValues()
+{
+    GHashTable * entries = getArgumentSettings();
+
     if ( g_hash_table_size(entries) > 0 )
     {
         if ( prefs_store_ext_multiple("extcap", entries) )
             wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
     }
+}
+
+ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentName, QString parent)
+{
+    ExtcapValueList elements;
+    GList * walker = 0, * values = 0;
+    extcap_value * v;
+
+    QList<QWidget *> children = findChildren<QWidget *>();
+    foreach ( QWidget * child, children )
+        child->setEnabled(false);
+
+    QString argcall = argumentName;
+    if ( argcall.startsWith("--") )
+        argcall = argcall.right(argcall.size()-2);
+
+    GHashTable * entries = getArgumentSettings(true);
+
+    values = extcap_get_if_configuration_values(this->device_name.toStdString().c_str(), argcall.toStdString().c_str(), entries);
+
+    for (walker = g_list_first((GList *)(values)); walker != NULL ; walker = walker->next)
+    {
+        v = (extcap_value *) walker->data;
+        if (v == NULL || v->display == NULL || v->call == NULL )
+            break;
+
+        /* Only accept values for this argument */
+        if ( v->arg_num != argNum )
+            break;
+
+        QString valParent = QString().fromUtf8(v->parent);
+
+        if ( parent.compare(valParent) == 0 )
+        {
+
+            QString display = QString().fromUtf8(v->display);
+            QString call = QString().fromUtf8(v->call);
+
+            ExtcapValue element = ExtcapValue(display, call,
+                            v->enabled == (gboolean)TRUE, v->is_default == (gboolean)TRUE);
+
+#if 0
+            /* TODO: Disabled due to wrong parent handling. It leads to an infinite loop for now. To implement this properly, other things
+               will be needed, like new arguments for setting the parent in the call to the extcap utility*/
+            if (!call.isEmpty())
+                element.setChildren(this->loadValuesFor(argumentName, call));
+#endif
+
+            elements.append(element);
+        }
+    }
+
+    foreach ( QWidget * child, children )
+        child->setEnabled(true);
+
+    return elements;
 }
 
 /*
