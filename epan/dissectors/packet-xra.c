@@ -511,6 +511,16 @@ dissect_xra_tlv_burst_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, gu
       case XRA_BURST_INFO_BURST_ID_REFERENCE:
         proto_tree_add_item (xra_tlv_burst_info_tree, hf_xra_tlv_burst_info_burst_id_reference, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
+      case XRA_US_CHANNEL_ID:
+        proto_tree_add_item (xra_tlv_burst_info_tree, hf_xra_tlv_us_channel_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_SID:
+        proto_tree_add_item (xra_tlv_burst_info_tree, hf_xra_tlv_sid, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_IUC:
+        proto_tree_add_item (xra_tlv_burst_info_tree, hf_xra_tlv_iuc, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+
       default:
         proto_tree_add_item (xra_tlv_burst_info_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
         break;
