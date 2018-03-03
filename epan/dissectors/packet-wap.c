@@ -40,12 +40,12 @@
  * the final value. Can be pre-initialised to start at offset+count.
 */
 guint
-tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount, packet_info *pinfo, expert_field *ei)
+tvb_get_guintvar (tvbuff_t *tvb, guint offset,
+        guint *octetCount, packet_info *pinfo, expert_field *ei)
 {
     guint value   = 0;
     guint octet;
     guint counter = 0;
-    char  cont    = 1;
 
 #ifdef DEBUG
     if (octetCount != NULL)
@@ -59,32 +59,37 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount, packet_info *p
     }
 #endif
 
-    while (cont != 0)
-    {
-        value <<= 7;  /* Value only exists in 7 of the 8 bits */
+    do {
         octet = tvb_get_guint8 (tvb, offset+counter);
-        counter += 1;
-        value   += (octet & 0x7F);
-        cont = (octet & 0x80);
-#ifdef DEBUG
-        fprintf (stderr, "dissect_wap: computing: octet is %d (0x%02x), count=%d, value=%d, cont=%d\n",
-                 octet, octet, counter, value, cont);
-#endif
-    }
 
-    if (counter > sizeof(value)) {
-        proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
-        value = 0;
-    }
-    if (octetCount != NULL)
-    {
+        counter++;
+        if (counter > sizeof(value)) {
+            proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
+            value = 0;
+            counter = 0;
+            break;
+        }
+
+        value <<= 7;  /* Value only exists in 7 of the 8 bits */
+        value += (octet & 0x7F);
+
+#ifdef DEBUG
+        fprintf(stderr,
+            "dissect_wap: computing: octet is %d (0x%02x), count=%d, value=%d\n",
+                 octet, octet, counter, value);
+#endif
+    } while (octet & 0x80);
+
+#ifdef DEBUG
+    fprintf (stderr,
+            "dissect_wap: Leaving tvb_get_guintvar count=%d, value=%u\n",
+            counter, value);
+#endif
+
+    if (octetCount)
         *octetCount = counter;
-#ifdef DEBUG
-        fprintf (stderr, "dissect_wap: Leaving tvb_get_guintvar count=%d, value=%u\n", *octetCount, value);
-#endif
-    }
 
-    return (value);
+    return value;
 }
 
 /*
