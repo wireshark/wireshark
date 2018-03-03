@@ -48,15 +48,8 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset,
     guint counter = 0;
 
 #ifdef DEBUG
-    if (octetCount != NULL)
-    {
-        fprintf (stderr, "dissect_wap: Starting tvb_get_guintvar at offset %d, count=%d\n", offset, *octetCount);
-        /* counter = *octetCount; */
-    }
-    else
-    {
-        fprintf (stderr, "dissect_wap: Starting tvb_get_guintvar at offset %d, count=NULL\n", offset);
-    }
+    fprintf (stderr,
+            "dissect_wap: Starting tvb_get_guintvar at offset %d\n", offset);
 #endif
 
     do {
