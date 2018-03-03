@@ -58,8 +58,6 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
 
     connect(ui->coloringRulesTreeView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
             this, SLOT(colorRuleSelectionChanged(const QItemSelection &, const QItemSelection &)));
-    connect(&colorRuleModel_, SIGNAL(dragDropComplete()),
-            this, SLOT(dragDropComplete()));
     connect(&colorRuleDelegate_, SIGNAL(invalidField(const QModelIndex&, const QString&)),
             this, SLOT(invalidField(const QModelIndex&, const QString&)));
     connect(&colorRuleDelegate_, SIGNAL(validField(const QModelIndex&)),
