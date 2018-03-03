@@ -1091,14 +1091,14 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
              ((connInfo->O2T.ipaddress.type == AT_IPv4) && ((*(const guint32*)connInfo->O2T.ipaddress.data)) == 0) ||
              ((connInfo->O2T.ipaddress.type == AT_IPv6) && (memcmp(connInfo->O2T.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
              (connInfo->O2T.type != CONN_TYPE_MULTICAST))
-            copy_address_shallow(&connInfo->O2T.ipaddress, &pinfo->src);
+            copy_address_wmem(wmem_file_scope(), &connInfo->O2T.ipaddress, &pinfo->src);
          if ((connInfo->T2O.port == 0) || (connInfo->T2O.type == CONN_TYPE_MULTICAST))
             connInfo->T2O.port = ENIP_IO_PORT;
          if ((connInfo->T2O.ipaddress.type == AT_NONE) ||
              ((connInfo->T2O.ipaddress.type == AT_IPv4) && ((*(const guint32*)connInfo->T2O.ipaddress.data)) == 0) ||
              ((connInfo->T2O.ipaddress.type == AT_IPv6) && (memcmp(connInfo->T2O.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
              (connInfo->T2O.type != CONN_TYPE_MULTICAST))
-            copy_address_shallow(&connInfo->T2O.ipaddress, &pinfo->dst);
+            copy_address_wmem(wmem_file_scope(), &connInfo->T2O.ipaddress, &pinfo->dst);
 
          if (connInfo->O2T.ipaddress.type == AT_IPv6)
          {
