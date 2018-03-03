@@ -1656,7 +1656,9 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 guint8  *mac;
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), message_length+5);
+                /* Data is header byte */
                 message_data[0] = header;
+                /* Followed by the decrypted message (but not the digest bytes) */
                 tvb_memcpy(tvb, message_data+1, offset, message_length);
 
                 mac = (u8*)snow3g_f9(pdu_security_settings->integrityKey,
@@ -1704,7 +1706,9 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 message_data[3] = (pdu_security_settings->count & 0x000000ff);
                 message_data[4] = (pdu_security_settings->bearer << 3) + (pdu_security_settings->direction << 2);
                 /* rest of first 8 bytes are left as zeroes... */
+                /* Now the header byte */
                 message_data[8] = header;
+                /* Followed by the decrypted message (but not the digest bytes) */
                 tvb_memcpy(tvb, message_data+9, offset, message_length);
 
                 /* Pass in the message */
@@ -2391,8 +2395,9 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /* Compare what was found with calculated value! */
                 if (mac != calculated_digest) {
                     expert_add_info_format(pinfo, mac_ti, &ei_pdcp_lte_digest_wrong,
-                                           "MAC-I Digest wrong expected %08x but found %08x",
+                                           "MAC-I Digest wrong - calculated %08x but found %08x",
                                            calculated_digest, mac);
+                    proto_item_append_text(mac_ti, " (but calculated %08x !)", calculated_digest);
                 }
                 else {
                     proto_item_append_text(mac_ti, " [Matches calculated result]");
