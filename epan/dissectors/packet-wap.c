@@ -70,7 +70,7 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount, packet_info *p
 #endif
     }
 
-    if (counter > 5) {
+    if (counter > sizeof(value)) {
         proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
         value = 0;
     }
