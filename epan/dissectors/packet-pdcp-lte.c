@@ -1848,9 +1848,11 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         PROTO_ITEM_SET_GENERATED(security_ti);
 
         /* Setup frame */
-        ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_setup_frame,
-                                 tvb, 0, 0, pdu_security->configuration_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        if (pinfo->num > pdu_security->configuration_frame) {
+            ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_setup_frame,
+                                     tvb, 0, 0, pdu_security->configuration_frame);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
 
         /* Ciphering */
         ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_ciphering_algorithm,
