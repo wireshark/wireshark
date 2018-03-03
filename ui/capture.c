@@ -292,7 +292,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
 
 static const char *
 cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
-    int file_type)
+                      int file_type)
 {
     const char *errmsg;
     static char errmsg_errno[1024 + 1];
@@ -466,7 +466,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
         cap_session->cap_data_info->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
         if (!cap_session->cap_data_info->wtap) {
             err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
-                new_file);
+                                      new_file);
             g_warning("capture_input_new_file: %d (%s)", err, err_msg);
             g_free(err_msg);
             return FALSE;
