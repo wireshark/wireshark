@@ -69,12 +69,14 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint       dpoe_sec_byte;
   gboolean    dpoe_encrypted = FALSE;
 
-  /* Start_of_Packet delimiter (/S/) can either happen in byte 1 or byte 2,
-   * making the captured preamble either 7 or 6 bytes in length. If the
+  /* Start_of_Packet delimiter (/S/) can happen in byte 1, 2 or 3,
+   * making the captured preamble 8, 7 or 6 bytes in length. If the
    * preamble starts with 0x55, then /S/ happened in byte 1, making the
    * captured preamble 7 bytes in length.
    */
-  if (tvb_get_ntoh24(tvb, 0) == 0x55D555) {
+  if (tvb_get_ntohl(tvb, 0) == 0x5555D555) {
+    offset += 2;
+  } else if (tvb_get_ntoh24(tvb, 0) == 0x55D555) {
     offset += 1;
   } else if (tvb_get_ntohs(tvb, 0) == 0xD555) {
     offset += 0;
