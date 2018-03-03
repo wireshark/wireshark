@@ -467,7 +467,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
         if (!cap_session->cap_data_info->wtap) {
             err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
                 new_file);
-            g_warning("capture_info_new_file: %d (%s)", err, err_msg);
+            g_warning("capture_input_new_file: %d (%s)", err, err_msg);
             g_free(err_msg);
             return FALSE;
         }
