@@ -710,8 +710,11 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
         }
     }
 
-    if(capture_opts->show_info)
-        capture_info_close(cap_session->cap_data_info);
+    if(capture_opts->show_info) {
+        capture_info_ui_destroy(&cap_session->cap_data_info->ui);
+        if(cap_session->cap_data_info->wtap)
+            wtap_close(cap_session->cap_data_info->wtap);
+    }
 
     cap_session->state = CAPTURE_STOPPED;
 

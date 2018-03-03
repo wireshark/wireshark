@@ -52,9 +52,6 @@ typedef struct _info_data {
 /* new packets arrived - read from wtap, count */
 extern void capture_info_new_packets(int to_read, info_data_t* cap_info);
 
-/* close the info - close wtap, destroy dialog */
-extern void capture_info_close(info_data_t* cap_info);
-
 /** Create the capture info dialog */
 extern void
 capture_info_ui_create(capture_info *cinfo, capture_session *cap_session);

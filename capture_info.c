@@ -70,15 +70,6 @@ void capture_info_new_packets(int to_read, info_data_t* cap_info)
     capture_info_ui_update(&cap_info->ui);
 }
 
-
-/* close the info */
-void capture_info_close(info_data_t* cap_info)
-{
-    capture_info_ui_destroy(&cap_info->ui);
-    if(cap_info->wtap)
-        wtap_close(cap_info->wtap);
-}
-
 #endif /* HAVE_LIBPCAP */
 
 /*
