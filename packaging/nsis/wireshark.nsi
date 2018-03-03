@@ -415,10 +415,6 @@ Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 Var USBPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 ;Var WIRESHARK_UNINSTALL ;declare variable for holding the value of a registry key
 
-!ifdef VCREDIST_EXE
-Var VCREDIST_FLAGS ; silent vs passive, norestart
-!endif
-
 Section "-Required"
 ;-------------------------------------------
 
@@ -453,39 +449,21 @@ File "${STAGING_DIR}\dumpcap.html"
 File "${STAGING_DIR}\extcap.html"
 
 ; C-runtime redistributable
-!ifdef VCREDIST_EXE
-; vcredist_x64.exe - copy and execute the redistributable installer
+; vcredist_x64.exe or vc_redist_x86.exe - copy and execute the redistributable installer
 File "${VCREDIST_EXE}"
 ; If the user already has the redistributable installed they will see a
 ; Big Ugly Dialog by default, asking if they want to uninstall or repair.
 ; Ideally we should add a checkbox for this somewhere. In the meantime,
-; just do a "passive+norestart" install for MSVC 2010 and later and a
-; "silent" install otherwise.
+; just do a "quiet" install.
 
-; http://blogs.msdn.com/b/astebner/archive/2010/10/20/10078468.aspx
-; http://allthingsconfigmgr.wordpress.com/2013/12/17/visual-c-redistributables-made-simple/
-; "!if ${MSVC_VER_REQUIRED} >= 1600" doesn't work.
-!searchparse /noerrors ${MSVC_VER_REQUIRED} "1600" VCREDIST_FLAGS_Q_NORESTART
-!ifdef VCREDIST_FLAGS_Q_NORESTART
-StrCpy $VCREDIST_FLAGS "/q /norestart"
-!else ; VCREDIST_FLAGS_Q_NORESTART
-StrCpy $VCREDIST_FLAGS "/install /quiet /norestart"
-!endif ; VCREDIST_FLAGS_Q_NORESTART
-
-ExecWait '"$INSTDIR\vcredist_${TARGET_MACHINE}.exe" $VCREDIST_FLAGS' $0
+; http://asawicki.info/news_1597_installing_visual_c_redistributable_package_from_command_line.html
+ExecWait '"$INSTDIR\vcredist_${TARGET_MACHINE}.exe" /install /quiet /norestart' $0
 DetailPrint "vcredist_${TARGET_MACHINE} returned $0"
 IntCmp $0 3010 redistReboot redistNoReboot
 redistReboot:
 SetRebootFlag true
 redistNoReboot:
 Delete "$INSTDIR\vcredist_${TARGET_MACHINE}.exe"
-!else
-!ifdef MSVCR_DLL
-; msvcr*.dll (MSVC V7 or V7.1) - simply copy the dll file
-!echo "IF YOU GET AN ERROR HERE, check the CMAKE_GENERATOR setting"
-File "${MSVCR_DLL}"
-!endif ; MSVCR_DLL
-!endif ; VCREDIST_EXE
 
 
 ; global config files - don't overwrite if already existing

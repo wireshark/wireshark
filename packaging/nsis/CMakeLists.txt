@@ -114,9 +114,6 @@ if(MSVC_VERSION GREATER_EQUAL 1910)
 elseif(MSVC_VERSION GREATER_EQUAL 1900)
 	set(_ws_vcredist_subdir "vcredist_MSVC2015")
 	set(_ms_vcredist_subdir "redist/1033")
-elseif(MSVC_VERSION GREATER_EQUAL 1800)
-	set(_ws_vcredist_subdir "vcredist_MSVC2013")
-	set(_ms_vcredist_subdir "redist/1033")
 endif()
 
 find_program(VCREDIST_EXE "${_vcredist_name}"

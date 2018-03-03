@@ -288,21 +288,12 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	if (MSVC10)
-		set(MSC_VER_REQUIRED 1600)
-	elseif(MSVC11)
-		set(MSC_VER_REQUIRED 1700)
-	elseif(MSVC12)
-		set(MSC_VER_REQUIRED 1800)
-	elseif(MSVC14)
-		set(MSC_VER_REQUIRED 1900)
-	else()
+	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
 	endif()
 
 	add_definitions(
 		/DWIN32_LEAN_AND_MEAN
-		"/DMSC_VER_REQUIRED=${MSC_VER_REQUIRED}"
 		/D_CRT_SECURE_NO_DEPRECATE
 		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
 		# This avoids conflicts with the C++ standard library.
