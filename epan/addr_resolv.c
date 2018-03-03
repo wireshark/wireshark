@@ -2810,10 +2810,14 @@ host_name_lookup_cleanup(void)
 void
 manually_resolve_cleanup(void)
 {
-    wmem_destroy_list(manually_resolved_ipv4_list);
-    manually_resolved_ipv4_list = NULL;
-    wmem_destroy_list(manually_resolved_ipv6_list);
-    manually_resolved_ipv6_list = NULL;
+    if (manually_resolved_ipv4_list) {
+        wmem_destroy_list(manually_resolved_ipv4_list);
+        manually_resolved_ipv4_list = NULL;
+    }
+    if (manually_resolved_ipv6_list) {
+        wmem_destroy_list(manually_resolved_ipv6_list);
+        manually_resolved_ipv6_list = NULL;
+    }
 }
 
 gchar *
