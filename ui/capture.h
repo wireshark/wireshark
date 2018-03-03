@@ -91,9 +91,6 @@ extern gboolean capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_sta
  */
 void capture_stat_stop(if_stat_cache_t *sc);
 
-/* open the info - init values (wtap, counts), create dialog */
-extern void capture_info_open(capture_session *cap_session, info_data_t* cap_info);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
