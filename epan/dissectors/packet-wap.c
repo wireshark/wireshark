@@ -27,6 +27,8 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <epan/packet.h>
 #include "packet-wap.h"
 
