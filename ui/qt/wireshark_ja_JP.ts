@@ -1989,15 +1989,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation>マップ</translation>
+        <translation type="vanished">マップ</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>IPv4またはIPv6の端末をマップ上に描画します</translation>
+        <translation type="vanished">IPv4またはIPv6の端末をマップ上に描画します</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation>マップファイルエラー</translation>
+        <translation type="vanished">マップファイルエラー</translation>
     </message>
 </context>
 <context>

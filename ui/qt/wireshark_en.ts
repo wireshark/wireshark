@@ -2011,21 +2011,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>

@@ -1995,15 +1995,15 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation>Mapuj</translation>
+        <translation type="vanished">Mapuj</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>Dodaj punkty krańcowe IPv4 lub IPv6.</translation>
+        <translation type="vanished">Dodaj punkty krańcowe IPv4 lub IPv6.</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation>Błąd mapowania pliku</translation>
+        <translation type="vanished">Błąd mapowania pliku</translation>
     </message>
 </context>
 <context>

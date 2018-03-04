@@ -2019,15 +2019,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation>Mappa</translation>
+        <translation type="vanished">Mappa</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>Traccia i terminatori IPv4 o IPv6 su una mappa.</translation>
+        <translation type="vanished">Traccia i terminatori IPv4 o IPv6 su una mappa.</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation>Errore nel file di mappa</translation>
+        <translation type="vanished">Errore nel file di mappa</translation>
     </message>
 </context>
 <context>

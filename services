@@ -6084,6 +6084,7 @@ ip-provision	43190/tcp/udp	# IP-PROVISION
 noit-transport	43191/tcp	# Reconnoiter Agent Data Transport
 shaperai	43210/tcp	# Shaper Automation Server Management
 shaperai-disc	43210/udp	# Shaper Automation Server Management Discovery
+hmip-routing	43438/udp	# HmIP LAN Routing
 eq3-update	43439/tcp	# EQ3 firmware update
 eq3-config	43439/udp	# EQ3 discovery and configuration
 ew-mgmt		43440/tcp	# Cisco EnergyWise Management

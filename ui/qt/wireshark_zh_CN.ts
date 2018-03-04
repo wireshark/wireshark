@@ -2010,15 +2010,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation>映射</translation>
+        <translation type="vanished">映射</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>将IPv4或IPv6端点画在映射上。</translation>
+        <translation type="vanished">将IPv4或IPv6端点画在映射上。</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation>映射文件错误</translation>
+        <translation type="vanished">映射文件错误</translation>
     </message>
 </context>
 <context>

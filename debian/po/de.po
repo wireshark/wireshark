@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the wireshark package.
 # 
 # Translators:
-# Dominik Eismann <dorlamm@gmx.de>, 2016
+# Dominik Eismann <dominik.eismann@posteo.de>, 2016
 # uhei, 2017
 # uhei, 2015,2017
 # Uli Heilmeier, 2015

@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Recherche des Auteurs</translation>
     </message>
     <message>
         <source>Folders</source>
@@ -45,11 +45,11 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun plugin trouvé.</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechercher des plugins</translation>
     </message>
     <message>
         <source>Filter by type:</source>
@@ -1994,15 +1994,15 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation>Carte</translation>
+        <translation type="vanished">Carte</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>Dessine des extrémités IPv4 ou IPv6 sur une carte.</translation>
+        <translation type="vanished">Dessine des extrémités IPv4 ou IPv6 sur une carte.</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation>Erreur de fichier de carte</translation>
+        <translation type="vanished">Erreur de fichier de carte</translation>
     </message>
 </context>
 <context>

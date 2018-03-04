@@ -2019,15 +2019,15 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation>Karte</translation>
+        <translation type="vanished">Karte</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>IPv4 und IPv6 Endpunkte auf einer Karte anzeigen.</translation>
+        <translation type="vanished">IPv4 und IPv6 Endpunkte auf einer Karte anzeigen.</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation>Fehler bei der Kartendatei</translation>
+        <translation type="vanished">Fehler bei der Kartendatei</translation>
     </message>
 </context>
 <context>
