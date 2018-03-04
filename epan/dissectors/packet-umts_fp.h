@@ -40,7 +40,7 @@
 #define MAX_FP_CHANS  64
 #define MAX_EDCH_DDIS 16
 #define MAX_NUM_HSDHSCH_MACDFLOW 8
-#define FP_maxNrOfTFs 32 /* From NBAC-Constants.asn */
+#define FP_maxNrOfDCHs 128 /* From NBAP-Constants.asn */
 
 enum fp_interface_type
 {
@@ -193,9 +193,9 @@ typedef struct
 
     /* DCH's in this flow */
     gint num_dch_in_flow;
-    gint dch_ids_in_flow_list[FP_maxNrOfTFs];
+    gint dch_ids_in_flow_list[FP_maxNrOfDCHs];
     /* DCH type channel data */
-    fp_dch_channel_info_t fp_dch_channel_info[FP_maxNrOfTFs];
+    fp_dch_channel_info_t fp_dch_channel_info[FP_maxNrOfDCHs];
     guint8 dch_crc_present;    /* 0=No, 1=Yes, 2=Unknown */
 
     gboolean reset_frag;  /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/

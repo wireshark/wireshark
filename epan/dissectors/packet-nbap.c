@@ -15425,7 +15425,7 @@ dissect_nbap_T_dCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   if(num_dch_in_flow>0){
       guint32 prev_dch_id = private_data_get_prev_dch_id(actx->pinfo);
       nbap_dch_chnl_info[dch_id].next_dch = 0;
-      if(prev_dch_id != 0 && prev_dch_id != 0xffffffff){
+      if(prev_dch_id != 0 && prev_dch_id != 0xffffffff && prev_dch_id != dch_id){
           nbap_dch_chnl_info[prev_dch_id].next_dch = dch_id;
       }
   }
@@ -29668,7 +29668,7 @@ private_data_set_dch_id(actx->pinfo, 0xFFFFFFFF);
                     /* Set data for associated DCH's if we have any */
                     i = dch_id;
                     umts_fp_conversation_info->dch_ids_in_flow_list[0] = dch_id;
-                    while(nbap_dch_chnl_info[i].next_dch != 0){
+                    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
                         i = nbap_dch_chnl_info[i].next_dch;
                         umts_fp_conversation_info->num_dch_in_flow++;
                         umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;   /*Set transport channel id*/
@@ -33379,7 +33379,7 @@ private_data_set_transport_format_set_type(actx->pinfo, NBAP_CPCH);
     /* Set data for associated DCH's if we have any */
     i = common_physical_channel_id;
     umts_fp_conversation_info->dch_ids_in_flow_list[0] = common_physical_channel_id;
-    while(nbap_dch_chnl_info[i].next_dch != 0){
+    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
       i = nbap_dch_chnl_info[i].next_dch;
       umts_fp_conversation_info->num_dch_in_flow++;
       umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
@@ -33557,7 +33557,7 @@ private_data_set_num_items(actx->pinfo, 1);
     nbap_debug("    commontransportchannelid %u next ch %u",common_transport_channel_id, nbap_dch_chnl_info[i].next_dch);
 
     umts_fp_conversation_info->dch_ids_in_flow_list[0] = common_transport_channel_id;
-    while(nbap_dch_chnl_info[i].next_dch != 0){
+    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
       i = nbap_dch_chnl_info[i].next_dch;
       umts_fp_conversation_info->num_dch_in_flow++;
       umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
