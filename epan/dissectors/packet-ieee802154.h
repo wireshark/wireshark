@@ -380,7 +380,7 @@ typedef struct {
     gboolean    seqno_suppression;
     gboolean    ie_present;
     guint8      seqno;
-    /* determined during processing of Header IE*/
+    /* Determined during processing of Header IE*/
     gboolean    payload_ie_present;
     /* Addressing Info. */
     guint16     dst_pan;
@@ -475,6 +475,53 @@ gboolean ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_l
 
 proto_tree *ieee802154_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett);
 proto_tree *ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett);
+
+
+/**
+ * Dissect the IEEE 802.15.4 header starting from the FCF up to and including the Header IEs (the non-encrypted part)
+ * @param tvb the IEEE 802.15.4 frame
+ * @param pinfo packet info of the currently processed packet
+ * @param tree current protocol tree
+ * @param[out] created_header_tree will be set to the tree created for the header
+ * @param[out] parsed_info Will be set to the (wmem allocated) IEEE 802.15.4 packet information
+ * @return the MHR length or 0 if an error occurred
+ */
+guint ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree **created_header_tree, ieee802154_packet **parsed_info);
+
+/**
+ * Decrypt the IEEE 802.15.4 payload starting from the Payload IEs
+ *
+ * If the packet is not encrypted, just return the payload.
+ * @param tvb the IEEE 802.15.4 frame
+ * @param mhr_len the size of the IEEE 802.15.4 header (MHR)
+ * @param pinfo packet info of the currently processed packet
+ * @param ieee802154_tree the tree for the IEEE 802.15.4 header/protocol
+ * @param packet the IEEE 802.15.4 packet information
+ * @return the plaintext payload or NULL if decryption failed
+ */
+tvbuff_t* ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet);
+
+/**
+ * Dissect the IEEE 802.15.4 Payload IEs (if present)
+ * @param tvb the (decrypted) IEEE 802.15.4 payload
+ * @param pinfo packet info of the currently processed packet
+ * @param ieee802154_tree the tree for the IEEE 802.15.4 header/protocol
+ * @param packet the IEEE 802.15.4 packet information
+ * @return the number of bytes dissected
+ */
+guint ieee802154_dissect_payload_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet);
+
+/**
+ * Dissect the IEEE 802.15.4 frame payload (after the Payload IEs)
+ * @param tvb the (decrypted) IEEE 802.15.4 frame payload (after the Payload IEs)
+ * @param pinfo packet info of the currently processed packet
+ * @param ieee802154_tree the tree for the IEEE 802.15.4 header/protocol
+ * @param packet the IEEE 802.15.4 packet information
+ * @param fcs_ok set to FALSE if the FCS verification failed, which is used to suppress some further processing
+ * @return the number of bytes dissected
+ */
+guint ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet, gboolean fcs_ok);
+
 
 /* Results for the decryption */
 typedef struct {

@@ -260,6 +260,7 @@ static int dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tre
 static tvbuff_t *dissect_zboss_specific    (tvbuff_t *, packet_info *, proto_tree *);
 /*static void dissect_ieee802154_linux        (tvbuff_t *, packet_info *, proto_tree *);  TODO: Implement Me. */
 static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tree *, guint);
+static void ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean is_cc24xx, gboolean fcs_ok);
 
 /* Information Elements */
 static int dissect_ieee802154_header_ie        (tvbuff_t *, packet_info *, proto_tree *, guint, ieee802154_packet *);
@@ -1123,6 +1124,35 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info *
     return payload_tvb;
 }
 
+
+/**
+ * Check if the CC24xx style CRC-OK flag is true
+ * @param tvb the IEEE 802.15.4 frame
+ * @return if the CC24xx style CRC-OK flag is true
+ */
+static gboolean
+is_cc24xx_crc_ok(tvbuff_t *tvb)
+{
+    return tvb_get_letohs(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN) & IEEE802154_CC24xx_CRC_OK ? TRUE : FALSE;
+}
+
+/**
+ * Verify the 16 bit IEEE 802.15.4 FCS
+ * @param tvb the IEEE 802.15.4 frame from the FCF up to and including the FCS
+ * @param[out] computed_fcs if != NULL, will be set to the computed FCS
+ * @return if the computed FCS matches the transmitted FCS
+ */
+static gboolean
+is_fcs_ok(tvbuff_t *tvb, guint16 *computed_fcs)
+{
+    guint16 fcs = tvb_get_letohs(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
+    guint16 fcs_calc = (guint16) ieee802154_crc_tvb(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
+    if (computed_fcs) {
+        *computed_fcs = fcs_calc;
+    }
+    return fcs == fcs_calc;
+}
+
 /**
  * Dissector for IEEE 802.15.4 non-ASK PHY packet with an FCS containing a 16-bit CRC value.
  *
@@ -1303,38 +1333,58 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
  *
  * This is called after the individual dissect_ieee802154* functions
  * have been called to determine what sort of FCS is present.
- * The dissect_ieee802154* functions will set the parameters
- * in the ieee802154_packet structure, and pass it to this one
- * through the data parameter.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields
- * @param tree pointer to data tree wireshark uses to display packet.
+ * @param tree pointer to data tree Wireshark uses to display packet.
  * @param options bitwise or of dissector options (see DISSECT_IEEE802154_OPTION_xxx).
  */
 static void
 dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint options)
 {
-    tvbuff_t                *volatile payload_tvb = NULL;
-    proto_tree              *volatile ieee802154_tree = NULL;
-    proto_item              *volatile proto_root = NULL;
+    proto_tree *ieee802154_tree;
+    ieee802154_packet *packet;
+    guint mhr_len = ieee802154_dissect_header(tvb, pinfo, tree, &ieee802154_tree, &packet);
+    if (!mhr_len || tvb_reported_length_remaining(tvb, mhr_len+IEEE802154_FCS_LEN) < 0 ) {
+        return;
+    }
+
+    gboolean fcs_ok = TRUE;  // assume OK if not existing
+    if (tvb_bytes_exist(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN, IEEE802154_FCS_LEN)) {
+        fcs_ok = options & DISSECT_IEEE802154_OPTION_CC24xx ? is_cc24xx_crc_ok(tvb) : is_fcs_ok(tvb, NULL);
+    }
+
+    tvbuff_t* payload = ieee802154_decrypt_payload(tvb, mhr_len, pinfo, ieee802154_tree, packet);
+    if (payload) {
+        guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
+        payload = tvb_new_subset_remaining(payload, pie_size);
+        if (options & DISSECT_IEEE802154_OPTION_ZBOSS && packet->frame_type == IEEE802154_FCF_DATA) {
+            if ((!fcs_ok && ieee802154_fcs_ok) || !tvb_reported_length(payload)) {
+                call_data_dissector(payload, pinfo, tree);
+            } else {
+                call_dissector_with_data(zigbee_nwk_handle, payload, pinfo, tree, packet);
+            }
+        } else {
+            ieee802154_dissect_frame_payload(payload, pinfo, ieee802154_tree, packet, fcs_ok);
+        }
+    }
+
+    ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, options & DISSECT_IEEE802154_OPTION_CC24xx, fcs_ok);
+}
+
+guint
+ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree **created_header_tree, ieee802154_packet **parsed_info)
+{
+    proto_tree              *ieee802154_tree = NULL;
+    proto_item              *proto_root = NULL;
     proto_item              *hidden_item;
     proto_item              *ti;
-    proto_item              *mic_item = NULL;
-    proto_tree              *header_tree = NULL;
     guint                   offset = 0;
-    volatile gboolean       fcs_ok = TRUE;
-    const char              *saved_proto;
-    ieee802154_decrypt_status status;
     gboolean                dstPanPresent = FALSE;
     gboolean                srcPanPresent = FALSE;
-    unsigned char           rx_mic[IEEE802154_CIPHER_SIZE];
-    guint                   rx_mic_len = 0;
     ieee802154_packet      *packet = wmem_new0(wmem_packet_scope(), ieee802154_packet);
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
-
-    heur_dtbl_entry_t      *hdtbl_entry;
 
     packet->short_table = ieee802154_map.short_table;
 
@@ -1355,6 +1405,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4");
+
+    /* Set out parameters */
+    *created_header_tree = ieee802154_tree;
+    *parsed_info = packet;
 
     /* Add the packet length to the filter field */
     hidden_item = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
@@ -1394,19 +1448,19 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_RESERVED) {
         /* Invalid Destination Address Mode. Abort Dissection. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_dst);
-        return;
+        return 0;
     }
 
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_RESERVED) {
         /* Invalid Source Address Mode. Abort Dissection. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_src);
-        return;
+        return 0;
     }
 
     if (packet->version == IEEE802154_VERSION_RESERVED) {
         /* Unknown Frame Version. Abort Dissection. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_frame_ver);
-        return;
+        return 0;
     }
     else if ((packet->version == IEEE802154_VERSION_2003) ||  /* For Frame Version 0b00 and */
              (packet->version == IEEE802154_VERSION_2006))  { /* 0b01 effect defined in section 7.2.1.5 */
@@ -1425,7 +1479,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         else {
             if (packet->pan_id_compression == 1) { /* all remaining cases pan_id_compression must be zero */
                 expert_add_info(pinfo, proto_root, &ei_ieee802154_invalid_addressing);
-                return;
+                return 0;
             }
             else {
                 /* only either the destination or the source addressing information is present */
@@ -1446,7 +1500,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 }
                 else {
                     expert_add_info(pinfo, proto_root, &ei_ieee802154_invalid_addressing);
-                    return;
+                    return 0;
                 }
             }
         }
@@ -1582,7 +1636,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
             else {
                 expert_add_info(pinfo, proto_root, &ei_ieee802154_invalid_panid_compression2);
-                return;
+                return 0;
             }
         }
         else { /* Frame Type is neither Beacon, Data, Ack, nor Command: PAN ID Compression is not used */
@@ -1593,7 +1647,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else {
         /* Unknown Frame Version. Abort Dissection. */
         expert_add_info(pinfo, proto_root, &ei_ieee802154_frame_ver);
-        return;
+        return 0;
     }
 
     /*
@@ -1749,24 +1803,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset += 8;
     }
 
-
-    /* Check, but don't display the FCS yet, otherwise the payload dissection
-     * may be out of place in the tree. But we want to know if the FCS is OK in
-     * case the CRC is bad (don't want to continue dissection to the NWK layer).
-     */
-    if (tvb_bytes_exist(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN, IEEE802154_FCS_LEN)) {
-        /* The FCS is in the last two bytes of the packet. */
-        guint16     fcs = tvb_get_letohs(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
-        /* Check if we are expecting a CC2420-style FCS*/
-        if (options & DISSECT_IEEE802154_OPTION_CC24xx) {
-            fcs_ok = (fcs & IEEE802154_CC24xx_CRC_OK);
-        }
-        else {
-            guint16 fcs_calc = ieee802154_crc_tvb(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
-            fcs_ok = (fcs == fcs_calc);
-        }
-    }
-
     /* Existence of the Auxiliary Security Header is controlled by the Security Enabled Field */
     if ((packet->security_enable) && (packet->version != IEEE802154_VERSION_2003)) {
         dissect_ieee802154_aux_sec_header_and_key(tvb, pinfo, ieee802154_tree, packet, &offset);
@@ -1823,6 +1859,22 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
+    return offset;
+}
+
+tvbuff_t*
+ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet)
+{
+    proto_item *proto_root = proto_tree_get_parent(ieee802154_tree);
+    proto_tree *tree = proto_tree_get_parent_tree(ieee802154_tree);
+    guint offset = mhr_len;
+    unsigned char rx_mic[IEEE802154_CIPHER_SIZE];
+    guint rx_mic_len = 0;
+    ieee802154_decrypt_status status;
+    proto_item *mic_item = NULL;
+    proto_tree *header_tree = NULL;
+    tvbuff_t *payload_tvb;
+
     /* Encrypted Payload. */
     if (packet->security_enable) {
         ieee802154_decrypt_info_t decrypt_info;
@@ -1860,27 +1912,27 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         case DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decryption of 802.15.4-2015 with frame counter suppression is not supported");
             call_data_dissector(payload_tvb, pinfo, tree);
-            goto dissect_ieee802154_fcs;
+            return NULL;
 
         case DECRYPT_PACKET_TOO_SMALL:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Packet was too small to include the CRC and MIC");
             call_data_dissector(payload_tvb, pinfo, tree);
-            goto dissect_ieee802154_fcs;
+            return NULL;
 
         case DECRYPT_PACKET_NO_EXT_SRC_ADDR:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No extended source address - can't decrypt");
             call_data_dissector(payload_tvb, pinfo, tree);
-            goto dissect_ieee802154_fcs;
+            return NULL;
 
         case DECRYPT_PACKET_NO_KEY:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No encryption key set - can't decrypt");
             call_data_dissector(payload_tvb, pinfo, tree);
-            goto dissect_ieee802154_fcs;
+            return NULL;
 
         case DECRYPT_PACKET_DECRYPT_FAILED:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decrypt failed");
             call_data_dissector(payload_tvb, pinfo, tree);
-            goto dissect_ieee802154_fcs;
+            return NULL;
 
         case DECRYPT_PACKET_MIC_CHECK_FAILED:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "MIC check failed");
@@ -1891,7 +1943,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
              */
             if (IEEE802154_IS_ENCRYPTED(packet->security_level)) {
                 call_data_dissector(payload_tvb, pinfo, tree);
-                goto dissect_ieee802154_fcs;
+                return NULL;
             }
             break;
         }
@@ -1905,51 +1957,38 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         payload_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
     }
 
-    offset = 0;
+    return payload_tvb;
+}
 
+
+guint ieee802154_dissect_payload_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet)
+{
     /* Presence of Payload IEs is defined by the termination of the Header IEs */
     if (packet->payload_ie_present) {
-        if (tvb_reported_length_remaining(payload_tvb, offset) > 2) {
-            offset += dissect_ieee802154_payload_ie(payload_tvb, pinfo, ieee802154_tree, offset, packet);
+        if (tvb_reported_length(tvb) > 2) {
+            return (guint) dissect_ieee802154_payload_ie(tvb, pinfo, ieee802154_tree, 0, packet);
         } else {
-            expert_add_info(pinfo, proto_root, &ei_ieee802154_missing_payload_ie);
+            expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_missing_payload_ie);
         }
     }
+    return 0;
+}
 
-    if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_CMD)) {
-        /* In 802.15.4e and later the Command Id follows the Payload IEs. */
-        packet->command_id = tvb_get_guint8(payload_tvb, offset);
-        if (tree) {
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_cmd_id, payload_tvb, offset, 1, packet->command_id);
-        }
-        offset++;
 
-        /* Display the command identifier in the info column. */
-        if ((packet->version == IEEE802154_VERSION_2015) && (packet->command_id == IEEE802154_CMD_BEACON_REQ)) {
-            col_set_str(pinfo->cinfo, COL_INFO, "Enhanced Beacon Request");
-        }
-        else {
-            col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
-        }
-    }
+guint ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet, gboolean fcs_ok)
+{
+    tvbuff_t *payload_tvb = tvb;
+    proto_tree *tree = proto_tree_get_parent_tree(ieee802154_tree);
+    heur_dtbl_entry_t *hdtbl_entry;
 
-    if (offset > 0) {
-        payload_tvb = tvb_new_subset_remaining(payload_tvb, offset);
-        offset = 0;
-    }
-
-    /* If it is ok to dissect bad FCS, FCS might be absent, so still dissect
-     * commands like Association request. */
-    if ((!ieee802154_fcs_ok
-         /* If either ZBOSS traffic dump or TI CC2{45}xx, FCS must be present. */
-         && !(options & (DISSECT_IEEE802154_OPTION_ZBOSS | DISSECT_IEEE802154_OPTION_CC24xx)))
-        || tvb_captured_length(payload_tvb) > 0) {
+    /* There are commands without payload */
+    if (tvb_captured_length(payload_tvb) > 0 || packet->frame_type == IEEE802154_FCF_CMD) {
         /*
          * Wrap the sub-dissection in a try/catch block in case the payload is
          * broken. First we store the current protocol so we can fix it if an
          * exception is thrown by the subdissectors.
          */
-        saved_proto = pinfo->current_proto;
+        const char* saved_proto = pinfo->current_proto;
         /* Try to dissect the payload. */
         TRY {
             switch (packet->frame_type) {
@@ -1968,10 +2007,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 /* Sanity-check. */
                 if ((!fcs_ok && ieee802154_fcs_ok) || !tvb_reported_length(payload_tvb)) {
                     call_data_dissector(payload_tvb, pinfo, tree);
-                    break;
-                }
-                if (options & DISSECT_IEEE802154_OPTION_ZBOSS) {
-                    call_dissector_with_data(zigbee_nwk_handle, payload_tvb, pinfo, tree, packet);
                     break;
                 }
                 /* Try the PANID dissector table for stateful dissection. */
@@ -2007,30 +2042,42 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
         ENDTRY;
     }
-    /*
-     * Frame Check Sequence (FCS)
-     *
-     */
-dissect_ieee802154_fcs:
+    return tvb_captured_length(tvb);
+}
+
+/**
+ * Show the 802.15.4 FCS with support for the 16 bit FCS or the TI CC24xx format. The FCS is only displayed
+ * if the included length of the tvb encompasses the FCS.
+ *
+ * @param tvb the 802.15.4 frame tvb
+ * @param pinfo pointer to packet information fields
+ * @param ieee802154_tree the 802.15.4 protocol tree
+ * @param is_cc24xx indicate if the FCS is in the TI CC24xx format
+ * @param fcs_ok set to FALSE to indicate FCS verification failed
+ */
+static void
+ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean is_cc24xx, gboolean fcs_ok)
+{
+    proto_item *ti;
     /* The FCS should be the last bytes of the reported packet. */
-    offset = tvb_reported_length(tvb)-IEEE802154_FCS_LEN;
+    guint offset = tvb_reported_length(tvb)-IEEE802154_FCS_LEN;
     /* Dissect the FCS only if it exists (captures which don't or can't get the
      * FCS will simply truncate the packet to omit it, but should still set the
      * reported length to cover the original packet length), so if the snapshot
      * is too short for an FCS don't make a fuss.
      */
-    if (tvb_bytes_exist(tvb, offset, IEEE802154_FCS_LEN) && (tree)) {
+    if (tvb_bytes_exist(tvb, offset, IEEE802154_FCS_LEN) && (ieee802154_tree)) {
         proto_tree  *field_tree;
         guint16     fcs = tvb_get_letohs(tvb, offset);
 
         /* Display the FCS depending on expected FCS format */
-        if ((options & DISSECT_IEEE802154_OPTION_CC24xx)) {
+        if (is_cc24xx) {
             /* Create a subtree for the FCS. */
             field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
                         "Frame Check Sequence (TI CC24xx format): FCS %s", (fcs_ok) ? "OK" : "Bad");
             /* Display FCS contents.  */
             proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
-            proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (gboolean) (fcs & IEEE802154_CC24xx_CRC_OK));
+            proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (fcs & IEEE802154_CC24xx_CRC_OK));
             proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
         }
         else {
@@ -2042,11 +2089,11 @@ dissect_ieee802154_fcs:
                 proto_item_append_text(ti, " (Incorrect, expected FCS=0x%04x)", ieee802154_crc_tvb(tvb, offset));
             }
             /* To Help with filtering, add the fcs_ok field to the tree.  */
-            ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok);
+            ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
             PROTO_ITEM_SET_HIDDEN(ti);
         }
     }
-    else if (tree) {
+    else if (ieee802154_tree) {
         /* Even if the FCS isn't present, add the fcs_ok field to the tree to
          * help with filter. Be sure not to make it visible though.
          */
@@ -2057,12 +2104,13 @@ dissect_ieee802154_fcs:
     /* If the CRC is invalid, make a note of it in the info column. */
     if (!fcs_ok) {
         col_append_str(pinfo->cinfo, COL_INFO, ", Bad FCS");
-        if (tree) proto_item_append_text(proto_root, ", Bad FCS");
+        proto_item_append_text(proto_tree_get_parent(ieee802154_tree), ", Bad FCS");
 
         /* Flag packet as having a bad crc. */
-        expert_add_info(pinfo, proto_root, &ei_ieee802154_fcs);
+        expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
     }
-} /* dissect_ieee802154_common */
+}
+
 
 /*
  * Information Elements Processing (IEs)
@@ -3399,6 +3447,21 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static void
 dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
+    if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_CMD)) {
+        /* In 802.15.4e and later the Command Id follows the Payload IEs. */
+        packet->command_id = tvb_get_guint8(tvb, 0);
+        proto_tree_add_uint(tree, hf_ieee802154_cmd_id, tvb, 0, 1, packet->command_id);
+        tvb = tvb_new_subset_remaining(tvb, 1);
+
+        /* Display the command identifier in the info column. */
+        if ((packet->version == IEEE802154_VERSION_2015) && (packet->command_id == IEEE802154_CMD_BEACON_REQ)) {
+            col_set_str(pinfo->cinfo, COL_INFO, "Enhanced Beacon Request");
+        }
+        else {
+            col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
+        }
+    }
+
     switch (packet->command_id) {
     case IEEE802154_CMD_ASSOC_REQ:
         IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
@@ -3492,8 +3555,8 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       case IEEE802154_CMD_DBS_REQ:
       case IEEE802154_CMD_DBS_RSP:
             /* TODO add support for these commands, for now
-             * if anything remains other than the FCS, dump it */
-            if (tvb_captured_length_remaining(tvb, 0) > 2) {
+             * if anything remains, dump it */
+            if (tvb_captured_length_remaining(tvb, 0) > 0) {
                 call_data_dissector(tvb, pinfo, tree);
             }
           return;
