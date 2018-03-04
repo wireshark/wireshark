@@ -1339,11 +1339,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     packet->short_table = ieee802154_map.short_table;
 
     /* Allocate frame data with hints for upper layers */
-    if (!pinfo->fd->flags.visited) {
+    if (!PINFO_FD_VISITED(pinfo) ||
+        (ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0)) == NULL) {
         ieee_hints = wmem_new0(wmem_file_scope(), ieee802154_hints_t);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0, ieee_hints);
-    } else {
-        ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
     }
 
     /* Save a pointer to the whole packet */
