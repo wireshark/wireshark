@@ -51,6 +51,8 @@ static dissector_handle_t eapol_handle;  // for the eapol relay
 #define WISUN_SUBID_RSL     4
 #define WISUN_SUBID_MHDS    5
 #define WISUN_SUBID_VH      6
+#define WISUN_SUBID_N_UTT   7
+#define WISUN_SUBID_N_LQI   8
 #define WISUN_SUBID_EA      9
 
 /* Wi-SUN Payload/Nested ID values. */
@@ -159,6 +161,11 @@ static int hf_wisun_eapol_relay_sup = -1;
 static int hf_wisun_eapol_relay_kmp_id = -1;
 static int hf_wisun_eapol_relay_direction = -1;
 
+// Netricity
+static int hf_wisun_netricity_uttie = -1;
+static int hf_wisun_netricity_uttie_type = -1;
+static int hf_wisun_netricity_lqiie = -1;
+static int hf_wisun_netricity_lqiie_lqi = -1;
 
 static gint ett_wisun_unknown_ie = -1;
 static gint ett_wisun_uttie = -1;
@@ -180,6 +187,8 @@ static gint ett_wisun_panverie = -1;
 static gint ett_wisun_gtkhashie = -1;
 static gint ett_wisun_sec = -1;
 static gint ett_wisun_eapol_relay = -1;
+static gint ett_wisun_netricity_uttie = -1;
+static gint ett_wisun_netricity_lqiie = -1;
 
 static const value_string wisun_wsie_types[] = {
     { 0, "Short" },
@@ -194,6 +203,8 @@ static const value_string wisun_subid_vals[] = {
     { WISUN_SUBID_RSL,      "Received Signal Level IE" },
     { WISUN_SUBID_MHDS,     "Multi-Hop Delivery Service IE" },
     { WISUN_SUBID_VH,       "Vendor Header IE" },
+    { WISUN_SUBID_N_UTT,    "Unicast Timing IE" },
+    { WISUN_SUBID_N_LQI,    "Link Quality Index IE" },
     { WISUN_SUBID_EA,       "EAPOL Authenticator EUI-64 IE" },
     { 0, NULL }
 };
@@ -431,6 +442,37 @@ dissect_wisun_eaie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 }
 
 static int
+dissect_wisun_netricity_uttie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+{
+    guint8 frame_type = tvb_get_guint8(tvb, offset);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN Netricity");
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown Wi-SUN Netricity Frame"));
+    proto_tree_add_item(tree, hf_wisun_netricity_uttie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    return 1;
+}
+
+static int
+dissect_wisun_netricity_lqiie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+{
+    guint8 lqi = tvb_get_guint8(tvb, offset);
+    switch (lqi) {
+        case 0:
+            // "-10 dB or lower (0x00)" [IEEE1901.2-2013]
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "-10 dB or lower");
+            break;
+        case 0xff:
+            // "A value of 255 MUST be used to indicate 'not measured'" [NTPS 1v04]
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "not measured");
+            break;
+        default:
+            // "where the value of -9.75 dB is represented as 0x01 and the value of 52.75 dB is represented as 0xFE" [IEEE1901.2-2013]
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "%1.2f dB",
+                                             (lqi-1) * (52.75+9.75) / (0xfe - 0x01) - 9.75);
+    }
+    return 1;
+}
+
+static int
 dissect_wisun_hie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint offset;
@@ -463,6 +505,16 @@ dissect_wisun_hie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case WISUN_SUBID_VH:
             subtree = wisun_create_hie_tree(tvb, tree, hf_wisun_vhie, ett_wisun_vhie);
             offset += dissect_wisun_vhie(tvb, pinfo, subtree, offset);
+            break;
+
+        case WISUN_SUBID_N_UTT:
+            subtree = wisun_create_hie_tree(tvb, tree, hf_wisun_netricity_uttie, ett_wisun_netricity_uttie);
+            offset += dissect_wisun_netricity_uttie(tvb, pinfo, subtree, offset);
+            break;
+
+        case WISUN_SUBID_N_LQI:
+            subtree = wisun_create_hie_tree(tvb, tree, hf_wisun_netricity_lqiie, ett_wisun_netricity_lqiie);
+            offset += dissect_wisun_netricity_lqiie(tvb, pinfo, subtree, offset);
             break;
 
         case WISUN_SUBID_EA:
@@ -1234,6 +1286,27 @@ void proto_register_wisun(void)
           { "Direction", "wisun.eapol_relay.direction", FT_BOOLEAN, BASE_NONE, TFS(&tfs_up_down), 0x0,
           NULL, HFILL }},
 
+        /* Wi-SUN Netricity */
+        { &hf_wisun_netricity_uttie,
+          { "Unicast Timing IE", "wisun.netricity.uttie", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_netricity_uttie_type,
+          { "Frame Type", "wisun.netricity.uttie.type", FT_UINT8, BASE_DEC, VALS(wisun_frame_type_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_netricity_lqiie,
+          { "Link Quality Index IE", "wisun.netricity.lqiie", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_netricity_lqiie_lqi,
+          { "Link Quality Index", "wisun.netricity.lqiie.lqi", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
     };
 
     /* Subtrees */
@@ -1257,6 +1330,8 @@ void proto_register_wisun(void)
         &ett_wisun_gtkhashie,
         &ett_wisun_sec,
         &ett_wisun_eapol_relay,
+        &ett_wisun_netricity_uttie,
+        &ett_wisun_netricity_lqiie,
     };
 
     static ei_register_info ei[] = {
