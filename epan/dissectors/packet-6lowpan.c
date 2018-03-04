@@ -595,7 +595,7 @@ static gboolean     lowpan_dlsrc_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static gboolean     lowpan_dldst_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static void         lowpan_addr16_to_ifcid  (guint16 addr, guint8 *ifcid);
 static void         lowpan_addr16_with_panid_to_ifcid(guint16 panid, guint16 addr, guint8 *ifcid);
-static void         lowpan_addr48_to_ifcid    (guint8 *addr, guint8 *ifcid);
+static void         lowpan_addr48_to_ifcid  (const guint8 *addr, guint8 *ifcid);
 static tvbuff_t *   lowpan_reassemble_ipv6  (tvbuff_t *tvb, packet_info *pinfo, struct ws_ip6_hdr *ipv6, struct lowpan_nhdr *nhdr_list);
 static guint8       lowpan_parse_nhc_proto  (tvbuff_t *tvb, gint offset);
 
@@ -841,12 +841,12 @@ lowpan_addr16_with_panid_to_ifcid(guint16 panid, guint16 addr, guint8 *ifcid)
  *---------------------------------------------------------------
  */
 static void
-lowpan_addr48_to_ifcid(guint8 *addr, guint8 *ifcid)
+lowpan_addr48_to_ifcid(const guint8 *addr, guint8 *ifcid)
 {
     static const guint8 unknown_addr[] = { 0, 0, 0, 0, 0, 0 };
 
     /* Don't convert unknown addresses */
-    if (memcmp (addr, unknown_addr, sizeof(unknown_addr)) != 0) {
+    if (memcmp(addr, unknown_addr, sizeof(unknown_addr)) != 0) {
         ifcid[0] = addr[0] | 0x02; /* Set the U/L bit. */
         ifcid[1] = addr[1];
         ifcid[2] = addr[2];
@@ -886,7 +886,7 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         ifcid[0] ^= 0x02;
         return TRUE;
     } else if (pinfo->dl_src.type == AT_ETHER) {
-        lowpan_addr48_to_ifcid((guint8 *)pinfo->dl_src.data, ifcid);
+        lowpan_addr48_to_ifcid((const guint8 *)pinfo->dl_src.data, ifcid);
         return TRUE;
     }
 
@@ -936,7 +936,7 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         ifcid[0] ^= 0x02;
         return TRUE;
     } else if (pinfo->dl_dst.type == AT_ETHER) {
-        lowpan_addr48_to_ifcid((guint8 *)pinfo->dl_dst.data, ifcid);
+        lowpan_addr48_to_ifcid((const guint8 *)pinfo->dl_dst.data, ifcid);
         return TRUE;
     }
 
