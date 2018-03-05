@@ -24,7 +24,7 @@ include $(top_srcdir)/plugins/epan/Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = gryphon
 
-PLUGIN_VERSION = 0.0.4
+PLUGIN_VERSION = 1.1.0
 
 BUILT_SOURCES = \
 	plugin.c

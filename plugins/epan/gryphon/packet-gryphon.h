@@ -1,4 +1,9 @@
 /* packet-gryphon.h
+ *
+ * Updated routines for Gryphon protocol packet dissection
+ * By Mark C. <markc@dgtech.com>
+ * Copyright (C) 2018 DG Technologies, Inc. (Dearborn Group, Inc.) USA
+ *
  * Definitions for Gryphon packet disassembly structures and routines
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
@@ -24,10 +29,14 @@
 #define SD_PGM     	    	0x21	/* Program loader */
 #define SD_USDT     	    	0x22	/* USDT (Unacknowledged Segmented Data Transfer) */
 #define SD_BLM	    	    	0x23	/* Bus Load Monitoring */
+#define SD_LIN	    	    	0x24	/* LIN extensions */
 #define SD_FLIGHT   	    	0x25	/* Flight Recorder */
+#define SD_LOGGER   	    	0x25	/* data logger */
 #define SD_RESP     	    	0x26	/* Message Response */
 #define SD_IOPWR                0x27    /* VNG / Compact Gryphon I/O & power */
 #define SD_UTIL                 0x28    /* Miscellaneous utility commands   */
+#define SD_CNVT                 0x29    /* signal conversion commands */
+#define CH_BROADCAST            0xFF    /* broadcast message destination channel */
 
 
 
@@ -38,6 +47,7 @@
 #define GY_FT_EVENT	    0x04    /* notification of an event */
 #define GY_FT_MISC	    0x05    /* misc data */
 #define GY_FT_TEXT	    0x06    /* null-terminated ASCII strings */
+#define GY_FT_SIG	    0x07    /* (vehicle) network signals */
 
 
 
@@ -97,6 +107,40 @@
 #define CMD_BLM_GET_DATA    	(SD_BLM * 256 + 0xA2)
 #define CMD_BLM_GET_STATS   	(SD_BLM * 256 + 0xA3)
 
+/* SD_LIN command types: */
+#define CMD_LDF_DESC                (SD_LIN * 256 + 0xB8) /* */
+#define CMD_LDF_UPLOAD              (SD_LIN * 256 + 0xB9) /* */
+#define CMD_LDF_LIST                (SD_LIN * 256 + 0xBA) /* */
+#define CMD_LDF_DELETE              (SD_LIN * 256 + 0xBB) /* */
+#define CMD_LDF_PARSE               (SD_LIN * 256 + 0xBC) /* */
+#define CMD_GET_LDF_INFO            (SD_LIN * 256 + 0xBD) /* */
+#define CMD_GET_NODE_NAMES          (SD_LIN * 256 + 0xBE) /* */
+#define CMD_EMULATE_NODES           (SD_LIN * 256 + 0xBF) /* */
+#define CMD_GET_FRAMES              (SD_LIN * 256 + 0xB0) /* */
+#define CMD_GET_FRAME_INFO          (SD_LIN * 256 + 0xC1) /* */
+#define CMD_GET_SIGNAL_INFO         (SD_LIN * 256 + 0xC2) /* */
+#define CMD_GET_SIGNAL_DETAIL       (SD_LIN * 256 + 0xC3) /* */
+#define CMD_GET_ENCODING_INFO       (SD_LIN * 256 + 0xC4) /* */
+#define CMD_GET_SCHEDULES           (SD_LIN * 256 + 0xC5) /* */
+#define CMD_START_SCHEDULE          (SD_LIN * 256 + 0xC6) /* */
+#define CMD_STOP_SCHEDULE           (SD_LIN * 256 + 0xC7) /* */
+#define CMD_STORE_DATA              (SD_LIN * 256 + 0xC8) /* */
+#define CMD_SEND_ID                 (SD_LIN * 256 + 0xC9) /* */
+#define CMD_SEND_ID_DATA            (SD_LIN * 256 + 0xCA) /* */
+#define CMD_SAVE_SESSION            (SD_LIN * 256 + 0xCB) /* */
+#define CMD_RESTORE_SESSION         (SD_LIN * 256 + 0xCC) /* */
+#define CMD_GET_NODE_SIGNALS        (SD_LIN * 256 + 0xCD) /* */
+
+/* signal conversion (SD_CNVT) commands */
+
+#define CMD_CNVT_GET_VALUES (SD_CNVT * 256 + 0x78) /* LIN Signal Conversion */
+#define CMD_CNVT_GET_UNITS  (SD_CNVT * 256 + 0x79) /* LIN Signal Conversion */
+#define CMD_CNVT_SET_VALUES (SD_CNVT * 256 + 0x7A) /* LIN Signal Conversion */
+#define CMD_CNVT_DESTROY_SESSION (SD_CNVT * 256 + 0x7B) /* LIN Signal Conversion */
+#define CMD_CNVT_SAVE_SESSION            (SD_CNVT * 256 + 0xCB) /* LIN Signal Conversion */
+#define CMD_CNVT_RESTORE_SESSION         (SD_CNVT * 256 + 0xCC) /* LIN Signal Conversion */
+#define CMD_CNVT_GET_NODE_SIGNALS        (SD_CNVT * 256 + 0xCD) /* LIN Signal Conversion */
+
 /* Flight recorder (SD_FLIGHT) commands */
 
 #define CMD_FLIGHT_GET_CONFIG	(SD_FLIGHT * 256 + 0x50)	/* get flight recorder channel info */
@@ -134,8 +178,17 @@
 #define	CMD_USDT_IOCTL		(SD_USDT * 256 + 0x47)	/* Register/Unregister with USDT */
 #define	CMD_USDT_REGISTER	(SD_USDT * 256 + 0xB0)	/* Register/Unregister with USDT */
 #define CMD_USDT_SET_FUNCTIONAL (SD_USDT * 256 + 0xB1)  /* Set to use extended addressing*/
+#define CMD_USDT_SET_STMIN_MULT (SD_USDT * 256 + 0xB2)  /* */
+#define CMD_USDT_SET_STMIN_FC (SD_USDT * 256 + 0xB3)  /* */
+#define CMD_USDT_GET_STMIN_FC (SD_USDT * 256 + 0xB4)  /* */
+#define CMD_USDT_SET_BSMAX_FC (SD_USDT * 256 + 0xB5)  /* */
+#define CMD_USDT_GET_BSMAX_FC (SD_USDT * 256 + 0xB6)  /* */
+#define	CMD_USDT_REGISTER_NON_LEGACY	(SD_USDT * 256 + 0xB7)	/* Register/Unregister with USDT */
+#define CMD_USDT_SET_STMIN_OVERRIDE (SD_USDT * 256 + 0xB8)  /* */
+#define CMD_USDT_GET_STMIN_OVERRIDE (SD_USDT * 256 + 0xB9)  /* */
+#define CMD_USDT_ACTIVATE_STMIN_OVERRIDE (SD_USDT * 256 + 0xBA)  /* */
 
-/* USDT (SD_IOPWR) target commands: */
+/* I/O Power (SD_IOPWR) target commands: */
 
 #define CMD_IOPWR_GETINP        (SD_IOPWR * 256 + 0x40) /*  Read current digital inputs  */
 #define CMD_IOPWR_GETLATCH      (SD_IOPWR * 256 + 0x41) /*  Read latched digital inputs  */
@@ -361,6 +414,7 @@
 #define GSJASETFTTRANS          0x11250013
 #define GSJAGETFTERROR          0x11250014
 
+/* LIN driver IOCTLs */
 #define GLINGETBITRATE          0x11C00001
 #define GLINSETBITRATE          0x11C00002
 #define GLINGETBRKSPACE         0x11C00003
@@ -382,6 +436,75 @@
 #define GLINSENDWAKEUP          0x11C00013
 #define GLINGETMODE             0x11C00014
 #define GLINSETMODE             0x11C00015
+#define GLINGETSLEW             0x11C00016
+#define GLINSETSLEW             0x11C00017
+#define GLINADDSCHED            0x11C00018
+#define GLINGETSCHED            0x11C00019
+#define GLINGETSCHEDSIZE        0x11C0001A
+#define GLINDELSCHED            0x11C0001B
+#define GLINACTSCHED            0x11C0001C
+#define GLINDEACTSCHED          0x11C0001D
+#define GLINGETACTSCHED         0x11C0001E
+#define GLINGETNUMSCHEDS        0x11C0001F
+#define GLINGETSCHEDNAMES       0x11C00020
+#define GLINSETFLAGS            0x11C00021
+#define GLINGETAUTOCHECKSUM     0x11C00022
+#define GLINSETAUTOCHECKSUM     0x11C00023
+#define GLINGETAUTOPARITY       0x11C00024
+#define GLINSETAUTOPARITY       0x11C00025
+#define GLINGETSLAVETABLEENABLE 0x11C00026
+#define GLINSETSLAVETABLEENABLE 0x11C00027
+#define GLINGETFLAGS            0x11C00028
+#define GLINGETWAKEUPMODE       0x11C00029
+#define GLINSETWAKEUPMODE       0x11C0002A
+#define GLINGETMASTEREVENTENABLE 0x11C0002B     /* 1 */
+#define GLINSETMASTEREVENTENABLE 0x11C0002C     /* 1 */
+#define GLINGETNSLAVETABLE      0x11C0002D      /* 1 get number of slave table entries */
+#define GLINGETSLAVETABLEPIDS   0x11C0002E      /* 1 + n get list of slave table PIDs */
+#define GLINGETSLAVETABLE       0x11C0002F      /* var., 4 + n */
+#define GLINSETSLAVETABLE       0x11C00030      /* var., 4 + n */
+#define GLINCLEARSLAVETABLE     0x11C00031      /* 1 */
+#define GLINCLEARALLSLAVETABLE  0x11C00032      /* 0 */
+#define GLINGETONESHOT          0x11C00033      /* var., 4 + n */
+#define GLINSETONESHOT          0x11C00034      /* var., 4 + n */
+#define GLINCLEARONESHOT        0x11C00035      /* 0 */
+
+/* delay driver (real-time scheduler) IOCTLs */
+#define GDLYGETHIVALUE  0x11D50001      /* 4 */
+#define GDLYSETHIVALUE  0x11D50002      /* 4 set the high water value       */
+                                        /*  2 bytes - stream number         */
+                                        /*  2 bytes - high water value      */
+
+#define GDLYGETLOVALUE  0x11D50003      /* 4 */
+#define GDLYSETLOVALUE  0x11D50004      /* 4 set the low water value        */
+                                        /*  2 bytes - stream number         */
+                                        /*  2 bytes - low water value       */
+
+#define GDLYGETHITIME   0x11D50005      /* 4 */
+#define GDLYSETHITIME   0x11D50006      /* 4 set the high water time        */
+                                        /*  2 bytes - stream number         */
+                                        /*  2 bytes - high water time (ms)  */
+
+#define GDLYGETLOTIME   0x11D50007      /* 4 */
+#define GDLYSETLOTIME   0x11D50008      /* 4 set the low water time         */
+                                        /*  2 bytes - stream number         */
+                                        /*  2 bytes - low water time (ms)   */
+
+#define GDLYGETLOREPORT 0x11D50009      /* 4 get the low water report flag  */
+                                        /*  2 bytes - stream number         */
+                                        /*  2 bytes - 1: report when low    */
+                                        /*            0: do not report when low*/
+
+#define GDLYFLUSHSTREAM 0x11D5000A      /* 2 flush the delay buffer         */
+                                        /*  2 bytes - stream number         */
+
+#define GDLYINITSTREAM  0x11D5000B      /* 2 set default hi & lo water marks*/
+                                        /*  2 bytes - stream number         */
+
+#define GDLYPARTIALFLUSHSTREAM 0x11D5000C /* 4 flush the delay buffer       */
+                                        /*  2 bytes - stream number         */
+                                        /*  2 bytes - data to retain in ms  */
+
 
 #define GINPGETINP              0x11500001
 #define GINPGETLATCH            0x11500002
@@ -412,6 +535,9 @@
 #define GSJA1000FT	0x10		/* SJA1000 Fault Tolerant subtype */
 #define GSJA1000C	0x11		/* SJA1000 Compact subtype */
 #define GSJA1000FT_FO   0x12            /* SJA1000 single chsnnel Fault Tolerant subtype */
+#define GSJA1000_BEACON_CANFD	0x1a		/* SJA1000 BEACON CAN-FD subtype */
+#define GSJA1000_BEACON_SW	0x1b		/* SJA1000 BEACON CAN single wire subtype */
+#define GSJA1000_BEACON_FT	0x1c		/* SJA1000 BEACON CAN Fault Tolerant subtype */
 
 #define GJ1850		0x03	/* 1850 TYPE */
 #define GHBCCPAIR	0x01		/* HBCC SUBTYPE */
@@ -436,6 +562,7 @@
 
 #define GLIN    	0x0b	/* LIN TYPE */
 #define GDGLIN08	0x01		/* DG HC08 SUBTYPE */
+#define GDGLIN_BEACON	0x03		/* DG BEACON LIN SUBTYPE */
 
 #define MEMCPY(dest, src, size)     	    \
     memcpy (dest, src, size);	    	    \
@@ -448,3 +575,26 @@ typedef struct val_str_dsp {
     int		(*cmd_fnct)(tvbuff_t *, int, proto_tree*);
     int		(*rsp_fnct)(tvbuff_t *, int, proto_tree*);
 } val_str_dsp;
+
+typedef struct val_str_dsp_with_context {
+    int value;
+    const char *strptr;
+    int (*cmd_fnct)(tvbuff_t *, int, proto_tree*, guint32 ulCommand);
+    int (*rsp_fnct)(tvbuff_t *, int, proto_tree*, guint32 ulCommand);
+    unsigned char ucContext;
+    unsigned short usRsvd;
+    unsigned char ucRsvd;
+} val_str_dsp_with_context;
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
