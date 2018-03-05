@@ -123,8 +123,8 @@ typedef struct fp_info
     gboolean reset_frag; /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
 } fp_info;
 
-/* From NBAC-Constants.asn */
-#define FP_maxNrOfTFs           32
+/* From NBAP-Constants.asn */
+#define FP_maxNrOfDCHs 128
 
 typedef struct
 {
@@ -154,13 +154,13 @@ typedef struct
 
     /* DCH's in this flow */
     gint num_dch_in_flow;
-    gint dchs_in_flow_list[FP_maxNrOfTFs];
+    gint dchs_in_flow_list[FP_maxNrOfDCHs];
 
     guint8  dch_crc_present;    /* 0=No, 1=Yes, 2=Unknown */
     enum fp_rlc_mode rlc_mode;
 
     /* DCH type channel data */
-    fp_dch_channel_info_t fp_dch_channel_info[FP_maxNrOfTFs];
+    fp_dch_channel_info_t fp_dch_channel_info[FP_maxNrOfDCHs];
 
     /* E-DCH related data */
     gint   no_ddi_entries;

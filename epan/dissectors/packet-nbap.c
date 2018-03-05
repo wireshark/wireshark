@@ -14804,7 +14804,7 @@ dissect_nbap_T_dCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
     if(g_num_dch_in_flow>0){
         g_dchs_in_flow_list[g_num_dch_in_flow-1]=dch_id;
         nbap_dch_chnl_info[dch_id].next_dch = 0;
-        if(prev_dch_id != 0 && prev_dch_id != 0xffffffff){
+        if(prev_dch_id != 0 && prev_dch_id != 0xffffffff && prev_dch_id != dch_id){
             nbap_dch_chnl_info[prev_dch_id].next_dch = dch_id;
         }
     }
@@ -28747,7 +28747,7 @@ dch_id = 0xFFFFFFFF;
                     /* Set data for associated DCH's if we have any */
                     i = dch_id;
                     umts_fp_conversation_info->dchs_in_flow_list[0] = dch_id;
-                    while(nbap_dch_chnl_info[i].next_dch != 0){
+                    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
 
 
                         i = nbap_dch_chnl_info[i].next_dch;
@@ -32452,7 +32452,7 @@ transportFormatSet_type = NBAP_CPCH;
                 /* Set data for associated DCH's if we have any */
                 i = commonphysicalchannelid;
                 umts_fp_conversation_info->dchs_in_flow_list[0] = commonphysicalchannelid;
-                while(nbap_dch_chnl_info[i].next_dch != 0){
+                while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
                     i = nbap_dch_chnl_info[i].next_dch;
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
@@ -32625,7 +32625,7 @@ num_items = 1;
                 nbap_debug("    commontransportchannelid %u next ch %u",commontransportchannelid, nbap_dch_chnl_info[i].next_dch);
 
                 umts_fp_conversation_info->dchs_in_flow_list[0] = commontransportchannelid;
-                while(nbap_dch_chnl_info[i].next_dch != 0){
+                while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
                     i = nbap_dch_chnl_info[i].next_dch;
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
