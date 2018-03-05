@@ -511,6 +511,7 @@
 	</avp>
 </application>	<!-- 3GPP Gq -->
 
+
 <!-- The AVP codes from 500 to 599 are reserved for TS 29.209, 29.211, and 29.229. -->
 <application id="16777236" name="3GPP Rx" uri="http://www.3gpp.org/DynaReport/29214.htm">
 	<avp name="Codec-Data" code="524" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">

@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <vendor vendor-id="Juniper"                    code="2636"      name="Juniper">
 <!-- *********** Last updated 2016-04-14 ************ -->
 	<avp name="TDF-Application-Instance-Identifier-Base" code="1100" vendor-bit="must" vendor-id="Juniper">
@@ -38,6 +40,6 @@
 		<type type-name="UTF8String"/>
 	</avp>
 	<avp name="Steering-IP-Address" code="1111" vendor-bit="must" vendor-id="Juniper">
-		<type type-name="Address"/>
+		<type type-name="IPAddress"/>
 	</avp>
 </vendor>

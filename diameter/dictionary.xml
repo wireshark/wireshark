@@ -2299,9 +2299,26 @@
 		558 Low-User-Priority [RFC5777]
 		559 High-User-Priority [RFC5777]
 		560 Time-Of-Day-Condition [RFC5777]
-		561 Time-Of-Day-Start [RFC5777]
-		562 Time-Of-Day-End [RFC5777]
-		563 Day-Of-Week-Mask [RFC5777]
+		-->
+
+		<avp name="Time-Of-Day-Start" code="561" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Time-Of-Day-End" code="562" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Day-Of-Week-Mask" code="563" mandatory="may">
+			<type type-name="Enumerated"/>
+			<enum name="SUNDAY" code="0"/>
+			<enum name="MONDAY" code="1"/>
+			<enum name="TUESDAY" code="2"/>
+			<enum name="WEDNESDAY" code="3"/>
+			<enum name="THURSDAY" code="4"/>
+			<enum name="FRIDAY" code="5"/>
+			<enum name="SATURDAY" code="6"/>
+		</avp>
+
+		<!--
 		564 Day-Of-Month-Mask [RFC5777]
 		565 Month-Of-Year-Mask [RFC5777]
 		566 Absolute-Start-Time [RFC5777]
@@ -5228,10 +5245,10 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="TWAG-CP-Address" code="1531" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="TWAG-UP-Address" code="1532" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="TWAN-S2a-Failure-Cause" code="1533" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -5386,7 +5403,7 @@
 				<gavp name="Logging-Duration"/>
 				<gavp name="Measurement-Period-LTE"/>
 				<gavp name="Measurement-Period-UMTS"/>
-				<gavp name="Collection-Period-RMM-LTE"/>
+				<gavp name="Collection-Period-RRM-LTE"/>
 				<gavp name="Collection-Period-RRM-UMTS"/>
 				<gavp name="Positioning-Method"/>
 				<gavp name="Measurement-Quantity"/>
@@ -5684,7 +5701,7 @@
 			<enum name="SGi-BASED-DATA-DELIVERY" code="0"/>
 			<enum name="SCEF-BASED-DATA-DELIVERY" code="1"/>
 		</avp>
-		<avp name="Additional-Context-ID" code="1683" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Additional-Context-Identifier" code="1683" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="SCEF-Realm" code="1684" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -6715,7 +6732,7 @@
 			<enum name="roaming with loopback" code="2"/>
 		</avp>
 		<avp name="Neighbour-Node-Address" code="2705" mandatory="must" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Relationship-Mode" code="2706" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -6728,7 +6745,7 @@
 			<enum name="outbound" code="1"/>
 		</avp>
 		<avp name="From-Address" code="2708" mandatory="must" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Access-Transfer-Information" code="2709" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -6754,7 +6771,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Related-IMS-Charging-Identifier-Node" code="2712" mandatory="must" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="IMS-Visited-Network-Identifier" code="2713" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -7324,7 +7341,7 @@
 		<avp name="Enhanced-Coverage-Restriction-Data" code="3156" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Enhanced-Coverage-Restriction"/>
-				<gavp name="Visited-PLMN-IdName"/>
+				<gavp name="Visited-PLMN-Id"/>
 			</grouped>
 		</avp>
 		<avp name="Restricted-PLMN-List" code="3157" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -7377,6 +7394,17 @@
 		<avp name="SM-RP-SMEA" code="3309" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
+
+		<avp name="Maximum-UE-Availability-Time" code="3329" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Maximum-Retransmission-Time" code="3330" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Requested-Retransmission-Time" code="3331" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+
 		<!--
 		Note: The AVP codes from 3300 to 3399 are reserved for TS 29.338
 		-->
@@ -7675,6 +7703,9 @@
 		<avp name="Monitoring-Event-Report-Number" code="3923" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="Cellular-Network-Information " code="3924" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 		<avp name="Related-Change-Condition-Information" code="3925" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SGSN-Address"/>
@@ -7744,10 +7775,25 @@
 			</grouped>
 		</avp>
 		<avp name="SCS-Address" code="3941" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
+		<avp name="SCS-Realm" code="3942" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+
 		<!--
 		Note: The AVP codes from 3900 to 3999 are reserved for TS 32.299
+		-->
+
+		<avp name="eNodeB-ID" code="4008" mandatory="must" vendor-bit="must" protected="may" may-encrypt="yes" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Extended-eNodeB-ID" code="4013" mandatory="must" vendor-bit="must" protected="may" may-encrypt="yes" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<!--
+		Note: The AVP codes from 4000 to 4013 are reserved for TS 29.217
 		-->
 
 		<avp name="Charging-Per-IP-CAN-Session-Indicator" code="4400" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
@@ -7955,7 +8001,6 @@
 	<vendor vendor-id="Merit"			code="61"	name="Merit Networks"/>
 	<vendor vendor-id="USR"				code="429"	name="US Robotics Corp."/>
 	<vendor vendor-id="Lucent"			code="1751"	name="Lucent Technologies"/>
-	<vendor vendor-id="Huawei"			code="2011"	name="Huawei"/>
 	<vendor vendor-id="Deutsche_Telekom_AG"		code="2937"	name="Deutsche Telekom AG"/>
 	<vendor vendor-id="Acision"			code="3830"	name="Acision"/>
 	<vendor vendor-id="SKT"				code="5806"	name="SK Telecom"/>
