@@ -23,6 +23,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/addr_resolv.h>
+#include <epan/proto_data.h>
 
 void proto_register_vlan(void);
 void proto_reg_handoff_vlan(void);
@@ -53,6 +54,8 @@ static dissector_handle_t ethertype_handle;
 
 static capture_dissector_handle_t llc_cap_handle;
 static capture_dissector_handle_t ipx_cap_handle;
+
+static int proto_vlan;
 
 static header_field_info *hfi_vlan = NULL;
 
@@ -184,6 +187,9 @@ static header_field_info hfi_vlan_trailer VLAN_HFI_INIT = {
 static gint ett_vlan = -1;
 
 static expert_field ei_vlan_len = EI_INIT;
+static expert_field ei_vlan_too_many_tags = EI_INIT;
+
+#define VLAN_MAX_NESTED_TAGS 10
 
 static gboolean
 capture_vlan(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ ) {
@@ -231,6 +237,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   gboolean is_802_2;
   proto_tree *vlan_tree;
   proto_item *item;
+  guint vlan_nested_count;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "VLAN");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -246,8 +253,15 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   vlan_tree = NULL;
 
+  ti = proto_tree_add_item(tree, hfi_vlan, tvb, 0, 4, ENC_NA);
+  vlan_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_vlan, 0));
+  if (++vlan_nested_count > VLAN_MAX_NESTED_TAGS) {
+    expert_add_info(pinfo, ti, &ei_vlan_too_many_tags);
+    return tvb_captured_length(tvb);
+  }
+  p_add_proto_data(pinfo->pool, pinfo, proto_vlan, 0, GUINT_TO_POINTER(vlan_nested_count));
+
   if (tree) {
-    ti = proto_tree_add_item(tree, hfi_vlan, tvb, 0, 4, ENC_NA);
 
     if (vlan_summary_in_tree) {
       if (vlan_version < IEEE_8021Q_2011) {
@@ -364,6 +378,7 @@ proto_register_vlan(void)
 
   static ei_register_info ei[] = {
      { &ei_vlan_len, { "vlan.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
+     { &ei_vlan_too_many_tags, { "vlan.too_many_tags", PI_UNDECODED, PI_WARN, "Too many nested VLAN tags", EXPFILL }},
   };
 
   static const enum_val_t version_vals[] = {
@@ -383,7 +398,6 @@ proto_register_vlan(void)
 
   module_t *vlan_module;
   expert_module_t* expert_vlan;
-  int proto_vlan;
 
   proto_vlan = proto_register_protocol("802.1Q Virtual LAN", "VLAN", "vlan");
   hfi_vlan = proto_registrar_get_nth(proto_vlan);
