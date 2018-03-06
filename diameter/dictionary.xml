@@ -6972,6 +6972,29 @@
 			<enum name="REMOVAL_OF_ACCESS" 		code="0"/>
 		</avp>
 
+		<avp name="Default-Bearer-Indication" code="2844" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="BIND_TO_DEF_BEARER" 	code="0"/>
+			<enum name="BIND_TO_APPLICABLE_BEARER" 	code="1"/>
+		</avp>
+		<avp name="3GPP-PS-Data-Off-Status-Gx" code="2847" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ACTIVE" 	code="0"/>
+			<enum name="INACTIVE" 	code="1"/>
+		</avp>
+		<avp name="Extended-APN-AMBR-DL" code="2848" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Extended-APN-AMBR-UL" code="2849" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Extended-GBR-DL" code="2850" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Extended-GBR-UL" code="2851" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+
 		<!--
 		Note: The AVP codes from 2829 to 2899 are reserved for TS 29.212
 		-->
