@@ -14,8 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <unistd.h>
-
 #include <string.h>
 
 #include <maxminddb.h>
@@ -45,8 +43,9 @@ static const char **lookup_keys[] = {
     empty_key
 };
 
-static void print_usage(void) {
+static void exit_err(void) {
     fprintf(stderr, "Usage: mmdbresolve -f db_file [-f db_file ...]\n");
+    exit(1);
 }
 
 int
@@ -56,19 +55,22 @@ main(int argc, char *argv[])
     size_t mmdb_count = 0;
     MMDB_s *mmdbs = NULL;
     int mmdb_err;
-    int opt;
-    const char *optstring = "f:";
 
     char *out_buf = (char *) malloc(OUT_BUF_SIZE);
     setvbuf(stdout, out_buf, _IOFBF, OUT_BUF_SIZE);
 
     fprintf(stdout, "[init]\n");
 
-    while ((opt = getopt(argc, argv, optstring)) != -1) {
-        if (opt == 'f') {
+    // If we need to handle anything beyond "-f" we'll probably want to
+    // link with GLib and use GOption.
+    int arg_idx = 0;
+    while (arg_idx < argc - 1) {
+        if (strcmp(argv[arg_idx], "-f") == 0) {
+            arg_idx++;
+            const char *db_arg = argv[arg_idx];
             MMDB_s try_mmdb;
-            mmdb_err = MMDB_open(optarg, 0, &try_mmdb);
-            fprintf(stdout, "db.%zd.path: %s\n", mmdb_count, optarg);
+            mmdb_err = MMDB_open(db_arg, 0, &try_mmdb);
+            fprintf(stdout, "db.%zd.path: %s\n", mmdb_count, db_arg);
             fprintf(stdout, "db.%zd.status: ", mmdb_count);
             if (mmdb_err == MMDB_SUCCESS) {
                 mmdb_count++;
@@ -79,16 +81,16 @@ main(int argc, char *argv[])
             } else {
                 fprintf(stdout, "ERROR %s\n", MMDB_strerror(mmdb_err));
             }
-        };
+        }
+        arg_idx++;
     }
 
     fprintf(stdout, "mmdbresolve.status: %s\n", mmdb_count > 0 ? "true": "false");
     fprintf(stdout, "# End init\n");
     fflush(stdout);
 
-    if (mmdb_count < 1) {
-        print_usage();
-        exit(1);
+    if (arg_idx != argc || mmdb_count < 1) {
+        exit_err();
     }
 
     while (!feof(stdin)) {
