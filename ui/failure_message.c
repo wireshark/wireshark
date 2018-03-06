@@ -60,12 +60,10 @@ void
 cfile_open_failure_message(const char *progname, const char *filename,
                            int err, gchar *err_info)
 {
-    char *file_description;
-
-    /* Get a string that describes what we're opening */
-    file_description = input_file_description(filename);
-
     if (err < 0) {
+        /* Get a string that describes what we're opening */
+        char *file_description = input_file_description(filename);
+
         /* Wiretap error. */
         switch (err) {
 
