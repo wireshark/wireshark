@@ -386,8 +386,8 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 					lapd_byte_state = wmem_new(wmem_file_scope(), lapd_byte_state_t);
 					fill_lapd_byte_state(lapd_byte_state, state, full_byte, bit_offset, ones, data, data_len);
 					convo_data = wmem_new(wmem_file_scope(), lapd_convo_data_t);
-					copy_address(&convo_data->addr_a, &pinfo->src);
-					copy_address(&convo_data->addr_b, &pinfo->dst);
+					copy_address_wmem(wmem_file_scope(), &convo_data->addr_a, &pinfo->src);
+					copy_address_wmem(wmem_file_scope(), &convo_data->addr_b, &pinfo->dst);
 					convo_data->port_a = pinfo->srcport;
 					convo_data->port_b = pinfo->destport;
 					convo_data->byte_state_a = lapd_byte_state;
