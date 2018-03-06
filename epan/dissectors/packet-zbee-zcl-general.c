@@ -3202,12 +3202,6 @@ dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
 
 } /*dissect_zcl_on_off_attr_data*/
 
-static void
-zcl_fmt_time_tenths(gchar *s, guint32 v)
-{
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%01d seconds", v / 10, v % 10);
-}
-
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      proto_register_zbee_zcl_on_off
@@ -3238,11 +3232,11 @@ proto_register_zbee_zcl_on_off(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_ontime,
-            { "On Time", "zbee_zcl_general.onoff.attr.ontime", FT_UINT16, BASE_CUSTOM, CF_FUNC(zcl_fmt_time_tenths),
+            { "On Time", "zbee_zcl_general.onoff.attr.ontime", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_offwaittime,
-            { "Off Wait Time", "zbee_zcl_general.onoff.attr.offwaittime", FT_UINT16, BASE_CUSTOM, CF_FUNC(zcl_fmt_time_tenths),
+            { "Off Wait Time", "zbee_zcl_general.onoff.attr.offwaittime", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_effect_identifier,
