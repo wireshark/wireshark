@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include <wsutil/pow2.h>
+
 #include "packet-gsm_a_common.h"
 
 void proto_register_nas_5gs(void);
@@ -117,6 +119,42 @@ static int hf_nas_5gs_mm_eia6 = -1;
 static int hf_nas_5gs_mm_eia7 = -1;
 static int hf_nas_5gs_mm_s1_mode_reg_b0 = -1;
 
+static int hf_nas_5gs_pdu_ses_sts_psi_7_b7 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_6_b6 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_5_b5 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_4_b4 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_3_b3 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_2_b2 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_1_b1 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_0_b0 = -1;
+
+static int hf_nas_5gs_pdu_ses_sts_psi_15_b7 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_14_b6 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_13_b5 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_12_b4 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_11_b3 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_10_b2 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_9_b1 = -1;
+static int hf_nas_5gs_pdu_ses_sts_psi_8_b0 = -1;
+
+static int hf_nas_5gs_ul_data_sts_psi_7_b7 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_6_b6 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_5_b5 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_4_b4 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_3_b3 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_2_b2 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_1_b1 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_0_b0 = -1;
+
+static int hf_nas_5gs_ul_data_sts_psi_15_b7 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_14_b6 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_13_b5 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_12_b4 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_11_b3 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_10_b2 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_9_b1 = -1;
+static int hf_nas_5gs_ul_data_sts_psi_8_b0 = -1;
+
 static int hf_nas_5gs_sm_pdu_session_type = -1;
 static int hf_nas_5gs_sm_sc_mode = -1;
 static int hf_nas_5gs_sm_rqos_b0 = -1;
@@ -133,6 +171,11 @@ static int hf_nas_5gs_sm_pkt_flt_id = -1;
 static int hf_nas_5gs_sm_pkt_flt_dir = -1;
 static int hf_nas_5gs_sm_pf_len = -1;
 static int hf_nas_5gs_sm_pf_type = -1;
+
+static int nas_5gs_sm_unit_for_session_ambr_dl = -1;
+static int hf_nas_5gs_sm_session_ambr_dl = -1;
+static int nas_5gs_sm_unit_for_session_ambr_ul = -1;
+static int hf_nas_5gs_sm_session_ambr_ul = -1;
 
 static int ett_nas_5gs = -1;
 static int ett_nas_5gs_mm_nssai = -1;
@@ -209,25 +252,105 @@ de_nas_5gs_cmn_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  * 9.8.2.2    PDU session status
  */
+
+static true_false_string tfs_nas_5gs_pdu_ses_sts_psi = {
+    "Not PDU SESSION INACTIVE",
+    "PDU SESSION INACTIVE"
+};
+
+
+
 static guint16
 de_nas_5gs_pdu_ses_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    int curr_offset;
 
-    return len;
+    static const int * psi_0_7_flags[] = {
+        &hf_nas_5gs_pdu_ses_sts_psi_7_b7,
+        &hf_nas_5gs_pdu_ses_sts_psi_6_b6,
+        &hf_nas_5gs_pdu_ses_sts_psi_5_b5,
+        &hf_nas_5gs_pdu_ses_sts_psi_4_b4,
+        &hf_nas_5gs_pdu_ses_sts_psi_3_b3,
+        &hf_nas_5gs_pdu_ses_sts_psi_2_b2,
+        &hf_nas_5gs_pdu_ses_sts_psi_1_b1,
+        &hf_nas_5gs_pdu_ses_sts_psi_0_b0,
+        NULL
+    };
+
+    static const int * psi_8_15_flags[] = {
+        &hf_nas_5gs_pdu_ses_sts_psi_15_b7,
+        &hf_nas_5gs_pdu_ses_sts_psi_14_b6,
+        &hf_nas_5gs_pdu_ses_sts_psi_13_b5,
+        &hf_nas_5gs_pdu_ses_sts_psi_12_b4,
+        &hf_nas_5gs_pdu_ses_sts_psi_11_b3,
+        &hf_nas_5gs_pdu_ses_sts_psi_10_b2,
+        &hf_nas_5gs_pdu_ses_sts_psi_9_b1,
+        &hf_nas_5gs_pdu_ses_sts_psi_8_b0,
+        NULL
+    };
+
+    curr_offset = offset;
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_0_7_flags, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_8_15_flags, ENC_BIG_ENDIAN);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
+
+    return (curr_offset - offset);
+
 }
 
 /*
  * 9.8.2.3    Uplink data status
  */
+static true_false_string tfs_nas_5gs_ul_data_sts_psi = {
+    "uplink data are pending ",
+    "no uplink data are pending"
+};
+
 static guint16
 de_nas_5gs_ul_data_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    int curr_offset;
+
+    static const int * psi_0_7_flags[] = {
+        &hf_nas_5gs_ul_data_sts_psi_7_b7,
+        &hf_nas_5gs_ul_data_sts_psi_6_b6,
+        &hf_nas_5gs_ul_data_sts_psi_5_b5,
+        &hf_nas_5gs_ul_data_sts_psi_4_b4,
+        &hf_nas_5gs_ul_data_sts_psi_3_b3,
+        &hf_nas_5gs_ul_data_sts_psi_2_b2,
+        &hf_nas_5gs_ul_data_sts_psi_1_b1,
+        &hf_nas_5gs_ul_data_sts_psi_0_b0,
+        NULL
+    };
+
+    static const int * psi_8_15_flags[] = {
+        &hf_nas_5gs_ul_data_sts_psi_15_b7,
+        &hf_nas_5gs_ul_data_sts_psi_14_b6,
+        &hf_nas_5gs_ul_data_sts_psi_13_b5,
+        &hf_nas_5gs_ul_data_sts_psi_12_b4,
+        &hf_nas_5gs_ul_data_sts_psi_11_b3,
+        &hf_nas_5gs_ul_data_sts_psi_10_b2,
+        &hf_nas_5gs_ul_data_sts_psi_9_b1,
+        &hf_nas_5gs_ul_data_sts_psi_8_b0,
+        NULL
+    };
+
+    curr_offset = offset;
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_0_7_flags, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_8_15_flags, ENC_BIG_ENDIAN);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
+
+    return (curr_offset - offset);
 
     return len;
 }
@@ -327,7 +450,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     /*guint32 type_id;*/
 
-    /*proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_5gmm_cause, tvb, offset, 1, ENC_BIG_ENDIAN, &type_id);*/
+    /*proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_type_id, tvb, offset, 1, ENC_BIG_ENDIAN, &type_id);*/
     proto_tree_add_item(tree, hf_nas_5gs_mm_type_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_5gs_mm_odd_even, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -345,6 +468,7 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
+    /* The definition of 5GS network feature support is FFS, but should include a dual-registration supported indication.*/
     proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
 
     return len;
@@ -1507,12 +1631,91 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  *      9.8.4.7    Session-AMBR
  */
 
+static const value_string nas_5gs_sm_unit_for_session_ambr_values[] = {
+    { 0x00, "value is not used" },
+    { 0x01, "value is incremented in multiples of 1 Kbps" },
+    { 0x02, "value is incremented in multiples of 4 Kbps" },
+    { 0x03, "value is incremented in multiples of 16 Kbps" },
+    { 0x04, "value is incremented in multiples of 64 Kbps" },
+    { 0x05, "value is incremented in multiples of 256 kbps" },
+    { 0x06, "value is incremented in multiples of 1 Mbps" },
+    { 0x07, "value is incremented in multiples of 4 Mbps" },
+    { 0x08, "value is incremented in multiples of 16 Mbps" },
+    { 0x09, "value is incremented in multiples of 64 Mbps" },
+    { 0x0a, "value is incremented in multiples of 256 Mbps" },
+    { 0x0b, "value is incremented in multiples of 1 Gbps" },
+    { 0x0c, "value is incremented in multiples of 4 Gbps" },
+    { 0x0d, "value is incremented in multiples of 16 Gbps" },
+    { 0x0e, "value is incremented in multiples of 64 Gbps" },
+    { 0x0f, "value is incremented in multiples of 256 Gbps" },
+    { 0x10, "value is incremented in multiples of 1 Tbps" },
+    { 0x11, "value is incremented in multiples of 4 Tbps" },
+    { 0x12, "value is incremented in multiples of 16 Tbps" },
+    { 0x13, "value is incremented in multiples of 64 Tbps" },
+    { 0x14, "value is incremented in multiples of 256 Tbps" },
+    { 0x15, "value is incremented in multiples of 1 Pbps" },
+    { 0x16, "value is incremented in multiples of 4 Pbps" },
+    { 0x17, "value is incremented in multiples of 16 Pbps" },
+    { 0x18, "value is incremented in multiples of 64 Pbps" },
+    { 0x19, "value is incremented in multiples of 256 Pbps" },
+    { 0, NULL }
+};
+
+static guint32
+get_ext_ambr_unit(guint32 unit, const char **unit_str)
+{
+    guint32 mult;
+
+    if (unit <= 0x05) {
+        mult = pow4(guint32, unit);
+        *unit_str = "Kbps";
+    }
+    else if (unit <= 0x0a) {
+        mult = pow4(guint32, unit - 0x05);
+        *unit_str = "Mbps";
+    }
+    else if (unit <= 0x0e) {
+        mult = pow4(guint32, unit - 0x07);
+        *unit_str = "Gbps";
+    }
+    else if (unit <= 0x14) {
+        mult = pow4(guint32, unit - 0x0c);
+        *unit_str = "Tbps";
+    }
+    else if (unit <= 0x19) {
+        mult = pow4(guint32, unit - 0x11);
+        *unit_str = "Pbps";
+    }
+    else {
+        mult = 256;
+        *unit_str = "Pbps";
+    }
+    return mult;
+}
 static guint16
-de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    guint32 unit, mult, ambr_val;
+    const char *unit_str;
+
+    /* Unit for Session-AMBR for downlink */
+    proto_tree_add_item_ret_uint(tree, nas_5gs_sm_unit_for_session_ambr_dl, tvb, offset, 1, ENC_BIG_ENDIAN, &unit);
+
+    /* Session-AMBR for downlink (octets 4 and 5) */
+    mult = get_ext_ambr_unit(unit, &unit_str);
+    ambr_val = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_5gs_sm_session_ambr_dl, tvb, offset, 2,
+        ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(tree, nas_5gs_sm_unit_for_session_ambr_ul, tvb, offset, 1, ENC_NA, &unit);
+    offset++;
+    mult = get_ext_ambr_unit(unit, &unit_str);
+    ambr_val = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_nas_5gs_sm_session_ambr_ul, tvb, offset, 2,
+        ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
 
     return len;
 }
@@ -1520,7 +1723,7 @@ de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  *      9.8.4.8    SM PDU DN request container
  */
-
+/* The SM PDU DN request container contains a DN-specific identity of the UE in the network access identifier (NAI) format */
 static guint16
 de_nas_5gs_sm_pdu_dn_req_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
@@ -3730,6 +3933,168 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_type_values), 0x0f,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_pdu_ses_sts_psi_0_b0,
+        { "Spare","nas_5gs.pdu_ses_sts_psi_0_b0",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_1_b1,
+        { "Spare","nas_5gs.pdu_ses_sts_psi_1_b1",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_2_b2,
+        { "Spare","nas_5gs.pdu_ses_sts_psi_2_b2",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_3_b3,
+        { "PSI(3)","nas_5gs.pdu_ses_sts_psi_3_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_4_b4,
+        { "PSI(4)","nas_5gs.pdu_ses_sts_psi_4_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_5_b5,
+        { "PSI(5)","nas_5gs.pdu_ses_sts_psi_5_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_6_b6,
+        { "PSI(6)","nas_5gs.pdu_ses_sts_psi_6_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_7_b7,
+        { "PSI(7)","nas_5gs.pdu_ses_sts_psi_7_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_8_b0,
+        { "PSI(8)","nas_5gs.pdu_ses_sts_psi_8_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_9_b1,
+        { "PSI(9)","nas_5gs.pdu_ses_sts_psi_9_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_10_b2,
+        { "PSI(10)","nas_5gs.pdu_ses_sts_psi_10_b2",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_11_b3,
+        { "PSI(11)","nas_5gs.pdu_ses_sts_psi_11_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_12_b4,
+        { "PSI(12)","nas_5gs.pdu_ses_sts_psi_12_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_13_b5,
+        { "PSI(13)","nas_5gs.pdu_ses_sts_psi_13_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_14_b6,
+        { "PSI(14)","nas_5gs.pdu_ses_sts_psi_14_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_sts_psi_15_b7,
+        { "PSI(15)","nas_5gs.pdu_ses_sts_psi_15_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x80,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_ul_data_sts_psi_0_b0,
+        { "Spare","nas_5gs.ul_data_sts_psi_0_b0",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_1_b1,
+        { "Spare","nas_5gs.ul_data_sts_psi_1_b1",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_2_b2,
+        { "Spare","nas_5gs.ul_data_sts_psi_2_b2",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_3_b3,
+        { "PSI(3)","nas_5gs.ul_data_sts_psi_3_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_4_b4,
+        { "PSI(4)","nas_5gs.ul_data_sts_psi_4_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_5_b5,
+        { "PSI(5)","nas_5gs.ul_data_sts_psi_5_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_6_b6,
+        { "PSI(6)","nas_5gs.ul_data_sts_psi_6_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_7_b7,
+        { "PSI(7)","nas_5gs.ul_data_sts_psi_7_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_8_b0,
+        { "PSI(8)","nas_5gs.ul_data_sts_psi_8_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_9_b1,
+        { "PSI(9)","nas_5gs.ul_data_sts_psi_9_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_10_b2,
+        { "PSI(10)","nas_5gs.ul_data_sts_psi_10_b2",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_11_b3,
+        { "PSI(11)","nas_5gs.ul_data_sts_psi_11_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_12_b4,
+        { "PSI(12)","nas_5gs.ul_data_sts_psi_12_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_13_b5,
+        { "PSI(13)","nas_5gs.ul_data_sts_psi_13_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_14_b6,
+        { "PSI(14)","nas_5gs.ul_data_sts_psi_14_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ul_data_sts_psi_15_b7,
+        { "PSI(15)","nas_5gs.ul_data_sts_psi_15_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x80,
+            NULL, HFILL }
+        },
+
         { &hf_nas_5gs_sm_sc_mode,
         { "SSC mode",   "nas_5gs.sm.sc_mode",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0x0f,
@@ -3803,6 +4168,26 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_pf_type,
         { "Packet filter component type",   "nas_5gs.sm.pf_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pf_type_values), 0x0,
+            NULL, HFILL }
+        },
+        { &nas_5gs_sm_unit_for_session_ambr_dl,
+        { "Unit for Session-AMBR for downlink",   "nas_5gs.sm.unit_for_session_ambr_dl",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_session_ambr_dl,
+        { "Session-AMBR for downlink",   "nas_5gs.sm.session_ambr_dl",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &nas_5gs_sm_unit_for_session_ambr_ul,
+        { "Unit for Session-AMBR for uplink",   "nas_5gs.sm.unit_for_session_ambr_ul",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_session_ambr_ul,
+        { "Session-AMBR for uplink",   "nas_5gs.sm.session_ambr_ul",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
