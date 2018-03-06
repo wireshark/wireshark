@@ -3339,7 +3339,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	if (!pinfo->fd->flags.visited && si->saved && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_FINDPATTERN;
-		si->saved->extra_info = g_malloc(olb.len+1);
+		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
@@ -3854,7 +3854,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 				val_to_str(si->saved->infolevel, smb2_find_info_levels, "(Level:0x%02x)"),
 				(const char *)si->saved->extra_info);
 
-		g_free(si->saved->extra_info);
+		wmem_free(wmem_file_scope(), si->saved->extra_info);
 		si->saved->extra_info_type = SMB2_EI_NONE;
 		si->saved->extra_info = NULL;
 	}
@@ -7225,13 +7225,13 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* save the name if it looks sane */
 	if (!pinfo->fd->flags.visited) {
 		if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
-			g_free(si->saved->extra_info);
+			wmem_free(wmem_file_scope(), si->saved->extra_info);
 			si->saved->extra_info = NULL;
 			si->saved->extra_info_type = SMB2_EI_NONE;
 		}
 		if (si->saved && f_olb.len && f_olb.len<256) {
 			si->saved->extra_info_type = SMB2_EI_FILENAME;
-			si->saved->extra_info = (gchar *)g_malloc(f_olb.len+1);
+			si->saved->extra_info = (gchar *)wmem_alloc(wmem_file_scope(), f_olb.len+1);
 			g_snprintf((gchar *)si->saved->extra_info, f_olb.len+1, "%s", fname);
 		}
 	}
@@ -7335,7 +7335,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* free si->saved->extra_info   we don't need it any more */
 	if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
-		g_free(si->saved->extra_info);
+		wmem_free(wmem_file_scope(), si->saved->extra_info);
 		si->saved->extra_info = NULL;
 		si->saved->extra_info_type = SMB2_EI_NONE;
 	}
