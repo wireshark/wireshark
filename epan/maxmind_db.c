@@ -199,6 +199,7 @@ process_mmdbr_stdout(int fd) {
         }
         g_strfreev(lines);
     }
+    g_free(read_buf);
     return new_entries;
 }
 
