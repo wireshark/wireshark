@@ -4158,6 +4158,10 @@ void proto_reg_handoff_zbee_zcl_level_control(void);
 static int proto_zbee_zcl_level_control = -1;
 
 static int hf_zbee_zcl_level_control_attr_id = -1;
+static int hf_zbee_zcl_level_control_attr_current_level = -1;
+static int hf_zbee_zcl_level_control_attr_remaining_time = -1;
+static int hf_zbee_zcl_level_control_attr_onoff_transmit_time = -1;
+static int hf_zbee_zcl_level_control_attr_on_level = -1;
 static int hf_zbee_zcl_level_control_level = -1;
 static int hf_zbee_zcl_level_control_move_mode = -1;
 static int hf_zbee_zcl_level_control_rate = -1;
@@ -4384,9 +4388,25 @@ dissect_zcl_level_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offs
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
         case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_CURRENT_LEVEL:
+            proto_tree_add_item(tree, hf_zbee_zcl_level_control_attr_current_level, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
         case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_REMAINING_TIME:
+            proto_tree_add_item(tree, hf_zbee_zcl_level_control_attr_remaining_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
         case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ONOFF_TRANSIT_TIME:
+            proto_tree_add_item(tree, hf_zbee_zcl_level_control_attr_onoff_transmit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
         case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ON_LEVEL:
+            proto_tree_add_item(tree, hf_zbee_zcl_level_control_attr_on_level, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
             break;
@@ -4416,6 +4436,22 @@ proto_register_zbee_zcl_level_control(void)
             { "Attribute", "zbee_zcl_general.level_control.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_level_control_attr_names),
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_level_control_attr_current_level,
+            { "Current Level", "zbee_zcl_general.level_control.attr.current_level", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_attr_remaining_time,
+            { "Remaining Time", "zbee_zcl_general.level_control.attr.remaining_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_attr_onoff_transmit_time,
+            { "Current Level", "zbee_zcl_general.level_control.attr.onoff_transmit_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_attr_on_level,
+            { "On Level", "zbee_zcl_general.level_control.attr.on_level", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_level_control_level,
             { "Level", "zbee_zcl_general.level_control.level", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
@@ -4437,7 +4473,7 @@ proto_register_zbee_zcl_level_control(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_level_control_transit_time,
-            { "Transition Time", "zbee_zcl_general.level_control.transit_time", FT_UINT16, BASE_HEX, NULL,
+            { "Transition Time", "zbee_zcl_general.level_control.transit_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_level_control_srv_rx_cmd_id,
