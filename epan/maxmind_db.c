@@ -238,7 +238,7 @@ static void mmdb_resolve_start(void) {
     g_ptr_array_add(args, mmdbresolve);
     for (guint i = 0; i < mmdb_file_arr->len; i++) {
         g_ptr_array_add(args, g_strdup("-f"));
-        g_ptr_array_add(args, g_strdup(g_ptr_array_index(mmdb_file_arr, i)));
+        g_ptr_array_add(args, g_strdup((const gchar *)g_ptr_array_index(mmdb_file_arr, i)));
     }
     g_ptr_array_add(args, NULL);
 
