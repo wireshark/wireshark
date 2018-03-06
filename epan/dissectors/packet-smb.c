@@ -649,6 +649,11 @@ static int hf_smb_device_char_write_once = -1;
 static int hf_smb_device_char_remote = -1;
 static int hf_smb_device_char_mounted = -1;
 static int hf_smb_device_char_virtual = -1;
+static int hf_smb_device_char_secure_open = -1;
+static int hf_smb_device_char_ts = -1;
+static int hf_smb_device_char_webdav = -1;
+static int hf_smb_device_char_aat = -1;
+static int hf_smb_device_char_portable = -1;
 static int hf_smb_fs_attr = -1;
 static int hf_smb_fs_attr_css = -1;
 static int hf_smb_fs_attr_cpn = -1;
@@ -665,6 +670,12 @@ static int hf_smb_fs_attr_soids = -1;
 static int hf_smb_fs_attr_se = -1;
 static int hf_smb_fs_attr_ns = -1;
 static int hf_smb_fs_attr_rov = -1;
+static int hf_smb_fs_attr_swo = -1;
+static int hf_smb_fs_attr_st = -1;
+static int hf_smb_fs_attr_shl = -1;
+static int hf_smb_fs_attr_sis = -1;
+static int hf_smb_fs_attr_sbr = -1;
+static int hf_smb_fs_attr_ssv = -1;
 static int hf_smb_quota_flags = -1;
 static int hf_smb_quota_flags_enabled = -1;
 static int hf_smb_quota_flags_deny_disk = -1;
@@ -10916,7 +10927,26 @@ static const true_false_string tfs_device_char_virtual = {
 	"This is a VIRTUAL device",
 	"This is NOT a virtual device"
 };
-
+static const true_false_string tfs_device_char_secure_open = {
+	"This device supports SECURE OPEN",
+	"This device does NOT support secure open"
+};
+static const true_false_string tfs_device_char_ts = {
+	"This is a TERMINAL SERVICES device",
+	"This is NOT a terminal services device"
+};
+static const true_false_string tfs_device_char_webdav = {
+	"This is a WEBDAV device",
+	"This is NOT a webdav device"
+};
+static const true_false_string tfs_device_char_portable = {
+	"This is a PORTABLE device",
+	"This is NOT a portable device"
+};
+static const true_false_string tfs_device_char_aat = {
+	"This device ALLOWS APPCONTAINER TRAVERSAL",
+	"This device does NOT allow appcontainer traversal"
+};
 
 static const true_false_string tfs_fs_attr_css = {
 	"This FS supports CASE SENSITIVE SEARCHes",
@@ -10977,6 +11007,30 @@ static const true_false_string tfs_fs_attr_ns = {
 static const true_false_string tfs_fs_attr_rov = {
 	"This is a READ ONLY VOLUME",
 	"This is a read/write volume"
+};
+static const true_false_string tfs_fs_attr_swo = {
+	"This is a SEQUENTIAL WRITE ONCE VOLUME",
+	"This is NOT a sequential write once volume"
+};
+static const true_false_string tfs_fs_attr_st = {
+	"This filesystem supports TRANSACTIONS",
+	"This filesystem does NOT support transactions"
+};
+static const true_false_string tfs_fs_attr_shl = {
+	"This filesystem supports HARD LINKS",
+	"This filesystem does NOT support hard links"
+};
+static const true_false_string tfs_fs_attr_sis = {
+	"This filesystem supports INTEGRITY STREAMS",
+	"This filesystem does NOT support integrity streams"
+};
+static const true_false_string tfs_fs_attr_sbr = {
+	"This filesystem supports BLOCK REFCOUNTING",
+	"This filesystem does NOT support block refcounting"
+};
+static const true_false_string tfs_fs_attr_ssv = {
+	"This filesystem supports SPARSE VDL",
+	"This filesystem does NOT support sparse vdl"
 };
 
 #define FF2_RESUME	0x0004
@@ -15466,6 +15520,18 @@ dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		&hf_smb_fs_attr_ns,
 		/* read only volume */
 		&hf_smb_fs_attr_rov,
+		/* sequential write once */
+		&hf_smb_fs_attr_swo,
+		/* supports transactions */
+		&hf_smb_fs_attr_st,
+		/* supports hard links */
+		&hf_smb_fs_attr_shl,
+		/* supports integrity streams */
+		&hf_smb_fs_attr_sis,
+		/* supports block refcounting */
+		&hf_smb_fs_attr_sbr,
+		/* supports sparse vdl */
+		&hf_smb_fs_attr_ssv,
 		NULL
 	};
 
@@ -15487,6 +15553,11 @@ dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offse
 		&hf_smb_device_char_remote,
 		&hf_smb_device_char_mounted,
 		&hf_smb_device_char_virtual,
+		&hf_smb_device_char_secure_open,
+		&hf_smb_device_char_ts,
+		&hf_smb_device_char_webdav,
+		&hf_smb_device_char_portable,
+		&hf_smb_device_char_aat,
 		NULL
 	};
 
@@ -20324,6 +20395,26 @@ proto_register_smb(void)
 		{ "Virtual", "smb.device.virtual", FT_BOOLEAN, 32,
 		TFS(&tfs_device_char_virtual), 0x00000040, "Is this a virtual device", HFILL }},
 
+	{ &hf_smb_device_char_secure_open,
+		{ "Secure Open", "smb.device.secure_open", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_secure_open), 0x00000100, "Is this a secure open device", HFILL }},
+
+	{ &hf_smb_device_char_ts,
+		{ "Terminal Services", "smb.device.ts", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_ts), 0x00001000, "Is this a terminal services device", HFILL }},
+
+	{ &hf_smb_device_char_webdav,
+		{ "Webdav", "smb.device.webdav", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_webdav), 0x00002000, "Is this a WEBDAV device", HFILL }},
+
+	{ &hf_smb_device_char_aat,
+		{ "Allow Appcontainer Traversal", "smb.device.aat", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_aat), 0x00020000, "Does this device allow appcontainer traversal", HFILL }},
+
+	{ &hf_smb_device_char_portable,
+		{ "Portable", "smb.device.portable", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_portable), 0x00004000, "Is this a portable device", HFILL }},
+
 	{ &hf_smb_fs_attr,
 		{ "FS Attributes", "smb.fs_attr", FT_UINT32, BASE_HEX,
 		NULL, 0x0, NULL, HFILL }},
@@ -20387,6 +20478,30 @@ proto_register_smb(void)
 	{ &hf_smb_fs_attr_rov,
 		{ "Read Only Volume", "smb.fs_attr.rov", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_rov), 0x00080000, "Is this FS on a read only volume?", HFILL }},
+
+	{ &hf_smb_fs_attr_swo,
+		{ "Sequential Write Once", "smb.fs_attr.swo", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_swo), 0x00100000, "Is this FS on a sequential write once volume?", HFILL }},
+
+	{ &hf_smb_fs_attr_st,
+		{ "Transactions", "smb.fs_attr.st", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_st), 0x00200000, "Does this FS support transactions?", HFILL }},
+
+	{ &hf_smb_fs_attr_shl,
+		{ "Hard Links", "smb.fs_attr.shl", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_shl), 0x00400000, "Does this FS support hard links?", HFILL }},
+
+	{ &hf_smb_fs_attr_sis,
+		{ "Integrity Streams", "smb.fs_attr.sis", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_sis), 0x04000000, "Does this FS support integrity streams?", HFILL }},
+
+	{ &hf_smb_fs_attr_sbr,
+		{ "Block Refcounting", "smb.fs_attr.sbr", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_sbr), 0x08000000, "Does this FS support block refcounting?", HFILL }},
+
+	{ &hf_smb_fs_attr_ssv,
+		{ "Sparse VDL", "smb.fs_attr.ssv", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_ssv), 0x10000000, "Does this FS support sparse VDL?", HFILL }},
 
 	{ &hf_smb_user_quota_change_time,
 		{ "Change Time", "smb.quota.user.change_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,

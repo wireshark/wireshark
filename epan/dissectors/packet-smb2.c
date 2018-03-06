@@ -10060,37 +10060,37 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_fs_info_01,
-			{ "SMB2_FS_INFO_01", "smb2.fs_info_01", FT_NONE, BASE_NONE,
+			{ "FileFsVolumeInformation", "smb2.fs_volume_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_fs_info_03,
-			{ "SMB2_FS_INFO_03", "smb2.fs_info_03", FT_NONE, BASE_NONE,
+			{ "FileFsSizeInformation", "smb2.fs_size_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_fs_info_04,
-			{ "SMB2_FS_INFO_04", "smb2.fs_info_04", FT_NONE, BASE_NONE,
+			{ "FileFsDeviceInformation", "smb2.fs_device_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_fs_info_05,
-			{ "SMB2_FS_INFO_05", "smb2.fs_info_05", FT_NONE, BASE_NONE,
+			{ "FileFsAttributeInformation", "smb2.fs_attribute_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_fs_info_06,
-			{ "SMB2_FS_INFO_06", "smb2.fs_info_06", FT_NONE, BASE_NONE,
+			{ "FileFsControlInformation", "smb2.fs_control_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_fs_info_07,
-			{ "SMB2_FS_INFO_07", "smb2.fs_info_07", FT_NONE, BASE_NONE,
+			{ "FileFsFullSizeInformation", "smb2.fs_full_size_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_fs_objectid_info,
-			{ "SMB2_FS_OBJECTID_INFO", "smb2.fs_objectid_info", FT_NONE, BASE_NONE,
+			{ "FileFsObjectIdInformation", "smb2.fs_objectid_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
