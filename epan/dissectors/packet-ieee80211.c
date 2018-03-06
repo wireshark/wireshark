@@ -730,9 +730,12 @@ static const value_string tag_num_vals_eid_ext[] = {
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
 
 static const value_string wfa_subtype_vals[] = {
+  { WFA_SUBTYPE_SUBSCRIPTION_REMEDIATION, "Subscription Remediation" },
+  { WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, "Deauthentication Imminent" },
   { WFA_SUBTYPE_P2P, "P2P" },
   { WFA_SUBTYPE_HS20_INDICATION, "Hotspot 2.0 Indication" },
   { WFA_SUBTYPE_HS20_ANQP, "Hotspot 2.0 ANQP" },
+  { WFA_SUBTYPE_OSEN, "OSU Server-only l2 Encryption Network" },
   { WFA_SUBTYPE_DPP, "Device Provisioning Protocol" },
   { WFA_SUBTYPE_IEEE1905_MULTI_AP, "IEEE1905 Multi-AP" },
   { 0, NULL }
@@ -4324,6 +4327,33 @@ static int hf_ieee80211_tag_obss_satpc = -1;
 static int hf_ieee80211_tag_obss_wctdf = -1;
 static int hf_ieee80211_tag_obss_sat = -1;
 
+/* IEEE Std 802.11-2012: 8.4.2.25.1 */
+static int hf_group_data_cipher_suite_oui = -1;
+static int hf_group_data_cipher_suite_type = -1;
+static int hf_osen_pairwise_cipher_suite_oui = -1;
+static int hf_osen_pairwise_cipher_suite_type = -1;
+static int hf_osen_pcs_count = -1;
+static int hf_osen_akm_count = -1;
+static int hf_osen_akm_cipher_suite_oui = -1;
+static int hf_osen_akm_cipher_suite_type = -1;
+static int hf_osen_rsn_cap_preauth = -1;
+static int hf_osen_rsn_cap_no_pairwise = -1;
+static int hf_osen_rsn_cap_ptksa_replay_counter = -1;
+static int hf_osen_rsn_cap_gtksa_replay_counter = -1;
+static int hf_osen_rsn_cap_mfpr = -1;
+static int hf_osen_rsn_cap_mfpc = -1;
+static int hf_osen_rsn_cap_jmr = -1;
+static int hf_osen_rsn_cap_peerkey = -1;
+static int hf_osen_rsn_spp_a_msdu_capable = -1;
+static int hf_osen_rsn_spp_a_msdu_required = -1;
+static int hf_osen_rsn_pbac = -1;
+static int hf_osen_extended_key_id_iaf = -1;
+static int hf_osen_reserved = -1;
+static int hf_osen_rsn_cap_flags = -1;
+static int hf_osen_pmkid_count = -1;
+static int hf_osen_pmkid = -1;
+static int hf_osen_group_management_cipher_suite_oui = -1;
+static int hf_osen_group_management_cipher_suite_type = -1;
 
 /*WAPI-Specification 7.3.2.25 : WAPI Parameter Set*/
 static int hf_ieee80211_tag_wapi_param_set_version = -1;
@@ -4382,6 +4412,9 @@ static int hf_ieee80211_tag_tfs_response_id = -1;
 static int hf_ieee80211_tag_wnm_sleep_mode_action_type = -1;
 static int hf_ieee80211_tag_wnm_sleep_mode_response_status = -1;
 static int hf_ieee80211_tag_wnm_sleep_mode_interval = -1;
+
+static int hf_ieee80211_wnm_sub_elt_id = -1;
+static int hf_ieee80211_wnm_sub_elt_len = -1;
 
 /* IEEE Std 802.11v-2011 7.3.2.87 */
 static int hf_ieee80211_tag_time_zone = -1;
@@ -4756,7 +4789,10 @@ static int hf_ieee80211_dpp_subtype = -1;
 static int hf_hs20_indication_dgaf_disabled = -1;
 static int hf_hs20_indication_pps_mo_id_present = -1;
 static int hf_hs20_indication_anqp_domain_id_present = -1;
+static int hf_hs20_reserved = -1;
 static int hf_hs20_indication_release_number = -1;
+static int hf_hs20_indication_pps_mo_id = -1;
+static int hf_hs20_indication_anqp_domain_id = -1;
 
 static int hf_hs20_anqp_subtype = -1;
 static int hf_hs20_anqp_reserved = -1;
@@ -4783,6 +4819,14 @@ static int hf_hs20_anqp_nai_hrq_encoding_type = -1;
 static int hf_hs20_anqp_nai_hrq_length = -1;
 static int hf_hs20_anqp_nai_hrq_realm_name = -1;
 static int hf_hs20_anqp_oper_class_indic = -1;
+
+static int hf_hs20_subscription_remediation_url_len = -1;
+static int hf_hs20_subscription_remediation_server_url = -1;
+static int hf_hs20_subscription_remediation_server_method = -1;
+static int hf_hs20_deauth_reason_code = -1;
+static int hf_hs20_reauth_delay = -1;
+static int hf_hs20_deauth_reason_url_len = -1;
+static int hf_hs20_deauth_imminent_reason_url = -1;
 
 /* IEEE Std 802.11ad */
 static int hf_ieee80211_block_ack_RBUFCAP = -1;
@@ -5450,6 +5494,16 @@ static gint ett_nai_realm_eap = -1;
 static gint ett_tag_ric_data_desc_ie = -1;
 static gint ett_anqp_vendor_capab = -1;
 
+static gint ett_osen_group_data_cipher_suite = -1;
+static gint ett_osen_pairwise_cipher_suites = -1;
+static gint ett_osen_pairwise_cipher_suite = -1;
+static gint ett_osen_akm_cipher_suites = -1;
+static gint ett_osen_akm_cipher_suite = -1;
+static gint ett_osen_rsn_cap_tree = -1;
+static gint ett_osen_pmkid_list = -1;
+static gint ett_osen_pmkid_tree = -1;
+static gint ett_osen_group_management_cipher_suite = -1;
+
 static gint ett_hs20_cc_proto_port_tuple = -1;
 
 static gint ett_ssid_list = -1;
@@ -5462,6 +5516,8 @@ static gint ett_meru = -1;
 
 static gint ett_qos_map_set_exception = -1;
 static gint ett_qos_map_set_range = -1;
+
+static gint ett_wnm_notif_subelt = -1;
 
 static expert_field ei_ieee80211_bad_length = EI_INIT;
 static expert_field ei_ieee80211_inv_val = EI_INIT;
@@ -6379,12 +6435,18 @@ dissect_vendor_action_wifi_alliance(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   return offset;
 }
 
+/*
+ * This function is called from two different places. In one case it is called
+ * without the tag and length. In other cases, it is called with those and
+ * is asked to return the type and subtype. We know the difference because
+ * type and subtype will be NULL in the first case.
+ */
 static guint
 dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
                                tvbuff_t *tvb, int offset, guint *type,
                                guint *subtype)
 {
-  guint8      tag_no, tag_len, left;
+  guint8      tag_no = 0, tag_len, left;
   proto_item *item = NULL, *adv_item;
   proto_tree *adv_tree, *adv_tuple_tree;
 
@@ -6396,8 +6458,16 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
   if (type)
     item = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-  tag_len = tvb_get_guint8(tvb, offset + 1);
-  if (tag_no != TAG_ADVERTISEMENT_PROTOCOL) {
+  /*
+   * If we have the tag and len, use the len in the tvb, otherwise ask
+   * for the length of the tvb.
+   */
+  if (type)
+    tag_len = tvb_get_guint8(tvb, offset + 1);
+  else
+    tag_len = tvb_reported_length_remaining(tvb, 0);
+
+  if (type && tag_no != TAG_ADVERTISEMENT_PROTOCOL) {
     expert_add_info_format(pinfo, item, &ei_ieee80211_tag_number,
                            "Unexpected IE %d (expected Advertisement "
                            "Protocol)", tag_no);
@@ -6415,7 +6485,8 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
   }
 
   left = tag_len;
-  offset += 2;
+  if (type) /* Skip past the header if there ... */
+    offset += 2;
   adv_tree = proto_tree_add_subtree(tree, tvb, offset, left,
                                  ett_adv_proto, &adv_item, "Advertisement Protocol element");
 
@@ -6471,7 +6542,7 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
       left   -= 1;
       if (oui == OUI_WFA) {
         proto_tree_add_item(adv_tuple_tree, hf_ieee80211_dpp_subtype, tvb, offset, 1, ENC_NA);
-        if (wfa_subtype == WFA_SUBTYPE_DPP) {
+        if (subtype && wfa_subtype == WFA_SUBTYPE_DPP) {
           *subtype = WFA_SUBTYPE_DPP;
           *subtype |= (tvb_get_guint8(tvb, offset) << 8);
         }
@@ -6926,13 +6997,70 @@ dissect_venue_url_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   }
 }
 
-#define HS20_ANQP_HS_QUERY_LIST 1
-#define HS20_ANQP_HS_CAPABILITY_LIST 2
-#define HS20_ANQP_OPERATOR_FRIENDLY_NAME 3
-#define HS20_ANQP_WAN_METRICS 4
-#define HS20_ANQP_CONNECTION_CAPABILITY 5
-#define HS20_ANQP_NAI_HOME_REALM_QUERY 6
+static int
+dissect_hs20_subscription_remediation(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, void *data _U_)
+{
+  int offset = 0;
+  guint8 url_len = tvb_get_guint8(tvb, 0);
+  proto_item *pi = NULL;
+
+  proto_tree_add_item(tree, hf_hs20_subscription_remediation_url_len, tvb, offset,
+                        1, ENC_NA);
+  offset++;
+  if (tvb_reported_length_remaining(tvb, offset) >= url_len) {
+    pi = proto_tree_add_item(tree, hf_hs20_subscription_remediation_server_url,
+                        tvb, offset, url_len, ENC_ASCII|ENC_NA);
+    offset += url_len;
+    PROTO_ITEM_SET_URL(pi);
+    proto_tree_add_item(tree, hf_hs20_subscription_remediation_server_method,
+                        tvb, offset, 1, ENC_NA);
+    offset++;
+  }
+
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_hs20_deauthentication_imminent(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, void *data _U_)
+{
+  int offset = 0;
+  guint8 url_len = 0;
+  proto_item *pi = NULL;
+
+  proto_tree_add_item(tree, hf_hs20_deauth_reason_code, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(tree, hf_hs20_reauth_delay, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  url_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_hs20_deauth_reason_url_len, tvb, offset, 1,
+                        ENC_NA);
+  offset++;
+
+  if (tvb_reported_length_remaining(tvb, offset) >= url_len) {
+    pi = proto_tree_add_item(tree, hf_hs20_deauth_imminent_reason_url,
+                        tvb, offset, url_len, ENC_ASCII|ENC_NA);
+    offset += url_len;
+    PROTO_ITEM_SET_URL(pi);
+  }
+  return tvb_captured_length(tvb);
+}
+
+#define HS20_ANQP_HS_QUERY_LIST              1
+#define HS20_ANQP_HS_CAPABILITY_LIST         2
+#define HS20_ANQP_OPERATOR_FRIENDLY_NAME     3
+#define HS20_ANQP_WAN_METRICS                4
+#define HS20_ANQP_CONNECTION_CAPABILITY      5
+#define HS20_ANQP_NAI_HOME_REALM_QUERY       6
 #define HS20_ANQP_OPERATING_CLASS_INDICATION 7
+#define HS20_ANQP_OSU_PROVIDERS_LIST         8
+/* 9 is reserved */
+#define HS20_ANQP_ICON_REQUEST               10
+#define HS20_ANQP_ICON_BINARY_FILE           11
 
 static const value_string hs20_anqp_subtype_vals[] = {
   { HS20_ANQP_HS_QUERY_LIST, "HS Query list" },
@@ -6942,6 +7070,9 @@ static const value_string hs20_anqp_subtype_vals[] = {
   { HS20_ANQP_CONNECTION_CAPABILITY, "Connection Capability" },
   { HS20_ANQP_NAI_HOME_REALM_QUERY, "NAI Home Realm Query" },
   { HS20_ANQP_OPERATING_CLASS_INDICATION, "Operating Class Indication" },
+  { HS20_ANQP_OSU_PROVIDERS_LIST, "OSU Providers List" },
+  { HS20_ANQP_ICON_REQUEST, "Icon Request" },
+  { HS20_ANQP_ICON_BINARY_FILE, "Icon Binary File" },
   { 0, NULL }
 };
 
@@ -7044,7 +7175,7 @@ dissect_hs20_anqp_connection_capability(proto_tree *tree, tvbuff_t *tvb,
                                "ProtoPort Tuple - ip_proto=%u port_num=%u status=%s",
                                ip_proto, port_num,
                                val_to_str(status, hs20_cc_status_vals,
-                                          "Unknown (%u)"));
+                                          "Reserved (%u)"));
     proto_tree_add_item(tuple, hf_hs20_anqp_cc_proto_ip_proto,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -7109,11 +7240,11 @@ dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   subtype = tvb_get_guint8(tvb, offset);
   proto_item_append_text(tree, " - HS 2.0 %s",
                          val_to_str(subtype, hs20_anqp_subtype_vals,
-                                    "Unknown (%u)"));
+                                    "Reserved (%u)"));
   if (anqp_data->idx == 0) {
     col_append_fstr(pinfo->cinfo, COL_INFO, " HS 2.0 %s",
                     val_to_str(subtype, hs20_anqp_subtype_vals,
-                               "Unknown (%u)"));
+                               "Reserved (%u)"));
   } else if (anqp_data->idx == 1) {
     col_append_str(pinfo->cinfo, COL_INFO, ", ..");
   }
@@ -9163,12 +9294,65 @@ wnm_tfs_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
   return offset - start;
 }
 
+#define AP_DESCRIPTOR            0
+#define FIRMWARE_VERSION_CURRENT 1
+#define FIRMWARE_VERSION_NEW     2
+
+static guint
+dissect_wnm_subelements(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+  int offset) {
+  guint sub_elt_id = tvb_get_guint8(tvb, offset);
+  guint sub_elt_len = tvb_get_guint8(tvb, offset + 1);
+
+  proto_tree_add_item(tree, hf_ieee80211_wnm_sub_elt_id, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_wnm_sub_elt_len, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  switch (sub_elt_id) {
+  case AP_DESCRIPTOR:
+
+    break;
+
+  case FIRMWARE_VERSION_CURRENT:
+
+    break;
+
+  case FIRMWARE_VERSION_NEW:
+
+    break;
+  }
+
+  offset += sub_elt_len;
+  return offset;
+}
+
 static guint
 wnm_notification_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   int start = offset;
+  int len = 0;
+  guint8 wnm_type = 0;
+  guint8 wnm_sub_elt = 0;
+
   offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+  wnm_type = tvb_get_guint8(tvb, offset);
   offset += add_ff_wnm_notification_type(tree, tvb, pinfo, offset);
+  len = tvb_reported_length_remaining(tvb, offset);
+
+  if (wnm_type == 0) {
+    while (len > 0) {
+      int start_offset = offset;
+      proto_tree *wnm_list = NULL;
+      proto_item *wnm_item = NULL;
+      wnm_list = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                        ett_wnm_notif_subelt,
+                        &wnm_item, "WNM Subelement %d", wnm_sub_elt);
+      offset = dissect_wnm_subelements(wnm_list, tvb, pinfo, offset);
+      proto_item_set_len(wnm_item, offset - start_offset);
+    }
+  }
   return offset - start;
 }
 
@@ -11301,6 +11485,184 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
   return offset;
 }
 
+/*
+ * Dissect a group data cipher suite which consists of an OUI and a one-byte
+ * selector: IEEE802.11 2012 Figure 9-256.
+ *
+ * Accepts a two entry array of header fields so we can use this elsewhere.
+ */
+static int dissect_group_data_cipher_suite(tvbuff_t *tvb, packet_info *pinfo _U_,
+    proto_tree *tree, int offset, int *hf_array, gint ett_val, char *label)
+{
+  proto_tree *gdcs_tree = NULL;
+
+  gdcs_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_val, NULL,
+                         label);
+  proto_tree_add_item(gdcs_tree, hf_array[0], tvb, offset, 3, ENC_BIG_ENDIAN);
+  offset += 3;
+  proto_tree_add_item(gdcs_tree, hf_array[1], tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  return offset;
+}
+
+/*
+ * Handle the HS 2.0 rev 2 OSU Server-only authenticated layer 2 Encryption
+ * Network element. This is almost the same format is the RSNE so maybe some
+ * common code can be used.
+ */
+static int
+dissect_hs20_osen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int offset = 0;
+  int hf_array[2] = { hf_group_data_cipher_suite_oui,
+                       hf_group_data_cipher_suite_type };
+  proto_tree *pwc_list = NULL;
+  proto_item *pwcsi = NULL;
+  guint16 pwc_count = 0, pwc_index = 0;
+  guint16 akms_count = 0, akms_index = 0;
+  static const int *osen_rsn_cap[] = {
+    &hf_osen_rsn_cap_preauth,
+    &hf_osen_rsn_cap_no_pairwise,
+    &hf_osen_rsn_cap_ptksa_replay_counter,
+    &hf_osen_rsn_cap_gtksa_replay_counter,
+    &hf_osen_rsn_cap_mfpr,
+    &hf_osen_rsn_cap_mfpc,
+    &hf_osen_rsn_cap_jmr,
+    &hf_osen_rsn_cap_peerkey,
+    &hf_osen_rsn_spp_a_msdu_capable,
+    &hf_osen_rsn_spp_a_msdu_required,
+    &hf_osen_rsn_pbac,
+    &hf_osen_extended_key_id_iaf,
+    &hf_osen_reserved,
+    NULL
+  };
+  guint16 pmkid_count = 0, pmkid_index = 0;
+  int gmcs_array[2] = { hf_osen_group_management_cipher_suite_oui,
+                        hf_osen_group_management_cipher_suite_type };
+
+  offset = dissect_group_data_cipher_suite(tvb, pinfo, tree, offset, hf_array,
+                        ett_osen_group_data_cipher_suite,
+                        "OSEN Group Data Cipher Suite");
+
+  pwc_count = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_osen_pcs_count, tvb, offset,
+                      2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  if (pwc_count > 0) {
+    int start_offset = offset;
+    pwc_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_osen_pairwise_cipher_suites, &pwcsi,
+                        "OSEN Pairwise Cipher Suite List");
+
+    while (pwc_count > 0) {
+      if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+        int hf_array2[2] = { hf_osen_pairwise_cipher_suite_oui,
+                            hf_osen_pairwise_cipher_suite_type };
+        char label[128];
+
+        g_snprintf(label, sizeof(label), "OSEN Pairwise Cipher Suite %d", pwc_index);
+        offset = dissect_group_data_cipher_suite(tvb, pinfo, pwc_list,
+                        offset, hf_array2, ett_osen_pairwise_cipher_suite,
+                        label);
+        pwc_index++;
+        pwc_count--;
+      } else {
+        /* Insert the remaining? Expert Info? */
+        offset += tvb_reported_length_remaining(tvb, offset);
+        break;
+      }
+    }
+
+    proto_item_set_len(pwcsi, offset - start_offset);
+  }
+
+  if (tvb_reported_length_remaining(tvb, offset) == 0) {
+    return tvb_captured_length(tvb);
+  }
+
+  /* Now handle the AKM Suites */
+  akms_count = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_osen_akm_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  if (akms_count > 0) {
+    int start_offset = offset;
+    proto_tree *akm_list = NULL;
+    proto_item *akmcsi = NULL;
+
+    akm_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_osen_akm_cipher_suites, &akmcsi,
+                        "OSEN AKM Cipher Suite List");
+
+    while (akms_count > 0) {
+      if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+        int hf_array3[2] = { hf_osen_akm_cipher_suite_oui,
+                             hf_osen_akm_cipher_suite_type};
+        char label[128];
+
+        g_snprintf(label, sizeof(label), "OSEN AKM Cipher Suite %d", akms_index);
+        offset = dissect_group_data_cipher_suite(tvb, pinfo, akm_list,
+                          offset, hf_array3, ett_osen_akm_cipher_suite,
+                          label);
+        akms_index++;
+        akms_count--;
+      } else {
+        /* Expert info? */
+        offset += tvb_reported_length_remaining(tvb, offset);
+        break;
+      }
+    }
+    proto_item_set_len(akmcsi, offset - start_offset);
+  }
+
+  /* Any more? */
+  if (tvb_reported_length_remaining(tvb, offset) == 0) {
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_osen_rsn_cap_flags,
+                                    ett_osen_rsn_cap_tree, osen_rsn_cap,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  offset += 2;
+
+  /* Any more? */
+  if (tvb_reported_length_remaining(tvb, offset) == 0) {
+    return tvb_captured_length(tvb);
+  }
+
+  pmkid_count = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_osen_pmkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  if (pmkid_count > 0) {
+    proto_tree *pmkid_list = NULL;
+
+    pmkid_list = proto_tree_add_subtree(tree, tvb, offset, pmkid_count * 16,
+                                ett_osen_pmkid_list, NULL,
+                                "OSEN PKMID List");
+
+    while (pmkid_count > 0) {
+      proto_tree *pmkid_tree = NULL;
+
+      pmkid_tree = proto_tree_add_subtree_format(pmkid_list, tvb,offset, 16,
+                                ett_osen_pmkid_tree, NULL,
+                                "OSEN PKMID %d", pmkid_index);
+      proto_tree_add_item(pmkid_tree, hf_osen_pmkid, tvb, offset, 16,
+                          ENC_NA);
+      offset += 16;
+      pmkid_index++;
+    }
+  }
+
+  offset = dissect_group_data_cipher_suite(tvb, pinfo, tree, offset, gmcs_array,
+                        ett_osen_group_management_cipher_suite,
+                        "OSEN Group Management Cipher Suite");
+
+  return tvb_captured_length(tvb);
+}
+
 static const value_string hs20_indication_release_number_vals[] = {
   { 0, "Release 1" },
   { 1, "Release 2" },
@@ -11314,12 +11676,31 @@ dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     &hf_hs20_indication_dgaf_disabled,
     &hf_hs20_indication_pps_mo_id_present,
     &hf_hs20_indication_anqp_domain_id_present,
+    &hf_hs20_reserved,
     &hf_hs20_indication_release_number,
     NULL
   };
+  int len = tvb_captured_length(tvb);
+  guint8 indic = tvb_get_guint8(tvb, 0);
+  int offset = 0;
 
-  proto_tree_add_bitmask_list(tree, tvb, 0, 1, ieee80211_hs20_indication, ENC_LITTLE_ENDIAN);
-  return tvb_captured_length(tvb);
+  proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_hs20_indication,
+                              ENC_LITTLE_ENDIAN);
+  offset++;
+
+  if (len >= 3 && (indic & 0x02)) { /* Contains a PPS MO ID field ... display it. */
+      proto_tree_add_item(tree, hf_hs20_indication_pps_mo_id, tvb, offset,
+		          2, ENC_BIG_ENDIAN);
+      offset += 2;
+  }
+
+  if ((len >= (offset + 2)) && (indic & 0x04)) {
+     proto_tree_add_item(tree, hf_hs20_indication_anqp_domain_id, tvb, offset,
+                         2, ENC_BIG_ENDIAN);
+     offset += 2;
+  }
+
+  return len;
 }
 
 static void
@@ -11921,7 +12302,10 @@ dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   return offset;
 }
 
-/* 7.3.2.25 RSN information element */
+/*
+ * 7.3.2.25 RSNE information element. Common format with OSEN except the
+ * verison... should refactor
+ */
 static int
 dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                int offset, guint32 tag_len, association_sanity_check_t *association_sanity_check)
@@ -25732,15 +26116,27 @@ proto_register_ieee80211(void)
 
     {&hf_hs20_indication_pps_mo_id_present,
      {"PPS MO ID Present", "wlan.hs20.indication.pps_mo_id_present",
-      FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02, NULL, HFILL }},
 
     {&hf_hs20_indication_anqp_domain_id_present,
      {"ANQP Domain ID Present", "wlan.hs20.indication.anqp_domain_id_present",
-      FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04, NULL, HFILL }},
+
+    {&hf_hs20_reserved,
+      { "Reserved", "wlan.hs20.indication.reserved",
+       FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
 
     {&hf_hs20_indication_release_number,
      {"Release Number", "wlan.hs20.indication.release_number",
       FT_UINT8, BASE_DEC, VALS(hs20_indication_release_number_vals), 0xF0, NULL, HFILL }},
+
+    {&hf_hs20_indication_pps_mo_id,
+     {"PPS MO ID", "wlan.hs20.indication.pps_mo_id",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_indication_anqp_domain_id,
+     {"ANQP Domain ID", "wlan.hs20.indication.domain_id",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_hs20_anqp_subtype,
      {"Subtype", "wlan.hs20.anqp.subtype",
@@ -25853,6 +26249,34 @@ proto_register_ieee80211(void)
     {&hf_hs20_anqp_oper_class_indic,
      {"Operating Class", "wlan.hs20.anqp.oper_class_indic.oper_class",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_subscription_remediation_url_len,
+     {"Server URL Length", "wlan.hs20.subs_remediation.server_url_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_subscription_remediation_server_url,
+     {"Server URL", "wlan.hs20.subs_remediation.server_url",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_subscription_remediation_server_method,
+     {"Server Method", "wlan.hs20.subs_remediation.server_method",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_deauth_reason_code,
+     {"De-Auth Reason Code", "wlan.hs20.deauth.reason_code",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_reauth_delay,
+     {"Re-Auth Delay", "wlan.hs20.deauth.reauth_delay",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0, NULL, HFILL }},
+
+    {&hf_hs20_deauth_reason_url_len,
+     {"Reason URL Length", "wlan.hs20.deauth.reason_url_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_deauth_imminent_reason_url,
+     {"Reason URL", "wlan.hs20.deauth.reason_url",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag,
      {"Tag", "wlan.tag",
@@ -30447,6 +30871,115 @@ proto_register_ieee80211(void)
      {"Scan Activity Threshold", "wlan.obss.sat",
       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+    /* Group Data Cypher Suite: 802.11-2012: 8.4.2.25.1 */
+    {&hf_group_data_cipher_suite_oui,
+     {"Group Data Cypher Suite OUI", "wlan.osen.gdcs.oui",
+      FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
+
+    /* TODO: List the suite names ... */
+    {&hf_group_data_cipher_suite_type,
+     {"Group Data Cypher Suite type", "wlan.osen.gdcs.type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_pcs_count,
+     {"OSEN Pairwise Cipher Suite Count", "wlan.osen.pwcs.count",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_pairwise_cipher_suite_oui,
+     {"OSEN Pairwise Cypher Suite OUI", "wlan.osen.pwcs.oui",
+      FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_pairwise_cipher_suite_type,
+     {"OSEN Pairwise Cypher Suite type", "wlan.osen.pwcs.type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_akm_count,
+     {"OSEN AKM Cipher Suite Count", "wlan.osen.akms.count",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_akm_cipher_suite_oui,
+     {"OSEN AKM Cipher Suite OUI", "wlan.osen.akms.oui",
+      FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_akm_cipher_suite_type,
+     {"OSEN AKM Cipher Suite Type", "wlan.osen.akms.type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_preauth,
+     {"RSN Pre-Auth capabilities", "wlan.osen.rsn.capabilities.preauth",
+      FT_BOOLEAN, 16, TFS(&rsn_preauth_flags), 0x0001, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_no_pairwise,
+     {"RSN No Pairwise capabilities", "wlan.osen.rsn.capabilities.no_pairwise",
+      FT_BOOLEAN, 16, TFS(&rsn_no_pairwise_flags), 0x0002, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_ptksa_replay_counter,
+     {"RSN PTKSA Replay Counter capabilities",
+                "wlan.osen.rsn.capabilities.ptksa_replay_counter",
+      FT_UINT16, BASE_HEX, VALS(rsn_cap_replay_counter), 0x000C, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_gtksa_replay_counter,
+     {"RSN GTKSA Replay Counter capabilities",
+                "wlan.osen.rsn.capabilities.gtksa_replay_counter",
+      FT_UINT16, BASE_HEX, VALS(rsn_cap_replay_counter), 0x0030, NULL, HFILL }},
+
+    {&hf_osen_group_management_cipher_suite_oui,
+     {"OSEN Group Management Cipher Suite OUI", "wlan.osen.gmcs.oui",
+      FT_UINT24, BASE_OUI, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_group_management_cipher_suite_type,
+     {"OSEN Group Management Cipher Suite Type", "wlan.osen.gmcs.type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_mfpr,
+     {"Management Frame Protection Required", "wlan.osen.rsn.capabilities.mfpr",
+      FT_BOOLEAN, 16, TFS(&tfs_required_not_required), 0x0040, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_mfpc,
+     {"Management Frame Protection Capable", "wlan.osen.rsn.capabilities.mfpc",
+      FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x0080, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_jmr,
+     {"Joint Multi-band RSNA", "wlan.osen.rsn.capabilities.jmr",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0100, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_peerkey,
+     {"PeerKey Enabled", "wlan.osen.rsn.capabilities.peerkey",
+      FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), 0x200, NULL, HFILL }},
+
+    {&hf_osen_rsn_cap_flags,
+     {"RSN Capability Flags", "wlan.osen.rsn.cabailities.flags",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_osen_rsn_spp_a_msdu_capable,
+     {"SPP A-MSDU Capable", "wlan.osen.rsn.capabilities.spp_a_msdu_cap",
+      FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x0400, NULL, HFILL }},
+
+    {&hf_osen_rsn_spp_a_msdu_required,
+     {"SPP A-MSDU Required", "wlan.osen.rsn.capabilities.spp_a_msdu_req",
+      FT_BOOLEAN, 16, TFS(&tfs_required_not_required), 0x0800, NULL, HFILL }},
+
+    {&hf_osen_rsn_pbac,
+     {"Protected Block Ack Agreement Capable", "wlan.osen.rsn.capabilities.pbac",
+      FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x1000, NULL, HFILL }},
+
+    {&hf_osen_extended_key_id_iaf,
+     {"Extended Key ID for Individually Addressed Frames",
+                "wlan.osn.rsn.extended_key_id_iaf",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL }},
+
+    {&hf_osen_reserved,
+     {"Reserved", "wlan.osen.rsn.capabilities.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xC000, NULL, HFILL }},
+
+    {&hf_osen_pmkid_count,
+     {"OSEN PMKID Count", "wlan.osen.pmkid.count",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_osen_pmkid,
+     {"OSEN PKMID", "wlan.osen.pmkid.bytes",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     /* RIC Descriptor IE: 802.11-2012: 8.4.2.53 */
     {&hf_ieee80211_tag_ric_desc_rsrc_type,
      {"Resource Type", "wlan.ric_desc.rsrc_type",
@@ -30619,6 +31152,14 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_wnm_sleep_mode_interval,
      {"WNM-Sleep Interval", "wlan.wnm_sleep_mode.interval",
       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sub_elt_id,
+     {"Subelement ID", "wlan.wnm_subelt.id",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wnm_sub_elt_len,
+     {"Subelement len", "wlan.wnm_subelt.len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     /* Time Advertisement */
     {&hf_ieee80211_tag_time_adv_timing_capab,
@@ -31884,6 +32425,15 @@ proto_register_ieee80211(void)
     &ett_tag_ric_data_desc_ie,
     &ett_anqp_vendor_capab,
 
+    &ett_osen_group_data_cipher_suite,
+    &ett_osen_pairwise_cipher_suites,
+    &ett_osen_pairwise_cipher_suite,
+    &ett_osen_akm_cipher_suites,
+    &ett_osen_akm_cipher_suite,
+    &ett_osen_rsn_cap_tree,
+    &ett_osen_pmkid_list,
+    &ett_osen_pmkid_tree,
+
     &ett_hs20_cc_proto_port_tuple,
 
     &ett_ssid_list,
@@ -32563,7 +33113,10 @@ proto_reg_handoff_ieee80211(void)
 
   dissector_add_uint("wlan.anqp.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_wifi_alliance_anqp, -1));
   dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_HS20_ANQP, create_dissector_handle(dissect_hs20_anqp, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_SUBSCRIPTION_REMEDIATION, create_dissector_handle(dissect_hs20_subscription_remediation, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, create_dissector_handle(dissect_hs20_deauthentication_imminent, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_HS20_INDICATION, create_dissector_handle(dissect_hs20_indication, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OSEN, create_dissector_handle(dissect_hs20_osen, -1));
 }
 
 /*
