@@ -42,7 +42,7 @@ Known traps are:
 
 [[ChSetupChocolatey]]
 
-==== Optional: Install Chocolatey
+==== Recommended: Install Chocolatey
 
 https://chocolatey.org/[Chocolatey] is a native package manager for Windows.
 There are https://chocolatey.org/packages[packages] for most of the software
@@ -125,12 +125,15 @@ upgrade Qt to newer versions.
 
 [[ChSetupCygwin]]
 
-==== Install Cygwin
+==== Optional: Install Cygwin
 
 On 32-bit Windows, http://www.cygwin.com/setup-x86.exe[download the
 32-bit Cygwin installer] and start it. On 64-bit Windows,
 http://www.cygwin.com/setup-x86_64.exe[download the 64-bit Cygwin
 installer] and start it.
+
+Over time the Wireshark development toolchain has been migrating away from Cygwin
+toward native tools and we hope to eliminate it as a requirement someday.
 
 At the "Select Packages" page, you'll need to select
 some additional packages which are not installed by default.
@@ -281,17 +284,21 @@ Chocolatey ensures cmake.exe is on your path.
 
 [[ChSetupAsciidoctor]]
 
-==== Install Asciidoctor
+==== Install Asciidoctor, Xsltproc, And DocBook
 
 http://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby
-script or via a Java wrapper (AsciidoctorJ). The easiest way to install
-it on Windows is via Chocolatey:
+script or via a Java wrapper (AsciidoctorJ). It is used in conjuntion
+with Xsltproc and DocBook to generate the documenation you're reading
+and the User’s Guide.
+
+The easiest way to install them on Windows is via Chocolatey:
 
 ----
-PS$>choco install asciidoctorj
+PS$>choco install asciidoctorj xsltproc docbook-bundle
 ----
 
-Chocolatey ensures that asciidoctorj.exe is on your path.
+Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
+path and that xsltproc uses the DocBook catalog.
 
 ==== Install and Prepare Sources
 

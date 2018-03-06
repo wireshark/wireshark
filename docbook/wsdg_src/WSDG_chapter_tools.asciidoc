@@ -591,7 +591,7 @@ is used (this produces the smallest package).
 
 The Windows Platform SDK (PSDK) or Windows SDK is a free
 (as in beer) download and contains platform specific headers and
-libraries (e.g. _windows.h_, _WSock32.lib_, etc.). As new Windows
+libraries (e.g. `windows.h`, `WSock32.lib`, etc.). As new Windows
 features evolve in time, updated SDK’s become available that
 include new and updated APIs.
 
@@ -605,14 +605,53 @@ Older versions of the SDK should also work. However, the
 command to set the environment settings will be different, try
 search for SetEnv.* in the SDK directory.
 
+=== Documentation Toolchain
+
+Wireshark’s documentation is split across two directories. The `doc`
+directory contains man pages written in Perl’s POD (Plain Old
+Documentation) format. The `docbook` directory contains the User’s
+Guide, Developer’s Guide, and the release notes, which are written in
+Asciidoctor markup.
+
+Our various output formats are generated using the following tools.
+Intermediate formats are in _italics_.
+
+Guide HTML:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL
+Guide PDF:: Asciidoctor
+Guide HTML Help:: Asciidoctor → _DocBook XML_ → xsltproc + DocBook XSL → HHC
+
+Release notes HTML:: Asciidoctor
+Release notes text:: Asciidoctor → _HTML_ → html2text.py
+
+==== Asciidoctor
+
+Asciidoctor[https://asciidoctor.org/] comes in several flavors: a Ruby
+gem (Asciidoctor), a Java bundle (AsciidoctorJ), and transpiled
+JavaScript (Asciidoctor.js). Only the Asciidoctor and AsciidoctorJ
+flavors are supported for building the Wireshark documentation and
+AsciidoctorJ is recommended.
+
+The guides and release notes were originally written in DocBook (hence
+the directory name). They were later converted to AsciiDoc and then
+migrated to Asciidoctor.
+`compat-mode`[https://asciidoctor.org/docs/migration/] is currently
+enabled for the guides, but we are steadily migrating to Asciidoctor’s
+modern (>= 1.5.0) syntax.
+
+PDF output requires Asciidoctor PDF. It is included with AsciidoctorJ
+but _not_ with Asciidoctor.
+
+==== Xsltproc And DocBook
+
+The single HTML, chunked HTML, and HTML Help guides are generated using
+DocBook XSL stylesheets. They in turn require an XSLT processor. We use
+`xsltproc`.
+
 ==== HTML Help
 
-HTML Help is used to create the User’s and Developer’s Guide in .chm format and
-to show the User’s Guide as the Wireshark "Online Help".
-
-Both features are currently optional, and might be removed in future versions.
-
-===== HTML Help Compiler (hhc.exe)
+HTML Help is used to create the User’s and Developer’s Guide in .chm format.
+The User’s Guide .chm file is included with the NSIS and WiX installers and
+is used as Wireshark's built-in help on Windows.
 
 This compiler is used to generate a .chm file from a bunch of HTML files -- in
 our case to generate the User’s and Developer’s Guide in .chm format.
@@ -622,9 +661,7 @@ download. If you want to compile the guides yourself, you need to download and
 install this. If you don't install it into the default directory, you may also
 have a look at the HHC_DIR setting in the file docbook/Makefile.
 
-===== HTML Help Build Files (htmlhelp.c / htmlhelp.lib)
-
-The files _htmlhelp.c_ and _htmlhelp.lib_ are required to
+The files `htmlhelp.c` and `htmlhelp.lib` are required to
 be able to open .chm files from Wireshark and show the
 online help. Both files are part of the SDK (standalone (P)SDK or MSVC
 since 2002).
