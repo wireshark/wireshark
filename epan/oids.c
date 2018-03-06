@@ -937,6 +937,7 @@ guint oid_string2subid(wmem_allocator_t *scope, const char* str, guint32** subid
 			subid += *r - '0';
 
 			if( subids >= subids_overflow ||  subid > 0xffffffff) {
+				wmem_free(scope, *subids_p);
 				*subids_p=NULL;
 				return 0;
 			}
