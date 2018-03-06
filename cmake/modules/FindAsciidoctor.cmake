@@ -14,7 +14,7 @@ FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
         /bin
         /usr/bin
         /usr/local/bin
-        ${CHOCOLATEY_BIN_PATH}/bin
+        ${CHOCOLATEY_BIN_PATH}
     DOC "Path to Asciidoctor or AsciidoctorJ"
 )
 

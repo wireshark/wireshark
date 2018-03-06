@@ -3,6 +3,7 @@
 # This module looks for some usual Unix commands.
 #
 
+include(FindChocolatey)
 include(FindCygwin)
 
 # Strawberry Perl ships with xsltproc but no DocBook XML files, which
@@ -12,7 +13,7 @@ find_program(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
   HINTS
-    ${ChocolateyInstall}/bin
+    ${CHOCOLATEY_BIN_PATH}
     ${CYGWIN_INSTALL_PATH}/bin
   PATHS
     /usr/local/bin

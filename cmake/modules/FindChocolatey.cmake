@@ -22,15 +22,21 @@
 #  License text for the above reference.)
 
 if (WIN32)
-  find_path(CHOCOLATEY_BIN_PATH
-    choco.exe
-    PATHS "C:/ProgramData/chocolatey" "C:/Chocolatey" ENV ChocolateyInstall
-    PATH_SUFFIXES bin
-    DOC "Chocolatey binary path"
-    NO_DEFAULT_PATH
-  )
+    if (ENV{ChocolateyInstall})
+        set(_chocolateyinstall_bin "$ENV{ChocolateyInstall}/bin")
+    endif()
 
-  mark_as_advanced(
-    CHOCOLATEY_BIN_PATH
-  )
+    find_path(CHOCOLATEY_BIN_PATH
+        choco.exe
+        PATHS
+            $_chocolateyinstall_bin
+            "$ENV{ProgramData}/chocolatey/bin"
+            C:/Chocolatey/bin
+        DOC "Chocolatey binary path"
+        NO_DEFAULT_PATH
+    )
+
+    mark_as_advanced(
+        CHOCOLATEY_BIN_PATH
+    )
 endif ()

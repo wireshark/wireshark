@@ -11,7 +11,7 @@ FIND_PROGRAM(LEX_EXECUTABLE
     flex
     lex
   PATHS
-    ${CHOCOLATEY_BIN_PATH}/bin
+    ${CHOCOLATEY_BIN_PATH}
     ${CYGWIN_INSTALL_PATH}/bin
     /bin
     /usr/bin
