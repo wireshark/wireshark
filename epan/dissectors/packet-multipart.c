@@ -554,6 +554,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     gchar *content_encoding_str = NULL;
     char *filename = NULL;
     char *mimetypename = NULL;
+    char *tmp;
     gboolean last_field = FALSE;
     gboolean is_raw_data = FALSE;
 
@@ -677,7 +678,11 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            mimetypename = ws_find_media_type_parameter(message_info.media_str, "name");
+                            tmp = ws_find_media_type_parameter(message_info.media_str, "name");
+                            if (tmp) {
+                                mimetypename = wmem_strdup(wmem_packet_scope(), tmp);
+                                g_free(tmp);
+                            }
 
                             if(strncmp(content_type_str, "application/octet-stream",
                                     sizeof("application/octet-stream")-1) == 0) {
@@ -708,7 +713,11 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         case POS_CONTENT_DISPOSITION:
                         {
                             /* find the "filename" parameter */
-                            filename = ws_find_media_type_parameter(value_str, "filename");
+                            tmp = ws_find_media_type_parameter(value_str, "filename");
+                            if (tmp) {
+                                filename = wmem_strdup(wmem_packet_scope(), tmp);
+                                g_free(tmp);
+                            }
                         }
                         break;
                     default:
@@ -801,9 +810,6 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
         } else {
            proto_tree_add_item(tree, hf_multipart_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
         }
-
-        g_free(filename);
-        g_free(mimetypename);
 
         return boundary_start + boundary_line_len;
     }
