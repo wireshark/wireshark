@@ -1697,7 +1697,7 @@ static gchar * get_modname_from_repoid(gchar *repoid) {
 
   /* Now create a new string based on start and stop and \0 */
 
-  modname = g_strndup(repoid+4, stop_mod - start_mod);
+  modname = wmem_strndup(wmem_packet_scope(), repoid+4, stop_mod - start_mod);
 
   return modname;
 
