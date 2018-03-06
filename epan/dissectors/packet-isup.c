@@ -10332,6 +10332,8 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         message_tvb = tvb_new_subset_remaining(tvb, 0);
         dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT, 0);
+        g_free(version);
+        g_free(base);
         return tvb_reported_length(tvb);
       } else if ((version && g_ascii_strcasecmp(version, "spirou") == 0) ||
           (base && g_ascii_strcasecmp(base, "spirou") == 0)) {
