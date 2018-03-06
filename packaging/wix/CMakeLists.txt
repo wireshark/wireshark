@@ -300,11 +300,15 @@ endif()
 file(APPEND "${_gtk_dll_manifest_wix}"  "\n</Wix>\n")
 
 if(BUILD_wireshark_gtk AND GTK_FOUND)
-	set(use_gtk "-dGTK_DIR")
+	set(d_gtk_dir "-dGTK_DIR")
 endif()
 
 if(SMI_DIR)
-	set(use_smi "-dSMI_DIR")
+	set(d_smi_dir "-dSMI_DIR")
+endif()
+
+if (MAXMINDDB_FOUND)
+	set(d_mmdbresolve_exe "-dMMDBRESOLVE_EXE")
 endif()
 
 set(WIX_CANDLE_DEFINES
@@ -323,8 +327,9 @@ set(WIX_CANDLE_DEFINES
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/snmp/mibs
 	-dVCRedistVersion=${MSVC_CRT_VERSION}
 	-dVCRedistDir=${MERGE_MODULE_DIR}
-	${use_gtk}
-	${use_smi}
+	${d_gtk_dir}
+	${d_smi_dir}
+	${d_mmdbresolve_exe}
 	-arch ${TARGET_MACHINE}
 	-ext WixUIExtension
 	-I${CMAKE_SOURCE_DIR}/packaging/wix

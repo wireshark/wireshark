@@ -1117,6 +1117,7 @@ File "${STAGING_DIR}\rawshark.exe"
 File "${STAGING_DIR}\rawshark.html"
 SectionEnd
 
+!ifdef MMDBRESOLVE_EXE
 Section /o "MMDBResolve" SecMMDBResolve
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -1124,6 +1125,7 @@ File "${STAGING_DIR}\mmdbresolve.html"
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\mmdbresolve.exe"
 SectionEnd
+!endif
 
 Section /o "Androiddump" SecAndroiddumpinfos
 ;-------------------------------------------

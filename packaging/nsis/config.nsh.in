@@ -23,14 +23,14 @@
 !endif
 !define PRODUCT_VERSION @PRODUCT_VERSION@
 
+!define MMDBRESOLVE_EXE @MAXMINDDB_FOUND@
+
 !define VCREDIST_EXE "@VCREDIST_EXE@"
 
 !define USER_GUIDE_DIR "@USER_GUIDE_DIR@"
 
 !define SMI_DIR "@SMI_DIR@"
 
-# Qt
 !define QT_DIR "@QT_DIR@"
 
-# GTK+
 !define GTK_DIR "@GTK_DIR@"

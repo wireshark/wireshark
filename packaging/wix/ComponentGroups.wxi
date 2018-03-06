@@ -434,13 +434,14 @@
   </Fragment>
 
   <!-- MMDBResolve -->
+  <?ifdef MMDBRESOLVE_EXE?>
   <Fragment>
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="cmpMmdbresolve_exe" Guid="*">
         <File Id="filMmdbresolve_exe" KeyPath="yes" Source="$(var.Staging.Dir)\mmdbresolve.exe" />
       </Component>
       <Component Id="cmpMmdbresolve_html" Guid="*">
-        <File Id="filMmdbresolve_html" KeyPath="yes" Source="$(var.Staging.Dir)\rawshark.html" />
+        <File Id="filMmdbresolve_html" KeyPath="yes" Source="$(var.Staging.Dir)\mmdbresolve.html" />
       </Component>
     </DirectoryRef>
   </Fragment>
@@ -450,6 +451,7 @@
       <ComponentRef Id="cmpMmdbresolve_html" />
     </ComponentGroup>
   </Fragment>
+  <?endif?>
 
   <!-- Androiddump -->
   <Fragment>

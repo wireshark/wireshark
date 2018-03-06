@@ -21,9 +21,9 @@
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>
 #endif
-#ifdef HAVE_GEOIP
-#include <epan/geoip_db.h>
-#endif
+
+#include <epan/maxmind_db.h>
+
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
 #endif
@@ -248,12 +248,10 @@ FolderListModel::FolderListModel(QObject * parent):
     foreach(QString path, extPaths)
         appendRow( QStringList() << tr("Extcap path") << path.trimmed() << tr("Extcap Plugins search path"));
 
-#ifdef HAVE_GEOIP
-    /* GeoIP */
-    QStringList geoIpPaths = QString(geoip_db_get_paths()).split(G_SEARCHPATH_SEPARATOR_S);
-    foreach(QString path, geoIpPaths)
-        appendRow( QStringList() << tr("GeoIP path") << path.trimmed() << tr("GeoIP database search path"));
-#endif
+    /* MaxMind DB */
+    QStringList maxMindDbPaths = QString(maxmind_db_get_paths()).split(G_SEARCHPATH_SEPARATOR_S);
+    foreach(QString path, maxMindDbPaths)
+        appendRow( QStringList() << tr("MaxMind DB path") << path.trimmed() << tr("MaxMind DB database search path"));
 
 #ifdef HAVE_LIBSMI
     /* SMI MIBs/PIBs */

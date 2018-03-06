@@ -22,6 +22,7 @@
                   <Condition Action="disable"><![CDATA[&Fe.Wireshark <> 3]]></Condition>
                 </Control>
 
+                <?ifdef GTK_DIR?>
                 <Control Id="WiresharkLegacyStartMenuCB" Type="CheckBox" X="20" Y="117" Width="180" Height="15" CheckBoxValue="1" Property="WIRESHARK_LEGACY_START_MENU" Text="Wireshark Legacy Start Menu Item">
                   <Condition Action="enable"><![CDATA[&Fe.WiresharkGTK = 3]]></Condition>
                   <Condition Action="disable"><![CDATA[&Fe.WiresharkGTK <> 3]]></Condition>
@@ -34,6 +35,7 @@
                   <Condition Action="enable"><![CDATA[&Fe.WiresharkGTK = 3]]></Condition>
                   <Condition Action="disable"><![CDATA[&Fe.WiresharkGTK <> 3]]></Condition>
                 </Control>
+                <?endif?>
 
                 <Control Id="FileExtensions" Type="GroupBox" X="15" Y="180" Width="250" Height="100" Text="File Extensions"/>
                 <Control Id="FileExtensionsRadio" Type="RadioButtonGroup"  X="20" Y="190" Width="235" Height="50" Property="WIRESHARK_FILE_EXTENSIONS">

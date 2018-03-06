@@ -133,7 +133,6 @@ Push "dftest"
 Push "dumpcap"
 Push "editcap"
 Push "mergecap"
-Push "mmdbresolve"
 Push "randpktdump"
 Push "rawshark"
 Push "reordercap"
@@ -141,6 +140,10 @@ Push "sshdump"
 Push "text2pcap"
 Push "tshark"
 Push "udpdump"
+
+!ifdef MMDBRESOLVE_EXE
+Push "mmdbresolve"
+!endif
 
 Pop $EXECUTABLE
 ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
