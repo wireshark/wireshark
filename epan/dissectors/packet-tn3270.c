@@ -1226,14 +1226,10 @@ static const value_string vals_tn3270_header_response_flags_response[] = {
 };
 
 /*
- * Data structure attached to a conversation, giving authentication
- * information from a bind request.
+ * Data structure attached to a conversation, giving session information.
  */
 typedef struct tn3270_conv_info_t {
-  address outbound_addr;
   guint32 outbound_port;
-  address inbound_addr;
-  guint32 inbound_port;
   gint    extended;
   guint8  altrows;
   guint8  altcols;
@@ -5295,11 +5291,7 @@ add_tn3270_conversation(packet_info *pinfo, int tn3270e, gint model)
      */
     tn3270_info = wmem_new(wmem_file_scope(), tn3270_conv_info_t);
 
-    copy_address_wmem(wmem_file_scope(), &(tn3270_info->outbound_addr), &(pinfo->dst));
     tn3270_info->outbound_port = pinfo->destport;
-
-    copy_address_wmem(wmem_file_scope(), &(tn3270_info->inbound_addr), &(pinfo->src));
-    tn3270_info->inbound_port  = pinfo->srcport;
 
     conversation_add_proto_data(conversation, proto_tn3270, tn3270_info);
   }
