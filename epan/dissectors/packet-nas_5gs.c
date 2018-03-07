@@ -1044,7 +1044,7 @@ static const value_string nas_5gs_mm_req_type_vals[] = {
     { 0x01, "Initial request" },
     { 0x02, "Existing PDU session" },
     { 0x03, "Initial emergency request" },
-    { 0x03, "Existing emergency PDU session" },
+    { 0x04, "Existing emergency PDU session" },
     {    0, NULL } };
 
 static guint16
