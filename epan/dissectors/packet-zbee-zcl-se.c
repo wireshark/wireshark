@@ -110,8 +110,6 @@ static void dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, gu
 /* Global Variables      */
 /*************************/
 
-static dissector_handle_t keep_alive_handle;
-
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_keep_alive = -1;
 
@@ -214,7 +212,7 @@ proto_register_zbee_zcl_keep_alive(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Keep-Alive dissector. */
-    keep_alive_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE, dissect_zbee_zcl_keep_alive, proto_zbee_zcl_keep_alive);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE, dissect_zbee_zcl_keep_alive, proto_zbee_zcl_keep_alive);
 } /*proto_register_zbee_zcl_keep_alive*/
 
 /**
@@ -224,10 +222,8 @@ proto_register_zbee_zcl_keep_alive(void)
 void
 proto_reg_handoff_zbee_zcl_keep_alive(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_KEEP_ALIVE, keep_alive_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_keep_alive,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE,
+                            proto_zbee_zcl_keep_alive,
                             ett_zbee_zcl_keep_alive,
                             ZBEE_ZCL_CID_KEEP_ALIVE,
                             hf_zbee_zcl_keep_alive_attr_id,
@@ -1416,8 +1412,6 @@ static void dissect_zcl_price_publish_cancel_tariff          (tvbuff_t *tvb, pro
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t price_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_price = -1;
@@ -3537,7 +3531,7 @@ proto_register_zbee_zcl_price(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Price dissector. */
-    price_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_PRICE, dissect_zbee_zcl_price, proto_zbee_zcl_price);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_PRICE, dissect_zbee_zcl_price, proto_zbee_zcl_price);
 } /*proto_register_zbee_zcl_price*/
 
 /**
@@ -3547,10 +3541,8 @@ proto_register_zbee_zcl_price(void)
 void
 proto_reg_handoff_zbee_zcl_price(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_PRICE, price_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_price,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_PRICE,
+                            proto_zbee_zcl_price,
                             ett_zbee_zcl_price,
                             ZBEE_ZCL_CID_PRICE,
                             hf_zbee_zcl_price_attr_id,
@@ -3606,8 +3598,6 @@ static void dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *o
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t drlc_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_drlc = -1;
@@ -3777,7 +3767,7 @@ proto_register_zbee_zcl_drlc(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL DRLC dissector. */
-    drlc_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_DRLC, dissect_zbee_zcl_drlc, proto_zbee_zcl_drlc);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_DRLC, dissect_zbee_zcl_drlc, proto_zbee_zcl_drlc);
 } /*proto_register_zbee_zcl_drlc*/
 
 /**
@@ -3787,10 +3777,8 @@ proto_register_zbee_zcl_drlc(void)
 void
 proto_reg_handoff_zbee_zcl_drlc(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL, drlc_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_drlc,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_DRLC,
+                            proto_zbee_zcl_drlc,
                             ett_zbee_zcl_drlc,
                             ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL,
                             hf_zbee_zcl_drlc_attr_id,
@@ -4827,8 +4815,6 @@ static void dissect_zcl_met_get_notified_msg        (tvbuff_t *tvb, proto_tree *
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t met_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_met = -1;
@@ -5927,7 +5913,7 @@ proto_register_zbee_zcl_met(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Metering dissector. */
-    met_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_MET, dissect_zbee_zcl_met, proto_zbee_zcl_met);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_MET, dissect_zbee_zcl_met, proto_zbee_zcl_met);
 } /*proto_register_zbee_zcl_met*/
 
 /**
@@ -5937,10 +5923,8 @@ proto_register_zbee_zcl_met(void)
 void
 proto_reg_handoff_zbee_zcl_met(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_SIMPLE_METERING, met_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_met,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_MET,
+                            proto_zbee_zcl_met,
                             ett_zbee_zcl_met,
                             ZBEE_ZCL_CID_SIMPLE_METERING,
                             hf_zbee_zcl_met_attr_id,
@@ -6025,8 +6009,6 @@ static void decode_zcl_msg_duration             (gchar *s, guint16 value);
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t msg_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_msg = -1;
@@ -6546,7 +6528,7 @@ proto_register_zbee_zcl_msg(void)
     expert_register_field_array(expert_zbee_zcl_msg, ei, array_length(ei));
 
     /* Register the ZigBee ZCL Messaging dissector. */
-    msg_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_MSG, dissect_zbee_zcl_msg, proto_zbee_zcl_msg);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_MSG, dissect_zbee_zcl_msg, proto_zbee_zcl_msg);
 } /*proto_register_zbee_zcl_msg*/
 
 /**
@@ -6556,10 +6538,8 @@ proto_register_zbee_zcl_msg(void)
 void
 proto_reg_handoff_zbee_zcl_msg(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MESSAGE, msg_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_msg,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_MSG,
+                            proto_zbee_zcl_msg,
                             ett_zbee_zcl_msg,
                             ZBEE_ZCL_CID_MESSAGE,
                             hf_zbee_zcl_msg_attr_id,
@@ -6622,8 +6602,6 @@ static void dissect_zcl_tun_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t tun_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_tun = -1;
@@ -7136,7 +7114,7 @@ proto_register_zbee_zcl_tun(void)
     zbee_zcl_tun_heur_subdissector_list = register_heur_dissector_list(ZBEE_PROTOABBREV_ZCL_TUN, proto_zbee_zcl_tun);
 
     /* Register the ZigBee ZCL Tunneling dissector. */
-    tun_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_TUN, dissect_zbee_zcl_tun, proto_zbee_zcl_tun);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_TUN, dissect_zbee_zcl_tun, proto_zbee_zcl_tun);
 
 } /* proto_register_zbee_zcl_tun */
 
@@ -7147,10 +7125,8 @@ proto_register_zbee_zcl_tun(void)
 void
 proto_reg_handoff_zbee_zcl_tun(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_TUNNELING, tun_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_tun,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_TUN,
+                            proto_zbee_zcl_tun,
                             ett_zbee_zcl_tun,
                             ZBEE_ZCL_CID_TUNNELING,
                             hf_zbee_zcl_tun_attr_id,
@@ -7370,8 +7346,6 @@ static void dissect_zcl_pp_publish_debt_log                     (tvbuff_t *tvb, 
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t pp_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_pp = -1;
@@ -8538,7 +8512,7 @@ proto_register_zbee_zcl_pp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Prepayment dissector. */
-    pp_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT, dissect_zbee_zcl_pp, proto_zbee_zcl_pp);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT, dissect_zbee_zcl_pp, proto_zbee_zcl_pp);
 } /*proto_register_zbee_zcl_pp*/
 
 /**
@@ -8548,10 +8522,8 @@ proto_register_zbee_zcl_pp(void)
 void
 proto_reg_handoff_zbee_zcl_pp(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_PRE_PAYMENT, pp_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_pp,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT,
+                            proto_zbee_zcl_pp,
                             ett_zbee_zcl_pp,
                             ZBEE_ZCL_CID_PRE_PAYMENT,
                             hf_zbee_zcl_pp_attr_id,
@@ -8607,8 +8579,6 @@ static void dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t energy_management_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_energy_management = -1;
@@ -8766,7 +8736,7 @@ proto_register_zbee_zcl_energy_management(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Energy Management dissector. */
-    energy_management_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_ENERGY_MANAGEMENT, dissect_zbee_zcl_energy_management, proto_zbee_zcl_energy_management);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_ENERGY_MANAGEMENT, dissect_zbee_zcl_energy_management, proto_zbee_zcl_energy_management);
 } /*proto_register_zbee_zcl_energy_management*/
 
 /**
@@ -8776,10 +8746,8 @@ proto_register_zbee_zcl_energy_management(void)
 void
 proto_reg_handoff_zbee_zcl_energy_management(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ENERGY_MANAGEMENT, energy_management_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_energy_management,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ENERGY_MANAGEMENT,
+                            proto_zbee_zcl_energy_management,
                             ett_zbee_zcl_energy_management,
                             ZBEE_ZCL_CID_ENERGY_MANAGEMENT,
                             hf_zbee_zcl_energy_management_attr_id,
@@ -8860,8 +8828,6 @@ static void dissect_zcl_calendar_cancel(tvbuff_t *tvb, proto_tree *tree, guint *
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t calendar_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_calendar = -1;
@@ -9741,7 +9707,7 @@ proto_register_zbee_zcl_calendar(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Calendar dissector. */
-    calendar_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_CALENDAR, dissect_zbee_zcl_calendar, proto_zbee_zcl_calendar);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_CALENDAR, dissect_zbee_zcl_calendar, proto_zbee_zcl_calendar);
 } /*proto_register_zbee_zcl_calendar*/
 
 /**
@@ -9751,10 +9717,8 @@ proto_register_zbee_zcl_calendar(void)
 void
 proto_reg_handoff_zbee_zcl_calendar(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_CALENDAR, calendar_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_calendar,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_CALENDAR,
+                            proto_zbee_zcl_calendar,
                             ett_zbee_zcl_calendar,
                             ZBEE_ZCL_CID_CALENDAR,
                             hf_zbee_zcl_calendar_attr_id,
@@ -9839,8 +9803,6 @@ static void dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t device_management_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_device_management = -1;
@@ -10040,7 +10002,7 @@ proto_register_zbee_zcl_device_management(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Device Management dissector. */
-    device_management_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_DEVICE_MANAGEMENT, dissect_zbee_zcl_device_management, proto_zbee_zcl_device_management);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_DEVICE_MANAGEMENT, dissect_zbee_zcl_device_management, proto_zbee_zcl_device_management);
 } /*proto_register_zbee_zcl_device_management*/
 
 /**
@@ -10050,10 +10012,8 @@ proto_register_zbee_zcl_device_management(void)
 void
 proto_reg_handoff_zbee_zcl_device_management(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_DEVICE_MANAGEMENT, device_management_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_device_management,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_DEVICE_MANAGEMENT,
+                            proto_zbee_zcl_device_management,
                             ett_zbee_zcl_device_management,
                             ZBEE_ZCL_CID_DEVICE_MANAGEMENT,
                             hf_zbee_zcl_device_management_attr_id,
@@ -10112,8 +10072,6 @@ static void dissect_zcl_events_clear_event_log_response         (tvbuff_t *tvb, 
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t events_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_events = -1;
@@ -10571,7 +10529,7 @@ proto_register_zbee_zcl_events(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Events dissector. */
-    events_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_EVENTS, dissect_zbee_zcl_events, proto_zbee_zcl_events);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_EVENTS, dissect_zbee_zcl_events, proto_zbee_zcl_events);
 } /*proto_register_zbee_zcl_events*/
 
 /**
@@ -10581,10 +10539,8 @@ proto_register_zbee_zcl_events(void)
 void
 proto_reg_handoff_zbee_zcl_events(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_EVENTS, events_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_events,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_EVENTS,
+                            proto_zbee_zcl_events,
                             ett_zbee_zcl_events,
                             ZBEE_ZCL_CID_EVENTS,
                             hf_zbee_zcl_events_attr_id,
@@ -10636,8 +10592,6 @@ static void dissect_zcl_mdu_pairing_response(tvbuff_t *tvb, proto_tree *tree, gu
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t mdu_pairing_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_mdu_pairing = -1;
@@ -10887,7 +10841,7 @@ proto_register_zbee_zcl_mdu_pairing(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL MDU Pairing dissector. */
-    mdu_pairing_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_MDU_PAIRING, dissect_zbee_zcl_mdu_pairing, proto_zbee_zcl_mdu_pairing);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_MDU_PAIRING, dissect_zbee_zcl_mdu_pairing, proto_zbee_zcl_mdu_pairing);
 } /*proto_register_zbee_zcl_mdu_pairing*/
 
 /**
@@ -10897,10 +10851,8 @@ proto_register_zbee_zcl_mdu_pairing(void)
 void
 proto_reg_handoff_zbee_zcl_mdu_pairing(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MDU_PAIRING, mdu_pairing_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_mdu_pairing,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_MDU_PAIRING,
+                            proto_zbee_zcl_mdu_pairing,
                             ett_zbee_zcl_mdu_pairing,
                             ZBEE_ZCL_CID_MDU_PAIRING,
                             hf_zbee_zcl_mdu_pairing_attr_id,
@@ -10956,8 +10908,6 @@ static void dissect_zcl_sub_ghz_suspend_zcl_messages(tvbuff_t *tvb, proto_tree *
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t sub_ghz_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_sub_ghz = -1;
@@ -11144,7 +11094,7 @@ proto_register_zbee_zcl_sub_ghz(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Sub-Ghz dissector. */
-    sub_ghz_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_SUB_GHZ, dissect_zbee_zcl_sub_ghz, proto_zbee_zcl_sub_ghz);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_SUB_GHZ, dissect_zbee_zcl_sub_ghz, proto_zbee_zcl_sub_ghz);
 } /*proto_register_zbee_zcl_sub_ghz*/
 
 /**
@@ -11154,10 +11104,8 @@ proto_register_zbee_zcl_sub_ghz(void)
 void
 proto_reg_handoff_zbee_zcl_sub_ghz(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_SUB_GHZ, sub_ghz_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_sub_ghz,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_SUB_GHZ,
+                            proto_zbee_zcl_sub_ghz,
                             ett_zbee_zcl_sub_ghz,
                             ZBEE_ZCL_CID_SUB_GHZ,
                             hf_zbee_zcl_sub_ghz_attr_id,
@@ -11243,8 +11191,6 @@ void proto_reg_handoff_zbee_zcl_ke(void);
 /*************************/
 /* Global Variables      */
 /*************************/
-
-static dissector_handle_t ke_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_ke = -1;
@@ -11714,7 +11660,7 @@ proto_register_zbee_zcl_ke(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Key Establishment dissector. */
-    ke_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_KE, dissect_zbee_zcl_ke, proto_zbee_zcl_ke);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_KE, dissect_zbee_zcl_ke, proto_zbee_zcl_ke);
 } /*proto_register_zbee_zcl_ke*/
 
 /**
@@ -11724,10 +11670,8 @@ proto_register_zbee_zcl_ke(void)
 void
 proto_reg_handoff_zbee_zcl_ke(void)
 {
-    /* Register our dissector with the ZigBee application dissectors. */
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_KE, ke_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_ke,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_KE,
+                            proto_zbee_zcl_ke,
                             ett_zbee_zcl_ke,
                             ZBEE_ZCL_CID_KE,
                             hf_zbee_zcl_ke_attr_id,

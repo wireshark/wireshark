@@ -298,7 +298,8 @@ proto_register_zbee_zcl_illum_meas(void)
 void
 proto_reg_handoff_zbee_zcl_illum_meas(void)
 {
-    zbee_zcl_init_cluster(  proto_zbee_zcl_illum_meas,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ILLUMMEAS,
+                            proto_zbee_zcl_illum_meas,
                             ett_zbee_zcl_illum_meas,
                             ZBEE_ZCL_CID_ILLUMINANCE_MEASUREMENT,
                             hf_zbee_zcl_illum_meas_attr_id,
@@ -503,7 +504,8 @@ proto_register_zbee_zcl_illum_level_sen(void)
 void
 proto_reg_handoff_zbee_zcl_illum_level_sen(void)
 {
-    zbee_zcl_init_cluster(  proto_zbee_zcl_illum_level_sen,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN,
+                            proto_zbee_zcl_illum_level_sen,
                             ett_zbee_zcl_illum_level_sen,
                             ZBEE_ZCL_CID_ILLUMINANCE_LEVEL_SENSING,
                             hf_zbee_zcl_illum_level_sen_attr_id,
@@ -761,7 +763,8 @@ proto_register_zbee_zcl_temp_meas(void)
 void
 proto_reg_handoff_zbee_zcl_temp_meas(void)
 {
-    zbee_zcl_init_cluster(  proto_zbee_zcl_temp_meas,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_TEMPMEAS,
+                            proto_zbee_zcl_temp_meas,
                             ett_zbee_zcl_temp_meas,
                             ZBEE_ZCL_CID_TEMPERATURE_MEASUREMENT,
                             hf_zbee_zcl_temp_meas_attr_id,
@@ -1081,7 +1084,8 @@ proto_register_zbee_zcl_press_meas(void)
 void
 proto_reg_handoff_zbee_zcl_press_meas(void)
 {
-    zbee_zcl_init_cluster(  proto_zbee_zcl_press_meas,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_PRESSMEAS,
+                            proto_zbee_zcl_press_meas,
                             ett_zbee_zcl_press_meas,
                             ZBEE_ZCL_CID_PRESSURE_MEASUREMENT,
                             hf_zbee_zcl_press_meas_attr_id,
@@ -1342,7 +1346,8 @@ proto_register_zbee_zcl_flow_meas(void)
 void
 proto_reg_handoff_zbee_zcl_flow_meas(void)
 {
-    zbee_zcl_init_cluster(  proto_zbee_zcl_flow_meas,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_FLOWMEAS,
+                            proto_zbee_zcl_flow_meas,
                             ett_zbee_zcl_flow_meas,
                             ZBEE_ZCL_CID_FLOW_MEASUREMENT,
                             hf_zbee_zcl_flow_meas_attr_id,
@@ -1598,7 +1603,8 @@ proto_register_zbee_zcl_relhum_meas(void)
 void
 proto_reg_handoff_zbee_zcl_relhum_meas(void)
 {
-    zbee_zcl_init_cluster(  proto_zbee_zcl_relhum_meas,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_RELHUMMEAS,
+                            proto_zbee_zcl_relhum_meas,
                             ett_zbee_zcl_relhum_meas,
                             ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT,
                             hf_zbee_zcl_relhum_meas_attr_id,
@@ -1797,9 +1803,10 @@ proto_register_zbee_zcl_occ_sen(void)
 void
 proto_reg_handoff_zbee_zcl_occ_sen(void)
 {
-    zbee_zcl_init_cluster(  proto_zbee_zcl_occ_sen,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_OCCSEN,
+                            proto_zbee_zcl_occ_sen,
                             ett_zbee_zcl_occ_sen,
-                            ZBEE_ZCL_CID_ILLUMINANCE_LEVEL_SENSING,
+                            ZBEE_ZCL_CID_OCCUPANCY_SENSING,
                             hf_zbee_zcl_occ_sen_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_occ_sen_attr_data

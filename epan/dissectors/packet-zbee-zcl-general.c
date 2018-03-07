@@ -395,13 +395,8 @@ proto_register_zbee_zcl_basic(void)
 void
 proto_reg_handoff_zbee_zcl_basic(void)
 {
-    dissector_handle_t basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_BASIC, basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_BASIC,
+                            proto_zbee_zcl_basic,
                             ett_zbee_zcl_basic,
                             ZBEE_ZCL_CID_BASIC,
                             hf_zbee_zcl_basic_attr_id,
@@ -870,13 +865,8 @@ proto_register_zbee_zcl_power_config(void)
 void
 proto_reg_handoff_zbee_zcl_power_config(void)
 {
-    dissector_handle_t handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    handle = find_dissector(ZBEE_PROTOABBREV_ZCL_POWER_CONFIG);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_POWER_CONFIG, handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_power_config,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_POWER_CONFIG,
+                            proto_zbee_zcl_power_config,
                             ett_zbee_zcl_power_config,
                             ZBEE_ZCL_CID_POWER_CONFIG,
                             hf_zbee_zcl_power_config_attr_id,
@@ -1101,13 +1091,8 @@ proto_register_zbee_zcl_device_temperature_configuration(void)
 void
 proto_reg_handoff_zbee_zcl_device_temperature_configuration(void)
 {
-    dissector_handle_t device_temperature_config_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    device_temperature_config_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_DEVICE_TEMP_CONFIG);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_DEVICE_TEMP_CONFIG, device_temperature_config_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_device_temperature_configuration,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_DEVICE_TEMP_CONFIG,
+                            proto_zbee_zcl_device_temperature_configuration,
                             ett_zbee_zcl_device_temperature_configuration,
                             ZBEE_ZCL_CID_DEVICE_TEMP_CONFIG,
                             hf_zbee_zcl_device_temperature_configuration_attr_id,
@@ -1483,13 +1468,8 @@ proto_register_zbee_zcl_identify(void)
 void
 proto_reg_handoff_zbee_zcl_identify(void)
 {
-    dissector_handle_t identify_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    identify_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_IDENTIFY);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_IDENTIFY, identify_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_identify,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_IDENTIFY,
+                            proto_zbee_zcl_identify,
                             ett_zbee_zcl_identify,
                             ZBEE_ZCL_CID_IDENTIFY,
                             hf_zbee_zcl_identify_attr_id,
@@ -2085,13 +2065,8 @@ proto_register_zbee_zcl_groups(void)
 void
 proto_reg_handoff_zbee_zcl_groups(void)
 {
-    dissector_handle_t groups_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    groups_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_GROUPS);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_GROUPS, groups_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_groups,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_GROUPS,
+                            proto_zbee_zcl_groups,
                             ett_zbee_zcl_groups,
                             ZBEE_ZCL_CID_GROUPS,
                             hf_zbee_zcl_groups_attr_id,
@@ -2922,13 +2897,9 @@ proto_register_zbee_zcl_scenes(void)
 void
 proto_reg_handoff_zbee_zcl_scenes(void)
 {
-    dissector_handle_t scenes_handle;
 
-    /* Register our dissector with the ZigBee application dissectors. */
-    scenes_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_SCENES);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_SCENES, scenes_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_scenes,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_SCENES,
+                            proto_zbee_zcl_scenes,
                             ett_zbee_zcl_scenes,
                             ZBEE_ZCL_CID_SCENES,
                             hf_zbee_zcl_scenes_attr_id,
@@ -3300,13 +3271,8 @@ proto_register_zbee_zcl_on_off(void)
 void
 proto_reg_handoff_zbee_zcl_on_off(void)
 {
-    dissector_handle_t on_off_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    on_off_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF);
-
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ON_OFF, on_off_handle);
-    zbee_zcl_init_cluster(  proto_zbee_zcl_on_off,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ONOFF,
+                            proto_zbee_zcl_on_off,
                             ett_zbee_zcl_on_off,
                             ZBEE_ZCL_CID_ON_OFF,
                             hf_zbee_zcl_on_off_attr_id,
@@ -3501,13 +3467,8 @@ proto_register_zbee_zcl_on_off_switch_configuration(void)
 void
 proto_reg_handoff_zbee_zcl_on_off_switch_configuration(void)
 {
-    dissector_handle_t on_off_switch_configuration_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    on_off_switch_configuration_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF_SWITCH_CONFIG);
-
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ON_OFF_SWITCH_CONFIG, on_off_switch_configuration_handle);
-    zbee_zcl_init_cluster(  proto_zbee_zcl_on_off_switch_configuration,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ONOFF_SWITCH_CONFIG,
+                            proto_zbee_zcl_on_off_switch_configuration,
                             ett_zbee_zcl_on_off_switch_configuration,
                             ZBEE_ZCL_CID_ON_OFF_SWITCH_CONFIG,
                             hf_zbee_zcl_on_off_switch_configuration_attr_id,
@@ -3860,13 +3821,8 @@ proto_register_zbee_zcl_alarms(void)
 void
 proto_reg_handoff_zbee_zcl_alarms(void)
 {
-    dissector_handle_t alarms_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    alarms_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_ALARMS);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ALARMS, alarms_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_alarms,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ALARMS,
+                            proto_zbee_zcl_alarms,
                             ett_zbee_zcl_alarms,
                             ZBEE_ZCL_CID_ALARMS,
                             hf_zbee_zcl_alarms_attr_id,
@@ -4098,13 +4054,8 @@ proto_register_zbee_zcl_time(void)
 void
 proto_reg_handoff_zbee_zcl_time(void)
 {
-    dissector_handle_t time_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    time_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_TIME);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_TIME, time_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_time,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_TIME,
+                            proto_zbee_zcl_time,
                             ett_zbee_zcl_time,
                             ZBEE_ZCL_CID_TIME,
                             hf_zbee_zcl_time_attr_id,
@@ -4511,13 +4462,8 @@ proto_register_zbee_zcl_level_control(void)
 void
 proto_reg_handoff_zbee_zcl_level_control(void)
 {
-    dissector_handle_t level_control_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    level_control_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_LEVEL_CONTROL, level_control_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_level_control,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL,
+                            proto_zbee_zcl_level_control,
                             ett_zbee_zcl_level_control,
                             ZBEE_ZCL_CID_LEVEL_CONTROL,
                             hf_zbee_zcl_level_control_attr_id,
@@ -5720,13 +5666,8 @@ proto_register_zbee_zcl_rssi_location(void)
 void
 proto_reg_handoff_zbee_zcl_rssi_location(void)
 {
-    dissector_handle_t rssi_location_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    rssi_location_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_RSSI_LOCATION);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_RSSI_LOCATION, rssi_location_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_rssi_location,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_RSSI_LOCATION,
+                            proto_zbee_zcl_rssi_location,
                             ett_zbee_zcl_rssi_location,
                             ZBEE_ZCL_CID_RSSI_LOCATION,
                             hf_zbee_zcl_rssi_location_attr_id,
@@ -6010,13 +5951,8 @@ proto_register_zbee_zcl_analog_input_basic(void)
 void
 proto_reg_handoff_zbee_zcl_analog_input_basic(void)
 {
-    dissector_handle_t analog_input_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    analog_input_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_ANALOG_INPUT_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ANALOG_INPUT_BASIC, analog_input_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_analog_input_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ANALOG_INPUT_BASIC,
+                            proto_zbee_zcl_analog_input_basic,
                             ett_zbee_zcl_analog_input_basic,
                             ZBEE_ZCL_CID_ANALOG_INPUT_BASIC,
                             hf_zbee_zcl_analog_input_basic_attr_id,
@@ -6304,13 +6240,8 @@ proto_register_zbee_zcl_analog_output_basic(void)
 void
 proto_reg_handoff_zbee_zcl_analog_output_basic(void)
 {
-    dissector_handle_t analog_output_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    analog_output_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_ANALOG_OUTPUT_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ANALOG_OUTPUT_BASIC, analog_output_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_analog_output_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ANALOG_OUTPUT_BASIC,
+                            proto_zbee_zcl_analog_output_basic,
                             ett_zbee_zcl_analog_output_basic,
                             ZBEE_ZCL_CID_ANALOG_OUTPUT_BASIC,
                             hf_zbee_zcl_analog_output_basic_attr_id,
@@ -6587,13 +6518,8 @@ proto_register_zbee_zcl_analog_value_basic(void)
 void
 proto_reg_handoff_zbee_zcl_analog_value_basic(void)
 {
-    dissector_handle_t analog_value_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    analog_value_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_ANALOG_VALUE_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ANALOG_VALUE_BASIC, analog_value_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_analog_value_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ANALOG_VALUE_BASIC,
+                            proto_zbee_zcl_analog_value_basic,
                             ett_zbee_zcl_analog_value_basic,
                             ZBEE_ZCL_CID_ANALOG_VALUE_BASIC,
                             hf_zbee_zcl_analog_value_basic_attr_id,
@@ -6843,13 +6769,8 @@ proto_register_zbee_zcl_binary_input_basic(void)
 void
 proto_reg_handoff_zbee_zcl_binary_input_basic(void)
 {
-    dissector_handle_t binary_input_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    binary_input_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_INPUT_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_BINARY_INPUT_BASIC, binary_input_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_binary_input_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_BINARY_INPUT_BASIC,
+                            proto_zbee_zcl_binary_input_basic,
                             ett_zbee_zcl_binary_input_basic,
                             ZBEE_ZCL_CID_BINARY_INPUT_BASIC,
                             hf_zbee_zcl_binary_input_basic_attr_id,
@@ -7152,13 +7073,8 @@ proto_register_zbee_zcl_binary_output_basic(void)
 void
 proto_reg_handoff_zbee_zcl_binary_output_basic(void)
 {
-    dissector_handle_t binary_output_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    binary_output_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_OUTPUT_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_BINARY_OUTPUT_BASIC, binary_output_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_binary_output_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_BINARY_OUTPUT_BASIC,
+                            proto_zbee_zcl_binary_output_basic,
                             ett_zbee_zcl_binary_output_basic,
                             ZBEE_ZCL_CID_BINARY_OUTPUT_BASIC,
                             hf_zbee_zcl_binary_output_basic_attr_id,
@@ -7443,13 +7359,8 @@ proto_register_zbee_zcl_binary_value_basic(void)
 void
 proto_reg_handoff_zbee_zcl_binary_value_basic(void)
 {
-    dissector_handle_t binary_value_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    binary_value_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_VALUE_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_BINARY_VALUE_BASIC, binary_value_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_binary_value_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_BINARY_VALUE_BASIC,
+                            proto_zbee_zcl_binary_value_basic,
                             ett_zbee_zcl_binary_value_basic,
                             ZBEE_ZCL_CID_BINARY_VALUE_BASIC,
                             hf_zbee_zcl_binary_value_basic_attr_id,
@@ -7681,13 +7592,8 @@ proto_register_zbee_zcl_multistate_input_basic(void)
 void
 proto_reg_handoff_zbee_zcl_multistate_input_basic(void)
 {
-    dissector_handle_t multistate_input_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    multistate_input_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_INPUT_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MULTISTATE_INPUT_BASIC, multistate_input_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_multistate_input_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_MULTISTATE_INPUT_BASIC,
+                            proto_zbee_zcl_multistate_input_basic,
                             ett_zbee_zcl_multistate_input_basic,
                             ZBEE_ZCL_CID_MULTISTATE_INPUT_BASIC,
                             hf_zbee_zcl_multistate_input_basic_attr_id,
@@ -7974,13 +7880,8 @@ proto_register_zbee_zcl_multistate_output_basic(void)
 void
 proto_reg_handoff_zbee_zcl_multistate_output_basic(void)
 {
-    dissector_handle_t multistate_output_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    multistate_output_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_OUTPUT_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC, multistate_output_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_multistate_output_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_MULTISTATE_OUTPUT_BASIC,
+                            proto_zbee_zcl_multistate_output_basic,
                             ett_zbee_zcl_multistate_output_basic,
                             ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC,
                             hf_zbee_zcl_multistate_output_basic_attr_id,
@@ -8268,13 +8169,8 @@ proto_register_zbee_zcl_multistate_value_basic(void)
 void
 proto_reg_handoff_zbee_zcl_multistate_value_basic(void)
 {
-    dissector_handle_t multistate_value_basic_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    multistate_value_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_VALUE_BASIC);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC, multistate_value_basic_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_multistate_value_basic,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_MULTISTATE_VALUE_BASIC,
+                            proto_zbee_zcl_multistate_value_basic,
                             ett_zbee_zcl_multistate_value_basic,
                             ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC,
                             hf_zbee_zcl_multistate_value_basic_attr_id,
@@ -8871,13 +8767,8 @@ proto_register_zbee_zcl_commissioning(void)
 void
 proto_reg_handoff_zbee_zcl_commissioning(void)
 {
-    dissector_handle_t commissioning_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    commissioning_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_COMMISSIONING);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_COMMISSIONING, commissioning_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_commissioning,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_COMMISSIONING,
+                            proto_zbee_zcl_commissioning,
                             ett_zbee_zcl_commissioning,
                             ZBEE_ZCL_CID_COMMISSIONING,
                             hf_zbee_zcl_commissioning_attr_id,
@@ -9440,13 +9331,8 @@ void proto_register_zbee_zcl_part(void)
  */
 void proto_reg_handoff_zbee_zcl_part(void)
 {
-    dissector_handle_t part_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    part_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_PART);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_PARTITION, part_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_part,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_PART,
+                            proto_zbee_zcl_part,
                             ett_zbee_zcl_part,
                             ZBEE_ZCL_CID_PARTITION,
                             hf_zbee_zcl_part_attr_id,
@@ -10636,13 +10522,8 @@ void proto_register_zbee_zcl_ota(void)
  */
 void proto_reg_handoff_zbee_zcl_ota(void)
 {
-    dissector_handle_t ota_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    ota_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_OTA);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_OTA_UPGRADE, ota_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_ota,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_OTA,
+                            proto_zbee_zcl_ota,
                             ett_zbee_zcl_ota,
                             ZBEE_ZCL_CID_OTA_UPGRADE,
                             hf_zbee_zcl_ota_attr_id,
@@ -11779,13 +11660,8 @@ proto_register_zbee_zcl_pwr_prof(void)
 void
 proto_reg_handoff_zbee_zcl_pwr_prof(void)
 {
-    dissector_handle_t pwr_prof_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    pwr_prof_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_PWRPROF);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_POWER_PROFILE, pwr_prof_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_pwr_prof,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_PWRPROF,
+                            proto_zbee_zcl_pwr_prof,
                             ett_zbee_zcl_pwr_prof,
                             ZBEE_ZCL_CID_POWER_PROFILE,
                             hf_zbee_zcl_pwr_prof_attr_id,
@@ -12454,13 +12330,8 @@ proto_register_zbee_zcl_appl_ctrl(void)
 void
 proto_reg_handoff_zbee_zcl_appl_ctrl(void)
 {
-    dissector_handle_t appl_ctrl_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    appl_ctrl_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_APPLCTRL);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_APPLIANCE_CONTROL, appl_ctrl_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_appl_ctrl,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_APPLCTRL,
+                            proto_zbee_zcl_appl_ctrl,
                             ett_zbee_zcl_appl_ctrl,
                             ZBEE_ZCL_CID_APPLIANCE_CONTROL,
                             hf_zbee_zcl_appl_ctrl_attr_id,
@@ -12723,13 +12594,8 @@ proto_register_zbee_zcl_poll_ctrl(void)
 void
 proto_reg_handoff_zbee_zcl_poll_ctrl(void)
 {
-    dissector_handle_t poll_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    poll_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_POLL);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_POLL_CONTROL, poll_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_poll_ctrl,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_POLL,
+                            proto_zbee_zcl_poll_ctrl,
                             ett_zbee_zcl_poll_ctrl,
                             ZBEE_ZCL_CID_POLL_CONTROL,
                             hf_zbee_zcl_poll_ctrl_attr_id,
@@ -15480,14 +15346,10 @@ proto_register_zbee_zcl_gp(void)
 void
 proto_reg_handoff_zbee_zcl_gp(void)
 {
-    dissector_handle_t handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    handle = find_dissector(ZBEE_PROTOABBREV_ZCL_GP);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_GP, handle);
     zgp_handle = find_dissector(ZBEE_PROTOABBREV_NWK_GP_CMD);
 
-    zbee_zcl_init_cluster(  proto_zbee_zcl_gp,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_GP,
+                            proto_zbee_zcl_gp,
                             ett_zbee_zcl_gp,
                             ZBEE_ZCL_CID_GP,
                             hf_zbee_zcl_gp_attr_id,
@@ -16294,13 +16156,8 @@ proto_register_zbee_zcl_touchlink(void)
 void
 proto_reg_handoff_zbee_zcl_touchlink(void)
 {
-    dissector_handle_t touchlink_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    touchlink_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_TOUCHLINK);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ZLL, touchlink_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_touchlink,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_TOUCHLINK,
+                            proto_zbee_zcl_touchlink,
                             ett_zbee_zcl_touchlink,
                             ZBEE_ZCL_CID_ZLL,
                             -1,

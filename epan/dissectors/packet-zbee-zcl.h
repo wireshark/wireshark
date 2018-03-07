@@ -203,7 +203,7 @@ void decode_zcl_time_in_100ms (gchar *s, guint16 value);
 void decode_zcl_time_in_seconds (gchar *s, guint16 value);
 void decode_zcl_time_in_minutes (gchar *s, guint16 value);
 void dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);
-void zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, int hf_attr_id, int hf_cmd_rx_id, int hf_cmd_tx_id, zbee_zcl_fn_attr_data fn_attr_data);
+void zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 cluster_id, int hf_attr_id, int hf_cmd_rx_id, int hf_cmd_tx_id, zbee_zcl_fn_attr_data fn_attr_data);
 zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id);
 
 /* Cluster-specific commands and parameters */

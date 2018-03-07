@@ -565,13 +565,8 @@ proto_register_zbee_zcl_thermostat(void)
 void
 proto_reg_handoff_zbee_zcl_thermostat(void)
 {
-    dissector_handle_t thermostat_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    thermostat_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_THERMOSTAT);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_THERMOSTAT, thermostat_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_thermostat,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_THERMOSTAT,
+                            proto_zbee_zcl_thermostat,
                             ett_zbee_zcl_thermostat,
                             ZBEE_ZCL_CID_THERMOSTAT,
                             hf_zbee_zcl_thermostat_attr_id,
@@ -909,13 +904,8 @@ dissect_zcl_ias_zone_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
 void
 proto_reg_handoff_zbee_zcl_ias_zone(void)
 {
-    dissector_handle_t zone_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    zone_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_IAS_ZONE);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_IAS_ZONE, zone_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_ias_zone,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_IAS_ZONE,
+                            proto_zbee_zcl_ias_zone,
                             ett_zbee_zcl_ias_zone,
                             ZBEE_ZCL_CID_IAS_ZONE,
                             hf_zbee_zcl_ias_zone_attr_id,

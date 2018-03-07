@@ -470,13 +470,8 @@ proto_register_zbee_zcl_pump_config_control(void)
 void
 proto_reg_handoff_zbee_zcl_pump_config_control(void)
 {
-    dissector_handle_t pump_config_ctrl_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    pump_config_ctrl_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_PUMP_CONFIG_CTRL);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL, pump_config_ctrl_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_pump_config_control,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_PUMP_CONFIG_CTRL,
+                            proto_zbee_zcl_pump_config_control,
                             ett_zbee_zcl_pump_config_control,
                             ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL,
                             hf_zbee_zcl_pump_config_control_attr_id,
@@ -654,13 +649,8 @@ proto_register_zbee_zcl_fan_control(void)
 void
 proto_reg_handoff_zbee_zcl_fan_control(void)
 {
-    dissector_handle_t fan_control_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    fan_control_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_FAN_CONTROL);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_FAN_CONTROL, fan_control_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_fan_control,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_FAN_CONTROL,
+                            proto_zbee_zcl_fan_control,
                             ett_zbee_zcl_fan_control,
                             ZBEE_ZCL_CID_FAN_CONTROL,
                             hf_zbee_zcl_fan_control_attr_id,
@@ -864,13 +854,8 @@ proto_register_zbee_zcl_dehumidification_control(void)
 void
 proto_reg_handoff_zbee_zcl_dehumidification_control(void)
 {
-    dissector_handle_t dehumidification_control_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    dehumidification_control_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_DEHUMIDIFICATION_CONTROL);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_DEHUMIDIFICATION_CONTROL, dehumidification_control_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_dehumidification_control,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_DEHUMIDIFICATION_CONTROL,
+                            proto_zbee_zcl_dehumidification_control,
                             ett_zbee_zcl_dehumidification_control,
                             ZBEE_ZCL_CID_DEHUMIDIFICATION_CONTROL,
                             hf_zbee_zcl_dehumidification_control_attr_id,
@@ -1043,13 +1028,8 @@ proto_register_zbee_zcl_thermostat_ui_config(void)
 void
 proto_reg_handoff_zbee_zcl_thermostat_ui_config(void)
 {
-    dissector_handle_t thermostat_ui_config_handle;
-
-    /* Register our dissector with the ZigBee application dissectors. */
-    thermostat_ui_config_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_THERMOSTAT_UI_CONFIG);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_THERMOSTAT_UI_CONFIG, thermostat_ui_config_handle);
-
-    zbee_zcl_init_cluster(  proto_zbee_zcl_thermostat_ui_config,
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_THERMOSTAT_UI_CONFIG,
+                            proto_zbee_zcl_thermostat_ui_config,
                             ett_zbee_zcl_thermostat_ui_config,
                             ZBEE_ZCL_CID_THERMOSTAT_UI_CONFIG,
                             hf_zbee_zcl_thermostat_ui_config_attr_id,
