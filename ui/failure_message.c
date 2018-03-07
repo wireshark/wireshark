@@ -61,10 +61,12 @@ cfile_open_failure_message(const char *progname, const char *filename,
                            int err, gchar *err_info)
 {
     if (err < 0) {
-        /* Get a string that describes what we're opening */
+        /*
+         * Wiretap error.
+         * Get a string that describes what we're opening.
+         */
         char *file_description = input_file_description(filename);
 
-        /* Wiretap error. */
         switch (err) {
 
         case WTAP_ERR_NOT_REGULAR_FILE:
@@ -152,13 +154,13 @@ void
 cfile_dump_open_failure_message(const char *progname, const char *filename,
                                 int err, int file_type_subtype)
 {
-    char *file_description;
-
-    /* Get a string that describes what we're opening */
-    file_description = output_file_description(filename);
-
     if (err < 0) {
-        /* Wiretap error. */
+        /*
+         * Wiretap error.
+         * Get a string that describes what we're opening.
+         */
+        char *file_description = input_file_description(filename);
+
         switch (err) {
 
         case WTAP_ERR_NOT_REGULAR_FILE:
