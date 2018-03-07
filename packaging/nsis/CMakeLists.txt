@@ -44,6 +44,7 @@ elseif ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
 else()
         message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
 endif()
+set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
 # Path to the WinPcap installer.
 # XXX Come up with a better variable, e.g. cache WIRESHARK_LIB_DIR in FindWSWinLibs.

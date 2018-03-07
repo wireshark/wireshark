@@ -25,12 +25,13 @@ endif()
 FIND_PATH(MAXMINDDB_INCLUDE_DIR maxminddb.h
   HINTS
     ${PC_LIBMAXMINDDB_INCLUDEDIR} ${PC_LIBMAXMINDDB_INCLUDE_DIRS}
+     "${MAXMINDDB_HINTS}/include"
   PATH_SUFFIXES maxminddb
 )
 
 find_library(MAXMINDDB_LIBRARY
   NAMES
-    maxminddb libmaxminddb
+    maxminddb libmaxminddb libmaxminddb-0
   HINTS
     ${PC_LIBMAXMINDDB_LIBDIR} ${PC_LIBMAXMINDDB_LIBRARY_DIRS}
     "${MAXMINDDB_HINTS}/lib"
@@ -56,7 +57,7 @@ IF(MAXMINDDB_FOUND)
       CACHE PATH "Path to the MaxMindDB DLL"
     )
     file( GLOB _MAXMINDDB_dll RELATIVE "${MAXMINDDB_DLL_DIR}"
-      "${MAXMINDDB_DLL_DIR}/libmaxminddb*.dll"
+      "${MAXMINDDB_DLL_DIR}/libmaxminddb-*.dll"
     )
     set ( MAXMINDDB_DLL ${_MAXMINDDB_dll}
       # We're storing filenames only. Should we use STRING instead?

@@ -1118,7 +1118,7 @@ File "${STAGING_DIR}\rawshark.html"
 SectionEnd
 
 !ifdef MMDBRESOLVE_EXE
-Section /o "MMDBResolve" SecMMDBResolve
+Section "MMDBResolve" SecMMDBResolve
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\mmdbresolve.html"
@@ -1218,6 +1218,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Shows display filter byte-code, for debugging dfilter routines"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool"
 
 !ifdef USER_GUIDE_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "Install an offline copy of the User's Guide."

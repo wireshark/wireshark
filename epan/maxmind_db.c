@@ -117,7 +117,7 @@ static const void *chunkify_v6_addr(const ws_in6_addr *addr) {
     void *chunk_v6_bytes = (char *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
 
     if (!chunk_v6_bytes) {
-        chunk_v6_bytes = wmem_memdup(wmem_epan_scope(), addr->bytes, sizeof(struct in6_addr));
+        chunk_v6_bytes = wmem_memdup(wmem_epan_scope(), addr->bytes, sizeof(ws_in6_addr));
         wmem_map_insert(mmdb_ipv6_map, chunk_v6_bytes, chunk_v6_bytes);
     }
 
@@ -135,7 +135,7 @@ process_mmdbr_stdout(int fd) {
 
     while (ws_pipe_data_available(fd)) {
         read_buf[0] = '\0';
-        ssize_t read_status = ws_read(fd, read_buf, read_buf_size);
+        ssize_t read_status = ws_read(fd, read_buf, (unsigned int)read_buf_size);
         if (read_status < 1) {
             MMDB_DEBUG("read error %s", g_strerror(errno));
             mmdb_resolve_stop();
