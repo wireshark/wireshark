@@ -179,6 +179,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
  ws_pipe_data_available@Base 2.5.0
+ ws_pipe_init@Base 2.5.1
+ ws_pipe_spawn_async@Base 2.5.1
+ ws_pipe_spawn_sync@Base 2.5.1
  ws_read_string_from_pipe@Base 2.5.0
  ws_strtoi16@Base 2.3.0
  ws_strtoi32@Base 2.3.0
