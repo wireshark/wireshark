@@ -2055,20 +2055,36 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, g
     switch (fields->occurrence) {
     case 'f':
         /* print the value of only the first occurrence of the field */
-        /* the value won't be used, free it */
         if (g_ptr_array_len(fv_p) != 0) {
+            /*
+             * This isn't the first occurrence, so the value won't be used;
+             * free it.
+             */
             g_free(value);
             return;
         }
         break;
     case 'l':
         /* print the value of only the last occurrence of the field */
-        g_ptr_array_set_size(fv_p, 0);
+        if (g_ptr_array_len(fv_p) != 0) {
+            /*
+             * This isn't the first occurrence, so there's already a
+             * value in the array, which won't be used; free the
+             * first (only) element in the array, and then remove
+             * it - this value will replace it.
+             */
+            g_free(g_ptr_array_index(fv_p, 0));
+            g_ptr_array_set_size(fv_p, 0);
+        }
         break;
     case 'a':
         /* print the value of all accurrences of the field */
-        /* If not the first, add the 'aggregator' */
-        if (g_ptr_array_len(fv_p) > 0) {
+        if (g_ptr_array_len(fv_p) != 0) {
+            /*
+             * This isn't the first occurrence. so add the "aggregator"
+             * character as a separator between the previous element
+             * and this element.
+             */
             g_ptr_array_add(fv_p, (gpointer)g_strdup_printf("%c", fields->aggregator));
         }
         break;
