@@ -16,6 +16,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
+#include <epan/expert.h>
 
 void proto_register_lwapp(void);
 void proto_reg_handoff_lwapp(void);
@@ -50,6 +52,10 @@ static gint hf_lwapp_control_mac = -1;
 static gint hf_lwapp_control_type = -1;
 static gint hf_lwapp_control_seq_no = -1;
 static gint hf_lwapp_control_length = -1;
+
+#define LWAPP_MAX_NESTED_ENCAP 10
+
+static expert_field ei_lwapp_too_many_encap = EI_INIT;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t wlan_handle;
@@ -351,6 +357,7 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
         &hf_lwapp_flags_fragment_type,
         NULL
     };
+    guint encap_nested_count;
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
@@ -391,12 +398,19 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
         col_append_str(pinfo->cinfo, COL_INFO,
                         " 802.11 Packet");
 
+    /* create display subtree for the protocol */
+    ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset, -1, ENC_NA);
+    encap_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_lwapp, 0));
+    if (++encap_nested_count > LWAPP_MAX_NESTED_ENCAP) {
+        expert_add_info(pinfo, ti, &ei_lwapp_too_many_encap);
+        return tvb_captured_length(tvb);
+    }
+    p_add_proto_data(pinfo->pool, pinfo, proto_lwapp, 0, GUINT_TO_POINTER(encap_nested_count));
+
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
     if (tree) {
 
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset, -1, ENC_NA);
         lwapp_tree = proto_item_add_subtree(ti, ett_lwapp);
 
         if (have_destmac) {
@@ -503,7 +517,11 @@ proto_register_lwapp(void)
         &ett_lwapp_control,
         &ett_lwapp_flags
     };
+    static ei_register_info ei[] = {
+        { &ei_lwapp_too_many_encap, { "lwapp.too_many_encap", PI_UNDECODED, PI_WARN, "Too many LWAPP encapsulation levels", EXPFILL }}
+    };
     module_t *lwapp_module;
+    expert_module_t* expert_lwapp;
 
     proto_lwapp = proto_register_protocol ("LWAPP Encapsulated Packet", "LWAPP", "lwapp");
 
@@ -512,6 +530,8 @@ proto_register_lwapp(void)
     proto_lwapp_control = proto_register_protocol_in_name_only ("LWAPP Control Message", "LWAPP-CNTL", "lwapp-cntl", proto_lwapp, FT_PROTOCOL);
     proto_register_field_array(proto_lwapp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_lwapp = expert_register_protocol(proto_lwapp);
+    expert_register_field_array(expert_lwapp, ei, array_length(ei));
 
     lwapp_module = prefs_register_protocol(proto_lwapp, NULL);
 
