@@ -3132,7 +3132,24 @@ add_custom_target(test-sh
 		-P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 )
-set_target_properties(test-sh PROPERTIES FOLDER "Tests")
+set_target_properties(test-sh PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+)
+
+add_custom_target(test-programs
+	DEPENDS test-sh
+		exntest
+		oids_test
+		reassemble_test
+		tvbtest
+		wmem_test
+	COMMENT "Building unit test programs and wrapper"
+)
+set_target_properties(test-programs PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+)
 
 if (GIT_EXECUTABLE)
 	# Update AUTHORS file with entries from git shortlog
@@ -3145,17 +3162,6 @@ else (GIT_EXECUTABLE)
 	add_custom_target( gen-authors COMMAND ${CMAKE_COMMAND} -E echo "Git not found." )
 endif (GIT_EXECUTABLE)
 set_target_properties(gen-authors PROPERTIES FOLDER "Docs")
-
-add_custom_target(test-programs
-	DEPENDS test-sh
-		exntest
-		oids_test
-		reassemble_test
-		tvbtest
-		wmem_test
-	COMMENT "Building unit test programs and wrapper"
-)
-set_target_properties(test-programs PROPERTIES FOLDER "Tests")
 
 if (WIN32)
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/Get-HardenFlags.ps1 _win_harden_flags)
