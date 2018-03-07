@@ -480,16 +480,19 @@ proto_tree *ieee802154_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, 
 proto_tree *ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett);
 
 
+/** Even if the FCF Security Enabled flag is set, there is no auxiliary security header present (used by Wi-SUN Netricity) */
+#define IEEE802154_DISSECT_HEADER_OPTION_NO_AUX_SEC_HDR  (1 << 1)
 /**
  * Dissect the IEEE 802.15.4 header starting from the FCF up to and including the Header IEs (the non-encrypted part)
  * @param tvb the IEEE 802.15.4 frame
  * @param pinfo packet info of the currently processed packet
  * @param tree current protocol tree
+ * @param options bitmask of IEEE802154_DISSECT_HEADER_OPTION_XX flags
  * @param[out] created_header_tree will be set to the tree created for the header
- * @param[out] parsed_info Will be set to the (wmem allocated) IEEE 802.15.4 packet information
+ * @param[out] parsed_info will be set to the (wmem allocated) IEEE 802.15.4 packet information
  * @return the MHR length or 0 if an error occurred
  */
-guint ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree **created_header_tree, ieee802154_packet **parsed_info);
+guint ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint options, proto_tree **created_header_tree, ieee802154_packet **parsed_info);
 
 /**
  * Decrypt the IEEE 802.15.4 payload starting from the Payload IEs

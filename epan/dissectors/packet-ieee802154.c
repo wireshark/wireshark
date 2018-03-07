@@ -1351,7 +1351,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 {
     proto_tree *ieee802154_tree;
     ieee802154_packet *packet;
-    guint mhr_len = ieee802154_dissect_header(tvb, pinfo, tree, &ieee802154_tree, &packet);
+    guint mhr_len = ieee802154_dissect_header(tvb, pinfo, tree, 0, &ieee802154_tree, &packet);
     if (!mhr_len || tvb_reported_length_remaining(tvb, mhr_len+IEEE802154_FCS_LEN) < 0 ) {
         return;
     }
@@ -1380,7 +1380,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 guint
-ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree **created_header_tree, ieee802154_packet **parsed_info)
+ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint options, proto_tree **created_header_tree, ieee802154_packet **parsed_info)
 {
     proto_tree              *ieee802154_tree = NULL;
     proto_item              *proto_root = NULL;
@@ -1811,7 +1811,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     }
 
     /* Existence of the Auxiliary Security Header is controlled by the Security Enabled Field */
-    if ((packet->security_enable) && (packet->version != IEEE802154_VERSION_2003)) {
+    if ((packet->security_enable) && (packet->version != IEEE802154_VERSION_2003) && !(options & IEEE802154_DISSECT_HEADER_OPTION_NO_AUX_SEC_HDR)) {
         dissect_ieee802154_aux_sec_header_and_key(tvb, pinfo, ieee802154_tree, packet, &offset);
     }
 

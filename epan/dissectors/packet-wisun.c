@@ -12,6 +12,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <wsutil/pint.h>
+#include <epan/reassemble.h>
 
 #include "packet-ieee802154.h"
 
@@ -30,6 +31,10 @@ typedef struct {
 static wmem_map_t* edfe_byaddr;
 
 static dissector_handle_t eapol_handle;  // for the eapol relay
+
+static dissector_handle_t ieee802154_nofcs_handle;  // for Netricity Segment Control
+
+static reassembly_table netricity_reassembly_table;
 
 
 /* Wi-SUN Header IE Sub-ID Values. */
@@ -150,10 +155,30 @@ static int hf_wisun_eapol_relay_kmp_id = -1;
 static int hf_wisun_eapol_relay_direction = -1;
 
 // Netricity
+static int proto_wisun_netricity_sc;
 static int hf_wisun_netricity_nftie = -1;
 static int hf_wisun_netricity_nftie_type = -1;
 static int hf_wisun_netricity_lqiie = -1;
 static int hf_wisun_netricity_lqiie_lqi = -1;
+static int hf_wisun_netricity_sc_flags = -1;
+static int hf_wisun_netricity_sc_reserved = -1;
+static int hf_wisun_netricity_sc_tone_map_request = -1;
+static int hf_wisun_netricity_sc_contention_control = -1;
+static int hf_wisun_netricity_sc_channel_access_priority = -1;
+static int hf_wisun_netricity_sc_last_segment = -1;
+static int hf_wisun_netricity_sc_segment_count = -1;
+static int hf_wisun_netricity_sc_segment_length = -1;
+// Reassembly
+static int hf_wisun_netricity_scr_segments = -1;
+static int hf_wisun_netricity_scr_segment = -1;
+static int hf_wisun_netricity_scr_segment_overlap = -1;
+static int hf_wisun_netricity_scr_segment_overlap_conflicts = -1;
+static int hf_wisun_netricity_scr_segment_multiple_tails = -1;
+static int hf_wisun_netricity_scr_segment_too_long_segment = -1;
+static int hf_wisun_netricity_scr_segment_error = -1;
+static int hf_wisun_netricity_scr_segment_count = -1;
+static int hf_wisun_netricity_scr_reassembled_in = -1;
+static int hf_wisun_netricity_scr_reassembled_length = -1;
 
 static gint ett_wisun_unknown_ie = -1;
 static gint ett_wisun_uttie = -1;
@@ -175,8 +200,40 @@ static gint ett_wisun_panverie = -1;
 static gint ett_wisun_gtkhashie = -1;
 static gint ett_wisun_sec = -1;
 static gint ett_wisun_eapol_relay = -1;
+// Netricity
 static gint ett_wisun_netricity_nftie = -1;
 static gint ett_wisun_netricity_lqiie = -1;
+static gint ett_wisun_netricity_sc = -1;
+static gint ett_wisun_netricity_sc_bitmask = -1;
+static gint ett_wisun_netricity_scr_segment = -1;
+static gint ett_wisun_netricity_scr_segments = -1;
+
+static const fragment_items netricity_scr_frag_items = {
+        /* Fragment subtrees */
+        &ett_wisun_netricity_scr_segment,
+        &ett_wisun_netricity_scr_segments,
+
+        /* Fragment fields */
+        &hf_wisun_netricity_scr_segments,
+        &hf_wisun_netricity_scr_segment,
+        &hf_wisun_netricity_scr_segment_overlap,
+        &hf_wisun_netricity_scr_segment_overlap_conflicts,
+        &hf_wisun_netricity_scr_segment_multiple_tails,
+        &hf_wisun_netricity_scr_segment_too_long_segment,
+        &hf_wisun_netricity_scr_segment_error,
+        &hf_wisun_netricity_scr_segment_count,
+
+        /* Reassembled in field */
+        &hf_wisun_netricity_scr_reassembled_in,
+
+        /* Reassembled length field */
+        &hf_wisun_netricity_scr_reassembled_length,
+        /* Reassembled data field */
+        NULL,
+
+        /* Tag */
+        "Netricity Segments"
+};
 
 static const value_string wisun_wsie_types[] = {
     { 0, "Short" },
@@ -293,6 +350,12 @@ static const value_string wisun_sec_sm_errors[] = {
     { 0x06, "Unsupported Security" },
     { 0, NULL }
 };
+
+static const true_false_string wisun_netricity_sc_contention_control_tfs = {
+    "Contention-free access",
+    "Contention allowed in next contention state"
+};
+static const true_false_string wisun_netricity_sc_channel_access_priority_tfs = { "High", "Normal" };
 
 static const int * wisun_format_nested_ie[] = {
     &hf_wisun_wsie_type,
@@ -919,6 +982,86 @@ static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     return offset + r;
 }
 
+/*-----------------------------------------------
+ * Wi-SUN Netricity Segment Control
+ *---------------------------------------------*/
+
+static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    static const int * fields_sc[] = {
+        &hf_wisun_netricity_sc_reserved,
+        &hf_wisun_netricity_sc_tone_map_request,
+        &hf_wisun_netricity_sc_contention_control,
+        &hf_wisun_netricity_sc_channel_access_priority,
+        &hf_wisun_netricity_sc_last_segment,
+        NULL
+    };
+
+    guint offset = 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN Netricity");
+
+    proto_item *subitem = proto_tree_add_item(tree, proto_wisun_netricity_sc, tvb, offset, -1, ENC_NA);
+    proto_tree *subtree = proto_item_add_subtree(subitem, ett_wisun_netricity_sc);
+
+    gboolean is_last = tvb_get_guint8(tvb, 0) & 1;
+    proto_tree_add_bitmask(subtree, tvb, offset++, hf_wisun_netricity_sc_flags, ett_wisun_netricity_sc_bitmask, fields_sc, ENC_BIG_ENDIAN);
+    guint32 seg_count;
+    guint32 seg_len;
+    proto_tree_add_item_ret_uint(subtree, hf_wisun_netricity_sc_segment_count, tvb, offset, 2, ENC_BIG_ENDIAN, &seg_count);
+    proto_tree_add_item_ret_uint(subtree, hf_wisun_netricity_sc_segment_length, tvb, offset, 2, ENC_BIG_ENDIAN, &seg_len);
+    offset += 2;
+
+    gboolean is_segmented = !is_last || seg_count != 0;
+    proto_tree *ieee802154_tree;
+    ieee802154_packet *packet;
+    tvbuff_t *frame = tvb_new_subset_remaining(tvb, offset);
+    // if security is used, all segments have the flag set in the FCF, but only the first has the Auxiliary Security Header
+    guint mhr_len = ieee802154_dissect_header(frame, pinfo,
+                                              is_segmented ? subtree : tree,
+                                              seg_count == 0 ? 0 : IEEE802154_DISSECT_HEADER_OPTION_NO_AUX_SEC_HDR,
+                                              &ieee802154_tree, &packet);
+    if (!mhr_len) {
+        return tvb_captured_length(tvb);
+    }
+    frame = tvb_new_subset_length(frame, 0, mhr_len + seg_len);
+
+    if (is_segmented) {
+        gboolean save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = TRUE;
+        fragment_head *frag_msg = fragment_add_seq_check(&netricity_reassembly_table,
+                                                         frame,
+                                                         seg_count == 0 ? 0 : mhr_len,
+                                                         pinfo,
+                                                         packet->seqno,
+                                                         NULL,
+                                                         seg_count,
+                                                         (seg_count == 0 ? mhr_len : 0) + seg_len,
+                                                         !is_last);
+        tvbuff_t *reframe = process_reassembled_data(tvb, offset, pinfo, "Reassembled segments", frag_msg, &netricity_scr_frag_items, NULL, subtree);
+
+        if (reframe) {
+            call_dissector(ieee802154_nofcs_handle, reframe, pinfo, tree);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Reassembled %u segments)", seg_count + 1);
+        } else {
+            call_data_dissector(tvb_new_subset_remaining(frame, mhr_len), pinfo, subtree);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Segment %u)", seg_count);
+        }
+
+        pinfo->fragmented = save_fragmented;
+    } else {
+        // the decryption function expects the tvb with the FCS as part of the reported length
+        frame = tvb_new_subset_length_caplen(frame, 0, -1, tvb_reported_length(frame)+IEEE802154_FCS_LEN);
+        tvbuff_t *payload = ieee802154_decrypt_payload(frame, mhr_len, pinfo, ieee802154_tree, packet);
+        if (payload) {
+            guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
+            payload = tvb_new_subset_remaining(payload, pie_size);
+            ieee802154_dissect_frame_payload(payload, pinfo, ieee802154_tree, packet, TRUE);
+        }
+    }
+
+    return tvb_captured_length(tvb);
+}
 
 /*-----------------------------------------------
  * Wi-SUN Protocol Registration
@@ -1313,6 +1456,82 @@ void proto_register_wisun(void)
             NULL, HFILL }
         },
 
+        /* Wi-SUN Netricity Segment Control Field and reassembly */
+        { &hf_wisun_netricity_sc_flags,
+          { "Segment Control", "wisun.netricity.sc.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_wisun_netricity_sc_reserved,
+          { "Reserved", "wisun.netricity.sc.reserved", FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_wisun_netricity_sc_tone_map_request,
+          { "Tone Map Request", "wisun.netricity.sc.tone_map_request", FT_BOOLEAN, 8, NULL, 1<<3,
+            NULL, HFILL }
+        },
+        { &hf_wisun_netricity_sc_contention_control,
+          { "Contention Control", "wisun.netricity.sc.contention_control", FT_BOOLEAN, 8, TFS(&wisun_netricity_sc_contention_control_tfs), 1<<2,
+            NULL, HFILL }
+        },
+        { &hf_wisun_netricity_sc_channel_access_priority,
+          { "Channel access priority", "wisun.netricity.sc.channel_access_priority", FT_BOOLEAN, 8, TFS(&wisun_netricity_sc_channel_access_priority_tfs), 1<<1,
+            NULL, HFILL }
+        },
+        { &hf_wisun_netricity_sc_last_segment,
+          { "Last Segment", "wisun.netricity.sc.last_segment", FT_BOOLEAN, 8, NULL, 1<<0,
+            NULL, HFILL }
+        },
+        { &hf_wisun_netricity_sc_segment_count,
+          { "Segment Count", "wisun.netricity.sc.segment_count", FT_UINT16, BASE_DEC, NULL, 0xfc00,
+            NULL, HFILL }
+        },
+        { &hf_wisun_netricity_sc_segment_length,
+          { "Segment Length", "wisun.netricity.sc.segment_length", FT_UINT16, BASE_DEC, NULL, 0x03ff,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_netricity_scr_segments,
+          { "Message segments", "wisun.netricity.scr.segments",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_segment,
+          { "Message segment", "wisun.netricity.scr.segment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_segment_overlap,
+          { "Message segment overlap", "wisun.netricity.scr.segment.overlap",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_segment_overlap_conflicts,
+          { "Message segment overlapping with conflicting data", "wisun.netricity.scr.segment.overlap.conflicts",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_segment_multiple_tails,
+          { "Message has multiple tail segments", "wisun.netricity.scr.segment.multiple_tails",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_segment_too_long_segment,
+          { "Message segment too long", "wisun.netricity.scr.segment.too_long_segment",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_segment_error,
+          { "Message segment reassembly error", "wisun.netricity.scr.segment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_segment_count,
+          { "Message segment count", "wisun.netricity.scr.segment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_reassembled_in,
+          { "Reassembled in", "wisun.netricity.scr.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_wisun_netricity_scr_reassembled_length,
+          { "Reassembled length", "wisun.netricity.scr.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+
+
     };
 
     /* Subtrees */
@@ -1338,6 +1557,10 @@ void proto_register_wisun(void)
         &ett_wisun_eapol_relay,
         &ett_wisun_netricity_nftie,
         &ett_wisun_netricity_lqiie,
+        &ett_wisun_netricity_sc,
+        &ett_wisun_netricity_sc_bitmask,
+        &ett_wisun_netricity_scr_segment,
+        &ett_wisun_netricity_scr_segments,
     };
 
     static ei_register_info ei[] = {
@@ -1355,7 +1578,8 @@ void proto_register_wisun(void)
 
     proto_wisun = proto_register_protocol("Wi-SUN Field Area Network", "Wi-SUN", "wisun");
     proto_wisun_sec = proto_register_protocol("Wi-SUN FAN Security Extension", "Wi-SUN WM-SEC", "wisun.sec");
-    proto_wisun_eapol_relay = proto_register_protocol("Wi-SUN FAN EAPOL Relay", "Wi-SUN EAPOL-Relay", "wisun.eapol_relay");
+    proto_wisun_eapol_relay = proto_register_protocol("Wi-SUN FAN EAPOL Relay", "Wi-SUN EAPOL Relay", "wisun.eapol_relay");
+    proto_wisun_netricity_sc = proto_register_protocol("Wi-SUN Netricity Segment", "Wi-SUN Netricity Segment", "wisun.netricity.sc");
 
     proto_register_field_array(proto_wisun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1368,6 +1592,9 @@ void proto_register_wisun(void)
     edfe_byaddr = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);
 
     wisun_eapol_relay_handle = register_dissector("wisun.eapol_relay", dissect_wisun_eapol_relay, proto_wisun_eapol_relay);
+
+    register_dissector("wisun.netricity.sc", dissect_wisun_netricity_sc, proto_wisun_netricity_sc);
+    reassembly_table_register(&netricity_reassembly_table, &addresses_reassembly_table_functions);
 }
 
 void proto_reg_handoff_wisun(void)
@@ -1378,6 +1605,9 @@ void proto_reg_handoff_wisun(void)
     // For EAPOL relay
     dissector_add_uint("udp.port", WISUN_EAPOL_RELAY_UDP_PORT, wisun_eapol_relay_handle);
     eapol_handle = find_dissector("eapol");
+
+    // For Netricity reassembly
+    ieee802154_nofcs_handle = find_dissector("wpan_nofcs");
 }
 
 /*
