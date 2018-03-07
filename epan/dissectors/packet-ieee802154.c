@@ -4570,7 +4570,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_tsch_slotf_link_timeslot,
-        { "Timeslot",                       "wpan.tsch.timeslot", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Timeslot",                       "wpan.tsch.link_timeslot", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_tsch_slotf_link_channel_offset,
