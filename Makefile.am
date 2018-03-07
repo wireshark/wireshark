@@ -32,19 +32,20 @@ COMMONCPPFLAGS =
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(COMMONCPPFLAGS)
 
 bin_PROGRAMS = \
-	@wireshark_bin@		\
-	@tshark_bin@		\
-	@tfshark_bin@		\
-	@text2pcap_bin@		\
-	@mergecap_bin@		\
 	@capinfos_bin@		\
 	@captype_bin@		\
-	@editcap_bin@		\
-	@randpkt_bin@		\
 	@dumpcap_bin@		\
-	@reordercap_bin@	\
+	@editcap_bin@		\
+	@mergecap_bin@		\
 	@mmdbresolve_bin@	\
-	@sharkd_bin@
+	@randpkt_bin@		\
+	@rawshark_bin@		\
+	@reordercap_bin@	\
+	@sharkd_bin@		\
+	@text2pcap_bin@		\
+	@tfshark_bin@		\
+	@tshark_bin@		\
+	@wireshark_bin@
 
 noinst_PROGRAMS = \
 	@dftest_bin@		\
