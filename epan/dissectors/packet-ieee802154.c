@@ -465,6 +465,7 @@ static int hf_ieee802154_realign_channel_page = -1;
 static int hf_ieee802154_gtsreq_len = -1;
 static int hf_ieee802154_gtsreq_dir = -1;
 static int hf_ieee802154_gtsreq_type = -1;
+static int hf_ieee802154_cmd_vendor_oui = -1;
 
 /* Registered fields for Beacon Packets */
 static int hf_ieee802154_beacon_order = -1;
@@ -554,7 +555,7 @@ static gint ett_ieee802159_mpx = -1;
 static gint ett_ieee802159_mpx_transaction_control = -1;
 
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
-/* static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT; */
+static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT;
 static expert_field ei_ieee802154_invalid_panid_compression2 = EI_INIT;
 static expert_field ei_ieee802154_fcs = EI_INIT;
 static expert_field ei_ieee802154_decrypt_error = EI_INIT;
@@ -574,6 +575,8 @@ static expert_field ei_ieee802159_mpx_unsupported_kmp = EI_INIT;
 static expert_field ei_ieee802159_mpx_unknown_kmp = EI_INIT;
 static expert_field ei_ieee802154_missing_payload_ie = EI_INIT;
 static expert_field ei_ieee802154_payload_ie_in_header = EI_INIT;
+static expert_field ei_ieee802154_unsupported_cmd = EI_INIT;
+static expert_field ei_ieee802154_unknown_cmd = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -586,10 +589,11 @@ static dissector_table_t        panid_dissector_table;
 static heur_dissector_list_t    ieee802154_beacon_subdissector_list;
 static heur_dissector_list_t    ieee802154_heur_subdissector_list;
 
-/* For the IEs */
+/* For the IEs and the vendor specific command */
 static dissector_table_t header_ie_dissector_table;
 static dissector_table_t payload_ie_dissector_table;
 static dissector_table_t mlme_ie_dissector_table;
+static dissector_table_t cmd_vendor_dissector_table;
 
 static dissector_handle_t  zigbee_ie_handle;
 static dissector_handle_t  zigbee_nwk_handle;
@@ -658,6 +662,8 @@ static const value_string ieee802154_cmd_names[] = {
     { IEEE802154_CMD_RIT_DATA_REQ,              "RIT Data Request"},
     { IEEE802154_CMD_DBS_REQ,                   "DBS Request"},
     { IEEE802154_CMD_DBS_RSP,                   "DBS Response"},
+    { IEEE802154_CMD_RIT_DATA_RSP,              "RIT Data Response"},
+    { IEEE802154_CMD_VENDOR_SPECIFIC,           "Vendor Specific"},
     { 0, NULL }
 };
 
@@ -1479,7 +1485,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         }
         else {
             if (packet->pan_id_compression == 1) { /* all remaining cases pan_id_compression must be zero */
-                expert_add_info(pinfo, proto_root, &ei_ieee802154_invalid_addressing);
+                expert_add_info(pinfo, proto_root, &ei_ieee802154_invalid_panid_compression);
                 return 0;
             }
             else {
@@ -3442,12 +3448,12 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 } /* dissect_ieee802154_gtsreq */
 
 /**
- * Subdissector routine all commands.
+ * Subdissector routine for IEEE 802.15.4 commands
  *
- * @param tvb pointer to buffer containing raw packet.
- * @param pinfo pointer to packet information fields (unused).
- * @param tree pointer to protocol tree.
- * @param packet IEEE 802.15.4 packet information (unused).
+ * @param tvb pointer to buffer containing the command payload
+ * @param pinfo pointer to packet information fields
+ * @param tree pointer to the protocol tree
+ * @param packet IEEE 802.15.4 packet information
  */
 static void
 dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
@@ -3482,26 +3488,26 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         dissect_ieee802154_assoc_rsp(tvb, pinfo, tree, packet);
         break;
 
-      case IEEE802154_CMD_DISASSOC_NOTIFY:
+    case IEEE802154_CMD_DISASSOC_NOTIFY:
         IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
             (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
             (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
         dissect_ieee802154_disassoc(tvb, pinfo, tree, packet);
-        return;
+        break;
 
-      case IEEE802154_CMD_DATA_RQ:
+    case IEEE802154_CMD_DATA_RQ:
         IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id, packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE);
         /* No payload expected. */
         break;
 
-      case IEEE802154_CMD_PANID_CONFLICT:
+    case IEEE802154_CMD_PANID_CONFLICT:
         IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
             (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
             (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
         /* No payload expected. */
         break;
 
-      case IEEE802154_CMD_ORPHAN_NOTIFY:
+    case IEEE802154_CMD_ORPHAN_NOTIFY:
         IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
             (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
             (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
@@ -3511,18 +3517,18 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* No payload expected. */
         break;
 
-      case IEEE802154_CMD_BEACON_REQ:
-            if ((packet->version == IEEE802154_VERSION_2003) || (packet->version == IEEE802154_VERSION_2006)) {
-                IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
-                        (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
-                        (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) &&
-                        (packet->dst16 == IEEE802154_BCAST_ADDR) &&
-                        (packet->dst_pan == IEEE802154_BCAST_PAN));
-            }
+    case IEEE802154_CMD_BEACON_REQ:
+        if ((packet->version == IEEE802154_VERSION_2003) || (packet->version == IEEE802154_VERSION_2006)) {
+            IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+                    (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
+                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) &&
+                    (packet->dst16 == IEEE802154_BCAST_ADDR) &&
+                    (packet->dst_pan == IEEE802154_BCAST_PAN));
+        }
         /* No payload expected. */
         break;
 
-      case IEEE802154_CMD_COORD_REALIGN:
+    case IEEE802154_CMD_COORD_REALIGN:
         IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
             (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
             (packet->dst_pan == IEEE802154_BCAST_PAN) &&
@@ -3532,9 +3538,9 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id, packet->dst16 == IEEE802154_BCAST_ADDR);
         }
         dissect_ieee802154_realign(tvb, pinfo, tree, packet);
-        return;
+        break;
 
-      case IEEE802154_CMD_GTS_REQ:
+    case IEEE802154_CMD_GTS_REQ:
         /* Check that the addressing is correct for this command type. */
         IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
             (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
@@ -3542,30 +3548,45 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             (packet->src16 != IEEE802154_BCAST_ADDR) &&
             (packet->src16 != IEEE802154_NO_ADDR16));
         dissect_ieee802154_gtsreq(tvb, pinfo, tree, packet);
-        return;
+        break;
 
-      case IEEE802154_CMD_TRLE_MGMT_REQ:
-      case IEEE802154_CMD_TRLE_MGMT_RSP:
-      case IEEE802154_CMD_DSME_ASSOC_REQ:
-      case IEEE802154_CMD_DSME_ASSOC_RSP:
-      case IEEE802154_CMD_DSME_GTS_REQ:
-      case IEEE802154_CMD_DSME_GTS_RSP:
-      case IEEE802154_CMD_DSME_GTS_NOTIFY:
-      case IEEE802154_CMD_DSME_INFO_REQ:
-      case IEEE802154_CMD_DSME_INFO_RSP:
-      case IEEE802154_CMD_DSME_BEACON_ALLOC_NOTIFY:
-      case IEEE802154_CMD_DSME_BEACON_COLL_NOTIFY:
-      case IEEE802154_CMD_DSME_LINK_REPORT:
-      case IEEE802154_CMD_RIT_DATA_REQ:
-      case IEEE802154_CMD_DBS_REQ:
-      case IEEE802154_CMD_DBS_RSP:
-            /* TODO add support for these commands, for now
-             * if anything remains, dump it */
-            if (tvb_captured_length_remaining(tvb, 0) > 0) {
-                call_data_dissector(tvb, pinfo, tree);
-            }
-          return;
+    case IEEE802154_CMD_VENDOR_SPECIFIC:
+    {
+        guint32 oui = tvb_get_ntoh24(tvb, 0);
+        if (!dissector_try_uint_new(cmd_vendor_dissector_table, oui, tvb, pinfo, tree, FALSE, packet)) {
+            proto_tree_add_item(tree, hf_ieee802154_cmd_vendor_oui, tvb, 0, 3, ENC_BIG_ENDIAN);
+            call_data_dissector(tvb_new_subset_remaining(tvb, 3), pinfo, tree);
+        }
+        break;
+    }
 
+    case IEEE802154_CMD_TRLE_MGMT_REQ:
+    case IEEE802154_CMD_TRLE_MGMT_RSP:
+    case IEEE802154_CMD_DSME_ASSOC_REQ:
+    case IEEE802154_CMD_DSME_ASSOC_RSP:
+    case IEEE802154_CMD_DSME_GTS_REQ:
+    case IEEE802154_CMD_DSME_GTS_RSP:
+    case IEEE802154_CMD_DSME_GTS_NOTIFY:
+    case IEEE802154_CMD_DSME_INFO_REQ:
+    case IEEE802154_CMD_DSME_INFO_RSP:
+    case IEEE802154_CMD_DSME_BEACON_ALLOC_NOTIFY:
+    case IEEE802154_CMD_DSME_BEACON_COLL_NOTIFY:
+    case IEEE802154_CMD_DSME_LINK_REPORT:
+    case IEEE802154_CMD_RIT_DATA_REQ:
+    case IEEE802154_CMD_DBS_REQ:
+    case IEEE802154_CMD_DBS_RSP:
+    case IEEE802154_CMD_RIT_DATA_RSP:
+        /* TODO add support for these commands, for now if anything remains, dump it */
+        expert_add_info(pinfo, tree, &ei_ieee802154_unsupported_cmd);
+        if (tvb_captured_length_remaining(tvb, 0) > 0) {
+            call_data_dissector(tvb, pinfo, tree);
+        }
+        break;
+    default:
+        expert_add_info(pinfo, tree, &ei_ieee802154_unknown_cmd);
+        if (tvb_captured_length_remaining(tvb, 0) > 0) {
+            call_data_dissector(tvb, pinfo, tree);
+        }
     } /* switch */
 } /* dissect_ieee802154_command */
 
@@ -4780,6 +4801,10 @@ void proto_register_ieee802154(void)
         { "Command Identifier",         "wpan.cmd", FT_UINT8, BASE_HEX, VALS(ieee802154_cmd_names), 0x0,
             NULL, HFILL }},
 
+        { &hf_ieee802154_cmd_vendor_oui,
+        { "Vendor OUI",                 "wpan.cmd.vendor_oui", FT_UINT24, BASE_OUI, NULL, 0x0,
+            NULL, HFILL }},
+
         /*  Capability Information Fields */
 
         { &hf_ieee802154_cinfo_alt_coord,
@@ -5048,11 +5073,9 @@ void proto_register_ieee802154(void)
     static ei_register_info ei[] = {
         { &ei_ieee802154_invalid_addressing, { "wpan.invalid_addressing", PI_MALFORMED, PI_WARN,
                 "Invalid Addressing", EXPFILL }},
-#if 0
         { &ei_ieee802154_invalid_panid_compression, { "wpan.invalid_panid_compression", PI_MALFORMED, PI_ERROR,
                 "Invalid Setting for PAN ID Compression", EXPFILL }},
-#endif
-        { &ei_ieee802154_invalid_panid_compression2, { "wpan.seqno_supression_fv2_invalid",  PI_MALFORMED, PI_WARN,
+        { &ei_ieee802154_invalid_panid_compression2, { "wpan.invalid_panid_compression", PI_MALFORMED, PI_ERROR,
                 "Invalid Pan ID Compression and addressing combination for Frame Version 2", EXPFILL }},
         { &ei_ieee802154_dst, { "wpan.dst_invalid", PI_MALFORMED, PI_ERROR,
                 "Invalid Destination Address Mode", EXPFILL }},
@@ -5068,14 +5091,14 @@ void proto_register_ieee802154(void)
                 "Decryption error", EXPFILL }},
         { &ei_ieee802154_fcs, { "wpan.fcs.bad", PI_CHECKSUM, PI_WARN,
                 "Bad FCS", EXPFILL }},
-        { &ei_ieee802154_seqno_suppression, { "wpan.seqno_supression_invalid",  PI_MALFORMED, PI_WARN,
+        { &ei_ieee802154_seqno_suppression, { "wpan.seqno_suppression_invalid",  PI_MALFORMED, PI_WARN,
                 "Sequence Number Suppression invalid for 802.15.4-2003 and 2006", EXPFILL }},
         { &ei_ieee802154_6top_unsupported_type, { "wpan.6top_unsupported_type", PI_PROTOCOL, PI_WARN,
                 "Unsupported Type of Message", EXPFILL }},
         { &ei_ieee802154_6top_unsupported_command, { "wpan.6top_unsupported_command", PI_PROTOCOL, PI_WARN,
                 "Unsupported 6top command", EXPFILL }},
         { &ei_ieee802154_time_correction_error, { "wpan.time_correction.error", PI_PROTOCOL, PI_WARN,
-                "Incorrect value. Reference: IEEE-802.15.4-2015. Table 7-8: Values of the Time Sync Info field for ACK with timing Information", EXPFILL}},
+                "Incorrect value. Reference: IEEE-802.15.4-2015. Table 7-8: Values of the Time Sync Info field for ACK with timing information", EXPFILL}},
         { &ei_ieee802154_6top_unsupported_return_code, { "wpan.6top_unsupported_code", PI_PROTOCOL, PI_WARN,
                 "Unsupported 6top return code", EXPFILL }},
         { &ei_ieee802154_ie_unsupported_id, { "wpan.ie_unsupported_id", PI_PROTOCOL, PI_WARN,
@@ -5084,14 +5107,18 @@ void proto_register_ieee802154(void)
                 "Unexpected extra content for IE", EXPFILL }},
         { &ei_ieee802159_mpx_invalid_transfer_type, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
                 "Invalid transfer type (cf. IEEE 802.15.9 Table 19)", EXPFILL }},
-        { &ei_ieee802159_mpx_unsupported_kmp, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
+        { &ei_ieee802159_mpx_unsupported_kmp, { "wpan.mpx.unsupported_kmp", PI_PROTOCOL, PI_WARN,
                 "Unsupported KMP ID", EXPFILL }},
-        { &ei_ieee802159_mpx_unknown_kmp, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
+        { &ei_ieee802159_mpx_unknown_kmp, { "wpan.mpx.unknown_kmp", PI_PROTOCOL, PI_WARN,
                 "Unknown KMP ID (cf. IEEE 802.15.9 Table 21)", EXPFILL }},
         { &ei_ieee802154_missing_payload_ie, { "wpan.payload_ie.missing",  PI_MALFORMED, PI_WARN,
                 "Payload IE indicated by Header Termination, but no Payload IE present", EXPFILL }},
         { &ei_ieee802154_payload_ie_in_header, { "wpan.payload_ie.in_header",  PI_MALFORMED, PI_WARN,
                 "Payload IE in header", EXPFILL }},
+        { &ei_ieee802154_unsupported_cmd, { "wpan.cmd.unsupported_cmd", PI_PROTOCOL, PI_WARN,
+                "Unsupported Command ID", EXPFILL }},
+        { &ei_ieee802154_unknown_cmd, { "wpan.cmd.unknown_cmd", PI_PROTOCOL, PI_WARN,
+                "Unknown Command Id (cf. IEEE 802.15.4-2015 Table 7-49)", EXPFILL }},
     };
 
     /* Preferences. */
@@ -5226,21 +5253,22 @@ void proto_register_ieee802154(void)
     ieee802154_heur_subdissector_list = register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN, proto_ieee802154);
     ieee802154_beacon_subdissector_list = register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN_BEACON, proto_ieee802154);
 
-    /* Register dissector tables for IEs */
+    /* Register dissector tables */
     header_ie_dissector_table = register_dissector_table(IEEE802154_HEADER_IE_DTABLE, "IEEE 802.15.4 Header IEs", proto_ieee802154, FT_UINT8, BASE_HEX);
     payload_ie_dissector_table = register_dissector_table(IEEE802154_PAYLOAD_IE_DTABLE, "IEEE 802.15.4 Payload IEs", proto_ieee802154, FT_UINT8, BASE_HEX);
     mlme_ie_dissector_table = register_dissector_table(IEEE802154_MLME_IE_DTABLE, "IEEE 802.15.4 Nested IEs", proto_ieee802154, FT_UINT8, BASE_HEX);
+    cmd_vendor_dissector_table = register_dissector_table(IEEE802154_CMD_VENDOR_DTABLE, "IEEE 802.15.4 Vendor Specific Commands", proto_ieee802154, FT_UINT24, BASE_HEX );
 
-    /*  Register dissectors with Wireshark. */
+    /* Register dissectors with Wireshark */
     ieee802154_handle = register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
     ieee802154_nofcs_handle = register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
     ieee802154_nonask_phy_handle = register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
 
-    /* setup registration for other dissectors to provide mac key hash algorithms */
+    /* Setup registration for other dissectors to provide mac key hash algorithms */
     mac_key_hash_handlers = wmem_tree_new(wmem_epan_scope());
 
-    /* Register a Decode-As handler. */
+    /* Register a Decode-As handler */
     register_decode_as(&ieee802154_da);
 } /* proto_register_ieee802154 */
 

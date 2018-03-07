@@ -19,16 +19,17 @@
 /* PANID dissector list is for Decode-As and stateful dissection only. */
 #define IEEE802154_PROTOABBREV_WPAN_PANID   "wpan.panid"
 
-/* Dissector tables for the Header IEs and Payload IEs */
+/* Dissector tables */
 #define IEEE802154_HEADER_IE_DTABLE         "wpan.header_ie"
 #define IEEE802154_PAYLOAD_IE_DTABLE        "wpan.payload_ie"
 #define IEEE802154_MLME_IE_DTABLE           "wpan.mlme_ie"
+#define IEEE802154_CMD_VENDOR_DTABLE        "wpan.cmd.vendor"
 
 /*  Packet Overhead from MAC header + footer (excluding addressing) */
 #define IEEE802154_MAX_FRAME_LEN            127
 #define IEEE802154_FCS_LEN                  2
 
-/*  Command Frame Identifier Types Definions */
+/*  Command Frame Identifier Types Definitions */
 #define IEEE802154_CMD_ASSOC_REQ                0x01
 #define IEEE802154_CMD_ASSOC_RSP                0x02
 #define IEEE802154_CMD_DISASSOC_NOTIFY          0x03
@@ -55,7 +56,9 @@
 #define IEEE802154_CMD_RIT_DATA_REQ             0x20
 #define IEEE802154_CMD_DBS_REQ                  0x21
 #define IEEE802154_CMD_DBS_RSP                  0x22
-/* 0x22-0x1f reserved in IEEE802.15.4-2015 */
+#define IEEE802154_CMD_RIT_DATA_RSP             0x23
+#define IEEE802154_CMD_VENDOR_SPECIFIC          0x24
+/* 0x25-0xff reserved in IEEE802.15.4-2015 */
 
 /*  Definitions for Association Response Command */
 #define IEEE802154_CMD_ASRSP_AS_SUCCESS         0x00
