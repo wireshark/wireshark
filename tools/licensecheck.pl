@@ -695,6 +695,14 @@ sub parselicense {
 			$license = 'BSD (3 clause)';
 		}
 
+		if ($licensetext =~ /SPDX-License-Identifier:\s+BSD-2-Clause/i) {
+			$license = 'BSD (2 clause)';
+		}
+
+		if ($licensetext =~ /SPDX-License-Identifier:\s+BSD-1-Clause/i) {
+			$license = 'BSD';
+		}
+
 		if ($licensetext =~ /SPDX-License-Identifier:\s+MIT/i) {
 			$license = 'MIT/X11 (BSD like)';
 		}
