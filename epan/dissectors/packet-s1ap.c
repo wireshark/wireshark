@@ -15130,6 +15130,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.ies", id_SecondaryRATusageReportList, create_dissector_handle(dissect_SecondaryRATusageReportList_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_UE_Application_Layer_Measurement_Capability, create_dissector_handle(dissect_UE_Application_Layer_Measurement_Capability_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_HandoverFlag, create_dissector_handle(dissect_HandoverFlag_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.ies", id_EmergencyAreaIDListForRestart, create_dissector_handle(dissect_EmergencyAreaIDListForRestart_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Data_Forwarding_Not_Possible, create_dissector_handle(dissect_Data_Forwarding_Not_Possible_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Time_Synchronisation_Info, create_dissector_handle(dissect_TimeSynchronisationInfo_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_x2TNLConfigurationInfo, create_dissector_handle(dissect_X2TNLConfigurationInfo_PDU, proto_s1ap));
@@ -15149,7 +15150,6 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.extension", id_ReceiveStatusOfULPDCPSDUsExtended, create_dissector_handle(dissect_ReceiveStatusOfULPDCPSDUsExtended_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_SIPTO_Correlation_ID, create_dissector_handle(dissect_Correlation_ID_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_TransportInformation, create_dissector_handle(dissect_TransportInformation_PDU, proto_s1ap));
-  dissector_add_uint("s1ap.extension", id_EmergencyAreaIDListForRestart, create_dissector_handle(dissect_EmergencyAreaIDListForRestart_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_eNBIndirectX2TransportLayerAddresses, create_dissector_handle(dissect_ENBIndirectX2TransportLayerAddresses_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_LoggedMBSFNMDT, create_dissector_handle(dissect_LoggedMBSFNMDT_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_uE_HistoryInformationFromTheUE, create_dissector_handle(dissect_UE_HistoryInformationFromTheUE_PDU, proto_s1ap));
