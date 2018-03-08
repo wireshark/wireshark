@@ -2266,7 +2266,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                  ipprotostr(iph->ip_proto), iph->ip_proto,
                  (iph->ip_off & IP_OFFSET) * 8, iph->ip_id);
     if ( ipfd_head && ipfd_head->reassembled_in != pinfo->num ) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
+      col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]",
                       ipfd_head->reassembled_in);
     }
 

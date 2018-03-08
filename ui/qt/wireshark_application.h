@@ -137,7 +137,7 @@ private:
     QFont mono_font_;
     QFont zoomed_font_;
     QTimer recent_timer_;
-    QTimer addr_resolv_timer_;
+    QTimer packet_data_timer_;
     QTimer tap_update_timer_;
     QList<QString> pending_open_files_;
     QSocketNotifier *if_notifier_;
@@ -179,6 +179,7 @@ signals:
     void packetDissectionChanged();
     void preferencesChanged();
     void addressResolutionChanged();
+    void columnDataChanged();
     void checkDisplayFilter();
     void fieldsChanged();
     void reloadLuaPlugins();
@@ -209,7 +210,7 @@ private slots:
     void cleanup();
     void ifChangeEventsAvailable();
     void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
-    void refreshAddressResolution();
+    void refreshPacketData();
 };
 
 extern WiresharkApplication *wsApp;

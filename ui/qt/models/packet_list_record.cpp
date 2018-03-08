@@ -72,7 +72,7 @@ const QByteArray PacketListRecord::columnString(capture_file *cap_file, int colu
 
 void PacketListRecord::resetColumns(column_info *cinfo)
 {
-    col_data_ver_++;
+    invalidateAllRecords();
 
     if (!cinfo) {
         return;

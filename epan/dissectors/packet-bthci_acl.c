@@ -446,7 +446,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                 item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
                 PROTO_ITEM_SET_GENERATED(item);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
+                col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
             }
         }
         if (pb_flag == 0x01) { /* continuation fragment */
@@ -466,11 +466,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                 item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_continuation_to, tvb, 0, 0, mfp->first_frame);
                 PROTO_ITEM_SET_GENERATED(item);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
+                col_append_frame_number(pinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
                 if (mfp->last_frame && mfp->last_frame != pinfo->num) {
                     item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
                     PROTO_ITEM_SET_GENERATED(item);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
+                    col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
                 }
             }
             if (mfp != NULL && mfp->last_frame == pinfo->num) {

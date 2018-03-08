@@ -98,6 +98,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_add_fstr@Base 1.9.1
  col_add_lstr@Base 1.12.0~rc1
  col_add_str@Base 1.9.1
+ col_append_frame_number@Base 2.5.1
  col_append_fstr@Base 1.9.1
  col_append_lstr@Base 1.99.0
  col_append_ports@Base 2.1.0
@@ -110,6 +111,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_clear@Base 1.9.1
  col_clear_fence@Base 1.12.0~rc1
  col_custom_prime_edt@Base 1.9.1
+ col_data_changed@Base 2.5.1
  col_fill_in@Base 1.9.1
  col_fill_in_error@Base 1.9.1
  col_fill_in_frame_data@Base 1.9.1
@@ -1518,6 +1520,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_accepted_not_accepted@Base 1.9.1
  tfs_ack_nack@Base 1.9.1
  tfs_acknowledged_not_acknowledged@Base 1.99.2
+ tfs_activated_deactivated@Base 2.5.1
  tfs_active_inactive@Base 1.9.1
  tfs_allocated_by_receiver_sender@Base 1.99.1
  tfs_allow_block@Base 1.9.1
@@ -1547,10 +1550,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_full_half@Base 1.99.1
  tfs_group_unique_name@Base 1.9.1
  tfs_high_low@Base 1.9.1
+ tfs_high_normal@Base 2.5.1
  tfs_implemented_not_implemented@Base 1.9.1
  tfs_included_not_included@Base 1.99.1
  tfs_inuse_not_inuse@Base 1.9.1
  tfs_invalid_valid@Base 1.99.0
+ tfs_low_normal@Base 2.5.1
  tfs_more_nomore@Base 1.9.1
  tfs_no_yes@Base 1.9.1
  tfs_not_allowed_allowed@Base 1.9.1

@@ -132,6 +132,12 @@ WS_DLL_PUBLIC void	col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs
  */
 WS_DLL_PUBLIC void	col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
 
+/** Check to see if our column data has changed, e.g. we have new request/response info.
+ *
+ * Internal, don't use this in dissectors!
+ */
+WS_DLL_PUBLIC gboolean	col_data_changed(void);
+
 /* Utility routines used by packet*.c */
 
 /** Are the columns writable?
@@ -270,6 +276,17 @@ WS_DLL_PUBLIC void col_append_str_uint(column_info *cinfo, const gint col, const
  * @param dst the destination port value to append
  */
 WS_DLL_PUBLIC void col_append_ports(column_info *cinfo, const gint col, port_type typ, guint16 src, guint16 dst);
+
+/** Append a frame number and signal that we have updated
+ * column information.
+ *
+ * @param pinfo the current packet info
+ * @param col the column to use, e.g. COL_INFO
+ * @param fmt_str Format string, e.g. "reassembled in %u".
+ * @param src the source port value to append
+ * @param dst the destination port value to append
+ */
+WS_DLL_PUBLIC void col_append_frame_number(packet_info *pinfo, const gint col, const gchar *fmt_str, guint frame_num);
 
 /* Append the given strings (terminated by COL_ADD_LSTR_TERMINATOR) to a column element,
  *

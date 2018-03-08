@@ -1467,7 +1467,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
                 icmpv6_trans->resp_frame);
             PROTO_ITEM_SET_GENERATED(it);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (reply in %d)", icmpv6_trans->resp_frame);
+        col_append_frame_number(pinfo, COL_INFO, " (reply in %d)", icmpv6_trans->resp_frame);
     }
 
     return icmpv6_trans;
@@ -1560,7 +1560,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         PROTO_ITEM_SET_GENERATED(it);
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (request in %d)",
+    col_append_frame_number(pinfo, COL_INFO, " (request in %d)",
         icmpv6_trans->rqst_frame);
 
     return icmpv6_trans;

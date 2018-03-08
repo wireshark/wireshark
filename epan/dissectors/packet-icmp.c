@@ -1056,7 +1056,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 					 icmp_trans->resp_frame);
 		PROTO_ITEM_SET_GENERATED(it);
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (reply in %d)",
+		col_append_frame_number(pinfo, COL_INFO, " (reply in %u)",
 				icmp_trans->resp_frame);
 	}
 
@@ -1159,7 +1159,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 						"%.3f ms", resp_time);
 	PROTO_ITEM_SET_GENERATED(it);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " (request in %d)",
+	col_append_frame_number(pinfo, COL_INFO, " (request in %d)",
 			icmp_trans->rqst_frame);
 
 	return icmp_trans;

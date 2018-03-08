@@ -21,6 +21,7 @@
 #include "wsutil/filesystem.h"
 
 #include "epan/addr_resolv.h"
+#include "epan/column-utils.h"
 #include "epan/disabled_protos.h"
 #include "epan/ftypes/ftypes.h"
 #include "epan/prefs.h"
@@ -258,11 +259,12 @@ void WiresharkApplication::refreshRecentCaptures() {
     }
 }
 
-void WiresharkApplication::refreshAddressResolution()
+void WiresharkApplication::refreshPacketData()
 {
-    // Anything new show up?
     if (host_name_lookup_process()) {
         emit addressResolutionChanged();
+    } else if (col_data_changed()) {
+        emit columnDataChanged();
     }
 }
 
@@ -846,9 +848,9 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentCaptures()));
     recent_timer_.start(2000);
 
-    addr_resolv_timer_.setParent(this);
-    connect(&addr_resolv_timer_, SIGNAL(timeout()), this, SLOT(refreshAddressResolution()));
-    addr_resolv_timer_.start(1000);
+    packet_data_timer_.setParent(this);
+    connect(&packet_data_timer_, SIGNAL(timeout()), this, SLOT(refreshPacketData()));
+    packet_data_timer_.start(1000);
 
     tap_update_timer_.setParent(this);
     tap_update_timer_.setInterval(TAP_UPDATE_DEFAULT_INTERVAL);

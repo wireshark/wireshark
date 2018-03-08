@@ -325,7 +325,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                                                    &iso15765_frag_items, NULL, iso15765_tree);
 
                 if (frag_msg && frag_msg->reassembled_in != pinfo->num) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
+                    col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]",
                                     frag_msg->reassembled_in);
                 }
 

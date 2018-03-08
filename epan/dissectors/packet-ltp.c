@@ -412,7 +412,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	{
 		if(frag_msg && more_frags)
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in %d] ",frag_msg->reassembled_in);
+			col_append_frame_number(pinfo, COL_INFO, "[Reassembled in %d] ",frag_msg->reassembled_in);
 		}
 		else
 		{

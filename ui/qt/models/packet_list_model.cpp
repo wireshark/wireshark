@@ -136,6 +136,13 @@ void PacketListModel::clear() {
     idle_dissection_row_ = 0;
 }
 
+void PacketListModel::invalidateAllColumnStrings()
+{
+    PacketListRecord::invalidateAllRecords();
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+}
+
 void PacketListModel::resetColumns()
 {
     if (cap_file_) {

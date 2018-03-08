@@ -51,6 +51,13 @@ public:
     frame_data *getRowFdata(int row);
     void ensureRowColorized(int row);
     int visibleIndexOf(frame_data *fdata) const;
+    /**
+     * @brief Invalidate any cached column strings.
+     */
+    void invalidateAllColumnStrings();
+    /**
+     * @brief Rebuild columns from settings.
+     */
     void resetColumns();
     void resetColorized();
     void toggleFrameMark(const QModelIndex &fm_index);

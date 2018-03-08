@@ -308,6 +308,7 @@ PacketList::PacketList(QWidget *parent) :
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(packet_list_model_, SIGNAL(itemHeightChanged(const QModelIndex&)), this, SLOT(updateRowHeights(const QModelIndex&)));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
+    connect(wsApp, SIGNAL(columnDataChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
 
     header()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(header(), SIGNAL(customContextMenuRequested(QPoint)),
@@ -699,16 +700,14 @@ void PacketList::drawCurrentPacket()
 // the UI to scroll to that packet).
 // Called from many places.
 void PacketList::redrawVisiblePackets() {
-    update();
-    header()->update();
+    redrawVisiblePacketsDontSelectCurrent();
     drawCurrentPacket();
 }
 
 // Redraw the packet list and detail.
 // Does not scroll back to the selected packet.
 void PacketList::redrawVisiblePacketsDontSelectCurrent() {
-    update();
-    header()->update();
+    packet_list_model_->invalidateAllColumnStrings();
 }
 
 void PacketList::resetColumns()
@@ -874,6 +873,9 @@ void PacketList::captureFileReadFinished()
 {
     packet_list_model_->flushVisibleRows();
     packet_list_model_->dissectIdle(true);
+    // Invalidating the column strings picks up and request/response
+    // tracking changes. We might just want to call it from flushVisibleRows.
+    packet_list_model_->invalidateAllColumnStrings();
 }
 
 void PacketList::freeze()

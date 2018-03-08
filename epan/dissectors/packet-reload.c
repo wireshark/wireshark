@@ -4115,7 +4115,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented RELOAD protocol (trans id=%x%x off=%u",
                    transaction_id[0],transaction_id[1], fragment);
       if (reload_fd_head && reload_fd_head->reassembled_in != pinfo->num) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
+        col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]",
                         reload_fd_head->reassembled_in);
       }
       save_fragmented = pinfo->fragmented;

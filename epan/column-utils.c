@@ -41,6 +41,9 @@
 /* Used for locale decimal point */
 static char *col_decimal_point;
 
+/* Used to indicate updated column information, e.g. a new request/response. */
+static gboolean col_data_changed_;
+
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void
@@ -454,6 +457,15 @@ col_append_ports(column_info *cinfo, const gint col, port_type typ, guint16 src,
   col_snprint_port(buf_src, 32, typ, src);
   col_snprint_port(buf_dst, 32, typ, dst);
   col_append_lstr(cinfo, col, buf_src, " " UTF8_RIGHTWARDS_ARROW " ", buf_dst, COL_ADD_LSTR_TERMINATOR);
+}
+
+void
+col_append_frame_number(packet_info *pinfo, const gint col, const gchar *fmt_str, guint frame_num)
+{
+  col_append_fstr(pinfo->cinfo, col, fmt_str, frame_num);
+  if (!pinfo->fd->flags.visited) {
+    col_data_changed_ = TRUE;
+  }
 }
 
 static void
@@ -2282,6 +2294,10 @@ col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col
   }
 }
 
+gboolean col_data_changed(void) {
+  return col_data_changed_;
+  col_data_changed_ = FALSE;
+}
 /*
  * Editor modelines
  *
