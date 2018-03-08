@@ -2850,7 +2850,6 @@ cmd_ldf_get_frame_info(tvbuff_t *tvb, int offset, proto_tree *pt)
     string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
     if(length > 1) {
         proto_tree_add_string(pt, hf_gryphon_ldf_get_frame, tvb, offset, length, string);
-        id = tvb_get_guint8(tvb, offset);
         offset += length;
         proto_tree_add_uint_format_value(pt, hf_gryphon_ldf_ioctl_setflags_flags, tvb, offset, 1, 0, "(Id not used)");
         offset += 1;
