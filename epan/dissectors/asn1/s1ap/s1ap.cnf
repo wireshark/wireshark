@@ -1013,6 +1013,7 @@ MME-Group-ID							N s1ap.ies id-MME-Group-ID
 Additional-GUTI							N s1ap.ies id-Additional-GUTI
 #OCTET STRING							N s1ap.ies id-S1-Message
 CSGMembershipInfo						N s1ap.ies id-CSGMembershipInfo
+EmergencyAreaIDListForRestart			N s1ap.ies id-EmergencyAreaIDListForRestart
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst				N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1040,7 +1041,6 @@ COUNTValueExtended						N s1ap.extension id-DLCOUNTValueExtended
 ReceiveStatusOfULPDCPSDUsExtended		N s1ap.extension id-ReceiveStatusOfULPDCPSDUsExtended
 Correlation-ID							N s1ap.extension id-SIPTO-Correlation-ID
 TransportInformation					N s1ap.extension id-TransportInformation
-EmergencyAreaIDListForRestart			N s1ap.extension id-EmergencyAreaIDListForRestart
 ENBIndirectX2TransportLayerAddresses	N s1ap.extension id-eNBIndirectX2TransportLayerAddresses
 LoggedMBSFNMDT							N s1ap.extension id-LoggedMBSFNMDT
 UE-HistoryInformationFromTheUE			N s1ap.extension id-uE-HistoryInformationFromTheUE
@@ -1322,7 +1322,7 @@ PWSFailureIndication					N s1ap.proc.imsg id-PWSFailureIndication
 
 
 /* Whenever a Cause appears, look up the reason and show it in the Info column */
-   
+
 #.FN_BODY CauseRadioNetwork VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s
@@ -1341,7 +1341,7 @@ PWSFailureIndication					N s1ap.proc.imsg id-PWSFailureIndication
 #.FN_BODY CauseProtocol VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));     
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));
 
 #.FN_BODY CauseMisc VAL_PTR=&value
   guint32 value;

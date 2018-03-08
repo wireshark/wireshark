@@ -2905,7 +2905,7 @@ dissect_s1ap_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      7, &value, TRUE, 0, NULL);
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));     
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));
 
 
 
@@ -8543,7 +8543,7 @@ dissect_s1ap_PWSFailureIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 /* Whenever a Cause appears, look up the reason and show it in the Info column */
-   
+
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_PWSFailureIndication, PWSFailureIndication_sequence);
@@ -12072,6 +12072,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.ies", id_MME_Group_ID, create_dissector_handle(dissect_MME_Group_ID_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_Additional_GUTI, create_dissector_handle(dissect_Additional_GUTI_PDU, proto_s1ap));
   dissector_add_uint("s1ap.ies", id_CSGMembershipInfo, create_dissector_handle(dissect_CSGMembershipInfo_PDU, proto_s1ap));
+  dissector_add_uint("s1ap.ies", id_EmergencyAreaIDListForRestart, create_dissector_handle(dissect_EmergencyAreaIDListForRestart_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Data_Forwarding_Not_Possible, create_dissector_handle(dissect_Data_Forwarding_Not_Possible_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_Time_Synchronisation_Info, create_dissector_handle(dissect_TimeSynchronisationInfo_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_x2TNLConfigurationInfo, create_dissector_handle(dissect_X2TNLConfigurationInfo_PDU, proto_s1ap));
@@ -12091,7 +12092,6 @@ proto_reg_handoff_s1ap(void)
   dissector_add_uint("s1ap.extension", id_ReceiveStatusOfULPDCPSDUsExtended, create_dissector_handle(dissect_ReceiveStatusOfULPDCPSDUsExtended_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_SIPTO_Correlation_ID, create_dissector_handle(dissect_Correlation_ID_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_TransportInformation, create_dissector_handle(dissect_TransportInformation_PDU, proto_s1ap));
-  dissector_add_uint("s1ap.extension", id_EmergencyAreaIDListForRestart, create_dissector_handle(dissect_EmergencyAreaIDListForRestart_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_eNBIndirectX2TransportLayerAddresses, create_dissector_handle(dissect_ENBIndirectX2TransportLayerAddresses_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_LoggedMBSFNMDT, create_dissector_handle(dissect_LoggedMBSFNMDT_PDU, proto_s1ap));
   dissector_add_uint("s1ap.extension", id_uE_HistoryInformationFromTheUE, create_dissector_handle(dissect_UE_HistoryInformationFromTheUE_PDU, proto_s1ap));
