@@ -102,12 +102,12 @@ static void mmdb_resolve_stop(void);
 
 // Interned strings, similar to GLib's string chunks.
 static const char *chunkify_string(char *key) {
-    g_strstrip(key);
+    key = g_strstrip(key);
     char *chunk_string = (char *) wmem_map_lookup(mmdb_str_chunk, key);
 
     if (!chunk_string) {
         chunk_string = wmem_strdup(wmem_epan_scope(), key);
-        wmem_map_insert(mmdb_str_chunk, key, chunk_string);
+        wmem_map_insert(mmdb_str_chunk, chunk_string, chunk_string);
     }
 
     return chunk_string;
@@ -116,8 +116,8 @@ static const char *chunkify_string(char *key) {
 static gboolean
 process_mmdbr_stdout(int fd) {
 
-    size_t read_buf_size = 65536;
-    char *read_buf = (char *) g_malloc((gsize) read_buf_size);
+    int read_buf_size = 131072; // Hopefully this is enough.
+    char *read_buf = (char *) g_malloc(read_buf_size + 1);
     gboolean new_entries = FALSE;
 
     MMDB_DEBUG("start %d", ws_pipe_data_available(fd));
@@ -130,16 +130,19 @@ process_mmdbr_stdout(int fd) {
             mmdb_resolve_stop();
             break;
         }
+        read_buf[read_status] = '\0';
 
         size_t read_len = strlen(read_buf);
-        MMDB_DEBUG("read %zd bytes", read_len);
+        MMDB_DEBUG("read %zd bytes, len %zd", read_status, read_len);
         if (read_len < 1) {
             break;
         }
 
+        // Split on \n and strip leading and trailing whitespace, including \r.
         char **lines = g_strsplit(read_buf, "\n", -1);
         for (size_t idx = 0; lines[idx]; idx++) {
             char *line = lines[idx];
+            line = g_strstrip(line);
             size_t line_len = strlen(line);
             char *val_start = strchr(line, ':');
 
@@ -172,10 +175,10 @@ process_mmdbr_stdout(int fd) {
                 cur_lookup.as_number = (unsigned int) strtoul(val_start, NULL, 10);
             } else if (g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
                 cur_lookup.found = TRUE;
-                cur_lookup.latitude = strtod(val_start, NULL);
+                cur_lookup.latitude = g_ascii_strtod(val_start, NULL);
             } else if (g_str_has_prefix(line, RES_LOCATION_LONGITUDE)) {
                 cur_lookup.found = TRUE;
-                cur_lookup.longitude = strtod(val_start, NULL);
+                cur_lookup.longitude = g_ascii_strtod(val_start, NULL);
             } else if (g_str_has_prefix(line, RES_END)) {
                 if (cur_lookup.found) {
                     mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &cur_lookup, sizeof(cur_lookup));
@@ -406,7 +409,7 @@ maxmind_db_lookup_ipv4(guint32 addr) {
             ws_inet_ntop4(&addr, addr_str, WS_INET_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
             g_strlcat(addr_str, "\n", (gsize) sizeof(addr_str));
-            ssize_t write_status = ws_write(mmdbr_pipe.stdin_fd, addr_str, strlen(addr_str));
+            ssize_t write_status = ws_write(mmdbr_pipe.stdin_fd, addr_str, (unsigned int)strlen(addr_str));
             if (write_status < 0) {
                 MMDB_DEBUG("write error %s", g_strerror(errno));
                 mmdb_resolve_stop();
@@ -430,7 +433,7 @@ maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
             ws_inet_ntop6(addr, addr_str, WS_INET6_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
             g_strlcat(addr_str, "\n", (gsize) sizeof(addr_str));
-            ssize_t write_status = ws_write(mmdbr_pipe.stdin_fd, addr_str, strlen(addr_str));
+            ssize_t write_status = ws_write(mmdbr_pipe.stdin_fd, addr_str, (unsigned int)strlen(addr_str));
             if (write_status < 0) {
                 MMDB_DEBUG("write error %s", g_strerror(errno));
                 mmdb_resolve_stop();
