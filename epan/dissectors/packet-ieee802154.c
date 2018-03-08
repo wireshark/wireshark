@@ -1874,12 +1874,9 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
 {
     proto_item *proto_root = proto_tree_get_parent(ieee802154_tree);
     proto_tree *tree = proto_tree_get_parent_tree(ieee802154_tree);
-    guint offset = mhr_len;
     unsigned char rx_mic[IEEE802154_CIPHER_SIZE];
-    guint rx_mic_len = 0;
+    guint rx_mic_len = IEEE802154_MIC_LENGTH(packet->security_level);
     ieee802154_decrypt_status status = DECRYPT_NOT_ENCRYPTED;
-    proto_item *mic_item = NULL;
-    proto_tree *header_tree = NULL;
     tvbuff_t *payload_tvb;
 
     /* Encrypted Payload. */
@@ -1891,30 +1888,35 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
         decrypt_info.status = &status;
         decrypt_info.key = NULL; /* payload function will fill that in */
 
-        payload_tvb = decrypt_ieee802154_payload(tvb, offset, pinfo, header_tree, packet, &decrypt_info,
+        /* call with NULL tree since we add the key_number below without hiding it */
+        payload_tvb = decrypt_ieee802154_payload(tvb, mhr_len, pinfo, NULL, packet, &decrypt_info,
                                      ieee802154_set_mac_key, dissect_ieee802154_decrypt);
 
         /* Get the unencrypted data if decryption failed.  */
         if (!payload_tvb) {
             /* Deal with possible truncation and the MIC and FCS fields at the end. */
-            gint reported_len = tvb_reported_length(tvb)-offset-rx_mic_len-IEEE802154_FCS_LEN;
-            gint captured_len = tvb_captured_length(tvb)-offset;
-            payload_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN(captured_len, reported_len), reported_len);
+            gint reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len-IEEE802154_FCS_LEN;
+            gint captured_len = tvb_captured_length(tvb)-mhr_len;
+            payload_tvb = tvb_new_subset_length_caplen(tvb, mhr_len, MIN(captured_len, reported_len), reported_len);
         }
 
         /* Display the MIC. */
         if (rx_mic_len) {
-            mic_item = proto_tree_add_bytes(header_tree, hf_ieee802154_mic, tvb, 0, rx_mic_len, rx_mic);
-            PROTO_ITEM_SET_GENERATED(mic_item);
+            if (tvb_bytes_exist(tvb, tvb_reported_length(tvb) - rx_mic_len - IEEE802154_FCS_LEN, rx_mic_len)) {
+                proto_tree_add_item(ieee802154_tree, hf_ieee802154_mic, tvb, tvb_reported_length(tvb)-rx_mic_len-IEEE802154_FCS_LEN, rx_mic_len, ENC_NA);
+            }
         }
 
         /* Display the reason for failure, and abort if the error was fatal. */
         switch (status) {
         case DECRYPT_PACKET_SUCCEEDED:
-        case DECRYPT_NOT_ENCRYPTED:
-            /* No problem */
-            proto_item_append_text(mic_item, " [correct (key no. %d)]", decrypt_info.key_number);
+        {
+            proto_item *pi = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_key_number, tvb, 0, 0, decrypt_info.key_number);
+            PROTO_ITEM_SET_GENERATED(pi);
             break;
+        }
+        case DECRYPT_NOT_ENCRYPTED:
+            break;  // nothing to do
 
         case DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decryption of 802.15.4-2015 with frame counter suppression is not supported");
@@ -1943,7 +1945,6 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
 
         case DECRYPT_PACKET_MIC_CHECK_FAILED:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "MIC check failed");
-            proto_item_append_text(mic_item, " [incorrect]");
             /*
              * Abort only if the payload was encrypted, in which case we
              * probably didn't decrypt the packet right (eg: wrong key).
@@ -1957,11 +1958,10 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
     }
     /* Plaintext Payload. */
     else {
-        /* Deal with possible truncation and the FCS field at the end. */
-        gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
-        gint            captured_len = tvb_captured_length(tvb)-offset;
-        if (reported_len < captured_len) captured_len = reported_len;
-        payload_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
+        /* Deal with possible truncation and the MIC and FCS fields at the end. */
+        gint reported_len = tvb_reported_length(tvb)-mhr_len-IEEE802154_FCS_LEN;
+        gint captured_len = tvb_captured_length(tvb)-mhr_len;
+        payload_tvb = tvb_new_subset_length_caplen(tvb, mhr_len, MIN(captured_len, reported_len), reported_len);
     }
 
     return payload_tvb;
@@ -4970,8 +4970,8 @@ void proto_register_ieee802154(void)
             "Key Index for processing of the protected frame", HFILL }},
 
         { &hf_ieee802154_mic,
-        { "Decrypted MIC", "wpan.mic", FT_BYTES, BASE_NONE, NULL, 0x0,
-            "The Decrypted MIC", HFILL }},
+        { "MIC", "wpan.mic", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_ieee802154_key_number,
         { "Key Number", "wpan.key_number", FT_UINT8, BASE_DEC, NULL, 0x0,
