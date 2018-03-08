@@ -1877,7 +1877,7 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
     guint offset = mhr_len;
     unsigned char rx_mic[IEEE802154_CIPHER_SIZE];
     guint rx_mic_len = 0;
-    ieee802154_decrypt_status status;
+    ieee802154_decrypt_status status = DECRYPT_NOT_ENCRYPTED;
     proto_item *mic_item = NULL;
     proto_tree *header_tree = NULL;
     tvbuff_t *payload_tvb;
