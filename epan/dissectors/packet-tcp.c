@@ -1056,7 +1056,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
 {
     follow_record_t *follow_record, *frag_follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
-    tcp_follow_tap_data_t *follow_data = (tcp_follow_tap_data_t *)data;
+    const tcp_follow_tap_data_t *follow_data = (const tcp_follow_tap_data_t *)data;
     guint32 sequence = follow_data->tcph->th_seq;
     guint32 length = follow_data->tcph->th_seglen;
     guint32 data_length = tvb_captured_length(follow_data->tvb);
