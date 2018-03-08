@@ -11690,7 +11690,7 @@ dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
   if (len >= 3 && (indic & 0x02)) { /* Contains a PPS MO ID field ... display it. */
       proto_tree_add_item(tree, hf_hs20_indication_pps_mo_id, tvb, offset,
-		          2, ENC_BIG_ENDIAN);
+                          2, ENC_BIG_ENDIAN);
       offset += 2;
   }
 
