@@ -959,7 +959,11 @@ if(ENABLE_ZLIB)
 		set(ZLIB_DLL "zlib1.dll")
 		set_target_properties(zlib PROPERTIES FOLDER "Libs/zlib")
 		# Annoyingly zlib also builds some other stuff we aren't interested in
-		set_target_properties(zlibstatic PROPERTIES FOLDER "Libs/zlib")
+		set_target_properties(zlibstatic PROPERTIES
+			FOLDER "Libs/zlib"
+			EXCLUDE_FROM_ALL True
+			EXCLUDE_FROM_DEFAULT_BUILD True
+		)
 	endif()
 	set(PACKAGELIST ${PACKAGELIST} ZLIB)
 endif()
