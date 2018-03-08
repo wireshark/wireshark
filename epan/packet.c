@@ -2068,7 +2068,7 @@ dissector_table_get_dissector_handles(dissector_table_t dissector_table) {
  * Data structure used as user data when iterating dissector handles
  */
 typedef struct lookup_entry {
-	gchar*             dissector_short_name;
+	const gchar* dissector_short_name;
 	dissector_handle_t handle;
 } lookup_entry_t;
 
@@ -2087,7 +2087,7 @@ find_dissector_in_table(gpointer item, gpointer user_data)
 	}
 }
 
-dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, gchar* short_name)
+dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, const gchar* short_name)
 {
 	lookup_entry_t lookup;
 

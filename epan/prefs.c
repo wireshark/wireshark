@@ -2005,7 +2005,7 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
             if (unstash_data->handle_decode_as) {
                 sub_dissectors = find_dissector_table(pref->name);
                 if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)unstash_data->module->title);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, unstash_data->module->title);
                     if (handle != NULL) {
                         dissector_change_uint(pref->name, *pref->varp.uint, handle);
                     }
@@ -2054,7 +2054,7 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
             if (unstash_data->handle_decode_as) {
                 sub_dissectors = find_dissector_table(pref->name);
                 if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)unstash_data->module->title);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, unstash_data->module->title);
                     if (handle != NULL) {
                         /* Delete all of the old values from the dissector table */
                         for (i = 0; i < (*pref->varp.range)->nranges; i++) {
@@ -5262,7 +5262,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
             {
                 sub_dissectors = find_dissector_table(port_prefs[i].table_name);
                 if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)port_prefs[i].module_name);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, port_prefs[i].module_name);
                     if (handle != NULL) {
                         dissector_change_uint(port_prefs[i].table_name, uval, handle);
                         decode_build_reset_list(port_prefs[i].table_name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(uval), NULL, NULL);
@@ -5303,7 +5303,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
                         return FALSE;        /* number was bad */
                     }
 
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)port_range_prefs[i].module_name);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, port_range_prefs[i].module_name);
                     if (handle != NULL) {
 
                         for (range_i = 0; range_i < (*pref->varp.range)->nranges; range_i++) {
@@ -5820,7 +5820,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                 /* Name of preference is the dissector table */
                 sub_dissectors = find_dissector_table(pref->name);
                 if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)module->title);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, module->title);
                     if (handle != NULL) {
                         if (uval != 0) {
                             dissector_change_uint(pref->name, uval, handle);
@@ -5895,7 +5895,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                 /* Name of preference is the dissector table */
                 sub_dissectors = find_dissector_table(pref->name);
                 if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)module->title);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, module->title);
                     if (handle != NULL) {
                         /* Delete all of the old values from the dissector table */
 		                for (i = 0; i < (*pref->varp.range)->nranges; i++) {

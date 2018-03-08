@@ -398,7 +398,7 @@ WS_DLL_PUBLIC GSList *dissector_table_get_dissector_handles(dissector_table_t di
 
 /** Get a handle to dissector out of a dissector table
  */
-WS_DLL_PUBLIC dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, gchar* short_name);
+WS_DLL_PUBLIC dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, const gchar* short_name);
 
 /** Get a dissector table's type
  */
