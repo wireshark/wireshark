@@ -7018,7 +7018,7 @@ dissect_hs20_subscription_remediation(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset++;
   }
 
-  return tvb_captured_length(tvb);
+  return offset;
 }
 
 static int
@@ -7047,7 +7047,7 @@ dissect_hs20_deauthentication_imminent(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += url_len;
     PROTO_ITEM_SET_URL(pi);
   }
-  return tvb_captured_length(tvb);
+  return offset;
 }
 
 #define HS20_ANQP_HS_QUERY_LIST              1
@@ -11660,7 +11660,7 @@ dissect_hs20_osen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
                         ett_osen_group_management_cipher_suite,
                         "OSEN Group Management Cipher Suite");
 
-  return tvb_captured_length(tvb);
+  return offset;
 }
 
 static const value_string hs20_indication_release_number_vals[] = {
@@ -11700,7 +11700,7 @@ dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
      offset += 2;
   }
 
-  return len;
+  return offset;
 }
 
 static void
