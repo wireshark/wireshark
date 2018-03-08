@@ -7002,7 +7002,7 @@ dissect_hs20_subscription_remediation(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, void *data _U_)
 {
   int offset = 0;
-  guint8 url_len = tvb_get_guint8(tvb, 0);
+  guint8 url_len = tvb_get_guint8(tvb, offset);
   proto_item *pi = NULL;
 
   proto_tree_add_item(tree, hf_hs20_subscription_remediation_url_len, tvb, offset,
@@ -11508,7 +11508,7 @@ static int dissect_group_data_cipher_suite(tvbuff_t *tvb, packet_info *pinfo _U_
 
 /*
  * Handle the HS 2.0 rev 2 OSU Server-only authenticated layer 2 Encryption
- * Network element. This is almost the same format is the RSNE so maybe some
+ * Network element. This is almost the same format as the RSNE so maybe some
  * common code can be used.
  */
 static int
@@ -11681,22 +11681,22 @@ dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     NULL
   };
   int len = tvb_captured_length(tvb);
-  guint8 indic = tvb_get_guint8(tvb, 0);
   int offset = 0;
+  guint8 indic = tvb_get_guint8(tvb, offset);
 
   proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_hs20_indication,
-                              ENC_LITTLE_ENDIAN);
+                              ENC_NA);
   offset++;
 
   if (len >= 3 && (indic & 0x02)) { /* Contains a PPS MO ID field ... display it. */
       proto_tree_add_item(tree, hf_hs20_indication_pps_mo_id, tvb, offset,
-                          2, ENC_BIG_ENDIAN);
+                          2, ENC_LITTLE_ENDIAN);
       offset += 2;
   }
 
   if ((len >= (offset + 2)) && (indic & 0x04)) {
      proto_tree_add_item(tree, hf_hs20_indication_anqp_domain_id, tvb, offset,
-                         2, ENC_BIG_ENDIAN);
+                         2, ENC_LITTLE_ENDIAN);
      offset += 2;
   }
 
@@ -15379,8 +15379,9 @@ dissect_roaming_consortium(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   }
 
   if (oi2_len > 0) {
-    proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi2,
+    item = proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi2,
                         tvb, offset, oi2_len, ENC_NA);
+    add_manuf(item, tvb, offset);
     offset += oi2_len;
   }
 
