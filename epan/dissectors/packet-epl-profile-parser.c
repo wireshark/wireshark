@@ -435,7 +435,7 @@ populate_datatype_list(xmlNodeSetPtr nodes, void *_profile)
 					if (subnode->type == XML_ELEMENT_NODE)
 					{
 						struct datatype *type;
-						const struct epl_datatype *ptr = epl_type_to_hf((char*)subnode->name);
+						const struct epl_datatype *ptr = epl_type_to_hf((const char*)subnode->name);
 						if (!ptr)
 						{
 							g_log(NULL, G_LOG_LEVEL_INFO, "Skipping unknown type '%s'\n", subnode->name);
@@ -464,8 +464,8 @@ parse_obj_tag(xmlNode *cur, struct od_entry *out, struct profile *profile) {
 
 		for(attr = cur->properties; attr; attr = attr->next)
 		{
-			const char *key = (char*)attr->name,
-			           *val = (char*)attr->children->content;
+			const char *key = (const char*)attr->name,
+			           *val = (const char*)attr->children->content;
 
 			if (g_str_equal("index", key))
 			{
