@@ -252,6 +252,8 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
 
 static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
     true_false_string* tfs;
+    gchar *true_string;
+    gchar *false_string;
 
     if (lua_isnil(L,idx)) {
         return NULL;
@@ -260,26 +262,23 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
         return NULL;
     }
 
-    tfs = (true_false_string *) g_malloc(sizeof(true_false_string));
-    tfs->true_string = g_strdup("True");
-    tfs->false_string = g_strdup("False");
+    true_string = g_strdup("True");
+    false_string = g_strdup("False");
 
     lua_pushnil(L);
 
     while (lua_next(L, idx)) {
 
         if (! lua_isnumber(L,-2)) {
-            g_free ((gchar *)tfs->true_string);
-            g_free ((gchar *)tfs->false_string);
-            g_free (tfs);
+            g_free (true_string);
+            g_free (false_string);
             luaL_argerror(L,idx,"All keys of a table used as true_false_string must be integers");
             return NULL;
         }
 
         if (! lua_isstring(L,-1)) {
-            g_free ((gchar *)tfs->true_string);
-            g_free ((gchar *)tfs->false_string);
-            g_free (tfs);
+            g_free (true_string);
+            g_free (false_string);
             luaL_argerror(L,idx,"All values of a table used as true_false_string must be strings");
             return NULL;
         }
@@ -287,23 +286,26 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
         /* Arrays in LUA start with index number 1 */
         switch (lua_tointeger(L,-2)) {
         case 1:
-            g_free((gchar *)tfs->true_string);
-            tfs->true_string = g_strdup(lua_tostring(L,-1));
+            g_free(true_string);
+            true_string = g_strdup(lua_tostring(L,-1));
             break;
         case 2:
-            g_free((gchar *)tfs->false_string);
-            tfs->false_string = g_strdup(lua_tostring(L,-1));
+            g_free(false_string);
+            false_string = g_strdup(lua_tostring(L,-1));
             break;
         default:
-            g_free ((gchar *)tfs->true_string);
-            g_free ((gchar *)tfs->false_string);
-            g_free (tfs);
+            g_free (true_string);
+            g_free (false_string);
             luaL_argerror(L,idx,"The true_false_string table can have maximum two strings with key value 1 and 2");
             return NULL;
         }
 
         lua_pop(L, 1);
     }
+
+    tfs = (true_false_string *) g_malloc(sizeof(true_false_string));
+    tfs->true_string = true_string;
+    tfs->false_string = false_string;
 
     return tfs;
 }
