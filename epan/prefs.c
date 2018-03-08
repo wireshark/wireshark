@@ -10,6 +10,8 @@
 
 #include "config.h"
 
+#include "ws_diag_control.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -319,7 +321,9 @@ prefs_init(void)
 static void
 free_string_like_preference(pref_t *pref)
 {
-    g_free(*pref->varp.string);
+DIAG_OFF(cast-qual)
+    g_free((char *)*pref->varp.string);
+DIAG_ON(cast-qual)
     *pref->varp.string = NULL;
     g_free(pref->default_val.string);
     pref->default_val.string = NULL;
@@ -347,10 +351,7 @@ free_pref(gpointer data, gpointer user_data _U_)
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
-        g_free(*pref->varp.string);
-        *pref->varp.string = NULL;
-        g_free(pref->default_val.string);
-        pref->default_val.string = NULL;
+        free_string_like_preference(pref);
         break;
     case PREF_RANGE:
     case PREF_DECODE_AS_RANGE:
@@ -1382,6 +1383,18 @@ register_string_like_preference(module_t *module, const char *name,
 }
 
 /*
+ * Assign to a string preference.
+ */
+static void
+pref_set_string_like_pref_value(pref_t *pref, const gchar *value)
+{
+DIAG_OFF(cast-qual)
+    g_free((void *)*pref->varp.string);
+DIAG_ON(cast-qual)
+    *pref->varp.string = g_strdup(value);
+}
+
+/*
  * For use by UI code that sets preferences.
  */
 unsigned int
@@ -1417,11 +1430,10 @@ prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source)
         if (*pref->varp.string) {
             if (strcmp(*pref->varp.string, value) != 0) {
                 changed = prefs_get_effect_flags(pref);
-                g_free(*pref->varp.string);
-                *pref->varp.string = g_strdup(value);
+                pref_set_string_like_pref_value(pref, value);
             }
         } else if (value) {
-            *pref->varp.string = g_strdup(value);
+            pref_set_string_like_pref_value(pref, value);
         }
         break;
     default:
@@ -5249,7 +5261,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
             if (p == value || *p != '\0')
                 return FALSE;        /* number was bad */
 
-            module = prefs_find_module((gchar*)port_prefs[i].module_name);
+            module = prefs_find_module(port_prefs[i].module_name);
             pref = prefs_find_preference(module, port_prefs[i].table_name);
             if (pref != NULL)
             {
@@ -5294,7 +5306,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
                     g_assert_not_reached();
                 }
 
-                module = prefs_find_module((gchar*)port_range_prefs[i].module_name);
+                module = prefs_find_module(port_range_prefs[i].module_name);
                 pref = prefs_find_preference(module, port_range_prefs[i].table_name);
                 if (pref != NULL)
                 {
