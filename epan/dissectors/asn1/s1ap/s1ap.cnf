@@ -1568,6 +1568,7 @@ CE-mode-B-SupportIndicator                      N s1ap.ies id-CE-mode-B-SupportI
 SRVCCOperationNotPossible                       N s1ap.ies id-SRVCCOperationNotPossible
 NB-IoT-UEIdentityIndexValue                     N s1ap.ies id-NB-IoT-UEIdentityIndexValue
 RRC-Establishment-Cause                         N s1ap.ies id-RRC-Resume-Cause
+EmergencyAreaIDListForRestart                   N s1ap.ies id-EmergencyAreaIDListForRestart
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1595,7 +1596,6 @@ COUNTValueExtended                      N s1ap.extension id-DLCOUNTValueExtended
 ReceiveStatusOfULPDCPSDUsExtended       N s1ap.extension id-ReceiveStatusOfULPDCPSDUsExtended
 Correlation-ID                          N s1ap.extension id-SIPTO-Correlation-ID
 TransportInformation                    N s1ap.extension id-TransportInformation
-EmergencyAreaIDListForRestart           N s1ap.extension id-EmergencyAreaIDListForRestart
 ENBIndirectX2TransportLayerAddresses    N s1ap.extension id-eNBIndirectX2TransportLayerAddresses
 LoggedMBSFNMDT                          N s1ap.extension id-LoggedMBSFNMDT
 UE-HistoryInformationFromTheUE          N s1ap.extension id-uE-HistoryInformationFromTheUE
