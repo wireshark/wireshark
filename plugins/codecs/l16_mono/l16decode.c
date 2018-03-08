@@ -16,31 +16,31 @@
 #include "codecs/codecs.h"
 #include "ws_attributes.h"
 
-void *
+static void *
 codec_l16_init(void)
 {
     return NULL;
 }
 
-void
+static void
 codec_l16_release(void *ctx _U_)
 {
 
 }
 
-unsigned
+static unsigned
 codec_l16_get_channels(void *ctx _U_)
 {
     return 1;
 }
 
-unsigned
+static unsigned
 codec_l16_get_frequency(void *ctx _U_)
 {
     return 44100;
 }
 
-size_t
+static size_t
 codec_l16_decode(void *ctx _U_, const void *input, size_t inputSizeBytes,
                  void *output, size_t *outputSizeBytes)
 {
