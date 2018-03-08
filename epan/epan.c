@@ -85,6 +85,10 @@
 #include <libxml/parser.h>
 #endif
 
+#ifndef _WIN32
+#include <signal.h>
+#endif
+
 static GSList *epan_register_all_procotols = NULL;
 static GSList *epan_register_all_handoffs = NULL;
 
@@ -223,6 +227,12 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	xmlInitParser();
 	LIBXML_TEST_VERSION;
 #endif
+
+#ifndef _WIN32
+	// We might receive a SIGPIPE due to maxmind_db.
+	signal(SIGPIPE, SIG_IGN);
+#endif
+
 	TRY {
 		tap_init();
 		prefs_init();

@@ -11,10 +11,6 @@
 
 #include <glib.h>
 
-#ifdef Q_OS_UNIX
-#include <signal.h>
-#endif
-
 #include <locale.h>
 
 #ifdef HAVE_GETOPT_H
@@ -611,11 +607,6 @@ int main(int argc, char *qt_argv[])
     } else {
       wsApp->setLastOpenDir(get_persdatafile_dir());
     }
-
-#ifdef Q_OS_UNIX
-    // Replicates behavior in gtk_init();
-    signal(SIGPIPE, SIG_IGN);
-#endif
 
     set_console_log_handler();
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
