@@ -100,7 +100,7 @@ static void mmdb_resolve_stop(void);
 #define RES_LOCATION_LONGITUDE  "location.longitude"
 #define RES_END                 "# End "
 
-// Interned strings, similar to GLib's string chunks.
+// Interned strings and v6 addresses, similar to GLib's string chunks.
 static const char *chunkify_string(char *key) {
     key = g_strstrip(key);
     char *chunk_string = (char *) wmem_map_lookup(mmdb_str_chunk, key);
@@ -111,6 +111,17 @@ static const char *chunkify_string(char *key) {
     }
 
     return chunk_string;
+}
+
+static const void *chunkify_v6_addr(const ws_in6_addr *addr) {
+    void *chunk_v6_bytes = (char *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
+
+    if (!chunk_v6_bytes) {
+        chunk_v6_bytes = wmem_memdup(wmem_epan_scope(), addr->bytes, sizeof(struct in6_addr));
+        wmem_map_insert(mmdb_ipv6_map, chunk_v6_bytes, chunk_v6_bytes);
+    }
+
+    return chunk_v6_bytes;
 }
 
 static gboolean
@@ -192,7 +203,7 @@ process_mmdbr_stdout(int fd) {
                         MMDB_DEBUG("inserting v6 %p %s: city %s country %s", (void *) mmdb_val, cur_addr, mmdb_val->city, mmdb_val->country);
                         ws_in6_addr addr;
                         ws_inet_pton6(cur_addr, &addr);
-                        wmem_map_insert(mmdb_ipv6_map, addr.bytes, mmdb_val);
+                        wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&addr), mmdb_val);
                         new_entries = TRUE;
                     }
                 }
@@ -441,7 +452,7 @@ maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
         }
 
         result = &mmdb_not_found;
-        wmem_map_insert(mmdb_ipv6_map, addr->bytes, result);
+        wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(addr), result);
     }
 
     return result;
