@@ -1367,8 +1367,8 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
             }
             break;
         }
-        g_free(field);
     }
+    g_free(field);
 
     error_string = register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL,
                                        iostat_packet, i ? NULL : iostat_draw);
