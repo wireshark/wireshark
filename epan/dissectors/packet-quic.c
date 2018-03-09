@@ -108,8 +108,8 @@ static dissector_handle_t ssl_handle;
 typedef struct quic_info_data {
     guint32 version;
     guint16 server_port;
-    tls13_cipher *client_cleartext_cipher;
-    tls13_cipher *server_cleartext_cipher;
+    tls13_cipher *client_handshake_cipher;
+    tls13_cipher *server_handshake_cipher;
 } quic_info_data_t;
 
 #define QUIC_DRAFT 0xff0000
@@ -661,15 +661,15 @@ quic_decrypt_message(tls13_cipher *cipher, tvbuff_t *head, packet_info *pinfo, g
 }
 
 /**
- * Compute the client and server cleartext secrets given Connection ID "cid".
+ * Compute the client and server handshake secrets given Connection ID "cid".
  *
- * On success TRUE is returned and the two cleartext secrets are returned (these
+ * On success TRUE is returned and the two handshake secrets are returned (these
  * must be freed with wmem_free(NULL, ...)). FALSE is returned on error.
  */
 static gboolean
-quic_derive_cleartext_secrets(guint64 cid,
-                              guint8 **client_cleartext_secret,
-                              guint8 **server_cleartext_secret,
+quic_derive_handshake_secrets(guint64 cid,
+                              guint8 **client_handshake_secret,
+                              guint8 **server_handshake_secret,
                               quic_info_data_t *quic_info,
                               const gchar **error)
 {
@@ -737,15 +737,15 @@ quic_derive_cleartext_secrets(guint64 cid,
 
 
     if (!tls13_hkdf_expand_label(GCRY_MD_SHA256, &secret, label_prefix, client_label,
-                                 HASH_SHA2_256_LENGTH, client_cleartext_secret)) {
+                                 HASH_SHA2_256_LENGTH, client_handshake_secret)) {
         *error = "Key expansion (client) failed";
         return FALSE;
     }
 
     if (!tls13_hkdf_expand_label(GCRY_MD_SHA256, &secret, label_prefix, server_label,
-                                 HASH_SHA2_256_LENGTH, server_cleartext_secret)) {
-        wmem_free(NULL, *client_cleartext_secret);
-        *client_cleartext_secret = NULL;
+                                 HASH_SHA2_256_LENGTH, server_handshake_secret)) {
+        wmem_free(NULL, *client_handshake_secret);
+        *client_handshake_secret = NULL;
         *error = "Key expansion (server) failed";
         return FALSE;
     }
@@ -755,7 +755,7 @@ quic_derive_cleartext_secrets(guint64 cid,
 }
 
 static gboolean
-quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_t *quic_info)
+quic_create_handshake_decoders(guint64 cid, const gchar **error, quic_info_data_t *quic_info)
 {
     tls13_cipher   *client_cipher, *server_cipher;
     StringInfo      client_secret = { NULL, HASH_SHA2_256_LENGTH };
@@ -768,12 +768,12 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
     }
 
     /* TODO extract from packet/conversation */
-    if (!quic_derive_cleartext_secrets(cid, &client_secret.data, &server_secret.data, quic_info, error)) {
+    if (!quic_derive_handshake_secrets(cid, &client_secret.data, &server_secret.data, quic_info, error)) {
         /* TODO handle error (expert info) */
         return FALSE;
     }
 
-    /* Cleartext packets are protected with AEAD_AES_128_GCM */
+    /* handshake packets are protected with AEAD_AES_128_GCM */
     client_cipher = tls13_cipher_create(hkdf_label_prefix, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &client_secret, error);
     server_cipher = tls13_cipher_create(hkdf_label_prefix, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &server_secret, error);
 
@@ -784,8 +784,8 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_
         return FALSE;
     }
 
-    quic_info->client_cleartext_cipher = client_cipher;
-    quic_info->server_cleartext_cipher = server_cipher;
+    quic_info->client_handshake_cipher = client_cipher;
+    quic_info->server_handshake_cipher = server_cipher;
 
     return TRUE;
 }
@@ -811,11 +811,11 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
     const gchar *error = NULL;
     tvbuff_t *decrypted_tvb;
 
-    cipher = quic_info->client_cleartext_cipher;
+    cipher = quic_info->client_handshake_cipher;
 
     /* Create new decryption context based on the Client Connection
      * ID from the Client Initial packet. */
-    if (!quic_create_cleartext_decoders(cid, &error, quic_info)) {
+    if (!quic_create_handshake_decoders(cid, &error, quic_info)) {
         expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
          return offset;
     }
@@ -858,9 +858,9 @@ dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
     tvbuff_t *decrypted_tvb;
 
     if(pinfo->destport == quic_info->server_port) {
-        cipher = quic_info->client_cleartext_cipher;
+        cipher = quic_info->client_handshake_cipher;
     } else {
-        cipher = quic_info->server_cleartext_cipher;
+        cipher = quic_info->server_handshake_cipher;
     }
 
     if (cipher) {
@@ -901,7 +901,7 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
     tvbuff_t *decrypted_tvb;
 
     /* Retry coming always from server */
-    cipher = quic_info->server_cleartext_cipher;
+    cipher = quic_info->server_handshake_cipher;
 
     if (cipher) {
         /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
