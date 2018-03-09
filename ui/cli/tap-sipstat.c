@@ -287,12 +287,12 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 	if (value->response_code != 0)
 	{
 		/* Responses */
-		guint *key = g_new(guint, 1);
+		guint key;
 		sip_response_code_t *sc;
 
 		/* Look up response code in hash table */
-		*key = value->response_code;
-		sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, key);
+		key = value->response_code;
+		sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, &key);
 		if (sc == NULL)
 		{
 			/* Non-standard status code ; we classify it as others
@@ -307,31 +307,31 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 			}
 			else if (i < 200)
 			{
-				*key = 199;	/* Hopefully, this status code will never be used */
+				key = 199;	/* Hopefully, this status code will never be used */
 			}
 			else if (i < 300)
 			{
-				*key = 299;
+				key = 299;
 			}
 			else if (i < 400)
 			{
-				*key = 399;
+				key = 399;
 			}
 			else if (i < 500)
 			{
-				*key = 499;
+				key = 499;
 			}
 			else if (i < 600)
 			{
-				*key = 599;
+				key = 599;
 			}
 			else
 			{
-				*key = 699;
+				key = 699;
 			}
 
 			/* Now look up this fallback code to get its text description */
-			sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, key);
+			sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, &key);
 			if (sc == NULL)
 			{
 				return 0;
