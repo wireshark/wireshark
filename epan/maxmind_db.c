@@ -20,7 +20,7 @@ static mmdb_lookup_t mmdb_not_found;
 
 #ifdef HAVE_MAXMINDDB
 
-#include <fcntl.h>
+#include <stdio.h>
 #include <errno.h>
 
 #include <epan/wmem/wmem.h>
@@ -52,6 +52,7 @@ static wmem_map_t *mmdb_str_chunk;
 static char cur_addr[WS_INET6_ADDRSTRLEN];
 static mmdb_lookup_t cur_lookup;
 static ws_pipe_t mmdbr_pipe;
+static FILE *mmdbr_stdout;
 
 /* UAT definitions. Copied from oids.c */
 typedef struct _maxmind_db_path_t {
@@ -125,94 +126,81 @@ static const void *chunkify_v6_addr(const ws_in6_addr *addr) {
 }
 
 static gboolean
-process_mmdbr_stdout(int fd) {
+process_mmdbr_stdout(void) {
 
-    int read_buf_size = 131072; // Hopefully this is enough.
-    char *read_buf = (char *) g_malloc(read_buf_size + 1);
+    int read_buf_size = 2048;
+    char *read_buf = (char *) g_malloc(read_buf_size);
     gboolean new_entries = FALSE;
 
-    MMDB_DEBUG("start %d", ws_pipe_data_available(fd));
+    MMDB_DEBUG("start %d", ws_pipe_data_available(mmdbr_pipe.stdout_fd));
 
-    while (ws_pipe_data_available(fd)) {
+    while (ws_pipe_data_available(mmdbr_pipe.stdout_fd)) {
         read_buf[0] = '\0';
-        ssize_t read_status = ws_read(fd, read_buf, (unsigned int)read_buf_size);
-        if (read_status < 1) {
+        char *line = fgets(read_buf, read_buf_size, mmdbr_stdout);
+        if (!line || ferror(mmdbr_stdout)) {
             MMDB_DEBUG("read error %s", g_strerror(errno));
             mmdb_resolve_stop();
             break;
         }
-        read_buf[read_status] = '\0';
 
-        size_t read_len = strlen(read_buf);
-        MMDB_DEBUG("read %zd bytes, len %zd", read_status, read_len);
-        if (read_len < 1) {
-            break;
-        }
+        line = g_strstrip(line);
+        size_t line_len = strlen(line);
+        MMDB_DEBUG("read %zd bytes, feof %d: %s", line_len, feof(mmdbr_stdout), line);
+        if (line_len < 1) continue;
 
-        // Split on \n and strip leading and trailing whitespace, including \r.
-        char **lines = g_strsplit(read_buf, "\n", -1);
-        for (size_t idx = 0; lines[idx]; idx++) {
-            char *line = lines[idx];
-            line = g_strstrip(line);
-            size_t line_len = strlen(line);
-            char *val_start = strchr(line, ':');
+        char *val_start = strchr(line, ':');
+        if (val_start) val_start++;
 
-            if (val_start) val_start++;
-
-            if (line_len < 1) continue;
-            MMDB_DEBUG("line %s", line);
-
-            if (line[0] == '[') {
-                // [init] or resolved address in square brackets.
-                line[line_len - 1] = '\0';
-                g_strlcpy(cur_addr, line + 1, WS_INET6_ADDRSTRLEN);
-                memset(&cur_lookup, 0, sizeof(cur_lookup));
-            } else if (strcmp(line, RES_STATUS_ERROR) == 0) {
-                // Error during init.
-                cur_addr[0] = '\0';
-                memset(&cur_lookup, 0, sizeof(cur_lookup));
-                mmdb_resolve_stop();
-            } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_NAMES_EN)) {
-                cur_lookup.found = TRUE;
-                cur_lookup.country = chunkify_string(val_start);
-            } else if (g_str_has_prefix(line, RES_CITY_NAMES_EN)) {
-                cur_lookup.found = TRUE;
-                cur_lookup.city = chunkify_string(val_start);
-            } else if (g_str_has_prefix(line, RES_ASN_ORG)) {
-                cur_lookup.found = TRUE;
-                cur_lookup.as_org = chunkify_string(val_start);
-            } else if (g_str_has_prefix(line, RES_ASN_NUMBER)) {
-                cur_lookup.found = TRUE;
-                cur_lookup.as_number = (unsigned int) strtoul(val_start, NULL, 10);
-            } else if (g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
-                cur_lookup.found = TRUE;
-                cur_lookup.latitude = g_ascii_strtod(val_start, NULL);
-            } else if (g_str_has_prefix(line, RES_LOCATION_LONGITUDE)) {
-                cur_lookup.found = TRUE;
-                cur_lookup.longitude = g_ascii_strtod(val_start, NULL);
-            } else if (g_str_has_prefix(line, RES_END)) {
-                if (cur_lookup.found) {
-                    mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &cur_lookup, sizeof(cur_lookup));
-                    if (strstr(cur_addr, ".")) {
-                        MMDB_DEBUG("inserting v4 %p %s: city %s country %s", (void *) mmdb_val, cur_addr, mmdb_val->city, mmdb_val->country);
-                        guint32 addr;
-                        ws_inet_pton4(cur_addr, &addr);
-                        wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(addr), mmdb_val);
-                        new_entries = TRUE;
-                    } else if (strstr(cur_addr, ":")) {
-                        MMDB_DEBUG("inserting v6 %p %s: city %s country %s", (void *) mmdb_val, cur_addr, mmdb_val->city, mmdb_val->country);
-                        ws_in6_addr addr;
-                        ws_inet_pton6(cur_addr, &addr);
-                        wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&addr), mmdb_val);
-                        new_entries = TRUE;
-                    }
+        if (line[0] == '[' && line_len > 2) {
+            // [init] or resolved address in square brackets.
+            line[line_len - 1] = '\0';
+            g_strlcpy(cur_addr, line + 1, WS_INET6_ADDRSTRLEN);
+            memset(&cur_lookup, 0, sizeof(cur_lookup));
+        } else if (strcmp(line, RES_STATUS_ERROR) == 0) {
+            // Error during init.
+            cur_addr[0] = '\0';
+            memset(&cur_lookup, 0, sizeof(cur_lookup));
+            mmdb_resolve_stop();
+        } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_NAMES_EN)) {
+            cur_lookup.found = TRUE;
+            cur_lookup.country = chunkify_string(val_start);
+        } else if (g_str_has_prefix(line, RES_CITY_NAMES_EN)) {
+            cur_lookup.found = TRUE;
+            cur_lookup.city = chunkify_string(val_start);
+        } else if (g_str_has_prefix(line, RES_ASN_ORG)) {
+            cur_lookup.found = TRUE;
+            cur_lookup.as_org = chunkify_string(val_start);
+        } else if (g_str_has_prefix(line, RES_ASN_NUMBER)) {
+            cur_lookup.found = TRUE;
+            cur_lookup.as_number = (unsigned int) strtoul(val_start, NULL, 10);
+        } else if (g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
+            cur_lookup.found = TRUE;
+            cur_lookup.latitude = g_ascii_strtod(val_start, NULL);
+        } else if (g_str_has_prefix(line, RES_LOCATION_LONGITUDE)) {
+            cur_lookup.found = TRUE;
+            cur_lookup.longitude = g_ascii_strtod(val_start, NULL);
+        } else if (g_str_has_prefix(line, RES_END)) {
+            if (cur_lookup.found) {
+                mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) wmem_memdup(wmem_epan_scope(), &cur_lookup, sizeof(cur_lookup));
+                if (strstr(cur_addr, ".")) {
+                    MMDB_DEBUG("inserting v4 %p %s: city %s country %s", (void *) mmdb_val, cur_addr, mmdb_val->city, mmdb_val->country);
+                    guint32 addr;
+                    ws_inet_pton4(cur_addr, &addr);
+                    wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(addr), mmdb_val);
+                    new_entries = TRUE;
+                } else if (strstr(cur_addr, ":")) {
+                    MMDB_DEBUG("inserting v6 %p %s: city %s country %s", (void *) mmdb_val, cur_addr, mmdb_val->city, mmdb_val->country);
+                    ws_in6_addr addr;
+                    ws_inet_pton6(cur_addr, &addr);
+                    wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&addr), mmdb_val);
+                    new_entries = TRUE;
                 }
-                cur_addr[0] = '\0';
-                memset(&cur_lookup, 0, sizeof(cur_lookup));
             }
+            cur_addr[0] = '\0';
+            memset(&cur_lookup, 0, sizeof(cur_lookup));
         }
-        g_strfreev(lines);
     }
+
     g_free(read_buf);
     return new_entries;
 }
@@ -227,9 +215,11 @@ static void mmdb_resolve_stop(void) {
     }
 
     ws_close(mmdbr_pipe.stdin_fd);
+    fclose(mmdbr_stdout);
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
     g_spawn_close_pid(mmdbr_pipe.pid);
     mmdbr_pipe.pid = WS_INVALID_PID;
+    mmdbr_stdout = NULL;
 }
 
 /**
@@ -269,6 +259,7 @@ static void mmdb_resolve_start(void) {
     g_ptr_array_add(args, NULL);
 
     ws_pipe_init(&mmdbr_pipe);
+    mmdbr_stdout = NULL;
     GPid pipe_pid = ws_pipe_spawn_async(&mmdbr_pipe, args);
     MMDB_DEBUG("spawned %s pid %d", mmdbresolve, pipe_pid);
 
@@ -284,8 +275,12 @@ static void mmdb_resolve_start(void) {
         return;
     }
 
+    // XXX Should we set O_NONBLOCK similar to dumpcap?
+    mmdbr_stdout = ws_fdopen(mmdbr_pipe.stdout_fd, "r");
+    setvbuf(mmdbr_stdout, NULL, _IONBF, 0);
+
     // [init]
-    process_mmdbr_stdout(mmdbr_pipe.stdout_fd);
+    process_mmdbr_stdout();
 }
 
 /**
@@ -420,13 +415,14 @@ gboolean maxmind_db_lookup_process(void)
 {
     if (!ws_pipe_valid(&mmdbr_pipe)) return FALSE;
 
-    return process_mmdbr_stdout(mmdbr_pipe.stdout_fd);
+    return process_mmdbr_stdout();
 }
 
 const mmdb_lookup_t *
 maxmind_db_lookup_ipv4(guint32 addr) {
     mmdb_lookup_t *result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(addr));
 
+    // XXX Should we call maxmind_db_lookup_process first?
     if (!result) {
         if (ws_pipe_valid(&mmdbr_pipe)) {
             char addr_str[WS_INET_ADDRSTRLEN + 1];
@@ -451,6 +447,7 @@ const mmdb_lookup_t *
 maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
     mmdb_lookup_t * result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
 
+    // XXX Should we call maxmind_db_lookup_process first?
     if (!result) {
         if (ws_pipe_valid(&mmdbr_pipe)) {
             char addr_str[WS_INET6_ADDRSTRLEN + 1];
