@@ -30,8 +30,56 @@
 #include <glib.h>
 #include <log.h>
 
-#include <wsutil/filesystem.h>
+#include "wsutil/filesystem.h"
 #include "wsutil/ws_pipe.h"
+
+#ifdef _WIN32
+#include <tchar.h>
+#include "wsutil/win32-utils.h"
+
+// This appears to be the closest equivalent to SIGPIPE on Windows.
+// https://blogs.msdn.microsoft.com/oldnewthing/20131209-00/?p=2433
+// https://stackoverflow.com/a/53214/82195
+// We might want to make it public and use it for our other external
+// processes.
+
+// CreateProcess flags.
+// CREATE_NEW_CONSOLE: Don't interfere with the main application console.
+// CREATE_SUSPENDED: Suspend the child so that we can cleanly call
+//     AssignProcessToJobObject.
+// CREATE_BREAKAWAY_FROM_JOB: The main application might be associated with
+//     a job, e.g. if we're running from ConEmu or Visual Studio. Break away
+//     from it so that we can cleanly call AssignProcessToJobObject on *our* job.
+#define WS_CP_JOB_FLAGS (CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_BREAKAWAY_FROM_JOB)
+
+static void ws_pipe_kill_child_on_exit(ws_pipe_handle child_handle) {
+    static HANDLE cjo_handle = NULL;
+    if (!cjo_handle) {
+        cjo_handle = CreateJobObject(NULL, _T("Local\\Wireshark child process cleanup"));
+
+        if (!cjo_handle) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create child cleanup job object: %s",
+                win32strerror(GetLastError()));
+            return;
+        }
+
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION cjo_jel_info = { 0 };
+        cjo_jel_info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        BOOL sijo_ret = SetInformationJobObject(cjo_handle, JobObjectExtendedLimitInformation,
+            &cjo_jel_info, sizeof(cjo_jel_info));
+        if (!sijo_ret) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not set child cleanup limits: %s",
+                win32strerror(GetLastError()));
+        }
+    }
+
+    BOOL aptjo_ret = AssignProcessToJobObject(cjo_handle, child_handle);
+    if (!aptjo_ret) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not assign child cleanup process: %s",
+            win32strerror(GetLastError()));
+    }
+}
+#endif // _WIN32
 
 gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **args, gchar **command_output)
 {
@@ -121,10 +169,12 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
 
-    if (CreateProcess(NULL, wcommandline, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
+    if (CreateProcess(NULL, wcommandline, NULL, NULL, TRUE, WS_CP_JOB_FLAGS, NULL, NULL, &info, &processInfo))
     {
         gchar* buffer;
 
+        ws_pipe_kill_child_on_exit(processInfo.hProcess);
+        ResumeThread(processInfo.hThread);
         WaitForSingleObject(processInfo.hProcess, INFINITE);
         buffer = (gchar*)g_malloc(BUFFER_SIZE);
         status = ws_read_string_from_pipe(child_stdout_rd, buffer, BUFFER_SIZE);
@@ -252,8 +302,10 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
 
-    if (CreateProcess(NULL, wcommandline, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
+    if (CreateProcess(NULL, wcommandline, NULL, NULL, TRUE, WS_CP_JOB_FLAGS, NULL, NULL, &info, &processInfo))
     {
+        ws_pipe_kill_child_on_exit(processInfo.hProcess);
+        ResumeThread(processInfo.hThread);
         ws_pipe->stdin_fd = _open_osfhandle((intptr_t)(child_stdin_wr), _O_BINARY);
         ws_pipe->stdout_fd = _open_osfhandle((intptr_t)(child_stdout_rd), _O_BINARY);
         ws_pipe->stderr_fd = _open_osfhandle((intptr_t)(child_stderr_rd), _O_BINARY);
