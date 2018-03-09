@@ -3591,13 +3591,7 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 } /* dissect_ieee802154_command */
 
 /**
- * IEEE 802.15.4 decryption algorithm. Tries to find the
- * appropriate key from the information in the IEEE 802.15.4
- * packet structure and dissector config.
- *
- * This function implements the security proceedures for the
- * 2006 version of the spec only. IEEE 802.15.4-2003 is
- * unsupported.
+ * IEEE 802.15.4 decryption algorithm
  * @param tvb IEEE 802.15.4 packet.
  * @param pinfo Packet info structure.
  * @param offset Offset where the ciphertext 'c' starts.
@@ -3651,10 +3645,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
         tvb_memcpy(tvb, decrypt_info->rx_mic, offset + reported_len, M);
     }
 
-    /*
-     * Key Lookup - Need to find the appropriate key.
-     *
-     */
+    /* We need the extended source address. */
     if ((packet->key_index == IEEE802154_THR_WELL_KNOWN_KEY_INDEX) &&
         (packet->key_source.addr32 == IEEE802154_THR_WELL_KNOWN_KEY_SRC))
     {
@@ -3699,7 +3690,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
 
         /* Perform CTR-mode transformation. */
         if (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, text, captured_len)) {
-            g_free(text);
+            wmem_free(pinfo->pool, text);
             *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
             return NULL;
         }
