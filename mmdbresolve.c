@@ -146,7 +146,7 @@ main(int argc, char *argv[])
                                 fprintf(stdout, ": %f\n", entry_data.float_value);
                                 break;
                             default:
-                                fprintf(stdout, ": UNKNOWN (%d)\n", entry_data.type);
+                                fprintf(stdout, ": UNKNOWN (%u)\n", entry_data.type);
                         }
                     }
                 }
