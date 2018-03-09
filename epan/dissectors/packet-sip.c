@@ -222,6 +222,8 @@ static gint hf_sip_p_acc_net_i_acc_type   = -1;
 static gint hf_sip_p_acc_net_i_ucid_3gpp  = -1;
 
 static gint hf_sip_service_priority = -1;
+static gint hf_sip_icid_value = -1;
+static gint hf_sip_icid_gen_addr = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip                       = -1;
@@ -255,6 +257,7 @@ static gint ett_sip_ppi_uri               = -1;
 static gint ett_sip_tc_uri                = -1;
 static gint ett_sip_session_id            = -1;
 static gint ett_sip_p_access_net_info     = -1;
+static gint ett_sip_p_charging_vector      = -1;
 static gint ett_sip_feature_caps          = -1;
 
 static expert_field ei_sip_unrecognized_header = EI_INIT;
@@ -3019,6 +3022,112 @@ static void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *
 }
 
 /*
+The syntax for the P-Charging-Vector header field is described as
+follows:
+
+    P-Charging-Vector  = "P-Charging-Vector" HCOLON icid-value
+    *(SEMI charge-params)
+    charge-params      = icid-gen-addr / orig-ioi / term-ioi /
+    transit-ioi / related-icid /
+    related-icid-gen-addr / generic-param
+    icid-value                = "icid-value" EQUAL gen-value
+    icid-gen-addr             = "icid-generated-at" EQUAL host
+    orig-ioi                  = "orig-ioi" EQUAL gen-value
+    term-ioi                  = "term-ioi" EQUAL gen-value
+    transit-ioi               = "transit-ioi" EQUAL transit-ioi-list
+    transit-ioi-list          = DQUOTE transit-ioi-param
+    *(COMMA transit-ioi-param) DQUOTE
+    transit-ioi-param         = transit-ioi-indexed-value /
+    transit-ioi-void-value
+    transit-ioi-indexed-value = transit-ioi-name "."
+    transit-ioi-index
+    transit-ioi-name          = ALPHA *(ALPHA / DIGIT)
+    transit-ioi-index         = 1*DIGIT
+    transit-ioi-void-value    = "void"
+    related-icid              = "related-icid" EQUAL gen-value
+    related-icid-gen-addr     = "related-icid-generated-at" EQUAL host
+*/
+static void
+dissect_sip_p_charging_vector_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+{
+
+    gint  current_offset, semi_colon_offset, length, equals_offset;
+
+    /* skip Spaces and Tabs */
+    start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+
+    if (start_offset >= line_end_offset)
+    {
+        /* Nothing to parse */
+        return;
+    }
+
+    /* icid-value                = "icid-value" EQUAL gen-value */
+    current_offset = start_offset;
+    semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+
+    if (semi_colon_offset == -1) {
+        /* No parameters, is that allowed?*/
+        semi_colon_offset = line_end_offset;
+    }
+
+    length = semi_colon_offset - current_offset;
+
+    /* Parse parameter and value */
+    equals_offset = tvb_find_guint8(tvb, current_offset + 1, length, '=');
+    if (equals_offset == -1) {
+        /* Does not conform to ABNF */
+        return;
+    }
+
+    /* Get the icid-value */
+    proto_tree_add_item(tree, hf_sip_icid_value, tvb,
+        equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+
+    current_offset = semi_colon_offset + 1;
+
+    /* Add the rest of the parameters to the tree */
+    while (current_offset < line_end_offset) {
+        gchar *param_name = NULL;
+        gint par_name_end_offset;
+        /* skip Spaces and Tabs */
+        current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+        semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+
+        if (semi_colon_offset == -1) {
+            semi_colon_offset = line_end_offset;
+        }
+
+        length = semi_colon_offset - current_offset;
+
+        /* Parse parameter and value */
+        equals_offset = tvb_find_guint8(tvb, current_offset + 1, length, '=');
+        if (equals_offset != -1) {
+            /* Has value part */
+            par_name_end_offset = equals_offset;
+            /* Extract the parameter name */
+            param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, par_name_end_offset - current_offset, ENC_UTF_8 | ENC_NA);
+            /* charge-params */
+            if ((param_name != NULL) && (g_ascii_strcasecmp(param_name, "icid-gen-addr") == 0)) {
+                proto_tree_add_item(tree, hf_sip_icid_gen_addr, tvb,
+                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+            }
+            else {
+                proto_tree_add_format_text(tree, tvb, current_offset, length);
+            }
+        }
+        else {
+            proto_tree_add_format_text(tree, tvb, current_offset, length);
+        }
+
+        current_offset = semi_colon_offset + 1;
+    }
+
+
+}
+
+/*
 https://tools.ietf.org/html/rfc6809
 The ABNF for the Feature-Caps header fields is:
 
@@ -4356,6 +4465,19 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                             p_access_net_info_tree = proto_item_add_subtree(sip_element_item, ett_sip_p_access_net_info);
                             dissect_sip_p_access_network_info_header(tvb, p_access_net_info_tree, value_offset, line_end_offset);
+                        }
+                        break;
+                    case POS_P_CHARGING_VECTOR:
+                        if (hdr_tree) {
+                            proto_tree *p_charging_vector_tree;
+
+                            sip_element_item = sip_proto_tree_add_string(hdr_tree,
+                                hf_header_array[hf_index], tvb,
+                                offset, next_offset - offset,
+                                value_offset, value_len);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+                            p_charging_vector_tree = proto_item_add_subtree(sip_element_item, ett_sip_p_charging_vector);
+                            dissect_sip_p_charging_vector_header(tvb, p_charging_vector_tree, value_offset, line_end_offset);
                         }
                         break;
                     case POS_FEATURE_CAPS:
@@ -7029,6 +7151,16 @@ void proto_register_sip(void)
           { "Service Priority",  "sip.service_priority",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_sip_icid_value,
+        { "icid-value",  "sip.icid_value",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sip_icid_gen_addr,
+        { "icid-gen-addr",  "sip.icid_gen_addr",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
@@ -7073,6 +7205,7 @@ void proto_register_sip(void)
         &ett_sip_curi,
         &ett_sip_session_id,
         &ett_sip_p_access_net_info,
+        &ett_sip_p_charging_vector,
         &ett_sip_feature_caps
     };
     static gint *ett_raw[] = {
