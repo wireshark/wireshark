@@ -1282,7 +1282,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 
 #define get_uintvar_integer(val,tvb,start,len,ok) \
     val = tvb_get_guintvar(tvb,start,&len, pinfo, &ei_wsp_oversized_uintvar); \
-    if (len>5) ok = FALSE; else ok = TRUE;
+    if (len>5 || len==0) ok = FALSE; else ok = TRUE;
 #define get_short_integer(val,tvb,start,len,ok) \
     val = tvb_get_guint8(tvb,start); \
     if (val & 0x80) ok = TRUE; else ok=FALSE; \
@@ -5183,6 +5183,8 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint8 pd
          * Get the length of the capability field
          */
         capaValueLen = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+        if (len == 0)
+            return;
         capaLen = capaValueLen + len;
 
         cap_subtree = proto_tree_add_subtree(wsp_capabilities, tvb, offset, capaLen, ett_capabilities_entry, &cap_item, "Capability");
