@@ -292,7 +292,6 @@ read_keytab_file(const char *filename)
 	krb5_error_code ret;
 	krb5_keytab_entry key;
 	krb5_kt_cursor cursor;
-	enc_key_t *new_key;
 	static gboolean first_time=TRUE;
 
 	if (filename == NULL || filename[0] == 0) {
@@ -324,6 +323,7 @@ read_keytab_file(const char *filename)
 	do{
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
+			enc_key_t *new_key;
 			int i;
 			char *pos;
 
