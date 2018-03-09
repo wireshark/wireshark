@@ -221,7 +221,10 @@ process_mmdbr_stdout(int fd) {
  * Stop our mmdbresolve process.
  */
 static void mmdb_resolve_stop(void) {
-    if (!mmdbr_pipe.pid) return;
+    if (!ws_pipe_valid(&mmdbr_pipe)) {
+        MMDB_DEBUG("not cleaning up, invalid PID %d", mmdbr_pipe.pid);
+        return;
+    }
 
     ws_close(mmdbr_pipe.stdin_fd);
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
@@ -244,9 +247,17 @@ static void mmdb_resolve_start(void) {
         mmdb_str_chunk = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
     }
 
-    if (!mmdb_file_arr) return;
+    if (!mmdb_file_arr) {
+        MMDB_DEBUG("unexpected mmdb_file_arr == NULL");
+        return;
+    }
 
     mmdb_resolve_stop();
+
+    if (mmdb_file_arr->len == 0) {
+        MMDB_DEBUG("no GeoIP databases found");
+        return;
+    }
 
     GPtrArray *args = g_ptr_array_new();
     char *mmdbresolve = g_strdup_printf("%s%c%s", get_progfile_dir(), G_DIR_SEPARATOR, "mmdbresolve");
@@ -262,7 +273,9 @@ static void mmdb_resolve_start(void) {
     MMDB_DEBUG("spawned %s pid %d", mmdbresolve, pipe_pid);
 
     for (guint i = 0; i < args->len; i++) {
-        g_free(g_ptr_array_index(args, i));
+        char *arg = g_ptr_array_index(args, i);
+        MMDB_DEBUG("args: %s", arg);
+        g_free(arg);
     }
     g_ptr_array_free(args, TRUE);
 
@@ -405,7 +418,7 @@ void maxmind_db_pref_cleanup(void)
 
 gboolean maxmind_db_lookup_process(void)
 {
-    if (mmdbr_pipe.pid == WS_INVALID_PID) return FALSE;
+    if (!ws_pipe_valid(&mmdbr_pipe)) return FALSE;
 
     return process_mmdbr_stdout(mmdbr_pipe.stdout_fd);
 }
@@ -415,7 +428,7 @@ maxmind_db_lookup_ipv4(guint32 addr) {
     mmdb_lookup_t *result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(addr));
 
     if (!result) {
-        if (mmdbr_pipe.stdin_fd) {
+        if (ws_pipe_valid(&mmdbr_pipe)) {
             char addr_str[WS_INET_ADDRSTRLEN + 1];
             ws_inet_ntop4(&addr, addr_str, WS_INET_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
@@ -439,7 +452,7 @@ maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
     mmdb_lookup_t * result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
 
     if (!result) {
-        if (mmdbr_pipe.stdin_fd) {
+        if (ws_pipe_valid(&mmdbr_pipe)) {
             char addr_str[WS_INET6_ADDRSTRLEN + 1];
             ws_inet_ntop6(addr, addr_str, WS_INET6_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);

@@ -58,6 +58,14 @@ WS_DLL_PUBLIC gboolean ws_pipe_spawn_sync ( gchar * dirname, gchar * command, gi
 WS_DLL_PUBLIC void ws_pipe_init(ws_pipe_t *ws_pipe);
 
 /**
+ * @brief Checks whether a pipe is valid (for reading or writing).
+ */
+static inline gboolean ws_pipe_valid(ws_pipe_t *ws_pipe)
+{
+    return ws_pipe && ws_pipe->pid && ws_pipe->pid != WS_INVALID_PID;
+}
+
+/**
  * @brief Start a process using g_spawn_sync on UNIX and Linux, and CreateProcess on Windows.
  * @param ws_pipe The process PID, stdio descriptors, etc.
  * @param args The command to run along with its arguments.
