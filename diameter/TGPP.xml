@@ -1470,6 +1470,19 @@
 	<avp name="RRC-Counter-Timestamp" code="4320" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="Time"/>
 	</avp>
+	<avp name="Idle-Status-Indication" code="4322" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<grouped>
+			<gavp name="Idle-Status-Timestamp"/>
+			<gavp name="Active-Time"/>
+			<gavp name="Subscribed-Periodic-RAU-TAU-Timer"/>
+		</grouped>
+	</avp>
+	<avp name="Idle-Status-Timestamp" code="4323" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="Idle-Status-Timestamp" code="4324" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
 	<!--
 	Note: The AVP codes from 4300 to 4399 are reserved for TS 29.128
 	-->

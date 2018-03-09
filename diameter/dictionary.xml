@@ -140,8 +140,9 @@
 		<command name="Cancel-VCSG-Location"	code="8388642" vendor-id="None"/>
 		<command name="3GPP-Device-Trigger"		code="8388643" vendor-id="None"/>     <!-- 3GPP TS 29.337 -->
 		<command name="3GPP-Delivery-Report"		code="8388644" vendor-id="None"/>   <!-- 3GPP TS 29.337 -->
+		<command name="MO-Forward-Short-Message"	code="8388645" vendor-id="None"/>   <!-- 3GPP TS 29.338 -->
 		<!--
-			8388645 MO-Forward-Short-Message Request/Answer (OFR/OFA) [3GPP TS 29.338][Kimmo_Kymalainen]
+
 			8388646 MT-Forward-Short-Message Request/Answer (TFR/TFA) [3GPP TS 29.338][Kimmo_Kymalainen]
 			8388647 Send-Routing-Info-for-SM-Request/Answer (SRR/SRA) [3GPP TS 29.338][Kimmo_Kymalainen]
 			8388648 Alert-Service-Centre-Request/Answer (ALR/ALA) [3GPP TS 29.338][Kimmo_Kymalainen]
@@ -7096,7 +7097,9 @@
 		<avp name="Application-Port-Identifier" code="3010" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-
+		<avp name="Old-Reference-Number" code="3011" mandatory="mustnot" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="IP-SM-GW-Number" code="3100" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
@@ -7109,6 +7112,7 @@
 				<gavp name="MSISDN"/>
 				<gavp name="External-Identifier"/>
 				<gavp name="LMSI"/>
+				<gavp name="Type-Of-External-Identifier"/>
 			</grouped>
 		</avp>
 		<avp name="S6-Service-ID" code="3103" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -7218,6 +7222,7 @@
 				<gavp name="DL-Buffering-Suggested-Packet-Count"/>
 			</grouped>
 		</avp>
+		<!-- Monitoring-Event-Report supports T6a/T6b and S6t, but AVP formats are not the same -->
 		<avp name="Monitoring-Event-Report" code="3123" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SCEF-Reference-ID"/>
@@ -7232,6 +7237,9 @@
 				<gavp name="Event-Handling"/>
 				<gavp name="Service-Report"/>
 				<gavp name="Loss-Of-Connectivity-Reason"/>
+				<gavp name="Idle-Status-Indication"/>
+				<gavp name="Communication-Failure-Information"/>
+				<gavp name="Number-Of-UE-Per-Location-Report"/>
 			</grouped>
 		</avp>
 		<avp name="SCEF-Reference-ID" code="3124" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -7394,6 +7402,9 @@
 		<avp name="Loss-Of-Connectivity-Reason" code="3162" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="Type-Of-External-Identifier" code="3168" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<!--
 		Note: The AVP codes from 3163 to 3199 are reserved for TS 29.336
 		-->
@@ -7413,25 +7424,31 @@
 			<enum name="ROAMING_RESTRICTION" code="4"/>
 			<enum name="UNIDENTIFIED_SUBSCRIBER" code="5"/>
 		</avp>
-
-		<avp name="SM-RP-SMEA" code="3309" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctetString"/>
+		<avp name="Trigger-Action" code="3202" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
 		</avp>
-
-		<avp name="Maximum-UE-Availability-Time" code="3329" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Time"/>
-		</avp>
-		<avp name="Maximum-Retransmission-Time" code="3330" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Time"/>
-		</avp>
-		<avp name="Requested-Retransmission-Time" code="3331" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Time"/>
+		<avp name="MTC-Error-Diagnostic" code="3203" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
 		</avp>
 
 		<!--
-		Note: The AVP codes from 3300 to 3399 are reserved for TS 29.338
+		Note: The AVP codes from 3206 to 3308 are reserved for TS 29.338
 		-->
-
+		<avp name="SM-RP-SMEA" code="3309" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Maximum-UE-Availability-Time" code="3329" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Maximum-Retransmission-Time" code="3330" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Requested-Retransmission-Time" code="3331"  mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="SMS-GMSC-Address" code="3332"  mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 		<avp name="Reason-Header" code="3401" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
