@@ -632,7 +632,7 @@ sub parselicense {
 			$gplver = " (v$1)";
 		} elsif ($licensetext =~ /SPDX-License-Identifier:\s+GPL-([1-9])\.0\+/i ) {
 			$gplver = " (v$1 or later)";
-		} elsif ($licensetext =~ /SPDX-License-Identifier:\s+LGPL-([1-9])\.0\-or-later/i ) {
+		} elsif ($licensetext =~ /SPDX-License-Identifier:\s+LGPL-([1-9])\.[0-1]\-or-later/i ) {
 			$gplver = " (v$1 or later)";
 		}
 
@@ -705,6 +705,10 @@ sub parselicense {
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+MIT/i) {
 			$license = 'MIT/X11 (BSD like)';
+		}
+
+		if ($licensetext =~ /SPDX-License-Identifier:\s+ISC/i) {
+			$license = 'ISC';
 		}
 
 		if ($licensetext =~ /(?:is|may be)\s(?:(?:distributed|used).*?terms|being\s+released).*?\b(L?GPL)\b/) {
@@ -843,6 +847,14 @@ sub parselicense {
 
 		if ($licensetext =~ /(License WTFPL|Under (the|a) WTFPL)/i) {
 			$license = "WTFPL $license";
+		}
+
+		if ($licensetext =~ /SPDX-License-Identifier:\s+\(([a-zA-Z0-9-\.]+)\s+OR\s+([a-zA-Z0-9-\.]+)\)/i) {
+		  # print STDERR "OK ---$1---$2---";
+			# print "PIPPO " . parselicense("SPDX-License-Identifier: $1") . " E " . parselicense("SPDX-License-Identifier: $2");
+			if ($1 and $2) {
+				$license = parselicense("SPDX-License-Identifier: $1") . " " . parselicense("SPDX-License-Identifier: $2");
+			}
 		}
 
 		$license = "UNKNOWN" if (!length($license));
