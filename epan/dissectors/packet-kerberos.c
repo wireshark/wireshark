@@ -616,13 +616,14 @@ read_keytab_file(const char *filename)
 	}
 
 	do{
-		new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
-		new_key->fd_num = -1;
-		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
 			int i;
 			char *pos;
+
+			new_key = g_new(enc_key_t, 1);
+			new_key->fd_num = -1;
+			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
@@ -753,13 +754,14 @@ read_keytab_file(const char *filename)
 	}
 
 	do{
-		new_key = (enc_key_t *)g_malloc(sizeof(enc_key_t));
-		new_key->fd_num = -1;
-		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
 			unsigned int i;
 			char *pos;
+
+			new_key = g_new0(enc_key_t, 1);
+			new_key->fd_num = -1;
+			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
@@ -4457,7 +4459,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1865 "./asn1/kerberos/packet-kerberos-template.c"
+#line 1867 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5619,7 +5621,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2246 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2248 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5705,7 +5707,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2262 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2264 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
