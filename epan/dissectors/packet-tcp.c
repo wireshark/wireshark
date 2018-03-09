@@ -3217,8 +3217,12 @@ again:
                  * desegmented, but the stuff at the end
                  * being a new higher-level PDU that also
                  * needs desegmentation).
+                 *
+                 * If "desegment_offset" is 0, then nothing in the reassembled
+                 * TCP segments was dissected, so remove the data source.
                  */
-                remove_last_data_source(pinfo);
+                if (pinfo->desegment_offset == 0)
+                    remove_last_data_source(pinfo);
                 fragment_set_partial_reassembly(&tcp_reassembly_table,
                                                 pinfo, msp->first_frame, NULL);
 
