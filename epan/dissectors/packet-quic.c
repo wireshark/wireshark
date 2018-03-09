@@ -149,12 +149,6 @@ static const value_string quic_short_packet_type_vals[] = {
 #define QUIC_LPT_HANDSHAKE  0x7D
 
 static const value_string quic_long_packet_type_vals[] = {
-    { 0x01, "Version Negotiation" }, /* Removed in draft-08 by a check of Version (=0x00000000)*/
-    { 0x02, "Client Initial" }, /* Replaced in draft-08 by 0x7F (Initial) */
-    { 0x03, "Server Stateless Retry" }, /* Replaced in draft-08 by 0x7E (Retry) */
-    { 0x04, "Server Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
-    { 0x05, "Client Cleartext" }, /* Replaced in draft-08 by 0x7D (Handshake) */
-    { 0x06, "0-RTT Protected" },  /* Replaced in draft-08 by 0x7C (0-RTT Protected) */
     { QUIC_LPT_INITIAL, "Initial" },
     { QUIC_LPT_RETRY, "Retry" },
     { QUIC_LPT_HANDSHAKE, "Handshake" },
