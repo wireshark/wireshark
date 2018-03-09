@@ -3,7 +3,8 @@
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
-   SPDX-License-Identifier: LGPL-2.1-or-later  */
+   SPDX-License-Identifier: LGPL-2.1-or-later
+*/
 
 
 #include "config.h"
