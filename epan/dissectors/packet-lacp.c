@@ -316,7 +316,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     tlv_length_item = proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_length);
     offset += 1;
 
-    while (tlv_type != LACPDU_TYPE_TERMINATOR) {
+    while (tlv_type != LACPDU_TYPE_TERMINATOR && tlv_length >= 2) {
         offset += (tlv_length - 2);
         proto_tree_add_item_ret_uint(lacp_tree, hf_lacp_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tlv_type);
         offset += 1;
