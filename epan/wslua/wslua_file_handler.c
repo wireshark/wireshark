@@ -633,6 +633,7 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     }
 
     fh->type = g_strdup(type);
+    fh->extensions = NULL;
     fh->finfo.name = g_strdup(name);
     fh->finfo.short_name = g_strdup(short_name);
     fh->finfo.default_file_extension = NULL;
@@ -718,6 +719,16 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
         return luaL_error(L,"this FileHandler is not complete enough to register");
 
     if (fh->is_writer) {
+        if (fh->extensions && fh->extensions[0]) {
+            char *extension = g_strdup(fh->extensions);
+            char *extra_extensions = strchr(extension, ';');
+            if (extra_extensions) {
+                /* Split "cap;pcap" -> "cap" and "pcap" */
+                *extra_extensions++ = '\0';
+            }
+            fh->finfo.default_file_extension = extension;
+            fh->finfo.additional_file_extensions = extra_extensions;
+        }
         fh->finfo.can_write_encap = wslua_dummy_can_write_encap;
         fh->finfo.wslua_info = (wtap_wslua_file_info_t*) g_malloc0(sizeof(wtap_wslua_file_info_t));
         fh->finfo.wslua_info->wslua_can_write_encap = wslua_filehandler_can_write_encap;
@@ -731,7 +742,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
         struct open_info oi = { NULL, OPEN_INFO_HEURISTIC, NULL, NULL, NULL, NULL };
         oi.name = fh->finfo.short_name;
         oi.open_routine = wslua_filehandler_open;
-        oi.extensions = fh->finfo.additional_file_extensions;
+        oi.extensions = fh->extensions;
         oi.wslua_data = (void*)(fh);
         if (strchr(fh->type,'m') != NULL) {
             oi.type = OPEN_INFO_MAGIC;
@@ -933,13 +944,15 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_close);
     number when the FileHandler is registered. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FileHandler,type,file_type);
 
-/* WSLUA_ATTRIBUTE FileHandler_extensions RW One or more file extensions that this file type usually uses.
+/* WSLUA_ATTRIBUTE FileHandler_extensions RW One or more semicolon-separated file extensions that this file type usually uses.
 
     For readers using heuristics to determine file type, Wireshark will try the readers of the file's
     extension first, before trying other readers.  But ultimately Wireshark tries all file readers
-    for any file extension, until it finds one that accepts the file. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(FileHandler,extensions,finfo.additional_file_extensions);
-WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(FileHandler,extensions,finfo.additional_file_extensions,TRUE);
+    for any file extension, until it finds one that accepts the file.
+
+    (Since 2.6) For writers, the first extension is used to suggest the default file extension. */
+WSLUA_ATTRIBUTE_STRING_GETTER(FileHandler,extensions);
+WSLUA_ATTRIBUTE_STRING_SETTER(FileHandler,extensions,TRUE);
 
 /* WSLUA_ATTRIBUTE FileHandler_writing_must_seek RW true if the ability to seek is required when writing
     this file format, else false.
