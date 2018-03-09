@@ -154,6 +154,8 @@ main(int argc, char *argv[])
         fflush(stdout);
     }
 
+    free(mmdbs);
+
     return 0;
 }
 
