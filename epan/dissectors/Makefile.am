@@ -899,6 +899,7 @@ DISSECTOR_SRC = \
 	packet-maap.c		\
 	packet-mac-lte-framed.c	\
 	packet-mac-lte.c	\
+	packet-mac-nr.c         \
 	packet-maccontrol.c	\
 	packet-macsec.c		\
 	packet-mactelnet.c	\
@@ -1668,6 +1669,7 @@ DISSECTOR_INCLUDES = \
 	packet-lpp.h		\
 	packet-lte-rrc.h	\
 	packet-mac-lte.h	\
+	packet-mac-nr.h         \
 	packet-mausb.h		\
 	packet-mbim.h		\
 	packet-mbtcp.h		\
