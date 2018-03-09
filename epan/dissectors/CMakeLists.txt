@@ -1354,6 +1354,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-multipart.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mux27010.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mysql.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nano.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nas_5gs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nas_eps.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nasdaq-itch.c
