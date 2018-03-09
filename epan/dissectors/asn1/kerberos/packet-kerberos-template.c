@@ -330,13 +330,14 @@ read_keytab_file(const char *filename)
 	}
 
 	do{
-		new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
-		new_key->fd_num = -1;
-		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
 			int i;
 			char *pos;
+
+			new_key = g_new(enc_key_t, 1);
+			new_key->fd_num = -1;
+			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
@@ -469,13 +470,14 @@ read_keytab_file(const char *filename)
 	}
 
 	do{
-		new_key = (enc_key_t *)g_malloc(sizeof(enc_key_t));
-		new_key->fd_num = -1;
-		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
 			unsigned int i;
 			char *pos;
+
+			new_key = g_new0(enc_key_t, 1);
+			new_key->fd_num = -1;
+			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
