@@ -273,7 +273,7 @@ static void mmdb_resolve_start(void) {
     MMDB_DEBUG("spawned %s pid %d", mmdbresolve, pipe_pid);
 
     for (guint i = 0; i < args->len; i++) {
-        char *arg = g_ptr_array_index(args, i);
+        char *arg = (char *)g_ptr_array_index(args, i);
         MMDB_DEBUG("args: %s", arg);
         g_free(arg);
     }
