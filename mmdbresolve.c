@@ -75,6 +75,10 @@ main(int argc, char *argv[])
             if (mmdb_err == MMDB_SUCCESS) {
                 mmdb_count++;
                 mmdbs = (MMDB_s *) realloc(mmdbs, mmdb_count * sizeof(MMDB_s));
+                if (mmdbs == NULL) {
+                    fprintf(stdout, "ERROR out of memory\n");
+                    return 1;
+                }
                 mmdbs[mmdb_count - 1] = try_mmdb;
                 fprintf(stdout, "OK\n");
                 fprintf(stdout, "db.%zd.type: %s\n", mmdb_count, mmdbs[mmdb_count - 1].metadata.database_type);
