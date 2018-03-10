@@ -58,7 +58,7 @@ typedef enum
     ENDP_COLUMN_GEO_CITY,
     ENDP_COLUMN_GEO_AS_NUM,
     ENDP_COLUMN_GEO_AS_ORG,
-    ENDP_NUM_GEO_COLUMNS,
+    ENDP_NUM_GEO_COLUMNS
 } endpoint_column_type_e;
 
 extern const char *endp_column_titles[ENDP_NUM_GEO_COLUMNS];
