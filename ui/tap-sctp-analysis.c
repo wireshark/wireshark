@@ -709,6 +709,9 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 error->info_text = "INFOS";
                 info->error_info_list = g_list_append(info->error_info_list, error);
             }
+        } else {
+            free_address_wmem(NULL, &tmp_info.src);
+            free_address_wmem(NULL, &tmp_info.dst);
         }
     } /* endif (!info) */
     else
@@ -1105,8 +1108,11 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
                 }
             }
-
         }
+
+        free_address_wmem(NULL, &tmp_info.src);
+        free_address_wmem(NULL, &tmp_info.dst);
+
         if (datachunk || forwardchunk)
         {
             if (info->direction == 1)
