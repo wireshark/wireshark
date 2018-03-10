@@ -339,13 +339,13 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
     /* Clean up the parameters */
     parameters = unfold_and_compact_mime_header(message_info->media_str, &dummy);
 
-    start_boundary = ws_find_media_type_parameter(parameters, "boundary");
+    start_boundary = ws_find_media_type_parameter(wmem_packet_scope(), parameters, "boundary");
 
     if(!start_boundary) {
         return NULL;
     }
     if(strncmp(type, "multipart/encrypted", sizeof("multipart/encrypted")-1) == 0) {
-        start_protocol = ws_find_media_type_parameter(parameters, "protocol");
+        start_protocol = ws_find_media_type_parameter(wmem_packet_scope(), parameters, "protocol");
         if(!start_protocol) {
             g_free(start_boundary);
             return NULL;
@@ -357,13 +357,11 @@ get_multipart_info(packet_info *pinfo, http_message_info_t *message_info)
      */
     m_info = wmem_new(wmem_packet_scope(), multipart_info_t);
     m_info->type = type;
-    m_info->boundary = wmem_strdup(wmem_packet_scope(), start_boundary);
+    m_info->boundary = start_boundary;
     m_info->boundary_length = (guint)strlen(start_boundary);
-    g_free(start_boundary);
     if(start_protocol) {
-        m_info->protocol = wmem_strdup(wmem_packet_scope(), start_protocol);
+        m_info->protocol = start_protocol;
         m_info->protocol_length = (guint)strlen(start_protocol);
-        g_free(start_protocol);
     } else {
         m_info->protocol = NULL;
         m_info->protocol_length = -1;
@@ -554,7 +552,6 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     gchar *content_encoding_str = NULL;
     char *filename = NULL;
     char *mimetypename = NULL;
-    char *tmp;
     gboolean last_field = FALSE;
     gboolean is_raw_data = FALSE;
 
@@ -630,7 +627,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                     break;
                 }
             } else {
-                char *value_str = g_strdup(header_str + colon_offset + 1);
+                char *value_str = wmem_strdup(wmem_packet_scope(), header_str + colon_offset + 1);
 
                 proto_tree_add_string_format(subtree,
                       hf_header_array[hf_index], tvb,
@@ -643,9 +640,8 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         {
                             char *semicolonp;
                             /* The Content-Type starts at colon_offset + 1 or after the type parameter */
-                            char* type_str = ws_find_media_type_parameter(value_str, "type");
+                            char* type_str = ws_find_media_type_parameter(wmem_packet_scope(), value_str, "type");
                             if(type_str != NULL) {
-                                g_free(value_str);
                                 value_str = type_str;
                             }
 
@@ -678,11 +674,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            tmp = ws_find_media_type_parameter(message_info.media_str, "name");
-                            if (tmp) {
-                                mimetypename = wmem_strdup(wmem_packet_scope(), tmp);
-                                g_free(tmp);
-                            }
+                            mimetypename = ws_find_media_type_parameter(wmem_packet_scope(), message_info.media_str, "name");
 
                             if(strncmp(content_type_str, "application/octet-stream",
                                     sizeof("application/octet-stream")-1) == 0) {
@@ -713,17 +705,12 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                         case POS_CONTENT_DISPOSITION:
                         {
                             /* find the "filename" parameter */
-                            tmp = ws_find_media_type_parameter(value_str, "filename");
-                            if (tmp) {
-                                filename = wmem_strdup(wmem_packet_scope(), tmp);
-                                g_free(tmp);
-                            }
+                            filename = ws_find_media_type_parameter(wmem_packet_scope(), value_str, "filename");
                         }
                         break;
                     default:
                         break;
                 }
-                g_free(value_str);
             }
         }
         offset = next_offset;

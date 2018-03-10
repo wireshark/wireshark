@@ -16,7 +16,6 @@
 #include "config.h"
 
 #include <string.h>
-
 #include <glib.h>
 
 #include <epan/media_params.h>
@@ -132,7 +131,7 @@ ws_get_next_media_type_parameter(const char *pos, gsize *retnamelen,
 }
 
 char *
-ws_find_media_type_parameter(const char *parameters, const char *key)
+ws_find_media_type_parameter(wmem_allocator_t *scope, const char *parameters, const char *key)
 {
     const char *p, *name, *value;
     char c;
@@ -176,7 +175,7 @@ ws_find_media_type_parameter(const char *parameters, const char *key)
     }
 
     /* We found the parameter with that name; now extract the value. */
-    valuestr = (char *)g_malloc(valuelen + 1);
+    valuestr = (char *)wmem_alloc(scope, valuelen + 1);
     vp = valuestr;
     p = value;
     /* Is the value a quoted string? */

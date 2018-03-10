@@ -16,7 +16,7 @@
 #ifndef __MEDIA_PARAMS_H__
 #define __MEDIA_PARAMS_H__
 
-#include <glib.h>
+#include <epan/wmem/wmem.h>
 
 #include "ws_symbol_export.h"
 
@@ -25,7 +25,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 WS_DLL_PUBLIC char *
-ws_find_media_type_parameter(const char *parameters, const char *key);
+ws_find_media_type_parameter(wmem_allocator_t *scope, const char *parameters, const char *key);
 
 #ifdef __cplusplus
 }

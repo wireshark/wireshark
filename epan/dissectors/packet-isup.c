@@ -10311,8 +10311,8 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   if (data) {
     http_message_info_t *message_info = (http_message_info_t *)data;
     if (message_info->media_str) {
-      version = ws_find_media_type_parameter(message_info->media_str, "version");
-      base = ws_find_media_type_parameter(message_info->media_str, "base");
+      version = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "version");
+      base = ws_find_media_type_parameter(wmem_packet_scope(), message_info->media_str, "base");
       if ((version && g_ascii_strncasecmp(version, "ansi", 4) == 0) ||
           (base && g_ascii_strncasecmp(base, "ansi", 4) == 0)) {
         /*
@@ -10332,8 +10332,6 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         message_tvb = tvb_new_subset_remaining(tvb, 0);
         dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT, 0);
-        g_free(version);
-        g_free(base);
         return tvb_reported_length(tvb);
       } else if ((version && g_ascii_strcasecmp(version, "spirou") == 0) ||
           (base && g_ascii_strcasecmp(base, "spirou") == 0)) {
@@ -10345,8 +10343,6 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       } else {
         isup_standard = ITU_STANDARD;
       }
-      g_free(version);
-      g_free(base);
     } else {
       /* default to ITU */
       isup_standard = ITU_STANDARD;
