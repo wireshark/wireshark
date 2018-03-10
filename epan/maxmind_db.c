@@ -33,6 +33,7 @@ static mmdb_lookup_t mmdb_not_found;
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_pipe.h>
+#include <wsutil/strtoi.h>
 
 // To do:
 // - If we can't reliably do non-blocking reads, move process_mmdbr_stdout to a worker thread.
@@ -174,9 +175,12 @@ process_mmdbr_stdout(void) {
         } else if (g_str_has_prefix(line, RES_ASN_ORG)) {
             cur_lookup.found = TRUE;
             cur_lookup.as_org = chunkify_string(val_start);
-        } else if (g_str_has_prefix(line, RES_ASN_NUMBER)) {
-            cur_lookup.found = TRUE;
-            cur_lookup.as_number = (unsigned int) strtoul(val_start, NULL, 10);
+        } else if (val_start && g_str_has_prefix(line, RES_ASN_NUMBER)) {
+            if (ws_strtou32(val_start, NULL, &cur_lookup.as_number)) {
+                cur_lookup.found = TRUE;
+            } else {
+                MMDB_DEBUG("Invalid as number: %s", val_start);
+            }
         } else if (g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
             cur_lookup.found = TRUE;
             cur_lookup.latitude = g_ascii_strtod(val_start, NULL);

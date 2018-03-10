@@ -26,7 +26,7 @@ typedef struct _mmdb_lookup_t {
     const char *country;
     const char *country_iso;
     const char *city;
-    unsigned int as_number;
+    guint32 as_number;
     const char *as_org;
     double latitude;
     double longitude;
