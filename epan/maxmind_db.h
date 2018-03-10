@@ -24,6 +24,7 @@ extern "C" {
 typedef struct _mmdb_lookup_t {
     gboolean found;
     const char *country;
+    const char *country_iso;
     const char *city;
     unsigned int as_number;
     const char *as_org;

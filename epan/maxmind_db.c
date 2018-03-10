@@ -93,7 +93,7 @@ static void mmdb_resolve_stop(void);
 // Hopefully scanning a few lines asynchronously has less overhead than
 // reading in a child thread.
 #define RES_STATUS_ERROR        "mmdbresolve.status: false"
-#define RES_COUNTRY_ISO_CODE    "country.iso_code" // Unused.
+#define RES_COUNTRY_ISO_CODE    "country.iso_code"
 #define RES_COUNTRY_NAMES_EN    "country.names.en"
 #define RES_CITY_NAMES_EN       "city.names.en"
 #define RES_ASN_ORG             "autonomous_system_organization"
@@ -162,6 +162,9 @@ process_mmdbr_stdout(void) {
             cur_addr[0] = '\0';
             memset(&cur_lookup, 0, sizeof(cur_lookup));
             mmdb_resolve_stop();
+        } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_ISO_CODE)) {
+            cur_lookup.found = TRUE;
+            cur_lookup.country_iso = chunkify_string(val_start);
         } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_NAMES_EN)) {
             cur_lookup.found = TRUE;
             cur_lookup.country = chunkify_string(val_start);

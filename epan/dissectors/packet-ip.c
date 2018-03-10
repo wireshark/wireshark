@@ -199,6 +199,7 @@ static int hf_ip_opt_time_stamp = -1;
 static int hf_ip_opt_time_stamp_addr = -1;
 
 static int hf_geoip_country = -1;
+static int hf_geoip_country_iso = -1;
 static int hf_geoip_city = -1;
 static int hf_geoip_as_number = -1;
 static int hf_geoip_as_org = -1;
@@ -206,6 +207,7 @@ static int hf_geoip_latitude = -1;
 static int hf_geoip_longitude = -1;
 static int hf_geoip_src_summary = -1;
 static int hf_geoip_src_country = -1;
+static int hf_geoip_src_country_iso = -1;
 static int hf_geoip_src_city = -1;
 static int hf_geoip_src_as_number = -1;
 static int hf_geoip_src_as_org = -1;
@@ -213,6 +215,7 @@ static int hf_geoip_src_latitude = -1;
 static int hf_geoip_src_longitude = -1;
 static int hf_geoip_dst_summary = -1;
 static int hf_geoip_dst_country = -1;
+static int hf_geoip_dst_country_iso = -1;
 static int hf_geoip_dst_city = -1;
 static int hf_geoip_dst_as_number = -1;
 static int hf_geoip_dst_as_org = -1;
@@ -575,7 +578,10 @@ add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 ip, i
   if (lookup->city) {
     wmem_strbuf_append(summary, lookup->city);
   }
-  if (lookup->country) {
+  if (lookup->country_iso) {
+    if (wmem_strbuf_get_len(summary) > 0) wmem_strbuf_append(summary, ", ");
+    wmem_strbuf_append(summary, lookup->country_iso);
+  } else if (lookup->country) {
     if (wmem_strbuf_get_len(summary) > 0) wmem_strbuf_append(summary, ", ");
     wmem_strbuf_append(summary, lookup->country);
   }
@@ -609,6 +615,14 @@ add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 ip, i
     item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->country);
     PROTO_ITEM_SET_GENERATED(item);
     item = proto_tree_add_string(geoip_info_tree, hf_geoip_country, tvb, addr_offset, 4, lookup->country);
+    PROTO_ITEM_SET_GENERATED(item);
+  }
+
+  if (lookup->country_iso) {
+    dir_hf = isdst ? hf_geoip_dst_country_iso : hf_geoip_src_country_iso;
+    item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 4, lookup->country_iso);
+    PROTO_ITEM_SET_GENERATED(item);
+    item = proto_tree_add_string(geoip_info_tree, hf_geoip_country_iso, tvb, addr_offset, 4, lookup->country_iso);
     PROTO_ITEM_SET_GENERATED(item);
   }
 
@@ -2495,6 +2509,9 @@ proto_register_ip(void)
     { &hf_geoip_country,
       { "Source or Destination GeoIP Country", "ip.geoip.country",
         FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+    { &hf_geoip_country_iso,
+      { "Source or Destination GeoIP ISO Two Letter Country Code", "ip.geoip.country_iso",
+        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_city,
       { "Source or Destination GeoIP City", "ip.geoip.city",
         FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
@@ -2516,6 +2533,9 @@ proto_register_ip(void)
     { &hf_geoip_src_country,
       { "Source GeoIP Country", "ip.geoip.src_country",
         FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+    { &hf_geoip_src_country_iso,
+      { "Source GeoIP ISO Two Letter Country Code", "ip.geoip.src_country_iso",
+        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_city,
       { "Source GeoIP City", "ip.geoip.src_city",
         FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
@@ -2536,6 +2556,9 @@ proto_register_ip(void)
         FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_country,
       { "Destination GeoIP Country", "ip.geoip.dst_country",
+        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+    { &hf_geoip_dst_country_iso,
+      { "Destination GeoIP ISO Two Letter Country Code", "ip.geoip.dst_country_iso",
         FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_city,
       { "Destination GeoIP City", "ip.geoip.dst_city",
