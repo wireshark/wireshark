@@ -38,6 +38,7 @@ const true_false_string tfs_more_nomore = { "More", "No more" };
 const true_false_string tfs_present_absent = { "Present", "Absent" };
 const true_false_string tfs_present_not_present = { "Present", "Not Present" };
 const true_false_string tfs_active_inactive = { "Active", "Inactive" };
+const true_false_string tfs_activated_deactivated = { "Activated", "Deactivated" };
 const true_false_string tfs_found_not_found = { "Found", "Not found" };
 const true_false_string tfs_command_response = { "Command", "Response" };
 const true_false_string tfs_response_command = { "Response", "Command" };

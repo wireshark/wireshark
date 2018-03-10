@@ -53,6 +53,7 @@ WS_DLL_PUBLIC const true_false_string tfs_more_nomore;
 WS_DLL_PUBLIC const true_false_string tfs_present_absent;
 WS_DLL_PUBLIC const true_false_string tfs_present_not_present;
 WS_DLL_PUBLIC const true_false_string tfs_active_inactive;
+WS_DLL_PUBLIC const true_false_string tfs_activated_deactivated;
 WS_DLL_PUBLIC const true_false_string tfs_found_not_found;
 WS_DLL_PUBLIC const true_false_string tfs_command_response;
 WS_DLL_PUBLIC const true_false_string tfs_response_command;
