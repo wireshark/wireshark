@@ -83,27 +83,6 @@
 
 #define PROTO_TAG_F5ETHTRAILER  "F5ETHTRAILER"
 
-#define F5PROTO_TREE_ADD(tree, var, tvb, off, len, le) { \
-		pi = proto_tree_add_item(tree, var, tvb, off, len, le); \
-	}
-#define F5PROTO_TREE_ADD_NEXT(tree, var, tvb, off, len, le) { \
-		F5PROTO_TREE_ADD(tree, var, tvb, off, len, le); \
-		off += len; \
-	}
-#define F5PROTO_TREE_ADD_HIDDEN(tree, var, tvb, off, len, le) { \
-		F5PROTO_TREE_ADD(tree, var, tvb, off, len, le); \
-		PROTO_ITEM_SET_HIDDEN(pi); \
-	}
-#define F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, var, tvb, off, len, le) { \
-		F5PROTO_TREE_ADD_HIDDEN(tree, var, tvb, off, len, le); \
-		off += len; \
-	}
-#define F5PROTO_TREE_ADD2_NEXT(tree, varv, varh, tvb, off, len, le) { \
-		F5PROTO_TREE_ADD(tree, varv, tvb, off, len, le); \
-		F5PROTO_TREE_ADD_HIDDEN(tree, varh, tvb, off, len, le); \
-		off += len; \
-	}
-
 /*-----------------------------------------------------------------------------------------------*/
 /** Setup macros to ease the commpilation of this dissector on various versions of Wireshark.    */
 #if defined(VERSION_MAJOR) && defined(VERSION_MINOR)
@@ -1912,7 +1891,7 @@ static proto_item *displayIPv6as4(
 
 	if(tvb_memeql(tvb, offset, ipv4as6prefix, sizeof(ipv4as6prefix)) == 0) {
 		if(addrfield >= 0) {
-			F5PROTO_TREE_ADD(tree, addrfield, tvb, offset+sizeof(ipv4as6prefix), 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, addrfield, tvb, offset+sizeof(ipv4as6prefix), 4, ENC_BIG_ENDIAN);
 			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 	} else if(tvb_memeql(tvb, offset, f5rtdomprefix, sizeof(f5rtdomprefix)) == 0) {
@@ -1924,11 +1903,11 @@ static proto_item *displayIPv6as4(
 		 * when configuring, people usually see route domain after the address, so that is why this
 		 * particular ordering is used (and none of the callers currently use the return value). */
 		if(addrfield >= 0) {
-			F5PROTO_TREE_ADD(tree, addrfield, tvb, offset+sizeof(f5rtdomprefix)+2, 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, addrfield, tvb, offset+sizeof(f5rtdomprefix)+2, 4, ENC_BIG_ENDIAN);
 			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 		if(rtdomfield >= 0) {
-			F5PROTO_TREE_ADD(tree, rtdomfield, tvb, offset+sizeof(f5rtdomprefix), 2, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, rtdomfield, tvb, offset+sizeof(f5rtdomprefix), 2, ENC_BIG_ENDIAN);
 			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 	}
@@ -2009,41 +1988,58 @@ dissect_high_trailer(
 	o = offset;
 
 	/* We don't need to see type and versions of the TLV trailers. */
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_type,    tvb, o, 1, ENC_BIG_ENDIAN);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_length,  tvb, o, 1, ENC_BIG_ENDIAN);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_version, tvb, o, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_type, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
+	pi = proto_tree_add_item(tree, hf_length, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
+	pi = proto_tree_add_item(tree, hf_version, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
 
 	if(tdata->peer_flow == 0) {
-		F5PROTO_TREE_ADD_NEXT(tree, hf_peer_nopeer, tvb, o, trailer_length-3, ENC_NA);
+		pi = proto_tree_add_item(tree, hf_peer_nopeer, tvb, o, trailer_length-3, ENC_NA);
+		o += (trailer_length - 3);
 		return(trailer_length);
 	}
 
 	/* Add in the high order structures. */
 	ipproto = tvb_get_guint8(tvb,o);
-	F5PROTO_TREE_ADD_NEXT(tree, hf_peer_ipproto,   tvb, o, 1, ENC_BIG_ENDIAN);
-	F5PROTO_TREE_ADD_NEXT(tree, hf_peer_vlan,      tvb, o, 2, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_peer_ipproto,   tvb, o, 1, ENC_BIG_ENDIAN);
+	o += 1;
+	pi = proto_tree_add_item(tree, hf_peer_vlan,      tvb, o, 2, ENC_BIG_ENDIAN);
+	o += 2;
 
 	/* peer remote address */
 #ifdef F5_POP_OTHERFIELDS
 	if(pop_other_fields) {
 		displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
-		F5PROTO_TREE_ADD_HIDDEN(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
+		pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
+		PROTO_ITEM_SET_HIDDEN(pi);
 	}
 #endif
 	displayIPv6as4(tree, hf_peer_remote_addr, hf_peer_remote_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
-	F5PROTO_TREE_ADD2_NEXT(tree, hf_peer_remote_ip6addr, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
+	pi = proto_tree_add_item(tree, hf_peer_remote_ip6addr, tvb, o, 16, ENC_NA);
+	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 16;
 
 	/* peer local address */
 #ifdef F5_POP_OTHERFIELDS
 	if(pop_other_fields) {
 		displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
-		F5PROTO_TREE_ADD_HIDDEN(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
+		pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
+		PROTO_ITEM_SET_HIDDEN(pi);
 	}
 #endif
 	displayIPv6as4(tree, hf_peer_local_addr, hf_peer_local_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
-	F5PROTO_TREE_ADD2_NEXT(tree, hf_peer_local_ip6addr, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
+	pi = proto_tree_add_item(tree, hf_peer_local_ip6addr, tvb, o, 16, ENC_NA);
+	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 16;
 
 #ifdef F5_POP_OTHERFIELDS
 	/* If there is no proto in the trailer, go get it from the actual packet
@@ -2057,25 +2053,35 @@ dissect_high_trailer(
 #ifdef F5_POP_OTHERFIELDS
 	if(pop_other_fields) {
 		if(ipproto == IP_PROTO_TCP) {
-			F5PROTO_TREE_ADD_HIDDEN(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
 		} else if(ipproto == IP_PROTO_TCP) {
-			F5PROTO_TREE_ADD_HIDDEN(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
 		}
 	}
 #endif
-	F5PROTO_TREE_ADD2_NEXT(tree, hf_peer_remote_port, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_peer_remote_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 2;
 
 	/* peer remote port */
 #ifdef F5_POP_OTHERFIELDS
 	if(pop_other_fields) {
 		if(ipproto == IP_PROTO_TCP) {
-			F5PROTO_TREE_ADD_HIDDEN(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
 		} else if(ipproto == IP_PROTO_TCP) {
-			F5PROTO_TREE_ADD_HIDDEN(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
 		}
 	}
 #endif
-	F5PROTO_TREE_ADD2_NEXT(tree, hf_peer_local_port, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 2;
 
 	return(trailer_length);
 } /* dissect_high_trailer() */
@@ -2177,24 +2183,42 @@ dissect_med_trailer(
 
 	/* We don't need to see type and versions of the TLV trailers. */
 	trailer_type = tvb_get_guint8(tvb,o);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_type,    tvb, o, 1, ENC_BIG_ENDIAN);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_length,  tvb, o, 1, ENC_BIG_ENDIAN);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_version, tvb, o, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_type, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
+	pi = proto_tree_add_item(tree, hf_length, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
+	pi = proto_tree_add_item(tree, hf_version, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
 
 	/* After 9.4, flow IDs and flags and type are here in medium */
 	if(trailer_length != F5_MEDV94_LEN || trailer_ver > 0) {
 		if(trailer_length == F5_MEDV10_LEN && trailer_ver == 0) {
 			/* In v10, flowIDs are 32bit */
 			tdata->flow = tvb_get_ntohl(tvb,o);
-			F5PROTO_TREE_ADD2_NEXT(tree, hf_flow_id, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
+			o += 4;
 			tdata->peer_flow = tvb_get_ntohl(tvb,o);
-			F5PROTO_TREE_ADD2_NEXT(tree, hf_peer_id, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
+			o += 4;
 		} else {
 			/* After v10, flowIDs are 64bit */
 			tdata->flow = tvb_get_ntoh64(tvb,o);
-			F5PROTO_TREE_ADD2_NEXT(tree, hf_flow_id64, hf_any_flow64, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_flow_id64, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_any_flow64, tvb, o, 8, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
+			o += 8;
 			tdata->peer_flow = tvb_get_ntoh64(tvb,o);
-			F5PROTO_TREE_ADD2_NEXT(tree, hf_peer_id64, hf_any_flow64, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_peer_id64, tvb, o, 8, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, hf_any_flow64, tvb, o, 8, ENC_BIG_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(pi);
+			o += 8;
 		}
 		tdata->flows_set = 1;
 		o += render_flow_flags(tvb,pinfo,tree,o,trailer_type,trailer_length,trailer_ver,tdata);
@@ -2205,17 +2229,23 @@ dissect_med_trailer(
 	/* Needed to get here so that analysis and tap will work. */
 	if(tree == NULL) return(trailer_length);
 
-	F5PROTO_TREE_ADD_NEXT(tree, hf_ha_unit,       tvb, o, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_ha_unit, tvb, o, 1, ENC_BIG_ENDIAN);
+	o += 1;
 	if(trailer_ver == 0 && (trailer_length == F5_MEDV94_LEN || trailer_length == F5_MEDV10_LEN)) {
-		F5PROTO_TREE_ADD_NEXT(tree, hf_ingress_slot,  tvb, o, 2, ENC_LITTLE_ENDIAN);
-		F5PROTO_TREE_ADD_NEXT(tree, hf_ingress_port,  tvb, o, 2, ENC_LITTLE_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_LITTLE_ENDIAN);
+		o += 2;
+		pi = proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_LITTLE_ENDIAN);
+		o += 2;
 	} else {
 		/* V11 fixed the byte order of these */
-		F5PROTO_TREE_ADD_NEXT(tree, hf_ingress_slot,  tvb, o, 2, ENC_BIG_ENDIAN);
-		F5PROTO_TREE_ADD_NEXT(tree, hf_ingress_port,  tvb, o, 2, ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_BIG_ENDIAN);
+		o += 2;
+		pi = proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_BIG_ENDIAN);
+		o += 2;
 	}
 	if(trailer_ver >= 2) {
-		F5PROTO_TREE_ADD_NEXT(tree, hf_priority,      tvb, o, 1, ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_priority, tvb, o, 1, ENC_BIG_ENDIAN);
+		o += 1;
 	}
 	if(trailer_ver >= 1) {
 		if(rstcauselen) {
@@ -2228,30 +2258,33 @@ dissect_med_trailer(
 
 			rc_item = proto_tree_add_item(tree, hf_rstcause, tvb, o, rstcauselen+1, ENC_NA);
 			rc_tree = proto_item_add_subtree(rc_item, ett_f5ethtrailer_rstcause);
-			F5PROTO_TREE_ADD_NEXT(rc_tree, hf_rstcause_len, tvb, o, 1, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(rc_tree, hf_rstcause_len, tvb, o, 1, ENC_BIG_ENDIAN);
+			o += 1;
 
 			startcause = o;
 			switch(rstcausever) {
 			case 0x00:
 				rstcausepeer = tvb_get_guint8(tvb,o) & 0x1;
 
-				F5PROTO_TREE_ADD(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
-				F5PROTO_TREE_ADD_NEXT(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
+				pi = proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
+				pi = proto_tree_add_item(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
+				o += 1;
 
 				rstcauseval  = tvb_get_ntoh64(tvb,o);
 				rstcauseline = (rstcauseval & 0x000000000000ffffLL);
 				rstcauseval  = (rstcauseval & 0xffffffffffff0000LL) >> 16;
 				proto_tree_add_uint64_format_value(rc_tree, hf_rstcause_val, tvb, o, 6,
 					rstcauseval, "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
-				F5PROTO_TREE_ADD(rc_tree, hf_rstcause_line, tvb, o+6, 2, ENC_BIG_ENDIAN);
+				pi = proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o+6, 2, ENC_BIG_ENDIAN);
 				o += 8;
 				
 				proto_item_append_text(rc_item, ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER
 					"u]%s %s", rstcauseval, rstcauseline, rstcausepeer ? " {peer}" : "",
 					tvb_get_string_enc(wmem_packet_scope(), tvb, o, rstcauselen-(o-startcause),
 					ENC_ASCII));
-				F5PROTO_TREE_ADD_NEXT(rc_tree, hf_rstcause_txt, tvb, o, rstcauselen-(o-startcause),
+				pi = proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o, rstcauselen-(o-startcause),
 					ENC_ASCII);
+				o += (rstcauselen - (o-startcause)); /* XXX This is strange */
 				break;
 			default:
 				o += rstcauselen;
@@ -2358,9 +2391,15 @@ dissect_low_trailer(
 
 	/* We don't need to see type and versions of the TLV trailers. */
 	trailer_type = tvb_get_guint8(tvb,o);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_type,    tvb, o, 1, ENC_BIG_ENDIAN);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_length,  tvb, o, 1, ENC_BIG_ENDIAN);
-	F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_version, tvb, o, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_type, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
+	pi = proto_tree_add_item(tree, hf_length, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
+	pi = proto_tree_add_item(tree, hf_version, tvb, o, 1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(pi);
+	o += 1;
 
 	/* Use special formatting here so that users do not have to filter on "IN"
 	 * and "OUT", but rather can continue to use typical boolean values.  "IN"
@@ -2374,13 +2413,20 @@ dissect_low_trailer(
 	proto_tree_add_uint(tree, slot_display_field, tvb, o, 1, slot_display);
 	o += 1;
 
-	F5PROTO_TREE_ADD_NEXT(tree, hf_tmm, tvb, o, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_tmm, tvb, o, 1, ENC_BIG_ENDIAN);
+	o += 1;
 	if(trailer_length == F5_LOWV94_LEN && trailer_ver == 0) {
 		/* In v9.4, flowIDs, flags and type are here in low */
 		tdata->flow = tvb_get_ntohl(tvb,o);
-		F5PROTO_TREE_ADD2_NEXT(tree, hf_flow_id, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+		PROTO_ITEM_SET_HIDDEN(pi);
+		o += 4;
 		tdata->peer_flow = tvb_get_ntohl(tvb,o);
-		F5PROTO_TREE_ADD2_NEXT(tree, hf_peer_id, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
+		PROTO_ITEM_SET_HIDDEN(pi);
+		o += 4;
 		tdata->flows_set = 1;
 		o += render_flow_flags(tvb,pinfo,tree,o,trailer_type,trailer_length,trailer_ver,tdata);
 		o += render_flow_type(tvb,pinfo,tree,o,trailer_type,trailer_length,trailer_ver,tdata);
@@ -2391,9 +2437,12 @@ dissect_low_trailer(
 	if(tree == NULL) return(trailer_length);
 
 	if(trailer_ver == 1) {
-		F5PROTO_TREE_ADD_HIDDEN_NEXT(tree, hf_vipnamelen, tvb, o, 1, ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(tree, hf_vipnamelen, tvb, o, 1, ENC_BIG_ENDIAN);
+		PROTO_ITEM_SET_HIDDEN(pi);
+		o += 1;
 	}
-	F5PROTO_TREE_ADD_NEXT(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII);
+	pi = proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII);
+	o += vipnamelen;
 
 	return(trailer_length);
 } /* dissect_low_trailer() */
