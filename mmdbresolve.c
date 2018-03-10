@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 {
     char addr_str[MAX_ADDR_LEN+1];
     size_t mmdb_count = 0;
-    MMDB_s *mmdbs = NULL;
+    MMDB_s *mmdbs = NULL, *new_mmdbs;
     int mmdb_err;
 
     char *out_buf = (char *) malloc(OUT_BUF_SIZE);
@@ -74,11 +74,13 @@ main(int argc, char *argv[])
             fprintf(stdout, "db.%zd.status: ", mmdb_count);
             if (mmdb_err == MMDB_SUCCESS) {
                 mmdb_count++;
-                mmdbs = (MMDB_s *) realloc(mmdbs, mmdb_count * sizeof(MMDB_s));
-                if (mmdbs == NULL) {
+                new_mmdbs = (MMDB_s *) realloc(mmdbs, mmdb_count * sizeof(MMDB_s));
+                if (new_mmdbs == NULL) {
+                    free(mmdbs);
                     fprintf(stdout, "ERROR out of memory\n");
                     return 1;
                 }
+                mmdbs = new_mmdbs;
                 mmdbs[mmdb_count - 1] = try_mmdb;
                 fprintf(stdout, "OK\n");
                 fprintf(stdout, "db.%zd.type: %s\n", mmdb_count, mmdbs[mmdb_count - 1].metadata.database_type);
