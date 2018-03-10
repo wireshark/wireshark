@@ -47,6 +47,7 @@ static wmem_map_t *mmdb_ipv6_map;
 
 // Interned strings
 static wmem_map_t *mmdb_str_chunk;
+static wmem_map_t *mmdb_ipv6_chunk;
 
 /* Child mmdbresolve process */
 static char cur_addr[WS_INET6_ADDRSTRLEN];
@@ -115,11 +116,11 @@ static const char *chunkify_string(char *key) {
 }
 
 static const void *chunkify_v6_addr(const ws_in6_addr *addr) {
-    void *chunk_v6_bytes = (char *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
+    void *chunk_v6_bytes = (char *) wmem_map_lookup(mmdb_ipv6_chunk, addr->bytes);
 
     if (!chunk_v6_bytes) {
         chunk_v6_bytes = wmem_memdup(wmem_epan_scope(), addr->bytes, sizeof(ws_in6_addr));
-        wmem_map_insert(mmdb_ipv6_map, chunk_v6_bytes, chunk_v6_bytes);
+        wmem_map_insert(mmdb_ipv6_chunk, chunk_v6_bytes, chunk_v6_bytes);
     }
 
     return chunk_v6_bytes;
@@ -235,6 +236,10 @@ static void mmdb_resolve_start(void) {
 
     if (!mmdb_str_chunk) {
         mmdb_str_chunk = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+    }
+
+    if (!mmdb_ipv6_chunk) {
+        mmdb_ipv6_chunk = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
     }
 
     if (!mmdb_file_arr) {
