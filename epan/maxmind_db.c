@@ -169,10 +169,10 @@ process_mmdbr_stdout(void) {
         } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_NAMES_EN)) {
             cur_lookup.found = TRUE;
             cur_lookup.country = chunkify_string(val_start);
-        } else if (g_str_has_prefix(line, RES_CITY_NAMES_EN)) {
+        } else if (val_start && g_str_has_prefix(line, RES_CITY_NAMES_EN)) {
             cur_lookup.found = TRUE;
             cur_lookup.city = chunkify_string(val_start);
-        } else if (g_str_has_prefix(line, RES_ASN_ORG)) {
+        } else if (val_start && g_str_has_prefix(line, RES_ASN_ORG)) {
             cur_lookup.found = TRUE;
             cur_lookup.as_org = chunkify_string(val_start);
         } else if (val_start && g_str_has_prefix(line, RES_ASN_NUMBER)) {
@@ -181,10 +181,10 @@ process_mmdbr_stdout(void) {
             } else {
                 MMDB_DEBUG("Invalid as number: %s", val_start);
             }
-        } else if (g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
+        } else if (val_start && g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
             cur_lookup.found = TRUE;
             cur_lookup.latitude = g_ascii_strtod(val_start, NULL);
-        } else if (g_str_has_prefix(line, RES_LOCATION_LONGITUDE)) {
+        } else if (val_start && g_str_has_prefix(line, RES_LOCATION_LONGITUDE)) {
             cur_lookup.found = TRUE;
             cur_lookup.longitude = g_ascii_strtod(val_start, NULL);
         } else if (g_str_has_prefix(line, RES_END)) {
