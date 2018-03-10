@@ -146,9 +146,7 @@ static const value_string sflow_ifdirection_vals[] = {
     { 0, NULL}
 };
 
-const true_false_string tfs_low_normal = { "Low", "Normal" };
-const true_false_string tfs_high_normal = { "High", "Normal" };
-const true_false_string tfs_minimize_monetary_normal = { "Minimize Monetary", "Normal" };
+static const true_false_string tfs_minimize_monetary_normal = { "Minimize Monetary", "Normal" };
 
 static const value_string sflow_245_header_protocol[] = {
     { SFLOW_245_HEADER_ETHERNET,           "Ethernet"},

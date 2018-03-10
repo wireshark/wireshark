@@ -355,7 +355,6 @@ static const true_false_string wisun_netricity_sc_contention_control_tfs = {
     "Contention-free access",
     "Contention allowed in next contention state"
 };
-static const true_false_string wisun_netricity_sc_channel_access_priority_tfs = { "High", "Normal" };
 
 static const int * wisun_format_nested_ie[] = {
     &hf_wisun_wsie_type,
@@ -1474,7 +1473,7 @@ void proto_register_wisun(void)
             NULL, HFILL }
         },
         { &hf_wisun_netricity_sc_channel_access_priority,
-          { "Channel access priority", "wisun.netricity.sc.channel_access_priority", FT_BOOLEAN, 8, TFS(&wisun_netricity_sc_channel_access_priority_tfs), 1<<1,
+          { "Channel access priority", "wisun.netricity.sc.channel_access_priority", FT_BOOLEAN, 8, TFS(&tfs_high_normal), 1<<1,
             NULL, HFILL }
         },
         { &hf_wisun_netricity_sc_last_segment,

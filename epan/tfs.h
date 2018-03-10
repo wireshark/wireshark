@@ -61,6 +61,8 @@ WS_DLL_PUBLIC const true_false_string tfs_capable_not_capable;
 WS_DLL_PUBLIC const true_false_string tfs_supported_not_supported;
 WS_DLL_PUBLIC const true_false_string tfs_used_notused;
 WS_DLL_PUBLIC const true_false_string tfs_high_low;
+WS_DLL_PUBLIC const true_false_string tfs_high_normal;
+WS_DLL_PUBLIC const true_false_string tfs_low_normal;
 WS_DLL_PUBLIC const true_false_string tfs_pressed_not_pressed;
 WS_DLL_PUBLIC const true_false_string tfs_implemented_not_implemented;
 WS_DLL_PUBLIC const true_false_string tfs_requested_not_requested;
