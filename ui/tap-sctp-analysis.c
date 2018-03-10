@@ -325,7 +325,6 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     gboolean datachunk = FALSE;
     gboolean forwardchunk = FALSE;
     struct tsn_sort *tsn_s;
-    guint8* addr = NULL;
     int i;
     guint8 idx = 0;
 
@@ -333,47 +332,17 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
     type = sctp_info->ip_src.type;
 
-    if (type == AT_IPv4)
-    {
-        tmp_info.src.type = AT_IPv4;
-        tmp_info.src.len  = 4;
-    }
-    else if (type == AT_IPv6)
-    {
-        tmp_info.src.type = AT_IPv6;
-        tmp_info.src.len  = 16;
-    }
+    if (type == AT_IPv4 || type == AT_IPv6)
+        copy_address(&tmp_info.src, &sctp_info->ip_src);
     else
-    {
-        tmp_info.src.type = AT_NONE;
-        tmp_info.src.len  = 0;
-    }
-
-    addr = (guint8 *)g_malloc(tmp_info.src.len);
-    memcpy(addr, sctp_info->ip_src.data, tmp_info.src.len);
-    tmp_info.src.data = addr;
+        set_address(&tmp_info.src, AT_NONE, 0, NULL);
 
     type = sctp_info->ip_dst.type;
 
-    if (type == AT_IPv4)
-    {
-        tmp_info.dst.type = AT_IPv4;
-        tmp_info.dst.len  = 4;
-    }
-    else if (type == AT_IPv6)
-    {
-        tmp_info.dst.type = AT_IPv6;
-        tmp_info.dst.len  = 16;
-    }
+    if (type == AT_IPv4 || type == AT_IPv6)
+        copy_address(&tmp_info.dst, &sctp_info->ip_dst);
     else
-    {
-        tmp_info.dst.type = AT_NONE;
-        tmp_info.dst.len  = 0;
-    }
-
-    addr = (guint8 *)g_malloc(tmp_info.dst.len);
-    memcpy(addr, sctp_info->ip_dst.data, tmp_info.dst.len);
-    tmp_info.dst.data = addr;
+        set_address(&tmp_info.dst, AT_NONE, 0, NULL);
 
     tmp_info.port1 = sctp_info->sport;
     tmp_info.port2 = sctp_info->dport;
@@ -408,19 +377,10 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
         if (sctp_info->number_of_tvbs > 0)
         {
-            info = (sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
-            memset(info, 0, sizeof(sctp_assoc_info_t));
+            info = g_new0(sctp_assoc_info_t, 1);
             info->assoc_id = sctp_info->assoc_index;
-            info->src.type = tmp_info.src.type;
-            info->src.len  = tmp_info.src.len;
-            addr = (guint8 *)g_malloc(tmp_info.dst.len);
-            memcpy(addr,(tmp_info.src.data), tmp_info.src.len);
-            info->src.data = addr;
-            info->dst.type = tmp_info.dst.type;
-            info->dst.len  = tmp_info.dst.len;
-            addr = (guint8 *)g_malloc(tmp_info.dst.len);
-            memcpy(addr, (tmp_info.dst.data), tmp_info.dst.len);
-            info->dst.data = addr;
+            copy_address(&info->src, &tmp_info.src);
+            copy_address(&info->dst, &tmp_info.dst);
             info->port1 = tmp_info.port1;
             info->port2 = tmp_info.port2;
             info->verification_tag1 = tmp_info.verification_tag1;
@@ -479,30 +439,16 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_NR_SACK_CHUNK_ID) ||
                     ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
             {
-                tsn  = (tsn_t *)g_malloc(sizeof(tsn_t));
-                sack = (tsn_t *)g_malloc(sizeof(tsn_t));
-                tsn->tsns  = NULL;
-                tsn->first_tsn = 0;
-                sack->tsns = NULL;
-                sack->first_tsn = 0;
-                sack->src.type=tsn->src.type = tmp_info.src.type;
-                sack->src.len=tsn->src.len   = tmp_info.src.len;
-                addr = (guint8 *)g_malloc(tmp_info.src.len);
-                memcpy(addr, tmp_info.src.data, tmp_info.src.len);
-                tsn->src.data = addr;
-                addr = (guint8 *)g_malloc(tmp_info.src.len);
-                memcpy(addr, tmp_info.src.data, tmp_info.src.len);
-                sack->src.data = addr;
-                sack->dst.type = tsn->dst.type = tmp_info.dst.type;
-                sack->dst.len  =tsn->dst.len   = tmp_info.dst.len;
-                addr = (guint8 *)g_malloc(tmp_info.dst.len);
-                memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
-                tsn->dst.data = addr;
-                addr = (guint8 *)g_malloc(tmp_info.dst.len);
-                memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
-                sack->dst.data = addr;
+                tsn = g_new0(tsn_t, 1);
+                copy_address(&tsn->src, &tmp_info.src);
+                copy_address(&tsn->dst, &tmp_info.dst);
+
+                sack = g_new0(tsn_t, 1);
+                copy_address(&sack->src, &tmp_info.src);
+                copy_address(&sack->dst, &tmp_info.dst);
                 sack->secs=tsn->secs   = (guint32)pinfo->rel_ts.secs;
                 sack->usecs=tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
+
                 if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
                         ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_I_DATA_CHUNK_ID) ||
                         ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID) ||
@@ -580,12 +526,8 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                         ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_NR_SACK_CHUNK_ID) &&
                         ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_FORWARD_TSN_CHUNK_ID))
                 {
-                    tsn  = (tsn_t *)g_malloc(sizeof(tsn_t));
-                    sack = (tsn_t *)g_malloc(sizeof(tsn_t));
-                    tsn->tsns  = NULL;
-                    sack->tsns = NULL;
-                    tsn->first_tsn = 0;
-                    sack->first_tsn = 0;
+                    tsn = g_new0(tsn_t, 1);
+                    sack = g_new0(tsn_t, 1);
                 }
                 for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
                 {
@@ -726,18 +668,10 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             {
                 guint32 *number;
                 store = (address *)g_malloc(sizeof (address));
-                store->type = tmp_info.src.type;
-                store->len  = tmp_info.src.len;
-                addr = (guint8 *)g_malloc(tmp_info.src.len);
-                memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
-                store->data = addr;
+                copy_address(store, &tmp_info.src);
                 info  = add_address(store, info, info->direction);
                 store = (address *)g_malloc(sizeof (address));
-                store->type = tmp_info.dst.type;
-                store->len  = tmp_info.dst.len;
-                addr = (guint8 *)g_malloc(tmp_info.dst.len);
-                memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
-                store->data = addr;
+                copy_address(store, &tmp_info.dst);
                 if (info->direction == 1)
                     info = add_address(store, info, 2);
                 else
@@ -796,30 +730,16 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
         {
 
-            tsn  = (tsn_t *)g_malloc(sizeof(tsn_t));
-            sack = (tsn_t *)g_malloc(sizeof(tsn_t));
-            tsn->tsns  = NULL;
-            tsn->first_tsn = 0;
-            sack->tsns = NULL;
-            sack->first_tsn = 0;
-            sack->src.type = tsn->src.type = tmp_info.src.type;
-            sack->src.len  = tsn->src.len = tmp_info.src.len;
-            addr = (guint8 *)g_malloc(tmp_info.src.len);
-            memcpy(addr, tmp_info.src.data, tmp_info.src.len);
-            tsn->src.data = addr;
-            addr = (guint8 *)g_malloc(tmp_info.src.len);
-            memcpy(addr, tmp_info.src.data, tmp_info.src.len);
-            sack->src.data = addr;
-            sack->dst.type = tsn->dst.type = tmp_info.dst.type;
-            sack->dst.len  = tsn->dst.len = tmp_info.dst.len;
-            addr = (guint8 *)g_malloc(tmp_info.dst.len);
-            memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
-            tsn->dst.data = addr;
-            addr = (guint8 *)g_malloc(tmp_info.dst.len);
-            memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
-            sack->dst.data = addr;
+            tsn = g_new0(tsn_t, 1);
+            copy_address(&tsn->src, &tmp_info.src);
+            copy_address(&tsn->dst, &tmp_info.dst);
+
+            sack = g_new0(tsn_t, 1);
+            copy_address(&sack->src, &tmp_info.src);
+            copy_address(&sack->dst, &tmp_info.dst);
             sack->secs=tsn->secs = (guint32)pinfo->rel_ts.secs;
             sack->usecs=tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
+
             if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
                     ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_I_DATA_CHUNK_ID) ||
                     ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID) ||
@@ -849,11 +769,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         info->frame_numbers=g_list_prepend(info->frame_numbers,number);
 
         store = (address *)g_malloc(sizeof (address));
-        store->type = tmp_info.src.type;
-        store->len  = tmp_info.src.len;
-        addr = (guint8 *)g_malloc(tmp_info.src.len);
-        memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
-        store->data = addr;
+        copy_address(store, &tmp_info.src);
 
         switch (info->direction) {
             case 1:
@@ -868,11 +784,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         }
 
         store = (address *)g_malloc(sizeof (address));
-        store->type = tmp_info.dst.type;
-        store->len  = tmp_info.dst.len;
-        addr = (guint8 *)g_malloc(tmp_info.dst.len);
-        memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
-        store->data = addr;
+        copy_address(store, &tmp_info.dst);
 
         switch (info->direction) {
             case 1:
@@ -958,10 +870,12 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_NR_SACK_CHUNK_ID) &&
                     ((tvb_get_guint8(sctp_info->tvb[0],0)) != SCTP_FORWARD_TSN_CHUNK_ID))
             {
-                sack = (tsn_t *)g_malloc(sizeof(tsn_t));
+                if (!sack)
+                    sack = g_new0(tsn_t, 1);
                 sack->tsns = NULL;
                 sack->first_tsn = 0;
-                tsn = (tsn_t *)g_malloc(sizeof(tsn_t));
+                if (!tsn)
+                    tsn = g_new0(tsn_t, 1);
                 tsn->tsns = NULL;
                 tsn->first_tsn = 0;
             }
