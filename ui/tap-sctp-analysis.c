@@ -1105,7 +1105,6 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                         g_ptr_array_add(info->sort_sack2, tsn_s);
                         info->n_sack_chunks_ep2++;
                     }
-
                 }
             }
         }
@@ -1120,12 +1119,20 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             else if (info->direction == 2)
                 info->tsn2 = g_list_prepend(info->tsn2, tsn);
         }
+        else
+        {
+            g_free(tsn);
+        }
         if (sackchunk == TRUE)
         {
             if (info->direction == 1)
                 info->sack2 = g_list_prepend(info->sack2, sack);
             else if(info->direction == 2)
                 info->sack1 = g_list_prepend(info->sack1, sack);
+        }
+        else
+        {
+            g_free(sack);
         }
         info->n_tvbs += sctp_info->number_of_tvbs;
         sctp_tapinfo_struct.sum_tvbs += sctp_info->number_of_tvbs;
