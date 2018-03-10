@@ -4869,7 +4869,7 @@ proto_register_gryphon(void)
 
         /* 20171012 added non legacy USDT */
         { &hf_gryphon_usdt_action_flags_non_legacy,
-          { "Action Flags", "gryphon.usdt.action_flags", FT_BOOLEAN, 8, TFS(&register_unregister_action_flags), 0x01,
+          { "Action Flags", "gryphon.usdt.action_flags.non_legacy", FT_BOOLEAN, 8, TFS(&register_unregister_action_flags), 0x01,
                 NULL, HFILL }},
 
         { &hf_gryphon_usdt_action_flags_register,
