@@ -754,6 +754,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   struct eth_phdr   *eth = (struct eth_phdr *)data;
   proto_tree        *fh_tree;
   tvbuff_t          *real_tvb;
+  guint              fcs_len = eth_assume_fcs ? 4 : (eth ? eth->fcs_len : -1);
 
   /* When capturing on a Cisco FEX, some frames (most likely all frames
      captured without a vntag) have an extra destination mac prepended. */
@@ -792,13 +793,13 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      * no FCS".
      */
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, real_tvb, next_tvb,
-                         eth_assume_fcs ? 4 : eth->fcs_len);
+                         fcs_len);
   } else {
     /*
      * XXX - this overrides Wiretap saying "this packet definitely has
      * no FCS".
      */
-    dissect_eth_common(real_tvb, pinfo, tree, eth_assume_fcs ? 4 : eth->fcs_len);
+    dissect_eth_common(real_tvb, pinfo, tree, fcs_len);
   }
   return tvb_captured_length(tvb);
 }
