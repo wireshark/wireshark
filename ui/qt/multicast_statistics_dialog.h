@@ -35,6 +35,7 @@ private:
     static void tapReset(mcaststream_tapinfo_t *tapinfo);
     static void tapDraw(mcaststream_tapinfo_t *tapinfo);
 
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
     virtual const QString filterExpression();
 
 private slots:

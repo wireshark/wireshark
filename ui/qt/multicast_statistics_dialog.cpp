@@ -298,6 +298,17 @@ void MulticastStatisticsDialog::tapDraw(mcaststream_tapinfo_t *tapinfo)
     }
 }
 
+QList<QVariant> MulticastStatisticsDialog::treeItemData(QTreeWidgetItem *ti) const
+{
+    MulticastStatTreeWidgetItem *ms_ti = dynamic_cast<MulticastStatTreeWidgetItem*>(ti);
+    if (ms_ti) {
+        return ms_ti->rowData();
+    }
+    else {
+        return QList<QVariant>();
+    }
+}
+
 const QString MulticastStatisticsDialog::filterExpression()
 {
     QString filter_expr;
