@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-03-03)
+(last updated 2018-03-10)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -4212,7 +4212,7 @@ Decimal
 1049
   Windstream Communications
     Rick Frey
-      snmp-admin&windstream.net
+      snmp-admin&ops.windstream.net
 1050
   Acer
     Jay Tao
@@ -84512,9 +84512,9 @@ Information Security of Pr
     Luiz Yoshio Enomoto
       lye.desenvolvimento&brasilsat.com.br
 21239
-  Geist Manufacturing, Inc
+  Vertiv (formerly 'Geist Manufacturing, Inc')
     Brad Wilson or Jesse Preuss
-      brad&geistmfg.com
+      bwilson&geistglobal.com
 21240
   PinguSolution Meierhoff/Woltmann GbR
     Michael Meierhoff
@@ -162729,8 +162729,8 @@ Decentralization / Helenic Public Administra
       ---none---
 40787
   Compumatica secure networks
-    Thorsten Müller
-      thorsten.mueller&compumatica.eu
+    Guido Frohn
+      guido.frohn&compumatica.com
 40788
   Abegglen Management Consultants AG
     Brunner Rita
@@ -166196,9 +166196,9 @@ Decentralization / Helenic Public Administra
     Duncan Gibb
       dgibb&kcg.com
 41654
-  EAL (Apeldoorn) BV
-    Jaap Jansen
-      jaap.jansen&eal.nl
+  E.A.L. Apeldoorn B.V.
+    Frank Tamminga
+      frank.tamminga&eal.nl
 41655
   CardSmart Technologies
     James Wiley
@@ -197561,8 +197561,8 @@ Decentralization / Helenic Public Administra
       dgrace&tsisolutions.us
 49495
   Textron Systems - Electronic Systems
-    Nathan Twombly
-      ntwombly&textronsystems.com
+    Chris Engler
+      engler&textronsystems.com
 49496
   BA-POWER  ELECTRONICS INC.
     Peter Lee
@@ -199100,9 +199100,9 @@ Decentralization / Helenic Public Administra
     PaulLuo
       mis&gorilla-technology.com
 49880
-  wevcode
-    Elias Werberich
-      elias&werberich.de
+  Unassigned
+    Returned 2018-03-09
+      ---none---
 49881
   Prismview
     Jared Yelton
@@ -205811,6 +205811,142 @@ Decentralization / Helenic Public Administra
   SecurIT360 LLC
     Jim Richardson
       soc&securit360.com
+51558
+  Europower Consulting GmbH
+    Steffen Loetzsch
+      sloetzsch&europower-consulting.com
+51559
+  duagon AG
+    Josep Rubi
+      josep.rubi&duagon.com
+51560
+  Informatics Systemhaus
+    Ralf Pachali
+      it&informatics-systemhaus.de
+51561
+  Fry-IT Limited
+    Keean Schupke
+      keean&fry-it.com
+51562
+  Fasttrack Immediate Care LLC
+    Carminta Dykes
+      carminta.dykes&fasttrackic.com
+51563
+  TelcoEdge Pty Ltd
+    Richard Clarke
+      richard&telcoedge.com.au
+51564
+  National Institute of Information and Communications Technology (NICT)
+    Hitoshi Asaeda
+      asaeda&nict.go.jp
+51565
+  Shenzhen Ehilink Technology Ltd.
+    Wei Yuanqin
+      wei&ehilink.com
+51566
+  AMBA
+    Aleksander Mroczek
+      amba&mm.pl
+51567
+  Plusnet GmbH & Co. KG
+    Carsten Reuter
+      carsten.reuter&qsc.de
+51568
+  Buck Institute
+    Kevin Casey
+      nadministrator&buckinstitute.org
+51569
+  Technology Bjumper S.L.
+    Rubén Agudo
+      ragudo&bjumper.com
+51570
+  Clinic Management Group
+    Yushkevichus Dmitry
+      d.yushkevichus&clinic-mg.ru
+51571
+  Observer-X LLC
+    Xiaoke K Wang
+      karlour&hotmail.com
+51572
+  DEVtec.io
+    Camilo Rodegheri Mendes dos Santos
+      camilo&devtec.io
+51573
+  Nachiket V. Patel, MD, PA
+    Nachiket Patel, MD
+      npatelmdpa1&gmail.com
+51574
+  CENTRAL JERSEY SPORTS MEDICINE & ORTHOPAEDIC CENTER, PC
+    SONDRA DIDONATO
+      CJSOC43&YAHOO.COM
+51575
+  TUC Co
+    Tony Tucker
+      tony&tucmoto.com
+51576
+  Timber Technologies, Inc.
+    Ben Johnson
+      ben&timber.io
+51577
+  CTI Certificate Authority Co., Ltd
+    Yuan Jing
+      yuanjing&hnca.com.cn
+51578
+  Codilis and Associates, P.C.
+    Justin Hay
+      justin.hay&il.cslegal.com
+51579
+  Thauris
+    H. Dorhout
+      hidde.dorhout&thauris.nl
+51580
+  MetaNetworks
+    Dmitry Heistonen
+      d.heistonen&meta-networks.ru
+51581
+  Localdomain.dk
+    Ben Vestergaard
+      mail+iana&localdomain.dk
+51582
+  Darling Ingredients Inc
+    Laurie Strackeljahn
+      lstrackeljahn&darlingii.com
+51583
+  Tarrell, Inc.
+    Michael R. Tarrell
+      Admin&tarrell.com
+51584
+  Vision Net
+    Jamie Miller
+      jamie.miller&vision.net
+51585
+  Kohler Co.
+    Pierringer Jayson
+      jayson.pierringer&kohler.com
+51586
+  TrellisWare Technologies, Inc.
+    Ryan McCourt
+      rmccourt&trellisware.com
+51587
+  RICIS, Inc.
+    Gregory D. Rosenberg
+      gregg&ricis.com
+51588
+  Allegiance Consulting (Pty) Ltd
+    Andrew Broekman
+      andrew.broekman&allegiance.co.za
+51589
+  White Hat Security
+    Johan Loos
+      iana&whitehatsecurity.be
+51590
+  The Austins
+    Neil Austin
+      Neil&theaustins.co.uk
+51591
+  L'Empire Troll
+    Benjamin Somers
+      benjamin.somers&empiretroll.fr
 
 
 End of Document
