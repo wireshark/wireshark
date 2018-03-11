@@ -763,6 +763,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct eth_phdr   *eth = (struct eth_phdr *)data;
   proto_tree        *fh_tree;
+  guint              fcs_len = eth_assume_fcs ? 4 : (eth ? eth->fcs_len : -1);
 
   /* Some devices slice the packet and add their own trailer before
      putting the frame on the network. Make sure these packets get
@@ -791,13 +792,13 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      * no FCS".
      */
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
-                         eth_assume_fcs ? 4 : eth->fcs_len);
+                         fcs_len);
   } else {
     /*
      * XXX - this overrides Wiretap saying "this packet definitely has
      * no FCS".
      */
-    dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : eth->fcs_len);
+    dissect_eth_common(tvb, pinfo, tree, fcs_len);
   }
   return tvb_captured_length(tvb);
 }
