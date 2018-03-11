@@ -1992,21 +1992,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation type="vanished">Mapuj</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="vanished">Dodaj punkty krańcowe IPv4 lub IPv6.</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation type="vanished">Błąd mapowania pliku</translation>
-    </message>
-</context>
-<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -2603,11 +2588,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP path</source>
+        <source>MaxMind DB path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP database search path</source>
+        <source>MaxMind DB database search path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

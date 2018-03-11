@@ -3708,10 +3708,6 @@ Lazar Sumar		<bugzilla[AT]lazar.co.nz> {
 	CAN-ETH dissectors
 }
 
-Mark Ciechanowski		<mark.ciechanowski[AT]gmail.com> {
-	Fixes and updates to Gryphon Protocol dissector
-}
-
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -4514,6 +4510,8 @@ Zhao Lin		<zlbinghamton[AT]gmail.com>
 anonsvn			<anonsvn[AT]localhost>
 cff339			<cff339[AT]gmail.com>
 cheloftus		<cheloftus[AT]gmail.com>
+ciechanowski		<markciechanowski[AT]gmail.com>
+david-aggeler		<david_aggeler[AT]yahoo.com>
 kardam			<netkardam[AT]gmail.com>
 kkoizumi		<kkoizumi46[AT]gmail.com>
 shqking			<shqking[AT]gmail.com>

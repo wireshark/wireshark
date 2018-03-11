@@ -1986,21 +1986,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation type="vanished">マップ</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="vanished">IPv4またはIPv6の端末をマップ上に描画します</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation type="vanished">マップファイルエラー</translation>
-    </message>
-</context>
-<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -2595,11 +2580,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP path</source>
+        <source>MaxMind DB path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP database search path</source>
+        <source>MaxMind DB database search path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

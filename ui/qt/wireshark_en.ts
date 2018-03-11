@@ -2606,11 +2606,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP path</source>
+        <source>MaxMind DB path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP database search path</source>
+        <source>MaxMind DB database search path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

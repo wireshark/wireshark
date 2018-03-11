@@ -2007,21 +2007,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation type="vanished">映射</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="vanished">将IPv4或IPv6端点画在映射上。</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation type="vanished">映射文件错误</translation>
-    </message>
-</context>
-<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -2616,11 +2601,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP path</source>
+        <source>MaxMind DB path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GeoIP database search path</source>
+        <source>MaxMind DB database search path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -2016,21 +2016,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation type="vanished">Karte</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="vanished">IPv4 und IPv6 Endpunkte auf einer Karte anzeigen.</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation type="vanished">Fehler bei der Kartendatei</translation>
-    </message>
-</context>
-<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -2626,12 +2611,20 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Suchpfad für Extcap Plugins</translation>
     </message>
     <message>
+        <source>MaxMind DB path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MaxMind DB database search path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>GeoIP path</source>
-        <translation>GeoIP Pfad</translation>
+        <translation type="vanished">GeoIP Pfad</translation>
     </message>
     <message>
         <source>GeoIP database search path</source>
-        <translation>Suchpfad für GeoIP Datenbank</translation>
+        <translation type="vanished">Suchpfad für GeoIP Datenbank</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>

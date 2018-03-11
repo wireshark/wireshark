@@ -2016,21 +2016,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation type="vanished">Mappa</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="vanished">Traccia i terminatori IPv4 o IPv6 su una mappa.</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation type="vanished">Errore nel file di mappa</translation>
-    </message>
-</context>
-<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -2626,12 +2611,20 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Percorso di ricerca plugin Extcap</translation>
     </message>
     <message>
+        <source>MaxMind DB path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MaxMind DB database search path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>GeoIP path</source>
-        <translation>Percorso GeoIP</translation>
+        <translation type="vanished">Percorso GeoIP</translation>
     </message>
     <message>
         <source>GeoIP database search path</source>
-        <translation>Percorso di ricerca database GeoIP</translation>
+        <translation type="vanished">Percorso di ricerca database GeoIP</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>
@@ -7481,7 +7474,7 @@ a:hover {
     </message>
     <message>
         <source> before quitting</source>
-        <translation>prima di uscire</translation>
+        <translation> prima di uscire</translation>
     </message>
     <message>
         <source>Save packets before merging?</source>
@@ -7514,7 +7507,7 @@ a:hover {
     <message>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation>prima di importare una cattura</translation>
+        <translation> prima di importare una cattura</translation>
     </message>
     <message>
         <source>Unable to export to &quot;%1&quot;.</source>
@@ -7679,7 +7672,7 @@ a:hover {
     </message>
     <message>
         <source> before reloading the file</source>
-        <translation>prima di ricaricare il file</translation>
+        <translation> prima di ricaricare il file</translation>
     </message>
     <message>
         <source>No filter available. Try another </source>
@@ -7699,11 +7692,11 @@ a:hover {
     </message>
     <message>
         <source> before starting a new capture</source>
-        <translation>prima di iniziare una nuova cattura</translation>
+        <translation> prima di iniziare una nuova cattura</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
-        <translation>prima di riavviare la cattura</translation>
+        <translation> prima di riavviare la cattura</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
