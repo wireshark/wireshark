@@ -7916,7 +7916,8 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 {
                     if (decrypt(session, pdata, nonce, epp_buf, a_len, buf, e_len))
                     {
-                        guint8 *cache = (guint8 *)wmem_alloc0(pinfo->pool, e_len - session->mac_len);
+                        /* store decrypted buffer in file scope for reuse in next pass */
+                        guint8 *cache = (guint8 *)wmem_alloc0(wmem_file_scope(), e_len - session->mac_len);
                         memcpy(cache, buf, e_len - session->mac_len);
                         app = tvb_new_real_data(cache, e_len - session->mac_len, e_len - session->mac_len);
                         tvb_set_child_real_data_tvbuff(tvb, app);
