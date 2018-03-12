@@ -93,6 +93,8 @@ const value_string ssl_versions[] = {
     { 0x7F16,               "TLS 1.3 (draft 22)" },
     { 0x7F17,               "TLS 1.3 (draft 23)" },
     { 0x7F18,               "TLS 1.3 (draft 24)" },
+    { 0x7F19,               "TLS 1.3 (draft 25)" },
+    { 0x7F1A,               "TLS 1.3 (draft 26)" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
@@ -3859,6 +3861,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
      */
     const guint16   version = ssl->session.version;
     const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION;
+    const guint8    draft_version = ssl->session.tls13_draft_version;
     gcry_error_t    err;
     const guchar   *explicit_nonce = NULL, *ciphertext;
     guint           ciphertext_len, auth_tag_len;
@@ -3972,7 +3975,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         gcry_cipher_ctl(decoder->evp, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
     }
 
-    /* (D)TLS 1.2 needs specific AAD, TLS 1.3 uses empty AAD. */
+    /* (D)TLS 1.2 needs specific AAD, TLS 1.3 (before -25) uses empty AAD. */
     if (is_v12) {
         guchar aad[13];
         phton64(aad, decoder->seq);         /* record sequence number */
@@ -3984,6 +3987,17 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         aad[8] = ct;                        /* TLSCompressed.type */
         phton16(aad + 9, record_version);   /* TLSCompressed.version */
         phton16(aad + 11, ciphertext_len);  /* TLSCompressed.length */
+        ssl_print_data("AAD", aad, sizeof(aad));
+        err = gcry_cipher_authenticate(decoder->evp, aad, sizeof(aad));
+        if (err) {
+            ssl_debug_printf("%s failed to set AAD: %s\n", G_STRFUNC, gcry_strerror(err));
+            return FALSE;
+        }
+    } else if (draft_version >= 25 || draft_version == 0) {
+        guchar aad[5];
+        aad[0] = ct;                        /* TLSCiphertext.opaque_type (23) */
+        phton16(aad + 1, record_version);   /* TLSCiphertext.legacy_record_version (0x0303) */
+        phton16(aad + 3, inl);              /* TLSCiphertext.length */
         ssl_print_data("AAD", aad, sizeof(aad));
         err = gcry_cipher_authenticate(decoder->evp, aad, sizeof(aad));
         if (err) {
