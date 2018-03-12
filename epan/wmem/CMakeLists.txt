@@ -70,6 +70,7 @@ target_link_libraries(wmem_test ${GLIB2_LIBRARIES} wsutil)
 
 set_target_properties(wmem_test PROPERTIES
 	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
