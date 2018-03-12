@@ -233,6 +233,7 @@ proto_reg_handoff_zbee_zcl_shade_configuration(void)
                             proto_zbee_zcl_shade_configuration,
                             ett_zbee_zcl_shade_configuration,
                             ZBEE_ZCL_CID_SHADE_CONFIG,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_shade_configuration_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_shade_configuration_attr_data
@@ -568,6 +569,7 @@ proto_reg_handoff_zbee_zcl_door_lock(void)
                             proto_zbee_zcl_door_lock,
                             ett_zbee_zcl_door_lock,
                             ZBEE_ZCL_CID_DOOR_LOCK,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_door_lock_attr_id,
                             hf_zbee_zcl_door_lock_srv_rx_cmd_id,
                             hf_zbee_zcl_door_lock_srv_tx_cmd_id,

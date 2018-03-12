@@ -2345,14 +2345,14 @@ void proto_reg_handoff_zbee_zcl(void)
  *@param  fn_attr_data specific cluster attribute data decode function
 */
 void
-zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 cluster_id, int hf_attr_id, int hf_cmd_rx_id, int hf_cmd_tx_id, zbee_zcl_fn_attr_data fn_attr_data)
+zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 cluster_id, guint16 mfr_code, int hf_attr_id, int hf_cmd_rx_id, int hf_cmd_tx_id, zbee_zcl_fn_attr_data fn_attr_data)
 {
     zbee_zcl_cluster_desc *cluster_desc;
     dissector_handle_t dissector_handle;
 
     /* Register the dissector with the ZigBee application dissectors. */
     dissector_handle = find_dissector(proto_abbrev);
-    dissector_add_uint("zbee.zcl.cluster", ZCL_CLUSTER_MFR_KEY(cluster_id, ZBEE_MFG_CODE_NONE), dissector_handle);
+    dissector_add_uint("zbee.zcl.cluster", ZCL_CLUSTER_MFR_KEY(cluster_id, mfr_code), dissector_handle);
 
     /* Allocate a cluster descriptor */
     cluster_desc = g_new(zbee_zcl_cluster_desc, 1);
@@ -2363,7 +2363,7 @@ zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 clu
     cluster_desc->name = proto_get_protocol_short_name(cluster_desc->proto);
     cluster_desc->ett = ett;
     cluster_desc->cluster_id = cluster_id;
-    cluster_desc->mfr_code = ZBEE_MFG_CODE_NONE;
+    cluster_desc->mfr_code = mfr_code;
     cluster_desc->hf_attr_id = hf_attr_id;
     cluster_desc->hf_cmd_rx_id = hf_cmd_rx_id;
     cluster_desc->hf_cmd_tx_id = hf_cmd_tx_id;

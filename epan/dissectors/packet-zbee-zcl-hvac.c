@@ -474,6 +474,7 @@ proto_reg_handoff_zbee_zcl_pump_config_control(void)
                             proto_zbee_zcl_pump_config_control,
                             ett_zbee_zcl_pump_config_control,
                             ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_pump_config_control_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_pump_config_control_attr_data
@@ -653,6 +654,7 @@ proto_reg_handoff_zbee_zcl_fan_control(void)
                             proto_zbee_zcl_fan_control,
                             ett_zbee_zcl_fan_control,
                             ZBEE_ZCL_CID_FAN_CONTROL,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_fan_control_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_fan_control_attr_data
@@ -858,6 +860,7 @@ proto_reg_handoff_zbee_zcl_dehumidification_control(void)
                             proto_zbee_zcl_dehumidification_control,
                             ett_zbee_zcl_dehumidification_control,
                             ZBEE_ZCL_CID_DEHUMIDIFICATION_CONTROL,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_dehumidification_control_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_dehumidification_control_attr_data
@@ -1032,6 +1035,7 @@ proto_reg_handoff_zbee_zcl_thermostat_ui_config(void)
                             proto_zbee_zcl_thermostat_ui_config,
                             ett_zbee_zcl_thermostat_ui_config,
                             ZBEE_ZCL_CID_THERMOSTAT_UI_CONFIG,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_thermostat_ui_config_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_thermostat_ui_config_attr_data

@@ -302,6 +302,7 @@ proto_reg_handoff_zbee_zcl_illum_meas(void)
                             proto_zbee_zcl_illum_meas,
                             ett_zbee_zcl_illum_meas,
                             ZBEE_ZCL_CID_ILLUMINANCE_MEASUREMENT,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_illum_meas_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_illum_meas_attr_data
@@ -508,6 +509,7 @@ proto_reg_handoff_zbee_zcl_illum_level_sen(void)
                             proto_zbee_zcl_illum_level_sen,
                             ett_zbee_zcl_illum_level_sen,
                             ZBEE_ZCL_CID_ILLUMINANCE_LEVEL_SENSING,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_illum_level_sen_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_illum_level_sen_attr_data
@@ -767,6 +769,7 @@ proto_reg_handoff_zbee_zcl_temp_meas(void)
                             proto_zbee_zcl_temp_meas,
                             ett_zbee_zcl_temp_meas,
                             ZBEE_ZCL_CID_TEMPERATURE_MEASUREMENT,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_temp_meas_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_temp_meas_attr_data
@@ -1088,6 +1091,7 @@ proto_reg_handoff_zbee_zcl_press_meas(void)
                             proto_zbee_zcl_press_meas,
                             ett_zbee_zcl_press_meas,
                             ZBEE_ZCL_CID_PRESSURE_MEASUREMENT,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_press_meas_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_press_meas_attr_data
@@ -1350,6 +1354,7 @@ proto_reg_handoff_zbee_zcl_flow_meas(void)
                             proto_zbee_zcl_flow_meas,
                             ett_zbee_zcl_flow_meas,
                             ZBEE_ZCL_CID_FLOW_MEASUREMENT,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_flow_meas_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_flow_meas_attr_data
@@ -1607,6 +1612,7 @@ proto_reg_handoff_zbee_zcl_relhum_meas(void)
                             proto_zbee_zcl_relhum_meas,
                             ett_zbee_zcl_relhum_meas,
                             ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_relhum_meas_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_relhum_meas_attr_data
@@ -1807,6 +1813,7 @@ proto_reg_handoff_zbee_zcl_occ_sen(void)
                             proto_zbee_zcl_occ_sen,
                             ett_zbee_zcl_occ_sen,
                             ZBEE_ZCL_CID_OCCUPANCY_SENSING,
+                            ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_occ_sen_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_occ_sen_attr_data
