@@ -60,13 +60,10 @@
 # include <codecs/speex/speex_resampler.h>
 #endif /* HAVE_SPEEXDSP */
 
-#ifdef HAVE_GEOIP
-# include <GeoIP.h>
-# include <epan/geoip_db.h>
-# include <wsutil/pint.h>
-#endif
+#include <epan/maxmind_db.h>
 
 #include <wsutil/glib-compat.h>
+#include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 
 #include "globals.h"
@@ -1218,126 +1215,73 @@ struct sharkd_conv_tap_data
 	gboolean resolve_port;
 };
 
-static int
+static gboolean
 sharkd_session_geoip_addr(address *addr, const char *suffix)
 {
-	int with_geoip = 0;
+	const mmdb_lookup_t *lookup = NULL;
+	gboolean with_geoip = FALSE;
 
-	(void) addr;
-	(void) suffix;
-
-#ifdef HAVE_GEOIP
 	if (addr->type == AT_IPv4)
 	{
 		guint32 ip = pntoh32(addr->data);
 
-		guint num_dbs = geoip_db_num_dbs();
-		guint dbnum;
-
-		for (dbnum = 0; dbnum < num_dbs; dbnum++)
-		{
-			const char *geoip_key = NULL;
-			char *geoip_val;
-
-			int db_type = geoip_db_type(dbnum);
-
-			switch (db_type)
-			{
-				case GEOIP_COUNTRY_EDITION:
-					geoip_key = "geoip_country";
-					break;
-
-				case GEOIP_CITY_EDITION_REV0:
-				case GEOIP_CITY_EDITION_REV1:
-					geoip_key = "geoip_city";
-					break;
-
-				case GEOIP_ORG_EDITION:
-					geoip_key = "geoip_org";
-					break;
-
-				case GEOIP_ISP_EDITION:
-					geoip_key = "geoip_isp";
-					break;
-
-				case GEOIP_ASNUM_EDITION:
-					geoip_key = "geoip_as";
-					break;
-
-				case WS_LAT_FAKE_EDITION:
-					geoip_key = "geoip_lat";
-					break;
-
-				case WS_LON_FAKE_EDITION:
-					geoip_key = "geoip_lon";
-					break;
-			}
-
-			if (geoip_key && (geoip_val = geoip_db_lookup_ipv4(dbnum, ip, NULL)))
-			{
-				printf(",\"%s%s\":", geoip_key, suffix);
-				json_puts_string(geoip_val);
-				with_geoip = 1;
-			}
-		}
+		lookup = maxmind_db_lookup_ipv4(ip);
 	}
-#ifdef HAVE_GEOIP_V6
-	if (addr->type == AT_IPv6)
+	else if (addr->type == AT_IPv6)
 	{
 		const ws_in6_addr *ip6 = (const ws_in6_addr *) addr->data;
 
-		guint num_dbs = geoip_db_num_dbs();
-		guint dbnum;
-
-		for (dbnum = 0; dbnum < num_dbs; dbnum++)
-		{
-			const char *geoip_key = NULL;
-			char *geoip_val;
-
-			int db_type = geoip_db_type(dbnum);
-
-			switch (db_type)
-			{
-				case GEOIP_COUNTRY_EDITION_V6:
-					geoip_key = "geoip_country";
-					break;
-#if NUM_DB_TYPES > 31
-				case GEOIP_CITY_EDITION_REV0_V6:
-				case GEOIP_CITY_EDITION_REV1_V6:
-					geoip_key = "geoip_city";
-					break;
-
-				case GEOIP_ORG_EDITION_V6:
-					geoip_key = "geoip_org";
-					break;
-
-				case GEOIP_ISP_EDITION_V6:
-					geoip_key = "geoip_isp";
-					break;
-
-				case GEOIP_ASNUM_EDITION_V6:
-					geoip_key = "geoip_as";
-					break;
-#endif /* DB_NUM_TYPES */
-				case WS_LAT_FAKE_EDITION:
-					geoip_key = "geoip_lat";
-					break;
-
-				case WS_LON_FAKE_EDITION:
-					geoip_key = "geoip_lon";
-					break;
-			}
-
-			if (geoip_key && (geoip_val = geoip_db_lookup_ipv6(dbnum, *ip6, NULL)))
-			{
-				printf(",\"%s%s\":", geoip_key, suffix);
-				json_puts_string(geoip_val);
-				with_geoip = 1;
-			}
-		}
+		lookup = maxmind_db_lookup_ipv6(ip6);
 	}
-#endif /* HAVE_GEOIP_V6 */
-#endif /* HAVE_GEOIP */
+
+	if (!lookup || !lookup->found)
+		return FALSE;
+
+	if (lookup->country)
+	{
+		printf(",\"geoip_country%s\":", suffix);
+		json_puts_string(lookup->country);
+		with_geoip = TRUE;
+	}
+
+	if (lookup->country_iso)
+	{
+		printf(",\"geoip_country_iso%s\":", suffix);
+		json_puts_string(lookup->country_iso);
+		with_geoip = TRUE;
+	}
+
+	if (lookup->city)
+	{
+		printf(",\"geoip_city%s\":", suffix);
+		json_puts_string(lookup->city);
+		with_geoip = TRUE;
+	}
+
+	if (lookup->as_org)
+	{
+		printf(",\"geoip_as_org%s\":", suffix);
+		json_puts_string(lookup->as_org);
+		with_geoip = TRUE;
+	}
+
+	if (lookup->as_number > 0)
+	{
+		printf(",\"geoip_as%s\":%u", suffix, lookup->as_number);
+		with_geoip = TRUE;
+	}
+
+	if (lookup->latitude >= -90.0 && lookup->latitude <= 90.0)
+	{
+		printf(",\"geoip_lat%s\":%f", suffix, lookup->latitude);
+		with_geoip = TRUE;
+	}
+
+	if (lookup->longitude >= -180.0 && lookup->longitude <= 180.0)
+	{
+		printf(",\"geoip_lon%s\":%f", suffix, lookup->longitude);
+		with_geoip = TRUE;
+	}
 
 	return with_geoip;
 }
