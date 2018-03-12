@@ -41,7 +41,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  create_persconffile_dir@Base 1.12.0~rc1
  create_persconffile_profile@Base 1.12.0~rc1
  create_profiles_dir@Base 2.5.0
- create_tempdir@Base 1.12.0~rc1
  create_tempfile@Base 1.12.0~rc1
  create_timestamp@Base 2.5.0
  crypt_des_ecb@Base 2.3.0

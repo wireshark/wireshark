@@ -52,9 +52,7 @@
                          /*  issues re winsock.h included before winsock2.h )     */
 #include <windowsx.h>
 
-#ifdef HAVE_NTDDNDIS_H
 #include <Ntddndis.h>
-#endif
 
 #include "caputils/capture_win_ifnames.h"
 

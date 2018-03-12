@@ -44,18 +44,6 @@ WS_DLL_PUBLIC char *get_tempfile_path(const char *filename);
  */
 WS_DLL_PUBLIC int create_tempfile(char **namebuf, const char *pfx, const char *sfx);
 
-/**
- * Create a directory with the given prefix (e.g. "wireshark"). The path
- * is created using g_get_tmp_dir and mkdtemp.
- *
- * @param namebuf If not NULL, receives the full path of the temp directory.
- *                Must NOT be freed.
- * @param pfx A prefix for the temporary directory.
- * @return The temporary directory path on success, or NULL on failure.
- *         Must NOT be freed.
- */
-WS_DLL_PUBLIC const char *create_tempdir(char **namebuf, const char *pfx);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

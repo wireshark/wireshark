@@ -77,50 +77,6 @@ mkstemps(char *path_template, int suffixlen)
 
 #endif /* HAVE_MKSTEMPS */
 
-#ifndef HAVE_MKDTEMP
-/* Generate a unique temporary directory name from TEMPLATE.
-   The last six characters of TEMPLATE must be TMP_FILE_SUFFIX;
-   they are replaced with a string that makes the filename unique.
-   Returns 0 on success or -1 on error (from mkdir(2)).  */
-char *
-mkdtemp (char *path_template)
-{
-  static const char letters[]
-    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  size_t len;
-  size_t i;
-
-  len = strlen (path_template);
-  if (len < 6 || strcmp (&path_template[len - 6], TMP_FILE_SUFFIX))
-    {
-      __set_errno (EINVAL);
-      return NULL;
-    }
-
-  if (g_snprintf (&path_template[len - 5], 6, "%.5u",
-                  (unsigned int) ws_getpid () % 100000) != 5)
-    /* Inconceivable lossage.  */
-    return NULL;
-
-  for (i = 0; i < sizeof (letters); ++i)
-    {
-      int ret;
-
-      path_template[len - 6] = letters[i];
-
-      ret = ws_mkdir(path_template, 0700);
-      if (ret >= 0)
-        return path_template;
-    }
-
-  /* We return the null string if we can't find a unique file name.  */
-
-  path_template[0] = '\0';
-  return NULL;
-}
-
-#endif /* HAVE_MKDTEMP */
-
 /*
  * Construct and return the path name of a file in the
  * appropriate temporary file directory.
@@ -218,49 +174,6 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
   fd = mkstemps(tf[idx].path, sfx ? (int) strlen(sfx) : 0);
   ws_umask(old_umask);
   return fd;
-}
-
-/**
- * Create a directory with the given prefix (e.g. "wireshark"). The path
- * is created using g_get_tmp_dir and mkdtemp.
- *
- * @param namebuf
- * @param pfx A prefix for the temporary directory.
- * @return The temporary directory path on success, or NULL on failure.
- *         Must NOT be freed.
- */
-const char *
-create_tempdir(char **namebuf, const char *pfx)
-{
-  static char *td_path[3];
-  static int td_path_len[3];
-  static int idx;
-  const char *tmp_dir;
-
-  idx = (idx + 1) % 3;
-
-  /*
-   * Allocate the buffer if it's not already allocated.
-   */
-  if (td_path[idx] == NULL) {
-    td_path_len[idx] = INITIAL_PATH_SIZE;
-    td_path[idx] = (char *)g_malloc(td_path_len[idx]);
-  }
-
-  /*
-   * We can't use get_tempfile_path here because we're called from dumpcap.c.
-   */
-  tmp_dir = g_get_tmp_dir();
-
-  while (g_snprintf(td_path[idx], td_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > td_path_len[idx]) {
-    td_path_len[idx] *= 2;
-    td_path[idx] = (char *)g_realloc(td_path[idx], td_path_len[idx]);
-  }
-
-  if (namebuf) {
-    *namebuf = td_path[idx];
-  }
-  return mkdtemp(td_path[idx]);
 }
 
 /*
