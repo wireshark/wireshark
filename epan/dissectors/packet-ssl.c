@@ -969,6 +969,44 @@ dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return dissect_ssl(tvb, pinfo, tree, data);
 }
 
+static void
+tls_save_decrypted_record(packet_info *pinfo, gint record_id, SslDecryptSession *ssl, guint8 content_type,
+                          SslDecoder *decoder, gboolean allow_fragments, guint8 curr_layer_num_ssl)
+{
+    const guchar *data = ssl_decrypted_data.data;
+    guint datalen = ssl_decrypted_data_avail;
+
+    if (datalen == 0) {
+        return;
+    }
+
+    if (ssl->session.version == TLSV1DOT3_VERSION) {
+        /*
+         * The actual data is followed by the content type and then zero or
+         * more padding. Scan backwards for content type, skipping padding.
+         */
+        while (datalen > 0 && data[datalen - 1] == 0) {
+            datalen--;
+        }
+        ssl_debug_printf("%s found %d padding bytes\n", G_STRFUNC, ssl_decrypted_data_avail - datalen);
+        if (datalen == 0) {
+            ssl_debug_printf("%s there is no room for content type!\n", G_STRFUNC);
+            return;
+        }
+        content_type = data[--datalen];
+        if (datalen == 0) {
+            /* XXX should we remember that the decrypted contents was zero-length? */
+            return;
+        }
+    }
+
+    /* In TLS 1.3 only Handshake and Application Data can be fragmented.
+     * Alert messages MUST NOT be fragmented across records, so do not
+     * bother maintaining a flow for those. */
+    ssl_add_record_info(proto_ssl, pinfo, data, datalen, record_id,
+            allow_fragments ? decoder->flow : NULL, (ContentType)content_type, curr_layer_num_ssl);
+}
+
 /**
  * Try to decrypt the record and update the internal cipher state.
  * On success, the decrypted data will be available in "ssl_decrypted_data" of
@@ -1024,35 +1062,8 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
         data_for_iv_len = (record_length < 24) ? record_length : 24;
         ssl_data_set(data_for_iv, (const guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
     }
-    if (success && ssl_decrypted_data_avail > 0) {
-        const guchar *data = ssl_decrypted_data.data;
-        guint datalen = ssl_decrypted_data_avail;
-
-        if (ssl->session.version == TLSV1DOT3_VERSION) {
-            /*
-             * The actual data is followed by the content type and then zero or
-             * more padding. Scan backwards for content type, skipping padding.
-             */
-            while (datalen > 0 && data[datalen - 1] == 0) {
-                datalen--;
-            }
-            ssl_debug_printf("%s found %d padding bytes\n", G_STRFUNC, ssl_decrypted_data_avail - datalen);
-            if (datalen == 0) {
-                ssl_debug_printf("%s there is no room for content type!\n", G_STRFUNC);
-                return FALSE;
-            }
-            content_type = data[--datalen];
-            if (datalen == 0) {
-                /* XXX should we remember that the decrypted contents was zero-length? */
-                return FALSE;
-            }
-        }
-
-        /* In TLS 1.3 only Handshake and Application Data can be fragmented.
-         * Alert messages MUST NOT be fragmented across records, so do not
-         * bother maintaining a flow for those. */
-        ssl_add_record_info(proto_ssl, pinfo, data, datalen, tvb_raw_offset(tvb)+offset,
-                allow_fragments ? decoder->flow : NULL, (ContentType)content_type, curr_layer_num_ssl);
+    if (success) {
+        tls_save_decrypted_record(pinfo, tvb_raw_offset(tvb)+offset, ssl, content_type, decoder, allow_fragments, curr_layer_num_ssl);
     }
     return success;
 }

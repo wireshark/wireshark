@@ -3530,7 +3530,7 @@ fail:
 }
 
 /* Generated the key material based on the given secret. */
-static gboolean
+gboolean
 tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gboolean is_from_server)
 {
     gboolean    success = FALSE;
@@ -4940,23 +4940,23 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
     }
 } /* }}} */
 
-/* Load the new key. */
-void
-tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
-                 gboolean is_from_server, TLSRecordType type)
+/* Load the traffic key secret from the keylog file. */
+StringInfo *
+tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
+                  gboolean is_from_server, TLSRecordType type)
 {
     GHashTable *key_map;
     const char *label;
 
     if (ssl->session.version != TLSV1DOT3_VERSION) {
         ssl_debug_printf("%s TLS version %#x is not 1.3\n", G_STRFUNC, ssl->session.version);
-        return;
+        return NULL;
     }
 
     if (ssl->client_random.data_len == 0) {
         /* May happen if Hello message is missing and Finished is found. */
         ssl_debug_printf("%s missing Client Random\n", G_STRFUNC);
-        return;
+        return NULL;
     }
 
     switch (type) {
@@ -5000,13 +5000,26 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
         } else {
             ssl->client = NULL;
         }
-        return;
+        return NULL;
     }
 
     /* TLS 1.3 secret found, set new keys. */
     ssl_debug_printf("%s Retrieved TLS 1.3 traffic secret.\n", G_STRFUNC);
     ssl_print_string("Client Random", &ssl->client_random);
     ssl_print_string(label, secret);
+    return secret;
+}
+
+/* Load the new key. */
+void
+tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
+                 gboolean is_from_server, TLSRecordType type)
+{
+    StringInfo *secret = tls13_load_secret(ssl, mk_map, is_from_server, type);
+    if (!secret) {
+        return;
+    }
+
     if (tls13_generate_keys(ssl, secret, is_from_server)) {
         /*
          * Remember the application traffic secret to support Key Update. The

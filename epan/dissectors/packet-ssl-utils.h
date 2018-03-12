@@ -692,6 +692,13 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 extern void
 ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
 
+extern gboolean
+tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gboolean is_from_server);
+
+extern StringInfo *
+tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
+                  gboolean is_from_server, TLSRecordType type);
+
 extern void
 tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
                  gboolean is_from_server, TLSRecordType type);
