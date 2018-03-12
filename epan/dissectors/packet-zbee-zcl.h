@@ -203,13 +203,15 @@ extern void dissect_zcl_write_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tre
 extern void dissect_zcl_read_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
 
 /* Helper functions */
-void decode_zcl_time_in_100ms (gchar *s, guint16 value);
-void decode_zcl_time_in_seconds (gchar *s, guint16 value);
-void decode_zcl_time_in_minutes (gchar *s, guint16 value);
-
-void dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);
-void zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 cluster_id, guint16 mfr_code, int hf_attr_id, int hf_cmd_rx_id, int hf_cmd_tx_id, zbee_zcl_fn_attr_data fn_attr_data);
 zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id, guint16 mfr_code);
+
+/* Exported DLL functions */
+WS_DLL_PUBLIC void decode_zcl_time_in_100ms (gchar *s, guint16 value);
+WS_DLL_PUBLIC void decode_zcl_time_in_seconds (gchar *s, guint16 value);
+WS_DLL_PUBLIC void decode_zcl_time_in_minutes (gchar *s, guint16 value);
+WS_DLL_PUBLIC void dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);
+
+WS_DLL_PUBLIC void zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 cluster_id, guint16 mfr_code, int hf_attr_id, int hf_cmd_rx_id, int hf_cmd_tx_id, zbee_zcl_fn_attr_data fn_attr_data);
 
 /* Cluster-specific commands and parameters */
 #define ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_NEP             0x02
