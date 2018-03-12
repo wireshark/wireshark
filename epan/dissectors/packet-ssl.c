@@ -91,6 +91,10 @@
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 #include "packet-ber.h"
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+/* Whether to provide support for authentication in addition to decryption. */
+#define HAVE_LIBGCRYPT_AEAD
+#endif
 
 void proto_register_ssl(void);
 
@@ -1067,6 +1071,83 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
     return success;
 }
 
+#ifdef HAVE_LIBGCRYPT_AEAD
+/**
+ * Try to guess the early data cipher using trial decryption.
+ * Requires Libgcrypt 1.6 or newer for verifying that decryption is successful.
+ */
+static gboolean
+decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
+                         guint16 record_length, SslDecryptSession *ssl,
+                         guint8 curr_layer_num_ssl)
+
+{
+    gboolean        success = FALSE;
+
+    ssl_debug_printf("Trying early data encryption, first record / trial decryption: %s\n",
+                    !(ssl->state & SSL_SEEN_0RTT_APPDATA) ? "true" : "false");
+
+    /* Only try trial decryption for the first record. */
+    if (ssl->state & SSL_SEEN_0RTT_APPDATA) {
+        if (!ssl->client) {
+            return FALSE;       // sanity check, should not happen in valid captures.
+        }
+
+        ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
+        success = ssl_decrypt_record(ssl, ssl->client, SSL_ID_APP_DATA, 0x303, FALSE,
+                                     tvb_get_ptr(tvb, offset, record_length), record_length,
+                                     &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
+        if (success) {
+            tls_save_decrypted_record(pinfo, tvb_raw_offset(tvb)+offset, ssl, SSL_ID_APP_DATA, ssl->client, TRUE, curr_layer_num_ssl);
+        } else {
+            ssl_debug_printf("early data decryption failed, end of early data?\n");
+        }
+        return success;
+    }
+    ssl->state |= SSL_SEEN_0RTT_APPDATA;
+
+    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+    StringInfo *secret = tls13_load_secret(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_0RTT_APP);
+    if (!secret) {
+        ssl_debug_printf("Missing secrets, early data decryption not possible!\n");
+        return FALSE;
+    }
+
+    const guint16 tls13_ciphers[] = {
+        0x1301, /* TLS_AES_128_GCM_SHA256 */
+        0x1302, /* TLS_AES_256_GCM_SHA384 */
+        0x1303, /* TLS_CHACHA20_POLY1305_SHA256 */
+        0x1304, /* TLS_AES_128_CCM_SHA256 */
+        0x1305, /* TLS_AES_128_CCM_8_SHA256 */
+    };
+    const guchar   *record = tvb_get_ptr(tvb, offset, record_length);
+    for (guint i = 0; i < G_N_ELEMENTS(tls13_ciphers); i++) {
+        guint16 cipher = tls13_ciphers[i];
+
+        ssl_debug_printf("Performing early data trial decryption, cipher = %#x\n", cipher);
+        ssl->session.cipher = cipher;
+        ssl->cipher_suite = ssl_find_cipher(cipher);
+        if (!tls13_generate_keys(ssl, secret, FALSE)) {
+            /* Unable to create cipher (old Libgcrypt) */
+            continue;
+        }
+
+        ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
+        success = ssl_decrypt_record(ssl, ssl->client, SSL_ID_APP_DATA, 0x303, FALSE, record, record_length,
+                                     &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
+        if (success) {
+            ssl_debug_printf("Early data decryption succeeded, cipher = %#x\n", cipher);
+            tls_save_decrypted_record(pinfo, tvb_raw_offset(tvb)+offset, ssl, SSL_ID_APP_DATA, ssl->client, TRUE, curr_layer_num_ssl);
+            break;
+        }
+    }
+    if (!success) {
+        ssl_debug_printf("Trial decryption of early data failed!\n");
+    }
+    return success;
+}
+#endif
+
 static void
 process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, SslSession *session,
@@ -1803,11 +1884,32 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * In TLS 1.3, only "Application Data" records are encrypted.
      */
     if (ssl && (session->version != TLSV1DOT3_VERSION || content_type == SSL_ID_APP_DATA)) {
-        decrypt_ssl3_record(tvb, pinfo, offset, ssl,
+        gboolean    decrypt_ok = FALSE;
+
+        /* Try to decrypt TLS 1.3 early data first */
+        if (session->version == TLSV1DOT3_VERSION && content_type == SSL_ID_APP_DATA &&
+            ssl->has_early_data && !ssl_packet_from_server(session, ssl_associations, pinfo)) {
+#ifdef HAVE_LIBGCRYPT_AEAD
+            decrypt_ok = decrypt_tls13_early_data(tvb, pinfo, offset, record_length, ssl, curr_layer_num_ssl);
+#endif
+            if (!decrypt_ok) {
+                /* Either trial decryption failed (e.g. missing key) or end of
+                 * early data is reached. Switch to HS secrets if available. */
+                if (ssl->state & SSL_SERVER_RANDOM) {
+                    tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
+                }
+                ssl->has_early_data = FALSE;
+            }
+        }
+
+        if (!decrypt_ok) {
+            decrypt_ssl3_record(tvb, pinfo, offset, ssl,
                 content_type, record_version, record_length,
                 content_type == SSL_ID_APP_DATA ||
                 content_type == SSL_ID_HANDSHAKE, curr_layer_num_ssl);
+        }
     }
+
     /* try to retrieve and use decrypted alert/handshake/appdata record, if any. */
     decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
     if (decrypted) {
@@ -2196,8 +2298,6 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     session->version = TLSV1DOT3_VERSION;
                     ssl->state |= SSL_VERSION;
                     ssl_debug_printf("%s forcing version 0x%04X -> state 0x%02X\n", G_STRFUNC, version, ssl->state);
-                    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
-                    tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_0RTT_APP);
                 }
                 break;
 
@@ -2206,8 +2306,11 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         offset, offset + length, session, ssl, FALSE, is_hrr);
                 if (ssl) {
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
-                    /* Create client and server decoders for TLS 1.3. */
-                    if (!ssl->has_early_data) {
+                    /* Create client and server decoders for TLS 1.3.
+                     * Create client decoder based on HS secret only if there is
+                     * no early data, or if there is no decryptable early data. */
+                    if (!ssl->has_early_data ||
+                        ((ssl->state & SSL_SEEN_0RTT_APPDATA) && !ssl->client)) {
                         tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
                     }
                     tls13_change_key(ssl, &ssl_master_key_map, TRUE, TLS_SECRET_HANDSHAKE);

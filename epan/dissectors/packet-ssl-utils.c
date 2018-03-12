@@ -6161,7 +6161,8 @@ ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb, pa
 
 static gint
 ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
-                                             proto_tree *tree, guint32 offset, guint32 offset_end)
+                                             proto_tree *tree, guint32 offset, guint32 offset_end,
+                                             SslSession *session)
 {
 
    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.1
@@ -6178,12 +6179,23 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
     offset++;
     next_offset = offset + versions_length;
 
+    guint version;
+    guint8 draft_version, max_draft_version = 0;
     while (offset + 2 <= next_offset) {
-        proto_tree_add_item(tree, hf->hf.hs_ext_supported_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf->hf.hs_ext_supported_version, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
         offset += 2;
+
+        draft_version = tls13_draft_version(version);
+        max_draft_version = MAX(draft_version, max_draft_version);
     }
     if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
         offset = next_offset;
+    }
+
+    /* XXX remove this when draft 19 support is dropped,
+     * this is only required for early data decryption. */
+    if (max_draft_version) {
+        session->tls13_draft_version = max_draft_version;
     }
 
     return offset;
@@ -7322,13 +7334,6 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
     offset += 2;
     next_offset = offset + cipher_suite_length;
-    if (ssl && cipher_suite_length == 2) {
-        /*
-         * If there is only a single cipher, assume that this will be used
-         * (needed for 0-RTT decryption support in TLS 1.3).
-         */
-        ssl_set_cipher(ssl, tvb_get_ntohs(tvb, offset));
-    }
     ti = proto_tree_add_none_format(tree,
                                     hf->hf.hs_cipher_suites,
                                     tvb, offset, cipher_suite_length,
@@ -8147,7 +8152,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
             switch (hnd_type) {
             case SSL_HND_CLIENT_HELLO:
-                offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset);
+                offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset, session);
                 break;
             case SSL_HND_SERVER_HELLO:
             case SSL_HND_HELLO_RETRY_REQUEST:
