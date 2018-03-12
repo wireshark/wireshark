@@ -53,6 +53,26 @@ if( PCAP_FOUND )
   set( CMAKE_REQUIRED_INCLUDES ${PCAP_INCLUDE_DIRS} )
   set( CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARIES} )
 
+  if(WIN32)
+    # Prepopulate some values. WinPcap and NPcap always have these and
+    # compilation checks on Windows can be slow.
+    set(HAVE_PCAP_OPEN_DEAD TRUE)
+    set(HAVE_PCAP_FREECODE TRUE)
+    set(HAVE_PCAP_BREAKLOOP TRUE)
+    set(HAVE_PCAP_CREATE TRUE)
+    set(HAVE_PCAP_DATALINK_NAME_TO_VAL TRUE)
+    set(HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION TRUE)
+    set(HAVE_PCAP_DATALINK_VAL_TO_NAME TRUE)
+    set(HAVE_PCAP_FINDALLDEVS TRUE)
+    set(HAVE_PCAP_FREE_DATALINKS TRUE)
+    set(HAVE_PCAP_LIB_VERSION TRUE)
+    set(HAVE_PCAP_LIST_DATALINKS TRUE)
+    set(HAVE_PCAP_SET_DATALINK TRUE)
+    set(HAVE_BPF_IMAGE TRUE)
+    set(HAVE_PCAP_OPEN TRUE)
+    set(HAVE_PCAP_SETSAMPLING TRUE)
+  endif(WIN32)
+
   check_function_exists( "pcap_open_dead" HAVE_PCAP_OPEN_DEAD )
   check_function_exists( "pcap_freecode" HAVE_PCAP_FREECODE )
   #
@@ -63,7 +83,7 @@ if( PCAP_FOUND )
   #
   check_function_exists( "pcap_breakloop" HAVE_PCAP_BREAKLOOP )
   check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
-  if( HAVE_PCAP_CREATE OR WIN32 )
+  if( HAVE_PCAP_CREATE )
     #
     # If we have pcap_create(), we have pcap_set_buffer_size(), and
     # can set the capture buffer size.
