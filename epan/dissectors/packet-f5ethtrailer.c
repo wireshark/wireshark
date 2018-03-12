@@ -901,8 +901,10 @@ static void f5eth_set_info_col_slot(
 	col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
 
 	if(ingress != 0) {
+		DISSECTOR_ASSERT(info_format_in_slot);
 		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, info_format_in_slot, slot, tmm);
 	} else {
+		DISSECTOR_ASSERT(info_format_out_slot);
 		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, info_format_out_slot, slot, tmm);
 	}
 
@@ -2037,7 +2039,7 @@ dissect_low_trailer(
  *      not currently in shipping WS code and only people who are interested
  *      will load it, it's probably not that big of a deal.
  */
-gboolean
+static gboolean
 dissect_f5ethtrailer(
 	  tvbuff_t *tvb
 	, packet_info *pinfo
@@ -2198,7 +2200,7 @@ static void proto_init_f5ethtrailer(void)
 	}
 }
 
-void f5ethtrailer_prefs(void)
+static void f5ethtrailer_prefs(void)
 {
 	static gint tap_ip_enabled = -1;
 	static gint tap_ipv6_enabled = -1;
