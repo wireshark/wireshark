@@ -198,8 +198,6 @@ EXTRA_DIST = \
 	file_util.h		\
 	getopt_long.c		\
 	getopt_long.h		\
-	popcount.c		\
-	popcount.h		\
 	strptime.c		\
 	strptime.h		\
 	win32-utils.c		\

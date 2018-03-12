@@ -47,9 +47,7 @@
 #include "packet-x11-keysymdef.h"
 #include "packet-x11.h"
 
-#ifndef HAVE_POPCOUNT
-# include "wsutil/popcount.h"
-#endif
+#include <wsutil/bits_count_ones.h>
 
 void proto_register_x11(void);
 void proto_reg_handoff_x11(void);

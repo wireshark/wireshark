@@ -2313,7 +2313,6 @@ if test "x$ac_cv_func_getopt_long" = xyes; then
 fi
 
 AC_REPLACE_FUNCS(strptime)
-AC_REPLACE_FUNCS(popcount)
 
 AC_CHECK_FUNCS(mkstemps)
 AC_CHECK_FUNCS(issetugid)

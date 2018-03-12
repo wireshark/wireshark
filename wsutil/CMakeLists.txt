@@ -207,10 +207,6 @@ if(NOT HAVE_GETOPT_LONG)
 	list(APPEND WSUTIL_FILES getopt_long.c)
 endif()
 
-if(NOT HAVE_POPCOUNT)
-	list(APPEND WSUTIL_FILES popcount.c)
-endif()
-
 if(NOT HAVE_STRPTIME)
 	list(APPEND WSUTIL_FILES strptime.c)
 endif()
