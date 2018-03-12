@@ -73,6 +73,7 @@ static inline gboolean ws_pipe_valid(ws_pipe_t *ws_pipe)
  */
 WS_DLL_PUBLIC GPid ws_pipe_spawn_async (ws_pipe_t * ws_pipe, GPtrArray * args );
 
+#ifdef _WIN32
 /**
  * @brief Wait for a set of handles using WaitForMultipleObjects. Windows only.
  * @param pipe_handles An array of handles
@@ -80,7 +81,6 @@ WS_DLL_PUBLIC GPid ws_pipe_spawn_async (ws_pipe_t * ws_pipe, GPtrArray * args );
  * @param pid Child process PID.
  * @return TRUE on success or FALSE on failure.
  */
-#ifdef _WIN32
 WS_DLL_PUBLIC gboolean ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid);
 #endif
 

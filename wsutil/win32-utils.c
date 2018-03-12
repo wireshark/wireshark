@@ -8,7 +8,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <config.h>
+
 #include "win32-utils.h"
+
+#include <log.h>
+
+#include <tchar.h>
 
 /* Quote the argument element if necessary, so that it will get
  * reconstructed correctly in the C runtime startup code.  Note that
@@ -149,15 +155,78 @@ win32strexception(DWORD exception)
     return errbuf;
 }
 
+// This appears to be the closest equivalent to SIGPIPE on Windows.
+// https://blogs.msdn.microsoft.com/oldnewthing/20131209-00/?p=2433
+// https://stackoverflow.com/a/53214/82195
+
+static void win32_kill_child_on_exit(HANDLE child_handle) {
+    static HANDLE cjo_handle = NULL;
+    if (!cjo_handle) {
+        cjo_handle = CreateJobObject(NULL, _T("Local\\Wireshark child process cleanup"));
+
+        if (!cjo_handle) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create child cleanup job object: %s",
+                win32strerror(GetLastError()));
+            return;
+        }
+
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION cjo_jel_info = { 0 };
+        cjo_jel_info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        BOOL sijo_ret = SetInformationJobObject(cjo_handle, JobObjectExtendedLimitInformation,
+            &cjo_jel_info, sizeof(cjo_jel_info));
+        if (!sijo_ret) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not set child cleanup limits: %s",
+                win32strerror(GetLastError()));
+        }
+    }
+
+    BOOL aptjo_ret = AssignProcessToJobObject(cjo_handle, child_handle);
+    if (!aptjo_ret) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not assign child cleanup process: %s",
+            win32strerror(GetLastError()));
+    }
+}
+
+BOOL win32_create_process(const char *application_name, const char *command_line, LPSECURITY_ATTRIBUTES process_attributes, LPSECURITY_ATTRIBUTES thread_attributes, BOOL inherit_handles, DWORD creation_flags, LPVOID environment, const char *current_directory, LPSTARTUPINFO startup_info, LPPROCESS_INFORMATION process_information)
+{
+    gunichar2 *wappname = NULL, *wcurrentdirectory = NULL;
+    gunichar2 *wcommandline = g_utf8_to_utf16(command_line, -1, NULL, NULL, NULL);
+    // CREATE_SUSPENDED: Suspend the child so that we can cleanly call
+    //     AssignProcessToJobObject.
+    // CREATE_BREAKAWAY_FROM_JOB: The main application might be associated with
+    //     a job, e.g. if we're running from ConEmu or Visual Studio. Break away
+    //     from it so that we can cleanly call AssignProcessToJobObject on *our* job.
+    DWORD wcreationflags = creation_flags|CREATE_SUSPENDED|CREATE_BREAKAWAY_FROM_JOB;
+
+    if (application_name) {
+        wappname = g_utf8_to_utf16(application_name, -1, NULL, NULL, NULL);
+    }
+    if (current_directory) {
+        wcurrentdirectory = g_utf8_to_utf16(current_directory, -1, NULL, NULL, NULL);
+    }
+    BOOL cp_res = CreateProcess(wappname, wcommandline, process_attributes, thread_attributes,
+        inherit_handles, wcreationflags, environment, wcurrentdirectory, startup_info,
+        process_information);
+    if (cp_res) {
+        win32_kill_child_on_exit(process_information->hProcess);
+        ResumeThread(process_information->hThread);
+    }
+
+    g_free(wappname);
+    g_free(wcommandline);
+    g_free(wcurrentdirectory);
+    return cp_res;
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
- * c-basic-offset: 2
+ * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

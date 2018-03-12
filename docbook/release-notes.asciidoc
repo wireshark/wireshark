@@ -34,6 +34,9 @@ Features” section below for more details.
 
 //_Non-empty section placeholder._
 
+Dumpcap might not quit if Wireshark or TShark crashes.
+(ws_buglink:1419[])
+
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
@@ -171,9 +174,6 @@ from platform to platform. You can use About→Folders to find the default
 locations on your system.
 
 == Known Problems
-
-Dumpcap might not quit if Wireshark or TShark crashes.
-(ws_buglink:1419[])
 
 The BER dissector might infinitely loop.
 (ws_buglink:1516[])

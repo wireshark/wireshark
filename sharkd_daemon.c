@@ -37,6 +37,7 @@
 #endif
 
 #include <wsutil/strtoi.h>
+#include <wsutil/win32-utils.h>
 
 #include "sharkd.h"
 
@@ -232,7 +233,6 @@ sharkd_loop(void)
 		PROCESS_INFORMATION pi;
 		STARTUPINFO si;
 		char *exename;
-		gunichar2 *commandline;
 #endif
 		socket_handle_t fd;
 
@@ -273,11 +273,10 @@ sharkd_loop(void)
 		si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
 
 		exename = g_strdup_printf("%s\\%s", get_progfile_dir(), "sharkd.exe");
-		commandline = g_utf8_to_utf16("sharkd.exe -", -1, NULL, NULL, NULL);
 
-		if (!CreateProcess(utf_8to16(exename), commandline, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
+		if (!win32_create_process(exename, "sharkd.exe -", NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
 		{
-			fprintf(stderr, "CreateProcess(%s) failed\n", exename);
+			fprintf(stderr, "win32_create_process(%s) failed\n", exename);
 		}
 		else
 		{
@@ -285,7 +284,6 @@ sharkd_loop(void)
 		}
 
 		g_free(exename);
-		g_free(commandline);
 #endif
 
 		closesocket(fd);
