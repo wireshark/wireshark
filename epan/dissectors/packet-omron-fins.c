@@ -625,18 +625,120 @@ static const value_string memory_area_code_cv[] = {
     { 0x84, "Step : Step timer PV" },
     { 0x05, "Forced status : Bit status" },
     { 0x85, "Forced status : Word contents" },
-    { 0x90, "Expansion DM : Word contents, specified bank" },
-    { 0x91, "Expansion DM : Word contents, specified bank" },
-    { 0x92, "Expansion DM : Word contents, specified bank" },
-    { 0x93, "Expansion DM : Word contents, specified bank" },
-    { 0x94, "Expansion DM : Word contents, specified bank" },
-    { 0x95, "Expansion DM : Word contents, specified bank" },
-    { 0x96, "Expansion DM : Word contents, specified bank" },
-    { 0x97, "Expansion DM : Word contents, specified bank" },
+    { 0x90, "Expansion DM : Word contents, bank E0" },
+    { 0x91, "Expansion DM : Word contents, bank E1" },
+    { 0x92, "Expansion DM : Word contents, bank E2" },
+    { 0x93, "Expansion DM : Word contents, bank E3" },
+    { 0x94, "Expansion DM : Word contents, bank E4" },
+    { 0x95, "Expansion DM : Word contents, bank E5" },
+    { 0x96, "Expansion DM : Word contents, bank E6" },
+    { 0x97, "Expansion DM : Word contents, bank E7" },
     { 0x98, "Expansion DM : Word contents, current bank" },
     { 0x9C, "Register : Register contents / Current bank no. of expansion DM" },
     { 0x1B, "Action : Flag status" },
     { 0xDD, "Interrupt status : Scheduled interrupt interval" },
+    { 0x30, "CS1 mode: CIO Area : Bit status" },
+    { 0x31, "CS1 mode: Work Area : Bit status" },
+    { 0x32, "CS1 mode: Holding Bit Area : Bit status" },
+    { 0x33, "CS1 mode: Auxiliary Area : Bit status" },
+    { 0x70, "CS1 mode: CIO Area : Bit status (with forced status)" },
+    { 0x71, "CS1 mode: Work Area : Bit status (with forced status)" },
+    { 0x72, "CS1 mode: Holding Bit Area : Bit status (with forced status)" },
+    { 0xB0, "CS1 mode: CIO Area : Word contents" },
+    { 0xB1, "CS1 mode: Work Area : Word contents" },
+    { 0xB2, "CS1 mode: Holding Bit Area : Word contents" },
+    { 0xB3, "CS1 mode: Auxiliary Bit Area : Word contents" },
+    { 0xF0, "CS1 mode: CIO Area : Word contents (with forced status)" },
+    { 0xF1, "CS1 mode: Work Area : Word contents (with forced status)" },
+    { 0xF2, "CS1 mode: Holding Bit Area : Word contents (with forced status)" },
+    { 0x09, "CS1 mode: Timer/Counter : Completion Flag status" },
+    { 0x49, "CS1 mode: Timer/Counter : Completion Flag status (with forced status)" },
+    { 0x89, "CS1 mode: Timer/Counter : PV" },
+    { 0x02, "CS1 mode: DM : Bit contents" },
+    { 0x20, "CS1 mode: Expansion DM : Bit contents, bank E0" },
+    { 0x21, "CS1 mode: Expansion DM : Bit contents, bank E1" },
+    { 0x22, "CS1 mode: Expansion DM : Bit contents, bank E2" },
+    { 0x23, "CS1 mode: Expansion DM : Bit contents, bank E3" },
+    { 0x24, "CS1 mode: Expansion DM : Bit contents, bank E4" },
+    { 0x25, "CS1 mode: Expansion DM : Bit contents, bank E5" },
+    { 0x26, "CS1 mode: Expansion DM : Bit contents, bank E6" },
+    { 0x27, "CS1 mode: Expansion DM : Bit contents, bank E7" },
+    { 0x28, "CS1 mode: Expansion DM : Bit contents, bank E8" },
+    { 0x29, "CS1 mode: Expansion DM : Bit contents, bank E9" },
+    { 0x2A, "CS1 mode: Expansion DM : Bit contents, bank EA" },
+    { 0x2B, "CS1 mode: Expansion DM : Bit contents, bank EB" },
+    { 0x2C, "CS1 mode: Expansion DM : Bit contents, bank EC" },
+    { 0xA0, "CS1 mode: Expansion DM : Word contents, bank E0" },
+    { 0xA1, "CS1 mode: Expansion DM : Word contents, bank E1" },
+    { 0xA2, "CS1 mode: Expansion DM : Word contents, bank E2" },
+    { 0xA3, "CS1 mode: Expansion DM : Word contents, bank E3" },
+    { 0xA4, "CS1 mode: Expansion DM : Word contents, bank E4" },
+    { 0xA5, "CS1 mode: Expansion DM : Word contents, bank E5" },
+    { 0xA6, "CS1 mode: Expansion DM : Word contents, bank E6" },
+    { 0xA7, "CS1 mode: Expansion DM : Word contents, bank E7" },
+    { 0xA8, "CS1 mode: Expansion DM : Word contents, bank E8" },
+    { 0xA9, "CS1 mode: Expansion DM : Word contents, bank E9" },
+    { 0xAA, "CS1 mode: Expansion DM : Word contents, bank EA" },
+    { 0xAB, "CS1 mode: Expansion DM : Word contents, bank EB" },
+    { 0xAC, "CS1 mode: Expansion DM : Word contents, bank EC" },
+    { 0xBC, "CS1 mode: Register : Register contents / Current bank no. of expansion DM" },
+    { 0x06, "CS1 mode: Task flag : Bit contents" },
+    { 0x46, "CS1 mode: Task flag : Status" },
+    { 0xDC, "CS1 mode: Index register : Register contents" },
+    { 0x07, "CS1 mode: Clock pulses / Condition flags : Bit contents" },
+    { 0,    NULL    } };
+
+static const value_string memory_area_code_prefix[] = {
+    { 0x82, "D" },
+    { 0x90, "E0_" },
+    { 0x91, "E1_" },
+    { 0x92, "E2_" },
+    { 0x93, "E3_" },
+    { 0x94, "E4_" },
+    { 0x95, "E5_" },
+    { 0x96, "E6_" },
+    { 0x97, "E7_" },
+    { 0x30, "CIO" },
+    { 0x31, "W" },
+    { 0x32, "H" },
+    { 0x33, "A" },
+    { 0x70, "CIO" },
+    { 0x71, "W" },
+    { 0x72, "H" },
+    { 0xB0, "CIO" },
+    { 0xB1, "W" },
+    { 0xB2, "H" },
+    { 0xB3, "A" },
+    { 0xF0, "CIO" },
+    { 0xF1, "W" },
+    { 0xF2, "H" },
+    { 0x02, "D" },
+    { 0x20, "E0_" },
+    { 0x21, "E1_" },
+    { 0x22, "E2_" },
+    { 0x23, "E3_" },
+    { 0x24, "E4_" },
+    { 0x25, "E5_" },
+    { 0x26, "E6_" },
+    { 0x27, "E7_" },
+    { 0x28, "E8_" },
+    { 0x29, "E9_" },
+    { 0x2A, "EA_" },
+    { 0x2B, "EB_" },
+    { 0x2C, "EC_" },
+    { 0xA0, "E0_" },
+    { 0xA1, "E1_" },
+    { 0xA2, "E2_" },
+    { 0xA3, "E3_" },
+    { 0xA4, "E4_" },
+    { 0xA5, "E5_" },
+    { 0xA6, "E6_" },
+    { 0xA7, "E7_" },
+    { 0xA8, "E8_" },
+    { 0xA9, "E9_" },
+    { 0xAA, "EA_" },
+    { 0xAB, "EB_" },
+    { 0xAC, "EC_" },
     { 0,    NULL    } };
 
 static const value_string response_codes[] = {
@@ -1120,6 +1222,21 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         col_add_fstr(pinfo->cinfo, COL_INFO, "Command  : %s", cmd_str);
     }
 
+    /* Show address info for single memory area read */
+    if(is_command && command_code == 0x0101 && tvb_captured_length(tvb) >= 15) {
+        const gchar *mem_area_str;
+        gint mem_area_str_idx;
+        guint8 mem_area;
+        guint16 mem_address;
+
+        mem_area = tvb_get_guint8(tvb, 12);
+        mem_area_str = try_val_to_str_idx(mem_area, memory_area_code_prefix, &mem_area_str_idx);
+        if(mem_area_str_idx >= 0) {
+            mem_address = tvb_get_ntohs(tvb, 13);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s%u)", mem_area_str, mem_address);
+        }
+    }
+
     if (tree) { /* we are being asked for details */
         ti = proto_tree_add_item(tree, proto_omron_fins, tvb, 0, -1, ENC_NA);
         omron_tree = proto_item_add_subtree(ti, ett_omron);
@@ -1349,8 +1466,22 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             {
                 while(reported_length_remaining >= 4)
                 {
+                    const gchar *mem_area_str;
+                    gint mem_area_str_idx;
+                    guint8 mem_area;
+                    guint16 mem_address;
+
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+1), 3, ENC_BIG_ENDIAN);
+                    ti = proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
+
+                    mem_area = tvb_get_guint8(tvb, offset);
+                    mem_area_str = try_val_to_str_idx(mem_area, memory_area_code_prefix, &mem_area_str_idx);
+                    if(mem_area_str_idx >= 0) {
+                        mem_address = tvb_get_ntohs(tvb, offset+1);
+                        proto_item_append_text(ti, " (%s%u)", mem_area_str, mem_address);
+                    }
+
+                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                     reported_length_remaining = reported_length_remaining - 4;
                 }
@@ -1373,84 +1504,85 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         memory_area_code  = tvb_get_guint8(tvb, offset);
                         switch(memory_area_code) {
                             case 0x00:
-                                memory_code_len = 1;
-                                break;
+                            case 0x01:
+                            case 0x02:
+                            case 0x03:
+                            case 0x04:
+                            case 0x05:
+                            case 0x06:
+                            case 0x07:
+                            case 0x09:
+                            case 0x1B:
+                            case 0x20:
+                            case 0x21:
+                            case 0x22:
+                            case 0x23:
+                            case 0x24:
+                            case 0x25:
+                            case 0x26:
+                            case 0x27:
+                            case 0x28:
+                            case 0x29:
+                            case 0x2A:
+                            case 0x2B:
+                            case 0x2C:
+                            case 0x30:
+                            case 0x31:
+                            case 0x32:
+                            case 0x33:
                             case 0x40:
+                            case 0x41:
+                            case 0x43:
+                            case 0x44:
+                            case 0x46:
+                            case 0x49:
+                            case 0x70:
+                            case 0x71:
+                            case 0x72:
                                 memory_code_len = 1;
                                 break;
                             case 0x80:
+                            case 0x81:
+                            case 0x82:
+                            case 0x84:
+                            case 0x85:
+                            case 0x89:
+                            case 0x90:
+                            case 0x91:
+                            case 0x92:
+                            case 0x93:
+                            case 0x94:
+                            case 0x95:
+                            case 0x96:
+                            case 0x97:
+                            case 0x98:
+                            case 0x9C:
+                            case 0xA0:
+                            case 0xA1:
+                            case 0xA2:
+                            case 0xA3:
+                            case 0xA4:
+                            case 0xA5:
+                            case 0xA6:
+                            case 0xA7:
+                            case 0xA8:
+                            case 0xA9:
+                            case 0xAA:
+                            case 0xAB:
+                            case 0xAC:
+                            case 0xB0:
+                            case 0xB1:
+                            case 0xB2:
+                            case 0xB3:
+                            case 0xBC:
                                 memory_code_len = 2;
                                 break;
                             case 0xC0:
-                                memory_code_len = 4;
-                                break;
-                            case 0x01:
-                                memory_code_len = 1;
-                                break;
-                            case 0x41:
-                                memory_code_len = 1;
-                                break;
-                            case 0x81:
-                                memory_code_len = 2;
-                                break;
-                            case 0x82:
-                                memory_code_len = 2;
-                                break;
-                            case 0x03:
-                                memory_code_len = 1;
-                                break;
-                            case 0x43:
-                                memory_code_len = 1;
-                                break;
-                            case 0x04:
-                                memory_code_len = 1;
-                                break;
-                            case 0x44:
-                                memory_code_len = 1;
-                                break;
-                            case 0x84:
-                                memory_code_len = 2;
-                                break;
-                            case 0x05:
-                                memory_code_len = 1;
-                                break;
-                            case 0x85:
-                                memory_code_len = 2;
-                                break;
-                            case 0x90:
-                                memory_code_len = 2;
-                                break;
-                            case 0x91:
-                                memory_code_len = 2;
-                                break;
-                            case 0x92:
-                                memory_code_len = 2;
-                                break;
-                            case 0x93:
-                                memory_code_len = 2;
-                                break;
-                            case 0x94:
-                                memory_code_len = 2;
-                                break;
-                            case 0x95:
-                                memory_code_len = 2;
-                                break;
-                            case 0x96:
-                                memory_code_len = 2;
-                                break;
-                            case 0x97:
-                                memory_code_len = 2;
-                                break;
-                            case 0x98:
-                                memory_code_len = 2;
-                                break;
-                            case 0x1B:
-                                memory_code_len = 1;
-                                break;
-                            case 0x9C:
-                                memory_code_len = 2;
-                                break;
+                            case 0xDC:
                             case 0xDD:
+                            case 0xF0:
+                            case 0xF1:
+                            case 0xF2:
                                 memory_code_len = 4;
                                 break;
                             default:
@@ -1464,7 +1596,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                             expert_add_info_format(pinfo, ti, &ei_oomron_command_memory_area_code, "Unknown Memory-Area-Code (%u)", memory_area_code);
                             return tvb_captured_length(tvb); /* Bail out .... */
                         }
-                        proto_tree_add_item(command_tree, hf_omron_data, tvb, offset, memory_code_len, ENC_NA);
+                        proto_tree_add_item(command_tree, hf_omron_response_data, tvb, offset, memory_code_len, ENC_NA);
                         offset = offset + memory_code_len;
                         reported_length_remaining = reported_length_remaining - memory_code_len;
 
