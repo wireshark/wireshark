@@ -415,6 +415,8 @@
 #define ZBEE_ZCL_FCF_TO_CLIENT                0x01
 
 /* Manufacturer Codes */
+#define ZBEE_MFG_CODE_NONE                  0x0000
+
 /* Codes less than 0x1000 were issued for RF4CE */
 #define ZBEE_MFG_CODE_PANASONIC_RF4CE       0x0001
 #define ZBEE_MFG_CODE_SONY_RF4CE            0x0002

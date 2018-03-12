@@ -31,20 +31,20 @@ void proto_register_zbee_zcl(void);
 void proto_reg_handoff_zbee_zcl(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_write_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
-static void dissect_zcl_config_report (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
-static void dissect_zcl_config_report_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
-static void dissect_zcl_read_report_config (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
-static void dissect_zcl_read_report_config_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
+static void dissect_zcl_write_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
+static void dissect_zcl_config_report (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
+static void dissect_zcl_config_report_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
+static void dissect_zcl_read_report_config (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
+static void dissect_zcl_read_report_config_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
 static void dissect_zcl_default_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 static void dissect_zcl_discover_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
-static void dissect_zcl_discover_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
+static void dissect_zcl_discover_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
 
 /* Helper routines */
-static void  dissect_zcl_attr_data_general(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint data_type, guint16 cluster_id);
-static void  dissect_zcl_attr_data_type_val (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cmd_id, guint16 cluster_id);
+static void  dissect_zcl_attr_data_general(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint data_type, guint16 cluster_id, guint16 mfr_code);
+static void  dissect_zcl_attr_data_type_val (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cmd_id, guint16 cluster_id, guint16 mfr_code);
 static guint dissect_zcl_attr_uint8 (tvbuff_t *tvb, proto_tree *tree, guint *offset, int *length);
-static void  dissect_zcl_attr_id (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id);
+static void  dissect_zcl_attr_id (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code);
 static void  zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num);
@@ -134,6 +134,7 @@ static dissector_table_t    zbee_zcl_dissector_table;
 
 /* Global variables */
 static guint16 zcl_cluster_id = -1;
+static guint16 zcl_mfr_code = -1;
 
 static GList *acluster_desc = NULL;
 
@@ -787,7 +788,6 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Fill the zcl cluster id */
     cluster_id = zcl_cluster_id = nwk->cluster_id;
-    cluster_handle = dissector_get_uint_handle(zbee_zcl_dissector_table, cluster_id);
 
     /* Create the protocol tree */
     proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zcl, tvb, offset,
@@ -837,6 +837,9 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
     }
 
+    /* Fill the zcl mfr code id */
+    zcl_mfr_code = packet.mfr_code;
+
     /* Add the transaction sequence number to the tree */
     packet.tran_seqno = tvb_get_guint8(tvb, offset);
 
@@ -846,7 +849,10 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Display the command and sequence number on the proto root and info column. */
     packet.cmd_id = tvb_get_guint8(tvb, offset);
 
-    desc = zbee_zcl_get_cluster_desc(cluster_id);
+    /* Get the manufacturer specific cluster handle */
+    cluster_handle = dissector_get_uint_handle(zbee_zcl_dissector_table, ZCL_CLUSTER_MFR_KEY(cluster_id, packet.mfr_code));
+
+    desc = zbee_zcl_get_cluster_desc(cluster_id, packet.mfr_code);
     if (desc != NULL) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ", desc->name);
     }
@@ -890,38 +896,38 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Handle the contents of the command frame. */
         switch ( packet.cmd_id ) {
             case ZBEE_ZCL_CMD_READ_ATTR:
-                dissect_zcl_read_attr(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_read_attr(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_READ_ATTR_RESP:
-                dissect_zcl_read_attr_resp(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_read_attr_resp(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_WRITE_ATTR:
             case ZBEE_ZCL_CMD_WRITE_ATTR_UNDIVIDED:
             case ZBEE_ZCL_CMD_WRITE_ATTR_NO_RESP:
             case ZBEE_ZCL_CMD_REPORT_ATTR:
-                dissect_zcl_write_attr(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_write_attr(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_WRITE_ATTR_RESP:
-                dissect_zcl_write_attr_resp(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_write_attr_resp(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_CONFIG_REPORT:
-                dissect_zcl_config_report(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_config_report(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_CONFIG_REPORT_RESP:
-                dissect_zcl_config_report_resp(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_config_report_resp(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_READ_REPORT_CONFIG:
-                dissect_zcl_read_report_config(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_read_report_config(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_READ_REPORT_CONFIG_RESP:
-                dissect_zcl_read_report_config_resp(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_read_report_config_resp(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             case ZBEE_ZCL_CMD_DEFAULT_RESP:
@@ -933,7 +939,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case ZBEE_ZCL_CMD_DISCOVER_ATTR_RESP:
-                dissect_zcl_discover_attr_resp(tvb, pinfo, zcl_tree, &offset, cluster_id);
+                dissect_zcl_discover_attr_resp(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.mfr_code);
                 break;
 
             /* BUGBUG: don't dissect these for now */
@@ -955,15 +961,16 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer from caller.
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
+void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     guint tvb_len;
 
     tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len ) {
         /* Dissect the attribute identifier */
-        dissect_zcl_attr_id(tvb, tree, offset, cluster_id);
+        dissect_zcl_attr_id(tvb, tree, offset, cluster_id, mfr_code);
     }
 
     return;
@@ -977,8 +984,9 @@ void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
+void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree;
 
@@ -995,14 +1003,14 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
         /* Dissect the attribute identifier */
         attr_id = tvb_get_letohs(tvb, *offset);
-        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
 
         /* Dissect the status and optionally the data type and value */
         if ( dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status)
             == ZBEE_ZCL_STAT_SUCCESS ) {
 
             /* Dissect the attribute data type and data */
-            dissect_zcl_attr_data_type_val(tvb, sub_tree, offset, attr_id, cluster_id);
+            dissect_zcl_attr_data_type_val(tvb, sub_tree, offset, attr_id, cluster_id, mfr_code);
         }
 
         /* Set end for subtree */
@@ -1018,8 +1026,9 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
+void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree;
 
@@ -1036,10 +1045,10 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
         /* Dissect the attribute identifier */
         attr_id = tvb_get_letohs(tvb, *offset);
-        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
 
         /* Dissect the attribute data type and data */
-        dissect_zcl_attr_data_type_val(tvb, sub_tree, offset, attr_id, cluster_id);
+        dissect_zcl_attr_data_type_val(tvb, sub_tree, offset, attr_id, cluster_id, mfr_code);
 
         /* Set end for subtree */
         proto_item_set_end(proto_tree_get_parent(sub_tree), tvb, *offset);
@@ -1054,8 +1063,9 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
+static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree;
 
@@ -1074,7 +1084,7 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
             ZBEE_ZCL_STAT_SUCCESS ) {
 
             /* Dissect the failed attribute identifier */
-            dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+            dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
         }
 
         /* Set end for subtree */
@@ -1090,9 +1100,11 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
  *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
-*/
+ *@param cluster_id cluster identification
+ *@param mfr_code manufacturer code.
+ */
 static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                guint *offset, guint16 cluster_id)
+                guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree;
 
@@ -1118,7 +1130,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
 
         /* Dissect the attribute id */
         attr_id = tvb_get_letohs(tvb, *offset);
-        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
 
         if ( attr_status == ZBEE_ZCL_STAT_SUCCESS ) {
             if ( attr_dir == ZBEE_ZCL_DIR_REPORTED ) {
@@ -1137,7 +1149,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
 
                 if ( IS_ANALOG_SUBTYPE(data_type) ) {
                     /* Dissect reportable change */
-                    dissect_zcl_attr_data_general(tvb, sub_tree, offset, attr_id, data_type, cluster_id);
+                    dissect_zcl_attr_data_general(tvb, sub_tree, offset, attr_id, data_type, cluster_id, mfr_code);
                 }
 
             } else {
@@ -1158,8 +1170,9 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id)
+static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree;
 
@@ -1181,7 +1194,7 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
             /* Dissect the attribute id */
             attr_id = tvb_get_letohs(tvb, *offset);
-            dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+            dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
 
             /* Dissect the attribute data type */
             data_type = dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_data_type);
@@ -1196,12 +1209,12 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
             if ( IS_ANALOG_SUBTYPE(data_type) ) {
                 /* Dissect reportable change */
-                dissect_zcl_attr_data_general(tvb, sub_tree, offset, attr_id, data_type, cluster_id);
+                dissect_zcl_attr_data_general(tvb, sub_tree, offset, attr_id, data_type, cluster_id, mfr_code);
             }
         } else {
 
             /* Dissect the attribute id */
-            dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+            dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
 
             /* Dissect timeout period */
             proto_tree_add_item(tree, hf_zbee_zcl_attr_timeout, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -1219,9 +1232,10 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                guint *offset, guint16 cluster_id)
+static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree;
 
@@ -1249,7 +1263,7 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo, pr
         /* Dissect the direction */
         dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir);
         /* Dissect the attribute identifier */
-        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
     }
 } /* dissect_zcl_config_report_resp */
 
@@ -1261,9 +1275,10 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo, pr
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
 static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                guint *offset, guint16 cluster_id)
+                guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree;
 
@@ -1281,7 +1296,7 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
         dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir);
 
         /* Dissect the attribute identifier */
-        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
     }
 
 } /* dissect_zcl_read_report_config */
@@ -1335,9 +1350,10 @@ static void dissect_zcl_discover_attr(tvbuff_t *tvb, packet_info *pinfo _U_, pro
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
 static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                guint *offset, guint16 cluster_id)
+                guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     proto_tree *sub_tree = NULL;
 
@@ -1355,7 +1371,7 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
         i++;
 
         /* Dissect the attribute identifier */
-        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
+        dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code);
 
         /* Dissect the number of maximum attribute identifiers */
         dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_data_type);
@@ -1370,14 +1386,16 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param  offset into the tvb to begin dissection.
+ *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id)
+static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code)
 {
     zbee_zcl_cluster_desc *desc;
     int hf_attr_id = hf_zbee_zcl_attr_id;
 
     /* Check if a cluster-specific attribute ID definition exists. */
-    desc = zbee_zcl_get_cluster_desc(cluster_id);
+    desc = zbee_zcl_get_cluster_desc(cluster_id, mfr_code);
     if (desc && (desc->hf_attr_id >= 0)) hf_attr_id = desc->hf_attr_id;
 
     /* Add the identifier. */
@@ -1390,13 +1408,16 @@ static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, 
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree wireshark uses to display packet.
- *@param  offset into the tvb to begin dissection.
+ *@param offset into the tvb to begin dissection.
+ *@param attr_id attribute id
+ *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint16 cluster_id)
+static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint16 cluster_id, guint16 mfr_code)
 {
     zbee_zcl_cluster_desc *desc;
 
-    desc = zbee_zcl_get_cluster_desc(cluster_id);
+    desc = zbee_zcl_get_cluster_desc(cluster_id, mfr_code);
     if ((desc != NULL) && (desc->fn_attr_data != NULL)) {
         desc->fn_attr_data(tree, tvb, offset, attr_id,
             dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_data_type));
@@ -1418,12 +1439,13 @@ static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guin
  *@param attr_id attribute identification
  *@param data_type type of data
  *@param cluster_id cluster id
+ *@param mfr_code manufacturer code.
 */
-static void dissect_zcl_attr_data_general(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint data_type, guint16 cluster_id)
+static void dissect_zcl_attr_data_general(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint data_type, guint16 cluster_id, guint16 mfr_code)
 {
     zbee_zcl_cluster_desc *desc;
 
-    desc = zbee_zcl_get_cluster_desc(cluster_id);
+    desc = zbee_zcl_get_cluster_desc(cluster_id, mfr_code);
     if ((desc != NULL) && (desc->fn_attr_data != NULL)) {
         desc->fn_attr_data(tree, tvb, offset, attr_id, data_type);
     }
@@ -1808,7 +1830,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             break;
 
         case ZBEE_ZCL_ATTR_ID:
-            dissect_zcl_attr_id(tvb, tree, offset, zcl_cluster_id);
+            dissect_zcl_attr_id(tvb, tree, offset, zcl_cluster_id, zcl_mfr_code);
             break;
 
         case ZBEE_ZCL_BACNET_OID:
@@ -2316,6 +2338,7 @@ void proto_reg_handoff_zbee_zcl(void)
  *@param  proto dissector
  *@param  ett proto (not used at the moment)
  *@param  cluster_id cluster identification
+ *@param  mfr_code manufacturer code.
  *@param  hf_attr_id cluster-specific attribute ID field.
  *@param  hf_cmd_rx_id cluster-specific client-to-server command ID field, or -1.
  *@param  hf_cmd_tx_id cluster-specific server-to-client command ID field, or -1.
@@ -2329,7 +2352,7 @@ zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 clu
 
     /* Register the dissector with the ZigBee application dissectors. */
     dissector_handle = find_dissector(proto_abbrev);
-    dissector_add_uint("zbee.zcl.cluster", cluster_id, dissector_handle);
+    dissector_add_uint("zbee.zcl.cluster", ZCL_CLUSTER_MFR_KEY(cluster_id, ZBEE_MFG_CODE_NONE), dissector_handle);
 
     /* Allocate a cluster descriptor */
     cluster_desc = g_new(zbee_zcl_cluster_desc, 1);
@@ -2340,6 +2363,7 @@ zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 clu
     cluster_desc->name = proto_get_protocol_short_name(cluster_desc->proto);
     cluster_desc->ett = ett;
     cluster_desc->cluster_id = cluster_id;
+    cluster_desc->mfr_code = ZBEE_MFG_CODE_NONE;
     cluster_desc->hf_attr_id = hf_attr_id;
     cluster_desc->hf_cmd_rx_id = hf_cmd_rx_id;
     cluster_desc->hf_cmd_tx_id = hf_cmd_tx_id;
@@ -2350,20 +2374,21 @@ zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 clu
 }
 
 /**
- *Retrieves the registered specific cluster descriptor.
+ *Retrieves the registered specific cluster manufacturer descriptor.
  *
  *@param  cluster_id cluster identification
+ *@param  mfr_code manufacturer code
  *@return cluster descriptor pointer
 */
 zbee_zcl_cluster_desc
-*zbee_zcl_get_cluster_desc(guint16 cluster_id)
+*zbee_zcl_get_cluster_desc(guint16 cluster_id, guint16 mfr_code)
 {
     GList *gl;
     gl = acluster_desc;
 
     while (gl) {
         zbee_zcl_cluster_desc *cluster_desc = (zbee_zcl_cluster_desc *)gl->data;
-        if(cluster_desc->cluster_id == cluster_id) {
+        if((cluster_desc->cluster_id == cluster_id) && (cluster_desc->mfr_code == mfr_code)) {
             return cluster_desc;
         }
         gl = gl->next;

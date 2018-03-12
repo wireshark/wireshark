@@ -9078,7 +9078,7 @@ dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     *offset += 2;
 
     /* Dissect the attribute id list */
-    dissect_zcl_read_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION);
+    dissect_zcl_read_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE);
 } /*dissect_zcl_part_rdhandshakeparam*/
 
  /*FUNCTION:------------------------------------------------------
@@ -9103,7 +9103,7 @@ dissect_zcl_part_wrhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     *offset += 2;
 
     /* Dissect the attributes list */
-    dissect_zcl_write_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION);
+    dissect_zcl_write_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE);
 
 } /*dissect_zcl_part_wrhandshakeparam*/
 
@@ -9202,7 +9202,7 @@ dissect_zcl_part_rdhandshakeparamrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     *offset += 2;
 
     /* Dissect the attributes list */
-    dissect_zcl_read_attr_resp(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION);
+    dissect_zcl_read_attr_resp(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE);
 } /*dissect_zcl_part_rdhandshakeparamrsp*/
 
 
