@@ -1226,7 +1226,7 @@ tvb_get_ntohieee_double(tvbuff_t *tvb, const int offset)
 	} ieee_fp_union;
 #endif
 
-#ifdef WORDS_BIGENDIAN
+#if G_BYTE_ORDER == G_BIG_ENDIAN
 	ieee_fp_union.w[0] = tvb_get_ntohl(tvb, offset);
 	ieee_fp_union.w[1] = tvb_get_ntohl(tvb, offset+4);
 #else
@@ -1376,7 +1376,7 @@ tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
 	} ieee_fp_union;
 #endif
 
-#ifdef WORDS_BIGENDIAN
+#if G_BYTE_ORDER == G_BIG_ENDIAN
 	ieee_fp_union.w[0] = tvb_get_letohl(tvb, offset+4);
 	ieee_fp_union.w[1] = tvb_get_letohl(tvb, offset);
 #else

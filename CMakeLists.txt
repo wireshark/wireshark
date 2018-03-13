@@ -1248,10 +1248,6 @@ endif()
 
 include(ConfigureChecks.cmake)
 
-#Big or little endian ?
-include(TestBigEndian)
-test_big_endian(WORDS_BIGENDIAN)
-
 # Global properties
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

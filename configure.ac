@@ -2296,9 +2296,6 @@ AC_CHECK_MEMBERS([struct sockaddr.sa_len],,,
                   #include <sys/socket.h>
                   #endif])
 
-# We must know our byte order
-AC_C_BIGENDIAN
-
 AC_REPLACE_FUNCS(getopt_long)
 dnl
 dnl Do we have optreset?

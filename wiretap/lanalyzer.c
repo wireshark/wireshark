@@ -607,7 +607,7 @@ static gboolean s32write(wtap_dumper *wdh, const guint32 s32, int *err)
  *---------------------------------------------------*/
 static gboolean s48write(wtap_dumper *wdh, const guint64 s48, int *err)
 {
-#ifdef WORDS_BIGENDIAN
+#if G_BYTE_ORDER == G_BIG_ENDIAN
       guint16 s48_upper_le = GUINT16_SWAP_LE_BE((guint16) (s48 >> 32));
       guint32 s48_lower_le = GUINT32_SWAP_LE_BE((guint32) (s48 & 0xFFFFFFFF));
 #else

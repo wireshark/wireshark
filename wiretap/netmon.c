@@ -240,7 +240,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	GHashTable *comment_table, *process_info_table;
 	struct netmonrec_comment* comment_rec;
 	gint64 file_size = wtap_file_size(wth, err);
-#ifdef WORDS_BIGENDIAN
+#if G_BYTE_ORDER == G_BIG_ENDIAN
 	unsigned int i;
 #endif
 	netmon_t *netmon;
@@ -729,7 +729,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 		netmon->process_info_table = process_info_table;
 	}
 
-#ifdef WORDS_BIGENDIAN
+#if G_BYTE_ORDER == G_BIG_ENDIAN
 	/*
 	 * OK, now byte-swap the frame table.
 	 */

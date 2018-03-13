@@ -291,7 +291,7 @@ typedef struct {
 } hdr_ip_t;
 
 static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0,
-#ifdef WORDS_BIGENDIAN
+#if G_BYTE_ORDER == G_BIG_ENDIAN
 0x0a010101, 0x0a020202
 #else
 0x0101010a, 0x0202020a
@@ -299,7 +299,7 @@ static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0,
 };
 
 /* Fixed IP address values */
-#ifdef WORDS_BIGENDIAN
+#if G_BYTE_ORDER == G_BIG_ENDIAN
 #define IP_SRC 0x0a010101
 #define IP_DST 0x0a020202
 #else
