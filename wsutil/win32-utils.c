@@ -15,6 +15,7 @@
 #include <log.h>
 
 #include <tchar.h>
+#include <VersionHelpers.h>
 
 /* Quote the argument element if necessary, so that it will get
  * reconstructed correctly in the C runtime startup code.  Note that
@@ -193,10 +194,17 @@ BOOL win32_create_process(const char *application_name, const char *command_line
     gunichar2 *wcommandline = g_utf8_to_utf16(command_line, -1, NULL, NULL, NULL);
     // CREATE_SUSPENDED: Suspend the child so that we can cleanly call
     //     AssignProcessToJobObject.
-    // CREATE_BREAKAWAY_FROM_JOB: The main application might be associated with
-    //     a job, e.g. if we're running from ConEmu or Visual Studio. Break away
-    //     from it so that we can cleanly call AssignProcessToJobObject on *our* job.
-    DWORD wcreationflags = creation_flags|CREATE_SUSPENDED|CREATE_BREAKAWAY_FROM_JOB;
+    DWORD wcreationflags = creation_flags|CREATE_SUSPENDED;
+    // CREATE_BREAKAWAY_FROM_JOB: The main application might be associated with a job,
+    //     e.g. if we're running under "Run As", ConEmu, or Visual Studio. On Windows
+    //     <= 7 our child process needs to break away from it so that we can cleanly
+    //     call AssignProcessToJobObject on *our* job.
+    //     Windows >= 8 supports nested jobs so this isn't neccessary there.
+    //     https://blogs.msdn.microsoft.com/winsdk/2014/09/22/job-object-insanity/
+    //
+    if (! IsWindowsVersionOrGreater(6, 2, 0)) { // Windows 8
+        wcreationflags |= CREATE_BREAKAWAY_FROM_JOB;
+    }
 
     if (application_name) {
         wappname = g_utf8_to_utf16(application_name, -1, NULL, NULL, NULL);
@@ -211,6 +219,7 @@ BOOL win32_create_process(const char *application_name, const char *command_line
         win32_kill_child_on_exit(process_information->hProcess);
         ResumeThread(process_information->hThread);
     }
+    // XXX Else try again if CREATE_BREAKAWAY_FROM_JOB and GetLastError() == ERROR_ACCESS_DENIED?
 
     g_free(wappname);
     g_free(wcommandline);
