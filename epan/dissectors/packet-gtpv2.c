@@ -593,6 +593,16 @@ static int hf_gtpv2_uli_flags = -1;
 static int hf_gtpv2_rohc_profile_flags = -1;
 static int hf_gtpv2_dcnr = -1;
 
+static int hf_gtpv2_secondary_rat_usage_data_report = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_spare_bits = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_bit2 = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_bit1 = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_rat_type = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_start_timestamp = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_end_timestamp = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_dl = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul = -1;
+
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_uli_flags = -1;
@@ -651,6 +661,7 @@ static gint ett_gtpv2_eci = -1;
 static gint ett_gtpv2_twan_flags = -1;
 static gint ett_gtpv2_ciot_support_ind = -1;
 static gint ett_gtpv2_rohc_profile_flags = -1;
+static gint ett_gtpv2_secondary_rat_usage_data_report = -1;
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -1000,7 +1011,7 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_COUNTER                    199
 
 /* 200	Mapped UE Usage Type */
-/* 201	Secondary RAT Usage Data Report */
+#define GTPV2_IE_SECONDARY_RAT_USAGE_DATA_REPORT     201
 #define GTPV2_IE_UP_FUNC_SEL_INDI_FLG       202
 /*
 203 to 253	Spare. For future use.
@@ -6670,8 +6681,76 @@ dissect_gtpv2_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  */
 
 /*
- *8.132 Secondary RAT Usage Data Report
+ * 8.132 Secondary RAT Usage Data Report
  */
+static const value_string gtpv2_secondary_rat_type_vals[] = {
+    { 0, "NR" },
+    { 0, NULL }
+};
+
+static void
+dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+   int offset = 0;
+   const gchar *time_str;
+   static const int *secondary_rat_usage_data_report_flags[] = {
+       &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
+       &hf_gtpv2_secondary_rat_usage_data_report_bit2,
+       &hf_gtpv2_secondary_rat_usage_data_report_bit1,
+       NULL
+   };
+
+  /*
+   * The following bits within Octet 5 shall indicate:
+   * Bit 8 to 3 - Spare, for future use and set to zero.
+   * Bit 2 - IRSGW (Intended Receiver SGW)
+   * Bit 1 - IRPGW (Intended Receiver PGW)
+   */
+   proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_gtpv2_secondary_rat_usage_data_report,
+     ett_gtpv2_secondary_rat_usage_data_report, secondary_rat_usage_data_report_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+   offset += 1;
+
+    /* Octet 6 RAT Type */
+    proto_tree_add_item(tree, hf_gtpv2_secondary_rat_usage_data_report_rat_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Octet 7 EPS Bearer ID */
+    /* Spare (all bits set to 0) B8 - B5 */
+    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
+    /* EPS Bearer ID (EBI) B4 - B1 */
+    proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /*
+    * Octets 8 to 11 and 12 to 15 shall be encoded in the same format as the first four octets of the 64-bit timestamp
+    * format as defined in section 6 of IETF RFC 5905
+    */
+
+    /* Octets 8 to 11 Start timestamp */
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_gtpv2_secondary_rat_usage_data_report_start_timestamp, tvb, offset, 4, time_str);
+    offset += 4;
+
+    /* Octets 12 to 15 End timestamp */
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_gtpv2_secondary_rat_usage_data_report_end_timestamp, tvb, offset, 4, time_str);
+    offset += 4;
+
+    /* 16 to 23 Usage Data DL */
+    proto_tree_add_item(tree, hf_gtpv2_secondary_rat_usage_data_report_usage_data_dl, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    /* 24 to 32 Usage Data UL */
+    proto_tree_add_item(tree, hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+   if (length - offset) {
+      proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
+   }
+}
+
+
+
 /*
  * 8.133 UP Function Selection Indication Flags
  */
@@ -6840,6 +6919,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_EXTENDED_PCO, dissect_gtpv2_pco},                              /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
     {GTPV2_IE_SERV_PLMN_RATE_CONTROL, dissect_gtpv2_serv_plmn_rate_control}, /* 198, 8.129 Serving PLMN Rate Control */
     {GTPV2_IE_COUNTER, dissect_gtpv2_counter},                               /* 199, 8.130 Counter */
+    {GTPV2_IE_SECONDARY_RAT_USAGE_DATA_REPORT, dissect_gtpv2_secondary_rat_usage_data_report}, /* 201, 8.132 Secondary RAT Usage Data Report */
     {GTPV2_IE_UP_FUNC_SEL_INDI_FLG, dissect_gtpv2_up_func_slec_indic_flg },  /* 202, 8.1333 UP Function Selection Indication Flags */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
@@ -9563,10 +9643,55 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
           NULL, HFILL }
       },
+      { &hf_gtpv2_secondary_rat_usage_data_report,
+          { "Secondary RAT Usage Data Report", "gtpv2.secondary_rat_usage_data_report",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
+          { "Spare", "gtpv2.secondary_rat_usage_data_report.spare_bits",
+          FT_UINT8, BASE_HEX, NULL, 0xFC,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_bit2,
+          { "IRSGW  (Intended Receiver SGW)", "gtpv2.secondary_rat_usage_data_report.irsgw",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_bit1,
+          { "IRPGW (Intended Receiver PGW)", "gtpv2.secondary_rat_usage_data_report.irpgw",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_rat_type,
+          {"RAT Type", "gtpv2.secondary_rat_usage_data_report.rat_type",
+          FT_UINT8, BASE_DEC, VALS(gtpv2_secondary_rat_type_vals), 0xFF,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_start_timestamp,
+      { "Start timestamp", "gtpv2.secondary_rat_usage_data_report.start_timestamp",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_end_timestamp,
+      { "End timestamp", "gtpv2.secondary_rat_usage_data_report.end_timestamp",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_usage_data_dl,
+      { "Usage Data DL", "gtpv2.secondary_rat_usage_data_report.usage_data_dl",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul,
+      { "Usage Data UL", "gtpv2.secondary_rat_usage_data_report.usage_data_ul",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
     };
 
     /* Setup protocol subtree array */
-#define GTPV2_NUM_INDIVIDUAL_ELEMS    58
+#define GTPV2_NUM_INDIVIDUAL_ELEMS    59
     static gint *ett_gtpv2_array[GTPV2_NUM_INDIVIDUAL_ELEMS + NUM_GTPV2_IES];
 
     ett_gtpv2_array[0] = &ett_gtpv2;
@@ -9627,6 +9752,7 @@ void proto_register_gtpv2(void)
     ett_gtpv2_array[55] = &ett_gtpv2_twan_flags;
     ett_gtpv2_array[56] = &ett_gtpv2_ciot_support_ind;
     ett_gtpv2_array[57] = &ett_gtpv2_rohc_profile_flags;
+    ett_gtpv2_array[58] = &ett_gtpv2_secondary_rat_usage_data_report;
 
     last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
 
