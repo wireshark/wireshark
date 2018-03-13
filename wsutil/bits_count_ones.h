@@ -15,10 +15,26 @@
 
 /*
  * The variable-precision SWAR algorithm is an interesting way to count
- * the number of bits set in an integer. While its performance is very
- * good (two times faster than gcc's __builtin_popcount [1] and
- * 16 instructions when compiled with gcc -O3)
- * http://playingwithpointers.com/swar.html
+ * the number of bits set in an integer:
+ *
+ *     http://playingwithpointers.com/swar.html
+ *
+ * See
+ *
+ *     https://gcc.gnu.org/bugzilla/show_bug.cgi?id=36041
+ *     https://danluu.com/assembly-intrinsics/
+ *
+ * for discussions of various forms of population-counting code on x86.
+ *
+ * See
+ *
+ *     https://msdn.microsoft.com/en-us/library/bb385231.aspx
+ *
+ * for MSVC's population count intrinsics.
+ *
+ * Note that not all x86 processors support the POPCOUNT instruction.
+ *
+ * Other CPUs may have population count instructions as well.     
  */
 
 static inline int
