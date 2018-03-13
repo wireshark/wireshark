@@ -127,6 +127,11 @@ static const void *chunkify_v6_addr(const ws_in6_addr *addr) {
     return chunk_v6_bytes;
 }
 
+static void init_lookup(mmdb_lookup_t *lookup) {
+    mmdb_lookup_t empty_lookup = { FALSE, NULL, NULL, NULL, 0, NULL, DBL_MAX, DBL_MAX };
+    *lookup = empty_lookup;
+}
+
 static gboolean
 process_mmdbr_stdout(void) {
 
@@ -157,11 +162,11 @@ process_mmdbr_stdout(void) {
             // [init] or resolved address in square brackets.
             line[line_len - 1] = '\0';
             g_strlcpy(cur_addr, line + 1, WS_INET6_ADDRSTRLEN);
-            memset(&cur_lookup, 0, sizeof(cur_lookup));
+            init_lookup(&cur_lookup);
         } else if (strcmp(line, RES_STATUS_ERROR) == 0) {
             // Error during init.
             cur_addr[0] = '\0';
-            memset(&cur_lookup, 0, sizeof(cur_lookup));
+            init_lookup(&cur_lookup);
             mmdb_resolve_stop();
         } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_ISO_CODE)) {
             cur_lookup.found = TRUE;
@@ -205,7 +210,7 @@ process_mmdbr_stdout(void) {
                 }
             }
             cur_addr[0] = '\0';
-            memset(&cur_lookup, 0, sizeof(cur_lookup));
+            init_lookup(&cur_lookup);
         }
     }
 
