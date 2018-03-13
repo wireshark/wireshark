@@ -1283,12 +1283,7 @@ dissect_gryphon_message_with_offset(tvbuff_t *tvb, int offset, packet_info *pinf
 static void
 dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_msgresp_add)
 {
-    int offset;
-    int msglen;
-    offset = dissect_gryphon_message_with_offset(tvb, 0, pinfo, tree, is_msgresp_add);
-    msglen = tvb_reported_length_remaining(tvb, offset);
-    DISSECTOR_ASSERT_HINT(msglen <= 0, "dissect_gryphon_message() did not dissect entire message");
-
+    dissect_gryphon_message_with_offset(tvb, 0, pinfo, tree, is_msgresp_add);
 }
 
 static int
