@@ -1,7 +1,7 @@
 /* packet-nordic_ble.c
  * Routines for Nordic BLE sniffer dissection
  *
- * Copyright (c) 2016-2017 Nordic Semiconductor.
+ * Copyright (c) 2016-2018 Nordic Semiconductor.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -28,7 +28,20 @@
  *  |                           BoardID  (1 byte)                           |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *
- * Header:
+ * Header version 0 (legacy):
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                          Packet ID  (1 byte)                          |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                         Packet counter (LSB)                          |
+ *  |                               (2 bytes)                               |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                                Unused                                 |
+ *  |                               (2 bytes)                               |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                      Length of payload  (1 byte)                      |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *
+ * Header version 1:
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |                      Length of header  (1 byte)                       |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
@@ -37,6 +50,19 @@
  *  |                      Protocol version  (1 byte)                       |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |                         Packet counter (LSB)                          |
+ *  |                               (2 bytes)                               |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                          Packet ID  (1 byte)                          |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *
+ * Header version 2:
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                   Length of payload (little endian)                   |
+ *  |                               (2 bytes)                               |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                      Protocol version  (1 byte)                       |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                    Packet counter (little endian)                     |
  *  |                               (2 bytes)                               |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |                          Packet ID  (1 byte)                          |
@@ -101,9 +127,12 @@
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *
  *  Flags:
- *   00000001 = CRC       (0 = Incorrect, 1 = OK)
- *   00000010 = Direction (0 = Slave -> Master, 1 = Master -> Slave)
- *   00000100 = Encrypted (0 = No, 1 = Yes)
+ *   0000000x = CRC       (0 = Incorrect, 1 = OK)
+ *   000000x0 = Direction (0 = Slave -> Master, 1 = Master -> Slave)
+ *   00000x00 = Encrypted (0 = No, 1 = Yes)
+ *   0000x000 = MIC       (0 = Incorrect, 1 = OK)
+ *   0xxx0000 = PHY       (0 = 1M, 1 = 2M, 2 = Coded, rest unused)
+ *   x0000000 = RFU
  *
  *  Channel:
  *   The channel index being used.
@@ -125,18 +154,14 @@
 #include "packet-btle.h"
 
 /* Size of various UART Packet header fields */
-#define UART_HEADER_LEN (6)
-#define BLE_HEADER_LEN (10)
+#define UART_HEADER_LEN      6
+#define EVENT_PACKET_LEN    10
 
-#define US_PER_BYTE (8)
-#define NOF_BLE_BYTES_NOT_INCLUDED_IN_BLE_LENGTH (10) /* Preamble (1) + AA (4) + Header (1) + Length (1) + CRC (3) = 10 Bytes */
-#define BLE_METADATA_TRANFER_TIME_US (US_PER_BYTE * NOF_BLE_BYTES_NOT_INCLUDED_IN_BLE_LENGTH)
+#define US_PER_BYTE_1M_PHY   8
+#define US_PER_BYTE_2M_PHY   4
 
-#define BLE_MIN_PACKET_LENGTH (NOF_BLE_BYTES_NOT_INCLUDED_IN_BLE_LENGTH)
-#define BLE_MAX_PACKET_LENGTH (50)
-
-#define MIN_TOTAL_LENGTH (BLE_HEADER_LEN + BLE_MIN_PACKET_LENGTH)
-#define MAX_TOTAL_LENGTH (UART_HEADER_LEN + BLE_HEADER_LEN + BLE_MAX_PACKET_LENGTH)
+#define PREAMBLE_LEN_1M_PHY  1
+#define PREAMBLE_LEN_2M_PHY  2
 
 void proto_reg_handoff_nordic_ble(void);
 void proto_register_nordic_ble(void);
@@ -162,6 +187,9 @@ static int hf_nordic_ble_flags = -1;
 static int hf_nordic_ble_crcok = -1;
 static int hf_nordic_ble_encrypted = -1;
 static int hf_nordic_ble_micok = -1;
+static int hf_nordic_ble_mic_not_relevant = -1;
+static int hf_nordic_ble_le_phy = -1;
+static int hf_nordic_ble_rfu = -1;
 static int hf_nordic_ble_direction = -1;
 static int hf_nordic_ble_channel = -1;
 static int hf_nordic_ble_rssi = -1;
@@ -172,6 +200,7 @@ static int hf_nordic_ble_delta_time_ss = -1;
 static expert_field ei_nordic_ble_bad_crc = EI_INIT;
 static expert_field ei_nordic_ble_bad_mic = EI_INIT;
 static expert_field ei_nordic_ble_bad_length = EI_INIT;
+static expert_field ei_nordic_ble_unknown_version = EI_INIT;
 
 static const true_false_string direction_tfs =
 {
@@ -185,43 +214,85 @@ static const true_false_string ok_incorrect =
     "Incorrect"
 };
 
+static const true_false_string not_relevant =
+{
+    "Only relevant when encrypted",
+    "Only relevant when encrypted"
+};
+
+static const value_string le_phys[] =
+{
+    { 0, "LE 1M"    },
+    { 1, "LE 2M"    },
+    { 2, "LE Coded" },
+    { 3, "Reserved" },
+    { 4, "Reserved" },
+    { 5, "Reserved" },
+    { 6, "Reserved" },
+    { 7, "Reserved" },
+    { 0, NULL }
+};
+
+#define LE_1M_PHY     0
+#define LE_2M_PHY     1
+#define LE_CODED_PHY  2
+
+typedef struct {
+    guint8 protover;
+    guint8 phy;
+    gboolean bad_length;
+    guint16 payload_length;
+    guint16 event_packet_length;
+} nordic_ble_context_t;
+
 /* next dissector */
 static dissector_handle_t btle_dissector_handle = NULL;
 static dissector_handle_t debug_handle = NULL;
 
 static gint
-dissect_lengths(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean legacy_mode, guint8 *packet_length, gboolean *bad_length)
+dissect_lengths(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context)
 {
-    guint8 hlen, plen;
+    guint32 hlen, plen;
     proto_item* item;
 
-    if (!legacy_mode) {
-        hlen = tvb_get_guint8(tvb, offset) + 1; /* Add one byte for board id */
-        proto_tree_add_item(tree, hf_nordic_ble_header_length, tvb, offset, 1, ENC_NA);
+    switch (nordic_ble_context->protover) {
+    case 0:  /* Legacy version */
+        hlen = 2 + UART_HEADER_LEN; /* 2 bytes legacy marker + UART header */
+        item = proto_tree_add_item_ret_uint(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_NA, &plen);
         offset += 1;
-    } else {
-        hlen = 8; /* 2 bytes legacy marker + 6 bytes header */
+        break;
+
+    case 1:
+        proto_tree_add_item_ret_uint(tree, hf_nordic_ble_header_length, tvb, offset, 1, ENC_NA, &hlen);
+        hlen += 1; /* Add one byte for board id */
+        offset += 1;
+
+        item = proto_tree_add_item_ret_uint(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_NA, &plen);
+        offset += 1;
+        break;
+
+    case 2:
+        hlen = 1 + UART_HEADER_LEN; /* Board ID + UART header */
+        item = proto_tree_add_item_ret_uint(tree, hf_nordic_ble_payload_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &plen);
+        offset += 2;
+        break;
+
+    default:
+        return offset;
     }
 
-    plen = tvb_get_guint8(tvb, offset);
-    item = proto_tree_add_item(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    if (((hlen + plen) != tvb_captured_length(tvb)) ||
-        ((hlen + plen) < MIN_TOTAL_LENGTH) ||
-        ((hlen + plen) > MAX_TOTAL_LENGTH))
-    {
+    if ((hlen + plen) != tvb_captured_length(tvb)) {
         expert_add_info(pinfo, item, &ei_nordic_ble_bad_length);
-        *bad_length = TRUE;
+        nordic_ble_context->bad_length = TRUE;
     }
 
-    *packet_length = plen;
+    nordic_ble_context->payload_length = plen;
 
     return offset;
 }
 
 static gint
-dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, btle_context_t *context)
+dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context, btle_context_t *context)
 {
     guint8 flags;
     gboolean dir, encrypted;
@@ -234,14 +305,14 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
     dir = !!(flags & 2);
     encrypted = !!(flags & 4);
     context->mic_valid_at_capture = !!(flags & 8);
+    nordic_ble_context->phy = (flags >> 4) & 7;
 
     if (dir) {
         set_address(&pinfo->src, AT_STRINGZ, 7, "Master");
         set_address(&pinfo->dst, AT_STRINGZ, 6, "Slave");
         context->direction = BTLE_DIR_MASTER_SLAVE;
         pinfo->p2p_dir = P2P_DIR_SENT;
-    }
-    else {
+    } else {
         set_address(&pinfo->src, AT_STRINGZ, 6, "Slave");
         set_address(&pinfo->dst, AT_STRINGZ, 7, "Master");
         context->direction = BTLE_DIR_SLAVE_MASTER;
@@ -250,54 +321,68 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
 
     flags_item = proto_tree_add_item(tree, hf_nordic_ble_flags, tvb, offset, 1, ENC_NA);
     flags_tree = proto_item_add_subtree(flags_item, ett_flags);
-    if (encrypted) /* if encrypted, add MIC status */
-    {
-        context->mic_checked_at_capture = 1;
-        item = proto_tree_add_bits_item(flags_tree, hf_nordic_ble_micok, tvb, offset * 8 + 4, 1, ENC_LITTLE_ENDIAN);
-        if (!context->mic_valid_at_capture) {
-            /* MIC is bad */
-            expert_add_info(pinfo, item, &ei_nordic_ble_bad_mic);
-        }
-    }
-    proto_tree_add_bits_item(flags_tree, hf_nordic_ble_encrypted, tvb, offset * 8 + 5, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_bits_item(flags_tree, hf_nordic_ble_direction, tvb, offset * 8 + 6, 1, ENC_LITTLE_ENDIAN);
-    item = proto_tree_add_bits_item(flags_tree, hf_nordic_ble_crcok, tvb, offset * 8 + 7, 1, ENC_LITTLE_ENDIAN);
+    item = proto_tree_add_item(flags_tree, hf_nordic_ble_crcok, tvb, offset, 1, ENC_NA);
     if (!context->crc_valid_at_capture) {
         /* CRC is bad */
         expert_add_info(pinfo, item, &ei_nordic_ble_bad_crc);
     }
+    proto_tree_add_item(flags_tree, hf_nordic_ble_direction, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(flags_tree, hf_nordic_ble_encrypted, tvb, offset, 1, ENC_NA);
+    if (encrypted) /* if encrypted, add MIC status */
+    {
+        context->mic_checked_at_capture = 1;
+        item = proto_tree_add_item(flags_tree, hf_nordic_ble_micok, tvb, offset, 1, ENC_NA);
+        if (!context->mic_valid_at_capture) {
+            /* MIC is bad */
+            expert_add_info(pinfo, item, &ei_nordic_ble_bad_mic);
+        }
+    } else {
+        proto_tree_add_item(flags_tree, hf_nordic_ble_mic_not_relevant, tvb, offset, 1, ENC_NA);
+    }
+    proto_tree_add_item(flags_tree, hf_nordic_ble_le_phy, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(flags_tree, hf_nordic_ble_rfu, tvb, offset, 1, ENC_NA);
     offset++;
 
     return offset;
 }
 
 static gint
-dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 packet_len)
+dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context)
 {
-    static guint8 previous_ble_packet_length = 0;
-    guint32 delta_time, delta_time_ss;
+    static guint32 previous_ble_packet_time;
+    guint32 delta_time, delta_time_ss, prev_packet_time;
     proto_item *pi;
 
+    /* end-to-start */
+    proto_tree_add_item_ret_uint(tree, hf_nordic_ble_delta_time, tvb, offset, 4, ENC_LITTLE_ENDIAN, &delta_time);
+
     if (!pinfo->fd->flags.visited) {
-        /* First time visiting this packet, store previous BLE packet length */
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0, GUINT_TO_POINTER(previous_ble_packet_length));
+        /* First time visiting this packet, store previous BLE packet time */
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0, GUINT_TO_POINTER(previous_ble_packet_time));
+        prev_packet_time = previous_ble_packet_time;
     } else {
-        previous_ble_packet_length = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0));
+        prev_packet_time = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0));
     }
 
-    /* end - start */
-    delta_time = (guint32)tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_nordic_ble_delta_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-    /* start - start */
-    delta_time_ss = BLE_METADATA_TRANFER_TIME_US + (US_PER_BYTE * previous_ble_packet_length) + delta_time;
-    pi = proto_tree_add_uint(tree, hf_nordic_ble_delta_time_ss, tvb, offset, 4, delta_time_ss);
-    PROTO_ITEM_SET_GENERATED(pi);
-
-    if (!pinfo->fd->flags.visited) {
-        previous_ble_packet_length = packet_len;
+    if (pinfo->num > 1) {
+        /* Calculated start-to-start is not valid for the first packet because we don't have the previous packet */
+        delta_time_ss = prev_packet_time + delta_time;
+        pi = proto_tree_add_uint(tree, hf_nordic_ble_delta_time_ss, tvb, offset, 4, delta_time_ss);
+        PROTO_ITEM_SET_GENERATED(pi);
     }
     offset += 4;
+
+    if (!pinfo->fd->flags.visited) {
+        /* Calculate packet time according to this packets PHY */
+        guint16 ble_payload_length = nordic_ble_context->payload_length - nordic_ble_context->event_packet_length;
+        if (nordic_ble_context->phy == LE_1M_PHY) {
+            previous_ble_packet_time = US_PER_BYTE_1M_PHY * (PREAMBLE_LEN_1M_PHY + ble_payload_length);
+        } else if (nordic_ble_context->phy == LE_2M_PHY) {
+            previous_ble_packet_time = US_PER_BYTE_2M_PHY * (PREAMBLE_LEN_2M_PHY + ble_payload_length);
+        } else {
+            previous_ble_packet_time = 0; /* Unknown */
+        }
+    }
 
     return offset;
 }
@@ -313,7 +398,7 @@ dissect_packet_counter(tvbuff_t *tvb, gint offset, proto_item *item, proto_tree 
 }
 
 static gint
-dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean legacy_mode, gboolean *bad_length, guint8 *packet_len)
+dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context)
 {
     proto_item *ti;
     proto_tree *header_tree;
@@ -321,8 +406,12 @@ dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
 
     ti = proto_tree_add_item(tree, hf_nordic_ble_header, tvb, offset, -1, ENC_NA);
     header_tree = proto_item_add_subtree(ti, ett_packet_header);
+    proto_item_append_text(ti, " Version: %u", nordic_ble_context->protover);
 
-    if (legacy_mode) {
+    if (nordic_ble_context->protover == 0) {
+        proto_item *item = proto_tree_add_uint(header_tree, hf_nordic_ble_protover, tvb, 0, 0, 0);
+        PROTO_ITEM_SET_GENERATED(item);
+
         proto_tree_add_item(header_tree, hf_nordic_ble_packet_id, tvb, offset, 1, ENC_NA);
         offset += 1;
 
@@ -331,11 +420,14 @@ dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
         offset += 2; // Two unused bytes
     }
 
-    offset = dissect_lengths(tvb, offset, pinfo, header_tree, legacy_mode, packet_len, bad_length);
+    offset = dissect_lengths(tvb, offset, pinfo, header_tree, nordic_ble_context);
 
-    if (!legacy_mode) {
-        proto_tree_add_item(header_tree, hf_nordic_ble_protover, tvb, offset, 1, ENC_NA);
+    if (nordic_ble_context->protover != 0) {
+        proto_item *item = proto_tree_add_item(header_tree, hf_nordic_ble_protover, tvb, offset, 1, ENC_NA);
         offset += 1;
+        if (nordic_ble_context->protover > 2) {
+            expert_add_info(pinfo, item, &ei_nordic_ble_unknown_version);
+        }
 
         offset = dissect_packet_counter(tvb, offset, ti, header_tree);
 
@@ -349,16 +441,21 @@ dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
 }
 
 static gint
-dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean legacy_mode, btle_context_t *context, guint8 packet_len)
+dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context, btle_context_t *context)
 {
     gint32 rssi;
 
-    if (!legacy_mode) {
-        proto_tree_add_item(tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA);
+    if (nordic_ble_context->protover == 0) {
+        // Event packet length is fixed for the legacy version
+        nordic_ble_context->event_packet_length = EVENT_PACKET_LEN;
+    } else {
+        guint32 plen;
+        proto_tree_add_item_ret_uint(tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA, &plen);
+        nordic_ble_context->event_packet_length = plen;
         offset += 1;
     }
 
-    offset = dissect_flags(tvb, offset, pinfo, tree, context);
+    offset = dissect_flags(tvb, offset, pinfo, tree, nordic_ble_context, context);
 
     proto_tree_add_item(tree, hf_nordic_ble_channel, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -370,7 +467,7 @@ dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_nordic_ble_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    offset = dissect_ble_delta_time(tvb, offset, pinfo, tree, packet_len);
+    offset = dissect_ble_delta_time(tvb, offset, pinfo, tree, nordic_ble_context);
 
     return offset;
 }
@@ -380,25 +477,31 @@ dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context
 {
     proto_item *ti;
     proto_tree *nordic_ble_tree;
-    guint8 packet_len = 0;
     gint offset = 0;
-    gboolean legacy_mode = (tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN) == 0xBEEF);
+    nordic_ble_context_t nordic_ble_context;
+
+    memset(&nordic_ble_context, 0, sizeof(nordic_ble_context));
 
     ti = proto_tree_add_item(tree, proto_nordic_ble, tvb, 0, -1, ENC_NA);
     nordic_ble_tree = proto_item_add_subtree(ti, ett_nordic_ble);
 
-    if (legacy_mode) {
+    if (tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN) == 0xBEEF) {
         proto_tree_add_item(nordic_ble_tree, hf_nordic_ble_legacy_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
         offset += 2;
+
+        nordic_ble_context.protover = 0; /* Legacy Version */
     } else {
         proto_tree_add_item(nordic_ble_tree, hf_nordic_ble_board_id, tvb, 0, 1, ENC_NA);
         offset += 1;
+
+        nordic_ble_context.protover = tvb_get_guint8(tvb, offset + 2);
     }
 
-    offset = dissect_packet_header(tvb, offset, pinfo, nordic_ble_tree, legacy_mode, bad_length, &packet_len);
-    offset = dissect_packet(tvb, offset, pinfo, nordic_ble_tree, legacy_mode, context, packet_len);
+    offset = dissect_packet_header(tvb, offset, pinfo, nordic_ble_tree, &nordic_ble_context);
+    offset = dissect_packet(tvb, offset, pinfo, nordic_ble_tree, &nordic_ble_context, context);
 
     proto_item_set_len(ti, offset);
+    *bad_length = nordic_ble_context.bad_length;
 
     return offset;
 }
@@ -458,7 +561,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_payload_length,
             { "Length of payload", "nordic_ble.plen",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Payload length", HFILL }
         },
         { &hf_nordic_ble_protover,
@@ -478,7 +581,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_packet_length,
             { "Length of packet", "nordic_ble.len",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_nordic_ble_flags,
@@ -488,23 +591,38 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_crcok,
             { "CRC", "nordic_ble.crcok",
-                FT_BOOLEAN, BASE_NONE, TFS(&ok_incorrect), 0x0,
+                FT_BOOLEAN, 8, TFS(&ok_incorrect), 0x01,
                 "Cyclic Redundancy Check state", HFILL }
         },
         { &hf_nordic_ble_direction,
             { "Direction", "nordic_ble.direction",
-                FT_BOOLEAN, BASE_NONE, TFS(&direction_tfs), 0x0,
+                FT_BOOLEAN, 8, TFS(&direction_tfs), 0x02,
                 NULL, HFILL }
         },
         { &hf_nordic_ble_encrypted,
             { "Encrypted", "nordic_ble.encrypted",
-                FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
                 "Was the packet encrypted", HFILL }
         },
         { &hf_nordic_ble_micok,
             { "MIC", "nordic_ble.micok",
-                FT_BOOLEAN, BASE_NONE, TFS(&ok_incorrect), 0x0,
+                FT_BOOLEAN, 8, TFS(&ok_incorrect), 0x08,
                 "Message Integrity Check state", HFILL }
+        },
+        { &hf_nordic_ble_mic_not_relevant,
+            { "MIC", "nordic_ble.mic_not_relevant",
+                FT_BOOLEAN, 8, TFS(&not_relevant), 0x08,
+                "Message Integrity Check state", HFILL }
+        },
+        { &hf_nordic_ble_le_phy,
+            { "PHY", "nordic_ble.phy",
+                FT_UINT8, BASE_NONE, VALS(le_phys), 0x70,
+                "Physical Layer", HFILL }
+        },
+        { &hf_nordic_ble_rfu,
+            { "RFU", "nordic_ble.rfu",
+                FT_UINT8, BASE_DEC, NULL, 0x80,
+                "Reserved for Future Use", HFILL }
         },
         { &hf_nordic_ble_channel,
             { "Channel", "nordic_ble.channel",
@@ -543,6 +661,7 @@ proto_register_nordic_ble(void)
         { &ei_nordic_ble_bad_crc, { "nordic_ble.crc.bad", PI_CHECKSUM, PI_ERROR, "CRC is bad", EXPFILL }},
         { &ei_nordic_ble_bad_mic, { "nordic_ble.mic.bad", PI_CHECKSUM, PI_ERROR, "MIC is bad", EXPFILL }},
         { &ei_nordic_ble_bad_length, { "nordic_ble.length.bad", PI_MALFORMED, PI_ERROR, "Length is incorrect", EXPFILL }},
+        { &ei_nordic_ble_unknown_version, { "nordic_ble.protover.bad", PI_PROTOCOL, PI_ERROR, "Unknown version", EXPFILL }},
     };
 
     expert_module_t *expert_nordic_ble;
