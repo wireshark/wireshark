@@ -34,7 +34,7 @@
  *
  * Note that not all x86 processors support the POPCOUNT instruction.
  *
- * Other CPUs may have population count instructions as well.     
+ * Other CPUs may have population count instructions as well.
  */
 
 static inline int
