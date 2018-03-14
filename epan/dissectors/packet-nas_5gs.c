@@ -9,7 +9,7 @@
 *
 * SPDX-License-Identifier: GPL-2.0-or-later
 *
-* References: 3GPP TS 24.501 0.3.1 2018-02-09
+* References: 3GPP TS 24.501 0.4.0
 */
 
 #include "config.h"
@@ -2117,7 +2117,17 @@ nas_5gs_mm_authentication_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 }
 
 /*
- * 8.2.3    Authentication failure
+ * 8.2.3 Authentication result
+ */
+
+/*
+ngKSI    NAS key set identifier 9.8.3.27    M    V    1/2
+Spare half octet    Spare half octet 9.5    M    V    1/2
+EAP message    EAP message 9.8.3.16    M    LV-E    6-1502
+
+*/
+/*
+ * 8.2.4 Authentication failure
  */
 static void
 nas_5gs_mm_authentication_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2137,7 +2147,7 @@ nas_5gs_mm_authentication_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 }
 /*
- * 8.2.4    Authentication reject
+ * 8.2.5 Authentication reject
  */
 static void
 nas_5gs_mm_authentication_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2154,7 +2164,7 @@ nas_5gs_mm_authentication_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 }
 
 /*
- * 8.2.5 Registration request
+ * 8.2.6 Registration request
  */
 static void
 nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2216,13 +2226,19 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 
     /*7C    EPS NAS message container    EPS NAS message container 9.8.3.15    O    TLV-E    TBD*/
     ELEM_OPT_TLV_E(0x7c, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_EPS_NAS_MSG_CONT, NULL);
+    /*
+    25    Allowed PDU session status    Allowed PDU session status     9.8.3.9    O    TLV    4-34
+    TBD    Policy section identifier list    Policy section identifier list     9.8.3.40    O    TBD    TBD
+    60    UE's usage setting    UE's usage setting     9.8.3.56    O    TLV    3
+
+    */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
 }
 
 /*
- * 8.2.6    Registration accept
+ * 8.2.7    Registration accept
  */
 
 static void
@@ -2261,14 +2277,21 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TV_SHORT(0xb0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_MICO_IND, NULL);
     /*D-    SMS allowed    SMS allowed     9.8.3.40    O    TV    1*/
     ELEM_OPT_TV_SHORT(0xd0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SMS_ALL, NULL);
+    /*
+    27    Service area list    Service area list     9.8.3.47    O    TLV    6-194
+    5E    T3512 value    GPRS timer 3     9.8.3.21    O    TLV    3
+    5D    Non-3GPP de-registration timer value    GPRS timer 2     9.8.3.20    O    TLV    3
+    34    Emergency number list    Emergency number list     9.8.3.17    O    TLV    5-50
+    TBD    Extended emergency number list    Extended emergency number list     9.8.3.19    O    TLV    TBD
 
+    */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
 }
 
 /*
- * 8.2.7    Registration complete
+ * 8.2.8 Registration complete
  */
 static void
 nas_5gs_mm_registration_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2283,7 +2306,7 @@ nas_5gs_mm_registration_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 
 }
 /*
-* 8.2.8 Registration reject
+* 8.2.9 Registration reject
 */
 static void
 nas_5gs_mm_registration_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2306,7 +2329,7 @@ nas_5gs_mm_registration_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 }
 
 /*
- * 8.2.9    UL NAS transport
+ * 8.2.10    UL NAS transport
  */
 static void
 nas_5gs_mm_ul_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2338,7 +2361,7 @@ nas_5gs_mm_ul_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 }
 
 /*
-* 8.2.10    DL NAS transport
+* 8.2.11 DL NAS transport
 */
 static void
 nas_5gs_mm_dl_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2359,6 +2382,8 @@ nas_5gs_mm_dl_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     /*Payload container    Payload container    9.8.3.30    M    LV-E    3-65537*/
     /*PDU session ID    PDU session identity    9.4    C    V    1*/
     /*24    Additional information    Additional information    9.8.2.1    O    TLV    3-n*/
+    /*72    5GMM cause    5GMM cause 9.8.3.2    O    TV    2
+*/
 
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
@@ -2366,7 +2391,7 @@ nas_5gs_mm_dl_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 }
 
 /*
- * 8.2.11 De-registration request (UE originating de-registration)
+ * 8.2.12 De-registration request (UE originating de-registration)
  */
 static void
 nas_5gs_mm_de_reg_req_ue_orig(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2389,12 +2414,12 @@ nas_5gs_mm_de_reg_req_ue_orig(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 }
 
 /*
- * 8.2.12 De-registration accept (UE originating de-registration)
+ * 8.2.13 De-registration accept (UE originating de-registration)
  */
 /* No data */
 
 /*
- * 8.2.13 De-registration request (UE terminated de-registration)
+ * 8.2.14 De-registration request (UE terminated de-registration)
  */
 static void
 nas_5gs_mm_de_registration_req_ue_term(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2420,13 +2445,13 @@ nas_5gs_mm_de_registration_req_ue_term(tvbuff_t *tvb, proto_tree *tree, packet_i
 }
 
 /*
- * 8.2.14 De-registration accept (UE terminated de-registration)
+ * 8.2.15 De-registration accept (UE terminated de-registration)
  */
  /* No data */
 
 
 /*
- * 8.2.15 Service request
+ * 8.2.16 Service request
  */
 static void
 nas_5gs_mm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2438,15 +2463,7 @@ nas_5gs_mm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     curr_offset = offset;
     curr_len = len;
 
-    /* This looks wrong to me...
-    Extended protocol discriminator    Extended protocol discriminator     9.2    M    V    1
-    Security header type    Security header type     9.3    M    V    1/2
-    Service type    Service type    9.8.3.43    M    V    1/2
-    5G-TMSI    5GS mobile identity     9.8.3.3    M    LV    6
-    ELEM_MAND_LV(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL, ei_nas_5gs_missing_mandatory_elemen);
-
-    Service request message identity    Message type     9.7    M    V    1
-    ngKSI     NAS key set identifier     9.8.3.22    M    V    1/2
+    /*
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - ngKSI", ei_nas_5gs_missing_mandatory_elemen);
 
     Spare half octet    Spare half octet     9.4    M    V    1/2
@@ -2462,7 +2479,32 @@ nas_5gs_mm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 }
 
 /*
- * 8.2.17 Service reject
+  * 8.2.17 Service accept
+ */
+static void
+nas_5gs_mm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /*50    PDU session status    PDU session status     9.8.2.2    O    TLV    4*/
+    ELEM_OPT_TLV(0x50, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_PDU_SES_STATUS, NULL);
+
+    /*
+    26    PDU session reactivation result    PDU session reactivation result 9.8.3.37    O    TLV    4-32
+    7E    PDU session reactivation result error cause    PDU session reactivation result error cause 9.8.3.38    O    TLV-E    5-515
+
+    */
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
+}
+
+/*
+ * 8.2.18 Service reject
  */
 static void
 nas_5gs_mm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2488,7 +2530,7 @@ nas_5gs_mm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 }
 
 /*
- * 8.2.18 Configuration update command
+ * 8.2.19 Configuration update command
  */
 static void
 nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2546,11 +2588,11 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 }
 
 /*
- * 8.2.19 Configuration update complete
+ * 8.2.20 Configuration update complete
  */
 
 /*
- * 8.2.20   Identity request
+ * 8.2.21 Identity request
  */
 static void
 nas_5gs_mm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2573,7 +2615,7 @@ nas_5gs_mm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 }
 
 /*
- * 8.2.21 Identity response
+ * 8.2.22 Identity response
  */
 static void
 nas_5gs_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2594,15 +2636,30 @@ nas_5gs_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 }
 
 /*
- * 8.2.22 Notification
+ * 8.2.23 Notification
+ */
+static void
+nas_5gs_mm_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    /*guint32 consumed;*/
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* F-    Access type    Access type 9.8.3.8    O    TV    1 */
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
+
+}
+
+/*
+ * 8.2.24 Notification response
  */
 
 /*
- * 8.2.23 Notification response
- */
-
-/*
- * 8.2.24 Security mode command
+ * 8.2.25 Security mode command
  */
 static void
 nas_5gs_mm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2639,7 +2696,7 @@ nas_5gs_mm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 }
 
 /*
- * 8.2.25 Security mode complete
+ * 8.2.26 Security mode complete
  */
 static void
 nas_5gs_mm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -2663,7 +2720,7 @@ nas_5gs_mm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 }
 
 /*
- * 8.2.26 Security mode reject
+ * 8.2.27 Security mode reject
  */
 
 static void
@@ -2684,7 +2741,7 @@ nas_5gs_mm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 }
 
 /*
- * 8.2.27 5GMM status
+ * 8.2.28 5GMM status
  */
 
 static void
@@ -2870,6 +2927,7 @@ nas_5gs_sm_pdu_ses_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     /*7A    Requested QoS rules    QoS rules 9.8.4.6    O    TLV-E    3-65538 */
 
+    /* 28    5GSM capability    5GSM capability 9.8.4.10    O    TLV    3-15 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -3041,6 +3099,7 @@ nas_5gs_sm_pdu_ses_rel_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* 5GSM cause    5GSM cause 9.8.4.1    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
+    /* 37    Back-off timer value    GPRS timer 3 9.8.3.21    O    TLV    3 */
     /*7B    Extended protocol configuration options    Extended protocol configuration options    9.8.4.2    O    TLV - E    4 - 65538*/
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
@@ -3090,30 +3149,6 @@ nas_5gs_sm_5gsm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 }
 
-#if 0
-Template:
-/*
- * 8.2.2    Authentication response
- */
-static void
-nas_5gs_sm_xx(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
-{
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
-
-    curr_offset = offset;
-    curr_len = len;
-
-    /*
-
-    */
-
-    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
-
-}
-#endif
-
 
 /* 9.7  Message type */
 
@@ -3128,19 +3163,19 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x47,    "Deregistration request (UE terminated)"},
     { 0x48,    "Deregistration accept (UE terminated)"},
 
-    { 0x49,    "Not used in v 0.3.1"},
-    { 0x4a,    "Not used in v 0.3.1" },
-    { 0x4b,    "Not used in v 0.3.1" },
+    { 0x49,    "Not used in v 0.4.0"},
+    { 0x4a,    "Not used in v 0.4.0" },
+    { 0x4b,    "Not used in v 0.4.0" },
 
     { 0x4c,    "Service request"},
     { 0x4d,    "Service reject"},
     { 0x4e,    "Service accept"},
 
-    { 0x4f,    "Not used in v 0.3.1" },
-    { 0x50,    "Not used in v 0.3.1" },
-    { 0x51,    "Not used in v 0.3.1" },
-    { 0x52,    "Not used in v 0.3.1" },
-    { 0x53,    "Not used in v 0.3.1" },
+    { 0x4f,    "Not used in v 0.4.0" },
+    { 0x50,    "Not used in v 0.4.0" },
+    { 0x51,    "Not used in v 0.4.0" },
+    { 0x52,    "Not used in v 0.4.0" },
+    { 0x53,    "Not used in v 0.4.0" },
 
     { 0x54,    "Configuration update command"},
     { 0x55,    "Configuration update complete"},
@@ -3154,11 +3189,11 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x5d,    "Security mode complete"},
     { 0x5e,    "Security mode reject"},
 
-    { 0x5f,    "Not used in v 0.3.1" },
-    { 0x60,    "Not used in v 0.3.1" },
-    { 0x61,    "Not used in v 0.3.1" },
-    { 0x62,    "Not used in v 0.3.1" },
-    { 0x63,    "Not used in v 0.3.1" },
+    { 0x5f,    "Not used in v 0.4.0" },
+    { 0x60,    "Not used in v 0.4.0" },
+    { 0x61,    "Not used in v 0.4.0" },
+    { 0x62,    "Not used in v 0.4.0" },
+    { 0x63,    "Not used in v 0.4.0" },
 
     { 0x64,    "5GMM status"},
     { 0x65,    "Notification"},
@@ -3181,19 +3216,19 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_de_registration_req_ue_term,     /* 0x47    Deregistration request (UE terminated) */
     nas_5gs_exp_not_dissected_yet,              /* 0x48    Deregistration accept (UE terminated) */
 
-    nas_5gs_exp_not_dissected_yet,              /* 0x49    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x4a    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x4b    Not used in v 0.3.1 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x49    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x4a    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x4b    Not used in v 0.4.0 */
 
     nas_5gs_mm_service_req,                     /* 0x4c    Service request */
     nas_5gs_mm_service_rej,                     /* 0x4d    Service reject */
-    nas_5gs_exp_not_dissected_yet,              /* 0x4e    Service accept */
+    nas_5gs_mm_service_acc,                     /* 0x4e    Service accept */
 
-    nas_5gs_exp_not_dissected_yet,              /* 0x4f    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x50    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x51    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x52    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x53    Not used in v 0.3.1 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x4f    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x50    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x51    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x52    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x53    Not used in v 0.4.0 */
 
     nas_5gs_mm_conf_upd_cmd,                    /* 0x54    Configuration update command */
     nas_5gs_exp_not_dissected_yet,              /* 0x55    Configuration update complete */
@@ -3207,14 +3242,14 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_sec_mode_comp,                   /* 0x5d    Security mode complete */
     nas_5gs_mm_sec_mode_rej,                    /* 0x5e    Security mode reject */
 
-    nas_5gs_exp_not_dissected_yet,              /* 0x5f    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x60    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x61    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x62    Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x63    Not used in v 0.3.1 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x5f    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x60    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x61    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x62    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x63    Not used in v 0.4.0 */
 
     nas_5gs_mm_5gmm_status,                     /* 0x64    5GMM status */
-    nas_5gs_exp_not_dissected_yet,              /* 0x65    Notification */
+    nas_5gs_mm_notification,                    /* 0x65    Notification */
     nas_5gs_mm_dl_nas_transp,                   /* 0x66    DL NAS transport */
     nas_5gs_mm_ul_nas_transp,                   /* 0x67    UL NAS transport */
 
@@ -3230,31 +3265,31 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     { 0xc2,    "PDU session establishment accept"},
     { 0xc3,    "PDU session establishment reject"},
 
-    { 0xc4,    "PDU session authentication request"},
-    { 0xc5,    "PDU session authentication accept"},
+    { 0xc4,    "Not used in v 0.4.0"},
+    { 0xc5,    "PDU session authentication command"},
 
-    { 0xc6,    "Not used in v 0.3.1" },
-    { 0xc7,    "Not used in v 0.3.1" },
-    { 0xc8,    "Not used in v 0.3.1" },
+    { 0xc6,    "PDU session authentication complete" },
+    { 0xc7,    "Not used in v 0.4.0" },
+    { 0xc8,    "Not used in v 0.4.0" },
 
     { 0xc9,    "PDU session modification request"},
     { 0xca,    "PDU session modification reject"},
     { 0xcb,    "PDU session modification command"},
 
-    { 0xcc,    "Not used in v 0.3.1" },
+    { 0xcc,    "Not used in v 0.4.0" },
 
     { 0xcd,    "PDU session modification complete"},
     { 0xce,    "PDU session modification command reject"},
 
-    { 0xcf,    "Not used in v 0.3.1" },
-    { 0xd0,    "Not used in v 0.3.1" },
+    { 0xcf,    "Not used in v 0.4.0" },
+    { 0xd0,    "Not used in v 0.4.0" },
 
     { 0xd1,    "PDU session release request"},
     { 0xd2,    "PDU session release reject"},
     { 0xd3,    "PDU session release command"},
     { 0xd4,    "PDU session release complete"},
 
-    { 0xd5,    "Not used in v 0.3.1" },
+    { 0xd5,    "Not used in v 0.4.0" },
 
     { 0xd6,    "5GSM status"},
     { 0,    NULL }
@@ -3269,31 +3304,31 @@ static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_sm_pdu_ses_est_acc,            /* 0xc2     PDU session establishment accept */
     nas_5gs_sm_pdu_ses_est_rej,            /* 0xc3     PDU session establishment reject */
 
-    nas_5gs_sm_pdu_ses_auth_cmd,           /* 0xc4     PDU session authentication request */
-    nas_5gs_sm_pdu_ses_auth_comp,          /* 0xc5     PDU session authentication accept */
+    nas_5gs_exp_not_dissected_yet,         /* 0xc4     Not used in v 0.4.0 */
+    nas_5gs_sm_pdu_ses_auth_cmd,           /* 0xc5     PDU session authentication command */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xc6     Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,         /* 0xc7     Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,         /* 0xc8     Not used in v 0.3.1 */
+    nas_5gs_sm_pdu_ses_auth_comp,          /* 0xc6     PDU session authentication complete */
+    nas_5gs_exp_not_dissected_yet,         /* 0xc7     Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xc8     Not used in v 0.4.0 */
 
     nas_5gs_sm_pdu_ses_mod_req,            /* 0xc9     PDU session modification request */
     nas_5gs_sm_pdu_ses_mod_rej,            /* 0xca     PDU session modification reject */
     nas_5gs_sm_pdu_ses_mod_cmd,            /* 0xcb     PDU session modification command */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xcc     Not used in v 0.3.1 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xcc     Not used in v 0.4.0 */
 
     nas_5gs_sm_pdu_ses_mod_comp,           /* 0xcd     PDU session modification complete */
     nas_5gs_sm_pdu_ses_mod_com_rej,        /* 0xce     PDU session modification command reject */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xcf     Not used in v 0.3.1 */
-    nas_5gs_exp_not_dissected_yet,         /* 0xd0     Not used in v 0.3.1 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xcf     Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xd0     Not used in v 0.4.0 */
 
     nas_5gs_sm_pdu_ses_rel_req,            /* 0xd1     PDU session release request */
     nas_5gs_sm_pdu_ses_rel_rej,            /* 0xd2     PDU session release reject */
     nas_5gs_sm_pdu_ses_rel_cmd,            /* 0xd3     PDU session release command */
     nas_5gs_sm_pdu_ses_rel_comp,           /* 0xd4     PDU session release complete */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xd5     Not used in v 0.3.1 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xd5     Not used in v 0.4.0 */
 
     nas_5gs_sm_5gsm_status,                /* 0xd6     5GSM status */
 
