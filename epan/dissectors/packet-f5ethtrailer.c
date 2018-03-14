@@ -847,21 +847,22 @@ static char *info_format_out_slot   = NULL;  /**< Out format in use with slot */
   *   Brief       = 0x0004
   */
 typedef enum {
-	  none = 0
-	, full = 1
-	, in_out_only = 3
-	, brief = 5
-	, brief_in_out_only = 7
+	none = 0,
+	full = 1,
+	in_out_only = 3,
+	brief = 5,
+	brief_in_out_only = 7
 } f5eth_info_type_t;
+
 /** Info column display format type strings */
 static const enum_val_t f5eth_display_strings[] = {
-	  { "None",           "None",               0 }
-	, { "Full",           "Full",               1 }
-	, { "InOutOnly",      "In/out only",        3 }
-	, { "Brief",          "Brief",              5 }
-	, { "BriefInOutOnly", "Brief in/out only",  7 }
-	/* List terminator */
-	, { NULL,             NULL,                 0 }
+	{ "None",           "None",               0 },
+	{ "Full",           "Full",               1 },
+	{ "InOutOnly",      "In/out only",        3 },
+	{ "Brief",          "Brief",              5 },
+	{ "BriefInOutOnly", "Brief in/out only",  7 },
+
+	{ NULL,             NULL,                 0 }
 };
 /** Info column display preference (default to full) */
 static f5eth_info_type_t pref_info_type = full;
@@ -1956,10 +1957,6 @@ dissect_low_trailer(
 		tdata->slot = slot_display;
 	}
 	/* Is the column visible? */
-	/* NOTE: This does not seem to work when coloring is disabled because it
-	 *       appears that we do not actually get called.  However, this is an
-	 *       attempt to program it properly in case that gets fixed in a future
-	 *       release. (It looks like this may be fixed in WS 1.3.) */
 	if (pref_info_type != none) {
 		f5eth_set_info_col(pinfo, ingress, slot_display, tmm);
 	}
@@ -2041,10 +2038,10 @@ dissect_low_trailer(
  */
 static gboolean
 dissect_f5ethtrailer(
-	  tvbuff_t *tvb
-	, packet_info *pinfo
-	, proto_tree *tree
-	, void *data _U_
+	tvbuff_t *tvb,
+	packet_info *pinfo,
+	proto_tree *tree,
+	void *data _U_
 ) {
 	proto_tree *type_tree = NULL;
 	proto_item *ti = NULL;
@@ -2267,195 +2264,195 @@ void proto_register_f5ethtrailer (void)
 	 * array of hf_register_info structures, each of which are of the format
 	 * {&(field id), {name, abrv, type, display, strs, bitmask, blurb, HFILL}}.
 	 */
-	static hf_register_info hf[] =
-		{ { &hf_type,
-		    { "Type", "f5ethtrailer.type", FT_UINT8, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_length,
-		    { "Trailer length", "f5ethtrailer.length", FT_UINT8, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_version,
-		    { "Version", "f5ethtrailer.version", FT_UINT8, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
+	static hf_register_info hf[] = {
+		{ &hf_type,
+		  { "Type", "f5ethtrailer.type", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_length,
+		  { "Trailer length", "f5ethtrailer.length", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_version,
+		  { "Version", "f5ethtrailer.version", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
 
 	/* Low parameters */
-		, { &hf_low_id,
-		    { "Low Details", "f5ethtrailer.low", FT_NONE, BASE_NONE, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_ingress,
-		    { "Ingress", "f5ethtrailer.ingress", FT_BOOLEAN, BASE_NONE, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_slot0,
-		    { "Slot (0-based)", "f5ethtrailer.slot", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "Slot captured on", HFILL }
-		  }
-		, { &hf_slot1,
-		    { "Slot (1-based)", "f5ethtrailer.slot", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "Slot captured on", HFILL }
-		  }
-		, { &hf_tmm,
-		    { "TMM (0-based)", "f5ethtrailer.tmm", FT_UINT8, BASE_DEC, NULL,
-		      0x0, "TMM captured on", HFILL }
-		  }
-		, { &hf_vipnamelen,
-		    { "VIP name length", "f5ethtrailer.vipnamelen", FT_UINT8, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_vip,
-		    { "VIP", "f5ethtrailer.vip", FT_STRING, BASE_NONE, NULL,
-		      0x0, "VIP flow associated with", HFILL }
-		  }
+		{ &hf_low_id,
+		  { "Low Details", "f5ethtrailer.low", FT_NONE, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_ingress,
+		  { "Ingress", "f5ethtrailer.ingress", FT_BOOLEAN, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_slot0,
+		  { "Slot (0-based)", "f5ethtrailer.slot", FT_UINT8, BASE_DEC, NULL,
+		    0x0, "Slot captured on", HFILL }
+		},
+		{ &hf_slot1,
+		  { "Slot (1-based)", "f5ethtrailer.slot", FT_UINT8, BASE_DEC, NULL,
+		    0x0, "Slot captured on", HFILL }
+		},
+		{ &hf_tmm,
+		  { "TMM (0-based)", "f5ethtrailer.tmm", FT_UINT8, BASE_DEC, NULL,
+		    0x0, "TMM captured on", HFILL }
+		},
+		{ &hf_vipnamelen,
+		  { "VIP name length", "f5ethtrailer.vipnamelen", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_vip,
+		  { "VIP", "f5ethtrailer.vip", FT_STRING, BASE_NONE, NULL,
+		    0x0, "VIP flow associated with", HFILL }
+		},
 
 	/* Medium parameters */
-		, { &hf_med_id,
-		    { "Medium Details", "f5ethtrailer.medium", FT_NONE, BASE_NONE, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_any_flow,
-		    { "Flow ID or peer flow ID", "f5ethtrailer.anyflowid", FT_UINT64, BASE_HEX, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_flow_id,
-		    { "Flow ID", "f5ethtrailer.flowid", FT_UINT64, BASE_HEX, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_id,
-		    { "Peer ID", "f5ethtrailer.peerid", FT_UINT64, BASE_HEX, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_cf_flags,
-		    { "Connflow Flags", "f5ethtrailer.cfflags", FT_UINT32, BASE_HEX, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_cf_flags2,
-		    { "Connflow Flags High Bits", "f5ethtrailer.cfflags2", FT_UINT32,
-		      BASE_HEX, NULL, 0x0, NULL, HFILL }
-		  }
-		, { &hf_flow_type,
-		    { "Flow Type", "f5ethtrailer.flowtype", FT_UINT8, BASE_HEX, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_ha_unit,
-		    { "HA Unit", "f5ethtrailer.haunit", FT_UINT8, BASE_HEX, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_ingress_slot,
-		    { "Ingress Slot", "f5ethtrailer.ingressslot", FT_UINT16, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_ingress_port,
-		    { "Ingress Port", "f5ethtrailer.ingressport", FT_UINT16, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_priority,
-		    { "Priority", "f5ethtrailer.priority", FT_UINT8, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_rstcause,
-		    { "RST cause", "f5ethtrailer.rstcause", FT_NONE, BASE_NONE, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_rstcause_len,
-		    { "Length", "f5ethtrailer.rstcauselen", FT_UINT8, BASE_DEC,
-		      NULL, 0x0, "RST cause length", HFILL }
-		  }
-		, { &hf_rstcause_ver,
-		    { "Version", "f5ethtrailer.rstcausever", FT_UINT8, BASE_DEC_HEX,
-		      NULL, 0xfe, "RST cause version", HFILL }
-		  }
-		, { &hf_rstcause_peer,
-		    { "Peer", "f5ethtrailer.rstcausepeer", FT_UINT8, BASE_DEC,
-		      NULL, 0x01, "RST cause peer", HFILL }
-		  }
-		, { &hf_rstcause_val,
-		    { "Value", "f5ethtrailer.rstcauseval", FT_UINT64, BASE_HEX,
-		      NULL, 0x0, "RST cause value", HFILL }
-		  }
-		, { &hf_rstcause_line,
-		    { "Line", "f5ethtrailer.rstcauseline", FT_UINT16, BASE_DEC,
-		      NULL, 0x0, "RST cause line", HFILL }
-		  }
-		, { &hf_rstcause_txt,
-		    { "Cause", "f5ethtrailer.rstcausetxt", FT_STRING, BASE_NONE,
-		      NULL, 0x0, "RST cause", HFILL }
-		  }
+		{ &hf_med_id,
+		  { "Medium Details", "f5ethtrailer.medium", FT_NONE, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_any_flow,
+		  { "Flow ID or peer flow ID", "f5ethtrailer.anyflowid", FT_UINT64, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_flow_id,
+		  { "Flow ID", "f5ethtrailer.flowid", FT_UINT64, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_peer_id,
+		  { "Peer ID", "f5ethtrailer.peerid", FT_UINT64, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_cf_flags,
+		  { "Connflow Flags", "f5ethtrailer.cfflags", FT_UINT32, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_cf_flags2,
+		  { "Connflow Flags High Bits", "f5ethtrailer.cfflags2", FT_UINT32,
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_flow_type,
+		  { "Flow Type", "f5ethtrailer.flowtype", FT_UINT8, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_ha_unit,
+		  { "HA Unit", "f5ethtrailer.haunit", FT_UINT8, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_ingress_slot,
+		  { "Ingress Slot", "f5ethtrailer.ingressslot", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_ingress_port,
+		  { "Ingress Port", "f5ethtrailer.ingressport", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_priority,
+		  { "Priority", "f5ethtrailer.priority", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_rstcause,
+		  { "RST cause", "f5ethtrailer.rstcause", FT_NONE, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_rstcause_len,
+		  { "Length", "f5ethtrailer.rstcauselen", FT_UINT8, BASE_DEC,
+		    NULL, 0x0, "RST cause length", HFILL }
+		},
+		{ &hf_rstcause_ver,
+		  { "Version", "f5ethtrailer.rstcausever", FT_UINT8, BASE_DEC_HEX,
+		    NULL, 0xfe, "RST cause version", HFILL }
+		},
+		{ &hf_rstcause_peer,
+		  { "Peer", "f5ethtrailer.rstcausepeer", FT_UINT8, BASE_DEC,
+		    NULL, 0x01, "RST cause peer", HFILL }
+		},
+		{ &hf_rstcause_val,
+		  { "Value", "f5ethtrailer.rstcauseval", FT_UINT64, BASE_HEX,
+		    NULL, 0x0, "RST cause value", HFILL }
+		},
+		{ &hf_rstcause_line,
+		  { "Line", "f5ethtrailer.rstcauseline", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "RST cause line", HFILL }
+		},
+		{ &hf_rstcause_txt,
+		  { "Cause", "f5ethtrailer.rstcausetxt", FT_STRING, BASE_NONE,
+		    NULL, 0x0, "RST cause", HFILL }
+		},
 
 	/* High parameters */
-		, { &hf_high_id,
-		    { "High Details", "f5ethtrailer.high", FT_NONE, BASE_NONE, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_ipproto,
-		    { "Peer IP Protocol", "f5ethtrailer.peeripproto", FT_UINT8, BASE_DEC,
-		      NULL, 0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_vlan,
-		    { "Peer VLAN", "f5ethtrailer.peervlan", FT_UINT16, BASE_DEC, NULL,
-		      0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_remote_addr,
-		    { "Peer remote address", "f5ethtrailer.peerremoteaddr", FT_IPv4,
-		      BASE_NONE, NULL, 0x0, "Peer remote IPv4 address", HFILL }
-		  }
-		, { &hf_peer_remote_ip6addr,
-		    { "Peer remote address", "f5ethtrailer.peerremoteaddr6", FT_IPv6,
-		      BASE_NONE, NULL, 0x0, "Peer remote IPv6 address", HFILL }
-		  }
-		, { &hf_peer_local_addr,
-		    { "Peer local address", "f5ethtrailer.peerlocaladdr", FT_IPv4,
-		      BASE_NONE, NULL, 0x0, "Peer local IPv4 address", HFILL }
-		  }
-		, { &hf_peer_local_ip6addr,
-		    { "Peer local address", "f5ethtrailer.peerlocaladdr6", FT_IPv6,
-		      BASE_NONE, NULL, 0x0, "Peer local IPv6 address", HFILL }
-		  }
-		, { &hf_peer_ipaddr,
-		    { "Peer remote or local address", "f5ethtrailer.peeraddr", FT_IPv4,
-		      BASE_NONE, NULL, 0x0, "Peer IPv4 address", HFILL }
-		  }
-		, { &hf_peer_ip6addr,
-		    { "Peer remote or local address", "f5ethtrailer.peeraddr6", FT_IPv6,
-		      BASE_NONE, NULL, 0x0, "Peer IPv6 address", HFILL }
-		  }
-		, { &hf_peer_remote_rtdom,
-		    { "Peer remote route domain", "f5ethtrailer.peerremotertdom", FT_UINT16,
-		      BASE_DEC, NULL, 0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_local_rtdom,
-		    { "Peer local route domain", "f5ethtrailer.peerlocalrtdom", FT_UINT16,
-		      BASE_DEC, NULL, 0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_rtdom,
-		    { "Peer remote or local route domain", "f5ethtrailer.peerrtdom", FT_UINT16,
-		      BASE_DEC, NULL, 0x0, "Peer route domain", HFILL }
-		  }
-		, { &hf_peer_remote_port,
-		    { "Peer remote port", "f5ethtrailer.peerremoteport", FT_UINT16, BASE_DEC,
-		      NULL, 0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_local_port,
-		    { "Peer local port", "f5ethtrailer.peerlocalport", FT_UINT16, BASE_DEC,
-		      NULL, 0x0, NULL, HFILL }
-		  }
-		, { &hf_peer_port,
-		    { "Peer remote or local port", "f5ethtrailer.peerport", FT_UINT16, BASE_DEC,
-		      NULL, 0x0, "Peer port", HFILL }
-		  }
-		, { &hf_peer_nopeer,
-		    { "No peer connection information", "f5ethtrailer.nopeer", FT_NONE, BASE_NONE,
-		      NULL, 0x0, NULL, HFILL }
-		  }
+		{ &hf_high_id,
+		  { "High Details", "f5ethtrailer.high", FT_NONE, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_peer_ipproto,
+		  { "Peer IP Protocol", "f5ethtrailer.peeripproto", FT_UINT8, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_peer_vlan,
+		  { "Peer VLAN", "f5ethtrailer.peervlan", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }
+		},
+		{ &hf_peer_remote_addr,
+		  { "Peer remote address", "f5ethtrailer.peerremoteaddr", FT_IPv4,
+		    BASE_NONE, NULL, 0x0, "Peer remote IPv4 address", HFILL }
+		},
+		{ &hf_peer_remote_ip6addr,
+		  { "Peer remote address", "f5ethtrailer.peerremoteaddr6", FT_IPv6,
+		    BASE_NONE, NULL, 0x0, "Peer remote IPv6 address", HFILL }
+		},
+		{ &hf_peer_local_addr,
+		  { "Peer local address", "f5ethtrailer.peerlocaladdr", FT_IPv4,
+		    BASE_NONE, NULL, 0x0, "Peer local IPv4 address", HFILL }
+		},
+		{ &hf_peer_local_ip6addr,
+		  { "Peer local address", "f5ethtrailer.peerlocaladdr6", FT_IPv6,
+		    BASE_NONE, NULL, 0x0, "Peer local IPv6 address", HFILL }
+		},
+		{ &hf_peer_ipaddr,
+		  { "Peer remote or local address", "f5ethtrailer.peeraddr", FT_IPv4,
+		    BASE_NONE, NULL, 0x0, "Peer IPv4 address", HFILL }
+		},
+		{ &hf_peer_ip6addr,
+		  { "Peer remote or local address", "f5ethtrailer.peeraddr6", FT_IPv6,
+		    BASE_NONE, NULL, 0x0, "Peer IPv6 address", HFILL }
+		},
+		{ &hf_peer_remote_rtdom,
+		  { "Peer remote route domain", "f5ethtrailer.peerremotertdom", FT_UINT16,
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_peer_local_rtdom,
+		  { "Peer local route domain", "f5ethtrailer.peerlocalrtdom", FT_UINT16,
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_peer_rtdom,
+		  { "Peer remote or local route domain", "f5ethtrailer.peerrtdom", FT_UINT16,
+		    BASE_DEC, NULL, 0x0, "Peer route domain", HFILL }
+		},
+		{ &hf_peer_remote_port,
+		  { "Peer remote port", "f5ethtrailer.peerremoteport", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_peer_local_port,
+		  { "Peer local port", "f5ethtrailer.peerlocalport", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_peer_port,
+		  { "Peer remote or local port", "f5ethtrailer.peerport", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "Peer port", HFILL }
+		},
+		{ &hf_peer_nopeer,
+		  { "No peer connection information", "f5ethtrailer.nopeer", FT_NONE, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }
+		},
 
 	/* Analysis parameters */
-		, { &hf_analysis,
-		    { "Analysis", "f5ethtrailer.analysis", FT_NONE, BASE_NONE, NULL,
-		      0x0, "Analysis of details", HFILL }
-		  }
+		{ &hf_analysis,
+		  { "Analysis", "f5ethtrailer.analysis", FT_NONE, BASE_NONE, NULL,
+		    0x0, "Analysis of details", HFILL }
+		}
 	};
 
 	static gint *ett[] = {
@@ -2560,6 +2557,8 @@ void proto_register_f5ethtrailer (void)
 		(ST_SORT_COL_NAME << ST_FLG_SRTCOL_SHIFT),
 		f5eth_virtdist_stats_tree_packet, f5eth_virtdist_stats_tree_init, NULL);
 
+	/* Setup col info strings */
+	f5ethtrailer_prefs();
 } /* proto_register_f5ethtrailer() */
 
 void proto_reg_handoff_f5ethtrailer(void)
@@ -2609,10 +2608,10 @@ void proto_reg_handoff_f5ethtrailer(void)
  */
 static gboolean
 dissect_f5fileinfo(
-	  tvbuff_t *tvb
-	, packet_info *pinfo
-	, proto_tree *tree
-	, void *data _U_
+	tvbuff_t *tvb,
+	packet_info *pinfo,
+	proto_tree *tree,
+	void *data _U_
 ) {
 	guint offset = 0;
 	const guint8 *object;
