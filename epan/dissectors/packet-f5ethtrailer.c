@@ -1582,16 +1582,15 @@ dissect_high_trailer(
 	o += 1;
 
 	if(tdata->peer_flow == 0) {
-		pi = proto_tree_add_item(tree, hf_peer_nopeer, tvb, o, trailer_length-3, ENC_NA);
-		o += (trailer_length - 3);
+		proto_tree_add_item(tree, hf_peer_nopeer, tvb, o, trailer_length-3, ENC_NA);
 		return(trailer_length);
 	}
 
 	/* Add in the high order structures. */
 	ipproto = tvb_get_guint8(tvb,o);
-	pi = proto_tree_add_item(tree, hf_peer_ipproto,   tvb, o, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_peer_ipproto,   tvb, o, 1, ENC_BIG_ENDIAN);
 	o += 1;
-	pi = proto_tree_add_item(tree, hf_peer_vlan,      tvb, o, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_peer_vlan,      tvb, o, 2, ENC_BIG_ENDIAN);
 	o += 2;
 
 	/* peer remote address */
@@ -1604,7 +1603,7 @@ dissect_high_trailer(
 #endif
 	displayIPv6as4(tree, hf_peer_remote_addr, hf_peer_remote_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
-	pi = proto_tree_add_item(tree, hf_peer_remote_ip6addr, tvb, o, 16, ENC_NA);
+	proto_tree_add_item(tree, hf_peer_remote_ip6addr, tvb, o, 16, ENC_NA);
 	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
 	PROTO_ITEM_SET_HIDDEN(pi);
 	o += 16;
@@ -1619,7 +1618,7 @@ dissect_high_trailer(
 #endif
 	displayIPv6as4(tree, hf_peer_local_addr, hf_peer_local_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
-	pi = proto_tree_add_item(tree, hf_peer_local_ip6addr, tvb, o, 16, ENC_NA);
+	proto_tree_add_item(tree, hf_peer_local_ip6addr, tvb, o, 16, ENC_NA);
 	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
 	PROTO_ITEM_SET_HIDDEN(pi);
 	o += 16;
@@ -1648,7 +1647,7 @@ dissect_high_trailer(
 		}
 	}
 #endif
-	pi = proto_tree_add_item(tree, hf_peer_remote_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_peer_remote_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_HIDDEN(pi);
 	o += 2;
@@ -1669,10 +1668,9 @@ dissect_high_trailer(
 		}
 	}
 #endif
-	pi = proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_HIDDEN(pi);
-	o += 2;
 
 	return(trailer_length);
 } /* dissect_high_trailer() */
@@ -1786,24 +1784,24 @@ dissect_med_trailer(
 		if(trailer_length == F5_MEDV10_LEN && trailer_ver == 0) {
 			/* In v10, flowIDs are 32bit */
 			tdata->flow = tvb_get_ntohl(tvb,o);
-			pi = proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_HIDDEN(pi);
 			o += 4;
 			tdata->peer_flow = tvb_get_ntohl(tvb,o);
-			pi = proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_HIDDEN(pi);
 			o += 4;
 		} else {
 			/* After v10, flowIDs are 64bit */
 			tdata->flow = tvb_get_ntoh64(tvb,o);
-			pi = proto_tree_add_item(tree, hf_flow_id, tvb, o, 8, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_flow_id, tvb, o, 8, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 8, ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_HIDDEN(pi);
 			o += 8;
 			tdata->peer_flow = tvb_get_ntoh64(tvb,o);
-			pi = proto_tree_add_item(tree, hf_peer_id, tvb, o, 8, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_peer_id, tvb, o, 8, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 8, ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_HIDDEN(pi);
 			o += 8;
@@ -1817,22 +1815,22 @@ dissect_med_trailer(
 	/* Needed to get here so that analysis and tap will work. */
 	if(tree == NULL) return(trailer_length);
 
-	pi = proto_tree_add_item(tree, hf_ha_unit, tvb, o, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_ha_unit, tvb, o, 1, ENC_BIG_ENDIAN);
 	o += 1;
 	if(trailer_ver == 0 && (trailer_length == F5_MEDV94_LEN || trailer_length == F5_MEDV10_LEN)) {
-		pi = proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_LITTLE_ENDIAN);
 		o += 2;
-		pi = proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_LITTLE_ENDIAN);
 		o += 2;
 	} else {
 		/* V11 fixed the byte order of these */
-		pi = proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_BIG_ENDIAN);
 		o += 2;
-		pi = proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_BIG_ENDIAN);
 		o += 2;
 	}
 	if(trailer_ver >= 2) {
-		pi = proto_tree_add_item(tree, hf_priority, tvb, o, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_priority, tvb, o, 1, ENC_BIG_ENDIAN);
 		o += 1;
 	}
 	if(trailer_ver >= 1) {
@@ -1846,7 +1844,7 @@ dissect_med_trailer(
 
 			rc_item = proto_tree_add_item(tree, hf_rstcause, tvb, o, rstcauselen+1, ENC_NA);
 			rc_tree = proto_item_add_subtree(rc_item, ett_f5ethtrailer_rstcause);
-			pi = proto_tree_add_item(rc_tree, hf_rstcause_len, tvb, o, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rc_tree, hf_rstcause_len, tvb, o, 1, ENC_BIG_ENDIAN);
 			o += 1;
 
 			startcause = o;
@@ -1854,8 +1852,8 @@ dissect_med_trailer(
 			case 0x00:
 				rstcausepeer = tvb_get_guint8(tvb,o) & 0x1;
 
-				pi = proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
-				pi = proto_tree_add_item(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
 				o += 1;
 
 				rstcauseval  = tvb_get_ntoh64(tvb,o);
@@ -1863,19 +1861,18 @@ dissect_med_trailer(
 				rstcauseval  = (rstcauseval & 0xffffffffffff0000LL) >> 16;
 				proto_tree_add_uint64_format_value(rc_tree, hf_rstcause_val, tvb, o, 6,
 					rstcauseval, "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
-				pi = proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o+6, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o+6, 2, ENC_BIG_ENDIAN);
 				o += 8;
 
 				proto_item_append_text(rc_item, ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER
 					"u]%s %s", rstcauseval, rstcauseline, rstcausepeer ? " {peer}" : "",
 					tvb_get_string_enc(wmem_packet_scope(), tvb, o, rstcauselen-(o-startcause),
 					ENC_ASCII));
-				pi = proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o, rstcauselen-(o-startcause),
+				proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o, rstcauselen-(o-startcause),
 					ENC_ASCII|ENC_NA);
-				o += (rstcauselen - (o-startcause)); /* XXX This is strange */
 				break;
 			default:
-				o += rstcauselen;
+				break;
 			}
 		}
 	}
@@ -1994,17 +1991,17 @@ dissect_low_trailer(
 	proto_tree_add_uint(tree, slot_display_field, tvb, o, 1, slot_display);
 	o += 1;
 
-	pi = proto_tree_add_item(tree, hf_tmm, tvb, o, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_tmm, tvb, o, 1, ENC_BIG_ENDIAN);
 	o += 1;
 	if(trailer_length == F5_LOWV94_LEN && trailer_ver == 0) {
 		/* In v9.4, flowIDs, flags and type are here in low */
 		tdata->flow = tvb_get_ntohl(tvb,o);
-		pi = proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
 		pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(pi);
 		o += 4;
 		tdata->peer_flow = tvb_get_ntohl(tvb,o);
-		pi = proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
 		pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(pi);
 		o += 4;
@@ -2022,8 +2019,7 @@ dissect_low_trailer(
 		PROTO_ITEM_SET_HIDDEN(pi);
 		o += 1;
 	}
-	pi = proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII|ENC_NA);
-	o += vipnamelen;
+	proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII|ENC_NA);
 
 	return(trailer_length);
 } /* dissect_low_trailer() */
