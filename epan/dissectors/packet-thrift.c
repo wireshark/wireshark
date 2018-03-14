@@ -879,7 +879,7 @@ void proto_register_thrift(void) {
 
     thrift_module = prefs_register_protocol(proto_thrift, proto_reg_handoff_thrift);
 
-    thrift_method_name_dissector_table = register_dissector_table("thrift.method_names", "Thrift Metod names",
+    thrift_method_name_dissector_table = register_dissector_table("thrift.method_names", "Thrift Method names",
         proto_thrift, FT_STRING, BASE_NONE);
 
     prefs_register_uint_preference(thrift_module, "tls.port",
