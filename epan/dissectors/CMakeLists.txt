@@ -485,6 +485,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-rdt.h
 	packet-reload.h
 	packet-rlc-lte.h
+	packet-rlc-nr.h
 	packet-rmi.h
 	packet-rmt-common.h
 	packet-rohc.h
@@ -1538,6 +1539,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ripng.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rlc-lte.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rlc-nr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rlm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rlogin.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rmcp.c
