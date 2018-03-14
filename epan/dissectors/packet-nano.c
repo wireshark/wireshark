@@ -150,7 +150,7 @@ static int dissect_nano_keepalive(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         }
     }
 
-    col_set_str(pinfo->cinfo, COL_INFO, wmem_strdup_printf(wmem_packet_scope(), "Keepalive (%d peer%s)", peers, plurality(peers, "", "s")));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Keepalive (%d peer%s)", peers, plurality(peers, "", "s"));
 
     return offset;
 }
@@ -314,10 +314,9 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
             // set the INFO header with more information
             nano_block_type = (guint)((extensions >> 8) & 0xF);
-            col_set_str(pinfo->cinfo, COL_INFO,
-                    wmem_strdup_printf(wmem_packet_scope(), "%s (%s)",
-                            val_to_str(nano_packet_type, VALS(nano_packet_type_strings), " "),
-                            val_to_str(nano_block_type, VALS(nano_block_type_strings), "Unknown (%d)")));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
+                    val_to_str_const(nano_packet_type, VALS(nano_packet_type_strings), " "),
+                    val_to_str(nano_block_type, VALS(nano_block_type_strings), "Unknown (%d)"));
 
             // if it's a Confirm Ack packet, we first have a vote
             if (nano_packet_type == NANO_PACKET_TYPE_CONFIRM_ACK) {
@@ -342,7 +341,7 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             break;
 
         default:
-            col_set_str(pinfo->cinfo, COL_INFO,
+            col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(nano_packet_type, VALS(nano_packet_type_strings), "Unknown (%d)"));
     }
 
