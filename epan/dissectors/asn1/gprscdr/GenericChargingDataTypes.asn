@@ -1,5 +1,5 @@
--- 3GPP TS 32.298
-GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}
+-- 3GPP TS 32.298 v15.1.0 (2018-01-04)
+GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}  
 
 DEFINITIONS IMPLICIT TAGS	::=
 
@@ -7,21 +7,21 @@ BEGIN
 
 -- EXPORTS everything
 
-IMPORTS
+IMPORTS	
 
 AddressString,
 ISDN-AddressString,
 LCSClientExternalID,
 LCSClientInternalID
-FROM MAP-CommonDataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (13) }
+FROM MAP-CommonDataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-CommonDataTypes (18)  version15 (15) }
 -- from TS 29.002 [214]
 
 PositionMethodFailure-Diagnostic,
 UnauthorizedLCSClient-Diagnostic
-FROM MAP-ER-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-ER-DataTypes (17) version15 (13)}
+FROM MAP-ER-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-ER-DataTypes (17)  version15 (15)}
 -- from TS 29.002 [214]
 
-ObjectInstance
+ObjectInstance	
 FROM CMIP-1 {joint-iso-itu-t ms (9) cmip (1) modules (0) protocol (3)}
 -- from Rec. X.2ab[304]
 
@@ -32,8 +32,9 @@ FROM CMIP-1 {joint-iso-itu-t ms (9) cmip (1) modules (0) protocol (3)}
 
 AE-title
 FROM ACSE-1 {joint-iso-itu-t association-control (2) modules (0) apdus (0) version1 (1) };
--- From Rec. X.2cd[306].  Note that the syntax of AE-title to be used is from
+-- From Rec. X.2cd[306].  Note that the syntax of AE-title to be used is from 
 -- ITU-T Rec. X.227 / ISO 8650 corrigendum and not "ANY"
+
 --
 --  Generic Data Types
 --
@@ -49,17 +50,17 @@ BCDDirectoryNumber		::= OCTET STRING
 -- together with a BCD encoded digit string.
 -- It may also contain both a presentation and screening indicator
 -- (octet 3a).
--- For the avoidance of doubt, this field does not include
-	-- octets 1 and 2, the element name and length, as this would be
+-- For the avoidance of doubt, this field does not include 
+	-- octets 1 and 2, the element name and length, as this would be 
 -- redundant.
 --
 
 CallDuration 			::= INTEGER
 --
--- The call duration is counted in seconds.
+-- The call duration is counted in seconds. 
 -- For successful calls /sessions / PDP contexts, this is the chargeable duration.
 -- For call attempts this is the call holding time.
---
+-- 
 
 CalledNumber			::= BCDDirectoryNumber
 
@@ -194,55 +195,110 @@ CallEventRecordType 	::= INTEGER
 }
 -- End WS
 
-
 CallingNumber	::= BCDDirectoryNumber
 
 CellId	::= OCTET STRING (SIZE(2))
 --
--- Coded according to TS 24.008 [208]
+-- Coded according to TS 24.008 [208]	
 --
 
 ChargeIndicator			::= INTEGER
 {
-	noCharge	(0),
-	charge		(1)
+	noCharge			(0),
+	charge				(1)
+}
+
+CauseForRecClosing	::= INTEGER
+--
+-- Cause codes 0 to 15 are defined 'CauseForTerm' (cause for termination)
+-- There is no direct correlation between these two types.
+--
+-- LCS related causes belong to the MAP error causes acc. TS 29.002 [214]
+--
+-- In PGW-CDR and SGW-CDR the value servingNodeChange is used for partial record
+-- generation due to Serving Node Address list Overflow
+-- In SGSN servingNodeChange indicates the SGSN change
+-- 
+-- sWGChange value is used in both the S-GW, TWAG and ePDG for inter serving node change
+-- 
+{
+	normalRelease					(0),
+	abnormalRelease					(4),
+	cAMELInitCallRelease			(5),
+	volumeLimit						(16),
+	timeLimit						(17),
+	servingNodeChange				(18),
+	maxChangeCond					(19),
+	managementIntervention			(20),
+	intraSGSNIntersystemChange		(21),
+	rATChange						(22),
+	mSTimeZoneChange				(23),
+	sGSNPLMNIDChange 				(24),
+	sGWChange						(25),
+	aPNAMBRChange					(26),
+	mOExceptionDataCounterReceipt	(27),
+	unauthorizedRequestingNetwork	(52),
+	unauthorizedLCSClient			(53),
+	positionMethodFailure			(54),
+	unknownOrUnreachableLCSClient	(58),
+	listofDownstreamNodeChange		(59)
+}
+
+CauseForTerm			::= INTEGER
+--
+-- Cause codes from 16 up to 31 are defined as 'CauseForRecClosing'
+-- (cause for record closing).
+-- There is no direct correlation between these two types.
+--
+-- LCS related causes belong to the MAP error causes acc. TS 29.002 [214].
+--
+{
+	normalRelease						(0),
+	partialRecord						(1),
+	partialRecordCallReestablishment	(2),
+	unsuccessfulCallAttempt				(3),
+	abnormalRelease						(4),
+	cAMELInitCallRelease				(5),
+	unauthorizedRequestingNetwork		(52),
+	unauthorizedLCSClient				(53),
+	positionMethodFailure				(54),
+	unknownOrUnreachableLCSClient		(58)
 }
 
 CNIPMulticastDistribution		::= ENUMERATED
 {
-	nO-IP-MULTICAST		(0),
-	iP-MULTICAST		(1)
+	nO-IP-MULTICAST				(0),	
+	iP-MULTICAST				(1)
 }
 
-Diagnostics		::= CHOICE
+Diagnostics						::= CHOICE
 {
-	gsm0408Cause			[0] INTEGER,
-	-- See TS 24.008 [208]
-	gsm0902MapErrorValue		[1] INTEGER,
-	--
-	-- Note: The value to be stored here corresponds to the local values defined in the MAP-Errors
+	gsm0408Cause								[0] INTEGER,
+	-- See TS 24.008 [208]	
+	gsm0902MapErrorValue						[1] INTEGER,
+	-- 
+	-- Note: The value to be stored here corresponds to the local values defined in the MAP-Errors 
 	-- and MAP-DialogueInformation modules, for full details see TS 29.002 [214].
-	--
-	itu-tQ767Cause			[2] INTEGER,
+	-- 
+	itu-tQ767Cause							[2] INTEGER,
 	-- See Q.767 [309]
-	networkSpecificCause		[3] ManagementExtension,
-	-- To be defined by network operator
-	manufacturerSpecificCause	[4] ManagementExtension,
-	-- To be defined by manufacturer
-	positionMethodFailureCause	[5] PositionMethodFailure-Diagnostic,
+	networkSpecificCause						[3] ManagementExtension,
+	-- To be defined by network operator	
+	manufacturerSpecificCause				[4] ManagementExtension,
+	-- To be defined by manufacturer	
+	positionMethodFailureCause				[5] PositionMethodFailure-Diagnostic,
 	-- see TS 29.002 [214]
-	unauthorizedLCSClientCause	[6] UnauthorizedLCSClient-Diagnostic,
-	-- see TS 29.002 [214]
-	diameterResultCodeAndExperimentalResult		[7] INTEGER
-	-- See TS 29.338 [230], TS 29.337 [231]
+	unauthorizedLCSClientCause				[6] UnauthorizedLCSClient-Diagnostic,
+	-- see TS 29.002 [214] 
+	diameterResultCodeAndExperimentalResult	[7] INTEGER
+	-- See TS 29.338 [230], TS 29.337 [231], TS 29.128 [244]	
 }
 
 DiameterIdentity		::= OCTET STRING
 
-EnhancedDiagnostics		::= SEQUENCE
+EnhancedDiagnostics					::= SEQUENCE
 {
-	rANNASCause	[0] OCTET STRING
-	-- TS 29.274 [223]
+	rANNASCause						[0] SEQUENCE OF RANNASCause
 }
 
 GSNAddress	::= IPAddress
@@ -250,7 +306,7 @@ GSNAddress	::= IPAddress
 IPAddress	::= CHOICE
 {
 	iPBinaryAddress	 IPBinaryAddress,
-	iPTextRepresentedAddress     IPTextRepresentedAddress
+	iPTextRepresentedAddress	 IPTextRepresentedAddress
 }
 
 IPBinaryAddress	::= CHOICE
@@ -264,7 +320,7 @@ IPBinV4Address	::= OCTET STRING (SIZE(4))
 IPBinV6Address	::= OCTET STRING (SIZE(16))
 
 IPBinV6AddressWithOrWithoutPrefixLength ::= CHOICE
-{
+{      
        iPBinV6Address             [1] IPBinV6Address,
        iPBinV6AddressWithPrefix   [4] IPBinV6AddressWithPrefixLength
 }
@@ -288,11 +344,11 @@ LCSCause				::= OCTET STRING (SIZE(1))
 -- See LCS Cause Value, TS 49.031 [227]
 --
 
-LCSClientIdentity 		::= SEQUENCE
+LCSClientIdentity 		::= SEQUENCE 
 {
 	lcsClientExternalID	[0] LCSClientExternalID OPTIONAL,
 	lcsClientDialedByMS	[1] AddressString OPTIONAL,
-	lcsClientInternalID	[2] LCSClientInternalID OPTIONAL
+	lcsClientInternalID	[2] LCSClientInternalID OPTIONAL   
 }
 
 LCSQoSInfo				::= OCTET STRING (SIZE(4))
@@ -316,8 +372,8 @@ LocalSequenceNumber ::= INTEGER (0..4294967295)
 LocationAreaAndCell		::= SEQUENCE
 {
 	locationAreaCode	[0] LocationAreaCode,
-	cellId			[1] CellId,
-	mCC-MNC			[2] MCC-MNC OPTIONAL
+	cellId				[1] CellId,
+	mCC-MNC				[2] MCC-MNC OPTIONAL
 }
 
 LocationAreaCode		::= OCTET STRING (SIZE(2))
@@ -330,25 +386,25 @@ ManagementExtensions	::= SET OF ManagementExtension
 MBMS2G3GIndicator		::= ENUMERATED
 {
 	twoG				(0),	-- For GERAN access only
-	threeG				(1),	-- For UTRAN access only
-	twoG-AND-threeG		(2) 	-- For both UTRAN and GERAN access
+	threeG			(1),	-- For UTRAN access only
+	twoG-AND-threeG	(2) 	-- For both UTRAN and GERAN access
 }
 
 MBMSInformation			::= SET
 {
-	tMGI				[1] TMGI OPTIONAL,
-	mBMSSessionIdentity		[2] MBMSSessionIdentity OPTIONAL,
-	mBMSServiceType			[3] MBMSServiceType OPTIONAL,
-	mBMSUserServiceType		[4] MBMSUserServiceType OPTIONAL, -- only supported in the BM-SC
-	mBMS2G3GIndicator		[5] MBMS2G3GIndicator OPTIONAL,
-	fileRepairSupported		[6] BOOLEAN OPTIONAL,			  -- only supported in the BM-SC
-	rAI				[7] RoutingAreaCode OPTIONAL,	  -- only supported in the BM-SC
-	mBMSServiceArea			[8] MBMSServiceArea OPTIONAL,
+	tMGI							[1] TMGI OPTIONAL,
+	mBMSSessionIdentity			[2] MBMSSessionIdentity OPTIONAL,
+	mBMSServiceType				[3] MBMSServiceType OPTIONAL,
+	mBMSUserServiceType			[4] MBMSUserServiceType OPTIONAL, -- only supported in the BM-SC
+	mBMS2G3GIndicator			[5] MBMS2G3GIndicator OPTIONAL,
+	fileRepairSupported			[6] BOOLEAN OPTIONAL,			  -- only supported in the BM-SC
+	rAI							[7] RoutingAreaCode OPTIONAL,	  -- only supported in the BM-SC
+	mBMSServiceArea				[8] MBMSServiceArea OPTIONAL,
 	requiredMBMSBearerCaps		[9] RequiredMBMSBearerCapabilities OPTIONAL,
-	mBMSGWAddress			[10] GSNAddress OPTIONAL,
+	mBMSGWAddress				[10] GSNAddress OPTIONAL,
 	cNIPMulticastDistribution	[11] CNIPMulticastDistribution OPTIONAL,
 	mBMSDataTransferStart		[12] MBMSTime OPTIONAL,
-	mBMSDataTransferStop		[13] MBMSTime OPTIONAL
+	mBMSDataTransferStop			[13] MBMSTime OPTIONAL
 }
 
 MBMSServiceArea		::= OCTET STRING
@@ -365,10 +421,10 @@ MBMSSessionIdentity		::= OCTET STRING (SIZE (1))
 -- AVP specified in TS 29.061 [82]
 --
 
-MBMSTime	::= OCTET STRING (SIZE(1))
+MBMSTime	::= OCTET STRING (SIZE (8))
 --
 -- This value indicates the time in seconds relative to 00:00:00 on 1 January 1900 (calculated as
--- continous time without leap seconds and tracable to a common time reference) where binary
+-- continuous time without leap seconds and traceable to a common time reference) where binary
 -- encoding of the integer part is in the first 32 bits and binary encoding of the fraction part in
 -- the last 32 bits. The fraction part is expressed with a granularity of 1 /2**32 second as
 -- specified in TS 29.061 [82].
@@ -377,7 +433,7 @@ MBMSTime	::= OCTET STRING (SIZE(1))
 MBMSUserServiceType		::= ENUMERATED
 {
 	dOWNLOAD		(0),
-	sTREAMING		(1)
+	sTREAMING	(1)
 }
 
 MCC-MNC		::= OCTET STRING (SIZE(3))
@@ -387,15 +443,15 @@ MCC-MNC		::= OCTET STRING (SIZE(3))
 
 MessageReference		::= OCTET STRING
 
-MSCAddress	::= AddressString
+MSCAddress		::= AddressString
 
 MscNo					::= ISDN-AddressString
 --
 -- See TS 23.003 [200]
 --
 
-MSISDN					::= ISDN-AddressString
---
+MSISDN					::= ISDN-AddressString 
+-- 
 -- See TS 23.003 [200]
 --
 
@@ -404,7 +460,7 @@ MSTimeZone	::= OCTET STRING (SIZE (2))
 -- 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [215]
 --
 
-NodeAddress ::= CHOICE
+NodeAddress ::= CHOICE 
 {
 	iPAddress 	[0] IPAddress,
 	domainName	[1] GraphicString
@@ -421,45 +477,49 @@ PositioningData	::= OCTET STRING (SIZE(1..33))
 -- See Positioning Data IE (octet 3..n), TS 49.031 [227]
 --
 
-RecordingEntity 		::= AddressString
+RANNASCause				::=	OCTET STRING
+-- This octet string is a 1:1 copy of the contents (i.e. starting with octet 5)
+-- of the "RAN/NAS Cause" information element specified in TS 29.274 [223].
 
-RecordType 	::= INTEGER
---
+RecordingEntity 		::= AddressString 
+
+RecordType 	::= INTEGER 
+-- 
 --	Record values 0..17 and 87,89  are CS specific. The contents are defined in TS 32.250 [10]
 --
 {
-	moCallRecord		(0),
-	mtCallRecord		(1),
+	moCallRecord			(0),
+	mtCallRecord			(1),
 	roamingRecord		(2),
-	incGatewayRecord	(3),
-	outGatewayRecord	(4),
+	incGatewayRecord		(3),
+	outGatewayRecord		(4),
 	transitCallRecord	(5),
-	moSMSRecord		(6),
-	mtSMSRecord		(7),
+	moSMSRecord			(6),
+	mtSMSRecord			(7),
 	moSMSIWRecord		(8),
 	mtSMSGWRecord		(9),
 	ssActionRecord		(10),
-	hlrIntRecord		(11),
+	hlrIntRecord			(11),
 	locUpdateHLRRecord	(12),
 	locUpdateVLRRecord	(13),
 	commonEquipRecord	(14),
 	moTraceRecord		(15),	-- used in earlier releases
 	mtTraceRecord		(16),	-- used in earlier releases
-	termCAMELRecord	    	(17),
+	termCAMELRecord	    (17),
 --
 --	Record values 18..22 are GPRS specific. The contents are defined in TS 32.251 [11]
 --
 	sgsnPDPRecord		(18),
-	sgsnMMRecord		(20),
+	sgsnMMRecord			(20),
 	sgsnSMORecord		(21),	-- also MME UE originated SMS record
 	sgsnSMTRecord		(22),	-- also MME UE terminated SMS record
---
+-- 
 --  Record values 23..25 are CS-LCS specific. The contents are defined in TS 32.250 [10]
 --
-	mtLCSRecord		(23),
-	moLCSRecord		(24),
-	niLCSRecord		(25),
---
+	mtLCSRecord			(23),
+	moLCSRecord			(24),
+	niLCSRecord			(25),
+-- 
 --  Record values 26..28 are GPRS-LCS specific. The contents are defined in TS 32.251 [11]
 --
 	sgsnMTLCSRecord		(26),
@@ -468,63 +528,63 @@ RecordType 	::= INTEGER
 --
 --  Record values 30..62 are MMS specific. The contents are defined in TS 32.270 [30]
 --
-	mMO1SRecord		(30),
+	mMO1SRecord			(30),
 	mMO4FRqRecord		(31),
 	mMO4FRsRecord		(32),
-	mMO4DRecord		(33),
-	mMO1DRecord		(34),
-	mMO4RRecord		(35),
-	mMO1RRecord		(36),
-	mMOMDRecord		(37),
-	mMR4FRecord		(38),
+	mMO4DRecord			(33),
+	mMO1DRecord			(34),
+	mMO4RRecord			(35),
+	mMO1RRecord			(36),
+	mMOMDRecord			(37),
+	mMR4FRecord			(38),
 	mMR1NRqRecord		(39),
 	mMR1NRsRecord		(40),
-	mMR1RtRecord		(41),
-	mMR1AFRecord		(42),
+	mMR1RtRecord			(41),
+	mMR1AFRecord			(42),
 	mMR4DRqRecord		(43),
 	mMR4DRsRecord		(44),
-	mMR1RRRecord		(45),
+	mMR1RRRecord			(45),
 	mMR4RRqRecord		(46),
 	mMR4RRsRecord		(47),
-	mMRMDRecord		(48),
-	mMFRecord		(49),
-	mMBx1SRecord		(50),
-	mMBx1VRecord		(51),
-	mMBx1URecord		(52),
-	mMBx1DRecord		(53),
-	mM7SRecord		(54),
-	mM7DRqRecord		(55),
-	mM7DRsRecord		(56),
-	mM7CRecord		(57),
-	mM7RRecord		(58),
+	mMRMDRecord			(48),
+	mMFRecord			(49),
+	mMBx1SRecord			(50),
+	mMBx1VRecord			(51),
+	mMBx1URecord			(52),
+	mMBx1DRecord			(53),
+	mM7SRecord			(54),
+	mM7DRqRecord			(55),
+	mM7DRsRecord			(56),
+	mM7CRecord			(57),
+	mM7RRecord			(58),
 	mM7DRRqRecord		(59),
 	mM7DRRsRecord		(60),
-	mM7RRqRecord		(61),
-	mM7RRsRecord		(62),
+	mM7RRqRecord			(61),
+	mM7RRsRecord			(62),
 --
 --  Record values 63..70, 82, 89..91 are IMS specific.
 --  The contents are defined in TS 32.260 [20]
 --
-	sCSCFRecord		(63),
-	pCSCFRecord		(64),
-	iCSCFRecord		(65),
-	mRFCRecord		(66),
-	mGCFRecord		(67),
-	bGCFRecord		(68),
-	aSRecord		(69),
-	eCSCFRecord		(70),
-	iBCFRecord		(82),
-	tRFRecord		(89),
-	tFRecord		(90),
-	aTCFRecord		(91),
+	sCSCFRecord			(63),
+	pCSCFRecord			(64),
+	iCSCFRecord			(65),
+	mRFCRecord			(66),
+	mGCFRecord			(67),
+	bGCFRecord			(68),
+	aSRecord				(69),
+	eCSCFRecord			(70),
+	iBCFRecord			(82),
+	tRFRecord			(89),
+	tFRecord				(90),
+aTCFRecord			(91),
 --
 --  Record values 71..75 are LCS specific. The contents are defined in TS 32.271 [31]
 --
-	lCSGMORecord		(71),
+	lCSGMORecord			(71),
 	lCSRGMTRecord		(72),
 	lCSHGMTRecord		(73),
 	lCSVGMTRecord		(74),
-	lCSGNIRecord		(75),
+	lCSGNIRecord			(75),
 --
 --  Record values 76..79,86 are MBMS specific.
 --  The contents are defined in TS 32.251 [11] and TS 32.273 [33]
@@ -532,7 +592,7 @@ RecordType 	::= INTEGER
 --  Record values 76,77 and 86 are MBMS bearer context specific
 --
 	sgsnMBMSRecord		(76),
-	ggsnMBMSRecord		(77),
+	ggsnMBMSRecord		(77), 
 	gwMBMSRecord		(86),
 --
 --  Record values 78 and 79 are MBMS service specific and defined in TS 32.273 [33]
@@ -542,67 +602,86 @@ RecordType 	::= INTEGER
 --
 --  Record Values 80..81 are PoC specific. The contents are defined in TS 32.272 [32]
 --
-	pPFRecord		(80),
-	cPFRecord		(81),
---
---	Record values 84,85 and 92,95,96 are EPC specific.
+	pPFRecord			(80),
+	cPFRecord			(81),
+--  
+--	Record values 84,85 and 92,95,96, 97 are EPC specific.
 --  The contents are defined in TS 32.251 [11]
 --
-	sGWRecord		(84),
-	pGWRecord		(85),
-	tDFRecord		(92),
-	iPERecord		(95),
-	ePDGRecord		(96),
-	tWAGRecord		(97),
+	sGWRecord			(84),
+	pGWRecord			(85),
+	tDFRecord			(92),
+	iPERecord			(95),
+	ePDGRecord			(96),
+	tWAGRecord			(97),
 --
 --  Record Value 83 is MMTel specific. The contents are defined in TS 32.275 [35]
 --
-	mMTelRecord		(83),
+	mMTelRecord			(83),
 --
 --  Record value  87,88 and 89 are CS specific. The contents are defined in TS 32.250 [10]
 --
 	mSCsRVCCRecord		(87),
-	mMTRFRecord		(88),
+	mMTRFRecord			(88),
 	iCSRegisterRecord	(99),
 --
 --  Record values 93 and 94 are SMS specific. The contents are defined in TS 32.274 [34]
 --
-	sCSMORecord		(93),
-	sCSMTRecord		(94),
+	sCSMORecord			(93),
+	sCSMTRecord			(94),
 --
--- Record values 100, 101 and 102 are ProSe specific. The contents are defined in TS 32.277 [36]
+--  Record values 100, 101 and 102 are ProSe specific. The contents are defined in TS 32.277 [36]
 --
-	pFDDRecord		(100),
-	pFEDRecord		(101),
-	pFDCRecord		(102),
+	pFDDRecord			(100),
+	pFEDRecord			(101),
+	pFDCRecord			(102),
 --
--- Record values 103 and 104 are Monitoring Event specific. The contents are defined in TS 32.278 [38]
+--  Record values103 and 104 are Monitoring Event specific. The contents are defined in TS 
+--	32.278 [38]
 --
-	mECORecord		(103),
-	mERERecord		(104),
+	mECORecord			(103),
+	mERERecord			(104),
 --
--- Record values 105 and 106 are CP data transfer specific. The contents are defined in TS 32.253 [13]
+--  Record values 105 to 106 are CP data transfer specific. The contents are defined in TS 
+--	32.253 [13]
 --
-	cPDTSCERecord		(105),
-	cPDTSNNRecord		(106)
+	cPDTSCERecord			(105),
+	cPDTSNNRecord			(106) , --
+--  Record values 110 to 111 are SMS specific. The contents are defined in TS 
+--	32.274 [34]
+--
+	sCDVTT4Record			(110),
+	sCSMOT4Record			(111)
+
+
 }
 
 RequiredMBMSBearerCapabilities		::= OCTET STRING (SIZE (3..14))
 --
--- This  octet string is a 1:1 copy of the contents (i.e. starting with octet 5) of the
+-- This  octet string is a 1:1 copy of the contents (i.e. starting with octet 5) of the 
 -- "Quality of service Profile" information element specified in TS 29.060 [75].
 --
 
 RoutingAreaCode	::= OCTET STRING (SIZE(1))
 --
--- See TS 24.008 [208]
+-- See TS 24.008 [208]	
 --
+
+SCSASAddress		::= SET
+--
+-- 
+--
+{
+	sCSAddress	[1] IPAddress,
+	sCSRealm		[2] DiameterIdentity
+}
+
 
 ServiceContextID		::= UTF8String
 
 ServiceSpecificInfo  ::=  SEQUENCE
 {
-	serviceSpecificData		[0] GraphicString OPTIONAL,
+	serviceSpecificData		[0] GraphicString OPTIONAL, 
 	serviceSpecificType		[1] INTEGER OPTIONAL
 }
 
@@ -611,7 +690,7 @@ SMSResult					::= Diagnostics
 SmsTpDestinationNumber ::= OCTET STRING
 --
 -- This type contains the binary coded decimal representation of
--- the SMS address field the encoding of the octet string is in
+-- the SMS address field the encoding of the octet string is in 
 -- accordance with the definition of address fields in TS 23.040 [201].
 -- This encoding includes type of number and numbering plan indication
 -- together with the address value range.
@@ -624,10 +703,14 @@ SubscriberEquipmentNumber	::= SET
 }
 
 SubscriberEquipmentType	::= ENUMERATED
+--
+-- It should be noted that depending on the services, not all equipment types are applicable.
+-- For IMS equipment types 0 and 3 are applicable.
+--
 {
-	iMEISV		(0),
-	mAC		(1),
-	eUI64		(2),
+	iMEISV			(0),
+	mAC				(1),
+	eUI64			(2),
 	modifiedEUI64	(3)
 }
 
@@ -644,20 +727,27 @@ SubscriptionIDType	::= ENUMERATED
 {
 	eND-USER-E164		(0),
 	eND-USER-IMSI		(1),
-	eND-USER-SIP-URI	(2),
-	eND-USER-NAI		(3),
-	eND-USER-PRIVATE	(4)
+	eND-USER-SIP-URI		(2),
+	eND-USER-NAI			(3),
+	eND-USER-PRIVATE		(4)
 }
 
 SystemType	::= ENUMERATED
 	--
 	--  "unknown" is not to be used in PS domain.
 	--
-{
+{	
 	unknown				(0),
 	iuUTRAN				(1),
 	gERAN				(2)
 }
+
+ThreeGPPPSDataOffStatus		::= ENUMERATED
+{
+	active		    (0),
+	inactive		(1)
+}
+
 
 TimeStamp	::= OCTET STRING (SIZE(9))
 --
@@ -698,9 +788,5 @@ ManagementExtension ::= SEQUENCE {
   information
     [2]  DMI-EXTENSION.&Value({ManagementExtensionSet}{@.identifier})
 }
-
-ManagementExtensionSet DMI-EXTENSION ::=
-  {...}
-
 
 END
