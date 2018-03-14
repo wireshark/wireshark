@@ -99,8 +99,7 @@ static guint nssldecrypt = 0;
 
 static gboolean ssl_desegment          = TRUE;
 static gboolean ssl_desegment_app_data = TRUE;
-
-gboolean ssl_ignore_mac_failed = FALSE;
+static gboolean ssl_ignore_mac_failed  = FALSE;
 
 
 /*********************************************************************
@@ -1052,7 +1051,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
     /* run decryption and add decrypted payload to protocol data, if decryption
      * is successful*/
     ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
-    success = ssl_decrypt_record(ssl, decoder, content_type, record_version,
+    success = ssl_decrypt_record(ssl, decoder, content_type, record_version, ssl_ignore_mac_failed,
                            tvb_get_ptr(tvb, offset, record_length), record_length,
                            &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
     /*  */

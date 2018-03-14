@@ -28,6 +28,4 @@ WS_DLL_PUBLIC void ssl_set_master_secret(guint32 frame_num, address *addr_srv, a
                                   const guchar *_client_random, const guchar *_server_random,
                                   guint32 client_seq, guint32 server_seq);
 
-extern gboolean ssl_ignore_mac_failed;
-
 #endif  /* __PACKET_SSL_H__ */

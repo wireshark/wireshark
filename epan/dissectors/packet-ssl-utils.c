@@ -3848,6 +3848,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
 #else
         guint8 ct _U_, guint16 record_version _U_,
 #endif
+        gboolean ignore_mac_failed,
         const guchar *in, guint16 inl, StringInfo *out_str, guint *outl)
 {
     /* RFC 5246 (TLS 1.2) 6.2.3.3 defines the TLSCipherText.fragment as:
@@ -4018,7 +4019,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             ssl_print_data("auth_tag(expect)", auth_tag_calc, auth_tag_len);
             ssl_print_data("auth_tag(actual)", auth_tag_wire, auth_tag_len);
         }
-        if (ssl_ignore_mac_failed) {
+        if (ignore_mac_failed) {
             ssl_debug_printf("%s: auth check failed, but ignored for troubleshooting ;-)\n", G_STRFUNC);
         } else {
             return FALSE;
@@ -4038,6 +4039,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
  * we have a non-NULL decoder->cipher_suite. */
 int
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
+        gboolean ignore_mac_failed,
         const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl)
 {
     guint   pad, worklen, uncomplen, maclen, mac_fraglen = 0;
@@ -4067,7 +4069,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         decoder->cipher_suite->mode == MODE_POLY1305 ||
         ssl->session.version == TLSV1DOT3_VERSION) {
 
-        if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, in, inl, out_str, &worklen)) {
+        if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, ignore_mac_failed, in, inl, out_str, &worklen)) {
             /* decryption failed */
             return -1;
         }
@@ -4195,7 +4197,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         worklen, ssl->session.version, ct, decoder->seq);
     if(ssl->session.version==SSLV3_VERSION){
         if(ssl3_check_mac(decoder,ct,mac_frag,mac_fraglen,mac) < 0) {
-            if(ssl_ignore_mac_failed) {
+            if(ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
             }
             else{
@@ -4209,7 +4211,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
     }
     else if(ssl->session.version==TLSV1_VERSION || ssl->session.version==TLSV1DOT1_VERSION || ssl->session.version==TLSV1DOT2_VERSION){
         if(tls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac)< 0) {
-            if(ssl_ignore_mac_failed) {
+            if(ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
             }
             else{
@@ -4231,7 +4233,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         else if(tls_check_mac(decoder,ct,TLSV1_VERSION,mac_frag,mac_fraglen,mac)>= 0) {
             ssl_debug_printf("ssl_decrypt_record: dtls rfc-compliant mac failed, but old openssl's non-rfc-compliant mac ok\n");
         }
-        else if(ssl_ignore_mac_failed) {
+        else if(ignore_mac_failed) {
             ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
         }
         else{

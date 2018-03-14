@@ -616,6 +616,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param decoder the stream decoder to be used
  @param ct the content type of this ssl record
  @param record_version the version as contained in the record
+ @param ignore_mac_failed whether to ignore MAC or authenticity failures
  @param in a pointer to the ssl record to be decrypted
  @param inl the record length
  @param comp_str a pointer to the store the compression data
@@ -624,6 +625,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @return 0 on success */
 extern gint
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
+        gboolean ignore_mac_failed,
         const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl);
 
 /**

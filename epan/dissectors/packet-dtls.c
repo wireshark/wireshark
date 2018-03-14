@@ -607,7 +607,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
       ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
       return FALSE;
     }
-    success = ssl_decrypt_record(ssl, decoder, content_type, record_version,
+    success = ssl_decrypt_record(ssl, decoder, content_type, record_version, FALSE,
                            tvb_get_ptr(tvb, offset, record_length), record_length,
                            &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0;
   }
