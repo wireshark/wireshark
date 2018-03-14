@@ -323,7 +323,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		# /Zo                               Enhanced debugging of optimised code for VS2013 Update 3 and beyond,
 		#                                   Assume all VS2013 builds are at least Update 3.
 		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} /Zo)
+		list(APPEND LOCAL_CFLAGS /Zo)
 	elseif(MSVC14)
 		# /Zo                               Enhanced debugging of optimised code
 		# /utf-8                            Set Source and Executable character sets to UTF-8
@@ -334,26 +334,28 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   https://gitlab.kitware.com/cmake/cmake/commit/f973d49ab9d4c59b93f6dac812a94bb130200836
 		# /Qspectre                         Speculative execution attack mitigation
 		#                                   See https://blogs.msdn.microsoft.com/vcblog/2018/01/15/spectre-mitigations-in-msvc/
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} /Zo /utf-8 /guard:cf /Qspectre)
+		list(APPEND LOCAL_CFLAGS /Zo /utf-8 /guard:cf /Qspectre)
 		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
 	endif()
 
 	if(ENABLE_CODE_ANALYSIS)
-		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} /analyze:WX-)
+		list(APPEND LOCAL_CFLAGS /analyze:WX-)
 	endif()
 
 	# Additional compiler warnings to be treated as "Level 3"
-	#  when compiling Wireshark sources. (Selected from "level 4" warnings).
+	# when compiling Wireshark sources. (Selected from "level 4" warnings).
 	## 4295: array is too small to include a terminating null character
 	## 4189: local variable is initialized but not referenced
 	# Disable warnings about about use of flexible array members:
 	## 4200: nonstandard extension used : zero-sized array in struct/union
-	set(WARNINGS_CFLAGS /w34295 /w34189 /wd4200)
+	list(APPEND LOCAL_CFLAGS /w34295 /w34189 /wd4200)
 
-	set(WIRESHARK_COMMON_FLAGS
-		${LOCAL_CFLAGS}
-		${WARNINGS_CFLAGS}
-	)
+	# We've matched these to specific compiler versions using the
+	# checks above. There's no need to pass them to check_c_compiler_flag
+	# or check_cxx_compiler_flag, which can be slow.
+	string(REPLACE ";" " " _flags "${LOCAL_CFLAGS}")
+	set(CMAKE_C_FLAGS "${_flags} ${CMAKE_C_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${_flags} ${CMAKE_CXX_FLAGS}")
 
 else() # ! MSVC
 	if(CMAKE_OSX_DEPLOYMENT_TARGET)
