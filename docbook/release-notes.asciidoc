@@ -23,9 +23,9 @@ user interface. It will not be supported or available in Wireshark 3.0.
 Many user interface improvements have been made. See the “New and Updated
 Features” section below for more details.
 
-//=== Bug Fixes
+=== Bug Fixes
 
-//The following bugs have been fixed:
+The following bugs have been fixed:
 
 //* ws_buglink:5000[]
 //* ws_buglink:6000[Wireshark bug]
