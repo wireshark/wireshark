@@ -1719,6 +1719,7 @@ main(int argc, char *argv[])
 
 exit:
   g_free(hash_buf);
+  gcry_md_close(hd);
   wtap_cleanup();
   free_progdirs();
   return overall_error_status;
