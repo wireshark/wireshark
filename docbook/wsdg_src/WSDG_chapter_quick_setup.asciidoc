@@ -489,7 +489,7 @@ to build Wireshark.
 
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
-. Run *`C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe`* and make sure it starts.
+. Run _C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe_ and make sure it starts.
 
 . Open menu:Help[About]. If it shows your "private" program
 version, e.g.: Version {wireshark-version}-myprotocol123
@@ -498,7 +498,7 @@ congratulations! You have compiled your own version of Wireshark!
 You may also open the Wireshark solution file (_Wireshark.sln_) in the Visual Studio IDE and build there.
 
 TIP: If compilation fails for suspicious reasons after you changed some source
-files try to clean the build files by running *`msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean`*
+files try to clean the build files by running `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean`
 and then building the solution again.
 
 The build files produced by CMake will regenerate themselves if required by changes in the source tree.
@@ -519,7 +519,7 @@ Note: You should have successfully built Wireshark
 before doing the following.
 
 If you want to build your own
-_Wireshark-win32-{wireshark-version}-myprotocol123.exe_,
+_Wireshark-win64-{wireshark-version}-myprotocol123.exe_,
 you'll need NSIS.
 
 . NSIS:
@@ -531,30 +531,30 @@ in the future.
 
 Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in _./wireshark-win**XX**-libs_ (where *_XX_* is 32 or 64) you will need to download the appropriate file and place it in _./wireshark-win**XX**-libs_ before starting this step.
 
-If building an x86 version using a Visual Studio "Express" edition or an x64 version with any edition, then you must have the appropriate vcredist file for your compiler in the support libraries directory (_vcredist_x86.exe_ in _wireshark-32-libs_ or _vcredist_x64.exe_ in _wireshark-win64-libs_).
+If building an x86 version using a Visual Studio “Express” edition or an x64 version with any edition, then you must have the appropriate vcredist file for your compiler in the support libraries directory (_vcredist_x86.exe_ in _wireshark-32-libs_ or _vcredist_x64.exe_ in _wireshark-win64-libs_).
 
 The files can be located in the Visual Studio install directory for non-Express edition builds, or downloaded from Microsoft for Expresss edition builds.
 
 Note you must use the correct version of vcredist for your compiler, unfortunately they all have the same name (_vcredist_x86.exe_ or _vcredist_x64.exe_).  You can use Windows Explorer and examine the `Properties -> Details' tab for a vcredist file to determine which compiler version the file is for use with.
 
-. If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
+If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 
-. Run
-+
---
+Run
+
 ----
 > msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
 > msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
 ----
-to build a Wireshark installer.
---
 
-. Run
-+
---
+to build a Wireshark installer. If you sign your executables you should do
+so between the “nsis_package_prep” and “nsis_package” steps.
+
+Run
+
 ----
-> C:\Development\wireshark\packaging\nsis\wireshark-win32-{wireshark-version}-myprotocol123.exe
+> packaging\nsis\wireshark-win64-{wireshark-version}-myprotocol123.exe
 ----
-to test your new installer. It’s a good idea to test on a different machine
-than the developer machine. Note that if you've built an x64 version, the installer will be named accordingly.
---
+
+to test your new installer. It’s a good idea to test on a different
+machine than the developer machine. Note that if you've built an x86
+version, the installer name will contain “win32”.

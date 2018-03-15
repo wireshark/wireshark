@@ -1108,7 +1108,7 @@ It might take some time, even on fast machines.
 
 If everything went well, you will now find something like:
 _wireshark-setup-{wireshark-version}.exe_ in
-the _packaging/nsis_ directory in the source tree.
+the _packaging/nsis_ directory in your build directory.
 
 [[ChSrcPortableApps]]
 
@@ -1117,7 +1117,7 @@ the _packaging/nsis_ directory in the source tree.
 _PortableApps.com_ is an environment that lets users run popular applications
 from portable media such as flash drives and cloud drive services.
 
-Install the _PortableApps.com Platform_. Install for ``all users'', which
+Install the _PortableApps.com Platform_. Install for “all users”, which
 will place it in `C:\PortableApps`. Add the following apps:
 
 - NSIS Portable (Unicode)
