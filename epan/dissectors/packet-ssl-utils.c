@@ -3850,7 +3850,11 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
 #else
         guint8 ct _U_, guint16 record_version _U_,
 #endif
-        gboolean ignore_mac_failed,
+        gboolean ignore_mac_failed
+#ifndef HAVE_LIBGCRYPT_AEAD
+        _U_
+#endif
+        ,
         const guchar *in, guint16 inl, StringInfo *out_str, guint *outl)
 {
     /* RFC 5246 (TLS 1.2) 6.2.3.3 defines the TLSCipherText.fragment as:
@@ -3861,13 +3865,13 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
      */
     const guint16   version = ssl->session.version;
     const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION;
-    const guint8    draft_version = ssl->session.tls13_draft_version;
     gcry_error_t    err;
     const guchar   *explicit_nonce = NULL, *ciphertext;
     guint           ciphertext_len, auth_tag_len;
     guchar          nonce[12];
     const ssl_cipher_mode_t cipher_mode = decoder->cipher_suite->mode;
 #ifdef HAVE_LIBGCRYPT_AEAD
+    const guint8    draft_version = ssl->session.tls13_draft_version;
     const guchar   *auth_tag_wire;
     guchar          auth_tag_calc[16];
 #else
