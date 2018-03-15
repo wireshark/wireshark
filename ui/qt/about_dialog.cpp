@@ -304,10 +304,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     /* Wireshark tab */
 
     /* Construct the message string */
-    message = "<p>Version " + vcs_version_info_str.toHtmlEscaped() + "</p>\n\n";
-    message += "<p>" + copyright_info_str.toHtmlEscaped() + "</p>\n\n";
-    message += "<p>" + comp_info_str.toHtmlEscaped() + "</p>\n\n";
-    message += "<p>" + runtime_info_str.toHtmlEscaped() + "</p>\n\n";
+    message = "<p>Version " + html_escape(vcs_version_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(copyright_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
     message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
     message += "<p>Check the man page and http://www.wireshark.org for more information.</p>\n\n";
 
