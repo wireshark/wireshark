@@ -33,12 +33,12 @@ typedef struct _mmdb_lookup_t {
 } mmdb_lookup_t;
 
 /**
- * Init function called from epan.h
+ * Init / reset function called from prefs_reset
  */
 WS_DLL_LOCAL void maxmind_db_pref_init(module_t *nameres);
 
 /**
- * Cleanup function called from epan.h
+ * Cleanup function called from prefs_cleanup
  */
 WS_DLL_LOCAL void maxmind_db_pref_cleanup(void);
 

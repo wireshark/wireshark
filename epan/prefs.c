@@ -401,6 +401,9 @@ prefs_cleanup(void)
     /* Clean the uats */
     uat_cleanup();
 
+    /* Shut down mmdbresolve */
+    maxmind_db_pref_cleanup();
+
     g_free(prefs.saved_at_version);
     g_free(gpf_path);
     gpf_path = NULL;
