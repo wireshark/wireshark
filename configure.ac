@@ -3004,3 +3004,20 @@ echo "                Use nghttp2 library : $nghttp2_message"
 echo "                    Use LZ4 library : $have_lz4"
 echo "                 Use Snappy library : $have_snappy"
 #echo "       Use GDK-Pixbuf with GResource: $have_gresource_pixbuf"
+
+# We're slowly migrating to CMake. The following still use or refer
+# to Autotools:
+# - .travis.yml
+# - INSTALL and INSTALL.configure
+# - README.bsd
+# - README.md
+# - doc/README.packaging
+# - doc/README.idl2wrs
+# - doc/README.plugins
+# - docbook/wsdg_src/WSDG_chapter_dissection.asciidoc
+# - docbook/wsdg_src/WSDG_chapter_sources.asciidoc
+# - docbook/wsug_src/WSUG_chapter_build_install.asciidoc
+# - packaging/rpm/SPECS/wireshark.spec.in
+# - tools/git-compare-abis.sh
+echo ""
+AC_MSG_NOTICE([Builds using Autotools might be removed in the future.])
