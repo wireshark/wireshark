@@ -2295,8 +2295,9 @@ col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col
 }
 
 gboolean col_data_changed(void) {
-  return col_data_changed_;
+  gboolean cur_cdc = col_data_changed_;
   col_data_changed_ = FALSE;
+  return cur_cdc;
 }
 /*
  * Editor modelines
