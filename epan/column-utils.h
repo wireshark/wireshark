@@ -282,9 +282,8 @@ WS_DLL_PUBLIC void col_append_ports(column_info *cinfo, const gint col, port_typ
  *
  * @param pinfo the current packet info
  * @param col the column to use, e.g. COL_INFO
- * @param fmt_str Format string, e.g. "reassembled in %u".
- * @param src the source port value to append
- * @param dst the destination port value to append
+ * @param fmt_str format string, e.g. "reassembled in %u".
+ * @param frame_num frame number
  */
 WS_DLL_PUBLIC void col_append_frame_number(packet_info *pinfo, const gint col, const gchar *fmt_str, guint frame_num);
 
