@@ -446,6 +446,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-nvme.h
 	packet-ocsp.h
 	packet-opensafety.h
+	packet-oscore.h
 	packet-osi.h
 	packet-osi-options.h
 	packet-p1.h
