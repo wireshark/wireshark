@@ -1163,7 +1163,10 @@ wmem_test_tree(void)
 
     tree = wmem_tree_new(allocator);
     for (i=0; i<CONTAINER_ITERS; i++) {
-        guint32 rand_int = g_test_rand_int();
+        guint32 rand_int;
+        do {
+            rand_int = g_test_rand_int();
+        } while (wmem_tree_lookup32(tree, rand_int));
         wmem_tree_insert32(tree, rand_int, GINT_TO_POINTER(i));
         g_assert(wmem_tree_lookup32(tree, rand_int) == GINT_TO_POINTER(i));
     }
