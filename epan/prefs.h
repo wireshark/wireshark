@@ -174,8 +174,8 @@ typedef struct _e_prefs {
   gchar       *gui_prepend_window_title;
   gchar       *gui_start_title;
   version_info_e gui_version_placement;
-  gboolean     gui_auto_scroll_on_expand;
-  guint        gui_auto_scroll_percentage;
+  gboolean     gui_auto_scroll_on_expand; /* GTK+ only */
+  guint        gui_auto_scroll_percentage; /* GTK+ only */
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;

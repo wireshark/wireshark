@@ -278,17 +278,12 @@ void ProtoTree::emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_
 void ProtoTree::autoScrollTo(const QModelIndex &index)
 {
     selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
-    if (!index.isValid() || !prefs.gui_auto_scroll_on_expand) {
+    if (!index.isValid()) {
         return;
     }
 
-    ScrollHint scroll_hint = PositionAtTop;
-    if (prefs.gui_auto_scroll_percentage > 66) {
-        scroll_hint = PositionAtBottom;
-    } else if (prefs.gui_auto_scroll_percentage >= 33) {
-        scroll_hint = PositionAtCenter;
-    }
-    scrollTo(index, scroll_hint);
+    // ensure item is visible (expanding its parents as needed).
+    scrollTo(index);
 }
 
 // XXX We select the first match, which might not be the desired item.
@@ -432,6 +427,8 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
     }
 }
 
+// Select a field and bring it into view. Intended to be called by external
+// components (such as the byte view).
 void ProtoTree::selectedFieldChanged(FieldInformation *finfo)
 {
     if (finfo && finfo->parent() == this) {
