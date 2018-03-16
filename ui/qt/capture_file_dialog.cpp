@@ -154,8 +154,10 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
         msg_dialog.setDefaultButton(QMessageBox::Cancel);
     }
 
+#if defined(Q_OS_MAC)
     discard_button->setAutoDefault(false);
     discard_button->setFocus();
+#endif
 
     msg_dialog.exec();
     /* According to the Qt doc:
