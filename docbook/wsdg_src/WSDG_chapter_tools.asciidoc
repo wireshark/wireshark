@@ -161,48 +161,17 @@ One or more Cygwin packages can be installed using `cyg-get`:
 PS$>cyg-get sed asciidoc
 ----
 
-[[ChToolsGNUChain]]
-
-=== GNU compiler toolchain (UNIX only)
-
-[[ChToolsGCC]]
-
-==== gcc (GNU compiler collection)
-
-The GCC C compiler is available for most of the
-UNIX-like platforms.
-
-If GCC isn't already installed or available
-as a package for your platform, you can get it at:
-http://gcc.gnu.org/[].
-
-After correct installation, typing at the
-bash command line prompt:
-
-----
-$ gcc --version
-----
-
-should result in something like
-
-----
-gcc (Ubuntu 4.9.1-16ubuntu6) 4.9.1
-Copyright (C) 2014 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-----
-
-Your version string may vary, of course.
-
 [[ChToolsCMake]]
 
-Wireshark’s build environment can be configured using CMake on Windows
-and either CMake or Autotools on Linux, macOS, and UNIX. CMake is designed
-to support out of tree builds. So much so, that in tree builds do not work
-properly in all cases. Along with being cross-platform, CMake supports
-many build tools and environments including traditional make, Ninja, and
-MSBuild. Our Buildbot runs CMake steps on Ubuntu, Win32, Win64, and macOS.
-In particular, the macOS and Windows packages are built using CMake.
+=== CMake
+
+Wireshark’s build environment can be configured using CMake on Windows,
+Linux, macOS, and UNIX. CMake is designed to support out of tree builds.
+So much so, that in tree builds do not work properly in all cases. Along
+with being cross-platform, CMake supports many build tools and
+environments including traditional make, Ninja, and MSBuild. Our
+Buildbot runs CMake steps on Ubuntu, Win32, Win64, and macOS. In
+particular, the macOS and Windows packages are built using CMake.
 
 Building with CMake typically includes creating a build directory and
 specifying a *generator*, aka a build tool. For example, to build
@@ -266,6 +235,39 @@ Frequently Asked Questions: http://www.cmake.org/Wiki/CMake_FAQ
 
 // 2017-08-04 dead
 //Additional cmake modules: http://code.google.com/p/cmake-modules/
+
+[[ChToolsGNUChain]]
+
+=== GNU compiler toolchain (UNIX only)
+
+[[ChToolsGCC]]
+
+==== gcc (GNU compiler collection)
+
+The GCC C compiler is available for most of the
+UNIX-like platforms.
+
+If GCC isn't already installed or available
+as a package for your platform, you can get it at:
+http://gcc.gnu.org/[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ gcc --version
+----
+
+should result in something like
+
+----
+gcc (Ubuntu 4.9.1-16ubuntu6) 4.9.1
+Copyright (C) 2014 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+----
+
+Your version string may vary, of course.
 
 [[ChToolsGDB]]
 

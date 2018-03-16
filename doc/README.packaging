@@ -13,7 +13,7 @@ The canonical location for every Wireshark source release is
 
     https://www.wireshark.org/download/src/all-versions/, e.g.
 
-    https://www.wireshark.org/download/src/all-versions/wireshark-2.4.5.tar.xz
+    https://www.wireshark.org/download/src/all-versions/wireshark-2.6.5.tar.xz
 
 If your packaging system downloads a copy of the Wireshark sources, use
 this location. Don't use https://www.wireshark.org/download/src.
@@ -32,10 +32,7 @@ newer.  Make sure your package complies with this license.
 
 3. Privileges.
 
-In versions up to and including 0.99.6, it was necessary to run
-Wireshark with elevated privileges in order to be able to capture
-traffic. With version 0.99.7, all function calls that require elevated
-privileges have been moved out of the GUI to dumpcap.
+All function calls that require elevated privileges are in dumpcap.
 
 WIRESHARK CONTAINS OVER TWO MILLION LINES OF SOURCE CODE. DO NOT RUN
 THEM AS ROOT.
@@ -46,25 +43,20 @@ There are several configure-time options on non-Windows systems that
 affect the privileges a normal user needs to capture traffic and list
 interfaces:
 
-    --enable-setcap-install   Install dumpcap with cap_net_admin and
-                              cap_net_raw capabilities. Linux only.
+    -DDUMPCAP_INSTALL_OPTION=capabilities
+       Install dumpcap with cap_net_admin and cap_net_raw capabilities.
+       Linux only.
 
-    --enable-setuid-install   Install dumpcap setuid root.
-
-    --with-libcap             If running as root, try to grab
-                              CAP_NET_ADMIN and CAP_NET_RAW, then drop
-                              privileges. Linux only.
-
-    --with-dumpcap-group=...  Restricts dumpcap execution to the
-                              specified group.
+    -DDUMPCAP_INSTALL_OPTION=suid
+       Install dumpcap setuid root.
 
 These are necessary for non-root users to be able to capture on most
 systems, e.g. on Linux or FreeBSD if the user doesn't have permissions
 to access /dev/bpf*. Setcap installation is preferred over setuid on
-Linux. If "--enable-setcap-install" is used it will override any setuid
-settings.
+Linux. If "-DDUMPCAP_INSTALL_OPTION=capabilities" is used it will
+override any setuid settings.
 
-The "--with-libcap" option is only useful when dumpcap is installed
+The "-DENABLE_CAP" option is only useful when dumpcap is installed
 setuid. If it is enabled dumpcap will try to drop any setuid privileges
 it may have while retaining the CAP_NET_ADMIN and CAP_NET_RAW
 capabilities. It is enabled by default, if the Linux capabilities
