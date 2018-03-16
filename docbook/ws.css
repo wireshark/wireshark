@@ -281,7 +281,7 @@ h1 strong, h2 strong, h3 strong, #toctitle strong, .sidebarblock > .content > .t
 *:not(pre) > code.nobreak { word-wrap: normal; }
 *:not(pre) > code.nowrap { white-space: nowrap; }
 
-pre, pre > code { line-height: 1.45; color: rgba(0, 0, 0, 0.9); font-family: Consolas, "Liberation Mono", Courier, monospace; font-weight: normal; text-rendering: optimizeSpeed; }
+pre, pre > code { line-height: 1.45; color: rgba(0, 0, 0, 0.9); font-family: "Lucida Console", Menlo, Consolas, monospace; font-weight: normal; text-rendering: optimizeSpeed; }
 
 em em { font-style: normal; }
 
