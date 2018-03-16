@@ -1214,8 +1214,8 @@ needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
 To install it, download the latest released version from
-http://nsis.sourceforge.net[]. NSIS v3 is recommended and may be
-required in the future. You can also install it using Chocolatey:
+http://nsis.sourceforge.net[]. NSIS v3 is required. You can also install
+it using Chocolatey:
 
 [source,cmd]
 ----

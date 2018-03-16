@@ -519,15 +519,11 @@ Note: You should have successfully built Wireshark
 before doing the following.
 
 If you want to build your own
-_Wireshark-win64-{wireshark-version}-myprotocol123.exe_,
-you'll need NSIS.
+_Wireshark-win32-{wireshark-version}-myprotocol123.exe_, you'll need
+NSIS. You can download it from http://nsis.sourceforge.net[].
 
-. NSIS:
-http://nsis.sourceforge.net[Download] and install NSIS
-+
 Note that the 32-bit version of NSIS will work for both 32-bit and
-64-bit versions of Wireshark. NSIS v3 is recommended and may be required
-in the future.
+64-bit versions of Wireshark. NSIS v3 is required.
 
 Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in _./wireshark-win**XX**-libs_ (where *_XX_* is 32 or 64) you will need to download the appropriate file and place it in _./wireshark-win**XX**-libs_ before starting this step.
 
