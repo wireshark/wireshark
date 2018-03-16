@@ -38,6 +38,7 @@ static int hf_quic_header_form = -1;
 static int hf_quic_long_packet_type = -1;
 static int hf_quic_connection_id = -1;
 static int hf_quic_packet_number = -1;
+static int hf_quic_packet_number_full = -1;
 static int hf_quic_version = -1;
 static int hf_quic_supported_version = -1;
 static int hf_quic_vn_unused = -1;
@@ -110,6 +111,8 @@ typedef struct quic_info_data {
     guint16 server_port;
     tls13_cipher *client_handshake_cipher;
     tls13_cipher *server_handshake_cipher;
+    guint64 max_client_pkn;
+    guint64 max_server_pkn;
 } quic_info_data_t;
 
 #define QUIC_DRAFT 0xff0000
@@ -261,6 +264,22 @@ static guint32 get_len_packet_number(guint8 short_packet_type){
         break;
     }
     return 1;
+}
+
+/* Inspired from ngtcp2 */
+static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
+                                   size_t n) {
+  guint64 k = max_pkt_num == UINT64_MAX ? max_pkt_num : max_pkt_num + 1;
+  guint64 u = k & ~((G_GUINT64_CONSTANT(1) << n) - 1);
+  guint64 a = u | pkt_num;
+  guint64 b = (u + (G_GUINT64_CONSTANT(1) << n)) | pkt_num;
+  guint64 a1 = k < a ? a - k : k - a;
+  guint64 b1 = k < b ? b - k : k - b;
+
+  if (a1 < b1) {
+    return a;
+  }
+  return b;
 }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -793,11 +812,21 @@ quic_create_handshake_decoders(guint64 cid, const gchar **error, quic_info_data_
 
 static int
 #ifdef HAVE_LIBGCRYPT_AEAD
-dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint32 pkn, guint64 cid){
+dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint64 pkn, guint64 cid){
 #else
-dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint32 pkn _U_, guint64 cid _U_){
+dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint64 pkn _U_, guint64 cid _U_){
 #endif /* HAVE_LIBGCRYPT_AEAD */
     proto_item *ti;
+    guint64 pkn_full;
+
+    pkn_full = quic_pkt_adjust_pkt_num(quic_info->max_client_pkn, pkn, 32);
+    quic_info->max_client_pkn = pkn_full;
+
+    if (pkn_full != pkn) {
+        ti = proto_tree_add_uint64(quic_tree, hf_quic_packet_number, tvb, offset-4, 4, pkn_full);
+        PROTO_ITEM_SET_GENERATED(ti);
+        pkn = pkn_full;
+    }
 
     ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
 
@@ -844,11 +873,26 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
 
 static int
 #ifdef HAVE_LIBGCRYPT_AEAD
-dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint32 pkn){
+dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint64 pkn){
 #else
-dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint32 pkn _U_){
+dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint64 pkn _U_){
 #endif /* HAVE_LIBGCRYPT_AEAD */
     proto_item *ti;
+    guint64 pkn_full;
+
+    if(pinfo->destport == quic_info->server_port) {
+        pkn_full = quic_pkt_adjust_pkt_num(quic_info->max_client_pkn, pkn, 32);
+        quic_info->max_client_pkn = pkn_full;
+    } else {
+        pkn_full = quic_pkt_adjust_pkt_num(quic_info->max_server_pkn, pkn, 32);
+        quic_info->max_server_pkn = pkn_full;
+    }
+
+    if (pkn_full != pkn) {
+        ti = proto_tree_add_uint64(quic_tree, hf_quic_packet_number_full, tvb, offset-4, 4, pkn_full);
+        PROTO_ITEM_SET_GENERATED(ti);
+        pkn = pkn_full;
+    }
 
     ti = proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
 
@@ -887,11 +931,21 @@ dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
 
 static int
 #ifdef HAVE_LIBGCRYPT_AEAD
-dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint32 pkn){
+dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, guint64 pkn){
 #else
-dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint32 pkn _U_){
+dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_, guint64 pkn _U_){
 #endif /* HAVE_LIBGCRYPT_AEAD */
     proto_item *ti;
+    guint64 pkn_full;
+
+    pkn_full = quic_pkt_adjust_pkt_num(quic_info->max_server_pkn, pkn, 32);
+    quic_info->max_server_pkn = pkn_full;
+
+    if (pkn_full != pkn) {
+        ti = proto_tree_add_uint64(quic_tree, hf_quic_packet_number_full, tvb, offset-4, 4, pkn_full);
+        PROTO_ITEM_SET_GENERATED(ti);
+        pkn = pkn_full;
+    }
 
     ti = proto_tree_add_item(quic_tree, hf_quic_retry_payload, tvb, offset, -1, ENC_NA);
 
@@ -928,8 +982,8 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
 
 static int
 dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info){
-    guint32 long_packet_type, pkn;
-    guint64 cid;
+    guint32 long_packet_type;
+    guint64 cid, pkn;
 
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA, &long_packet_type);
     offset += 1;
@@ -940,10 +994,8 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &quic_info->version);
     offset += 4;
 
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
+    proto_tree_add_item_ret_uint64(quic_tree, hf_quic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
     offset += 4;
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, PKN: %u, CID: 0x%" G_GINT64_MODIFIER "x", val_to_str(long_packet_type, quic_long_packet_type_vals, "Unknown Packet Type"), pkn, cid);
 
     /* Payload */
     switch(long_packet_type) {
@@ -963,6 +1015,8 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         break;
     }
 
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, PKN: %" G_GINT64_MODIFIER "u, CID: 0x%" G_GINT64_MODIFIER "x", val_to_str(long_packet_type, quic_long_packet_type_vals, "Unknown Packet Type"), pkn, cid);
+
     return offset;
 }
 
@@ -970,7 +1024,9 @@ static int
 dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_){
     guint8 short_flags;
     guint64 cid = 0;
-    guint32 pkn_len, pkn;
+    guint32 pkn_len;
+    guint64 pkn, pkn_full;
+    proto_item *ti;
 
     short_flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(quic_tree, hf_quic_short_ocid_flag, tvb, offset, 1, ENC_NA);
@@ -983,16 +1039,30 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
         offset += 8;
     }
+
     /* Packet Number */
     pkn_len = get_len_packet_number(short_flags);
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_packet_number, tvb, offset, pkn_len, ENC_BIG_ENDIAN, &pkn);
+    proto_tree_add_item_ret_uint64(quic_tree, hf_quic_packet_number, tvb, offset, pkn_len, ENC_BIG_ENDIAN, &pkn);
+    if(pinfo->destport == quic_info->server_port) {
+        pkn_full = quic_pkt_adjust_pkt_num(quic_info->max_client_pkn, pkn, pkn_len*8);
+        quic_info->max_client_pkn = pkn_full;
+    } else {
+        pkn_full = quic_pkt_adjust_pkt_num(quic_info->max_server_pkn, pkn, pkn_len*8);
+        quic_info->max_server_pkn = pkn_full;
+    }
+
+    if (pkn != pkn_full) {
+        ti = proto_tree_add_uint64(quic_tree, hf_quic_packet_number_full, tvb, offset, pkn_len, pkn_full);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
     offset += pkn_len;
 
     /* Protected Payload */
     proto_tree_add_item(quic_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
     offset += tvb_reported_length_remaining(tvb, offset);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Protected Payload (KP%u), PKN: %u", short_flags & SH_KP, pkn);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Protected Payload (KP%u), PKN: %" G_GINT64_MODIFIER "u", short_flags & SH_KP, pkn_full);
 
     if(cid){
         col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: 0x%" G_GINT64_MODIFIER "x", cid);
@@ -1055,6 +1125,8 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         quic_info = wmem_new0(wmem_file_scope(), quic_info_data_t);
         quic_info->version = 0;
         quic_info->server_port = 443;
+        quic_info->max_client_pkn = 0;
+        quic_info->max_server_pkn = 0;
         conversation_add_proto_data(conv, proto_quic, quic_info);
     }
 
@@ -1142,8 +1214,13 @@ proto_register_quic(void)
         },
         { &hf_quic_packet_number,
           { "Packet Number", "quic.packet_number",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_quic_packet_number_full,
+          { "Packet Number (full)", "quic.packet_number_full",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Full packet number", HFILL }
         },
         { &hf_quic_version,
           { "Version", "quic.version",
