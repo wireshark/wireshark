@@ -8589,7 +8589,7 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_em_num_beams,
-              { "System Data Length", "dis.electromagnetic.emission.num_beams",
+              { "Number of Beams", "dis.electromagnetic.emission.num_beams",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
