@@ -1797,8 +1797,10 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
             }
             discard_button = msg_dialog.addButton(discard_button_text, QMessageBox::DestructiveRole);
 
+#if defined(Q_OS_MAC)
             discard_button->setAutoDefault(false);
             discard_button->setFocus();
+#endif
 
             msg_dialog.exec();
             /* According to the Qt doc:
