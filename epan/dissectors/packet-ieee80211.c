@@ -5519,6 +5519,8 @@ static gint ett_qos_map_set_range = -1;
 
 static gint ett_wnm_notif_subelt = -1;
 
+static gint ett_ieee80211_3gpp_plmn = -1;
+
 static expert_field ei_ieee80211_bad_length = EI_INIT;
 static expert_field ei_ieee80211_inv_val = EI_INIT;
 static expert_field ei_ieee80211_vht_tpe_pwr_info_count = EI_INIT;
@@ -6931,7 +6933,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 static void
 dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
-  guint8      iei, num;
+  guint8      iei, num, plmn_idx = 0;
   proto_item *item;
 
   /* See Annex A of 3GPP TS 24.234 v8.1.0 for description */
@@ -6952,9 +6954,14 @@ dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, packet_info 
   proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_num_plmns, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
   while (num > 0) {
+    proto_tree *plmn_tree = NULL;
+
     if (tvb_reported_length_remaining(tvb, offset) < 3)
       break;
-    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+    plmn_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
+                                ett_ieee80211_3gpp_plmn, NULL,
+                                "PLMN %d", plmn_idx++);
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, plmn_tree, offset, E212_NONE, TRUE);
     num--;
     offset += 3;
   }
@@ -32510,6 +32517,7 @@ proto_register_ieee80211(void)
     &ett_he_ndp_annc_sta_list,
     &ett_he_ndp_annc_sta_item,
     &ett_he_ndp_annc_sta_info,
+    &ett_ieee80211_3gpp_plmn,
   };
 
   static ei_register_info ei[] = {
