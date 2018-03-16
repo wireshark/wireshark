@@ -40,8 +40,8 @@ tested.
 Documentation for these tools is outside the scope of this document. If you need
 further information on using a specific tool you should find lots of useful
 information on the web, as these tools are commonly used. You can also get help
-for the UNIX based tools with +**toolname** --help+ or the man page via +man
-**toolname**+.
+for the UNIX based tools with `**toolname** --help` or the man page via `man
+**toolname**`.
 
 You will find explanations of the tool usage for some of the specific
 development tasks in <<ChapterSources>>.
@@ -52,12 +52,14 @@ Chocolatey is a Windows package manager that can be used to install (and update)
 many of the packages required for Wireshark development. Chocolatey can be
 obtained from the http://chocolatey.org[website] or from a Command Prompt:
 
+[source,cmd]
 ----
 C:\>@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString(_https://chocolatey.org/install.ps1_))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
 ----
 
 or a Powershell prompt:
 
+[source,cmd]
 ----
 PS:\>iex ((new-object net.webclient).DownloadString(_https://chocolatey.org/install.ps1_))
 ----
@@ -147,6 +149,7 @@ between:
 Chocolatey supports Cygwin as an external package source.
 To install Cygwin itself run
 
+[source,cmd]
 ----
 PS$>choco install cygwin
 # You might also need to install cyg-get:
@@ -157,6 +160,7 @@ Chocolatey installs Cygwin in _C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin
 
 One or more Cygwin packages can be installed using `cyg-get`:
 
+[source,cmd]
 ----
 PS$>cyg-get sed asciidoc
 ----
@@ -178,6 +182,7 @@ specifying a *generator*, aka a build tool. For example, to build
 Wireshark using Ninja in the directory _wireshark-ninja_ you might
 run the following commands:
 
+[source,sh]
 ----
 # Starting from your Wireshark source directory, create a build directory
 # alongside it.
@@ -260,6 +265,7 @@ http://gcc.gnu.org/[].
 After correct installation, typing at the
 bash command line prompt:
 
+[source,sh]
 ----
 $ gcc --version
 ----
@@ -292,6 +298,7 @@ http://www.gnu.org/software/gdb/gdb.html[].
 
 After correct installation:
 
+[source,sh]
 ----
 $ gdb --version
 ----
@@ -347,6 +354,7 @@ http://www.gnu.org/software/make/[].
 
 After correct installation:
 
+[source,sh]
 ----
 $ make --version
 ----
@@ -458,6 +466,7 @@ requires a a {cpp} redistributable
 
 You can use Chocolatey to install Visual Studio, e.g:
 
+[source,cmd]
 ----
 PS:\> choco install VisualStudioCommunity2013
 ----
@@ -479,6 +488,7 @@ versions ordered by release date.
 After correct installation of the toolchain, typing
 at the Visual Studio Command line prompt (cmd.exe):
 
+[source,cmd]
 ----
 > cl
 ----
@@ -501,6 +511,7 @@ http://msdn.microsoft.com/en-us/library/wk21sfcf.aspx[Microsoft MSDN]
 
 After correct installation, typing at the Visual Studio Command line prompt (cmd.exe):
 
+[source,cmd]
 ----
 > link
 ----
@@ -521,7 +532,6 @@ Documentation on the linker can be found at
 http://msdn.microsoft.com/en-us/library/t2fck18t.aspx[Microsoft MSDN]
 
 [[msvc-runtime-redistributable]]
-
 
 ==== C-Runtime "Redistributable" Files
 
@@ -695,6 +705,7 @@ To set the correct paths for Visual Studio when running Wireshark under the
 debugger, add the build output directory to the path before opening Visual
 Studio from the same command prompt, e.g.
 
+[source,cmd]
 ----
 C:\Development\wsbuild32>set PATH="%PATH%;C:\Development\wsbuild32\run\RelwithDebInfo"
 C:\Development\wsbuild32>wireshark.sln
@@ -702,6 +713,7 @@ C:\Development\wsbuild32>wireshark.sln
 
 for PowerShell use
 
+[source,cmd]
 ----
 PS C:\Development\wsbuild32>$env:PATH += ";$(Convert-Path run\RelWithDebInfo)"
 PS C:\Development\wsbuild32>wireshark.sln
@@ -738,6 +750,7 @@ http://msdn.microsoft.com/en-us/library/windows/hardware/ff551063%28v=vs.85%29.a
 
 You can also use Chocolatey to install WinDbg:
 
+[source,cmd]
 ----
 PS:\> choco install windbg
 ----
@@ -773,6 +786,7 @@ http://www.gnu.org/software/bash/bash.html[].
 
 After correct installation, typing at the bash command line prompt:
 
+[source,sh]
 ----
 $ bash --version
 ----
@@ -805,12 +819,14 @@ a symbolic link, which causes confusion outside Cygwin.
 
 You can also use Chocolatey to install Python:
 
+[source,cmd]
 ----
 PS:\> choco install Python3
 ----
 
 or
 
+[source,cmd]
 ----
 PS:\> choco install Python2
 ----
@@ -818,12 +834,14 @@ PS:\> choco install Python2
 Chocolatey installs Python into _C:\tools\python3_ or _C:\tools\python2_ by
 default. You can verify your Python version by running
 
+[source,sh]
 ----
 $ python --version
 ----
 
 on UNIX and Linux and
 
+[source,cmd]
 ----
 rem Official package
 C:> cd python35
@@ -867,6 +885,7 @@ http://www.perl.com/[].
 After correct installation, typing at the
 bash command line prompt:
 
+[source,sh]
 ----
 $ perl --version
 ----
@@ -952,6 +971,7 @@ platform you can get it at: http://www.gnu.org/software/bison/bison.html[].
 
 After correct installation running the following
 
+[source,sh]
 ----
 $ bison --version
 ----
@@ -1000,6 +1020,7 @@ you can get it at http://www.gnu.org/software/flex/[].
 
 After correct installation running the following
 
+[source,sh]
 ----
 $ flex --version
 ----
@@ -1020,6 +1041,7 @@ A native Windows version of flex is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
 _win_flex_.
 
+[source,cmd]
 ----
 PS:\>choco install winflexbison
 ----
@@ -1057,6 +1079,7 @@ can get it at: http://git-scm.com/[].
 
 After correct installation, typing at the bash command line prompt:
 
+[source,sh]
 ----
 $ git --version
 ----
@@ -1064,18 +1087,19 @@ $ git --version
 should result in something like:
 
 ----
-git version 1.8.3.4
+git version 2.14.1
 ----
 
 Your version will likely be different.
 
 [[ChToolsWindowsGit]]
 
-==== Windows native: git
+==== Windows Native: git
 
 The Git command line tools for Windows can be found at
 http://git-scm.com/download/win[] and can also be installed using Chocolatey:
 
+[source,cmd]
 ----
 PS:\> choco install git
 ----
@@ -1083,14 +1107,15 @@ PS:\> choco install git
 After correct installation, typing at the command
 line prompt (cmd.exe):
 
+[source,cmd]
 ----
-$ git --version
+> git --version
 ----
 
 should result in something like:
 
 ----
-git version 1.8.3.4
+git version 2.16.1.windows.1
 ----
 
 However, the version string may vary.
@@ -1103,6 +1128,7 @@ A useful tool for command line git on Windows is https://github.com/dahlbyk/posh
 Poshgit provides git command completion and alters the prompt to indicate the local working
 copy status.  You can install it using Chocolatey:
 
+[source,cmd]
 ----
 PS:\>choco install poshgit
 ----
@@ -1148,6 +1174,7 @@ http://www.gnu.org/software/patch/patch.html[].
 After correct installation, typing at the
 bash command line prompt:
 
+[source,sh]
 ----
 $ patch --version
 ----
@@ -1190,6 +1217,7 @@ To install it, download the latest released version from
 http://nsis.sourceforge.net[]. NSIS v3 is recommended and may be
 required in the future. You can also install it using Chocolatey:
 
+[source,cmd]
 ----
 PS$> choco install nsis
 ----

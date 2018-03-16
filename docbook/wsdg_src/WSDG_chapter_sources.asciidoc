@@ -311,6 +311,7 @@ sure the builds are in good shape.
 After you clone Wireshark’s Git repository you can update
 by running
 
+[source,sh]
 ----
 $ git status
 $ git pull
@@ -374,19 +375,26 @@ Building Wireshark for the first time depends on your platform.
 
 ==== Building on Unix
 
-Run the `autogen.sh` script at the top-level wireshark directory to configure
-your build directory.
+The recommended (and fastest) way to build Wireshark is with CMake and
+Ninja:
 
+[source,sh]
 ----
-$ ./autogen.sh
-$ ./configure
-$ make
+# Starting from your Wireshark source directory, create a build directory
+# alongside it.
+$ cd ..
+$ mkdir wireshark-ninja
+$ cd wireshark-ninja
+# Assumes your source directory is named "wireshark".
+$ cmake -G Ninja ../wireshark
+$ ninja (or cmake --build .)
 ----
 
 If you need to build with a non-standard configuration, you can run
 
+[source,sh]
 ----
-$ ./configure --help
+$ cmake -LH ../wireshark
 ----
 
 to see what options you have.
@@ -430,6 +438,7 @@ Wireshark. If your platform is properly setup, your build directory and
 current working directory are not in your PATH, so the
 command line to launch Wireshark would be:
 
+[source,sh]
 ----
 $ WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./wireshark
 ----
@@ -468,6 +477,7 @@ the program into your debugger. But loading wireshark into debugger fails
 because of the libtool build environment. You'll have to wrap loading
 wireshark into a libtool command:
 
+[source,sh]
 ----
 $ libtool --mode=execute gdb wireshark
 ----
@@ -478,6 +488,7 @@ If you prefer a graphic debugger you can use the Data Display Debugger
 
 Additional traps can be set on GLib by setting the `G_DEBUG` environment variable:
 
+[source,sh]
 ----
 $ G_DEBUG=fatal_criticals libtool --mode=execute ddd wireshark
 ----
@@ -843,6 +854,7 @@ https://code.wireshark.org/review/Documentation/user-upload.html#push_create[mag
 in Gerrit. For example, to upload your new Snowcone Machine Protocol dissector
 you could push to refs/for/master with the topic "snowcone-machine":
 
+[source,sh]
 ----
 $ git push ssh://my.username@code.wireshark.org:29418/wireshark HEAD:refs/for/master/snowcone-machine
 ----
@@ -852,6 +864,7 @@ the review system.
 
 If you have `git-review` installed you can upload the change with a lot less typing:
 
+[source,sh]
 ----
 # Note: The "-f" flag deletes your current branch.
 $ git review -f
@@ -893,6 +906,7 @@ in Git by cherry-picking the change from one branch to another.
 Suppose you want to backport change 1ab2c3d4 from the master branch to
 master-1.10. Using "pure Git" commands you would do the following:
 
+[source,sh]
 ----
 # Create a new topic branch for the backport.
 $ git checkout -b backport-g1ab2c3d4 origin/master-1.10
@@ -947,6 +961,7 @@ _new.diff_ look like.
 If they're relative to the top-level source directory (for example, if a
 patch to _prefs.c_ just has _prefs.c_ as the file name) you’d run it as:
 
+[source,sh]
 ----
 $ patch -p0 < new.diff
 ----
@@ -956,6 +971,7 @@ number of higher-level directories in the path, e.g. if the names are
 _wireshark.orig/prefs.c_ and
 _wireshark.mine/prefs.c_, you’d run it with:
 
+[source,sh]
 ----
 $ patch -p1 < new.diff
 ----
@@ -1007,6 +1023,7 @@ more in-depth discussion of the build process.
 
 In the wireshark directory, type:
 
+[source,sh]
 ----
 $ dpkg-buildpackage -rfakeroot -us -uc
 ----
@@ -1040,6 +1057,7 @@ usual Wireshark `./configure`. The exceptions to this rule are:
 
 In the wireshark directory, type:
 
+[source,sh]
 ----
 $ make rpm-package
 ----
@@ -1074,6 +1092,7 @@ The macOS Package is built using macOS packaging tools, based on information
 found in the source tree under _packaging/macosx_. It must be built using
 CMake. In your build directory, type:
 
+[source,sh]
 ----
 $ make dmg_package
 ----
@@ -1092,6 +1111,7 @@ generation script at _packaging/nsis/wireshark.nsi_.
 When building with CMake you must first build the _nsis_package_prep_ target,
 followed by the _nsis_package_ target, e.g.
 
+[source,cmd]
 ----
 > msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
 > msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
@@ -1129,6 +1149,7 @@ When building with CMake you must first build the _nsis_package_prep_ target
 (which takes care of general packaging dependencies), followed by the
 _portableapps_package_ target, e.g.
 
+[source,cmd]
 ----
 > msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
 > msbuild /m /p:Configuration=RelWithDebInfo portableapps_package.vcxproj
