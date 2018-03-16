@@ -482,9 +482,6 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (type == ETHERTYPE_3GPP2) {
             offset = dissect_gre_3gpp2_attribs(tvb, offset, gre_tree);
         }
-        if (type == GRE_ERSPAN_88BE && !(flags_and_ver & GRE_SEQUENCE)) {
-            pinfo->flags.in_erspan_i = TRUE;
-        }
 
         proto_item_set_len(ti, offset);
 
@@ -501,7 +498,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         pinfo->flags.in_gre_pkt = TRUE;
-        if (!dissector_try_uint(gre_dissector_table, type, next_tvb, pinfo, tree))
+        if (!dissector_try_uint_new(gre_dissector_table, type, next_tvb, pinfo, tree, TRUE, &flags_and_ver))
             call_data_dissector(next_tvb, pinfo, gre_tree);
     }
     return tvb_captured_length(tvb);

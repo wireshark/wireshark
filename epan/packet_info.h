@@ -64,7 +64,6 @@ typedef struct _packet_info {
   struct {
     guint32 in_error_pkt:1;         /**< TRUE if we're inside an {ICMP,CLNP,...} error packet */
     guint32 in_gre_pkt:1;           /**< TRUE if we're encapsulated inside a GRE packet */
-    guint32 in_erspan_i:1;          /**< TRUE if we're encapsulated inside an ERSPAN type I packet */
   } flags;
   port_type ptype;                  /**< type of the following two port numbers */
   guint32 srcport;                  /**< source port */
