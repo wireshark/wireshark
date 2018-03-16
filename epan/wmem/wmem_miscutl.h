@@ -33,7 +33,7 @@ extern "C" {
  * @param allocator The allocator object to use to allocate memory to copy into.
  * @param source The pointer to the memory block to copy.
  * @param size The amount of memory to copy.
- * @return The location of the memory copy.
+ * @return The location of the memory copy or NULL if size is 0.
  */
 WS_DLL_PUBLIC
 void *

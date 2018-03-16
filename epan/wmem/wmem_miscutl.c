@@ -20,6 +20,9 @@ wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
 {
     void *dest;
 
+    if (!size)
+        return NULL;
+
     dest = wmem_alloc(allocator, size);
     memcpy(dest, source, size);
 

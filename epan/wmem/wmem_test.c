@@ -321,7 +321,8 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify,
             ptrs[ptrs_index] = (char *) wmem_realloc(allocator,
                     ptrs[ptrs_index], new_size);
 
-            memset(ptrs[ptrs_index], 0, new_size);
+            if (new_size)
+                memset(ptrs[ptrs_index], 0, new_size);
         }
         else {
             /* the index is used, and our random bit has determined we will be
@@ -378,6 +379,9 @@ wmem_test_miscutls(void)
     char               *ret;
 
     allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+
+    ret = (char*) wmem_memdup(allocator, NULL, 0);
+    g_assert(ret == NULL);
 
     ret = (char*) wmem_memdup(allocator, source, 5);
     ret[4] = '\0';
@@ -608,6 +612,7 @@ wmem_test_stringperf(void)
         "wmem_strconcat 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
 
     wmem_destroy_allocator(allocator);
+    g_free(str_ptr);
 }
 
 /* DATA STRUCTURE TESTING FUNCTIONS (/wmem/datastruct/) */
