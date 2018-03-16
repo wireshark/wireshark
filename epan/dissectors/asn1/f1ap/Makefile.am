@@ -6,23 +6,24 @@
 
 include ../Makefile.inc
 
-PROTOCOL_NAME = x2ap
+PROTOCOL_NAME = f1ap
+
+EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
-	X2AP-CommonDataTypes.asn	\
-	X2AP-Constants.asn	\
-	X2AP-Containers.asn	\
-	X2AP-IEs.asn	\
-	X2AP-PDU-Contents.asn	\
-	X2AP-PDU-Descriptions.asn
+	F1AP-CommonDataTypes.asn \
+	F1AP-Constants.asn \
+	F1AP-Containers.asn \
+	F1AP-IEs.asn \
+	F1AP-PDU-Contents.asn \
+	F1AP-PDU-Descriptions.asn
 
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
-	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf
 
 SRC_FILES = \

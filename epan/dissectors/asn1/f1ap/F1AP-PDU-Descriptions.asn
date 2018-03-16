@@ -1,0 +1,260 @@
+-- 3GPP TS 38.473 V15.0.0 (2017-12)
+-- 9.4.3	Elementary Procedure Definitions
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+F1AP-PDU-Descriptions  {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-PDU-Descriptions (0)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+
+FROM F1AP-CommonDataTypes
+	Reset,
+	ResetAcknowledge,
+	F1SetupRequest,
+	F1SetupResponse,
+	F1SetupFailure,
+	GNBDUConfigurationUpdate,
+	GNBDUConfigurationUpdateAcknowledge,
+	GNBDUConfigurationUpdateFailure,
+	GNBCUConfigurationUpdate,
+	GNBCUConfigurationUpdateAcknowledge,
+	GNBCUConfigurationUpdateFailure,
+	UEContextSetupRequest,
+	UEContextSetupResponse,
+	UEContextSetupFailure,
+	UEContextReleaseCommand,
+	UEContextReleaseComplete,
+	UEContextModificationRequest,
+	UEContextModificationResponse,
+	UEContextModificationFailure,
+	UEContextModificationRequired,
+	UEContextModificationConfirm,
+	ErrorIndication,
+	UEContextReleaseRequest,
+	DLRRCMessageTransfer,
+	ULRRCMessageTransfer,
+	PrivateMessage
+
+FROM F1AP-PDU-Contents
+	id-Reset,
+	id-F1Setup,
+	id-gNBDUConfigurationUpdate,
+	id-gNBCUConfigurationUpdate,
+	id-UEContextSetup,
+	id-UEContextRelease,
+	id-UEContextModification,
+	id-UEContextModificationRequired,
+	id-ErrorIndication,
+	id-UEContextReleaseRequest,
+	id-DLRRCMessageTransfer,
+	id-ULRRCMessageTransfer,
+	id-privateMessage
+
+
+FROM F1AP-Constants;
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+F1AP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome							OPTIONAL,
+	&UnsuccessfulOutcome						OPTIONAL,
+	&procedureCode				ProcedureCode 	UNIQUE,
+	&criticality				Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE			&InitiatingMessage
+	[SUCCESSFUL OUTCOME			&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+	PROCEDURE CODE				&procedureCode
+	[CRITICALITY				&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+F1AP-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode	F1AP-ELEMENTARY-PROCEDURE.&procedureCode		({F1AP-ELEMENTARY-PROCEDURES}),
+	criticality		F1AP-ELEMENTARY-PROCEDURE.&criticality			({F1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			F1AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({F1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode	F1AP-ELEMENTARY-PROCEDURE.&procedureCode		({F1AP-ELEMENTARY-PROCEDURES}),
+	criticality		F1AP-ELEMENTARY-PROCEDURE.&criticality			({F1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			F1AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({F1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode	F1AP-ELEMENTARY-PROCEDURE.&procedureCode		({F1AP-ELEMENTARY-PROCEDURES}),
+	criticality		F1AP-ELEMENTARY-PROCEDURE.&criticality			({F1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			F1AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({F1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+F1AP-ELEMENTARY-PROCEDURES F1AP-ELEMENTARY-PROCEDURE ::= {
+	F1AP-ELEMENTARY-PROCEDURES-CLASS-1			|
+	F1AP-ELEMENTARY-PROCEDURES-CLASS-2,
+	...
+}
+
+
+F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
+	reset							|
+	f1Setup							|
+	gNBDUConfigurationUpdate			|
+	gNBCUConfigurationUpdate			|
+	uEContextSetup					|
+	uEContextRelease					|
+	uEContextModification			|
+	uEContextModificationRequired	,
+	...}
+
+ F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {
+	errorIndication					|
+	uEContextReleaseRequest			|
+	dLRRCMessageTransfer				|
+	uLRRCMessageTransfer				|
+	privateMessage						,
+	...
+}
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+reset F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		Reset
+	SUCCESSFUL OUTCOME		ResetAcknowledge
+	PROCEDURE CODE			id-Reset
+	CRITICALITY				reject
+}
+
+f1Setup F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		F1SetupRequest
+	SUCCESSFUL OUTCOME		F1SetupResponse
+	UNSUCCESSFUL 			OUTCOME	F1SetupFailure
+	PROCEDURE CODE			id-F1Setup
+	CRITICALITY				reject
+}
+
+gNBDUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNBDUConfigurationUpdate
+	SUCCESSFUL OUTCOME		GNBDUConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME		GNBDUConfigurationUpdateFailure
+	PROCEDURE CODE			id-gNBDUConfigurationUpdate
+	CRITICALITY				reject
+}
+
+gNBCUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNBCUConfigurationUpdate
+	SUCCESSFUL OUTCOME		GNBCUConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME		GNBCUConfigurationUpdateFailure
+	PROCEDURE CODE			id-gNBCUConfigurationUpdate
+	CRITICALITY				reject
+}
+
+uEContextSetup F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextSetupRequest
+	SUCCESSFUL OUTCOME		UEContextSetupResponse
+	UNSUCCESSFUL OUTCOME		UEContextSetupFailure
+	PROCEDURE CODE			id-UEContextSetup
+	CRITICALITY				reject
+}
+
+uEContextRelease F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextReleaseCommand
+	SUCCESSFUL OUTCOME		UEContextReleaseComplete
+	PROCEDURE CODE			id-UEContextRelease
+	CRITICALITY				reject
+}
+
+uEContextModification F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextModificationRequest
+	SUCCESSFUL OUTCOME		UEContextModificationResponse
+	UNSUCCESSFUL OUTCOME		UEContextModificationFailure
+	PROCEDURE CODE			id-UEContextModification
+	CRITICALITY				reject
+}
+
+uEContextModificationRequired F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextModificationRequired
+	SUCCESSFUL OUTCOME		UEContextModificationConfirm
+	PROCEDURE CODE			id-UEContextModificationRequired
+	CRITICALITY				reject
+}
+
+
+errorIndication F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-ErrorIndication
+	CRITICALITY				ignore
+}
+
+uEContextReleaseRequest F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextReleaseRequest
+	PROCEDURE CODE			id-UEContextReleaseRequest
+	CRITICALITY				ignore
+}
+
+
+dLRRCMessageTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DLRRCMessageTransfer
+	PROCEDURE CODE			id-DLRRCMessageTransfer
+	CRITICALITY				ignore
+}
+
+uLRRCMessageTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ULRRCMessageTransfer
+	PROCEDURE CODE			id-ULRRCMessageTransfer
+	CRITICALITY				ignore
+}
+
+
+privateMessage F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
+
+
+END

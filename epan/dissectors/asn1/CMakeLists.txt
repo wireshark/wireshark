@@ -32,6 +32,7 @@ set(ASN1_SRC_DIRS
 	dop
 	dsp
 	ess
+	f1ap
 	ftam
 	goose
 	gprscdr

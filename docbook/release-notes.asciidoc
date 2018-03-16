@@ -103,6 +103,7 @@ Broadcom tags (Broadcom Ethernet switch management frames)
 CVS password server
 CAN-ETH
 Excentis DOCSIS31 XRA header
+F1 Application Protocol
 F5ethtrailer
 FP Mux
 GRPC (gRPC)

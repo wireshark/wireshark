@@ -94,6 +94,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ess.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-f1ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftam.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-goose.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_map.c
@@ -575,6 +576,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-wtp.h
 	packet-x11.h
 	packet-x11-keysymdef.h
+	packet-x2ap.h
 	packet-x509af.h
 	packet-x509ce.h
 	packet-x509if.h

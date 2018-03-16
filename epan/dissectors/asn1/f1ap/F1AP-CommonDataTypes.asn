@@ -1,0 +1,34 @@
+-- 3GPP TS 38.473 V15.0.0 (2017-12)
+-- 9.4.6	Common Definitions
+-- **************************************************************
+--
+-- Common definitions
+--
+-- **************************************************************
+
+F1AP-CommonDataTypes {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-CommonDataTypes (3) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+Criticality		::= ENUMERATED { reject, ignore, notify }
+
+Presence		::= ENUMERATED { optional, conditional, mandatory }
+
+PrivateIE-ID	::= CHOICE {
+	local				INTEGER (0..65535),
+	global				OBJECT IDENTIFIER
+}
+
+ProcedureCode		::= INTEGER (0..255)
+
+ProtocolExtensionID	::= INTEGER (0..65535)
+
+ProtocolIE-ID		::= INTEGER (0..65535)
+
+TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessfull-outcome }
+
+END

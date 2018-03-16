@@ -1,0 +1,148 @@
+-- 3GPP TS 38.473 V15.0.0 (2017-12)
+-- 9.4.7	Constant Definitions
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+F1AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	ProcedureCode,
+	ProtocolIE-ID
+
+FROM F1AP-CommonDataTypes;
+
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-Reset									ProcedureCode ::= 0
+id-F1Setup									ProcedureCode ::= 1
+id-ErrorIndication							ProcedureCode ::= 2
+id-gNBDUConfigurationUpdate					ProcedureCode ::= 3
+id-gNBCUConfigurationUpdate					ProcedureCode ::= 4
+id-UEContextSetup							ProcedureCode ::= 5
+id-UEContextRelease							ProcedureCode ::= 6
+id-UEContextModification						ProcedureCode ::= 7
+id-UEContextModificationRequired				ProcedureCode ::= 8
+id-UEMobilityCommand							ProcedureCode ::= 9
+
+id-UEContextReleaseRequest					ProcedureCode ::= 10
+id-InitialULRRCMessageTransfer				ProcedureCode ::= 11
+id-DLRRCMessageTransfer						ProcedureCode ::= 12
+id-ULRRCMessageTransfer						ProcedureCode ::= 13
+id-SystemInformationDelivery					ProcedureCode ::= 14
+id-Paging									ProcedureCode ::= 15
+
+-- **************************************************************
+--
+-- Extension constants
+--
+-- **************************************************************
+
+maxPrivateIEs							INTEGER ::= 65535
+maxProtocolExtensions					INTEGER ::= 65535
+maxProtocolIEs							INTEGER ::= 65535
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxnoofErrors							INTEGER ::= 256
+maxnoofIndividualF1ConnectionsToReset	INTEGER ::= 256
+maxCellingNBDU							INTEGER ::= 512
+maxnoofSCells							INTEGER ::= 64
+maxnoofSRBs								INTEGER ::= 8
+maxnoofDRBs								INTEGER ::= 64
+maxnoofULTunnels							INTEGER ::= 2
+maxnoofDLTunnels							INTEGER ::= 2
+maxnoofBPLMNs							INTEGER ::= 6
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-Cause											ProtocolIE-ID ::= 0
+id-CriticalityDiagnostics							ProtocolIE-ID ::= 1
+id-gNB-DU-F1AP-ID									ProtocolIE-ID ::= 2
+id-gNB-CU-F1AP-ID									ProtocolIE-ID ::= 3
+id-ResetType											ProtocolIE-ID ::= 4
+id-TimeToWait										ProtocolIE-ID ::= 5
+id-UE-associatedLogicalF1-ConnectionItem 			ProtocolIE-ID ::= 6
+id-UE-associatedLogicalF1-ConnectionListResAck		ProtocolIE-ID ::= 7
+id-RRCContainer										ProtocolIE-ID ::= 8
+id-SRBID												ProtocolIE-ID ::= 9
+id-gNB-DU-ID											ProtocolIE-ID ::= 10
+id-gNB-Name											ProtocolIE-ID ::= 11
+id-NRCellID											ProtocolIE-ID ::= 12
+id-PCI												ProtocolIE-ID ::= 13
+id-gNB-DU-Served-Cells-List							ProtocolIE-ID ::= 14
+id-Cells-to-be-Activated-List						ProtocolIE-ID ::= 15
+id-Served-Cells-To-Add-List							ProtocolIE-ID ::= 16
+id-Served-Cells-To-Modify-List						ProtocolIE-ID ::= 17
+id-Served-Cells-To-Delete-List						ProtocolIE-ID ::= 18
+id-Cells-to-be-Deactivated-List						ProtocolIE-ID ::= 19
+id-Cells-Failed-to-be-Activated-List					ProtocolIE-ID ::= 20
+id-TransactionID										ProtocolIE-ID ::= 21
+id-Served-Cell-Information							ProtocolIE-ID ::= 22
+id-gNB-DU-System-Information							ProtocolIE-ID ::= 23
+id-NCGI												ProtocolIE-ID ::= 24
+id-gNB-CU-System-Information							ProtocolIE-ID ::= 25
+id-OldNCGI											ProtocolIE-ID ::= 26
+id-DRBID												ProtocolIE-ID ::= 27
+id-PSCell-ID											ProtocolIE-ID ::= 28
+id-EUTRANQoS											ProtocolIE-ID ::= 29
+id-SRBs-ToBeSetup-List								ProtocolIE-ID ::= 30
+id-DRBs-ToBeSetup-List								ProtocolIE-ID ::= 31
+id-DLTunnels-ToBeSetup-List							ProtocolIE-ID ::= 32
+id-ULTunnels-ToBeSetup-List							ProtocolIE-ID ::= 33
+id-UL-GTP-Tunnel-EndPoint							ProtocolIE-ID ::= 34
+id-DL-GTP-Tunnel-EndPoint							ProtocolIE-ID ::= 35
+id-CUtoDURRCInformation								ProtocolIE-ID ::= 36
+id-DUtoCURRCInformation								ProtocolIE-ID ::= 37
+id-UERadioCapability									ProtocolIE-ID ::= 38
+id-UEAggregateMaximumBitRate							ProtocolIE-ID ::= 39
+id-SCell-ToBeSetup-List								ProtocolIE-ID ::= 40
+id-ResourceCoordinationTransferContainer				ProtocolIE-ID ::= 41
+id-DRBs-ToBeModified-List							ProtocolIE-ID ::= 42
+id-DRBs-ToBeReleased-List							ProtocolIE-ID ::= 43
+id-DRBs-Modified-List								ProtocolIE-ID ::= 44
+id-DRBs-FailedToSetup-List							ProtocolIE-ID ::= 45
+id-DRBs-FailedToBeModified-List						ProtocolIE-ID ::= 46
+id-SCell-ID											ProtocolIE-ID ::= 47
+id-DRXCycle											ProtocolIE-ID ::= 48
+id-DRBs-Setup-List									ProtocolIE-ID ::= 49
+id-SRBs-Setup-List									ProtocolIE-ID ::= 50
+id-DRBs-FailedToBeSetup-List							ProtocolIE-ID ::= 51
+id-SRBs-FailedToBeSetup-List							ProtocolIE-ID ::= 52
+id-DLTunnels-ToBeSetup-list							ProtocolIE-ID ::= 53
+id-ULTunnels-ToBeSetup-list							ProtocolIE-ID ::= 54
+id-TransmissionStopIndicator							ProtocolIE-ID ::= 55
+id-DRBs-Required-ToBeModified-List					ProtocolIE-ID ::= 56
+id-DRBs-Required-ToBeReleased-List					ProtocolIE-ID ::= 57
+id-SRBs-Required-ToBeReleased-List					ProtocolIE-ID ::= 58
+id-oldgNB-DU-F1AP-ID									ProtocolIE-ID ::= 59
+id-SRBs-ToBeReleased-List							ProtocolIE-ID ::= 60
+id-DRBs-ModifiedConf-List							ProtocolIE-ID ::= 61
+id-privateMessage									ProtocolIE-ID ::= 62
+
+END

@@ -2687,6 +2687,7 @@ AC_CONFIG_FILES(
   epan/dissectors/asn1/dop/Makefile
   epan/dissectors/asn1/dsp/Makefile
   epan/dissectors/asn1/ess/Makefile
+  epan/dissectors/asn1/f1ap/Makefile
   epan/dissectors/asn1/ftam/Makefile
   epan/dissectors/asn1/goose/Makefile
   epan/dissectors/asn1/gprscdr/Makefile

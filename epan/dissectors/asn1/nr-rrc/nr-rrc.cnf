@@ -27,7 +27,9 @@ T-Reassembly
 T-StatusProhibit
 
 #.EXPORTS
+CellGroupConfig_PDU
 MeasResults_PDU
+MIB_PDU
 SCG-ConfigInfo_PDU
 RadioBearerConfig_PDU
 RRCReconfiguration_PDU
@@ -38,7 +40,9 @@ UE-NR-Capability_PDU
 
 #.PDU
 BCCH-BCH-Message             @bcch.bch
+CellGroupConfig
 DL-DCCH-Message              @dl.dcch
+MIB
 MeasResults
 RadioBearerConfig
 RRCReconfiguration

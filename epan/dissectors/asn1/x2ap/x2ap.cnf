@@ -25,6 +25,14 @@ ProcedureCode
 ProtocolIE-ID
 OffsetOfNbiotChannelNumberToEARFCN
 
+#.EXPORTS
+MeNBResourceCoordinationInformation_PDU
+SgNBResourceCoordinationInformation_PDU
+
+#.PDU
+MeNBResourceCoordinationInformation
+SgNBResourceCoordinationInformation
+
 #.TYPE_RENAME
 ProtocolIE-Field/value     ProtocolIE_Field_value
 PrivateIE-Field/value      PrivateIE_Field_value

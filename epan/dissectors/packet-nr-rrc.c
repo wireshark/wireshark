@@ -140,8 +140,10 @@ static int hf_nr_rrc_nr_rrc_SCG_ConfigInfo_PDU = -1;  /* SCG_ConfigInfo */
 static int hf_nr_rrc_BCCH_BCH_Message_PDU = -1;   /* BCCH_BCH_Message */
 static int hf_nr_rrc_DL_DCCH_Message_PDU = -1;    /* DL_DCCH_Message */
 static int hf_nr_rrc_nr_rrc_UL_DCCH_Message_PDU = -1;  /* UL_DCCH_Message */
+static int hf_nr_rrc_nr_rrc_MIB_PDU = -1;         /* MIB */
 static int hf_nr_rrc_nr_rrc_RRCReconfiguration_PDU = -1;  /* RRCReconfiguration */
 static int hf_nr_rrc_nr_rrc_RRCReconfigurationComplete_PDU = -1;  /* RRCReconfigurationComplete */
+static int hf_nr_rrc_nr_rrc_CellGroupConfig_PDU = -1;  /* CellGroupConfig */
 static int hf_nr_rrc_nr_rrc_MeasResults_PDU = -1;  /* MeasResults */
 static int hf_nr_rrc_nr_rrc_RadioBearerConfig_PDU = -1;  /* RadioBearerConfig */
 static int hf_nr_rrc_nr_rrc_UE_MRDC_Capability_PDU = -1;  /* UE_MRDC_Capability */
@@ -12624,6 +12626,14 @@ int dissect_nr_rrc_UL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_MIB_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_MIB(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_MIB_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_RRCReconfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -12637,6 +12647,14 @@ int dissect_nr_rrc_RRCReconfigurationComplete_PDU(tvbuff_t *tvb _U_, packet_info
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   offset = dissect_nr_rrc_RRCReconfigurationComplete(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_RRCReconfigurationComplete_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_CellGroupConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_CellGroupConfig(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_CellGroupConfig_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -12717,12 +12735,20 @@ void proto_register_nr_rrc(void) {
       { "UL-DCCH-Message", "nr-rrc.UL_DCCH_Message_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_MIB_PDU,
+      { "MIB", "nr-rrc.MIB_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_RRCReconfiguration_PDU,
       { "RRCReconfiguration", "nr-rrc.RRCReconfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_RRCReconfigurationComplete_PDU,
       { "RRCReconfigurationComplete", "nr-rrc.RRCReconfigurationComplete_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_CellGroupConfig_PDU,
+      { "CellGroupConfig", "nr-rrc.CellGroupConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_MeasResults_PDU,

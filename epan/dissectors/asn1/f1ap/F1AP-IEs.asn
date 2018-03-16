@@ -1,0 +1,385 @@
+-- 3GPP TS 38.473 V15.0.0 (2017-12)
+-- 9.4.5	Information Element Definitions
+-- **************************************************************
+--
+-- Information Element Definitions
+--
+-- **************************************************************
+
+F1AP-IEs {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-IEs (2) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	maxnoofErrors,
+	maxnoofIndividualF1ConnectionsToReset,
+	maxnoofBPLMNs
+
+FROM F1AP-Constants
+
+	Criticality,
+	ProcedureCode,
+	ProtocolIE-ID,
+	TriggeringMessage
+
+FROM F1AP-CommonDataTypes
+
+	ProtocolExtensionContainer{},
+	F1AP-PROTOCOL-EXTENSION,
+	ProtocolIE-SingleContainer{},
+	F1AP-PROTOCOL-IES
+
+FROM F1AP-Containers;
+
+-- A
+
+AllocationAndRetentionPriority ::= SEQUENCE {
+	priorityLevel				PriorityLevel,
+	pre-emptionCapability		Pre-emptionCapability,
+	pre-emptionVulnerability	Pre-emptionVulnerability,
+	iE-Extensions				ProtocolExtensionContainer { {AllocationAndRetentionPriority-ExtIEs} } OPTIONAL,
+	...
+}
+
+AllocationAndRetentionPriority-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+-- B
+
+BitRate ::= INTEGER (0..4000000000000,...)
+
+BroadcastPLMNs-Item ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF PLMN-Identity
+
+-- C
+
+Cause ::= CHOICE {
+	radioNetwork		CauseRadioNetwork,
+	transport			CauseTransport,
+	protocol			CauseProtocol,
+	misc				CauseMisc,
+	...
+}
+
+CauseMisc ::= ENUMERATED {
+	control-processing-overload,
+	not-enough-user-plane-processing-resources,
+	hardware-failure,
+	om-intervention,
+	unspecified,
+...
+}
+
+CauseProtocol ::= ENUMERATED {
+	transfer-syntax-error,
+	abstract-syntax-error-reject,
+	abstract-syntax-error-ignore-and-notify,
+	message-not-compatible-with-receiver-state,
+	semantic-error,
+	abstract-syntax-error-falsely-constructed-message,
+	unspecified,
+	...
+}
+
+CauseRadioNetwork ::= ENUMERATED {
+	unspecified,
+	...
+}
+
+CauseTransport ::= ENUMERATED {
+	unspecified,
+	...
+}
+
+CellGroupConfig ::= OCTET STRING
+
+CriticalityDiagnostics ::= SEQUENCE {
+	procedureCode					ProcedureCode														OPTIONAL,
+	triggeringMessage				TriggeringMessage													OPTIONAL,
+	procedureCriticality			Criticality															OPTIONAL,
+	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List										OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer {{CriticalityDiagnostics-ExtIEs}}		OPTIONAL,
+	...
+}
+
+CriticalityDiagnostics-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1.. maxnoofErrors)) OF CriticalityDiagnostics-IE-Item
+
+CriticalityDiagnostics-IE-Item ::= SEQUENCE {
+	iECriticality			Criticality,
+	iE-ID					ProtocolIE-ID,
+	typeOfError 			TypeOfError,
+	iE-Extensions			ProtocolExtensionContainer {{CriticalityDiagnostics-IE-Item-ExtIEs}}	OPTIONAL,
+	...
+}
+
+CriticalityDiagnostics-IE-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CUtoDURRCInformation ::= SEQUENCE {
+	sCG-Config-Info			SCG-Config-Info		OPTIONAL,
+	uERadiocapabilities		UERadiocapabilities,
+	iE-Extensions				ProtocolExtensionContainer { { CUtoDURRCInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+CUtoDURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- D
+
+DRBID ::= INTEGER (0..15, ...)
+
+DRXCycle	::= SEQUENCE {
+	longDRXCycleLength	LongDRXCycleLength,
+	shortDRXCycleLength		ShortDRXCycleLength	OPTIONAL,
+	shortDRXCycleTimer	ShortDRXCycleTimer OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { DRXCycle-ExtIEs} } OPTIONAL,
+	...
+}
+
+DRXCycle-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+DUtoCURRCInformation ::= SEQUENCE {
+	cellGroupConfig		CellGroupConfig,
+	iE-Extensions				ProtocolExtensionContainer { { DUtoCURRCInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+DUtoCURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+-- E
+
+EUTRANQoS	::= SEQUENCE {
+	qCI								QCI,
+	allocationAndRetentionPriority	AllocationAndRetentionPriority,
+	gbrQosInformation				GBR-QosInformation									OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { EUTRANQoS-ExtIEs} }	OPTIONAL,
+	...
+}
+
+EUTRANQoS-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+-- F
+
+FDD-Info ::= SEQUENCE {
+	uL-NARFCN						NARFCN,
+	dL-NARFCN						NARFCN,
+	uL-Transmission-Bandwidth		Transmission-Bandwidth,
+	dL-Transmission-Bandwidth		Transmission-Bandwidth,
+	iE-Extensions				ProtocolExtensionContainer { {FDD-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+FDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- G
+
+GBR-QosInformation ::= SEQUENCE {
+	e-RAB-MaximumBitrateDL			BitRate,
+	e-RAB-MaximumBitrateUL			BitRate,
+	e-RAB-GuaranteedBitrateDL		BitRate,
+	e-RAB-GuaranteedBitrateUL		BitRate,
+	iE-Extensions					ProtocolExtensionContainer { { GBR-QosInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+GBR-QosInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+
+GNB-CU-F1AP-ID		::= INTEGER (0..4294967295)
+
+GNB-DU-F1AP-ID		::= INTEGER (0..4294967295)
+
+GNB-DU-ID			::= INTEGER (0..68719476735)
+
+GNB-DU-System-Information ::= SEQUENCE {
+	mIB-message		MIB-message,
+	sIB1-message		SIB1-message,
+	iE-Extensions					ProtocolExtensionContainer { { GNB-DU-System-Information-ExtIEs } } OPTIONAL,
+	...
+}
+
+GNB-DU-System-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GTP-TEID				::= OCTET STRING (SIZE (4))
+
+GTPTunnelEndpoint ::= SEQUENCE {
+	transportLayerAddress				TransportLayerAddress,
+	gTP-TEID							GTP-TEID,
+	iE-Extensions						ProtocolExtensionContainer { { GTPTunnelEndpoint-ExtIEs} }	OPTIONAL,
+	...
+}
+
+
+GTPTunnelEndpoint-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- H
+
+-- I
+
+-- J
+
+-- K
+
+-- L
+
+LongDRXCycleLength ::= 	ENUMERATED
+{ms10, ms20, ms32, ms40, ms60, ms64, ms70, ms80, ms128, ms160, ms256, ms320, ms512, ms640, ms1024, ms1280, ms2048, ms2560, ms5120, ms10240, ...}
+
+-- M
+
+MIB-message ::= OCTET STRING
+
+-- N
+
+NARFCN ::= INTEGER (0..65535)
+-- This IE may be refined
+
+NCGI ::= SEQUENCE {
+	pLMN-Identity			PLMN-Identity,
+	nRCellIdentity			NRCellIdentity,
+	iE-Extensions			ProtocolExtensionContainer { {NCGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+NCGI-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NR-Mode-Info ::= CHOICE {
+	fDD		FDD-Info,
+	tDD		TDD-Info,
+	...
+}
+
+NRCellIdentity ::= BIT STRING (SIZE(36))
+
+-- O
+
+-- P
+
+PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+Pre-emptionCapability ::= ENUMERATED {
+	shall-not-trigger-pre-emption,
+	may-trigger-pre-emption
+}
+
+Pre-emptionVulnerability ::= ENUMERATED {
+	not-pre-emptable,
+	pre-emptable
+}
+
+PriorityLevel	::= INTEGER { spare (0), highest (1), lowest (14), no-priority (15) } (0..15)
+
+PCI ::= INTEGER(0..1007)
+
+-- Q
+
+QCI ::= INTEGER (0..255)
+
+-- R
+
+RRCContainer ::= OCTET STRING
+
+-- S
+SCG-Config-Info ::= OCTET STRING
+
+Served-Cell-Information ::= SEQUENCE {
+	nCGI					NCGI,
+	pCI					PCI,
+	broadcastPLMNs		BroadcastPLMNs-Item,
+	nR-Mode-Info			NR-Mode-Info,
+	iE-Extensions		ProtocolExtensionContainer { {Served-Cell-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Served-Cell-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ShortDRXCycleLength ::=  ENUMERATED {ms2, ms3, ms4, ms5, ms6, ms7, ms8, ms10, ms14, ms16, ms20, ms30, ms32, ms35, ms40, ms64, ms80, ms128, ms160, ms256, ms320, ms512, ms640, ...}
+
+ShortDRXCycleTimer ::= INTEGER (1..16)
+
+SIB1-message ::= OCTET STRING
+
+SRBID ::= INTEGER (0..3, ...)
+-- T
+
+TDD-Info ::= SEQUENCE {
+	nARFCN							NARFCN,
+	transmission-Bandwidth			Transmission-Bandwidth,
+	iE-Extensions				ProtocolExtensionContainer { {TDD-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+TDD-Info-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
+
+TransportLayerAddress		::= BIT STRING (SIZE(1..160, ...))
+
+TransactionID				::= INTEGER (0..255, ...)
+
+Transmission-Bandwidth ::= INTEGER (0..65535)
+-- This IE may be refined
+
+TransmissionStopIndicator ::= ENUMERATED {true, ...}
+
+TypeOfError ::= ENUMERATED {
+	not-understood,
+	missing,
+	...
+}
+
+-- U
+
+UE-associatedLogicalF1-ConnectionItem ::= SEQUENCE {
+	gNB-CU-F1AP-ID		GNB-CU-F1AP-ID	 OPTIONAL,
+	gNB-DU-F1AP-ID		GNB-DU-F1AP-ID	 OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { UE-associatedLogicalF1-ConnectionItemExtIEs} } OPTIONAL,
+	...
+}
+
+UE-associatedLogicalF1-ConnectionItemExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UERadiocapabilities::= OCTET STRING
+
+-- V
+
+-- W
+
+-- X
+
+-- Y
+
+-- Z
+
+END

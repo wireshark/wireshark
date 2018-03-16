@@ -7,26 +7,29 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-set( PROTOCOL_NAME x2ap )
+set( PROTOCOL_NAME f1ap )
 
 set( PROTO_OPT )
+
+set( EXPORT_FILES
+	${PROTOCOL_NAME}-exp.cnf
+)
 
 set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	X2AP-CommonDataTypes.asn
-	X2AP-Constants.asn
-	X2AP-Containers.asn
-	X2AP-IEs.asn
-	X2AP-PDU-Contents.asn
-	X2AP-PDU-Descriptions.asn
+	F1AP-CommonDataTypes.asn
+	F1AP-Constants.asn
+	F1AP-Containers.asn
+	F1AP-IEs.asn
+	F1AP-PDU-Contents.asn
+	F1AP-PDU-Descriptions.asn
 )
 
 set( EXTRA_DIST
 	${ASN_FILE_LIST}
 	packet-${PROTOCOL_NAME}-template.c
-	packet-${PROTOCOL_NAME}-template.h
 	${PROTOCOL_NAME}.cnf
 )
 
@@ -35,6 +38,6 @@ set( SRC_FILES
 	${EXT_ASN_FILE_LIST}
 )
 
-set( A2W_FLAGS  )
+set( A2W_FLAGS )
 
 ASN2WRS()

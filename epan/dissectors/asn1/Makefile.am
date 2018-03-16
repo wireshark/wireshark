@@ -32,6 +32,7 @@ SUBDIRS =		\
 	dop		\
 	dsp		\
 	ess		\
+	f1ap		\
 	ftam		\
 	goose		\
 	gprscdr		\

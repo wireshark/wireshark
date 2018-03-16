@@ -109,6 +109,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-dsp.c		\
 	packet-ecp.c		\
 	packet-ess.c		\
+	packet-f1ap.c		\
 	packet-ftam.c		\
 	packet-goose.c		\
 	packet-gsm_map.c	\
@@ -1844,6 +1845,7 @@ DISSECTOR_INCLUDES = \
 	x11-extension-errors.h	\
 	x11-glx-render-enum.h	\
 	x11-enum.h		\
+	packet-x2ap.h		\
 	packet-x509af.h		\
 	packet-x509ce.h		\
 	packet-x509if.h		\
