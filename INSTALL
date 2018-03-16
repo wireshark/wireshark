@@ -67,10 +67,10 @@ README.windows for those instructions.
    spaces.
 
 7. Run 'cmake <options> <path/to/the/wireshark/sources>' in your build
-   directory. Running 'cmake -L' displays a complete list of options.
-   The "Tool Reference" section of Developer's Guide contains general
-   instructions for using CMake. Some of the Wireshark-specific options
-   are as follows:
+   directory. Running 'cmake -LH <path/to/the/wireshark/sources>'
+   displays a complete list of options. The "Tool Reference" section of
+   Developer's Guide contains general instructions for using CMake. Some
+   of the Wireshark-specific options are as follows:
 
     -G Ninja
         CMake supports many different build systems, including UNIX
