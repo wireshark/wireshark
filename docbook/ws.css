@@ -697,7 +697,7 @@ p strong, td.content strong, div.footnote strong { letter-spacing: -0.005em; }
 
 p, blockquote, dt, td.content, span.alt { font-size: 1.0625rem; }
 
-p { margin-bottom: 1.25rem; }
+p, pre { margin-bottom: 1.25rem; }
 
 .sidebarblock p, .sidebarblock dt, .sidebarblock td.content, p.tableblock { font-size: 1em; }
 
