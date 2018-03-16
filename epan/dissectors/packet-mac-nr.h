@@ -37,6 +37,10 @@ typedef struct mac_nr_info
     guint16         rnti;
     guint16         ueid;
 
+    /* Will these be include in the ME PHR report? */
+    guint8          phr_type2_pcell;
+    guint8          phr_type2_othercell;
+
     /* Timing info */
     guint16         sysframeNumber;
     guint8          subframeNumber;
@@ -84,14 +88,21 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
    The format is to have the tag, followed by the value (there is no length field,
    it's implicit from the tag) */
 
-#define MAC_NR_RNTI_TAG            0x02
+#define MAC_NR_RNTI_TAG                0x02
 /* 2 bytes, network order */
 
-#define MAC_NR_UEID_TAG            0x03
+#define MAC_NR_UEID_TAG                0x03
 /* 2 bytes, network order */
 
-#define MAC_NR_FRAME_SUBFRAME_TAG  0x04
+#define MAC_NR_FRAME_SUBFRAME_TAG      0x04
 /* 2 bytes, network order, SFN is stored in 12 MSB and SF in 4 LSB */
+
+#define MAC_NR_PHR_TYPE2_PCELL_TAG     0x05
+/* 1 byte, TRUE/FALSE */
+
+#define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x06
+/* 1 byte, TRUE/FALSE */
+
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */

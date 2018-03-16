@@ -58,6 +58,31 @@ static int hf_mac_nr_control_timing_advance_command = -1;
 static int hf_mac_nr_control_se_phr_reserved = -1;
 static int hf_mac_nr_control_se_phr_ph = -1;
 static int hf_mac_nr_control_se_phr_pcmax_c = -1;
+static int hf_mac_nr_control_me_phr_lcg7 = -1;
+static int hf_mac_nr_control_me_phr_lcg6 = -1;
+static int hf_mac_nr_control_me_phr_lcg5 = -1;
+static int hf_mac_nr_control_me_phr_lcg4 = -1;
+static int hf_mac_nr_control_me_phr_lcg3 = -1;
+static int hf_mac_nr_control_me_phr_lcg2 = -1;
+static int hf_mac_nr_control_me_phr_lcg1 = -1;
+static int hf_mac_nr_control_me_phr_entry = -1;
+static int hf_mac_nr_control_me_phr_p = -1;
+static int hf_mac_nr_control_me_phr_v = -1;
+static int hf_mac_nr_control_me_phr_reserved_2 = -1;
+static int hf_mac_nr_control_me_phr_ph_type2_pcell = -1;
+static int hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell = -1;
+static int hf_mac_nr_control_me_phr_ph_typex_pcell = -1;
+/* TODO: should expand to 31 entries for 4-byte case */
+static int hf_mac_nr_control_me_phr_ph_c7 = -1;
+static int hf_mac_nr_control_me_phr_ph_c6 = -1;
+static int hf_mac_nr_control_me_phr_ph_c5 = -1;
+static int hf_mac_nr_control_me_phr_ph_c4 = -1;
+static int hf_mac_nr_control_me_phr_ph_c3 = -1;
+static int hf_mac_nr_control_me_phr_ph_c2 = -1;
+static int hf_mac_nr_control_me_phr_ph_c1 = -1;
+static int hf_mac_nr_control_me_phr_reserved = -1;
+/* TODO: is it worth having separate fields for each SCellIndex for this field too? */
+static int hf_mac_nr_control_me_phr_pcmax_c = -1;
 static int hf_mac_nr_control_dupl_act_deact_drb7 = -1;
 static int hf_mac_nr_control_dupl_act_deact_drb6 = -1;
 static int hf_mac_nr_control_dupl_act_deact_drb5 = -1;
@@ -143,8 +168,10 @@ static int ett_mac_nr = -1;
 static int ett_mac_nr_context = -1;
 static int ett_mac_nr_subheader = -1;
 static int ett_mac_nr_rar_subheader = -1;
+static int ett_mac_nr_me_phr_entry = -1;
 
 static expert_field ei_mac_nr_no_per_frame_data = EI_INIT;
+static expert_field ei_mac_nr_sdu_length_different_from_dissected = EI_INIT;
 
 static dissector_handle_t nr_rrc_bcch_bch_handle;
 
@@ -634,6 +661,17 @@ static const value_string buffer_size_8bits_vals[] =
 };
 static value_string_ext buffer_size_8bits_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_8bits_vals);
 
+static const true_false_string power_backoff_affects_power_management_vals =
+{
+    "Power backoff is applied to power management",
+    "Power backoff not applied to power management"
+};
+
+static const true_false_string phr_source_vals =
+{
+    "PH based on reference format",
+    "PH based on real transmission",
+};
 
 /* Forward declarations */
 static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
@@ -860,6 +898,44 @@ static true_false_string subheader_f_vals = {
     "8 bits"
 };
 
+
+/* Returns new subtree that was added for this item */
+static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                                    const int *ph_item, guint32 *PH, guint32 *offset)
+{
+    /* Subtree for this entry */
+    proto_item *entry_ti = proto_tree_add_item(tree,
+                                               hf_mac_nr_control_me_phr_entry,
+                                               tvb, *offset, 0, ENC_ASCII|ENC_NA);
+    proto_tree *entry_tree = proto_item_add_subtree(entry_ti, ett_mac_nr_me_phr_entry);
+
+    /* P */
+    proto_tree_add_item(entry_tree, hf_mac_nr_control_me_phr_p, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    /* V */
+    gboolean V;
+    proto_tree_add_item_ret_boolean(entry_tree, hf_mac_nr_control_me_phr_v, tvb, *offset, 1, ENC_BIG_ENDIAN, &V);
+    /* PH. TODO: infer whether value relates to Type1 (PUSCH), Type2 (PUCCH) or Type3 (SRS).
+       And decide whether:
+       - there needs to be a separate field for each SCellIndex and type OR
+       - a generated field added with the inferred type OR
+       - just do proto_item_append_text() indicating what the type was
+     */
+    proto_tree_add_item_ret_uint(entry_tree, *ph_item, tvb, *offset, 1, ENC_BIG_ENDIAN, PH);
+    (*offset)++;
+
+    if (!V) {
+        /* Reserved (2 bits) */
+        proto_tree_add_item(entry_tree, hf_mac_nr_control_me_phr_reserved_2, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        /* pcmax_c (6 bits) */
+        proto_tree_add_item(entry_tree, hf_mac_nr_control_me_phr_pcmax_c, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        (*offset)++;
+    }
+
+    proto_item_set_end(entry_ti, tvb, *offset);
+    return entry_ti;
+}
+
+
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -940,17 +1016,85 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                                                          "(Configured Grant Config) ");
                         break;
                     case MULTIPLE_ENTRY_PHR_LCID:
-                        /* variable size or deduced from bits? */
+                    {
+                        /* Whether this are 1 or 4 bytes of flags depends on
+                           the highest SCellIndex for that UE with a configured UL. Could get this from:
+                           - info added to mac_nr_info struct
+                           - by tracking the highest SCellIndex/carrier-id seen
+                           - by looking at SCell Activation/Deactivation CEs
+                           - by getting updated by RRC signalling
+                           - by following entries based on 1 bye to see if the dissected length matches
+                             SDU_length.
+                         */
+                        static const int * me_phr_byte1_flags[] = {
+                            &hf_mac_nr_control_me_phr_lcg7,
+                            &hf_mac_nr_control_me_phr_lcg6,
+                            &hf_mac_nr_control_me_phr_lcg5,
+                            &hf_mac_nr_control_me_phr_lcg4,
+                            &hf_mac_nr_control_me_phr_lcg3,
+                            &hf_mac_nr_control_me_phr_lcg2,
+                            &hf_mac_nr_control_me_phr_lcg1,
+                            &hf_mac_nr_control_me_phr_reserved,
+                            NULL
+                        };
+                        proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, me_phr_byte1_flags, ENC_NA);
+                        guint8 scell_bitmap1 = tvb_get_guint8(tvb, offset);
+                        guint8 start_offset = offset;
+                        offset++;
+
+                        static const int *ph_fields[] = {
+                            &hf_mac_nr_control_me_phr_ph_c1,
+                            &hf_mac_nr_control_me_phr_ph_c2,
+                            &hf_mac_nr_control_me_phr_ph_c3,
+                            &hf_mac_nr_control_me_phr_ph_c4,
+                            &hf_mac_nr_control_me_phr_ph_c5,
+                            &hf_mac_nr_control_me_phr_ph_c6,
+                            &hf_mac_nr_control_me_phr_ph_c7,
+                        };
+
+                        /* PCell entries */
+                        guint32 PH;
+                        proto_item *entry_ti;
+                        if (p_mac_nr_info->phr_type2_pcell) {
+                             entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_pcell, &PH, &offset);
+                            proto_item_append_text(entry_ti, " (Type 2 PCell PH=%u)", PH);
+                        }
+                        if (p_mac_nr_info->phr_type2_othercell) {
+                            entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell, &PH, &offset);
+                            proto_item_append_text(entry_ti, " (Type2, PSCell or PUCCH SCell PH=%u)", PH);
+                        }
+                        entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_typex_pcell, &PH, &offset);
+                        proto_item_append_text(entry_ti, " (TypeX, PCell PH=%u)", PH);
+
+
+                        /* SCell entries */
+                        for (int n=1; n <= 7; n++) {
+                            if (scell_bitmap1 & (1 << n)) {
+                                entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, ph_fields[n-1], &PH, &offset);
+                                proto_item_append_text(entry_ti, " (SCellIndex %d PH=%u)", n, PH);
+                            }
+                        }
+
                         write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
                                                          "(Multi-entry PHR) ");
-                        offset += SDU_length;
+
+                        /* Make sure dissected length matches signalled length */
+                        if (offset != start_offset + SDU_length) {
+                            proto_tree_add_expert_format(subheader_tree, pinfo, &ei_mac_nr_sdu_length_different_from_dissected,
+                                                         tvb, start_offset, offset-start_offset,
+                                                         "A Multiple-Entry PHR subheader has a length field of %u bytes, but "
+                                                         "dissected %u bytes", SDU_length, offset-start_offset);
+                            /* Assume length was correct, so at least can dissect further subheaders */
+                            offset = start_offset + SDU_length;
+                        }
                         break;
+                    }
                     case SINGLE_ENTRY_PHR_LCID:
                         /* R R PH (6 bits) */
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_se_phr_reserved,
                                             tvb, offset, 1, ENC_NA);
                         proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_se_phr_ph,
-                                                     tvb, offset, 1, ENC_NA, &phr_ph);
+                                                     tvb, offset, 1, ENC_BIG_ENDIAN, &phr_ph);
                         offset++;
 
                         /* R R PCMAXC (6 bits) */
@@ -1355,6 +1499,14 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     p_mac_nr_info->subframeNumber = tvb_get_bits8(tvb, ((offset+1)<<3)+4, 4);
                     offset += 2;
                     break;
+                case MAC_NR_PHR_TYPE2_PCELL_TAG:
+                    p_mac_nr_info->phr_type2_pcell = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case MAC_NR_PHR_TYPE2_OTHERCELL_TAG:
+                    p_mac_nr_info->phr_type2_othercell = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
                 case MAC_NR_PAYLOAD_TAG:
                     /* Have reached data, so set payload length and get out of loop */
                     /* TODO: this is not correct if there is padding which isn't in frame */
@@ -1578,7 +1730,7 @@ void proto_register_mac_nr(void)
 
         { &hf_mac_nr_control_crnti,
             { "C-RNTI",
-              "mac-nr.control.crnti", FT_UINT16, BASE_HEX, NULL, 0x0,
+              "mac-nr.control.crnti", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -1618,6 +1770,147 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
+
+        { &hf_mac_nr_control_me_phr_lcg7,
+            { "LCG7",
+              "mac-nr.control.me-phr.lcg7", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_lcg6,
+            { "LCG6",
+              "mac-nr.control.me-phr.lcg6", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_lcg5,
+            { "LCG5",
+              "mac-nr.control.me-phr.lcg5", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_lcg4,
+            { "LCG4",
+              "mac-nr.control.me-phr.lcg4", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_lcg3,
+            { "LCG3",
+              "mac-nr.control.me-phr.lcg3", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_lcg2,
+            { "LCG2",
+              "mac-nr.control.me-phr.lcg2", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_lcg1,
+            { "LCG1",
+              "mac-nr.control.me-phr.lcg1", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_entry,
+            { "Entry",
+              "mac-nr.control.me.phr.entry", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_reserved,
+            { "Reserved",
+              "mac-nr.control.me-phr.reserved", FT_BOOLEAN, 8, NULL, 0x01,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_p,
+            { "P",
+              "mac-nr.control.me-phr.p", FT_BOOLEAN, 8, TFS(&power_backoff_affects_power_management_vals), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_v,
+            { "V",
+              "mac-nr.control.me-phr.v", FT_BOOLEAN, 8, TFS(&phr_source_vals), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_type2_pcell,
+            { "Power Headroom (Type2, PCell)",
+              "mac-nr.control.me-phr.ph.type2-pcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell,
+            { "Power Headroom, (Type2, PSCell or PUCCH SCell)",
+              "mac-nr.control.me-phr.ph", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_typex_pcell,
+            { "Power Headroom (TypeX, PCell)",
+              "mac-nr.control.me-phr.ph.typex-pcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_mac_nr_control_me_phr_ph_c7,
+            { "PH for SCellIndex 7",
+              "mac-nr.control.me-phr.ph.c7", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c6,
+            { "PH for SCellIndex 6",
+              "mac-nr.control.me-phr.ph.c6", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c5,
+            { "PH for SCellIndex 5",
+              "mac-nr.control.me-phr.ph.c5", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c4,
+            { "PH for SCellIndex 4",
+              "mac-nr.control.me-phr.ph.c4", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c3,
+            { "PH for SCellIndex 3",
+              "mac-nr.control.me-phr.ph.c3", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c2,
+            { "PH for SCellIndex 2",
+              "mac-nr.control.me-phr.ph.c2", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_ph_c1,
+            { "PH for SCellIndex 1",
+              "mac-nr.control.me-phr.ph.c1", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_reserved_2,
+            { "Reserved",
+              "mac-nr.control.me-phr.reserved", FT_BOOLEAN, 8, NULL, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_me_phr_pcmax_c,
+            { "Pcmax,c",
+              "mac-nr.control.me-phr.pcmax_c", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mac_nr_control_dupl_act_deact_drb7,
             { "DRB 7",
               "mac-nr.control.dupl-act-deact.drb7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
@@ -2016,11 +2309,13 @@ void proto_register_mac_nr(void)
         &ett_mac_nr,
         &ett_mac_nr_context,
         &ett_mac_nr_subheader,
-        &ett_mac_nr_rar_subheader
+        &ett_mac_nr_rar_subheader,
+        &ett_mac_nr_me_phr_entry
     };
 
     static ei_register_info ei[] = {
-        { &ei_mac_nr_no_per_frame_data, { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_mac_nr_no_per_frame_data,                   { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_mac_nr_sdu_length_different_from_dissected, { "mac-nr.sdu-length-different-from-dissected", PI_UNDECODED, PI_WARN, "Something is wrong with sdu length or dissection is wrong", EXPFILL }},
     };
 
     module_t *mac_nr_module;
