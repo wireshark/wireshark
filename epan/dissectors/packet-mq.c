@@ -3190,6 +3190,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     /* Dissect the generic part of the other pre-defined headers */
                                     /* We assume that only one such header is present */
                                     gint iSizeHeader;
+                                    gint oIntEnc = p_mq_parm->mq_int_enc;
+                                    /* Use MD encoding */
+                                    p_mq_parm->mq_int_enc = ((p_mq_parm->mq_md_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_NORMAL) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
                                     iSizeHeader = (gint)tvb_get_guint32(tvb, offset + 8, p_mq_parm->mq_int_enc);
                                     /* XXX - 32 is inferred from the code below.  What's the
                                     * correct minimum? */
@@ -3204,7 +3207,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         gint iTmp;
                                         gint iVer;
                                         gint iLen;
-                                        gint oEnc = p_mq_parm->mq_str_enc;
+                                        gint oStrEnc = p_mq_parm->mq_str_enc;
 
                                         p_mq_parm->iOfsEnc = offset + 12;
                                         p_mq_parm->iOfsCcs = offset + 16;
@@ -3403,8 +3406,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         offset += iSizeHeader;
                                         iHeadersLength += iSizeHeader;
                                         p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
-                                        p_mq_parm->mq_str_enc = oEnc;
+                                        p_mq_parm->mq_str_enc = oStrEnc;
                                     }
+                                    p_mq_parm->mq_int_enc = oIntEnc;
                                 }
                             }
 
