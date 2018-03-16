@@ -101,9 +101,9 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gb
 /* and implemented by this dissector, using the definitions      */
 /* below. A link to an example program showing you how to encode */
 /* these headers and send LTE RLC PDUs on a UDP socket is        */
-/* provided at https://wiki.wireshark.org/RLC-LTE                 */
+/* provided at https://wiki.wireshark.org/RLC-LTE                */
 /*                                                               */
-/* A heuristic dissecter (enabled by a preference) will          */
+/* A heuristic dissector (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */
 /* Until someone is using this format, suggestions for changes   */
 /* are welcome.                                                  */
@@ -160,3 +160,15 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gb
 
 #endif
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

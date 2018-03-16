@@ -221,9 +221,9 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 /* and implemented by this dissector, using the definitions      */
 /* below. A link to an example program showing you how to encode */
 /* these headers and send LTE MAC PDUs on a UDP socket is        */
-/* provided at https://wiki.wireshark.org/MAC-LTE                 */
+/* provided at https://wiki.wireshark.org/MAC-LTE                */
 /*                                                               */
-/* A heuristic dissecter (enabled by a preference) will          */
+/* A heuristic dissector (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */
 /*****************************************************************/
 
@@ -375,3 +375,15 @@ void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info);
 gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
                                         gint *p_offset);
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
