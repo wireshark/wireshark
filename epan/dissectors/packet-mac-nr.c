@@ -127,7 +127,7 @@ static int hf_mac_nr_rar_bi = -1;
 static int hf_mac_nr_rar_rapid = -1;
 static int hf_mac_nr_rar_ta = -1;
 static int hf_mac_nr_rar_grant = -1;
-static int hf_mac_nr_rar_crnti = -1;
+static int hf_mac_nr_rar_temp_crnti = -1;
 
 static int hf_mac_nr_padding = -1;
 
@@ -539,11 +539,11 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
                 /* C-RNTI (2 bytes) */
                 guint32 c_rnti;
-                proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_crnti, tvb, offset, 2, ENC_BIG_ENDIAN, &c_rnti);
+                proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_temp_crnti, tvb, offset, 2, ENC_BIG_ENDIAN, &c_rnti);
                 offset += 2;
 
                 write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                         "(RAPID=%u TA=%u C-RNTI=%u) ", rapid, ta, c_rnti);
+                                         "(RAPID=%u TA=%u Temp C-RNTI=%u) ", rapid, ta, c_rnti);
             }
             else {
                 write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
@@ -663,7 +663,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                                     tvb, offset, SDU_length, ENC_NA);
             }
             write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                     "(lcid:%u %u bytes) ", lcid, SDU_length);
+                                     "(LCID:%u %u bytes) ", lcid, SDU_length);
             offset += SDU_length;
         }
         else {
@@ -1214,13 +1214,13 @@ void proto_register_mac_nr(void)
             }
         },
         { &hf_mac_nr_ulsch_sdu,
-            { "ULSCH SDU",
+            { "UL-SCH SDU",
               "mac-nr.ulsch.sdu", FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_dlsch_sdu,
-            { "DLSCH SDU",
+            { "DL-SCH SDU",
               "mac-nr.dlsch.sdu", FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
@@ -1283,9 +1283,9 @@ void proto_register_mac_nr(void)
               "UL Grant details", HFILL
             }
         },
-        { &hf_mac_nr_rar_crnti,
-            { "C-RNTI",
-              "mac-nr.rar.crnti", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+        { &hf_mac_nr_rar_temp_crnti,
+            { "Temporary C-RNTI",
+              "mac-nr.rar.temp_crnti", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
