@@ -61,7 +61,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
                         ts->direction)
         && tg->stream == tcphdr->th_stream)
     {
-        struct segment *segment = (struct segment *)g_malloc(sizeof(struct segment));
+        struct segment *segment = g_new(struct segment, 1);
         segment->next      = NULL;
         segment->num       = pinfo->num;
         segment->rel_secs  = (guint32)pinfo->rel_ts.secs;
@@ -253,7 +253,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
     if (is_unique && (th->num_hdrs < MAX_SUPPORTED_TCP_HEADERS)) {
         /* Need to take a deep copy of the tap struct, it may not be valid
            to read after this function returns? */
-        th->tcphdrs[th->num_hdrs] = (struct tcpheader *)g_malloc(sizeof(struct tcpheader));
+        th->tcphdrs[th->num_hdrs] = g_new(struct tcpheader, 1);
         *(th->tcphdrs[th->num_hdrs]) = *header;
         copy_address(&th->tcphdrs[th->num_hdrs]->ip_src, &header->ip_src);
         copy_address(&th->tcphdrs[th->num_hdrs]->ip_dst, &header->ip_dst);
@@ -370,7 +370,7 @@ rtt_get_new_unack(double time_val, unsigned int seqno, unsigned int seglen)
 {
     struct rtt_unack *u;
 
-    u = (struct rtt_unack * )g_malloc(sizeof(struct rtt_unack));
+    u = g_new(struct rtt_unack, 1);
     u->next  = NULL;
     u->time  = time_val;
     u->seqno = seqno;
