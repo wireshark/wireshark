@@ -108,15 +108,18 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "graph_segment_list_get()");
 
-    if (!cf || !tg) return;
+    if (!cf || !tg) {
+        return;
+    }
 
     if (!stream_known) {
         struct tcpheader *header = select_tcpip_session(cf, &current);
         if (!header) return;
-        if (tg->type == GRAPH_THROUGHPUT)
+        if (tg->type == GRAPH_THROUGHPUT) {
             ts.direction = COMPARE_CURR_DIR;
-        else
+        } else {
             ts.direction = COMPARE_ANY_DIR;
+        }
 
         /* Remember stream info in graph */
         copy_address(&tg->src_address, &current.ip_src);
@@ -124,8 +127,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
         copy_address(&tg->dst_address, &current.ip_dst);
         tg->dst_port = current.th_dport;
         tg->stream = header->th_stream;
-    }
-    else {
+    } else {
             ts.direction = COMPARE_ANY_DIR;
     }
 
@@ -218,8 +220,6 @@ get_num_acks(struct tcp_graph *tg, int *num_sack_ranges)
     return count;
 }
 
-
-
 typedef struct _th_t {
     int num_hdrs;
     #define MAX_SUPPORTED_TCP_HEADERS 8
@@ -242,8 +242,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
                             stored->th_sport, stored->th_dport,
                             &header->ip_src, &header->ip_dst,
                             header->th_sport, stored->th_dport,
-                            COMPARE_CURR_DIR))
-        {
+                            COMPARE_CURR_DIR)) {
             is_unique = FALSE;
             break;
         }
@@ -279,8 +278,9 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     nstime_t        rel_ts;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
-    if (!cf || !hdrs)
+    if (!cf || !hdrs) {
         return NULL;
+    }
 
     fdata = cf->current_frame;
 
@@ -292,11 +292,12 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     }
 
     /* dissect the current record */
-    if (!cf_read_record(cf, fdata))
+    if (!cf_read_record(cf, fdata)) {
         return NULL;    /* error reading the record */
+    }
 
 
-    error_string=register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);
+    error_string = register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
@@ -359,8 +360,9 @@ int rtt_is_retrans(struct rtt_unack *list, unsigned int seqno)
 
     for (u=list; u; u=u->next) {
         if (tcp_seq_eq_or_after(seqno, u->seqno) &&
-            tcp_seq_before(seqno, u->end_seqno))
+            tcp_seq_before(seqno, u->end_seqno)) {
             return TRUE;
+        }
     }
     return FALSE;
 }
@@ -383,21 +385,24 @@ void rtt_put_unack_on_list(struct rtt_unack **l, struct rtt_unack *new_unack)
     struct rtt_unack *u, *list = *l;
 
     for (u=list; u; u=u->next) {
-        if (!u->next)
+        if (!u->next) {
             break;
+        }
     }
-    if (u)
+    if (u) {
         u->next = new_unack;
-    else
+    } else {
         *l = new_unack;
+    }
 }
 
 void rtt_delete_unack_from_list(struct rtt_unack **l, struct rtt_unack *dead)
 {
     struct rtt_unack *u, *list = *l;
 
-    if (!dead || !list)
+    if (!dead || !list) {
         return;
+    }
 
     if (dead == list) {
         *l = list->next;
