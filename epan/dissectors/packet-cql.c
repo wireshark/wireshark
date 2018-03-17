@@ -1415,17 +1415,19 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						}
 						offset += 4;
 
-						for (j = 0; j < result_rows_row_count; ++j) {
-							columns_subtree = proto_tree_add_subtree(rows_subtree, tvb, offset, 0, ett_cql_result_columns, &ti, "Data (Columns)");
+						if (result_rows_columns_count) {
+							for (j = 0; j < result_rows_row_count; ++j) {
+								columns_subtree = proto_tree_add_subtree(rows_subtree, tvb, offset, 0, ett_cql_result_columns, &ti, "Data (Columns)");
 
-							if (offset_row_metadata) {
-								offset = parse_row(columns_subtree, pinfo, tvb, offset_row_metadata, offset, result_rows_columns_count);
-							} else {
-								for (k = 0; k < result_rows_columns_count; ++k) {
-									proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
-									offset += 4;
-									proto_tree_add_item(columns_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
-									offset += bytes_length;
+								if (offset_row_metadata) {
+									offset = parse_row(columns_subtree, pinfo, tvb, offset_row_metadata, offset, result_rows_columns_count);
+								} else {
+									for (k = 0; k < result_rows_columns_count; ++k) {
+										proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
+										offset += 4;
+										proto_tree_add_item(columns_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
+										offset += bytes_length;
+									}
 								}
 							}
 						}
