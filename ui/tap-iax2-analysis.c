@@ -30,7 +30,7 @@
 /* This comes from tap-rtp-common.c */
 /****************************************************************************/
 
-    void
+void
 iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         packet_info *pinfo,
         const struct _iax2_info_t *iax2info)
@@ -42,8 +42,9 @@ iax2_packet_analyse(tap_iax2_stat_t *statinfo,
     statinfo->flags = 0;
     /* check payload type */
     if (iax2info->ftype == AST_FRAME_VOICE) {
-        if (iax2info->csub != statinfo->pt)
+        if (iax2info->csub != statinfo->pt) {
             statinfo->flags |= STAT_FLAG_PT_CHANGE;
+        }
         statinfo->pt = iax2info->csub;
     }
 
@@ -62,13 +63,16 @@ iax2_packet_analyse(tap_iax2_stat_t *statinfo,
     while ((statinfo->bw_history[statinfo->bw_start_index].time+1) < current_time) {
         statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;
         statinfo->bw_start_index++;
-        if (statinfo->bw_start_index == BUFF_BW) statinfo->bw_start_index = 0;
+        if (statinfo->bw_start_index == BUFF_BW) {
+            statinfo->bw_start_index = 0;
+        }
     };
     statinfo->total_bytes += iax2info->payload_len + 24;
     statinfo->bandwidth = (double)(statinfo->total_bytes*8)/1000;
     statinfo->bw_index++;
-    if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;
-
+    if (statinfo->bw_index == BUFF_BW) {
+        statinfo->bw_index = 0;
+    }
 
     /*  is this the first packet we got in this direction? */
     if (statinfo->first_packet) {
