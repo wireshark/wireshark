@@ -703,6 +703,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_item *ti_pad_len;
             guint32 padding_offset = offset, pad_len;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", PADDING");
+
             /* get length of padding (with check if it is always a 0) */
             while ( tvb_reported_length_remaining(tvb, padding_offset) > 0) {
                 if(tvb_get_guint8(tvb, padding_offset) != 0){
@@ -724,6 +726,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             guint64 stream_id;
             guint32 error_code, len_streamid = 0, len_finaloffset = 0;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", RS");
+
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rsts_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
 
@@ -736,14 +740,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
 
             proto_item_set_len(ti_ft, 1 + len_streamid + 2 + len_finaloffset);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "RST STREAM, ");
-
         }
         break;
         case FT_CONNECTION_CLOSE:{
             guint32 len_reasonphrase, error_code;
             guint64 len_reason = 0;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
 
             proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
             offset += 2;
@@ -756,13 +759,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
             proto_item_set_len(ti_ft, 1 + 2 + len_reasonphrase + (guint32)len_reason);
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Connection Close");
-
         }
         break;
         case FT_APPLICATION_CLOSE:{
             guint32 len_reasonphrase, error_code;
             guint64 len_reason;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", AC");
 
             proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ac_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
             offset += 2;
@@ -774,25 +777,23 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
             proto_item_set_len(ti_ft, 1 + 2+ len_reasonphrase + (guint32)len_reason);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Application Close");
-
         }
         break;
         case FT_MAX_DATA:{
             guint32 len_maximumdata;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MD");
+
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_md_maximum_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumdata);
             offset += len_maximumdata;
 
             proto_item_set_len(ti_ft, 1 + len_maximumdata);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Max Data");
-
         }
         break;
         case FT_MAX_STREAM_DATA:{
             guint32 len_streamid, len_maximumstreamdata;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MSD");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_msd_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
@@ -801,40 +802,38 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += len_maximumstreamdata;
 
             proto_item_set_len(ti_ft, 1 + len_streamid + len_maximumstreamdata);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Max Stream Data");
-
         }
         break;
         case FT_MAX_STREAM_ID:{
             guint32 len_streamid;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MSI");
+
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_msi_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
 
             proto_item_set_len(ti_ft, 1 + len_streamid);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Max Stream ID");
-
         }
         break;
         case FT_PING:{
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PING, ");
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", PING");
         }
         break;
         case FT_BLOCKED:{
             guint32 len_offset;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", B");
+
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_blocked_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
             offset += len_offset;
 
             proto_item_set_len(ti_ft, 1 + len_offset);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Blocked");
         }
         break;
         case FT_STREAM_BLOCKED:{
             guint32 len_streamid, len_offset;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", SB");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sb_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
@@ -843,26 +842,25 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += len_offset;
 
             proto_item_set_len(ti_ft, 1 + len_streamid + len_offset);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream Blocked");
-
         }
         break;
         case FT_STREAM_ID_BLOCKED:{
             guint32 len_streamid;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", SIB");
+
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sib_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
 
             proto_item_set_len(ti_ft, 1 + len_streamid);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream ID Blocked");
         }
         break;
         case FT_NEW_CONNECTION_ID:{
             guint32 len_sequence;
             guint32 nci_length;
             gboolean valid_cid = FALSE;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", NCI");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
             offset += len_sequence;
@@ -887,13 +885,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += 16;
 
             proto_item_set_len(ti_ft, 1 + len_sequence + nci_length + 16);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "New Connection ID");
-
         }
         break;
         case FT_STOP_SENDING:{
             guint32 len_streamid;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", SS");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
@@ -903,13 +900,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += 2;
 
             proto_item_set_len(ti_ft, 1 + len_streamid + 2);
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
-
         }
         break;
         case FT_ACK:{
             guint64 ack_block_count;
             guint32 lenvar;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
@@ -940,17 +937,18 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_PATH_CHALLENGE:{
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", PC");
+
             proto_tree_add_item(ft_tree, hf_quic_frame_type_path_challenge_data, tvb, offset, 8, ENC_NA);
             offset += 8;
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PATH_CHALLENGE, ");
         }
         break;
         case FT_PATH_RESPONSE:{
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", PR");
+
             proto_tree_add_item(ft_tree, hf_quic_frame_type_path_response_data, tvb, offset, 8, ENC_NA);
             offset += 8;
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PATH_RESPONSE, ");
         }
         break;
         case FT_STREAM_10:
@@ -967,6 +965,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             offset -= 1;
 
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", STREAM");
+
             ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_fin, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_len, tvb, offset, 1, ENC_NA);
@@ -977,6 +977,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += lenvar;
 
             proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u", stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
 
             if (frame_type & FTFLAGS_STREAM_OFF) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
@@ -1002,6 +1003,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 col_set_writable(pinfo->cinfo, -1, TRUE);
             }
             offset += (int)length;
+
+
         }
         break;
         default:
