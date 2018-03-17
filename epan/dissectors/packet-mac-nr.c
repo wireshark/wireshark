@@ -37,6 +37,8 @@ static int hf_mac_nr_context_direction = -1;
 static int hf_mac_nr_context_rnti = -1;
 static int hf_mac_nr_context_rnti_type = -1;
 static int hf_mac_nr_context_ueid = -1;
+static int hf_mac_nr_context_bcch_transport_channel = -1;
+
 
 static int hf_mac_nr_subheader = -1;
 static int hf_mac_nr_subheader_reserved = -1;
@@ -47,7 +49,7 @@ static int hf_mac_nr_ulsch_lcid = -1;
 static int hf_mac_nr_dlsch_lcid = -1;
 static int hf_mac_nr_dlsch_sdu = -1;
 static int hf_mac_nr_ulsch_sdu = -1;
-
+static int hf_mac_nr_bcch_pdu = -1;
 
 static int hf_mac_nr_control_crnti = -1;
 static int hf_mac_nr_control_ue_contention_resolution_identity = -1;
@@ -139,6 +141,11 @@ static int ett_mac_nr_rar_subheader = -1;
 
 static expert_field ei_mac_nr_no_per_frame_data = EI_INIT;
 
+static dissector_handle_t nr_rrc_bcch_bch_handle;
+
+/* By default try to decode transparent data (BCCH, PCCH and CCCH) data using NR RRC dissector */
+static gboolean global_mac_nr_attempt_rrc_decode = TRUE;
+
 /* Constants and value strings */
 
 static const value_string radio_type_vals[] =
@@ -163,6 +170,13 @@ static const value_string rnti_type_vals[] =
     { C_RNTI,      "C-RNTI"},
     { SI_RNTI,     "SI-RNTI"},
     { CS_RNTI,     "CS-RNTI"},
+    { 0, NULL }
+};
+
+static const value_string bcch_transport_channel_vals[] =
+{
+    { SI_RNTI,      "DL-SCH"},
+    { NO_RNTI,      "BCH"},
     { 0, NULL }
 };
 
@@ -480,7 +494,64 @@ static void write_pdu_label_and_info_literal(proto_item *ti1, proto_item *ti2,
     }
 }
 
+static void
+call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /* Call it (catch exceptions so that stats will be updated) */
+    if (handle) {
+        TRY {
+            call_dissector_only(handle, tvb, pinfo, tree, NULL);
+        }
+        CATCH_ALL {
+        }
+        ENDTRY
+    }
+}
 
+/* Dissect BCCH PDU */
+static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                         proto_item *pdu_ti,
+                         int offset, mac_nr_info *p_mac_nr_info)
+{
+    proto_item *ti;
+
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "BCCH PDU (%u bytes, on %s transport)  ",
+                             tvb_reported_length_remaining(tvb, offset),
+                             val_to_str_const(p_mac_nr_info->rntiType,
+                                              bcch_transport_channel_vals,
+                                              "Unknown"));
+
+    /* Show which transport layer it came in on (inferred from RNTI type) */
+    ti = proto_tree_add_uint(tree, hf_mac_nr_context_bcch_transport_channel,
+                             tvb, offset, 0, p_mac_nr_info->rntiType);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /****************************************/
+    /* Whole frame is BCCH data             */
+
+    /* Raw data */
+    ti = proto_tree_add_item(tree, hf_mac_nr_bcch_pdu,
+                             tvb, offset, -1, ENC_NA);
+
+    if (global_mac_nr_attempt_rrc_decode) {
+        /* Attempt to decode payload using NR RRC dissector */
+        dissector_handle_t protocol_handle;
+        tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
+
+        if (p_mac_nr_info->rntiType == NO_RNTI) {
+            protocol_handle = nr_rrc_bcch_bch_handle;
+        } else {
+            /* TODO: add handle once NR-RRC spec is updated */
+            protocol_handle = NULL;
+        }
+
+        /* Hide raw view of bytes */
+        PROTO_ITEM_SET_HIDDEN(ti);
+
+        call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
+    }
+}
 
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         proto_item *pdu_ti _U_, guint32 offset,
@@ -1018,13 +1089,13 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
         case SI_RNTI:
-            /* BCH over DL-SCH */
-//            dissect_bch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
+            /* BCCH over DL-SCH */
+            dissect_bcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
             break;
 
         case NO_RNTI:
-            /* Must be BCH over BCH... */
-//            dissect_bch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
+            /* Must be BCCH over BCH... */
+            dissect_bcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
             break;
 
 
@@ -1170,6 +1241,12 @@ void proto_register_mac_nr(void)
               "User Equipment Identifier associated with message", HFILL
             }
         },
+        { &hf_mac_nr_context_bcch_transport_channel,
+            { "Transport channel",
+              "mac-nr.bcch-transport-channel", FT_UINT8, BASE_DEC, VALS(bcch_transport_channel_vals), 0x0,
+              "Transport channel BCCH data was carried on", HFILL
+            }
+        },
 
         { &hf_mac_nr_subheader,
             { "Subheader",
@@ -1222,6 +1299,12 @@ void proto_register_mac_nr(void)
         { &hf_mac_nr_dlsch_sdu,
             { "DL-SCH SDU",
               "mac-nr.dlsch.sdu", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_bcch_pdu,
+            { "BCCH PDU",
+              "mac-nr.bcch.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -1714,6 +1797,7 @@ void proto_register_mac_nr(void)
         { &ei_mac_nr_no_per_frame_data, { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
     };
 
+    module_t *mac_nr_module;
     expert_module_t* expert_mac_nr;
 
     /* Register protocol. */
@@ -1725,12 +1809,23 @@ void proto_register_mac_nr(void)
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-nr", dissect_mac_nr, proto_mac_nr);
+
+    /* Preferences */
+    mac_nr_module = prefs_register_protocol(proto_mac_nr, NULL);
+
+    prefs_register_bool_preference(mac_nr_module, "attempt_rrc_decode",
+        "Attempt to decode BCCH, PCCH and CCCH data using NR RRC dissector",
+        "Attempt to decode BCCH, PCCH and CCCH data using NR RRC dissector",
+        &global_mac_nr_attempt_rrc_decode);
+
 }
 
 void proto_reg_handoff_mac_nr(void)
 {
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_mac_nr_heur, "MAC-NR over UDP", "mac_nr_udp", proto_mac_nr, HEURISTIC_DISABLE);
+
+    nr_rrc_bcch_bch_handle = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_mac_nr);
 }
 
 
