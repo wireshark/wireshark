@@ -258,9 +258,9 @@ add_chunk_count(address *vadd, sctp_assoc_info_t *info, guint32 direction, guint
         else
             list = g_list_next(list);
     }
-    ch = (sctp_addr_chunk *)g_malloc(sizeof(sctp_addr_chunk));
+    ch = g_new(sctp_addr_chunk, 1);
     ch->direction = direction;
-    ch->addr = (address *)g_malloc(sizeof(address));
+    ch->addr = g_new(address, 1);
     ch->addr->type = vadd->type;
     ch->addr->len = vadd->len;
     dat = (guint8 *)g_malloc(vadd->len);
@@ -485,13 +485,13 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
                     if (type == IPV4ADDRESS_PARAMETER_ID)
                     {
-                        store = (address *)g_malloc(sizeof (address));
+                        store = g_new(address, 1);
                         alloc_address_tvb(NULL, store, AT_IPv4, 4, sctp_info->tvb[chunk_number], IPV4_ADDRESS_OFFSET);
                         info = add_address(store, info, info->direction);
                     }
                     else if (type == IPV6ADDRESS_PARAMETER_ID)
                     {
-                        store = (address *)g_malloc(sizeof (address));
+                        store = g_new(address, 1);
                         alloc_address_tvb(NULL, store, AT_IPv6, 16, sctp_info->tvb[chunk_number], IPV6_ADDRESS_OFFSET);
                         info = add_address(store, info, info->direction);
                     }
@@ -587,7 +587,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                             tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
                         }
                         tsn->tsns = g_list_append(tsn->tsns, t_s_n);
-                        tsn_s = (struct tsn_sort *)g_malloc(sizeof(struct tsn_sort));
+                        tsn_s = g_new(struct tsn_sort, 1);
                         tsn_s->tsnumber = tsnumber;
                         tsn_s->secs     = tsn->secs = (guint32)pinfo->rel_ts.secs;
                         tsn_s->usecs    = tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
@@ -634,7 +634,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                         tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
                         sack->tsns = g_list_append(sack->tsns, t_s_n);
                         sackchunk = TRUE;
-                        tsn_s = (struct tsn_sort *)g_malloc(sizeof(struct tsn_sort));
+                        tsn_s = g_new(struct tsn_sort, 1);
                         tsn_s->tsnumber = tsnumber;
                         tsn_s->secs     = tsn->secs = (guint32)pinfo->rel_ts.secs;
                         tsn_s->usecs    = tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
@@ -666,10 +666,10 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             if (info->verification_tag1 != 0 || info->verification_tag2 != 0)
             {
                 guint32 number;
-                store = (address *)g_malloc(sizeof (address));
+                store = g_new(address, 1);
                 copy_address(store, &tmp_info.src);
                 info  = add_address(store, info, info->direction);
-                store = (address *)g_malloc(sizeof (address));
+                store = g_new(address, 1);
                 copy_address(store, &tmp_info.dst);
                 if (info->direction == 1)
                     info = add_address(store, info, 2);
@@ -686,7 +686,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             else
             {
                 gchar* tmp_str;
-                error = (sctp_error_info_t *)g_malloc(sizeof(sctp_error_info_t));
+                error = g_new(sctp_error_info_t, 1);
                 error->frame_number = pinfo->num;
                 error->chunk_info[0] = '\0';
                 if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
@@ -768,7 +768,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         number = pinfo->num;
         info->frame_numbers=g_list_prepend(info->frame_numbers, GUINT_TO_POINTER(number));
 
-        store = (address *)g_malloc(sizeof (address));
+        store = g_new(address, 1);
         copy_address(store, &tmp_info.src);
 
         switch (info->direction) {
@@ -783,7 +783,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 break;
         }
 
-        store = (address *)g_malloc(sizeof (address));
+        store = g_new(address, 1);
         copy_address(store, &tmp_info.dst);
 
         switch (info->direction) {
@@ -840,13 +840,13 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
                 if (type == IPV4ADDRESS_PARAMETER_ID)
                 {
-                    store = (address *)g_malloc(sizeof (address));
+                    store = g_new(address, 1);
                     alloc_address_tvb(NULL, store, AT_IPv4, 4, sctp_info->tvb[chunk_number], IPV4_ADDRESS_OFFSET);
                     info = add_address(store, info, info->direction);
                 }
                 else if (type == IPV6ADDRESS_PARAMETER_ID)
                 {
-                    store = (address *)g_malloc(sizeof (address));
+                    store = g_new(address, 1);
                     alloc_address_tvb(NULL, store, AT_IPv6, 16, sctp_info->tvb[chunk_number], IPV6_ADDRESS_OFFSET);
                     info = add_address(store, info, info->direction);
                 }
@@ -923,7 +923,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     }
                     tsn->tsns = g_list_append(tsn->tsns, t_s_n);
 
-                    tsn_s = (struct tsn_sort *)g_malloc(sizeof(struct tsn_sort));
+                    tsn_s = g_new(struct tsn_sort, 1);
                     tsn_s->tsnumber = tsnumber;
                     tsn_s->secs  = tsn->secs = (guint32)pinfo->rel_ts.secs;
                     tsn_s->usecs = tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
@@ -1054,7 +1054,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
                     sack->tsns = g_list_append(sack->tsns, t_s_n);
                     sackchunk = TRUE;
-                    tsn_s = (struct tsn_sort *)g_malloc(sizeof(struct tsn_sort));
+                    tsn_s = g_new(struct tsn_sort, 1);
                     tsn_s->tsnumber = tsnumber;
                     tsn_s->secs   = tsn->secs = (guint32)pinfo->rel_ts.secs;
                     tsn_s->usecs  = tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
