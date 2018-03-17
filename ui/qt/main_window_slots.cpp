@@ -2958,13 +2958,19 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     reloadLuaPlugins();
 }
 
-void MainWindow::openFollowStreamDialog(follow_type_t type) {
+void MainWindow::openFollowStreamDialog(follow_type_t type, int stream_num) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
     connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
 
     fsd->show();
-    fsd->follow(getFilter());
+    if (stream_num >= 0) {
+        // If a specific conversation was requested, then ignore any previous
+        // display filters and display all related packets.
+        fsd->follow("", true, stream_num);
+    } else {
+        fsd->follow(getFilter());
+    }
 }
 
 void MainWindow::on_actionAnalyzeFollowTCPStream_triggered()
@@ -3268,8 +3274,8 @@ void MainWindow::statCommandConversations(const char *arg, void *userdata)
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
     connect(conv_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
-            this, SLOT(openFollowStreamDialog(follow_type_t)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t,int)),
+            this, SLOT(openFollowStreamDialog(follow_type_t,int)));
     connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
             this, SLOT(openTcpStreamDialog(int)));
     conv_dialog->show();

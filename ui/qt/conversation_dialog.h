@@ -56,7 +56,7 @@ public slots:
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
-    void openFollowStreamDialog(follow_type_t type);
+    void openFollowStreamDialog(follow_type_t type, int stream_num);
     void openTcpStreamGraph(int graph_type);
 
 private:
