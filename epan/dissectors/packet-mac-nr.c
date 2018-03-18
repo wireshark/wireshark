@@ -98,26 +98,31 @@ static int hf_mac_nr_control_scell_act_deact_cell27 = -1;
 static int hf_mac_nr_control_scell_act_deact_cell26 = -1;
 static int hf_mac_nr_control_scell_act_deact_cell25 = -1;
 static int hf_mac_nr_control_scell_act_deact_cell24 = -1;
-static int hf_mac_nr_control_short_trunc_bsr_lcg_id = -1;
-static int hf_mac_nr_control_short_trunc_bsr_bs = -1;
-static int hf_mac_nr_control_short_bsr_lcg_id = -1;
-static int hf_mac_nr_control_short_bsr_bs = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg7 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg6 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg5 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg4 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg3 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg2 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg1 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_lcg0 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg0 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg7 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg6 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg5 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg4 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg3 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg2 = -1;
-static int hf_mac_nr_control_long_trunc_bsr_bs_lcg1 = -1;
+static int hf_mac_nr_control_bsr_short_lcg = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg0 = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg1 = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg2 = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg3 = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg4 = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg5 = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg6 = -1;
+static int hf_mac_nr_control_bsr_short_bs_lcg7 = -1;
+static int hf_mac_nr_control_bsr_long_lcg7 = -1;
+static int hf_mac_nr_control_bsr_long_lcg6 = -1;
+static int hf_mac_nr_control_bsr_long_lcg5 = -1;
+static int hf_mac_nr_control_bsr_long_lcg4 = -1;
+static int hf_mac_nr_control_bsr_long_lcg3 = -1;
+static int hf_mac_nr_control_bsr_long_lcg2 = -1;
+static int hf_mac_nr_control_bsr_long_lcg1 = -1;
+static int hf_mac_nr_control_bsr_long_lcg0 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg0 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg1 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg2 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg3 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg4 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg5 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg6 = -1;
+static int hf_mac_nr_control_bsr_long_bs_lcg7 = -1;
 
 static int hf_mac_nr_rar = -1;
 static int hf_mac_nr_rar_subheader = -1;
@@ -369,75 +374,261 @@ static value_string_ext buffer_size_5bits_vals_ext = VALUE_STRING_EXT_INIT(buffe
 
 static const value_string buffer_size_8bits_vals[] =
 {
-    { 0,  "BS = 0"},
-    { 1,  "0 < BS <= 10"},
-    { 2,  "10 < BS <= 11"},
-    { 3,  "11 < BS <= 12"},
-    { 4,  "12 < BS <= 13"},
-    { 5,  "12 < BS <= 13"},  /* N.B. same as previous index, but wrong in spec! */
-    { 6,  "13 < BS <= 14"},
-    { 7,  "14 < BS <= 15"},
-    { 8,  "15 < BS <= 16"},
-    { 9,  "16 < BS <= 17"},
-    { 10, "17 < BS <= 18"},
-    { 11, "18 < BS <= 19"},
-    { 12, "19 < BS <= 20"},
-    { 13, "20 < BS <= 22"},
-    { 14, "22 < BS <= 23"},
-    { 15, "23 < BS <= 25"},
-    { 16, "25 < BS <= 26"},
-    { 17, "26 < BS <= 28"},
-    { 18, "28 < BS <= 30"},
-    { 19, "30 < BS <= 32"},
-    { 20, "32 < BS <= 34"},
-    { 21, "34 < BS <= 36"},
-    { 22, "36 < BS <= 38"},
-    { 23, "38 < BS <= 40"},
-    { 24, "40 < BS <= 43"},
-    { 25, "43 < BS <= 46"},
-    { 26, "46 < BS <= 49"},
-    { 27, "49 < BS <= 52"},
-    { 28, "52 < BS <= 55"},
-    { 29, "52 < BS <= 59"},
-    { 30, "59 < BS <= 62"},
-    { 31, "62 < BS <= 66"},
-    { 32, "66 < BS <= 71"},
-    { 33, "71 < BS <= 75"},
-    { 34, "75 < BS <= 80"},
-    { 35, "80 < BS <= 85"},
-    { 36, "85 < BS <= 91"},
-    { 37, "91 < BS <= 97"},
-    { 38, "97 < BS <= 103"},
-    { 39, "103 < BS <= 110"},
-    { 40, "110 < BS <= 117"},
-    { 41, "117 < BS <= 124"},
-    { 42, "124 < BS <= 132"},
-    { 43, "132 < BS <= 141"},
-    { 44, "141 < BS <= 150"},
-    { 45, "150 < BS <= 160"},
-    { 46, "160 < BS <= 170"},
-    { 47, "170 < BS <= 181"},
-    { 48, "181 < BS <= 193"},
-    { 49, "193 < BS <= 205"},
-    { 50, "205 < BS <= 218"},
-    { 51, "218 < BS <= 233"},
-    { 52, "233 < BS <= 248"},
-    { 53, "248 < BS <= 264"},
-    { 54, "264 < BS <= 281"},
-    { 55, "281 < BS <= 299"},
-    { 56, "299 < BS <= 318"},
-    { 57, "318 < BS <= 339"},
-    { 58, "339 < BS <= 361"},
-    { 59, "361 < BS <= 384"},
-    { 60, "384 < BS <= 409"},
-    { 61, "409 < BS <= 436"},
-    { 62, "436 < BS <= 464"},
-    { 63, "464 < BS <= 494"},
-    { 64, "494 < BS <= 526"},
-    { 65, "526 < BS <= 560"},
-    { 66, "560 < BS <= 597"},
-    /* TODO: given the size of this table, and repeated range in V15.0.0 for indices 4,5,
-     * will finish entering these when the new version appears */
+    { 0,   "BS = 0"},
+    { 1,   "0 < BS <= 10"},
+    { 2,   "10 < BS <= 11"},
+    { 3,   "11 < BS <= 12"},
+    { 4,   "12 < BS <= 13"},
+    { 5,   "12 < BS <= 13"},  /* N.B. same as previous index, but wrong in spec! */
+    { 6,   "13 < BS <= 14"},
+    { 7,   "14 < BS <= 15"},
+    { 8,   "15 < BS <= 16"},
+    { 9,   "16 < BS <= 17"},
+    { 10,  "17 < BS <= 18"},
+    { 11,  "18 < BS <= 19"},
+    { 12,  "19 < BS <= 20"},
+    { 13,  "20 < BS <= 22"},
+    { 14,  "22 < BS <= 23"},
+    { 15,  "23 < BS <= 25"},
+    { 16,  "25 < BS <= 26"},
+    { 17,  "26 < BS <= 28"},
+    { 18,  "28 < BS <= 30"},
+    { 19,  "30 < BS <= 32"},
+    { 20,  "32 < BS <= 34"},
+    { 21,  "34 < BS <= 36"},
+    { 22,  "36 < BS <= 38"},
+    { 23,  "38 < BS <= 40"},
+    { 24,  "40 < BS <= 43"},
+    { 25,  "43 < BS <= 46"},
+    { 26,  "46 < BS <= 49"},
+    { 27,  "49 < BS <= 52"},
+    { 28,  "52 < BS <= 55"},
+    { 29,  "52 < BS <= 59"},
+    { 30,  "59 < BS <= 62"},
+    { 31,  "62 < BS <= 66"},
+    { 32,  "66 < BS <= 71"},
+    { 33,  "71 < BS <= 75"},
+    { 34,  "75 < BS <= 80"},
+    { 35,  "80 < BS <= 85"},
+    { 36,  "85 < BS <= 91"},
+    { 37,  "91 < BS <= 97"},
+    { 38,  "97 < BS <= 103"},
+    { 39,  "103 < BS <= 110"},
+    { 40,  "110 < BS <= 117"},
+    { 41,  "117 < BS <= 124"},
+    { 42,  "124 < BS <= 132"},
+    { 43,  "132 < BS <= 141"},
+    { 44,  "141 < BS <= 150"},
+    { 45,  "150 < BS <= 160"},
+    { 46,  "160 < BS <= 170"},
+    { 47,  "170 < BS <= 181"},
+    { 48,  "181 < BS <= 193"},
+    { 49,  "193 < BS <= 205"},
+    { 50,  "205 < BS <= 218"},
+    { 51,  "218 < BS <= 233"},
+    { 52,  "233 < BS <= 248"},
+    { 53,  "248 < BS <= 264"},
+    { 54,  "264 < BS <= 281"},
+    { 55,  "281 < BS <= 299"},
+    { 56,  "299 < BS <= 318"},
+    { 57,  "318 < BS <= 339"},
+    { 58,  "339 < BS <= 361"},
+    { 59,  "361 < BS <= 384"},
+    { 60,  "384 < BS <= 409"},
+    { 61,  "409 < BS <= 436"},
+    { 62,  "436 < BS <= 464"},
+    { 63,  "464 < BS <= 494"},
+    { 64,  "494 < BS <= 526"},
+    { 65,  "526 < BS <= 560"},
+    { 66,  "560 < BS <= 597"},
+    { 67,  "597 < BS <= 635"},
+    { 68,  "635 < BS <= 677"},
+    { 69,  "677 < BS <= 720"},
+    { 70,  "720 < BS <= 767"},
+    { 71,  "767 < BS <= 817"},
+    { 72,  "817 < BS <= 870"},
+    { 73,  "870 < BS <= 926"},
+    { 74,  "926 < BS <= 987"},
+    { 75,  "987 < BS <= 1051"},
+    { 76,  "1051 < BS <= 1119"},
+    { 77,  "1119 < BS <= 1191"},
+    { 78,  "1191 < BS <= 1269"},
+    { 79,  "1269 < BS <= 1351"},
+    { 80,  "1351 < BS <= 1439"},
+    { 81,  "1439 < BS <= 1532"},
+    { 82,  "1532 < BS <= 1631"},
+    { 83,  "1631 < BS <= 1737"},
+    { 84,  "1737 < BS <= 1850"},
+    { 85,  "1850 < BS <= 1970"},
+    { 86,  "1970 < BS <= 2098"},
+    { 87,  "2098 < BS <= 2234"},
+    { 88,  "2234 < BS <= 2379"},
+    { 89,  "2379 < BS <= 2533"},
+    { 90,  "2533 < BS <= 2698"},
+    { 91,  "2698 < BS <= 2873"},
+    { 92,  "2873 < BS <= 3059"},
+    { 93,  "3059 < BS <= 3258"},
+    { 94,  "3258 < BS <= 3469"},
+    { 95,  "3469 < BS <= 3694"},
+    { 96,  "3694 < BS <= 3934"},
+    { 97,  "3934 < BS <= 4189"},
+    { 98,  "4189 < BS <= 4461"},
+    { 99,  "4461 < BS <= 4751"},
+    { 100, "4751 < BS <= 5059"},
+    { 101, "5059 < BS <= 5387"},
+    { 102, "5387 < BS <= 5737"},
+    { 103, "5737 < BS <= 6109"},
+    { 104, "6109 < BS <= 6506"},
+    { 105, "6506 < BS <= 6928"},
+    { 106, "6928 < BS <= 7378"},
+    { 107, "7378 < BS <= 7857"},
+    { 108, "7857 < BS <= 8367"},
+    { 109, "8367 < BS <= 8910"},
+    { 110, "8910 < BS <= 9488"},
+    { 111, "9488 < BS <= 10104"},
+    { 112, "10104 < BS <= 10760"},
+    { 113, "10760 < BS <= 11458"},
+    { 114, "11458 < BS <= 12202"},
+    { 115, "12202 < BS <= 12994"},
+    { 116, "12994 < BS <= 13838"},
+    { 117, "13838 < BS <= 14736"},
+    { 118, "14736 < BS <= 15692"},
+    { 119, "15692 < BS <= 16711"},
+    { 120, "16711 < BS <= 17795"},
+    { 121, "17795 < BS <= 18951"},
+    { 122, "18951 < BS <= 20181"},
+    { 123, "20181 < BS <= 21491"},
+    { 124, "21491 < BS <= 22885"},
+    { 125, "22885 < BS <= 24371"},
+    { 126, "24371 < BS <= 25953"},
+    { 127, "25953 < BS <= 27638"},
+    { 128, "27638 < BS <= 29431"},
+    { 129, "29431 < BS <= 31342"},
+    { 130, "31342 < BS <= 33376"},
+    { 131, "33376 < BS <= 35543"},
+    { 132, "35543 < BS <= 37850"},
+    { 133, "37850 < BS <= 40307"},
+    { 134, "40307 < BS <= 42923"},
+    { 135, "42923 < BS <= 45709"},
+    { 136, "45709 < BS <= 48676"},
+    { 137, "48676 < BS <= 51836"},
+    { 138, "51836 < BS <= 55200"},
+    { 139, "55200 < BS <= 58784"},
+    { 140, "58784 < BS <= 62599"},
+    { 141, "62599 < BS <= 66663"},
+    { 142, "66663 < BS <= 70990"},
+    { 143, "70990 < BS <= 75598"},
+    { 144, "75598 < BS <= 80505"},
+    { 145, "80505 < BS <= 85730"},
+    { 146, "85730 < BS <= 91295"},
+    { 147, "91295 < BS <= 97221"},
+    { 148, "97221 < BS <= 103532"},
+    { 149, "103532 < BS <= 110252"},
+    { 150, "110252 < BS <= 117409"},
+    { 151, "117409 < BS <= 125030"},
+    { 152, "125030 < BS <= 133146"},
+    { 153, "133146 < BS <= 141789"},
+    { 154, "141789 < BS <= 150992"},
+    { 155, "150992 < BS <= 160793"},
+    { 156, "160793 < BS <= 171231"},
+    { 157, "171231 < BS <= 182345"},
+    { 158, "182345 < BS <= 194182"},
+    { 159, "194182 < BS <= 206786"},
+    { 160, "206786 < BS <= 220209"},
+    { 161, "220209 < BS <= 234503"},
+    { 162, "234503 < BS <= 249725"},
+    { 163, "249725 < BS <= 265935"},
+    { 164, "265935 < BS <= 283197"},
+    { 165, "283197 < BS <= 301579"},
+    { 166, "301579 < BS <= 321155"},
+    { 167, "321155 < BS <= 342002"},
+    { 168, "342002 < BS <= 364202"},
+    { 169, "364202 < BS <= 387842"},
+    { 170, "387842 < BS <= 413018"},
+    { 171, "413018 < BS <= 439827"},
+    { 172, "439827 < BS <= 468377"},
+    { 173, "468377 < BS <= 498780"},
+    { 174, "498780 < BS <= 531156"},
+    { 175, "531156 < BS <= 565634"},
+    { 176, "565634 < BS <= 602350"},
+    { 177, "602350 < BS <= 641449"},
+    { 178, "641449 < BS <= 683087"},
+    { 179, "683087 < BS <= 727427"},
+    { 180, "727427 < BS <= 774645"},
+    { 181, "774645 < BS <= 824928"},
+    { 182, "824928 < BS <= 878475"},
+    { 183, "878475 < BS <= 935498"},
+    { 184, "935498 < BS <= 996222"},
+    { 185, "996222 < BS <= 1060888"},
+    { 186, "1060888 < BS <= 1129752"},
+    { 187, "1129752 < BS <= 1203085"},
+    { 188, "1203085 < BS <= 1281179"},
+    { 189, "1281179 < BS <= 1364342"},
+    { 190, "1364342 < BS <= 1452903"},
+    { 191, "1452903 < BS <= 1547213"},
+    { 192, "1547213 < BS <= 1647644"},
+    { 193, "1647644 < BS <= 1754595"},
+    { 194, "1754595 < BS <= 1868488"},
+    { 195, "1868488 < BS <= 1989774"},
+    { 196, "1989774 < BS <= 2118933"},
+    { 197, "2118933 < BS <= 2256475"},
+    { 198, "2256475 < BS <= 2402946"},
+    { 199, "2402946 < BS <= 2558924"},
+    { 200, "2558924 < BS <= 2725027"},
+    { 201, "2725027 < BS <= 2901912"},
+    { 202, "2901912 < BS <= 3090279"},
+    { 203, "3090279 < BS <= 3290873"},
+    { 204, "3290873 < BS <= 3504487"},
+    { 205, "3504487 < BS <= 3731968"},
+    { 206, "3731968 < BS <= 3974215"},
+    { 207, "3974215 < BS <= 4232186"},
+    { 208, "4232186 < BS <= 4506902"},
+    { 209, "4506902 < BS <= 4799451"},
+    { 210, "4799451 < BS <= 5110989"},
+    { 211, "5110989 < BS <= 5442750"},
+    { 212, "5442750 < BS <= 5796046"},
+    { 213, "5796046 < BS <= 6172275"},
+    { 214, "6172275 < BS <= 6572925"},
+    { 215, "6572925 < BS <= 6999582"},
+    { 216, "6999582 < BS <= 7453933"},
+    { 217, "7453933 < BS <= 7937777"},
+    { 218, "7937777 < BS <= 8453028"},
+    { 219, "8453028 < BS <= 9001725"},
+    { 220, "9001725 < BS <= 9586039"},
+    { 221, "9586039 < BS <= 10208280"},
+    { 222, "10208280 < BS <= 10870913"},
+    { 223, "10870913 < BS <= 11576557"},
+    { 224, "11576557 < BS <= 12328006"},
+    { 225, "12328006 < BS <= 13128233"},
+    { 226, "13128233 < BS <= 13980403"},
+    { 227, "13980403 < BS <= 14887889"},
+    { 228, "14887889 < BS <= 15854280"},
+    { 229, "15854280 < BS <= 16883401"},
+    { 230, "16883401 < BS <= 17979324"},
+    { 231, "17979324 < BS <= 19146385"},
+    { 232, "19146385 < BS <= 20389201"},
+    { 233, "20389201 < BS <= 21712690"},
+    { 234, "21712690 < BS <= 23122088"},
+    { 235, "23122088 < BS <= 24622972"},
+    { 236, "24622972 < BS <= 26221280"},
+    { 237, "26221280 < BS <= 27923336"},
+    { 238, "27923336 < BS <= 29735875"},
+    { 239, "29735875 < BS <= 31666069"},
+    { 240, "31666069 < BS <= 33721553"},
+    { 241, "33721553 < BS <= 35910462"},
+    { 242, "35910462 < BS <= 38241455"},
+    { 243, "38241455 < BS <= 40723756"},
+    { 244, "40723756 < BS <= 43367187"},
+    { 245, "43367187 < BS <= 46182206"},
+    { 246, "46182206 < BS <= 49179951"},
+    { 247, "49179951 < BS <= 52372284"},
+    { 248, "52372284 < BS <= 55771835"},
+    { 249, "55771835 < BS <= 59392055"},
+    { 250, "59392055 < BS <= 63247269"},
+    { 251, "63247269 < BS <= 67352729"},
+    { 252, "67352729 < BS <= 71724679"},
+    { 253, "71724679 < BS <= 76380419"},
+    { 254, "76380419 < BS <= 81338368"},
     { 255, "BS > 81338368"},
     { 0, NULL }
 };
@@ -779,36 +970,41 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                         offset += 2;
                         break;
                     case SHORT_TRUNCATED_BSR_LCID:
-                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_short_trunc_bsr_lcg_id,
-                                                     tvb, offset, 1, ENC_BIG_ENDIAN, &lcg_id);
-                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_short_trunc_bsr_bs,
-                                                     tvb, offset, 1, ENC_BIG_ENDIAN, &bs);
-                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                                 "(Short Truncated BSR LCG ID=%u BS=%u) ", lcg_id, bs);
-                        offset++;
-                        break;
-
                     case SHORT_BSR_LCID:
-                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_short_bsr_lcg_id,
-                                                     tvb, offset, 1, ENC_BIG_ENDIAN, &lcg_id);
-                        proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_short_bsr_bs,
-                                                     tvb, offset, 1, ENC_BIG_ENDIAN, &bs);
-                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                                 "(Short BSR LCG ID=%u BS=%u) ", lcg_id, bs);
-                        offset++;
+                        {
+                            static const int *hf_mac_nr_control_bsr_short_bs_lcg[] = {
+                                &hf_mac_nr_control_bsr_short_bs_lcg0,
+                                &hf_mac_nr_control_bsr_short_bs_lcg1,
+                                &hf_mac_nr_control_bsr_short_bs_lcg2,
+                                &hf_mac_nr_control_bsr_short_bs_lcg3,
+                                &hf_mac_nr_control_bsr_short_bs_lcg4,
+                                &hf_mac_nr_control_bsr_short_bs_lcg5,
+                                &hf_mac_nr_control_bsr_short_bs_lcg6,
+                                &hf_mac_nr_control_bsr_short_bs_lcg7
+                            };
+
+                            proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_bsr_short_lcg,
+                                                         tvb, offset, 1, ENC_BIG_ENDIAN, &lcg_id);
+                            proto_tree_add_item_ret_uint(subheader_tree, *hf_mac_nr_control_bsr_short_bs_lcg[lcg_id],
+                                                         tvb, offset, 1, ENC_BIG_ENDIAN, &bs);
+                            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+                                                     "(Short %sBSR LCG ID=%u BS=%u) ",
+                                                     lcid == SHORT_BSR_LCID ? " " : "Truncated ", lcg_id, bs);
+                            offset++;
+                        }
                         break;
                     case LONG_BSR_LCID:
                     case LONG_TRUNCATED_BSR_LCID:
                         {
                             static const int * long_bsr_flags[] = {
-                                &hf_mac_nr_control_long_trunc_bsr_lcg7,
-                                &hf_mac_nr_control_long_trunc_bsr_lcg6,
-                                &hf_mac_nr_control_long_trunc_bsr_lcg5,
-                                &hf_mac_nr_control_long_trunc_bsr_lcg4,
-                                &hf_mac_nr_control_long_trunc_bsr_lcg3,
-                                &hf_mac_nr_control_long_trunc_bsr_lcg2,
-                                &hf_mac_nr_control_long_trunc_bsr_lcg1,
-                                &hf_mac_nr_control_long_trunc_bsr_lcg0,
+                                &hf_mac_nr_control_bsr_long_lcg7,
+                                &hf_mac_nr_control_bsr_long_lcg6,
+                                &hf_mac_nr_control_bsr_long_lcg5,
+                                &hf_mac_nr_control_bsr_long_lcg4,
+                                &hf_mac_nr_control_bsr_long_lcg3,
+                                &hf_mac_nr_control_bsr_long_lcg2,
+                                &hf_mac_nr_control_bsr_long_lcg1,
+                                &hf_mac_nr_control_bsr_long_lcg0,
                                 NULL
                             };
 
@@ -819,14 +1015,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
                             /* Show BSR values.  TODO: break out into a function so can report in expert info if
                                Long BSR case is truncated... */
-                            if ((flags & 0x01) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg0, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x02) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg1, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x04) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg2, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x08) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg3, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x10) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg4, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x20) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg5, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x40) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg6, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x80) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_long_trunc_bsr_bs_lcg7, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x01) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg0, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x02) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg1, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x04) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg2, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x08) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg3, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x10) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg4, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x20) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg5, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x40) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg6, tvb, offset++, 1, ENC_NA);
+                            if ((flags & 0x80) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg7, tvb, offset++, 1, ENC_NA);
 
                             /* TODO: check change in offset against PDU_length */
                             /* TODO: show in string here how many BSs were seen */
@@ -1662,123 +1858,153 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_short_trunc_bsr_lcg_id,
-            { "Logical Channel Group ID",
-              "mac-nr.control.short-trunc-bsr.lcg-id", FT_UINT8, BASE_DEC, NULL, 0xe0,
-              NULL, HFILL
+        { &hf_mac_nr_control_bsr_short_lcg,
+            { "LCG",
+              "mac-nr.control.bsr.short.lcg", FT_UINT8, BASE_DEC, NULL, 0xe0,
+              "Logical Channel Group", HFILL
             }
         },
-        { &hf_mac_nr_control_short_trunc_bsr_bs,
-            { "Buffer Size",
-              "mac-nr.control.short-trunc-bsr.bs", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_short_bsr_lcg_id,
-            { "Logical Channel Group ID",
-              "mac-nr.control.short-bsr.lcg-id", FT_UINT8, BASE_DEC, NULL, 0xe0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_short_bsr_bs,
-            { "Buffer Size",
-              "mac-nr.control.short-bsr.bs", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg7,
-            { "LCG7",
-              "mac-nr.control.long-bsr.lcg7", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg6,
-            { "LCG6",
-              "mac-nr.control.long-bsr.lcg6", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg5,
-            { "LCG5",
-              "mac-nr.control.long-bsr.lcg5", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg4,
-            { "LCG4",
-              "mac-nr.control.long-bsr.lcg4", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg3,
-            { "LCG3",
-              "mac-nr.control.long-bsr.lcg3", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg2,
-            { "LCG2",
-              "mac-nr.control.long-bsr.lcg2", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg1,
-            { "LCG1",
-              "mac-nr.control.long-bsr.lcg1", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_lcg0,
-            { "LCG0",
-              "mac-nr.control.long-bsr.lcg0", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg7,
-            { "Buffer Size for LCG7",
-              "mac-nr.control.long-trunc-bsr.bs.lcg7", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg6,
-            { "Buffer Size for LCG6",
-              "mac-nr.control.long-trunc-bsr.bs.lcg6", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg5,
-            { "Buffer Size for LCG5",
-              "mac-nr.control.long-trunc-bsr.bs.lcg5", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg4,
-            { "Buffer Size for LCG4",
-              "mac-nr.control.long-trunc-bsr.bs.lcg4", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg3,
-            { "Buffer Size for LCG3",
-              "mac-nr.control.long-trunc-bsr.bs.lcg3", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg2,
-            { "Buffer Size for LCG2",
-              "mac-nr.control.long-trunc-bsr.bs.lcg2", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg1,
-            { "Buffer Size for LCG1",
-              "mac-nr.control.long-trunc-bsr.bs.lcg1", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_long_trunc_bsr_bs_lcg0,
+        { &hf_mac_nr_control_bsr_short_bs_lcg0,
             { "Buffer Size for LCG0",
-              "mac-nr.control.long-trunc-bsr.bs.lcg0", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              "mac-nr.control.bsr.bs-lcg0", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_short_bs_lcg1,
+            { "Buffer Size for LCG1",
+              "mac-nr.control.bsr.bs-lcg1", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_short_bs_lcg2,
+            { "Buffer Size for LCG2",
+              "mac-nr.control.bsr.bs-lcg2", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_short_bs_lcg3,
+            { "Buffer Size for LCG3",
+              "mac-nr.control.bsr.bs-lcg3", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_short_bs_lcg4,
+            { "Buffer Size for LCG4",
+              "mac-nr.control.bsr.bs-lcg4", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_short_bs_lcg5,
+            { "Buffer Size for LCG5",
+              "mac-nr.control.bsr.bs-lcg5", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_short_bs_lcg6,
+            { "Buffer Size for LCG6",
+              "mac-nr.control.bsr.bs-lcg6", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_short_bs_lcg7,
+            { "Buffer Size for LCG7",
+              "mac-nr.control.bsr.bs-lcg7", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_5bits_vals_ext, 0x1f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg7,
+            { "LCG7",
+              "mac-nr.control.bsr.long.lcg7", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+              "Logical Channel Group 7", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg6,
+            { "LCG6",
+              "mac-nr.control.bsr.long.lcg6", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+              "Logical Channel Group 6", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg5,
+            { "LCG5",
+              "mac-nr.control.bsr.long.lcg5", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+              "Logical Channel Group 5", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg4,
+            { "LCG4",
+              "mac-nr.control.bsr.long.lcg4", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+              "Logical Channel Group 4", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg3,
+            { "LCG3",
+              "mac-nr.control.bsr.long.lcg3", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+              "Logical Channel Group 3", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg2,
+            { "LCG2",
+              "mac-nr.control.bsr.long.lcg2", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+              "Logical Channel Group 2", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg1,
+            { "LCG1",
+              "mac-nr.control.bsr.long.lcg1", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+              "Logical Channel Group 1", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_lcg0,
+            { "LCG0",
+              "mac-nr.control.bsr.long.lcg0", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+              "Logical Channel Group 0", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg7,
+            { "Buffer Size for LCG7",
+              "mac-nr.control.bsr.bs-lcg7", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg6,
+            { "Buffer Size for LCG6",
+              "mac-nr.control.bsr.bs-lcg6", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg5,
+            { "Buffer Size for LCG5",
+              "mac-nr.control.bsr.bs-lcg5", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg4,
+            { "Buffer Size for LCG4",
+              "mac-nr.control.bsr.bs-lcg4", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg3,
+            { "Buffer Size for LCG3",
+              "mac-nr.control.bsr.bs-lcg3", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg2,
+            { "Buffer Size for LCG2",
+              "mac-nr.control.bsr.bs-lcg2", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg1,
+            { "Buffer Size for LCG1",
+              "mac-nr.control.bsr.bs-lcg1", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_long_bs_lcg0,
+            { "Buffer Size for LCG0",
+              "mac-nr.control.bsr.bs-lcg0", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
               NULL, HFILL
             }
         },
