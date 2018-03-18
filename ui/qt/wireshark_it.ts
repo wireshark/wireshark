@@ -10143,32 +10143,32 @@ a:hover {
         <translation>Velocità di svuotamento totale (Kb/s):</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="336"/>
+        <location filename="multicast_statistics_dialog.cpp" line="347"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>L&apos;intervallo di burst deve essere compreso tra 1 e 1000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="345"/>
+        <location filename="multicast_statistics_dialog.cpp" line="356"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>La soglia di allarme di burst non è valida.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="354"/>
+        <location filename="multicast_statistics_dialog.cpp" line="365"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>La soglia di allarme di buffer non è valida.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="363"/>
+        <location filename="multicast_statistics_dialog.cpp" line="374"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>La velocità di svuotamento del flusso dovrebbe essere compresa tra 1 e 10000000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="372"/>
+        <location filename="multicast_statistics_dialog.cpp" line="383"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>La velocità di svuotamento totale dovrebbe essere compresa tra 1 e 10000000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="386"/>
+        <location filename="multicast_statistics_dialog.cpp" line="397"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 flussi, banda media: %2bps, banda max: %3bps, burst max: %4 / %5ms, buffer max: %6B</translation>
     </message>

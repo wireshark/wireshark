@@ -10116,32 +10116,32 @@ text-decoration: underline;
         <translation>总清空速度 (Kb/s:</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="336"/>
+        <location filename="multicast_statistics_dialog.cpp" line="347"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>突发间隔必须介于 1 与 1000 之间。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="345"/>
+        <location filename="multicast_statistics_dialog.cpp" line="356"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>突发警报门槛无效。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="354"/>
+        <location filename="multicast_statistics_dialog.cpp" line="365"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>缓冲区警报门槛无效。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="363"/>
+        <location filename="multicast_statistics_dialog.cpp" line="374"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>流清空速度应该介于 1 与 10000000 之间。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="372"/>
+        <location filename="multicast_statistics_dialog.cpp" line="383"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>总清空速度应该介于 1 与 10000000 之间。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="386"/>
+        <location filename="multicast_statistics_dialog.cpp" line="397"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 流，平均带宽: %2bps，最大带宽: %3bps，最大突发: %4 / %5ms，最大缓冲区: %6B</translation>
     </message>

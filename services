@@ -10275,6 +10275,7 @@ ogs-server       9008/tcp # Open Grid Services Server [Gareth_Nelson_2] [Gareth_
 pichat           9009/tcp # Pichat Server [Mark_Seuffert] [Mark_Seuffert] 2004-11
 pichat           9009/udp # Pichat Server [Mark_Seuffert] [Mark_Seuffert] 2004-11
 sdr              9010/tcp # Secure Data Replicator Protocol [Sufyan_Almajali] [Sufyan_Almajali] 2008-06-27
+d-star           9011/udp # D-Star Routing digital voice+data for amateur radio [QuadNet2_USA_IRC_Network] [Thomas_A_Early] 2018-03-16
 tambora          9020/tcp # TAMBORA [Jason_van_Zyl] [Jason_van_Zyl] 2002-03
 tambora          9020/udp # TAMBORA [Jason_van_Zyl] [Jason_van_Zyl] 2002-03
 panagolin-ident  9021/tcp # Pangolin Identification [William_Benner_2] [William_Benner_2] 2002-03

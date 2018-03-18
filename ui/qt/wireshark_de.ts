@@ -10143,32 +10143,32 @@ text-decoration: underline;
         <translation>Entleerungsrate Gesamt-Puffer (Kb/s):</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="336"/>
+        <location filename="multicast_statistics_dialog.cpp" line="347"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>Das Burstintervall muss zwischen 1 und 1000 liegen. </translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="345"/>
+        <location filename="multicast_statistics_dialog.cpp" line="356"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>Der Burst Alarmschwellwert ist ungültig.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="354"/>
+        <location filename="multicast_statistics_dialog.cpp" line="365"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>Der Puffer Alarmschwellwert ist ungültig. </translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="363"/>
+        <location filename="multicast_statistics_dialog.cpp" line="374"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>Die Entleerungsrate für den Stream-Puffer muss zwischen 1 und 10000000 liegen.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="372"/>
+        <location filename="multicast_statistics_dialog.cpp" line="383"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>Die Entleerungsrate für den Gesamt-Puffer muss zwischen 1 und 10000000 liegen.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="386"/>
+        <location filename="multicast_statistics_dialog.cpp" line="397"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 Streams, Durchschnittliche Bandbreite: %2bps, Max Bandbreite: %3bps, Max Burst: %4 / %5ms, Max Puffer: %6B</translation>
     </message>

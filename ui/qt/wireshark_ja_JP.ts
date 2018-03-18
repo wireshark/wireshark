@@ -10133,32 +10133,32 @@ a:hover {
         <translation>総排出速度 (キロバイト/秒):</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="336"/>
+        <location filename="multicast_statistics_dialog.cpp" line="347"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>バースト間隔は1から1000の間でなくてはいけません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="345"/>
+        <location filename="multicast_statistics_dialog.cpp" line="356"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>バースト警告閾値が有効ではありません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="354"/>
+        <location filename="multicast_statistics_dialog.cpp" line="365"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>バッファ警告閾値が有効ではありません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="363"/>
+        <location filename="multicast_statistics_dialog.cpp" line="374"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>ストリーム空き速度は1から10000000の間でなくてはいけません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="372"/>
+        <location filename="multicast_statistics_dialog.cpp" line="383"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>総排出速度は1から10000000の間であるべきです</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="386"/>
+        <location filename="multicast_statistics_dialog.cpp" line="397"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 ストリーム, 平均帯域: %2bps, 最大帯域: %3bps, 最大バースト: %4 / %5ms, 最大バッファ: %6B</translation>
     </message>
