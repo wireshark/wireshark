@@ -1774,7 +1774,8 @@ dissect_flow_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   }
 }
 
-float entropy_from_entropy_header_value(guint8 entropy_hdr_value)
+static float
+entropy_from_entropy_header_value(guint8 entropy_hdr_value)
 {
   /* mapping 1-255 to 0.0-8.0 */
   /*  255 is 8.0 */
