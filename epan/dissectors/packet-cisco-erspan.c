@@ -315,10 +315,8 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		ti_ver = proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
-		if ((version != 1) && (version != 2 )) {
-			expert_add_info(pinfo, ti_ver, &ei_erspan_version_unknown);
-			return 2;
-		}
+		expert_add_info(pinfo, ti_ver, &ei_erspan_version_unknown);
+		return 2;
 		}
 	}
 
