@@ -52,6 +52,9 @@ struct DnsTap {
     guint nanswers;
     guint nauthorities;
     guint nadditionals;
+    gboolean unsolicited;
+    gboolean retransmission;
+    nstime_t rrt;
 };
 
 static int dns_tap = -1;
@@ -75,6 +78,11 @@ static const guint8* st_str_response_nquestions = "no. of questions";
 static const guint8* st_str_response_nanswers = "no. of answers";
 static const guint8* st_str_response_nauthorities = "no. of authorities";
 static const guint8* st_str_response_nadditionals = "no. of additionals";
+static const guint8* st_str_service_stats = "Service Stats";
+static const guint8* st_str_service_unsolicited = "no. of unsolicited responses";
+static const guint8* st_str_service_retransmission = "no. of retransmissions";
+static const guint8* st_str_service_rrt = "request-response time (nsec)";
+
 static int st_node_packets = -1;
 static int st_node_packet_qr = -1;
 static int st_node_packet_qtypes = -1;
@@ -94,6 +102,10 @@ static int st_node_response_nquestions = -1;
 static int st_node_response_nanswers = -1;
 static int st_node_response_nauthorities = -1;
 static int st_node_response_nadditionals = -1;
+static int st_node_service_stats = -1;
+static int st_node_service_unsolicited = -1;
+static int st_node_service_retransmission = -1;
+static int st_node_service_rrt = -1;
 
 static int proto_dns = -1;
 static int proto_mdns = -1;
@@ -3660,6 +3672,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean           retransmission = FALSE;
   const guchar      *name;
   int                name_len;
+  nstime_t           delta = { 0, 0 };
 
   dns_data_offset = offset;
 
@@ -3945,13 +3958,11 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_response_in, tvb, 0, 0, dns_trans->rep_frame);
         PROTO_ITEM_SET_GENERATED(it);
       } else {
-        nstime_t ns;
-
         it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
         PROTO_ITEM_SET_GENERATED(it);
 
-        nstime_delta(&ns, &pinfo->abs_ts, &dns_trans->req_time);
-        it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
+        nstime_delta(&delta, &pinfo->abs_ts, &dns_trans->req_time);
+        it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &delta);
         PROTO_ITEM_SET_GENERATED(it);
       }
     }
@@ -3980,6 +3991,17 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (quest > 0) {
       dns_stats->qname_len = name_len;
       dns_stats->qname_labels = qname_labels_count(name, name_len);
+    }
+    if (flags & F_RESPONSE) {
+      if (dns_trans->req_frame == 0) {
+        /* we don't have a request. This is an unsolicited response */
+        dns_stats->unsolicited = TRUE;
+      } else {
+        if (retransmission)
+          dns_stats->retransmission = TRUE;
+        else
+          dns_stats->rrt = delta;
+        }
     }
     tap_queue_packet(dns_tap, pinfo, dns_stats);
   }
@@ -4084,6 +4106,10 @@ static void dns_stats_tree_init(stats_tree* st)
         st_node_response_stats, FALSE);
     st_node_response_nadditionals = stats_tree_create_node(st, st_str_response_nadditionals,
         st_node_response_stats, FALSE);
+    st_node_service_stats = stats_tree_create_node(st, st_str_service_stats, 0, TRUE);
+    st_node_service_unsolicited = stats_tree_create_node(st, st_str_service_unsolicited, st_node_service_stats, FALSE);
+    st_node_service_retransmission = stats_tree_create_node(st, st_str_service_retransmission, st_node_service_stats, FALSE);
+    st_node_service_rrt = stats_tree_create_node(st, st_str_service_rrt, st_node_service_stats, FALSE);
 }
 
 static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
@@ -4125,6 +4151,14 @@ static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_di
         avg_stat_node_add_value(st, st_str_response_nanswers, 0, FALSE, pi->nanswers);
         avg_stat_node_add_value(st, st_str_response_nauthorities, 0, FALSE, pi->nauthorities);
         avg_stat_node_add_value(st, st_str_response_nadditionals, 0, FALSE, pi->nadditionals);
+        if (pi->unsolicited) {
+            tick_stat_node(st, st_str_service_unsolicited, 0, FALSE);
+        } else {
+            if (pi->retransmission)
+                tick_stat_node(st, st_str_service_retransmission, 0, FALSE);
+            else
+                avg_stat_node_add_value(st, st_str_service_rrt, 0, FALSE, (guint32)(pi->rrt.secs * 1000000 + pi->rrt.nsecs));
+        }
     }
     return 1;
 }
