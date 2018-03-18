@@ -7756,19 +7756,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation>Jeśli zaznaczono to szczegółypakietu będą automatycznie przewijane gdy są rozwijane.</translation>
+        <translation type="vanished">Jeśli zaznaczono to szczegółypakietu będą automatycznie przewijane gdy są rozwijane.</translation>
     </message>
     <message>
         <source>Automatically scroll packet details</source>
-        <translation>Automatyczne przewijanie szczegółów pakietu</translation>
+        <translation type="vanished">Automatyczne przewijanie szczegółów pakietu</translation>
     </message>
     <message>
         <source>Percentage distance from the top to scroll packet details.</source>
-        <translation>Procentowa odległość przesuwania od góry do szczegółów pakietu.</translation>
+        <translation type="vanished">Procentowa odległość przesuwania od góry do szczegółów pakietu.</translation>
     </message>
     <message>
         <source>Packet detail scroll percentage:</source>
-        <translation>Procent przewijania szczegółów pakietu:</translation>
+        <translation type="vanished">Procent przewijania szczegółów pakietu:</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>

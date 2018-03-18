@@ -2612,19 +2612,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
-        <translation type="unfinished"></translation>
+        <translation>Percorso MaxMind DB</translation>
     </message>
     <message>
         <source>MaxMind DB database search path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>GeoIP path</source>
-        <translation type="vanished">Percorso GeoIP</translation>
-    </message>
-    <message>
-        <source>GeoIP database search path</source>
-        <translation type="vanished">Percorso di ricerca database GeoIP</translation>
+        <translation>Percorso di ricerca database MaxMind DB</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>
@@ -7784,19 +7776,19 @@ a:hover {
     </message>
     <message>
         <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation>Se selezionato, le voci di dettaglio del pacchetto saranno automaticamente scorse mentre vengono espanse.</translation>
+        <translation type="vanished">Se selezionato, le voci di dettaglio del pacchetto saranno automaticamente scorse mentre vengono espanse.</translation>
     </message>
     <message>
         <source>Automatically scroll packet details</source>
-        <translation>Scorri automaticamente i dettagli dei pacchetto</translation>
+        <translation type="vanished">Scorri automaticamente i dettagli dei pacchetto</translation>
     </message>
     <message>
         <source>Percentage distance from the top to scroll packet details.</source>
-        <translation>Distanza percentuale dall&apos;inizio per scorrere i dettagli del pacchetto.</translation>
+        <translation type="vanished">Distanza percentuale dall&apos;inizio per scorrere i dettagli del pacchetto.</translation>
     </message>
     <message>
         <source>Packet detail scroll percentage:</source>
-        <translation>Percentuale di scorrimento dei dettagli del pacchetto:</translation>
+        <translation type="vanished">Percentuale di scorrimento dei dettagli del pacchetto:</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>

@@ -7686,22 +7686,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Automatically scroll packet details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packet detail scroll percentage:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Main toolbar style:</source>
         <translation type="unfinished"></translation>
     </message>

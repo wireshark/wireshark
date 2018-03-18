@@ -2612,19 +2612,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
-        <translation type="unfinished"></translation>
+        <translation>MaxMind DB Pfad</translation>
     </message>
     <message>
         <source>MaxMind DB database search path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>GeoIP path</source>
-        <translation type="vanished">GeoIP Pfad</translation>
-    </message>
-    <message>
-        <source>GeoIP database search path</source>
-        <translation type="vanished">Suchpfad für GeoIP Datenbank</translation>
+        <translation>Suchpfad für MaxMind Datenbank</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>
@@ -7784,19 +7776,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation>Wenn aktiviert scrollen ausgeklappte Paketdetails automatisch.</translation>
+        <translation type="vanished">Wenn aktiviert scrollen ausgeklappte Paketdetails automatisch.</translation>
     </message>
     <message>
         <source>Automatically scroll packet details</source>
-        <translation>Automatisches Scrollen der Paketdetails</translation>
+        <translation type="vanished">Automatisches Scrollen der Paketdetails</translation>
     </message>
     <message>
         <source>Percentage distance from the top to scroll packet details.</source>
-        <translation>Prozentualer Abstand von oben bis zu den scrollenden Paketdetails.</translation>
+        <translation type="vanished">Prozentualer Abstand von oben bis zu den scrollenden Paketdetails.</translation>
     </message>
     <message>
         <source>Packet detail scroll percentage:</source>
-        <translation>Prozentualer Scrollfortschritt Paketdetails:</translation>
+        <translation type="vanished">Prozentualer Scrollfortschritt Paketdetails:</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>

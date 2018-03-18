@@ -5353,6 +5353,7 @@ ogs-client	9007/udp	# Open Grid Services Client
 ogs-server	9008/tcp	# Open Grid Services Server
 pichat		9009/tcp/udp	# Pichat Server
 sdr		9010/tcp	# Secure Data Replicator Protocol
+d-star		9011/udp	# D-Star Routing digital voice+data for amateur radio
 tambora		9020/tcp/udp	# TAMBORA
 panagolin-ident	9021/tcp/udp	# Pangolin Identification
 paragent	9022/tcp/udp	# PrivateArk Remote Agent

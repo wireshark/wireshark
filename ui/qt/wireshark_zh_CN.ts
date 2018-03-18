@@ -7756,19 +7756,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation>若选中，分组详情项目将随着展开而自动滚动。</translation>
+        <translation type="vanished">若选中，分组详情项目将随着展开而自动滚动。</translation>
     </message>
     <message>
         <source>Automatically scroll packet details</source>
-        <translation>自动滚动分组详情视图</translation>
+        <translation type="vanished">自动滚动分组详情视图</translation>
     </message>
     <message>
         <source>Percentage distance from the top to scroll packet details.</source>
-        <translation>从顶部到滚动分组详情的百分比距离。</translation>
+        <translation type="vanished">从顶部到滚动分组详情的百分比距离。</translation>
     </message>
     <message>
         <source>Packet detail scroll percentage:</source>
-        <translation>分组详情滚动百分比:</translation>
+        <translation type="vanished">分组详情滚动百分比:</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>
