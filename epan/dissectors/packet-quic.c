@@ -269,7 +269,7 @@ static guint32 get_len_packet_number(guint8 short_packet_type){
 /* Inspired from ngtcp2 */
 static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
                                    size_t n) {
-  guint64 k = max_pkt_num == UINT64_MAX ? max_pkt_num : max_pkt_num + 1;
+  guint64 k = max_pkt_num == G_MAXUINT64 ? max_pkt_num : max_pkt_num + 1;
   guint64 u = k & ~((G_GUINT64_CONSTANT(1) << n) - 1);
   guint64 a = u | pkt_num;
   guint64 b = (u + (G_GUINT64_CONSTANT(1) << n)) | pkt_num;
