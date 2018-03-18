@@ -15,4 +15,4 @@ grep -q WIRESHARK_BIN_DIR ~/.profile || echo "export WIRESHARK_BIN_DIR=~/build/r
 mkdir -p build
 cd build
 cmake /vagrant/
-make -j3
+make -j6
