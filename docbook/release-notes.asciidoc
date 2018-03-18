@@ -87,6 +87,7 @@ since version 2.4.0:
 * The Windows installers and packages now ship with Qt 5.9.4.
 * The generic data dissector can now uncompress zlib compressed data.
 * Dns Stats now support service-level stats.
+* Dns filters for retransmissions and unsolicited responses have been added.
 
 //=== Removed Dissectors
 

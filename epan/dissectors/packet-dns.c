@@ -340,9 +340,11 @@ static int hf_dns_tsig_other_len = -1;
 static int hf_dns_tsig_other_data = -1;
 static int hf_dns_response_in = -1;
 static int hf_dns_response_to = -1;
+static int hf_dns_retransmission = -1;
 static int hf_dns_retransmit_request_in = -1;
 static int hf_dns_retransmit_response_in = -1;
 static int hf_dns_time = -1;
+static int hf_dns_unsolicited = -1;
 static int hf_dns_sshfp_algorithm = -1;
 static int hf_dns_sshfp_fingerprint_type = -1;
 static int hf_dns_sshfp_fingerprint = -1;
@@ -3943,6 +3945,11 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_request_in, tvb, 0, 0, dns_trans->req_frame);
       PROTO_ITEM_SET_GENERATED(it);
+
+      if (!pinfo->flags.in_error_pkt) {
+        it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
+        PROTO_ITEM_SET_GENERATED(it);
+      }
     } else if (dns_trans->rep_frame) {
 
       it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
@@ -3950,19 +3957,29 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   } else {
     /* This is a reply */
+    proto_item *it;
     if (dns_trans->req_frame) {
-      proto_item *it;
       if ((retransmission) && (dns_trans->rep_frame)) {
         expert_add_info_format(pinfo, transaction_item, &ei_dns_retransmit_response, "DNS response retransmission. Original response in frame %d", dns_trans->rep_frame);
 
         it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_response_in, tvb, 0, 0, dns_trans->rep_frame);
         PROTO_ITEM_SET_GENERATED(it);
+
+        if (!pinfo->flags.in_error_pkt) {
+          it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
+          PROTO_ITEM_SET_GENERATED(it);
+        }
       } else {
         it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
         PROTO_ITEM_SET_GENERATED(it);
 
         nstime_delta(&delta, &pinfo->abs_ts, &dns_trans->req_time);
         it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &delta);
+        PROTO_ITEM_SET_GENERATED(it);
+      }
+    } else {
+      if (!retransmission) {
+        it=proto_tree_add_boolean(dns_tree, hf_dns_unsolicited, tvb, 0, 0, TRUE);
         PROTO_ITEM_SET_GENERATED(it);
       }
     }
@@ -5342,6 +5359,11 @@ proto_register_dns(void)
         FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
         "This is a response to the DNS query in this frame", HFILL }},
 
+    { &hf_dns_retransmission,
+      { "Retransmission", "dns.retransmission",
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        "This is a retransmission", HFILL }},
+
     { &hf_dns_retransmit_request_in,
       { "Retransmitted request. Original request in", "dns.retransmit_request_in",
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -5356,6 +5378,11 @@ proto_register_dns(void)
       { "Time", "dns.time",
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "The time between the Query and the Response", HFILL }},
+
+    { &hf_dns_unsolicited,
+      { "Unsolicited", "dns.unsolicited",
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        "This is an unsolicited response", HFILL }},
 
     { &hf_dns_count_add_rr,
       { "Additional RRs", "dns.count.add_rr",
