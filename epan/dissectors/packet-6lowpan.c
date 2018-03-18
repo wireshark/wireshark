@@ -550,6 +550,7 @@ static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_MAX];
 
 /* Preferences */
 static gboolean rfc4944_short_address_format = FALSE;
+static gboolean iid_has_universal_local_bit = FALSE;
 
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))
@@ -847,7 +848,7 @@ lowpan_addr48_to_ifcid(const guint8 *addr, guint8 *ifcid)
 
     /* Don't convert unknown addresses */
     if (memcmp(addr, unknown_addr, sizeof(unknown_addr)) != 0) {
-        ifcid[0] = addr[0] | 0x02; /* Set the U/L bit. */
+        ifcid[0] = addr[0];
         ifcid[1] = addr[1];
         ifcid[2] = addr[2];
         ifcid[3] = 0xff;
@@ -855,6 +856,9 @@ lowpan_addr48_to_ifcid(const guint8 *addr, guint8 *ifcid)
         ifcid[5] = addr[3];
         ifcid[6] = addr[4];
         ifcid[7] = addr[5];
+        if (iid_has_universal_local_bit) {
+            ifcid[0] ^= 0x02; /* Invert the U/L bit. */
+        }
     } else {
         memset(ifcid, 0, LOWPAN_IFC_ID_LEN);
     }
@@ -3319,6 +3323,10 @@ proto_register_6lowpan(void)
                                    "Derive IID according to RFC 4944",
                                    "Derive IID from a short 16-bit address according to RFC 4944 (using the PAN ID).",
                                    &rfc4944_short_address_format);
+    prefs_register_bool_preference(prefs_module, "iid_has_universal_local_bit",
+                                   "IID has Universal/Local bit",
+                                   "Linux kernels before version 4.12 does toggle the Universal/Local bit.",
+                                   &iid_has_universal_local_bit);
 
     for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         char *pref_name, *pref_title;
