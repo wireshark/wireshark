@@ -293,6 +293,7 @@ DISSECTOR_SRC = \
 	packet-atm.c		\
 	packet-atmtcp.c		\
 	packet-auto_rp.c	\
+	packet-avsp.c 		\
 	packet-ax25.c		\
 	packet-ax25-kiss.c	\
 	packet-ax25-nol3.c	\

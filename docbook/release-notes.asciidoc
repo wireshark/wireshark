@@ -100,6 +100,7 @@ since version 2.4.0:
 --
 ActiveMQ Artemis Core Protocol
 AMT (Automatic Multicast Tunneling)
+AVSP (Arista Vendor Specific Protocol)
 Bluetooth Mesh
 Broadcom tags (Broadcom Ethernet switch management frames)
 CVS password server

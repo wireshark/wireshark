@@ -613,6 +613,10 @@ extern "C" {
 #define ETHERTYPE_FCFT			0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #endif
 
+#ifndef ETHERTYPE_AVSP
+#define ETHERTYPE_AVSP			0xD28B /* Ethernet type for Arista vendor specific packet frames */
+#endif
+
 WS_DLL_PUBLIC const value_string etype_vals[];
 
 #ifdef __cplusplus

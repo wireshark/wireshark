@@ -675,6 +675,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atmtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-auto_rp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-avsp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ax25.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ax25-kiss.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ax25-nol3.c
