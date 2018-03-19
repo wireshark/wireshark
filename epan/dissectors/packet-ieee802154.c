@@ -395,7 +395,6 @@ static int hf_ieee802154_6top_flags_reserved = -1;
 static int hf_ieee802154_6top_code = -1;
 static int hf_ieee802154_6top_sfid = -1;
 static int hf_ieee802154_6top_seqnum = -1;
-static int hf_ieee802154_6top_gen = -1;
 static int hf_ieee802154_6top_metadata = -1;
 static int hf_ieee802154_6top_cell_options = -1;
 static int hf_ieee802154_6top_cell_option_tx = -1;
@@ -413,6 +412,7 @@ static int hf_ieee802154_6top_max_num_cells = -1;
 static int hf_ieee802154_6top_slot_offset = -1;
 static int hf_ieee802154_6top_channel_offset = -1;
 static int hf_ieee802154_6top_total_num_cells = -1;
+static int hf_ieee802154_6top_payload = -1;
 
 static int hf_ieee802159_mpx = -1;
 static int hf_ieee802159_mpx_transaction_control = -1;
@@ -823,42 +823,23 @@ static const value_string ietf_6top_command_identifiers[] = {
     { IETF_6TOP_CMD_RELOCATE, "RELOCATE" },
     { IETF_6TOP_CMD_COUNT, "COUNT" },
     { IETF_6TOP_CMD_LIST, "LIST" },
+    { IETF_6TOP_CMD_SIGNAL, "SIGNAL" },
     { IETF_6TOP_CMD_CLEAR, "CLEAR" },
     { 0, NULL }
 };
 
 static const value_string ietf_6top_return_codes[] = {
     { IETF_6TOP_RC_SUCCESS, "SUCCESS" },
-    { IETF_6TOP_RC_ERROR, "ERROR" },
-    { IETF_6TOP_RC_EOL, "EOL" },
-    { IETF_6TOP_RC_RESET, "RESET" },
-    { IETF_6TOP_RC_VER_ERR, "VER_ERR" },
-    { IETF_6TOP_RC_SFID_ERR, "SFID_ERR" },
-    { IETF_6TOP_RC_GEN_ERR, "GEN_ERR" },
-    { IETF_6TOP_RC_BUSY, "BUSY" },
-    { IETF_6TOP_RC_NORES, "NORES" },
-    { IETF_6TOP_RC_CELLLIST_ERR, "CELLLIST_ERR" },
+    { IETF_6TOP_RC_EOL, "RC_EOL" },
+    { IETF_6TOP_RC_ERR, "RC_ERR" },
+    { IETF_6TOP_RC_RESET, "RC_RESET" },
+    { IETF_6TOP_RC_ERR_VERSION, "RC_ERR_VERSION" },
+    { IETF_6TOP_RC_ERR_SFID, "RC_ERR_SFID" },
+    { IETF_6TOP_RC_ERR_SEQNUM, "RC_ERR_SEQNUM" },
+    { IETF_6TOP_RC_ERR_CELLLIST, "RC_ERR_CELLLIST" },
+    { IETF_6TOP_RC_ERR_BUSY, "RC_ERR_BUSY" },
+    { IETF_6TOP_RC_ERR_LOCKED, "RC_ERR_LOCKED" },
     { 0, NULL }
-};
-
-static const value_string ietf_6top_generation_numbers[] = {
-    { 0, "Clear" },
-    { 1, "Lollipop Counter Value" },
-    { 2, "Lollipop Counter Value" },
-    { 3, "Lollipop Counter Value" },
-    { 4, "Lollipop Counter Value" },
-    { 5, "Lollipop Counter Value" },
-    { 6, "Lollipop Counter Value" },
-    { 7, "Lollipop Counter Value" },
-    { 8, "Lollipop Counter Value" },
-    { 9, "Lollipop Counter Value" },
-    { 10, "Reserved" },
-    { 11, "Reserved" },
-    { 12, "Reserved" },
-    { 13, "Reserved" },
-    { 14, "Reserved" },
-    { 15, "Reserved" },
-    { 0, NULL}
 };
 
 static const value_string ietf_6top_cell_options[] = {
@@ -2391,7 +2372,6 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
     code_item = proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_code, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_sfid, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_seqnum, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_gen, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "6top");
     if (type == IETF_6TOP_TYPE_REQUEST) {
@@ -2446,6 +2426,17 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
             pie_length -= 8;
             offset += 8;
             break;
+        case IETF_6TOP_CMD_SIGNAL:
+            if (pie_length < 2) {
+                break;
+            }
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_metadata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            if (pie_length > 2) {
+                proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_payload, tvb, offset + 2, pie_length - 2, ENC_NA);
+            }
+            offset += pie_length;
+            pie_length = 0;
+            break;
         case IETF_6TOP_CMD_CLEAR:
             if (pie_length < 2) {
                 break;
@@ -2467,8 +2458,12 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
                     proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_total_num_cells, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     pie_length -= 2;
                     offset += 2;
-                } else if (pie_length > 0 && (pie_length % 4) == 0) {
+                } else if ((pie_length % 4) == 0) {
                     have_cell_list = TRUE;
+                } else {
+                    proto_tree_add_item(sixtop_tree, hf_ieee802154_6top_payload, tvb, offset, pie_length, ENC_NA);
+                    offset += pie_length;
+                    pie_length = 0;
                 }
             }
             break;
@@ -2477,14 +2472,14 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
                 have_cell_list = TRUE;
             }
             break;
-        case IETF_6TOP_RC_ERROR:
+        case IETF_6TOP_RC_ERR:
         case IETF_6TOP_RC_RESET:
-        case IETF_6TOP_RC_VER_ERR:
-        case IETF_6TOP_RC_SFID_ERR:
-        case IETF_6TOP_RC_GEN_ERR:
-        case IETF_6TOP_RC_BUSY:
-        case IETF_6TOP_RC_NORES:
-        case IETF_6TOP_RC_CELLLIST_ERR:
+        case IETF_6TOP_RC_ERR_VERSION:
+        case IETF_6TOP_RC_ERR_SFID:
+        case IETF_6TOP_RC_ERR_SEQNUM:
+        case IETF_6TOP_RC_ERR_CELLLIST:
+        case IETF_6TOP_RC_ERR_BUSY:
+        case IETF_6TOP_RC_ERR_LOCKED:
             /* They have no other field */
             break;
         default:
@@ -4653,10 +4648,6 @@ void proto_register_ieee802154(void)
         { "SeqNum", "wpan.6top_seqnum", FT_UINT8, BASE_DEC, NULL, IETF_6TOP_SEQNUM,
           NULL, HFILL }},
 
-        { &hf_ieee802154_6top_gen,
-        { "GEN", "wpan.6top_gen", FT_UINT8, BASE_DEC, VALS(ietf_6top_generation_numbers), IETF_6TOP_GEN,
-          NULL, HFILL }},
-
         { &hf_ieee802154_6top_metadata,
         { "Metadata", "wpan.6top_metadata", FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
@@ -4723,6 +4714,10 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_6top_total_num_cells,
         { "Total Number of Cells", "wpan.6top_total_num_cells", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_6top_payload,
+        { "Payload", "wpan.6top_payload", FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
 
         /* MPX IE (IEEE 802.15.9) */

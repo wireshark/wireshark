@@ -308,8 +308,7 @@ typedef enum {
 #define IETF_6TOP_VERSION                0x0F
 #define IETF_6TOP_TYPE                   0x30
 #define IETF_6TOP_FLAGS_RESERVED         0xC0
-#define IETF_6TOP_SEQNUM                 0x0F
-#define IETF_6TOP_GEN                    0xF0
+#define IETF_6TOP_SEQNUM                 0xFF
 
 /* SIXTOP CMD and RC identifiers */
 #define IETF_6TOP_CMD_ADD              0x01
@@ -317,17 +316,18 @@ typedef enum {
 #define IETF_6TOP_CMD_RELOCATE         0x03
 #define IETF_6TOP_CMD_COUNT            0x04
 #define IETF_6TOP_CMD_LIST             0x05
-#define IETF_6TOP_CMD_CLEAR            0x06
+#define IETF_6TOP_CMD_SIGNAL           0x06
+#define IETF_6TOP_CMD_CLEAR            0x07
 #define IETF_6TOP_RC_SUCCESS           0x00
-#define IETF_6TOP_RC_ERROR             0x01
-#define IETF_6TOP_RC_EOL               0x02
+#define IETF_6TOP_RC_EOL               0x01
+#define IETF_6TOP_RC_ERR               0x02
 #define IETF_6TOP_RC_RESET             0x03
-#define IETF_6TOP_RC_VER_ERR           0x04
-#define IETF_6TOP_RC_SFID_ERR          0x05
-#define IETF_6TOP_RC_GEN_ERR           0x06
-#define IETF_6TOP_RC_BUSY              0x07
-#define IETF_6TOP_RC_NORES             0x08
-#define IETF_6TOP_RC_CELLLIST_ERR      0x09
+#define IETF_6TOP_RC_ERR_VERSION       0x04
+#define IETF_6TOP_RC_ERR_SFID          0x05
+#define IETF_6TOP_RC_ERR_SEQNUM        0x06
+#define IETF_6TOP_RC_ERR_CELLLIST      0x07
+#define IETF_6TOP_RC_ERR_BUSY          0x08
+#define IETF_6TOP_RC_ERR_LOCKED        0x09
 
 /* SIXTOP Message Types */
 #define IETF_6TOP_TYPE_REQUEST         0x00
