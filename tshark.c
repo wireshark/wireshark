@@ -630,7 +630,8 @@ about_folders(void)
 #ifdef HAVE_LIBSMI
   /* SMI MIBs/PIBs */
   path = oid_get_default_mib_path();
-  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
+
+  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 20);
 
   for(i = 0; resultArray[i]; i++)
     printf("%-21s\t%s\n", "MIB/PIB path:", g_strstrip(resultArray[i]));
@@ -972,9 +973,10 @@ main(int argc, char *argv[])
         goto clean_exit;
       } else if (strcmp(argv[2], "fields") == 0)
         proto_registrar_dump_fields();
-      else if (strcmp(argv[2], "folders") == 0)
+      else if (strcmp(argv[2], "folders") == 0) {
+        epan_load_settings();
         about_folders();
-      else if (strcmp(argv[2], "ftypes") == 0)
+      } else if (strcmp(argv[2], "ftypes") == 0)
         proto_registrar_dump_ftypes();
       else if (strcmp(argv[2], "heuristic-decodes") == 0)
         dissector_dump_heur_decodes();

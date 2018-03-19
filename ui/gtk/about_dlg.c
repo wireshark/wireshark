@@ -499,7 +499,7 @@ about_folders_page_new(void)
   /* SMI MIBs/PIBs */
   path = oid_get_default_mib_path();
 
-  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
+  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 20);
 
   for(i = 0; resultArray[i]; i++)
     about_folders_row(table, "MIB/PIB path", g_strstrip(resultArray[i]),
