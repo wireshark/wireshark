@@ -378,6 +378,9 @@ static dissector_handle_t wsp_fromudp_handle;
 /* Handle for WTP-over-UDP dissector */
 static dissector_handle_t wtp_fromudp_handle;
 
+/* Handle for coap dissector */
+static dissector_handle_t coap_handle;
+
 /* Handle for generic media dissector */
 static dissector_handle_t media_handle;
 
@@ -1115,6 +1118,7 @@ static const value_string vals_wap_application_ids[] = {
     { 0x0008, "x-wap-application:drm.ua"},
     { 0x0009, "x-wap-application:emn.ua"},
     { 0x000A, "x-wap-application:wv.ua"},
+    { 0x001A, "x-wap-application:lwm2m.dm"},
     /* Registered by 3rd parties */
     { 0x8000, "x-wap-microsoft:localcontent.ua"},
     { 0x8001, "x-wap-microsoft:IMclient.ua"},
@@ -5018,8 +5022,19 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     found_match = dissector_try_string(media_type_table,
                             contentTypeStr, tmp_tvb, pinfo, tree, NULL);
                 }
-                if (! found_match) {
-                    if (! dissector_try_heuristic(heur_subdissector_list,
+                if (! found_match){
+                    /*
+                     * Try to dissect x-wap-application lwm2m.dm  data as COaP
+                     * see docs: (page 141)
+                     * http://www.openmobilealliance.org/release/LightweightM2M/V1_0_2-20180209-A/OMA-TS-LightweightM2M-V1_0_2-20180209-A.pdf
+                     * header bytes should be: 0xAF, 0x9A
+                     */
+                    if (tvb_get_guint8(tvb, headerStart + headerLength - 1) == 0xAF && /* x-wap app id */
+                        tvb_get_guint8(tvb, headerStart + headerLength) == 0x9A && /* x-wap app lwm2m.dm */
+                        tvb_reported_length(tmp_tvb) == 15  ){
+
+                        call_dissector(coap_handle, tmp_tvb, pinfo, tree);
+                    } else if (! dissector_try_heuristic(heur_subdissector_list,
                                 tmp_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 
                         pinfo->match_string = contentTypeStr;
@@ -7197,6 +7212,7 @@ proto_reg_handoff_wsp(void)
      */
     wtp_fromudp_handle = find_dissector_add_dependency("wtp-udp", proto_wsp);
     media_handle = find_dissector_add_dependency("media", proto_wsp);
+    coap_handle = find_dissector_add_dependency("coap", proto_wsp);
     wbxml_uaprof_handle = find_dissector_add_dependency("wbxml-uaprof", proto_wsp);
 
     /* Only connection-less WSP has no previous handler */
