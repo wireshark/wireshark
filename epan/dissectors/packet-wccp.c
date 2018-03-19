@@ -773,7 +773,7 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
   int old_offset = offset; \
   if (new_length<0) return new_length; \
   offset += length-new_length; \
-  if (old_offset <= offset) return old_offset - offset; \
+  if (old_offset >= offset) return offset - old_offset; \
   length = new_length; \
   }
 
