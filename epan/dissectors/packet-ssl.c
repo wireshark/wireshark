@@ -95,6 +95,10 @@
 /* Whether to provide support for authentication in addition to decryption. */
 #define HAVE_LIBGCRYPT_AEAD
 #endif
+#if GCRYPT_VERSION_NUMBER >= 0x010700 /* 1.7.0 */
+/* Whether AEAD_CHACHA20_POLY1305 can be supported. */
+#define HAVE_LIBGCRYPT_CHACHA20_POLY1305
+#endif
 
 void proto_register_ssl(void);
 
@@ -3844,6 +3848,71 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
     }
 
     return ret;
+}
+
+gboolean
+tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int *hash_algo)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return FALSE;
+    }
+
+    void *conv_data = conversation_get_proto_data(conv, proto_ssl);
+    if (conv_data == NULL) {
+        return FALSE;
+    }
+
+    SslDecryptSession *ssl_session = (SslDecryptSession *)conv_data;
+    const SslCipherSuite *suite = ssl_find_cipher(ssl_session->session.cipher);
+    if (!suite) {
+        return FALSE;
+    }
+
+    /* adapted from ssl_cipher_init in packet-ssl-utils.c */
+    static const gint gcry_modes[] = {
+        GCRY_CIPHER_MODE_STREAM,
+        GCRY_CIPHER_MODE_CBC,
+#ifdef HAVE_LIBGCRYPT_AEAD
+        GCRY_CIPHER_MODE_GCM,
+        GCRY_CIPHER_MODE_CCM,
+        GCRY_CIPHER_MODE_CCM,
+#else
+        -1,                         /* Do not bother with fallback support. */
+        -1,
+        -1,
+#endif
+#ifdef HAVE_LIBGCRYPT_CHACHA20_POLY1305
+        GCRY_CIPHER_MODE_POLY1305,
+#else
+        -1,                         /* AEAD_CHACHA20_POLY1305 is unsupported. */
+#endif
+    };
+    static const int gcry_mds[] = {
+        GCRY_MD_MD5,
+        GCRY_MD_SHA1,
+        GCRY_MD_SHA256,
+        GCRY_MD_SHA384,
+        -1,
+    };
+    int mode = gcry_modes[suite->mode];
+    int cipher_algo_id = ssl_get_cipher_algo(suite);
+    int hash_algo_id = gcry_mds[suite->dig-DIG_MD5];
+    if (mode == -1 || cipher_algo_id == 0 || hash_algo_id == -1) {
+        /* Identifiers are unusable, fail. */
+        return FALSE;
+    }
+    if (cipher_algo) {
+        *cipher_algo = cipher_algo_id;
+    }
+    if (cipher_mode) {
+        *cipher_mode = mode;
+    }
+    if (hash_algo) {
+        *hash_algo = hash_algo_id;
+    }
+
+    return TRUE;
 }
 
 /* TLS Exporters {{{ */

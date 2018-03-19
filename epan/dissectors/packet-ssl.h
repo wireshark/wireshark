@@ -27,6 +27,12 @@ WS_DLL_PUBLIC void ssl_set_master_secret(guint32 frame_num, address *addr_srv, a
                                   guint32 version, gint cipher, const guchar *_master_secret,
                                   const guchar *_client_random, const guchar *_server_random,
                                   guint32 client_seq, guint32 server_seq);
+/**
+ * Retrieves Libgcrypt identifiers for the current TLS cipher. Only valid after
+ * the Server Hello has been processed and if the current conversation has TLS.
+ */
+extern gboolean
+tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int *hash_algo);
 
 /**
  * Computes the TLS 1.3 "TLS-Exporter(label, context_value, key_length)" value.

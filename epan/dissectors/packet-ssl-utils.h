@@ -591,6 +591,11 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
 extern const SslCipherSuite *
 ssl_find_cipher(int num);
 
+
+/** Returns the Libgcrypt cipher identifier or 0 if unavailable. */
+int
+ssl_get_cipher_algo(const SslCipherSuite *cipher_suite);
+
 /** Obtains the block size for a CBC block cipher.
  * @param cipher_suite a cipher suite as returned by ssl_find_cipher().
  * @return the block size of a cipher or 0 if unavailable.

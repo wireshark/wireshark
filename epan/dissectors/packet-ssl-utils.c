@@ -2405,6 +2405,12 @@ ssl_find_cipher(int num)
     return NULL;
 }
 
+int
+ssl_get_cipher_algo(const SslCipherSuite *cipher_suite)
+{
+    return gcry_cipher_map_name(ciphers[cipher_suite->enc - 0x30]);
+}
+
 guint
 ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite)
 {
