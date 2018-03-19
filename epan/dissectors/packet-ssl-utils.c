@@ -5067,16 +5067,17 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
 void
 tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
 {
-    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-7.2
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-27#section-7.2
      * traffic_secret_N+1 = HKDF-Expand-Label(
      *                          traffic_secret_N,
-     *                          "application traffic secret", "", Hash.length)
+     *                          "traffic upd", "", Hash.length)
      *
      * Note that traffic_secret_N is of the same length (Hash.length).
      */
     const SslCipherSuite *cipher_suite = ssl->cipher_suite;
     SslDecoder *decoder = is_from_server ? ssl->server : ssl->client;
     StringInfo *app_secret = decoder ? &decoder->app_traffic_secret : NULL;
+    guint8 tls13_draft_version = ssl->session.tls13_draft_version;
 
     if (!cipher_suite || !app_secret || app_secret->data_len == 0) {
         ssl_debug_printf("%s Cannot perform Key Update due to missing info\n", G_STRFUNC);
@@ -5091,10 +5092,13 @@ tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
     int hash_algo = ssl_get_digest_by_name(hash_name);
     const guint hash_len = app_secret->data_len;
     guchar *new_secret;
+    const char *label = "traffic upd";
+    if (tls13_draft_version && tls13_draft_version < 20) {
+        label = "application traffic secret";
+    }
     if (!tls13_hkdf_expand_label(hash_algo, app_secret,
-                                 tls13_hkdf_label_prefix(ssl->session.tls13_draft_version),
-                                 "application traffic secret",
-                                 hash_len, &new_secret)) {
+                                 tls13_hkdf_label_prefix(tls13_draft_version),
+                                 label, hash_len, &new_secret)) {
         ssl_debug_printf("%s traffic_secret_N+1 expansion failed\n", G_STRFUNC);
         return;
     }
