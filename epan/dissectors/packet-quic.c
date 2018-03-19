@@ -836,11 +836,8 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
     }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
-    tls13_cipher *cipher = NULL;
     const gchar *error = NULL;
     tvbuff_t *decrypted_tvb;
-
-    cipher = quic_info->client_handshake_cipher;
 
     /* Create new decryption context based on the Client Connection
      * ID from the Client Initial packet. */
@@ -849,6 +846,7 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
          return offset;
     }
 
+    tls13_cipher *cipher = quic_info->client_handshake_cipher;
     if (cipher) {
         /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
         DISSECTOR_ASSERT(offset == QUIC_LONG_HEADER_LENGTH);
