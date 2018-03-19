@@ -64,7 +64,7 @@ class TextHTMLParser(HTMLParser):
             initial_indent += self.list_item_prefix
             indent += '    '
         kwargs = {
-            'width': 66,
+            'width': 72,
             'initial_indent': initial_indent,
             'subsequent_indent': indent
         }
