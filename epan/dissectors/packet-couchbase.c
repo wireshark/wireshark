@@ -148,6 +148,11 @@
 /* Control */
 #define PROTOCOL_BINARY_CMD_IOCTL_GET               0x23
 #define PROTOCOL_BINARY_CMD_IOCTL_SET               0x24
+#define PROTOCOL_BINARY_CMD_CONFIG_VALIDATE         0x25
+#define PROTOCOL_BINARY_CMD_CONFIG_RELOAD           0x26
+#define PROTOCOL_BINARY_CMD_AUDIT_PUT               0x27
+#define PROTOCOL_BINARY_CMD_AUDIT_CONFIG_RELOAD     0x28
+#define PROTOCOL_BINARY_CMD_SHUTDOWN                0x29
 
  /* Range operations.
   * These commands are used for range operations and exist within
@@ -238,6 +243,9 @@
 #define PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST 0xb9
 #define PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST 0xba
 
+#define PROTOCOL_BINARY_CMD_SET_DRIFT_COUNTER_STATE 0xc1
+#define PROTOCOL_BINARY_CMD_GET_ADJUSTED_TIME       0xc2
+
 /* Sub-document API commands */
 #define PROTOCOL_BINARY_CMD_SUBDOC_GET              0xc5
 #define PROTOCOL_BINARY_CMD_SUBDOC_EXISTS           0xc6
@@ -273,12 +281,17 @@
 
 #define PROTOCOL_BINARY_CMD_GET_RANDOM_KEY          0xb6
 #define PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE       0xb7
+#define PROTOCOL_BINARY_CMD_GET_KEYS                0xb8
 #define PROTOCOL_BINARY_CMD_SCRUB                   0xf0
 #define PROTOCOL_BINARY_CMD_ISASL_REFRESH           0xf1
 #define PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH       0xf2
 #define PROTOCOL_BINARY_CMD_GET_CMD_TIMER           0xf3
 #define PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN          0xf4
 #define PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN          0xf5
+#define PROTOCOL_BINARY_CMD_RBAC_REFRESH            0xf7
+#define PROTOCOL_BINARY_CMD_DROP_PRIVILEGE          0xfb
+#define PROTOCOL_BINARY_CMD_ADJUST_TIMEOFDAY        0xfc
+#define PROTOCOL_BINARY_CMD_EWOULDBLOCK_CTL         0xfd
 #define PROTOCOL_BINARY_CMD_GET_ERROR_MAP           0xfe
 
  /* vBucket states */
@@ -605,6 +618,11 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_SASL_STEP,                  "SASL Step"                },
   { PROTOCOL_BINARY_CMD_IOCTL_GET,                  "IOCTL Get"                },
   { PROTOCOL_BINARY_CMD_IOCTL_SET,                  "IOCTL Set"                },
+  { PROTOCOL_BINARY_CMD_CONFIG_VALIDATE,            "Config Validate"          },
+  { PROTOCOL_BINARY_CMD_CONFIG_RELOAD,              "Config Reload"            },
+  { PROTOCOL_BINARY_CMD_AUDIT_PUT,                  "Audit Put"                },
+  { PROTOCOL_BINARY_CMD_AUDIT_CONFIG_RELOAD,        "Audit Config Reload"      },
+  { PROTOCOL_BINARY_CMD_SHUTDOWN,                   "Shutdown"                 },
   { PROTOCOL_BINARY_CMD_RGET,                       "Range Get"                },
   { PROTOCOL_BINARY_CMD_RSET,                       "Range Set"                },
   { PROTOCOL_BINARY_CMD_RSETQ,                      "Range Set Quietly"        },
@@ -693,8 +711,11 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
   { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
   { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
+  { PROTOCOL_BINARY_CMD_GET_KEYS,                   "Get Keys"                 },
   { PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST,   "Set Collection's Manifest" },
   { PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST,   "Get Collection's Manifest" },
+  { PROTOCOL_BINARY_CMD_SET_DRIFT_COUNTER_STATE,    "Set Drift Counter State"  },
+  { PROTOCOL_BINARY_CMD_GET_ADJUSTED_TIME,          "Get Adjusted Time"        },
   { PROTOCOL_BINARY_CMD_SUBDOC_GET,                 "Subdoc Get"               },
   { PROTOCOL_BINARY_CMD_SUBDOC_EXISTS,              "Subdoc Exists"            },
   { PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD,            "Subdoc Dictionary Add"    },
@@ -714,6 +735,10 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_GET_CMD_TIMER,              "Internal Timer Control"   },
   { PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN,             "Set Control Token"        },
   { PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN,             "Get Control Token"        },
+  { PROTOCOL_BINARY_CMD_RBAC_REFRESH,               "RBAC Refresh"             },
+  { PROTOCOL_BINARY_CMD_DROP_PRIVILEGE,             "Drop Privilege"           },
+  { PROTOCOL_BINARY_CMD_ADJUST_TIMEOFDAY,           "Adjust Timeofday"         },
+  { PROTOCOL_BINARY_CMD_EWOULDBLOCK_CTL,            "EWOULDBLOCK Control"      },
   { PROTOCOL_BINARY_CMD_GET_ERROR_MAP,              "Get Error Map"            },
 
   /* Internally defined values not valid here */
@@ -815,17 +840,27 @@ get_couchbase_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 /* Returns true if the specified opcode's response value is JSON. */
 static gboolean
-has_json_value(guint8 opcode)
+has_json_value(gboolean is_request, guint8 opcode)
 {
-  switch (opcode) {
-  case PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG:
-  case PROTOCOL_BINARY_CMD_SUBDOC_GET:
-  case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST:
-  case PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST:
-    return TRUE;
+  if (is_request) {
+    switch (opcode) {
+    case PROTOCOL_BINARY_CMD_AUDIT_PUT:
+      return TRUE;
 
-  default:
-    return FALSE;
+    default:
+      return FALSE;
+    }
+  } else {
+    switch (opcode) {
+    case PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG:
+    case PROTOCOL_BINARY_CMD_SUBDOC_GET:
+    case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST:
+    case PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST:
+      return TRUE;
+
+    default:
+      return FALSE;
+    }
   }
 }
 
@@ -1828,7 +1863,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       if (value_len != 8) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 8");
       }
-    } else if (!request && has_json_value(opcode)) {
+    } else if (has_json_value(request, opcode)) {
       tvbuff_t *json_tvb;
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
       json_tvb = tvb_new_subset_length_caplen(tvb, offset, value_len, value_len);
