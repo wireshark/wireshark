@@ -2246,13 +2246,14 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     offset += 8;
   }
 
+  // Flex frame extras should be dissected for success and errors
+  if (flex_frame_extras) {
+    dissect_flexible_framing_extras(tvb, pinfo, couchbase_tree, offset, flex_frame_extras);
+    offset += flex_frame_extras;
+  }
+
   if (status == 0) {
     guint16 path_len = 0;
-
-    if (flex_frame_extras) {
-        dissect_flexible_framing_extras(tvb, pinfo, couchbase_tree, offset, flex_frame_extras);
-        offset += flex_frame_extras;
-    }
 
     dissect_extras(tvb, pinfo, couchbase_tree, offset, extlen, opcode, request,
                    &path_len);
