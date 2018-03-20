@@ -1012,7 +1012,6 @@ the binary packages are made.
 
 [[ChSrcDeb]]
 
-
 ==== Debian: .deb packages
 
 The Debian Package is built using dpkg-buildpackage, based on information
@@ -1034,55 +1033,62 @@ to build the Debian Package.
 
 ==== Red Hat: .rpm packages
 
-The RPM is built using rpmbuild (http://www.rpm.org/), which comes as standard on many flavours of Linux, including
-Red Hat and Fedora. The process creates a clean build environment in _packaging/rpm/BUILD_ every
-time the RPM is built. The settings controlling the build are in _packaging/rpm/SPECS/wireshark.spec.in_.
-After editing the settings in this file, _./configure_ must be run again in the wireshark directory to
-generate the actual specification script.
+You can build an RPM package using the `rpm-package` target. The package
+version is derived from the current git HEAD, so you must build from a
+git checkout.
 
+The package is built using http://www.rpm.org/[rpmbuild], which comes as
+standard on many flavours of Linux, including Red Hat, Fedora, and
+openSUSE. The process creates a clean build environment in
+_$\{CMAKE_BINARY_DIR}/packaging/rpm/BUILD_ each time the RPM is built.
+The settings that control the build are in
+_$\{CMAKE_SOURCE_DIR}/packaging/rpm/wireshark.spec.in_. The generated
+SPEC file contains CMake flags and other settings for the RPM build
+environment. Many of these come from the parent CMake environment.
+Notable ones are:
 
-.Careful with that `configure` setting
-[NOTE]
-====
-The SPEC file contains settings for the _configure_ used to set the RPM build
-environment. These are mostly independent of any settings passed to the
-usual Wireshark `./configure`. The exceptions to this rule are:
+* _\_prefix_ is set to _CMAKE_INSTALL_PREFIX_. By default this is
+  _/usr/local_. Pass `-DCMAKE_INSTALL_PREFIX=/usr` to create a package
+  that installs into _/usr_.
 
-* The _prefix_ given to `configure --prefix` is passed to rpmbuild.
+* Whether or not to create the “wireshark-qt” package
+  (`-DBUILD_wireshark`).
 
-* The selection of the GUI (Qt, Gtk+, or both) is passed to rpmbuild.
+* Lua, c-ares, nghttp2, and other library support (`-DENABLE_...`).
 
-* The selection of whether to include Lua support is passed to rpmbuild.
-====
+* Building with Ninja (`-G Ninja`).
 
-In the wireshark directory, type:
+In your build directory, type:
 
 [source,sh]
 ----
+$ ninja rpm-package
+# ...or, if you're using GNU make...
 $ make rpm-package
 ----
 
-to build the RPM and source RPM. Once it is done, there will be a message stating where the built RPM can be found.
+to build the binary and source RPMs. When it is finished there will be a
+message stating where the built RPM can be found.
 
 .This might take a while
 [TIP]
 ====
-Because this does a clean build as well as constructing the package this can
-take quite a long time.  Suggestion: add the following to your `~/.rpmmacros`
-file to allow parallel builds:
+This creates a tarball, extracts it, compiles Wireshark, and constructs
+a package. This can take quite a long time. You can speed up the process
+by using Ninja. If you're using GNU make you can add the following to
+your `~/.rpmmacros` file to enable parallel builds:
 
 ----
 %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
 ----
 ====
 
-.Build requirements differ from run requirements
-[TIP]
-====
-Building the RPM requires building a source distribution which itself requires
-the Qt development tools `uic` and `moc`. These can usually be obtained by
-installing the _qt-devel_ package.
-====
+Building the RPM package requires quite a few packages and libraries
+including GLib, `gcc`, `bison`, `flex`, Asciidoctor, and Qt development
+tools such as `uic` and `moc`. The required Qt packages can usually be
+obtained by installing the _qt5-devel_ package. For a complete list of
+build requirements, look for the “BuildRequires” lines in
+_packaging/rpm/wireshark.spec.in_.
 
 [[ChSrcOSX]]
 

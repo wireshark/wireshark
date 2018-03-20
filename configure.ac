@@ -3040,7 +3040,6 @@ echo "                 Use Snappy library : $have_snappy"
 # - docbook/wsdg_src/WSDG_chapter_dissection.asciidoc
 # - docbook/wsdg_src/WSDG_chapter_sources.asciidoc
 # - docbook/wsug_src/WSUG_chapter_build_install.asciidoc
-# - packaging/rpm/SPECS/wireshark.spec.in
 # - tools/git-compare-abis.sh
 echo ""
 AC_MSG_NOTICE([Builds using Autotools might be removed in the future.])

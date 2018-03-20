@@ -1,6 +1,8 @@
 
 DIST_SUBDIRS = SPECS
 
+EXTRA_DIST = wireshark.spec.in
+
 clean-local:
 	rm -rf BUILD RPMS SOURCES SRPMS
 

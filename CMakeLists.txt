@@ -2981,6 +2981,82 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	find_program(RPMBUILD_EXECUTABLE rpmbuild)
+	find_program(GIT_EXECUTABLE git)
+endif()
+
+# This will fail if we're not building from a git checkout.
+if(RPMBUILD_EXECUTABLE AND GIT_EXECUTABLE)
+	foreach(_rpm_dir BUILD RPMS SOURCES SPECS SRPMS)
+		file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm/${_rpm_dir}")
+	endforeach()
+
+	set(_rpmbuild_with_args)
+	if(CMAKE_GENERATOR STREQUAL "Ninja")
+		list(APPEND _rpmbuild_with_args --with ninja)
+	endif()
+	if (BUILD_wireshark)
+		list(APPEND _rpmbuild_with_args --with qt5)
+	endif()
+	if (BUILD_mmdbresolve)
+		list(APPEND _rpmbuild_with_args --with mmdbresolve)
+	endif()
+	if (LUA_FOUND)
+		list(APPEND _rpmbuild_with_args --with lua)
+	endif()
+	if (LZ4_FOUND AND SNAPPY_FOUND)
+		list(APPEND _rpmbuild_with_args --define "with_lz4_and_snappy 1")
+	endif()
+	if (CARES_FOUND)
+		list(APPEND _rpmbuild_with_args --define "with_c_ares 1")
+	endif()
+	if (SPANDSP_FOUND)
+		list(APPEND _rpmbuild_with_args --define "with_spandsp 1")
+	endif()
+	if (BCG729_FOUND)
+		list(APPEND _rpmbuild_with_args --define "with_bcg729 1")
+	endif()
+	if (LIBXML2_FOUND)
+		list(APPEND _rpmbuild_with_args --define "with_libxml2 1")
+	endif()
+	if (NGHTTP2_FOUND)
+		list(APPEND _rpmbuild_with_args --define "with_nghttp2 1")
+	endif()
+
+	execute_process(
+		COMMAND git describe --abbrev=8 --match v[1-9]*
+		OUTPUT_VARIABLE _git_description
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	)
+	string(SUBSTRING "${_git_description}" 1 -1 RPM_TARBALL_VERSION)
+	string(REPLACE "-" "_" RPM_VERSION "${RPM_TARBALL_VERSION}")
+	configure_file(packaging/rpm/wireshark.spec.in ${CMAKE_BINARY_DIR}/packaging/rpm/SPECS/wireshark.spec)
+
+	set(_export_tarball "${CPACK_PACKAGE_NAME}-${RPM_TARBALL_VERSION}.tar.xz")
+	add_custom_command(
+		OUTPUT "${CMAKE_SOURCE_DIR}/${_export_tarball}"
+		COMMAND ./tools/git-export-release.sh "${_git_description}"
+		# XXX Add an option to git-export-release.sh to write to a
+		# specific directory so that we can get rid of `ln` below.
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	)
+	add_custom_target(rpm-package
+		COMMAND ${CMAKE_COMMAND} -E create_symlink
+			"${CMAKE_SOURCE_DIR}/${_export_tarball}"
+			"SOURCES/${_export_tarball}"
+		COMMAND ${RPMBUILD_EXECUTABLE}
+			--define "_topdir ${CMAKE_BINARY_DIR}/packaging/rpm"
+			--define "_prefix ${CMAKE_INSTALL_PREFIX}"
+			${_rpmbuild_with_args}
+			--clean -ba SPECS/wireshark.spec
+		DEPENDS "${CMAKE_SOURCE_DIR}/${_export_tarball}"
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
+		COMMENT "Create a tarball from the current git commit."
+	)
+endif()
+
 set(CLEAN_C_FILES
 	${wireshark_FILES}
 	${tshark_FILES}

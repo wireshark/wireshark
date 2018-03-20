@@ -181,7 +181,13 @@ README.windows for those instructions.
 
         make rpm-package
 
-   to make an installable package for your system.
+   or
+
+        ninja rpm-package
+
+   to make an installable package for your system. The installation path
+   defaults to /usr/local, so you'll probably want to pass
+   -DCMAKE_INSTALL_PREFIX=/usr to CMake.
 
 11/b. If you 're running a system that supports APT (Debian/Ubuntu/etc.)
    run

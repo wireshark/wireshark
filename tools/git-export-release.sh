@@ -10,6 +10,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+set -e
+
 # First paremeter, if set, is a git commit, like v1.12.0-rc1 or 54819e5699f
 # By default HEAD is used.
 # Note, that filtering takes place base on the _exported_ version's
@@ -17,7 +19,7 @@
 # the whole tree.
 COMMIT="HEAD"
 if test -n "$1"; then
-  COMMIT="$1"
+    COMMIT="$1"
 fi
 
 if [ ! -e "${GIT_DIR:-.git}" ] ; then
