@@ -4400,7 +4400,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
                 offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
                                                         hdr_start, pinfo);
                 /* Make sure we're progressing forward */
-                if (save_offset <= offset) {
+                if (save_offset >= offset) {
                     expert_add_info(pinfo, ti, &ei_wsp_header_invalid);
                     break;
                 }
@@ -4411,7 +4411,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
                 offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
                                                                 tvb, hdr_start, pinfo);
                 /* Make sure we're progressing forward */
-                if (save_offset <= offset) {
+                if (save_offset >= offset) {
                     expert_add_info(pinfo, ti, &ei_wsp_header_invalid);
                     break;
                 }
