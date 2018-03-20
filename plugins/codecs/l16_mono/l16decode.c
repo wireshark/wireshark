@@ -16,6 +16,8 @@
 #include "codecs/codecs.h"
 #include "ws_attributes.h"
 
+void codec_register_l16(void);
+
 static void *
 codec_l16_init(void)
 {
