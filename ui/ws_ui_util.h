@@ -45,6 +45,7 @@ extern void main_window_nested_quit(void);
 /* quit the main window */
 extern void main_window_quit(void);
 
+/* Exit routine provided by UI-specific code. */
 extern void exit_application(int status);
 
 /* read from a pipe (callback) */
