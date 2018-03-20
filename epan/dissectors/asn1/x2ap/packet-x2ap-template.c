@@ -24,6 +24,7 @@
 #include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 
+#include "packet-x2ap.h"
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-lte-rrc.h"
