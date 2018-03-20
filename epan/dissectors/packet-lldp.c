@@ -490,15 +490,15 @@ static expert_field ei_lldp_tlv_deprecated = EI_INIT;
 #define TLV_INFO_LEN(value)	((value) & TLV_INFO_LEN_MASK)
 
 static const value_string tlv_types[] = {
-	{ END_OF_LLDPDU_TLV_TYPE,			"End of LLDPDU"},
-	{ CHASSIS_ID_TLV_TYPE,				"Chassis Id"},
-	{ PORT_ID_TLV_TYPE,					"Port Id"},
-	{ TIME_TO_LIVE_TLV_TYPE,			"Time to Live"},
+	{ END_OF_LLDPDU_TLV_TYPE,		"End of LLDPDU"},
+	{ CHASSIS_ID_TLV_TYPE,			"Chassis Id"},
+	{ PORT_ID_TLV_TYPE,			"Port Id"},
+	{ TIME_TO_LIVE_TLV_TYPE,		"Time to Live"},
 	{ PORT_DESCRIPTION_TLV_TYPE,		"Port Description"},
-	{ SYSTEM_NAME_TLV_TYPE,				"System Name"},
+	{ SYSTEM_NAME_TLV_TYPE,			"System Name"},
 	{ SYSTEM_DESCRIPTION_TLV_TYPE,		"System Description"},
 	{ SYSTEM_CAPABILITIES_TLV_TYPE,		"System Capabilities"},
-	{ MANAGEMENT_ADDR_TLV_TYPE,			"Management Address"},
+	{ MANAGEMENT_ADDR_TLV_TYPE,		"Management Address"},
 	{ ORGANIZATION_SPECIFIC_TLV_TYPE,	"Organization Specific"},
 	{ 0, NULL}
 };
@@ -809,10 +809,13 @@ static const value_string civic_address_type_values[] = {
  * Operational MAU Type field.
  *
  * These values are taken from the DESCRIPTION field of the dot3MauType
- * objects defined in RFC 3636 (or subsequent revisions).
+ * objects defined in RFC 4836
  */
 
+/* from rfc 4836 dot3MauType */
 static const value_string operational_mau_type_values[] = {
+	{ 0,	"other or unknown" },
+	/* rfc 1515 values */
 	{ 1,	"AUI - no internal MAU, view from AUI" },
 	{ 2,	"10Base5 - thick coax MAU" },
 	{ 3,	"Foirl - FOIRL MAU" },
@@ -822,6 +825,7 @@ static const value_string operational_mau_type_values[] = {
 	{ 7,	"10BaseFB - sync fiber MAU" },
 	{ 8,	"10BaseFL - async fiber MAU" },
 	{ 9,	"10Broad36 - broadband DTE MAU" },
+	/* rfc 2239 updates */
 	{ 10,	"10BaseTHD - UTP MAU, half duplex mode" },
 	{ 11,	"10BaseTFD - UTP MAU, full duplex mode" },
 	{ 12,	"10BaseFLHD - async fiber MAU, half duplex mode" },
@@ -833,6 +837,7 @@ static const value_string operational_mau_type_values[] = {
 	{ 18,	"100BaseFXFD - X fiber over PMT, full duplex mode" },
 	{ 19,	"100BaseT2HD - 2 pair category 3 UTP, half duplex mode" },
 	{ 20,	"100BaseT2DF - 2 pair category 3 UTP, full duplex mode" },
+	/* rfc 2668 updates */
 	{ 21,	"1000BaseXHD - PCS/PMA, unknown PMD, half duplex mode" },
 	{ 22,	"1000BaseXFD - PCS/PMA, unknown PMD, full duplex mode" },
 	{ 23,	"1000BaseLXHD - Fiber over long-wavelength laser, half duplex mode" },
@@ -843,6 +848,7 @@ static const value_string operational_mau_type_values[] = {
 	{ 28,	"1000BaseCXFD - Copper over 150-Ohm balanced cable, full duplex mode" },
 	{ 29,	"1000BaseTHD - Four-pair Category 5 UTP, half duplex mode" },
 	{ 30,	"1000BaseTFD - Four-pair Category 5 UTP, full duplex mode" },
+	/* rfc 3636 updates */
 	{ 31,	"10GigBaseX - X PCS/PMA, unknown PMD." },
 	{ 32,	"10GigBaseLX4 - X fiber over WWDM optics" },
 	{ 33,	"10GigBaseR - R PCS/PMA, unknown PMD." },
@@ -853,6 +859,20 @@ static const value_string operational_mau_type_values[] = {
 	{ 38,	"10GigBaseEW - W fiber over 1550 nm optics" },
 	{ 39,	"10GigBaseLW - W fiber over 1310 nm optics" },
 	{ 40,	"10GigBaseSW - W fiber over 850 nm optics" },
+	/* rfc 4836 updates */
+	{ 41,	"10GBASE-CX4 - X copper over 8 pair 100-Ohm balanced cable" },
+	{ 42,	"2BASE-TL - Voice grade UTP copper, up to 2700m, optional PAF" },
+	{ 43,	"10PASS-TS - Voice grade UTP copper, up to 750m, optional PAF" },
+	{ 44,	"100BASE-BX10D - One single-mode fiber OLT, long wavelength, 10km" },
+	{ 45,	"100BASE-BX10U - One single-mode fiber ONU, long wavelength, 10km" },
+	{ 46,	"100BASE-LX10 - One single-mode fiber ONU, long wavelength, 10km" },
+	{ 47,	"1000BASE-BX10D - One single-mode fiber OLT, long wavelength, 10km" },
+	{ 48,	"1000BASE-BX10U - One single-mode fiber ONU, long wavelength, 10km" },
+	{ 49,	"1000BASE-LX10 - Two sigle-mode fiber, long wavelength, 10km" },
+	{ 50,	"1000BASE-PX10D - One single-mode fiber EPON OLT, 10km" },
+	{ 51,	"1000BASE-PX10U - One single-mode fiber EPON ONU, 10km" },
+	{ 52,	"1000BASE-PX20D - One single-mode fiber EPON OLT, 20km" },
+	{ 53,	"1000BASE-PX20U - One single-mode fiber EPON ONU, 20km" },
 	{ 0, NULL }
 };
 
