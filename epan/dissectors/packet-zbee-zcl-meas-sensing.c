@@ -1628,8 +1628,7 @@ proto_reg_handoff_zbee_zcl_relhum_meas(void)
 /* Defines               */
 /*************************/
 
-#define ZBEE_ZCL_OCC_SEN_NUM_GENERIC_ETT                        2
-#define ZBEE_ZCL_OCC_SEN_NUM_ETT                                ZBEE_ZCL_OCC_SEN_NUM_GENERIC_ETT
+#define ZBEE_ZCL_OCC_SEN_NUM_ETT                                2
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_OCC_SEN_OCCUPANCY                      0x0000  /* Occupancy */
@@ -1676,11 +1675,12 @@ static int proto_zbee_zcl_occ_sen = -1;
 
 static int hf_zbee_zcl_occ_sen_attr_id = -1;
 static int hf_zbee_zcl_occ_sen_occupancy = -1;
+static int hf_zbee_zcl_occ_sen_occupancy_occupied = -1;
 static int hf_zbee_zcl_occ_sen_occ_sensor_type = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_occ_sen = -1;
-static gint ett_zbee_zcl_occ = -1;
+static gint ett_zbee_zcl_occ_sen_occupancy = -1;
 
 /* Attributes */
 static const value_string zbee_zcl_occ_sen_attr_names[] = {
@@ -1740,7 +1740,7 @@ static void
 dissect_zcl_occ_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
     static const int *occupancy[] = {
-        &hf_zbee_zcl_occ_sen_occupancy,
+        &hf_zbee_zcl_occ_sen_occupancy_occupied,
         NULL
     };
 
@@ -1748,7 +1748,7 @@ dissect_zcl_occ_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gu
     switch ( attr_id ) {
 
         case ZBEE_ZCL_ATTR_ID_OCC_SEN_OCCUPANCY:
-            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_occ_sen_occupancy, ett_zbee_zcl_occ, occupancy, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_occ_sen_occupancy, ett_zbee_zcl_occ_sen_occupancy, occupancy, ENC_LITTLE_ENDIAN);
             *offset += 1;
             break;
 
@@ -1783,7 +1783,11 @@ proto_register_zbee_zcl_occ_sen(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_occ_sen_occupancy,
-            { "Occupancy", "zbee_zcl_meas_sensing.occsen.attr.occupancy", FT_UINT8, BASE_HEX, VALS(zbee_zcl_occ_sen_sensed_occ_names),
+            { "Occupancy", "zbee_zcl_meas_sensing.occsen.attr.occupancy", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_occ_sen_occupancy_occupied,
+            { "Occupied", "zbee_zcl_meas_sensing.occsen.attr.occupancy_occupied", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_OCCUPANCY_SENSED_OCC, NULL, HFILL } },
 
         { &hf_zbee_zcl_occ_sen_occ_sensor_type,
@@ -1792,9 +1796,15 @@ proto_register_zbee_zcl_occ_sen(void)
     };
 
 
+    /* ZCL Occupancy Sensing subtrees */
+    static gint *ett[ZBEE_ZCL_OCC_SEN_NUM_ETT];
+    ett[0] = &ett_zbee_zcl_occ_sen;
+    ett[1] = &ett_zbee_zcl_occ_sen_occupancy;
+
     /* Register the ZigBee ZCL Occupancy Sensing cluster protocol name and description */
     proto_zbee_zcl_occ_sen = proto_register_protocol("ZigBee ZCL Occupancy Sensing", "ZCL Occupancy Sensing", ZBEE_PROTOABBREV_ZCL_OCCSEN);
     proto_register_field_array(proto_zbee_zcl_occ_sen, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Occupancy Sensing dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_OCCSEN, dissect_zbee_zcl_occ_sen, proto_zbee_zcl_occ_sen);
