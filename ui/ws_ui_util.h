@@ -45,6 +45,8 @@ extern void main_window_nested_quit(void);
 /* quit the main window */
 extern void main_window_quit(void);
 
+extern void exit_application(int status);
+
 /* read from a pipe (callback) */
 typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
 /* install callback function, called if pipe input is available */
