@@ -544,6 +544,7 @@ PRIVATE void Action_add(
   struct symbol *sp,
   char *arg
 ){
+  assert(app);
   struct action *newaction;
   newaction = Action_new();
   newaction->next = *app;
@@ -896,6 +897,7 @@ void FindFirstSets(struct lemon *lemp)
   return;
 }
 
+#ifndef __clang_analyzer__
 /* Compute all LR(0) states for the grammar.  Links
 ** are added to between some states so that the LR(1) follow sets
 ** can be computed later.
@@ -955,6 +957,7 @@ does not work properly.",sp->name);
   (void)getstate(lemp);
   return;
 }
+#endif
 
 /* Return a pointer to a state which is described by the configuration
 ** list which has been built from calls to Configlist_add.
@@ -1070,6 +1073,7 @@ PRIVATE void buildshifts(struct lemon *lemp, struct state *stp)
   }
 }
 
+#ifndef __clang_analyzer__
 /*
 ** Construct the propagation links
 */
@@ -1106,6 +1110,7 @@ void FindLinks(struct lemon *lemp)
     }
   }
 }
+#endif
 
 /* Compute all followsets.
 **
@@ -2031,6 +2036,7 @@ static int handleflags(int i, FILE *err)
     return errcnt;
 }
 
+#ifndef __clang_analyzer__
 /*
 ** Process a command line switch which has an argument.
 */
@@ -2120,6 +2126,7 @@ static int handleswitch(int i, FILE *err)
   }
   return errcnt;
 }
+#endif
 
 int OptInit(char **a, struct s_options *o, FILE *err)
 {
@@ -3780,6 +3787,7 @@ PRIVATE int translate_code(struct lemon *lemp, struct rule *rp){
 
   append_str(0,0,0,0);
 
+  #ifndef __clang_analyzer__
   /* This const cast is wrong but harmless, if we're careful. */
   for(cp=(char *)rp->code; *cp; cp++){
     if( cp==zSkip ){
@@ -3829,6 +3837,7 @@ PRIVATE int translate_code(struct lemon *lemp, struct rule *rp){
     }
     append_str(cp, 1, 0, 0);
   } /* End loop */
+  #endif
 
   /* Main code generation completed */
   cp = append_str(0,0,0,0);
@@ -4396,6 +4405,7 @@ void ReportTable(
     }
   }
   fprintf(out, "};\n"); lineno++;
+  free(pActtab);
 
   /* Output the yy_shift_ofst[] table */
   n = lemp->nxstate;
@@ -5057,6 +5067,7 @@ int Strsafe_insert(const char *data)
     free(x1a->tbl);
     *x1a = array;
   }
+#ifndef __clang_analyzer__
   /* Insert the new data */
   h = ph & (x1a->size-1);
   np = &(x1a->tbl[x1a->count++]);
@@ -5065,6 +5076,7 @@ int Strsafe_insert(const char *data)
   np->next = x1a->ht[h];
   x1a->ht[h] = np;
   np->from = &(x1a->ht[h]);
+#endif
   return 1;
 }
 
@@ -5225,6 +5237,7 @@ int Symbol_insert(struct symbol *data, const char *key)
     free(x2a->tbl);
     *x2a = array;
   }
+#ifndef __clang_analyzer__
   /* Insert the new data */
   h = ph & (x2a->size-1);
   np = &(x2a->tbl[x2a->count++]);
@@ -5234,6 +5247,7 @@ int Symbol_insert(struct symbol *data, const char *key)
   np->next = x2a->ht[h];
   x2a->ht[h] = np;
   np->from = &(x2a->ht[h]);
+#endif
   return 1;
 }
 
@@ -5422,6 +5436,7 @@ int State_insert(struct state *data, struct config *key)
     free(x3a->tbl);
     *x3a = array;
   }
+#ifndef __clang_analyzer__
   /* Insert the new data */
   h = ph & (x3a->size-1);
   np = &(x3a->tbl[x3a->count++]);
@@ -5431,6 +5446,7 @@ int State_insert(struct state *data, struct config *key)
   np->next = x3a->ht[h];
   x3a->ht[h] = np;
   np->from = &(x3a->ht[h]);
+#endif
   return 1;
 }
 
@@ -5561,6 +5577,7 @@ int Configtable_insert(struct config *data)
     free(x4a->tbl);
     *x4a = array;
   }
+#ifndef __clang_analyzer__
   /* Insert the new data */
   h = ph & (x4a->size-1);
   np = &(x4a->tbl[x4a->count++]);
@@ -5569,6 +5586,7 @@ int Configtable_insert(struct config *data)
   np->next = x4a->ht[h];
   x4a->ht[h] = np;
   np->from = &(x4a->ht[h]);
+#endif
   return 1;
 }
 
