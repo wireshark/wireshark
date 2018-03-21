@@ -185,7 +185,7 @@ extern "C" {
     #define DIAG_OFF_BYACC \
       DIAG_OFF(shadow)
     #define DIAG_ON_BYACC \
-      DIAG_ON(SHADOW)
+      DIAG_ON(shadow)
   #else
     #define DIAG_OFF_BYACC
     #define DIAG_ON_BYACC
