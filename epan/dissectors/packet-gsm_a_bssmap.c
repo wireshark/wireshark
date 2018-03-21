@@ -2651,7 +2651,7 @@ static const range_string speech_version_id_rvals[] = {
 static const range_string speech_version_id_short_rvals[] = {
     { 0x01,     0x01, "FR1" },
     { 0x05,     0x05, "HR1" },
-    { 0x11,     0x11, "FR12" },
+    { 0x11,     0x11, "FR2 (EFR)" },
     { 0x15,     0x15, "HR2" },
     { 0x21,     0x21, "FR3 (AMR)" },
     { 0x25,     0x25, "HR3 (AMR)" },
