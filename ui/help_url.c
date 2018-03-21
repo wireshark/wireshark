@@ -253,6 +253,9 @@ topic_action_url(topic_action_e action)
     case(HELP_STATS_LTE_RLC_TRAFFIC_DIALOG):
         url = user_guide_url("ChTelLTERLCTraffic.html");
         break;
+    case(HELP_STATS_TCP_STREAM_GRAPHS_DIALOG):
+        url = user_guide_url("ChStatTCPStreamGraphs.html");
+        break;
     case(HELP_STATS_WLAN_TRAFFIC_DIALOG):
         url = user_guide_url("ChStatWLANTraffic.html");
         break;

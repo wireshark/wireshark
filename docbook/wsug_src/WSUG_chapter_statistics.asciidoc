@@ -427,13 +427,37 @@ If you click on an item in the error list its corresponding packet will be
 selected in the main window.
 ====
 
+[[ChStatTCPStreamGraphs]]
+
+=== TCP Stream Graphs
+
+Show different visual representations of the TCP streams in a capture.
+
+_Time Sequence (Stevens)_:: This is a simple graph of the TCP sequence
+number over time, similar to the ones used in Richard Stevens’ “TCP/IP
+Illustrated” series of books.
+
+_Time Sequence (tcptrace)_:: Shows TCP metrics similar to the
+http://www.tcptrace.org/[tcptrace] utility, including forward segments,
+acknowledgements, selective acknowledgements, reverse window sizes, and
+zero windows.
+
+_Throughput_:: Average throughput and goodput.
+
+_Round Trip Time_:: Round trip time vs time or sequence number. RTT is
+based on the acknowledgement timestamp corresponding to a particular
+segment.
+
+_Window Scaling_:: Window size and outstanding bytes.
+
 [[ChStatWLANTraffic]]
 
 === WLAN Traffic Statistics
 
-Statistics of the captured WLAN traffic. This window will summarize the wireless
-network traffic found in the capture. Probe requests will be merged into an
-existing network if the SSID matches.
+Statistics about captured WLAN traffic. This can be found under the
+menu:Wireless[] menu and summarizes the wireless network traffic found
+in the capture. Probe requests will be merged into an existing network
+if the SSID matches.
 
 .The “WLAN Traffic Statistics” window
 image::wsug_graphics/ws-stats-wlan-traffic.png[{screenshot-attrs}]
@@ -457,12 +481,13 @@ This window will be updated frequently, so it will be useful, even if you open
 it before (or while) you are doing a live capture.
 ====
 
-[[ChStatXXX]]
+[[ChStatOtherProtocols]]
 
-=== The protocol specific statistics windows
+=== Other Protocol-specific Statistics Windows
 
-The protocol specific statistics windows display detailed information of
-specific protocols and might be described in a later version of this document.
+Wireshark has many other statistics windows that display detailed
+information about specific protocols and might be described in a later
+version of this document.
 
 Some of these statistics are described at
 {wireshark-wiki-url}Statistics.

@@ -19,8 +19,9 @@
 
 #include "ui/tap-tcp-stream.h"
 
+#include "geometry_state_dialog.h"
+
 #include <ui/qt/widgets/qcustomplot.h>
-#include <QDialog>
 #include <QMenu>
 #include <QRubberBand>
 #include <QTimer>
@@ -29,7 +30,7 @@ namespace Ui {
 class TCPStreamDialog;
 }
 
-class TCPStreamDialog : public QDialog
+class TCPStreamDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
@@ -70,6 +71,8 @@ private:
     QCPGraph *sack_graph_;
     QCPGraph *sack2_graph_;
     QCPGraph *rwin_graph_;
+    QCPGraph *dup_ack_graph_;
+    QCPGraph *zero_win_graph_;
     QCPItemTracer *tracer_;
     QRectF axis_bounds_;
     guint32 packet_num_;
@@ -171,6 +174,7 @@ private slots:
     void on_actionStevens_triggered();
     void on_actionTcptrace_triggered();
     void on_actionWindowScaling_triggered();
+    void on_buttonBox_helpRequested();
 };
 
 #endif // TCP_STREAM_DIALOG_H

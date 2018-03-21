@@ -4000,6 +4000,7 @@ static void tseq_tcptrace_make_elmtlist(struct gtk_graph *g)
                 e1->p.line.dim.x1 = x;
                 e1->p.line.dim.y1 = p_ackno;
                 e1->p.line.dim.x2 = x;
+                /* Dup (or very small) ack */
                 e1->p.line.dim.y2 = ((ackno != p_ackno) || (ackno < 4)) ? ackno : ackno - 4;
                 e1++;
 

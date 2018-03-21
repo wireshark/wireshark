@@ -88,6 +88,8 @@ since version 2.4.0:
 * The generic data dissector can now uncompress zlib compressed data.
 * Dns Stats now support service-level stats.
 * Dns filters for retransmissions and unsolicited responses have been added.
+* The “tcptrace” TCP Stream graph now shows duplicate ACKS and zero
+  window advertisements.
 
 //=== Removed Dissectors
 
