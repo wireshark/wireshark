@@ -259,6 +259,18 @@ gint32   tag;
 IPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE
 IPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE
 RATType  TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(gprscdr_rat_type_vals)
+EPCQoSInformation/maxRequestedBandwithUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/maxRequestedBandwithDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/guaranteedBitrateUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/guaranteedBitrateDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/aPNAggregateMaxBitrateUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/aPNAggregateMaxBitrateDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/extendedMaxRequestedBWUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/extendedMaxRequestedBWDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/extendedGBRUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/extendedGBRDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/extendedAPNAMBRUL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+EPCQoSInformation/extendedAPNAMBRDL  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 #.END
 
 #
