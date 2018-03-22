@@ -38,6 +38,8 @@ static int hf_mac_nr_context_rnti = -1;
 static int hf_mac_nr_context_rnti_type = -1;
 static int hf_mac_nr_context_ueid = -1;
 static int hf_mac_nr_context_bcch_transport_channel = -1;
+static int hf_mac_nr_context_phr_type2_pcell = -1;
+static int hf_mac_nr_context_phr_type2_othercell = -1;
 
 
 static int hf_mac_nr_subheader = -1;
@@ -1133,7 +1135,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                                                          tvb, offset, 1, ENC_BIG_ENDIAN, &bs);
                             write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
                                                      "(Short %sBSR LCG ID=%u BS=%u) ",
-                                                     lcid == SHORT_BSR_LCID ? " " : "Truncated ", lcg_id, bs);
+                                                     lcid == SHORT_BSR_LCID ? "" : "Truncated ", lcg_id, bs);
                             offset++;
                         }
                         break;
@@ -1181,9 +1183,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                         }
                         break;
                     case PADDING_LCID:
-                        write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo, "(Padding) ");
                         /* The rest of the PDU is padding */
                         proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
+                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Padding %u bytes) ",
+                                                 tvb_reported_length_remaining(tvb, offset));
+                        /* Move to the end of the frame */
                         offset = tvb_captured_length(tvb);
                         break;
                 }
@@ -1406,6 +1410,16 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
+    /* Type 2 PCell */
+    ti = proto_tree_add_boolean(context_tree,  hf_mac_nr_context_phr_type2_pcell,
+                                tvb, 0, 0, p_mac_nr_info->phr_type2_pcell);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Type 2 other */
+    ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
+                                tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
+    PROTO_ITEM_SET_GENERATED(ti);
+
 
     /* Dissect the MAC PDU itself. Format depends upon RNTI type. */
     switch (p_mac_nr_info->rntiType) {
@@ -1593,6 +1607,18 @@ void proto_register_mac_nr(void)
             { "Transport channel",
               "mac-nr.bcch-transport-channel", FT_UINT8, BASE_DEC, VALS(bcch_transport_channel_vals), 0x0,
               "Transport channel BCCH data was carried on", HFILL
+            }
+        },
+        { &hf_mac_nr_context_phr_type2_pcell,
+            { "PHR Type2 PCell PHR",
+              "mac-nr.type2-pcell", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_context_phr_type2_othercell,
+            { "PHR Type2 other cell PHR",
+              "mac-nr.type2-other-cell", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
 
