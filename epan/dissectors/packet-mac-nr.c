@@ -58,13 +58,13 @@ static int hf_mac_nr_control_timing_advance_command = -1;
 static int hf_mac_nr_control_se_phr_reserved = -1;
 static int hf_mac_nr_control_se_phr_ph = -1;
 static int hf_mac_nr_control_se_phr_pcmax_c = -1;
-static int hf_mac_nr_control_me_phr_lcg7 = -1;
-static int hf_mac_nr_control_me_phr_lcg6 = -1;
-static int hf_mac_nr_control_me_phr_lcg5 = -1;
-static int hf_mac_nr_control_me_phr_lcg4 = -1;
-static int hf_mac_nr_control_me_phr_lcg3 = -1;
-static int hf_mac_nr_control_me_phr_lcg2 = -1;
-static int hf_mac_nr_control_me_phr_lcg1 = -1;
+static int hf_mac_nr_control_me_phr_c7_flag = -1;
+static int hf_mac_nr_control_me_phr_c6_flag = -1;
+static int hf_mac_nr_control_me_phr_c5_flag = -1;
+static int hf_mac_nr_control_me_phr_c4_flag = -1;
+static int hf_mac_nr_control_me_phr_c3_flag = -1;
+static int hf_mac_nr_control_me_phr_c2_flag = -1;
+static int hf_mac_nr_control_me_phr_c1_flag = -1;
 static int hf_mac_nr_control_me_phr_entry = -1;
 static int hf_mac_nr_control_me_phr_p = -1;
 static int hf_mac_nr_control_me_phr_v = -1;
@@ -1027,13 +1027,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                              SDU_length.
                          */
                         static const int * me_phr_byte1_flags[] = {
-                            &hf_mac_nr_control_me_phr_lcg7,
-                            &hf_mac_nr_control_me_phr_lcg6,
-                            &hf_mac_nr_control_me_phr_lcg5,
-                            &hf_mac_nr_control_me_phr_lcg4,
-                            &hf_mac_nr_control_me_phr_lcg3,
-                            &hf_mac_nr_control_me_phr_lcg2,
-                            &hf_mac_nr_control_me_phr_lcg1,
+                            &hf_mac_nr_control_me_phr_c7_flag,
+                            &hf_mac_nr_control_me_phr_c6_flag,
+                            &hf_mac_nr_control_me_phr_c5_flag,
+                            &hf_mac_nr_control_me_phr_c4_flag,
+                            &hf_mac_nr_control_me_phr_c3_flag,
+                            &hf_mac_nr_control_me_phr_c2_flag,
+                            &hf_mac_nr_control_me_phr_c1_flag,
                             &hf_mac_nr_control_me_phr_reserved,
                             NULL
                         };
@@ -1611,7 +1611,7 @@ void proto_register_mac_nr(void)
         { &hf_mac_nr_subheader_f,
             { "Format",
               "mac-nr.subheader.f", FT_BOOLEAN, 8, TFS(&subheader_f_vals), 0x40,
-              NULL, HFILL
+              "Format of subheader length field", HFILL
             }
         },
         { &hf_mac_nr_subheader_length_1_byte,
@@ -1771,46 +1771,46 @@ void proto_register_mac_nr(void)
             }
         },
 
-        { &hf_mac_nr_control_me_phr_lcg7,
-            { "LCG7",
-              "mac-nr.control.me-phr.lcg7", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
-              NULL, HFILL
+        { &hf_mac_nr_control_me_phr_c7_flag,
+            { "C7",
+              "mac-nr.control.me-phr.c7", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+              "SCellIndex 7 PHR report flag", HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_lcg6,
-            { "LCG6",
-              "mac-nr.control.me-phr.lcg6", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
-              NULL, HFILL
+        { &hf_mac_nr_control_me_phr_c6_flag,
+            { "C6",
+              "mac-nr.control.me-phr.c6", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+              "SCellIndex 6 PHR report flag", HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_lcg5,
-            { "LCG5",
-              "mac-nr.control.me-phr.lcg5", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
-              NULL, HFILL
+        { &hf_mac_nr_control_me_phr_c5_flag,
+            { "C5",
+              "mac-nr.control.me-phr.c5", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+              "SCellIndex 5 PHR report flag", HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_lcg4,
-            { "LCG4",
-              "mac-nr.control.me-phr.lcg4", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
-              NULL, HFILL
+        { &hf_mac_nr_control_me_phr_c4_flag,
+            { "C4",
+              "mac-nr.control.me-phr.c4", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+              "SCellIndex 4 PHR report flag", HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_lcg3,
-            { "LCG3",
+        { &hf_mac_nr_control_me_phr_c3_flag,
+            { "C3",
               "mac-nr.control.me-phr.lcg3", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
-              NULL, HFILL
+              "SCellIndex 3 PHR report flag", HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_lcg2,
-            { "LCG2",
-              "mac-nr.control.me-phr.lcg2", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
-              NULL, HFILL
+        { &hf_mac_nr_control_me_phr_c2_flag,
+            { "C2",
+              "mac-nr.control.me-phr.c2", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+              "SCellIndex 2 PHR report flag", HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_lcg1,
-            { "LCG1",
-              "mac-nr.control.me-phr.lcg1", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
-              NULL, HFILL
+        { &hf_mac_nr_control_me_phr_c1_flag,
+            { "C1",
+              "mac-nr.control.me-phr.c1", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+              "SCellIndex 1 PHR report flag", HFILL
             }
         },
         { &hf_mac_nr_control_me_phr_entry,
