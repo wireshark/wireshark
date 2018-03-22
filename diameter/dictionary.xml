@@ -30,6 +30,7 @@
 	<!ENTITY Juniper		SYSTEM "Juniper.xml">
 	<!ENTITY Inovar			SYSTEM "Inovar.xml">
 	<!ENTITY Huawei			SYSTEM "Huawei.xml">
+	<!ENTITY VerizonWireless	SYSTEM "VerizonWireless.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -8045,7 +8046,6 @@
 	<vendor vendor-id="Acision"			code="3830"	name="Acision"/>
 	<vendor vendor-id="SKT"				code="5806"	name="SK Telecom"/>
 	<vendor vendor-id="TGPP"			code="10415"	name="3GPP"/>
-	<vendor vendor-id="VerizonWireless"		code="12951"	name="Verizon Wireless"/>
 	<vendor vendor-id="ETSI"			code="13019"	name="ETSI"/>
 	<vendor vendor-id="Tango"			code="13421"	name="Tango Telecom Limited"/>
 	<vendor vendor-id="ChinaTelecom"		code="81000"	name="China Telecom"/>
@@ -8076,4 +8076,5 @@
 	&Inovar;
 	&Huawei;
 	&Custom;
+	&Verizon;
 </dictionary>

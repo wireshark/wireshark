@@ -515,6 +515,7 @@ File "${STAGING_DIR}\diameter\sunping.xml"
 File "${STAGING_DIR}\diameter\TGPP.xml"
 File "${STAGING_DIR}\diameter\TGPP2.xml"
 File "${STAGING_DIR}\diameter\Vodafone.xml"
+File "${STAGING_DIR}\diameter\VerizonWireless.xml"
 !include "custom_diameter_xmls.txt"
 SetOutPath $INSTDIR
 

@@ -68,37 +68,76 @@ http://www.cisco.com/c/dam/en/us/td/docs/wireless/asr_5000/20/AAA/20-AAA-Referen
 
   <avp name="Override-Control" code="132017" vendor-id="CiscoSystems">
     <grouped>
+      <gavp name="Override-Control-Name" />
+      <gavp name="Override-Rule-Name" />
       <gavp name="Override-Charging-Action-Parameters" />
     </grouped>
   </avp>
 
+  <avp name="Override-Rule-Name" code="132018" vendor-id="CiscoSystems" >
+    <type type-name="OctetString">
+  </avp>
+
   <avp name="Override-Charging-Action-Parameters" code="132019" vendor-id="CiscoSystems">
     <grouped>
+      <gavp name="Execution-Time" />
+      <gavp name="Override-Control-Pending-Queue-Action" />
+      <gavp name="Override-Charging-Action-Name" />
       <gavp name="Override-Charging-Action-Exclude-Rule" />
       <gavp name="Override-Charging-Parameters" />
+      <gavp name="Override-Policy-Parameters" />
     </grouped>
   </avp>
 
-  <avp name="Override-Charging-Action-Exclude-Rule" code="132021" vendor-id="CiscoSystems">
-    <type type-name="UTF8String"></type>
+  <avp name="Override-Charging-Action-Name" code="132020" vendor-id="CiscoSystems" >
+    <type type-name="OctetString">
   </avp>
 
-  <avp name="Override-Charging-Parameters" code="132022" vendor-id="CiscoSystems">
+  <avp name="Override-Charging-Action-Exclude-Rule" code="132021" vendor-id="CiscoSystems" >
+    <type type-name="UTF8String">
+  </avp>
+
+   <avp name="Override-Charging-Parameters" code="132022" vendor-id="CiscoSystems">
     <grouped>
+      <gavp name="Override-Service-Identifier" />
       <gavp name="Override-Rating-Group" />
+      <gavp name="Override-Online" />
+      <gavp name="Override-Offline" />
     </grouped>
   </avp>
 
-  <avp name="Override-Rating-Group" code="132024" vendor-id="CiscoSystems">
+  <avp name="Override-Service-Identifier" code="132023" vendor-id="CiscoSystems" >
     <type type-name="Unsigned32"></type>
   </avp>
 
-  <avp name="Override-Online" code="132026" vendor-id="CiscoSystems">
+  <avp name="Override-Rating-Group" code="132024" vendor-id="CiscoSystems" >
     <type type-name="Unsigned32"></type>
   </avp>
 
-  <avp name="Override-Offline" code="132027" vendor-id="CiscoSystems">
-    <type type-name="Unsigned32"></type>
+  <avp name="Execution-Time" code="132025" vendor-id="CiscoSystems" >
+    <type type-name="OctetString"></type>
+  </avp>
+
+  <avp name="Override-Online" code="132026" vendor-id="CiscoSystems" >
+  <type type-name="Enumerated"/>
+    <enum name="Disable-Online" code="0"/>
+    <enum name="Enable-Online" code="1"/>
+  </avp>
+
+  <avp name="Override-Offline" code="132027" vendor-id="CiscoSystems" >
+  <type type-name="Enumerated"/>
+    <enum name="Disable-Offline" code="0"/>
+    <enum name="Enable-Offline" code="1"/>
+  </avp>
+
+  <avp name="Override-Control-Name" code="132052" vendor-id="CiscoSystems" >
+    <type type-name="OctetString">
+  </avp>
+
+  <avp name="Override-Control-Pending-Queue-Action" code="132078" vendor-id="CiscoSystems" >
+  <type type-name="Enumerated"/>
+    <enum name="Flush" code="0"/>
+    <enum name="Retain" code="1"/>
   </avp>
 
 </vendor>

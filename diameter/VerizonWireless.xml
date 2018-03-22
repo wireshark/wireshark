@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vendor vendor-id="VerizonWireless" code="12951" name="Verizon Wireless">
+
+
+  <avp name="Charging-Gateway-Function-Host" vendor-id="VerizonWireless" code="6068" >
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="Charging-Group-ID" vendor-id="VerizonWireless" code="6069" >
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="Self-Activation-Status" code="6115" vendor-id="VerizonWireless" >
+    <type type-name="Enumerated"/>
+    <enum name="Continue" code="0"/>
+    <enum name="Reactivation-Disallowed-To-APN" code="1"/>
+  </avp>
+
+  <avp name="Origination-Timestamp" vendor-id="VerizonWireless" code="7102" >
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="Max-Wait-Time" code="7103" vendor-id="VerizonWireless" >
+    <type type-name="Unsigned32"/>
+  </avp>
+
+</vendor>
+
