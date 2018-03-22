@@ -3248,6 +3248,7 @@ static int hf_ieee80211_3gpp_gc_gud = -1;
 static int hf_ieee80211_3gpp_gc_udhl = -1;
 static int hf_ieee80211_3gpp_gc_iei = -1;
 static int hf_ieee80211_3gpp_gc_num_plmns = -1;
+static int hf_ieee80211_3gpp_gc_plmn = -1;
 static int hf_ieee80211_3gpp_gc_plmn_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name = -1;
@@ -6954,13 +6955,17 @@ dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, packet_info 
   proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_num_plmns, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
   while (num > 0) {
+    proto_item *plmn_item = NULL;
     proto_tree *plmn_tree = NULL;
+    guint plmn_val = 0;
 
     if (tvb_reported_length_remaining(tvb, offset) < 3)
       break;
-    plmn_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
-                                ett_ieee80211_3gpp_plmn, NULL,
-                                "PLMN %d", plmn_idx++);
+    plmn_val = tvb_get_letoh24(tvb, offset);
+    plmn_item = proto_tree_add_uint_format(tree, hf_ieee80211_3gpp_gc_plmn,
+                                tvb, offset, 3, plmn_val, "PLMN %d (0x%x)",
+                                plmn_idx++, plmn_val);
+    plmn_tree = proto_item_add_subtree(plmn_item, ett_ieee80211_3gpp_plmn);
     dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, plmn_tree, offset, E212_NONE, TRUE);
     num--;
     offset += 3;
@@ -26039,6 +26044,10 @@ proto_register_ieee80211(void)
      {"Number of PLMNs", "wlan.fixed.anqp.3gpp_cellular_info.num_plmns",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_3gpp_gc_plmn,
+     {"PLMN", "wlan.fixed.anqp.3gpp_cellular_info.plmn_info",
+      FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_anqp_domain_name_len,
      {"Domain Name Length", "wlan.fixed.anqp.domain_name_list.len",
