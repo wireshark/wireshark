@@ -1647,10 +1647,6 @@ proto_reg_handoff_zbee_zcl_relhum_meas(void)
 /* Occupancy Mask fields */
 #define ZBEE_ZCL_OCCUPANCY_SENSED_OCC                           0x01  /* Sensed Occupancy */
 
-/* Sensed Occupancy Values */
-#define ZBEE_ZCL_OCCUPANCY_SENSED_OCC_UNOCCUPIED              0x00  /* Occupied */
-#define ZBEE_ZCL_OCCUPANCY_SENSED_OCC_OCCUPIED                0x01  /* Unoccupied */
-
 /* Occupancy Sensor Type */
 #define ZBEE_ZCL_OCC_SENSOR_TYPE_PIR                            0x00  /* PIR */
 #define ZBEE_ZCL_OCC_SENSOR_TYPE_USONIC                         0x01  /* Ultrasonic */
@@ -1692,13 +1688,6 @@ static const value_string zbee_zcl_occ_sen_attr_names[] = {
     { ZBEE_ZCL_ATTR_ID_OCC_SEN_USONIC_OCC_TO_UNOCC_DELAY,   "Ultrasonic Occupied to Unoccupied Threshold" },
     { ZBEE_ZCL_ATTR_ID_OCC_SEN_USONIC_UNOCC_TO_OCC_DELAY,   "Ultrasonic Unoccupied to Occupied Delay" },
     { ZBEE_ZCL_ATTR_ID_OCC_SEN_USONIC_UNOCC_TO_OCC_THOLD,   "Ultrasonic Unoccupied to Occupied Threshold" },
-    { 0, NULL }
-};
-
-/* Sensed Occupancy Values */
-static const value_string zbee_zcl_occ_sen_sensed_occ_names[] = {
-    { ZBEE_ZCL_OCCUPANCY_SENSED_OCC_UNOCCUPIED,     "Unoccupied" },
-    { ZBEE_ZCL_OCCUPANCY_SENSED_OCC_OCCUPIED,       "Occupied" },
     { 0, NULL }
 };
 
