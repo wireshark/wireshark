@@ -1393,12 +1393,7 @@ static gint ett_nr_rrc_SchedulingRequestResource_Config = -1;
 #line 44 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static gint ett_nr_rrc_UECapabilityInformation = -1;
 
-/* Forward declarations */
-int dissect_nr_rrc_RRCReconfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 #if 0
-static int dissect_UE_NR_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_UE_MRDC_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
 typedef struct {
   guint8 rat_type;
 } nr_rrc_private_data_t;
@@ -12709,7 +12704,7 @@ static int dissect_RadioBearerConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 79 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 74 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void proto_register_nr_rrc(void) {
 
@@ -16341,7 +16336,7 @@ void proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 86 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 81 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   };
 
@@ -16690,7 +16685,7 @@ void proto_register_nr_rrc(void) {
     &ett_nr_rrc_SchedulingRequestResource_Config,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 92 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 87 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_UECapabilityInformation
   };
 
@@ -16711,7 +16706,7 @@ void proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 104 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 99 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 }
 
 void

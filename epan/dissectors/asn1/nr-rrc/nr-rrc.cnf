@@ -161,11 +161,11 @@ ZP-CSI-RS-ResourceId
 #     switch(private_data_get_rat_type(actx)){
 #     case RAT_Type_nr:
 #       /* eutra */
-#       dissect_UE_NR_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+#       dissect_nr_rrc_UE_NR_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
 #       break;
 #     case RAT_Type_mrdc:
 #       /* utra */
-#       dissect_UE_MRDC_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+#       dissect_nr_rrc_UE_MRDC_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
 #       break;
 #     default:
 #       break;

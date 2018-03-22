@@ -43,12 +43,7 @@ static gint ett_nr_rrc = -1;
 #include "packet-nr-rrc-ett.c"
 static gint ett_nr_rrc_UECapabilityInformation = -1;
 
-/* Forward declarations */
-int dissect_nr_rrc_RRCReconfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 #if 0
-static int dissect_UE_NR_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-static int dissect_UE_MRDC_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
 typedef struct {
   guint8 rat_type;
 } nr_rrc_private_data_t;
