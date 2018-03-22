@@ -347,6 +347,14 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	} else {
 		switch (hatype) {
 		case ARPHRD_IPGRE:
+			/*
+			 * XXX - the link-layer header appears to consist
+			 * of an IPv4 header followed by a bunch of stuff
+			 * that includes the GRE flags and version, but
+			 * cooked captures strip the link-layer header,
+			 * so we can't provide the flags and version to
+			 * the dissector.
+			 */
 			proto_tree_add_uint(fh_tree, &hfi_sll_gretype, tvb, 14, 2,
 			    protocol);
 			dissector_try_uint(gre_dissector_table,

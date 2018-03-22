@@ -133,12 +133,23 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	tvbuff_t *eth_tvb;
 	guint32 offset = 0;
 	guint16 version;
-	guint16 gre_flags_and_ver = *(guint16 *)data;
 
-	if(gre_flags_and_ver == 0) {
+	if (data == NULL) {
+		/*
+		 * We weren't handed the GRE flags or version.
+		 *
+		 * This can happen if a Linux cooked capture is done and
+		 * we get a packet from an "ipgre" interface.
+		 */
 		version = G_MAXUINT16; /* Possible values are 0...15 */
 	} else {
-		version = tvb_get_ntohs(tvb, offset) >> 12;
+		guint16 gre_flags_and_ver = *(guint16 *)data;
+
+		if (gre_flags_and_ver == 0) {
+			version = G_MAXUINT16; /* Possible values are 0...15 */
+		} else {
+			version = tvb_get_ntohs(tvb, offset) >> 12;
+		}
 	}
 
 	ti = proto_tree_add_item(tree, proto_erspan, tvb, offset, -1,
