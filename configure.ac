@@ -2364,16 +2364,26 @@ AC_C_BIGENDIAN
 AC_PROG_GCC_TRADITIONAL
 
 AC_REPLACE_FUNCS(getopt_long)
-dnl
-dnl Do we have optreset?
-dnl
 if test "x$ac_cv_func_getopt_long" = xyes; then
+  #
+  # The OS has getopt_long(), so it might have optreset.  Do we have it?
+  #
   AC_CACHE_CHECK([whether optreset is defined], ac_cv_have_optreset,
     AC_LINK_IFELSE([AC_LANG_SOURCE([[extern int optreset;return optreset;]])],
         ac_cv_have_optreset=yes, ac_cv_have_optreset=no))
   if test "$ac_cv_have_optreset" = yes ; then
     AC_DEFINE(HAVE_OPTRESET, 1, [Define to 1 if you have the optreset variable])
   fi
+else
+  #
+  # The OS doesn't have getopt_long(), so we're using the GNU libc
+  # version that we have in wsutil.  It doesn't have optreset, so we
+  # don't need to check for it.
+  #
+  # However, it uses alloca(), so we may need to include alloca.h;
+  # check for it.
+  #
+  AC_CHECK_HEADERS(alloca.h)
 fi
 
 AC_REPLACE_FUNCS(inet_aton)
