@@ -1017,8 +1017,16 @@ else
 		# +O2 is supported both by the C and C++ compiler.
 		#
 		# Add -Wp,-H200000 to handle some large #defines we
-		# have; it's not clear whether it's supported by the
-		# C++ compiler, so we only add it to the C flags.
+		# have; that flag is not necessary for the C++
+		# compiler unless the "legacy" C++ preprocessor is
+		# being used (+legacy_cpp).  We don't want the
+		# legacy preprocessor if it's not the default,
+		# so we just add -Wp,-H200000 to the C flags.
+		# (If there are older versions of aC++ that only
+		# support the legacy preprocessor, and require
+		# that we boost the table size, we'd have to check
+		# whether -Wp,-H200000 is supported by the C++
+		# compiler and add it only if it is.)
 		#
 		WS_CFLAGS="+O2 -Wp,-H200000 $WS_CFLAGS"
 		if test "$CC" = "$CC_FOR_BUILD"; then
