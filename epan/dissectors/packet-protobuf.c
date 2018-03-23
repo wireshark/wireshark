@@ -520,7 +520,7 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         proto_item_append_text(ti, ": %s", (const gchar*)data);
     }
 
-    /* each time we dissec one protobuf field. */
+    /* each time we dissect one protobuf field. */
     while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         if (!dissect_one_protobuf_field(tvb, &offset, tvb_reported_length_remaining(tvb, offset), pinfo, protobuf_tree, data))
@@ -662,6 +662,8 @@ proto_register_protobuf(void)
 void
 proto_reg_handoff_protobuf(void)
 {
+    dissector_add_uint_range_with_preference("udp.port", "", protobuf_handle);
+
     dissector_add_string("grpc_message_type", "application/grpc", protobuf_handle);
     dissector_add_string("grpc_message_type", "application/grpc+proto", protobuf_handle);
 }
