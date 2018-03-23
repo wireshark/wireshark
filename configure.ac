@@ -1016,7 +1016,11 @@ else
 		#
 		# +O2 is supported both by the C and C++ compiler.
 		#
-		WS_CFLAGS="+O2 $WS_CFLAGS"
+		# Add -Wp,-H200000 to handle some large #defines we
+		# have; it's not clear whether it's supported by the
+		# C++ compiler, so we only add it to the C flags.
+		#
+		WS_CFLAGS="+O2 -Wp,-H200000 $WS_CFLAGS"
 		if test "$CC" = "$CC_FOR_BUILD"; then
 			#
 			# We're building the build tools with the same
@@ -1024,10 +1028,10 @@ else
 			# Wireshark, so add the flags to the flags for
 			# that compiler as well.
 			#
-			CFLAGS_FOR_BUILD="-Ae +O2 $CFLAGS"
+			CFLAGS_FOR_BUILD="-Ae +O2 -Wp,-H200000 $CFLAGS"
 		fi
 		WS_CXXFLAGS="+O2 $WS_CXXFLAGS"
-		AC_MSG_RESULT(HP C/C++ compiler - added +O2)
+		AC_MSG_RESULT(HP C/C++ compiler - added +O2 -Wp,-H200000)
 		;;
 	solaris*)
 		#
