@@ -196,7 +196,7 @@ void funnel_statistics_logger(const gchar *,
                           GLogLevelFlags,
                           const gchar *message,
                           gpointer) {
-    qDebug() << message;
+    fputs(message, stderr);
 }
 
 void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id) {

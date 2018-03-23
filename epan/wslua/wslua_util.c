@@ -149,8 +149,9 @@ static int wslua_log(lua_State* L, GLogLevelFlags log_level) {
 
         lua_pop(L, 1);  /* pop result */
     }
+    g_string_append_c(str, '\n');
 
-    wslua_logger(LOG_DOMAIN_LUA, log_level, "%s\n", str->str);
+    wslua_logger(LOG_DOMAIN_LUA, log_level, str->str, NULL);
     g_string_free(str,TRUE);
 
     return 0;
