@@ -902,20 +902,20 @@ libtool: $(LIBTOOL_DEPS)
 install-data-local:
 if BUILDING_WIRESHARK
 	$(MKDIR_P) $(DESTDIR)$(datadir)/mime/packages
-	$(INSTALL) -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
+	$(INSTALL_DATA) $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	$(MKDIR_P) $(DESTDIR)$(datadir)/appdata
-	$(INSTALL) -m 644 $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
+	$(INSTALL_DATA) $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	$(MKDIR_P) $(DESTDIR)$(datadir)/applications
-	$(INSTALL) -m 644 $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications
+	$(INSTALL_DATA) $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		$(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps ; \
-		$(INSTALL) -m 644 $(srcdir)/image/wsicon$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
+		$(INSTALL_DATA) $(srcdir)/image/wsicon$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
 		$(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes ; \
-		$(INSTALL) -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
+		$(INSTALL_DATA) $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
 	$(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
-	$(INSTALL) -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+	$(INSTALL_DATA) $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
 endif
 
 uninstall-local:
