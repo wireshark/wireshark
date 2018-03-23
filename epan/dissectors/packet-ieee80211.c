@@ -30305,7 +30305,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trigger_common_info,
      {"HE Trigger Common Info", "wlan.trigger.he.common_info",
-      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_type,
      {"Trigger Type", "wlan.trigger.he.trigger_type",
