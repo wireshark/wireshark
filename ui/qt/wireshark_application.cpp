@@ -1366,10 +1366,11 @@ void WiresharkApplication::captureEventHandler(CaptureEvent * ev)
         break;
 #endif
     case CaptureEvent::File:
+    case CaptureEvent::Reload:
+    case CaptureEvent::Rescan:
         switch ( ev->eventType() )
         {
         case CaptureEvent::Started:
-            // Doesn't appear to do anything. Logic probably needs to be in file.c.
             QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 5, this, SLOT(updateTaps()));
             QTimer::singleShot(TAP_UPDATE_DEFAULT_INTERVAL / 2, this, SLOT(updateTaps()));
             break;
