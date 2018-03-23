@@ -21,7 +21,6 @@
 #include "filter_action.h"
 #include "wireshark_dialog.h"
 
-#include <QDialog>
 #include <QMenu>
 #include <QTreeWidgetItem>
 
