@@ -64,6 +64,14 @@
 # define _(msgid)      (msgid)
 #endif
 
+/*
+ * If we have alloca.h, we assume we need it.
+ */
+#
+#ifdef HAVE_ALLOCA_H
+# include <alloca.h>
+#endif
+
 #ifdef _WIN32
 #  define alloca _alloca
 #endif

@@ -89,11 +89,25 @@ cmake_pop_check_state()
 
 check_function_exists("getopt_long"      HAVE_GETOPT_LONG)
 if(HAVE_GETOPT_LONG)
+	#
+	# The OS has getopt_long(), so it might have optreset.
+	# Do we have it?
+	#
 	if(HAVE_GETOPT_H)
 		check_symbol_exists("optreset" "getopt.h" HAVE_OPTRESET)
 	else()
 		check_symbol_exists("optreset"           HAVE_OPTRESET)
 	endif()
+else()
+	#
+	# The OS doesn't have getopt_long(), so we're using the GNU libc
+	# version that we have in wsutil.  It doesn't have optreset, so we
+	# don't need to check for it.
+	#
+	# However, it uses alloca(), so we may need to include alloca.h;
+	# check for it.
+	#
+	check_include_file("alloca.h"    HAVE_ALLOCA_H)
 endif()
 check_function_exists("getifaddrs"       HAVE_GETIFADDRS)
 check_function_exists("issetugid"        HAVE_ISSETUGID)
