@@ -360,11 +360,15 @@ sequences.
 gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 
-Returns a null-terminated buffer containing data from the specified tvbuff,
-starting at the specified offset, and containing all characters from the
-tvbuff up to and including a terminating null character in the tvbuff.
-"*lengthp" will be set to the length of the string, including the terminating
-null.
+Copies bufsize bytes, including the terminating NULL, to buffer. If a NULL
+terminator is found before reaching bufsize, only the bytes up to and including
+the NULL are copied. Returns the number of bytes copied (not including
+terminating NULL), or -1 if the string was truncated in the buffer due to
+not having reached the terminating NULL. In this case, the resulting
+buffer is not NULL-terminated.
+tvb_get_nstringz0() works like tvb_get_nstringz(), but never returns -1 since
+the string is guaranteed to have a terminating NULL. If the string was truncated
+when copied into buffer, a NULL is placed at the end of buffer to terminate it.
 
 gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
