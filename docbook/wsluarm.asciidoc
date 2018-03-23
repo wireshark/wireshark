@@ -127,7 +127,7 @@ local function menuable_tap()
 	-- this is our tap
 	local tap = Listener.new();
 
-	function remove()
+	local function remove()
 		-- this way we remove the listener that otherwise will remain running indefinitely
 		tap:remove();
 	end
@@ -158,6 +158,9 @@ local function menuable_tap()
 		tw:clear()
 		ips = {}
 	end
+
+	-- Ensure that all existing packets are processed.
+	retap_packets()
 end
 
 -- using this function we register our function
