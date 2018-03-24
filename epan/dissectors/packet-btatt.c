@@ -142,6 +142,8 @@ static int hf_btatt_appearance_subcategory_hid = -1;
 static int hf_btatt_appearance_subcategory_running_walking_sensor = -1;
 static int hf_btatt_appearance_subcategory_cycling = -1;
 static int hf_btatt_appearance_subcategory_pulse_oximeter = -1;
+static int hf_btatt_appearance_subcategory_personal_mobility_device = -1;
+static int hf_btatt_appearance_subcategory_insulin_pump = -1;
 static int hf_btatt_appearance_subcategory_outdoor_sports_activity = -1;
 static int hf_btatt_peripheral_privacy_flag = -1;
 static int hf_btatt_minimum_connection_interval = -1;
@@ -1173,6 +1175,18 @@ static const int *hfx_btatt_appearance_cycling[] = {
 static const int *hfx_btatt_appearance_pulse_oximeter[] = {
     &hf_btatt_appearance_category,
     &hf_btatt_appearance_subcategory_pulse_oximeter,
+    NULL
+};
+
+static const int *hfx_btatt_appearance_personal_mobility_device[] = {
+    &hf_btatt_appearance_category,
+    &hf_btatt_appearance_subcategory_personal_mobility_device,
+    NULL
+};
+
+static const int *hfx_btatt_appearance_insulin_pump[] = {
+    &hf_btatt_appearance_category,
+    &hf_btatt_appearance_subcategory_insulin_pump,
     NULL
 };
 
@@ -2608,6 +2622,10 @@ static const value_string appearance_category_vals[] = {
     {0x12, "Cycling"},
     {0x31, "Pulse Oximeter"},
     {0x32, "Weight Scale"},
+    {0x33, "Personal Mobility Device"},
+    {0x34, "Continuous Glucose Monitor"},
+    {0x35, "Insulin Pump"},
+    {0x36, "Medication Delivery"},
     {0x51, "Outdoor Sports Activity"},
     {0x0, NULL}
 };
@@ -2677,6 +2695,21 @@ static const value_string appearance_subcategory_pulse_oximeter_vals[] = {
     {0x00, "Generic"},
     {0x01, "Fingertip"},
     {0x02, "Wrist Worn"},
+    {0x0, NULL}
+};
+
+static const value_string appearance_subcategory_personal_mobility_device_vals[] = {
+    {0x00, "Generic"},
+    {0x01, "Powered Wheelchair"},
+    {0x02, "Mobility Scooter"},
+    {0x0, NULL}
+};
+
+static const value_string appearance_subcategory_insulin_pump_vals[] = {
+    {0x00, "Generic"},
+    {0x01, "Insulin Pump / Durable Pump"},
+    {0x04, "Insulin Pump / Patch Pump"},
+    {0x08, "Insulin Pen"},
     {0x0, NULL}
 };
 
@@ -4816,6 +4849,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         case 0x031: /* Pulse Oximeter */
             hfs = hfx_btatt_appearance_pulse_oximeter;
+            break;
+
+        case 0x033: /* Personal Mobility Device */
+            hfs = hfx_btatt_appearance_personal_mobility_device;
+            break;
+
+        case 0x035: /* Insulin Pump */
+            hfs = hfx_btatt_appearance_insulin_pump;
             break;
 
         case 0x051: /* Outdoor Sports Activity */
@@ -11337,6 +11378,16 @@ proto_register_btatt(void)
         {&hf_btatt_appearance_subcategory_pulse_oximeter,
             {"Subcategory", "btatt.appearance.subcategory.pulse_oximeter",
             FT_UINT16, BASE_DEC_HEX, VALS(appearance_subcategory_pulse_oximeter_vals), 0x003F,
+            NULL, HFILL}
+        },
+        {&hf_btatt_appearance_subcategory_personal_mobility_device,
+            {"Personal Mobility Device", "btatt.appearance.subcategory.personal_mobility_device",
+            FT_UINT16, BASE_DEC_HEX, VALS(appearance_subcategory_personal_mobility_device_vals), 0x003F,
+            NULL, HFILL}
+        },
+        {&hf_btatt_appearance_subcategory_insulin_pump,
+            {"Insulin Pump", "btatt.appearance.subcategory.insulin_pump",
+            FT_UINT16, BASE_DEC_HEX, VALS(appearance_subcategory_insulin_pump_vals), 0x003F,
             NULL, HFILL}
         },
         {&hf_btatt_appearance_subcategory_outdoor_sports_activity,
