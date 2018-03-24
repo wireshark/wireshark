@@ -7811,6 +7811,20 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
         offset = tvb_reported_length(tvb);
     }
 
+    if  (bluetooth_eir_ad_data && bluetooth_eir_ad_data->bd_addr && name && have_tap_listener(bluetooth_device_tap)) {
+        bluetooth_device_tap_t  *tap_device;
+
+        tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+        tap_device->interface_id  = bluetooth_eir_ad_data->interface_id;
+        tap_device->adapter_id    = bluetooth_eir_ad_data->adapter_id;
+        memcpy(tap_device->bd_addr, bluetooth_eir_ad_data->bd_addr, 6);
+        tap_device->has_bd_addr = TRUE;
+        tap_device->is_local = FALSE;
+        tap_device->type = BLUETOOTH_DEVICE_NAME;
+        tap_device->data.name = name;
+        tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
+    }
+
     if (has_bd_addr && name && have_tap_listener(bluetooth_device_tap)) {
         bluetooth_device_tap_t  *tap_device;
 
