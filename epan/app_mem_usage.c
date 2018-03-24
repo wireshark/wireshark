@@ -36,6 +36,7 @@
 #define MAX_COMPONENTS 16
 
 #if defined(_WIN32)
+
 static gsize
 win32_get_total_mem_used_by_app(void)
 {
@@ -58,11 +59,15 @@ win32_get_total_mem_used_by_app(void)
 	}
 }
 
-#define get_total_mem_used_by_app win32_get_total_mem_used_by_app
+static const ws_mem_usage_t total_usage = { "Total", win32_get_total_mem_used_by_app, NULL };
 
-#endif /* (_WIN32) */
+static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = {
+	&total_usage,
+};
 
-#if defined(__linux__)
+static guint memory_register_num = 1;
+
+#elif defined(__linux__)
 
 static gboolean
 linux_get_memory(gsize *ptotal, gsize *prss)
@@ -132,39 +137,25 @@ linux_get_rss_mem_used_by_app(void)
 	return rss;
 }
 
-#define get_total_mem_used_by_app linux_get_total_mem_used_by_app
+static const ws_mem_usage_t total_usage = { "Total", linux_get_total_mem_used_by_app, NULL };
+static const ws_mem_usage_t rss_usage = { "RSS", linux_get_rss_mem_used_by_app, NULL };
 
-#define get_rss_mem_used_by_app linux_get_rss_mem_used_by_app
+static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = {
+	&total_usage,
+	&rss_usage,
+};
 
-#endif
+static guint memory_register_num = 2;
+
+#else
 
 /* XXX, BSD 4.3: getrusage() -> ru_ixrss ? */
 
-#ifdef get_total_mem_used_by_app
-static const ws_mem_usage_t total_usage = { "Total", get_total_mem_used_by_app, NULL };
-#endif
+static const ws_mem_usage_t *memory_components[MAX_COMPONENTS];
 
-#ifdef get_rss_mem_used_by_app
-static const ws_mem_usage_t rss_usage = { "RSS", get_rss_mem_used_by_app, NULL };
-#endif
+static guint memory_register_num = 0;
 
-static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = {
-#ifdef get_total_mem_used_by_app
-	&total_usage,
 #endif
-#ifdef get_rss_mem_used_by_app
-	&rss_usage,
-#endif
-};
-
-static guint memory_register_num = 0
-#ifdef get_total_mem_used_by_app
-	+ 1
-#endif
-#ifdef get_rss_mem_used_by_app
-	+ 1
-#endif
-	;
 
 /* public API */
 
