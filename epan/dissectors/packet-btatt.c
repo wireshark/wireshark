@@ -2045,6 +2045,7 @@ static const value_string opcode_vals[] = {
 #define GATT_SERVICE_HTTP_PROXY                     0x1823
 #define GATT_SERVICE_TRANSPORT_DISCOVERY            0x1824
 #define GATT_SERVICE_OBJECT_TRANSFER                0x1825
+#define GATT_SERVICE_FITNESS_MACHINE                0x1826
 
 /* Error codes */
 static const value_string error_code_vals[] = {
@@ -4432,6 +4433,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         case 0x2AC6: /* Object List Control Point */
         case 0x2AC8: /* Object Changed */
         case 0x2AC9: /* Resolvable Private Address */
+        case 0x2ACC: /* Fitness Machine Feature */
+        case 0x2AD4: /* Supported Speed Range */
+        case 0x2AD5: /* Supported Inclination Range */
+        case 0x2AD6: /* Supported Resistance Level Range */
+        case 0x2AD7: /* Supported Heart Rate Range */
+        case 0x2AD8: /* Supported Power Range */
+        case 0x2AD9: /* Fitness Machine Control Point */
             expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
             break;
 
@@ -4480,6 +4488,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         case 0x2AA3: /* Barometric Pressure Trend */
         case 0x2AA7: /* CGM Measurement */
         case 0x2AB8: /* HTTP Status Code */
+        case 0x2ACD: /* Treadmill Data */
+        case 0x2ACE: /* Cross Trainer Data */
+        case 0x2ACF: /* Step Climber Data */
+        case 0x2AD0: /* Stair Climber Data */
+        case 0x2AD1: /* Rower Data */
+        case 0x2AD2: /* Indoor Bike Data */
+        case 0x2AD3: /* Training Status */
+        case 0x2ADA: /* Fitness Machine Status */
         default:
             /* Supported */
             break;
@@ -4529,6 +4545,20 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         case 0x2AA7: /* CGM Measurement */
         case 0x2AB8: /* HTTP Status Code */
         case 0x2AC9: /* Resolvable Private Address */
+        case 0x2ACC: /* Fitness Machine Feature */
+        case 0x2ACD: /* Treadmill Data */
+        case 0x2ACE: /* Cross Trainer Data */
+        case 0x2ACF: /* Step Climber Data */
+        case 0x2AD0: /* Stair Climber Data */
+        case 0x2AD1: /* Rower Data */
+        case 0x2AD2: /* Indoor Bike Data */
+        case 0x2AD3: /* Training Status */
+        case 0x2AD4: /* Supported Speed Range */
+        case 0x2AD5: /* Supported Inclination Range */
+        case 0x2AD6: /* Supported Resistance Level Range */
+        case 0x2AD7: /* Supported Heart Rate Range */
+        case 0x2AD8: /* Supported Power Range */
+        case 0x2ADA: /* Fitness Machine Status */
             expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
             break;
 
@@ -4551,6 +4581,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         case 0x2AC5: /* Object Action Control Point */
         case 0x2AC6: /* Object List Control Point */
         case 0x2AC8: /* Object Changed */
+        case 0x2AD9: /* Fitness Machine Control Point */
         default:
             /* Supported */
             break;
@@ -9391,6 +9422,235 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_resolvable_private_address, tvb, offset, 1, ENC_NA);
         offset += 1;
+
+        break;
+    case 0x2ACC: /* Fitness Machine Feature */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2ACD: /* Treadmill Data */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2ACE: /* Cross Trainer Data */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2ACF: /* Step Climber Data */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD0: /* Stair Climber Data */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD1: /* Rower Data */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD2: /* Indoor Bike Data */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD3: /* Training Status */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode) ||
+                    att_data->opcode == ATT_OPCODE_HANDLE_VALUE_NOTIFICATION))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD4: /* Supported Speed Range */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD5: /* Supported Inclination Range */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD6: /* Supported Resistance Level Range */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD7: /* Supported Heart Rate Range */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD8: /* Supported Power Range */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2AD9: /* Fitness Machine Control Point */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (is_writeable_response(att_data->opcode) || att_data->opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION)
+                break;
+
+            if (!is_writeable_request(att_data->opcode) && att_data->opcode != ATT_OPCODE_HANDLE_VALUE_INDICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
+    case 0x2ADA: /* Fitness Machine Status */
+        if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+/* TODO */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
 
         break;
     default:
