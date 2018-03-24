@@ -100,7 +100,7 @@ void proto_reg_handoff_sstp(void);
 #define SSTP_ATTRIB_STATUS_UNRECOGNIZED_ATTRIBUTE 0x000002
 #define SSTP_ATTRIB_STATUS_VALUE_NOT_SUPPORTED 0x000004
 
-static dissector_handle_t ppp_handle = NULL;
+static dissector_handle_t ppp_hdlc_handle = NULL;
 static gint ett_sstp = -1;
 static gint ett_sstp_attribute = -1;
 static gint ett_sstp_version = -1;
@@ -317,7 +317,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* our work here is done, since sstp encapsulates ppp, we hand the remaining buffer
        over to the ppp dissector for further analysis */
     tvb_next = tvb_new_subset_remaining(tvb, SSTP_OFFSET_DATA);
-    call_dissector(ppp_handle, tvb_next, pinfo, tree);
+    call_dissector(ppp_hdlc_handle, tvb_next, pinfo, tree);
   }
 
   return tvb_captured_length(tvb);
@@ -502,7 +502,7 @@ proto_register_sstp(void)
 void
 proto_reg_handoff_sstp(void)
 {
-  ppp_handle = find_dissector_add_dependency("ppp", proto_sstp);
+  ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_sstp);
 }
 
 /*
