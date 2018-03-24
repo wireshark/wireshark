@@ -5856,8 +5856,9 @@ dissect_ppp_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     /*
-     * XXX - should we have an exported dissector that always dissects PPP,
-     * for use when we know the packets are PPP, not CHDLC?
+     * XXX - should we have an exported dissector that always dissects
+     * PPP-in-HDLC-like-framing, without checking for Cisco HDLC, for
+     * use when we know the packets are PPP, not Cisco HDLC?
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
     switch (pinfo->p2p_dir) {
