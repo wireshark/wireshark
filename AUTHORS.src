@@ -3498,7 +3498,7 @@ Tobias Rutz		<tobias.rutz[AT]work-microwave.de> {
 	DVB-S2 Baseband Frame and GSE support
 }
 
-Michał Łabędzki		<michal.labedzki[AT]tieto.com> {
+Michał Łabędzki		<michal.labedzki[AT]wireshark.org> {
 	Bluetooth BNEP dissector
 	Bluetooth HID dissector
 	Bluetooth SAP dissector
