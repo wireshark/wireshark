@@ -149,7 +149,14 @@ static guint memory_register_num = 2;
 
 #else
 
-/* XXX, BSD 4.3: getrusage() -> ru_ixrss ? */
+/*
+ * macOS: task_info()?
+ *
+ * *BSD: getrusage() -> ru_ixrss ?  Note that there are three
+ * current-RSS components in struct rusage, but those date
+ * back to the days when you had just text, data, and stack,
+ * and kernels might not even bother supplying them.
+ */
 
 static const ws_mem_usage_t *memory_components[MAX_COMPONENTS];
 
