@@ -1489,9 +1489,11 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
         break;
     case RC_RDMA_WRITE_FIRST:
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
+        /* fall through */
     case RC_RDMA_WRITE_ONLY:
     case RC_RDMA_WRITE_ONLY_IMM:
         add_request_info(p_rdma_conv_info, pinfo);
+        /* fall through */
     case RC_RDMA_WRITE_MIDDLE:
     case RC_RDMA_WRITE_LAST:
     case RC_RDMA_WRITE_LAST_IMM:
@@ -1508,8 +1510,10 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
         return FALSE;
     case RC_RDMA_READ_RESPONSE_FIRST:
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
+        /* fall through */
     case RC_RDMA_READ_RESPONSE_MIDDLE:
         more_frags = TRUE;
+        /* fall through */
     case RC_RDMA_READ_RESPONSE_LAST:
     case RC_RDMA_READ_RESPONSE_ONLY:
         /* Add fragment to the reassembly table */
