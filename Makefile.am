@@ -989,24 +989,24 @@ install-data-local:
 if BUILDING_WIRESHARK
 if NOT_MACOS
 	mkdir -p $(DESTDIR)$(datadir)/mime/packages
-	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
+	$(INSTALL_DATA) $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	mkdir -p $(DESTDIR)$(datadir)/appdata
-	install -m 644 $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
+	$(INSTALL_DATA) $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	mkdir -p $(DESTDIR)$(datadir)/applications
 	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
 		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)$(datadir)/applications $(srcdir)/wireshark.desktop  $(srcdir)/wireshark-gtk.desktop ; \
 	else \
-		install -m 644 $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications; \
+		$(INSTALL_DATA) $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications; \
 	fi
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps ; \
-		install -m 644 $(srcdir)/image/wsicon$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
+		$(INSTALL_DATA) $(srcdir)/image/wsicon$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
 		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes ; \
-		install -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
+		$(INSTALL_DATA) $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
 	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
-	install -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+	$(INSTALL_DATA) $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
 endif
 endif
 
