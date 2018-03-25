@@ -229,6 +229,7 @@ Notes:
 #include <epan/etypes.h>
 #include <epan/to_str.h>
 #include <epan/stats_tree.h>
+#include <wsutil/ws_printf.h>	/* for ws_g_warning */
 #define F5FILEINFOTAP_SRC
 #include "packet-f5ethtrailer.h"
 #undef  F5FILEINFOTAP_SRC
@@ -331,6 +332,13 @@ static gboolean pop_other_fields = FALSE;
 #endif
 /** Wireshark preference to perform analysis */
 static gboolean pref_perform_analysis = TRUE;
+
+/** Identifiers for taps (when enabled), only the address is important, the
+ * values are unused. */
+static gint tap_ip_enabled;
+static gint tap_ipv6_enabled;
+static gint tap_tcp_enabled;
+
 
 /** Used "in" and "out" map for the true and false for ingress. (Not actually
  * used in field definition, but rather used to display via a format call
@@ -2191,14 +2199,40 @@ static void proto_init_f5ethtrailer(void)
 		f5eth_set_info_col = f5eth_set_info_col_slot;
 		break;
 	}
+
+	/* If we are doing analysis, enable the tap listeners */
+	if(pref_perform_analysis) {
+		GString *error_string;
+
+		error_string = register_tap_listener("ip", &tap_ip_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ip_tap_pkt, NULL);
+		if (error_string) {
+			ws_g_warning("Unable to register tap \"ip\" for f5ethtrailer: %s", error_string->str);
+			g_string_free(error_string, TRUE);
+		}
+		error_string = register_tap_listener("ipv6", &tap_ipv6_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ipv6_tap_pkt, NULL);
+		if (error_string) {
+			ws_g_warning("Unable to register tap \"ipv6\" for f5ethtrailer: %s", error_string->str);
+			g_string_free(error_string, TRUE);
+		}
+		error_string = register_tap_listener("tcp", &tap_tcp_enabled, NULL, TL_REQUIRES_NOTHING, NULL, tcp_tap_pkt, NULL);
+		if (error_string) {
+			ws_g_warning("Unable to register tap \"tcp\" for f5ethtrailer: %s", error_string->str);
+			g_string_free(error_string, TRUE);
+		}
+	}
+}
+
+/** Cleanup after closing a capture file. */
+static void
+f5ethtrailer_cleanup(void)
+{
+	remove_tap_listener(&tap_tcp_enabled);
+	remove_tap_listener(&tap_ipv6_enabled);
+	remove_tap_listener(&tap_ip_enabled);
 }
 
 static void f5ethtrailer_prefs(void)
 {
-	static gint tap_ip_enabled = -1;
-	static gint tap_ipv6_enabled = -1;
-	static gint tap_tcp_enabled = -1;
-
 	wmem_free(NULL, info_format_in_only);
 	wmem_free(NULL, info_format_out_only);
 	wmem_free(NULL, info_format_in_slot);
@@ -2236,17 +2270,6 @@ static void f5ethtrailer_prefs(void)
 		info_format_in_noslot = wmem_strdup(NULL, info_format_full_in_noslot);
 		info_format_out_noslot = wmem_strdup(NULL, info_format_full_out_noslot);
 		break;
-	}
-
-	remove_tap_listener(&tap_tcp_enabled);
-	remove_tap_listener(&tap_ipv6_enabled);
-	remove_tap_listener(&tap_ip_enabled);
-
-	/* If we are doing analysis, enable the tap listeners */
-	if(pref_perform_analysis) {
-		register_tap_listener("ip", &tap_ip_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ip_tap_pkt, NULL);
-		register_tap_listener("ipv6", &tap_ipv6_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ipv6_tap_pkt, NULL);
-		register_tap_listener("tcp", &tap_tcp_enabled, NULL, TL_REQUIRES_NOTHING, NULL, tcp_tap_pkt, NULL);
 	}
 }
 
@@ -2495,7 +2518,7 @@ void proto_register_f5ethtrailer (void)
 	prefs_register_bool_preference(f5ethtrailer_module, "perform_analysis",
 		"Perform analysis of trailer data",
 		"Enabling this will perform analysis of the trailer data.  It will"
-		" enable taps on other protocols and slow down wireshark.",
+		" enable taps on other protocols and slow down Wireshark.",
 		&pref_perform_analysis);
 
 	prefs_register_static_text_preference(f5ethtrailer_module,
@@ -2537,6 +2560,7 @@ void proto_register_f5ethtrailer (void)
 		&rstcause_in_info);
 
 	register_init_routine(proto_init_f5ethtrailer);
+	register_cleanup_routine(f5ethtrailer_cleanup);
 
 	/* Analyze Menu Items */
 	register_conversation_filter("f5ethtrailer", "F5 TCP", f5_tcp_conv_valid, f5_tcp_conv_filter);
@@ -2708,3 +2732,16 @@ void proto_reg_handoff_f5fileinfo(void)
 {
 	heur_dissector_add("eth", dissect_f5fileinfo, "F5 Capture Information", "f5fileinfo", proto_f5fileinfo, HEURISTIC_ENABLE);
 }
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */
