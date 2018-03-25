@@ -208,7 +208,7 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
 
 WS_DLL_PUBLIC GString *register_tap_listener(const char *tapname, void *tapdata,
     const char *fstring, guint flags, tap_reset_cb tap_reset,
-    tap_packet_cb tap_packet, tap_draw_cb tap_draw);
+    tap_packet_cb tap_packet, tap_draw_cb tap_draw) G_GNUC_WARN_UNUSED_RESULT;
 
 /** This function sets a new dfilter to a tap listener */
 WS_DLL_PUBLIC GString *set_tap_dfilter(void *tapdata, const char *fstring);

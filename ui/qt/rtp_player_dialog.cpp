@@ -13,6 +13,7 @@
 
 #include <epan/dissectors/packet-rtp.h>
 
+#include <wsutil/report_message.h>
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/color_utils.h>
@@ -209,7 +210,14 @@ void RtpPlayerDialog::reject()
 
 void RtpPlayerDialog::retapPackets()
 {
-    register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL);
+    GString *error_string;
+
+    error_string = register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL);
+    if (error_string) {
+        report_failure("RTP Player - tap registration failed: %s", error_string->str);
+        g_string_free(error_string, TRUE);
+        return;
+    }
     cap_file_.retapPackets();
     remove_tap_listener(this);
 

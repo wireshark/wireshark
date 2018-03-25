@@ -31,7 +31,8 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
-#include "wsutil/utf8_entities.h"
+#include <wsutil/report_message.h>
+#include <wsutil/utf8_entities.h>
 
 #ifdef Q_OS_WIN
 #include "wsutil/file_util.h"
@@ -298,7 +299,12 @@ void WirelessTimeline::captureFileReadFinished()
 
 void WirelessTimeline::appInitialized()
 {
-    register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/);
+    GString *error_string;
+    error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/);
+    if (error_string) {
+        report_failure("Wireless Timeline - tap registration failed: %s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 void WirelessTimeline::resizeEvent(QResizeEvent*)

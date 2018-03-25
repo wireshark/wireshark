@@ -16,6 +16,7 @@
 #include "wsutil/nstime.h"
 #include "wsutil/utf8_entities.h"
 #include "wsutil/file_util.h"
+#include <wsutil/report_message.h>
 
 #include <ui/qt/utils/color_utils.h>
 #include "progress_frame.h"
@@ -421,12 +422,17 @@ void SequenceDialog::fillDiagram()
         register_analysis_t* analysis = sequence_analysis_find_by_name(info_->sainfo()->name);
         if (analysis != NULL)
         {
+            GString *error_string;
             const char *filter = NULL;
             if (ui->displayFilterCheckBox->checkState() == Qt::Checked)
                 filter = cap_file_.capFile()->dfilter;
 
-            register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), info_->sainfo(), filter, sequence_analysis_get_tap_flags(analysis),
+            error_string = register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), info_->sainfo(), filter, sequence_analysis_get_tap_flags(analysis),
                                        NULL, sequence_analysis_get_packet_func(analysis), NULL);
+            if (error_string) {
+                report_failure("Sequence dialog - tap registration failed: %s", error_string->str);
+                g_string_free(error_string, TRUE);
+            }
 
             cf_retap_packets(cap_file_.capFile());
             remove_tap_listener(info_->sainfo());
