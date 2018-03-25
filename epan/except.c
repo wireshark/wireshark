@@ -309,15 +309,22 @@ WS_NORETURN void except_throwd(long group, long code, const char *msg, void *dat
  * XCEPT_BUFFER_SIZE?  We could then just use this to generate formatted
  * messages.
  */
-WS_NORETURN void except_throwf(long group, long code, const char *fmt, ...)
+WS_NORETURN void except_vthrowf(long group, long code, const char *fmt,
+                                va_list vl)
 {
     char *buf = (char *)except_alloc(XCEPT_BUFFER_SIZE);
+
+    g_vsnprintf(buf, XCEPT_BUFFER_SIZE, fmt, vl);
+    except_throwd(group, code, buf, buf);
+}
+
+WS_NORETURN void except_throwf(long group, long code, const char *fmt, ...)
+{
     va_list vl;
 
     va_start (vl, fmt);
-    g_vsnprintf(buf, XCEPT_BUFFER_SIZE, fmt, vl);
+    except_vthrowf(group, code, fmt, vl);
     va_end (vl);
-    except_throwd(group, code, buf, buf);
 }
 
 void (*except_unhandled_catcher(void (*new_catcher)(except_t *)))(except_t *)

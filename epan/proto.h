@@ -104,22 +104,21 @@ struct _protocol;
 typedef struct _protocol protocol_t;
 
 /** Function used for reporting errors in dissectors; it throws a
- * DissectorError exception, with the string passed as an argument
- * as the message for the exception, so that it can show up in
- * the Info column and the protocol tree.
- *
- * If that string is dynamically allocated, it should be allocated with
- * wmem_alloc() with wmem_packet_scope(); using wmem_strdup_printf() would work.
+ * DissectorError exception, with a string generated from the format
+ * and arguments to the format, as the message for the exception, so
+ * that it can show up in the Info column and the protocol tree.
  *
  * If the WIRESHARK_ABORT_ON_DISSECTOR_BUG environment variable is set,
  * it will call abort(), instead, to make it easier to get a stack trace.
  *
- * @param message string to use as the message
+ * @param format format string to use for the message
  */
-WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
+WS_DLL_PUBLIC WS_NORETURN
+void proto_report_dissector_bug(const char *format, ...)
+    G_GNUC_PRINTF(1, 2);
 
-#define REPORT_DISSECTOR_BUG(message)  \
-	proto_report_dissector_bug(message)
+#define REPORT_DISSECTOR_BUG(...)  \
+	proto_report_dissector_bug(__VA_ARGS__)
 
 /** Macro used to provide a hint to static analysis tools.
  * (Currently only Visual C++.)
@@ -146,16 +145,12 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 #define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
 
 #define __DISSECTOR_ASSERT(expression, file, lineno)  \
-  (REPORT_DISSECTOR_BUG( \
-    wmem_strdup_printf(wmem_packet_scope(), \
-        "%s:%u: failed assertion \"%s\"", \
-        file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
+  (REPORT_DISSECTOR_BUG("%s:%u: failed assertion \"%s\"", \
+        file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression)))
 
 #define __DISSECTOR_ASSERT_HINT(expression, file, lineno, hint)  \
-  (REPORT_DISSECTOR_BUG( \
-    wmem_strdup_printf(wmem_packet_scope(), \
-        "%s:%u: failed assertion \"%s\" (%s)", \
-        file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression), hint)))
+  (REPORT_DISSECTOR_BUG("%s:%u: failed assertion \"%s\" (%s)", \
+        file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression), hint))
 
 #define DISSECTOR_ASSERT(expression)  \
   ((void) ((expression) ? (void)0 : \
@@ -190,10 +185,8 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
  *
  */
 #define DISSECTOR_ASSERT_NOT_REACHED()  \
-  (REPORT_DISSECTOR_BUG( \
-    wmem_strdup_printf(wmem_packet_scope(), \
-        "%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
-        __FILE__, __LINE__)))
+  (REPORT_DISSECTOR_BUG("%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
+        __FILE__, __LINE__))
 
 /** Compare two integers.
  *
@@ -215,10 +208,8 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
  * @param fmt the fmt operator
  */
 #define __DISSECTOR_ASSERT_CMPINT(a, op, b, type, fmt) \
-  (REPORT_DISSECTOR_BUG( \
-    wmem_strdup_printf(wmem_packet_scope(), \
-        "%s:%u: failed assertion " #a " " #op " " #b " (" fmt " " #op " " fmt ")", \
-        __FILE__, __LINE__, (type)a, (type)b)))
+  (REPORT_DISSECTOR_BUG("%s:%u: failed assertion " #a " " #op " " #b " (" fmt " " #op " " fmt ")", \
+        __FILE__, __LINE__, (type)a, (type)b))
 
 #define DISSECTOR_ASSERT_CMPINT(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
@@ -252,10 +243,8 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
  * @param type    The type it's expected to have
  */
 #define __DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, t) \
-  (REPORT_DISSECTOR_BUG( \
-    wmem_strdup_printf(wmem_packet_scope(), \
-        "%s:%u: field %s is not of type "#t, \
-        __FILE__, __LINE__, (hfinfo)->abbrev)))
+  (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type "#t, \
+        __FILE__, __LINE__, (hfinfo)->abbrev))
 
 #define DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, t)  \
   ((void) (((hfinfo)->type == t) ? (void)0 : \
@@ -265,18 +254,14 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hfinfo)  \
   ((void) ((IS_FT_INT((hfinfo)->type) || \
             IS_FT_UINT((hfinfo)->type)) ? (void)0 : \
-   REPORT_DISSECTOR_BUG( \
-     wmem_strdup_printf(wmem_packet_scope(), \
-         "%s:%u: field %s is not of type FT_CHAR or an FT_{U}INTn type", \
-         __FILE__, __LINE__, (hfinfo)->abbrev)))) \
+   REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_CHAR or an FT_{U}INTn type", \
+         __FILE__, __LINE__, (hfinfo)->abbrev))) \
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_INT((hfinfo)->type) || \
                                            IS_FT_UINT((hfinfo)->type))
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo) \
-  (REPORT_DISSECTOR_BUG( \
-    wmem_strdup_printf(wmem_packet_scope(), \
-        "%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, or FT_STRINGZPAD", \
-        __FILE__, __LINE__, (hfinfo)->abbrev)))
+  (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, or FT_STRINGZPAD", \
+        __FILE__, __LINE__, (hfinfo)->abbrev))
 
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo)  \
   ((void) (((hfinfo)->type == FT_STRING || (hfinfo)->type == FT_STRINGZ || \
@@ -287,10 +272,8 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
                                            (hfinfo)->type == FT_STRINGZPAD)
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo) \
-  (REPORT_DISSECTOR_BUG( \
-    wmem_strdup_printf(wmem_packet_scope(), \
-        "%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \
-        __FILE__, __LINE__, (hfinfo)->abbrev)))
+  (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \
+        __FILE__, __LINE__, (hfinfo)->abbrev))
 
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo)  \
   ((void) (((hfinfo)->type == FT_ABSOLUTE_TIME || \

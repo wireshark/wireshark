@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <setjmp.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <assert.h>
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
@@ -96,6 +97,7 @@ WS_DLL_PUBLIC void except_deinit(void);
 WS_DLL_PUBLIC WS_NORETURN void except_rethrow(except_t *);
 WS_DLL_PUBLIC WS_NORETURN void except_throw(long, long, const char *);
 WS_DLL_PUBLIC WS_NORETURN void except_throwd(long, long, const char *, void *);
+WS_DLL_PUBLIC WS_NORETURN void except_vthrowf(long group, long code, const char *fmt, va_list vl);
 WS_DLL_PUBLIC WS_NORETURN void except_throwf(long, long, const char *, ...)
     G_GNUC_PRINTF(3, 4);
 WS_DLL_PUBLIC void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);

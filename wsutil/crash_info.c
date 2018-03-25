@@ -127,14 +127,11 @@ struct crashreporter_annotations_t gCRAnnotations
 #endif /* 0 */
 
 void
-ws_add_crash_info(const char *fmt, ...)
+ws_vadd_crash_info(const char *fmt, va_list ap)
 {
-	va_list ap;
 	char *m, *old_info, *new_info;
 
-	va_start(ap, fmt);
 	m = g_strdup_vprintf(fmt, ap);
-	va_end(ap);
 	if (__crashreporter_info__ == NULL)
 		__crashreporter_info__ = m;
 	else {
@@ -154,10 +151,20 @@ ws_add_crash_info(const char *fmt, ...)
  * ?
  */
 void
-ws_add_crash_info(const char *fmt _U_, ...)
+ws_vadd_crash_info(const char *fmt _U_, va_list ap _U_)
 {
 }
 #endif /* __APPLE__ */
+
+void
+ws_add_crash_info(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	ws_vadd_crash_info(fmt, ap);
+	va_end(ap);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

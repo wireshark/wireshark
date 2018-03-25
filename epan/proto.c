@@ -44,6 +44,7 @@
 #include "in_cksum.h"
 
 #include <wsutil/ws_printf.h> /* ws_debug_printf/ws_g_warning */
+#include <wsutil/crash_info.h>
 #include <wsutil/glib-compat.h>
 
 /* Ptvcursor limits */
@@ -1322,12 +1323,36 @@ proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint
 	return pi;
 }
 
-void proto_report_dissector_bug(const char *message)
+void proto_report_dissector_bug(const char *format, ...)
 {
-	if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+	va_list args;
+
+	if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) {
+		/*
+		 * Try to have the error message show up in the crash
+		 * information.
+		 */
+		va_start(args, format);
+		ws_vadd_crash_info(format, args);
+		va_end(args);
+
+		/*
+		 * Print the error message.
+		 */
+		va_start(args, format);
+		vfprintf(stderr, format, args);
+		va_end(args);
+		putc('\n', stderr);
+
+		/*
+		 * And crash.
+		 */
 		abort();
-	else
-		THROW_MESSAGE(DissectorError, message);
+	} else {
+		va_start(args, format);
+		VTHROW_FORMATTED(DissectorError, format, args);
+		va_end(args);
+	}
 }
 
 /* We could probably get away with changing is_error to a minimum length value. */
@@ -2552,9 +2577,8 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	/* length validation for native number encoding caught by get_uint_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			"Invalid length %d passed to proto_tree_add_item_ret_int",
-			length));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_int",
+			length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -2607,17 +2631,15 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	case FT_UINT32:
 		break;
 	default:
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
-		    hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		    hfinfo->abbrev);
 	}
 
 	/* length validation for native number encoding caught by get_uint_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			"Invalid length %d passed to proto_tree_add_item_ret_uint",
-			length));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint",
+			length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -2680,9 +2702,8 @@ ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, gint length,
 	case FT_UINT32:
 		break;
 	default:
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
-		    hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		    hfinfo->abbrev);
 	}
 
 	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
@@ -2738,9 +2759,8 @@ ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, gint length,
 	case FT_INT32:
 		break;
 	default:
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
-		    hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		    hfinfo->abbrev);
 	}
 
 	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
@@ -2806,9 +2826,8 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint enc
 		value = get_stringzpad_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
 		break;
 	default:
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
-		    hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
+		    hfinfo->abbrev);
 	}
 
 	if (retval)
@@ -2841,16 +2860,15 @@ ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, gint length, const gui
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	if (hfinfo->type != FT_BOOLEAN) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_BOOLEAN", hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_BOOLEAN",
+		    hfinfo->abbrev);
 	}
 
 	/* length validation for native number encoding caught by get_uint64_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			"Invalid length %d passed to proto_tree_add_item_ret_uint",
-			length));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint",
+			length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -2895,16 +2913,15 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
 	if (hfinfo->type != FT_UINT64) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_UINT64", hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT64",
+		    hfinfo->abbrev);
 	}
 
 	/* length validation for native number encoding caught by get_uint64_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			"Invalid length %d passed to proto_tree_add_item_ret_uint",
-			length));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint",
+			length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -2953,16 +2970,15 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
 	if ((!IS_FT_INT(hfinfo->type)) && (!IS_FT_UINT(hfinfo->type))) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			"field %s is not of type FT_UINT or FT_INT", hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT or FT_INT",
+		    hfinfo->abbrev);
 	}
 
 	/* length validation for native number encoding caught by get_uint64_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length == 0)
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			"Invalid length %d passed to proto_tree_add_item_ret_varint",
-			length));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_varint",
+			length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3013,16 +3029,15 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
 	if (hfinfo->type != FT_BOOLEAN) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_BOOLEAN", hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_BOOLEAN",
+		    hfinfo->abbrev);
 	}
 
 	/* length validation for native number encoding caught by get_uint64_value() */
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			"Invalid length %d passed to proto_tree_add_item_ret_uint",
-			length));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint",
+			length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3081,9 +3096,8 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
 		break;
 	default:
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
-		    hfinfo->abbrev));
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
+		    hfinfo->abbrev);
 	}
 
 	if (retval)
@@ -3271,9 +3285,8 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	/* length has to be -1 or > 0 regardless of encoding */
 	/* invalid FT_UINT_BYTES length is caught in get_uint_value() */
 	if (length < -1 || length == 0) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "Invalid length %d passed to proto_tree_add_bytes_item for %s",
-		    length, ftype_name(hfinfo->type)));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_bytes_item for %s",
+		    length, ftype_name(hfinfo->type));
 	}
 
 	if (encoding & ENC_STR_NUM) {
@@ -3387,8 +3400,8 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-		    "Invalid length %d passed to proto_tree_add_time_item", length));
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_time_item",
+		    length);
 	}
 
 	time_stamp.secs  = 0;
@@ -4626,9 +4639,8 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, or FT_FRAMENUM",
-			    hfinfo->abbrev));
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, or FT_FRAMENUM",
+			    hfinfo->abbrev);
 	}
 
 	return pi;
@@ -4716,9 +4728,8 @@ proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			    "field %s is not of type FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64, or FT_FRAMENUM",
-			    hfinfo->abbrev));
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64, or FT_FRAMENUM",
+			    hfinfo->abbrev);
 	}
 
 	return pi;
@@ -4805,9 +4816,8 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			    "field %s is not of type FT_INT8, FT_INT16, FT_INT24, or FT_INT32",
-			    hfinfo->abbrev));
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_INT8, FT_INT16, FT_INT24, or FT_INT32",
+			    hfinfo->abbrev);
 	}
 
 	return pi;
@@ -4898,9 +4908,8 @@ proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-			    "field %s is not of type FT_INT40, FT_INT48, FT_INT56, or FT_INT64",
-			    hfinfo->abbrev));
+			REPORT_DISSECTOR_BUG("field %s is not of type FT_INT40, FT_INT48, FT_INT56, or FT_INT64",
+			    hfinfo->abbrev);
 	}
 
 	return pi;
@@ -5081,9 +5090,8 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	tnode = tree;
 	tfi = PNODE_FINFO(tnode);
 	if (tfi != NULL && (tfi->tree_type < 0 || tfi->tree_type >= num_tree_types)) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-				     "\"%s\" - \"%s\" tfi->tree_type: %d invalid (%s:%u)",
-				     fi->hfinfo->name, fi->hfinfo->abbrev, tfi->tree_type, __FILE__, __LINE__));
+		REPORT_DISSECTOR_BUG("\"%s\" - \"%s\" tfi->tree_type: %d invalid (%s:%u)",
+				     fi->hfinfo->name, fi->hfinfo->abbrev, tfi->tree_type, __FILE__, __LINE__);
 		/* XXX - is it safe to continue here? */
 	}
 
@@ -8488,9 +8496,8 @@ hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo)
 
 	/* If this is reached somebody registered a 64-bit field with a 32-bit
 	 * value-string, which isn't right. */
-	REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-	    "field %s is a 64-bit field with a 32-bit value_string",
-	    hfinfo->abbrev));
+	REPORT_DISSECTOR_BUG("field %s is a 64-bit field with a 32-bit value_string",
+	    hfinfo->abbrev);
 
 	/* This is necessary to squelch MSVC errors; is there
 	   any way to tell it that DISSECTOR_ASSERT_NOT_REACHED()
@@ -11021,10 +11028,9 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-					"Incompatible use of proto_tree_add_bits_ret_val"
-					" with field '%s' (%s) with bitmask != 0",
-					hf_field->abbrev, hf_field->name));
+		REPORT_DISSECTOR_BUG("Incompatible use of proto_tree_add_bits_ret_val"
+				     " with field '%s' (%s) with bitmask != 0",
+				     hf_field->abbrev, hf_field->name);
 	}
 
 	DISSECTOR_ASSERT(no_of_bits >  0);
@@ -11156,10 +11162,9 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-					"Incompatible use of proto_tree_add_split_bits_item_ret_val"
-					" with field '%s' (%s) with bitmask != 0",
-					hf_field->abbrev, hf_field->name));
+		REPORT_DISSECTOR_BUG("Incompatible use of proto_tree_add_split_bits_item_ret_val"
+				     " with field '%s' (%s) with bitmask != 0",
+				     hf_field->abbrev, hf_field->name);
 	}
 
 	mask_initial_bit_offset = bit_offset % 8;
@@ -11359,10 +11364,9 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
-		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-					"Incompatible use of proto_tree_add_bits_format_value"
-					" with field '%s' (%s) with bitmask != 0",
-					hf_field->abbrev, hf_field->name));
+		REPORT_DISSECTOR_BUG("Incompatible use of proto_tree_add_bits_format_value"
+				     " with field '%s' (%s) with bitmask != 0",
+				     hf_field->abbrev, hf_field->name);
 	}
 
 	DISSECTOR_ASSERT(no_of_bits > 0);

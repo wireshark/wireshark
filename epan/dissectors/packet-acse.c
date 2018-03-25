@@ -1706,8 +1706,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	session = ( (struct SESSION_DATA_STRUCTURE*)data);
 	if (session->spdu_type == 0) {
 		if (parent_tree) {
-			REPORT_DISSECTOR_BUG(
-				wmem_strdup_printf(wmem_packet_scope(), "Wrong spdu type %x from session dissector.",session->spdu_type));
+			REPORT_DISSECTOR_BUG("Wrong spdu type %x from session dissector.",session->spdu_type);
 			return 0;
 		}
 	}
@@ -2219,7 +2218,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 239 "./asn1/acse/packet-acse-template.c"
+#line 238 "./asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2265,7 +2264,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 245 "./asn1/acse/packet-acse-template.c"
+#line 244 "./asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {

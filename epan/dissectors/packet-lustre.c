@@ -1581,11 +1581,10 @@ lustre_get_trans(packet_info *pinfo, struct lnet_trans_info *info)
         if (ptr != NULL) {
             /* XXX - Is this even possible? ?*/
             trans = (lustre_trans_t *)ptr;
-            REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-                               "ERROR: packet-lustre: conversation replaced: "
-                               "trans:{opcode:%u sub_opcode:%" G_GINT64_MODIFIER "u match_bits:%" G_GINT64_MODIFIER "x} "
-                               "with match_bits:%" G_GINT64_MODIFIER "x",
-                               trans->opcode, trans->sub_opcode, trans->match_bits, info->match_bits));
+            REPORT_DISSECTOR_BUG("ERROR: packet-lustre: conversation replaced: "
+                                 "trans:{opcode:%u sub_opcode:%" G_GINT64_MODIFIER "u match_bits:%" G_GINT64_MODIFIER "x} "
+                                 "with match_bits:%" G_GINT64_MODIFIER "x",
+                                 trans->opcode, trans->sub_opcode, trans->match_bits, info->match_bits);
         }
     }
 

@@ -364,6 +364,10 @@
 #define THROW_FORMATTED(x, ...) \
 	except_throwf(XCEPT_GROUP_WIRESHARK, (x), __VA_ARGS__)
 
+/* Like THROW_FORMATTED, but takes a va_list as an argument */
+#define VTHROW_FORMATTED(x, format, args) \
+	except_vthrowf(XCEPT_GROUP_WIRESHARK, (x), format, args)
+
 #define GET_MESSAGE			except_message(exc)
 
 #define RETHROW                                     \

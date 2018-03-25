@@ -5387,9 +5387,8 @@ dissect_enc(tvbuff_t *tvb,
 
     /* Check if encr/auth specs are set properly (if for some case not, wireshark would crash) */
     if (!key_info->encr_spec || !key_info->auth_spec) {
-      REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-        "IKEv2: decryption/integrity specs not set-up properly: encr_spec: %p, auth_spec: %p",
-        (void *)key_info->auth_spec, (void*)key_info->auth_spec));
+      REPORT_DISSECTOR_BUG("IKEv2: decryption/integrity specs not set-up properly: encr_spec: %p, auth_spec: %p",
+        (void *)key_info->auth_spec, (void*)key_info->auth_spec);
     }
 
     iv_len = key_info->encr_spec->iv_len;
@@ -5459,16 +5458,14 @@ dissect_enc(tvbuff_t *tvb,
         proto_item_append_text(icd_item, " <%s>", val_to_str(key_info->auth_spec->number, vs_ikev2_auth_algs, "Unknown mac algo: %d"));
         err = gcry_md_open(&md_hd, key_info->auth_spec->gcry_alg, key_info->auth_spec->gcry_flag);
         if (err) {
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 hashing error: algorithm %d: gcry_md_open failed: %s",
-            key_info->auth_spec->gcry_alg, gcry_strerror(err)));
+          REPORT_DISSECTOR_BUG("IKEv2 hashing error: algorithm %d: gcry_md_open failed: %s",
+            key_info->auth_spec->gcry_alg, gcry_strerror(err));
         }
         err = gcry_md_setkey(md_hd, key_info->auth_key, key_info->auth_spec->key_len);
         if (err) {
           gcry_md_close(md_hd);
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 hashing error: algorithm %s, key length %u: gcry_md_setkey failed: %s",
-            gcry_md_algo_name(key_info->auth_spec->gcry_alg), key_info->auth_spec->key_len, gcry_strerror(err)));
+          REPORT_DISSECTOR_BUG("IKEv2 hashing error: algorithm %s, key length %u: gcry_md_setkey failed: %s",
+            gcry_md_algo_name(key_info->auth_spec->gcry_alg), key_info->auth_spec->key_len, gcry_strerror(err));
         }
 
         /* Calculate hash over the bytes from the beginning of the ISAKMP header to the right before the ICD. */
@@ -5478,9 +5475,8 @@ dissect_enc(tvbuff_t *tvb,
         md_len = gcry_md_get_algo_dlen(key_info->auth_spec->gcry_alg);
         if (md_len < icd_len) {
           gcry_md_close(md_hd);
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 hashing error: algorithm %s: gcry_md_get_algo_dlen returned %d which is smaller than icd length %d",
-            gcry_md_algo_name(key_info->auth_spec->gcry_alg), md_len, icd_len));
+          REPORT_DISSECTOR_BUG("IKEv2 hashing error: algorithm %s: gcry_md_get_algo_dlen returned %d which is smaller than icd length %d",
+            gcry_md_algo_name(key_info->auth_spec->gcry_alg), md_len, icd_len);
         }
         if (tvb_memeql(tvb, offset, md, icd_len) == 0) {
           proto_item_append_text(icd_item, "[correct]");
@@ -5519,9 +5515,8 @@ dissect_enc(tvbuff_t *tvb,
     } else {
       err = gcry_cipher_open(&cipher_hd, key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, 0);
       if (err) {
-        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-          "IKEv2 decryption error: algorithm %d, mode %d: gcry_cipher_open failed: %s",
-          key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, gcry_strerror(err)));
+        REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d, mode %d: gcry_cipher_open failed: %s",
+          key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, gcry_strerror(err));
       }
 
       /* Handling CTR mode and AEAD ciphers */
@@ -5537,9 +5532,8 @@ dissect_enc(tvbuff_t *tvb,
 
         if (encr_key_len < 0 || encr_iv_len < encr_iv_offset + (int)key_info->encr_spec->salt_len + iv_len) {
           gcry_cipher_close(cipher_hd);
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 decryption error: algorithm %d, key length %d, salt length %d, input iv length %d, cipher iv length: %d: invalid length(s) of cipher parameters",
-            key_info->encr_spec->gcry_alg, encr_key_len, key_info->encr_spec->salt_len, iv_len, encr_iv_len));
+          REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d, key length %d, salt length %d, input iv length %d, cipher iv length: %d: invalid length(s) of cipher parameters",
+            key_info->encr_spec->gcry_alg, encr_key_len, key_info->encr_spec->salt_len, iv_len, encr_iv_len);
         }
 
         encr_iv = (guchar *)wmem_alloc0(wmem_packet_scope(), encr_iv_len);
@@ -5559,18 +5553,16 @@ dissect_enc(tvbuff_t *tvb,
 
       err = gcry_cipher_setkey(cipher_hd, key_info->encr_key, encr_key_len);
       if (err) {
-        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-          "IKEv2 decryption error: algorithm %d, key length %d:  gcry_cipher_setkey failed: %s",
-          key_info->encr_spec->gcry_alg, encr_key_len, gcry_strerror(err)));
+        REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d, key length %d:  gcry_cipher_setkey failed: %s",
+          key_info->encr_spec->gcry_alg, encr_key_len, gcry_strerror(err));
       }
       if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CTR)
         err = gcry_cipher_setctr(cipher_hd, encr_iv, encr_iv_len);
       else
         err = gcry_cipher_setiv(cipher_hd, encr_iv, encr_iv_len);
       if (err) {
-        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-          "IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv/gcry_cipher_setctr failed: %s",
-          key_info->encr_spec->gcry_alg, encr_iv_len, gcry_strerror(err)));
+        REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv/gcry_cipher_setctr failed: %s",
+          key_info->encr_spec->gcry_alg, encr_iv_len, gcry_strerror(err));
       }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -5583,9 +5575,8 @@ dissect_enc(tvbuff_t *tvb,
         err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths));
         if (err) {
           gcry_cipher_close(cipher_hd);
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 decryption error: algorithm %d:  gcry_cipher_ctl(GCRYCTL_SET_CCM_LENGTHS) failed: %s",
-            key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+          REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d:  gcry_cipher_ctl(GCRYCTL_SET_CCM_LENGTHS) failed: %s",
+            key_info->encr_spec->gcry_alg, gcry_strerror(err));
         }
       }
 
@@ -5593,9 +5584,8 @@ dissect_enc(tvbuff_t *tvb,
         err = gcry_cipher_authenticate(cipher_hd, aa_data, aad_len);
         if (err) {
           gcry_cipher_close(cipher_hd);
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 decryption error: algorithm %d:  gcry_cipher_authenticate failed: %s",
-            key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+          REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d:  gcry_cipher_authenticate failed: %s",
+            key_info->encr_spec->gcry_alg, gcry_strerror(err));
         }
       }
 #endif
@@ -5603,9 +5593,8 @@ dissect_enc(tvbuff_t *tvb,
       err = gcry_cipher_decrypt(cipher_hd, decr_data, decr_data_len, encr_data, encr_data_len);
       if (err) {
         gcry_cipher_close(cipher_hd);
-        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-          "IKEv2 decryption error: algorithm %d:  gcry_cipher_decrypt failed: %s",
-          key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+        REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d:  gcry_cipher_decrypt failed: %s",
+          key_info->encr_spec->gcry_alg, gcry_strerror(err));
       }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -5632,18 +5621,16 @@ dissect_enc(tvbuff_t *tvb,
 
         if (tag_len < icv_len) {
           gcry_cipher_close(cipher_hd);
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 decryption error: algorithm %d:  gcry_cipher_get_algo_blklen returned %d which is smaller than icv length %d",
-            key_info->encr_spec->gcry_alg, tag_len, icv_len));
+          REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d:  gcry_cipher_get_algo_blklen returned %d which is smaller than icv length %d",
+            key_info->encr_spec->gcry_alg, tag_len, icv_len);
         }
 
         tag = (guchar *)wmem_alloc(wmem_packet_scope(), tag_len);
         err = gcry_cipher_gettag(cipher_hd, tag, tag_len);
         if (err) {
           gcry_cipher_close(cipher_hd);
-          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
-            "IKEv2 decryption error: algorithm %d:  gcry_cipher_gettag failed: %s",
-            key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+          REPORT_DISSECTOR_BUG("IKEv2 decryption error: algorithm %d:  gcry_cipher_gettag failed: %s",
+            key_info->encr_spec->gcry_alg, gcry_strerror(err));
         }
         else if (memcmp(tag, icv_data, icv_len) == 0)
           proto_item_append_text(icd_item, "[correct]");

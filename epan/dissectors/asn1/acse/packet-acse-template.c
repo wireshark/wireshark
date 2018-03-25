@@ -155,8 +155,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	session = ( (struct SESSION_DATA_STRUCTURE*)data);
 	if (session->spdu_type == 0) {
 		if (parent_tree) {
-			REPORT_DISSECTOR_BUG(
-				wmem_strdup_printf(wmem_packet_scope(), "Wrong spdu type %x from session dissector.",session->spdu_type));
+			REPORT_DISSECTOR_BUG("Wrong spdu type %x from session dissector.",session->spdu_type);
 			return 0;
 		}
 	}
