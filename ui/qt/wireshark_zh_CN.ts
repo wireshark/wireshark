@@ -7755,22 +7755,6 @@ text-decoration: underline;
         <translation>确认未保存的捕获文件</translation>
     </message>
     <message>
-        <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="vanished">若选中，分组详情项目将随着展开而自动滚动。</translation>
-    </message>
-    <message>
-        <source>Automatically scroll packet details</source>
-        <translation type="vanished">自动滚动分组详情视图</translation>
-    </message>
-    <message>
-        <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="vanished">从顶部到滚动分组详情的百分比距离。</translation>
-    </message>
-    <message>
-        <source>Packet detail scroll percentage:</source>
-        <translation type="vanished">分组详情滚动百分比:</translation>
-    </message>
-    <message>
         <source>Main toolbar style:</source>
         <translation>主工具栏样式：</translation>
     </message>

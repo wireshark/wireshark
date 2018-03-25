@@ -7775,22 +7775,6 @@ text-decoration: underline;
         <translation>Bei ungesicherten Mitschnittdateien nachfragen</translation>
     </message>
     <message>
-        <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="vanished">Wenn aktiviert scrollen ausgeklappte Paketdetails automatisch.</translation>
-    </message>
-    <message>
-        <source>Automatically scroll packet details</source>
-        <translation type="vanished">Automatisches Scrollen der Paketdetails</translation>
-    </message>
-    <message>
-        <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="vanished">Prozentualer Abstand von oben bis zu den scrollenden Paketdetails.</translation>
-    </message>
-    <message>
-        <source>Packet detail scroll percentage:</source>
-        <translation type="vanished">Prozentualer Scrollfortschritt Paketdetails:</translation>
-    </message>
-    <message>
         <source>Main toolbar style:</source>
         <translation>Stil Hauptleiste</translation>
     </message>

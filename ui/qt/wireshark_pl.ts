@@ -7755,22 +7755,6 @@ text-decoration: underline;
         <translation>Potwierdź zamykanie niezapisanych plików przechwytywania</translation>
     </message>
     <message>
-        <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="vanished">Jeśli zaznaczono to szczegółypakietu będą automatycznie przewijane gdy są rozwijane.</translation>
-    </message>
-    <message>
-        <source>Automatically scroll packet details</source>
-        <translation type="vanished">Automatyczne przewijanie szczegółów pakietu</translation>
-    </message>
-    <message>
-        <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="vanished">Procentowa odległość przesuwania od góry do szczegółów pakietu.</translation>
-    </message>
-    <message>
-        <source>Packet detail scroll percentage:</source>
-        <translation type="vanished">Procent przewijania szczegółów pakietu:</translation>
-    </message>
-    <message>
         <source>Main toolbar style:</source>
         <translation>Główny pasek stylów:</translation>
     </message>

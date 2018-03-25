@@ -7724,22 +7724,6 @@ a:hover {
         <translation>Toujours Confirmer avant un fichier de capture non sauvegardé</translation>
     </message>
     <message>
-        <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="vanished">Cocher les éléments de détail paquets seront automatiquement défiler quand ils sont étendus.</translation>
-    </message>
-    <message>
-        <source>Automatically scroll packet details</source>
-        <translation type="vanished">Défilement automatique lors de l&apos;affichage des détails</translation>
-    </message>
-    <message>
-        <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="vanished">Distance en pourcentage du haut pour faire défiler les détails des paquets.</translation>
-    </message>
-    <message>
-        <source>Packet detail scroll percentage:</source>
-        <translation type="vanished">Pourcentage détail paquet de défilement:</translation>
-    </message>
-    <message>
         <source>Main toolbar style:</source>
         <translation>Style de la barre d&apos;outils principale :</translation>
     </message>

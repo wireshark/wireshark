@@ -7708,22 +7708,6 @@ a:hover {
         <translation>保存していないキャプチャファイルの確認</translation>
     </message>
     <message>
-        <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="vanished">パケット詳細の項目にチェックをすると自動的に拡張した際にスクロールします</translation>
-    </message>
-    <message>
-        <source>Automatically scroll packet details</source>
-        <translation type="vanished">パケット詳細を自動的にスクロール</translation>
-    </message>
-    <message>
-        <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="vanished">パケット詳細を一番上からスクロールした割合(%)</translation>
-    </message>
-    <message>
-        <source>Packet detail scroll percentage:</source>
-        <translation type="vanished">パケット詳細はスクロールした割合(%)：</translation>
-    </message>
-    <message>
         <source>Main toolbar style:</source>
         <translation>メニューツールバーのスタイル:</translation>
     </message>

@@ -7775,22 +7775,6 @@ a:hover {
         <translation>Conferma file di cattura non salvati</translation>
     </message>
     <message>
-        <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="vanished">Se selezionato, le voci di dettaglio del pacchetto saranno automaticamente scorse mentre vengono espanse.</translation>
-    </message>
-    <message>
-        <source>Automatically scroll packet details</source>
-        <translation type="vanished">Scorri automaticamente i dettagli dei pacchetto</translation>
-    </message>
-    <message>
-        <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="vanished">Distanza percentuale dall&apos;inizio per scorrere i dettagli del pacchetto.</translation>
-    </message>
-    <message>
-        <source>Packet detail scroll percentage:</source>
-        <translation type="vanished">Percentuale di scorrimento dei dettagli del pacchetto:</translation>
-    </message>
-    <message>
         <source>Main toolbar style:</source>
         <translation>Stile della barra degli strumenti principale:</translation>
     </message>
