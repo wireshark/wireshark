@@ -328,7 +328,7 @@ endif()
 
 ABICHECK(libwireshark)
 
-set(TOP_LEVEL_HEADERS ${CMAKE_BINARY_DIR}/config.h ${CMAKE_SOURCE_DIR}/register.h)
+set(TOP_LEVEL_HEADERS ${CMAKE_BINARY_DIR}/config.h)
 file(GLOB CRYPT_HEADERS crypt/*.h)
 file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
 file(GLOB D_HEADERS dissectors/*.h)
