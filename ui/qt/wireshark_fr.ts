@@ -852,37 +852,37 @@
         <translation>Le format de fichier dans lequel vous voulez sauvegarder ne prendre pas en charge les commentaires. Voulez-vous supprimer les commentaires et enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="391"/>
+        <location filename="capture_file_dialog.cpp" line="417"/>
         <source>All Files (</source>
         <translation>Tous les Fichiers (</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="397"/>
+        <location filename="capture_file_dialog.cpp" line="423"/>
         <source>All Capture Files</source>
         <translation>Tous les fichiers de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="433"/>
+        <location filename="capture_file_dialog.cpp" line="459"/>
         <source>Format:</source>
         <translation>Format:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="438"/>
+        <location filename="capture_file_dialog.cpp" line="464"/>
         <source>Size:</source>
         <translation>Taille:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="443"/>
+        <location filename="capture_file_dialog.cpp" line="469"/>
         <source>Start / elapsed:</source>
         <translation>Début / écoulé: </translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="489"/>
+        <location filename="capture_file_dialog.cpp" line="515"/>
         <source>Automatically detect file type</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="capture_file_dialog.cpp" line="791"/>
+        <location filename="capture_file_dialog.cpp" line="817"/>
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
         <translation type="unfinished">
@@ -891,7 +891,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="capture_file_dialog.cpp" line="798"/>
+        <location filename="capture_file_dialog.cpp" line="824"/>
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
         <translation type="unfinished">
@@ -900,7 +900,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="capture_file_dialog.cpp" line="801"/>
+        <location filename="capture_file_dialog.cpp" line="827"/>
         <source>%1, %Ln packet(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -908,98 +908,98 @@
         </translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="455"/>
+        <location filename="capture_file_dialog.cpp" line="481"/>
         <source>Prepend packets</source>
         <translation>Ajout de paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="456"/>
+        <location filename="capture_file_dialog.cpp" line="482"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
         <translation>Insérer les paquets à partir du fichier sélectionné avant que le fichier actuel. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="459"/>
+        <location filename="capture_file_dialog.cpp" line="485"/>
         <source>Merge chronologically</source>
         <translation>Fusionner chronologiquement</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="460"/>
+        <location filename="capture_file_dialog.cpp" line="486"/>
         <source>Insert packets in chronological order.</source>
         <translation>Insérer des paquets dans l&apos;ordre chronologique.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="464"/>
+        <location filename="capture_file_dialog.cpp" line="490"/>
         <source>Append packets</source>
         <translation>Ajout de paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="465"/>
+        <location filename="capture_file_dialog.cpp" line="491"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
         <translation>Insérer des paquets à partir du fichier sélectionné après le fichier en cours. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="480"/>
+        <location filename="capture_file_dialog.cpp" line="506"/>
         <source>Read filter:</source>
         <translation>Filtre de lecture:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="498"/>
+        <location filename="capture_file_dialog.cpp" line="524"/>
         <source>Compress with g&amp;zip</source>
         <translation>Compresser avec g&amp;zip</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="529"/>
+        <location filename="capture_file_dialog.cpp" line="555"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Ouvrir un fichier de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="559"/>
+        <location filename="capture_file_dialog.cpp" line="585"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
         <translation>Wireshark: Sauvegarder le fichier de capture sous </translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="565"/>
+        <location filename="capture_file_dialog.cpp" line="591"/>
         <source>Save as:</source>
         <translation>Sauvegarder sous:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="587"/>
+        <location filename="capture_file_dialog.cpp" line="613"/>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
         <translation>Exporter les paquets séléctionnés</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="591"/>
+        <location filename="capture_file_dialog.cpp" line="617"/>
         <source>Export as:</source>
         <translation>Exporter sous:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="620"/>
+        <location filename="capture_file_dialog.cpp" line="646"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Fusionner des captures</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="734"/>
+        <location filename="capture_file_dialog.cpp" line="760"/>
         <source>directory</source>
         <translation>dossier</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="741"/>
+        <location filename="capture_file_dialog.cpp" line="767"/>
         <source>unknown file format</source>
         <translation>Format du fichier inconnu</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="743"/>
+        <location filename="capture_file_dialog.cpp" line="769"/>
         <source>error opening file</source>
         <translation>erreur pour ouvrir le fichier</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="808"/>
-        <location filename="capture_file_dialog.cpp" line="829"/>
-        <location filename="capture_file_dialog.cpp" line="833"/>
+        <location filename="capture_file_dialog.cpp" line="834"/>
+        <location filename="capture_file_dialog.cpp" line="855"/>
+        <location filename="capture_file_dialog.cpp" line="859"/>
         <source>unknown</source>
         <translation>inconnu</translation>
     </message>
@@ -9345,33 +9345,33 @@ a:hover {
         <translation>Active et désactive des protocoles spécifiques</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="297"/>
+        <location filename="main_window.cpp" line="298"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Vérifier Mises à Jour</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="930"/>
+        <location filename="main_window.cpp" line="931"/>
         <source> before quitting</source>
         <translation>avant de quitter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1166"/>
+        <location filename="main_window.cpp" line="1167"/>
         <source>Save packets before merging?</source>
         <translation>Sauvegarder les paquets avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1167"/>
+        <location filename="main_window.cpp" line="1168"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>une capture temporaire ne peut pas etre fusionner.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1173"/>
+        <location filename="main_window.cpp" line="1174"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Sauvegarder les changements dans &quot;%1&quot; avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1175"/>
+        <location filename="main_window.cpp" line="1176"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
     </message>
@@ -9381,128 +9381,128 @@ a:hover {
         <translation>Filtre d&apos;affichage invalide</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1212"/>
+        <location filename="main_window.cpp" line="1213"/>
         <source>Invalid Read Filter</source>
         <translation>Filtre de Lecture Invalide</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1213"/>
+        <location filename="main_window.cpp" line="1214"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>L&apos;expression de filtre %1 n&apos;est pas un filtre de lecture valide. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1302"/>
+        <location filename="main_window.cpp" line="1303"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1578"/>
+        <location filename="main_window.cpp" line="1579"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Impossible d&apos;exporter dans &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1579"/>
+        <location filename="main_window.cpp" line="1580"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1667"/>
-        <location filename="main_window.cpp" line="1692"/>
+        <location filename="main_window.cpp" line="1668"/>
+        <location filename="main_window.cpp" line="1693"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1737"/>
+        <location filename="main_window.cpp" line="1738"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1733"/>
-        <location filename="main_window.cpp" line="1741"/>
+        <location filename="main_window.cpp" line="1734"/>
+        <location filename="main_window.cpp" line="1742"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1746"/>
+        <location filename="main_window.cpp" line="1747"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1738"/>
-        <location filename="main_window.cpp" line="1747"/>
+        <location filename="main_window.cpp" line="1739"/>
+        <location filename="main_window.cpp" line="1748"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="967"/>
+        <location filename="main_window.cpp" line="968"/>
         <source>Unable to drop files during capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1732"/>
+        <location filename="main_window.cpp" line="1733"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1740"/>
+        <location filename="main_window.cpp" line="1741"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1764"/>
+        <location filename="main_window.cpp" line="1765"/>
         <source>Save before Continue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1766"/>
+        <location filename="main_window.cpp" line="1767"/>
         <source>Stop and Save</source>
         <translation>Arreter et Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1778"/>
+        <location filename="main_window.cpp" line="1779"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1790"/>
+        <location filename="main_window.cpp" line="1791"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="773"/>
-        <location filename="main_window.cpp" line="2740"/>
+        <location filename="main_window.cpp" line="774"/>
+        <location filename="main_window.cpp" line="2769"/>
         <source>Show or hide the toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1781"/>
-        <location filename="main_window.cpp" line="1794"/>
+        <location filename="main_window.cpp" line="1782"/>
+        <location filename="main_window.cpp" line="1795"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1784"/>
+        <location filename="main_window.cpp" line="1785"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2162"/>
+        <location filename="main_window.cpp" line="2191"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2183"/>
+        <location filename="main_window.cpp" line="2212"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2208"/>
+        <location filename="main_window.cpp" line="2237"/>
         <source>Capturing from %1</source>
         <translation>Capture en cours de %1</translation>
     </message>
