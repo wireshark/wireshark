@@ -1249,7 +1249,7 @@ packet_is_rpcordma(tvbuff_t *tvb)
 static int
 dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    tvbuff_t *next_tvb;
+    tvbuff_t *volatile next_tvb;
     tvbuff_t *frag_tvb;
     proto_item *ti;
     proto_tree *rpcordma_tree;
