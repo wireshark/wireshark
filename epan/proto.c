@@ -411,13 +411,13 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 static inline guchar
 check_charset(const guint8 table[256], const char *str)
 {
-    const char *p = str;
-    guchar c;
+	const char *p = str;
+	guchar c;
 
-    do {
-      c = *(p++);
-    } while (table[c]);
-    return c;
+	do {
+		c = *(p++);
+	} while (table[c]);
+	return c;
 }
 
 #ifdef HAVE_PLUGINS
@@ -1305,7 +1305,7 @@ proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
-    gchar* str;
+	gchar		  *str;
 
 	CHECK_FOR_NULL_TREE(tree);
 
@@ -7044,7 +7044,7 @@ proto_register_fields_section(const int parent, header_field_info *hfi, const in
 		proto->fields = g_ptr_array_sized_new(num_records);
 	}
 
-    for (i = 0; i < num_records; i++) {
+	for (i = 0; i < num_records; i++) {
 		/*
 		 * Make sure we haven't registered this yet.
 		 */
@@ -7296,7 +7296,7 @@ static const value_string hf_display[] = {
 
 const char* proto_field_display_to_string(int field_display)
 {
-    return val_to_str_const(field_display, hf_display, "Unknown");
+	return val_to_str_const(field_display, hf_display, "Unknown");
 }
 
 static inline port_type
