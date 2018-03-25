@@ -19813,7 +19813,7 @@ dissect_ieee80211_block_ack(tvbuff_t *tvb, packet_info *pinfo _U_,
 #define TRIGGER_TYPE_BQRP       6
 #define TRIGGER_TYPE_NFRP       7
 
-static const value_string trigger_type_vals[] = {
+static const val64_string trigger_type_vals[] = {
   { 0, "Basic" },
   { 1, "Beamforming Report Poll (BRP)" },
   { 2, "MU-BAR" },
@@ -20135,7 +20135,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
 
   trigger_type = tvb_get_guint8(tvb, offset) & 0x0F;
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str(trigger_type, trigger_type_vals, "Reserved"));
+                val64_to_str(trigger_type, trigger_type_vals, "Reserved"));
   /*
    * Deal with the common Info and then any user info after that.
    */
@@ -30309,7 +30309,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trigger_type,
      {"Trigger Type", "wlan.trigger.he.trigger_type",
-      FT_UINT64, BASE_DEC, VALS(trigger_type_vals),
+      FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(trigger_type_vals),
         0x000000000000000F, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_length,
