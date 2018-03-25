@@ -155,7 +155,31 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
     }
 
 #if defined(Q_OS_MAC)
-    discard_button->setAutoDefault(false);
+    /*
+     * In macOS, the "default button" is not necessarily the button that
+     * has the input focus; Enter/Return activates the default button, and
+     * the spacebar activates the button that has the input focus, and
+     * they might be different buttons.
+     *
+     * In a "do you want to save" dialog, for example, the "save" button
+     * is the default button, and the "don't save" button has the input
+     * focus, so you can press Enter/Return to save or space not to save
+     * (or Escape to dismiss the dialog).
+     *
+     * In Qt terms, this means "no auto-default", as auto-default makes the
+     * button with the input focus the default button, so that Enter/Return
+     * will activate it.
+     */
+    QList<QAbstractButton *> buttons = msg_dialog.buttons();
+    for (int i = 0; i < buttons.size(); ++i) {
+        QPushButton *button = static_cast<QPushButton *>(buttons.at(i));;
+        button->setAutoDefault(false);
+    }
+
+    /*
+     * It also means that the "don't save" button should be the one
+     * initially given the focus.
+     */
     discard_button->setFocus();
 #endif
 
