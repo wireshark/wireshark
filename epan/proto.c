@@ -8488,7 +8488,9 @@ hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo)
 
 	/* If this is reached somebody registered a 64-bit field with a 32-bit
 	 * value-string, which isn't right. */
-	DISSECTOR_ASSERT_NOT_REACHED();
+	REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+	    "field %s is a 64-bit field with a 32-bit value_string",
+	    hfinfo->abbrev));
 
 	/* This is necessary to squelch MSVC errors; is there
 	   any way to tell it that DISSECTOR_ASSERT_NOT_REACHED()
