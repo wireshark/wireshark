@@ -19825,7 +19825,7 @@ static const val64_string trigger_type_vals[] = {
   { 0, NULL }
 };
 
-static const value_string bw_subfield_vals[] = {
+static const val64_string bw_subfield_vals[] = {
   { 0, "20 MHz" },
   { 1, "40 MHz" },
   { 2, "80 MHz" },
@@ -19833,7 +19833,7 @@ static const value_string bw_subfield_vals[] = {
   { 0, NULL }
 };
 
-static const value_string gi_and_ltf_type_subfield_vals[] = {
+static const val64_string gi_and_ltf_type_subfield_vals[] = {
   { 0, "1x LTF + 1.6 us GI" },
   { 1, "2x LTF + 1.6 us GI" },
   { 2, "4x LTF + 3.2 us GI" },
@@ -30326,11 +30326,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trigger_bw,
      {"BW", "wlan.trigger.he.bw",
-      FT_UINT64, BASE_DEC, VALS(bw_subfield_vals), 0x00000000000C0000, NULL, HFILL }},
+      FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(bw_subfield_vals), 0x00000000000C0000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_gi_and_ltf_type,
      {"GI And LTF Type", "wlan.trigger.he.gi_and_ltf_type",
-      FT_UINT64, BASE_DEC, VALS(gi_and_ltf_type_subfield_vals), 0x0000000000300000,
+      FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(gi_and_ltf_type_subfield_vals), 0x0000000000300000,
         NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_mu_mimo_ltf_mode,
