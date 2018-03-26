@@ -343,41 +343,64 @@ else()
 		endif()
 	endif()
 
-	if(CMAKE_VERSION VERSION_LESS "3.1")
-		# Many modern compilers use c99 by default, but for older ones
-		# (like GCC 4.4.7), -std=gnu99 is required to avoid errors about
-		# use constructs like "for (int i = 0; i < n; i++) ;"
+	#
+	# Do whatever is necessary to enable as much C99 support as
+	# possible in the C compiler.  Newer versions of compilers
+	# might default to supporting C99, but older versions may
+	# require a special flag.
+	#
+	# We do not want strict C99 support, as we may also want to
+	# use compiler extensions.
+	#
+	# Prior to CMake 3.1, setting CMAKE_C_STANDARD will not have
+	# any effect, so, unless and until we require CMake 3.1 or
+	# later, we have to do it ourselves on pre-3.1 CMake, so we
+	# just do it ourselves on all versions of CMake.
+	#
+	# Note: with CMake 3.1 through 3.5, the only compilers for
+	# which CMake handles CMAKE_C_STANDARD are GCC and Clang.
+	# 3.6 adds support only for Intel C; 3.9 adds support for
+	# PGI C, Sun C, and IBM XL C, and 3.10 adds support for
+	# Cray C and IAR C, but no version of CMake has support for
+	# HP C.  Therefore, even if we use CMAKE_C_STANDARD with
+	# compilers for which CMake supports it, we may still have
+	# to do it ourselves on other compilers.
+	#
+	# See the CMake documentation for the CMAKE_<LANG>_COMPILER_ID
+	# variables for a list of compiler IDs.
+	#
+	# We don't worry about MSVC; it doesn't have such a flag -
+	# either it doesn't support the C99 features we need at all,
+	# or it supports them regardless of the compiler flag.
+	#
+	# XXX - we add the flag for a given compiler to CMAKE_C_FLAGS,
+	# so we test whether it works and add it if we do.  We don't
+	# test whether it's necessary in order to get the C99 features
+	# that we use; if we ever have a user who tries to compile with
+	# a compiler that can't be made to support those features, we
+	# can add a test to make sure we actually *have* C99 support.
+	#
+	if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR
+	   CMAKE_C_COMPILER_ID MATCHES "Clang")
 		#
-		# Older versions of IBM XL C may require -qlanglvl=extc99.
-		# With V7.0, the "xlc" command defaults to C89; with 10.1,
-		# it defaults to C99 (both with IBM syntax extensions).
+		# We use -std=gnu99 rather than -std=c99 because, for
+		# some older compilers such as GCC 4.4.7, -std=gnu99
+		# is required to avoid errors about C99 constructs
+		# such as "for (int i = 0; i < n; i++) ;".
 		#
-		# HP's manual for HP C/HP-UX B.11.11.04 (the tenth
-		# edition of the manual), for PA-RISC, "documents
-		# new HP C features that support C99 industry standards".
-		# The manual for Version A.06.25 for Itanium mentions an
-		# -AC99 flag to support C99, but says it's the default;
-		# some older versions might require -AC99.
+		set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
+	elseif(CMAKE_C_COMPILER_ID MATCHES "XL")
 		#
-		# As of Sun Studio 8, the compiler appears to default
-		# to supporting some C99 language features, but not
-		# C99 library differences from C89; -xc99 will give
-		# you both.  The earlier Sun Forte Developer 6 update 2
-		# might or might not support thosee C99 language features
-		# by default, and doesn't speak of library differences;
-		# if it doesn't support the language features by default,
-		# -xc99 will support them.
+		# We want support for extensions picked up for
+		# GNU C compatibility, so we use -qlanglvl=extc99.
 		#
-		if(CMAKE_C_COMPILER_ID MATCHES "GNU")
-			set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
-		endif()
-	else()
-		#
-		# Current versions of CMake do not support options to
-		# request C99 for XL C, HP C, or Oracle C.  (They may
-		# not be necessary for current versions.)
-		#
-		set(CMAKE_C_STANDARD 99)
+		set(CMAKE_C_FLAGS "-qlanglvl=extc99 ${CMAKE_C_FLAGS}")
+	elseif(CMAKE_C_COMPILER_ID MATCHES "HP")
+		set(CMAKE_C_FLAGS "-AC99 ${CMAKE_C_FLAGS}")
+	elseif(CMAKE_C_COMPILER_ID MATCHES "Sun")
+		set(CMAKE_C_FLAGS "-xc99 ${CMAKE_C_FLAGS}")
+	elseif(CMAKE_C_COMPILER_ID MATCHES "Intel")
+		set(CMAKE_C_FLAGS "-c99 ${CMAKE_C_FLAGS}")
 	endif()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
