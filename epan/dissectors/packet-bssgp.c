@@ -3323,7 +3323,9 @@ static const value_string bssgp_redir_indiction_reroute_reject_cause_vals[] = {
     {0x0E, "GPRS services not allowed in this PLMN"},
     {0x0F, "No suitable cell in location area"},
     {0x10, "CS/PS domain registration coordination required"},
-    /* {0x11~0xFF, "Reserved"} */
+    {0x11, "Network failure" },
+    {0x12, "Rerouting to a DCN required" },
+/* {0x13~0xFF, "Reserved"} */
     { 0,    NULL },
 };
 
