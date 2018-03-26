@@ -1225,11 +1225,15 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                         disable_interface = 1;
                     } else {
                         response[data_length] = '\0';
-
-                        data_str = strchr(response, '\n');
-                        if (data_str && sscanf(data_str, "%*s %15s", pid) == 1 && strlen(pid) > 10 && strcmp(pid + 9, "22A8") == 0) {
-                            g_debug("Btsnoop Net Port for %s is %s", serial_number, pid + 9);
-                        } else {
+                        data_str = strtok(response, "\n");
+                        while (data_str != NULL) {
+                            if (data_str && sscanf(data_str, "%*s %15s", pid) == 1 && strlen(pid) > 10 && strcmp(pid + 9, "22A8") == 0) {
+                                g_debug("Btsnoop Net Port for %s is %s", serial_number, pid + 9);
+                                break;
+                            }
+                            data_str = strtok(NULL, "\n");
+                        }
+                        if (data_str == NULL) {
                             disable_interface = 1;
                             g_debug("Btsnoop Net Port for %s is unknown", serial_number);
                         }
