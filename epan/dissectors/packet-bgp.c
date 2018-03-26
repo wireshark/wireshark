@@ -8510,7 +8510,7 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
 
       { &hf_bgp_update_path_attribute_aggregator_as,
-        { "Aggregator AS", "bgp.update.path_attribute.aggregator_as", FT_UINT16, BASE_DEC,
+        { "Aggregator AS", "bgp.update.path_attribute.aggregator_as", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
       /* BGP update path attributes */
       { &hf_bgp_update_path_attributes,
