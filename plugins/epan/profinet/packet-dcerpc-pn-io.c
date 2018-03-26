@@ -4557,7 +4557,6 @@ packet_info *pinfo, proto_tree *tree, guint8 *drep)
 
         /* level 0 */
         proto_tree_add_bits_item(sub_tree, hf_pn_io_am_location_structure, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
-        bit_offset += 8;
 
         offset += 16;
 
