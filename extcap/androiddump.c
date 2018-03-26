@@ -1122,7 +1122,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             closesocket(sock);
             if (!response || data_length < 1) {
                 g_warning("Error while getting Bluetooth application process id by <%s> "
-                    "(%p len=%"G_GSSIZE_FORMAT")", adb_hcidump_version, (void*)response, data_length);
+                    "(%p len=%"G_GSSIZE_FORMAT")", adb_ps_droid_bluetooth, (void*)response, data_length);
                 g_debug( "Android Bluetooth application PID for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
@@ -1191,7 +1191,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
             if (!response || data_length < 1) {
                 g_warning("Error while getting Bluetooth application process id by <%s> "
-                    "(%p len=%"G_GSSIZE_FORMAT")", adb_hcidump_version, (void*)response, data_length);
+                    "(%p len=%"G_GSSIZE_FORMAT")", ps_cmd, (void*)response, data_length);
                 g_debug("Android Bluetooth application PID for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
