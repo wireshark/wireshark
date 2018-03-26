@@ -93,6 +93,7 @@ Makefile
 Makefile.in
 mergecap
 missing
+mmdbresolve
 oids_test
 randpkt
 randpktdump
