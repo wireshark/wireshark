@@ -288,7 +288,7 @@ preference setting).
 
 [[ChUseEditMenuSection]]
 
-=== The “Edit” menu
+=== The “Edit” Menu
 
 The Wireshark Edit menu contains the fields shown in <<ChUseTabEdit>>.
 
@@ -386,7 +386,7 @@ Wireshark will use them the next time you start it. More detail is provided in
 
 [[ChUseViewMenuSection]]
 
-=== The “View” menu
+=== The “View” Menu
 
 The Wireshark View menu contains the fields shown in <<ChUseTabView>>.
 
@@ -456,7 +456,7 @@ Resizing may take a significant amount of time, especially if a large capture fi
 
 [[ChUseGoMenuSection]]
 
-=== The “Go” menu
+=== The “Go” Menu
 
 The Wireshark Go menu contains the fields shown in <<ChUseTabGo>>.
 
@@ -506,7 +506,7 @@ image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
 
 [[ChUseAnalyzeMenuSection]]
 
-=== The “Analyze” menu
+=== The “Analyze” Menu
 
 The Wireshark Analyze menu contains the fields shown in <<ChUseAnalyze>>.
 
@@ -536,7 +536,7 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 
 [[ChUseStatisticsMenuSection]]
 
-=== The “Statistics” menu
+=== The “Statistics” Menu
 
 The Wireshark Statistics menu contains the fields shown in <<ChUseStatistics>>.
 
@@ -555,29 +555,29 @@ All menu items will bring up a new window showing specific statistical informati
 |menu:Protocol Hierarchy[]|| Display a hierarchical tree of protocol statistics, see <<ChStatHierarchy>>.
 |menu:Conversations[]|| Display a list of conversations (traffic between two endpoints), see <<ChStatConversationsWindow>>.
 |menu:Endpoints[]|| Display a list of endpoints (traffic to/from an address), see <<ChStatEndpointsWindow>>.
-|menu:Packet Lengths...[]||See <<ChStatXXX>>
+|menu:Packet Lengths...[]||See <<ChStatOtherProtocols>>
 |menu:IO Graphs[]|| Display user specified graphs (e.g. the number of packets in the course of time), see <<ChStatIOGraphs>>.
 |menu:Service Response Time[]|| Display the time between a request and the corresponding response, see <<ChStatSRT>>.
-|menu:ANCP[]||See <<ChStatXXX>>
-|menu:Colledtd...[]||See <<ChStatXXX>>
-|menu:Compare...[]||See <<ChStatXXX>>
-|menu:Flow Graph...[]||See <<ChStatXXX>>
-|menu:HTTP[]||HTTP request/response statistics, see <<ChStatXXX>>
-|menu:IP Addresses...[]||See <<ChStatXXX>>
-|menu:IP Destinations...[]||See <<ChStatXXX>>
-|menu:IP Protocol Types...[]||See <<ChStatXXX>>
-|menu:ONC-RPC Programs[]||See <<ChStatXXX>>
-|menu:Sametime[]||See <<ChStatXXX>>
-|menu:TCP Stream Graph[]||See <<ChStatXXX>>
-|menu:UDP Multicast Streams[]||See <<ChStatXXX>>
+|menu:ANCP[]||See <<ChStatOtherProtocols>>
+|menu:Colledtd...[]||See <<ChStatOtherProtocols>>
+|menu:Compare...[]||See <<ChStatOtherProtocols>>
+|menu:Flow Graph...[]||See <<ChStatOtherProtocols>>
+|menu:HTTP[]||HTTP request/response statistics, see <<ChStatOtherProtocols>>
+|menu:IP Addresses...[]||See <<ChStatOtherProtocols>>
+|menu:IP Destinations...[]||See <<ChStatOtherProtocols>>
+|menu:IP Protocol Types...[]||See <<ChStatOtherProtocols>>
+|menu:ONC-RPC Programs[]||See <<ChStatOtherProtocols>>
+|menu:Sametime[]||See <<ChStatOtherProtocols>>
+|menu:TCP Stream Graph[]||See <<ChStatTCPStreamGraphs>>
+|menu:UDP Multicast Streams[]||See <<ChStatOtherProtocols>>
 |menu:WLAN Traffic[]||See <<ChStatWLANTraffic>>
-|menu:BOOTP-DHCP[]||See <<ChStatXXX>>
+|menu:BOOTP-DHCP[]||See <<ChStatOtherProtocols>>
 
 |===============
 
 [[ChUseTelephonyMenuSection]]
 
-=== The “Telephony” menu
+=== The “Telephony” Menu
 
 The Wireshark Telephony menu contains the fields shown in <<ChUseTelephony>>.
 
@@ -611,7 +611,7 @@ All menu items will bring up a new window showing specific telephony related sta
 
 [[ChUseToolsMenuSection]]
 
-=== The “Tools” menu
+=== The “Tools” Menu
 
 The Wireshark Tools menu contains the fields shown in <<ChUseTools>>.
 
@@ -633,7 +633,7 @@ It is assumed that the rules will be applied to an outside interface.
 
 [[ChUseInternalsMenuSection]]
 
-=== The “Internals” menu
+=== The “Internals” Menu
 
 The Wireshark Internals menu contains the fields shown in <<ChUseInternals>>.
 
@@ -652,7 +652,7 @@ image::wsug_graphics/ws-internals-menu.png[{screenshot-attrs}]
 
 [[ChUseHelpMenuSection]]
 
-=== The “Help” menu
+=== The “Help” Menu
 
 The Wireshark Help menu contains the fields shown in <<ChUseHelp>>.
 
@@ -688,7 +688,7 @@ preferences dialog.
 
 [[ChUseMainToolbarSection]]
 
-=== The “Main” toolbar
+=== The “Main” Toolbar
 
 The main toolbar provides quick access to frequently used items from the menu.
 This toolbar cannot be customized by the user, but it can be hidden using the
@@ -742,7 +742,7 @@ If you currently have a temporary capture file, the Save icon  will be shown ins
 
 [[ChUseFilterToolbarSection]]
 
-=== The “Filter” toolbar
+=== The “Filter” Toolbar
 
 The filter toolbar lets you quickly edit and apply display filters. More
 information on display filters is available in <<ChWorkDisplayFilterSection>>.
@@ -775,7 +775,7 @@ Applying a display filter on large capture files might take quite a long time.
 
 [[ChUsePacketListPaneSection]]
 
-=== The “Packet List” pane
+=== The “Packet List” Pane
 
 The packet list pane displays all the packets in the current capture file.
 
@@ -873,7 +873,7 @@ Right clicking will show a context menu, described in
 
 [[ChUsePacketDetailsPaneSection]]
 
-=== The “Packet Details” pane
+=== The “Packet Details” Pane
 
 The packet details pane shows the current packet (selected in the “Packet List”
 pane) in a more detailed form.
@@ -905,7 +905,7 @@ Some protocol fields have special meanings.
 
 [[ChUsePacketBytesPaneSection]]
 
-=== The “Packet Bytes” pane
+=== The “Packet Bytes” Pane
 
 The packet bytes pane shows the data of the current packet (selected in the
 “Packet List” pane) in a hexdump style.

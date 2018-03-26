@@ -42,7 +42,7 @@ be pretty hard to understand.
 
 [[ChStatSummary]]
 
-=== The “Summary” window
+=== The “Summary” Window
 
 General statistics about the current capture file.
 
@@ -70,11 +70,11 @@ image::wsug_graphics/ws-stats-summary.png[{screenshot-attrs}]
 
 [[ChStatHierarchy]]
 
-=== The “Protocol Hierarchy” window
+=== The “Protocol Hierarchy” Window
 
 The protocol hierarchy of the captured packets.
 
-.The “Protocol Hierarchy” window
+.The “Protocol Hierarchy” Window
 image::wsug_graphics/ws-stats-hierarchy.png[{screenshot-attrs}]
 
 This is a tree of all the protocols in the capture. Each row contains the
@@ -134,7 +134,7 @@ description of the known endpoint types can be found in
 
 [[ChStatConversationsWindow]]
 
-==== The “Conversations” window
+==== The “Conversations” Window
 
 The conversations window is similar to the endpoint Window. See
 <<ChStatEndpointsWindow>> for a description of their common features. Along with
@@ -240,7 +240,7 @@ will be received by some or all of the listed unicast endpoints.
 
 [[ChStatEndpointsWindow]]
 
-==== The “Endpoints” window
+==== The “Endpoints” Window
 
 This window shows statistics about the endpoints captured.
 
@@ -280,7 +280,7 @@ it before (or while) you are doing a live capture.
 
 [[ChStatIOGraphs]]
 
-=== The “IO Graphs” window
+=== The “IO Graphs” Window
 
 User configurable graph of the captured network packets.
 
@@ -362,7 +362,7 @@ different) compared to the following description.
 
 [[ChStatSRTDceRpc]]
 
-==== The “Service Response Time DCE-RPC” window
+==== The “Service Response Time DCE-RPC” Window
 
 The service response time of DCE-RPC is the time between the request and the
 corresponding response.
@@ -383,7 +383,7 @@ statistics of the SRT time is calculated.
 
 [[ChStatCompareCaptureFiles]]
 
-=== Compare two capture files
+=== Compare Two Capture Files
 
 Compare two capture files.
 
