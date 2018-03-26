@@ -15994,7 +15994,7 @@ dissect_qos_map_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   left = tag_len - 16;
   while (left >= 2) {
     dscp_item = proto_tree_add_item(tree, hf_ieee80211_tag_qos_map_set_dscp_exc,
-                                    tvb, offset, 2, ENC_NA);
+                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
     dscp_tree = proto_item_add_subtree(dscp_item, ett_qos_map_set_exception);
 
     item = proto_tree_add_item(dscp_tree,
@@ -32370,7 +32370,7 @@ proto_register_ieee80211(void)
     /* QoS Map Set element */
     {&hf_ieee80211_tag_qos_map_set_dscp_exc,
      {"DSCP Exception", "wlan.qos_map_set.dscp_exception",
-      FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_qos_map_set_dscp_exc_val,
      {"DSCP Value", "wlan.qos_map_set.dscp_value",
@@ -32384,7 +32384,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_qos_map_set_range,
      {"DSCP Range description", "wlan.qos_map_set.range",
-      FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_qos_map_set_low,
      {"DSCP Low Value", "wlan.qos_map_set.dscp_low_value",
