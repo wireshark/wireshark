@@ -41,8 +41,14 @@ if(ASCIIDOCTOR_EXECUTABLE)
         --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/ws_salink-inline-macro.rb
     )
 
-    set(_asciidoctor_common_command ${CMAKE_COMMAND} -E
-        env TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+    if(CMAKE_VERSION VERSION_LESS 3.1)
+        set(_env_command ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/env.cmake)
+    else()
+        set(_env_command ${CMAKE_COMMAND} -E env)
+    endif()
+
+    set(_asciidoctor_common_command ${_env_command}
+        TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
         ${ASCIIDOCTOR_EXECUTABLE}
         ${_asciidoctor_common_args}
     )
