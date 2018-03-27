@@ -1568,8 +1568,13 @@ dissect_wccp2_hash_assignment_info(tvbuff_t *tvb, int offset, gint length,
       return length - 4*(n_web_caches-i)-256;
 
     host_addr = tvb_get_ntohl(tvb,offset);
-    proto_tree_add_uint_format(info_tree, hf_cache_ip, tvb, offset, 4, host_addr, "Web-Cache %d: IP address %s", i,
+    if (! addr_table->in_use){
+      proto_tree_add_ipv4_format(info_tree, hf_cache_ip, tvb, offset, 4, host_addr, "Web-Cache %d: IP address %s", i,
                         decode_wccp_encoded_address(tvb, offset, pinfo, info_tree, addr_table));
+    } else {
+      proto_tree_add_uint_format(info_tree, hf_web_cache_identity_index, tvb, offset, 4, host_addr, "Web-Cache %d: IP address %s", i,
+                        decode_wccp_encoded_address(tvb, offset, pinfo, info_tree, addr_table));
+    }
     EAT(4);
   }
 
