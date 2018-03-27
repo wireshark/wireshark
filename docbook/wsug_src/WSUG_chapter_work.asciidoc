@@ -309,7 +309,7 @@ Unsigned integer::
 
   ip.len le 02734
 
-  ip.len le 0x436
+  ip.len le 0x5dc
 
 Signed integer::
   Can be 8, 16, 24, 32, or 64 bits. As with unsigned integers you can use
