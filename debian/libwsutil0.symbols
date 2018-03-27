@@ -190,6 +190,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_strtou64@Base 2.3.0
  ws_strtou8@Base 2.3.0
  ws_utf8_char_len@Base 1.12.0~rc1
+ ws_vadd_crash_info@Base 2.5.2
  ws_xton@Base 1.12.0~rc1
  wsjsmn_parse@Base 2.3.0
  wsjsmn_unescape_json_string@Base 2.5.0

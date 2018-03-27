@@ -246,6 +246,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  decode_dcerpc_reset_all@Base 1.12.0~rc1
  decode_tcp_ports@Base 1.99.0
  decode_udp_ports@Base 1.99.0
+ decode_zcl_time_in_100ms@Base 2.5.2
+ decode_zcl_time_in_minutes@Base 2.5.2
+ decode_zcl_time_in_seconds@Base 2.5.2
  delete_itu_tcap_subdissector@Base 1.9.1
  deregister_depend_dissector@Base 2.1.0
  destroy_print_stream@Base 1.12.0~rc1
@@ -426,6 +429,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
  dissect_xdlc_control@Base 1.9.1
+ dissect_zcl_attr_data@Base 2.5.2
  dissector_add_custom_table_handle@Base 1.99.8
  dissector_add_for_decode_as@Base 1.9.1
  dissector_add_for_decode_as_with_preference@Base 2.3.0
@@ -567,6 +571,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  except_throwd@Base 1.9.1
  except_throwf@Base 1.9.1
  except_unhandled_catcher@Base 1.9.1
+ except_vthrowf@Base 2.5.2
+ exp_pdu_data_dissector_table_num_value_size@Base 2.1.1
+ exp_pdu_data_dissector_table_num_value_populate_data@Base 2.1.1
  exp_pdu_data_dst_ip@Base 2.1.2
  exp_pdu_data_dst_port@Base 2.1.2
  exp_pdu_data_orig_frame_num@Base 2.1.2
@@ -585,8 +592,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  expert_update_comment_count@Base 1.12.0~rc1
  export_pdu_create_common_tags@Base 2.1.1
  export_pdu_create_tags@Base 2.1.1
- exp_pdu_data_dissector_table_num_value_size@Base 2.1.1
- exp_pdu_data_dissector_table_num_value_populate_data@Base 2.1.1
  ext_menubar_add_entry@Base 1.99.8
  ext_menubar_add_separator@Base 1.99.8
  ext_menubar_add_submenu@Base 1.99.8
@@ -791,6 +796,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_ipxnet_hash_table@Base 1.12.0~rc1
  get_key_string@Base 1.9.1
  get_mac_lte_proto_data@Base 1.9.1
+ get_mac_nr_proto_data@Base 2.5.2
  get_manuf_hashtable@Base 1.12.0~rc1
  get_manuf_name_if_known@Base 1.9.1
  get_mptcp_stream_count@Base 2.0.0
@@ -1421,6 +1427,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  set_column_visible@Base 1.9.1
  set_fd_time@Base 1.9.1
  set_mac_lte_proto_data@Base 1.9.1
+ set_mac_nr_proto_data@Base 2.5.2
  set_postdissector_wanted_hfids@Base 2.3.0
  set_srt_table_param_data@Base 1.99.8
  set_tap_dfilter@Base 1.9.1
@@ -1996,3 +2003,4 @@ libwireshark.so.0 libwireshark0 #MINVER#
  xml_get_attrib@Base 1.9.1
  xml_get_cdata@Base 1.9.1
  xml_get_tag@Base 1.9.1
+ zbee_zcl_init_cluster@Base 2.5.2
