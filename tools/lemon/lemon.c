@@ -196,8 +196,10 @@ void Configlist_reset(void);
 void ErrorMsg(const char *, int,const char *, ...);
 
 /****** From the file "option.h" ******************************************/
-enum option_type { OPT_FLAG=1,  OPT_INT,  OPT_DBL,  OPT_STR,
-         OPT_FFLAG, OPT_FINT, OPT_FDBL, OPT_FSTR};
+enum option_type {
+    OPT_FLAG=1,  OPT_INT,  OPT_DBL,  OPT_STR,
+    OPT_FFLAG, OPT_FINT, OPT_FDBL, OPT_FSTR
+};
 struct s_options {
   enum option_type type;
   const char *label;
@@ -633,7 +635,10 @@ PRIVATE void acttab_action(acttab *p, int lookahead, int action){
     p->nLookaheadAlloc += 25;
     p->aLookahead = (struct lookahead_action *) realloc( p->aLookahead,
                              sizeof(p->aLookahead[0])*p->nLookaheadAlloc );
-    MemoryCheck( p->aLookahead );
+    if (p->aLookahead == 0) {
+        fprintf(stderr, "malloc failed\n");
+        exit(1);
+    }
   }
   if( p->nLookahead==0 ){
     p->mxLookahead = lookahead;
@@ -672,7 +677,10 @@ PRIVATE int acttab_insert(acttab *p){
     p->nActionAlloc = p->nAction + n + p->nActionAlloc + 20;
     p->aAction = (struct lookahead_action *) realloc( p->aAction,
                           sizeof(p->aAction[0])*p->nActionAlloc);
-    MemoryCheck( p->aAction );
+    if (p->aAction == 0) {
+        fprintf(stderr, "malloc failed\n");
+        exit(1);
+    }
     for(i=oldAlloc; i<p->nActionAlloc; i++){
       p->aAction[i].lookahead = -1;
       p->aAction[i].action = -1;
@@ -1530,10 +1538,16 @@ static void handle_D_option(void *arg){
   char **paz;
   nDefine++;
   azDefine = (char **) realloc(azDefine, sizeof(azDefine[0])*nDefine);
-  MemoryCheck( azDefine );
+  if (azDefine == 0) {
+      fprintf(stderr, "out of memory\n");
+      exit(1);
+  }
   paz = &azDefine[nDefine-1];
   *paz = (char *) malloc( lemonStrlen(z)+1 );
-  MemoryCheck( *paz );
+  if (*paz == 0) {
+      fprintf(stderr, "out of memory\n");
+      exit(1);
+  }
   lemon_strcpy(*paz, z);
   for(z=*paz; *z && *z!='='; z++){}
   *z = 0;
@@ -1543,7 +1557,7 @@ static char *user_templatename = NULL;
 static void handle_T_option(void *arg){
   char *z = (char *)arg;
   user_templatename = (char *) malloc( lemonStrlen(z)+1 );
-  MemoryCheck( user_templatename );
+  MemoryCheck(user_templatename);
   lemon_strcpy(user_templatename, z);
 }
 
@@ -1870,7 +1884,7 @@ static char *merge(
 **   The "next" pointers for elements in list are changed.
 */
 #define LISTSIZE 30
-PRIVATE char *msort(
+static char *msort(
   char *list,
   char **next,
   int (*cmp)(const char*,const char*)
@@ -1886,13 +1900,13 @@ PRIVATE char *msort(
     list = NEXT(list);
     NEXT(ep) = 0;
     for(i=0; i<LISTSIZE-1 && set[i]!=0; i++){
-      ep = merge(ep,set[i],cmp,(int)offset);
+        ep = merge(ep, set[i], cmp, (int)offset);
       set[i] = 0;
     }
     set[i] = ep;
   }
   ep = 0;
-  for(i=0; i<LISTSIZE; i++) if( set[i] ) ep = merge(set[i],ep,cmp,(int)offset);
+  for (i = 0; i<LISTSIZE; i++) if (set[i]) ep = merge(set[i], ep, cmp, (int)offset);
   return ep;
 }
 /************************ From the file "option.c" **************************/
@@ -3047,7 +3061,7 @@ PRIVATE FILE *file_open(
 ){
   FILE *fp;
 
-  free(lemp->outname);
+  if (lemp->outname) free(lemp->outname);
   lemp->outname = file_makename_using_basename(lemp, suffix);
   fp = fopen(lemp->outname,mode);
   if( fp==0 && *mode=='w' ){
@@ -3413,7 +3427,6 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   char buf[1000];
   FILE *in;
   char *tpltname;
-  char *tpltname_alloc = NULL;
   char *cp;
 
   /* first, see if user specified a template filename on the command line. */
@@ -3445,8 +3458,7 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   }else if( access(templatename,004)==0 ){
     tpltname = templatename;
   }else{
-    tpltname_alloc = pathsearch(lemp->argv0,templatename,0);
-    tpltname = tpltname_alloc;
+    tpltname = pathsearch(lemp->argv0,templatename,0);
   }
   if( tpltname==0 ){
     fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
@@ -3458,8 +3470,8 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   if( in==0 ){
     fprintf(stderr,"Can't open the template file \"%s\".\n",templatename);
     lemp->errorcnt++;
+    return 0;
   }
-  free(tpltname_alloc);
 
   return in;
 }
@@ -3898,7 +3910,10 @@ PRIVATE void print_stack_union(
     if( len>maxdtlength ) maxdtlength = len;
   }
   stddt = (char*)malloc( maxdtlength*2 + 1 );
-  MemoryCheck( stddt );
+  if (stddt == 0) {
+      fprintf(stderr, "Out of memory.\n");
+      exit(1);
+  }
 
   /* Build a hash table of datatypes. The ".dtnum" field of each symbol
   ** is filled in with the hash index plus 1.  A ".dtnum" value of 0 is
@@ -3944,13 +3959,17 @@ PRIVATE void print_stack_union(
     if( types[hash]==0 ){
       sp->dtnum = hash + 1;
       types[hash] = (char*)malloc( lemonStrlen(stddt)+1 );
-      MemoryCheck( types[hash] );
+      if (types[hash] == 0) {
+          fprintf(stderr, "Out of memory.\n");
+          exit(1);
+      }
       lemon_strcpy(types[hash],stddt);
     }
   }
 
   /* Print out the definition of YYTOKENTYPE and YYMINORTYPE */
   name = lemp->name ? lemp->name : "Parse";
+  lineno = *plineno;
   if( mhflag ){ fprintf(out,"#if INTERFACE\n"); lineno++; }
   fprintf(out,"#define %sTOKENTYPE %s\n",name,
     lemp->tokentype?lemp->tokentype:"void*");  lineno++;
@@ -4158,7 +4177,10 @@ void ReportTable(
   ** we need to know how many states can be eliminated.
   */
   ax = (struct axset *) calloc(lemp->nxstate*2, sizeof(ax[0]));
-  MemoryCheck( ax );
+  if (ax == 0) {
+      fprintf(stderr, "malloc failed\n");
+      exit(1);
+  }
   for(i=0; i<lemp->nxstate; i++){
     stp = lemp->sorted[i];
     ax[i*2].stp = stp;
@@ -4221,7 +4243,7 @@ void ReportTable(
   for(i=0; i<lemp->nxstate; i++){
     for(ap=lemp->sorted[i]->ap; ap; ap=ap->next){
       if( ap->type==REDUCE || ap->type==SHIFTREDUCE ){
-        ap->x.rp->doesReduce = i ? LEMON_TRUE : LEMON_FALSE ;
+          ap->x.rp->doesReduce = i ? LEMON_TRUE : LEMON_FALSE ;
       }
     }
   }
