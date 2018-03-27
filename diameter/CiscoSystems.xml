@@ -114,7 +114,7 @@ http://www.cisco.com/c/dam/en/us/td/docs/wireless/asr_5000/20/AAA/20-AAA-Referen
     <type type-name="Unsigned32"/>
   </avp>
 
-  <avp name="Execution-Time" code="132025" vendor-id="CiscoSystems" >
+  <avp name="CiscoSystems-Execution-Time" code="132025" vendor-id="CiscoSystems" >
     <type type-name="OctetString"></type>
   </avp>
 

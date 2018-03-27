@@ -1480,7 +1480,7 @@
 	<avp name="Idle-Status-Timestamp" code="4323" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="Time"/>
 	</avp>
-	<avp name="Idle-Status-Timestamp" code="4324" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+	<avp name="Active-Time" code="4324" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
 	</avp>
 	<!--
