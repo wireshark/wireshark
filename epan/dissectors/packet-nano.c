@@ -26,6 +26,8 @@
 void proto_reg_handoff_nano(void);
 void proto_register_nano(void);
 
+static dissector_handle_t nano_handle, nano_tcp_handle;
+
 static int proto_nano = -1;
 
 static int hf_nano_magic_number = -1;
@@ -158,6 +160,7 @@ static const value_string nano_bulk_pull_blocks_mode_strings[] = {
 // Nano bootstrap session state
 struct nano_session_state {
     int client_packet_type;
+    guint32 server_port;
 };
 
 
@@ -742,6 +745,7 @@ static int dissect_nano_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         // create new session state
         session_state = (struct nano_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct nano_session_state));
         session_state->client_packet_type = NANO_PACKET_TYPE_INVALID;
+        session_state->server_port = pinfo->match_uint;
         conversation_add_proto_data(conversation, proto_nano, session_state);
     }
 
@@ -766,7 +770,7 @@ static int dissect_nano_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     nano_tree = proto_item_add_subtree(ti, ett_nano);
 
     // is this a bootstrap client or server?
-    is_client = pinfo->destport == pinfo->match_uint;
+    is_client = pinfo->destport == session_state->server_port;
 
     if (is_client) {
         // Nano bootstrap client
@@ -778,6 +782,75 @@ static int dissect_nano_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     return tvb_captured_length(tvb);
+}
+
+/* Heuristics test */
+static gboolean test_nano(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
+{
+    // if it's not a complete header length, it's not Nano.
+    if (tvb_captured_length(tvb) < NANO_HEADER_LENGTH)
+        return FALSE;
+
+    // first byte must be 'R', second byte 'A' or 'B' or 'C'
+    if (tvb_get_guint8(tvb, 0) != (guint8) 'R')
+        return FALSE;
+
+    char network = (char) tvb_get_guint8(tvb, 1);
+    if (network != 'A' && network != 'B' && network != 'C')
+        return FALSE;
+
+    guint8 version_max = tvb_get_guint8(tvb, 2);
+    guint8 version_using = tvb_get_guint8(tvb, 3);
+    guint8 version_min = tvb_get_guint8(tvb, 4);
+    if (version_max > 30 || version_max < version_using || version_using < version_min)
+        return FALSE;
+
+    guint8 ptype = tvb_get_guint8(tvb, 5);
+    if (ptype > 15)
+        return FALSE;
+
+    return TRUE;
+}
+
+static gboolean dissect_nano_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    conversation_t *conversation;
+    struct nano_session_state *session_state;
+
+    if (!test_nano(pinfo, tvb, 0, data))
+        return FALSE;
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, nano_tcp_handle);
+
+    // try to find session state
+    session_state = (struct nano_session_state *)conversation_get_proto_data(conversation, proto_nano);
+    if (!session_state) {
+        // create new session state
+        session_state = (struct nano_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct nano_session_state));
+        session_state->client_packet_type = NANO_PACKET_TYPE_INVALID;
+        session_state->server_port = pinfo->destport;
+        conversation_add_proto_data(conversation, proto_nano, session_state);
+    }
+
+    dissect_nano_tcp(tvb, pinfo, tree, data);
+
+    return TRUE;
+}
+
+static gboolean dissect_nano_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    conversation_t *conversation;
+
+    if (!test_nano(pinfo, tvb, 0, data))
+        return FALSE;
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, nano_handle);
+
+    dissect_nano(tvb, pinfo, tree, data);
+
+    return TRUE;
 }
 
 void proto_register_nano(void)
@@ -984,13 +1057,13 @@ void proto_register_nano(void)
 
 void proto_reg_handoff_nano(void)
 {
-    dissector_handle_t nano_handle, nano_tcp_handle;
-
     nano_handle = register_dissector("nano", dissect_nano, proto_nano);
     dissector_add_uint_with_preference("udp.port", NANO_UDP_PORT, nano_handle);
+    heur_dissector_add("udp", dissect_nano_heur_udp, "Nano UDP Heuristics", "nano-udp", proto_nano, HEURISTIC_DISABLE);
 
     nano_tcp_handle = register_dissector("nano-over-tcp", dissect_nano_tcp, proto_nano);
     dissector_add_uint_with_preference("tcp.port", NANO_TCP_PORT, nano_tcp_handle);
+    heur_dissector_add("tcp", dissect_nano_heur_tcp, "Nano TCP Heuristics", "nano-tcp", proto_nano, HEURISTIC_DISABLE);
 }
 
 /*
