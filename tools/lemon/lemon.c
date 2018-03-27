@@ -203,8 +203,7 @@ enum option_type {
 struct s_options {
   enum option_type type;
   const char *label;
-  void *arg;
-  void (*arg_cb)(void *);
+  char *arg;
   const char *message;
 };
 int    OptInit(char**,struct s_options*,FILE*);
@@ -212,8 +211,6 @@ int    OptNArgs(void);
 char  *OptArg(int);
 void   OptErr(int);
 void   OptPrint(void);
-
-static int IgnoredOptArg;
 
 /******** From the file "parse.h" *****************************************/
 void Parse(struct lemon *lemp);
@@ -1634,25 +1631,25 @@ int main(int argc _U_, char **argv)
   static int nolinenosflag = 0;
   static int noResort = 0;
   static struct s_options options[] = {
-    {OPT_FLAG, "b", &basisflag, NULL, "Print only the basis in report."},
-    {OPT_FLAG, "c", &compress, NULL, "Don't compress the action table."},
-    {OPT_FSTR, "D", NULL, handle_D_option, "Define an %ifdef macro."},
-    {OPT_FSTR, "f", &IgnoredOptArg, NULL, "Ignored.  (Placeholder for -f compiler options.)"},
-    {OPT_FLAG, "g", &rpflag, NULL, "Print grammar without actions."},
-    {OPT_FSTR, "I", &IgnoredOptArg, NULL, "Ignored.  (Placeholder for '-I' compiler options.)"},
-    {OPT_FLAG, "m", &mhflag, NULL, "Output a makeheaders compatible file."},
-    {OPT_FLAG, "l", &nolinenosflag, NULL, "Do not print #line statements."},
-    {OPT_FSTR, "O", &IgnoredOptArg, NULL, "Ignored.  (Placeholder for '-O' compiler options.)"},
-    {OPT_FLAG, "p", &showPrecedenceConflict, NULL,
-                    "Show conflicts resolved by precedence rules"},
-    {OPT_FLAG, "q", &quiet, NULL, "(Quiet) Don't print the report file."},
-    {OPT_FLAG, "r", &noResort, NULL, "Do not sort or renumber states"},
-    {OPT_FLAG, "s", &statistics, NULL,
-                                   "Print parser stats to standard output."},
-    {OPT_FLAG, "x", &version, NULL,"Print the version number."},
-    {OPT_FSTR, "T", NULL, handle_T_option, "Specify a template file."},
-    {OPT_FSTR, "W", &IgnoredOptArg, NULL, "Ignored.  (Placeholder for '-W' compiler options.)"},
-    {OPT_FLAG, NULL, NULL, NULL, NULL}
+      { OPT_FLAG, "b", (char*)&basisflag, "Print only the basis in report." },
+  { OPT_FLAG, "c", (char*)&compress, "Don't compress the action table." },
+  { OPT_FSTR, "D", (char*)handle_D_option, "Define an %ifdef macro." },
+  { OPT_FSTR, "f", 0, "Ignored.  (Placeholder for -f compiler options.)" },
+  { OPT_FLAG, "g", (char*)&rpflag, "Print grammar without actions." },
+  { OPT_FSTR, "I", 0, "Ignored.  (Placeholder for '-I' compiler options.)" },
+  { OPT_FLAG, "m", (char*)&mhflag, "Output a makeheaders compatible file." },
+  { OPT_FLAG, "l", (char*)&nolinenosflag, "Do not print #line statements." },
+  { OPT_FSTR, "O", 0, "Ignored.  (Placeholder for '-O' compiler options.)" },
+  { OPT_FLAG, "p", (char*)&showPrecedenceConflict,
+  "Show conflicts resolved by precedence rules" },
+  { OPT_FLAG, "q", (char*)&quiet, "(Quiet) Don't print the report file." },
+  { OPT_FLAG, "r", (char*)&noResort, "Do not sort or renumber states" },
+  { OPT_FLAG, "s", (char*)&statistics,
+  "Print parser stats to standard output." },
+  { OPT_FLAG, "x", (char*)&version, "Print the version number." },
+  { OPT_FSTR, "T", (char*)handle_T_option, "Specify a template file." },
+  { OPT_FSTR, "W", NULL, "Ignored.  (Placeholder for '-W' compiler options.)" },
+    {OPT_FLAG, NULL, NULL, NULL}
   };
   int i;
   int exitcode;
@@ -1965,35 +1962,35 @@ static char emsg[] = "Command line syntax error: ";
 */
 static int handleflags(int i, FILE *err)
 {
-  int v;
-  int errcnt = 0;
-  int j;
-  for(j=0; op[j].label; j++){
-    if( strncmp(&argv[i][1],op[j].label,lemonStrlen(op[j].label))==0 ) break;
-  }
-  v = argv[i][0]=='-' ? 1 : 0;
-  if( op[j].label==0 ){
-    if( err ){
-      fprintf(err,"%sundefined option.\n",emsg);
-      errline(i,1,err);
+    int v;
+    int errcnt = 0;
+    int j;
+    for (j = 0; op[j].label; j++) {
+        if (strncmp(&argv[i][1], op[j].label, lemonStrlen(op[j].label)) == 0) break;
     }
-    errcnt++;
-  }else if( op[j].arg==&IgnoredOptArg ){
-    /* Ignore this option */
-  }else if( op[j].type==OPT_FLAG ){
-    *((int*)op[j].arg) = v;
-  }else if( op[j].type==OPT_FFLAG ){
-    op[j].arg_cb(&v);
-  }else if( op[j].type==OPT_FSTR ){
-    op[j].arg_cb(&argv[i][2]);
-  }else{
-    if( err ){
-      fprintf(err,"%smissing argument on switch.\n",emsg);
-      errline(i,1,err);
+    v = argv[i][0] == '-' ? 1 : 0;
+    if (op[j].label == 0) {
+        if (err) {
+            fprintf(err, "%sundefined option.\n", emsg);
+            errline(i, 1, err);
+        }
+        errcnt++;
+    } else if (op[j].arg == 0) {
+        /* Ignore this option */
+    } else if (op[j].type == OPT_FLAG) {
+        *((int*)op[j].arg) = v;
+    } else if (op[j].type == OPT_FFLAG) {
+        (*(void(*)(int))(op[j].arg))(v);
+    } else if (op[j].type == OPT_FSTR) {
+        (*(void(*)(char *))(op[j].arg))(&argv[i][2]);
+    } else {
+        if (err) {
+            fprintf(err, "%smissing argument on switch.\n", emsg);
+            errline(i, 1, err);
+        }
+        errcnt++;
     }
-    errcnt++;
-  }
-  return errcnt;
+    return errcnt;
 }
 
 /*
@@ -2067,20 +2064,20 @@ static int handleswitch(int i, FILE *err)
         *(double*)(op[j].arg) = dv;
         break;
       case OPT_FDBL:
-        op[j].arg_cb(&dv);
-        break;
+          (*(void(*)(double))(op[j].arg))(dv);
+          break;
       case OPT_INT:
-        *(int*)(op[j].arg) = lv;
-        break;
+          *(int*)(op[j].arg) = lv;
+          break;
       case OPT_FINT:
-        op[j].arg_cb(&lv);
-        break;
+          (*(void(*)(int))(op[j].arg))((int)lv);
+          break;
       case OPT_STR:
-        *(char**)(op[j].arg) = sv;
-        break;
+          *(char**)(op[j].arg) = sv;
+          break;
       case OPT_FSTR:
-        op[j].arg_cb(sv);
-        break;
+          (*(void(*)(char *))(op[j].arg))(sv);
+          break;
     }
   }
   return errcnt;
