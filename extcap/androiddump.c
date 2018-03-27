@@ -125,6 +125,8 @@
 #define ADB_HEX4_FORMAT "%04zx"
 #define ADB_HEX4_LEN    4
 
+#define BTSNOOP_HDR_LEN 16
+
 enum exit_code {
     EXIT_CODE_SUCCESS = 0,
     EXIT_CODE_CANNOT_GET_INTERFACES_LIST = 1,
@@ -1926,20 +1928,15 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     }
 
     /* Read "btsnoop" header - 16 bytes */
-    while (used_buffer_length < 16) {
-        length = recv(sock, packet + used_buffer_length,  (int)(PACKET_LENGTH - used_buffer_length), 0);
-
+    while (used_buffer_length < BTSNOOP_HDR_LEN) {
+        length = recv(sock, packet + used_buffer_length,  (int)(BTSNOOP_HDR_LEN - used_buffer_length), 0);
         if (length <= 0) {
             g_warning("Broken socket connection.");
             closesocket(sock);
             return EXIT_CODE_GENERIC;
         }
-
         used_buffer_length += length;
     }
-    if (used_buffer_length > 16)
-        memmove(packet, packet + 16, used_buffer_length - 16);
-
     used_buffer_length = 0;
 
     while (endless_loop) {
