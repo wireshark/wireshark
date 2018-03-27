@@ -25,6 +25,11 @@ indent_size = 8
 indent_style = space
 indent_size = 4
 
+# WiX. The `xmllint --format` default is two spaces.
+[*.wx?]
+indent_style = spaces
+indent_size = 2
+
 # C/C++
 [*.{c,cpp,h}]
 indent_style = space

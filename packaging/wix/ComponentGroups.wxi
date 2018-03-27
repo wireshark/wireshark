@@ -635,7 +635,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="5vw" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAacp">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="acp">
@@ -644,7 +644,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="acp" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAapc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="apc">
@@ -653,7 +653,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="apc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAatc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="atc">
@@ -662,7 +662,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="atc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAbfr">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="bfr">
@@ -671,7 +671,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="bfr" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAcap">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="cap">
@@ -680,7 +680,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="cap" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAenc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="enc">
@@ -689,7 +689,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="enc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAerf">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="erf">
@@ -698,7 +698,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="erf" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAfdc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="fdc">
@@ -707,7 +707,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="fdc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAipfix">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="ipfix">
@@ -716,7 +716,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="ipfix" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAlcap">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="lcap">
@@ -725,7 +725,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="lcap" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAmplog">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="mplog">
@@ -734,7 +734,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="mplog" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAntar">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="ntar">
@@ -743,7 +743,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="ntar" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAout">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="out">
@@ -752,7 +752,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="out" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFApcap">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcap">
@@ -761,7 +761,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcap" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFApcapng">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcapng">
@@ -770,7 +770,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcapng" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFApklg">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="pklg">
@@ -779,7 +779,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pklg" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFApkt">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="pkt">
@@ -788,7 +788,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pkt" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFArf5">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="rf5">
@@ -797,7 +797,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="rf5" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAsnoop">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="snoop">
@@ -806,7 +806,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="snoop" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAsyc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="syc">
@@ -815,7 +815,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="syc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAtpc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="tpc">
@@ -824,7 +824,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tpc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAtr1">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="tr1">
@@ -833,7 +833,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tr1" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAtrace">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="trace">
@@ -842,7 +842,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trace" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAtrc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="trc">
@@ -851,7 +851,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAvwr">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="vwr">
@@ -860,7 +860,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="vwr" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAwpc">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpc">
@@ -869,7 +869,7 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
       <Component Id="cmpFAwpz">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpz">
@@ -878,270 +878,10 @@
           </Extension>
         </ProgId>
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpz" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
-      </Component>
-    </ComponentGroup>
-  </Fragment>
-
-  <?ifdef GTK_DIR?>
-  <!-- File Associations (Wireshark GTK) -->
-  <Fragment>
-    <ComponentGroup Id="CG.WiresharkLegacyFileAssociations" Directory="INSTALLFOLDER">
-      <Component Id="cmpFA5vwLegacy" Guid="829147A9-B694-406D-950F-16DD44F2E138">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="5vw">
-          <Extension Id="5vw">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="5vw" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAacpLegacy" Guid="9D2D4C0B-636E-4A3A-B4A1-32C6FAB2B281">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="acp">
-          <Extension Id="acp">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="acp" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAapcLegacy" Guid="B0C2BB99-28E6-423E-B559-106BA7830D43">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="apc">
-          <Extension Id="apc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="apc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAatcLegacy" Guid="84817B21-9EEB-4D97-A6C9-979B8F5BA29B">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="atc">
-          <Extension Id="atc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="atc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAbfrLegacy" Guid="474A421B-3CFC-40C1-9B29-D817425D79C7">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="bfr">
-          <Extension Id="bfr">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="bfr" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAcapLegacy" Guid="BD5F2AFA-FFD3-4EBE-BB3A-7411D6CC8070">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="cap">
-          <Extension Id="cap">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="cap" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAencLegacy" Guid="DA5961DD-F570-43CB-8AE9-53FE2F40B52D">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="enc">
-          <Extension Id="enc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="enc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAerfLegacy" Guid="{E15ECA19-E201-48D5-9889-A6149C5B428C}">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="erf">
-          <Extension Id="erf">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="erf" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAfdcLegacy" Guid="00381091-977F-4F50-A2CC-BC1C2AACE81F">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="fdc">
-          <Extension Id="fdc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="fdc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAipfixLegacy" Guid="66B88437-C6C2-4465-89AE-8CD72159EB05">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="ipfix">
-          <Extension Id="ipfix">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="ipfix" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAlcapLegacy" Guid="64C1C689-CDAF-491D-AB39-8FA62AE565D3">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="lcap">
-          <Extension Id="lcap">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="lcap" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAmplogLegacy" Guid="7AA152AB-1225-466E-8C33-2DF9E6C1CBCE">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="mplog">
-          <Extension Id="mplog">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="mplog" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAntarLegacy" Guid="4D7AD891-359B-4E74-A0C7-63300F9DC232">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="ntar">
-          <Extension Id="ntar">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="ntar" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAoutLegacy" Guid="75E60C7A-758F-45C9-A9CF-6B87F3609229">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="out">
-          <Extension Id="out">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="out" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFApcapLegacy" Guid="B419D3B0-2ECA-4F56-A23B-56A9A3FAAB35">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcap">
-          <Extension Id="pcap">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcap" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFApcapngLegacy" Guid="5DEBBDAC-4F96-4CBF-A422-B12903ABD433">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcapng">
-          <Extension Id="pcapng">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcapng" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFApklgLegacy" Guid="3BF582A0-771E-4706-8414-975B24B4250B">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pklg">
-          <Extension Id="pklg">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pklg" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFApktLegacy" Guid="136AC248-9E29-43AC-BE63-0A76EBD8D549">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pkt">
-          <Extension Id="pkt">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pkt" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFArf5Legacy" Guid="A781EE08-BD29-4F77-9D8C-006833BF5DD3">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="rf5">
-          <Extension Id="rf5">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="rf5" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAsnoopLegacy" Guid="B5A2660C-5EFA-445A-B951-09033DE98BEB">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="snoop">
-          <Extension Id="snoop">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="snoop" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAsycLegacy" Guid="5727EFC5-A06B-48BE-86BE-8112574E10ED">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="syc">
-          <Extension Id="syc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="syc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAtpcLegacy" Guid="1E8F12E7-0829-409C-B5CC-CE3170CFEBF5">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tpc">
-          <Extension Id="tpc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tpc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAtr1Legacy" Guid="303B4418-0812-405A-BCFE-21DE823805D5">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tr1">
-          <Extension Id="tr1">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tr1" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAtraceLegacy" Guid="CDBDB7BF-9BA1-4561-A49F-887876B0CAD3">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trace">
-          <Extension Id="trace">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trace" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAtrcLegacy" Guid="A1D4B3F3-AC04-4669-9BA7-2FFCD89A02D7">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trc">
-          <Extension Id="trc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAvwrLegacy" Guid="2173A6CE-C0E5-455F-8AE3-8614B3A0602D">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="vwr">
-          <Extension Id="vwr">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="vwr" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAwpcLegacy" Guid="34B9D0B5-483B-4906-B786-B3F7C08B28F2">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpc">
-          <Extension Id="wpc">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpc" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
-      <Component Id="cmpFAwpzLegacy" Guid="F5A392F5-0C36-42E3-BF28-9B97F5475F4E">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpz">
-          <Extension Id="wpz">
-            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpz" Type="integer" Value="1" KeyPath="yes"/>
         <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
     </ComponentGroup>
   </Fragment>
-  <?endif?>
 
   <!-- C-runtime redistributable -->
   <Fragment>
