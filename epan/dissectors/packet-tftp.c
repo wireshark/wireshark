@@ -500,11 +500,12 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
         tftp_info->next_tap_block_num++;
       }
       if (tftp_info->windowsize != 0) {
-          proto_tree *opt_tree = proto_tree_add_subtree_format(tftp_tree, tvb, offset, offset + 4,
-                                                               ett_tftp_option, NULL, "Remaining blocks: %d", (tftp_info->windowsize - tftp_info->next_tap_block_num));
+        proto_tree *opt_tree = proto_tree_add_subtree_format(tftp_tree, tvb, 0, 0, ett_tftp_option, NULL,
+                                                               "Remaining blocks: %d",
+                                                               (tftp_info->windowsize - tftp_info->next_tap_block_num));
 
-          proto_tree_add_item(opt_tree, hf_tftp_data, tvb, offset,
-                              4, ENC_ASCII|ENC_NA);
+        proto_item *it = proto_tree_add_item(opt_tree, hf_tftp_data, tvb, 0, 0, ENC_ASCII|ENC_NA);
+        PROTO_ITEM_SET_GENERATED(it);
       }
 
       /* Tap export object only when reach end of file */
