@@ -282,7 +282,7 @@ static void dissect_ieee802154_gtsreq          (tvbuff_t *, packet_info *, proto
 /* Decryption helpers. */
 static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
 
-static gboolean ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t* uat_key);
+static guint ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
 
 /* Initialize Protocol and Registered fields */
 static int proto_ieee802154_nonask_phy = -1;
@@ -996,7 +996,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     *offset += 2;
 } /* dissect_ieee802154_fcf */
 
-void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_set_mac_key_func key_func)
+void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func)
 {
     /* Ensure no duplication */
     DISSECTOR_ASSERT(wmem_tree_lookup32(mac_key_hash_handlers, hash_identifier) == NULL);
@@ -1086,14 +1086,17 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info *
 
     /* Lookup the key. */
     for (decrypt_info->key_number = 0; decrypt_info->key_number < num_ieee802154_keys; decrypt_info->key_number++) {
-        if (set_key_func(packet, key, alt_key, &ieee802154_keys[decrypt_info->key_number])) {
+        guint nkeys = set_key_func(packet, key, alt_key, &ieee802154_keys[decrypt_info->key_number]);
+        if (nkeys >= 1) {
             /* Try with the initial key */
             decrypt_info->key = key;
             payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
             }
-            /* Try with the alternate key */
+        }
+        if (nkeys >= 2) {
+            /* Try also with the alternate key */
             decrypt_info->key = alt_key;
             payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
@@ -3982,9 +3985,9 @@ gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b)
 }
 
 /* Set MAC key function. */
-static gboolean ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t* uat_key)
+static guint ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
-    ieee802154_set_mac_key_func func = (ieee802154_set_mac_key_func)wmem_tree_lookup32(mac_key_hash_handlers, uat_key->hash_type);
+    ieee802154_set_key_func func = (ieee802154_set_key_func)wmem_tree_lookup32(mac_key_hash_handlers, uat_key->hash_type);
 
     if (func != NULL)
         return func(packet, key, alt_key, uat_key);
@@ -3994,10 +3997,10 @@ static gboolean ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char 
     if (packet->key_index == uat_key->key_index)
     {
         memcpy(key, uat_key->key, IEEE802154_CIPHER_SIZE);
-        return TRUE;
+        return 1;
     }
 
-    return FALSE;
+    return 0;
 }
 
 /**

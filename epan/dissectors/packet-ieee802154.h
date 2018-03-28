@@ -542,19 +542,19 @@ typedef struct {
     ieee802154_decrypt_status* status;
 } ieee802154_decrypt_info_t;
 
-/** Fill key and alt_key based on the provided information from the frame and an IEEE 802.15.4 preference table entry */
-typedef gboolean (*ieee802154_set_key_func) (ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* key_info);
+/** Fill key and alt_key based on the provided information from the frame and an IEEE 802.15.4 preference table entry
+ * and return the number of keys set (0: none, 1: just key, 2: key and alt_key) */
+typedef guint (*ieee802154_set_key_func) (ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
 /** Decrypt the payload with the provided information */
 typedef tvbuff_t* (*ieee802154_decrypt_func) (tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
 /** Loop over the keys specified in the IEEE 802.15.4 preferences, try to use them with the specified set_key_func
  * and try to decrypt with the specified decrypt_func
  */
-tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info * pinfo, proto_tree* key_tree, ieee802154_packet * packet,
-                                     ieee802154_decrypt_info_t* decrypt_info, ieee802154_set_key_func set_key_func, ieee802154_decrypt_func decrypt_func);
+tvbuff_t *decrypt_ieee802154_payload(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *key_tree, ieee802154_packet *packet,
+                                     ieee802154_decrypt_info_t *decrypt_info, ieee802154_set_key_func set_key_func, ieee802154_decrypt_func decrypt_func);
 
 
-typedef gboolean (*ieee802154_set_mac_key_func) (ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key);
-extern void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_set_mac_key_func key_func);
+extern void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func);
 
 /* Short to Extended Address Prototypes */
 extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *, guint16, guint16, guint64,

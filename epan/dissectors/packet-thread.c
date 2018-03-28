@@ -766,7 +766,7 @@ static void create_thread_temp_keys(GByteArray *seq_ctr_bytes, guint16 src_pan, 
 }
 
 /* Set MAC key for Thread hash */
-static gboolean set_thread_mac_key(ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key)
+static guint set_thread_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
     GByteArray *seq_ctr_bytes = NULL;
 
@@ -778,7 +778,7 @@ static gboolean set_thread_mac_key(ieee802154_packet * packet, unsigned char* ke
     {
         /* This is the well-known Thread key. No need for an alternative key */
         memcpy(key, thread_well_known_key, IEEE802154_CIPHER_SIZE);
-        return TRUE;
+        return 1;
     }
     if (seq_ctr_bytes != NULL) {
         create_thread_temp_keys(seq_ctr_bytes, packet->src_pan, uat_key, key, NULL);
@@ -786,14 +786,14 @@ static gboolean set_thread_mac_key(ieee802154_packet * packet, unsigned char* ke
         seq_ctr_bytes->data[3] ^= 0x80;
         create_thread_temp_keys(seq_ctr_bytes, packet->src_pan, uat_key, alt_key, NULL);
         g_byte_array_free(seq_ctr_bytes, TRUE);
-        return TRUE;
+        return 2;
     }
 
-    return FALSE;
+    return 0;
 }
 
 /* Set MLE key for Thread hash */
-static gboolean set_thread_mle_key(ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key)
+static guint set_thread_mle_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
     GByteArray *seq_ctr_bytes = NULL;
     if (packet->key_id_mode == KEY_ID_MODE_KEY_INDEX) {
@@ -819,10 +819,10 @@ static gboolean set_thread_mle_key(ieee802154_packet * packet, unsigned char* ke
         seq_ctr_bytes->data[3] ^= 0x80;
         create_thread_temp_keys(seq_ctr_bytes, packet->src_pan, uat_key, NULL, alt_key);
         g_byte_array_free(seq_ctr_bytes, TRUE);
-        return TRUE;
+        return 2;
     }
 
-    return FALSE;
+    return 0;
 }
 
 static guint

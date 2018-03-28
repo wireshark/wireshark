@@ -497,7 +497,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
     return ptext_tvb;
 } /* dissect_mle_decrypt */
 
-void register_mle_key_hash_handler(guint hash_identifier, ieee802154_set_mac_key_func key_func)
+void register_mle_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func)
 {
     /* Ensure no duplication */
     DISSECTOR_ASSERT(wmem_tree_lookup32(mle_key_hash_handlers, hash_identifier) == NULL);
@@ -506,9 +506,9 @@ void register_mle_key_hash_handler(guint hash_identifier, ieee802154_set_mac_key
 }
 
 /* Set MLE key function. */
-static gboolean ieee802154_set_mle_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t* uat_key)
+static guint ieee802154_set_mle_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
-    mle_set_mle_key_func func = (mle_set_mle_key_func)wmem_tree_lookup32(mle_key_hash_handlers, uat_key->hash_type);
+    ieee802154_set_key_func func = (ieee802154_set_key_func)wmem_tree_lookup32(mle_key_hash_handlers, uat_key->hash_type);
 
     if (func != NULL)
         return func(packet, key, alt_key, uat_key);
@@ -518,10 +518,10 @@ static gboolean ieee802154_set_mle_key(ieee802154_packet *packet, unsigned char 
     if (packet->key_index == uat_key->key_index)
     {
         memcpy(key, uat_key->key, IEEE802154_CIPHER_SIZE);
-        return TRUE;
+        return 1;
     }
 
-    return FALSE;
+    return 0;
 }
 
 static int

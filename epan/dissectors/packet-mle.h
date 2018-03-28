@@ -14,7 +14,6 @@
 
 #include "packet-ieee802154.h"
 
-typedef gboolean (*mle_set_mle_key_func) (ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key);
-extern void register_mle_key_hash_handler(guint hash_identifier, mle_set_mle_key_func key_func);
+extern void register_mle_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func);
 
 #endif
