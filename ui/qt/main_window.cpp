@@ -539,12 +539,12 @@ MainWindow::MainWindow(QWidget *parent) :
     setTabOrder(df_combo_box_->lineEdit(), packet_list_);
     setTabOrder(packet_list_, proto_tree_);
 
-    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            this, SLOT(captureEventHandler(CaptureEvent *)));
-    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            wsApp, SLOT(captureEventHandler(CaptureEvent *)));
-    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            main_ui_->statusBar, SLOT(captureEventHandler(CaptureEvent *)));
+    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEventHandler(CaptureEvent)));
+    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
+            wsApp, SLOT(captureEventHandler(CaptureEvent)));
+    connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
+            main_ui_->statusBar, SLOT(captureEventHandler(CaptureEvent)));
 
     connect(wsApp, SIGNAL(columnsChanged()),
             packet_list_, SLOT(columnsChanged()));

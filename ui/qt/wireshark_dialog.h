@@ -121,7 +121,7 @@ protected:
     virtual void captureFileClosed();
 
 protected slots:
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent);
 
 private:
     void setWindowTitleFromSubtitle();

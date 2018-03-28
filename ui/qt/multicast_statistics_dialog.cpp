@@ -445,10 +445,10 @@ void MulticastStatisticsDialog::fillTree()
     updateWidgets();
 }
 
-void MulticastStatisticsDialog::captureEvent(CaptureEvent *e)
+void MulticastStatisticsDialog::captureEvent(CaptureEvent e)
 {
-    if ((e->captureContext() == CaptureEvent::File) &&
-            (e->eventType() == CaptureEvent::Closing))
+    if ((e.captureContext() == CaptureEvent::File) &&
+            (e.eventType() == CaptureEvent::Closing))
     {
         /* Remove the stream tap listener */
         remove_tap_listener_mcast_stream(tapinfo_);

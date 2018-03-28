@@ -41,7 +41,7 @@ public slots:
 
 private slots:
     void accept();
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent e);
     void on_buttonBox_helpRequested();
     void on_buttonBox_clicked(QAbstractButton *button);
 

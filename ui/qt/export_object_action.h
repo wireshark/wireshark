@@ -30,7 +30,7 @@ public:
     register_eo_t* exportObject() {return eo_;}
 
 public slots:
-    void captureFileEvent(CaptureEvent *e);
+    void captureFileEvent(CaptureEvent e);
 
 private:
     register_eo_t *eo_;

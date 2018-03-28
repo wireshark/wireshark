@@ -79,7 +79,7 @@ public:
 
 public slots:
     void recalcGraphData(capture_file *cap_file, bool enable_scaling);
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent e);
     void reloadValueUnitField();
 
 signals:

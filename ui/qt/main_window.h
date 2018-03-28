@@ -308,7 +308,7 @@ public slots:
 
 private slots:
 
-    void captureEventHandler(CaptureEvent * ev);
+    void captureEventHandler(CaptureEvent ev);
 
     // Manually connected slots (no "on_<object>_<signal>").
 

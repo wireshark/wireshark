@@ -113,10 +113,10 @@ void ExportObjectDialog::accept()
     // Don't close the dialog.
 }
 
-void ExportObjectDialog::captureEvent(CaptureEvent *e)
+void ExportObjectDialog::captureEvent(CaptureEvent e)
 {
-    if ((e->captureContext() == CaptureEvent::File) &&
-            (e->eventType() == CaptureEvent::Closing))
+    if ((e.captureContext() == CaptureEvent::File) &&
+            (e.eventType() == CaptureEvent::Closing))
     {
         close();
     }

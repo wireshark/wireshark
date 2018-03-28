@@ -958,10 +958,10 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     return true;
 }
 
-void FollowStreamDialog::captureEvent(CaptureEvent *e)
+void FollowStreamDialog::captureEvent(CaptureEvent e)
 {
-    if ((e->captureContext() == CaptureEvent::File) &&
-            (e->eventType() == CaptureEvent::Closing)) {
+    if ((e.captureContext() == CaptureEvent::File) &&
+            (e.eventType() == CaptureEvent::Closing)) {
             QString tooltip = tr("File closed.");
             ui->streamNumberSpinBox->setToolTip(tooltip);
             ui->streamNumberLabel->setToolTip(tooltip);

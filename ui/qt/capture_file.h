@@ -22,9 +22,9 @@ typedef struct _capture_session capture_session;
 
 struct _packet_info;
 
-class CaptureEvent : public QObject
+class CaptureEvent
 {
-    Q_OBJECT
+
 public:
     enum Context {
 #ifdef HAVE_LIBPCAP
@@ -57,6 +57,8 @@ public:
     CaptureEvent(Context ctx, EventType evt);
     CaptureEvent(Context ctx, EventType evt, QString file);
     CaptureEvent(Context ctx, EventType evt, capture_session * session);
+
+    CaptureEvent(const CaptureEvent &ce);
 
     Context captureContext() const;
     EventType eventType() const;
@@ -129,7 +131,7 @@ public:
     gpointer window();
 
 signals:
-    void captureEvent(CaptureEvent *);
+    void captureEvent(CaptureEvent);
 
 public slots:
     /** Retap the capture file. Convenience wrapper for cf_retap_packets.
