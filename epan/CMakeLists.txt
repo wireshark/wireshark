@@ -107,6 +107,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	llcsaps.h
 	maxmind_db.h
 	media_params.h
+	network-boot-analysis.h
 	next_tvb.h
 	nlpid.h
 	oids.h
@@ -205,6 +206,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	ipproto.c
 	maxmind_db.c
 	media_params.c
+	network-boot-analysis.c
 	next_tvb.c
 	oids.c
 	osi-utils.c
