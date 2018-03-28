@@ -1530,8 +1530,7 @@ static char **azDefine = 0;  /* Name of the -D macros */
 /* This routine is called with the argument to each -D command-line option.
 ** Add the macro defined to the azDefine array.
 */
-static void handle_D_option(void *arg){
-  char *z = (char *)arg;
+static void handle_D_option(char *z) {
   char **paz;
   nDefine++;
   azDefine = (char **) realloc(azDefine, sizeof(azDefine[0])*nDefine);
@@ -1551,8 +1550,7 @@ static void handle_D_option(void *arg){
 }
 
 static char *user_templatename = NULL;
-static void handle_T_option(void *arg){
-  char *z = (char *)arg;
+static void handle_T_option(char *z) {
   user_templatename = (char *) malloc( lemonStrlen(z)+1 );
   MemoryCheck(user_templatename);
   lemon_strcpy(user_templatename, z);
@@ -3373,8 +3371,15 @@ PRIVATE int compute_action(struct lemon *lemp, struct action *ap)
 {
   int act;
   switch( ap->type ){
-    case SHIFT:  act = ap->x.stp->statenum;                        break;
-    case SHIFTREDUCE: act = ap->x.rp->iRule + lemp->nstate;        break;
+  case SHIFT:  act = ap->x.stp->statenum;                        break;
+  case SHIFTREDUCE: {
+    act = ap->x.rp->iRule + lemp->nstate;
+    /* Since a SHIFT is inherient after a prior REDUCE, convert any
+     ** SHIFTREDUCE action with a nonterminal on the LHS into a simple
+     ** REDUCE action: */
+    if (ap->sp->index >= lemp->nterminal) act += lemp->nrule;
+    break;
+  }
     case REDUCE: act = ap->x.rp->iRule + lemp->nstate+lemp->nrule; break;
     case ERROR:  act = lemp->nstate + lemp->nrule*2;               break;
     case ACCEPT: act = lemp->nstate + lemp->nrule*2 + 1;           break;
@@ -4494,7 +4499,7 @@ void ReportTable(
   ** sequentually beginning with 0.
   */
   for(rp=lemp->rule; rp; rp=rp->next){
-    fprintf(out,"  { %d, %d },\n",rp->lhs->index,rp->nrhs); lineno++;
+    fprintf(out, "  { %d, %d },\n", rp->lhs->index, -rp->nrhs); lineno++;
   }
   tplt_xfer(lemp->name,in,out,&lineno);
 
