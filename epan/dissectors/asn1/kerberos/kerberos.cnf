@@ -339,7 +339,7 @@ guint32 msgtype;
 
 	%(DEFAULT_BODY)s
 
-	if (private_data->key.keytype != 0) {
+	if (private_data->key.keytype != 0 && private_data->key.keylength > 0) {
 ##ifdef HAVE_KERBEROS
 		add_encryption_key(actx->pinfo, private_data->key.keytype, private_data->key.keylength, private_data->key.keyvalue, "key");
 ##endif

@@ -2586,7 +2586,7 @@ dissect_kerberos_EncryptionKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
                                    EncryptionKey_sequence, hf_index, ett_kerberos_EncryptionKey);
 
 
-	if (private_data->key.keytype != 0) {
+	if (private_data->key.keytype != 0 && private_data->key.keylength > 0) {
 #ifdef HAVE_KERBEROS
 		add_encryption_key(actx->pinfo, private_data->key.keytype, private_data->key.keylength, private_data->key.keyvalue, "key");
 #endif
