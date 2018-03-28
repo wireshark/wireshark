@@ -102,8 +102,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
     ctx_menu_.addAction(expand);
     connect(expand, SIGNAL(triggered()), this, SLOT(expandTree()));
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent *)),
-            this, SLOT(captureEvent(CaptureEvent *)));
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEvent(CaptureEvent)));
     setDisplayFilter();
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 }
@@ -151,11 +151,11 @@ void ExpertInfoDialog::retapPackets()
     cap_file_.retapPackets();
 }
 
-void ExpertInfoDialog::captureEvent(CaptureEvent *e)
+void ExpertInfoDialog::captureEvent(CaptureEvent e)
 {
-    if (e->captureContext() == CaptureEvent::Retap)
+    if (e.captureContext() == CaptureEvent::Retap)
     {
-        switch (e->eventType())
+        switch (e.eventType())
         {
         case CaptureEvent::Started:
             ui->limitCheckBox->setEnabled(false);

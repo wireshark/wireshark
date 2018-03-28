@@ -218,11 +218,11 @@ void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
     cap_file_.retapPackets();
 }
 
-void TrafficTableDialog::captureEvent(CaptureEvent *e)
+void TrafficTableDialog::captureEvent(CaptureEvent e)
 {
-    if (e->captureContext() == CaptureEvent::Retap)
+    if (e.captureContext() == CaptureEvent::Retap)
     {
-        switch (e->eventType())
+        switch (e.eventType())
         {
         case CaptureEvent::Started:
             ui->displayFilterCheckBox->setEnabled(false);

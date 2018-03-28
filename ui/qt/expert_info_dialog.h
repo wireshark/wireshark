@@ -53,7 +53,7 @@ private:
 
 private slots:
     void retapPackets();
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent e);
 
     void updateWidgets();
 

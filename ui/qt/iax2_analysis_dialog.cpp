@@ -415,10 +415,10 @@ Iax2AnalysisDialog::~Iax2AnalysisDialog()
     delete rev_tempfile_;
 }
 
-void Iax2AnalysisDialog::captureEvent(CaptureEvent *e)
+void Iax2AnalysisDialog::captureEvent(CaptureEvent e)
 {
-    if ((e->captureContext() == CaptureEvent::File) &&
-            (e->eventType() == CaptureEvent::Closing))
+    if ((e.captureContext() == CaptureEvent::File) &&
+            (e.eventType() == CaptureEvent::Closing))
     {
         updateWidgets();
     }

@@ -114,12 +114,12 @@ bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, 
     return true;
 }
 
-void WiresharkDialog::captureEvent(CaptureEvent *e)
+void WiresharkDialog::captureEvent(CaptureEvent e)
 {
-    switch (e->captureContext())
+    switch (e.captureContext())
     {
     case CaptureEvent::Retap:
-        switch (e->eventType())
+        switch (e.eventType())
         {
         case CaptureEvent::Started:
             beginRetapPackets();
@@ -132,7 +132,7 @@ void WiresharkDialog::captureEvent(CaptureEvent *e)
         }
         break;
     case CaptureEvent::File:
-        switch (e->eventType())
+        switch (e.eventType())
         {
         case CaptureEvent::Closing:
             captureFileClosing();

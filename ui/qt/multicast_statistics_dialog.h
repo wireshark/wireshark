@@ -42,7 +42,7 @@ private slots:
     void updateWidgets();
     void updateMulticastParameters();
     virtual void fillTree();
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent e);
 };
 
 #endif // MULTICASTSTATISTICSDIALOG_H

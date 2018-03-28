@@ -749,12 +749,12 @@ void MainWindow::captureCaptureFailed(capture_session *) {
 
 // Callbacks from cfile.c and file.c via CaptureFile::captureFileCallback
 
-void MainWindow::captureEventHandler(CaptureEvent * ev)
+void MainWindow::captureEventHandler(CaptureEvent ev)
 {
-    switch (ev->captureContext()) {
+    switch (ev.captureContext()) {
 
     case CaptureEvent::File:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Opened:
             captureFileOpened();
             break;
@@ -776,7 +776,7 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         break;
 
     case CaptureEvent::Reload:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Started:
             captureFileReadStarted(tr("Reloading"));
             break;
@@ -789,7 +789,7 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         break;
 
     case CaptureEvent::Rescan:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Started:
             setMenusForCaptureFile(true);
             captureFileReadStarted(tr("Rescanning"));
@@ -803,7 +803,7 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         break;
 
     case CaptureEvent::Retap:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Started:
             freeze();
             break;
@@ -819,7 +819,7 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         break;
 
     case CaptureEvent::Merge:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Started:
             main_ui_->statusBar->popFileStatus();
             main_ui_->statusBar->pushFileStatus(tr("Merging files"), QString());
@@ -833,10 +833,10 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         break;
 
     case CaptureEvent::Save:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Started:
         {
-            QFileInfo file_info(ev->filePath());
+            QFileInfo file_info(ev.filePath());
             main_ui_->statusBar->popFileStatus();
             main_ui_->statusBar->pushFileStatus(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.baseName()));
             break;
@@ -848,28 +848,28 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
 
 #ifdef HAVE_LIBPCAP
     case CaptureEvent::Capture:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Prepared:
-            captureCapturePrepared(ev->capSession());
+            captureCapturePrepared(ev.capSession());
             break;
         case CaptureEvent::Stopping:
             capture_stopping_ = true;
             setMenusForCaptureStopping();
             break;
         case CaptureEvent::Failed:
-            captureCaptureFailed(ev->capSession());
+            captureCaptureFailed(ev.capSession());
         default:
             break;
         }
         break;
 
     case CaptureEvent::Update:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Started:
-            captureCaptureUpdateStarted(ev->capSession());
+            captureCaptureUpdateStarted(ev.capSession());
             break;
         case CaptureEvent::Finished:
-            captureCaptureUpdateFinished(ev->capSession());
+            captureCaptureUpdateFinished(ev.capSession());
             break;
         default:
             break;
@@ -877,9 +877,9 @@ void MainWindow::captureEventHandler(CaptureEvent * ev)
         break;
 
     case CaptureEvent::Fixed:
-        switch (ev->eventType()) {
+        switch (ev.eventType()) {
         case CaptureEvent::Finished:
-            captureCaptureFixedFinished(ev->capSession());
+            captureCaptureFixedFinished(ev.capSession());
             break;
         default:
             break;

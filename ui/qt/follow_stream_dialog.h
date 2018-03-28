@@ -44,7 +44,7 @@ public:
     bool follow(QString previous_filter = QString(), bool use_stream_index = false, int stream_num = -1);
 
 public slots:
-    void captureEvent(CaptureEvent *e);
+    void captureEvent(CaptureEvent e);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

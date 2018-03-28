@@ -1960,10 +1960,10 @@ void IOGraph::scaleGraphData(DataMap &map, int scalar)
     }
 }
 
-void IOGraph::captureEvent(CaptureEvent *e)
+void IOGraph::captureEvent(CaptureEvent e)
 {
-    if ((e->captureContext() == CaptureEvent::File) &&
-            (e->eventType() == CaptureEvent::Closing))
+    if ((e.captureContext() == CaptureEvent::File) &&
+            (e.eventType() == CaptureEvent::Closing))
     {
          remove_tap_listener(this);
     }

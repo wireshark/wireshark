@@ -202,7 +202,7 @@ public slots:
     void clearRecentCaptures();
     void refreshRecentCaptures();
 
-    void captureEventHandler(CaptureEvent *);
+    void captureEventHandler(CaptureEvent);
 
 private slots:
     void updateTaps();
