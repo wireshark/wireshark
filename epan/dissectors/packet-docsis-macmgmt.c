@@ -5522,6 +5522,8 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message:");
+  /*Make sure embedded UCD does not overwrite REGRSPMP info*/
+  col_set_fence(pinfo->cinfo, COL_INFO);
 
   it = proto_tree_add_item(tree, proto_docsis_regrspmp, tvb, 0, -1, ENC_NA);
   regrspmp_tree = proto_item_add_subtree (it, ett_docsis_regrspmp);
