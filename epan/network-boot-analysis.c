@@ -56,6 +56,7 @@ typedef struct _bootclient_item_t {
     unsigned int conv_seq;
 
     /* Interesting fields to track for the client go here: */
+    unsigned int num_events;
     unsigned int num_bootp_events;
 
     /* TODO: List of DHCP offers.  Selected offer. Timestamps. */
@@ -125,6 +126,7 @@ bootclient_item_for_address(
         /* This is a new client.  Create its info structure. */
         copy_address(&new_bootclient_item.key.client_address, bootclient_address);
         new_bootclient_item.key.seq = seq;
+        new_bootclient_item.num_events = 0;
         new_bootclient_item.num_bootp_events = 0;
         new_bootclient_item.num_tftp_events = 0;
         g_array_append_val(bch->client_array, new_bootclient_item);
@@ -148,9 +150,9 @@ nb_bootp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _
      * captured with a new DHCP transaction ID (xid).
      */
 
-    fprintf(stderr, "Conv. %u [%s]: DHCP event #%u, XID=%08x%s", client->conv_seq,
+    fprintf(stderr, "Conv. %u [%s]: Event #%u, DHCP event #%u, XID=%08x%s", client->conv_seq,
             address_to_str(wmem_packet_scope(), &client->key.client_address),
-            ++client->num_bootp_events, nbe->xid, nbe->is_pxe ? ", PXE" : "");
+            ++client->num_events, ++client->num_bootp_events, nbe->xid, nbe->is_pxe ? ", PXE" : "");
     if (nbe->bootfile_name != NULL) {
         fprintf(stderr, ", file=\"%s\"", nbe->bootfile_name);
         g_free(nbe->bootfile_name);
@@ -166,9 +168,9 @@ nb_tftp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U
     const network_boot_tftp_event *nbe = (const network_boot_tftp_event *)data;
     bootclient_item_t *client = bootclient_item_for_address(&bootclients_hash, &nbe->client_address, 0 /* XXX */);
 
-    fprintf(stderr, "Conv. %u [%s]: TFTP event #%u", client->conv_seq,
+    fprintf(stderr, "Conv. %u [%s]: Event #%u, TFTP event #%u", client->conv_seq,
             address_to_str(wmem_packet_scope(), &client->key.client_address),
-            ++client->num_tftp_events);
+            ++client->num_events, ++client->num_tftp_events);
     fprintf(stderr, "%s%s", nbe->is_first ? ", first" : "", nbe->is_complete ? ", complete" : "");
     if (nbe->error_text != NULL) {
         fprintf(stderr, ", error=\"%s\" ", nbe->error_text);

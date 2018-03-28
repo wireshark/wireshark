@@ -428,12 +428,13 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
                     blocknum,
                     (bytes < tftp_info->blocksize)?" (last)":"" );
-    if (tftp_info->source_file != NULL && (bytes < tftp_info->blocksize || blocknum == 0)) {
+    if (tftp_info->source_file != NULL && (bytes < tftp_info->blocksize || blocknum == 1)) {
+      /* FIXME: Handle blocknum's 16-bit wrapping. */
       /* Download is complete. */
       nbe = (network_boot_tftp_event *)wmem_alloc(wmem_packet_scope(), sizeof(*nbe));
       copy_address_wmem(wmem_packet_scope(), &nbe->client_address, &pinfo->dl_dst);
       nbe->file_name = g_strdup(tftp_info->source_file);
-      nbe->is_first = blocknum == 0;
+      nbe->is_first = blocknum == 1;
       nbe->is_complete = bytes < tftp_info->blocksize;
       nbe->error_text = NULL;
       nbe->file_size = blocknum * tftp_info->blocksize + bytes;
