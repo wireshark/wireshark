@@ -7,7 +7,8 @@
  * Module for cross-protocol analysis of network boot (PXE, NetBoot, ...).
  * Copyright (C) 2018, VMware, Inc.  All rights reserved.
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -36,6 +37,10 @@ typedef struct _bootclient_hash_t {
 
 typedef guint32 bootclient_seq_t;
 
+/*
+ * A conversation is identified by the client's hardware address and a sequence
+ * number used to distinguish a reboot from an earlier boot.
+ */
 typedef struct _bootclient_key_t {
     address client_address;
     bootclient_seq_t seq;        /**< Increments with each new boot by this client. */
@@ -47,16 +52,22 @@ typedef struct _bootclient_key_t {
  */
 typedef struct _bootclient_item_t {
     bootclient_key_t key;
+    /* A sequence number for this conversation: */
+    unsigned int conv_seq;
+
     /* Interesting fields to track for the client go here: */
     unsigned int num_bootp_events;
-    /* List of DHCP offers.  Selected offer. Timestamps. */
-    /* ProxyDHCP offer. Timestamps. */
-    /* Boot file ID. */
-    /* Any DHCP dissector errors/warnings. */
+
+    /* TODO: List of DHCP offers.  Selected offer. Timestamps. */
+    /* TODO: ProxyDHCP offer. Timestamps. */
+    /* TODO: Boot file ID. */
+    /* TODO: Any DHCP dissector errors/warnings. */
+
     unsigned int num_tftp_events;
-    /* Any TFTP dissector errors/warnings. */
-    /* List of TFTP files fetched.  Maybe checksums? */
-    /* TFTP timestamps. */
+
+    /* TODO: Any TFTP dissector errors/warnings. */
+    /* TODO: List of TFTP files fetched.  Maybe checksums? */
+    /* TODO: TFTP timestamps. */
 } bootclient_item_t;
 
 static bootclient_hash_t bootclients_hash;
@@ -119,6 +130,7 @@ bootclient_item_for_address(
         g_array_append_val(bch->client_array, new_bootclient_item);
         idx = bch->client_array->len - 1;
         bootclient_item = &g_array_index(bch->client_array, bootclient_item_t, idx);
+        bootclient_item->conv_seq = idx;
         g_hash_table_insert(bch->clienttable, &bootclient_item->key, GUINT_TO_POINTER(idx));
     }
     return bootclient_item;
@@ -131,8 +143,14 @@ nb_bootp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _
     const network_boot_bootp_event *nbe = (const network_boot_bootp_event *)data;
     bootclient_item_t *client = bootclient_item_for_address(&bootclients_hash, &nbe->client_address, 0 /* XXX */);
 
-    fprintf(stderr, "[%s]: DHCP#%u, %sXID=%08x", address_to_str(wmem_packet_scope(), &client->key.client_address),
-            ++client->num_bootp_events, nbe->is_pxe ? "PXE, " : "", nbe->xid);
+    /*
+     *  TODO: A new boot conversation is started when a PXE Discover is
+     * captured with a new DHCP transaction ID (xid).
+     */
+
+    fprintf(stderr, "Conv. %u [%s]: DHCP event #%u, XID=%08x%s", client->conv_seq,
+            address_to_str(wmem_packet_scope(), &client->key.client_address),
+            ++client->num_bootp_events, nbe->xid, nbe->is_pxe ? ", PXE" : "");
     if (nbe->bootfile_name != NULL) {
         fprintf(stderr, ", file=\"%s\"", nbe->bootfile_name);
         g_free(nbe->bootfile_name);
@@ -148,14 +166,15 @@ nb_tftp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U
     const network_boot_tftp_event *nbe = (const network_boot_tftp_event *)data;
     bootclient_item_t *client = bootclient_item_for_address(&bootclients_hash, &nbe->client_address, 0 /* XXX */);
 
-    fprintf(stderr, "[%s]: TFTP#%u, ", address_to_str(wmem_packet_scope(), &client->key.client_address),
+    fprintf(stderr, "Conv. %u [%s]: TFTP event #%u", client->conv_seq,
+            address_to_str(wmem_packet_scope(), &client->key.client_address),
             ++client->num_tftp_events);
-    fprintf(stderr, "%s%s", nbe->is_first ? "first " : "", nbe->is_complete ? "complete " : "");
+    fprintf(stderr, "%s%s", nbe->is_first ? ", first" : "", nbe->is_complete ? ", complete" : "");
     if (nbe->error_text != NULL) {
-        fprintf(stderr, "error=\"%s\" ", nbe->error_text);
+        fprintf(stderr, ", error=\"%s\" ", nbe->error_text);
     }
     if (nbe->file_name != NULL) {
-        fprintf(stderr, "filename=\"%s\"", nbe->file_name);
+        fprintf(stderr, ", filename=\"%s\"", nbe->file_name);
         g_free(nbe->file_name);
     }
     if (nbe->is_complete) {
