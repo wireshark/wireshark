@@ -45,6 +45,8 @@ void proto_register_tftp(void);
 /* Things we may want to remember for a whole conversation */
 typedef struct _tftp_conv_info_t {
   guint16      blocksize;
+  guint16      windowsize;
+  guint16      msftwindow;
   const guint8 *source_file, *destination_file;
 
   /* Sequence analysis */
@@ -271,6 +273,27 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
         tftp_info->blocksize = blocksize;
       }
     }
+
+    if (!g_ascii_strcasecmp((const char *)optionname, "windowsize") &&
+        opcode == TFTP_RRQ) {
+      gint windowsize = (gint)strtol((const char *)optionvalue, NULL, 10);
+      if (windowsize < 1 || windowsize > 65535) {
+        expert_add_info(pinfo, NULL, &ei_tftp_blocksize_range);
+      } else {
+        tftp_info->windowsize = windowsize;
+      }
+    }
+
+    if (!g_ascii_strcasecmp((const char *)optionname, "msftwindow") &&
+        opcode == TFTP_RRQ) {
+      gint msftwindow = (gint)strtol((const char *)optionvalue, NULL, 10);
+      if (msftwindow < 1 || msftwindow > 65535) {
+        expert_add_info(pinfo, NULL, &ei_tftp_blocksize_range);
+      } else {
+        tftp_info->msftwindow = msftwindow;
+      }
+    }
+
   }
 }
 
@@ -475,6 +498,13 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
         /* Look for next blocknum next time */
         tftp_info->next_tap_block_num++;
+      }
+      if (tftp_info->windowsize != 0) {
+          proto_tree *opt_tree = proto_tree_add_subtree_format(tftp_tree, tvb, offset, offset + 4,
+                                                               ett_tftp_option, NULL, "Remaining blocks: %d", (tftp_info->windowsize - tftp_info->next_tap_block_num));
+
+          proto_tree_add_item(opt_tree, hf_tftp_data, tvb, offset,
+                              4, ENC_ASCII|ENC_NA);
       }
 
       /* Tap export object only when reach end of file */
