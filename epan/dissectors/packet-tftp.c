@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/export_object.h>
+#include <epan/network-boot-analysis.h>
 
 #include "packet-tftp.h"
 
@@ -128,6 +129,7 @@ static const value_string tftp_error_code_vals[] = {
 };
 
 static int tftp_eo_tap = -1;
+static int tftp_boot_tap = -1;
 
 /* A list of block list entries to delete from cleanup callback when window is closed. */
 typedef struct eo_info_dynamic_t {
@@ -302,6 +304,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   guint       i1;
   guint16     error;
   tvbuff_t    *data_tvb = NULL;
+  network_boot_tftp_event *nbe = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
@@ -360,6 +363,13 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     tftp_dissect_options(tvb, pinfo,  offset, tftp_tree,
                          opcode, tftp_info);
+    nbe = (network_boot_tftp_event *)wmem_alloc(wmem_packet_scope(), sizeof(*nbe));
+    copy_address_wmem(wmem_packet_scope(), &nbe->client_address, &pinfo->dl_src);
+    nbe->file_name = g_strdup(tftp_info->source_file);
+    nbe->is_first = FALSE;
+    nbe->is_complete = FALSE;
+    nbe->error_text = NULL;
+    nbe->file_size = 0;
     break;
 
   case TFTP_WRQ:
@@ -417,6 +427,16 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
                     blocknum,
                     (bytes < tftp_info->blocksize)?" (last)":"" );
+    if (tftp_info->source_file != NULL && (bytes < tftp_info->blocksize || blocknum == 0)) {
+      /* Download is complete. */
+      nbe = (network_boot_tftp_event *)wmem_alloc(wmem_packet_scope(), sizeof(*nbe));
+      copy_address_wmem(wmem_packet_scope(), &nbe->client_address, &pinfo->dl_dst);
+      nbe->file_name = g_strdup(tftp_info->source_file);
+      nbe->is_first = blocknum == 0;
+      nbe->is_complete = bytes < tftp_info->blocksize;
+      nbe->error_text = NULL;
+      nbe->file_size = blocknum * tftp_info->blocksize + bytes;
+    }
 
     /* Show data in tree */
     if (bytes > 0) {
@@ -519,6 +539,17 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                     tvb_format_stringzpad(tvb, offset, i1));
 
     expert_add_info(pinfo, NULL, &ei_tftp_blocksize_range);
+    nbe = (network_boot_tftp_event *)wmem_alloc(wmem_packet_scope(), sizeof(*nbe));
+    /*
+     * FIXME: The client's address might be the source (i.e. client abort after
+     *  determining tsize) or dest (i.e. "file not found" from the server).
+     */
+    copy_address_wmem(wmem_packet_scope(), &nbe->client_address, &pinfo->dl_dst);
+    nbe->file_name = g_strdup(tftp_info->source_file);
+    nbe->is_first = FALSE;
+    nbe->is_complete = FALSE;
+    nbe->error_text = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, i1);;
+    nbe->file_size = 0; /* Nothing valid to report. */
     break;
 
   case TFTP_OACK:
@@ -530,6 +561,10 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     proto_tree_add_item(tftp_tree, hf_tftp_data, tvb, offset, -1, ENC_NA);
     break;
 
+  }
+  if (nbe != NULL) {
+    /* Send to tap */
+    tap_queue_packet(tftp_boot_tap, pinfo, nbe);
   }
 }
 
@@ -765,6 +800,9 @@ proto_register_tftp(void)
   tftp_handle = register_dissector("tftp", dissect_tftp, proto_tftp);
 
   prefs_register_protocol(proto_tftp, apply_tftp_prefs);
+
+  /* Register the tap for anyone interested in TFTP boot events. */
+  tftp_boot_tap = register_tap("tftp-boot");
 
   /* Register the tap for the "Export Object" function */
   tftp_eo_tap = register_export_object(proto_tftp, tftp_eo_packet, tftp_eo_cleanup);

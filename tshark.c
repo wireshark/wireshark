@@ -95,6 +95,7 @@
 #include <epan/rtd_table.h>
 #include <epan/ex-opt.h>
 #include <epan/exported_pdu.h>
+#include <epan/network-boot-analysis.h>
 
 #include "capture_opts.h"
 
@@ -1797,6 +1798,7 @@ main(int argc, char *argv[])
 
   /* We can also enable specified taps for export object */
   start_exportobjects();
+  start_networkboot();
 
   /* At this point MATE will have registered its field array so we can
      check if the fields specified by the user are all good.

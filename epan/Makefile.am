@@ -78,6 +78,7 @@ LIBWIRESHARK_NONGENERATED_SRC = \
 	ipproto.c		\
 	maxmind_db.c		\
 	media_params.c		\
+	network-boot-analysis.c \
 	next_tvb.c		\
 	oids.c			\
 	osi-utils.c		\
@@ -225,6 +226,7 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	llcsaps.h		\
 	maxmind_db.h		\
 	media_params.h		\
+	network-boot-analysis.h \
 	next_tvb.h		\
 	nlpid.h			\
 	oids.h			\
