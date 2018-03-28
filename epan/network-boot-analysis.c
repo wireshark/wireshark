@@ -4,6 +4,9 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * Module for cross-protocol analysis of network boot (PXE, NetBoot, ...).
+ * Copyright (C) 2018, VMware, Inc.  All rights reserved.
+ *
  * SPDX-License-Identifier: GPL-2.0-or-later*/
 
 #include "config.h"
@@ -27,7 +30,7 @@
  * Hash table keys are bootclient_key_t. Hash table values are indexes into client_array.
  */
 typedef struct _bootclient_hash_t {
-    GHashTable *clienttable;    /**< hash table of booting clients. */
+    GHashTable *clienttable;     /**< hash table of booting clients. */
     GArray *client_array;        /**< array of boot clients */
 } bootclient_hash_t;
 
@@ -35,9 +38,13 @@ typedef guint32 bootclient_seq_t;
 
 typedef struct _bootclient_key_t {
     address client_address;
-    bootclient_seq_t seq;
+    bootclient_seq_t seq;        /**< Increments with each new boot by this client. */
 } bootclient_key_t;
 
+/*
+ * Structure to store all information related to a single client boot conversation,
+ * across all protocols.
+ */
 typedef struct _bootclient_item_t {
     bootclient_key_t key;
     /* Interesting fields to track for the client go here: */
@@ -70,7 +77,10 @@ bootclient_equal(gconstpointer key1, gconstpointer key2)
     return k1->seq == k2->seq && addresses_equal(&k1->client_address, &k2->client_address);
 }
 
-
+/*
+ * Find the client info structure for the given boot client address.
+ * If none exists (i.e. first event for this client), create one.
+ */
 static bootclient_item_t *
 bootclient_item_for_address(
     bootclient_hash_t *bch,
@@ -88,7 +98,7 @@ bootclient_item_for_address(
     } else {
         bootclient_key_t existing_key;
         gpointer idx;
-       
+
         copy_address(&existing_key.client_address, bootclient_address);
         existing_key.seq = seq;
 
@@ -101,6 +111,7 @@ bootclient_item_for_address(
         bootclient_item_t new_bootclient_item;
         unsigned int idx;
 
+        /* This is a new client.  Create its info structure. */
         copy_address(&new_bootclient_item.key.client_address, bootclient_address);
         new_bootclient_item.key.seq = seq;
         new_bootclient_item.num_bootp_events = 0;
@@ -113,13 +124,13 @@ bootclient_item_for_address(
     return bootclient_item;
 }
 
-/* A BOOTP/DHCP packet has been captured. */
+/* This tap is called when a BOOTP/DHCP event has occurred. */
 static gboolean
 nb_bootp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     const network_boot_bootp_event *nbe = (const network_boot_bootp_event *)data;
     bootclient_item_t *client = bootclient_item_for_address(&bootclients_hash, &nbe->client_address, 0 /* XXX */);
-    
+
     fprintf(stderr, "[%s]: DHCP#%u, %sXID=%08x", address_to_str(wmem_packet_scope(), &client->key.client_address),
             ++client->num_bootp_events, nbe->is_pxe ? "PXE, " : "", nbe->xid);
     if (nbe->bootfile_name != NULL) {
@@ -130,8 +141,9 @@ nb_bootp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _
     return FALSE;
 }
 
+/* This tap is called when a TFTP event has occurred. */
 static gboolean
-nb_tftp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data _U_)
+nb_tftp_packet(void *tapdata _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     const network_boot_tftp_event *nbe = (const network_boot_tftp_event *)data;
     bootclient_item_t *client = bootclient_item_for_address(&bootclients_hash, &nbe->client_address, 0 /* XXX */);
@@ -161,6 +173,8 @@ static const struct {
 } taps[] = {
         {"bootp-boot", nb_bootp_packet},
         {"tftp-boot", nb_tftp_packet},
+        /* TODO: HTTP/HTTPS */
+        /* TODO: ARP */
 };
 
 void start_networkboot(void)

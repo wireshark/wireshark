@@ -1,9 +1,11 @@
 /* network-boot-analysis.h
- * Routines for cross-protocol analysis of network boot (PXE, NetBoot, ...).
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
+ *
+ * Module for cross-protocol analysis of network boot (PXE, NetBoot, ...).
+ * Copyright (C) 2018, VMware, Inc.  All rights reserved.
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -18,6 +20,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*
+ * Structure used to pass information from a BOOTP/DHCP conversation to any
+ * "bootp-boot" tap listeners.
+ */
 typedef struct {
         address client_address;
 	gboolean is_pxe;
@@ -26,6 +32,10 @@ typedef struct {
         guchar *bootfile_name;
 } network_boot_bootp_event;
 
+/*
+ * Structure used to pass information from a TFTP conversation to any
+ * "tftp-boot" tap listeners.
+ */
 typedef struct {
         address client_address;
         guchar *file_name;
@@ -35,6 +45,7 @@ typedef struct {
         guint64 file_size;
 } network_boot_tftp_event;
 
+/* Initialize the network boot analysis module. */
 WS_DLL_PUBLIC void start_networkboot(void);
 
 #ifdef __cplusplus

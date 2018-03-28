@@ -540,6 +540,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                     tvb_format_stringzpad(tvb, offset, i1));
 
     expert_add_info(pinfo, NULL, &ei_tftp_blocksize_range);
+#if 0
     nbe = (network_boot_tftp_event *)wmem_alloc(wmem_packet_scope(), sizeof(*nbe));
     /*
      * FIXME: The client's address might be the source (i.e. client abort after
@@ -551,6 +552,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     nbe->is_complete = FALSE;
     nbe->error_text = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, i1);;
     nbe->file_size = 0; /* Nothing valid to report. */
+#endif
     break;
 
   case TFTP_OACK:
