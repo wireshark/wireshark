@@ -36,6 +36,7 @@
 #include <epan/tap.h>
 #include <epan/export_object.h>
 #include <epan/network-boot-analysis.h>
+#include <epan/tvbuff-int.h>
 
 #include "packet-tftp.h"
 
