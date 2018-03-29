@@ -489,6 +489,7 @@ static int hf_lustre_ldlm_res_id = -1;
 static int hf_lustre_ldlm_res_id_name = -1;
 static int hf_lustre_ldlm_res_id_bits = -1;
 static int hf_lustre_ldlm_res_id_string = -1;
+static int hf_lustre_ldlm_res_id_type = -1;
 static int hf_lustre_ldlm_resource_desc = -1;
 static int hf_lustre_ldlm_resource_desc_lr_type = -1;
 static int hf_lustre_ldlm_resource_desc_lr_padding = -1;
@@ -507,8 +508,23 @@ static int hf_lustre_ldlm_intent_opc_layout = -1;
 static int hf_lustre_ldlm_intent_opc_q_dqacq = -1;
 static int hf_lustre_ldlm_intent_opc_q_conn = -1;
 static int hf_lustre_ldlm_intent_opc_setxattr = -1;
+static int hf_lustre_ldlm_gl_barrier_desc = -1;
+static int hf_lustre_ldlm_gl_barrier_desc_status = -1;
+static int hf_lustre_ldlm_gl_barrier_desc_timeout = -1;
+static int hf_lustre_ldlm_gl_barrier_desc_padding = -1;
+static int hf_lustre_ldlm_gl_lquota_desc = -1;
+static int hf_lustre_ldlm_gl_lquota_desc_flags = -1;
+static int hf_lustre_ldlm_gl_lquota_desc_ver = -1;
+static int hf_lustre_ldlm_gl_lquota_desc_hardlimit = -1;
+static int hf_lustre_ldlm_gl_lquota_desc_softlimit = -1;
+static int hf_lustre_ldlm_gl_lquota_desc_time = -1;
+static int hf_lustre_ldlm_gl_lquota_desc_pad2 = -1;
 static int hf_lustre_ldlm_key = -1;
 static int hf_lustre_ldlm_val = -1;
+static int hf_lustre_barrier_lvb = -1;
+static int hf_lustre_barrier_lvb_status = -1;
+static int hf_lustre_barrier_lvb_index = -1;
+static int hf_lustre_barrier_lvb_padding = -1;
 static int hf_lustre_mgs_target_info = -1;
 static int hf_lustre_mgs_target_info_mti_flags = -1;
 static int hf_lustre_mgs_target_info_mti_fsname = -1;
@@ -703,6 +719,8 @@ static gint ett_lustre_ldlm_lock_desc = -1;
 static gint ett_lustre_ldlm_request = -1;
 static gint ett_lustre_lustre_handle = -1;
 static gint ett_lustre_ldlm_reply = -1;
+static gint ett_lustre_ldlm_gl_barrier_desc = -1;
+static gint ett_lustre_ldlm_gl_lquota_desc = -1;
 static gint ett_lustre_mgs_target_info = -1;
 static gint ett_lustre_mgs_config_body = -1;
 static gint ett_lustre_mgs_config_res = -1;
@@ -763,6 +781,7 @@ static gint ett_lustre_object_update = -1;
 static gint ett_lustre_object_update_param = -1;
 static gint ett_lustre_lfsck_request = -1;
 static gint ett_lustre_lfsck_reply = -1;
+static gint ett_lustre_barrier_lvb = -1;
 
 static expert_field ei_lustre_buflen = EI_INIT;
 static expert_field ei_lustre_badopc = EI_INIT;
@@ -1102,6 +1121,19 @@ VALUE_STRING_ARRAY2(lustre_ldlm_type_vals);
     XXX(IT_SETXATTR,    0x00002000)
 VALUE_STRING_ENUM2(lustre_ldlm_intent_flags);
 //VALUE_STRING_ARRAY2(lustre_ldlm_intent_flags);
+
+#define lustre_barrier_status_vals_VALUE_STRING_LIST(XXX) \
+    XXX(BS_INIT,        0)                                \
+    XXX(BS_FREEZING_P1, 1)                                \
+    XXX(BS_FREEZING_P2, 2)                                \
+    XXX(BS_FROZEN,      3)                                \
+    XXX(BS_THAWING,     4)                                \
+    XXX(BS_THAWED,      5)                                \
+    XXX(BS_FAILED,      6)                                \
+    XXX(BS_EXPIRED,     7)                                \
+    XXX(BS_RESCAN,      8)
+VALUE_STRING_ENUM2(lustre_barrier_status_vals);
+VALUE_STRING_ARRAY2(lustre_barrier_status_vals);
 
 #define LDLM_FL_LOCK_CHANGED            0x0000000000000001ULL
 #define LDLM_FL_BLOCK_GRANTED           0x0000000000000002ULL
@@ -2354,7 +2386,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
  *
  */
 static int
-dissect_struct_ldlm_lock_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_struct_ldlm_lock_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint64 *ltype)
 {
     proto_tree *tree, *res_tree, *id_tree, *l_tree;
     proto_item *item;
@@ -2396,7 +2428,12 @@ dissect_struct_ldlm_lock_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
             proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_bits, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             break;
         case LDLM_PLAIN:
-            proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_string, tvb, offset, 8, ENC_ASCII|ENC_NA);
+            if (i == 1) {
+                if (ltype)
+                    *ltype = tvb_get_letoh64(tvb, offset);
+                proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            } else
+                proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_string, tvb, offset, 8, ENC_ASCII|ENC_NA);
             break;
         default:
             proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_name, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -2517,7 +2554,115 @@ dissect_struct_seq_range(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gui
 }
 
 static int
-dissect_struct_ldlm_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_ldlm_gl_barrier_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    guint data_len;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+    if (data_len == 0)
+        return offset;
+
+    /* struct ldlm_gl_barrier_desc { */
+    /*     __u32        lgbd_status; */
+    /*     __u32        lgbd_timeout; */
+    /*     __u64        lgbd_padding; */
+    /* }; */
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_ldlm_gl_barrier_desc, tvb, offset, 16, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_ldlm_gl_barrier_desc);
+
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_barrier_desc_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_barrier_desc_timeout, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_barrier_desc_padding, tvb, offset, 8, ENC_NA);
+    offset += 8;
+
+    return offset;
+}
+
+static int
+dissect_struct_ldlm_gl_lquota_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    guint data_len;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+    if (data_len == 0)
+        return offset;
+
+    /* struct ldlm_gl_lquota_desc { */
+    /*     union lquota_id	gl_id;    /\* quota ID subject to the glimpse *\/ */
+    /*     __u64        gl_flags; /\* see LQUOTA_FL* below *\/ */
+    /*     __u64        gl_ver;   /\* new index version *\/ */
+    /*     __u64        gl_hardlimit; /\* new hardlimit or qunit value *\/ */
+    /*     __u64        gl_softlimit; /\* new softlimit *\/ */
+    /*     __u64        gl_time; */
+    /*     __u64        gl_pad2; */
+    /* }; */
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_ldlm_gl_lquota_desc, tvb, offset, 64, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_ldlm_gl_lquota_desc);
+
+    offset = dissect_struct_lquota_id(tvb, offset, tree);
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_lquota_desc_flags, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_lquota_desc_ver, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_lquota_desc_hardlimit, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_lquota_desc_softlimit, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_lquota_desc_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(tree, hf_lustre_ldlm_gl_lquota_desc_pad2, tvb, offset, 8, ENC_NA);
+    offset += 8;
+
+    return offset;
+}
+
+static int
+dissect_struct_ldlm_gl_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, lustre_trans_t *trans, guint buf_num)
+{
+    guint data_len;
+    int old_offset;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+    if (data_len == 0)
+        return offset;
+
+    old_offset = offset;
+
+    /* union ldlm_gl_desc { */
+    /*     struct ldlm_gl_lquota_desc	lquota_desc; */
+    /*     struct ldlm_gl_barrier_desc	barrier_desc; */
+    /* }; SIZE == 64 */
+
+    switch (trans->sub_opcode) {
+    case CONFIG_T_BARRIER:
+        /* Size == 16 */
+        offset = dissect_struct_ldlm_gl_barrier_desc(tvb, offset, parent_tree, buf_num);
+        data_len = old_offset+64-offset;
+        proto_tree_add_item(parent_tree, hf_lustre_extra_padding, tvb, offset, data_len, ENC_NA);
+        offset += data_len;
+        break;
+    case CONFIG_T_CONFIG:
+        /* Size == 64 */
+        offset = dissect_struct_ldlm_gl_lquota_desc(tvb, offset, parent_tree, buf_num);
+        break;
+    default:
+        offset = display_buffer_data(tvb, pinfo, offset, parent_tree, buf_num, "GLIMPSE DESC");
+        break;
+    }
+
+    return offset;
+}
+
+static int
+dissect_struct_ldlm_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint64 *type, guint buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -2549,7 +2694,7 @@ dissect_struct_ldlm_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     if (count < 2)
         count = 2;
     offset += 4;
-    offset = dissect_struct_ldlm_lock_desc(tvb, offset, pinfo, tree);
+    offset = dissect_struct_ldlm_lock_desc(tvb, offset, pinfo, tree, type);
     for (i = 0; i < count; ++i)
         offset = dissect_struct_lustre_handle(tvb, offset, tree, hf_lustre_ldlm_request_lock_handle);
 
@@ -2558,7 +2703,7 @@ dissect_struct_ldlm_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 static int
-dissect_struct_ldlm_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_ldlm_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint64 *type, guint buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -2585,7 +2730,7 @@ dissect_struct_ldlm_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
     offset += 4;
     proto_tree_add_item(tree, hf_lustre_ldlm_reply_lock_padding, tvb, offset, 4, ENC_NA);
     offset += 4;
-    offset = dissect_struct_ldlm_lock_desc(tvb, offset, pinfo, tree);
+    offset = dissect_struct_ldlm_lock_desc(tvb, offset, pinfo, tree, type);
     offset = dissect_struct_lustre_handle(tvb, offset, tree, hf_lustre_ldlm_reply_lock_handle);
     proto_tree_add_item(tree, hf_lustre_ldlm_reply_lock_policy_res1, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
@@ -4436,6 +4581,35 @@ dissect_xattr_buffers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
     return offset;
 }
 
+static int
+dissect_struct_barrier_lvb(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+{
+    proto_tree *tree;
+    proto_item *item;
+    int data_len;
+
+    data_len = LUSTRE_BUFFER_LEN(buf_num);
+    if (data_len == 0)
+        return offset;
+
+    item = proto_tree_add_item(parent_tree, hf_lustre_barrier_lvb, tvb, offset, 16, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_lustre_barrier_lvb);
+
+    /* struct barrier_lvb { */
+    /*     __u32        lvb_status; */
+    /*     __u32        lvb_index; */
+    /*     __u64        lvb_padding; */
+    /* }; */
+
+    proto_tree_add_item(tree, hf_lustre_barrier_lvb_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_lustre_barrier_lvb_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_lustre_barrier_lvb_padding, tvb, offset, 8, ENC_NA);
+    offset += 8;
+
+    return offset;
+}
 
 static int
 dissect_struct_eadata(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree, guint32 buf_num)
@@ -5286,7 +5460,7 @@ process_opcode_ost(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         if (pb_type == PTL_RPC_MSG_REPLY)
             break;
 
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+1);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+1);
         offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+2);
         break;
 
@@ -5387,7 +5561,7 @@ process_opcode_reint_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         offset = dissect_struct_mdt_ioepoch(tvb, offset, tree, LUSTRE_REC_OFF+2);
         offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+3);
         offset = dissect_struct_llog_cookie_array(tvb, offset, tree, LUSTRE_REC_OFF+4);
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+5);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+5);
         break;
     case REINT_CREATE:
         /* Create Types:
@@ -5399,7 +5573,7 @@ process_opcode_reint_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_filename, LUSTRE_REC_OFF+2);
         // This could also be string for symlink
         offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+3);
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+4);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+4);
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_secctx_name, LUSTRE_REC_OFF+5);
         offset = display_buffer_data(tvb, pinfo, offset, tree, LUSTRE_REC_OFF+6, "Security Context");
         break;
@@ -5407,19 +5581,19 @@ process_opcode_reint_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         /* [REC REINT][CAPA1][CAPA2][NAME][DLM REQ] */
         offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+2);
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_filename, LUSTRE_REC_OFF+3);
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+4);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+4);
         break;
     case REINT_UNLINK:
         /* [REC REINT][CAPA1][NAME][DLM REQ] */
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_filename, LUSTRE_REC_OFF+2);
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+3);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+3);
         break;
     case REINT_RENAME:
         /* [REC REINT][CAPA1][CAPA2][NAME][SYMTGT][DLM REQ] */
         offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+2);
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_filename, LUSTRE_REC_OFF+3);
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_target, LUSTRE_REC_OFF+4);
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+5);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+5);
         break;
     case REINT_OPEN:
         /* [REC REINT][CAPA1][CAPA2][NAME][EADATA][FILE SECCTX NAME][FILE SECCTX] */
@@ -5433,7 +5607,7 @@ process_opcode_reint_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         /* [REC REINT][CAPA1][NAME][EADATA][DLM REQ] */
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_filename, LUSTRE_REC_OFF+2);
         offset = dissect_struct_eadata(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+3);
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+4);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+4);
         break;
     case REINT_RMENTRY:
         /* nothing further - and will never get here */
@@ -5443,7 +5617,7 @@ process_opcode_reint_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         offset = dissect_struct_capa(tvb, offset, tree, LUSTRE_REC_OFF+2);
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_filename, LUSTRE_REC_OFF+3);
         offset = display_buffer_string(tvb, pinfo, tree, offset, hf_lustre_secctx_name, LUSTRE_REC_OFF+4);
-        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF+5);
+        offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF+5);
         offset = dissect_struct_mdt_ioepoch(tvb, offset, tree, LUSTRE_REC_OFF+6);
         offset = dissect_struct_close_data(tvb, offset, tree, LUSTRE_REC_OFF+7);
         break;
@@ -5772,7 +5946,7 @@ process_ldlm_intent_rep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
      * QUOTA:        [DLM LVB][QUOTA BODY]
      * GETXATTR:     [MDT BODY][MDT MD][ACL][EADATA][EAVALS][EAVALS LENS]
      */
-    offset = dissect_struct_ldlm_reply(tvb, offset, pinfo, tree, LUSTRE_REC_OFF);
+    offset = dissect_struct_ldlm_reply(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF);
     switch (trans->sub_opcode) {
     case 0: /* LDLM_ENQUEUE - no INTENT */
     case IT_LAYOUT:
@@ -5821,19 +5995,25 @@ process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * 
         switch (trans->opcode) {
         case LDLM_ENQUEUE:
             /* REQ: [DLM REQ]{[INTENT]...} */
-            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF);
             offset = process_ldlm_intent_req(tvb, offset, pinfo, tree, trans);
+            break;
+        case LDLM_GL_CALLBACK:
+            /* REQ: [DLM REQ][[GL DESC]]
+             * LDLM_GL_CALLBACK_DESC has gl_desc as tertiary buffer
+             */
+            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, &trans->sub_opcode, LUSTRE_REC_OFF);
+            offset = dissect_struct_ldlm_gl_desc(tvb, offset, pinfo, tree, trans, LUSTRE_REC_OFF+1);
             break;
         case LDLM_CONVERT:
         case LDLM_CANCEL:
         case LDLM_BL_CALLBACK:
-        case LDLM_GL_CALLBACK:
             /* REQ: [DLM REQ] */
-            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF);
             break;
         case LDLM_CP_CALLBACK:
             /* REQ: [DLM REQ][DLM LVB] */
-            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_ldlm_request(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF);
             /* lustre/ldlm/ldlm_lockd.c::ldlm_handle_cp_callback()
              * if extent lock, lvb data is ost_lvb struct, no other
              * options seem to exist */
@@ -5858,7 +6038,7 @@ process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * 
             break;
         case LDLM_CONVERT:
             /* REP: [DLM REP] */
-            offset = dissect_struct_ldlm_reply(tvb, offset, pinfo, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_ldlm_reply(tvb, offset, pinfo, tree, NULL, LUSTRE_REC_OFF);
             break;
         case LDLM_CANCEL:
         case LDLM_BL_CALLBACK:
@@ -5867,7 +6047,7 @@ process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * 
             break;
         case LDLM_GL_CALLBACK:
             /* REP: [DLM LVB] */
-            offset = dissect_struct_ost_lvb(tvb, offset, tree, LUSTRE_REC_OFF);
+            offset = dissect_struct_barrier_lvb(tvb, offset, tree, LUSTRE_REC_OFF);
             break;
         case LDLM_SET_INFO:
             /* no data - c.f. Request reasoning, this prossesed as RFQ_OBD_SET_INFO */
@@ -7508,6 +7688,8 @@ proto_register_lustre(void)
           { "Name", "lustre.ldlm_res_id.name", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_ldlm_res_id_string,
           { "Name", "lustre.ldlm_res_id.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_res_id_type,
+          { "Type", "lustre.ldlm_res_id.type", FT_UINT32, BASE_HEX, VALS(mgs_config_body_type_vals), 0, NULL, HFILL }},
 
         /* LDLM Resource Desc */
         { &hf_lustre_ldlm_resource_desc,
@@ -7516,6 +7698,32 @@ proto_register_lustre(void)
           { "Lr Type", "lustre.ldlm_resource_desc.lr_type", FT_UINT16, BASE_DEC, VALS(lustre_ldlm_type_vals), 0, NULL, HFILL }},
         { &hf_lustre_ldlm_resource_desc_lr_padding,
           { "Lr Padding", "lustre.ldlm_resource_desc.lr_padding", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+         /* LDLM GL Barrier Desc */
+        { &hf_lustre_ldlm_gl_barrier_desc,
+          { "LDLM GL Barrier Desc", "lustre.ldlm_gl_barrier_desc", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_lustre_ldlm_gl_barrier_desc_status,
+          { "Status", "lustre.ldlm_gl_barrier_desc.status", FT_UINT32, BASE_HEX, VALS(lustre_barrier_status_vals), 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_gl_barrier_desc_timeout,
+          { "Timeout", "lustre.ldlm_gl_barrier_desc.timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_gl_barrier_desc_padding,
+          { "Padding", "lustre.ldlm_gl_barrier_desc.padding", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        /* LDLM GL LQuota Desc */
+        { &hf_lustre_ldlm_gl_lquota_desc,
+          { "LDLM GL lQuota Desc", "lustre.ldlm_gl_lquota_desc", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_lustre_ldlm_gl_lquota_desc_flags,
+          { "Flags", "lustre.ldlm_gl_lquota_desc.flags", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_gl_lquota_desc_ver,
+          { "Ver", "lustre.ldlm_gl_lquota_desc.ver", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_gl_lquota_desc_hardlimit,
+          { "Hardlimit", "lustre.ldlm_gl_lquota_desc.hardlimit", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_gl_lquota_desc_softlimit,
+          { "Softlimit", "lustre.ldlm_gl_lquota_desc.softlimit", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_gl_lquota_desc_time,
+          { "Time", "lustre.ldlm_gl_lquota_desc.time", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_ldlm_gl_lquota_desc_pad2,
+          { "padding", "lustre.ldlm_gl_lquota_desc.padding", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         /* LDLM Intent */
         /*all this flags are uint64, but I don't find the way to use something like TFS() with a Uint64*/
@@ -7557,7 +7765,17 @@ proto_register_lustre(void)
         { &hf_lustre_ldlm_val,
           { "LDLM Set Info Value", "lustre.ldlm.value", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 
-         /************************************************************
+        /* Barrier LVB */
+        { &hf_lustre_barrier_lvb,
+          { "Barrier LVB", "lustre.barrier_lvb", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_lustre_barrier_lvb_status,
+          { "Lvb Status", "lustre.barrier_lvb.status", FT_UINT32, BASE_HEX, VALS(lustre_barrier_status_vals), 0, NULL, HFILL }},
+        { &hf_lustre_barrier_lvb_index,
+          { "Lvb Index", "lustre.barrier_lvb.index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_lustre_barrier_lvb_padding,
+          { "Lvb Padding", "lustre.barrier_lvb.padding", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        /************************************************************
          * MGS
          */
 
@@ -7984,6 +8202,8 @@ proto_register_lustre(void)
         &ett_lustre_ldlm_request,
         &ett_lustre_lustre_handle,
         &ett_lustre_ldlm_reply,
+        &ett_lustre_ldlm_gl_barrier_desc,
+        &ett_lustre_ldlm_gl_lquota_desc,
         &ett_lustre_mgs_target_info,
         &ett_lustre_mgs_config_body,
         &ett_lustre_mgs_config_res,
@@ -8043,6 +8263,7 @@ proto_register_lustre(void)
         &ett_lustre_object_update_param,
         &ett_lustre_lfsck_request,
         &ett_lustre_lfsck_reply,
+        &ett_lustre_barrier_lvb,
     };
 
     /* Setup protocol expert items */
