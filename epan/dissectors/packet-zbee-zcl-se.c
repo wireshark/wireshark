@@ -95,7 +95,6 @@ static void dissect_zcl_date(tvbuff_t *tvb, proto_tree *tree, guint *offset,
 
 VALUE_STRING_ENUM(zbee_zcl_keep_alive_attr_names);
 VALUE_STRING_ARRAY(zbee_zcl_keep_alive_attr_names);
-static value_string_ext zbee_zcl_keep_alive_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_keep_alive_attr_names);
 
 /*************************/
 /* Function Declarations */
@@ -185,7 +184,7 @@ proto_register_zbee_zcl_keep_alive(void)
     static hf_register_info hf[] = {
 
         { &hf_zbee_zcl_keep_alive_attr_id,
-            { "Attribute", "zbee_zcl_se.keep_alive.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_keep_alive_attr_names_ext,
+            { "Attribute", "zbee_zcl_se.keep_alive.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_keep_alive_attr_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_keep_alive_attr_reporting_status,                         /* common to all SE clusters */
@@ -10571,7 +10570,6 @@ proto_reg_handoff_zbee_zcl_events(void)
 
 VALUE_STRING_ENUM(zbee_zcl_mdu_pairing_attr_names);
 VALUE_STRING_ARRAY(zbee_zcl_mdu_pairing_attr_names);
-static value_string_ext zbee_zcl_mdu_pairing_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_mdu_pairing_attr_names);
 
 /* Server Commands Received */
 #define zbee_zcl_mdu_pairing_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -10797,7 +10795,7 @@ proto_register_zbee_zcl_mdu_pairing(void)
     static hf_register_info hf[] = {
 
         { &hf_zbee_zcl_mdu_pairing_attr_id,
-            { "Attribute", "zbee_zcl_se.mdu_pairing.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_mdu_pairing_attr_names_ext,
+            { "Attribute", "zbee_zcl_se.mdu_pairing.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_mdu_pairing_attr_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_mdu_pairing_attr_reporting_status,                         /* common to all SE clusters */
@@ -10889,7 +10887,6 @@ proto_reg_handoff_zbee_zcl_mdu_pairing(void)
 
 VALUE_STRING_ENUM(zbee_zcl_sub_ghz_attr_names);
 VALUE_STRING_ARRAY(zbee_zcl_sub_ghz_attr_names);
-static value_string_ext zbee_zcl_sub_ghz_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_sub_ghz_attr_names);
 
 /* Server Commands Received */
 #define zbee_zcl_sub_ghz_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -11075,7 +11072,7 @@ proto_register_zbee_zcl_sub_ghz(void)
     static hf_register_info hf[] = {
 
         { &hf_zbee_zcl_sub_ghz_attr_id,
-            { "Attribute", "zbee_zcl_se.sub_ghz.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_sub_ghz_attr_names_ext,
+            { "Attribute", "zbee_zcl_se.sub_ghz.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_sub_ghz_attr_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_sub_ghz_attr_reporting_status,                         /* common to all SE clusters */
