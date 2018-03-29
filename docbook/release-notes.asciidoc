@@ -42,7 +42,7 @@ Dumpcap might not quit if Wireshark or TShark crashes.
 The following features are new (or have been significantly updated)
 since version 2.5.0:
 
-* HTTP Referer statistics are now supported.
+* HTTP Request sequences are now supported.
 * Wireshark now supports MaxMind DB files. Support for GeoIP and GeoLite
   Legacy databases has been removed.
 * The Windows packages are now built using Microsoft Visual Studio 2017.

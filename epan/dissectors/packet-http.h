@@ -31,6 +31,8 @@ typedef struct _http_info_value_t {
 	const gchar   *request_uri;
 	const gchar   *referer_uri;
 	const gchar   *full_uri;
+	const gchar   *location_base_uri;
+	const gchar   *location_target;
 } http_info_value_t;
 
 /** information about a request and response on a HTTP conversation. */
@@ -56,6 +58,7 @@ typedef struct _http_conv_t {
 	gchar   *http_host;
 	gchar   *request_method;
 	gchar   *request_uri;
+	gchar   *full_uri;
 	/** the number of requests on the conversation. */
 	guint32  req_res_num;
 	guint8   upgrade;

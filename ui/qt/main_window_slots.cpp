@@ -3324,9 +3324,9 @@ void MainWindow::on_actionStatisticsHTTPLoadDistribution_triggered()
     openStatisticsTreeDialog("http_srv");
 }
 
-void MainWindow::on_actionStatisticsHTTPReferers_triggered()
+void MainWindow::on_actionStatisticsHTTPRequestSequences_triggered()
 {
-    openStatisticsTreeDialog("http_ref");
+    openStatisticsTreeDialog("http_seq");
 }
 
 void MainWindow::on_actionStatisticsPacketLengths_triggered()
