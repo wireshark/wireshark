@@ -8,7 +8,7 @@
 #line 1 "./asn1/lppa/packet-lppa-template.c"
 /* packet-lppa.c
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
- * Copyright 2011-2016, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2018, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.455 version 14.2.0 Release 14
+ * Ref 3GPP TS 36.455 version 14.4.0 Release 14
  * http://www.3gpp.org
  */
 
@@ -184,6 +184,7 @@ static int hf_lppa_dL_Bandwidth = -1;             /* DL_Bandwidth */
 static int hf_lppa_pRSOccasionGroup = -1;         /* PRSOccasionGroup */
 static int hf_lppa_pRSFreqHoppingConfig = -1;     /* PRSFrequencyHoppingConfiguration */
 static int hf_lppa_repetitionNumberofSIB1_NB = -1;  /* RepetitionNumberofSIB1_NB */
+static int hf_lppa_nPRSSequenceInfo = -1;         /* NPRSSequenceInfo */
 static int hf_lppa_thirty_two = -1;               /* BIT_STRING_SIZE_32 */
 static int hf_lppa_sixty_four = -1;               /* BIT_STRING_SIZE_64 */
 static int hf_lppa_one_hundred_and_twenty_eight = -1;  /* BIT_STRING_SIZE_128 */
@@ -1717,6 +1718,16 @@ dissect_lppa_RepetitionNumberofSIB1_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
+
+static int
+dissect_lppa_NPRSSequenceInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 174U, NULL, TRUE);
+
+  return offset;
+}
+
+
 static const value_string lppa_OTDOACell_Information_Item_vals[] = {
   {   0, "pCI" },
   {   1, "cellId" },
@@ -1744,6 +1755,7 @@ static const value_string lppa_OTDOACell_Information_Item_vals[] = {
   {  23, "pRSOccasionGroup" },
   {  24, "pRSFreqHoppingConfig" },
   {  25, "repetitionNumberofSIB1-NB" },
+  {  26, "nPRSSequenceInfo" },
   { 0, NULL }
 };
 
@@ -1774,6 +1786,7 @@ static const per_choice_t OTDOACell_Information_Item_choice[] = {
   {  23, &hf_lppa_pRSOccasionGroup, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRSOccasionGroup },
   {  24, &hf_lppa_pRSFreqHoppingConfig, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRSFrequencyHoppingConfiguration },
   {  25, &hf_lppa_repetitionNumberofSIB1_NB, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_RepetitionNumberofSIB1_NB },
+  {  26, &hf_lppa_nPRSSequenceInfo, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_NPRSSequenceInfo },
   { 0, NULL, 0, NULL }
 };
 
@@ -2568,6 +2581,7 @@ static const value_string lppa_OTDOA_Information_Item_vals[] = {
   {  23, "prsOccasionGroup" },
   {  24, "prsFrequencyHoppingConfiguration" },
   {  25, "repetitionNumberofSIB1-NB" },
+  {  26, "nPRSSequenceInfo" },
   { 0, NULL }
 };
 
@@ -2575,7 +2589,7 @@ static const value_string lppa_OTDOA_Information_Item_vals[] = {
 static int
 dissect_lppa_OTDOA_Information_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, NULL, TRUE, 16, NULL);
+                                     10, NULL, TRUE, 17, NULL);
 
   return offset;
 }
@@ -4188,6 +4202,10 @@ void proto_register_lppa(void) {
     { &hf_lppa_repetitionNumberofSIB1_NB,
       { "repetitionNumberofSIB1-NB", "lppa.repetitionNumberofSIB1_NB",
         FT_UINT32, BASE_DEC, VALS(lppa_RepetitionNumberofSIB1_NB_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_nPRSSequenceInfo,
+      { "nPRSSequenceInfo", "lppa.nPRSSequenceInfo",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lppa_thirty_two,
       { "thirty-two", "lppa.thirty_two",

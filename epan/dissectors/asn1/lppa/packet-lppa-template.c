@@ -1,6 +1,6 @@
 /* packet-lppa.c
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
- * Copyright 2011-2016, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2018, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.455 version 14.2.0 Release 14
+ * Ref 3GPP TS 36.455 version 14.4.0 Release 14
  * http://www.3gpp.org
  */
 

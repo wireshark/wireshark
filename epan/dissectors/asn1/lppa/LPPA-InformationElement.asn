@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V14.2.0 (2017-06)
+-- 3GPP TS 36.455 V14.4.0 (2017-12)
 --
 
 -- **************************************************************
@@ -361,6 +361,8 @@ NumberOfFrequencyHoppingBands ::= ENUMERATED {
 	...
 }
 
+NPRSSequenceInfo ::= INTEGER (0..174,...)
+
 -- O
 
 OffsetNBChanneltoEARFCN ::= ENUMERATED {
@@ -434,7 +436,8 @@ OTDOACell-Information-Item ::= CHOICE {
 	dL-Bandwidth				DL-Bandwidth,
 	pRSOccasionGroup			PRSOccasionGroup,
 	pRSFreqHoppingConfig		PRSFrequencyHoppingConfiguration,
-	repetitionNumberofSIB1-NB	RepetitionNumberofSIB1-NB
+	repetitionNumberofSIB1-NB	RepetitionNumberofSIB1-NB,
+	nPRSSequenceInfo			NPRSSequenceInfo
 }
 
 OTDOA-Information-Item ::= ENUMERATED {
@@ -464,7 +467,8 @@ OTDOA-Information-Item ::= ENUMERATED {
 		multipleprsConfigurationsperCell,
 		prsOccasionGroup,
 		prsFrequencyHoppingConfiguration,
-		repetitionNumberofSIB1-NB
+		repetitionNumberofSIB1-NB,
+		nPRSSequenceInfo
 }
 
 -- P
