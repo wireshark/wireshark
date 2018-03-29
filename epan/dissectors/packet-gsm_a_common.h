@@ -782,6 +782,10 @@ guint16 de_emm_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 guint16 de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 void nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
+guint16 de_nas_5gs_mm_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+
 void dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 void dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
@@ -825,6 +829,8 @@ extern const value_string gsm_a_gm_type_of_ciph_alg_vals[];
 extern value_string_ext nas_eps_emm_cause_values_ext;
 extern const value_string nas_eps_emm_cause_values[];
 extern const value_string nas_eps_esm_cause_vals[];
+
+extern const value_string nas_5gs_pdu_session_id_vals[];
 
 typedef enum
 {

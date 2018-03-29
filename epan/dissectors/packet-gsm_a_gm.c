@@ -69,7 +69,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 15.1.0 Release 15)
+ *   (3GPP TS 24.008 version 15.2.0 Release 15)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -555,6 +555,8 @@ static int hf_gsm_a_gm_sm_pco_3gpp_data_off_ue_status = -1;
 static int hf_gsm_a_gm_sm_pco_sel_bearer_ctrl_mode = -1;
 static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_ul_time_unit = -1;
 static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate = -1;
+static int hf_gsm_a_gm_sm_pco_pdu_session_id = -1;
+static int hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
 static int hf_gsm_a_gm_ti_value = -1;
@@ -4411,6 +4413,7 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0017, 0x0017, "3GPP PS data off UE status" },
 	{ 0x0018, 0x0018, "Reliable Data Service request indicator" },
 	{ 0x0019, 0x0019, "Additional APN rate control for exception data support indicator" },
+	{ 0x001a, 0x001a, "PDU session ID" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4440,6 +4443,11 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0017, 0x0017, "3GPP PS data off support indication" },
 	{ 0x0018, 0x0018, "Reliable Data Service accepted indicator" },
 	{ 0x0019, 0x0019, "Additional APN rate control for exception data parameters" },
+	{ 0x001a, 0x001a, "Reserved" },
+	{ 0x001b, 0x001b, "S-NSSAI" },
+	{ 0x001c, 0x001c, "QoS rules" },
+	{ 0x001d, 0x001d, "Session-AMBR" },
+	{ 0x001e, 0x001e, "PDU session address lifetime" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4646,6 +4654,37 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 					if (e_len >= 3) {
 						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 2, ENC_BIG_ENDIAN);
 					}
+				}
+				break;
+			case 0x001a:
+				if (link_dir == P2P_DIR_UL) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pdu_session_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x001b:
+				if (link_dir == P2P_DIR_DL && e_len >= 4) {
+					de_nas_5gs_mm_s_nssai(tvb, pco_tree, pinfo, curr_offset, e_len - 3, NULL, 0);
+					dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset + e_len - 3, E212_NONE, TRUE);
+				}
+				break;
+			case 0x001c:
+				if (link_dir == P2P_DIR_DL) {
+					de_nas_5gs_sm_qos_rules(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
+				}
+				break;
+			case 0x001d:
+				if (link_dir == P2P_DIR_DL) {
+					de_nas_5gs_sm_qos_rules(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
+				}
+				break;
+			case 0x001e:
+				if (link_dir == P2P_DIR_DL) {
+					de_nas_5gs_sm_session_ambr(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
+				}
+				break;
+			case 0x001f:
+				if (link_dir == P2P_DIR_DL && e_len == 2) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 				}
 				break;
 			default:
@@ -9202,6 +9241,16 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate,
 		  { "Additional uplink rate for exception data", "gsm_a.gm.sm.pco.add_apn_rate_ctrl_params.max_ul_rate",
 		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_message_messages, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pdu_session_id,
+		  { "PDU session identity", "gsm_a.gm.sm.pco.pdu_session_id",
+		    FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_id_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime,
+		  { "PDU session address lifetime", "gsm_a.gm.sm.pco.pdu_session_address_lifetime",
+		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */
