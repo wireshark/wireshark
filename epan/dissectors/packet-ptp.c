@@ -45,6 +45,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
+#include <epan/oui.h>
 #include "packet-ptp.h"
 
 /**********************************************************/
@@ -955,18 +956,13 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_MM_DOMAINNUMBER                          PTP_V2_MM_TLV_DATAFIELD_OFFSET + 18
 #define PTP_V2_MM_RESERVED2                             PTP_V2_MM_TLV_DATAFIELD_OFFSET + 19
 
-/* Organization IDs for PTPv2 Organization Extension */
-#define PTP_V2_OE_ORG_ID_CERN                           0x080030 /* CERN */
-#define PTP_V2_OE_ORG_ID_IEEE_C37_238                   0x1C129D /* Defined in IEEE Std C37.238-2011 */
-#define PTP_v2_OE_ORG_ID_SMPTE                          0x6897E8 /* Society of Motion Picture and Television Engineers */
-
-/* Subtypes for the PTP_V2_OE_ORG_ID_IEEE_C37_238 organization ID */
+/* Subtypes for the OUI_IEEE_C37_238 organization ID */
 #define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV    1        /* Defined in IEEE Std C37.238-2011 */
 
 /* Subtypes for the PTP_V2_OE_ORG_ID_SMPTE organization ID */
 #define PTP_V2_OE_ORG_SMPTE_SUBTYPE_VERSION_TLV         1
 
-/* Subtypes for the PTP_V2_OE_ORG_ID_CERN organization ID */
+/* Subtypes for the OUI_CERN organization ID */
 #define PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV               0xdead01
 
 /* MESSAGE ID for the PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV */
@@ -1311,13 +1307,6 @@ static const value_string ptp_v2_managementErrorId_vals[] = {
 };
 static value_string_ext ptp_v2_managementErrorId_vals_ext =
     VALUE_STRING_EXT_INIT(ptp_v2_managementErrorId_vals);
-
-static const value_string ptp_v2_organizationExtensionOrgId_vals[] = {
-    {PTP_V2_OE_ORG_ID_CERN,          "CERN"},
-    {PTP_V2_OE_ORG_ID_IEEE_C37_238,  "IEEE C37.238"},
-    {PTP_v2_OE_ORG_ID_SMPTE,         "Society of Motion Picture and Television Engineers"},
-    {0,                              NULL}
-};
 
 static const value_string ptp_v2_org_iee_c37_238_subtype_vals[] = {
     {PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV,  "IEEE_C37_238 TLV"},
@@ -2580,7 +2569,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                         org_id = tvb_get_ntoh24(tvb, tlv_offset + PTP_V2_SIG_TLV_ORGANIZATIONID_OFFSET);
                         subtype = tvb_get_ntoh24(tvb, tlv_offset + PTP_V2_SIG_TLV_ORGANIZATIONSUBTYPE_OFFSET);
 
-                        if (org_id == PTP_V2_OE_ORG_ID_CERN && subtype == PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV)
+                        if (org_id == OUI_CERN && subtype == PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV)
                         {
                             col_append_str(pinfo->cinfo, COL_INFO, " WR ");
                             wr_messageId = tvb_get_ntohs(tvb, tlv_offset + PTP_V2_SIG_TLV_WRTLV_MESSAGEID_OFFSET);
@@ -2817,7 +2806,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                                 switch (org_id)
                                 {
-                                    case PTP_V2_OE_ORG_ID_IEEE_C37_238:
+                                    case OUI_IEEE_C37_238:
                                     {
                                         proto_tree_add_item(ptp_tlv_tree,
                                                             hf_ptp_v2_oe_tlv_organizationsubtype,
@@ -2869,7 +2858,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                         }
                                         break;
                                     }
-                                    case PTP_V2_OE_ORG_ID_CERN:
+                                    case OUI_CERN:
                                     {
                                         proto_tree_add_item(ptp_tlv_tree,
                                                             hf_ptp_v2_an_tlv_oe_cern_subtype,
@@ -3410,7 +3399,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                                 switch (org_id)
                                 {
-                                    case PTP_V2_OE_ORG_ID_CERN:
+                                    case OUI_CERN:
                                     {
                                         proto_tree_add_item(ptp_tlv_tree,
                                                             hf_ptp_v2_sig_oe_tlv_cern_subtype,
@@ -4332,7 +4321,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                         switch (org_id)
                         {
-                            case PTP_v2_OE_ORG_ID_SMPTE:
+                            case OUI_SMPTE:
                             {
                             proto_tree_add_item(ptp_tree, hf_ptp_v2_oe_tlv_smpte_subtype,
                                                 tvb, Offset, 3, ENC_BIG_ENDIAN);
@@ -5437,7 +5426,7 @@ proto_register_ptp(void)
         /* Fields for ORGANIZATION_EXTENSION TLV */
         { &hf_ptp_v2_oe_tlv_organizationid,
           { "organizationId", "ptp.v2.an.oe.organizationId",
-            FT_UINT24, BASE_HEX, VALS(ptp_v2_organizationExtensionOrgId_vals), 0x00,
+            FT_UINT24, BASE_OUI, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_organizationsubtype,
