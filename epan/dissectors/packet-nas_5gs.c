@@ -117,6 +117,7 @@ static int hf_nas_5gs_mm_eia4 = -1;
 static int hf_nas_5gs_mm_eia5 = -1;
 static int hf_nas_5gs_mm_eia6 = -1;
 static int hf_nas_5gs_mm_eia7 = -1;
+static int hf_nas_5gs_mm_n1_mode_reg_b1 = -1;
 static int hf_nas_5gs_mm_s1_mode_reg_b0 = -1;
 
 static int hf_nas_5gs_pdu_ses_sts_psi_7_b7 = -1;
@@ -1318,6 +1319,11 @@ de_nas_5gs_mm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  *     9.8.3.49    UE status
  */
 
+static true_false_string tfs_nas_5gs_mm_n1_mod = {
+    "UE is in 5GMM-REGISTERED state",
+    "UE is not in 5GMM-REGISTERED state"
+};
+
 static true_false_string tfs_nas_5gs_mm_s1_mod = {
     "UE is in EMM-REGISTERED state",
     "UE is not in EMM-REGISTERED state"
@@ -1337,7 +1343,7 @@ de_nas_5gs_mm_ue_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         &hf_nas_5gs_spare_b4,
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
-        &hf_nas_5gs_spare_b1,
+        &hf_nas_5gs_mm_n1_mode_reg_b1,
         &hf_nas_5gs_mm_s1_mode_reg_b0,
         NULL
     };
@@ -1831,6 +1837,7 @@ guint16(*nas_5gs_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info
 /*
  * 9.8.3    5GS mobility management (5GMM) information elements
  */
+#if 0
 typedef enum
 {
     DE_NAS_5GS_MM_5GMM_CAP,                  /* 9.8.3.1     5GMM capability*/
@@ -1885,6 +1892,7 @@ typedef enum
     DE_NAS_5GS_MM_NONE        /* NONE */
 }
 nas_5gs_mm_elem_idx_t;
+#endif
 
 static const value_string nas_5gs_mm_elem_strings[] = {
     { DE_NAS_5GS_MM_5GMM_CAP,                   "5GMM capability" },                    /* 9.8.3.1    5GMM capability*/
@@ -3974,6 +3982,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_eia7,
         { "EIA7","nas_5gs.mm.eia7",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_n1_mode_reg_b1,
+        { "N1 mode reg","nas_5gs.mm.n1_mode_reg_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_mm_n1_mod), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_s1_mode_reg_b0,

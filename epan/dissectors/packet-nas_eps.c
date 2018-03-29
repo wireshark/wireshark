@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V15.1.1 (2017-12)
+ * References: 3GPP TS 24.301 V15.2.0 (2018-03)
  */
 
 #include "config.h"
@@ -89,6 +89,7 @@ static int hf_nas_eps_emm_cs_lcs = -1;
 static int hf_nas_eps_emm_epc_lcs = -1;
 static int hf_nas_eps_emm_emc_bs = -1;
 static int hf_nas_eps_emm_ims_vops = -1;
+static int hf_nas_eps_emm_n26ind = -1;
 static int hf_nas_eps_emm_restrict_dcnr = -1;
 static int hf_nas_eps_emm_restrict_ec = -1;
 static int hf_nas_eps_emm_epco = -1;
@@ -177,6 +178,8 @@ static int hf_nas_eps_emm_up_ciot_cap = -1;
 static int hf_nas_eps_emm_cp_ciot_cap = -1;
 static int hf_nas_eps_emm_prose_relay_cap = -1;
 static int hf_nas_eps_emm_prose_dc_cap = -1;
+static int hf_nas_eps_sgc_cap = -1;
+static int hf_nas_eps_n1mode_cap = -1;
 static int hf_nas_eps_dcnr_cap = -1;
 static int hf_nas_eps_cp_backoff_cap = -1;
 static int hf_nas_eps_restrict_ec_cap = -1;
@@ -787,7 +790,8 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_UE_NET_CAP, "UE network capability" },                            /* 9.9.3.34 UE network capability */
     { DE_EMM_UE_RA_CAP_INF_UPD_NEED, "UE radio capability information update needed" },/* 9.9.3.35 UE radio capability information update needed */
     { DE_EMM_UE_SEC_CAP, "UE security capability" },                           /* 9.9.3.36 UE security capability */
-    { DE_EMM_EMERG_NUM_LST, "Emergency Number List" },                         /* 9.9.3.37 Emergency Number List */
+    { DE_EMM_EMERG_NUM_LIST, "Emergency Number List" },                        /* 9.9.3.37 Emergency Number List */
+    { DE_EMM_EXT_EMERG_NUM_LIST, "Extended Emergency Number List" },           /* 9.9.3.37a Extended Emergency Number List */
     { DE_EMM_CLI, "CLI" },                                                     /* 9.9.3.38 CLI */
     { DE_EMM_SS_CODE, "SS Code" },                                             /* 9.9.3.39 SS Code */
     { DE_EMM_LCS_IND, "LCS indicator" },                                       /* 9.9.3.40 LCS indicator */
@@ -804,6 +808,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_REPLAYED_NAS_MSG_CONT, "Replayed NAS message container" },        /* 9.9.3.51 Replayed NAS message container */
     { DE_EMM_NETWORK_POLICY, "Network policy" },                               /* 9.9.3.52 Network policy */
     { DE_EMM_UE_ADD_SEC_CAP, "UE additional security capability" },            /* 9.9.3.53 UE additional security capability */
+    { DE_EMM_UE_STATUS, "UE status" },                                         /* 9.9.3.54 UE status */
     { 0, NULL }
 };
 value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
@@ -868,7 +873,8 @@ typedef enum
     DE_EMM_UE_NET_CAP,          /* 9.9.3.34 UE network capability */
     DE_EMM_UE_RA_CAP_INF_UPD_NEED,  /* 9.9.3.35 UE radio capability information update needed */
     DE_EMM_UE_SEC_CAP,          /* 9.9.3.36 UE security capability */
-    DE_EMM_EMERG_NUM_LST,       /* 9.9.3.37 Emergency Number List */
+    DE_EMM_EMERG_NUM_LIST,      /* 9.9.3.37 Emergency Number List */
+    DE_EMM_EXT_EMERG_NUM_LIST,  /* 9.9.3.37a Extended Emergency Number List */
     DE_EMM_CLI,                 /* 9.9.3.38 CLI */
     DE_EMM_SS_CODE,             /* 9.9.3.39 SS Code */
     DE_EMM_LCS_IND,             /* 9.9.3.40 LCS indicator */
@@ -885,6 +891,7 @@ typedef enum
     DE_EMM_REPLAYED_NAS_MSG_CONT, /* 9.9.3.51 Replayed NAS message container */
     DE_EMM_NETWORK_POLICY,      /* 9.9.3.52 Network policy */
     DE_EMM_UE_ADD_SEC_CAP,      /* 9.9.3.53 UE additional security capability */
+    DE_EMM_UE_STATUS,           /* 9.9.3.54 UE status */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -926,7 +933,7 @@ de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 static const value_string nas_eps_emm_pnb_ciot_vals[] = {
     { 0x0, "No additional information"},
     { 0x1, "Control-plane CIoT EPS optimization"},
-    { 0x2, "S1-U data transfer"},
+    { 0x2, "User plane CIoT EPS optimization"},
     { 0x3, "Reserved"},
     { 0, NULL }
 };
@@ -1311,8 +1318,10 @@ de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
     if (len >= 2) {
-        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-        bit_offset += 2;
+        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
+        proto_tree_add_bits_item(tree, hf_nas_eps_emm_n26ind, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
         proto_tree_add_bits_item(tree, hf_nas_eps_emm_restrict_dcnr, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         proto_tree_add_bits_item(tree, hf_nas_eps_emm_restrict_ec, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -2005,6 +2014,8 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     };
 
     static const int * oct9_flags[] = {
+        &hf_nas_eps_sgc_cap,
+        &hf_nas_eps_n1mode_cap,
         &hf_nas_eps_dcnr_cap,
         &hf_nas_eps_cp_backoff_cap,
         &hf_nas_eps_restrict_ec_cap,
@@ -2066,9 +2077,9 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     /* Octet 9
-     * 0 Spare    0 Spare    0 Spare    DCNR    CP backoff    RestrictEC    V2X PC5    multipleDRB
+     * 0 Spare    SGC    N1mode    DCNR    CP backoff    RestrictEC    V2X PC5    multipleDRB
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct9_flags, ENC_NA);
     curr_offset++;
 
@@ -2223,6 +2234,21 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 
 /*
+ * 9.9.3.37a Extended Emergency Number List
+ */
+static guint16
+de_emm_ext_emerg_num_list(tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo,
+                          guint32 offset, guint len,
+                          gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset = offset;
+
+    EXTRANEOUS_DATA_CHECK(len, 0, pinfo, &ei_nas_eps_extraneous_data);
+
+    return len;
+}
+
+/*
  * 9.9.3.38 CLI
  */
 
@@ -2237,7 +2263,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 static guint16
 de_emm_ss_code(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
-               guint32 offset, guint len _U_,
+               guint32 offset, guint len,
                gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
@@ -2544,6 +2570,11 @@ de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 }
 
 /*
+ * 9.9.3.54 UE status
+ * see packet-nas_5gs.c
+ */
+
+/*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
 
@@ -2694,7 +2725,15 @@ static const range_string nas_eps_qci_vals[] = {
     { 0x43, 0x44, "Spare"},
     { 0x45, 0x45, "QCI 69"},
     { 0x46, 0x46, "QCI 70"},
-    { 0x47, 0x7F, "Spare"},
+    { 0x47, 0x4A, "Spare"},
+    { 0x4B, 0x4B, "QCI 75"},
+    { 0x4C, 0x4E, "Spare"},
+    { 0x4F, 0x4F, "QCI 79"},
+    { 0x50, 0x50, "QCI 80"},
+    { 0x51, 0x51, "Spare"},
+    { 0x52, 0x52, "QCI 82"},
+    { 0x53, 0x53, "QCI 83"},
+    { 0x54, 0x7F, "Spare"},
     { 0x80, 0xFE, "Operator-specific QCI"},
     { 0xFF, 0xFF, "Reserved"},
     { 0,    0,    NULL }
@@ -3715,6 +3754,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     de_emm_ue_ra_cap_inf_upd_need, /* 9.9.3.35  UE radio capability information update needed */
     de_emm_ue_sec_cap,          /* 9.9.3.36 UE security capability */
     NULL,                       /* 9.9.3.37 Emergency Number List (packet-gsm_a_dtap.c) */
+    de_emm_ext_emerg_num_list,  /* 9.9.3.37a Extended Emergency Number List */
     NULL,                       /* 9.9.3.38 CLI */
     de_emm_ss_code,             /* 9.9.3.39 SS Code */
     de_emm_lcs_ind,             /* 9.9.3.40 LCS indicator */
@@ -3731,6 +3771,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     de_emm_replayed_nas_msg_cont, /* 9.9.3.51 Replayed NAS message container */
     de_emm_network_policy,      /* 9.9.3.52 Network policy */
     de_emm_ue_add_sec_cap,      /* 9.9.3.53 UE additional security capability */
+    NULL,                       /* 9.9.3.54 UE status */
     NULL,   /* NONE */
 };
 
@@ -3927,6 +3968,10 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
     /* C-   Network policy Network policy 9.9.3.52 O TV 1 */
     ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
+    /* 6C   T3447 value GPRS timer 3 9.9.3.16B O   TLV  3 */
+    ELEM_OPT_TLV(0x6C, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447 value");
+    /* 35   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV  FFS */
+    ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4699,6 +4744,10 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
     /* C-   Network policy Network policy 9.9.3.52 O TV 1 */
     ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
+    /* 6C   T3447 value GPRS timer 3 9.9.3.16B O   TLV  3 */
+    ELEM_OPT_TLV(0x6C, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447 value");
+    /* 35   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV  FFS */
+    ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4817,6 +4866,8 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 6F   UE additional security capability UE additional security capability 9.9.3.53 O TLV 8 */
     ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);
+    /* 6D   UE status UE status 9.9.3.54 O TLV 3 */
+    ELEM_OPT_TLV(0x6D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_STS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4991,6 +5042,8 @@ nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
+    /* 5C   Extended EPS QoS  Extended quality of service 9.9.4.30 O   TLV 12 */
+    ELEM_OPT_TLV(0x5C, NAS_PDU_TYPE_ESM, DE_ESM_EXT_EPS_QOS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -6497,6 +6550,11 @@ proto_register_nas_eps(void)
         FT_BOOLEAN ,BASE_NONE, TFS(&tfs_restricted_not_restricted), 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_n26ind,
+        { "Interworking without N26","nas_eps.emm.n26ind",
+        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_restrict_dcnr,
         { "Restriction on the use of dual connectivity with NR","nas_eps.emm.restrict_dcnr",
         FT_BOOLEAN ,BASE_NONE, TFS(&tfs_restricted_not_restricted), 0x0,
@@ -6932,6 +6990,16 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_prose_dc_cap,
         { "ProSe direct communication","nas_eps.emm.prose_dc_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_sgc_cap,
+        { "Service gap control","nas_eps.emm.sgc_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_n1mode_cap,
+        { "N1 mode","nas_eps.emm.n1mode_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
         NULL, HFILL }
     },
     { &hf_nas_eps_dcnr_cap,
