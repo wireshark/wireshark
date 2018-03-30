@@ -1020,6 +1020,7 @@ PRIVATE int same_symbol(struct symbol *a, struct symbol *b)
   return 1;
 }
 
+#ifndef __clang_analyzer__
 /* Construct all successor states to the given state.  A "successor"
 ** state is any state which can be reached by a shift action.
 */
@@ -1073,7 +1074,6 @@ PRIVATE void buildshifts(struct lemon *lemp, struct state *stp)
   }
 }
 
-#ifndef __clang_analyzer__
 /*
 ** Construct the propagation links
 */
