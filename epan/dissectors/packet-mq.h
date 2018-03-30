@@ -231,6 +231,10 @@
 #define MQ_SPI_PUT                0x02
 #define MQ_SPI_GET                0x03
 #define MQ_SPI_ACTIVATE           0x04
+#define MQ_SPI_SYNCHPOINT         0x05
+#define MQ_SPI_RESERVE            0x06
+#define MQ_SPI_SUBSCRIBE          0x07
+#define MQ_SPI_NOTIFY             0x0B
 #define MQ_SPI_OPEN               0x0C
 
 #define MQ_SPI_ACTIVATE_ENABLE    0x01

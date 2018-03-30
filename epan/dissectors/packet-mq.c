@@ -619,7 +619,7 @@ static int hf_mq_lpoo_lpiopts = -1;
 static int hf_mq_lpoo_defpersist = -1;
 static int hf_mq_lpoo_defputresptype = -1;
 static int hf_mq_lpoo_defreadahead = -1;
-static int hf_mq_lpoo_unknown5 = -1;
+static int hf_mq_lpoo_propertyctl = -1;
 static int hf_mq_lpoo_qprotect = -1;
 static int hf_mq_lpoo_unknown6 = -1;
 static int hf_mq_lpoo_xtradata = -1;
@@ -1054,6 +1054,10 @@ DEF_VALSB(spi_verbs)
 /*  2*/ DEF_VALS2(SPI_PUT, "PUT"),
 /*  3*/ DEF_VALS2(SPI_GET, "GET"),
 /*  4*/ DEF_VALS2(SPI_ACTIVATE, "ACTIVATE"),
+/*  5*/ DEF_VALS2(SPI_SYNCHPOINT, "SYNCHPOINT"),
+/*  6*/ DEF_VALS2(SPI_RESERVE, "RESERVE"),
+/*  7*/ DEF_VALS2(SPI_SUBSCRIBE, "SUBSCRIBE"),
+/* 11*/ DEF_VALS2(SPI_NOTIFY, "NOTIFY"),
 /* 12*/ DEF_VALS2(SPI_OPEN, "OPEN"),
 DEF_VALSE;
 
@@ -2969,10 +2973,10 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             dissect_mq_MQOO(tvb, mq_tree, offset + 8, ett_mq_lpoo_options, hf_mq_lpoo_options, p_mq_parm);
 
                             dissect_mq_LPOO_LPIOPTS(tvb, mq_tree, offset + 12, ett_mq_lpoo_lpiopts, p_mq_parm);
-                            proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown5, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
-                            proto_tree_add_item(mq_tree, hf_mq_lpoo_defpersist, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
-                            proto_tree_add_item(mq_tree, hf_mq_lpoo_defputresptype, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
-                            proto_tree_add_item(mq_tree, hf_mq_lpoo_defreadahead, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
+                            proto_tree_add_item(mq_tree, hf_mq_lpoo_defpersist, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
+                            proto_tree_add_item(mq_tree, hf_mq_lpoo_defputresptype, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
+                            proto_tree_add_item(mq_tree, hf_mq_lpoo_defreadahead, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
+                            proto_tree_add_item(mq_tree, hf_mq_lpoo_propertyctl, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
                             if (iVersion >= 3)
                             {
                                 proto_tree_add_item(mq_tree, hf_mq_lpoo_qprotect, tvb, offset + 32, 48, p_mq_parm->mq_int_enc);
@@ -4216,13 +4220,13 @@ void proto_register_mq(void)
         { &hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT  , {"SAVE_ORIGIN_CTXT", "mq.lpoo.opts.SAVE_ORIGIN_CTXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_LPOO_SAVE_ORIGIN_CTXT, "LPOO options SAVE_ORIGIN_CTXT", HFILL }},
         { &hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT, {"SAVE_IDENTITY_CTXT", "mq.lpoo.opts.SAVE_IDENTITY_CTXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_LPOO_SAVE_IDENTITY_CTXT, "LPOO options SAVE_IDENTITY_CTXT", HFILL }},
 
-        { &hf_mq_lpoo_unknown5      , {"Unknown5......", "mq.lpoo.unknown5", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown5", HFILL }},
-        { &hf_mq_lpoo_defpersist    , {"DefPersistence", "mq.lpoo.defpersist", FT_UINT32, BASE_DEC, VALS(GET_VALSV(MQPER)), 0x0, "LPOO Default Persistence", HFILL }},
-        { &hf_mq_lpoo_defputresptype, {"DefPutRespType", "mq.lpoo.defputresptype", FT_UINT32, BASE_DEC, VALS(GET_VALSV(MQPRT)), 0x0, "LPOO Default Put Response Type", HFILL }},
-        { &hf_mq_lpoo_defreadahead  , {"DefReadAHead..", "mq.lpoo.defreadahead", FT_UINT32, BASE_DEC, VALS(GET_VALSV(MQREADA)), 0x0, "LPOO Default Read AHead", HFILL }},
+        { &hf_mq_lpoo_defpersist    , {"DefPersistence", "mq.lpoo.defpersist", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQPER)), 0x0, "LPOO Default Persistence", HFILL }},
+        { &hf_mq_lpoo_defputresptype, {"DefPutRespType", "mq.lpoo.defputresptype", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQPRT)), 0x0, "LPOO Default Put Response Type", HFILL }},
+        { &hf_mq_lpoo_defreadahead  , {"DefReadAHead..", "mq.lpoo.defreadahead", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQREADA)), 0x0, "LPOO Default Read AHead", HFILL }},
+        { &hf_mq_lpoo_propertyctl   , {"PropertyCtl...", "mq.lpoo.propertyctl", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO Property Control", HFILL}},
         { &hf_mq_lpoo_qprotect      , {"qprotect......", "mq.lpoo.qprotect", FT_STRINGZ, BASE_NONE, NULL, 0x0, "LPOO queue protection", HFILL }},
         { &hf_mq_lpoo_unknown6      , {"Unknown6......", "mq.lpoo.unknown6", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown6", HFILL }},
-        { &hf_mq_lpoo_xtradata      , {"ExtraData.....", "mq.lpoo.extradata", FT_UINT32, BASE_DEC, NULL, 0x0, "LPOO Extra Data", HFILL }},
+        { &hf_mq_lpoo_xtradata      , {"ExtraData.....", "mq.lpoo.extradata", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO Extra Data", HFILL }},
 
         { &hf_mq_pmo_StructID    , {"StructID...", "mq.pmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mq_pmo_version     , {"Version....", "mq.pmo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL }},
