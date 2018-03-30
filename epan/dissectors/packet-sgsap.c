@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
@@ -120,7 +122,7 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * See subclause 18.4.5 in 3GPP TS 29.018 [16].
  */
 static guint16
-de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string , int string_len)
+de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string , int string_len)
 {
     const gchar     *msg_str;
     gint             ett_tree;
@@ -149,8 +151,13 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     }
     if (msg_fcn_p){
-        offset++;
-        (*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
+        volatile guint32 curr_offset = offset + 1;
+        TRY {
+            /*let's try to decode erroneous message and catch exceptions as it could be malformed */
+            (*msg_fcn_p)(tvb, tree, pinfo, curr_offset, len - 1);
+        } CATCH_BOUNDS_ERRORS {
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        } ENDTRY
     }
 
 
