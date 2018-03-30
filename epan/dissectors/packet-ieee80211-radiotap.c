@@ -1269,7 +1269,6 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			mu_ru_3_known ? hf_radiotap_he_mu_ru_3 :
 					hf_radiotap_he_mu_ru_3_unknown,
 			tvb, offset, 1, ENC_NA);
-	offset++;
 }
 
 static void
