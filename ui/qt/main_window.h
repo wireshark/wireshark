@@ -31,6 +31,7 @@
 #include <capchild/capture_session.h>
 
 #include <QMainWindow>
+#include <QPointer>
 #include <QSplitter>
 
 #ifdef _WIN32
@@ -159,7 +160,7 @@ private:
     QActionGroup *time_precision_actions_;
     FunnelStatistics *funnel_statistics_;
     QList<QPair<QAction *, bool> > freeze_actions_;
-    QWidget *freeze_focus_;
+    QPointer<QWidget> freeze_focus_;
     QMap<QAction *, ts_type> td_actions;
     QMap<QAction *, ts_precision> tp_actions;
     DragDropToolBar *filter_expression_toolbar_;
