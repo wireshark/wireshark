@@ -12746,7 +12746,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_bond_management_feature,
-            {"Sensor Status Annunciation", "btatt.bond_management_feature",
+            {"Bond Management Feature", "btatt.bond_management_feature",
             FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
