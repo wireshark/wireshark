@@ -432,7 +432,7 @@ proto_reg_handoff_zbee_zcl_ias_ace(void)
                             ett_zbee_zcl_ias_ace,
                             ZBEE_ZCL_CID_IAS_ACE,
                             ZBEE_MFG_CODE_NONE,
-                            -1,
+                            -1, -1,
                             hf_zbee_zcl_ias_ace_srv_rx_cmd_id,
                             hf_zbee_zcl_ias_ace_srv_tx_cmd_id,
                             NULL
@@ -469,7 +469,7 @@ void proto_register_zbee_zcl_ias_wd(void);
 void proto_reg_handoff_zbee_zcl_ias_wd(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_ias_wd_attr_data                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_ias_wd_attr_data                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 static void dissect_zcl_ias_wd_start_warning            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_ias_wd_squawk                   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
@@ -662,15 +662,16 @@ dissect_zcl_ias_wd_squawk(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 void
-dissect_zcl_ias_wd_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_ias_wd_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
         case ZBEE_ZCL_ATTR_ID_IAS_WD_MAX_DURATION:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -747,6 +748,7 @@ proto_reg_handoff_zbee_zcl_ias_wd(void)
                             ett_zbee_zcl_ias_wd,
                             ZBEE_ZCL_CID_IAS_WD,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_ias_wd_attr_id,
                             hf_zbee_zcl_ias_wd_attr_id,
                             hf_zbee_zcl_ias_wd_srv_rx_cmd_id,
                             -1,

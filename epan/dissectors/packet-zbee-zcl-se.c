@@ -103,7 +103,7 @@ void proto_register_zbee_zcl_keep_alive(void);
 void proto_reg_handoff_zbee_zcl_keep_alive(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /*************************/
 /* Global Variables      */
@@ -132,9 +132,10 @@ static gint ett_zbee_zcl_keep_alive = -1;
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -155,7 +156,7 @@ dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_keep_alive_attr_data*/
@@ -226,6 +227,7 @@ proto_reg_handoff_zbee_zcl_keep_alive(void)
                             ett_zbee_zcl_keep_alive,
                             ZBEE_ZCL_CID_KEEP_ALIVE,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_keep_alive_attr_id,
                             hf_zbee_zcl_keep_alive_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_keep_alive_attr_data
@@ -1375,7 +1377,7 @@ void proto_register_zbee_zcl_price(void);
 void proto_reg_handoff_zbee_zcl_price(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_price_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_price_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_price_get_current_price              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -1561,9 +1563,10 @@ static const int * ett_zbee_zcl_price_tariff_type_mask[] = {
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_price_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_price_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -1573,7 +1576,7 @@ dissect_zcl_price_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guin
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_price_attr_data*/
@@ -3547,6 +3550,7 @@ proto_reg_handoff_zbee_zcl_price(void)
                             ZBEE_ZCL_CID_PRICE,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_price_attr_id,
+                            hf_zbee_zcl_price_attr_id,
                             hf_zbee_zcl_price_srv_rx_cmd_id,
                             hf_zbee_zcl_price_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_price_attr_data
@@ -3594,7 +3598,7 @@ void proto_register_zbee_zcl_drlc(void);
 void proto_reg_handoff_zbee_zcl_drlc(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /*************************/
 /* Global Variables      */
@@ -3623,9 +3627,10 @@ static gint ett_zbee_zcl_drlc = -1;
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -3635,7 +3640,7 @@ dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_drlc_attr_data*/
@@ -3784,6 +3789,7 @@ proto_reg_handoff_zbee_zcl_drlc(void)
                             ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_drlc_attr_id,
+                            hf_zbee_zcl_drlc_attr_id,
                             hf_zbee_zcl_drlc_srv_rx_cmd_id,
                             hf_zbee_zcl_drlc_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_drlc_attr_data
@@ -3795,16 +3801,16 @@ proto_reg_handoff_zbee_zcl_drlc(void)
 /* ########################################################################## */
 
 /* Attributes */
-#define zbee_zcl_met_attr_names_VALUE_STRING_LIST(XXX) \
-/* Client: Notification AttributeSet / Server: Reading Information Set */ \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_FUNC_NOTI_FLAGS_CUR_SUM_DEL,       0x0000, "Client: Functional Notification Flags / Server: Current Summation Delivered" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_2_CUR_SUM_RECV,         0x0001, "Client: Notification Flags 2 / Server: Current Summation Received" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_3_CUR_MAX_DE_DEL,       0x0002, "Client: Notification Flags 3 / Server: Current Max Demand Delivered" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_4_CUR_MAX_DE_RECV,      0x0003, "Client: Notification Flags 4 / Server: Current Max Demand Received" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_5_DFT_SUM,              0x0004, "Client: Notification Flags 5 / Server: DFTSummation" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_6_DAI_FREE_TIME,        0x0005, "Client: Notification Flags 6 / Server: Daily Freeze Time" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_7_POW_FAC,              0x0006, "Client: Notification Flags 7 / Server: Power Factor" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_8_READ_SNAP_TIME,       0x0007, "Client: Notification Flags 8 / Server: Reading Snapshot Time" ) \
+#define zbee_zcl_met_attr_server_names_VALUE_STRING_LIST(XXX) \
+/* Reading Information Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_SUM_DEL,                       0x0000, "Current Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_SUM_RECV,                      0x0001, "Current Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DE_DEL,                    0x0002, "Current Max Demand Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DE_RECV,                   0x0003, "Current Max Demand Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_DFT_SUM,                           0x0004, "DFTSummation" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_DAILY_FREEZE_TIME,                 0x0005, "Daily Freeze Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_POWER_FACTOR,                      0x0006, "Power Factor" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_READ_SNAP_TIME,                    0x0007, "Reading Snapshot Time" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DEMAND_DEL_TIME,           0x0008, "Current Max Demand Delivered Time" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DEMAND_RECV_TIME,          0x0009, "Current Max Demand Received Time" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_DEFAULT_UPDATE_PERIOD,             0x000A, "Default Update Period" ) \
@@ -4672,9 +4678,25 @@ proto_reg_handoff_zbee_zcl_drlc(void)
 /* Smart Energy */ \
     XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MET,             0xFFFE, "Attribute Reporting Status" )
 
-VALUE_STRING_ENUM(zbee_zcl_met_attr_names);
-VALUE_STRING_ARRAY(zbee_zcl_met_attr_names);
-static value_string_ext zbee_zcl_met_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_met_attr_names);
+VALUE_STRING_ENUM(zbee_zcl_met_attr_server_names);
+VALUE_STRING_ARRAY(zbee_zcl_met_attr_server_names);
+static value_string_ext zbee_zcl_met_attr_server_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_met_attr_server_names);
+
+#define zbee_zcl_met_attr_client_names_VALUE_STRING_LIST(XXX) \
+/* Notification AttributeSet*/ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_FUNC_NOTI_FLAGS,              0x0000, "Functional Notification Flags" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_2,                 0x0001, "Notification Flags 2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_3,                 0x0002, "Notification Flags 3" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_4,                 0x0003, "Notification Flags 4" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_5,                 0x0004, "Notification Flags 5" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_6,                 0x0005, "Notification Flags 6" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_7,                 0x0006, "Notification Flags 7" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_8,                 0x0007, "Notification Flags 8" ) \
+/* Smart Energy */ \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MET_CLNT,        0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_met_attr_client_names);
+VALUE_STRING_ARRAY(zbee_zcl_met_attr_client_names);
 
 /* Server Commands Received */
 #define zbee_zcl_met_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -4802,7 +4824,7 @@ void proto_register_zbee_zcl_met(void);
 void proto_reg_handoff_zbee_zcl_met(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_met_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_met_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_met_request_mirror_rsp      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -4823,7 +4845,8 @@ static int proto_zbee_zcl_met = -1;
 
 static int hf_zbee_zcl_met_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_met_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_met_attr_id = -1;
+static int hf_zbee_zcl_met_attr_server_id = -1;
+static int hf_zbee_zcl_met_attr_client_id = -1;
 static int hf_zbee_zcl_met_attr_reporting_status = -1;
 
 static int hf_zbee_zcl_met_func_noti_flags = -1;
@@ -4949,19 +4972,20 @@ static gint ett_zbee_zcl_met_noti_flags_5 = -1;
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
-    switch (attr_id) {
-        /* applies to all SE clusters */
-        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MET:
-            proto_tree_add_item(tree, hf_zbee_zcl_met_attr_reporting_status, tvb, *offset, 1, ENC_NA);
-            *offset += 1;
-            break;
+    if (client_attr) {
+        switch (attr_id) {
+            /* applies to all SE clusters */
+            case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MET_CLNT:
+                proto_tree_add_item(tree, hf_zbee_zcl_met_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+                *offset += 1;
+                break;
 
-        case ZBEE_ZCL_ATTR_ID_MET_FUNC_NOTI_FLAGS_CUR_SUM_DEL:
-            if (data_type == ZBEE_ZCL_32_BIT_BITMAP) {
+            case ZBEE_ZCL_ATTR_ID_MET_CLNT_FUNC_NOTI_FLAGS:
                 proto_item_append_text(tree, ", Functional Notification Flags");
 
                 static const int* func_noti_flags[] = {
@@ -4990,14 +5014,9 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 
                 proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_met_func_noti_flags, ett_zbee_zcl_met_func_noti_flags, func_noti_flags, ENC_LITTLE_ENDIAN);
                 *offset += 4;
-            }
-            else {
-                dissect_zcl_attr_data(tvb, tree, offset, data_type);
-            }
-            break;
+                break;
 
-        case ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_2_CUR_SUM_RECV:
-            if (data_type == ZBEE_ZCL_32_BIT_BITMAP) {
+            case ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_2:
                 proto_item_append_text(tree, ", Notification Flags 2");
 
                 static const int* noti_flags_2[] = {
@@ -5022,14 +5041,9 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 
                 proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_met_noti_flags_2, ett_zbee_zcl_met_noti_flags_2, noti_flags_2, ENC_LITTLE_ENDIAN);
                 *offset += 4;
-            }
-            else {
-                dissect_zcl_attr_data(tvb, tree, offset, data_type);
-            }
-            break;
+                break;
 
-        case ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_3_CUR_MAX_DE_DEL:
-            if (data_type == ZBEE_ZCL_32_BIT_BITMAP) {
+            case ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_3:
                 proto_item_append_text(tree, ", Notification Flags 3");
 
                 static const int* noti_flags_3[] = {
@@ -5045,14 +5059,9 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 
                 proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_met_noti_flags_3, ett_zbee_zcl_met_noti_flags_3, noti_flags_3, ENC_LITTLE_ENDIAN);
                 *offset += 4;
-            }
-            else {
-                dissect_zcl_attr_data(tvb, tree, offset, data_type);
-            }
-            break;
+                break;
 
-        case ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_4_CUR_MAX_DE_RECV:
-            if (data_type == ZBEE_ZCL_32_BIT_BITMAP) {
+            case ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_4:
                 proto_item_append_text(tree, ", Notification Flags 4");
 
                 static const int* noti_flags_4[] = {
@@ -5074,14 +5083,9 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 
                 proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_met_noti_flags_4, ett_zbee_zcl_met_noti_flags_4, noti_flags_4, ENC_LITTLE_ENDIAN);
                 *offset += 4;
-            }
-            else {
-                dissect_zcl_attr_data(tvb, tree, offset, data_type);
-            }
-            break;
+                break;
 
-        case ZBEE_ZCL_ATTR_ID_MET_NOTI_FLAGS_5_DFT_SUM:
-            if (data_type == ZBEE_ZCL_32_BIT_BITMAP) {
+            case ZBEE_ZCL_ATTR_ID_MET_CLNT_NOTI_FLAGS_5:
                 proto_item_append_text(tree, ", Notification Flags 5");
 
                 static const int* noti_flags_5[] = {
@@ -5100,15 +5104,25 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 
                 proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_met_noti_flags_5, ett_zbee_zcl_met_noti_flags_5, noti_flags_5, ENC_LITTLE_ENDIAN);
                 *offset += 4;
-            }
-            else {
-                dissect_zcl_attr_data(tvb, tree, offset, data_type);
-            }
-            break;
+                break;
 
-        default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
-            break;
+            default: /* Catch all */
+                dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+                break;
+        }
+    }
+    else {
+        switch (attr_id) {
+            /* applies to all SE clusters */
+            case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MET:
+                proto_tree_add_item(tree, hf_zbee_zcl_met_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+                *offset += 1;
+                break;
+
+            default: /* Catch all */
+                dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+                break;
+        }
     }
 } /*dissect_zcl_met_attr_data*/
 
@@ -5469,8 +5483,12 @@ proto_register_zbee_zcl_met(void)
 {
     static hf_register_info hf[] = {
 
-        { &hf_zbee_zcl_met_attr_id,
-            { "Attribute", "zbee_zcl_se.met.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_met_attr_names_ext,
+        { &hf_zbee_zcl_met_attr_server_id,
+            { "Attribute", "zbee_zcl_se.met.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_met_attr_server_names_ext,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_attr_client_id,
+            { "Attribute", "zbee_zcl_se.met.attr_client_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_met_attr_client_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_attr_reporting_status,                         /* common to all SE clusters */
@@ -5930,7 +5948,8 @@ proto_reg_handoff_zbee_zcl_met(void)
                             ett_zbee_zcl_met,
                             ZBEE_ZCL_CID_SIMPLE_METERING,
                             ZBEE_MFG_CODE_NONE,
-                            hf_zbee_zcl_met_attr_id,
+                            hf_zbee_zcl_met_attr_server_id,
+                            hf_zbee_zcl_met_attr_client_id,
                             hf_zbee_zcl_met_srv_rx_cmd_id,
                             hf_zbee_zcl_met_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_met_attr_data
@@ -5997,7 +6016,7 @@ void proto_register_zbee_zcl_msg(void);
 void proto_reg_handoff_zbee_zcl_msg(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_msg_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_msg_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_msg_display             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -6076,9 +6095,10 @@ static const value_string zbee_zcl_msg_ctrl_importance_names[] = {
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_msg_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_msg_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* no cluster specific attributes */
@@ -6090,7 +6110,7 @@ dissect_zcl_msg_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_ias_zone_attr_data*/
@@ -6547,6 +6567,7 @@ proto_reg_handoff_zbee_zcl_msg(void)
                             ZBEE_ZCL_CID_MESSAGE,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_msg_attr_id,
+                            hf_zbee_zcl_msg_attr_id,
                             hf_zbee_zcl_msg_srv_rx_cmd_id,
                             hf_zbee_zcl_msg_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_msg_attr_data
@@ -6599,7 +6620,7 @@ void proto_register_zbee_zcl_tun(void);
 void proto_reg_handoff_zbee_zcl_tun(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_tun_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_tun_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -6680,9 +6701,10 @@ VALUE_STRING_ARRAY(zbee_zcl_tun_status_names);
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* cluster specific attributes */
@@ -6698,7 +6720,7 @@ dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_ias_zone_attr_data*/
@@ -7135,6 +7157,7 @@ proto_reg_handoff_zbee_zcl_tun(void)
                             ZBEE_ZCL_CID_TUNNELING,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_tun_attr_id,
+                            hf_zbee_zcl_tun_attr_id,
                             hf_zbee_zcl_tun_srv_rx_cmd_id,
                             hf_zbee_zcl_tun_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_tun_attr_data
@@ -7327,7 +7350,7 @@ void proto_register_zbee_zcl_pp(void);
 void proto_reg_handoff_zbee_zcl_pp(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_pp_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_pp_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_pp_select_available_emergency_credit    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -7457,9 +7480,10 @@ static gint ett_zbee_zcl_pp_publish_debt_log_entry[ZBEE_ZCL_SE_PP_NUM_PUBLISH_DE
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -7469,7 +7493,7 @@ dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_pp_attr_data*/
@@ -8533,6 +8557,7 @@ proto_reg_handoff_zbee_zcl_pp(void)
                             ZBEE_ZCL_CID_PRE_PAYMENT,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_pp_attr_id,
+                            hf_zbee_zcl_pp_attr_id,
                             hf_zbee_zcl_pp_srv_rx_cmd_id,
                             hf_zbee_zcl_pp_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_pp_attr_data
@@ -8580,7 +8605,7 @@ void proto_register_zbee_zcl_energy_management(void);
 void proto_reg_handoff_zbee_zcl_energy_management(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /*************************/
 /* Global Variables      */
@@ -8609,9 +8634,10 @@ static gint ett_zbee_zcl_energy_management = -1;
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -8621,7 +8647,7 @@ dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_energy_management_attr_data*/
@@ -8758,6 +8784,7 @@ proto_reg_handoff_zbee_zcl_energy_management(void)
                             ZBEE_ZCL_CID_ENERGY_MANAGEMENT,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_energy_management_attr_id,
+                            hf_zbee_zcl_energy_management_attr_id,
                             hf_zbee_zcl_energy_management_srv_rx_cmd_id,
                             hf_zbee_zcl_energy_management_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_energy_management_attr_data
@@ -8817,7 +8844,7 @@ void proto_register_zbee_zcl_calendar(void);
 void proto_reg_handoff_zbee_zcl_calendar(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_calendar_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_calendar_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_calendar_get_calendar (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -8920,9 +8947,10 @@ VALUE_STRING_ARRAY(zbee_zcl_calendar_time_reference_names);
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
  */
 static void
-dissect_zcl_calendar_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_calendar_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -8932,7 +8960,7 @@ dissect_zcl_calendar_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_calendar_attr_data*/
@@ -9730,6 +9758,7 @@ proto_reg_handoff_zbee_zcl_calendar(void)
                             ZBEE_ZCL_CID_CALENDAR,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_calendar_attr_id,
+                            hf_zbee_zcl_calendar_attr_id,
                             hf_zbee_zcl_calendar_srv_rx_cmd_id,
                             hf_zbee_zcl_calendar_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_calendar_attr_data
@@ -9806,7 +9835,7 @@ void proto_register_zbee_zcl_device_management(void);
 void proto_reg_handoff_zbee_zcl_device_management(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /*************************/
 /* Global Variables      */
@@ -9835,9 +9864,10 @@ static gint ett_zbee_zcl_device_management = -1;
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -9847,7 +9877,7 @@ dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_device_management_attr_data*/
@@ -10026,6 +10056,7 @@ proto_reg_handoff_zbee_zcl_device_management(void)
                             ZBEE_ZCL_CID_DEVICE_MANAGEMENT,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_device_management_attr_id,
+                            hf_zbee_zcl_device_management_attr_id,
                             hf_zbee_zcl_device_management_srv_rx_cmd_id,
                             hf_zbee_zcl_device_management_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_device_management_attr_data
@@ -10069,7 +10100,7 @@ void proto_register_zbee_zcl_events(void);
 void proto_reg_handoff_zbee_zcl_events(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_events_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_events_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_events_get_event_log                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -10131,9 +10162,10 @@ static gint ett_zbee_zcl_events_publish_event_log_entry[ZBEE_ZCL_SE_EVENTS_NUM_P
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_events_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_events_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -10143,7 +10175,7 @@ dissect_zcl_events_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_events_attr_data*/
@@ -10554,6 +10586,7 @@ proto_reg_handoff_zbee_zcl_events(void)
                             ZBEE_ZCL_CID_EVENTS,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_events_attr_id,
+                            hf_zbee_zcl_events_attr_id,
                             hf_zbee_zcl_events_srv_rx_cmd_id,
                             hf_zbee_zcl_events_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_events_attr_data
@@ -10592,7 +10625,7 @@ void proto_register_zbee_zcl_mdu_pairing(void);
 void proto_reg_handoff_zbee_zcl_mdu_pairing(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_mdu_pairing_attr_data        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_mdu_pairing_attr_data        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_mdu_pairing_request (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -10632,9 +10665,10 @@ static gint ett_zbee_zcl_mdu_pairing = -1;
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_mdu_pairing_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_mdu_pairing_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -10645,7 +10679,7 @@ dissect_zcl_mdu_pairing_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_mdu_pairing_attr_data*/
@@ -10866,6 +10900,7 @@ proto_reg_handoff_zbee_zcl_mdu_pairing(void)
                             ZBEE_ZCL_CID_MDU_PAIRING,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_mdu_pairing_attr_id,
+                            hf_zbee_zcl_mdu_pairing_attr_id,
                             hf_zbee_zcl_mdu_pairing_srv_rx_cmd_id,
                             hf_zbee_zcl_mdu_pairing_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_mdu_pairing_attr_data
@@ -10909,7 +10944,7 @@ void proto_register_zbee_zcl_sub_ghz(void);
 void proto_reg_handoff_zbee_zcl_sub_ghz(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_sub_ghz_suspend_zcl_messages(tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -10942,9 +10977,10 @@ static gint ett_zbee_zcl_sub_ghz = -1;
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 static void
-dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -10960,7 +10996,7 @@ dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gu
         case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_30_CHANNEL_MASK:
         case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_31_CHANNEL_MASK:
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_sub_ghz_attr_data*/
@@ -11118,6 +11154,7 @@ proto_reg_handoff_zbee_zcl_sub_ghz(void)
                             ett_zbee_zcl_sub_ghz,
                             ZBEE_ZCL_CID_SUB_GHZ,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_sub_ghz_attr_id,
                             hf_zbee_zcl_sub_ghz_attr_id,
                             hf_zbee_zcl_sub_ghz_srv_rx_cmd_id,
                             hf_zbee_zcl_sub_ghz_srv_tx_cmd_id,
@@ -11685,6 +11722,7 @@ proto_reg_handoff_zbee_zcl_ke(void)
                             ett_zbee_zcl_ke,
                             ZBEE_ZCL_CID_KE,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_ke_attr_id,
                             hf_zbee_zcl_ke_attr_id,
                             hf_zbee_zcl_ke_srv_rx_cmd_id,
                             hf_zbee_zcl_ke_srv_tx_cmd_id,

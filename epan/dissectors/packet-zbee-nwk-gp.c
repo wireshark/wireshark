@@ -897,7 +897,8 @@ dissect_zbee_nwk_gp_cmd_attr_reporting(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     /* Create subtree and parse ZCL Write Attribute Payload. */
     field_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_zbee_nwk_cmd_options, NULL,
                                 "Attribute reporting command for cluster: 0x%02X", cluster_id);
-    dissect_zcl_write_attr(tvb, pinfo, field_tree, &offset, cluster_id, ZBEE_MFG_CODE_NONE);
+
+    dissect_zcl_report_attr(tvb, pinfo, field_tree, &offset, cluster_id, ZBEE_MFG_CODE_NONE, ZBEE_ZCL_FCF_TO_CLIENT);
 
     return offset;
 } /* dissect_zbee_nwk_gp_cmd_attr_reporting */

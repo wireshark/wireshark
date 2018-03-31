@@ -87,7 +87,7 @@ void proto_register_zbee_zcl_basic(void);
 void proto_reg_handoff_zbee_zcl_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -231,12 +231,13 @@ dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
 
     static const int * alarm_mask[] = {
@@ -287,7 +288,7 @@ dissect_zcl_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guin
         case ZBEE_ZCL_ATTR_ID_BASIC_LOCATION_DESCR:
         case ZBEE_ZCL_ATTR_ID_BASIC_SW_BUILD_ID:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -401,6 +402,7 @@ proto_reg_handoff_zbee_zcl_basic(void)
                             ZBEE_ZCL_CID_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_basic_attr_id,
+                            hf_zbee_zcl_basic_attr_id,
                             hf_zbee_zcl_basic_srv_rx_cmd_id,
                             -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_basic_attr_data
@@ -465,7 +467,7 @@ void proto_register_zbee_zcl_power_config(void);
 void proto_reg_handoff_zbee_zcl_power_config(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -651,12 +653,13 @@ decode_power_conf_batt_AHr(gchar *s, guint32 value)
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item *it;
     static const int * mains_alarm_mask[] = {
@@ -731,7 +734,7 @@ dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offse
         case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_MANUFACTURER:
         case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_QUANTITY:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -872,6 +875,7 @@ proto_reg_handoff_zbee_zcl_power_config(void)
                             ZBEE_ZCL_CID_POWER_CONFIG,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_power_config_attr_id,
+                            hf_zbee_zcl_power_config_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_power_config_attr_data
                          );
@@ -915,7 +919,7 @@ void proto_register_zbee_zcl_device_temperature_configuration(void);
 void proto_reg_handoff_zbee_zcl_device_temperature_configuration(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_device_temperature_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_device_temperature_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -986,12 +990,13 @@ dissect_zbee_zcl_device_temperature_configuration(tvbuff_t *tvb _U_, packet_info
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_device_temperature_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_device_temperature_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * device_temp_alarm_mask[] = {
         &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_low,
@@ -1017,7 +1022,7 @@ dissect_zcl_device_temperature_configuration_attr_data(proto_tree *tree, tvbuff_
         case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_LOW_TEMP_DWELL_TRIP_POINT:
         case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_HIGH_TEMP_DWELL_TRIP_POINT:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -1099,6 +1104,7 @@ proto_reg_handoff_zbee_zcl_device_temperature_configuration(void)
                             ZBEE_ZCL_CID_DEVICE_TEMP_CONFIG,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_device_temperature_configuration_attr_id,
+                            hf_zbee_zcl_device_temperature_configuration_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_device_temperature_configuration_attr_data
                          );
@@ -1139,7 +1145,7 @@ void proto_reg_handoff_zbee_zcl_identify(void);
 static void dissect_zcl_identify_identify               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_identify_identifyqueryrsp       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_identify_triggereffect          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_identify_attr_data              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_identify_attr_data              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -1372,12 +1378,13 @@ dissect_zcl_identify_triggereffect(tvbuff_t *tvb, proto_tree *tree, guint *offse
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_identify_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_identify_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -1388,7 +1395,7 @@ dissect_zcl_identify_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -1477,6 +1484,7 @@ proto_reg_handoff_zbee_zcl_identify(void)
                             ZBEE_ZCL_CID_IDENTIFY,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_identify_attr_id,
+                            hf_zbee_zcl_identify_attr_id,
                             hf_zbee_zcl_identify_srv_rx_cmd_id,
                             hf_zbee_zcl_identify_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_identify_attr_data
@@ -1528,7 +1536,7 @@ static void dissect_zcl_groups_add_remove_group_response        (tvbuff_t *tvb, 
 static void dissect_zcl_groups_view_group_response              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_groups_get_group_membership_response    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_groups_attr_data                        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_groups_attr_data                        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -1953,12 +1961,13 @@ dissect_zcl_groups_get_group_membership_response(tvbuff_t *tvb, proto_tree *tree
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_groups_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_groups_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -1969,7 +1978,7 @@ dissect_zcl_groups_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -2075,6 +2084,7 @@ proto_reg_handoff_zbee_zcl_groups(void)
                             ZBEE_ZCL_CID_GROUPS,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_groups_attr_id,
+                            hf_zbee_zcl_groups_attr_id,
                             hf_zbee_zcl_groups_srv_rx_cmd_id,
                             hf_zbee_zcl_groups_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_groups_attr_data
@@ -2155,7 +2165,7 @@ static void dissect_zcl_scenes_remove_all_scenes_response                   (tvb
 static void dissect_zcl_scenes_get_scene_membership_response                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_scenes_copy_scene_response                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_scenes_attr_data                                    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_scenes_attr_data                                    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -2737,12 +2747,13 @@ dissect_zcl_scenes_copy_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *o
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_scenes_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_scenes_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -2762,7 +2773,7 @@ dissect_zcl_scenes_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
         case ZBEE_ZCL_ATTR_ID_SCENES_CURRENT_GROUP:
         case ZBEE_ZCL_ATTR_ID_SCENES_LAST_CONFIGURED_BY:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -2909,6 +2920,7 @@ proto_reg_handoff_zbee_zcl_scenes(void)
                             ZBEE_ZCL_CID_SCENES,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_scenes_attr_id,
+                            hf_zbee_zcl_scenes_attr_id,
                             hf_zbee_zcl_scenes_srv_rx_cmd_id,
                             hf_zbee_zcl_scenes_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_scenes_attr_data
@@ -2950,7 +2962,7 @@ void proto_register_zbee_zcl_on_off(void);
 void proto_reg_handoff_zbee_zcl_on_off(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -3116,8 +3128,8 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     proto_tree_add_bitmask(payload_tree, tvb, offset, hf_zbee_zcl_on_off_timed_off_control_mask, ett_zbee_zcl_on_off_timed_off_control_mask, onoff_control_mask, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
-                    dissect_zcl_on_off_attr_data(payload_tree, tvb, &offset, ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME, FT_UINT16);
-                    dissect_zcl_on_off_attr_data(payload_tree, tvb, &offset, ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME, FT_UINT16);
+                    dissect_zcl_on_off_attr_data(payload_tree, tvb, &offset, ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME, FT_UINT16, FALSE);
+                    dissect_zcl_on_off_attr_data(payload_tree, tvb, &offset, ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME, FT_UINT16, FALSE);
                     break;
 
                 default:
@@ -3142,12 +3154,13 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -3173,7 +3186,7 @@ dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -3283,6 +3296,7 @@ proto_reg_handoff_zbee_zcl_on_off(void)
                             ZBEE_ZCL_CID_ON_OFF,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_on_off_attr_id,
+                            hf_zbee_zcl_on_off_attr_id,
                             hf_zbee_zcl_on_off_srv_rx_cmd_id,
                             -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_on_off_attr_data
@@ -3311,7 +3325,7 @@ void proto_register_zbee_zcl_on_off_switch_configuration(void);
 void proto_reg_handoff_zbee_zcl_on_off_switch_configuration(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_on_off_switch_configuration_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_on_off_switch_configuration_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -3387,12 +3401,13 @@ dissect_zbee_zcl_on_off_switch_configuration(tvbuff_t *tvb _U_, packet_info *pin
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_on_off_switch_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_on_off_switch_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -3408,7 +3423,7 @@ dissect_zcl_on_off_switch_configuration_attr_data(proto_tree *tree, tvbuff_t *tv
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -3479,6 +3494,7 @@ proto_reg_handoff_zbee_zcl_on_off_switch_configuration(void)
                             ett_zbee_zcl_on_off_switch_configuration,
                             ZBEE_ZCL_CID_ON_OFF_SWITCH_CONFIG,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_on_off_switch_configuration_attr_id,
                             hf_zbee_zcl_on_off_switch_configuration_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_on_off_switch_configuration_attr_data
@@ -3572,17 +3588,18 @@ static const value_string zbee_zcl_alarms_srv_tx_cmd_names[] = {
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *--------------------------------------------------------------- */
 static void
-dissect_zcl_alarms_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_alarms_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
         case ZBEE_ZCL_ATTR_ID_ALARMS_ALARM_COUNT:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -3835,6 +3852,7 @@ proto_reg_handoff_zbee_zcl_alarms(void)
                             ZBEE_ZCL_CID_ALARMS,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_alarms_attr_id,
+                            hf_zbee_zcl_alarms_attr_id,
                             hf_zbee_zcl_alarms_srv_rx_cmd_id,
                             hf_zbee_zcl_alarms_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_alarms_attr_data
@@ -3930,11 +3948,12 @@ static const value_string zbee_zcl_time_attr_names[] = {
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *--------------------------------------------------------------- */
 static void
-dissect_zcl_time_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_time_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * time_status_mask[] = {
         &hf_zbee_zcl_time_status_master,
@@ -3962,7 +3981,7 @@ dissect_zcl_time_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint
         case ZBEE_ZCL_ATTR_ID_TIME_LAST_SET_TIME:
         case ZBEE_ZCL_ATTR_ID_TIME_VALID_UNTIL_TIME:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -4068,6 +4087,7 @@ proto_reg_handoff_zbee_zcl_time(void)
                             ett_zbee_zcl_time,
                             ZBEE_ZCL_CID_TIME,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_time_attr_id,
                             hf_zbee_zcl_time_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_time_attr_data
@@ -4344,7 +4364,7 @@ dissect_zbee_zcl_level_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 
 static void
-dissect_zcl_level_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_level_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -4369,7 +4389,7 @@ dissect_zcl_level_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offs
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -4478,6 +4498,7 @@ proto_reg_handoff_zbee_zcl_level_control(void)
                             ZBEE_ZCL_CID_LEVEL_CONTROL,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_level_control_attr_id,
+                            hf_zbee_zcl_level_control_attr_id,
                             hf_zbee_zcl_level_control_srv_rx_cmd_id,
                             -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_level_control_attr_data
@@ -4568,7 +4589,7 @@ static void dissect_zcl_rssi_location_rssi_ping                                 
 static void dissect_zcl_rssi_location_report_rssi_meas                              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_rssi_location_request_own_location                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_rssi_location_attr_data                        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_rssi_location_attr_data                        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -5167,7 +5188,7 @@ dissect_zcl_rssi_location_location_data_response(tvbuff_t *tvb, proto_tree *tree
    if(status == ZBEE_ZCL_STAT_SUCCESS)
    {
        /* Retrieve "Location Type" field */
-       dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+       dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA, FALSE);
 
        /* Retrieve "Coordinate 1" field */
        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -5225,7 +5246,7 @@ dissect_zcl_rssi_location_location_data_notif(tvbuff_t *tvb, proto_tree *tree, g
 
     /* Retrieve "Location Type" field */
     temp = tvb_get_guint8(tvb, *offset);
-    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA, FALSE);
 
     /* Retrieve "Coordinate 1" field */
     proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -5289,7 +5310,7 @@ dissect_zcl_rssi_location_compact_location_data_notif(tvbuff_t *tvb, proto_tree 
 
     /* Retrieve "Location Type" field */
     temp = tvb_get_guint8(tvb, *offset);
-    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA, FALSE);
 
     /* Retrieve "Coordinate 1" field */
     proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -5337,7 +5358,7 @@ static void
 dissect_zcl_rssi_location_rssi_ping(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
    /* Retrieve "Location Type" field */
-    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA, FALSE);
 
 
 } /*dissect_zcl_rssi_location_rssi_ping*/
@@ -5434,12 +5455,13 @@ dissect_zcl_rssi_location_request_own_location(tvbuff_t *tvb, proto_tree *tree, 
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_rssi_location_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_rssi_location_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int *location_type[] = {
         &hf_zbee_zcl_rssi_location_location_type_absolute,
@@ -5474,7 +5496,7 @@ dissect_zcl_rssi_location_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offs
         case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_CALCULATION_PERIOD:
         case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_NUMBER_RSSI_MEAS:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -5683,6 +5705,7 @@ proto_reg_handoff_zbee_zcl_rssi_location(void)
                             ZBEE_ZCL_CID_RSSI_LOCATION,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_rssi_location_attr_id,
+                            hf_zbee_zcl_rssi_location_attr_id,
                             hf_zbee_zcl_rssi_location_srv_rx_cmd_id,
                             hf_zbee_zcl_rssi_location_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_rssi_location_attr_data
@@ -5766,7 +5789,7 @@ void proto_register_zbee_zcl_analog_input_basic(void);
 void proto_reg_handoff_zbee_zcl_analog_input_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_analog_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_analog_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -5840,12 +5863,13 @@ dissect_zbee_zcl_analog_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_analog_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_analog_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * status_flags[] = {
         &hf_zbee_zcl_analog_input_basic_status_in_alarm,
@@ -5877,7 +5901,7 @@ dissect_zcl_analog_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
         case ZBEE_ZCL_ATTR_ID_ANALOG_INPUT_BASIC_ENGINEERING_UNITS:
         case ZBEE_ZCL_ATTR_ID_ANALOG_INPUT_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -5969,6 +5993,7 @@ proto_reg_handoff_zbee_zcl_analog_input_basic(void)
                             ZBEE_ZCL_CID_ANALOG_INPUT_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_analog_input_basic_attr_id,
+                            hf_zbee_zcl_analog_input_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_analog_input_basic_attr_data
                          );
@@ -6009,7 +6034,7 @@ void proto_register_zbee_zcl_analog_output_basic(void);
 void proto_reg_handoff_zbee_zcl_analog_output_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_analog_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_analog_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -6091,12 +6116,13 @@ dissect_zbee_zcl_analog_output_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_analog_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_analog_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item  *ti = NULL, *tj = NULL;
     proto_tree  *sub_tree = NULL, *sub = NULL;
@@ -6149,7 +6175,7 @@ dissect_zcl_analog_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint
         case ZBEE_ZCL_ATTR_ID_ANALOG_OUTPUT_BASIC_ENGINEERING_UNITS:
         case ZBEE_ZCL_ATTR_ID_ANALOG_OUTPUT_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -6259,6 +6285,7 @@ proto_reg_handoff_zbee_zcl_analog_output_basic(void)
                             ZBEE_ZCL_CID_ANALOG_OUTPUT_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_analog_output_basic_attr_id,
+                            hf_zbee_zcl_analog_output_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_analog_output_basic_attr_data
                          );
@@ -6296,7 +6323,7 @@ void proto_register_zbee_zcl_analog_value_basic(void);
 void proto_reg_handoff_zbee_zcl_analog_value_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_analog_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_analog_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -6375,12 +6402,13 @@ dissect_zbee_zcl_analog_value_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_analog_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_analog_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item  *ti = NULL, *tj = NULL;
     proto_tree  *sub_tree = NULL, *sub = NULL;
@@ -6430,7 +6458,7 @@ dissect_zcl_analog_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
         case ZBEE_ZCL_ATTR_ID_ANALOG_VALUE_BASIC_ENGINEERING_UNITS:
         case ZBEE_ZCL_ATTR_ID_ANALOG_VALUE_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -6538,6 +6566,7 @@ proto_reg_handoff_zbee_zcl_analog_value_basic(void)
                             ZBEE_ZCL_CID_ANALOG_VALUE_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_analog_value_basic_attr_id,
+                            hf_zbee_zcl_analog_value_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_analog_value_basic_attr_data
                          );
@@ -6581,7 +6610,7 @@ void proto_register_zbee_zcl_binary_input_basic(void);
 void proto_reg_handoff_zbee_zcl_binary_input_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_binary_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_binary_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -6655,12 +6684,13 @@ dissect_zbee_zcl_binary_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_binary_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_binary_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * status_flags[] = {
         &hf_zbee_zcl_binary_input_basic_status_in_alarm,
@@ -6695,7 +6725,7 @@ dissect_zcl_binary_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
         case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_PRESENT_VALUE:
         case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -6790,6 +6820,7 @@ proto_reg_handoff_zbee_zcl_binary_input_basic(void)
                             ZBEE_ZCL_CID_BINARY_INPUT_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_binary_input_basic_attr_id,
+                            hf_zbee_zcl_binary_input_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_binary_input_basic_attr_data
                          );
@@ -6836,7 +6867,7 @@ void proto_register_zbee_zcl_binary_output_basic(void);
 void proto_reg_handoff_zbee_zcl_binary_output_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_binary_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_binary_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -6920,12 +6951,13 @@ dissect_zbee_zcl_binary_output_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_binary_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_binary_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item  *ti = NULL, *tj = NULL;
     proto_tree  *sub_tree = NULL, *sub = NULL;
@@ -6983,7 +7015,7 @@ dissect_zcl_binary_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint
         case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_RELINQUISH_DEFAULT:
         case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -7095,6 +7127,7 @@ proto_reg_handoff_zbee_zcl_binary_output_basic(void)
                             ZBEE_ZCL_CID_BINARY_OUTPUT_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_binary_output_basic_attr_id,
+                            hf_zbee_zcl_binary_output_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_binary_output_basic_attr_data
                          );
@@ -7134,7 +7167,7 @@ void proto_register_zbee_zcl_binary_value_basic(void);
 void proto_reg_handoff_zbee_zcl_binary_value_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_binary_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_binary_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -7216,12 +7249,13 @@ dissect_zbee_zcl_binary_value_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_binary_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_binary_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item  *ti = NULL, *tj = NULL;
     proto_tree  *sub_tree = NULL, *sub = NULL;
@@ -7274,7 +7308,7 @@ dissect_zcl_binary_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
         case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_RELINQUISH_DEFAULT:
         case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -7382,6 +7416,7 @@ proto_reg_handoff_zbee_zcl_binary_value_basic(void)
                             ZBEE_ZCL_CID_BINARY_VALUE_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_binary_value_basic_attr_id,
+                            hf_zbee_zcl_binary_value_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_binary_value_basic_attr_data
                          );
@@ -7420,7 +7455,7 @@ void proto_register_zbee_zcl_multistate_input_basic(void);
 void proto_reg_handoff_zbee_zcl_multistate_input_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_multistate_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_multistate_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -7492,12 +7527,13 @@ dissect_zbee_zcl_multistate_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_multistate_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_multistate_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * status_flags[] = {
         &hf_zbee_zcl_multistate_input_basic_status_in_alarm,
@@ -7526,7 +7562,7 @@ dissect_zcl_multistate_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, gu
         case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_PRESENT_VALUE:
         case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -7616,6 +7652,7 @@ proto_reg_handoff_zbee_zcl_multistate_input_basic(void)
                             ZBEE_ZCL_CID_MULTISTATE_INPUT_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_multistate_input_basic_attr_id,
+                            hf_zbee_zcl_multistate_input_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_multistate_input_basic_attr_data
                          );
@@ -7656,7 +7693,7 @@ void proto_register_zbee_zcl_multistate_output_basic(void);
 void proto_reg_handoff_zbee_zcl_multistate_output_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_multistate_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_multistate_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -7742,12 +7779,13 @@ dissect_zbee_zcl_multistate_output_basic(tvbuff_t *tvb _U_, packet_info *pinfo _
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_multistate_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_multistate_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item  *ti = NULL, *tj = NULL;
     proto_tree  *sub_tree = NULL, *sub = NULL;
@@ -7797,7 +7835,7 @@ dissect_zcl_multistate_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, g
         case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_PRESENT_VALUE:
         case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -7905,6 +7943,7 @@ proto_reg_handoff_zbee_zcl_multistate_output_basic(void)
                             ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_multistate_output_basic_attr_id,
+                            hf_zbee_zcl_multistate_output_basic_attr_id,
                             -1,-1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_multistate_output_basic_attr_data
                          );
@@ -7945,7 +7984,7 @@ void proto_register_zbee_zcl_multistate_value_basic(void);
 void proto_reg_handoff_zbee_zcl_multistate_value_basic(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_multistate_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_multistate_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -8032,12 +8071,13 @@ dissect_zbee_zcl_multistate_value_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_multistate_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_multistate_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     proto_item  *ti = NULL, *tj = NULL;
     proto_tree  *sub_tree = NULL, *sub = NULL;
@@ -8087,7 +8127,7 @@ dissect_zcl_multistate_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, gu
         case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_PRESENT_VALUE:
         case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_APPLICATION_TYPE:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -8195,6 +8235,7 @@ proto_reg_handoff_zbee_zcl_multistate_value_basic(void)
                             ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_multistate_value_basic_attr_id,
+                            hf_zbee_zcl_multistate_value_basic_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_multistate_value_basic_attr_data
                          );
@@ -8273,7 +8314,7 @@ static void dissect_zcl_commissioning_save_restore_startup_parameters       (tvb
 static void dissect_zcl_commissioning_reset_startup_parameters              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_commissioning_response                              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_commissioning_attr_data                             (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_commissioning_attr_data                             (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -8608,12 +8649,13 @@ dissect_zcl_commissioning_response(tvbuff_t *tvb, proto_tree *tree, guint *offse
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 void
-dissect_zcl_commissioning_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_commissioning_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -8651,7 +8693,7 @@ dissect_zcl_commissioning_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offs
         case ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_RADIUS:
         case ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_DISCOVERY_TIME:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -8794,6 +8836,7 @@ proto_reg_handoff_zbee_zcl_commissioning(void)
                             ZBEE_ZCL_CID_COMMISSIONING,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_commissioning_attr_id,
+                            hf_zbee_zcl_commissioning_attr_id,
                             hf_zbee_zcl_commissioning_srv_rx_cmd_id,
                             hf_zbee_zcl_commissioning_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_commissioning_attr_data
@@ -8854,10 +8897,10 @@ void proto_reg_handoff_zbee_zcl_part(void);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_part_trasfpartframe         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_part_rdhandshakeparam       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
-static void dissect_zcl_part_wrhandshakeparam       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
+static void dissect_zcl_part_rdhandshakeparam       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gboolean direction);
+static void dissect_zcl_part_wrhandshakeparam       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gboolean direction);
 static void dissect_zcl_part_multiack               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_part_rdhandshakeparamrsp    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
+static void dissect_zcl_part_rdhandshakeparamrsp    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gboolean direction);
 
 /* Private functions prototype */
 
@@ -8983,11 +9026,11 @@ dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM:
-                    dissect_zcl_part_rdhandshakeparam(tvb, pinfo, payload_tree, &offset);
+                    dissect_zcl_part_rdhandshakeparam(tvb, pinfo, payload_tree, &offset, zcl->direction);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PART_WR_HANDSHAKE_PARAM:
-                    dissect_zcl_part_wrhandshakeparam(tvb, pinfo, payload_tree, &offset);
+                    dissect_zcl_part_wrhandshakeparam(tvb, pinfo, payload_tree, &offset, zcl->direction);
                     break;
 
                 default:
@@ -9016,7 +9059,7 @@ dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM_RSP:
-                    dissect_zcl_part_rdhandshakeparamrsp(tvb, pinfo, payload_tree, &offset);
+                    dissect_zcl_part_rdhandshakeparamrsp(tvb, pinfo, payload_tree, &offset, zcl->direction);
                     break;
 
                 default:
@@ -9088,19 +9131,20 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      offset              - offset
+ *      direction           - ZCL direction
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gboolean direction)
 {
     /* Retrieve "Partitioned Cluster ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Dissect the attribute id list */
-    dissect_zcl_read_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE);
+    dissect_zcl_read_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE, direction);
 } /*dissect_zcl_part_rdhandshakeparam*/
 
  /*FUNCTION:------------------------------------------------------
@@ -9113,19 +9157,20 @@ dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      offset              - offset
+ *      direction           - ZCL direction
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_part_wrhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+dissect_zcl_part_wrhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gboolean direction)
 {
     /* Retrieve "Partitioned Cluster ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Dissect the attributes list */
-    dissect_zcl_write_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE);
+    dissect_zcl_write_attr(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE, direction);
 
 } /*dissect_zcl_part_wrhandshakeparam*/
 
@@ -9212,19 +9257,20 @@ dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      offset              - offset
+ *      direction           - ZCL direction
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_part_rdhandshakeparamrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+dissect_zcl_part_rdhandshakeparamrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gboolean direction)
 {
     /* Retrieve "Partitioned Cluster ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Dissect the attributes list */
-    dissect_zcl_read_attr_resp(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE);
+    dissect_zcl_read_attr_resp(tvb, pinfo, tree, offset, ZBEE_ZCL_CID_PARTITION, ZBEE_MFG_CODE_NONE, direction);
 } /*dissect_zcl_part_rdhandshakeparamrsp*/
 
 
@@ -9358,6 +9404,7 @@ void proto_reg_handoff_zbee_zcl_part(void)
                             ett_zbee_zcl_part,
                             ZBEE_ZCL_CID_PARTITION,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_part_attr_id,
                             hf_zbee_zcl_part_attr_id,
                             hf_zbee_zcl_part_srv_rx_cmd_id,
                             hf_zbee_zcl_part_srv_tx_cmd_id,
@@ -10208,12 +10255,13 @@ dissect_zcl_ota_queryspecfilersp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_ota_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_ota_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id )
@@ -10246,7 +10294,7 @@ dissect_zcl_ota_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 
         case ZBEE_ZCL_ATTR_ID_OTA_MIN_BLOCK_REQ_DELAY:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_ota_attr_data*/
@@ -10551,6 +10599,7 @@ void proto_reg_handoff_zbee_zcl_ota(void)
                             ZBEE_ZCL_CID_OTA_UPGRADE,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_ota_attr_id,
+                            hf_zbee_zcl_ota_attr_id,
                             hf_zbee_zcl_ota_srv_rx_cmd_id,
                             hf_zbee_zcl_ota_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_ota_attr_data
@@ -10648,7 +10697,7 @@ static void dissect_zcl_pwr_prof_pwrprofstatersp            (tvbuff_t *tvb, prot
 static void dissect_zcl_pwr_prof_pwrprofschedcontrsnotif    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_pwr_prof_pwrprofpriceext            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_pwr_prof_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_pwr_prof_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 static void decode_power_profile_id     (gchar *s, guint8 id);
@@ -11312,12 +11361,13 @@ dissect_zcl_pwr_prof_pwrprofpriceext(tvbuff_t *tvb, proto_tree *tree, guint *off
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * format_fields[] = {
         &hf_zbee_zcl_pwr_prof_energy_format_rdigit,
@@ -11361,7 +11411,7 @@ dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
         break;
     }
 } /*dissect_zcl_pwr_prof_attr_data*/
@@ -11690,6 +11740,7 @@ proto_reg_handoff_zbee_zcl_pwr_prof(void)
                             ZBEE_ZCL_CID_POWER_PROFILE,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_pwr_prof_attr_id,
+                            hf_zbee_zcl_pwr_prof_attr_id,
                             hf_zbee_zcl_pwr_prof_srv_rx_cmd_id,
                             hf_zbee_zcl_pwr_prof_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_pwr_prof_attr_data
@@ -11801,7 +11852,7 @@ static void dissect_zcl_appl_ctrl_wr_funcs              (tvbuff_t *tvb, proto_tr
 static void dissect_zcl_appl_ctrl_ovrl_warning          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_appl_ctrl_signal_state_rsp      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_appl_ctrl_attr_data             (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_appl_ctrl_attr_data             (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -12091,7 +12142,7 @@ dissect_zcl_appl_ctrl_attr_func(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Function Data Dissector */
-    dissect_zcl_appl_ctrl_attr_data(tree, tvb, offset, func_id, func_data_type);
+    dissect_zcl_appl_ctrl_attr_data(tree, tvb, offset, func_id, func_data_type, FALSE);
 
 } /*dissect_zcl_appl_ctrl_attr_func*/
 
@@ -12202,12 +12253,13 @@ dissect_zcl_appl_ctrl_signal_state_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * flags[] = {
         &hf_zbee_zcl_appl_ctrl_time_mm,
@@ -12227,7 +12279,7 @@ dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, 
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_appl_ctrl_attr_data*/
@@ -12360,6 +12412,7 @@ proto_reg_handoff_zbee_zcl_appl_ctrl(void)
                             ett_zbee_zcl_appl_ctrl,
                             ZBEE_ZCL_CID_APPLIANCE_CONTROL,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_appl_ctrl_attr_id,
                             hf_zbee_zcl_appl_ctrl_attr_id,
                             hf_zbee_zcl_appl_ctrl_srv_rx_cmd_id,
                             hf_zbee_zcl_appl_ctrl_srv_tx_cmd_id,
@@ -12534,15 +12587,16 @@ dissect_zbee_zcl_poll_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  *      guint *offset       - pointer to buffer offset
  *      guint16 attr_id     - attribute identifier
  *      guint data_type     - attribute data type
+ *      gboolean client_attr- ZCL client
  *  RETURNS
  *      none
  *---------------------------------------------------------------
  */
 static void
-dissect_zcl_poll_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id _U_, guint data_type)
+dissect_zcl_poll_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id _U_, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
-    dissect_zcl_attr_data(tvb, tree, offset, data_type);
+    dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
 
 } /*dissect_zcl_poll_ctrl_attr_data*/
 
@@ -12625,6 +12679,7 @@ proto_reg_handoff_zbee_zcl_poll_ctrl(void)
                             ett_zbee_zcl_poll_ctrl,
                             ZBEE_ZCL_CID_POLL_CONTROL,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_poll_ctrl_attr_id,
                             hf_zbee_zcl_poll_ctrl_attr_id,
                             hf_zbee_zcl_poll_ctrl_srv_rx_cmd_id,
                             hf_zbee_zcl_poll_ctrl_srv_tx_cmd_id,
@@ -14593,14 +14648,15 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  *      this function is called by ZCL foundation dissector in order to decode
  *      specific cluster attributes data.
  *
- *      @param tree      - pointer to data tree Wireshark uses to display packet.
- *      @param tvb       - pointer to buffer containing raw packet.
- *      @param offset    - pointer to buffer offset
- *      @param attr_id   - attribute identifier
- *      @param data_type - attribute data type
+ *      @param tree        - pointer to data tree Wireshark uses to display packet.
+ *      @param tvb         - pointer to buffer containing raw packet.
+ *      @param offset      - pointer to buffer offset
+ *      @param attr_id     - attribute identifier
+ *      @param data_type   - attribute data type
+ *      @param client_attr - ZCL client
  */
 static void
-dissect_zcl_gp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id _U_, guint data_type)
+dissect_zcl_gp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id _U_, guint data_type, gboolean client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -14632,7 +14688,7 @@ dissect_zcl_gp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16
             *offset = dissect_zbee_zcl_gp_attr_gpp_active_functionality(tvb, tree, *offset);
             break;
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
     }
 
 
@@ -15380,6 +15436,7 @@ proto_reg_handoff_zbee_zcl_gp(void)
                             ett_zbee_zcl_gp,
                             ZBEE_ZCL_CID_GP,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_gp_attr_id,
                             hf_zbee_zcl_gp_attr_id,
                             hf_zbee_zcl_gp_srv_rx_cmd_id,
                             hf_zbee_zcl_gp_srv_tx_cmd_id,
@@ -16189,7 +16246,7 @@ proto_reg_handoff_zbee_zcl_touchlink(void)
                             ett_zbee_zcl_touchlink,
                             ZBEE_ZCL_CID_ZLL,
                             ZBEE_MFG_CODE_NONE,
-                            -1,
+                            -1, -1,
                             hf_zbee_zcl_touchlink_rx_cmd_id, hf_zbee_zcl_touchlink_tx_cmd_id,
                             NULL
                          );

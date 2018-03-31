@@ -138,7 +138,7 @@ static void dissect_zcl_color_control_color_loop_set                            
 static void dissect_zcl_color_control_move_color_temp                           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_color_control_step_color_temp                           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
-static void dissect_zcl_color_control_attr_data                                 (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_color_control_attr_data                                 (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -888,9 +888,10 @@ decode_color_temperature(gchar *s, guint16 value)
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 void
-dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int *capabilities_fields[] = {
         &hf_zbee_zcl_color_control_attr_color_capabilities_hs,
@@ -1146,7 +1147,7 @@ dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offs
 
         case ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COMPENSATION_TEXT:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -1534,6 +1535,7 @@ proto_reg_handoff_zbee_zcl_color_control(void)
                             ZBEE_ZCL_CID_COLOR_CONTROL,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_color_control_attr_id,
+                            hf_zbee_zcl_color_control_attr_id,
                             hf_zbee_zcl_color_control_srv_rx_cmd_id,
                             -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_color_control_attr_data
@@ -1588,7 +1590,7 @@ void proto_register_zbee_zcl_ballast_configuration(void);
 void proto_reg_handoff_zbee_zcl_ballast_configuration(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_ballast_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+static void dissect_zcl_ballast_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
 
@@ -1673,9 +1675,10 @@ dissect_zbee_zcl_ballast_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_
  *@param offset pointer to buffer offset
  *@param attr_id attribute identifier
  *@param data_type attribute data type
+ *@param client_attr ZCL client
 */
 void
-dissect_zcl_ballast_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+dissect_zcl_ballast_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
 {
     static const int * ballast_status[] = {
         &hf_zbee_zcl_ballast_configuration_status_non_operational,
@@ -1716,7 +1719,7 @@ dissect_zcl_ballast_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, gui
         case ZBEE_ZCL_ATTR_ID_BALLAST_CONFIGURATION_LAMP_BURN_HOURS:
         case ZBEE_ZCL_ATTR_ID_BALLAST_CONFIGURATION_LAMP_BURN_HOURS_TRIP_POINT:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -1790,6 +1793,7 @@ proto_reg_handoff_zbee_zcl_ballast_configuration(void)
                             ett_zbee_zcl_ballast_configuration,
                             ZBEE_ZCL_CID_BALLAST_CONFIG,
                             ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_ballast_configuration_attr_id,
                             hf_zbee_zcl_ballast_configuration_attr_id,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_ballast_configuration_attr_data
