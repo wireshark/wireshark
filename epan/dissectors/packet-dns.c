@@ -1315,9 +1315,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
   if (len < 0) {
     len = offset - start_offset;
   }
-  if ((len < min_len) || (len > min_len && *name_len == 0)) {
-    THROW(ReportedBoundsError);
-  }
+
   return len;
 }
 
@@ -1328,13 +1326,19 @@ get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     const guchar **name, guint* name_len)
 {
   int len;
+  const int min_len = 2;
 
   len = expand_dns_name(tvb, offset, max_len, dns_data_offset, name, name_len);
 
   /* Zero-length name means "root server" */
-  if (**name == '\0' && len == 1) {
+  if (**name == '\0' && len <= min_len) {
     *name="<Root>";
     *name_len = (guint)strlen(*name);
+    return len;
+  }
+
+  if ((len < min_len) || (len > min_len && *name_len == 0)) {
+    THROW(ReportedBoundsError);
   }
 
   return len;
