@@ -52,7 +52,6 @@ routine that goes through all the packets in the capture; the loop does
 
 	}
 
-The "wtap_seek_read()" call read the packet data into memory; the
+The "wtap_seek_read()" call reads the packet data into memory; the
 "epan_dissect_new()" call "dissects" that data, building a tree
 structure for the fields in the packet.
-

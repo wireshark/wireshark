@@ -111,7 +111,7 @@ the stats_tree API
  every stats_tree callback has a stats_tree* parameter (st), stats_tree is an obscure
  data structure which should be passed to the api functions.
 
-stats_tree_register( tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
+stats_tree_register(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
  registers a new stats tree
 
 stats_tree_register_plugin(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
@@ -210,6 +210,6 @@ stat_node_clear_flags functions. Currently these flags are defined:
 			bottom half. Each half is sorted normally. Top always appear
 			first :)
 
-You can find more examples of these in $srcdir/plugins/stats_tree/pinfo_stats_tree.c
+You can find more examples of these in $srcdir/plugins/epan/stats_tree/pinfo_stats_tree.c
 
 Luis E. G. Ontanon.

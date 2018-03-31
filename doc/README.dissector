@@ -1,5 +1,3 @@
-Tabsize: 4
-
 This file is a HOWTO for Wireshark developers interested in writing or working
 on Wireshark protocol dissectors. It describes expected code patterns and the
 use of some of the important functions and variables.
