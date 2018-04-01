@@ -160,6 +160,7 @@ static int hf_btatt_hours = -1;
 static int hf_btatt_minutes = -1;
 static int hf_btatt_seconds = -1;
 static int hf_btatt_day_of_week = -1;
+static int hf_btatt_fractions100 = -1;
 static int hf_btatt_fractions256 = -1;
 static int hf_btatt_dst_offset = -1;
 static int hf_btatt_model_number_string = -1;
@@ -179,6 +180,11 @@ static int hf_btatt_time_update_control_point = -1;
 static int hf_btatt_time_current_state = -1;
 static int hf_btatt_time_result = -1;
 static int hf_btatt_battery_level = -1;
+static int hf_btatt_battery_power_state = -1;
+static int hf_btatt_battery_power_state_present = -1;
+static int hf_btatt_battery_power_state_discharging = -1;
+static int hf_btatt_battery_power_state_charging = -1;
+static int hf_btatt_battery_power_state_level = -1;
 static int hf_btatt_temperature_type = -1;
 static int hf_btatt_measurement_interval = -1;
 static int hf_btatt_time_adjust_reason = -1;
@@ -992,6 +998,9 @@ static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_dat
 static int hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certified_device_class = -1;
 static int hf_btatt_regulatory_certification_data_list_item_regulation_bit_field_type = -1;
 static int hf_btatt_regulatory_certification_data_list_item_data = -1;
+static int hf_btatt_timezone_information = -1;
+static int hf_btatt_timezone_information_information = -1;
+static int hf_btatt_timezone_information_information_type = -1;
 static int hf_gatt_nordic_uart_tx = -1;
 static int hf_gatt_nordic_uart_rx = -1;
 static int hf_gatt_nordic_dfu_packet = -1;
@@ -1906,6 +1915,20 @@ static const int *hfx_btgatt_microbit_io_pins[] = {
     &hf_gatt_microbit_io_pin17,
     &hf_gatt_microbit_io_pin18,
     &hf_gatt_microbit_io_pin19,
+    NULL
+};
+
+static const int *hfx_btatt_timezone_information[] = {
+    &hf_btatt_timezone_information_information,
+    &hf_btatt_timezone_information_information_type,
+    NULL
+};
+
+static const int *hfx_btatt_battery_power_state[] = {
+    &hf_btatt_battery_power_state_present,
+    &hf_btatt_battery_power_state_discharging,
+    &hf_btatt_battery_power_state_charging,
+    &hf_btatt_battery_power_state_level,
     NULL
 };
 
@@ -3531,6 +3554,15 @@ static const value_string tds_result_code_vals[] = {
     {0, NULL }
 };
 
+static const value_string timezone_information_vals[] = {
+    { 0x00, "Signification Unknown" },
+    { 0x01, "Manually Set Time Zone" },
+    { 0x02, "Time Zone at Place of Departure" },
+    { 0x03, "Time Zone at Destination" },
+    { 0x04, "Time Zone at Home" },
+    {0, NULL }
+};
+
 static const value_string ots_action_opcode_vals[] = {
     { 0x00, "Reserved" },
     { 0x01, "Create" },
@@ -3629,6 +3661,38 @@ static const value_string btgatt_microbit_button_state_vals[] = {
     {0, NULL }
 };
 
+static const value_string battery_power_state_present_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Not Supported" },
+    { 0x02, "Not Present" },
+    { 0x03, "Present" },
+    {0, NULL }
+};
+
+static const value_string battery_power_state_discharging_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Not Supported" },
+    { 0x02, "Not Discharging" },
+    { 0x03, "Discharging" },
+    {0, NULL }
+};
+
+static const value_string battery_power_state_charging_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Not Chargeable" },
+    { 0x02, "Not Charging " },
+    { 0x03, "Charging" },
+    {0, NULL }
+};
+
+static const value_string battery_power_state_level_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Not Supported" },
+    { 0x02, "Good Level" },
+    { 0x03, "Critically Low Level" },
+    {0, NULL }
+};
+
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
     "Turn Off" };
@@ -3657,6 +3721,11 @@ static const true_false_string microbit_ad_tfs = {
 static const true_false_string microbit_io_tfs = {
     "Input",
     "Output"
+};
+
+static const true_false_string timezone_information_type_tfs = {
+    "Information relative to local time",
+    "Information relative to UTC"
 };
 
 union request_parameters_union {
@@ -5041,6 +5110,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A0A: /* Day Date Time */
+    case 0x2A0B: /* Exact Time 100 */
     case 0x2A0C: /* Exact Time 256 */
     case 0x2A2B: /* Current Time */
         if (uuid.bt_uuid == 0x2A2B) {/* Current Time */
@@ -5081,12 +5151,15 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (uuid.bt_uuid == 0x2A0C || uuid.bt_uuid == 0x2A2B) {
             proto_tree_add_item(tree, hf_btatt_fractions256, tvb, offset, 1, ENC_NA);
             offset += 1;
+        } else if (uuid.bt_uuid == 0x2A0B) {
+            proto_tree_add_item(tree, hf_btatt_fractions100, tvb, offset, 1, ENC_NA);
+            offset += 1;
         }
 
-         if (uuid.bt_uuid == 0x2A2B) {
+        if (uuid.bt_uuid == 0x2A2B) {
             proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_time_adjust_reason, ett_btatt_value, hfx_btatt_time_adjust_reason, ENC_NA);
             offset += 1;
-         }
+        }
 
         break;
     case 0x2A0D: /* DST Offset */
@@ -5106,6 +5179,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A0F: /* Local Time Information */
+    case 0x2A10: /* Secondary Time Zone */
         if (service_uuid.bt_uuid == GATT_SERVICE_CURRENT_TIME_SERVICE) {
             if (is_readable_request(att_data->opcode) || is_writeable_response(att_data->opcode))
                 break;
@@ -5117,6 +5191,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
+
+        if (uuid.bt_uuid == 0x2A10) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_timezone_information, ett_btatt_value, hfx_btatt_timezone_information, ENC_NA);
+            offset += 1;
+        }
 
         proto_tree_add_item(tree, hf_btatt_timezone, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -5198,6 +5277,20 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_time_hours_since_update, tvb, offset, 1, ENC_NA);
         offset += 1;
+
+        break;
+    case 0x2A15: /* Time Broadcast */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        call_dissector_with_data(find_dissector("btgatt.uuid0x2A0C"), tvb_new_subset_length_caplen(tvb, offset, 9, 9), pinfo, tree, att_data);
+        offset += 9;
+
+        call_dissector_with_data(find_dissector("btgatt.uuid0x2A0F"), tvb_new_subset_length_caplen(tvb, offset, 2, 2), pinfo, tree, att_data);
+        offset += 2;
+
+        call_dissector_with_data(find_dissector("btgatt.uuid0x2A14"), tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
+        offset += 4;
 
         break;
     case 0x2A16: /* Time Update Control Point */
@@ -5295,7 +5388,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         break;
-    case 0x2A19: /* Battery Level */
+    case 0x2A19: /* Battery Level */ {
         if (service_uuid.bt_uuid == GATT_SERVICE_BATTERY_SERVICE) {
             if (is_readable_request(att_data->opcode))
                 break;
@@ -5307,9 +5400,40 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_battery_level, tvb, offset, 1, ENC_NA);
+        guint32 battery_level;
+        sub_item = proto_tree_add_item_ret_uint(tree, hf_btatt_battery_level, tvb, offset, 1, ENC_NA, &battery_level);
+        if (battery_level > 100)
+            expert_add_info(pinfo, sub_item, &ei_btatt_bad_data);
         offset += 1;
 
+        }
+        break;
+    case 0x2A1A: /* Battery Power State */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_battery_power_state, ett_btatt_value, hfx_btatt_battery_power_state, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        break;
+    case 0x2A1B: /* Battery Level State */ {
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        guint32 battery_level;
+        sub_item = proto_tree_add_item_ret_uint(tree, hf_btatt_battery_level, tvb, offset, 1, ENC_NA, &battery_level);
+        if (battery_level > 100)
+            expert_add_info(pinfo, sub_item, &ei_btatt_bad_data);
+        offset += 1;
+
+        if (tvb_reported_length_remaining(tvb, offset) >= 1) { /* optional field */
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_battery_power_state, ett_btatt_value, hfx_btatt_battery_power_state, ENC_NA);
+            flags = tvb_get_guint8(tvb, offset);
+            offset += 1;
+        }
+
+        }
         break;
     case 0x2A1C: /* Temperature Measurement */
     case 0x2A1E: /* Intermediate Temperature */
@@ -11810,6 +11934,11 @@ proto_register_btatt(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
+        {&hf_btatt_fractions100,
+            {"Fractions100", "btatt.fractions100",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "1/100th of a second", HFILL}
+        },
         {&hf_btatt_fractions256,
             {"Fractions256", "btatt.fractions256",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11902,7 +12031,32 @@ proto_register_btatt(void)
         },
         {&hf_btatt_battery_level,
             {"Battery Level", "btatt.battery_level",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_percent, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_battery_power_state,
+            {"Battery Power State", "btatt.battery_power_state",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_battery_power_state_level,
+            {"Level", "btatt.battery_power_state.level",
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_level_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_battery_power_state_charging,
+            {"Charging", "btatt.battery_power_state.charging",
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_charging_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_battery_power_state_discharging,
+            {"Discharging", "btatt.battery_power_state.discharging",
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_discharging_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_battery_power_state_present,
+            {"Present", "btatt.battery_power_state.present",
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_present_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_temperature_type,
@@ -15986,6 +16140,21 @@ proto_register_btatt(void)
         {&hf_btatt_regulatory_certification_data_list_item_data,
             {"Data", "btatt.regulatory_certification_data_list.item.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_timezone_information,
+            {"Timezone Information", "btatt.timezone_information",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_timezone_information_information,
+            {"Information", "btatt.timezone_information.information",
+            FT_UINT8, BASE_DEC, VALS(timezone_information_vals), 0x7F,
+            NULL, HFILL}
+        },
+        {&hf_btatt_timezone_information_information_type,
+            {"Type", "btatt.timezone_information.information_type",
+            FT_BOOLEAN, 8, TFS(&timezone_information_type_tfs), 0x80,
             NULL, HFILL}
         },
         {&hf_request_in_frame,
