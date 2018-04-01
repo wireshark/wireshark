@@ -6611,11 +6611,12 @@ a:hover {
     </message>
     <message>
         <source>Referers</source>
-        <translation>Referer</translation>
+        <translation type="vanished">Referer</translation>
     </message>
     <message>
-        <source>HTTP referers</source>
-        <translation>Referer HTTP</translation>
+        <source>HTTP Request Sequences</source>
+        <oldsource>HTTP referers</oldsource>
+        <translation type="unfinished">Referer HTTP</translation>
     </message>
     <message>
         <source>Packet Lengths</source>
@@ -6988,6 +6989,10 @@ a:hover {
     <message>
         <source>SSL Stream</source>
         <translation>Flusso SSL</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>

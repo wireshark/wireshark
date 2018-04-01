@@ -6589,11 +6589,8 @@ text-decoration: underline;
         <translation>Rozkład obciążenia HTPP</translation>
     </message>
     <message>
-        <source>Referers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP referers</source>
+        <source>HTTP Request Sequences</source>
+        <oldsource>HTTP referers</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6967,6 +6964,10 @@ text-decoration: underline;
     <message>
         <source>SSL Stream</source>
         <translation>Strumień SSL</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>

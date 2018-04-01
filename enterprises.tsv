@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-03-24)
+# (last updated 2018-03-30)
 
 0	Reserved
 1	NxNetworks
@@ -1646,7 +1646,7 @@
 1638	Cornerstone Software
 1639	Wink Communications
 1640	Thomson Electronic Information Resources (TEIR)
-1641	HITT Holland Institute of Traffic Technology B.V.
+1641	Saab Traffic Management
 1642	KPMG
 1643	Loral Federal Systems
 1644	S.I.A.- Societa Interbancaria per l'Automazione
@@ -8210,10 +8210,10 @@
 8229	Phil Systems
 8230	RING! ROSA Products Bv
 8231	Lineo
-8232	Fachhochschule Giessen-Friedberg
+8232	Technische Hochschule Mittelhessen	# formerly 'Fachhochschule Giessen-Friedberg'
 8233	iBasis, Inc.
 8234	ECET International
-8235	CENIT AG Systemhaus
+8235	CENIT AG
 8236	White Horse Interactive
 8237	NCC GmbH
 8238	Lutheran Brotherhood
@@ -13078,7 +13078,7 @@
 13208	ARGSOFT
 13209	Aptilo Networks AB
 13210	Armstrong Group of Companies
-13211	AT4.NET INTERNET Y COMUNICACION
+13211	AT4.NET INTERNET Y COMUNICACION, SL
 13212	bTrade, Inc.
 13213	Centre Tecnologic de Manresa
 13214	Comunitel Global S.A.
@@ -23246,7 +23246,7 @@
 23399	The National Science Foundation
 23400	Midcontinent Communications
 23401	Sliwa.EU.org Network
-23402	Interstar Technologies Inc.
+23402	XMedius Solutions Inc.	# formerly 'Interstar Technologies Inc.'
 23403	Sharp HealthCare
 23404	DAVANTEL
 23405	JSC Sahalinmorsvjaz
@@ -31607,7 +31607,7 @@
 31767	Nootek
 31768	SHARP Electronics (Europe) GmbH
 31769	Kassenärztliche Vereinigung Bayerns
-31770	Bachmann GmbH & Co KG
+31770	Bachmann GmbH
 31771	eGenix.com Software, Skills and Services GmbH
 31772	International Paper
 31773	GEWI Europe GmbH & Co. KG
@@ -35704,7 +35704,7 @@
 35871	Cloupia
 35872	huggla.com
 35873	JDS Uniphase Corporation
-35874	Action Packed Networks
+35874	LiveAction
 35875	JX2 Technology Pty Ltd
 35876	WHITECODE,.LTD
 35877	High Technology Industries B.V.	# formerly 'LEITNER AG - S.p.A'
@@ -40559,7 +40559,7 @@
 40729	LAND-DATA GmbH
 40730	Neocom Software Ltd.
 40731	Elephant Talk Communications Corp.
-40732	Consortium for Smart Energy Profile 2 Interoperability
+40732	IEEE 2030.5 Working Group
 40733	Sabzfaam ICT
 40734	Karina Mobile Solutions
 40735	DoctuSoft Ltd.
@@ -43966,7 +43966,7 @@
 44141	Rosbank
 44142	Edidin Group, Inc
 44143	kazalo GmbH
-44144	Symbolic IO
+44144	Formulus Black	# formerly 'Symbolic IO'
 44145	Pokazz sp. z o.o.
 44146	INSYS K.Bartkowski, P.Czekala sp.j.
 44147	Diagnostic Imaging Associates
@@ -51511,3 +51511,43 @@
 51696	Massachusetts Financial Services Company
 51697	Anywave Communication Technologies INC
 51698	Netbytes, Inc.
+51699	Greenville Surgical Clinic
+51700	Eastern New Mexico University
+51701	Powermeter
+51702	Delta Computer Systems, Inc.
+51703	Timmersdala skogstransport ab
+51704	Sinai Grace Specialty Care
+51705	Ionx Solutions
+51706	Anditi
+51707	South Sound Oncology Services, PC
+51708	Gatema a.s.
+51709	K-CIX
+51710	Electronic Monitoring Solutionz Ltd
+51711	Apis Networks
+51712	0b1.se
+51713	Girolami Controls Inc.
+51714	Lumentum Operations LLC
+51715	SSI Cable
+51716	EVE compliancy solutions
+51717	Gamefanatics.com
+51718	Centro Oncologico del Oeste
+51719	Criteo SA
+51720	Lartech
+51721	UTran Technology Inc.
+51722	GCR Tech
+51723	BEIJING ZONGHENG ELECTRO-MECHANICAL TECHNOLOGY DEVELOPMENT CO.
+51724	Intersect
+51725	Radio DataCast
+51726	CTPHQ
+51727	Indium Limited
+51728	Honiball IT Limited
+51729	Serverside Kft.
+51730	Discount Tire
+51731	GERO Meßsysteme GmbH
+51732	digitalpath sàrl
+51733	Ministry of Science, ISRAEL
+51734	Gomes Consulting Services
+51735	Shanghai Hite-Belden Network Technology Co., Ltd.
+51736	Sumeru Microwave Communications Pvt. Ltd.
+51737	x-tention Informationstechnologie GmbH
+51738	Glenn E Hurst MC P.C.

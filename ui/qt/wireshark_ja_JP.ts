@@ -6544,11 +6544,8 @@ a:hover {
         <translation>HTTP負荷分散</translation>
     </message>
     <message>
-        <source>Referers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP referers</source>
+        <source>HTTP Request Sequences</source>
+        <oldsource>HTTP referers</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6922,6 +6919,10 @@ a:hover {
     <message>
         <source>SSL Stream</source>
         <translation>SSLストリーム</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>

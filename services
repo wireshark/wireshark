@@ -3992,7 +3992,7 @@ pjj-player-disc	4416/udp	# PJJ Media Player discovery
 workflowdir	4417/tcp	# Workflow Director Communication
 axysbridge	4418/udp	# AXYS communication protocol
 cbp		4419/tcp	# Colnod Binary Protocol
-nvm-express	4420/tcp/udp	# NVM Express over Fabrics storage access
+nvme		4420/tcp/udp	# NVM Express over Fabrics storage access
 scaleft		4421/tcp	# Multi-Platform Remote Management for Cloud Infrastructure
 tsepisp		4422/tcp	# TSEP Installation Service Protocol
 thingkit	4423/tcp	# thingkit secure mesh
@@ -5143,6 +5143,7 @@ wpl-analytics	8006/tcp	# World Programming analytics
 wpl-disc	8006/udp	# World Programming analytics discovery
 warppipe	8007/tcp/udp	# I/O oriented cluster computing software
 http-alt	8008/tcp/udp	# HTTP Alternate
+nvme-disc	8009/tcp	# NVMe over Fabrics Discovery Service
 qbdb		8019/tcp/udp	# QB DB Dynamic Port
 intu-ec-svcdisc	8020/tcp/udp	# Intuit Entitlement Service and Discovery
 intu-ec-client	8021/tcp/udp	# Intuit Entitlement Client

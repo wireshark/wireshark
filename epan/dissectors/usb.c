@@ -63,7 +63,7 @@ static const value_string usb_vendors_vals[] = {
     { 0x03ec, "Iwatsu America, Inc." },
     { 0x03ed, "Mitel Corp." },
     { 0x03ee, "Mitsumi" },
-    { 0x03f0, "Hewlett-Packard" },
+    { 0x03f0, "HP, Inc" },
     { 0x03f1, "Genoa Technology" },
     { 0x03f2, "Oak Technology, Inc." },
     { 0x03f3, "Adaptec, Inc." },

@@ -6611,11 +6611,12 @@ text-decoration: underline;
     </message>
     <message>
         <source>Referers</source>
-        <translation>Referers</translation>
+        <translation type="vanished">Referers</translation>
     </message>
     <message>
-        <source>HTTP referers</source>
-        <translation>HTTP Referers</translation>
+        <source>HTTP Request Sequences</source>
+        <oldsource>HTTP referers</oldsource>
+        <translation type="unfinished">HTTP Referers</translation>
     </message>
     <message>
         <source>Packet Lengths</source>
@@ -6988,6 +6989,10 @@ text-decoration: underline;
     <message>
         <source>SSL Stream</source>
         <translation>SSL Stream</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>

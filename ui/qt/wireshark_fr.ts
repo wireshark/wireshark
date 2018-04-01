@@ -6557,11 +6557,8 @@ a:hover {
         <translation>Répartition de charge HTTP</translation>
     </message>
     <message>
-        <source>Referers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP referers</source>
+        <source>HTTP Request Sequences</source>
+        <oldsource>HTTP referers</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6935,6 +6932,10 @@ a:hover {
     <message>
         <source>SSL Stream</source>
         <translation>Flux SSL</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
