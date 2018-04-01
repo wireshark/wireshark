@@ -1699,6 +1699,10 @@ int main(int argc _U_, char **argv)
   int exitcode;
   struct lemon lem;
   struct rule *rp;
+  struct symbol *dollar_sym;
+  struct symbol *default_sym;
+
+  memset(&lem, 0x0, sizeof(lem));
 
   OptInit(argv,options,stderr);
   if( version ){
@@ -1720,7 +1724,7 @@ int main(int argc _U_, char **argv)
   lem.filename = OptArg(0);
   lem.basisflag = basisflag;
   lem.nolinenosflag = nolinenosflag;
-  Symbol_new("$");
+  dollar_sym = Symbol_new("$");
   lem.errsym = Symbol_new("error");
   lem.errsym->useCnt = 0;
 
@@ -1731,14 +1735,25 @@ int main(int argc _U_, char **argv)
   Parse(&lem);
   if( lem.errorcnt ) exit(lem.errorcnt);
   if( lem.nrule==0 || lem.rule == NULL ){
+    free(dollar_sym);
     fprintf(stderr,"Empty grammar.\n");
     exit(1);
   }
 
   /* Count and index the symbols of the grammar */
-  Symbol_new("{default}");
+  default_sym = Symbol_new("{default}");
   lem.nsymbol = Symbol_count();
   lem.symbols = Symbol_arrayof();
+  if (lem.nsymbol == 0 || !lem.symbols) {
+    free(dollar_sym);
+    free(default_sym);
+    free(lem.errsym);
+    if (lem.symbols)
+      free(lem.symbols);
+    fprintf(stderr, "Can't find symbols\n");
+    exit(1);
+  }
+
   for(i=0; i<lem.nsymbol; i++) lem.symbols[i]->index = i;
   qsort(lem.symbols,lem.nsymbol,sizeof(struct symbol*), Symbolcmpp);
   for(i=0; i<lem.nsymbol; i++) lem.symbols[i]->index = i;
@@ -1824,6 +1839,9 @@ int main(int argc _U_, char **argv)
   if( lem.nconflict > 0 ){
     fprintf(stderr,"%d parsing conflicts.\n",lem.nconflict);
   }
+
+  free(default_sym);
+  free(dollar_sym);
 
   /* return 0 on success, 1 on failure. */
   exitcode = ((lem.errorcnt > 0) || (lem.nconflict > 0)) ? 1 : 0;
