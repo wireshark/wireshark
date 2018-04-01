@@ -1148,7 +1148,7 @@ qname_labels_count(const guchar* name, guint name_len)
  * The string is allocated with wmem_packet_scope scope and does not need to be freed.
  * it will be automatically freed when the packet has been dissected.
  */
-int
+static int
 expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     const guchar **name, guint* name_len)
 {

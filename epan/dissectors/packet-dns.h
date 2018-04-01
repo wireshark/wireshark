@@ -15,7 +15,6 @@
 
 extern const value_string dns_classes[];
 
-int expand_dns_name(tvbuff_t *, int, int, int, const guchar **, guint*);
 /* Just like expand_dns_name, but pretty-prints empty names. */
 int get_dns_name(tvbuff_t *, int, int, int, const guchar **, guint*);
 
