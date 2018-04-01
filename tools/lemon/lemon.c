@@ -1964,9 +1964,11 @@ static FILE *errstream;
 */
 static void errline(int n, int k, FILE *err)
 {
-  int spcnt, i;
-  if( argv[0] ) fprintf(err,"%s",argv[0]);
-  spcnt = lemonStrlen(argv[0]) + 1;
+  int spcnt = 0, i;
+  if( argv[0] ) {
+    fprintf(err,"%s",argv[0]);
+    spcnt = lemonStrlen(argv[0]) + 1;
+  }
   for(i=1; i<n && argv[i]; i++){
     fprintf(err," %s",argv[i]);
     spcnt += lemonStrlen(argv[i])+1;
