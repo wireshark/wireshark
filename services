@@ -7944,8 +7944,8 @@ pjj-player-disc  4416/udp # PJJ Media Player discovery [PJJ_Productions_Inc] [Br
 workflowdir      4417/tcp # Workflow Director Communication [WfDir] [Brian_Doyle] 2015-12-11
 axysbridge       4418/udp # AXYS communication protocol [Duran_Audio_B.V.] [Gerald_van_Beuningen] 2016-03-14
 cbp              4419/tcp # Colnod Binary Protocol [Colsys_s.r.o.] [Jiri_Merth] 2016-03-23
-nvm-express      4420/tcp # NVM Express over Fabrics storage access [NVM_Express_Workgroup] [Amber_Huffman] 2016-03-31
-nvm-express      4420/udp # NVM Express over Fabrics storage access [NVM_Express_Workgroup] [Amber_Huffman] 2016-03-31
+nvme             4420/tcp # NVM Express over Fabrics storage access [NVM_Express_Inc] [Amber_Huffman] 2016-03-31 2018-03-27
+nvme             4420/udp # NVM Express over Fabrics storage access [NVM_Express_Inc] [Amber_Huffman] 2016-03-31 2018-03-27
 scaleft          4421/tcp # Multi-Platform Remote Management for Cloud Infrastructure [ScaleFT_Inc] [Paul_Querna] 2016-04-07
 tsepisp          4422/tcp # TSEP Installation Service Protocol [Technical_Software_Engineering_Plazotta] [Peter_Plazotta] 2016-06-22
 thingkit         4423/tcp # thingkit secure mesh [thingkit_inc.] [Chris_Bell] 2016-06-27
@@ -9936,6 +9936,7 @@ warppipe         8007/tcp # I/O oriented cluster computing software [MirrorWeb_L
 warppipe         8007/udp # I/O oriented cluster computing software [MirrorWeb_LTD] [Jonathan_Kingsley] 2017-07-19
 http-alt         8008/tcp # HTTP Alternate [James_Gettys] [James_Gettys]
 http-alt         8008/udp # HTTP Alternate [James_Gettys] [James_Gettys]
+nvme-disc        8009/tcp # NVMe over Fabrics Discovery Service [NVM_Express_Inc] [Amber_Huffman] 2018-03-27
 qbdb             8019/tcp # QB DB Dynamic Port [Sridhar_Krishnamurth] [Sridhar_Krishnamurth] 2008-02-15
 qbdb             8019/udp # QB DB Dynamic Port [Sridhar_Krishnamurth] [Sridhar_Krishnamurth] 2008-02-15
 intu-ec-svcdisc  8020/tcp # Intuit Entitlement Service and Discovery [Daniel_C_McGloin] [Daniel_C_McGloin] 2005-05
