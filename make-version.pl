@@ -72,8 +72,8 @@ my $set_version = 0;
 my $set_release = 0;
 my %version_pref = (
 	"version_major" => 2,
-	"version_minor" => 5,
-	"version_micro" => 2,
+	"version_minor" => 9,
+	"version_micro" => 0,
 	"version_build" => 0,
 
 	"enable"        => 1,
@@ -498,7 +498,7 @@ sub update_docinfo_asciidoc
 		my $contents = "";
 		open(DOCINFO_XML, "< $filepath") || die "Can't read $filepath!";
 		while ($line = <DOCINFO_XML>) {
-			if ($line =~ /^<subtitle>For Wireshark \d.\d<\/subtitle>([\r\n]+)$/) {
+			if ($line =~ /^<subtitle>For Wireshark \d.\d+<\/subtitle>([\r\n]+)$/) {
 				$line = sprintf("<subtitle>For Wireshark %d.%d</subtitle>$1",
 						$version_pref{"version_major"},
 						$version_pref{"version_minor"},
