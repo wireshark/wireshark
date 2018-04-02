@@ -1676,9 +1676,9 @@ static void
 lpp_nrsrq_Result_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "NRSRQ < -19.5dB (0)");
-  } else if (v < 46) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= NRSRQ < %.1fdB (%u)", ((float)v/2)-20, (((float)v+1)/2)-20, v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "NRSRQ < -34dB (0)");
+  } else if (v < 74) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= NRSRQ < %.1fdB (%u)", (((float)v-1)/2)-34, ((float)v/2)-34, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "2.5dB <= NRSRQ (%u)", v);
   }
