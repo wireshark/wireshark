@@ -9653,6 +9653,86 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset = tvb_captured_length(tvb);
 
         break;
+    case 0x2A1F: /* Temperature Celsius */
+    case 0x2A20: /* Temperature Fahrenheit */
+    case 0x2A2F: /* Position 2D */
+    case 0x2A30: /* Position 3D */
+    case 0x2A3A: /* Removable */
+    case 0x2A3B: /* Service Required */
+    case 0x2A3C: /* Scientific Temperature Celsius */
+    case 0x2A3D: /* String */
+    case 0x2A3E: /* Network Availability */
+    case 0x2A57: /* Digital Output */
+    case 0x2A59: /* Analog Output */
+    case 0x2ADB: /* Mesh Provisioning Data In */
+    case 0x2ADC: /* Mesh Provisioning Data Out */
+    case 0x2ADD: /* Mesh Proxy Data In */
+    case 0x2ADE: /* Mesh Proxy Data Out */
+    case 0x2AE0: /* Average Current */
+    case 0x2AE1: /* Average Voltage */
+    case 0x2AE2: /* Boolean */
+    case 0x2AE3: /* Chromatic Distance From Planckian */
+    case 0x2AE4: /* Chromaticity Coordinates */
+    case 0x2AE5: /* Chromaticity In CCT And Duv Values */
+    case 0x2AE6: /* Chromaticity Tolerance */
+    case 0x2AE7: /* CIE 13.3-1995 Color Rendering Index */
+    case 0x2AE8: /* Coefficient */
+    case 0x2AE9: /* Correlated Color Temperature */
+    case 0x2AEA: /* Count 16 */
+    case 0x2AEB: /* Count 24 */
+    case 0x2AEC: /* Country Code */
+    case 0x2AED: /* Date UTC */
+    case 0x2AEE: /* Electric Current */
+    case 0x2AEF: /* Electric Current Range */
+    case 0x2AF0: /* Electric Current Specification */
+    case 0x2AF1: /* Electric Current Statistics */
+    case 0x2AF2: /* Energy */
+    case 0x2AF3: /* Energy In A Period Of Day */
+    case 0x2AF4: /* Event Statistics */
+    case 0x2AF5: /* Fixed String 16 */
+    case 0x2AF6: /* Fixed String 24 */
+    case 0x2AF7: /* Fixed String 36 */
+    case 0x2AF8: /* Fixed String 8 */
+    case 0x2AF9: /* Generic Level */
+    case 0x2AFA: /* Global Trade Item Number */
+    case 0x2AFB: /* Illuminance */
+    case 0x2AFC: /* Luminous Efficacy */
+    case 0x2AFD: /* Luminous Energy */
+    case 0x2AFE: /* Luminous Exposure */
+    case 0x2AFF: /* Luminous Flux */
+    case 0x2B00: /* Luminous Flux Range */
+    case 0x2B01: /* Luminous Intensity */
+    case 0x2B02: /* Mass Flow */
+    case 0x2B03: /* Perceived Lightness */
+    case 0x2B04: /* Percentage 8 */
+    case 0x2B05: /* Power */
+    case 0x2B06: /* Power Specification */
+    case 0x2B07: /* Relative Runtime In A Current Range */
+    case 0x2B08: /* Relative Runtime In A Generic Level Range */
+    case 0x2B09: /* Relative Value In A Voltage Range */
+    case 0x2B0A: /* Relative Value In An Illuminance Range */
+    case 0x2B0B: /* Relative Value In A Period of Day */
+    case 0x2B0C: /* Relative Value In A Temperature Range */
+    case 0x2B0D: /* Temperature 8 */
+    case 0x2B0E: /* Temperature 8 In A Period Of Day */
+    case 0x2B0F: /* Temperature 8 Statistics */
+    case 0x2B10: /* Temperature Range */
+    case 0x2B11: /* Temperature Statistics */
+    case 0x2B12: /* Time Decihour 8 */
+    case 0x2B13: /* Time Exponential 8 */
+    case 0x2B14: /* Time Hour 24 */
+    case 0x2B15: /* Time Millisecond 24 */
+    case 0x2B16: /* Time Second 16 */
+    case 0x2B17: /* Time Second 8 */
+    case 0x2B18: /* Voltage */
+    case 0x2B19: /* Voltage Specification */
+    case 0x2B1A: /* Voltage Statistics */
+    case 0x2B1B: /* Volume Flow */
+    case 0x2B1C: /* Chromaticity Coordinate */
+    case 0x2B1D: /* Reconnection Configuration Feature */
+    case 0x2B1E: /* Reconnection Configuration Settings */
+    case 0x2B1F: /* Reconnection Configuration Control Point */
+        /* TODO */
     default:
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
