@@ -175,7 +175,7 @@ libwsutil_la_SOURCES += plugins.c
 endif
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
+libwsutil_la_LDFLAGS = -version-info 9:0:0 @LDFLAGS_SHAREDLIB@
 
 libwsutil_la_LIBADD = \
 	$(LTLIBOBJS)			\

@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 # Simple script to create extern pixbuf csource. Receives list of
-# tuples (varname, path) separated with spaces.
+# tuples (varname, path) separated with spaces. GTK+ only.
 
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
