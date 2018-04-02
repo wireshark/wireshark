@@ -396,9 +396,24 @@ else()
 		#
 		set(CMAKE_C_FLAGS "-qlanglvl=extc99 ${CMAKE_C_FLAGS}")
 	elseif(CMAKE_C_COMPILER_ID MATCHES "HP")
-		set(CMAKE_C_FLAGS "-AC99 ${CMAKE_C_FLAGS}")
+		#
+		# We also need to add -Wp,-H200000 to handle some large
+		# #defines we have; that flag is not necessary for the
+		# C++ compiler unless the "legacy" C++ preprocessor is
+		# being used (+legacy_cpp).  We don't want the legacy
+		# preprocessor if it's not the default, so we just add
+		# -Wp,-H200000 to the C flags.  (If there are older
+		# versions of aC++ that only support the legacy
+		# preprocessor, and require that we boost the table
+		# size, we'd have to check whether -Wp,-H200000 is
+		# supported by the C++ compiler and add it only if it is.)
+		#
+		set(CMAKE_C_FLAGS "-AC99 -Wp,-H200000 $WS_CFLAGS ${CMAKE_C_FLAGS}")
 	elseif(CMAKE_C_COMPILER_ID MATCHES "Sun")
-		set(CMAKE_C_FLAGS "-xc99 ${CMAKE_C_FLAGS}")
+		#
+		# We also crank up the warning level.
+		#
+		set(CMAKE_C_FLAGS "-xc99 -v ${CMAKE_C_FLAGS}")
 	elseif(CMAKE_C_COMPILER_ID MATCHES "Intel")
 		set(CMAKE_C_FLAGS "-c99 ${CMAKE_C_FLAGS}")
 	endif()
