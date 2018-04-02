@@ -3375,7 +3375,7 @@ lpp_rsrp_Result_fmt(gchar *s, guint32 v)
   if (v == 0) {
     g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140dBm (0)");
   } else if (v < 97) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm < RSRP <= %ddBm (%u)", v-141, v-140, v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSRP < %ddBm (%u)", v-141, v-140, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "-44dBm <= RSRP (97)");
   }
@@ -3399,7 +3399,7 @@ lpp_nrsrp_Result_fmt(gchar *s, guint32 v)
   if (v == 0) {
     g_snprintf(s, ITEM_LABEL_LENGTH, "NRSRP < -156dBm (0)");
   } else if (v < 113) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm < NRSRP <= %ddBm (%u)", v-157, v-156, v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= NRSRP < %ddBm (%u)", v-157, v-156, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "-44dBm <= NRSRP (97)");
   }
@@ -3411,7 +3411,7 @@ lpp_nrsrq_Result_fmt(gchar *s, guint32 v)
   if (v == 0) {
     g_snprintf(s, ITEM_LABEL_LENGTH, "NRSRQ < -19.5dB (0)");
   } else if (v < 46) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB < NRSRQ <= %.1fdB (%u)", ((float)v/2)-20, (((float)v+1)/2)-20, v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= NRSRQ < %.1fdB (%u)", ((float)v/2)-20, (((float)v+1)/2)-20, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "2.5dB <= NRSRQ (%u)", v);
   }
