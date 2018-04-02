@@ -17,6 +17,10 @@
  * Heuristic object support for common services
  *   Michael Mann * Copyright 2011
  *
+ * Added support for PCCC Objects
+ *   Jared Rittle - Cisco Talos
+ *   Copyright 2017
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -52,6 +56,7 @@ typedef struct mr_mult_req_info {
 
 static dissector_handle_t cip_class_generic_handle;
 static dissector_handle_t cip_class_cm_handle;
+static dissector_handle_t cip_class_pccc_handle;
 static dissector_handle_t modbus_handle;
 static dissector_handle_t cip_class_cco_handle;
 static heur_dissector_list_t  heur_subdissector_service;
@@ -62,6 +67,7 @@ static gboolean cip_enhanced_info_column = TRUE;
 static int proto_cip = -1;
 static int proto_cip_class_generic = -1;
 static int proto_cip_class_cm = -1;
+static int proto_cip_class_pccc = -1;
 static int proto_cip_class_mb = -1;
 static int proto_cip_class_cco = -1;
 static int proto_enip = -1;
@@ -146,6 +152,27 @@ static int hf_cip_cm_ext112_to_rpi = -1;
 static int hf_cip_cm_ext126_size = -1;
 static int hf_cip_cm_ext127_size = -1;
 static int hf_cip_cm_ext128_size = -1;
+
+static int hf_cip_pccc_sc = -1;
+static int hf_cip_pccc_req_id_len = -1;
+static int hf_cip_pccc_cip_vend_id = -1;
+static int hf_cip_pccc_cip_serial_num = -1;
+static int hf_cip_pccc_cmd_code = -1;
+static int hf_cip_pccc_sts_code = -1;
+static int hf_cip_pccc_ext_sts_code = -1;
+static int hf_cip_pccc_tns_code = -1;
+static int hf_cip_pccc_fnc_code = -1;
+static int hf_cip_pccc_byte_size = -1;
+static int hf_cip_pccc_file_num = -1;
+static int hf_cip_pccc_file_type = -1;
+static int hf_cip_pccc_element_num = -1;
+static int hf_cip_pccc_subelement_num = -1;
+static int hf_cip_pccc_cpu_mode = -1;
+static int hf_cip_pccc_resp_code = -1;
+static int hf_cip_pccc_execute_multi_count = -1;
+static int hf_cip_pccc_execute_multi_len = -1;
+static int hf_cip_pccc_execute_multi_fnc = -1;
+static int hf_cip_pccc_data = -1;
 
 static int hf_cip_mb_sc = -1;
 static int hf_cip_mb_read_coils_start_addr = -1;
@@ -491,6 +518,7 @@ static int hf_32bitheader_run_idle = -1;
 static gint ett_cip = -1;
 static gint ett_cip_class_generic = -1;
 static gint ett_cip_class_cm = -1;
+static gint ett_cip_class_pccc = -1;
 static gint ett_cip_class_mb = -1;
 static gint ett_cip_class_cco = -1;
 
@@ -531,6 +559,10 @@ static gint ett_cm_ttt = -1;
 static gint ett_cm_add_status_item = -1;
 static gint ett_cip_cm_pid = -1;
 static gint ett_cip_cm_safety = -1;
+
+static gint ett_pccc_rrsc = -1;
+static gint ett_pccc_req_id = -1;
+static gint ett_pccc_cmd_data = -1;
 
 static gint ett_mb_rrsc = -1;
 static gint ett_mb_cmd_data = -1;
@@ -636,6 +668,16 @@ static const value_string cip_sc_vals_cm[] = {
    { SC_CM_UNCON_SEND,           "Unconnected Send" },
    { SC_CM_LARGE_FWD_OPEN,       "Large Forward Open" },
    { SC_CM_GET_CONN_OWNER,       "Get Connection Owner" },
+
+   { 0,                       NULL }
+};
+
+/* Translate function to string - CIP Service codes for PCCC */
+static const value_string cip_sc_vals_pccc[] = {
+   GENERIC_SC_LIST
+
+   /* Some class specific services */
+   { SC_PCCC_EXECUTE_PCCC,     "Execute PCCC" },
 
    { 0,                       NULL }
 };
@@ -886,8 +928,6 @@ static const value_string cip_security_state_vals[] = {
    { 3,      "Incomplete Configuration"    },
    { 0,      NULL           }
 };
-
-
 
 static const value_string cip_path_seg_vals[] = {
    { ((CI_PORT_SEGMENT>>5)&7),       "Port Segment" },
@@ -1254,6 +1294,184 @@ static const value_string cip_cm_ext_st_vals[] = {
 };
 
 value_string_ext cip_cm_ext_st_vals_ext = VALUE_STRING_EXT_INIT(cip_cm_ext_st_vals);
+
+/* Translate function to string - PCCC Status codes */
+static const value_string cip_pccc_gs_st_vals[] = {
+   { PCCC_GS_SUCCESS,                         "Success" },
+   { PCCC_GS_ILLEGAL_CMD,                     "Illegal command or format" },
+   { PCCC_GS_HOST_COMMS,                      "Host has a problem and will not communicate" },
+   { PCCC_GS_MISSING_REMOTE_NODE,             "Remote node host is missing, disconnected, or shut down" },
+   { PCCC_GS_HARDWARE_FAULT,                  "Host could not complete function due to hardware fault" },
+   { PCCC_GS_ADDRESSING_ERROR,                "Addressing problem or memory protect rungs" },
+   { PCCC_GS_CMD_PROTECTION,                  "Function not allowed due to command protection selection" },
+   { PCCC_GS_PROGRAM_MODE,                    "Processor is in Program mode" },
+   { PCCC_GS_MISSING_COMPATABILITY_FILE,      "Compatibility mode file missing or communication zone problem" },
+   { PCCC_GS_BUFFER_FULL_1,                   "Remote node cannot buffer command" },
+   { PCCC_GS_WAIT_ACK,                        "Wait ACK (1775-KA buffer full)" },
+   { PCCC_GS_REMOTE_DOWNLOAD_ERROR,           "Remote node problem due to download" },
+   { PCCC_GS_BUFFER_FULL_2,                   "Wait ACK (1775-KA buffer full)" },
+   { PCCC_GS_NOT_USED_1,                      "Not used" },
+   { PCCC_GS_NOT_USED_2,                      "Not used" },
+   { PCCC_GS_USE_EXTSTS,                      "Error code in the EXT STS byte" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_gs_st_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_gs_st_vals);
+
+/* Translate function to string - PCCC Extended Status codes */
+static const value_string cip_pccc_es_st_vals[] = {
+   { PCCC_ES_ILLEGAL_VALUE,                        "A field has an illegal value" },
+   { PCCC_ES_SHORT_ADDRESS,                        "Less levels specified in address than minimum for any address" },
+   { PCCC_ES_LONG_ADDRESS,                         "More levels specified in address than system supports" },
+   { PCCC_ES_NOT_FOUND,                            "Symbol not found" },
+   { PCCC_ES_BAD_FORMAT,                           "Symbol is of improper format" },
+   { PCCC_ES_BAD_POINTER,                          "Address doesn't point to something usable" },
+   { PCCC_ES_BAD_SIZE,                             "File is wrong size" },
+   { PCCC_ES_SITUATION_CHANGED,                    "Cannot complete request, situation has changed since the start of the command" },
+   { PCCC_ES_DATA_TOO_LARGE,                       "Data or file is too large" },
+   { PCCC_ES_TRANS_TOO_LARGE,                      "Transaction size plus word address is too large" },
+   { PCCC_ES_ACCESS_DENIED,                        "Access denied, improper privilege" },
+   { PCCC_ES_NOT_AVAILABLE,                        "Condition cannot be generated - resource is not available" },
+   { PCCC_ES_ALREADY_EXISTS,                       "Condition already exists - resource is already available" },
+   { PCCC_ES_NO_EXECUTION,                         "Command cannot be executed" },
+   { PCCC_ES_HIST_OVERFLOW,                        "Histogram overflow" },
+   { PCCC_ES_NO_ACCESS,                            "No access" },
+   { PCCC_ES_ILLEGAL_DATA_TYPE,                    "Illegal data type" },
+   { PCCC_ES_INVALID_DATA,                         "Invalid parameter or invalid data" },
+   { PCCC_ES_BAD_REFERENCE,                        "Address reference exists to deleted area" },
+   { PCCC_ES_EXECUTION_FAILURE,                    "Command execution failure for unknown reason; possible PLC-3 histogram overflow" },
+   { PCCC_ES_CONVERSION_ERROR,                     "Data conversion error" },
+   { PCCC_ES_NO_COMMS,                             "Scanner not able to communicate with 1771 rack adapter" },
+   { PCCC_ES_TYPE_MISMATCH,                        "Type mismatch" },
+   { PCCC_ES_BAD_RESPONSE,                         "1771 module response was not valid" },
+   { PCCC_ES_DUP_LABEL,                            "Duplicated label" },
+   { PCCC_ES_RACK_FAULT,                           "Remote rack fault" },
+   { PCCC_ES_TIMEOUT,                              "Timeout" },
+   { PCCC_ES_UNKNOWN,                              "Unknown error" },
+   { PCCC_ES_FILE_ALREADY_OPEN,                    "File is open; another node owns it" },
+   { PCCC_ES_PROGRAM_ALREADY_OWNED,                "Another node is the program owner" },
+   { PCCC_ES_RESERVED_1,                           "Reserved" },
+   { PCCC_ES_RESERVED_2,                           "Reserved" },
+   { PCCC_ES_PROTECTION_VIOLATION,                 "Data table element protection violation" },
+   { PCCC_ES_TMP_INTERNAL_ERROR,                   "Temporary internal problem" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_es_st_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_es_st_vals);
+
+/* Translate PCCC Function Codes */
+static const value_string cip_pccc_fnc_vals[] = {
+    { PCCC_FNC_06_00, "Echo" },
+    { PCCC_FNC_06_01, "Read diagnostic counters" },
+    { PCCC_FNC_06_02, "Set variables" },
+    { PCCC_FNC_06_03, "Diagnostic status" },
+    { PCCC_FNC_06_04, "Set timeout" },
+    { PCCC_FNC_06_05, "Set NAKs" },
+    { PCCC_FNC_06_06, "Set ENQs" },
+    { PCCC_FNC_06_07, "Reset diagnostic counters" },
+    { PCCC_FNC_06_08, "Set data table size" },
+    { PCCC_FNC_06_09, "Read link parameters" },
+    { PCCC_FNC_06_0A, "Set link parameters" },
+    { PCCC_FNC_07_00, "Disable outputs" },
+    { PCCC_FNC_07_01, "Enable outputs" },
+    { PCCC_FNC_07_03, "Enable PLC scanning" },
+    { PCCC_FNC_07_04, "Enter download mode" },
+    { PCCC_FNC_07_05, "Exit download/upload mode" },
+    { PCCC_FNC_07_06, "Enter upload mode" },
+    { PCCC_FNC_0F_00, "Word range write" },
+    { PCCC_FNC_0F_01, "Word range read" },
+    { PCCC_FNC_0F_02, "Bit write" },
+    { PCCC_FNC_0F_03, "File write" },
+    { PCCC_FNC_0F_04, "File read" },
+    { PCCC_FNC_0F_05, "Download request" },
+    { PCCC_FNC_0F_06, "Upload" },
+    { PCCC_FNC_0F_07, "Shutdown" },
+    { PCCC_FNC_0F_08, "Physical write" },
+    { PCCC_FNC_0F_09, "Physical read" },
+    { PCCC_FNC_0F_0A, "Restart request" },
+    { PCCC_FNC_0F_11, "Get edit resource" },
+    { PCCC_FNC_0F_12, "Return edit resource" },
+    { PCCC_FNC_0F_17, "Read bytes physical" },
+    { PCCC_FNC_0F_18, "Write bytes physical" },
+    { PCCC_FNC_0F_26, "Read-modify-write" },
+    { PCCC_FNC_0F_29, "Read section size" },
+    { PCCC_FNC_0F_3A, "Set CPU mode" },
+    { PCCC_FNC_0F_41, "Disable forces" },
+    { PCCC_FNC_0F_50, "Download all request" },
+    { PCCC_FNC_0F_52, "Download completed" },
+    { PCCC_FNC_0F_53, "Upload all request (upload)" },
+    { PCCC_FNC_0F_55, "Upload completed" },
+    { PCCC_FNC_0F_57, "Initialize memory" },
+    { PCCC_FNC_0F_5E, "Modify PLC-2 compatibility file" },
+    { PCCC_FNC_0F_67, "Typed write" },
+    { PCCC_FNC_0F_68, "Typed read" },
+    { PCCC_FNC_0F_79, "Read-modify-write N" },
+    { PCCC_FNC_0F_80, "Change CPU mode" },
+    { PCCC_FNC_0F_81, "Open file" },
+    { PCCC_FNC_0F_82, "Close file" },
+    { PCCC_FNC_0F_88, "Execute Multiple Commands" },
+    { PCCC_FNC_0F_8F, "Apply port configuration" },
+    { PCCC_FNC_0F_A1, "Protected typed logical read with two address fields" },
+    { PCCC_FNC_0F_A2, "Protected typed logical read with three address fields" },
+    { PCCC_FNC_0F_A7, "Protected typed file read" },
+    { PCCC_FNC_0F_A9, "Protected typed logical write with two address fields" },
+    { PCCC_FNC_0F_AA, "Protected typed logical write with three address fields" },
+    { PCCC_FNC_0F_AB, "Protected typed logical masked-write with three address fields" },
+    { PCCC_FNC_0F_AF, "Protected typed file write" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_fnc_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_vals);
+
+/* Translate PCCC File Types */
+static const value_string cip_pccc_file_types_vals[] = {
+   { PCCC_FILE_TYPE_LOGIC,               "Ladder Logic File" },
+   { PCCC_FILE_TYPE_CHANNEL_CONFIG,      "Channel Configuration File" },
+   { PCCC_FILE_TYPE_FUNCTION_ES1,        "EtherNet/IP Function File" },
+   { PCCC_FILE_TYPE_ONLINE_EDIT,         "Online Editing File" },
+   { PCCC_FILE_TYPE_FUNCTION_IOS,        "IOS Function File" },
+   { PCCC_FILE_TYPE_DATA_OUTPUT,         "Output Data File" },
+   { PCCC_FILE_TYPE_DATA_INPUT,          "Input Data File" },
+   { PCCC_FILE_TYPE_DATA_STATUS,         "Status Data File" },
+   { PCCC_FILE_TYPE_DATA_BINARY,         "Binary Data File" },
+   { PCCC_FILE_TYPE_DATA_TIMER,          "Timer Data File" },
+   { PCCC_FILE_TYPE_DATA_COUNTER,        "Counter Data File" },
+   { PCCC_FILE_TYPE_DATA_INTEGER,        "Integer Data File" },
+   { PCCC_FILE_TYPE_DATA_FLOAT,          "Float Data File" },
+   { PCCC_FILE_TYPE_FORCE_OUTPUT,        "Output Force File" },
+   { PCCC_FILE_TYPE_FORCE_INPUT,         "Input Force File" },
+   { PCCC_FILE_TYPE_FUNCTION_ES0,        "ES0 Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_STI,        "STI Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_EII,        "EII Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_RTC,        "RTC Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_BHI,        "BHI Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_MMI,        "Memory Module Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_LCD,        "Built-in LCD Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_PTOX,       "PTOX Function File" },
+   { PCCC_FILE_TYPE_FUNCTION_PWMX,       "PWMX Function File" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_file_type_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_file_types_vals);
+
+/* Translate PCCC CPU Modes */
+static const value_string cip_pccc_cpu_mode_vals[] = {
+   { PCCC_CPU_3A_PROGRAM,           "Remote Program" },
+   { PCCC_CPU_3A_RUN,               "Remote Run" },
+   { PCCC_CPU_80_PROGRAM,           "Remote Program" },
+   { PCCC_CPU_80_RUN,               "Remote Run" },
+   { PCCC_CPU_80_TEST_CONT,         "Remote Test Continuous" },
+   { PCCC_CPU_80_TEST_SINGLE,       "Remote Test Single" },
+   { PCCC_CPU_80_TEST_DEBUG,        "Remote Test Debug" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_cpu_mode_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_cpu_mode_vals);
 
 /* Translate Vendor IDs */
 static const value_string cip_vendor_vals[] = {
@@ -2484,7 +2702,6 @@ static const value_string cip_vendor_vals[] = {
 
 value_string_ext cip_vendor_vals_ext = VALUE_STRING_EXT_INIT(cip_vendor_vals);
 
-
 /* Translate Device Profile's */
 static const value_string cip_devtype_vals[] = {
    { 0x00,        "Generic Device (deprecated)"         },
@@ -2611,6 +2828,7 @@ static const value_string cip_class_names_vals[] = {
    { 0x5D,     "CIP Security"                   },
    { 0x5E,     "EtherNet/IP Security"           },
    { 0x5F,     "Certificate Management"         },
+   { 0x67,     "PCCC Class"                     },
    { 0xF0,     "ControlNet"                     },
    { 0xF1,     "ControlNet Keeper"              },
    { 0xF2,     "ControlNet Scheduling"          },
@@ -2716,6 +2934,13 @@ void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const va
 {
    col_append_str( pinfo->cinfo, COL_INFO,
       val_to_str(service & CIP_SC_MASK, service_vals, "Service (0x%02x)"));
+   col_set_fence(pinfo->cinfo, COL_INFO);
+}
+
+void add_cip_pccc_function_to_info_column(packet_info *pinfo, guint8 fnc, const value_string* fnc_vals)
+{
+   col_append_fstr( pinfo->cinfo, COL_INFO,
+      " - %s", val_to_str(fnc, fnc_vals, "Function (0x%02x)"));
    col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
@@ -3417,7 +3642,6 @@ static int dissect_port_node_range(packet_info *pinfo _U_, proto_tree *tree, pro
 
    return 4;
 }
-
 
 static attribute_info_t cip_attribute_vals[] = {
     /* Identity Object (class attributes) */
@@ -6712,6 +6936,209 @@ dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 /************************************************
  *
+ * Dissector for CIP PCCC Object
+ *
+ ************************************************/
+static void
+dissect_cip_pccc_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
+{
+   proto_item *rrsc_item;
+   proto_tree *rrsc_tree, *req_id_tree, *pccc_cmd_tree, *cmd_data_tree;
+   int req_path_size;
+   unsigned char service;
+   int add_status;
+
+   service = tvb_get_guint8( tvb, offset );
+
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP PCCC");
+
+   /* Add Service code & Request/Response tree */
+   rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_pccc_rrsc, &rrsc_item, "Service: " );
+
+   /* Add Request/Response */
+   proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
+
+   /* watch for service collisions */
+   proto_item_append_text( rrsc_item, "%s (%s)",
+               val_to_str( ( service & CIP_SC_MASK ),
+                  cip_sc_vals_pccc , "Unknown Service (0x%02x)"),
+               val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7,
+                  cip_sc_rr, "") );
+
+   /* Add Service code */
+   proto_tree_add_item(rrsc_tree, hf_cip_pccc_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
+   add_cip_service_to_info_column (pinfo, service, cip_sc_vals_pccc);
+
+   /* There is a minimum of two bytes different between the request and response request path */
+   /* Response message */
+   if ( service & CIP_SC_RESPONSE_MASK )
+   {
+       req_path_size = 2 + tvb_get_guint8( tvb, offset+2 )*2;
+   }
+   /* Request message */
+   else
+   {
+       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
+   }
+
+   int req_id_offset = offset+req_path_size+2;
+   int req_id_size = tvb_get_guint8( tvb, req_id_offset );
+   int pccc_cmd_offset = req_id_offset+req_id_size;
+
+   /* Add Requestor ID tree */
+   req_id_tree = proto_tree_add_subtree( item_tree, tvb, req_id_offset, req_id_size, ett_pccc_req_id, NULL, "Requestor ID" );
+   /* Add Length of Requestor ID code */
+   proto_tree_add_item(req_id_tree, hf_cip_pccc_req_id_len, tvb, req_id_offset, 1, ENC_LITTLE_ENDIAN );
+   /* Add CIP Vendor ID */
+   proto_tree_add_item(req_id_tree, hf_cip_pccc_cip_vend_id, tvb, req_id_offset+1, 2, ENC_LITTLE_ENDIAN );
+   /* Add CIP Serial Number */
+   proto_tree_add_item(req_id_tree, hf_cip_pccc_cip_serial_num, tvb, req_id_offset+3, 4, ENC_LITTLE_ENDIAN );
+
+   if( service & CIP_SC_RESPONSE_MASK )
+   {
+        /* Add PCCC Response Data tree */
+         pccc_cmd_tree = proto_tree_add_subtree( item_tree, tvb, pccc_cmd_offset, item_length-req_path_size-2-req_id_size, ett_pccc_req_id, NULL, "PCCC Response Data" );
+
+         /* Add Command Code */
+         proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_resp_code, tvb, pccc_cmd_offset, 1, ENC_LITTLE_ENDIAN );
+         /* Add Status Code */
+         proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_sts_code, tvb, pccc_cmd_offset+1, 1, ENC_LITTLE_ENDIAN );
+         /* Add Transaction Code */
+         proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_tns_code, tvb, pccc_cmd_offset+2, 2, ENC_LITTLE_ENDIAN );
+
+         /* Check the status byte for the EXT_STS signifier - 0xF0 */
+         add_status = tvb_get_guint8( tvb, pccc_cmd_offset+1 );
+         // TODO: still need to test this
+         if ( add_status == PCCC_GS_USE_EXTSTS )
+         {
+             proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_ext_sts_code, tvb, pccc_cmd_offset+4, 1, ENC_LITTLE_ENDIAN );
+         }
+         // handle cases where data is returned in the response
+         else if (item_length-req_path_size-2-req_id_size-4 != 0)
+         {
+            /* Add the data tree */
+            cmd_data_tree = proto_tree_add_subtree( pccc_cmd_tree, tvb, pccc_cmd_offset+4, item_length-req_path_size-2-req_id_size-4, ett_pccc_cmd_data, NULL, "Function Specific Response Data" );
+            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_data, tvb, pccc_cmd_offset+4, item_length-req_path_size-2-req_id_size-4, ENC_NA);
+         }
+
+   } /* end of if reply */
+
+  /* Request message */
+   else
+   {
+      /* If there is any command specific data create a sub-tree for it */
+      if( (item_length-req_path_size-2) != 0 )
+      {
+         /* Add PCCC CMD Data tree */
+         pccc_cmd_tree = proto_tree_add_subtree( item_tree, tvb, pccc_cmd_offset, item_length-req_path_size-2-req_id_size, ett_pccc_req_id, NULL, "PCCC Command Data" );
+
+         /* Add Command Code */
+         proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_cmd_code, tvb, pccc_cmd_offset, 1, ENC_LITTLE_ENDIAN );
+         /* Add Status Code */
+         proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_sts_code, tvb, pccc_cmd_offset+1, 1, ENC_LITTLE_ENDIAN );
+         /* Add Transaction Code */
+         proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_tns_code, tvb, pccc_cmd_offset+2, 2, ENC_LITTLE_ENDIAN );
+         /* Add Function Code */
+         int pccc_cmd_value = tvb_get_guint8( tvb, pccc_cmd_offset);
+         if ((pccc_cmd_value != PCCC_CMD_00 ) && (pccc_cmd_value != PCCC_CMD_01 ) && (pccc_cmd_value != PCCC_CMD_02 ) && (pccc_cmd_value != PCCC_CMD_04 ) && (pccc_cmd_value != PCCC_CMD_05 ) && (pccc_cmd_value != PCCC_CMD_08 ))
+         {
+             proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_fnc_code, tvb, pccc_cmd_offset+4, 1, ENC_LITTLE_ENDIAN );
+         }
+
+         guint8 cmd_code, fnc_code;
+         cmd_code = tvb_get_guint8( tvb, pccc_cmd_offset );
+         fnc_code = tvb_get_guint8( tvb, pccc_cmd_offset+4 );
+         add_cip_pccc_function_to_info_column(pinfo, fnc_code, cip_pccc_fnc_vals);
+
+        if (item_length-req_path_size-2-req_id_size-5 != 0 )
+        {
+                     /* Add the data tree */
+             cmd_data_tree = proto_tree_add_subtree( pccc_cmd_tree, tvb, pccc_cmd_offset+5, item_length-req_path_size-req_id_size-7,
+                                        ett_pccc_cmd_data, NULL, "Function Specific Data" );
+
+            int running_offset = pccc_cmd_offset+6;
+            int num_cmds;
+             int sub_fnc_len;
+            proto_tree *sub_fnc_tree;
+
+            /* Add in parsing of instructions that contain data beyond the FNC code */
+            /* Instructions that end at the FNC codes are already processed */
+            switch(cmd_code)
+            {
+                case PCCC_CMD_0F:
+                    switch(fnc_code){
+                        /* Change CPU Mode */
+                        case PCCC_FNC_0F_80:
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_cpu_mode, tvb, pccc_cmd_offset+5, 1, ENC_NA);
+                        break;
+                        /* Execute Multiple Commands */
+                        case PCCC_FNC_0F_88:
+                            num_cmds = tvb_get_guint8( tvb, pccc_cmd_offset+5 );
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_execute_multi_count, tvb, pccc_cmd_offset+5, 1, ENC_NA);
+
+                            /* iterate over each of the commands and break them out */
+                            for( int i=0; i < num_cmds; i++ ){
+                                sub_fnc_len = tvb_get_guint8( tvb, running_offset);
+                                sub_fnc_tree = proto_tree_add_subtree_format(cmd_data_tree, tvb, running_offset, sub_fnc_len+1, ett_pccc_req_id, NULL, "Sub Function #%d", i+1);
+
+                                proto_tree_add_item(sub_fnc_tree, hf_cip_pccc_execute_multi_len, tvb, running_offset, 1, ENC_NA);
+                                proto_tree_add_item(sub_fnc_tree, hf_cip_pccc_execute_multi_fnc, tvb, running_offset+1, 1, ENC_NA);
+                                if( sub_fnc_len > 2 ){
+                                    proto_tree_add_item(sub_fnc_tree, hf_cip_pccc_data, tvb, running_offset+2, sub_fnc_len-1, ENC_NA);
+                                }
+                                running_offset = running_offset+sub_fnc_len+1;
+                            }
+                        break;
+                        /* Protected Typed Logical Read with Three Address Fields */
+                        case PCCC_FNC_0F_A2:
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_byte_size, tvb, pccc_cmd_offset+5, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_file_num, tvb, pccc_cmd_offset+6, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_file_type, tvb, pccc_cmd_offset+7, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_element_num, tvb, pccc_cmd_offset+8, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_subelement_num, tvb, pccc_cmd_offset+9, 1, ENC_NA);
+                        break;
+                        /* Protected Typed Logical Write with Three Address Fields */
+                        case PCCC_FNC_0F_AA:
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_byte_size, tvb, pccc_cmd_offset+5, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_file_num, tvb, pccc_cmd_offset+6, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_file_type, tvb, pccc_cmd_offset+7, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_element_num, tvb, pccc_cmd_offset+8, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_subelement_num, tvb, pccc_cmd_offset+9, 1, ENC_NA);
+                            int byte_size;
+                            byte_size = tvb_get_guint8( tvb, pccc_cmd_offset+5 );
+
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_data, tvb, pccc_cmd_offset+10, byte_size, ENC_NA);
+                        break;
+                        default: /* just print the command data if no known command code is passed */
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_data, tvb, pccc_cmd_offset+5, item_length-pccc_cmd_offset-5, ENC_NA);
+                    }
+                break;
+                default: /* just print the command data if no known command code is passed */
+                    proto_tree_add_item(cmd_data_tree, hf_cip_pccc_data, tvb, pccc_cmd_offset+5, 1, ENC_NA);
+            }
+        }
+       } /* End of if-else( request ) */
+    }
+
+} /* End of dissect_cip_pccc_data() */
+
+static int
+dissect_cip_class_pccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+   proto_item *ti;
+   proto_tree *class_tree;
+
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip_class_pccc, tvb, 0, -1, ENC_NA);
+   class_tree = proto_item_add_subtree( ti, ett_cip_class_pccc );
+
+   dissect_cip_pccc_data( class_tree, tvb, 0, tvb_reported_length(tvb), pinfo );
+
+   return tvb_reported_length(tvb);
+}
+
+/************************************************
+ *
  * Dissector for CIP Modbus Object
  *
  ************************************************/
@@ -7936,6 +8363,30 @@ proto_register_cip(void)
       { &hf_cip_cm_ext128_size, { "Maximum Size", "cip.cm.ext128_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }}
    };
 
+  static hf_register_info hf_pccc[] = {
+      { &hf_cip_pccc_sc, { "Service", "cip.pccc.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_pccc), CIP_SC_MASK, NULL, HFILL }},
+      { &hf_cip_pccc_req_id_len, { "Requestor ID Length", "cip.pccc.req.id.len", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_cip_vend_id, { "CIP Vendor ID", "cip.pccc.cip.vend.id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_cip_serial_num, { "CIP Serial Number", "cip.pccc.cip.serial.num", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_cmd_code, { "Command Code", "cip.pccc.cmd.code", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_sts_code, { "Status", "cip.pccc.gs.status", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_gs_st_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_ext_sts_code, { "Extended Status", "cip.pccc.es.status", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_es_st_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_tns_code, { "Transaction Code", "cip.pccc.tns.code", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_fnc_code, { "Function Code", "cip.pccc.fnc.code", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_fnc_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_byte_size, { "Byte Size", "cip.pccc.byte.size", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_file_num, { "File Number", "cip.pccc.file.num", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_file_type, { "File Type", "cip.pccc.file.type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_file_type_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_element_num, { "Element Number", "cip.pccc.element.num", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_subelement_num, { "Sub-Element Number", "cip.pccc.subelement.num", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_cpu_mode, { "CPU Mode", "cip.pccc.cpu.mode", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_cpu_mode_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_resp_code, { "Response Code", "cip.pccc.resp.code", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_execute_multi_count, { "Execute Multiple Command - Number of Commands", "cip.pccc.execute.multi.count", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_execute_multi_len, { "Execute Multiple Command - Command Length", "cip.pccc.execute.multi.count", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_pccc_execute_multi_fnc, { "Execute Multiple Command - Function Code", "cip.pccc.execute.multi.count", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+      { &hf_cip_pccc_data, { "Data", "cip.pccc.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}
+   };
+
    static hf_register_info hf_mb[] = {
       { &hf_cip_mb_sc, { "Service", "cip.mb.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_mb), CIP_SC_MASK, NULL, HFILL }},
       { &hf_cip_mb_read_coils_start_addr, { "Starting Address", "cip.mb.read_coils.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -8077,6 +8528,13 @@ proto_register_cip(void)
       &ett_cip_cm_safety
    };
 
+   static gint *ett_pccc[] = {
+      &ett_cip_class_pccc,
+      &ett_pccc_rrsc,
+      &ett_pccc_req_id,
+      &ett_pccc_cmd_data
+    };
+
    static gint *ett_mb[] = {
       &ett_cip_class_mb,
       &ett_mb_rrsc,
@@ -8192,6 +8650,11 @@ proto_register_cip(void)
    proto_register_field_array(proto_cip_class_cm, hf_cm, array_length(hf_cm));
    proto_register_subtree_array(ett_cm, array_length(ett_cm));
 
+   proto_cip_class_pccc = proto_register_protocol("CIP PCCC Object",
+       "CIPPCCC", "cippccc");
+   proto_register_field_array(proto_cip_class_pccc, hf_pccc, array_length(hf_pccc));
+   proto_register_subtree_array(ett_pccc, array_length(ett_pccc));
+
    proto_cip_class_mb = proto_register_protocol("CIP Modbus Object",
        "CIPMB", "cipmb");
    proto_register_field_array(proto_cip_class_mb, hf_mb, array_length(hf_mb));
@@ -8208,7 +8671,6 @@ proto_register_cip(void)
 
    build_get_attr_all_table();
 } /* end of proto_register_cip() */
-
 
 void
 proto_reg_handoff_cip(void)
@@ -8231,6 +8693,10 @@ proto_reg_handoff_cip(void)
    cip_class_cm_handle = create_dissector_handle( dissect_cip_class_cm, proto_cip_class_cm );
    dissector_add_uint( "cip.class.iface", CI_CLS_CM, cip_class_cm_handle );
 
+   /* Create and register dissector handle for the PCCC class */
+   cip_class_pccc_handle = create_dissector_handle( dissect_cip_class_pccc, proto_cip_class_pccc );
+   dissector_add_uint( "cip.class.iface", CI_CLS_PCCC, cip_class_pccc_handle );
+
    /* Create and register dissector handle for Modbus Object */
    cip_class_mb_handle = create_dissector_handle( dissect_cip_class_mb, proto_cip_class_mb );
    dissector_add_uint( "cip.class.iface", CI_CLS_MB, cip_class_mb_handle );
@@ -8245,7 +8711,6 @@ proto_reg_handoff_cip(void)
    proto_modbus = proto_get_id_by_filter_name( "modbus" );
 
 } /* end of proto_reg_handoff_cip() */
-
 
 /*
  * Editor modelines

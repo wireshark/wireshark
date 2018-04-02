@@ -9,6 +9,10 @@
  * Added support for Connection Configuration Object
  *   ryan wamsley * Copyright 2007
  *
+ * Added support for PCCC Objects
+ *   Jared Rittle - Cisco Talos
+ *   Copyright 2017
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -49,6 +53,7 @@
 /* Classes that have class-specific dissectors */
 #define CI_CLS_MR   0x02    /* Message Router */
 #define CI_CLS_CM   0x06    /* Connection Manager */
+#define CI_CLS_PCCC 0x67    /* PCCC Class */
 #define CI_CLS_MB   0x44    /* Modbus Object */
 #define CI_CLS_CCO  0xF3    /* Connection Configuration Object */
 
@@ -59,6 +64,9 @@
 #define SC_CM_FWD_OPEN              0x54
 #define SC_CM_LARGE_FWD_OPEN        0x5B
 #define SC_CM_GET_CONN_OWNER        0x5A
+
+/* PCCC Class */
+#define SC_PCCC_EXECUTE_PCCC        0x4B
 
 /* Modbus Object services */
 #define SC_MB_READ_DISCRETE_INPUTS    0x4B
@@ -127,6 +135,169 @@
 #define CI_GRC_ATTRIBUTE_NOT_GET    0x2C
 
 #define CI_GRC_STILL_PROCESSING     0xFF
+
+
+/* PCCC Status Codes */
+#define PCCC_GS_SUCCESS                    0x00
+#define PCCC_GS_ILLEGAL_CMD                0x10
+#define PCCC_GS_HOST_COMMS                 0x20
+#define PCCC_GS_MISSING_REMOTE_NODE        0x30
+#define PCCC_GS_HARDWARE_FAULT             0x40
+#define PCCC_GS_ADDRESSING_ERROR           0x50
+#define PCCC_GS_CMD_PROTECTION             0x60
+#define PCCC_GS_PROGRAM_MODE               0x70
+#define PCCC_GS_MISSING_COMPATABILITY_FILE 0x80
+#define PCCC_GS_BUFFER_FULL_1              0x90
+#define PCCC_GS_WAIT_ACK                   0xA0
+#define PCCC_GS_REMOTE_DOWNLOAD_ERROR      0xB0
+#define PCCC_GS_BUFFER_FULL_2              0xC0
+#define PCCC_GS_NOT_USED_1                 0xD0
+#define PCCC_GS_NOT_USED_2                 0xE0
+#define PCCC_GS_USE_EXTSTS                 0xF0
+
+/* PCCC Extended Status Codes */
+#define PCCC_ES_ILLEGAL_VALUE         0x01
+#define PCCC_ES_SHORT_ADDRESS         0x02
+#define PCCC_ES_LONG_ADDRESS          0x03
+#define PCCC_ES_NOT_FOUND             0x04
+#define PCCC_ES_BAD_FORMAT            0x05
+#define PCCC_ES_BAD_POINTER           0x06
+#define PCCC_ES_BAD_SIZE              0x07
+#define PCCC_ES_SITUATION_CHANGED     0x08
+#define PCCC_ES_DATA_TOO_LARGE        0x09
+#define PCCC_ES_TRANS_TOO_LARGE       0x0A
+#define PCCC_ES_ACCESS_DENIED         0x0B
+#define PCCC_ES_NOT_AVAILABLE         0x0C
+#define PCCC_ES_ALREADY_EXISTS        0x0D
+#define PCCC_ES_NO_EXECUTION          0x0E
+#define PCCC_ES_HIST_OVERFLOW         0x0F
+#define PCCC_ES_NO_ACCESS             0x10
+#define PCCC_ES_ILLEGAL_DATA_TYPE     0x11
+#define PCCC_ES_INVALID_DATA          0x12
+#define PCCC_ES_BAD_REFERENCE         0x13
+#define PCCC_ES_EXECUTION_FAILURE     0x14
+#define PCCC_ES_CONVERSION_ERROR      0x15
+#define PCCC_ES_NO_COMMS              0x16
+#define PCCC_ES_TYPE_MISMATCH         0x17
+#define PCCC_ES_BAD_RESPONSE          0x18
+#define PCCC_ES_DUP_LABEL             0x19
+#define PCCC_ES_RACK_FAULT            0x22
+#define PCCC_ES_TIMEOUT               0x23
+#define PCCC_ES_UNKNOWN               0x24
+#define PCCC_ES_FILE_ALREADY_OPEN     0x1A
+#define PCCC_ES_PROGRAM_ALREADY_OWNED 0x1B
+#define PCCC_ES_RESERVED_1            0x1C
+#define PCCC_ES_RESERVED_2            0x1D
+#define PCCC_ES_PROTECTION_VIOLATION  0x1E
+#define PCCC_ES_TMP_INTERNAL_ERROR    0x1F
+
+/* PCCC Command Codes */
+#define PCCC_CMD_00 0x00
+#define PCCC_CMD_01 0x01
+#define PCCC_CMD_02 0x02
+#define PCCC_CMD_04 0x04
+#define PCCC_CMD_05 0x05
+#define PCCC_CMD_06 0x06
+#define PCCC_CMD_08 0x08
+#define PCCC_CMD_0F 0x0F
+
+/* PCCC Function Codes */
+#define PCCC_FNC_06_00 0x00
+#define PCCC_FNC_06_01 0x01
+#define PCCC_FNC_06_02 0x02
+#define PCCC_FNC_06_03 0x03
+#define PCCC_FNC_06_04 0x04
+#define PCCC_FNC_06_05 0x05
+#define PCCC_FNC_06_06 0x06
+#define PCCC_FNC_06_07 0x07
+#define PCCC_FNC_06_08 0x08
+#define PCCC_FNC_06_09 0x09
+#define PCCC_FNC_06_0A 0x0A
+#define PCCC_FNC_07_00 0x00
+#define PCCC_FNC_07_01 0x01
+#define PCCC_FNC_07_03 0x03
+#define PCCC_FNC_07_04 0x04
+#define PCCC_FNC_07_05 0x05
+#define PCCC_FNC_07_06 0x06
+#define PCCC_FNC_0F_00 0x00
+#define PCCC_FNC_0F_01 0x01
+#define PCCC_FNC_0F_02 0x02
+#define PCCC_FNC_0F_03 0x03
+#define PCCC_FNC_0F_04 0x04
+#define PCCC_FNC_0F_05 0x05
+#define PCCC_FNC_0F_06 0x06
+#define PCCC_FNC_0F_07 0x07
+#define PCCC_FNC_0F_08 0x08
+#define PCCC_FNC_0F_09 0x09
+#define PCCC_FNC_0F_0A 0x0A
+#define PCCC_FNC_0F_11 0x11
+#define PCCC_FNC_0F_12 0x12
+#define PCCC_FNC_0F_17 0x17
+#define PCCC_FNC_0F_18 0x18
+#define PCCC_FNC_0F_26 0x26
+#define PCCC_FNC_0F_29 0x29
+#define PCCC_FNC_0F_3A 0x3A
+#define PCCC_FNC_0F_41 0x41
+#define PCCC_FNC_0F_50 0x50
+#define PCCC_FNC_0F_52 0x52
+#define PCCC_FNC_0F_53 0x53
+#define PCCC_FNC_0F_55 0x55
+#define PCCC_FNC_0F_57 0x57
+#define PCCC_FNC_0F_5E 0x5E
+#define PCCC_FNC_0F_67 0x67
+#define PCCC_FNC_0F_68 0x68
+#define PCCC_FNC_0F_79 0x79
+#define PCCC_FNC_0F_80 0x80
+#define PCCC_FNC_0F_81 0x81
+#define PCCC_FNC_0F_82 0x82
+#define PCCC_FNC_0F_88 0x88
+#define PCCC_FNC_0F_8F 0x8F
+#define PCCC_FNC_0F_A1 0xA1
+#define PCCC_FNC_0F_A2 0xA2
+#define PCCC_FNC_0F_A3 0xA3
+#define PCCC_FNC_0F_A7 0xA7
+#define PCCC_FNC_0F_A9 0xA9
+#define PCCC_FNC_0F_AA 0xAA
+#define PCCC_FNC_0F_AB 0xAB
+#define PCCC_FNC_0F_AF 0xAF
+
+/* PCCC File Types */
+#define PCCC_FILE_TYPE_LOGIC            0x22
+#define PCCC_FILE_TYPE_FUNCTION_CS0_CS2 0x48
+#define PCCC_FILE_TYPE_CHANNEL_CONFIG   0x49
+#define PCCC_FILE_TYPE_FUNCTION_ES1     0x4A
+#define PCCC_FILE_TYPE_ONLINE_EDIT      0x65
+#define PCCC_FILE_TYPE_FUNCTION_IOS     0x6A
+#define PCCC_FILE_TYPE_DATA_OUTPUT      0x82
+#define PCCC_FILE_TYPE_DATA_INPUT       0x83
+#define PCCC_FILE_TYPE_DATA_STATUS      0x84
+#define PCCC_FILE_TYPE_DATA_BINARY      0x85
+#define PCCC_FILE_TYPE_DATA_TIMER       0x86
+#define PCCC_FILE_TYPE_DATA_COUNTER     0x87
+#define PCCC_FILE_TYPE_DATA_CONTROL     0x88
+#define PCCC_FILE_TYPE_DATA_INTEGER     0x89
+#define PCCC_FILE_TYPE_DATA_FLOAT       0x8A
+#define PCCC_FILE_TYPE_FORCE_OUTPUT     0xA1
+#define PCCC_FILE_TYPE_FORCE_INPUT      0xA2
+#define PCCC_FILE_TYPE_FUNCTION_ES0     0xE0
+#define PCCC_FILE_TYPE_FUNCTION_STI     0xE2
+#define PCCC_FILE_TYPE_FUNCTION_EII     0xE3
+#define PCCC_FILE_TYPE_FUNCTION_RTC     0xE4
+#define PCCC_FILE_TYPE_FUNCTION_BHI     0xE5
+#define PCCC_FILE_TYPE_FUNCTION_MMI     0xE6
+#define PCCC_FILE_TYPE_FUNCTION_LCD     0xEC
+#define PCCC_FILE_TYPE_FUNCTION_PTOX    0xED
+#define PCCC_FILE_TYPE_FUNCTION_PWMX    0xEE
+
+/* PCCC CPU Mode Codes */
+#define PCCC_CPU_3A_PROGRAM     0x01
+#define PCCC_CPU_3A_RUN         0x02
+#define PCCC_CPU_80_PROGRAM     0x01
+#define PCCC_CPU_80_RUN         0x06
+#define PCCC_CPU_80_TEST_CONT   0x07
+#define PCCC_CPU_80_TEST_SINGLE 0x08
+#define PCCC_CPU_80_TEST_DEBUG  0x09
+
 
 
 /* IOI Path types */
