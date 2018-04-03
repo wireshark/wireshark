@@ -183,22 +183,6 @@ decryption_step_udt_dtls() {
 	test_step_ok
 }
 
-# IPsec ESP
-# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12671
-decryption_step_ipsec_esp() {
-	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
-		-o "esp.enable_encryption_decode: TRUE" \
-		-Tfields -e data.data \
-		-r "$CAPTURE_DIR/esp-bug-12671.pcapng.gz" -Y data \
-		| grep "08:09:0a:0b:0c:0d:0e:0f:10:11:12:13:14:15:16:17" > /dev/null 2>&1
-	RETURNVALUE=$?
-	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "Failed to decrypt DTLS"
-		return
-	fi
-	test_step_ok
-}
-
 # SSL, using the server's private key
 # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
 decryption_step_ssl() {
@@ -414,6 +398,22 @@ decryption_step_dvb_ci() {
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt DVB_CI"
+		return
+	fi
+	test_step_ok
+}
+
+# IPsec ESP
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12671
+decryption_step_ipsec_esp() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "esp.enable_encryption_decode: TRUE" \
+		-Tfields -e data.data \
+		-r "$CAPTURE_DIR/esp-bug-12671.pcapng.gz" -Y data \
+		| grep "08:09:0a:0b:0c:0d:0e:0f:10:11:12:13:14:15:16:17" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt DTLS"
 		return
 	fi
 	test_step_ok

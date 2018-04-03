@@ -61,3 +61,11 @@ override_dh_fixperms:
 		debian/wireshark-dev/usr/share/pyshared/wireshark_be.py \
 		debian/wireshark-dev/usr/share/pyshared/wireshark_gen.py
 
+# Adapted from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=861988
+override_dh_auto_test:
+ifeq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
+	# XXX Add -- --verbose?
+	dh_auto_test
+else
+	@echo '"DEB_BUILD_OPTIONS" has "nocheck". Skipping tests'
+endif

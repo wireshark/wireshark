@@ -3134,7 +3134,7 @@ if (DOXYGEN_EXECUTABLE)
 	)
 endif(DOXYGEN_EXECUTABLE)
 
-# Test suite wrapper
+# Old test suite wrapper
 if(ENABLE_APPLICATION_BUNDLE)
 	set(TEST_SH_BIN_DIR ${CMAKE_BINARY_DIR}/run)
 else()
@@ -3167,6 +3167,38 @@ set_target_properties(test-programs PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
 )
+
+# Test suites
+enable_testing()
+file(GLOB _test_suite_py_list test/suite_*.py)
+if(WIN32)
+	set(_test_suite_program_path ./run/$<CONFIG>)
+else()
+	set(_test_suite_program_path ./run)
+endif()
+
+# We currently don't handle spaces in arguments. On Windows this
+# means that you will probably have to pass in an interface index
+# instead of a name.
+set(TEST_EXTRA_ARGS "" CACHE STRING "Extra arguments to pass to test/test.py")
+separate_arguments(TEST_EXTRA_ARGS)
+
+# We can enumerate suites two ways: by probing the filesystem and by
+# running `test.py --list-suites`. Probe the filesystem for now, which
+# should hopefully give us enough parallelization. If we want to split
+# our tests by cases or individual tests we'll have to run and parse
+# `test.py --list-cases` or `test.py --list` respectively.
+foreach(_suite_py ${_test_suite_py_list})
+	get_filename_component(_suite_name ${_suite_py} NAME_WE)
+	add_test(
+		NAME ${_suite_name}
+		COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
+			--program-path ${_test_suite_program_path}
+			${TEST_EXTRA_ARGS}
+			${_suite_name}
+		)
+	set_tests_properties(${_suite_name} PROPERTIES TIMEOUT 600)
+endforeach()
 
 if (GIT_EXECUTABLE)
 	# Update AUTHORS file with entries from git shortlog
