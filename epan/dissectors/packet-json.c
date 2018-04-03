@@ -829,6 +829,8 @@ proto_reg_handoff_json(void)
 	dissector_add_string("media_type", "application/dds-web+json", json_handle); /* DDS Web Integration Service over HTTP */
 	dissector_add_string("media_type", "application/vnd.oma.lwm2m+json", json_handle); /* LWM2M JSON over CoAP */
 	dissector_add_string("grpc_message_type", "application/grpc+json", json_handle);
+	dissector_add_uint_range_with_preference("tcp.port", "", json_file_handle); /* JSON-RPC over TCP */
+	dissector_add_uint_range_with_preference("udp.port", "", json_file_handle); /* JSON-RPC over UDP */
 
 	text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_json);
 }
