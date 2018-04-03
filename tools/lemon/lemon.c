@@ -209,7 +209,9 @@ struct s_options {
 int    OptInit(char**,struct s_options*,FILE*);
 int    OptNArgs(void);
 char  *OptArg(int);
+#if 0
 void   OptErr(int);
+#endif
 void   OptPrint(void);
 
 /******** From the file "parse.h" *****************************************/
@@ -2172,12 +2174,14 @@ char *OptArg(int n)
   return i>=0 ? argv[i] : 0;
 }
 
+#if 0
 void OptErr(int n)
 {
   int i;
   i = argindex(n);
   if( i>=0 ) errline(i,0,errstream);
 }
+#endif
 
 void OptPrint(void){
   int i;
