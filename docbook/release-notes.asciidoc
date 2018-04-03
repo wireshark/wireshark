@@ -7,7 +7,7 @@ include::attributes.asciidoc[]
 // Asciidoctor Syntax Quick Reference:
 // http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an sexperimental release intended to test new features for
+This is an experimental release intended to test new features for
 Wireshark 3.0.
 
 == What is Wireshark?
