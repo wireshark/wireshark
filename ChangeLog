@@ -1,0 +1,877 @@
+commit 23bb4de5c9
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Apr 2 18:03:30 2018 -0700
+
+    If we're reading from a string, don't fclose yyin.
+    
+    yyin is initialized to stdin.  When we're reading from files, we set it
+    so that it points to the FILE from which we're reading, but when we're
+    reading from a string, we don't set it, leaving it to point to stdin.
+    
+    This means that, just as the "read from the input" routine has to be set
+    differently when reading from a file or a string, the "close the current
+    input" routine has to be set differently as well.
+    
+    Bug: 14577
+    Change-Id: Ie05880775612867e9037ace2de0cd0a0dd2fabb5
+    Reviewed-on: https://code.wireshark.org/review/26719
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 9d87f607ee2ecefaff71f2ab3f2dc3d2dc185399)
+    Reviewed-on: https://code.wireshark.org/review/26722
+
+commit a69abe8515
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 1 15:55:26 2018 +0000
+
+    [Automatic update for 2018-04-01]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I83ac4616a9d56ee7ea96c2b2102d139cb75144ac
+    Reviewed-on: https://code.wireshark.org/review/26701
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 4fe65168fd
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Mar 28 13:21:20 2018 +0200
+
+    Kerberos: do not store empty keys
+    
+    Bug: 14576
+    Change-Id: Ib52133a1b43e237f76f17a38d308407c0431d33e
+    Reviewed-on: https://code.wireshark.org/review/26672
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 4adb8e9f6af7b5e4568f50a29ae9814b5e190088)
+    Reviewed-on: https://code.wireshark.org/review/26675
+
+commit 47965639ef
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 25 16:21:36 2018 +0000
+
+    [Automatic update for 2018-03-25]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ie795aaeed8b32eab468d6dd74a9b01939b133785
+    Reviewed-on: https://code.wireshark.org/review/26637
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 9ac3e7aa7b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 23 20:28:18 2018 -0700
+
+    Hand off to the PPC-in-HDLC-like-framing dissector.
+    
+    There might be HDLC-like framing inside SSTP, even if it eventually gets
+    negotiated away.
+    
+    Bug: 14559
+    Change-Id: Ibc254f221f26c0da905ceff4edff7859a3fec635
+    Reviewed-on: https://code.wireshark.org/review/26619
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 0f34a866bb29b78a2dbd40583e1e49cec58dcc0e)
+    Reviewed-on: https://code.wireshark.org/review/26621
+
+commit 1241e31b30
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 23 19:05:45 2018 -0700
+
+    Don't rely on "xxx *yyy[N] = {};" compiling.
+    
+    At least as I read C90 "6.5.7 Initialization" and C99 "6.7.8
+    Initialization", there must be at least one "initializer" in an
+    "initializer-list", so nothing requires that the compiler accept, for
+    example
+    
+            static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = {
+            };
+    
+    Bug: 14556
+    Change-Id: Ief1dbfee504ad5ef1d984390dc2da18deba7fb90
+    Reviewed-on: https://code.wireshark.org/review/26616
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit bff1f7f70e354d5e5b5f47bed87b996c538a3633)
+    Reviewed-on: https://code.wireshark.org/review/26618
+
+commit f801943d96
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 23 17:40:29 2018 -0700
+
+    Use $(INSTALL_DATA) rather than "install -m 644".
+    
+    That way, we use the installation command that the configure script
+    deemed appropriate, rather than relying on "install" being a BSD-style
+    install program.
+    
+    Bug: 14555
+    Change-Id: I482fb5fcbf5c9bbb4f4c6faa036114ac35e1de40
+    Reviewed-on: https://code.wireshark.org/review/26614
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8018591e5fdc7d9475b1a1860c9047d8e04c794b)
+    Reviewed-on: https://code.wireshark.org/review/26615
+
+commit b848262639
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 23 14:21:06 2018 -0700
+
+    Include alloca.h if we have it.
+    
+    Bug: 14552
+    Change-Id: I799691f7f33ca56748ed4e51d7d548f37769837b
+    Reviewed-on: https://code.wireshark.org/review/26611
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit d12a41b17a006ccc1b0f98e9df3fc442e4ee7643)
+    Reviewed-on: https://code.wireshark.org/review/26613
+
+commit 24bc188de3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 23 11:52:37 2018 -0700
+
+    Update a comment.
+    
+    Change-Id: Id5fc4ca97212c5d4c91ff89806b9e6b826114b17
+    Reviewed-on: https://code.wireshark.org/review/26608
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a0f0b3789c82729ea6a0c4930500fb71e109ae67)
+    Reviewed-on: https://code.wireshark.org/review/26610
+
+commit da477e59b5
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 23 10:42:55 2018 -0700
+
+    Add -Wp,-H200000 with HP's C compiler.
+    
+    Bug: 14554
+    Change-Id: Ieef015daf852049744a5dd9d3d0dfd566f3ce8fc
+    Reviewed-on: https://code.wireshark.org/review/26603
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 4f37a3e0153e5c5e21dd59f37eb95d0c767207f1)
+    Reviewed-on: https://code.wireshark.org/review/26605
+
+commit b627ec8efc
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Wed Mar 21 11:52:57 2018 +0100
+
+    ieee80211: fix uninitialized dissector handle
+    
+    Apply the ieee80211-specific changes from v2.3.0rc0-1929-gf4b0abc729
+    ("Dissectors don't need a journey of self discovery.") to fix use of an
+    uninitialized dissector handle ("wlan_withoutfcs_handle").
+    
+    Change-Id: I48149eb9bb1bfeccb5bddb60ffe9d4004683d86c
+    Fixes: v2.2.14rc0-40-g9cf1586673 ("Don't register the link-layer 802.11 dissector in the gre.proto table.")
+    Bug: 14544
+    Reviewed-on: https://code.wireshark.org/review/26587
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 63f76c121c
+Author: Ivan Secerin <ivan.severin.m@gmail.com>
+Date:   Tue Mar 20 17:40:40 2018 +0200
+
+    packet-wsp: fixed incorrect invalid header handling
+    
+    In function 'add_header' coгple of if-statements didn't corespond
+    to comments above.
+    
+    Change-Id: Idd846cebf7e17d0e2f49c7c7d3de466b899c73c6
+    Reviewed-on: https://code.wireshark.org/review/26573
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 10c508ebf828e8062d3cbab899ea5fb1031ca59d)
+    Reviewed-on: https://code.wireshark.org/review/26584
+
+commit 01619666c4
+Author: Yuri Chislov <yuri.chislov@gmail.com>
+Date:   Mon Mar 19 12:04:06 2018 +0000
+
+    WCCP : fix mask assignment
+    
+    Bug: 14538
+    Change-Id: I87afe01064e8940140d6fa8de3df778aad4e4dd7
+    Reviewed-on: https://code.wireshark.org/review/26550
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 9c30b80f467d3be36d1bd22f6f8dc3950501e434)
+    Reviewed-on: https://code.wireshark.org/review/26572
+
+commit 9cf1586673
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Mar 19 23:46:10 2018 -0700
+
+    Don't register the link-layer 802.11 dissector in the gre.proto table.
+    
+    That dissector expects to be handed an 802.11 pseudoheader; the GRE
+    dissector passes no data to subdissectors registered in the gre.proto
+    table, which the 802.11 dissector will treat as an "FCS presence
+    unknown" indication, even though it's known to be absent.
+    
+    Use the no-FCS 802.11 frame dissector instead.
+    
+    Bug: 14544
+    Change-Id: I6515901dc3674eb36ec768fa4f9a7a4040a78365
+    Reviewed-on: https://code.wireshark.org/review/26560
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6401440932006465004650d3ac3722670174d0ac)
+    Reviewed-on: https://code.wireshark.org/review/26562
+
+commit 3dceb2100c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 18 08:24:04 2018 +0000
+
+    [Automatic update for 2018-03-18]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I62cc518b138f9c785b98cd15be56651855cd37d0
+    Reviewed-on: https://code.wireshark.org/review/26530
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 36bbcd8be0
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 13 11:25:44 2018 +0100
+
+    GSM BSSMAP: fix a typo in in speech version range_string
+    
+    Bug: 14528
+    Change-Id: Ie49317f264f08052a9e8a33dffeb9751add463d4
+    Reviewed-on: https://code.wireshark.org/review/26458
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 81068f9a228521a2d460706e3d02581ae4c86df2)
+    Reviewed-on: https://code.wireshark.org/review/26460
+
+commit 645b6e3903
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sun Mar 11 19:49:44 2018 +0100
+
+    eth: fix null pointer dereference when called from Lua
+    
+    At the moment, Lua dissectors always pass a NULL data parameter, so
+    dissectors like eth should gracefully handle that.
+    
+    Bug: 14293
+    Change-Id: Ida4d0530a9c417db5960475274315d4acc3704a8
+    Fixes: v2.1.0rc0-1575-g8ec153f938 ("Have the "maybe an FCS" version of the Ethernet dissector take a data argument.")
+    Reviewed-on: https://code.wireshark.org/review/26431
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit ba179a7ef7e660d788cbaade65982ffc7249b91f)
+    Reviewed-on: https://code.wireshark.org/review/26436
+
+commit d4d2d80f15
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 11 08:32:05 2018 +0000
+
+    [Automatic update for 2018-03-11]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I315609b986ec3db732798082d92ee5e2de306d65
+    Reviewed-on: https://code.wireshark.org/review/26423
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 6a420b46ce
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Fri Mar 9 18:47:51 2018 +0100
+
+    kerberos: remove leak (found by clang).
+    
+    Change-Id: I70242960466b276cf9ffb62fda62dcb40c17c1fe
+    Reviewed-on: https://code.wireshark.org/review/26396
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 66a1fefac416136b96b7a1683293d6a06f5c00e8)
+    Reviewed-on: https://code.wireshark.org/review/26409
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit e974062be1
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Mar 8 18:12:33 2018 -0800
+
+    Plug a leak.
+    
+    "field" might be allocated even if the calculation type is
+    CALC_TYPE_BYTES, CALC_TYPE_FRAMES, or CALC_TYPE_FRAMES_AND_BYTES.
+    
+    Change-Id: I0c70397a89e32172769c277bebfd950f1d21c679
+    Reviewed-on: https://code.wireshark.org/review/26378
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit ea754b6761116133b506b782c079793d37d744a6)
+    Reviewed-on: https://code.wireshark.org/review/26380
+
+commit 9b07239144
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Mar 8 18:02:21 2018 -0800
+
+    When looking up response codes, just keep the key on the stack.
+    
+    We don't need to dynamically allocate a guint variable to hold the
+    response code value - and then not bother to free it! - if we're just
+    doing a lookup; we can use an automatic variable and pass a pointer to
+    it.
+    
+    Change-Id: I6edbb352f0aa33c91ede0f4e1bbb962fa921bea2
+    Reviewed-on: https://code.wireshark.org/review/26375
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7ffc4f96ebe2fac503cb251a848441ad8d4bad8c)
+    Reviewed-on: https://code.wireshark.org/review/26377
+
+commit c1aa85df6f
+Author: AndersBroman <anders.broman@ericsson.com>
+Date:   Thu Mar 8 15:09:09 2018 +0100
+
+    S1AP: EmergencyAreaIDListForRestart is not an extension IE.
+    
+    Change-Id: I3dd623e1a2ec3005ee2c810492e4d0fad39ce1d0
+    Reviewed-on: https://code.wireshark.org/review/26364
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 5c25e1b2c1e986df36ea95047a891e1d54070694)
+    Conflicts:
+            epan/dissectors/asn1/s1ap/s1ap.cnf
+            epan/dissectors/packet-s1ap.c
+    Reviewed-on: https://code.wireshark.org/review/26368
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit dac48f1485
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Mar 7 17:40:56 2018 +0100
+
+    LWAPP: define a recursion depth limit
+    
+    Altough the dissection consumes a few ytes each time it is called,
+    it can trigger a stack overflow for big packets.
+    Let's limmit the number of allowed encapsulation for a given packet.
+    
+    Bug: 14467
+    Change-Id: I73e82e01810b63a4f603907e69b20f3715a4ad55
+    Reviewed-on: https://code.wireshark.org/review/26338
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 1592587e6f9fd8c8aa8fc7f67989690d0c6882c4)
+    Reviewed-on: https://code.wireshark.org/review/26344
+
+commit 5b0228945d
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 22:33:49 2018 +0100
+
+    multipart: use packet scope memory to avoid leaking in case an exception is triggered by subdissectors
+    
+    Bug: 14486
+    Change-Id: I275f8c962f126ad55fc7086012e7b67cc0dc60b3
+    Reviewed-on: https://code.wireshark.org/review/26291
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 05c4705a19448646ca316ba3b1eb333a05482956)
+    Reviewed-on: https://code.wireshark.org/review/26314
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+
+commit 976be718e3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Mar 7 00:49:28 2018 -0800
+
+    Fix another leak, which happens with -E occurrence=l.
+    
+    For each occurrence, if there was already an occurrence in the array, we
+    were just removing it. not freeing what it pointed to.
+    
+    While we're at it, expand comments. and always check the array size with
+    "!= 0", not "> 0" - the value is unsigned, so they're equivalent, but
+    this makes the code more self-consistent.
+    
+    Change-Id: I538f46b296a7721a39ba4366c2f6269e7e097b0d
+    Reviewed-on: https://code.wireshark.org/review/26328
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 9a5217bdd4680e36f2e92838348bd4ea010d28a0)
+    Reviewed-on: https://code.wireshark.org/review/26330
+
+commit e19aba3302
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 22:03:50 2018 +0100
+
+    GIOP: use wmem packet scope for get_modname_from_repoid()
+    
+    Bug: 14484
+    Change-Id: Ie2a4cc179ba25a1e3e50d689e21f003001a301fa
+    Reviewed-on: https://code.wireshark.org/review/26289
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 4581eb2de2e5aacfc9a2224df181010dc8e6141b)
+    Reviewed-on: https://code.wireshark.org/review/26312
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+
+commit c2e5d02cab
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Wed Feb 28 19:04:25 2018 +0100
+
+    print: free memory if not used (found by clang).
+    
+    Change-Id: Ib6dc913ab1eeff7b29e18930b66b728080629773
+    Reviewed-on: https://code.wireshark.org/review/26183
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: ronnie sahlberg <ronniesahlberg@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 6db59affd9c9b20f2ce725cd2ce7a88c71982a07)
+    Reviewed-on: https://code.wireshark.org/review/26327
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit ae013fe3dd
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 23:26:10 2018 +0100
+
+    SMB2: use file scope to avoid leaking memory
+    
+    Bug: 14483
+    Change-Id: I1532fa57cd9a847c0408db95744eb7af3a6f4ee5
+    Reviewed-on: https://code.wireshark.org/review/26295
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: ronnie sahlberg <ronniesahlberg@gmail.com>
+    (cherry picked from commit 4945c50d3f8269c56d9d087d16d080144de146dc)
+    Reviewed-on: https://code.wireshark.org/review/26308
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 1f8f1456f1
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 22:43:31 2018 +0100
+
+    PCP: allocate conversation info in file scope
+    
+    Bug: 14488
+    Change-Id: I9bb85cfd58ace721ba8b957bc3351f6c017a8b69
+    Reviewed-on: https://code.wireshark.org/review/26293
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 035f49d2c85ff9e0bab74e5af4c990ab2beea170)
+    Reviewed-on: https://code.wireshark.org/review/26318
+
+commit 6e3b90824a
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 22:39:01 2018 +0100
+
+    H223: fix a memory leak in conversation management
+    
+    Bug: 14487
+    Change-Id: I75089ccfa2896b357f775fea67fd6b76500fc5dc
+    Reviewed-on: https://code.wireshark.org/review/26292
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 8f81eb2cf671573461ccba3bde6ce5ec99016afa)
+    Reviewed-on: https://code.wireshark.org/review/26316
+
+commit 8ed057f7fa
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 21:49:41 2018 +0100
+
+    LAPD: fix some memory leaks in conversation management
+    
+    Bug: 14482
+    Change-Id: Ia49705e13f1071a69d61ba1d6bd331e3e7734d81
+    Reviewed-on: https://code.wireshark.org/review/26287
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit bf4e620e2d15689e8582425224160f39dcc8589c)
+    Reviewed-on: https://code.wireshark.org/review/26310
+
+commit 9d3714e767
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 21:44:54 2018 +0100
+
+    ISUP: plug some memory leaks
+    
+    Bug: 14481
+    Change-Id: I940dc4c7ac197deb1f925418bbcdebb30285a775
+    Reviewed-on: https://code.wireshark.org/review/26286
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 1b18b1dd0e171ec660ad1ce5d47bab80ddc3da86)
+    Reviewed-on: https://code.wireshark.org/review/26306
+
+commit 0fbc50f9b9
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 22:15:22 2018 +0100
+
+    oids.c: fix a memory leak in oid_string2subid()
+    
+    Bug: 14485
+    Change-Id: Ia0ccd4480808c4f5da228975c7a076cd3f5d332b
+    Reviewed-on: https://code.wireshark.org/review/26290
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: ronnie sahlberg <ronniesahlberg@gmail.com>
+    (cherry picked from commit f46d129f21ee0c2b43545c500a8ea4dbc4d59815)
+    Reviewed-on: https://code.wireshark.org/review/26304
+
+commit b12cc581cd
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 6 21:41:57 2018 +0100
+
+    TN3270: fix memory leaks in conversation management
+    
+    Bug: 14480
+    Change-Id: I9148bef80492426195a1673f8367a39c02c432ce
+    Reviewed-on: https://code.wireshark.org/review/26285
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 98ab887a2d4ffbe7b255655c510b676c32e93608)
+    Reviewed-on: https://code.wireshark.org/review/26297
+
+commit f05c3b91f9
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Mar 5 21:51:11 2018 +0100
+
+    VLAN: define a recursion depth limit
+    
+    Altough the dissection consumes 4 bytes each time it is called, it can
+    trigger a stack overflow for big packets. Let's limmit the number of
+    allowed VLAN tags for a given packet.
+    
+    Bug: 14469
+    Change-Id: Ieb6834ab3350dc7e8c301e6479577855a253897e
+    Reviewed-on: https://code.wireshark.org/review/26270
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit b434e0a03be45ed796af7271972672a0b43cffa8)
+    Conflicts:
+            epan/dissectors/packet-vlan.c
+    Reviewed-on: https://code.wireshark.org/review/26274
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 66bc372716
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Mar 5 11:42:38 2018 +0100
+
+    NBAP: avoid linking a DCH-ID to itself
+    
+    Otherwise it can create an infinite loop, leading to a buffer overflow.
+    Also add explicit cheks on the buffer usage and set its maximum size to
+    128 instead of 32 per ASN.1 description.
+    
+    Bug: 14471
+    Change-Id: I18d26369cf3d1cf2a32c86a972c78ea9f6f7a503
+    Reviewed-on: https://code.wireshark.org/review/26264
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 1c9adc63c2c2892a3f069777dfb8c66f79b9ba38)
+    Conflicts:
+            epan/dissectors/asn1/nbap/nbap.cnf
+            epan/dissectors/packet-nbap.c
+            epan/dissectors/packet-umts_fp.h
+    Reviewed-on: https://code.wireshark.org/review/26267
+
+commit 14d6f717d8
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Mar 4 22:05:06 2018 +0100
+
+    IEEE 802.15.4: always allocate protocol data if not present
+    
+    When using 2 passes, L2TP dissector can set a session info for previous
+    packets, breaking the assumption that IEEE 802.15.4 dissector will
+    always be called on first pass.
+    Let's always allocate the protocol data if missing, even if this is not
+    the first pass.
+    
+    Bug: 14468
+    Change-Id: I4cb7ea2e54c1b763a48b99c0d64f542552789d18
+    Reviewed-on: https://code.wireshark.org/review/26260
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit dd21b8130c6470d2d5076fcc46d5e9c3866f4609)
+    Reviewed-on: https://code.wireshark.org/review/26263
+    (cherry picked from commit b87aa0326c5c6e6b27462a750582c2c99a85e9d4)
+    Reviewed-on: https://code.wireshark.org/review/26265
+
+commit e34f30f6e0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 4 08:32:14 2018 +0000
+
+    [Automatic update for 2018-03-04]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I2998675bfd3984d783581d0204c31be0b689d16b
+    Reviewed-on: https://code.wireshark.org/review/26256
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit eb5d118721
+Author: Nicolas Darchis <ndarchis@cisco.com>
+Date:   Wed Feb 28 15:26:03 2018 +0100
+
+    Add support for new peekremote features.
+    
+    Enhanced peekremote dissector to take into account the new extended
+    flags written by Cisco APs in sniffer mode after WLC version 8.5.
+    
+    Support for 80mhz channel flag (bit 9), short preamble (bit 8), amount
+    of spatial streams (bit 14-16)
+    dot11_ht_vht_flags=0x00000551 <--short preamble encoded to 10th bit of
+    dot11_ht_vht_flags.
+    dot11_ht_vht_flags=0x00008bc8 <--80MHz info encoded to 9th bit of
+    dot11_ht_vht_flags.
+    
+    The spatial streams information is already encoded to 16:15:14 bits of
+    dot11_ht_vht_flags. The following are the bit pattern representation,
+    000 - 1 spatial stream
+    001 - 2 spatial streams
+    010 - 3 spatial streams
+    
+    Bug: 14452
+    Change-Id: If0539e356b32a791901d213a653f7a98521667ee
+    Reviewed-on: https://code.wireshark.org/review/26178
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit b580bdb9ddd5459bcdac95948ec41eae55be734f)
+    Reviewed-on: https://code.wireshark.org/review/26253
+
+commit 97b1d53d06
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Mar 3 00:07:26 2018 -0800
+
+    Don't crash in manually_resolve_cleanup() if there's nothing to clean up.
+    
+    We might not yet have allocated the manually-resolved address lists;
+    only free the if we have.
+    
+    Change-Id: Iff9864e397a04cdcb613268603c073ecd1fa77fb
+    Reviewed-on: https://code.wireshark.org/review/26236
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 302fa6881751e5a8f9c8c197ab0008ee336e821a)
+    Reviewed-on: https://code.wireshark.org/review/26238
+
+commit f927769fdf
+Author: Martin Kaiser <wireshark@kaiser.cx>
+Date:   Mon Feb 26 23:19:15 2018 +0100
+
+    mp4: limit the recursion depth for boxes
+    
+    Although the dissection of each box header consumes a couple of bytes,
+    it turned out that it's still possible to crash wireshark with a sample
+    file that contains a large number of nested boxes. The stack will fill
+    up before we reach the end of the data bytes.
+    
+    Keep track of the recursion depth as we walk through the hierarchy of
+    boxes. Abort if we reach the (locally defined) upper limit.
+    
+    Bug: 13777
+    Change-Id: I0f67245a5c74131f10d0f9d99b39ad31711b9775
+    Reviewed-on: https://code.wireshark.org/review/26167
+    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
+    Petri-Dish: Martin Kaiser <wireshark@kaiser.cx>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 620f69a74b18908e3424920c7bb01cb5e4cbd8b1)
+    Reviewed-on: https://code.wireshark.org/review/26205
+
+commit c9ace2f0d5
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Feb 28 17:52:34 2018 -0800
+
+    Don't handle various "command to send" values in the default case.
+    
+    The default case ignores the high-order bit, which is set in all the
+    values for "command to send", so they will never be matched.  The values
+    moved out of the default case, if their upper bit is clear, either don't
+    correspond to any command in T.30 or correspond to an initial
+    identification command, which never has the upper bit set, so there's no
+    risk of misidentification by processing all of the "command to send"
+    values outside the default case.
+    
+    Thanks and a tip of the Hatlo hat to Visual Studio Code Analysis for
+    catching this one.
+    
+    Change-Id: I6192b0c5a6dcfd31b9fd757be736a311a9d089e6
+    Reviewed-on: https://code.wireshark.org/review/26198
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit efd8beff4f9a6b39a7b43b18716bceb4a9f07e1f)
+    Reviewed-on: https://code.wireshark.org/review/26200
+
+commit 261c3458ae
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Feb 28 12:23:57 2018 -0800
+
+    Fix StringCchPrintf() calls.
+    
+    The calls were assuming that an LPARAM was 32 bits when that's not the
+    case on 64-bit Windows - the underlying value is 32-bit, so we just cast
+    to int.
+    
+    Change-Id: Ie2a38e27f2ea211628d2c751a7807bb9ed396c64
+    Reviewed-on: https://code.wireshark.org/review/26190
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 16ac61e2a353fbf940cf8eeee9d5018ea2a12641)
+    Reviewed-on: https://code.wireshark.org/review/26192
+
+commit 3c08522c7e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Feb 28 11:45:32 2018 -0800
+
+    Redo the way we choose N/S/E/W.
+    
+    This should squelch a warning from Visual Studio Code Analyzer.
+    
+    Change-Id: Ie66e45276458a6f880c9b020ff541b7d2a71433a
+    Reviewed-on: https://code.wireshark.org/review/26184
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 03474c1303faeed68631e4074ba692bdc193323d)
+    Reviewed-on: https://code.wireshark.org/review/26186
+
+commit 2f5159a23c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Feb 28 01:27:27 2018 -0800
+
+    Include <config.h> so UNICODE is defined.
+    
+    All other files should do so; this file should, so that we're using the
+    Unicode versions of Windows APIs (especially given that other files that
+    include wsutil/unicode-utils.h will be doing so and expecting UTF-16
+    strings from utf_8to16_snprintf()).
+    
+    Change-Id: I7eccf580ab0dc504aa78b345e36e2fcda818a7c5
+    Reviewed-on: https://code.wireshark.org/review/26170
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 9f2dff98f6526412e8065a8c9ade811dcb1974fe)
+    Reviewed-on: https://code.wireshark.org/review/26180
+    (cherry picked from commit 9a84ec49ca0bc199fb22410705b72f93f28bb9b8)
+    Reviewed-on: https://code.wireshark.org/review/26181
+
+commit 0290a62be0
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sun Feb 25 21:16:52 2018 +0100
+
+    adb: fix buffer overflow while processing message payload
+    
+    Fix a heap buffer overflow (write) when the message header length is
+    smaller than the actual message payload length. Add expert info to
+    detect this since it can also occur when the header is wrongly matched
+    with a data fragment (this dissector issue is not fixed here).
+    
+    Bug: 14460
+    Change-Id: I12f411a5189809a0931dfcdb2797997d5e19efc1
+    Reviewed-on: https://code.wireshark.org/review/26104
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 1653ea5fcedf369452c0cf41e09e57666525615c)
+    Reviewed-on: https://code.wireshark.org/review/26173
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 58b0a02df4
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Tue Feb 27 21:47:07 2018 +0100
+
+    6lowpan: Use correct offset for "UDP header compression" header
+    
+    Change-Id: I900dce329a593e55b894faf3e41071893ed91c46
+    Reviewed-on: https://code.wireshark.org/review/26147
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 8f4ea952b4a962453f279c7259baad9ce98feee7)
+    Reviewed-on: https://code.wireshark.org/review/26149
+
+commit 800cefa397
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 25 08:35:38 2018 +0000
+
+    [Automatic update for 2018-02-25]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Id5f438127e7957fdc75f87cf1f2227aea4786e2f
+    Reviewed-on: https://code.wireshark.org/review/26093
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 00dffa83b0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Feb 23 18:33:05 2018 -0800
+
+    Fix capitalization and white space.
+    
+    Change-Id: I3b93716421169b2c9ce51da6116223e62fa6a241
+    Reviewed-on: https://code.wireshark.org/review/26077
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6c7a5b488902e4420f864afe6f14009e942b3673)
+    Reviewed-on: https://code.wireshark.org/review/26079
+
+commit 70f65aa908
+Author: Richard Sharpe <realrichardsharpe@gmail.com>
+Date:   Fri Feb 23 03:49:36 2018 -0800
+
+    radiotap: Fix bug 14455.
+    
+    Use an int instead of a uint so that sign extension does not occur and
+    fix the field labels and make them all use the correct units.
+    
+    They conform closer to the spec now.
+    
+    Bug 14455
+    
+    Change-Id: Ic57207d10565690a6e2ed66693dcdf294d421b22
+    Reviewed-on: https://code.wireshark.org/review/26046
+    Reviewed-by: Richard Sharpe <realrichardsharpe@gmail.com>
+    (cherry picked from commit 6a2ec55d6e7f69161b003a0f2f19be01cafd35ca)
+    Reviewed-on: https://code.wireshark.org/review/26076
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 38f11c1916
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Feb 23 14:16:46 2018 -0800
+
+    Get rid of the ipmap.html that got dropped into Contents/MacOS.
+    
+    Change-Id: Ieb94ca78a92fc5369fe3b396373c2f7a31d8894a
+    Reviewed-on: https://code.wireshark.org/review/26072
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c3c053ba1c9e7c7a6f4b446e742ad5ca3e04e097)
+    Reviewed-on: https://code.wireshark.org/review/26074
+
+commit 3d90e67e78
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Feb 23 14:05:11 2018 -0800
+
+    Clean up description of power and attenuation fields.
+    
+    Change-Id: I36433f37e4e33260b41a2b35ca49e844fe76baf3
+    Reviewed-on: https://code.wireshark.org/review/26068
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 656439db2612878b52422d209443c17ebbb70c47)
+    Reviewed-on: https://code.wireshark.org/review/26070
+
+commit 1a452651e3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Feb 23 11:00:37 2018 -0800
+
+    I don't think ipmap.html belongs in the same directory as the binaries.
+    
+    Change-Id: I1a15ec77786f6a141e78c62885343f8cc51c73bf
+    Reviewed-on: https://code.wireshark.org/review/26059
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit e3db7c581cd9facc01015d81e5c63a24032556a7)
+    Reviewed-on: https://code.wireshark.org/review/26067
