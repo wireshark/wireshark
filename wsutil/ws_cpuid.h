@@ -48,7 +48,8 @@ ws_cpuid(guint32 *CPUInfo, int selector)
 							"=b" (CPUInfo[1]),
 							"=c" (CPUInfo[2]),
 							"=d" (CPUInfo[3])
-						: "a"(selector));
+						: "a" (selector),
+							"c" (0));
 	return TRUE;
 }
 #elif defined(__i386__)
