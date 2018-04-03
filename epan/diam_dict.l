@@ -162,6 +162,7 @@ typedef struct {
 	unsigned* attr_uint;
 
 	size_t (*current_yyinput)(char*,size_t,yyscan_t);
+	int (*current_close)(FILE *fh);
 
 	YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 	int include_stack_ptr;
@@ -379,7 +380,7 @@ description_attr description=\042
 <<EOF>> {
 	if (!yyin) yyterminate();
 
-	fclose(yyin);
+	yyextra->current_close(yyin);
 	D(("closing: %p %i\n",(void*)yyin,yyextra->include_stack_ptr));
 
 	if ( --yyextra->include_stack_ptr < 0 ) {
@@ -708,6 +709,16 @@ string_input(char* buf, size_t max, yyscan_t scanner)
 	return max;
 }
 
+/*
+ * If we're reading from a string, yyin is set to stdin, and we don't
+ * want to close that.
+ */
+static int
+string_close(FILE *fh _U_)
+{
+	return 0;
+}
+
 static FILE *
 ddict_open(const char* system_directory, const char* filename)
 {
@@ -786,6 +797,7 @@ ddict_scan(const char* system_directory, const char* filename, int dbg)
 	 * of the file contents in memory.
 	 */
 	state.current_yyinput = file_input;
+	state.current_close = fclose;
 	state.include_stack_ptr = 0;
 
 	in = ddict_open(system_directory,filename);
@@ -827,6 +839,7 @@ ddict_scan(const char* system_directory, const char* filename, int dbg)
 	 * rest of the work.
 	 */
 	state.current_yyinput = string_input;
+	state.current_close = string_close;
 
 	if (DiamDict_lex_init(&scanner) != 0) {
 		/* Note: cannot be reached since memory allocation failure terminates early */
