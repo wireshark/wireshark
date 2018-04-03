@@ -55,7 +55,10 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     }
 
     rec_ = cap_file_.capFile()->rec;
+
+#ifndef __clang_analyzer__
     packet_data_ = (guint8 *) g_memdup(ws_buffer_start_ptr(&(cap_file_.capFile()->buf)), fdata->cap_len);
+#endif
 
     /* proto tree, visible. We need a proto tree if there's custom columns */
     epan_dissect_init(&edt_, cap_file_.capFile()->epan, TRUE, TRUE);
