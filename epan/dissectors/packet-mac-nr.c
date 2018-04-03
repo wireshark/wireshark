@@ -24,7 +24,7 @@ void proto_register_mac_nr(void);
 void proto_reg_handoff_mac_nr(void);
 
 /* Described in:
- * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.0.0
+ * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.1.0
  */
 
 /* Initialize the protocol and registered fields. */
@@ -85,6 +85,79 @@ static int hf_mac_nr_control_me_phr_ph_c1 = -1;
 static int hf_mac_nr_control_me_phr_reserved = -1;
 /* TODO: is it worth having separate fields for each SCellIndex for this field too? */
 static int hf_mac_nr_control_me_phr_pcmax_c = -1;
+static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved = -1;
+static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_serving_cell_id = -1;
+static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_bwp_id = -1;
+static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved_2 = -1;
+static int hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_sp_zp_rs_resource_set_id = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_serving_cell_id = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_bwp_id = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_pucch_resource_id = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s7 = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s6 = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s5 = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s4 = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s3 = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s2 = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s1 = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s0 = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_ad = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_serving_cell_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_bwp_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_reserved = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_sul = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_sp_srs_resource_set_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_f = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_resource_id = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_reserved = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_serving_cell_id = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_bwp_id = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s7 = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s6 = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s5 = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s4 = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s3 = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s2 = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s1 = -1;
+static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s0 = -1;
+static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved = -1;
+static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id = -1;
+static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id = -1;
+static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id = -1;
+static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_reserved = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_serving_cell_id = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_bwp_id = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t7 = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t6 = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t5 = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t4 = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t3 = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t2 = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t1 = -1;
+static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t0 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_reserved = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_serving_cell_id = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_bwp_id = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t7 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t6 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t5 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t4 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t3 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t2 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t1 = -1;
+static int hf_mac_nr_control_aper_csi_trigger_state_subselect_t0 = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_ad = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_serving_cell_id = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_bwp_id = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_im = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_sp_csi_rs_res_set_id = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved2 = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_sp_csi_im_res_set_id = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved3 = -1;
+static int hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_tci_state_id = -1;
 static int hf_mac_nr_control_dupl_act_deact_drb7 = -1;
 static int hf_mac_nr_control_dupl_act_deact_drb6 = -1;
 static int hf_mac_nr_control_dupl_act_deact_drb5 = -1;
@@ -214,59 +287,74 @@ static const value_string bcch_transport_channel_vals[] =
     { 0, NULL }
 };
 
-
-#define DUPLICATION_ACTIVATION_DEACTIVATION_LCID   0x38
-#define SCELL_ACTIVATION_DEACTIVATION_4            0x39
-#define SCELL_ACTIVATION_DEACTIVATION_1            0x3a
-#define LONG_DRX_COMMAND_LCID                      0x3b
-#define DRX_COMMAND_LCID                           0x3c
-#define TIMING_ADVANCE_COMMAND_LCID                0x3d
-#define UE_CONTENTION_RESOLUTION_IDENTITY_LCID     0x3e
-#define PADDING_LCID                               0x3f
+#define SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID    0x30
+#define PUCCH_SPATIAL_REL_ACT_DEACT_LCID            0x31
+#define SP_SRS_ACT_DEACT_LCID                       0x32
+#define SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID       0x33
+#define TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID        0x34
+#define TCI_STATES_ACT_DEACT_FOR_UE_SPEC_PDSCH_LCID 0x35
+#define APER_CSI_TRIGGER_STATE_SUBSELECT_LCID       0x36
+#define SP_CSI_RS_CSI_IM_RES_SET_ACT_DEACT_LCID     0x37
+#define DUPLICATION_ACTIVATION_DEACTIVATION_LCID    0x38
+#define SCELL_ACTIVATION_DEACTIVATION_4_LCID        0x39
+#define SCELL_ACTIVATION_DEACTIVATION_1_LCID        0x3a
+#define LONG_DRX_COMMAND_LCID                       0x3b
+#define DRX_COMMAND_LCID                            0x3c
+#define TIMING_ADVANCE_COMMAND_LCID                 0x3d
+#define UE_CONTENTION_RESOLUTION_IDENTITY_LCID      0x3e
+#define PADDING_LCID                                0x3f
 
 static const value_string dlsch_lcid_vals[] =
 {
-    { 0,                                        "CCCH"},
-    { 1,                                        "1"},
-    { 2,                                        "2"},
-    { 3,                                        "3"},
-    { 4,                                        "4"},
-    { 5,                                        "5"},
-    { 6,                                        "6"},
-    { 7,                                        "7"},
-    { 8,                                        "8"},
-    { 9,                                        "9"},
-    { 10,                                       "10"},
-    { 11,                                       "11"},
-    { 12,                                       "12"},
-    { 13,                                       "13"},
-    { 14,                                       "14"},
-    { 15,                                       "15"},
-    { 16,                                       "16"},
-    { 17,                                       "17"},
-    { 18,                                       "18"},
-    { 19,                                       "19"},
-    { 20,                                       "20"},
-    { 21,                                       "21"},
-    { 22,                                       "22"},
-    { 23,                                       "23"},
-    { 24,                                       "24"},
-    { 25,                                       "25"},
-    { 26,                                       "26"},
-    { 27,                                       "27"},
-    { 28,                                       "28"},
-    { 29,                                       "29"},
-    { 30,                                       "30"},
-    { 31,                                       "31"},
-    { 32,                                       "32"},
-    { DUPLICATION_ACTIVATION_DEACTIVATION_LCID, "Duplication Activation/Deactivation"},
-    { SCELL_ACTIVATION_DEACTIVATION_4,          "SCell Activation/Deactivation (4 octet)"},
-    { SCELL_ACTIVATION_DEACTIVATION_1,          "SCell Activation/Deactivation (1 octet)"},
-    { LONG_DRX_COMMAND_LCID,                    "Long DRX Command"},
-    { DRX_COMMAND_LCID,                         "DRX Command"},
-    { TIMING_ADVANCE_COMMAND_LCID,              "Timing Advance Command"},
-    { UE_CONTENTION_RESOLUTION_IDENTITY_LCID,   "UE Contention Resolution Identity"},
-    { PADDING_LCID,                             "Padding"},
+    { 0,                                           "CCCH"},
+    { 1,                                           "1"},
+    { 2,                                           "2"},
+    { 3,                                           "3"},
+    { 4,                                           "4"},
+    { 5,                                           "5"},
+    { 6,                                           "6"},
+    { 7,                                           "7"},
+    { 8,                                           "8"},
+    { 9,                                           "9"},
+    { 10,                                          "10"},
+    { 11,                                          "11"},
+    { 12,                                          "12"},
+    { 13,                                          "13"},
+    { 14,                                          "14"},
+    { 15,                                          "15"},
+    { 16,                                          "16"},
+    { 17,                                          "17"},
+    { 18,                                          "18"},
+    { 19,                                          "19"},
+    { 20,                                          "20"},
+    { 21,                                          "21"},
+    { 22,                                          "22"},
+    { 23,                                          "23"},
+    { 24,                                          "24"},
+    { 25,                                          "25"},
+    { 26,                                          "26"},
+    { 27,                                          "27"},
+    { 28,                                          "28"},
+    { 29,                                          "29"},
+    { 30,                                          "30"},
+    { 31,                                          "31"},
+    { 32,                                          "32"},
+    { SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID,    "SP ZP CSI-RS Resource Set Activation/Deactivation"},
+    { PUCCH_SPATIAL_REL_ACT_DEACT_LCID,            "PUCCH spatial relation Activation/Deactivation"},
+    { SP_SRS_ACT_DEACT_LCID,                       "SP SRS Activation/Deactivation"},
+    { SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID,       "SP CSI reporting on PUCCH Activation/Deactivation"},
+    { TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID,        "TCI State Indication for UE-specific PDCCH"},
+    { TCI_STATES_ACT_DEACT_FOR_UE_SPEC_PDSCH_LCID, "TCI States Activation/Deactivation for UE-specific PDSCH"},
+    { APER_CSI_TRIGGER_STATE_SUBSELECT_LCID,       "Aperiodic CSI Trigger State Subselection"},
+    { SP_CSI_RS_CSI_IM_RES_SET_ACT_DEACT_LCID,     "SP CSI-RS / CSI-IM Resource Set Activation/Deactivation"},
+    { DUPLICATION_ACTIVATION_DEACTIVATION_LCID,    "Duplication Activation/Deactivation"},
+    { SCELL_ACTIVATION_DEACTIVATION_4_LCID,        "SCell Activation/Deactivation (4 octet)"},
+    { SCELL_ACTIVATION_DEACTIVATION_1_LCID,        "SCell Activation/Deactivation (1 octet)"},
+    { LONG_DRX_COMMAND_LCID,                       "Long DRX Command"},
+    { DRX_COMMAND_LCID,                            "DRX Command"},
+    { TIMING_ADVANCE_COMMAND_LCID,                 "Timing Advance Command"},
+    { UE_CONTENTION_RESOLUTION_IDENTITY_LCID,      "UE Contention Resolution Identity"},
+    { PADDING_LCID,                                "Padding"},
     { 0, NULL }
 };
 static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_vals);
@@ -408,257 +496,257 @@ static const value_string buffer_size_8bits_vals[] =
     { 2,   "10 < BS <= 11"},
     { 3,   "11 < BS <= 12"},
     { 4,   "12 < BS <= 13"},
-    { 5,   "12 < BS <= 13"},  /* N.B. same as previous index, but wrong in spec! */
-    { 6,   "13 < BS <= 14"},
-    { 7,   "14 < BS <= 15"},
-    { 8,   "15 < BS <= 16"},
-    { 9,   "16 < BS <= 17"},
-    { 10,  "17 < BS <= 18"},
-    { 11,  "18 < BS <= 19"},
-    { 12,  "19 < BS <= 20"},
-    { 13,  "20 < BS <= 22"},
-    { 14,  "22 < BS <= 23"},
-    { 15,  "23 < BS <= 25"},
-    { 16,  "25 < BS <= 26"},
-    { 17,  "26 < BS <= 28"},
-    { 18,  "28 < BS <= 30"},
-    { 19,  "30 < BS <= 32"},
-    { 20,  "32 < BS <= 34"},
-    { 21,  "34 < BS <= 36"},
-    { 22,  "36 < BS <= 38"},
-    { 23,  "38 < BS <= 40"},
-    { 24,  "40 < BS <= 43"},
-    { 25,  "43 < BS <= 46"},
-    { 26,  "46 < BS <= 49"},
-    { 27,  "49 < BS <= 52"},
-    { 28,  "52 < BS <= 55"},
-    { 29,  "52 < BS <= 59"},
-    { 30,  "59 < BS <= 62"},
-    { 31,  "62 < BS <= 66"},
-    { 32,  "66 < BS <= 71"},
-    { 33,  "71 < BS <= 75"},
-    { 34,  "75 < BS <= 80"},
-    { 35,  "80 < BS <= 85"},
-    { 36,  "85 < BS <= 91"},
-    { 37,  "91 < BS <= 97"},
-    { 38,  "97 < BS <= 103"},
-    { 39,  "103 < BS <= 110"},
-    { 40,  "110 < BS <= 117"},
-    { 41,  "117 < BS <= 124"},
-    { 42,  "124 < BS <= 132"},
-    { 43,  "132 < BS <= 141"},
-    { 44,  "141 < BS <= 150"},
-    { 45,  "150 < BS <= 160"},
-    { 46,  "160 < BS <= 170"},
-    { 47,  "170 < BS <= 181"},
-    { 48,  "181 < BS <= 193"},
-    { 49,  "193 < BS <= 205"},
-    { 50,  "205 < BS <= 218"},
-    { 51,  "218 < BS <= 233"},
-    { 52,  "233 < BS <= 248"},
-    { 53,  "248 < BS <= 264"},
-    { 54,  "264 < BS <= 281"},
-    { 55,  "281 < BS <= 299"},
-    { 56,  "299 < BS <= 318"},
-    { 57,  "318 < BS <= 339"},
-    { 58,  "339 < BS <= 361"},
-    { 59,  "361 < BS <= 384"},
-    { 60,  "384 < BS <= 409"},
-    { 61,  "409 < BS <= 436"},
-    { 62,  "436 < BS <= 464"},
-    { 63,  "464 < BS <= 494"},
-    { 64,  "494 < BS <= 526"},
-    { 65,  "526 < BS <= 560"},
-    { 66,  "560 < BS <= 597"},
-    { 67,  "597 < BS <= 635"},
-    { 68,  "635 < BS <= 677"},
-    { 69,  "677 < BS <= 720"},
-    { 70,  "720 < BS <= 767"},
-    { 71,  "767 < BS <= 817"},
-    { 72,  "817 < BS <= 870"},
-    { 73,  "870 < BS <= 926"},
-    { 74,  "926 < BS <= 987"},
-    { 75,  "987 < BS <= 1051"},
-    { 76,  "1051 < BS <= 1119"},
-    { 77,  "1119 < BS <= 1191"},
-    { 78,  "1191 < BS <= 1269"},
-    { 79,  "1269 < BS <= 1351"},
-    { 80,  "1351 < BS <= 1439"},
-    { 81,  "1439 < BS <= 1532"},
-    { 82,  "1532 < BS <= 1631"},
-    { 83,  "1631 < BS <= 1737"},
-    { 84,  "1737 < BS <= 1850"},
-    { 85,  "1850 < BS <= 1970"},
-    { 86,  "1970 < BS <= 2098"},
-    { 87,  "2098 < BS <= 2234"},
-    { 88,  "2234 < BS <= 2379"},
-    { 89,  "2379 < BS <= 2533"},
-    { 90,  "2533 < BS <= 2698"},
-    { 91,  "2698 < BS <= 2873"},
-    { 92,  "2873 < BS <= 3059"},
-    { 93,  "3059 < BS <= 3258"},
-    { 94,  "3258 < BS <= 3469"},
-    { 95,  "3469 < BS <= 3694"},
-    { 96,  "3694 < BS <= 3934"},
-    { 97,  "3934 < BS <= 4189"},
-    { 98,  "4189 < BS <= 4461"},
-    { 99,  "4461 < BS <= 4751"},
-    { 100, "4751 < BS <= 5059"},
-    { 101, "5059 < BS <= 5387"},
-    { 102, "5387 < BS <= 5737"},
-    { 103, "5737 < BS <= 6109"},
-    { 104, "6109 < BS <= 6506"},
-    { 105, "6506 < BS <= 6928"},
-    { 106, "6928 < BS <= 7378"},
-    { 107, "7378 < BS <= 7857"},
-    { 108, "7857 < BS <= 8367"},
-    { 109, "8367 < BS <= 8910"},
-    { 110, "8910 < BS <= 9488"},
-    { 111, "9488 < BS <= 10104"},
-    { 112, "10104 < BS <= 10760"},
-    { 113, "10760 < BS <= 11458"},
-    { 114, "11458 < BS <= 12202"},
-    { 115, "12202 < BS <= 12994"},
-    { 116, "12994 < BS <= 13838"},
-    { 117, "13838 < BS <= 14736"},
-    { 118, "14736 < BS <= 15692"},
-    { 119, "15692 < BS <= 16711"},
-    { 120, "16711 < BS <= 17795"},
-    { 121, "17795 < BS <= 18951"},
-    { 122, "18951 < BS <= 20181"},
-    { 123, "20181 < BS <= 21491"},
-    { 124, "21491 < BS <= 22885"},
-    { 125, "22885 < BS <= 24371"},
-    { 126, "24371 < BS <= 25953"},
-    { 127, "25953 < BS <= 27638"},
-    { 128, "27638 < BS <= 29431"},
-    { 129, "29431 < BS <= 31342"},
-    { 130, "31342 < BS <= 33376"},
-    { 131, "33376 < BS <= 35543"},
-    { 132, "35543 < BS <= 37850"},
-    { 133, "37850 < BS <= 40307"},
-    { 134, "40307 < BS <= 42923"},
-    { 135, "42923 < BS <= 45709"},
-    { 136, "45709 < BS <= 48676"},
-    { 137, "48676 < BS <= 51836"},
-    { 138, "51836 < BS <= 55200"},
-    { 139, "55200 < BS <= 58784"},
-    { 140, "58784 < BS <= 62599"},
-    { 141, "62599 < BS <= 66663"},
-    { 142, "66663 < BS <= 70990"},
-    { 143, "70990 < BS <= 75598"},
-    { 144, "75598 < BS <= 80505"},
-    { 145, "80505 < BS <= 85730"},
-    { 146, "85730 < BS <= 91295"},
-    { 147, "91295 < BS <= 97221"},
-    { 148, "97221 < BS <= 103532"},
-    { 149, "103532 < BS <= 110252"},
-    { 150, "110252 < BS <= 117409"},
-    { 151, "117409 < BS <= 125030"},
-    { 152, "125030 < BS <= 133146"},
-    { 153, "133146 < BS <= 141789"},
-    { 154, "141789 < BS <= 150992"},
-    { 155, "150992 < BS <= 160793"},
-    { 156, "160793 < BS <= 171231"},
-    { 157, "171231 < BS <= 182345"},
-    { 158, "182345 < BS <= 194182"},
-    { 159, "194182 < BS <= 206786"},
-    { 160, "206786 < BS <= 220209"},
-    { 161, "220209 < BS <= 234503"},
-    { 162, "234503 < BS <= 249725"},
-    { 163, "249725 < BS <= 265935"},
-    { 164, "265935 < BS <= 283197"},
-    { 165, "283197 < BS <= 301579"},
-    { 166, "301579 < BS <= 321155"},
-    { 167, "321155 < BS <= 342002"},
-    { 168, "342002 < BS <= 364202"},
-    { 169, "364202 < BS <= 387842"},
-    { 170, "387842 < BS <= 413018"},
-    { 171, "413018 < BS <= 439827"},
-    { 172, "439827 < BS <= 468377"},
-    { 173, "468377 < BS <= 498780"},
-    { 174, "498780 < BS <= 531156"},
-    { 175, "531156 < BS <= 565634"},
-    { 176, "565634 < BS <= 602350"},
-    { 177, "602350 < BS <= 641449"},
-    { 178, "641449 < BS <= 683087"},
-    { 179, "683087 < BS <= 727427"},
-    { 180, "727427 < BS <= 774645"},
-    { 181, "774645 < BS <= 824928"},
-    { 182, "824928 < BS <= 878475"},
-    { 183, "878475 < BS <= 935498"},
-    { 184, "935498 < BS <= 996222"},
-    { 185, "996222 < BS <= 1060888"},
-    { 186, "1060888 < BS <= 1129752"},
-    { 187, "1129752 < BS <= 1203085"},
-    { 188, "1203085 < BS <= 1281179"},
-    { 189, "1281179 < BS <= 1364342"},
-    { 190, "1364342 < BS <= 1452903"},
-    { 191, "1452903 < BS <= 1547213"},
-    { 192, "1547213 < BS <= 1647644"},
-    { 193, "1647644 < BS <= 1754595"},
-    { 194, "1754595 < BS <= 1868488"},
-    { 195, "1868488 < BS <= 1989774"},
-    { 196, "1989774 < BS <= 2118933"},
-    { 197, "2118933 < BS <= 2256475"},
-    { 198, "2256475 < BS <= 2402946"},
-    { 199, "2402946 < BS <= 2558924"},
-    { 200, "2558924 < BS <= 2725027"},
-    { 201, "2725027 < BS <= 2901912"},
-    { 202, "2901912 < BS <= 3090279"},
-    { 203, "3090279 < BS <= 3290873"},
-    { 204, "3290873 < BS <= 3504487"},
-    { 205, "3504487 < BS <= 3731968"},
-    { 206, "3731968 < BS <= 3974215"},
-    { 207, "3974215 < BS <= 4232186"},
-    { 208, "4232186 < BS <= 4506902"},
-    { 209, "4506902 < BS <= 4799451"},
-    { 210, "4799451 < BS <= 5110989"},
-    { 211, "5110989 < BS <= 5442750"},
-    { 212, "5442750 < BS <= 5796046"},
-    { 213, "5796046 < BS <= 6172275"},
-    { 214, "6172275 < BS <= 6572925"},
-    { 215, "6572925 < BS <= 6999582"},
-    { 216, "6999582 < BS <= 7453933"},
-    { 217, "7453933 < BS <= 7937777"},
-    { 218, "7937777 < BS <= 8453028"},
-    { 219, "8453028 < BS <= 9001725"},
-    { 220, "9001725 < BS <= 9586039"},
-    { 221, "9586039 < BS <= 10208280"},
-    { 222, "10208280 < BS <= 10870913"},
-    { 223, "10870913 < BS <= 11576557"},
-    { 224, "11576557 < BS <= 12328006"},
-    { 225, "12328006 < BS <= 13128233"},
-    { 226, "13128233 < BS <= 13980403"},
-    { 227, "13980403 < BS <= 14887889"},
-    { 228, "14887889 < BS <= 15854280"},
-    { 229, "15854280 < BS <= 16883401"},
-    { 230, "16883401 < BS <= 17979324"},
-    { 231, "17979324 < BS <= 19146385"},
-    { 232, "19146385 < BS <= 20389201"},
-    { 233, "20389201 < BS <= 21712690"},
-    { 234, "21712690 < BS <= 23122088"},
-    { 235, "23122088 < BS <= 24622972"},
-    { 236, "24622972 < BS <= 26221280"},
-    { 237, "26221280 < BS <= 27923336"},
-    { 238, "27923336 < BS <= 29735875"},
-    { 239, "29735875 < BS <= 31666069"},
-    { 240, "31666069 < BS <= 33721553"},
-    { 241, "33721553 < BS <= 35910462"},
-    { 242, "35910462 < BS <= 38241455"},
-    { 243, "38241455 < BS <= 40723756"},
-    { 244, "40723756 < BS <= 43367187"},
-    { 245, "43367187 < BS <= 46182206"},
-    { 246, "46182206 < BS <= 49179951"},
-    { 247, "49179951 < BS <= 52372284"},
-    { 248, "52372284 < BS <= 55771835"},
-    { 249, "55771835 < BS <= 59392055"},
-    { 250, "59392055 < BS <= 63247269"},
-    { 251, "63247269 < BS <= 67352729"},
-    { 252, "67352729 < BS <= 71724679"},
-    { 253, "71724679 < BS <= 76380419"},
-    { 254, "76380419 < BS <= 81338368"},
-    { 255, "BS > 81338368"},
+    { 5,   "13 < BS <= 14"},
+    { 6,   "14 < BS <= 15"},
+    { 7,   "15 < BS <= 16"},
+    { 8,   "16 < BS <= 17"},
+    { 9,  "17 < BS <= 18"},
+    { 10,  "18 < BS <= 19"},
+    { 11,  "19 < BS <= 20"},
+    { 12,  "20 < BS <= 22"},
+    { 13,  "22 < BS <= 23"},
+    { 14,  "23 < BS <= 25"},
+    { 15,  "25 < BS <= 26"},
+    { 16,  "26 < BS <= 28"},
+    { 17,  "28 < BS <= 30"},
+    { 18,  "30 < BS <= 32"},
+    { 19,  "32 < BS <= 34"},
+    { 20,  "34 < BS <= 36"},
+    { 21,  "36 < BS <= 38"},
+    { 22,  "38 < BS <= 40"},
+    { 23,  "40 < BS <= 43"},
+    { 24,  "43 < BS <= 46"},
+    { 25,  "46 < BS <= 49"},
+    { 26,  "49 < BS <= 52"},
+    { 27,  "52 < BS <= 55"},
+    { 28,  "52 < BS <= 59"},
+    { 29,  "59 < BS <= 62"},
+    { 30,  "62 < BS <= 66"},
+    { 31,  "66 < BS <= 71"},
+    { 32,  "71 < BS <= 75"},
+    { 33,  "75 < BS <= 80"},
+    { 34,  "80 < BS <= 85"},
+    { 35,  "85 < BS <= 91"},
+    { 36,  "91 < BS <= 97"},
+    { 37,  "97 < BS <= 103"},
+    { 38,  "103 < BS <= 110"},
+    { 39,  "110 < BS <= 117"},
+    { 40,  "117 < BS <= 124"},
+    { 41,  "124 < BS <= 132"},
+    { 42,  "132 < BS <= 141"},
+    { 43,  "141 < BS <= 150"},
+    { 44,  "150 < BS <= 160"},
+    { 45,  "160 < BS <= 170"},
+    { 46,  "170 < BS <= 181"},
+    { 47,  "181 < BS <= 193"},
+    { 48,  "193 < BS <= 205"},
+    { 49,  "205 < BS <= 218"},
+    { 50,  "218 < BS <= 233"},
+    { 51,  "233 < BS <= 248"},
+    { 52,  "248 < BS <= 264"},
+    { 53,  "264 < BS <= 281"},
+    { 54,  "281 < BS <= 299"},
+    { 55,  "299 < BS <= 318"},
+    { 56,  "318 < BS <= 339"},
+    { 57,  "339 < BS <= 361"},
+    { 58,  "361 < BS <= 384"},
+    { 59,  "384 < BS <= 409"},
+    { 60,  "409 < BS <= 436"},
+    { 61,  "436 < BS <= 464"},
+    { 62,  "464 < BS <= 494"},
+    { 63,  "494 < BS <= 526"},
+    { 64,  "526 < BS <= 560"},
+    { 65,  "560 < BS <= 597"},
+    { 66,  "597 < BS <= 635"},
+    { 67,  "635 < BS <= 677"},
+    { 68,  "677 < BS <= 720"},
+    { 69,  "720 < BS <= 767"},
+    { 70,  "767 < BS <= 817"},
+    { 71,  "817 < BS <= 870"},
+    { 72,  "870 < BS <= 926"},
+    { 73,  "926 < BS <= 987"},
+    { 74,  "987 < BS <= 1051"},
+    { 75,  "1051 < BS <= 1119"},
+    { 76,  "1119 < BS <= 1191"},
+    { 77,  "1191 < BS <= 1269"},
+    { 78,  "1269 < BS <= 1351"},
+    { 79,  "1351 < BS <= 1439"},
+    { 80,  "1439 < BS <= 1532"},
+    { 81,  "1532 < BS <= 1631"},
+    { 82,  "1631 < BS <= 1737"},
+    { 83,  "1737 < BS <= 1850"},
+    { 84,  "1850 < BS <= 1970"},
+    { 85,  "1970 < BS <= 2098"},
+    { 86,  "2098 < BS <= 2234"},
+    { 87,  "2234 < BS <= 2379"},
+    { 88,  "2379 < BS <= 2533"},
+    { 89,  "2533 < BS <= 2698"},
+    { 90,  "2698 < BS <= 2873"},
+    { 91,  "2873 < BS <= 3059"},
+    { 92,  "3059 < BS <= 3258"},
+    { 93,  "3258 < BS <= 3469"},
+    { 94,  "3469 < BS <= 3694"},
+    { 95,  "3694 < BS <= 3934"},
+    { 96,  "3934 < BS <= 4189"},
+    { 97,  "4189 < BS <= 4461"},
+    { 98,  "4461 < BS <= 4751"},
+    { 99, "4751 < BS <= 5059"},
+    { 100, "5059 < BS <= 5387"},
+    { 101, "5387 < BS <= 5737"},
+    { 102, "5737 < BS <= 6109"},
+    { 103, "6109 < BS <= 6506"},
+    { 104, "6506 < BS <= 6928"},
+    { 105, "6928 < BS <= 7378"},
+    { 106, "7378 < BS <= 7857"},
+    { 107, "7857 < BS <= 8367"},
+    { 108, "8367 < BS <= 8910"},
+    { 109, "8910 < BS <= 9488"},
+    { 110, "9488 < BS <= 10104"},
+    { 111, "10104 < BS <= 10760"},
+    { 112, "10760 < BS <= 11458"},
+    { 113, "11458 < BS <= 12202"},
+    { 114, "12202 < BS <= 12994"},
+    { 115, "12994 < BS <= 13838"},
+    { 116, "13838 < BS <= 14736"},
+    { 117, "14736 < BS <= 15692"},
+    { 118, "15692 < BS <= 16711"},
+    { 119, "16711 < BS <= 17795"},
+    { 120, "17795 < BS <= 18951"},
+    { 121, "18951 < BS <= 20181"},
+    { 122, "20181 < BS <= 21491"},
+    { 123, "21491 < BS <= 22885"},
+    { 124, "22885 < BS <= 24371"},
+    { 125, "24371 < BS <= 25953"},
+    { 126, "25953 < BS <= 27638"},
+    { 127, "27638 < BS <= 29431"},
+    { 128, "29431 < BS <= 31342"},
+    { 129, "31342 < BS <= 33376"},
+    { 130, "33376 < BS <= 35543"},
+    { 131, "35543 < BS <= 37850"},
+    { 132, "37850 < BS <= 40307"},
+    { 133, "40307 < BS <= 42923"},
+    { 134, "42923 < BS <= 45709"},
+    { 135, "45709 < BS <= 48676"},
+    { 136, "48676 < BS <= 51836"},
+    { 137, "51836 < BS <= 55200"},
+    { 138, "55200 < BS <= 58784"},
+    { 139, "58784 < BS <= 62599"},
+    { 140, "62599 < BS <= 66663"},
+    { 141, "66663 < BS <= 70990"},
+    { 142, "70990 < BS <= 75598"},
+    { 143, "75598 < BS <= 80505"},
+    { 144, "80505 < BS <= 85730"},
+    { 145, "85730 < BS <= 91295"},
+    { 146, "91295 < BS <= 97221"},
+    { 147, "97221 < BS <= 103532"},
+    { 148, "103532 < BS <= 110252"},
+    { 149, "110252 < BS <= 117409"},
+    { 150, "117409 < BS <= 125030"},
+    { 151, "125030 < BS <= 133146"},
+    { 152, "133146 < BS <= 141789"},
+    { 153, "141789 < BS <= 150992"},
+    { 154, "150992 < BS <= 160793"},
+    { 155, "160793 < BS <= 171231"},
+    { 156, "171231 < BS <= 182345"},
+    { 157, "182345 < BS <= 194182"},
+    { 158, "194182 < BS <= 206786"},
+    { 159, "206786 < BS <= 220209"},
+    { 160, "220209 < BS <= 234503"},
+    { 161, "234503 < BS <= 249725"},
+    { 162, "249725 < BS <= 265935"},
+    { 163, "265935 < BS <= 283197"},
+    { 164, "283197 < BS <= 301579"},
+    { 165, "301579 < BS <= 321155"},
+    { 166, "321155 < BS <= 342002"},
+    { 167, "342002 < BS <= 364202"},
+    { 168, "364202 < BS <= 387842"},
+    { 169, "387842 < BS <= 413018"},
+    { 170, "413018 < BS <= 439827"},
+    { 171, "439827 < BS <= 468377"},
+    { 172, "468377 < BS <= 498780"},
+    { 173, "498780 < BS <= 531156"},
+    { 174, "531156 < BS <= 565634"},
+    { 175, "565634 < BS <= 602350"},
+    { 176, "602350 < BS <= 641449"},
+    { 177, "641449 < BS <= 683087"},
+    { 178, "683087 < BS <= 727427"},
+    { 179, "727427 < BS <= 774645"},
+    { 180, "774645 < BS <= 824928"},
+    { 181, "824928 < BS <= 878475"},
+    { 182, "878475 < BS <= 935498"},
+    { 183, "935498 < BS <= 996222"},
+    { 184, "996222 < BS <= 1060888"},
+    { 185, "1060888 < BS <= 1129752"},
+    { 186, "1129752 < BS <= 1203085"},
+    { 187, "1203085 < BS <= 1281179"},
+    { 188, "1281179 < BS <= 1364342"},
+    { 189, "1364342 < BS <= 1452903"},
+    { 190, "1452903 < BS <= 1547213"},
+    { 191, "1547213 < BS <= 1647644"},
+    { 192, "1647644 < BS <= 1754595"},
+    { 193, "1754595 < BS <= 1868488"},
+    { 194, "1868488 < BS <= 1989774"},
+    { 195, "1989774 < BS <= 2118933"},
+    { 196, "2118933 < BS <= 2256475"},
+    { 197, "2256475 < BS <= 2402946"},
+    { 198, "2402946 < BS <= 2558924"},
+    { 199, "2558924 < BS <= 2725027"},
+    { 200, "2725027 < BS <= 2901912"},
+    { 201, "2901912 < BS <= 3090279"},
+    { 202, "3090279 < BS <= 3290873"},
+    { 203, "3290873 < BS <= 3504487"},
+    { 204, "3504487 < BS <= 3731968"},
+    { 205, "3731968 < BS <= 3974215"},
+    { 206, "3974215 < BS <= 4232186"},
+    { 207, "4232186 < BS <= 4506902"},
+    { 208, "4506902 < BS <= 4799451"},
+    { 209, "4799451 < BS <= 5110989"},
+    { 210, "5110989 < BS <= 5442750"},
+    { 211, "5442750 < BS <= 5796046"},
+    { 212, "5796046 < BS <= 6172275"},
+    { 213, "6172275 < BS <= 6572925"},
+    { 214, "6572925 < BS <= 6999582"},
+    { 215, "6999582 < BS <= 7453933"},
+    { 216, "7453933 < BS <= 7937777"},
+    { 217, "7937777 < BS <= 8453028"},
+    { 218, "8453028 < BS <= 9001725"},
+    { 219, "9001725 < BS <= 9586039"},
+    { 220, "9586039 < BS <= 10208280"},
+    { 221, "10208280 < BS <= 10870913"},
+    { 222, "10870913 < BS <= 11576557"},
+    { 223, "11576557 < BS <= 12328006"},
+    { 224, "12328006 < BS <= 13128233"},
+    { 225, "13128233 < BS <= 13980403"},
+    { 226, "13980403 < BS <= 14887889"},
+    { 227, "14887889 < BS <= 15854280"},
+    { 228, "15854280 < BS <= 16883401"},
+    { 229, "16883401 < BS <= 17979324"},
+    { 230, "17979324 < BS <= 19146385"},
+    { 231, "19146385 < BS <= 20389201"},
+    { 232, "20389201 < BS <= 21712690"},
+    { 233, "21712690 < BS <= 23122088"},
+    { 234, "23122088 < BS <= 24622972"},
+    { 235, "24622972 < BS <= 26221280"},
+    { 236, "26221280 < BS <= 27923336"},
+    { 237, "27923336 < BS <= 29735875"},
+    { 238, "29735875 < BS <= 31666069"},
+    { 239, "31666069 < BS <= 33721553"},
+    { 240, "33721553 < BS <= 35910462"},
+    { 241, "35910462 < BS <= 38241455"},
+    { 242, "38241455 < BS <= 40723756"},
+    { 243, "40723756 < BS <= 43367187"},
+    { 244, "43367187 < BS <= 46182206"},
+    { 245, "46182206 < BS <= 49179951"},
+    { 246, "49179951 < BS <= 52372284"},
+    { 247, "52372284 < BS <= 55771835"},
+    { 248, "55771835 < BS <= 59392055"},
+    { 249, "59392055 < BS <= 63247269"},
+    { 250, "63247269 < BS <= 67352729"},
+    { 251, "67352729 < BS <= 71724679"},
+    { 252, "71724679 < BS <= 76380419"},
+    { 253, "76380419 < BS <= 81338368"},
+    { 254, "BS > 81338368"},
+    { 255, "Reserved"},
     { 0, NULL }
 };
 static value_string_ext buffer_size_8bits_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_8bits_vals);
@@ -673,6 +761,30 @@ static const true_false_string phr_source_vals =
 {
     "PH based on reference format",
     "PH based on real transmission",
+};
+
+static const true_false_string activation_deactivation_vals =
+{
+    "Activation",
+    "Deactivation"
+};
+
+static const true_false_string sul_vals =
+{
+    "Applies to the SUL carrier configuration",
+    "Applies to the NUL carrier configuration"
+};
+
+static const true_false_string sp_srs_act_deact_f_vals =
+{
+    "NZP CSI-RS resource index is used",
+    "SSB index or SRS resource index is used"
+};
+
+static const true_false_string aper_csi_trigger_state_t_vals =
+{
+    "Mapped to the codepoint of the DCI CSI request field",
+    "Not mapped to the codepoint of the DCI CSI request field"
 };
 
 /* Forward declarations */
@@ -880,9 +992,13 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
     }
     else {
         switch (lcid) {
+            case SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID:
+            case PUCCH_SPATIAL_REL_ACT_DEACT_LCID:
+            case SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID:
+            case TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID:
             case DUPLICATION_ACTIVATION_DEACTIVATION_LCID:
-            case SCELL_ACTIVATION_DEACTIVATION_4:
-            case SCELL_ACTIVATION_DEACTIVATION_1:
+            case SCELL_ACTIVATION_DEACTIVATION_4_LCID:
+            case SCELL_ACTIVATION_DEACTIVATION_1_LCID:
             case LONG_DRX_COMMAND_LCID:
             case DRX_COMMAND_LCID:
             case TIMING_ADVANCE_COMMAND_LCID:
@@ -940,8 +1056,8 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
-static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                   proto_item *pdu_ti _U_, guint32 offset,
+static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                   proto_item *pdu_ti, guint32 offset,
                                    mac_nr_info *p_mac_nr_info,
                                    proto_tree *context_tree _U_)
 {
@@ -1041,7 +1157,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                         };
                         proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, me_phr_byte1_flags, ENC_NA);
                         guint8 scell_bitmap1 = tvb_get_guint8(tvb, offset);
-                        guint8 start_offset = offset;
+                        guint32 start_offset = offset;
                         offset++;
 
                         static const int *ph_fields[] = {
@@ -1197,6 +1313,223 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 guint32 ta_tag_id, ta_ta;
 
                 switch (lcid) {
+                    case SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID:
+                        proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved,
+                                            tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_serving_cell_id,
+                                            tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_bwp_id,
+                                            tvb, offset, 1, ENC_NA);
+                        offset++;
+                        proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved_2,
+                                            tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(subheader_tree, hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_sp_zp_rs_resource_set_id,
+                                            tvb, offset, 1, ENC_NA);
+                        offset++;
+                        write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                         "(SP ZP CSI-RS Res Set Act/Deact) ");
+                        break;
+                    case PUCCH_SPATIAL_REL_ACT_DEACT_LCID:
+                        {
+                            static const int * pucch_spatial_rel_act_deact_flags[] = {
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s7,
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s6,
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s5,
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s4,
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s3,
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s2,
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s1,
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s0,
+                                NULL
+                            };
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_pucch_spatial_rel_act_deact_serving_cell_id,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_pucch_spatial_rel_act_deact_bwp_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_pucch_spatial_rel_act_deact_pucch_resource_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, pucch_spatial_rel_act_deact_flags, ENC_NA);
+                            offset++;
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(PUCCH Spatial Rel Act/Deact) ");
+                        }
+                        break;
+                    case SP_SRS_ACT_DEACT_LCID:
+                        {
+                            gboolean ad;
+                            guint32 start_offset = offset;
+                            proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_ad,
+                                                            tvb, offset, 1, ENC_NA, &ad);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_serving_cell_id,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_bwp_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_reserved,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_sul,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_sp_srs_resource_set_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            if (ad) {
+                                while (offset - start_offset < SDU_length) {
+                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_f,
+                                                        tvb, offset, 1, ENC_NA);
+                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_id,
+                                                        tvb, offset, 1, ENC_NA);
+                                    offset++;
+                                }
+
+                            }
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(SP SRS Act/Deact) ");
+                        }
+                        break;
+                    case SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID:
+                        {
+                            static const int * sp_csi_report_on_pucch_act_deact_flags[] = {
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s7,
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s6,
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s5,
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s4,
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s3,
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s2,
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s1,
+                                &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s0,
+                                NULL
+                            };
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_reserved,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_serving_cell_id,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_bwp_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, sp_csi_report_on_pucch_act_deact_flags, ENC_NA);
+                            offset++;
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(SP CSI Report on PUCCH Act/Deact) ");
+                        }
+                        break;
+                    case TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID:
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved,
+                                            tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id,
+                                            tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id,
+                                            tvb, offset, 1, ENC_NA);
+                        offset++;
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id,
+                                            tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id,
+                                            tvb, offset, 1, ENC_NA);
+                        offset++;
+                        write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(TCI State Ind PDCCH) ");
+                        break;
+                    case TCI_STATES_ACT_DEACT_FOR_UE_SPEC_PDSCH_LCID:
+                        {
+                            guint32 start_offset = offset;
+                            static const int * tci_states_act_deact_for_ue_spec_pdsc_flags[] = {
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t7,
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t6,
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t5,
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t4,
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t3,
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t2,
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t1,
+                                &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t0,
+                                NULL
+                            };
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_reserved,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_serving_cell_id,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_bwp_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            while (offset - start_offset < SDU_length) {
+                                proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, tci_states_act_deact_for_ue_spec_pdsc_flags, ENC_NA);
+                                offset++;
+                            }
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(TCI States Act Deact PDSCH) ");
+                        }
+                        break;
+                    case APER_CSI_TRIGGER_STATE_SUBSELECT_LCID:
+                        {
+                            guint32 start_offset = offset;
+                            static const int * aper_csi_trigger_state_subselect_flags[] = {
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t7,
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t6,
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t5,
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t4,
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t3,
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t2,
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t1,
+                                &hf_mac_nr_control_aper_csi_trigger_state_subselect_t0,
+                                NULL
+                            };
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_aper_csi_trigger_state_subselect_reserved,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_aper_csi_trigger_state_subselect_serving_cell_id,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_aper_csi_trigger_state_subselect_bwp_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            while (offset - start_offset < SDU_length) {
+                                proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, aper_csi_trigger_state_subselect_flags, ENC_NA);
+                                offset++;
+                            }
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(Aperiodic CSI Trigger State Subselection) ");
+                        }
+                        break;
+                    case SP_CSI_RS_CSI_IM_RES_SET_ACT_DEACT_LCID:
+                        {
+                            gboolean ad;
+                            guint32 start_offset = offset;
+                            static const int * sp_csi_rs_csi_im_res_set_act_deact_flags[] = {
+                                &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved3,
+                                &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_tci_state_id,
+                                NULL
+                            };
+                            proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_ad,
+                                                            tvb, offset, 1, ENC_NA, &ad);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_serving_cell_id,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_bwp_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved,
+                                            tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_im,
+                                                tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_sp_csi_rs_res_set_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved2,
+                                            tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_sp_csi_im_res_set_id,
+                                                tvb, offset, 1, ENC_NA);
+                            offset++;
+                            if (ad) {
+                                while (offset - start_offset < SDU_length) {
+                                    proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, sp_csi_rs_csi_im_res_set_act_deact_flags, ENC_NA);
+                                    offset++;
+                                }
+                            }
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(SP CSI-RS/CSI-IM Res Set Act/Deact) ");
+                        }
+                        break;
                     case DUPLICATION_ACTIVATION_DEACTIVATION_LCID:
                         {
                             static const int * dupl_act_deact_flags[] = {
@@ -1216,7 +1549,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                                                              "(Dupl Act/Deact) ");
                         }
                         break;
-                    case SCELL_ACTIVATION_DEACTIVATION_4:
+                    case SCELL_ACTIVATION_DEACTIVATION_4_LCID:
                         {
                             static const int * scell_act_deact_1_flags[] = {
                                 &hf_mac_nr_control_scell_act_deact_cell7,
@@ -1275,7 +1608,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                                                              "(SCell Act/Deact 4) ");
                         }
                         break;
-                    case SCELL_ACTIVATION_DEACTIVATION_1:
+                    case SCELL_ACTIVATION_DEACTIVATION_1_LCID:
                         {
                             static const int * scell_act_deact_1_flags[] = {
                                 &hf_mac_nr_control_scell_act_deact_cell7,
@@ -1937,6 +2270,444 @@ void proto_register_mac_nr(void)
             }
         },
 
+        { &hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved,
+            { "Reserved",
+              "mac-nr.control.sp-zp-csi-rs-resource-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.sp-zp-csi-rs-resource-set-act-deact.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.sp-zp-csi-rs-resource-set-act-deact.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_reserved_2,
+            { "Reserved",
+              "mac-nr.control.sp-zp-csi-rs-resource-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xf0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_control_sp_zp_csi_rs_resource_set_act_deact_sp_zp_rs_resource_set_id,
+            { "SP ZP CSI-RS resource set ID",
+              "mac-nr.control.sp-zp-csi-rs-resource-set-act-deact.sp-zp-rs-resource-set-id", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved,
+            { "Reserved",
+              "mac-nr.control.pucch-spatial-rel-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.pucch-spatial-rel-act-deact.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.pucch-spatial-rel-act-deact.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_pucch_resource_id,
+            { "PUCCH Resource ID",
+              "mac-nr.control.pucch-spatial-rel-act-deact.pucch-resource-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s7,
+            { "PUCCH Spatial Relation Info 7",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s6,
+            { "PUCCH Spatial Relation Info 6",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s6", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s5,
+            { "PUCCH Spatial Relation Info 5",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s5", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s4,
+            { "PUCCH Spatial Relation Info 4",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s4", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s3,
+            { "PUCCH Spatial Relation Info 3",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s3", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s2,
+            { "PUCCH Spatial Relation Info 2",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s2", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s1,
+            { "PUCCH Spatial Relation Info 1",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s1", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s0,
+            { "PUCCH Spatial Relation Info 0",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s0", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_ad,
+            { "A/D",
+              "mac-nr.control.sp-srs-act-deact.ad", FT_BOOLEAN, 8, TFS(&activation_deactivation_vals), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.sp-srs-act-deact.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.sp-srs-act-deact.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_reserved,
+            { "Reserved",
+              "mac-nr.control.sp-srs-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xe0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_sul,
+            { "SUL",
+              "mac-nr.control.sp-srs-act-deact.sul", FT_BOOLEAN, 8, TFS(&sul_vals), 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_sp_srs_resource_set_id,
+            { "SP SRS Resource Set ID",
+              "mac-nr.control.sp-srs-act-deact.sp-srs-resource-set-id", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_f,
+            { "F",
+              "mac-nr.control.sp-srs-act-deact.f", FT_BOOLEAN, 8, TFS(&sp_srs_act_deact_f_vals), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_srs_act_deact_resource_id,
+            { "Resource ID",
+              "mac-nr.control.sp-srs-act-deact.sp-srs-resource-set-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_reserved,
+            { "Reserved",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s7,
+            { "Semi-Persistent CSI report configuration 7",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s6,
+            { "Semi-Persistent CSI report configuration 6",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s6", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s5,
+            { "Semi-Persistent CSI report configuration 5",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s5", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s4,
+            { "Semi-Persistent CSI report configuration 4",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s4", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s3,
+            { "Semi-Persistent CSI report configuration 3",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s3", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s2,
+            { "Semi-Persistent CSI report configuration 2",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s2", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s1,
+            { "Semi-Persistent CSI report configuration 1",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s1", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s0,
+            { "Semi-Persistent CSI report configuration 0",
+              "mac-nr.control.sp-csi-report-on-pucch-act-deact.s0", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved,
+            { "Reserved",
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id,
+            { "CORESET ID",
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.coreset-id", FT_UINT8, BASE_DEC, NULL, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id,
+            { "TCI State ID",
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_reserved,
+            { "Reserved",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t7,
+            { "TCI state N+7",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t6,
+            { "TCI state N+6",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t6", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t5,
+            { "TCI state N+5",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t5", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t4,
+            { "TCI state N+4",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t4", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t3,
+            { "TCI state N+3",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t3", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t2,
+            { "TCI state N+2",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t2", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t1,
+            { "TCI state N+1",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t1", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_t0,
+            { "TCI state N",
+              "mac-nr.control.tci-states-act-deact-for-ue-spec-pdsch.t0", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_reserved,
+            { "Reserved",
+              "mac-nr.control.aper-csi-trigger-state-subselect.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.aper-csi-trigger-state-subselect.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.aper-csi-trigger-state-subselect.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t7,
+            { "Aperiodic trigger state N+7",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t7", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t6,
+            { "Aperiodic trigger state N+6",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t6", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t5,
+            { "Aperiodic trigger state N+5",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t5", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x20,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t4,
+            { "Aperiodic trigger state N+4",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t4", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t3,
+            { "Aperiodic trigger state N+3",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t3", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x08,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t2,
+            { "Aperiodic trigger state N+2",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t2", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x04,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t1,
+            { "Aperiodic trigger state N+1",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t1", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x02,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_aper_csi_trigger_state_subselect_t0,
+            { "Aperiodic trigger state N",
+              "mac-nr.control.aper-csi-trigger-state-subselect.t0", FT_BOOLEAN, 8, TFS(&aper_csi_trigger_state_t_vals), 0x01,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_ad,
+            { "A/D",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.ad", FT_BOOLEAN, 8, TFS(&activation_deactivation_vals), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_serving_cell_id,
+            { "Serving Cell ID",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_bwp_id,
+            { "BWP ID",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved,
+            { "Reserved",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xe0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_im,
+            { "IM",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.im", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_sp_csi_rs_res_set_id,
+            { "SP CSI-RS resource set ID",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.sp-csi-rs-res-set-id", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved2,
+            { "Reserved",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xf0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_sp_csi_im_res_set_id,
+            { "SP CSI-IM resource set ID",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.sp-csi-im-res-set-id", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved3,
+            { "Reserved",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_tci_state_id,
+            { "TCI State ID",
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_nr_control_dupl_act_deact_drb7,
             { "DRB 7",
               "mac-nr.control.dupl-act-deact.drb7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
