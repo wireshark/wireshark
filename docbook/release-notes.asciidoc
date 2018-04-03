@@ -14,105 +14,15 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2018-15[]
+* ws-salink:2018-25[]
 +
-The MP4 dissector could crash.
-(ws-buglink:13777[])
+A dissector went awry.
+(ws-buglink:xxxx[])
 // cve-idlink:2018-xxxx[]
-// Fixed in master: 620f69a74b
-// Fixed in master-2.4: 2113179835
-// Fixed in master-2.2: f927769fdf
-
-* ws-salink:2018-16[]
-+
-The ADB dissector could crash.
-(ws-buglink:14460[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 1653ea5fce
-// Fixed in master-2.4: 23c0a41442
-// Fixed in master-2.2: 0290a62be0
-
-* ws-salink:2018-17[]
-+
-The IEEE 802.15.4 dissector could crash.
-(ws-buglink:14468[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: dd21b8130c
-// Fixed in master-2.4: b87aa0326c
-// Fixed in master-2.2: 14d6f717d8
-
-* ws-salink:2018-18[]
-+
-The NBAP dissector could crash.
-(ws-buglink:14471[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: cde7cc54a3
-// Fixed in master-2.4: 1c9adc63c2
+// Fixed in master: xxxx
+// Fixed in master-2.6: xxxx
+// Fixed in master-2.4: xxxx
 // Fixed in master-2.2: xxxx
-
-* ws-salink:2018-19[]
-+
-The VLAN dissector could crash.
-(ws-buglink:14469[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: b434e0a03b
-// Fixed in master-2.4: 7929700033
-// Fixed in master-2.2: f05c3b91f9
-
-* ws-salink:2018-20[]
-+
-The LWAPP dissector could crash.
-(ws-buglink:14467[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 1592587e6f
-// Fixed in master-2.4: 13270b1bc0
-// Fixed in master-2.2: dac48f1485
-
-* ws-salink:2018-21[]
-+
-The TCP dissector could crash.
-(ws-buglink:14472[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: af8ac43a1f
-// Fixed in master-2.4: 2d4695de14
-// Fixed in master-2.2: n/a
-
-* ws-salink:2018-22[]
-+
-The CQL dissector could to into an infinite loop.
-(ws-buglink:14530[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: b4498c964f
-// Fixed in master-2.4: d7a9501b04
-// Fixed in master-2.2: n/a
-
-* ws-salink:2018-23[]
-+
-The Kerberos dissector could crash.
-(ws-buglink:14576[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 4adb8e9f6a
-// Fixed in master-2.4: 744f56721c
-// Fixed in master-2.2: 4fe65168fd
-
-* ws-salink:2018-24[]
-+
-Multiple dissectors and other modules could leak memory.
-The TN3270 (ws-buglink:14480[]),
-ISUP (ws-buglink:14481[]),
-LAPD (ws-buglink:14482[]),
-SMB2 (ws-buglink:14483[]),
-GIOP (ws-buglink:14484[]),
-ASN.1 (ws-buglink:14485[]),
-MIME multipart (ws-buglink:14486[]),
-H.223 (ws-buglink:14487[]), and
-PCP (ws-buglink:14488[])
-dissectors were susceptible along with
-Wireshark and TShark (ws-buglink:14489[]).
-// cve-idlink:2018-xxxx[]
-// Fixed in master: many
-// Fixed in master-2.4: many
-// Fixed in master-2.2: many
 
 The following bugs have been fixed:
 
@@ -121,38 +31,6 @@ The following bugs have been fixed:
 //* cve-idlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* TRANSUM doesn't account for DNS retries in the Request Spread. (ws-buglink:14210[])
-
-* BGP: IPv6 NLRI is received with Add-path ID, then Wireshark is not able to decode the packet correctly. (ws-buglink:14241[])
-
-* Lua script calling Ethernet dissector runs OK in 1.12.4 but crashes in later releases. (ws-buglink:14293[])
-
-* PEEKREMOTE dissector lacks 80mhz support, short preamble support and spatial streams encoding. (ws-buglink:14452[])
-
-* Statistics > UDP Multicast Streams > [Copy|Save as..] is broken. (ws-buglink:14477[])
-
-* Typo error in enumeration value of speech version identifier. (ws-buglink:14528[])
-
-* In "Unsaved packets" dialog one can NOT use keyboard to choose "Continue without Saving". (ws-buglink:14531[])
-
-* WCCP logical error in CHECK_LENGTH_ADVANCE_OFFSET macros. (ws-buglink:14538[])
-
-// Uninitialized value
-* Buildbot crash output: fuzz-2018-03-19-19114.pcap. (ws-buglink:14544[])
-
-* alloca() used in wsutil/getopt_long.c without <alloca.h> inclusion. (ws-buglink:14552[])
-
-* HP-UX HP ANSI C requires -Wp,-H200000 flag to compile. (ws-buglink:14554[])
-
-* Makefile.in uses non-portable "install" command. (ws-buglink:14555[])
-
-* HP-UX HP ANSI C doesn't support assigning \{} to a variable in epan/app_mem_usage.c. (ws-buglink:14556[])
-
-* PPP in SSTP, HDLC framing not parsed properly. (ws-buglink:14559[])
-
-* Using the DIAMETER dictionary causes the standard input to be closed when the dictionary is read. (ws-buglink:14577[])
-
 
 === New and Updated Features
 
@@ -169,38 +47,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LoWPAN
-ADB
-BGP
-CQL
-DNS
-Ethernet
-GIOP
-GSM BSSMAP
-H.223
-IEEE 802.11
-IEEE 802.11 Radiotap
-IEEE 802.15.4
-ISUP
-LAPD
-LWAPP
-Kerberos
-MIME multipart
-MP4
-NBAP
-NORDIC_BLE
-PCP
-PEEKREMOTE
-S1AP
-SMB2
-SSTP
-T.30
-TCP
-TN3270
-TRANSUM
-VLAN
-WCCP
-WSP
 --sort-and-group--
 
 === New and Updated Capture File Support
