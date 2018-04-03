@@ -6,17 +6,6 @@
 # runs a valgrind step) but other entries are welcome as long as they are
 # sufficiently commented.
 {
-   Remove uninitialised CPU condition code check for ws_cpuid_sse42() on Virtualbox
-   Memcheck:Cond
-   fun:ws_mempbrk_sse42_compile
-   ...
-   fun:register_all_protocols
-   fun:proto_init
-   fun:epan_init
-   fun:main
-}
-
-{
    Libgcrypt leak (gcry_control)
    Memcheck:Leak
    match-leak-kinds: reachable
