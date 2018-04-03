@@ -306,6 +306,7 @@ static int hf_radiotap_he_mu_bw_from_bw_in_sig_a_known = -1;
 static int hf_radiotap_he_mu_sig_b_compression_from_sig_a = -1;
 static int hf_radiotap_he_mu_sig_b_syms_mu_mimo_users = -1;
 static int hf_radiotap_he_mu_preamble_puncturing = -1;
+static int hf_radiotap_he_mu_preamble_puncturing_unknown = -1;
 static int hf_radiotap_he_mu_preamble_puncturing_known = -1;
 static int hf_radiotap_he_mu_reserved_f2_b11_b15 = -1;
 static int hf_radiotap_he_mu_info_flags_2 = -1;
@@ -1202,8 +1203,9 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	gboolean mu_ru_2_known = FALSE;
 	gboolean mu_ru_3_known = FALSE;
 	gboolean mu_symbol_cnt_or_user_cnt_known = FALSE;
-	guint16 flags2;
+	gboolean mu_preamble_puncturing_known = FALSE;
 	gboolean bw_from_bw_sig_a_known = FALSE;
+	guint16 flags2;
 
 	if (flags1 & IEEE80211_RADIOTAP_HE_MU_SIG_B_MCS_KNOWN)
 		sig_b_mcs_known = TRUE;
@@ -1236,11 +1238,15 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	flags2 = tvb_get_letohs(tvb, offset);
 	if (flags2 & IEEE80211_RADIOTAP_HE_MU_BW_FROM_BW_IN_SIG_A_KNOWN)
 		bw_from_bw_sig_a_known = TRUE;
+	if (flags2 & IEEE80211_RADIOTAP_HE_MU_PREAMBLE_PUNCTURING_KNOWN)
+                mu_preamble_puncturing_known = TRUE;
 
 	if (!bw_from_bw_sig_a_known)
 		flags2_headers[0] = &hf_radiotap_he_mu_bw_from_bw_in_sig_a_unknown;
 	if (!mu_symbol_cnt_or_user_cnt_known)
 		flags2_headers[3] = &hf_radiotap_he_mu_sig_b_syms_mu_mimo_users_unknown;
+	if (!mu_preamble_puncturing_known)
+		flags2_headers[4] = &hf_radiotap_he_mu_preamble_puncturing_unknown;
 
 	proto_tree_add_bitmask(he_mu_info_tree, tvb, offset,
 		hf_radiotap_he_mu_info_flags_2, ett_radiotap_he_mu_info_flags_2,
@@ -4061,6 +4067,12 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_he_mu_preamble_puncturing,
 		 {"preamble puncturing from Bandwidth field in HE-SIG-A",
+		  "radiotap.he_mu.preamble_puncturing",
+		  FT_UINT16, BASE_HEX, NULL,
+		  IEEE80211_RADIOTAP_HE_MU_PREAMBLE_PUNCTURING_MASK, NULL, HFILL}},
+
+		{&hf_radiotap_he_mu_preamble_puncturing_unknown,
+		 {"preamble puncturing from Bandwidth field in HE-SIG-A unknown",
 		  "radiotap.he_mu.preamble_puncturing",
 		  FT_UINT16, BASE_HEX, NULL,
 		  IEEE80211_RADIOTAP_HE_MU_PREAMBLE_PUNCTURING_MASK, NULL, HFILL}},
