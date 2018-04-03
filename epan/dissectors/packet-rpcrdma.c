@@ -1027,7 +1027,7 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
 
                 /* Add data before the xdr position */
                 size = xdrpos - xdrprev - lenprev;
-                if (size > 0 && tvb_captured_length_remaining(tvb, offset) > 0) {
+                if (size > 0 && tvb_captured_length_remaining(tvb, offset) > 0 && p_segment_info) {
                     tmp_tvb = tvb_new_subset_length(tvb, offset, size);
                     add_fragment(tmp_tvb, 0, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
                     /* Message number for next fragment */
