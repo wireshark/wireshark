@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[wireshark.master-2.6]
+[wireshark.master-26]
 file_filter = ui/qt/wireshark_<lang>.ts
 source_file = ui/qt/wireshark_en.ts
 source_lang = en
