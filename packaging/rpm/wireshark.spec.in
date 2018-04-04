@@ -13,16 +13,14 @@
 %bcond_with	lua
 %bcond_with	mmdbresolve
 %bcond_with	ninja
-# To do: Add bcond_with clang
+%bcond_with	lz4_and_snappy
+%bcond_with	c_ares
+%bcond_without spandsp
+%bcond_without bcg729
+%bcond_with	 libxml2
+%bcond_with	nghttp2
 
-# Set these to 1 if you want to ensure your package includes support for them:
-# Should we use bcond_with and bcond_without here?
-%global with_lz4_and_snappy 1
-%global with_c_ares 1
-%global with_spandsp 0
-%global with_bcg729 0
-%global with_libxml2 1
-%global with_nghttp2 1
+# To do: Add bcond_with clang
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -71,7 +69,7 @@ Requires:	zlib
 BuildRequires:	libgcrypt-devel
 Requires:	libgcrypt
 
-%if %{with_lz4_and_snappy}
+%if %{with lz4_and_snappy}
 %if 0%{?suse_version}
 BuildRequires:	liblz4-devel
 BuildRequires:	snappy-devel
@@ -85,7 +83,7 @@ Requires:	lz4
 %endif
 %endif
 
-%if %{with_c_ares}
+%if %{with c_ares}
 %if 0%{?suse_version}
 # SuSE uses these package names (yes 2!):
 BuildRequires:	libcares-devel
@@ -103,7 +101,7 @@ BuildRequires:	lua-devel < 5.3
 Requires:	lua < 5.3
 %endif
 
-%if %{with_nghttp2}
+%if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
 Requires:	libnghttp2
 %endif
@@ -224,34 +222,34 @@ Requires:	libmaxminddb
 %else
   -DBUILD_mmdbresolve=OFF \
 %endif
-%if %{with_lz4_and_snappy}
+%if %{with lz4_and_snappy}
   -DENABLE_LZ4=ON \
   -DENABLE_SNAPPY=ON \
 %else
   -DENABLE_LZ4=OFF \
   -DENABLE_SNAPPY=OFF \
 %endif
-%if %{with_c_ares}
+%if %{with c_ares}
   -DENABLE_CARES=ON \
 %else
   -DENABLE_CARES=OFF \
 %endif
-%if %{with_spandsp}
+%if %{with spandsp}
   -DENABLE_SPANDSP=ON \
 %else
   -DENABLE_SPANDSP=OFF \
 %endif
-%if %{with_bcg729}
+%if %{with bcg729}
   -DENABLE_BCG729=ON \
 %else
   -DENABLE_BCG729=OFF \
 %endif
-%if %{with_libxml2}
+%if %{with libxml2}
   -DENABLE_LIBXML2=ON \
 %else
   -ENABLE_LIBXML2=OFF \
 %endif
-%if %{with_nghttp2}
+%if %{with nghttp2}
   -DENABLE_NGHTTP2=ON \
 %else
   -DENABLE_NGHTTP2=OFF \
