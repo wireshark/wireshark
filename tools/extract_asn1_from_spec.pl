@@ -73,7 +73,7 @@ sub extract_asn1 {
       $file_name_found = 1;
     }
 
-    if (($line =~ /END/) && (defined fileno OUTPUT_FILE)){
+    if (($line =~ /^END/) && (defined fileno OUTPUT_FILE)){
       syswrite OUTPUT_FILE,"$line";
       close(OUTPUT_FILE);
       $is_asn1 = 0;
