@@ -791,7 +791,7 @@ PRIVATE int acttab_insert(acttab *p, int makeItSafe) {
 ** Return the size of the action table without the trailing syntax error
 ** entries.
 */
-int acttab_action_size(acttab *p) {
+static int acttab_action_size(acttab *p) {
     int n = p->nAction;
     while (n>0 && p->aAction[n - 1].lookahead<0) { n--; }
     return n;
@@ -3143,7 +3143,7 @@ PRIVATE FILE *file_open(
 
 /* Print the text of a rule
 */
-void rule_print(FILE *out, struct rule *rp) {
+static void rule_print(FILE *out, struct rule *rp) {
     int i, j;
     fprintf(out, "%s", rp->lhs->name);
     /*    if( rp->lhsalias ) fprintf(out,"(%s)",rp->lhsalias); */
