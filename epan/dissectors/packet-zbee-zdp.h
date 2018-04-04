@@ -105,7 +105,7 @@
 #define ZBEE_ZDP_RSP_MGMT_PERMIT_JOIN             0x8036  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_RSP_MGMT_CACHE                   0x8037  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_RSP_MGMT_NWKUPDATE               0x8038  /* ZigBee 2007 & later. */
-/* ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH returns ZBEE_ZDP_RSP_MGMT_NWKUPDATE so cluster 0x8039 is unused */
+#define ZBEE_ZDP_RSP_MGMT_NWKUPDATE_ENH           0x8039  /* R22 */
 #define ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST          0x803a  /* R22 */
 
 #define ZBEE_ZDP_MSG_RESPONSE_BIT                 0x8000

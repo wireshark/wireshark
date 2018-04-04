@@ -736,7 +736,8 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 } /* dissect_zbee_zdp_rsp_mgmt_bind */
 
 /**
- *ZigBee Device Profile dissector for the nwk update notify.
+ *ZigBee Device Profile dissector for both the enhanced and
+ *non-enhanced nwk update notify.
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields
