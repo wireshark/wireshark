@@ -325,6 +325,8 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
 		list(APPEND LOCAL_CFLAGS /Zo)
 	elseif(MSVC14)
+		# To do: Add /external:... See https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
+		#
 		# /Zo                               Enhanced debugging of optimised code
 		# /utf-8                            Set Source and Executable character sets to UTF-8
 		#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
