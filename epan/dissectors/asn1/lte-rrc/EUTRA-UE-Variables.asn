@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.0.1 (2018-01)
+-- 3GPP TS 36.331 V15.1.0 (2018-03)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -8,6 +8,7 @@ IMPORTS
 	AbsoluteTimeInfo-r10,
 	AreaConfiguration-r10,
 	AreaConfiguration-v1130,
+	ARFCN-ValueNR-r15,
 	CarrierFreqGERAN,
 	CellIdentity,
 	ConnEstFailReport-r11,
@@ -47,6 +48,9 @@ IMPORTS
 	maxCSI-RS-Meas-r12,
 	maxMeasId,
 	maxMeasId-r12,
+	maxRS-Index-r15,
+	PhysCellIdNR-r15,
+	RS-IndexNR-r15,
 	UL-DelayConfig-r13,
 	WLAN-CarrierInfo-r13,
 	WLAN-Identifiers-r12,
@@ -158,10 +162,17 @@ CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF CHOICE {
 		physCellId								PhysCellIdGERAN
 	},
 	physCellIdCDMA2000						PhysCellIdCDMA2000,
-	wlan-Identifiers-r13					WLAN-Identifiers-r12
+	wlan-Identifiers-r13					WLAN-Identifiers-r12,
+	physCellIdNR-r15						SEQUENCE {
+		carrierFreq								ARFCN-ValueNR-r15,
+		physCellId								PhysCellIdNR-r15,
+		rs-IndexList-r15						SSB-IndexList-r15				OPTIONAL
+	}
 }
 
 CSI-RS-TriggeredList-r12 ::=		SEQUENCE (SIZE (1..maxCSI-RS-Meas-r12)) OF MeasCSI-RS-Id-r12
+
+SSB-IndexList-r15::=			SEQUENCE (SIZE (1..maxRS-Index-r15)) OF RS-IndexNR-r15
 
 VarMobilityHistoryReport-r12 ::=	VisitedCellInfoList-r12
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.0.1 (2018-01)
+-- 3GPP TS 36.331 V15.1.0 (2018-03)
 --
 NBIOT-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -65,7 +65,7 @@ UEPagingCoverageInformation-NB ::= SEQUENCE {
 UEPagingCoverageInformation-NB-IEs ::= SEQUENCE {
 --	the possible value(s) can differ from those sent on Uu
 	npdcch-NumRepetitionPaging-r13			INTEGER (1..2048)	OPTIONAL,
-	nonCriticalExtension					SEQUENCE {} 		OPTIONAL
+	nonCriticalExtension					SEQUENCE {}		OPTIONAL
 }
 
 

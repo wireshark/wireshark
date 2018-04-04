@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.0.1 (2018-01)
+-- 3GPP TS 36.331 V15.1.0 (2018-03)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -56,6 +56,7 @@ IMPORTS
 	ServCellIndex-r10,
 	ServCellIndex-r13,
 	ShortMAC-I,
+	MeasResultServFreqListNR-r15,
 	MeasResultSSTD-r13,
 	SL-V2X-ConfigDedicated-r14,
 	SystemInformationBlockType1,
@@ -102,16 +103,16 @@ HandoverPreparationInformation ::=	SEQUENCE {
 
 HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
 	ue-RadioAccessCapabilityInfo		UE-CapabilityRAT-ContainerList,
-	as-Config							AS-Config					OPTIONAL, 		-- Cond HO
+	as-Config							AS-Config					OPTIONAL,		-- Cond HO
 	rrm-Config							RRM-Config					OPTIONAL,
-	as-Context							AS-Context				OPTIONAL, 		-- Cond HO
+	as-Context							AS-Context				OPTIONAL,		-- Cond HO
 	nonCriticalExtension				HandoverPreparationInformation-v920-IEs		OPTIONAL
 }
 
 HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 	ue-ConfigRelease-r9					ENUMERATED {
 										rel9, rel10, rel11, rel12, v10j0, v11e0,
-										v1280, rel13, ..., rel14} 			OPTIONAL, 	-- Cond HO2
+										v1280, rel13, ..., rel14, rel15}		OPTIONAL,	-- Cond HO2
 	nonCriticalExtension				HandoverPreparationInformation-v9d0-IEs		OPTIONAL
 }
 
@@ -145,20 +146,20 @@ HandoverPreparationInformation-v1130-IEs	::= SEQUENCE {
 }
 
 HandoverPreparationInformation-v1250-IEs ::= SEQUENCE {
-	ue-SupportedEARFCN-r12 				ARFCN-ValueEUTRA-r9				OPTIONAL,	-- Cond HO3
-	as-Config-v1250					AS-Config-v1250				OPTIONAL, 	-- Cond HO2
+	ue-SupportedEARFCN-r12				ARFCN-ValueEUTRA-r9				OPTIONAL,	-- Cond HO3
+	as-Config-v1250					AS-Config-v1250				OPTIONAL,	-- Cond HO2
 	nonCriticalExtension				HandoverPreparationInformation-v1320-IEs						OPTIONAL
 }
 
 HandoverPreparationInformation-v1320-IEs ::= SEQUENCE {
-	as-Config-v1320						AS-Config-v1320					OPTIONAL, 	-- Cond HO2
-	as-Context-v1320					AS-Context-v1320				OPTIONAL, 	-- Cond HO2
+	as-Config-v1320						AS-Config-v1320					OPTIONAL,	-- Cond HO2
+	as-Context-v1320					AS-Context-v1320				OPTIONAL,	-- Cond HO2
 	nonCriticalExtension				HandoverPreparationInformation-v1430-IEs						OPTIONAL
 }
 
 HandoverPreparationInformation-v1430-IEs ::= SEQUENCE {
-	as-Config-v1430					AS-Config-v1430						OPTIONAL, 	-- Cond HO2
-	makeBeforeBreakReq-r14			ENUMERATED {true}				OPTIONAL, 	-- Cond HO2
+	as-Config-v1430					AS-Config-v1430						OPTIONAL,	-- Cond HO2
+	makeBeforeBreakReq-r14			ENUMERATED {true}				OPTIONAL,	-- Cond HO2
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
@@ -217,7 +218,7 @@ SCG-ConfigInfo-v1310-IEs ::=		SEQUENCE {
 	measResultServCellListSCG-Ext-r13	MeasResultServCellListSCG-Ext-r13	OPTIONAL,
 	sCellToAddModListSCG-Ext-r13		SCellToAddModListSCG-Ext-r13			OPTIONAL,
 	sCellToReleaseListSCG-Ext-r13	SCellToReleaseListExt-r13			OPTIONAL,
-	nonCriticalExtension			SCG-ConfigInfo-v1330-IEs 			OPTIONAL
+	nonCriticalExtension			SCG-ConfigInfo-v1330-IEs			OPTIONAL
 }
 
 SCG-ConfigInfo-v1330-IEs ::=		SEQUENCE {
@@ -227,7 +228,7 @@ SCG-ConfigInfo-v1330-IEs ::=		SEQUENCE {
 
 SCG-ConfigInfo-v1430-IEs ::=		SEQUENCE {
 	makeBeforeBreakSCG-Req-r14		ENUMERATED {true}					OPTIONAL,
-	measGapConfigPerCC-List 		MeasGapConfigPerCC-List-r14			OPTIONAL,
+	measGapConfigPerCC-List		MeasGapConfigPerCC-List-r14			OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
@@ -307,7 +308,7 @@ UEPagingCoverageInformation ::= SEQUENCE {
 
 UEPagingCoverageInformation-r13-IEs ::= SEQUENCE {
 	mpdcch-NumRepetition-r13				INTEGER (1..256)	OPTIONAL,
-	nonCriticalExtension					SEQUENCE {} 		OPTIONAL
+	nonCriticalExtension					SEQUENCE {}		OPTIONAL
 }
 
 
@@ -377,9 +378,7 @@ AS-Config ::=				SEQUENCE {
 	]],
 	[[	sourceConfigSCG-r12					SCG-Config-r12		OPTIONAL
 	]],
-	[[	sourceRB-ConfigNR-r15				OCTET STRING			OPTIONAL,
-		sourceRB-ConfigSN-NR-r15			OCTET STRING			OPTIONAL,
-		sourceOtherConfigSN-NR-r15			OCTET STRING			OPTIONAL
+	[[	as-ConfigNR-r15						AS-ConfigNR-r15					OPTIONAL
 	]]
 }
 
@@ -406,6 +405,12 @@ AS-Config-v1430 ::=				SEQUENCE {
 	sourceSL-V2X-CommConfig-r14			SL-V2X-ConfigDedicated-r14					OPTIONAL,
 	sourceLWA-Config-r14				LWA-Config-r13						OPTIONAL,
 	sourceWLAN-MeasResult-r14			MeasResultListWLAN-r13				OPTIONAL
+}
+
+AS-ConfigNR-r15 ::=				SEQUENCE {
+	sourceRB-ConfigNR-r15				OCTET STRING			OPTIONAL,
+	sourceRB-ConfigSN-NR-r15				OCTET STRING			OPTIONAL,
+	sourceOtherConfigSN-NR-r15			OCTET STRING			OPTIONAL
 }
 
 
@@ -465,6 +470,8 @@ RRM-Config ::=				SEQUENCE {
 									day24, day30, dayMoreThan30}		OPTIONAL,
 	...,
 	[[	candidateCellInfoList-r10	CandidateCellInfoList-r10		OPTIONAL
+	]],
+	[[	candidateCellInfoListNR-r15	MeasResultServFreqListNR-r15		OPTIONAL
 	]]
 }
 

@@ -116,6 +116,7 @@ SL-V2X-PreconfigFreqInfo-r14
 SL-V2X-PreconfigFreqList-r14
 SL-V2X-Preconfiguration-r14
 SL-V2X-SyncOffsetIndicators-r14
+SSB-IndexList-r15
 Tx-PreconfigIndex-r14
 VarConnEstFailReport-r11
 VarLogMeasConfig-r10
@@ -1668,9 +1669,13 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeComplete-r13");
 
-#.FN_HDR ULInformationTransferMRDC
+#.FN_HDR ULInformationTransferMRDC-r15
 
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULInformationTransferMRDC");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULInformationTransferMRDC-r15");
+
+#.FN_HDR SCGFailureInformationNR-r15
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCGFailureInformationNR-r15");
 
 #.FN_HDR SCPTMConfiguration-r13
 
@@ -2327,7 +2332,7 @@ SL-V2X-InterFreqUE-Config-r14/offsetDFN-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
 #.TYPE_ATTR
 P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY RRCConnectionReconfiguration-v15x0-IEs/endc-Config-r15/nr-SecondaryCellGroupConfig-r15 VAL_PTR = &rrc_reconfiguration_tvb
+#.FN_BODY RRCConnectionReconfiguration-v1510-IEs/nr-Config-r15/setup/nr-SecondaryCellGroupConfig-r15 VAL_PTR = &rrc_reconfiguration_tvb
   tvbuff_t *rrc_reconfiguration_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2338,7 +2343,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RRCReconfiguration_PDU(rrc_reconfiguration_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRCConnectionReconfiguration-v15x0-IEs/endc-Config-r15/nr-RadioBearerConfig-r15 VAL_PTR = &radio_bearer_config_tvb
+#.FN_BODY RRCConnectionReconfiguration-v1510-IEs/nr-RadioBearerConfig1-r15 VAL_PTR = &radio_bearer_config_tvb
   tvbuff_t *radio_bearer_config_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2349,7 +2354,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRCConnectionReconfiguration-v15x0-IEs/endc-Config-r15/nr-RadioBearerConfigS-r15 VAL_PTR = &radio_bearer_config_tvb
+#.FN_BODY RRCConnectionReconfiguration-v1510-IEs/nr-RadioBearerConfig2-r15 VAL_PTR = &radio_bearer_config_tvb
   tvbuff_t *radio_bearer_config_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2360,7 +2365,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRCConnectionReconfigurationComplete-v15xy-IEs/scg-ConfigResponseNR-r15 VAL_PTR = &rrc_reconfiguration_complete_tvb
+#.FN_BODY RRCConnectionReconfigurationComplete-v1510-IEs/scg-ConfigResponseNR-r15 VAL_PTR = &rrc_reconfiguration_complete_tvb
   tvbuff_t *rrc_reconfiguration_complete_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2371,7 +2376,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RRCReconfigurationComplete_PDU(rrc_reconfiguration_complete_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRCConnectionResume-v15x0-IEs/nr-RadioBearerConfig-r15 VAL_PTR = &radio_bearer_config_tvb
+#.FN_BODY RRCConnectionResume-v1510-IEs/nr-RadioBearerConfig1-r15 VAL_PTR = &radio_bearer_config_tvb
   tvbuff_t *radio_bearer_config_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2382,7 +2387,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRCConnectionResume-v15x0-IEs/nr-RadioBearerConfigS-r15 VAL_PTR = &radio_bearer_config_tvb
+#.FN_BODY RRCConnectionResume-v1510-IEs/nr-RadioBearerConfig2-r15 VAL_PTR = &radio_bearer_config_tvb
   tvbuff_t *radio_bearer_config_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2419,7 +2424,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 # EUTRA-InterNodeDefinitions
 #
 
-#.FN_BODY AS-Config/eag_4/sourceRB-ConfigNR-r15 VAL_PTR = &radio_bearer_config_tvb
+#.FN_BODY AS-ConfigNR-r15/sourceRB-ConfigNR-r15 VAL_PTR = &radio_bearer_config_tvb
   tvbuff_t *radio_bearer_config_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2430,7 +2435,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY AS-Config/eag_4/sourceRB-ConfigSN-NR-r15 VAL_PTR = &radio_bearer_config_tvb
+#.FN_BODY AS-ConfigNR-r15/sourceRB-ConfigSN-NR-r15 VAL_PTR = &radio_bearer_config_tvb
   tvbuff_t *radio_bearer_config_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2441,7 +2446,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY AS-Config/eag_4/sourceOtherConfigSN-NR-r15 VAL_PTR = &rrc_reconfiguration_tvb
+#.FN_BODY AS-ConfigNR-r15/sourceOtherConfigSN-NR-r15 VAL_PTR = &rrc_reconfiguration_tvb
   tvbuff_t *rrc_reconfiguration_tvb = NULL;
 
 %(DEFAULT_BODY)s

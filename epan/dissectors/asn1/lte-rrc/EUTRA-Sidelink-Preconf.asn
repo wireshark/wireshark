@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.0.1 (2018-01)
+-- 3GPP TS 36.331 V15.1.0 (2018-03)
 --
 EUTRA-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -138,7 +138,7 @@ SL-PreconfigDiscPool-r13 ::=		SEQUENCE {
 -- This IE is same as SL-DiscResourcePool with rxParameters absent
 	cp-Len-r13						SL-CP-Len-r12,
 	discPeriod-r13				ENUMERATED {rf4, rf6, rf7, rf8, rf12, rf14, rf16, rf24, rf28,
-										 rf32, rf64, rf128, rf256, rf512, rf1024, spare},
+										rf32, rf64, rf128, rf256, rf512, rf1024, spare},
 	numRetx-r13					INTEGER (0..3),
 	numRepetition-r13				INTEGER (1..50),
 	tf-ResourceConfig-r13			SL-TF-ResourceConfig-r12,
@@ -177,8 +177,8 @@ SL-V2X-PreconfigFreqInfo-r14 ::=		SEQUENCE {
 	v2x-ResourceSelectionConfig-r14			SL-CommTxPoolSensingConfig-r14			OPTIONAL,
 	zoneConfig-r14						SL-ZoneConfig-r14						OPTIONAL,
 	syncPriority-r14					ENUMERATED {gnss, enb},
-	thresSL-TxPrioritization-r14		SL-Priority-r13 						OPTIONAL,
-	offsetDFN-r14						INTEGER (0..1000) 					OPTIONAL,
+	thresSL-TxPrioritization-r14		SL-Priority-r13						OPTIONAL,
+	offsetDFN-r14						INTEGER (0..1000)					OPTIONAL,
 	...
 }
 
@@ -200,7 +200,7 @@ SL-V2X-PreconfigCommPool-r14 ::=		SEQUENCE {
 	startRB-Subchannel-r14				INTEGER (0..99),
 	startRB-PSCCH-Pool-r14				INTEGER (0..99)				OPTIONAL,
 	dataTxParameters-r14				P0-SL-r12,
-	zoneID-r14							INTEGER (0..7) 				OPTIONAL,
+	zoneID-r14							INTEGER (0..7)				OPTIONAL,
 	threshS-RSSI-CBR-r14					INTEGER (0..45)				OPTIONAL,
 	cbr-pssch-TxConfigList-r14			SL-CBR-PPPP-TxPreconfigList-r14	OPTIONAL,
 	resourceSelectionConfigP2X-r14		SL-P2X-ResourceSelectionConfig-r14	OPTIONAL,
