@@ -4154,6 +4154,7 @@ dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_
 }
 
 static const value_string option43_bsdp_suboption_vals[] = {
+	{  0, "Pad" },
 	{  1, "Message Type" },
 	{  2, "Version" },
 	{  3, "Server Identifier" },
@@ -4166,6 +4167,7 @@ static const value_string option43_bsdp_suboption_vals[] = {
 	{ 10, "NetBoot 1.0 Firmware" },
 	{ 11, "Boot Image Attributes Filter List" },
 	{ 12, "Maximum Message Size" },
+	{ 255, "End" },
 	{ 0, NULL}
 };
 
@@ -4190,22 +4192,31 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 	int	    attributes_off;
 	guint8      subopt, string_len;
 	guint8      subopt_len, attributes_len;
+	guint       item_len;
 	proto_tree *o43bsdp_v_tree, *o43bsdp_va_tree, *o43bsdp_vb_tree, *o43bsdp_vc_tree, *o43bsdp_vd_tree;
 	proto_item *vti, *ti, *tj;
 
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
-	if (suboptoff >= optend) {
+	if (subopt == 0 || subopt == 255) {
+		/* Pad (0) and End (255) have implicit length of 1. */
+		item_len = 1;
+	} else if (suboptoff >= optend) {
 		expert_add_info_format(pinfo, v_ti, &ei_bootp_missing_subopt_length,
 									"Suboption %d: no room left in option for suboption length", subopt);
 		return (optend);
+	} else {
+		subopt_len = tvb_get_guint8(tvb, suboptoff);
+		item_len = subopt_len + 2;
 	}
 
-	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_bsdp_suboption,
-				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
+				tvb, optoff, item_len, subopt, "(%d) %s",
 				subopt, val_to_str_const(subopt, option43_bsdp_suboption_vals, "Unknown"));
+	if (item_len == 1) {
+		return (optoff + 1);
+	}
 
 	o43bsdp_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
 	proto_tree_add_item(o43bsdp_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -4287,7 +4298,7 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 			break;
 	}
 
-	optoff += (subopt_len + 2);
+	optoff += item_len;
 	return optoff;
 }
 
