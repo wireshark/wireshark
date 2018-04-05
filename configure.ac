@@ -1089,7 +1089,7 @@ AC_ARG_ENABLE(wireshark,
     enable_wireshark=$enableval,enable_wireshark=yes)
 AM_CONDITIONAL(BUILDING_WIRESHARK, test x$enable_wireshark = xyes)
 
-GLIB_MIN_VERSION=2.22.0
+GLIB_MIN_VERSION=2.32.0
 AC_SUBST(GLIB_MIN_VERSION)
 # GLib checks; we require GLib $GLIB_MIN_VERSION or later, and require gmodule
 # support, as we need that for dynamically loading plugins.
