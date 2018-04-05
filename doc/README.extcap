@@ -41,9 +41,13 @@ This call must print the existing interfaces for this extcap and must return 0.
 The output must conform to the grammar specified for extcap, and it is specified
 in the doc/extcap.4 generated man page (in the build dir).
 
+Since Wireshark 2.9 this call is extended with --extcap-version x.x, which will
+allways represent the calling wireshark's version information. This can be used
+to change behavior depending on the wireshark version in question
+
 Example:
 
-$ extcapbin --extcap-interfaces
+$ extcapbin --extcap-interfaces --extcap-version 3.0
 extcap {version=1.0}{help=Some help url}
 interface {value=example1}{display=Example interface 1 for extcap}
 interface {value=example2}{display=Example interface 2 for extcap}
@@ -182,6 +186,20 @@ These options do have types, for which the following types are being supported:
    value {arg=3}{value=if1}{display=Remote1}{default=true}
    value {arg=3}{value=if2}{display=Remote2}{default=false}
 
+   RELOAD A SELECTOR - a selector may be reloaded from the configuration dialog of the
+   extcap application within wireshark. With the reload argument (defaults to false), the
+   entry can be marked as reloadable.
+
+   arg {number=3}{call=--remote}{display=Remote Channel}{tooltip=Remote Channel Selector}{type=selector}{reload=true}{placeholder=Load interfaces...}
+
+   After this has been defined, the user will get a button displayed in the configuration
+   dialog for this extcap application, with the text "Load interfaces..." in this case, and
+   a generic "Reload" text if no text has been provided.
+
+   The extcap utility is then called again with all filled out arguments and the additional
+   parameter "--extcap-reload-option <option_name>". It is expected to return a value section
+   for this option, as it would during normal configuration. The provided option list is
+   then presented as the selection, a previous selected option will be reselected if applicable.
 
 VALIDATION OF ARGUMENTS
 =======================
