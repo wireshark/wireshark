@@ -35,6 +35,7 @@
 # enable: 1
 # git_client: 0
 # svn_client: 0
+# git_svn: 0
 # tortoise_svn: 0
 # format: git %Y%m%d%H%M%S
 # pkg_enable: 1
@@ -79,6 +80,7 @@ my %version_pref = (
 	"enable"        => 1,
 	"git_client"    => 0,	# set if .git found and .git/svn not found
 	"svn_client"    => 0,	# set if .svn found
+	"git_svn"       => 0,	# set if both .git and .git/svn are found
 	"tortoise_svn"  => 0,
 	"format"        => "git %Y%m%d%H%M%S",
 
@@ -139,6 +141,7 @@ sub read_repo_info {
 		$info_source = "Command line (git-svn)";
 		$info_cmd = "(cd $srcdir; $git_executable svn info)";
 		$is_git_repo = 1;
+		$version_pref{"git_svn"} = 1;
 	}
 
 	# Make sure git is available.
@@ -216,7 +219,7 @@ sub read_repo_info {
 		if ($last_change && $num_commits && $repo_branch) {
 			$do_hack = 0;
 		}
-	} elsif ($version_pref{"svn_client"}) {
+	} elsif ($version_pref{"svn_client"} || $version_pref{"git_svn"}) {
 		my $repo_root = undef;
 		my $repo_url = undef;
 		eval {
