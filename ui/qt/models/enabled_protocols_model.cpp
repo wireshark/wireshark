@@ -252,11 +252,7 @@ bool EnabledProtocolsModel::setData(const QModelIndex &index, const QVariant &va
     QVector<int> roles;
     roles << role;
 
-    emit dataChanged(index, index
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                         , roles
-#endif
-        );
+    emit dataChanged(index, index, roles);
 
     return true;
 }

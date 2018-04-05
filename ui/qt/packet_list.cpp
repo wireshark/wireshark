@@ -1624,9 +1624,7 @@ void PacketList::drawNearOverlay()
     if (!prefs.gui_packet_list_show_minimap) return;
 
     qreal dp_ratio = 1.0;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
     dp_ratio = overlay_sb_->devicePixelRatio();
-#endif
     int o_height = overlay_sb_->height() * dp_ratio;
     int o_rows = qMin(packet_list_model_->rowCount(), o_height);
     int o_width = (wsApp->fontMetrics().height() * 2 * dp_ratio) + 2; // 2ems + 1-pixel border on either side.
@@ -1695,11 +1693,9 @@ void PacketList::drawFarOverlay()
     if (!prefs.gui_packet_list_show_minimap) return;
 
     QSize groove_size = overlay_sb_->grooveRect().size();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
     qreal dp_ratio = 1.0;
     dp_ratio = overlay_sb_->devicePixelRatio();
     groove_size *= dp_ratio;
-#endif
     int o_width = groove_size.width();
     int o_height = groove_size.height();
     int pl_rows = packet_list_model_->rowCount();

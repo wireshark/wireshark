@@ -28,11 +28,10 @@ ProtoTreeModel::ProtoTreeModel(QObject * parent) :
 Qt::ItemFlags ProtoTreeModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags item_flags = QAbstractItemModel::flags(index);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (rowCount(index) < 1) {
         item_flags |= Qt::ItemNeverHasChildren;
     }
-#endif
+
     return item_flags;
 }
 

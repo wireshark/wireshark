@@ -87,10 +87,8 @@
 #include <QUrl>
 #include <qmath.h>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QFontDatabase>
 #include <QMimeDatabase>
-#endif
 
 #ifdef _MSC_VER
 #pragma warning(pop)
@@ -108,8 +106,6 @@ static QHash<int, QList<QAction *> > added_menu_groups_;
 static QHash<int, QList<QAction *> > removed_menu_groups_;
 
 QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(" " UTF8_MIDDLE_DOT " ");
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 
 // QMimeDatabase parses a large-ish XML file and can be slow to initialize.
 // Do so in a worker thread as early as possible.
@@ -133,7 +129,6 @@ private:
         QFontDatabase font_db;
     }
 };
-#endif
 
 void
 topic_action(topic_action_e action)
@@ -496,11 +491,7 @@ void WiresharkApplication::applyCustomColorsFromRecent()
     for (GList *custom_color = recent.custom_colors; custom_color; custom_color = custom_color->next) {
         QRgb rgb = QString((const char *)custom_color->data).toUInt(&ok, 16);
         if (ok) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            QColorDialog::setCustomColor(i++, rgb);
-#else
             QColorDialog::setCustomColor(i++, QColor(rgb));
-#endif
         }
     }
 }
@@ -523,11 +514,7 @@ void WiresharkApplication::storeCustomColorsInRecent()
         prefs_clear_string_list(recent.custom_colors);
         recent.custom_colors = NULL;
         for (int i = 0; i < QColorDialog::customCount(); i++) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            QRgb rgb = QColorDialog::customColor(i);
-#else
             QRgb rgb = QColorDialog::customColor(i).rgb();
-#endif
             recent.custom_colors = g_list_append(recent.custom_colors, g_strdup_printf("%08x", rgb));
         }
     }
@@ -736,12 +723,10 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     wsApp = this;
     setApplicationName("Wireshark");
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     MimeDatabaseInitThread *mime_db_init_thread = new(MimeDatabaseInitThread);
     QThreadPool::globalInstance()->start(mime_db_init_thread);
     FontDatabaseInitThread *font_db_init_thread = new (FontDatabaseInitThread);
     QThreadPool::globalInstance()->start(font_db_init_thread);
-#endif
 
     Q_INIT_RESOURCE(about);
     Q_INIT_RESOURCE(i18n);
@@ -755,9 +740,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     ws_load_library("riched20.dll");
 #endif // Q_OS_WIN
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
     //
     // XXX - this means we try to check for the existence of all files
     // in the recent list every 2 seconds; that causes noticeable network

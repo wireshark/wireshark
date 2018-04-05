@@ -110,11 +110,7 @@ BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, Q
 
     connect(ui->tableWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    ui->tableWidget->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
-#else
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-#endif
 
     ui->tableWidget->setStyleSheet("QTableView::item:hover{background-color:lightyellow; color:black;}");
 

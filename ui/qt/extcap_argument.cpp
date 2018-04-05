@@ -167,11 +167,7 @@ void ExtArgSelector::onReloadTriggered()
     int counter = 0;
     int selected = -1;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
     QString call = boxSelection->currentData().toString();
-#else
-    QString call = boxSelection->itemData(boxSelection->currentIndex()).toString();
-#endif
     const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
     QString stored(prefval ? prefval : "");
     if ( call != stored )
@@ -223,11 +219,7 @@ QString ExtArgSelector::value()
     if ( boxSelection == 0 )
         return QString();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
     QVariant data = boxSelection->currentData();
-#else
-    QVariant data = boxSelection->itemData(boxSelection->currentIndex());
-#endif
 
     return data.toString();
 }

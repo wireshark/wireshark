@@ -20,9 +20,7 @@
 #include <QLayout>
 #include <QMimeData>
 #include <QMouseEvent>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QWindow>
-#endif
 
 #define drag_drop_toolbar_action_ "drag_drop_toolbar_action_"
 
@@ -122,13 +120,10 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
             QDrag * drag = new QDrag(this);
             drag->setMimeData(temd);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
             qreal dpr = window()->windowHandle()->devicePixelRatio();
             QPixmap pixmap(lbl->size() * dpr);
             pixmap.setDevicePixelRatio(dpr);
-#else
-            QPixmap pixmap(lbl->size());
-#endif
+
             lbl->render(&pixmap);
             drag->setPixmap(pixmap);
 

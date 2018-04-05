@@ -110,10 +110,6 @@
 
 #include "epan/crypt/dot11decrypt_ws.h"
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-#include <QTextCodec>
-#endif
-
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #define INVALID_OPTION 1
@@ -259,7 +255,6 @@ get_wireshark_runtime_info(GString *str)
 #endif
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 static void
 g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
@@ -286,7 +281,6 @@ g_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString 
     }
     g_log(LOG_DOMAIN_MAIN, log_level, "%s", qUtf8Printable(msg));
 }
-#endif
 
 #ifdef HAVE_LIBPCAP
 /*  Check if there's something important to tell the user during startup.
@@ -402,16 +396,6 @@ int main(int argc, char *qt_argv[])
     prefs.gui_console_open = console_open_always;
 #endif /* DEBUG_STARTUP_TIME */
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
-
-    // In Qt 5, C strings are treated always as UTF-8 when converted to
-    // QStrings; in Qt 4, the codec must be set to make that happen
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    // Hopefully we won't have to use QString::fromUtf8() in as many places.
-    QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
-    QTextCodec::setCodecForCStrings(utf8codec);
-    // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
-    QTextCodec::setCodecForTr(utf8codec);
-#endif
 
     /* Set the C-language locale to the native environment. */
     setlocale(LC_ALL, "");
@@ -609,9 +593,7 @@ int main(int argc, char *qt_argv[])
     }
 
     set_console_log_handler();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     qInstallMessageHandler(g_log_message_handler);
-#endif
 #ifdef DEBUG_STARTUP_TIME
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif

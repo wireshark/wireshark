@@ -96,12 +96,10 @@ int InterfaceToolbarReader::pipe_read(char *data, int nbyte)
             total_len += read_len;
         }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
         if (QThread::currentThread()->isInterruptionRequested())
         {
             return -1;
         }
-#endif
     }
 
     return total_len;
@@ -141,12 +139,10 @@ void InterfaceToolbarReader::loop()
             break;
         }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
         if (QThread::currentThread()->isInterruptionRequested())
         {
             break;
         }
-#endif
 
         if (ret == 0 || !FD_ISSET(fd_in_, &readfds))
         {

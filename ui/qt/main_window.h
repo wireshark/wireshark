@@ -67,9 +67,6 @@ namespace Ui {
     class MainWindow;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-Q_DECLARE_METATYPE(QToolBar *)
-#endif
 Q_DECLARE_METATYPE(ts_type)
 Q_DECLARE_METATYPE(ts_precision)
 
@@ -190,7 +187,7 @@ private:
     QSocketNotifier *pipe_notifier_;
 #endif
 
-#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#if defined(Q_OS_MAC)
     QMenu *dock_menu_;
 #endif
 

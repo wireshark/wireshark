@@ -147,14 +147,7 @@ void UatDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
     {
         QComboBox *combobox = static_cast<QComboBox *>(editor);
         const QString &data = index.model()->data(index, Qt::EditRole).toString();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         combobox->setCurrentText(data);
-#else
-        int new_index = combobox->findText(data);
-        if (new_index >= 0) {
-            combobox->setCurrentIndex(new_index);
-        }
-#endif
 
         break;
     }

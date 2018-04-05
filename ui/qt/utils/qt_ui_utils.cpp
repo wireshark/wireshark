@@ -34,11 +34,6 @@
 #include <QUrl>
 #include <QUuid>
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-// Qt::escape
-#include <QTextDocument>
-#endif
-
 /* Make the format_size_flags_e enum usable in C++ */
 format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
     return (format_size_flags_e) ((int)lhs| (int)rhs);
@@ -169,11 +164,7 @@ const QString time_t_to_qstring(time_t ti_time)
 }
 
 QString html_escape(const QString plain_string) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    return Qt::escape(plain_string);
-#else
     return plain_string.toHtmlEscaped();
-#endif
 }
 
 

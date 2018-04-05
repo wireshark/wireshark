@@ -229,11 +229,9 @@ void ByteViewText::paintEvent(QPaintEvent *)
         QColor ho_color = palette().text().color();
         if (marked_byte_offset_ < 0) {
             hover_alpha = 0.3;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
             if (devicePixelRatio() > 1) {
                 pen_width = 0.5;
             }
-#endif
         }
         ho_pen.setWidthF(pen_width);
         ho_color.setAlphaF(hover_alpha);

@@ -516,18 +516,12 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
         }
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QVector<int> roles;
     roles << role;
-#endif
 
     // The status field may change as well as the value, so mark them for update
     emit dataChanged(index(dataindex.row(), AdvancedPrefsModel::colStatus),
-                     index(dataindex.row(), AdvancedPrefsModel::colValue)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                        , roles
-#endif
-        );
+                     index(dataindex.row(), AdvancedPrefsModel::colValue), roles);
 
     return true;
 }

@@ -60,11 +60,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     // very long filenames in the SSL RSA keys dialog, it also results in a
     // vertical scrollbar. Maybe remove this since the editor is not limited to
     // the column width (and overlays other fields if more width is needed)?
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    ui->uatTreeView->header()->setResizeMode(QHeaderView::ResizeToContents);
-#else
     ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-#endif
 
     // start editing as soon as the field is selected or when typing starts
     ui->uatTreeView->setEditTriggers(ui->uatTreeView->editTriggers() |

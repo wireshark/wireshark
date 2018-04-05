@@ -22,9 +22,7 @@
 
 typedef QPair<QString,QString> MessagePair;
 
-#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
 class QCheckBox;
-#endif
 class QMessageBox;
 class QWidget;
 
@@ -37,17 +35,13 @@ public:
 
     static void displayQueuedMessages(QWidget *parent = 0);
     void setDetailedText(QString text) { detailed_text_ = text; }
-#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
     void setCheckBox(QCheckBox *cb) { check_box_ = cb; }
-#endif
     int exec();
 
 private:
     const MessagePair splitMessage(QString &message) const;
     QString detailed_text_;
-#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
     QCheckBox *check_box_;
-#endif
     QMessageBox *message_box_;
 };
 

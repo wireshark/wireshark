@@ -18,6 +18,9 @@ void FindLineEdit::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu *menu = createStandardContextMenu();
 
+    /* This version check is implemented, because using this function leads to using
+     * a regular expression for search in follow_stream_dialog.cpp as well as
+     * show_packet_bytes_dialog.cpp. Both instances are not compatible with < 5.3 */
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
     QAction *action;
 

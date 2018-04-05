@@ -28,9 +28,7 @@
 #include <QStack>
 #include <QUrl>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QWindow>
-#endif
 
 // To do:
 // - Fix "apply as filter" behavior.
@@ -563,13 +561,9 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
 
                     DragLabel * content = new DragLabel(dfmd->labelText(), this);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
                     qreal dpr = window()->windowHandle()->devicePixelRatio();
                     QPixmap pixmap(content->size() * dpr);
                     pixmap.setDevicePixelRatio(dpr);
-#else
-                    QPixmap pixmap(content->size());
-#endif
                     content->render(&pixmap);
                     drag->setPixmap(pixmap);
 

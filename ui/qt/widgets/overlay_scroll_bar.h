@@ -48,9 +48,6 @@ public:
     QRect grooveRect();
 
 public slots:
-    // Qt 4's QScrollBar::setRange isn't a slot. We can't wrap this in
-    //#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    // because Qt 4's MOC doesn't support macros.
     void setChildRange(int min, int max) { child_sb_.setRange(min, max); }
 
 protected:

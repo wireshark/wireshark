@@ -36,21 +36,13 @@ RelatedPacketDelegate::RelatedPacketDelegate(QWidget *parent) :
 void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QStyleOptionViewItemV4 option_vi = option;
-#else
     QStyleOptionViewItem option_vi = option;
-#endif
     QStyledItemDelegate::initStyleOption(&option_vi, index);
     int em_w = option_vi.fontMetrics.height();
     int en_w = (em_w + 1) / 2;
     int line_w = (option_vi.fontMetrics.lineWidth());
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    option_vi.features |= QStyleOptionViewItemV4::HasDecoration;
-#else
     option_vi.features |= QStyleOptionViewItem::HasDecoration;
-#endif
     option_vi.decorationSize.setHeight(1);
     option_vi.decorationSize.setWidth(em_w);
     QStyledItemDelegate::paint(painter, option_vi, index);

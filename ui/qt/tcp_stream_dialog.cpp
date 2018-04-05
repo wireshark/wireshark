@@ -270,9 +270,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     // Duplicate ACK Graph - displays duplicate ack ticks
     // QCustomPlot doesn't have QCPScatterStyle::ssTick so we have to make our own.
     int tick_len = 3;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
     tick_len *= devicePixelRatio();
-#endif
     QPixmap da_tick_pm = QPixmap(1, tick_len * 2);
     da_tick_pm.fill(Qt::transparent);
     QPainter painter(&da_tick_pm);

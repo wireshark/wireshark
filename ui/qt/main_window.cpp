@@ -238,7 +238,6 @@ static void plugin_if_mainwindow_update_toolbars(GHashTable * data_set)
     }
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
 static void mainwindow_add_toolbar(const iface_toolbar *toolbar_entry)
 {
     if (gbl_cur_main_window_ && toolbar_entry)
@@ -254,7 +253,6 @@ static void mainwindow_remove_toolbar(const gchar *menu_title)
         gbl_cur_main_window_->removeInterfaceToolbar(menu_title);
     }
 }
-#endif
 
 QMenu* MainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
     QList<QAction *> actions = parent_menu->actions();
@@ -296,7 +294,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #else
     , pipe_notifier_(NULL)
 #endif
-#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#if defined(Q_OS_MAC)
     , dock_menu_(NULL)
 #endif
 {
@@ -458,7 +456,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     // Set OS specific shortcuts for fullscreen mode
-#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#if defined(Q_OS_MAC)
     main_ui_->actionViewFullScreen->setShortcut(QKeySequence::FullScreen);
 #else
     main_ui_->actionViewFullScreen->setShortcut(QKeySequence(Qt::Key_F11));
@@ -701,14 +699,8 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     plugin_if_register_gui_cb(PLUGIN_IF_REMOVE_TOOLBAR, plugin_if_mainwindow_update_toolbars);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
-    // Register Interface Toolbar callbacks
-    //
-    // Qt version must be 5.2 or higher because the use of
-    // QThread::requestInterruption() in interface_toolbar.cpp and
-    // QThread::isInterruptionRequested() in interface_toolbar_reader.cpp
+    /* Register Interface Toolbar callbacks */
     iface_toolbar_register_cb(mainwindow_add_toolbar, mainwindow_remove_toolbar);
-#endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
@@ -2434,11 +2426,9 @@ void MainWindow::changeEvent(QEvent* event)
             wsApp->loadLanguage(locale);
             }
             break;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         case QEvent::WindowStateChange:
             main_ui_->actionViewFullScreen->setChecked(this->isFullScreen());
             break;
-#endif
         default:
             break;
         }
@@ -2531,12 +2521,7 @@ void MainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
             QMenu *cur_menu = main_ui_->menuTools;
             while (menu_path.length() > 1) {
                 QString menu_title = menu_path.takeFirst();
-#if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
                 QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-#else
-                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower());
-                if (submenu && submenu->parent() != cur_menu) submenu = NULL;
-#endif
                 if (!submenu) {
                     submenu = cur_menu->addMenu(menu_title);
                     submenu->setObjectName(menu_title.toLower());
@@ -2596,12 +2581,7 @@ void MainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
             QMenu *cur_menu = main_ui_->menuTools;
             while (menu_path.length() > 1) {
                 QString menu_title = menu_path.takeFirst();
-#if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
                 QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-#else
-                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower());
-                if (submenu && submenu->parent() != cur_menu) submenu = NULL;
-#endif
                 cur_menu = submenu;
             }
             cur_menu->removeAction(action);

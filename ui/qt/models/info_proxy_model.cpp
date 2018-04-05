@@ -104,27 +104,17 @@ void InfoProxyModel::setColumn(int column)
     int old_column = column_;
     column_ = column;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QVector<int> roles;
     roles << Qt::DisplayRole;
-#endif
 
     if (old_column >= 0) {
         //Notify old column has changed
-        emit dataChanged(index(0, old_column), index(rowCount(), old_column)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                         , roles
-#endif
-        );
+        emit dataChanged(index(0, old_column), index(rowCount(), old_column), roles );
     }
 
     if (column_ >= 0) {
         //Notify new column has changed
-        emit dataChanged(index(0, column_), index(rowCount(), column_)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                         , roles
-#endif
-        );
+        emit dataChanged(index(0, column_), index(rowCount(), column_), roles);
     }
 }
 

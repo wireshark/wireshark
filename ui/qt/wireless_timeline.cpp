@@ -111,11 +111,7 @@ static void accumulate_rgb(float rgb[TIMELINE_HEIGHT][3], int height, int dfilte
 
 void WirelessTimeline::mousePressEvent(QMouseEvent *event)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     start_x = last_x = event->localPos().x();
-#else
-    start_x = last_x = event->posF().x();
-#endif
 }
 
 
@@ -124,13 +120,8 @@ void WirelessTimeline::mouseMoveEvent(QMouseEvent *event)
     if (event->buttons() == Qt::NoButton)
         return;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     qreal offset = event->localPos().x() - last_x;
     last_x = event->localPos().x();
-#else
-    qreal offset = event->posF().x() - last_x;
-    last_x = event->posF().x();
-#endif
 
     qreal shift = ((qreal) (end_tsf - start_tsf))/width() * offset;
     start_tsf -= shift;
@@ -146,11 +137,7 @@ void WirelessTimeline::mouseMoveEvent(QMouseEvent *event)
 
 void WirelessTimeline::mouseReleaseEvent(QMouseEvent *event)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     QPointF localPos = event->localPos();
-#else
-    QPointF localPos = event->posF();
-#endif
     qreal offset = localPos.x() - start_x;
 
     /* if this was a drag, ignore it */
@@ -491,10 +478,7 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
     QPainter p(this);
 
     // painting is done in device pixels in the x axis, get the ratio here
-    float ratio = 1.0;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-    ratio = p.device()->devicePixelRatio();
-#endif
+    float ratio = p.device()->devicePixelRatio();
 
     unsigned int packet;
     double zoom;

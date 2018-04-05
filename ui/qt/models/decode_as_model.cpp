@@ -385,11 +385,7 @@ bool DecodeAsModel::copyRow(int dst_row, int src_row)
 
     QVector<int> roles;
     roles << Qt::EditRole << Qt::BackgroundRole;
-    emit dataChanged(index(dst_row, 0), index(dst_row, columnCount())
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                     , roles
-#endif
-    );
+    emit dataChanged(index(dst_row, 0), index(dst_row, columnCount()), roles );
 
     return true;
 }

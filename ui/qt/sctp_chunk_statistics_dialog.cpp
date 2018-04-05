@@ -27,23 +27,14 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    ui->tableWidget->verticalHeader()->setClickable(true);
-    ui->tableWidget->verticalHeader()->setMovable(true);
-#else
     ui->tableWidget->verticalHeader()->setSectionsClickable(true);
     ui->tableWidget->verticalHeader()->setSectionsMovable(true);
-#endif
 
 
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-#else
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-#endif
 
     this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
  //   connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(on_sectionMoved(int, int, int)));

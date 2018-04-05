@@ -90,11 +90,9 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
     ui(new Ui::ProgressFrame)
   , terminate_is_stop_(false)
   , stop_flag_(NULL)
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
   , show_timer_(-1)
   , effect_(NULL)
   , animation_(NULL)
-#endif
 #ifdef QWINTASKBARPROGRESS_H
   , update_taskbar_(false)
   , taskbar_progress_(NULL)
@@ -130,11 +128,8 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "}"
             );
 
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     effect_ = new QGraphicsOpacityEffect(this);
     animation_ = new QPropertyAnimation(effect_, "opacity", this);
-#endif
-
     connect(this, SIGNAL(showRequested(bool,bool,gboolean*)),
             this, SLOT(show(bool,bool,gboolean*)));
     hide();
@@ -218,7 +213,6 @@ void ProgressFrame::setValue(int value)
     emit valueChanged(value);
 }
 
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 void ProgressFrame::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == show_timer_) {
@@ -238,13 +232,10 @@ void ProgressFrame::timerEvent(QTimerEvent *event)
         QFrame::timerEvent(event);
     }
 }
-#endif
 
 void ProgressFrame::hide()
 {
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     show_timer_ = -1;
-#endif
     emit setHidden();
     QFrame::hide();
 #ifdef QWINTASKBARPROGRESS_H
@@ -261,9 +252,7 @@ void ProgressFrame::on_stopButton_clicked()
     emit stopLoading();
 }
 
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 const int show_delay_ = 500; // ms
-#endif
 
 void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_flag)
 {
@@ -276,16 +265,11 @@ void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_fl
         ui->stopButton->hide();
     }
 
-#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     if (animate) {
         show_timer_ = startTimer(show_delay_);
     } else {
         QFrame::show();
     }
-#else
-    Q_UNUSED(animate)
-    QFrame::show();
-#endif
 
 #ifdef QWINTASKBARPROGRESS_H
     // windowHandle() is picky about returning a non-NULL value so we check it
