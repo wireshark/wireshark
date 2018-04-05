@@ -161,7 +161,9 @@ static int hf_cip_pccc_cmd_code = -1;
 static int hf_cip_pccc_sts_code = -1;
 static int hf_cip_pccc_ext_sts_code = -1;
 static int hf_cip_pccc_tns_code = -1;
-static int hf_cip_pccc_fnc_code = -1;
+static int hf_cip_pccc_fnc_code_06 = -1;
+static int hf_cip_pccc_fnc_code_07 = -1;
+static int hf_cip_pccc_fnc_code_0f = -1;
 static int hf_cip_pccc_byte_size = -1;
 static int hf_cip_pccc_file_num = -1;
 static int hf_cip_pccc_file_type = -1;
@@ -1362,7 +1364,7 @@ static const value_string cip_pccc_es_st_vals[] = {
 value_string_ext cip_pccc_es_st_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_es_st_vals);
 
 /* Translate PCCC Function Codes */
-static const value_string cip_pccc_fnc_vals[] = {
+static const value_string cip_pccc_fnc_06_vals[] = {
     { PCCC_FNC_06_00, "Echo" },
     { PCCC_FNC_06_01, "Read diagnostic counters" },
     { PCCC_FNC_06_02, "Set variables" },
@@ -1374,12 +1376,26 @@ static const value_string cip_pccc_fnc_vals[] = {
     { PCCC_FNC_06_08, "Set data table size" },
     { PCCC_FNC_06_09, "Read link parameters" },
     { PCCC_FNC_06_0A, "Set link parameters" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_fnc_06_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_06_vals);
+
+static const value_string cip_pccc_fnc_07_vals[] = {
     { PCCC_FNC_07_00, "Disable outputs" },
     { PCCC_FNC_07_01, "Enable outputs" },
     { PCCC_FNC_07_03, "Enable PLC scanning" },
     { PCCC_FNC_07_04, "Enter download mode" },
     { PCCC_FNC_07_05, "Exit download/upload mode" },
     { PCCC_FNC_07_06, "Enter upload mode" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_fnc_07_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_07_vals);
+
+static const value_string cip_pccc_fnc_0f_vals[] = {
     { PCCC_FNC_0F_00, "Word range write" },
     { PCCC_FNC_0F_01, "Word range read" },
     { PCCC_FNC_0F_02, "Bit write" },
@@ -1424,7 +1440,7 @@ static const value_string cip_pccc_fnc_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_fnc_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_vals);
+value_string_ext cip_pccc_fnc_0f_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_0f_vals);
 
 /* Translate PCCC File Types */
 static const value_string cip_pccc_file_types_vals[] = {
@@ -7029,36 +7045,49 @@ dissect_cip_pccc_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int ite
       /* If there is any command specific data create a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
       {
+         guint32 cmd_code, fnc_code;
+
          /* Add PCCC CMD Data tree */
          pccc_cmd_tree = proto_tree_add_subtree( item_tree, tvb, pccc_cmd_offset, item_length-req_path_size-2-req_id_size, ett_pccc_req_id, NULL, "PCCC Command Data" );
 
          /* Add Command Code */
-         proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_cmd_code, tvb, pccc_cmd_offset, 1, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item_ret_uint(pccc_cmd_tree, hf_cip_pccc_cmd_code, tvb, pccc_cmd_offset, 1, ENC_LITTLE_ENDIAN, &cmd_code);
          /* Add Status Code */
          proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_sts_code, tvb, pccc_cmd_offset+1, 1, ENC_LITTLE_ENDIAN );
          /* Add Transaction Code */
          proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_tns_code, tvb, pccc_cmd_offset+2, 2, ENC_LITTLE_ENDIAN );
          /* Add Function Code */
-         int pccc_cmd_value = tvb_get_guint8( tvb, pccc_cmd_offset);
-         if ((pccc_cmd_value != PCCC_CMD_00 ) && (pccc_cmd_value != PCCC_CMD_01 ) && (pccc_cmd_value != PCCC_CMD_02 ) && (pccc_cmd_value != PCCC_CMD_04 ) && (pccc_cmd_value != PCCC_CMD_05 ) && (pccc_cmd_value != PCCC_CMD_08 ))
+         switch(cmd_code)
          {
-             proto_tree_add_item(pccc_cmd_tree, hf_cip_pccc_fnc_code, tvb, pccc_cmd_offset+4, 1, ENC_LITTLE_ENDIAN );
+             case PCCC_CMD_06:
+                 proto_tree_add_item_ret_uint(pccc_cmd_tree, hf_cip_pccc_fnc_code_06, tvb, pccc_cmd_offset+4, 1, ENC_LITTLE_ENDIAN, &fnc_code);
+                 add_cip_pccc_function_to_info_column(pinfo, fnc_code, cip_pccc_fnc_06_vals);
+             break;
+
+             case PCCC_CMD_07:
+                 proto_tree_add_item_ret_uint(pccc_cmd_tree, hf_cip_pccc_fnc_code_07, tvb, pccc_cmd_offset+4, 1, ENC_LITTLE_ENDIAN, &fnc_code);
+                 add_cip_pccc_function_to_info_column(pinfo, fnc_code, cip_pccc_fnc_07_vals);
+             break;
+
+             case PCCC_CMD_0F:
+                 proto_tree_add_item_ret_uint(pccc_cmd_tree, hf_cip_pccc_fnc_code_0f, tvb, pccc_cmd_offset+4, 1, ENC_LITTLE_ENDIAN, &fnc_code);
+                 add_cip_pccc_function_to_info_column(pinfo, fnc_code, cip_pccc_fnc_0f_vals);
+             break;
+
+             default:
+                 fnc_code = 0;
+             break;
          }
 
-         guint8 cmd_code, fnc_code;
-         cmd_code = tvb_get_guint8( tvb, pccc_cmd_offset );
-         fnc_code = tvb_get_guint8( tvb, pccc_cmd_offset+4 );
-         add_cip_pccc_function_to_info_column(pinfo, fnc_code, cip_pccc_fnc_vals);
-
-        if (item_length-req_path_size-2-req_id_size-5 != 0 )
-        {
+         if (item_length-req_path_size-2-req_id_size-5 != 0 )
+         {
                      /* Add the data tree */
-             cmd_data_tree = proto_tree_add_subtree( pccc_cmd_tree, tvb, pccc_cmd_offset+5, item_length-req_path_size-req_id_size-7,
+            cmd_data_tree = proto_tree_add_subtree( pccc_cmd_tree, tvb, pccc_cmd_offset+5, item_length-req_path_size-req_id_size-7,
                                         ett_pccc_cmd_data, NULL, "Function Specific Data" );
 
             int running_offset = pccc_cmd_offset+6;
             int num_cmds;
-             int sub_fnc_len;
+            int sub_fnc_len;
             proto_tree *sub_fnc_tree;
 
             /* Add in parsing of instructions that contain data beyond the FNC code */
@@ -8372,7 +8401,9 @@ proto_register_cip(void)
       { &hf_cip_pccc_sts_code, { "Status", "cip.pccc.gs.status", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_gs_st_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_pccc_ext_sts_code, { "Extended Status", "cip.pccc.es.status", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_es_st_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_pccc_tns_code, { "Transaction Code", "cip.pccc.tns.code", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_cip_pccc_fnc_code, { "Function Code", "cip.pccc.fnc.code", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_fnc_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_fnc_code_06, { "Function Code", "cip.pccc.fnc.code_06", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_fnc_06_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_fnc_code_07, { "Function Code", "cip.pccc.fnc.code_07", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_fnc_07_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_pccc_fnc_code_0f, { "Function Code", "cip.pccc.fnc.code_0f", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_fnc_0f_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_pccc_byte_size, { "Byte Size", "cip.pccc.byte.size", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_pccc_file_num, { "File Number", "cip.pccc.file.num", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_pccc_file_type, { "File Type", "cip.pccc.file.type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_file_type_vals_ext, 0, NULL, HFILL }},

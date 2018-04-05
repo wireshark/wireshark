@@ -198,6 +198,7 @@
 #define PCCC_CMD_04 0x04
 #define PCCC_CMD_05 0x05
 #define PCCC_CMD_06 0x06
+#define PCCC_CMD_07 0x07
 #define PCCC_CMD_08 0x08
 #define PCCC_CMD_0F 0x0F
 
@@ -213,12 +214,14 @@
 #define PCCC_FNC_06_08 0x08
 #define PCCC_FNC_06_09 0x09
 #define PCCC_FNC_06_0A 0x0A
+
 #define PCCC_FNC_07_00 0x00
 #define PCCC_FNC_07_01 0x01
 #define PCCC_FNC_07_03 0x03
 #define PCCC_FNC_07_04 0x04
 #define PCCC_FNC_07_05 0x05
 #define PCCC_FNC_07_06 0x06
+
 #define PCCC_FNC_0F_00 0x00
 #define PCCC_FNC_0F_01 0x01
 #define PCCC_FNC_0F_02 0x02
