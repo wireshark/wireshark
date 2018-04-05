@@ -902,18 +902,6 @@ if(ENABLE_AIRPCAP)
 	set(PACKAGELIST ${PACKAGELIST} AIRPCAP)
 endif()
 
-# Build the GTK-GUI?
-if(BUILD_wireshark_gtk)
-	if(ENABLE_GTK3)
-		set(PACKAGELIST ${PACKAGELIST} GTK3)
-	else()
-		set(PACKAGELIST ${PACKAGELIST} GTK2)
-		set(GTK2_OPTIONS COMPONENTS gtk)
-		set(GTK2_FIND_VERSION 2.12)
-		set(GTK2_DEBUG false)
-	endif()
-endif()
-
 # Build the Qt GUI?
 if(BUILD_wireshark)
 	if(ENABLE_QT5)
@@ -974,12 +962,6 @@ endif()
 if(ENABLE_KERBEROS)
 	set(PACKAGELIST ${PACKAGELIST} KERBEROS)
 endif()
-
-# Portable audio (GTK+ only)
-if(ENABLE_PORTAUDIO AND BUILD_wireshark_gtk)
-	set(PACKAGELIST ${PACKAGELIST} PORTAUDIO)
-endif()
-
 
 # C Asynchronous resolver
 if(ENABLE_CARES)
@@ -1194,12 +1176,6 @@ if (HAVE_LIBWINSPARKLE)
 	set(HAVE_SOFTWARE_UPDATE 1)
 endif()
 
-# No matter which version of GTK is present
-if(GTK2_FOUND OR GTK3_FOUND)
-	message(WARNING "The GTK+ UI is deprecated and will be removed in a future release.")
-	set(GTK_FOUND ON)
-endif()
-
 if(HAVE_LIBZLIB)
 	set(HAVE_ZLIB 1)
 	# Always include the "true" zlib includes first. This works around a
@@ -1345,10 +1321,6 @@ add_subdirectory( wsutil )
 
 if(NOT WIN32)
 	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil)
-endif()
-
-if(BUILD_wireshark_gtk AND GTK_FOUND)
-	add_subdirectory( ui/gtk )
 endif()
 
 if(BUILD_wireshark AND QT_FOUND)
@@ -1505,7 +1477,6 @@ set( IN_FILES
 	packaging/macosx/Wireshark_package.pmdoc/index.xml.in
 	randpkt_core/doxygen.cfg.in
 	ui/doxygen.cfg.in
-	ui/gtk/doxygen.cfg.in
 	ui/qt/doxygen.cfg.in
 	wireshark.pc.in
 	writecap/doxygen.cfg.in
@@ -1566,7 +1537,6 @@ feature_summary(WHAT ALL)
 
 link_directories(
 	${CMAKE_BINARY_DIR}/ui
-	${CMAKE_BINARY_DIR}/ui/gtk
 	${CMAKE_BINARY_DIR}/ui/qt
 	${CMAKE_BINARY_DIR}/capchild
 	${CMAKE_BINARY_DIR}/caputils
@@ -2124,7 +2094,7 @@ list(APPEND copy_data_files_depends
 add_custom_target(copy_data_files ALL DEPENDS ${copy_data_files_depends} )
 set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
 
-if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
+if(BUILD_wireshark AND QT_FOUND)
 	set(WIRESHARK_SRC
 		capture_info.c
 		capture_opts.c
@@ -2369,106 +2339,6 @@ macro(set_extcap_executable_properties _executable)
 		endif()
 	endif()
 endmacro()
-
-if(BUILD_wireshark_gtk AND GTK_FOUND)
-	set(wireshark_gtk_LIBS
-		gtkui
-		ui
-		capchild
-		caputils
-		${GTK2_LIBRARIES}
-		${GTK3_LIBRARIES}
-		${GTHREAD2_LIBRARIES}
-		wscodecs
-		${PORTAUDIO_LIBRARIES}
-		${LIBEPAN_LIBS}
-		${APPLE_APPLICATION_SERVICES_LIBRARY}
-		${APPLE_CORE_SERVICES_LIBRARY}
-		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
-		${NL_LIBRARIES}
-		${WIN_COMCTL32_LIBRARY}
-	)
-	# wireshark and wireshark-gtk share wireshark_FILES
-
-	add_executable(wireshark-gtk WIN32 ${wireshark_FILES})
-	add_dependencies(wireshark-gtk version)
-	set(PROGLIST ${PROGLIST} wireshark-gtk)
-	set_target_properties(wireshark-gtk PROPERTIES
-		LINK_FLAGS "${WS_LINK_FLAGS}"
-		FOLDER "Executables"
-	)
-	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
-	install(TARGETS wireshark-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-	if(WIN32)
-		add_custom_target(copy_gtk_dlls)
-		set_target_properties(copy_gtk_dlls PROPERTIES FOLDER "Copy Tasks")
-		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory "${_dll_output_dir}"
-		)
-
-		if(GTK2_FOUND)
-			set(_gtk_dll_dir "${GTK2_DLL_DIR}")
-			set(_gtk_etc_dir "${GTK2_ETC_DIR}")
-			set(_gtk_dlls "${GTK2_DLLS}")
-			set(_gtk_etc_dir "${GTK2_ETC_DIR}")
-		else()
-			set(_gtk_dll_dir "${GTK3_DLL_DIR}")
-			set(_gtk_dlls "${GTK3_DLLS}")
-			set(_gtk_etc_dir "${GTK3_ETC_DIR}")
-		endif()
-
-		foreach(_dll ${_gtk_dlls})
-			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					"${_gtk_dll_dir}/${_dll}" "${_dll_output_dir}"
-			)
-		endforeach(_dll)
-
-		# /etc
-		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory "${_dll_output_dir}/etc"
-		)
-		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${_gtk_etc_dir}" "${_dll_output_dir}/etc"
-		)
-
-		# XXX - Omitting ${GTK2_LIB_DIR}\loaders copying from Makefile.nmake
-		if(GTK2_FOUND)
-			# Engines
-			set (_engines_output_dir "${_dll_output_dir}/lib/gtk-2.0/2.10.0/engines")
-			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E make_directory "${_engines_output_dir}"
-			)
-			foreach(_dll ${GTK2_ENGINES_DLLS})
-				add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-					COMMAND ${CMAKE_COMMAND} -E copy_if_different
-						"${GTK2_ENGINES_DLL_DIR}/${_dll}" "${_engines_output_dir}"
-				)
-			endforeach(_dll)
-
-			# Themes
-			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					"${GTK2_THEMES_DIR}/gtkrc" "${_dll_output_dir}/etc/gtk-2.0"
-			)
-
-			# Modules
-			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_directory
-					"${GTK2_LIB_DIR}" "${_dll_output_dir}/lib/gtk-2.0"
-			)
-		else()
-			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_directory
-					"${CMAKE_SOURCE_DIR}/ui/win32/settings.ini" "${_dll_output_dir}/etc"
-			)
-		endif()
-
-		add_dependencies(wireshark-gtk copy_gtk_dlls copy_cli_dlls)
-	endif(WIN32)
-endif()
 
 register_tap_files(tshark-tap-register.c
 	${TSHARK_TAP_SRC}
@@ -3165,7 +3035,7 @@ if(NOT WIN32)
 endif()
 
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
-if(((BUILD_wireshark AND QT_FOUND) OR BUILD_wireshark_gtk) AND NOT (WIN32 OR APPLE))
+if((BUILD_wireshark AND QT_FOUND) AND NOT (WIN32 OR APPLE))
 	install(FILES wireshark-mime-package.xml
 		DESTINATION "${CMAKE_INSTALL_DATADIR}/mime/packages"
 		RENAME wireshark.xml
@@ -3175,10 +3045,6 @@ if(((BUILD_wireshark AND QT_FOUND) OR BUILD_wireshark_gtk) AND NOT (WIN32 OR APP
 	)
 	if(BUILD_wireshark AND QT_FOUND)
 		install(FILES wireshark.desktop
-			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
-	endif()
-	if(BUILD_wireshark_gtk)
-		install(FILES wireshark-gtk.desktop
 			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
 	endif()
 	foreach(size 16 24 32 48 64 128 256)

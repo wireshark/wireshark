@@ -1,7 +1,6 @@
 # Build options for use by CMake
 
 option(BUILD_wireshark     "Build Wireshark" ON)
-option(BUILD_wireshark_gtk "Build Wireshark (GTK+ UI)" OFF)
 option(BUILD_tshark        "Build tshark" ON)
 option(BUILD_tfshark       "Build tfshark" OFF)
 option(BUILD_rawshark      "Build rawshark" ON)
@@ -41,14 +40,6 @@ option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer (UBSan) for debugging" OF
 option(ENABLE_CHECKHF_CONFLICT "Enable hf conflict check for debugging (start-up may be slower)" OFF)
 option(ENABLE_CCACHE "Speed up compiling and linking using ccache if possible" OFF)
 
-#
-# Leave GTK2 the default on Windows, looks better than GTK3
-#
-if(WIN32)
-	option(ENABLE_GTK3       "Use GTK3 instead of GTK2 to build wireshark" OFF)
-else()
-	option(ENABLE_GTK3       "Use GTK3 instead of GTK2 to build wireshark" ON)
-endif()
 option(ENABLE_QT5        "Use Qt5 instead of Qt4 to build wireshark" ON)
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 #
@@ -64,7 +55,6 @@ option(ENABLE_PLUGINS           "Build with plugins" ON)
 option(ENABLE_PLUGIN_IFDEMO     "Build with plugin interface demo" OFF)
 option(ENABLE_PCAP_NG_DEFAULT   "Enable pcapng as default file format" ON)
 
-option(ENABLE_PORTAUDIO  "Build with PortAudio support" ON)
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_LZ4        "Build with LZ4 compression support" ON)
 option(ENABLE_SNAPPY     "Build with Snappy compression support" ON)
