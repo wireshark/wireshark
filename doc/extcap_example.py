@@ -29,6 +29,7 @@ other script-based formates beside VBScript
 
 """
 
+from __future__ import print_function
 
 import os
 import sys
