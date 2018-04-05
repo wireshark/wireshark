@@ -269,6 +269,7 @@ static expert_field ei_sip_odd_register_response = EI_INIT;
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
 static expert_field ei_sip_via_sent_by_port = EI_INIT;
 static expert_field ei_sip_content_length_invalid = EI_INIT;
+static expert_field ei_sip_retry_after_invalid = EI_INIT;
 static expert_field ei_sip_Status_Code_invalid = EI_INIT;
 static expert_field ei_sip_authorization_invalid = EI_INIT;
 
@@ -3899,7 +3900,23 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             }
                         }/* hdr_tree */
                         break;
+                    case POS_RETRY_AFTER:
+                    {
+                        /* Store the retry number */
+                        char *value = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, value_len, ENC_UTF_8 | ENC_NA);
+                        guint32 retry;
+                        gboolean retry_valid = ws_strtou32(value, NULL, &retry);
 
+
+                        sip_element_item = proto_tree_add_uint(hdr_tree, hf_header_array[hf_index],
+                            tvb, offset, next_offset - offset,
+                            retry);
+
+                        if (!retry_valid) {
+                            expert_add_info(pinfo, sip_element_item, &ei_sip_retry_after_invalid);
+                        }
+                    }
+                    break;
                     case POS_CSEQ :
                     {
                         /* Store the sequence number */
@@ -6665,7 +6682,7 @@ void proto_register_sip(void)
         },
         { &hf_header_array[POS_RETRY_AFTER],
           { "Retry-After",        "sip.Retry-After",
-            FT_STRING, BASE_NONE,NULL,0x0,
+            FT_UINT32, BASE_DEC,NULL,0x0,
             "RFC 3261: Retry-After Header", HFILL }
         },
         { &hf_header_array[POS_ROUTE],
@@ -7222,6 +7239,7 @@ void proto_register_sip(void)
         { &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
         { &ei_sip_via_sent_by_port, { "sip.Via.sent-by.port.invalid", PI_MALFORMED, PI_NOTE, "Invalid SIP Via sent-by-port", EXPFILL }},
         { &ei_sip_content_length_invalid, { "sip.content_length.invalid", PI_MALFORMED, PI_NOTE, "Invalid content_length", EXPFILL }},
+        { &ei_sip_retry_after_invalid, { "sip.retry_after.invalid", PI_MALFORMED, PI_NOTE, "Invalid retry_after value", EXPFILL }},
         { &ei_sip_Status_Code_invalid, { "sip.Status-Code.invalid", PI_MALFORMED, PI_NOTE, "Invalid Status-Code", EXPFILL }},
         { &ei_sip_authorization_invalid, { "sip.authorization.invalid", PI_PROTOCOL, PI_WARN, "Invalid authorization response for known credentials", EXPFILL }}
     };
