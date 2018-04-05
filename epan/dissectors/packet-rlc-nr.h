@@ -41,9 +41,9 @@ typedef struct rlc_nr_info
     guint8          rlcMode;
     guint8          direction;
     guint8          sequenceNumberLength;
+    guint8          bearerType;
+    guint8          bearerId;
     guint16         ueid;
-    guint16         bearerType;
-    guint16         bearerId;
     guint16         pduLength;
 } rlc_nr_info;
 
