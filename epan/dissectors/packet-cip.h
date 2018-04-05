@@ -295,6 +295,7 @@
 /* PCCC CPU Mode Codes */
 #define PCCC_CPU_3A_PROGRAM     0x01
 #define PCCC_CPU_3A_RUN         0x02
+
 #define PCCC_CPU_80_PROGRAM     0x01
 #define PCCC_CPU_80_RUN         0x06
 #define PCCC_CPU_80_TEST_CONT   0x07

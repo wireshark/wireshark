@@ -169,7 +169,10 @@ static int hf_cip_pccc_file_num = -1;
 static int hf_cip_pccc_file_type = -1;
 static int hf_cip_pccc_element_num = -1;
 static int hf_cip_pccc_subelement_num = -1;
-static int hf_cip_pccc_cpu_mode = -1;
+#if 0
+static int hf_cip_pccc_cpu_mode_3a = -1;
+#endif
+static int hf_cip_pccc_cpu_mode_80 = -1;
 static int hf_cip_pccc_resp_code = -1;
 static int hf_cip_pccc_execute_multi_count = -1;
 static int hf_cip_pccc_execute_multi_len = -1;
@@ -1475,9 +1478,18 @@ static const value_string cip_pccc_file_types_vals[] = {
 value_string_ext cip_pccc_file_type_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_file_types_vals);
 
 /* Translate PCCC CPU Modes */
-static const value_string cip_pccc_cpu_mode_vals[] = {
+#if 0
+static const value_string cip_pccc_cpu_mode_3a_vals[] = {
    { PCCC_CPU_3A_PROGRAM,           "Remote Program" },
    { PCCC_CPU_3A_RUN,               "Remote Run" },
+
+   { 0,                          NULL }
+};
+
+value_string_ext cip_pccc_cpu_mode_3a_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_cpu_mode_3a_vals);
+#endif
+
+static const value_string cip_pccc_cpu_mode_80_vals[] = {
    { PCCC_CPU_80_PROGRAM,           "Remote Program" },
    { PCCC_CPU_80_RUN,               "Remote Run" },
    { PCCC_CPU_80_TEST_CONT,         "Remote Test Continuous" },
@@ -1487,7 +1499,7 @@ static const value_string cip_pccc_cpu_mode_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_cpu_mode_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_cpu_mode_vals);
+value_string_ext cip_pccc_cpu_mode_80_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_cpu_mode_80_vals);
 
 /* Translate Vendor IDs */
 static const value_string cip_vendor_vals[] = {
@@ -7098,7 +7110,7 @@ dissect_cip_pccc_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int ite
                     switch(fnc_code){
                         /* Change CPU Mode */
                         case PCCC_FNC_0F_80:
-                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_cpu_mode, tvb, pccc_cmd_offset+5, 1, ENC_NA);
+                            proto_tree_add_item(cmd_data_tree, hf_cip_pccc_cpu_mode_80, tvb, pccc_cmd_offset+5, 1, ENC_NA);
                         break;
                         /* Execute Multiple Commands */
                         case PCCC_FNC_0F_88:
@@ -8409,7 +8421,10 @@ proto_register_cip(void)
       { &hf_cip_pccc_file_type, { "File Type", "cip.pccc.file.type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_file_type_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_pccc_element_num, { "Element Number", "cip.pccc.element.num", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_pccc_subelement_num, { "Sub-Element Number", "cip.pccc.subelement.num", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_cip_pccc_cpu_mode, { "CPU Mode", "cip.pccc.cpu.mode", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_cpu_mode_vals_ext, 0, NULL, HFILL }},
+#if 0
+      { &hf_cip_pccc_cpu_mode_3a, { "CPU Mode", "cip.pccc.cpu.mode_3a", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_cpu_mode_3a_vals_ext, 0, NULL, HFILL }},
+#endif
+      { &hf_cip_pccc_cpu_mode_80, { "CPU Mode", "cip.pccc.cpu.mode_80", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &cip_pccc_cpu_mode_80_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_pccc_resp_code, { "Response Code", "cip.pccc.resp.code", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_pccc_execute_multi_count, { "Execute Multiple Command - Number of Commands", "cip.pccc.execute.multi.count", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_pccc_execute_multi_len, { "Execute Multiple Command - Command Length", "cip.pccc.execute.multi.count", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
