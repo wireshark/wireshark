@@ -35,6 +35,7 @@
 #define EXTCAP_ARGUMENT_LIST_INTERFACES         "--extcap-interfaces"
 #define EXTCAP_ARGUMENT_INTERFACE               "--extcap-interface"
 #define EXTCAP_ARGUMENT_LIST_DLTS               "--extcap-dlts"
+#define EXTCAP_ARGUMENT_VERSION                 "--extcap-version"
 
 #define EXTCAP_ARGUMENT_RUN_CAPTURE             "--capture"
 #define EXTCAP_ARGUMENT_CAPTURE_FILTER          "--extcap-capture-filter"

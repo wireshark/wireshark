@@ -75,6 +75,8 @@ typedef struct _extcap_parameters
 	uint8_t capture;
 	uint8_t show_config;
 
+	char * ws_version;
+
 	/* private content */
 	GList * interfaces;
 	uint8_t do_version;

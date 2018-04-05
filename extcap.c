@@ -50,6 +50,8 @@
 #include "extcap.h"
 #include "extcap_parser.h"
 
+#include "version_info.h"
+
 #ifdef _WIN32
 static HANDLE pipe_h = INVALID_HANDLE_VALUE;
 #endif
@@ -1676,7 +1678,7 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
 static void
 extcap_load_interface_list(void)
 {
-    gchar *error;
+    gchar *error = NULL;
 
     if (prefs.capture_no_extcap)
         return;
@@ -1699,6 +1701,8 @@ extcap_load_interface_list(void)
     if (_loaded_interfaces == NULL)
     {
         GList * arguments = NULL;
+        int major = 0;
+        int minor = 0;
 
         _loaded_interfaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_interface_info);
         /* Cleanup lookup table */
@@ -1711,6 +1715,11 @@ extcap_load_interface_list(void)
         }
 
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES));
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_VERSION));
+
+        get_ws_version_number(&major, &minor, NULL);
+
+        arguments = g_list_append(arguments, g_strdup_printf("%d.%d", major, minor));
 
         extcap_callback_info_t cb_info;
         cb_info.data = NULL;
@@ -1718,6 +1727,20 @@ extcap_load_interface_list(void)
         cb_info.err_str = &error;
 
         extcap_foreach(arguments, cb_load_interfaces, cb_info);
+
+        /* Compatibility mode. Utility did not accept version argument, therefore we just ask for the interfaces
+         * and assume, that the utility will handle compatibility on it's end */
+        if ( ! cb_info.data )
+        {
+            g_free(error);
+            error = NULL;
+
+            g_list_free_full(arguments, g_free);
+            arguments = NULL;
+
+            arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES));
+            extcap_foreach(arguments, cb_load_interfaces, cb_info);
+        }
 
         g_list_free_full(arguments, g_free);
     }

@@ -171,6 +171,7 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
             extcap->do_list_interfaces = 1;
             break;
         case EXTCAP_OPT_VERSION:
+            extcap->ws_version = g_strdup(optargument);
             extcap->do_version = 1;
             break;
         case EXTCAP_OPT_LIST_DLTS:
@@ -297,6 +298,7 @@ void extcap_base_cleanup(extcap_parameters ** extcap)
     g_free((*extcap)->version);
     g_free((*extcap)->helppage);
     g_free((*extcap)->help_header);
+    g_free((*extcap)->ws_version);
     g_list_foreach((*extcap)->help_options, (GFunc)extcap_help_option_free, NULL);
     g_list_free((*extcap)->help_options);
     g_free(*extcap);

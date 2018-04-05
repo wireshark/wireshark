@@ -142,6 +142,9 @@ def extcap_config(interface):
         print ("value {arg=%d}{value=%s}{display=%s}{default=%s}" % value)
 
 
+def extcap_version():
+    print ("extcap {version=1.0}{help=http://www.wireshark.org}{display=Example extcap interface}")
+
 def extcap_interfaces():
     print ("extcap {version=1.0}{help=http://www.wireshark.org}{display=Example extcap interface}")
     print ("interface {value=example1}{display=Example interface 1 for extcap}")
@@ -404,6 +407,7 @@ if __name__ == '__main__':
     parser.add_argument("--fifo", help="Use together with capture to provide the fifo to dump data to")
     parser.add_argument("--extcap-control-in", help="Used to get control messages from toolbar")
     parser.add_argument("--extcap-control-out", help="Used to send control messages to toolbar")
+    parser.add_argument("--extcap-version", help="Shows the version of this utility", action="store_true")
 
     # Interface Arguments
     parser.add_argument("--verify", help="Demonstrates a verification bool flag", action="store_true" )
@@ -430,6 +434,10 @@ if __name__ == '__main__':
 
     if ( len(sys.argv) <= 1 ):
         parser.exit("No arguments given!")
+
+    if ( args.extcap_version ):
+        extcap_version()
+        sys.exit(0)
 
     if ( args.extcap_interfaces == False and args.extcap_interface == None ):
         parser.exit("An interface must be provided or the selection must be displayed")
