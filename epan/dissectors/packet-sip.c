@@ -5256,6 +5256,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
             {
                 /* This frame is the original request */
                 p_val->frame_number = pinfo->num;
+                p_val->request_time = pinfo->abs_ts;
             }
             break;
         case STATUS_LINE:
