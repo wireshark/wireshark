@@ -138,7 +138,12 @@ fi
 # scripts to work with 5.1, 5.2, and 5.3, as long as they only use Lua
 # features present in all three versions)
 LUA_VERSION=5.2.4
-PORTAUDIO_VERSION=pa_stable_v190600_20161030
+if [ "$GTK_VERSION" ]; then
+    #
+    # Only the GTK+ version of Wireshark requires PortAudio.
+    #
+    PORTAUDIO_VERSION=pa_stable_v190600_20161030
+fi
 SNAPPY_VERSION=1.1.4
 LIBXML2_VERSION=2.9.4
 LZ4_VERSION=1.7.5
