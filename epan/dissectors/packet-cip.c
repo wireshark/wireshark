@@ -1346,15 +1346,15 @@ static const value_string cip_pccc_es_st_vals[] = {
    { PCCC_ES_TYPE_MISMATCH,                        "Type mismatch" },
    { PCCC_ES_BAD_RESPONSE,                         "1771 module response was not valid" },
    { PCCC_ES_DUP_LABEL,                            "Duplicated label" },
-   { PCCC_ES_RACK_FAULT,                           "Remote rack fault" },
-   { PCCC_ES_TIMEOUT,                              "Timeout" },
-   { PCCC_ES_UNKNOWN,                              "Unknown error" },
    { PCCC_ES_FILE_ALREADY_OPEN,                    "File is open; another node owns it" },
    { PCCC_ES_PROGRAM_ALREADY_OWNED,                "Another node is the program owner" },
    { PCCC_ES_RESERVED_1,                           "Reserved" },
    { PCCC_ES_RESERVED_2,                           "Reserved" },
    { PCCC_ES_PROTECTION_VIOLATION,                 "Data table element protection violation" },
    { PCCC_ES_TMP_INTERNAL_ERROR,                   "Temporary internal problem" },
+   { PCCC_ES_RACK_FAULT,                           "Remote rack fault" },
+   { PCCC_ES_TIMEOUT,                              "Timeout" },
+   { PCCC_ES_UNKNOWN,                              "Unknown error" },
 
    { 0,                          NULL }
 };

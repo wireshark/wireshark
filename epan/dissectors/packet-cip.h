@@ -181,15 +181,15 @@
 #define PCCC_ES_TYPE_MISMATCH         0x17
 #define PCCC_ES_BAD_RESPONSE          0x18
 #define PCCC_ES_DUP_LABEL             0x19
-#define PCCC_ES_RACK_FAULT            0x22
-#define PCCC_ES_TIMEOUT               0x23
-#define PCCC_ES_UNKNOWN               0x24
 #define PCCC_ES_FILE_ALREADY_OPEN     0x1A
 #define PCCC_ES_PROGRAM_ALREADY_OWNED 0x1B
 #define PCCC_ES_RESERVED_1            0x1C
 #define PCCC_ES_RESERVED_2            0x1D
 #define PCCC_ES_PROTECTION_VIOLATION  0x1E
 #define PCCC_ES_TMP_INTERNAL_ERROR    0x1F
+#define PCCC_ES_RACK_FAULT            0x22
+#define PCCC_ES_TIMEOUT               0x23
+#define PCCC_ES_UNKNOWN               0x24
 
 /* PCCC Command Codes */
 #define PCCC_CMD_00 0x00
