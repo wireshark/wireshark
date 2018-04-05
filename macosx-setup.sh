@@ -126,7 +126,12 @@ GNUTLS_VERSION=2.12.19
 # scripts to work with 5.1, 5.2, and 5.3, as long as they only use Lua
 # features present in all three versions)
 LUA_VERSION=5.2.4
-PORTAUDIO_VERSION=pa_stable_v19_20111121
+if [ "$GTK_VERSION" ]; then
+    #
+    # Only the GTK+ version of Wireshark requires PortAudio.
+    #
+    PORTAUDIO_VERSION=pa_stable_v19_20111121
+fi
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
 # current version; should we just download that, with some other
