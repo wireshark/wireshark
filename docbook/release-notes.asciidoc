@@ -50,6 +50,7 @@ since version 2.6.0:
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+NR (5G) PDCP protocol
 --
 
 === Updated Protocol Support

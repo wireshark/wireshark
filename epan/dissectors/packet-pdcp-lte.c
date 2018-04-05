@@ -1916,7 +1916,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (pdu_type == 1) {
                 /*****************************/
-                /* Use-plane Data            */
+                /* User-plane Data            */
 
                 /* Number of sequence number bits depends upon config */
                 switch (p_pdcp_info->seqnum_length) {

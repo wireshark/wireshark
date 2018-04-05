@@ -457,6 +457,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-pcap_pktdata.h
 	packet-pcnfsd.h
 	packet-pdcp-lte.h
+	packet-pdcp-nr.h
 	packet-per.h
 	packet-pkcs1.h
 	packet-pkcs12.h
@@ -1473,6 +1474,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pdc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pdcp-lte.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pdcp-nr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-peekremote.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-per.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pfcp.c

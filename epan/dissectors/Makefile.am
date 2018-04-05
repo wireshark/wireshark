@@ -1090,6 +1090,7 @@ DISSECTOR_SRC = \
 	packet-pcp.c		\
 	packet-pdc.c		\
 	packet-pdcp-lte.c	\
+	packet-pdcp-nr.c	\
 	packet-peekremote.c	\
 	packet-per.c		\
 	packet-pfcp.c		\
@@ -1718,6 +1719,7 @@ DISSECTOR_INCLUDES = \
 	packet-pcap_pktdata.h	\
 	packet-pcnfsd.h		\
 	packet-pdcp-lte.h	\
+	packet-pdcp-nr.h	\
 	packet-per.h		\
 	packet-pkcs1.h		\
 	packet-pkcs12.h		\
