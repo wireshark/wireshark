@@ -37,7 +37,7 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
     case DP_PrintableText:
         for (int i = 0; i < printData.length(); i++) {
             QChar ch(printData[i]);
-            if (ch.isSpace() || ch.isLetter()) {
+            if (ch.isSpace() || ch.isPrint()) {
                 clipboard_text += ch;
             }
         }
