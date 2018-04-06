@@ -21,6 +21,7 @@ set( EXT_ASN_FILE_LIST
 set( ASN_FILE_LIST
 	NR-InterNodeDefinitions.asn
 	NR-RRC-Definitions.asn
+	NR-UE-Variables.asn
 )
 
 set( EXTRA_DIST

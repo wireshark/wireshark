@@ -40,7 +40,6 @@ HandoverPreparationInformation-NB_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
 SCG-ConfigInfo-r12_PDU
-UECapabilityInformation_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
 UE-EUTRA-Capability_PDU
@@ -164,6 +163,14 @@ SI-OrPSI-GERAN TYPE_PREFIX
   if ((nas_eps_tvb)&&(nas_eps_handle)) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dedicatedInfoNAS);
     lte_rrc_call_dissector(nas_eps_handle, nas_eps_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY UECapabilityEnquiry-v1510-IEs/requestedFreqBandsNR-MRDC-r15 VAL_PTR = &freq_band_list_tvb
+  tvbuff_t *freq_band_list_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (freq_band_list_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_requestedFreqBandsNR_MRDC_r15);
+    dissect_nr_rrc_FreqBandList_PDU(freq_band_list_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY UE-CapabilityRAT-Container
@@ -2465,7 +2472,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
   if (scg_config_info_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sourceContextENDC_r15);
-    dissect_nr_rrc_SCG_ConfigInfo_PDU(scg_config_info_tvb, actx->pinfo, subtree, NULL);
+    dissect_nr_rrc_ConfigRestrictInfoSCG_PDU(scg_config_info_tvb, actx->pinfo, subtree, NULL);
   }
 
 #

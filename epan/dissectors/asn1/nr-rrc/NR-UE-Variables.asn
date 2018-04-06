@@ -1,0 +1,59 @@
+-- 3GPP TS 38.331 V15.1.0 (2018-03)
+
+NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	MeasId,
+	MeasIdToAddModList,
+	MeasObjectToAddModList,
+	PhysCellId,
+	ReportConfigToAddModList,
+	RSRP-Range,
+	QuantityConfig,
+	maxNrofCellMeas,
+	maxNrofMeasId
+FROM NR-RRC-Definitions;
+
+-- TAG-VAR-MEAS-CONFIG-START
+
+VarMeasConfig ::=					SEQUENCE {
+	-- Measurement identities
+	measIdList							MeasIdToAddModList					OPTIONAL,
+	-- Measurement objects
+	measObjectList						MeasObjectToAddModList				OPTIONAL,
+	-- Reporting configurations
+	reportConfigList					ReportConfigToAddModList			OPTIONAL,
+	-- Other parameters
+	quantityConfig						QuantityConfig						OPTIONAL,
+	
+	s-MeasureConfig							CHOICE {
+		ssb-RSRP								RSRP-Range,						
+		csi-RSRP								RSRP-Range						
+	} 																		OPTIONAL
+
+}
+
+-- TAG-VAR-MEAS-CONFIG-STOP
+-- TAG-VAR-MEAS-REPORT-START
+
+VarMeasReportList ::=				SEQUENCE (SIZE (1..maxNrofMeasId)) OF VarMeasReport
+
+VarMeasReport ::=					SEQUENCE {
+	-- List of measurement that have been triggered
+	measId								MeasId,
+	cellsTriggeredList					CellsTriggeredList				OPTIONAL,
+	numberOfReportsSent					INTEGER
+}
+
+CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CHOICE {
+	physCellId							PhysCellId,
+--	Not needed for EN-DC.
+	physCellIdEUTRA						ENUMERATED {ffsTypeAndValue}
+	}
+
+
+-- TAG-VAR-MEAS-REPORT-STOP
+
+END

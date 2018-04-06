@@ -394,7 +394,7 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SCG_Config_Info);
-    dissect_nr_rrc_SCG_ConfigInfo_PDU(param_tvb, actx->pinfo, subtree, NULL);
+    dissect_nr_rrc_CG_ConfigInfo_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY CellGroupConfig VAL_PTR = &param_tvb
@@ -428,6 +428,13 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
     }
   }
 
+#.FN_BODY SIB1-message VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB1_message);
+    dissect_nr_rrc_SIB1_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");

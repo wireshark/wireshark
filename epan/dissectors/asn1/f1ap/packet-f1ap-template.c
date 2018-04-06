@@ -47,6 +47,7 @@ static gint ett_f1ap = -1;
 static gint ett_f1ap_ResourceCoordinationTransferContainer = -1;
 static gint ett_f1ap_PLMN_Identity = -1;
 static gint ett_f1ap_MIB_message = -1;
+static gint ett_f1ap_SIB1_message = -1;
 static gint ett_f1ap_SCG_Config_Info = -1;
 static gint ett_f1ap_CellGroupConfig = -1;
 static gint ett_f1ap_TransportLayerAddress = -1;
@@ -190,6 +191,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_ResourceCoordinationTransferContainer,
     &ett_f1ap_PLMN_Identity,
     &ett_f1ap_MIB_message,
+    &ett_f1ap_SIB1_message,
     &ett_f1ap_SCG_Config_Info,
     &ett_f1ap_CellGroupConfig,
     &ett_f1ap_TransportLayerAddress,

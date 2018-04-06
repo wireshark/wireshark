@@ -6622,7 +6622,7 @@ dissect_x2ap_MeNBtoSgNBContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
        x2ap_data->triggering_message == successful_outcome)) {
     dissect_nr_rrc_RRCReconfigurationComplete_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   } else {
-    dissect_nr_rrc_SCG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
 
@@ -7802,7 +7802,7 @@ dissect_x2ap_SgNBtoMeNBContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SgNBtoMeNBContainer);
-  dissect_nr_rrc_SCG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
 
 

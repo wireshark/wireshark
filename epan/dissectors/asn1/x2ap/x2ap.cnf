@@ -255,7 +255,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
        x2ap_data->triggering_message == successful_outcome)) {
     dissect_nr_rrc_RRCReconfigurationComplete_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   } else {
-    dissect_nr_rrc_SCG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY SgNBtoMeNBContainer VAL_PTR = &parameter_tvb
@@ -265,7 +265,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SgNBtoMeNBContainer);
-  dissect_nr_rrc_SCG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
 #.FN_HDR MCGSplitSRB/rrcContainer
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);

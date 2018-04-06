@@ -8,32 +8,41 @@ UNALIGNED
 #.END
 
 #.USE_VALS_EXT
-DRX-Config/setup/drx-onDurationTimer
-DRX-Config/setup/drx-InactivityTimer
-DRX-Config/setup/drx-RetransmissionTimerDL
-DRX-Config/setup/drx-RetransmissionTimerUL
-DRX-Config/setup/drx-LongCycleStartOffset
-DRX-Config/setup/shortDRX/drx-ShortCycle
-DRX-Config/setup/drx-SlotOffset
-PDCP-Config/moreThanOneRLC/ul-DataSplitThreshold/setup
+CA-BandwidthClassNR
+ConfiguredGrantConfig/configuredGrantTimer
+ConfiguredGrantConfig/periodicity
+DRX-Config/drx-onDurationTimer/milliSeconds
+DRX-Config/drx-InactivityTimer
+DRX-Config/drx-RetransmissionTimerDL
+DRX-Config/drx-RetransmissionTimerUL
+DRX-Config/drx-LongCycleStartOffset
+DRX-Config/shortDRX/drx-ShortCycle
+DRX-Config/drx-SlotOffset
+DRX-Info/drx-LongCycleStartOffset
+DRX-Info/shortDRX/drx-ShortCycle
 PDCP-Config/t-Reordering
 PollByte
 PollPDU
 Q-OffsetRange
-RACH-ConfigCommon/preambleReceivedTargetPower
-SPS-Config/uplink/priodicity
+ServingCellConfig/bwp-InactivityTimer
+SPS-Config/periodicity
+SRS-PeriodicityAndOffset
 T-PollRetransmit
 T-Reassembly
 T-StatusProhibit
+UL-DataSplitThreshold
 
 #.EXPORTS
 CellGroupConfig_PDU
+CG-ConfigInfo_PDU
+ConfigRestrictInfoSCG_PDU
+FreqBandList_PDU
 MeasResults_PDU
 MIB_PDU
-SCG-ConfigInfo_PDU
 RadioBearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
+SIB1_PDU
 UL-DCCH-Message_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
@@ -41,13 +50,16 @@ UE-NR-Capability_PDU
 #.PDU
 BCCH-BCH-Message             @bcch.bch
 CellGroupConfig
+CG-ConfigInfo
+ConfigRestrictInfoSCG
 DL-DCCH-Message              @dl.dcch
+FreqBandList
 MIB
 MeasResults
 RadioBearerConfig
 RRCReconfiguration
 RRCReconfigurationComplete
-SCG-ConfigInfo
+SIB1
 UE-MRDC-Capability
 UE-NR-Capability
 UL-DCCH-Message              @ul.dcch
@@ -55,46 +67,33 @@ UL-DCCH-Message              @ul.dcch
 
 #.OMIT_ASSIGNMENT
 AS-Context
-BandwidthPart-Config
-BeamManagement
+CellIdentity
+CellsTriggeredList
+CG-Config
+CG-Config-IEs
 ConfigRestrictModReqSCG
-ControlResourceIndex
-CSI-IM-ResourceConfig
-CSI-IM-ResourceConfigId
-FailureReportSCG-ToOtherRAT
+GSCN-ValueNR
 HandoverCommand
-HandoverCommand-r15-IEs
+HandoverCommand-IEs
 HandoverPreparationInformation
-HandoverPreparationInformation-r15-IEs
-MeasResult2NR
-MeasResultList2NR
-MeasResultServFreq2NR
-MeasResultServFreqList2NR
-PUCCH-F2-number-of-PRB
-PUCCH-format0
-PUCCH-format1
-PUCCH-format2
-PUCCH-format3
-PUCCH-format4
-RAT-Type
+HandoverPreparationInformation-IEs
+MeasConfigSN
+MeasTiming
+MeasTimingList
+MeasurementTimingConfiguration
+MeasurementTimingConfiguration-IEs
 ReestabNCellInfo
 ReestabNCellInfoList
 RRM-Config
-SIB1
-SCG-Config
-SCG-Config-r15-IEs
 ShortMAC-I
-SubcarrierSpacingRACH
-SupportedBandCombination
-UE-CapabilityRAT-Container
-UE-CapabilityRAT-ContainerList
-ZP-CSI-RS-Resource
-ZP-CSI-RS-ResourceId
+VarMeasConfig
+VarMeasReportList
+VarMeasReport
 
 #.NO_EMIT ONLY_VALS
 
 #.MAKE_ENUM
-#RAT-Type TYPE_PREFIX
+RAT-Type TYPE_PREFIX
 
 #.FN_HDR BCCH-BCH-Message
   proto_item *ti;
@@ -139,46 +138,33 @@ ZP-CSI-RS-ResourceId
 #.FN_HDR RRCReconfigurationComplete
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration Complete");
 
-# #.FN_BODY UE-CapabilityRAT-Container
-#   /* Initialise to invalid value */
-#   private_data_set_rat_type(actx, 0xFF);
-# %(DEFAULT_BODY)s
-
-# #.FN_BODY RAT-Type VAL_PTR = &rat_type
-#   guint32 rat_type;
-# %(DEFAULT_BODY)s
-#   private_data_set_rat_type(actx, (guint8)rat_type);
-
-# #.FN_BODY UE-CapabilityRAT-Container/ueCapabilityRAT-Container VAL_PTR = &ue_cap_tvb
-#   tvbuff_t *ue_cap_tvb=NULL;
-# %(DEFAULT_BODY)s
-
-# #.FN_FTR UE-CapabilityRAT-Container/ueCapabilityRAT-Container
-#   if (ue_cap_tvb) {
-#     proto_tree *subtree;
-#
-#     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UE_CapabilityRAT_Container);
-#     switch(private_data_get_rat_type(actx)){
-#     case RAT_Type_nr:
-#       /* eutra */
-#       dissect_nr_rrc_UE_NR_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
-#       break;
-#     case RAT_Type_mrdc:
-#       /* utra */
-#       dissect_nr_rrc_UE_MRDC_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
-#       break;
-#     default:
-#       break;
-#     }
-#   }
-
-#.FN_BODY UECapabilityInformation VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb;
-  proto_tree *subtree;
-
+#.FN_BODY UE-CapabilityRAT-Container
+  /* Initialise to invalid value */
+  private_data_set_rat_type(actx, 0xFF);
 %(DEFAULT_BODY)s
 
-  if (parameter_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UECapabilityInformation);
-    dissect_lte_rrc_UECapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+#.FN_BODY RAT-Type VAL_PTR = &rat_type
+  guint32 rat_type;
+%(DEFAULT_BODY)s
+  private_data_set_rat_type(actx, (guint8)rat_type);
+
+#.FN_BODY UE-CapabilityRAT-Container/ue-CapabilityRAT-Container VAL_PTR = &ue_cap_tvb
+  tvbuff_t *ue_cap_tvb=NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR UE-CapabilityRAT-Container/ue-CapabilityRAT-Container
+  if (ue_cap_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_UE_CapabilityRAT_Container);
+    switch(private_data_get_rat_type(actx)){
+    case RAT_Type_nr:
+      dissect_nr_rrc_UE_NR_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case RAT_Type_eutra_nr:
+      dissect_nr_rrc_UE_MRDC_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
   }

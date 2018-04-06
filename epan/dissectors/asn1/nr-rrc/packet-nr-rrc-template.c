@@ -1,7 +1,7 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V15.0.0 Release 15) packet dissection
+ * (3GPP TS 38.331 V15.1.0 Release 15) packet dissection
  * Copyright 2018, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
@@ -43,7 +43,6 @@ static gint ett_nr_rrc = -1;
 #include "packet-nr-rrc-ett.c"
 static gint ett_nr_rrc_UECapabilityInformation = -1;
 
-#if 0
 typedef struct {
   guint8 rat_type;
 } nr_rrc_private_data_t;
@@ -68,7 +67,6 @@ static void private_data_set_rat_type(asn1_ctx_t *actx, guint8 rat_type)
   nr_rrc_private_data_t *private_data = (nr_rrc_private_data_t*)nr_rrc_get_private_data(actx);
   private_data->rat_type = rat_type;
 }
-#endif
 
 #include "packet-nr-rrc-fn.c"
 

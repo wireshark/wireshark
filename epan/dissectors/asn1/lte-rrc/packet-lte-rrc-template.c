@@ -294,6 +294,7 @@ static gint ett_lte_rrc_sourceRB_ConfigNR_r15 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigSN_NR_r15 = -1;
 static gint ett_lte_rrc_sourceOtherConfigSN_NR_r15 = -1;
 static gint ett_lte_rrc_sourceContextENDC_r15 = -1;
+static gint ett_lte_rrc_requestedFreqBandsNR_MRDC_r15 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -348,6 +349,7 @@ static const fragment_items lte_rrc_sib12_frag_items = {
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_1_val = {
   "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 & 2-2 - Supported",
@@ -4200,7 +4202,8 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_sourceRB_ConfigNR_r15,
     &ett_lte_rrc_sourceRB_ConfigSN_NR_r15,
     &ett_lte_rrc_sourceOtherConfigSN_NR_r15,
-    &ett_lte_rrc_sourceContextENDC_r15
+    &ett_lte_rrc_sourceContextENDC_r15,
+    &ett_lte_rrc_requestedFreqBandsNR_MRDC_r15
   };
 
   static ei_register_info ei[] = {

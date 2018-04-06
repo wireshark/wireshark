@@ -14,7 +14,8 @@ EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
 	NR-InterNodeDefinitions.asn \
-	NR-RRC-Definitions.asn
+	NR-RRC-Definitions.asn \
+	NR-UE-Variables.asn
 
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \
