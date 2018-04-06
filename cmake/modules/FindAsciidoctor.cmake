@@ -10,6 +10,7 @@ FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
     NAMES
         asciidoctorj
         asciidoctor
+        asciidoctor.ruby2.1
     PATHS
         /bin
         /usr/bin
