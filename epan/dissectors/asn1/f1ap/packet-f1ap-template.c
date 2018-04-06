@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.0.0 (2017-12)
+ * References: 3GPP TS 38.473 V15.1.0 (2018-03)
  */
 
 #include "config.h"
@@ -51,6 +51,8 @@ static gint ett_f1ap_SIB1_message = -1;
 static gint ett_f1ap_SCG_Config_Info = -1;
 static gint ett_f1ap_CellGroupConfig = -1;
 static gint ett_f1ap_TransportLayerAddress = -1;
+static gint ett_f1ap_UE_CapabilityRAT_ContainerList = -1;
+static gint ett_f1ap_measurementTimingConfiguration = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -195,6 +197,8 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SCG_Config_Info,
     &ett_f1ap_CellGroupConfig,
     &ett_f1ap_TransportLayerAddress,
+    &ett_f1ap_UE_CapabilityRAT_ContainerList,
+    &ett_f1ap_measurementTimingConfiguration,
 #include "packet-f1ap-ettarr.c"
   };
 

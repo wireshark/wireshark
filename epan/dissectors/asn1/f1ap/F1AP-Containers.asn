@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.0.0 (2017-12)
+-- 3GPP TS 38.473 V15.1.0 (2018-03)
 -- 9.4.8	Container Definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 F1AP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-Containers (5) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -120,11 +120,11 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {F1AP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-Container {F1AP-PROTOCOL-IES : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-SingleContainer {F1AP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-SingleContainer {F1AP-PROTOCOL-IES : IEsSetParam} ::= 
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {F1AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
@@ -139,7 +139,7 @@ ProtocolIE-Field {F1AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {F1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+ProtocolIE-ContainerPair {F1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
@@ -148,22 +148,8 @@ ProtocolIE-FieldPair {F1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
 	firstCriticality	F1AP-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
 	firstValue			F1AP-PROTOCOL-IES-PAIR.&FirstValue			({IEsSetParam}{@id}),
 	secondCriticality	F1AP-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
-	secondValue			F1AP-PROTOCOL-IES-PAIR.&SecondValue		({IEsSetParam}{@id})
+	secondValue			F1AP-PROTOCOL-IES-PAIR.&SecondValue			({IEsSetParam}{@id})
 }
-
--- **************************************************************
---
--- Container Lists for Protocol IE Containers
---
--- **************************************************************
-
-ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, F1AP-PROTOCOL-IES : IEsSetParam} ::=
-	SEQUENCE (SIZE (lowerBound..upperBound)) OF
-	ProtocolIE-SingleContainer {{IEsSetParam}}
-
-ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound,F1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
-	SEQUENCE (SIZE (lowerBound..upperBound)) OF
-	ProtocolIE-ContainerPair {{IEsSetParam}}
 
 -- **************************************************************
 --
@@ -171,7 +157,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound,F1AP-PR
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {F1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
+ProtocolExtensionContainer {F1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -187,7 +173,7 @@ ProtocolExtensionField {F1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENC
 --
 -- **************************************************************
 
-PrivateIE-Container {F1AP-PRIVATE-IES : IEsSetParam } ::=
+PrivateIE-Container {F1AP-PRIVATE-IES : IEsSetParam } ::= 
 	SEQUENCE (SIZE (1.. maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 

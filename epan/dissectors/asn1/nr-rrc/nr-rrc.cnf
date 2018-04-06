@@ -37,15 +37,17 @@ CellGroupConfig_PDU
 CG-ConfigInfo_PDU
 ConfigRestrictInfoSCG_PDU
 FreqBandList_PDU
+MeasurementTimingConfiguration_PDU
 MeasResults_PDU
 MIB_PDU
 RadioBearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
 SIB1_PDU
-UL-DCCH-Message_PDU
+UE-CapabilityRAT-ContainerList_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
+UL-DCCH-Message_PDU
 
 #.PDU
 BCCH-BCH-Message             @bcch.bch
@@ -55,11 +57,13 @@ ConfigRestrictInfoSCG
 DL-DCCH-Message              @dl.dcch
 FreqBandList
 MIB
+MeasurementTimingConfiguration
 MeasResults
 RadioBearerConfig
 RRCReconfiguration
 RRCReconfigurationComplete
 SIB1
+UE-CapabilityRAT-ContainerList
 UE-MRDC-Capability
 UE-NR-Capability
 UL-DCCH-Message              @ul.dcch
@@ -78,10 +82,6 @@ HandoverCommand-IEs
 HandoverPreparationInformation
 HandoverPreparationInformation-IEs
 MeasConfigSN
-MeasTiming
-MeasTimingList
-MeasurementTimingConfiguration
-MeasurementTimingConfiguration-IEs
 ReestabNCellInfo
 ReestabNCellInfoList
 RRM-Config

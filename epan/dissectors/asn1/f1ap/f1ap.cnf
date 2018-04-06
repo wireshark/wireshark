@@ -8,6 +8,7 @@ ALIGNED
 
 #.USE_VALS_EXT
 LongDRXCycleLength
+NRNRB
 ProcedureCode
 ProtocolIE-ID
 ShortDRXCycleLength
@@ -26,9 +27,7 @@ ProtocolIE-ID
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
 Presence
-ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
-ProtocolIE-ContainerPairList
 ProtocolIE-FieldPair
 #.END
 
@@ -89,41 +88,6 @@ ProtocolIE-Field/value ie_field_value
   f1ap_data->message_type = UNSUCCESSFUL_OUTCOME;
 #.END
 
-#--- Parameterization is not supported in asn2wrs ---
-
-#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, F1AP-PROTOCOL-IES : IEsSetParam} ::=
-# SEQUENCE (SIZE (lowerBound..upperBound)) OF
-# ProtocolIE-Container {{IEsSetParam}}
-
-# .FN_PARS ProtocolIE-ContainerList
-#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
-#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
-#.FN_HDR ProtocolIE-ContainerList
-#  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
-#    { "lowerBound", ASN1_PAR_INTEGER },
-#    { "upperBound", ASN1_PAR_INTEGER },
-#    { NULL, (asn1_par_type)0 }
-#  };
-#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
-#.END
-
-#ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, F1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
-# SEQUENCE (SIZE (lowerBound..upperBound)) OF
-# ProtocolIE-ContainerPair {{IEsSetParam}}
-
-# Currently not used
-# FN_PARS ProtocolIE-ContainerPairList
-#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
-#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
-# FN_HDR ProtocolIE-ContainerPairList
-#  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
-#    { "lowerBound", ASN1_PAR_INTEGER },
-#    { "upperBound", ASN1_PAR_INTEGER },
-#    { NULL, 0 }
-#  };
-#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
-# END
-
 #.FN_HDR PrivateIE-ID
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
   f1ap_data->obj_id = NULL;
@@ -157,135 +121,199 @@ id-UEContextReleaseRequest       ProcedureCode
 id-InitialULRRCMessageTransfer   ProcedureCode
 id-DLRRCMessageTransfer          ProcedureCode
 id-ULRRCMessageTransfer          ProcedureCode
-id-SystemInformationDelivery     ProcedureCode
-id-Paging                        ProcedureCode
+id-privateMessage                ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                       ProtocolIE-ID
+id-Cells-Failed-to-be-Activated-List           ProtocolIE-ID
+id-Cells-Failed-to-be-Activated-List-Item      ProtocolIE-ID
+id-Cells-to-be-Activated-List                  ProtocolIE-ID
+id-Cells-to-be-Activated-List-Item             ProtocolIE-ID
+id-Cells-to-be-Deactivated-List                ProtocolIE-ID
+id-Cells-to-be-Deactivated-List-Item           ProtocolIE-ID
 id-CriticalityDiagnostics                      ProtocolIE-ID
-id-gNB-DU-F1AP-ID                              ProtocolIE-ID
-id-gNB-CU-F1AP-ID                              ProtocolIE-ID
+id-CUtoDURRCInformation                        ProtocolIE-ID
+id-DRBs-FailedToBeModifiedConf-Item            ProtocolIE-ID
+id-DRBs-FailedToBeModifiedConf-List            ProtocolIE-ID
+id-DRBs-FailedToBeModified-Item                ProtocolIE-ID
+id-DRBs-FailedToBeModified-List                ProtocolIE-ID
+id-DRBs-FailedToBeSetup-Item                   ProtocolIE-ID
+id-DRBs-FailedToBeSetup-List                   ProtocolIE-ID
+id-DRBs-FailedToBeSetupMod-Item                ProtocolIE-ID
+id-DRBs-FailedToBeSetupMod-List                ProtocolIE-ID
+id-DRBs-ModifiedConf-Item                      ProtocolIE-ID
+id-DRBs-ModifiedConf-List                      ProtocolIE-ID
+id-DRBs-Modified-Item                          ProtocolIE-ID
+id-DRBs-Modified-List                          ProtocolIE-ID
+id-DRBs-Required-ToBeModified-Item             ProtocolIE-ID
+id-DRBs-Required-ToBeModified-List             ProtocolIE-ID
+id-DRBs-Required-ToBeReleased-Item             ProtocolIE-ID
+id-DRBs-Required-ToBeReleased-List             ProtocolIE-ID
+id-DRBs-Setup-Item                             ProtocolIE-ID
+id-DRBs-Setup-List                             ProtocolIE-ID
+id-DRBs-SetupMod-Item                          ProtocolIE-ID
+id-DRBs-SetupMod-List                          ProtocolIE-ID
+id-DRBs-ToBeModified-Item                      ProtocolIE-ID
+id-DRBs-ToBeModified-List                      ProtocolIE-ID
+id-DRBs-ToBeReleased-Item                      ProtocolIE-ID
+id-DRBs-ToBeReleased-List                      ProtocolIE-ID
+id-DRBs-ToBeSetup-Item                         ProtocolIE-ID
+id-DRBs-ToBeSetup-List                         ProtocolIE-ID
+id-DRBs-ToBeSetupMod-Item                      ProtocolIE-ID
+id-DRBs-ToBeSetupMod-List                      ProtocolIE-ID
+id-DRXCycle                                    ProtocolIE-ID
+id-DUtoCURRCInformation                        ProtocolIE-ID
+id-gNB-CU-UE-F1AP-ID                           ProtocolIE-ID
+id-gNB-DU-UE-F1AP-ID                           ProtocolIE-ID
+id-gNB-DU-ID                                   ProtocolIE-ID
+id-GNB-DU-Served-Cells-Item                    ProtocolIE-ID
+id-gNB-DU-Served-Cells-List                    ProtocolIE-ID
+id-gNB-DU-Name                                 ProtocolIE-ID
+id-NRCellID                                    ProtocolIE-ID
+id-oldgNB-DU-UE-F1AP-ID                        ProtocolIE-ID
 id-ResetType                                   ProtocolIE-ID
+id-ResourceCoordinationTransferContainer       ProtocolIE-ID
+id-RRCContainer                                ProtocolIE-ID
+id-SCell-ToBeRemoved-Item                      ProtocolIE-ID
+id-SCell-ToBeRemoved-List                      ProtocolIE-ID
+id-SCell-ToBeSetup-Item                        ProtocolIE-ID
+id-SCell-ToBeSetup-List                        ProtocolIE-ID
+id-SCell-ToBeSetupMod-Item                     ProtocolIE-ID
+id-SCell-ToBeSetupMod-List                     ProtocolIE-ID
+id-Served-Cells-To-Add-Item                    ProtocolIE-ID
+id-Served-Cells-To-Add-List                    ProtocolIE-ID
+id-Served-Cells-To-Delete-Item                 ProtocolIE-ID
+id-Served-Cells-To-Delete-List                 ProtocolIE-ID
+id-Served-Cells-To-Modify-Item                 ProtocolIE-ID
+id-Served-Cells-To-Modify-List                 ProtocolIE-ID
+id-SpCell-ID                                   ProtocolIE-ID
+id-SRBID                                       ProtocolIE-ID
+id-SRBs-FailedToBeSetup-Item                   ProtocolIE-ID
+id-SRBs-FailedToBeSetup-List                   ProtocolIE-ID
+id-SRBs-FailedToBeSetupMod-Item                ProtocolIE-ID
+id-SRBs-FailedToBeSetupMod-List                ProtocolIE-ID
+id-SRBs-Required-ToBeReleased-Item             ProtocolIE-ID
+id-SRBs-Required-ToBeReleased-List             ProtocolIE-ID
+id-SRBs-ToBeReleased-Item                      ProtocolIE-ID
+id-SRBs-ToBeReleased-List                      ProtocolIE-ID
+id-SRBs-ToBeSetup-Item                         ProtocolIE-ID
+id-SRBs-ToBeSetup-List                         ProtocolIE-ID
+id-SRBs-ToBeSetupMod-Item                      ProtocolIE-ID
+id-SRBs-ToBeSetupMod-List                      ProtocolIE-ID
 id-TimeToWait                                  ProtocolIE-ID
+id-TransactionID                               ProtocolIE-ID
+id-TransmissionStopIndicator                   ProtocolIE-ID
 id-UE-associatedLogicalF1-ConnectionItem       ProtocolIE-ID
 id-UE-associatedLogicalF1-ConnectionListResAck ProtocolIE-ID
-id-RRCContainer                                ProtocolIE-ID
-id-SRBID                                       ProtocolIE-ID
-id-gNB-DU-ID                                   ProtocolIE-ID
-id-gNB-Name                                    ProtocolIE-ID
-id-NRCellID                                    ProtocolIE-ID
-id-PCI                                         ProtocolIE-ID
-id-gNB-DU-Served-Cells-List                    ProtocolIE-ID
-id-Cells-to-be-Activated-List                  ProtocolIE-ID
-id-Served-Cells-To-Add-List                    ProtocolIE-ID
-id-Served-Cells-To-Modify-List                 ProtocolIE-ID
-id-Served-Cells-To-Delete-List                 ProtocolIE-ID
-id-Cells-to-be-Deactivated-List                ProtocolIE-ID
-id-Cells-Failed-to-be-Activated-List           ProtocolIE-ID
-id-TransactionID                               ProtocolIE-ID
-id-Served-Cell-Information                     ProtocolIE-ID
-id-gNB-DU-System-Information                   ProtocolIE-ID
-id-NCGI                                        ProtocolIE-ID
-id-gNB-CU-System-Information                   ProtocolIE-ID
-id-OldNCGI                                     ProtocolIE-ID
-id-DRBID                                       ProtocolIE-ID
-id-PSCell-ID                                   ProtocolIE-ID
-id-EUTRANQoS                                   ProtocolIE-ID
-id-SRBs-ToBeSetup-List                         ProtocolIE-ID
-id-DRBs-ToBeSetup-List                         ProtocolIE-ID
-id-DLTunnels-ToBeSetup-List                    ProtocolIE-ID
-id-ULTunnels-ToBeSetup-List                    ProtocolIE-ID
-id-UL-GTP-Tunnel-EndPoint                      ProtocolIE-ID
-id-DL-GTP-Tunnel-EndPoint                      ProtocolIE-ID
-id-CUtoDURRCInformation                        ProtocolIE-ID
-id-DUtoCURRCInformation                        ProtocolIE-ID
-id-UERadioCapability                           ProtocolIE-ID
-id-UEAggregateMaximumBitRate                   ProtocolIE-ID
-id-SCell-ToBeSetup-List                        ProtocolIE-ID
-id-ResourceCoordinationTransferContainer       ProtocolIE-ID
-id-DRBs-ToBeModified-List                      ProtocolIE-ID
-id-DRBs-ToBeReleased-List                      ProtocolIE-ID
-id-DRBs-Modified-List                          ProtocolIE-ID
-id-DRBs-FailedToSetup-List                     ProtocolIE-ID
-id-DRBs-FailedToBeModified-List                ProtocolIE-ID
-id-SCell-ID                                    ProtocolIE-ID
-id-DRXCycle                                    ProtocolIE-ID
-id-DRBs-Setup-List                             ProtocolIE-ID
-id-SRBs-Setup-List                             ProtocolIE-ID
-id-DRBs-FailedToBeSetup-List                   ProtocolIE-ID
-id-SRBs-FailedToBeSetup-List                   ProtocolIE-ID
-id-DLTunnels-ToBeSetup-list                    ProtocolIE-ID
-id-ULTunnels-ToBeSetup-list                    ProtocolIE-ID
-id-TransmissionStopIndicator                   ProtocolIE-ID
-id-DRBs-Required-ToBeModified-List             ProtocolIE-ID
-id-DRBs-Required-ToBeReleased-List             ProtocolIE-ID
-id-SRBs-Required-ToBeReleased-List             ProtocolIE-ID
-id-oldgNB-DU-F1AP-ID                           ProtocolIE-ID
-id-SRBs-ToBeReleased-List                      ProtocolIE-ID
-id-DRBs-ModifiedConf-List                      ProtocolIE-ID
-id-privateMessage                              ProtocolIE-ID
+id-gNB-CU-Name                                 ProtocolIE-ID
+id-SCell-FailedtoSetup-List                    ProtocolIE-ID
+id-SCell-FailedtoSetup-Item                    ProtocolIE-ID
+id-SCell-FailedtoSetupMod-List                 ProtocolIE-ID
+id-SCell-FailedtoSetupMod-Item                 ProtocolIE-ID
+id-RRCRconfigurationCompleteIndicator          ProtocolIE-ID
+id-Active-Cells-Item                           ProtocolIE-ID
+id-Active-Cells-List                           ProtocolIE-ID
+id-Candidate-SpCell-List                       ProtocolIE-ID
+id-Candidate-SpCell-Item                       ProtocolIE-ID
+id-Potential-SpCell-List                       ProtocolIE-ID
+id-Potential-SpCell-Item                       ProtocolIE-ID
 #.END
 
 #.REGISTER
 
 #F1AP-PROTOCOL-IES
 Cause                                       N f1ap.ies id-Cause
+Cells-Failed-to-be-Activated-List           N f1ap.ies id-Cells-Failed-to-be-Activated-List
+Cells-Failed-to-be-Activated-List-Item      N f1ap.ies id-Cells-Failed-to-be-Activated-List-Item
+Cells-to-be-Activated-List                  N f1ap.ies id-Cells-to-be-Activated-List
+Cells-to-be-Activated-List-Item             N f1ap.ies id-Cells-to-be-Activated-List-Item
+Cells-to-be-Deactivated-List                N f1ap.ies id-Cells-to-be-Deactivated-List
+Cells-to-be-Deactivated-List-Item           N f1ap.ies id-Cells-to-be-Deactivated-List-Item
 CriticalityDiagnostics                      N f1ap.ies id-CriticalityDiagnostics
-GNB-DU-F1AP-ID                              N f1ap.ies id-gNB-DU-F1AP-ID
-GNB-CU-F1AP-ID                              N f1ap.ies id-gNB-CU-F1AP-ID
+CUtoDURRCInformation                        N f1ap.ies id-CUtoDURRCInformation
+DRBs-FailedToBeModifiedConf-Item            N f1ap.ies id-DRBs-FailedToBeModifiedConf-Item
+DRBs-FailedToBeModifiedConf-List            N f1ap.ies id-DRBs-FailedToBeModifiedConf-List
+DRBs-FailedToBeModified-Item                N f1ap.ies id-DRBs-FailedToBeModified-Item
+DRBs-FailedToBeModified-List                N f1ap.ies id-DRBs-FailedToBeModified-List
+DRBs-FailedToBeSetup-Item                   N f1ap.ies id-DRBs-FailedToBeSetup-Item
+DRBs-FailedToBeSetup-List                   N f1ap.ies id-DRBs-FailedToBeSetup-List
+DRBs-FailedToBeSetupMod-Item                N f1ap.ies id-DRBs-FailedToBeSetupMod-Item
+DRBs-FailedToBeSetupMod-List                N f1ap.ies id-DRBs-FailedToBeSetupMod-List
+DRBs-ModifiedConf-Item                      N f1ap.ies id-DRBs-ModifiedConf-Item
+DRBs-ModifiedConf-List                      N f1ap.ies id-DRBs-ModifiedConf-List
+DRBs-Modified-Item                          N f1ap.ies id-DRBs-Modified-Item
+DRBs-Modified-List                          N f1ap.ies id-DRBs-Modified-List
+DRBs-Required-ToBeModified-Item             N f1ap.ies id-DRBs-Required-ToBeModified-Item
+DRBs-Required-ToBeModified-List             N f1ap.ies id-DRBs-Required-ToBeModified-List
+DRBs-Required-ToBeReleased-Item             N f1ap.ies id-DRBs-Required-ToBeReleased-Item
+DRBs-Required-ToBeReleased-List             N f1ap.ies id-DRBs-Required-ToBeReleased-List
+DRBs-Setup-Item                             N f1ap.ies id-DRBs-Setup-Item
+DRBs-Setup-List                             N f1ap.ies id-DRBs-Setup-List
+DRBs-SetupMod-Item                          N f1ap.ies id-DRBs-SetupMod-Item
+DRBs-SetupMod-List                          N f1ap.ies id-DRBs-SetupMod-List
+DRBs-ToBeModified-Item                      N f1ap.ies id-DRBs-ToBeModified-Item
+DRBs-ToBeModified-List                      N f1ap.ies id-DRBs-ToBeModified-List
+DRBs-ToBeReleased-Item                      N f1ap.ies id-DRBs-ToBeReleased-Item
+DRBs-ToBeReleased-List                      N f1ap.ies id-DRBs-ToBeReleased-List
+DRBs-ToBeSetup-Item                         N f1ap.ies id-DRBs-ToBeSetup-Item
+DRBs-ToBeSetup-List                         N f1ap.ies id-DRBs-ToBeSetup-List
+DRBs-ToBeSetupMod-Item                      N f1ap.ies id-DRBs-ToBeSetupMod-Item
+DRBs-ToBeSetupMod-List                      N f1ap.ies id-DRBs-ToBeSetupMod-List
+DRXCycle                                    N f1ap.ies id-DRXCycle
+DUtoCURRCInformation                        N f1ap.ies id-DUtoCURRCInformation
+GNB-CU-UE-F1AP-ID                           N f1ap.ies id-gNB-CU-UE-F1AP-ID
+GNB-DU-UE-F1AP-ID                           N f1ap.ies id-gNB-DU-UE-F1AP-ID
+GNB-DU-ID                                   N f1ap.ies id-gNB-DU-ID
+GNB-DU-Served-Cells-Item                    N f1ap.ies id-GNB-DU-Served-Cells-Item
+GNB-DU-Served-Cells-List                    N f1ap.ies id-gNB-DU-Served-Cells-List
+GNB-DU-Name                                 N f1ap.ies id-gNB-DU-Name
+GNB-DU-UE-F1AP-ID                           N f1ap.ies id-oldgNB-DU-UE-F1AP-ID
 ResetType                                   N f1ap.ies id-ResetType
+ResourceCoordinationTransferContainer       N f1ap.ies id-ResourceCoordinationTransferContainer
+RRCContainer                                N f1ap.ies id-RRCContainer
+SCell-ToBeRemoved-Item                      N f1ap.ies id-SCell-ToBeRemoved-Item
+SCell-ToBeRemoved-List                      N f1ap.ies id-SCell-ToBeRemoved-List
+SCell-ToBeSetup-Item                        N f1ap.ies id-SCell-ToBeSetup-Item
+SCell-ToBeSetup-List                        N f1ap.ies id-SCell-ToBeSetup-List
+SCell-ToBeSetupMod-Item                     N f1ap.ies id-SCell-ToBeSetupMod-Item
+SCell-ToBeSetupMod-List                     N f1ap.ies id-SCell-ToBeSetupMod-List
+Served-Cells-To-Add-Item                    N f1ap.ies id-Served-Cells-To-Add-Item
+Served-Cells-To-Add-List                    N f1ap.ies id-Served-Cells-To-Add-List
+Served-Cells-To-Delete-Item                 N f1ap.ies id-Served-Cells-To-Delete-Item
+Served-Cells-To-Delete-List                 N f1ap.ies id-Served-Cells-To-Delete-List
+Served-Cells-To-Modify-Item                 N f1ap.ies id-Served-Cells-To-Modify-Item
+Served-Cells-To-Modify-List                 N f1ap.ies id-Served-Cells-To-Modify-List
+NRCGI                                       N f1ap.ies id-SpCell-ID
+SRBID                                       N f1ap.ies id-SRBID
+SRBs-FailedToBeSetup-Item                   N f1ap.ies id-SRBs-FailedToBeSetup-Item
+SRBs-FailedToBeSetup-List                   N f1ap.ies id-SRBs-FailedToBeSetup-List
+SRBs-FailedToBeSetupMod-Item                N f1ap.ies id-SRBs-FailedToBeSetupMod-Item
+SRBs-FailedToBeSetupMod-List                N f1ap.ies id-SRBs-FailedToBeSetupMod-List
+SRBs-Required-ToBeReleased-Item             N f1ap.ies id-SRBs-Required-ToBeReleased-Item
+SRBs-Required-ToBeReleased-List             N f1ap.ies id-SRBs-Required-ToBeReleased-List
+SRBs-ToBeReleased-Item                      N f1ap.ies id-SRBs-ToBeReleased-Item
+SRBs-ToBeReleased-List                      N f1ap.ies id-SRBs-ToBeReleased-List
+SRBs-ToBeSetup-Item                         N f1ap.ies id-SRBs-ToBeSetup-Item
+SRBs-ToBeSetup-List                         N f1ap.ies id-SRBs-ToBeSetup-List
+SRBs-ToBeSetupMod-Item                      N f1ap.ies id-SRBs-ToBeSetupMod-Item
+SRBs-ToBeSetupMod-List                      N f1ap.ies id-SRBs-ToBeSetupMod-List
 TimeToWait                                  N f1ap.ies id-TimeToWait
+TransactionID                               N f1ap.ies id-TransactionID
+TransmissionStopIndicator                   N f1ap.ies id-TransmissionStopIndicator
 UE-associatedLogicalF1-ConnectionItem       N f1ap.ies id-UE-associatedLogicalF1-ConnectionItem
 UE-associatedLogicalF1-ConnectionListResAck N f1ap.ies id-UE-associatedLogicalF1-ConnectionListResAck
-RRCContainer                                N f1ap.ies id-RRCContainer
-SRBID                                       N f1ap.ies id-SRBID
-GNB-DU-ID                                   N f1ap.ies id-gNB-DU-ID
-GNB-Name                                    N f1ap.ies id-gNB-Name
-PCI                                         N f1ap.ies id-PCI
-GNB-DU-Served-Cells-List                    N f1ap.ies id-gNB-DU-Served-Cells-List
-Cells-to-be-Activated-List                  N f1ap.ies id-Cells-to-be-Activated-List
-Served-Cells-To-Add-List                    N f1ap.ies id-Served-Cells-To-Add-List
-Served-Cells-To-Modify-List                 N f1ap.ies id-Served-Cells-To-Modify-List
-Served-Cells-To-Delete-List                 N f1ap.ies id-Served-Cells-To-Delete-List
-Cells-to-be-Deactivated-List                N f1ap.ies id-Cells-to-be-Deactivated-List
-Cells-Failed-to-be-Activated-List           N f1ap.ies id-Cells-Failed-to-be-Activated-List
-TransactionID                               N f1ap.ies id-TransactionID
-Served-Cell-Information                     N f1ap.ies id-Served-Cell-Information
-GNB-DU-System-Information                   N f1ap.ies id-gNB-DU-System-Information
-NCGI                                        N f1ap.ies id-NCGI
-NCGI                                        N f1ap.ies id-OldNCGI
-DRBID                                       N f1ap.ies id-DRBID
-NCGI                                        N f1ap.ies id-PSCell-ID
-EUTRANQoS                                   N f1ap.ies id-EUTRANQoS
-SRBs-ToBeSetup-List                         N f1ap.ies id-SRBs-ToBeSetup-List
-DRBs-ToBeSetup-List                         N f1ap.ies id-DRBs-ToBeSetup-List
-DLTunnels-ToBeSetup-list                    N f1ap.ies id-DLTunnels-ToBeSetup-List
-ULTunnels-ToBeSetup-list                    N f1ap.ies id-ULTunnels-ToBeSetup-List
-GTPTunnelEndpoint                           N f1ap.ies id-UL-GTP-Tunnel-EndPoint
-GTPTunnelEndpoint                           N f1ap.ies id-DL-GTP-Tunnel-EndPoint
-CUtoDURRCInformation                        N f1ap.ies id-CUtoDURRCInformation
-DUtoCURRCInformation                        N f1ap.ies id-DUtoCURRCInformation
-SCell-ToBeSetup-List                        N f1ap.ies id-SCell-ToBeSetup-List
-ResourceCoordinationTransferContainer       N f1ap.ies id-ResourceCoordinationTransferContainer
-DRBs-ToBeModified-List                      N f1ap.ies id-DRBs-ToBeModified-List
-DRBs-ToBeReleased-List                      N f1ap.ies id-DRBs-ToBeReleased-List
-DRBs-Modified-List                          N f1ap.ies id-DRBs-Modified-List
-DRBs-FailedToBeModified-List                N f1ap.ies id-DRBs-FailedToBeModified-List
-NCGI                                        N f1ap.ies id-SCell-ID
-DRXCycle                                    N f1ap.ies id-DRXCycle
-DRBs-Setup-List                             N f1ap.ies id-DRBs-Setup-List
-SRBs-Setup-List                             N f1ap.ies id-SRBs-Setup-List
-DRBs-FailedToBeSetup-List                   N f1ap.ies id-DRBs-FailedToBeSetup-List
-SRBs-FailedToBeSetup-List                   N f1ap.ies id-SRBs-FailedToBeSetup-List
-DLTunnels-ToBeSetup-list                    N f1ap.ies id-DLTunnels-ToBeSetup-list
-ULTunnels-ToBeSetup-list                    N f1ap.ies id-ULTunnels-ToBeSetup-list
-TransmissionStopIndicator                   N f1ap.ies id-TransmissionStopIndicator
-DRBs-Required-ToBeModified-List             N f1ap.ies id-DRBs-Required-ToBeModified-List
-DRBs-Required-ToBeReleased-List             N f1ap.ies id-DRBs-Required-ToBeReleased-List
-SRBs-Required-ToBeReleased-List             N f1ap.ies id-SRBs-Required-ToBeReleased-List
-GNB-DU-F1AP-ID                              N f1ap.ies id-oldgNB-DU-F1AP-ID
-SRBs-ToBeReleased-List                      N f1ap.ies id-SRBs-ToBeReleased-List
-DRBs-ModifiedConf-List                      N f1ap.ies id-DRBs-ModifiedConf-List
+GNB-CU-Name                                 N f1ap.ies id-gNB-CU-Name
+SCell-FailedtoSetup-List                    N f1ap.ies id-SCell-FailedtoSetup-List
+SCell-FailedtoSetup-Item                    N f1ap.ies id-SCell-FailedtoSetup-Item
+SCell-FailedtoSetupMod-List                 N f1ap.ies id-SCell-FailedtoSetupMod-List
+SCell-FailedtoSetupMod-Item                 N f1ap.ies id-SCell-FailedtoSetupMod-Item
+RRCRconfigurationCompleteIndicator          N f1ap.ies id-RRCRconfigurationCompleteIndicator
+Active-Cells-Item                           N f1ap.ies id-Active-Cells-Item
+Active-Cells-List                           N f1ap.ies id-Active-Cells-List
+Candidate-SpCell-List                       N f1ap.ies id-Candidate-SpCell-List
+Candidate-SpCell-Item                       N f1ap.ies id-Candidate-SpCell-Item
+Potential-SpCell-List                       N f1ap.ies id-Potential-SpCell-List
+Potential-SpCell-Item                       N f1ap.ies id-Potential-SpCell-Item
 
 #F1AP-PROTOCOL-EXTENSION
 
@@ -370,6 +398,14 @@ PrivateMessage                      N f1ap.proc.imsg id-privateMessage
     }
   }
 
+#.FN_BODY Served-Cell-Information/measurementTimingConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_measurementTimingConfiguration);
+    dissect_nr_rrc_MeasurementTimingConfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -386,15 +422,31 @@ PrivateMessage                      N f1ap.proc.imsg id-privateMessage
     dissect_nr_rrc_MIB_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY SIB1-message VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB1_message);
+    dissect_nr_rrc_SIB1_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.TYPE_ATTR
 BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 
-#.FN_BODY SCG-Config-Info VAL_PTR = &param_tvb
+#.FN_BODY CG-ConfigInfo VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SCG_Config_Info);
     dissect_nr_rrc_CG_ConfigInfo_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UE-CapabilityRAT-ContainerList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_UE_CapabilityRAT_ContainerList);
+    dissect_nr_rrc_UE_CapabilityRAT_ContainerList_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY CellGroupConfig VAL_PTR = &param_tvb
@@ -426,14 +478,6 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
       /* IPv6 */
        proto_tree_add_item(subtree, hf_f1ap_transportLayerAddressIPv6, param_tvb, 4, 16, ENC_NA);
     }
-  }
-
-#.FN_BODY SIB1-message VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SIB1_message);
-    dissect_nr_rrc_SIB1_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_HDR Reset
