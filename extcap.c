@@ -1778,11 +1778,9 @@ extcap_load_interface_list(void)
         }
 
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES));
-        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_VERSION));
 
         get_ws_version_number(&major, &minor, NULL);
-
-        arguments = g_list_append(arguments, g_strdup_printf("%d.%d", major, minor));
+        arguments = g_list_append(arguments, g_strdup_printf("%s=%d.%d", EXTCAP_ARGUMENT_VERSION, major, minor));
 
         extcap_callback_info_t cb_info;
         cb_info.data = NULL;
