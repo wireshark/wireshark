@@ -27,11 +27,6 @@ if HAVE_SPEEXDSP
 AM_CPPFLAGS += $(SPEEXDSP_CFLAGS)
 endif
 
-# Define compatibility macros for Qt 4.8
-if HAVE_QT_VERSION_4
-AM_CPPFLAGS += -DQ_NULLPTR=NULL
-endif
-
 noinst_LIBRARIES = libqtui.a
 
 include Makefile_custom.common

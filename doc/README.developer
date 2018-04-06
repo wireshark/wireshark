@@ -409,14 +409,11 @@ own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
 
 Wireshark requires mininum versions of each of the libraries it uses, in
-particular GLib 2.22.0, Qt 4.8.0, and GTK+ 2.12.0 or newer. If you
-require a mechanism that is available only in a newer version of a
-library then use its version detection macros, e.g. "#if
-GLIB_CHECK_VERSION(...)", "#if QT_VERSION_CHECK(...)", and "#if
-GTK_CHECK_VERSION(...)" to conditionally compile code using that
-mechanism. If you're using GTK_CHECK_VERSION be aware that GTK+ will be
-removed in a future release. Adding new features to the GTK+ UI is
-discouraged.
+particular GLib 2.32.0 and Qt 5.2.0 or newer. If you require a mechanism
+that is available only in a newer version of a library then use its
+version detection macros, e.g. "#if GLIB_CHECK_VERSION(...)" and "#if
+QT_VERSION_CHECK(...)" to conditionally compile code using that
+mechanism.
 
 When different code must be used on UN*X and Win32, use a #if or #ifdef
 that tests _WIN32, not WIN32.  Try to write code portably whenever

@@ -100,14 +100,6 @@ File "..\..\wireshark-qt-release\Qt5PrintSupport.dll"
 File /r "..\..\wireshark-qt-release\platforms"
 "@
 
-    } else {
-        # Assume Qt 4
-
-        $nsisCommands += @"
-File "..\..\wireshark-qt-release\QtCore4.dll"
-File "..\..\wireshark-qt-release\QtGui4.dll"
-"@
-
     }
 }
 

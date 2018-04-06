@@ -2,7 +2,7 @@ Installing Wireshark on FreeBSD/OpenBSD/NetBSD/DragonFly BSD
 ========================================================================
 
      1. Extra packages required
-     2. Compiling Wireshark 
+     2. Compiling Wireshark
      3. Berkeley Packet Filter (BPF) requirement
      4. Running Wireshark as a non-root user
 
@@ -16,23 +16,19 @@ The easiest way to install these is by using your operating system's
 ports or packages system.  If you prefer to build from source, the programs
 can be found at the following sites:
 
-    glib 2.16 or later:
+    glib 2.32 or later:
          ftp.gnome.org:/pub/gnome/sources/glib/
 	 http://ftp.gnome.org/pub/gnome/sources/glib/
 
     pkgconfig:
          http://pkgconfig.freedesktop.org/releases/
 
-    python 2.5 or later:
+    python 2.7 or later, including Python 3:
          https://www.python.org/downloads/source/
 
 If you want to use the Wireshark GUI, install one or both of these toolkits:
 
-   gtk+ 2.12 or later:
-         ftp.gnome.org:/pub/gnome/sources/gtk+/
-	 http://ftp.gnome.org/pub/gnome/sources/gtk+/
-
-    Qt 4.7 or later:
+    Qt 5.2 or later:
 	 http://download.qt-project.org/official_releases/qt/
 
 

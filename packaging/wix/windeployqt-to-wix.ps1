@@ -179,28 +179,6 @@ try {
     </Fragment>
 "@
 
-    } else {
-        # Assume Qt 4
-
-        $wixComponents += @"
-    <Fragment>
-      <DirectoryRef Id=`"INSTALLFOLDER`">
-        <Component Id=`"cmpQt4Core_dll`" Guid=`"*`">
-          <File Id=`"filQt4Core_dll`" KeyPath=`"yes`" Source=`"`$(var.WiresharkQt.Dir)\QtCore4.dll`" />
-        </Component>
-        <Component Id=`"cmpQt4Gui_dll`" Guid=`"*`">
-          <File Id=`"filQt4Gui_dll`" KeyPath=`"yes`" Source=`"`$(var.WiresharkQt.Dir)\QtGui4.dll`" />
-        </Component>
-      </DirectoryRef>
-    </Fragment>
-    <Fragment>
-        <ComponentGroup Id=`"CG.QtDependencies`">
-          <ComponentRef Id=`"cmpQt4Core_dll`" />
-          <ComponentRef Id=`"cmpQt4Gui_dll`" />
-        </ComponentGroup>
-    </Fragment>
-"@
-
     }
 
     $wixComponents += @"
