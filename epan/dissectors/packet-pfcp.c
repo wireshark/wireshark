@@ -4812,7 +4812,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_reporting_triggers,
         { "Flags", "pfcp.reporting_triggers_flags",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_reporting_triggers_o5_b0_perio,
@@ -4873,7 +4873,7 @@ proto_register_pfcp(void)
 
         { &hf_pfcp_usage_report_trigger,
         { "Flags", "pfcp.usage_report_trigger",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
 
