@@ -1227,7 +1227,7 @@ id-RetrieveUEInformation                ProcedureCode
 id-UEInformationTransfer                ProcedureCode
 id-eNBCPRelocationIndication            ProcedureCode
 id-MMECPRelocationIndication            ProcedureCode
-id-SecondaryRATReport                   ProcedureCode
+id-SecondaryRATDataUsageReport          ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID                                   ProtocolIE-ID
@@ -1319,7 +1319,6 @@ id-E-RABFailedToBeReleasedList                      ProtocolIE-ID
 id-Source-ToTarget-TransparentContainer             ProtocolIE-ID
 id-ServedGUMMEIs                                    ProtocolIE-ID
 id-SubscriberProfileIDforRFP                        ProtocolIE-ID
-
 id-UESecurityCapabilities                           ProtocolIE-ID
 id-CSFallbackIndicator                              ProtocolIE-ID
 id-CNDomain                                         ProtocolIE-ID
@@ -1476,12 +1475,14 @@ id-extended-uEaggregateMaximumBitRateUL             ProtocolIE-ID
 id-NRrestriction                                    ProtocolIE-ID
 id-UEAppLayerMeasConfig                             ProtocolIE-ID
 id-UE-Application-Layer-Measurement-Capability      ProtocolIE-ID
-id-SecondaryRATusageReportList                      ProtocolIE-ID
-id-SecondaryRATusageReportItem                      ProtocolIE-ID
+id-SecondaryRATDataUsageReportList                  ProtocolIE-ID
+id-SecondaryRATDataUsageReportItem                  ProtocolIE-ID
 id-HandoverFlag                                     ProtocolIE-ID
 id-E-RABUsageReportItem                             ProtocolIE-ID
-id-SecondaryRATusageDataRequst                      ProtocolIE-ID
+id-SecondaryRATDataUsageRequest                     ProtocolIE-ID
 id-NRUESecurityCapabilities                         ProtocolIE-ID
+id-UnlicensedSpectrumRestriction                    ProtocolIE-ID
+id-CE-ModeBRestricted                               ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1688,13 +1689,14 @@ DL-CP-SecurityInformation                       N s1ap.ies id-DL-CP-SecurityInfo
 E-RABLevelQoSParameters                         N s1ap.ies id-UE-Level-QoS-Parameters
 UL-CP-SecurityInformation                       N s1ap.ies id-UL-CP-SecurityInformation
 E-RABUsageReportItem                            N s1ap.ies id-E-RABUsageReportItem
-SecondaryRATusageReportItem                     N s1ap.ies id-SecondaryRATusageReportItem
+SecondaryRATDataUsageReportItem                 N s1ap.ies id-SecondaryRATDataUsageReportItem
 NRUESecurityCapabilities                        N s1ap.ies id-NRUESecurityCapabilities
-SecondaryRATusageDataRequst                     N s1ap.ies id-SecondaryRATusageDataRequst
-SecondaryRATusageReportList                     N s1ap.ies id-SecondaryRATusageReportList
+SecondaryRATDataUsageRequest                    N s1ap.ies id-SecondaryRATDataUsageRequest
+SecondaryRATDataUsageReportList                 N s1ap.ies id-SecondaryRATDataUsageReportList
 UE-Application-Layer-Measurement-Capability     N s1ap.ies id-UE-Application-Layer-Measurement-Capability
 HandoverFlag                                    N s1ap.ies id-HandoverFlag
 EmergencyAreaIDListForRestart                   N s1ap.ies id-EmergencyAreaIDListForRestart
+CE-ModeBRestricted                              N s1ap.ies id-CE-ModeBRestricted
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1744,6 +1746,7 @@ NRrestriction                           N s1ap.extension id-NRrestriction
 UEAppLayerMeasConfig                    N s1ap.extension id-UEAppLayerMeasConfig
 ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateDL
 ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateUL
+UnlicensedSpectrumRestriction           N s1ap.extension id-UnlicensedSpectrumRestriction
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation
@@ -1900,7 +1903,7 @@ ENBCPRelocationIndication               N s1ap.proc.imsg id-eNBCPRelocationIndic
 
 MMECPRelocationIndication               N s1ap.proc.imsg id-MMECPRelocationIndication
 
-SecondaryRATReport                      N s1ap.proc.imsg id-SecondaryRATReport
+SecondaryRATDataUsageReport             N s1ap.proc.imsg id-SecondaryRATDataUsageReport
 
 
 #.FN_HDR HandoverRequired
@@ -2087,8 +2090,8 @@ SecondaryRATReport                      N s1ap.proc.imsg id-SecondaryRATReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBCPRelocationIndication");
 #.FN_HDR MMECPRelocationIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMECPRelocationIndication");
-#.FN_HDR SecondaryRATReport
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATReport");
+#.FN_HDR SecondaryRATDataUsageReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATDataUsageReport");
 #.END
 
 # Whenever a Cause appears, look up the reason and show it in the Info column

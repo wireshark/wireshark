@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.0.0 (2017-12)
+-- 3GPP TS 36.413 V15.1.0 (2018-03)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -95,7 +95,7 @@ id-RetrieveUEInformation					ProcedureCode ::= 58
 id-UEInformationTransfer					ProcedureCode ::= 59
 id-eNBCPRelocationIndication				ProcedureCode ::= 60
 id-MMECPRelocationIndication				ProcedureCode ::= 61
-id-SecondaryRATReport						ProcedureCode ::= 62
+id-SecondaryRATDataUsageReport				ProcedureCode ::= 62
 
 -- **************************************************************
 --
@@ -321,7 +321,7 @@ id-CellAccessMode									ProtocolIE-ID ::= 145
 id-CSGMembershipStatus 								ProtocolIE-ID ::= 146
 id-LPPa-PDU											ProtocolIE-ID ::= 147
 id-Routing-ID										ProtocolIE-ID ::= 148
-id-Time-Synchronisation-Info						ProtocolIE-ID ::= 149
+id-Time-Synchronisation-Info							ProtocolIE-ID ::= 149
 id-PS-ServiceNotAvailable							ProtocolIE-ID ::= 150
 id-PagingPriority									ProtocolIE-ID ::= 151
 id-x2TNLConfigurationInfo							ProtocolIE-ID ::= 152
@@ -437,11 +437,13 @@ id-extended-uEaggregateMaximumBitRateUL				ProtocolIE-ID ::= 260
 id-NRrestriction									ProtocolIE-ID ::= 261
 id-UEAppLayerMeasConfig								ProtocolIE-ID ::= 262
 id-UE-Application-Layer-Measurement-Capability		ProtocolIE-ID ::= 263
-id-SecondaryRATusageReportList						ProtocolIE-ID ::= 264
-id-SecondaryRATusageReportItem						ProtocolIE-ID ::= 265
+id-SecondaryRATDataUsageReportList					ProtocolIE-ID ::= 264
+id-SecondaryRATDataUsageReportItem					ProtocolIE-ID ::= 265
 id-HandoverFlag										ProtocolIE-ID ::= 266
 id-E-RABUsageReportItem								ProtocolIE-ID ::= 267
-id-SecondaryRATusageDataRequst						ProtocolIE-ID ::= 268
+id-SecondaryRATDataUsageRequest						ProtocolIE-ID ::= 268
 id-NRUESecurityCapabilities							ProtocolIE-ID ::= 269
+id-UnlicensedSpectrumRestriction					ProtocolIE-ID ::= 270
+id-CE-ModeBRestricted								ProtocolIE-ID ::= 271
 
 END

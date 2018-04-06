@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.0.0 (2017-12)
+-- 3GPP TS 36.413 V15.1.0 (2018-03)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -56,9 +56,10 @@ IMPORTS
 	id-extended-e-RAB-GuaranteedBitrateUL,
 	id-extended-uEaggregateMaximumBitRateDL,
 	id-extended-uEaggregateMaximumBitRateUL,
-	id-SecondaryRATusageReportItem,
+	id-SecondaryRATDataUsageReportItem,
 	id-E-RABUsageReportItem,
 	id-UEAppLayerMeasConfig,
+	id-UnlicensedSpectrumRestriction,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -773,6 +774,12 @@ EnhancedCoverageRestricted ::= ENUMERATED {
 	...
 }
 
+CE-ModeBRestricted ::= ENUMERATED {
+	restricted,
+	not-restricted,
+	...
+}
+
 EPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMNidentity
 EventType	::= ENUMERATED {
 	direct,
@@ -838,8 +845,8 @@ E-RABUsageReportItemIEs 	S1AP-PROTOCOL-IES ::= {
 E-RABUsageReportItem ::= SEQUENCE {
 	startTimestamp					OCTET STRING (SIZE(4)),
 	endTimestamp					OCTET STRING (SIZE(4)),
-	usageCountUL					INTEGER,
-	usageCountDL					INTEGER,
+	usageCountUL					INTEGER (0..18446744073709551615),
+	usageCountDL					INTEGER (0..18446744073709551615),
 	iE-Extensions				ProtocolExtensionContainer { { E-RABUsageReportItem-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1019,7 +1026,8 @@ HandoverRestrictionList ::= SEQUENCE {
 }
 
 HandoverRestrictionList-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-NRrestriction		CRITICALITY ignore	EXTENSION NRrestriction	PRESENCE optional},
+	{ ID id-NRrestriction		CRITICALITY ignore	EXTENSION NRrestriction	PRESENCE optional}|
+	{ ID id-UnlicensedSpectrumRestriction		CRITICALITY ignore	EXTENSION UnlicensedSpectrumRestriction	PRESENCE optional},
 	...
 }
 
@@ -1190,7 +1198,7 @@ M3Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-M3period ::= ENUMERATED {ms100, ms1000, ms10000, ... }
+M3period ::= ENUMERATED {ms100, ms1000, ms10000, ...,ms1024, ms1280, ms2048, ms2560, ms5120, ms10240, min1 }
 
 M4Configuration ::= SEQUENCE {
 	m4period			M4period,
@@ -1754,31 +1762,32 @@ SecurityContext-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 SecondaryRATType ::= ENUMERATED {
 	nR,
-	...
+	...,
+	unlicensed
 }
 
 
-SecondaryRATusageDataRequst ::= ENUMERATED {
+SecondaryRATDataUsageRequest ::= ENUMERATED {
 	requested,
 	...
 }
 
-SecondaryRATusageReportList ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {SecondaryRATusageReportItemIEs} }
+SecondaryRATDataUsageReportList ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {SecondaryRATDataUsageReportItemIEs} }
 
-SecondaryRATusageReportItemIEs 	S1AP-PROTOCOL-IES ::= {
-	{ ID id-SecondaryRATusageReportItem	 CRITICALITY ignore 	TYPE SecondaryRATusageReportItem 	PRESENCE mandatory },
+SecondaryRATDataUsageReportItemIEs 	S1AP-PROTOCOL-IES ::= {
+	{ ID id-SecondaryRATDataUsageReportItem	 CRITICALITY ignore 	TYPE SecondaryRATDataUsageReportItem 	PRESENCE mandatory },
 	...
 }
 
-SecondaryRATusageReportItem ::= SEQUENCE {
+SecondaryRATDataUsageReportItem ::= SEQUENCE {
 	e-RAB-ID					E-RAB-ID,
 	secondaryRATType			SecondaryRATType,
 	e-RABUsageReportList		E-RABUsageReportList,
-	iE-Extensions				ProtocolExtensionContainer { { SecondaryRATusageReportItem-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { SecondaryRATDataUsageReportItem-ExtIEs} } OPTIONAL,
 	...
 }
 
-SecondaryRATusageReportItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+SecondaryRATDataUsageReportItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2328,6 +2337,11 @@ UL-CP-SecurityInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 UL-NAS-MAC ::= BIT STRING (SIZE (16))
 
 UL-NAS-Count ::= BIT STRING (SIZE (5))
+
+UnlicensedSpectrumRestriction ::= ENUMERATED {
+	unlicensed-restricted,
+	...
+}
 
 
 UserLocationInformation ::= SEQUENCE {
