@@ -421,7 +421,7 @@ if __name__ == '__main__':
     parser.add_argument("--fifo", help="Use together with capture to provide the fifo to dump data to")
     parser.add_argument("--extcap-control-in", help="Used to get control messages from toolbar")
     parser.add_argument("--extcap-control-out", help="Used to send control messages to toolbar")
-    parser.add_argument("--extcap-version", help="Shows the version of this utility", action="store_true")
+    parser.add_argument("--extcap-version", help="Shows the version of this utility", nargs='?', default="")
     parser.add_argument("--extcap-reload-option", help="Reload elements for the given option")
 
     # Interface Arguments
@@ -450,7 +450,7 @@ if __name__ == '__main__':
     if ( len(sys.argv) <= 1 ):
         parser.exit("No arguments given!")
 
-    if ( args.extcap_version ):
+    if ( args.extcap_version and not args.extcap_interfaces ):
         extcap_version()
         sys.exit(0)
 

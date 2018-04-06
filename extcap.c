@@ -289,9 +289,39 @@ extcap_iface_toolbar_add(const gchar *extcap, iface_toolbar *toolbar_entry)
     g_free(toolname);
 }
 
+static gchar **
+extcap_convert_arguments_to_array(GList * arguments)
+{
+    gchar ** result = NULL;
+    if ( arguments )
+    {
+        GList * walker = g_list_first(arguments);
+        int cnt = 0;
+
+        result = (gchar **) g_malloc0(sizeof(gchar *) * (g_list_length(arguments)));
+
+        while(walker)
+        {
+            result[cnt] = g_strdup((const gchar *)walker->data);
+            walker = g_list_next(walker);
+            cnt++;
+        }
+    }
+    return result;
+}
+
+static void extcap_free_array(gchar ** args, int argc)
+{
+    int cnt = 0;
+
+    for ( cnt = 0; cnt < argc; cnt++ )
+        g_free(args[cnt]);
+    g_free(args);
+}
+
 /* Note: args does not need to be NULL-terminated. */
 static gboolean extcap_foreach(GList * arguments,
-                                      extcap_cb_t cb, extcap_callback_info_t cb_info)
+                                      extcap_cb_t cb, extcap_callback_info_t cb_info, GList * fallback_arguments)
 {
     GDir *dir;
     gboolean keep_going;
@@ -303,20 +333,13 @@ static gboolean extcap_foreach(GList * arguments,
     {
         GString *extcap_path = NULL;
         const gchar *file;
+        gchar ** args = extcap_convert_arguments_to_array(arguments);
+        int cnt = g_list_length(arguments);
 
         extcap_path = g_string_new("");
         while (keep_going && (file = g_dir_read_name(dir)) != NULL)
         {
             gchar *command_output = NULL;
-            gchar ** args = (gchar **) g_malloc0(sizeof(gchar *) * (g_list_length(arguments)));
-            GList * walker = g_list_first(arguments);
-            int cnt = 0;
-            while(walker)
-            {
-                args[cnt] = g_strdup((const gchar *)walker->data);
-                walker = g_list_next(walker);
-                cnt++;
-            }
 
             /* full path to extcap binary */
             g_string_printf(extcap_path, "%s" G_DIR_SEPARATOR_S "%s", dirname, file);
@@ -336,10 +359,24 @@ static gboolean extcap_foreach(GList * arguments,
 
                     keep_going = cb(cb_info);
                 }
+                else if ( fallback_arguments )
+                {
+                    gchar ** fb_args = extcap_convert_arguments_to_array(fallback_arguments);
+
+                    if (ws_pipe_spawn_sync((gchar *) dirname, extcap_path->str, g_list_length(fallback_arguments), fb_args, &command_output))
+                    {
+                        cb_info.output = command_output;
+                        cb_info.extcap = extcap_path->str;
+
+                        keep_going = cb(cb_info);
+                    }
+                }
 
                 g_free(command_output);
             }
+
         }
+        extcap_free_array(args, cnt);
 
         g_dir_close(dir);
         g_string_free(extcap_path, TRUE);
@@ -449,7 +486,7 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str)
         cb_info.err_str = err_str;
         cb_info.ifname = ifname;
 
-        extcap_foreach(arguments, cb_dlt, cb_info);
+        extcap_foreach(arguments, cb_dlt, cb_info, NULL);
 
         g_list_free_full(arguments, g_free);
     }
@@ -799,7 +836,7 @@ extcap_get_if_configuration(const char *ifname)
         cb_info.err_str = err_str;
         cb_info.ifname = ifname;
 
-        extcap_foreach(arguments, cb_preference, cb_info);
+        extcap_foreach(arguments, cb_preference, cb_info, NULL);
 
         g_list_free_full(arguments, g_free);
     }
@@ -862,7 +899,7 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
         cb_info.err_str = err_str;
         cb_info.ifname = ifname;
 
-        extcap_foreach(args, cb_reload_preference, cb_info);
+        extcap_foreach(args, cb_reload_preference, cb_info, NULL);
 
         g_list_free_full(args, g_free);
     }
@@ -992,7 +1029,7 @@ extcap_verify_capture_filter(const char *ifname, const char *filter, gchar **err
         cb_info.err_str = err_str;
         cb_info.ifname = ifname;
 
-        extcap_foreach(arguments, cb_verify_filter, cb_info);
+        extcap_foreach(arguments, cb_verify_filter, cb_info, NULL);
         g_list_free_full(arguments, g_free);
     }
 
@@ -1764,6 +1801,7 @@ extcap_load_interface_list(void)
     if (_loaded_interfaces == NULL)
     {
         GList * arguments = NULL;
+        GList * fallback = NULL;
         int major = 0;
         int minor = 0;
 
@@ -1778,6 +1816,7 @@ extcap_load_interface_list(void)
         }
 
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES));
+        fallback = g_list_append(fallback, g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES));
 
         get_ws_version_number(&major, &minor, NULL);
         arguments = g_list_append(arguments, g_strdup_printf("%s=%d.%d", EXTCAP_ARGUMENT_VERSION, major, minor));
@@ -1787,22 +1826,9 @@ extcap_load_interface_list(void)
         cb_info.ifname = NULL;
         cb_info.err_str = &error;
 
-        extcap_foreach(arguments, cb_load_interfaces, cb_info);
+        extcap_foreach(arguments, cb_load_interfaces, cb_info, fallback);
 
-        /* Compatibility mode. Utility did not accept version argument, therefore we just ask for the interfaces
-         * and assume, that the utility will handle compatibility on it's end */
-        if ( ! cb_info.data )
-        {
-            g_free(error);
-            error = NULL;
-
-            g_list_free_full(arguments, g_free);
-            arguments = NULL;
-
-            arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES));
-            extcap_foreach(arguments, cb_load_interfaces, cb_info);
-        }
-
+        g_list_free_full(fallback, g_free);
         g_list_free_full(arguments, g_free);
     }
 }
