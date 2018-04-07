@@ -1398,8 +1398,9 @@ file_getc(FILE_T file)
     return ret < 1 ? -1 : buf[0];
 }
 
+/* Like file_gets, but returns a pointer to the terminating NUL. */
 char *
-file_gets(char *buf, int len, FILE_T file)
+file_getsp(char *buf, int len, FILE_T file)
 {
     guint left, n;
     char *str;
@@ -1461,9 +1462,17 @@ file_gets(char *buf, int len, FILE_T file)
             buf += n;
         } while (left && eol == NULL);
 
-    /* found end-of-line or out of space -- terminate string and return it */
+    /* found end-of-line or out of space -- add a terminator and return
+       a pointer to it */
     buf[0] = 0;
-    return str;
+    return buf;
+}
+
+char *
+file_gets(char *buf, int len, FILE_T file)
+{
+    if (!file_getsp(buf, len, file)) return NULL;
+    return buf;
 }
 
 int
