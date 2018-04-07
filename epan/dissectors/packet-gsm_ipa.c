@@ -221,17 +221,17 @@ dissect_ipaccess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Dissect the osmocom extension header */
 static gint
-dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree *tree)
+dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree *tree, proto_item *ipa_ti)
 {
 	tvbuff_t *next_tvb;
 	guint8 osmo_proto;
+	const gchar *name;
 
 	osmo_proto = tvb_get_guint8(tvb, 0);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-	                val_to_str(osmo_proto, ipa_osmo_proto_vals,
-	                           "unknown 0x%02x"));
+	name = val_to_str(osmo_proto, ipa_osmo_proto_vals, "unknown 0x%02x");
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", name);
 	if (ipatree) {
+		proto_item_append_text(ipa_ti, " %s", name);
 		proto_tree_add_item(ipatree, hf_ipa_osmo_proto,
 				    tvb, 0, 1, ENC_BIG_ENDIAN);
 	}
@@ -329,7 +329,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp
 			call_dissector(sub_handles[SUB_MGCP], next_tvb, pinfo, tree);
 			break;
 		case OSMO_EXT:
-			dissect_osmo(next_tvb, pinfo, ipa_tree, tree);
+			dissect_osmo(next_tvb, pinfo, ipa_tree, tree, ti);
 			break;
 		case HSL_DEBUG:
 			if (tree) {
