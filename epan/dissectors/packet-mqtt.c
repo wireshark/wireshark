@@ -176,6 +176,7 @@ typedef struct _mqtt_message_decode_t {
   guint   match_criteria;
   char   *topic_pattern;
   GRegex *topic_regex;
+  guint   msg_decoding;
   char   *payload_proto_name;
   dissector_handle_t payload_proto;
 } mqtt_message_decode_t;
@@ -192,6 +193,15 @@ static const value_string match_criteria[] = {
   { MATCH_CRITERIA_STARTS_WITH, "Starts with" },
   { MATCH_CRITERIA_ENDS_WITH,   "Ends with" },
   { MATCH_CRITERIA_REGEX,       "Regular Expression" },
+  { 0, NULL }
+};
+
+#define MSG_DECODING_NONE        0
+#define MSG_DECODING_COMPRESSED  1
+
+static const value_string msg_decoding[] = {
+  { MSG_DECODING_NONE,       "none" },
+  { MSG_DECODING_COMPRESSED, "compressed" },
   { 0, NULL }
 };
 
@@ -589,7 +599,9 @@ static void *mqtt_message_decode_copy_cb(void *dest, const void *orig, size_t le
 
   d->match_criteria = o->match_criteria;
   d->topic_pattern = g_strdup(o->topic_pattern);
+  d->msg_decoding = o->msg_decoding;
   d->payload_proto_name = g_strdup(o->payload_proto_name);
+  d->payload_proto = o->payload_proto;
 
   return d;
 }
@@ -631,6 +643,7 @@ static void mqtt_message_decode_free_cb(void *record)
 
 UAT_VS_DEF(message_decode, match_criteria, mqtt_message_decode_t, guint, MATCH_CRITERIA_EQUAL, "Equal to")
 UAT_CSTRING_CB_DEF(message_decode, topic_pattern, mqtt_message_decode_t)
+UAT_VS_DEF(message_decode, msg_decoding, mqtt_message_decode_t, guint, MSG_DECODING_NONE, "none")
 UAT_PROTO_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, mqtt_message_decode_t)
 
 static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, packet_info *pinfo, const guint8 *topic_str, tvbuff_t *msg_tvb)
@@ -684,11 +697,23 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
 
   if (match_found)
   {
-    proto_item *ti = proto_tree_add_string(mqtt_tree, hf_mqtt_pubmsg_decoded, msg_tvb, 0, -1,
-                                           message_decode_entry->payload_proto_name);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (message_decode_entry->msg_decoding == MSG_DECODING_COMPRESSED)
+    {
+      msg_tvb = tvb_child_uncompress(msg_tvb, msg_tvb, 0, tvb_reported_length(msg_tvb));
+      if (msg_tvb)
+      {
+        add_new_data_source(pinfo, msg_tvb, "Uncompressed Message");
+      }
+    }
 
-    call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
+    if (msg_tvb)
+    {
+      proto_item *ti = proto_tree_add_string(mqtt_tree, hf_mqtt_pubmsg_decoded, msg_tvb, 0, -1,
+                                             message_decode_entry->payload_proto_name);
+      PROTO_ITEM_SET_GENERATED(ti);
+
+      call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
+    }
   }
 }
 
@@ -1565,6 +1590,7 @@ void proto_register_mqtt(void)
   static uat_field_t mqtt_message_decode_flds[] = {
     UAT_FLD_VS(message_decode, match_criteria, "Match criteria", match_criteria, "Match criteria"),
     UAT_FLD_CSTRING(message_decode, topic_pattern, "Topic pattern", "Pattern to match for the topic"),
+    UAT_FLD_VS(message_decode, msg_decoding, "Decoding", msg_decoding, "Decode message before dissecting as protocol"),
     UAT_FLD_PROTO(message_decode, payload_proto, "Payload protocol",
                   "Protocol to be used for the message part of the matching topic"),
     UAT_END_FIELDS
