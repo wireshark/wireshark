@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.0.0 (2017-12)
+ * 3GPP TS 36.423 V15.1.0 (2018-03)
  */
 
 #include "config.h"
@@ -139,6 +139,7 @@ static int ett_x2ap_SgNBtoMeNBContainer = -1;
 static int ett_x2ap_RRCContainer = -1;
 static int ett_x2ap_NRencryptionAlgorithms = -1;
 static int ett_x2ap_NRintegrityProtectionAlgorithms = -1;
+static int ett_x2ap_measurementTimingConfiguration = -1;
 #include "packet-x2ap-ett.c"
 
 typedef enum {
@@ -572,6 +573,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_RRCContainer,
     &ett_x2ap_NRencryptionAlgorithms,
     &ett_x2ap_NRintegrityProtectionAlgorithms,
+    &ett_x2ap_measurementTimingConfiguration,
 #include "packet-x2ap-ettarr.c"
   };
 

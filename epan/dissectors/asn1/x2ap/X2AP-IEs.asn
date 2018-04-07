@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.0.0 (2017-12)
+-- 3GPP TS 36.423 V15.1.0 (2018-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -222,7 +222,7 @@ AreaScopeOfMDT ::= CHOICE {
 AreaScopeOfQMC ::= CHOICE {
 	cellBased					CellBasedQMC,
 	tABased						TABasedQMC,
-	tAIBased						TAIBasedQMC,
+	tAIBased					TAIBasedQMC,
 	pLMNAreaBased				PLMNAreaBasedQMC,
 	...
 }
@@ -336,7 +336,11 @@ CauseRadioNetwork ::= ENUMERATED {
 	user-inactivity,
 	radio-connection-with-UE-lost,
 	failure-in-the-radio-interface-procedure,
-	bearer-option-not-supported
+	bearer-option-not-supported,
+	mCG-Mobility,
+	sCG-Mobility,
+	count-reaches-max-value,
+	unknown-old-en-gNB-UE-X2AP-ID
 
 }
 
@@ -635,6 +639,8 @@ DL-scheduling-PDCCH-CCE-usage::= INTEGER (0..100)
 
 DL-Total-PRB-usage::= INTEGER (0..100)
 
+DRB-ID ::= INTEGER (1..32)
+
 DynamicDLTransmissionInformation ::= CHOICE {
 	naics-active			DynamicNAICSInformation,
 	naics-inactive			NULL,
@@ -758,11 +764,11 @@ E-RABUsageReport-ItemIEs X2AP-PROTOCOL-IES ::= {
 }
 
 E-RABUsageReport-Item ::= SEQUENCE {
-	startTimeStamp					OCTET STRING (SIZE(4)),
+	startTimeStamp				OCTET STRING (SIZE(4)),
 	endTimeStamp					OCTET STRING (SIZE(4)),
-	usageCountUL					INTEGER,
-	usageCountDL					INTEGER,
-	iE-Extensions					ProtocolExtensionContainer { { E-RABUsageReport-Item-ExtIEs} } OPTIONAL,
+	usageCountUL					INTEGER (0..18446744073709551615),
+	usageCountDL					INTEGER (0..18446744073709551615),
+	iE-Extensions				ProtocolExtensionContainer { { E-RABUsageReport-Item-ExtIEs} } OPTIONAL,
 ...
 }
 
@@ -1175,7 +1181,7 @@ M5period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
 M6Configuration ::= SEQUENCE {
 	m6report-interval	M6report-interval,
 	m6delay-threshold	M6delay-threshold	OPTIONAL,
--- This IE shall be present if the M6 Links to log IE is set to "uplink" or to "both-uplink-and-downlink" --
+-- This IE shall be present if the M6 Links to log IE is set to “uplink” or to “both-uplink-and-downlink” --
 	m6-links-to-log		Links-to-log,
 	iE-Extensions		ProtocolExtensionContainer { { M6Configuration-ExtIEs} } OPTIONAL,
 	...
@@ -1280,7 +1286,7 @@ MBSFN-Subframe-Info	::= SEQUENCE {
 	radioframeAllocationPeriod		RadioframeAllocationPeriod,
 	radioframeAllocationOffset		RadioframeAllocationOffset,
 	subframeAllocation				SubframeAllocation,
-	iE-Extensions			ProtocolExtensionContainer { { MBSFN-Subframe-Info-ExtIEs } } 	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { MBSFN-Subframe-Info-ExtIEs } } 	OPTIONAL,
 	...
 }
 
@@ -1320,7 +1326,7 @@ MCGSplitSRB ::= SEQUENCE {
 	rrcContainer 				RRCContainer			OPTIONAL,
 	srbType						SRBType,
 	deliveryStatus				DeliveryStatus			OPTIONAL,
-	iE-Extensions		ProtocolExtensionContainer { {MCGSplitSRB-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {MCGSplitSRB-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1330,7 +1336,7 @@ MCGSplitSRB-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 UENRMeasurement ::= SEQUENCE {
 	uENRMeasurements			RRCContainer,
-	iE-Extensions		ProtocolExtensionContainer { {UENRMeasurement-ExtIEs} } OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {UENRMeasurement-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1342,9 +1348,9 @@ UENRMeasurement-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 Neighbour-Information ::= SEQUENCE (SIZE (0..maxnoofNeighbours)) OF SEQUENCE {
 	eCGI						ECGI,
-	pCI					 		PCI,
+	pCI							PCI,
 	eARFCN						EARFCN,
-	iE-Extensions		 ProtocolExtensionContainer { {Neighbour-Information-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {Neighbour-Information-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1363,15 +1369,13 @@ Number-of-Antennaports ::= ENUMERATED {
 		...
 }
 
-NRARFCN ::= INTEGER (0..65535)  -- This IE may be refined.
-
-NR-TxBW	::= INTEGER (0..65535)  -- This IE may be refined.
+NRARFCN ::= INTEGER (0..3266667)  -- This IE may be refined.
 
 NRCellIdentifier ::= BIT STRING (SIZE (36))
 
 NRCGI ::= SEQUENCE {
 	pLMN-Identity				PLMN-Identity,
-	nRcellIdentifier			NRCellIdentifier,
+	nRcellIdentifier				NRCellIdentifier,
 	iE-Extensions				ProtocolExtensionContainer { {NRCGI-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1380,7 +1384,7 @@ NRCGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-NRPCI ::= INTEGER (0..1007,...)
+NRPCI ::= INTEGER (0..1007)
 
 NRrestriction ::= ENUMERATED {
 	nRrestricted,
@@ -1389,6 +1393,24 @@ NRrestriction ::= ENUMERATED {
 
 NRencryptionAlgorithms ::= BIT STRING (SIZE (16,...))
 NRintegrityProtectionAlgorithms ::= BIT STRING (SIZE (16,...))
+
+NR-TxBW	::= SEQUENCE {
+	nRSCS	NRSCS,
+	nRNRB	NRNRB,
+	iE-Extensions				ProtocolExtensionContainer { { NR-TxBW-ExtIEs} } OPTIONAL,
+	...
+}
+
+NR-TxBW-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NRNRB ::= ENUMERATED { nrb11, nrb18, nrb24, nrb25, nrb31, nrb32, nrb38, nrb51, nrb52, nrb65, nrb66, nrb78, nrb79, nrb93, nrb106, nrb107, nrb121, nrb132, nrb133, nrb135, nrb160, nrb162, nrb189, nrb216, nrb217, nrb245, nrb264, nrb270, nrb273, ...}
+
+NRSCS ::= ENUMERATED { scs15, scs30, scs60, scs120, ...}
+
+
+Extended-TAC ::= OCTET STRING (SIZE (3))
 
 NRUESecurityCapabilities ::= SEQUENCE {
 	nRencryptionAlgorithms				NRencryptionAlgorithms,
@@ -1724,7 +1746,7 @@ SecondaryRATUsageReport-Item ::= SEQUENCE {
 	e-RAB-ID						E-RAB-ID,
 	secondaryRATType				ENUMERATED {nr, ...},
 	e-RABUsageReportList			E-RABUsageReportList,
-	iE-Extensions					ProtocolExtensionContainer { { SecondaryRATUsageReport-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { SecondaryRATUsageReport-Item-ExtIEs} } OPTIONAL,
 ...
 }
 
@@ -1900,6 +1922,17 @@ SgNBtoMeNBContainer ::= OCTET STRING
 SRBType ::= ENUMERATED {srb1, srb2, ...}
 SCGConfigurationQuery ::= ENUMERATED {true,...}
 
+SULInformation ::= SEQUENCE {
+	sUL-ARFCN				NRARFCN,
+	sUL-TxBW				NR-TxBW,
+	iE-Extensions			ProtocolExtensionContainer { { SULInformation-ExtIEs } }		OPTIONAL,
+	...
+}
+
+SULInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- T
 
 TABasedMDT::= SEQUENCE {
@@ -1971,8 +2004,8 @@ TDD-Info ::= SEQUENCE {
 	eARFCN							EARFCN,
 	transmission-Bandwidth			Transmission-Bandwidth,
 	subframeAssignment				SubframeAssignment,
-	specialSubframe-Info				SpecialSubframe-Info,
-	iE-Extensions				ProtocolExtensionContainer { {TDD-Info-ExtIEs} } OPTIONAL,
+	specialSubframe-Info			SpecialSubframe-Info,
+	iE-Extensions					ProtocolExtensionContainer { {TDD-Info-ExtIEs} } OPTIONAL,
 	...
 }
 TDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
@@ -2003,8 +2036,8 @@ Time-UE-StayedInCell-EnhancedGranularity ::= INTEGER (0..40950)
 TraceActivation ::= SEQUENCE {
 	eUTRANTraceID					EUTRANTraceID,
 	interfacesToTrace				InterfacesToTrace,
-traceDepth						TraceDepth,
-traceCollectionEntityIPAddress	TraceCollectionEntityIPAddress,
+traceDepth							TraceDepth,
+traceCollectionEntityIPAddress		TraceCollectionEntityIPAddress,
 	iE-Extensions					ProtocolExtensionContainer { {TraceActivation-ExtIEs} } OPTIONAL,
 	...
 }

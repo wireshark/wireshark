@@ -21,9 +21,10 @@ TriggeringMessage
 
 #.USE_VALS_EXT
 CauseRadioNetwork
+OffsetOfNbiotChannelNumberToEARFCN
+NRNRB
 ProcedureCode
 ProtocolIE-ID
-OffsetOfNbiotChannelNumberToEARFCN
 
 #.EXPORTS
 MeNBResourceCoordinationInformation_PDU
@@ -576,6 +577,14 @@ E-RABUsageReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
 #.TYPE_ATTR
 E-RABUsageReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
 
+#.FN_BODY ServedNRCell-Information/measurementTimingConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_measurementTimingConfiguration);
+    dissect_nr_rrc_MeasurementTimingConfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -988,10 +997,10 @@ id-MeNBtoSgNBContainer						ProtocolIE-ID
 id-SgNB-UE-X2AP-ID						ProtocolIE-ID
 id-RequestedMCGSplitSRBs					ProtocolIE-ID
 id-E-RABs-ToBeAdded-SgNBAddReq-Item				ProtocolIE-ID
-id-E-RABs-Admitted-ToBeAdded-SgNBAddResList			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList			ProtocolIE-ID
 id-SgNBtoMeNBContainer						ProtocolIE-ID
 id-AdmittedMCGSplitSRBs						ProtocolIE-ID
-id-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item			ProtocolIE-ID
+id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item			ProtocolIE-ID
 id-ResponseInformationSgNBReconfComp				ProtocolIE-ID
 id-UE-ContextInformation-SgNBModReq				ProtocolIE-ID
 id-E-RABs-ToBeAdded-SgNBModReq-Item				ProtocolIE-ID
@@ -1047,6 +1056,7 @@ id-SecondaryRATUsageReportList					ProtocolIE-ID
 id-SecondaryRATUsageReport-Item					ProtocolIE-ID
 id-ServedNRCellsToActivate					ProtocolIE-ID
 id-ActivatedNRCellList						ProtocolIE-ID
+id-SelectedPLMN							ProtocolIE-ID
 
 #.REGISTER
 
@@ -1187,10 +1197,10 @@ MeNBtoSgNBContainer						N x2ap.ies id-MeNBtoSgNBContainer
 SgNB-UE-X2AP-ID							N x2ap.ies id-SgNB-UE-X2AP-ID
 MCGSplitSRBs							N x2ap.ies id-RequestedMCGSplitSRBs
 E-RABs-ToBeAdded-SgNBAddReq-Item				N x2ap.ies id-E-RABs-ToBeAdded-SgNBAddReq-Item
-E-RABs-Admitted-ToBeAdded-SgNBAddResList			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddResList
+E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList
 SgNBtoMeNBContainer						N x2ap.ies id-SgNBtoMeNBContainer
 MCGSplitSRBs							N x2ap.ies id-AdmittedMCGSplitSRBs
-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddRes-Item
+E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item
 ResponseInformationSgNBReconfComp				N x2ap.ies id-ResponseInformationSgNBReconfComp
 UE-ContextInformation-SgNBModReq				N x2ap.ies id-UE-ContextInformation-SgNBModReq
 E-RABs-ToBeAdded-SgNBModReq-Item				N x2ap.ies id-E-RABs-ToBeAdded-SgNBModReq-Item
@@ -1243,6 +1253,7 @@ SecondaryRATUsageReportList					N x2ap.ies id-SecondaryRATUsageReportList
 SecondaryRATUsageReport-Item					N x2ap.ies id-SecondaryRATUsageReport-Item
 ServedNRCellsToActivate						N x2ap.ies id-ServedNRCellsToActivate
 ActivatedNRCellList						N x2ap.ies id-ActivatedNRCellList
+PLMN-Identity							N x2ap.ies id-SelectedPLMN
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
