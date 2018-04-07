@@ -48,6 +48,8 @@
 
 void proto_register_lapdm(void);
 
+static dissector_handle_t b4_info_handle;
+
 static int proto_lapdm = -1;
 static int hf_lapdm_address = -1;
 static int hf_lapdm_ea = -1;
@@ -365,6 +367,12 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          */
         pinfo->fragmented = save_fragmented;
     }
+    else if (hdr_type == LAPDM_HDR_FMT_B4)
+    {
+        /* B4 frames have no length octet at L2 level, but instead a L2 pseudo length octet
+         * at L3.  We must call the proper dissector for decoding them */
+        call_dissector(b4_info_handle, payload, pinfo, tree);
+    }
     else
     {
         if (!PINFO_FD_VISITED(pinfo) && ((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
@@ -540,6 +548,11 @@ proto_register_lapdm(void)
 
     reassembly_table_register(&lapdm_reassembly_table,
                            &addresses_reassembly_table_functions);
+
+    /* B4 frames have no length octet at L2 level, but instead a L2 pseudo length octet
+     * at L3.  We must call the proper dissector for decoding them, and gsm_a_ccch supports
+     * L2 pseudo length */
+    b4_info_handle = find_dissector_add_dependency("gsm_a_ccch", proto_lapdm);
 }
 
 /*
