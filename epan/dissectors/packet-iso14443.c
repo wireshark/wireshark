@@ -27,6 +27,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/decode_as.h>
 #include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <epan/reassemble.h>
@@ -169,6 +170,8 @@ static int proto_iso14443 = -1;
 static dissector_handle_t iso14443_handle;
 
 static dissector_table_t iso14443_cmd_type_table;
+
+static dissector_table_t iso14443_subdissector_table;
 
 static int ett_iso14443 = -1;
 static int ett_iso14443_hdr = -1;
@@ -1088,8 +1091,10 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
                     &i_block_frag_items, NULL, tree);
 
             if (payload_tvb) {
-                /* XXX - forward to the actual upper layer protocol */
-                call_data_dissector(payload_tvb, pinfo, tree);
+                if (!dissector_try_payload_new(iso14443_subdissector_table,
+                            payload_tvb, pinfo, tree, TRUE, NULL)) {
+                    call_data_dissector(payload_tvb, pinfo, tree);
+                }
             }
         }
 
@@ -1883,6 +1888,11 @@ proto_register_iso14443(void)
         register_dissector("iso14443", dissect_iso14443, proto_iso14443);
 
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+    iso14443_subdissector_table =
+        register_decode_as_next_proto(proto_iso14443,
+                "Payload", "iso14443.subdissector",
+                "ISO14443 payload subdissector", NULL);
 }
 
 

@@ -928,6 +928,7 @@ proto_register_iso7816(void)
 void proto_reg_handoff_iso7816(void)
 {
     dissector_add_for_decode_as("usbccid.subdissector", iso7816_handle);
+    dissector_add_for_decode_as("iso14443.subdissector", iso7816_handle);
 }
 
 
