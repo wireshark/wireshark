@@ -904,40 +904,33 @@ endif()
 
 # Build the Qt GUI?
 if(BUILD_wireshark)
-	if(ENABLE_QT5)
-		# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
-		# somewhere. The if WIN32 in this place is annoying as well.
-		if( WIN32 )
-			set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
-			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
-		endif()
-		set(PACKAGELIST ${PACKAGELIST}
-			Qt5Core
-			Qt5LinguistTools
-			Qt5Multimedia
-			Qt5PrintSupport
-			Qt5Svg
-			Qt5Widgets
-		)
-		set(Qt5Core_OPTIONS REQUIRED)
-		set(Qt5LinguistTools_OPTIONS REQUIRED)
-		set(Qt5Multimedia_OPTIONS REQUIRED)
-		set(Qt5PrintSupport_OPTIONS REQUIRED)
-		set(Qt5Svg_OPTIONS REQUIRED)
-		set(Qt5Widgets_OPTIONS REQUIRED)
-		if (APPLE)
-			set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
-			set(Qt5MacExtras_OPTIONS REQUIRED)
-		endif()
-		if( WIN32 )
-			set(PACKAGELIST ${PACKAGELIST} Qt5WinExtras)
-			set(Qt5WinExtras_OPTIONS REQUIRED)
-		endif()
-		set(QT_VERSION 5)
-	else()
-		set(PACKAGELIST ${PACKAGELIST} Qt4)
-		set(Qt4_OPTIONS 4.8 REQUIRED QtCore QtGui)
-		set(QT_VERSION 4)
+	# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
+	# somewhere. The if WIN32 in this place is annoying as well.
+	if( WIN32 )
+		set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
+		set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
+	endif()
+	set(PACKAGELIST ${PACKAGELIST}
+		Qt5Core
+		Qt5LinguistTools
+		Qt5Multimedia
+		Qt5PrintSupport
+		Qt5Svg
+		Qt5Widgets
+	)
+	set(Qt5Core_OPTIONS REQUIRED)
+	set(Qt5LinguistTools_OPTIONS REQUIRED)
+	set(Qt5Multimedia_OPTIONS REQUIRED)
+	set(Qt5PrintSupport_OPTIONS REQUIRED)
+	set(Qt5Svg_OPTIONS REQUIRED)
+	set(Qt5Widgets_OPTIONS REQUIRED)
+	if (APPLE)
+		set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
+		set(Qt5MacExtras_OPTIONS REQUIRED)
+	endif()
+	if( WIN32 )
+		set(PACKAGELIST ${PACKAGELIST} Qt5WinExtras)
+		set(Qt5WinExtras_OPTIONS REQUIRED)
 	endif()
 endif()
 
@@ -1238,11 +1231,6 @@ elseif(QT4_FOUND)
 		message(STATUS "QtMultimedia libs: ${QT_QTMULTIMEDIA_LIBRARY}")
 		# That's the name autofoo uses
 		set(QT_MULTIMEDIA_LIB 1)
-	endif()
-	if(NOT DEFINED MOC_OPTIONS)
-		if(QT_VERSION_MAJOR EQUAL 4 AND QT_VERSION_MINOR GREATER 7)
-			set(MOC_OPTIONS -nn)
-		endif()
 	endif()
 	if(WIN32 OR APPLE)
 		message(FATAL_ERROR "Windows and macOS builds should use Qt5.")
@@ -2196,9 +2184,6 @@ if(BUILD_wireshark AND QT_FOUND)
 	)
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
-	if(QT_VERSION EQUAL 4)
-		target_compile_definitions(wireshark PRIVATE Q_NULLPTR=NULL)
-	endif()
 	add_dependencies(wireshark version)
 	set(PROGLIST ${PROGLIST} wireshark)
 	if(CMAKE_VERSION VERSION_LESS "2.8.12"

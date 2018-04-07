@@ -28,7 +28,6 @@ export docdir = /usr/share/doc/wireshark-doc
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DBUILD_xxx2deb=ON -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
-#	-DENABLE_QT5=OFF
 
 override_dh_auto_build:
 	$(MAKE) -C $(CURDIR)/obj-* asn1

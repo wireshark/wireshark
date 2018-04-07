@@ -40,7 +40,6 @@ option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer (UBSan) for debugging" OF
 option(ENABLE_CHECKHF_CONFLICT "Enable hf conflict check for debugging (start-up may be slower)" OFF)
 option(ENABLE_CCACHE "Speed up compiling and linking using ccache if possible" OFF)
 
-option(ENABLE_QT5        "Use Qt5 instead of Qt4 to build wireshark" ON)
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 #
 # AirPcap support is available only on Windows.  It might be nice to have it
