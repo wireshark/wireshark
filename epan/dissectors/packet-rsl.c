@@ -1336,6 +1336,8 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
        /* L3 PDUs carried on CCCH have L2 PSEUDO LENGTH octet or are RR Short PD format */
        proto_tree_add_item(ie_tree, hf_rsl_llsdu_ccch, tvb, offset, length, ENC_NA);
        next_tvb = tvb_new_subset_length(tvb, offset, length);
+       /* The gsm_a_ccch dissector is the only one handling messages with L2 pseudo-length,
+        * so we pass it also downlink SACCH (SI5/SI6 and related) */
        call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
     }
     else if (type == L3_INF_SACCH)
@@ -3576,7 +3578,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* L3 Info (SYS INFO)       9.3.11 O 1) TLV 22 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE,
-                                          (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_OTHER);
+                                          (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_CCCH);
         /* Starting Time            9.3.23 O 2) TV 3 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
@@ -3869,7 +3871,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* L3 Info                  9.3.11  O 1) TLV 22 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE,
-                                           (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_OTHER);
+                                           (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_CCCH);
         /* Starting Time            9.3.23  O 2) TV 3 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
