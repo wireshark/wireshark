@@ -291,6 +291,8 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
     int num_waiting_to_connect = 0;
     int num_handles = num_pipe_handles + 1; // PID handle is also added to list of handles.
 
+    SecureZeroMemory(pipeinsts, sizeof(pipeinsts));
+
     if (num_pipe_handles == 0 || num_pipe_handles > 3)
     {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Invalid number of pipes given as argument.");
