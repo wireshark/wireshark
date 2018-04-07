@@ -143,7 +143,7 @@ gboolean
 extcap_init_interfaces(capture_options * capture_opts);
 
 gboolean
-extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode);
+extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix);
 
 /* Clean up all if related stuff */
 void

@@ -1410,12 +1410,12 @@ extcap_init_interfaces(capture_options *capture_opts)
         if (extcap_has_toolbar(interface_opts->name))
         {
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_in,
-                               EXTCAP_CONTROL_IN_PREFIX, FALSE);
+                               EXTCAP_CONTROL_IN_PREFIX);
 #ifdef _WIN32
             interface_opts->extcap_control_in_h = pipe_h;
 #endif
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_out,
-                               EXTCAP_CONTROL_OUT_PREFIX, FALSE);
+                               EXTCAP_CONTROL_OUT_PREFIX);
 #ifdef _WIN32
             interface_opts->extcap_control_out_h = pipe_h;
 #endif
@@ -1423,7 +1423,7 @@ extcap_init_interfaces(capture_options *capture_opts)
 
         /* create pipe for fifo */
         if (!extcap_create_pipe(interface_opts->name, &interface_opts->extcap_fifo,
-                                EXTCAP_PIPE_PREFIX, TRUE))
+                                EXTCAP_PIPE_PREFIX))
         {
             return FALSE;
         }
@@ -1485,7 +1485,7 @@ extcap_init_interfaces(capture_options *capture_opts)
 }
 
 #ifdef _WIN32
-gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode)
+gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix)
 {
     gchar timestr[ 14 + 1 ];
     time_t current_time;
@@ -1511,8 +1511,7 @@ gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe
     pipe_h = CreateNamedPipe(
                  utf_8to16(pipename),
                  PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-                 (byte_mode ? (PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT) :
-                              (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT)),
+                 PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
                  1, 65536, 65536,
                  300,
                  &security);
@@ -1532,7 +1531,7 @@ gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe
     return TRUE;
 }
 #else
-gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode _U_)
+gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix)
 {
     gchar *temp_name = NULL;
     int fd = 0;
