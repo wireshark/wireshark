@@ -2624,18 +2624,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <oldsource>Save as...</oldsource>
         <translation>として保存</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln クライアントパケット, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln サーバーパケット, </numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII形式</translation>
@@ -6544,11 +6532,6 @@ a:hover {
         <translation>HTTP負荷分散</translation>
     </message>
     <message>
-        <source>HTTP Request Sequences</source>
-        <oldsource>HTTP referers</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packet Lengths</source>
         <translation>パケット長</translation>
     </message>
@@ -6922,6 +6905,10 @@ a:hover {
     </message>
     <message>
         <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

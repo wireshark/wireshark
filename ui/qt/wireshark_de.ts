@@ -6610,15 +6610,6 @@ text-decoration: underline;
         <translation>HTTP Lastverteilung</translation>
     </message>
     <message>
-        <source>Referers</source>
-        <translation type="vanished">Referers</translation>
-    </message>
-    <message>
-        <source>HTTP Request Sequences</source>
-        <oldsource>HTTP referers</oldsource>
-        <translation type="unfinished">HTTP Referers</translation>
-    </message>
-    <message>
         <source>Packet Lengths</source>
         <translation>Paketlängen</translation>
     </message>
@@ -6992,7 +6983,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfrage Sequenzen</translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
+        <translation>HTTP Anfrage Sequenzen</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
