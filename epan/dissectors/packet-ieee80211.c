@@ -15910,12 +15910,12 @@ ieee80211_tag_country_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
       proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_fcn,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(sub_item, ": First Channel Number: %d",
+      proto_item_append_text(sub_item, ": First Channel Number: %u",
                              tvb_get_guint8(tvb, offset));
       offset += 1;
       proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_nc,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(sub_item, ", Number of Channels: %d",
+      proto_item_append_text(sub_item, ", Number of Channels: %u",
                              tvb_get_guint8(tvb, offset));
       offset += 1;
       proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_mtpl,
@@ -15932,17 +15932,17 @@ ieee80211_tag_country_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_oei,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       proto_item_append_text(sub_item,
-                             ": Operating Extension Identifier: %d",
+                             ": Operating Extension Identifier: %u",
                              tvb_get_guint8(tvb, offset));
       offset += 1;
       proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_oc,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(sub_item, ", Operating Class: %d",
+      proto_item_append_text(sub_item, ", Operating Class: %u",
                              tvb_get_guint8(tvb, offset));
       offset += 1;
       proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_cc,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(sub_item, ", Coverage Class: %d",
+      proto_item_append_text(sub_item, ", Coverage Class: %u",
                              tvb_get_guint8(tvb, offset));
       offset += 1;
     }
@@ -23069,12 +23069,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_rm_tx_power,
      {"Transmit Power Used", "wlan.rm.tx_power",
-      FT_INT8, BASE_DEC, NULL, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_rm_max_tx_power,
      {"Max Transmit Power", "wlan.rm.max_tx_power",
-      FT_INT8, BASE_DEC, NULL, 0,
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_tpc,
@@ -26444,8 +26444,8 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_country_info_fnm_mtpl,
-     {"Maximum Transmit Power Level (in dBm)", "wlan.country_info.fnm.mtpl",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+     {"Maximum Transmit Power Level", "wlan.country_info.fnm.mtpl",
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_country_info_rrc,
