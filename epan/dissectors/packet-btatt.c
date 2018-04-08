@@ -528,7 +528,9 @@ static int hf_btatt_value_trigger_setting_analog = -1;
 static int hf_btatt_value_trigger_setting_analog_one = -1;
 static int hf_btatt_value_trigger_setting_analog_two = -1;
 static int hf_btatt_digital = -1;
+static int hf_btatt_digital_output = -1;
 static int hf_btatt_analog = -1;
+static int hf_btatt_analog_output = -1;
 static int hf_btatt_location_name = -1;
 static int hf_btatt_uncertainty = -1;
 static int hf_btatt_uncertainty_reserved = -1;
@@ -1082,6 +1084,17 @@ static int hf_gatt_microbit_temperature_value = -1;
 static int hf_gatt_microbit_temperature_period = -1;
 static int hf_btatt_valid_range_lower_inclusive_value = -1;
 static int hf_btatt_valid_range_upper_inclusive_value = -1;
+static int hf_btatt_temperature_celsius = -1;
+static int hf_btatt_temperature_fahrenheit = -1;
+static int hf_btatt_removable = -1;
+static int hf_btatt_removable_reserved = -1;
+static int hf_btatt_removable_removable = -1;
+static int hf_btatt_service_required = -1;
+static int hf_btatt_service_required_reserved = -1;
+static int hf_btatt_service_required_service_required = -1;
+static int hf_btatt_scientific_temperature_celsius = -1;
+static int hf_btatt_string = -1;
+static int hf_btatt_network_availability = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
@@ -1929,6 +1942,18 @@ static const int *hfx_btatt_battery_power_state[] = {
     &hf_btatt_battery_power_state_discharging,
     &hf_btatt_battery_power_state_charging,
     &hf_btatt_battery_power_state_level,
+    NULL
+};
+
+static const int *hfx_btatt_removable[] = {
+    &hf_btatt_removable_reserved,
+    &hf_btatt_removable_removable,
+    NULL
+};
+
+static const int *hfx_btatt_service_required[] = {
+    &hf_btatt_service_required_reserved,
+    &hf_btatt_service_required_service_required,
     NULL
 };
 
@@ -3693,6 +3718,26 @@ static const value_string battery_power_state_level_vals[] = {
     {0, NULL }
 };
 
+static const value_string removable_removable_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Not Removable" },
+    { 0x02, "Removable" },
+    {0, NULL }
+};
+
+static const value_string service_required_service_required_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "No Service Required" },
+    { 0x02, "Service Required" },
+    {0, NULL }
+};
+
+static const value_string network_availability_vals[] = {
+    { 0x00, "No network available" },
+    { 0x01, "One or more networks available" },
+    {0, NULL }
+};
+
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
     "Turn Off" };
@@ -3727,6 +3772,11 @@ static const true_false_string timezone_information_type_tfs = {
     "Information relative to local time",
     "Information relative to UTC"
 };
+
+static void base_signed_one_tenth(gchar *buf, guint32 value) {
+    gint32 signed_value = (gint) value;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%i.%u", signed_value / 10, value % 10);
+}
 
 union request_parameters_union {
     void *data;
@@ -5123,7 +5173,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A0A: /* Day Date Time */
-    case 0x2A0B: /* Exact Time 100 */
+    case 0x2A0B: /* Exact Time 100 */  /* APPROVED: NO */
     case 0x2A0C: /* Exact Time 256 */
     case 0x2A2B: /* Current Time */
         if (uuid.bt_uuid == 0x2A2B) {/* Current Time */
@@ -5192,7 +5242,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A0F: /* Local Time Information */
-    case 0x2A10: /* Secondary Time Zone */
+    case 0x2A10: /* Secondary Time Zone */  /* APPROVED: NO */
         if (service_uuid.bt_uuid == GATT_SERVICE_CURRENT_TIME_SERVICE) {
             if (is_readable_request(att_data->opcode) || is_writeable_response(att_data->opcode))
                 break;
@@ -5292,7 +5342,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
-    case 0x2A15: /* Time Broadcast */
+    case 0x2A15: /* Time Broadcast */  /* APPROVED: NO */
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
@@ -5421,7 +5471,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         }
         break;
-    case 0x2A1A: /* Battery Power State */
+    case 0x2A1A: /* Battery Power State */  /* APPROVED: NO */
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
@@ -5429,7 +5479,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
-    case 0x2A1B: /* Battery Level State */ {
+    case 0x2A1B: /* Battery Level State */  /* APPROVED: NO */ {
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
@@ -5522,6 +5572,30 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         proto_tree_add_item(tree, hf_btatt_temperature_type, tvb, offset, 1, ENC_NA);
         offset += 1;
 
+        break;
+    case 0x2A1F: /* Temperature Celsius */  /* APPROVED: NO */ {
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        gint32 temperature;
+        sub_item = proto_tree_add_item_ret_int(tree, hf_btatt_temperature_celsius, tvb, offset, 2, ENC_LITTLE_ENDIAN, &temperature);
+        if (temperature < -2732)
+            expert_add_info(pinfo, sub_item, &ei_btatt_bad_data);
+        offset += 2;
+
+        }
+        break;
+    case 0x2A20: /* Temperature Fahrenheit */  /* APPROVED: NO */ {
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        gint32 temperature;
+        sub_item = proto_tree_add_item_ret_int(tree, hf_btatt_temperature_fahrenheit, tvb, offset, 2, ENC_LITTLE_ENDIAN, &temperature);
+        if (temperature < -4597)
+            expert_add_info(pinfo, sub_item, &ei_btatt_bad_data);
+        offset += 2;
+
+        }
         break;
     case 0x2A21: /* Measurement Interval */
         if (service_uuid.bt_uuid == GATT_SERVICE_HEALTH_THERMOMETER) {
@@ -5790,6 +5864,28 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 2;
 
         break;
+    case 0x2A2F: /* Position 2D */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2aae", tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
+        offset += 4;
+
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2aaf", tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
+        offset += 4;
+
+        break;
+    case 0x2A30: /* Position 3D */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a2f", tvb_new_subset_length_caplen(tvb, offset, 8, 8), pinfo, tree, att_data);
+        offset += 8;
+
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a6c", tvb_new_subset_length_caplen(tvb, offset, 3, 3), pinfo, tree, att_data);
+        offset += 3;
+
+        break;
     case 0x2A31: /* Scan Refresh */
         if (service_uuid.bt_uuid == GATT_SERVICE_SCAN_PARAMETERS) {
             if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
@@ -6054,6 +6150,46 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_heart_rate_control_point, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2A3A: /* Removable */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_removable, ett_btatt_value, hfx_btatt_removable, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2A3B: /* Service Required */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_service_required, ett_btatt_value, hfx_btatt_service_required, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2A3C: /* Scientific Temperature Celsius */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_scientific_temperature_celsius, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        offset += 8;
+
+        break;
+    case 0x2A3D: /* String */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        offset += tvb_reported_length_remaining(tvb, offset);
+
+        break;
+    case 0x2A3E: /* Network Availability */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_network_availability, tvb, offset, 1, ENC_NA);
         offset += 1;
 
         break;
@@ -6579,6 +6715,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
+    case 0x2A57: /* Digital Output */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_digital_output, tvb, offset, -1, ENC_NA);
+        offset += tvb_reported_length_remaining(tvb, offset);
+
+        break;
     case 0x2A58: /* Analog */
         if (service_uuid.bt_uuid == GATT_SERVICE_AUTOMATION_IO) {
             if (is_readable_request(att_data->opcode) || is_writeable_response(att_data->opcode) || att_data->opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION)
@@ -6593,6 +6737,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_analog, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        break;
+    case 0x2A59: /* Analog Output */  /* APPROVED: NO */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_analog_output, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         break;
@@ -9788,17 +9940,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset = tvb_captured_length(tvb);
 
         break;
-    case 0x2A1F: /* Temperature Celsius */
-    case 0x2A20: /* Temperature Fahrenheit */
-    case 0x2A2F: /* Position 2D */
-    case 0x2A30: /* Position 3D */
-    case 0x2A3A: /* Removable */
-    case 0x2A3B: /* Service Required */
-    case 0x2A3C: /* Scientific Temperature Celsius */
-    case 0x2A3D: /* String */
-    case 0x2A3E: /* Network Availability */
-    case 0x2A57: /* Digital Output */
-    case 0x2A59: /* Analog Output */
+    case 0x2A62: /* Pulse Oximetry Control Point */ /* APPROVED: NO */
     case 0x2ADB: /* Mesh Provisioning Data In */
     case 0x2ADC: /* Mesh Provisioning Data Out */
     case 0x2ADD: /* Mesh Proxy Data In */
@@ -13790,9 +13932,19 @@ proto_register_btatt(void)
             FT_UINT8, BASE_DEC, VALS(digital_vals), 0x0,
             NULL, HFILL}
         },
+        {&hf_btatt_digital_output,
+            {"Digital Output", "btatt.digital_output",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
         {&hf_btatt_analog,
             {"Analog", "btatt.analog",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_analog_output,
+            {"Analog Output", "btatt.analog_output",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_location_name,
@@ -16166,6 +16318,61 @@ proto_register_btatt(void)
         {&hf_btatt_timezone_information_information_type,
             {"Type", "btatt.timezone_information.information_type",
             FT_BOOLEAN, 8, TFS(&timezone_information_type_tfs), 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_celsius,
+            {"Temperature Celsius", "btatt.temperature_celsius",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_fahrenheit,
+            {"Temperature Fahrenheit", "btatt.temperature_fahrenheit",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_removable,
+            {"Removable", "btatt.removable",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_removable_reserved,
+            {"Reserved", "btatt.removable.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL}
+        },
+        {&hf_btatt_removable_removable,
+            {"Removable", "btatt.removable.removable",
+            FT_UINT8, BASE_HEX, VALS(removable_removable_vals), 0x03,
+            NULL, HFILL}
+        },
+        {&hf_btatt_service_required,
+            {"Service Required", "btatt.service_required",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_service_required_reserved,
+            {"Reserved", "btatt.service_required.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL}
+        },
+        {&hf_btatt_service_required_service_required,
+            {"Service Required", "btatt.service_required.service_required",
+            FT_UINT8, BASE_HEX, VALS(service_required_service_required_vals), 0x03,
+            NULL, HFILL}
+        },
+        {&hf_btatt_scientific_temperature_celsius,
+            {"Scientific Temperature Celsius", "btatt.scientific_temperature_celsius",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_string,
+            {"String", "btatt.string",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_network_availability,
+            {"Network Availability", "btatt.network_availability",
+            FT_UINT8, BASE_HEX, VALS(network_availability_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_request_in_frame,
