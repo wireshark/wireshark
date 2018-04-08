@@ -318,7 +318,8 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   packet_list_queue_draw();
   cf_callback_invoke(cf_cb_file_opened, cf);
 
-  if (cf->cd_t == WTAP_FILE_TYPE_SUBTYPE_BER) {
+  if ((cf->cd_t == WTAP_FILE_TYPE_SUBTYPE_BER)
+      || (cf->cd_t == WTAP_FILE_TYPE_SUBTYPE_PEM)) {
     /* tell the BER dissector the file name */
     ber_set_filename(cf->filename);
   }

@@ -373,6 +373,7 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423          79
 #define WTAP_FILE_TYPE_SUBTYPE_MPLOG                         80
 #define WTAP_FILE_TYPE_SUBTYPE_DPA400                        81
+#define WTAP_FILE_TYPE_SUBTYPE_PEM                           82
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 
