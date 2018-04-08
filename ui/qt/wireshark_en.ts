@@ -2248,6 +2248,13 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
+    <name>ExtArgSelector</name>
+    <message>
+        <source>Reload data</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>All Files (</source>

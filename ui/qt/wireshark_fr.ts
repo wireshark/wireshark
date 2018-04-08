@@ -2228,6 +2228,13 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
 </context>
 <context>
+    <name>ExtArgSelector</name>
+    <message>
+        <source>Reload data</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>All Files (</source>
@@ -6557,11 +6564,6 @@ a:hover {
         <translation>Répartition de charge HTTP</translation>
     </message>
     <message>
-        <source>HTTP Request Sequences</source>
-        <oldsource>HTTP referers</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packet Lengths</source>
         <translation>Longueur de Paquet</translation>
     </message>
@@ -6935,6 +6937,10 @@ a:hover {
     </message>
     <message>
         <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

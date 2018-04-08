@@ -2229,6 +2229,13 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
 </context>
 <context>
+    <name>ExtArgSelector</name>
+    <message>
+        <source>Reload data</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>All Files (</source>
@@ -6589,11 +6596,6 @@ text-decoration: underline;
         <translation>Rozkład obciążenia HTPP</translation>
     </message>
     <message>
-        <source>HTTP Request Sequences</source>
-        <oldsource>HTTP referers</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packet Lengths</source>
         <translation>Długości pakietu</translation>
     </message>
@@ -6967,6 +6969,10 @@ text-decoration: underline;
     </message>
     <message>
         <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
