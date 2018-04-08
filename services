@@ -386,8 +386,8 @@ at-7              207/tcp # AppleTalk Unused
 at-7              207/udp # AppleTalk Unused
 at-8              208/tcp # AppleTalk Unused [Rob_Chandhok] [Rob_Chandhok]
 at-8              208/udp # AppleTalk Unused [Rob_Chandhok] [Rob_Chandhok]
-qmtp              209/tcp # The Quick Mail Transfer Protocol [Dan_Bernstein] [Dan_Bernstein]
-qmtp              209/udp # The Quick Mail Transfer Protocol [Dan_Bernstein] [Dan_Bernstein]
+qmtp              209/tcp # The Quick Mail Transfer Protocol [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
+qmtp              209/udp # The Quick Mail Transfer Protocol [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
 z39-50            210/tcp # ANSI Z39.50IANA assigned this well-formed service name as a replacement for "z39.50". [Mark_H_Needleman] [Mark_H_Needleman]
 z39.50            210/tcp # ANSI Z39.50 [Mark_H_Needleman] [Mark_H_Needleman] This entry is an alias to "z39-50".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 z39-50            210/udp # ANSI Z39.50IANA assigned this well-formed service name as a replacement for "z39.50". [Mark_H_Needleman] [Mark_H_Needleman]
@@ -1097,8 +1097,8 @@ asia              626/tcp # ASIA [Michael_Dasenbrock] [Michael_Dasenbrock]
 asia              626/udp # ASIA [Michael_Dasenbrock] [Michael_Dasenbrock]
 passgo-tivoli     627/tcp # PassGo Tivoli [John_Rainford_2] [John_Rainford_2]
 passgo-tivoli     627/udp # PassGo Tivoli [John_Rainford_2] [John_Rainford_2]
-qmqp              628/tcp # QMQP [Dan_Bernstein_2] [Dan_Bernstein_2]
-qmqp              628/udp # QMQP [Dan_Bernstein_2] [Dan_Bernstein_2]
+qmqp              628/tcp # QMQP [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
+qmqp              628/udp # QMQP [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
 3com-amp3         629/tcp # 3Com AMP3 [Prakash_Banthia] [Prakash_Banthia]
 3com-amp3         629/udp # 3Com AMP3 [Prakash_Banthia] [Prakash_Banthia]
 rda               630/tcp # RDA [John_Hadjioannou] [John_Hadjioannou]
@@ -2982,8 +2982,8 @@ funk-license     1787/tcp # funk-license [Cimarron_Boozer][Eric_Wilde] [Cimarron
 funk-license     1787/udp # funk-license [Cimarron_Boozer][Eric_Wilde] [Cimarron_Boozer][Eric_Wilde]
 psmond           1788/tcp # psmond [Will_Golson] [Will_Golson]
 psmond           1788/udp # psmond [Will_Golson] [Will_Golson]
-hello            1789/tcp # hello [D_J_Bernstein_2] [D_J_Bernstein_2]
-hello            1789/udp # hello [D_J_Bernstein_2] [D_J_Bernstein_2]
+hello            1789/tcp # hello [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
+hello            1789/udp # hello [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
 nmsp             1790/tcp # Narrative Media Streaming Protocol [Paul_Santinelli_Jr] [Paul_Santinelli_Jr]
 nmsp             1790/udp # Narrative Media Streaming Protocol [Paul_Santinelli_Jr] [Paul_Santinelli_Jr]
 ea1              1791/tcp # EA1 [Kirk_MacLean] [Kirk_MacLean]
@@ -7424,8 +7424,8 @@ pda-gate         4012/tcp # PDA Gate [Masakuni_Okada] [Masakuni_Okada]
 pda-gate         4012/udp # PDA Gate [Masakuni_Okada] [Masakuni_Okada]
 acl-manager      4013/tcp # ACL Manager [Toru_Murai] [Toru_Murai]
 acl-manager      4013/udp # ACL Manager [Toru_Murai] [Toru_Murai]
-taiclock         4014/tcp # TAICLOCK [Dan_Bernstein_3] [Dan_Bernstein_3]
-taiclock         4014/udp # TAICLOCK [Dan_Bernstein_3] [Dan_Bernstein_3]
+taiclock         4014/tcp # TAICLOCK [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
+taiclock         4014/udp # TAICLOCK [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
 talarian-mcast1  4015/tcp # Talarian Mcast
 talarian-mcast1  4015/udp # Talarian Mcast
 talarian-mcast2  4016/tcp # Talarian Mcast
