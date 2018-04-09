@@ -41,18 +41,14 @@ SKIP_CAPTURE=${SKIP_CAPTURE:-1}
 
 # Override the last two items if we're running Windows
 if [ "$WS_SYSTEM" = "Windows" ] ; then
-	WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR/wireshark-gtk2}
-	WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$SOURCE_DIR/wireshark-qt-release}
 	SKIP_CAPTURE=0
 fi
 
 # Path to the Wireshark binaries, default to source dir if unset
 WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR}
-WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$WS_BIN_PATH}
 
 # Tweak the following to your liking.
-WIRESHARK=$WS_QT_BIN_PATH/wireshark
-WIRESHARK_GTK=$WS_BIN_PATH/wireshark-gtk
+WIRESHARK=$WS_BIN_PATH/wireshark
 TSHARK=$WS_BIN_PATH/tshark
 RAWSHARK=$WS_BIN_PATH/rawshark
 CAPINFOS=$WS_BIN_PATH/capinfos
