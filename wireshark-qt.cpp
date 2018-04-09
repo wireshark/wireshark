@@ -110,6 +110,11 @@
 
 #include "epan/crypt/dot11decrypt_ws.h"
 
+/* Handle the addition of View menu items without request */
+#if defined(Q_OS_MAC)
+#include <ui/macosx/cocoa_bridge.h>
+#endif
+
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #define INVALID_OPTION 1
@@ -396,6 +401,11 @@ int main(int argc, char *qt_argv[])
     prefs.gui_console_open = console_open_always;
 #endif /* DEBUG_STARTUP_TIME */
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
+
+#if defined(Q_OS_MAC)
+    /* Disable automatic addition of tab menu entries in view menu */
+    CocoaBridge::cleanOSGeneratedMenuItems();
+#endif
 
     /* Set the C-language locale to the native environment. */
     setlocale(LC_ALL, "");
