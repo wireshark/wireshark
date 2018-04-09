@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: GPL-2.0-or-later
 *
-* Ref 3GPP TS 29.244 V14.1.0 (2017-09)
+* Ref 3GPP TS 29.244 V15.1.0 (2018-03-27)
 */
 #include "config.h"
 
@@ -369,6 +369,13 @@ static int hf_pfcp_subsequent_volume_quota_dlvol = -1;
 
 static int hf_pfcp_subsequent_time_quota = -1;
 
+static int hf_pfcp_rqi_flag = -1;
+static int hf_pfcp_qfi = -1;
+static int hf_pfcp_query_urr_reference = -1;
+static int hf_pfcp_additional_usage_reports_information = -1;
+static int hf_pfcp_additional_usage_reports_information_b14_b0_number_value = -1;
+static int hf_pfcp_additional_usage_reports_information_b15_auri = -1;
+
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
 static int ett_pfcp_ie = -1;
@@ -407,6 +414,7 @@ static int ett_pfcp_tos = -1;
 static int ett_pfcp_spi = -1;
 static int ett_pfcp_flow_label = -1;
 static int ett_pfcp_subsequent_volume_quota = -1;
+static int ett_pfcp_additional_usage_reports_information = -1;
 
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
@@ -483,7 +491,7 @@ static const value_string pfcp_message_type[] = {
     { 13, "Sx Node Report Response"},
     { 14, "Sx Session Set Deletion Request"},
     { 15, "Sx Session Set Deletion Response"},
-    //16 to 49	For future use
+    //16 to 49    For future use
     //Sx Session related messages
     { 50, "Sx Session Establishment Request"},
     { 51, "Sx Session Establishment Response"},
@@ -493,9 +501,9 @@ static const value_string pfcp_message_type[] = {
     { 55, "Sx Session Deletion Response"},
     { 56, "Sx Session Report Request"},
     { 57, "Sx Session Report Response"},
-    //58 to 99	For future use
+    //58 to 99    For future use
     //Other messages
-    //100 to 255 	For future use
+    //100 to 255     For future use
     {0, NULL}
 };
 static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_message_type);
@@ -663,7 +671,24 @@ static const value_string pfcp_ie_type[] = {
     { 120, "Aggregated URR ID IE" },                                /* Fixed Length / Subclause 8.2.85 */
     { 121, "Subsequent Volume Quota" },                             /* Extendable / Subclause 8.2.86 */
     { 122, "Subsequent Time Quota" },                               /* Extendable / Subclause 8.2.87 */
-    //123 to 65535	Spare. For future use.
+    { 123, "RQI"},                                                  /* Extendable / Subclause 8.2.88 */
+    { 124, "QFI"},                                                  /* Extendable / Subclause 8.2.89 */
+    { 125, "Query URR Reference"},                                  /* Extendable / Subclause 8.2.90 */
+    { 126, "Additional Usage Reports Information"},                 /* Extendable / Subclause 8.2.91 */
+    //    { 127, "Create Traffic Endpoint"},                        /* Extendable / Table 7.5.2.7 */
+    //    { 128, "Created Traffic Endpoint"},                       /* Extendable / Table 7.5.3.5 */
+    //    { 129, "Update Traffic Endpoint"},                        /* Extendable / Table 7.5.4.13 */
+    //    { 130, "Remove Traffic Endpoint"},                        /* Extendable / Table 7.5.4.14 */
+    //    { 131, "Traffic Endpoint ID"},                            /* Extendable / Subclause 8.2.92 */
+    //    { 132, "Ethernet Packet Filter"},                         /* Extendable / Table 7.5.2.2-3 */
+    //    { 133, "MAC address"},                                    /* Extendable / Subclause 8.2.93 */
+    //    { 134, "C-TAG"},                                          /* Extendable / Subclause 8.2.94 */
+    //    { 135, "S-TAG"},                                          /* Extendable / Subclause 8.2.95 */
+    //    { 136, "Ethertype"},                                      /* Extendable / Subclause 8.2.96 */
+    //    { 137, "Proxying"},                                       /* Extendable / Subclause 8.2.97 */
+    //    { 138, "Ethernet Filter ID"},                             /* Extendable / Subclause 8.2.98 */
+    //    { 139, "Ethernet Filter Properties"},                     /* Extendable / Subclause 8.2.99 */
+    //140 to    65535 Spare. For future use.
     {0, NULL}
 };
 
@@ -851,7 +876,7 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * then the Length of Flow Description and the Flow Description fields shall be present
          */
         flow_desc_tree = proto_item_add_subtree(item, ett_pfcp_flow_desc);
-        /* m to (m+1)	Length of Flow Description */
+        /* m to (m+1)    Length of Flow Description */
         proto_tree_add_item_ret_uint(flow_desc_tree, hf_pfcp_flow_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN, &fd_length);
         offset += 2;
         /* Flow Description
@@ -1046,7 +1071,7 @@ static void
 dissect_pfcp_transport_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
-    /* Octet 5 to 6	ToS/Traffic Class
+    /* Octet 5 to 6    ToS/Traffic Class
     * The ToS/Traffic Class shall be encoded on two octets as an OctetString.
     * The first octet shall contain the IPv4 Type-of-Service or the IPv6 Traffic-Class field and the second octet shall contain the ToS/Traffic Class mask field
     */
@@ -1093,7 +1118,7 @@ dissect_pfcp_volume_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += 8;
     }
     if ((flags_val & 0x2) == 2) {
-        /* p to (p+7)	Uplink Volume
+        /* p to (p+7)    Uplink Volume
         * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
         */
         proto_tree_add_item(tree, hf_pfcp_volume_threshold_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1120,7 +1145,7 @@ dissect_pfcp_time_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset = 0;
     guint value;
 
-    /* Octet 5 to 8	Time Threshold
+    /* Octet 5 to 8    Time Threshold
     * The Time Threshold field shall be encoded as an Unsigned32 binary integer value.
     * It shall contain the duration in seconds.
     */
@@ -1190,7 +1215,7 @@ dissect_pfcp_subseq_volume_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset += 8;
     }
     if ((flags_val & 0x2) == 2) {
-        /* p to (p+7)	Uplink Volume
+        /* p to (p+7)    Uplink Volume
         * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
         */
         proto_tree_add_item(tree, hf_pfcp_subseq_volume_threshold_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1401,7 +1426,7 @@ dissect_pfcp_destination_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     int offset = 0;
     guint32 value;
 
-    /* Octet 5    Spare	Interface value*/
+    /* Octet 5    Spare    Interface value*/
     proto_tree_add_item(tree, hf_pfcp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint(tree, hf_pfcp_dst_interface, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
     offset++;
@@ -1663,7 +1688,7 @@ static void
 dissect_pfcp_sequence_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_)
 {
     guint32 value;
-    /* Octet 5 to 8	Sequence Number */
+    /* Octet 5 to 8    Sequence Number */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_sequence_number, tvb, 0, 4, ENC_BIG_ENDIAN, &value);
 
     proto_item_append_text(item, "%u", value);
@@ -2070,7 +2095,7 @@ dissect_pfcp_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     int offset = 0;
     guint32 node_id_type, num_csid;
 
-    /* Octet 5  FQ-CSID Node-ID Type	Number of CSIDs= m*/
+    /* Octet 5  FQ-CSID Node-ID Type    Number of CSIDs= m*/
     proto_tree_add_item_ret_uint(tree, hf_pfcp_fq_csid_node_id_type, tvb, offset, 1, ENC_BIG_ENDIAN, &node_id_type);
     proto_tree_add_item_ret_uint(tree, hf_pfcp_num_csid, tvb, offset, 1, ENC_BIG_ENDIAN, &num_csid);
     offset++;
@@ -2226,7 +2251,7 @@ dissect_pfcp_quota_holding_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     int offset = 0;
     guint32 value;
-    /* Octet 5 to 8	Time Quota value
+    /* Octet 5 to 8    Time Quota value
     * TThe Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
     */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_quota_holding_time, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
@@ -2301,7 +2326,7 @@ dissect_pfcp_volume_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 8;
     }
     if ((flags_val & 0x2) == 2) {
-        /* p to (p+7)	Uplink Volume
+        /* p to (p+7)    Uplink Volume
         * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
         */
         proto_tree_add_item(tree, hf_pfcp_volume_quota_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -2327,7 +2352,7 @@ dissect_pfcp_time_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 {
     int offset = 0;
     guint32 value;
-    /* Octet 5 to 8	Time Quota value
+    /* Octet 5 to 8    Time Quota value
     * TThe Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
     */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_time_quota, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
@@ -2813,7 +2838,7 @@ dissect_pfcp_dl_flow_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
      * then the ToS/Traffic Class field shall be present
      */
     if ((flags_val & 0x1) == 1) {
-        /* m to (m+1)	ToS/Traffic Class
+        /* m to (m+1)    ToS/Traffic Class
         * The ToS/Traffic Class shall be encoded on two octets as an OctetString.
         * The first octet shall contain the IPv4 Type-of-Service or the IPv6 Traffic-Class field and
         * the second octet shall contain the ToS/Traffic Class mask field
@@ -3457,7 +3482,7 @@ dissect_pfcp_subsequent_volume_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset += 8;
     }
     if ((flags_val & 0x2) == 2) {
-        /* p to (p+7)	Uplink Volume
+        /* p to (p+7)    Uplink Volume
         * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
         */
         proto_tree_add_item(tree, hf_pfcp_subsequent_volume_quota_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -3498,6 +3523,95 @@ dissect_pfcp_subsequent_time_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
 
+}
+
+/*
+ * 8.2.88   RQI
+ */
+static void
+dissect_pfcp_rqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_pfcp_spare_b7_b1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_rqi_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+    return ;
+}
+
+/*
+ * 8.2.89   QFI
+ */
+static void
+dissect_pfcp_qfi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /*     Octets 5 to (m)
+     *    The Application Identifier shall be encoded as an OctetString
+     */
+    proto_tree_add_item(tree, hf_pfcp_qfi, tvb, offset, length, ENC_NA);
+    offset += length;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+    return ;
+}
+
+/*
+ * 8.2.90   Querry URR Reference
+ */
+static void
+dissect_pfcp_query_urr_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    /* Octets 5 to 8 Query URR Reference value
+     * The Query URR Reference value shall be encoded as an Unsigned32 binary integer value.
+     * It shall contain the reference of a query request for URR(s).
+     */
+    proto_tree_add_item(tree, hf_pfcp_query_urr_reference, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
+/*
+ * 8.2.91    Additional Usage Reports Information
+ */
+static void
+dissect_pfcp_additional_usage_reports_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /*
+     *    Octet    8      7   6      5      4      3      2         1
+     *    5    | AURI |   Number of Additional Usage Reports value  |
+     *    6    |    Number of Additional Usage Reports value     |
+     *
+     *  The Number of Additional Usage Reports value shall be encoded as
+         *  an unsigned binary integer value on 15 bits.
+         *  Bit 7 of Octet 5 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
+         *  The bit 8 of octet 5 shall encode the AURI (Additional Usage Reports Indication) flag{...}.
+         */
+        static const int * pfcp_additional_usage_reports_information_flags[] = {
+            &hf_pfcp_additional_usage_reports_information_b15_auri,
+            &hf_pfcp_additional_usage_reports_information_b14_b0_number_value,
+            NULL
+        };
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_additional_usage_reports_information,
+                ett_pfcp_additional_usage_reports_information, pfcp_additional_usage_reports_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+        offset += 2;
+
+        if (offset < length) {
+            proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+        }
 }
 
 /* Array of functions to dissect IEs
@@ -3631,6 +3745,11 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    120 */    { dissect_pfcp_aggregated_urr_id_ie },                          /* Aggregated URR ID IE                            Fixed Length / Subclause 8.2.85 */
 /*    121 */    { dissect_pfcp_subsequent_volume_quota },                       /* Subsequent Volume Quota                         Extendable / Subclause 8.2.86 */
 /*    122 */    { dissect_pfcp_subsequent_time_quota },                         /* Subsequent Time Quota                           Extendable / Subclause 8.2.87 */
+/*    123 */    { dissect_pfcp_rqi },                                           /* RQI                                             Extendable / Subclause 8.2.88 */
+/*    124 */    { dissect_pfcp_qfi },                                           /* QFI                                             Extendable / Subclause 8.2.89 */
+/*    125 */    { dissect_pfcp_query_urr_reference },                           /* Query URR Reference                             Extendable / Subclause 8.2.90 */
+/*    126 */    { dissect_pfcp_additional_usage_reports_information },          /* Additional Usage Reports Information            Extendable /  Subclause 8.2.91 */
+       //127 (140) to 65535    Spare. For future use.
     { NULL },                                                        /* End of List */
 };
 
@@ -4015,7 +4134,7 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
         proto_tree_add_item(sub_tree, hf_pfcp_seid, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
     }
-    /* 7.2.2.2	PFCP Header for Node Related Messages */
+    /* 7.2.2.2    PFCP Header for Node Related Messages */
     /*
         Octet     8     7     6     5     4     3     2     1
           1    | Version         |Spare|Spare|Spare| MP=0 | S=0 |
@@ -4188,7 +4307,7 @@ proto_register_pfcp(void)
         NULL, HFILL }
         },
         { &hf_pfcp_enterprice_id,
-        { "Enterprise ID",	"pfcp.enterprice_id",
+        { "Enterprise ID",    "pfcp.enterprice_id",
         FT_UINT16, BASE_ENTERPRISES, STRINGS_ENTERPRISES,
         0x0, NULL, HFILL } },
         { &hf_pfcp2_ie,
@@ -4707,7 +4826,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_reporting_triggers_o5_b2_timth,
-		{ "TIMTH (Time Threshold)", "pfcp.reporting_triggers_flags.timth",
+        { "TIMTH (Time Threshold)", "pfcp.reporting_triggers_flags.timth",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
@@ -4769,7 +4888,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_usage_report_trigger_o6_b2_liusa,
-		{ "LIUSA (Linked Usage Reporting)", "pfcp.usage_report_trigger_flags.liusa",
+        { "LIUSA (Linked Usage Reporting)", "pfcp.usage_report_trigger_flags.liusa",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
@@ -5557,11 +5676,42 @@ proto_register_pfcp(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_rqi_flag,
+        { "RQI", "pfcp.rqi_flag",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qfi,
+        { "QFI", "pfcp.qfi_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_query_urr_reference,
+        { "Query URR Reference", "pfcp.query_urr_reference",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_additional_usage_reports_information,
+        { "Additional Usage Reports Information", "pfcp.additional_usage_reports_information",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_additional_usage_reports_information_b15_auri,
+        { "AURI (Additional Usage Reports Indication)", "pfcp.additional_usage_reports_information_auri",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_additional_usage_reports_information_b14_b0_number_value,
+        { "Number of Additional Usage Reports value", "pfcp.additional_usage_reports_information_value",
+            FT_UINT16, BASE_DEC, NULL, 0x7FFF,
+            NULL, HFILL }
+        },
 
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    38
+#define NUM_INDIVIDUAL_ELEMS_PFCP    39
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -5603,6 +5753,7 @@ proto_register_pfcp(void)
     ett[35] = &ett_pfcp_spi;
     ett[36] = &ett_pfcp_flow_label;
     ett[37] = &ett_pfcp_subsequent_volume_quota;
+    ett[38] = &ett_pfcp_additional_usage_reports_information;
 
 
     static ei_register_info ei[] = {
