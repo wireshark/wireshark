@@ -448,6 +448,8 @@ is one record per line.  The fields are tab-delimited.
  * Field 5 = protocol name
  * Field 6 = "decode as" support
 
+B<elastic-mapping>  Dumps the ElasticSearch mapping file to stdout.
+
 B<fieldcount>  Dumps the number of header fields to stdout.
 
 B<fields>  Dumps the contents of the registration database to
@@ -834,6 +836,10 @@ Example of usage to import data into Elasticsearch:
 
   tshark -T ek -j "http tcp ip" -P -V -x -r file.pcap > file.json
   curl -H "Content-Type: application/x-ndjson" -XPOST http://elasticsearch:9200/_bulk --data-binary "@file.json"
+
+Elastic requires a mapping file to be loaded as template for packets-*
+index in order to convert wireshark types to elastic types. This file
+can be auto-generated with the command "tshark -G elastic-mapping".
 
 B<fields> The values of fields specified with the B<-e> option, in a
 form specified by the B<-E> option.  For example,

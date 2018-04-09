@@ -894,6 +894,8 @@ endif()
 set(PACKAGELIST ${PACKAGELIST} LIBSSH)
 set(LIBSSH_OPTIONS "0.6")
 
+set(PACKAGELIST ${PACKAGELIST} JSONGLIB)
+
 if(ENABLE_PCAP)
 	set(PACKAGELIST ${PACKAGELIST} PCAP)
 endif()
@@ -1128,6 +1130,9 @@ if(MAXMINDDB_FOUND)
 endif()
 if(LIBSSH_FOUND)
 	set(HAVE_LIBSSH 1)
+endif()
+if(JSONGLIB_FOUND)
+	set(HAVE_JSONGLIB 1)
 endif()
 if(NGHTTP2_FOUND)
 	set(HAVE_NGHTTP2 1)
@@ -1679,6 +1684,11 @@ set(LIBEPAN_LIBS
 		${WINSPARKLE_LIBRARIES}
 )
 
+if(JSONGLIB_FOUND)
+	list(APPEND LIBEPAN_LIBS ${JSONGLIB_LIBRARIES})
+endif()
+
+
 if(WIN32)
 	set(_dll_output_dir "${DATAFILE_DIR}")
 	add_custom_target(copy_cli_dlls)
@@ -1717,6 +1727,9 @@ if(WIN32)
 	if (LIBSSH_FOUND)
 		list (APPEND OPTIONAL_DLLS "${LIBSSH_DLL_DIR}/${LIBSSH_DLL}")
 	endif(LIBSSH_FOUND)
+	if (JSONGLIB_FOUND)
+		list (APPEND OPTIONAL_DLLS "${JSONGLIB_DLL_DIR}/${JSONGLIB_DLL}")
+	endif(JSONGLIB_FOUND)
 	foreach( _dll ${GCRYPT_DLLS} )
 		list (APPEND OPTIONAL_DLLS "${GCRYPT_DLL_DIR}/${_dll}")
 	endforeach(_dll)
@@ -2346,6 +2359,7 @@ if(BUILD_tshark)
 		${SHARK_COMMON_SRC}
 		${CMAKE_BINARY_DIR}/image/tshark.rc
 	)
+
 	add_executable(tshark ${tshark_FILES})
 	add_dependencies(tshark version)
 	set_extra_executable_properties(tshark "Executables")

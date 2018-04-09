@@ -27,7 +27,7 @@ libpcap-devel zlib-devel"
 
 ADDITIONAL_LIST="libnl3-devel libnghttp2-devel libcap libcap-devel \
 libgcrypt-devel libssh-devel krb5-devel perl-Parse-Yapp sbc-devel libsmi-devel \
-snappy-devel lz4"
+snappy-devel lz4 json-glib-devel"
 
 # Guess which package manager we will use
 PM=`which zypper 2> /dev/null ||

@@ -476,6 +476,7 @@ glossary_option_help(void)
   fprintf(output, "  -G column-formats        dump column format codes and exit\n");
   fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
   fprintf(output, "  -G dissector-tables      dump dissector table names, types, and properties\n");
+  fprintf(output, "  -G elastic-mapping       dump ElasticSearch mapping file\n");
   fprintf(output, "  -G fieldcount            dump count of header fields and exit\n");
   fprintf(output, "  -G fields                dump fields glossary and exit\n");
   fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
@@ -964,6 +965,10 @@ main(int argc, char *argv[])
         write_prefs(NULL);
       else if (strcmp(argv[2], "dissector-tables") == 0)
         dissector_dump_dissector_tables();
+#ifdef HAVE_JSONGLIB
+      else if (strcmp(argv[2], "elastic-mapping") == 0)
+        proto_registrar_dump_elastic();
+#endif
       else if (strcmp(argv[2], "fieldcount") == 0) {
         /* return value for the test suite */
         exit_status = proto_registrar_dump_fieldcount();
