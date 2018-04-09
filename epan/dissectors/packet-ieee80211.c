@@ -14792,11 +14792,11 @@ ieee80211_tag_power_capability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tag_power_capability_min, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(field_data->item_tag, " Min: %d", tvb_get_guint8(tvb, offset));
+  proto_item_append_text(field_data->item_tag, " Min: %d", (gint8)tvb_get_guint8(tvb, offset));
   offset += 1;
 
   proto_tree_add_item(tree, hf_ieee80211_tag_power_capability_max, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(field_data->item_tag, ", Max :%d", tvb_get_guint8(tvb, offset));
+  proto_item_append_text(field_data->item_tag, ", Max: %d", (gint8)tvb_get_guint8(tvb, offset));
   return tvb_captured_length(tvb);
 }
 
