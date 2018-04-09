@@ -3079,11 +3079,11 @@ typedef struct pnio_ar_s {
 
     /* controller only */
     /*const char      controllername[33];*/
-    const guint8 controllermac[6];
+    guint8       controllermac[6];
     guint16      controlleralarmref;
 
     /* device only */
-    const guint8 devicemac[6];
+    guint8       devicemac[6];
     guint16      devicealarmref;
     guint16      arType;
 } pnio_ar_t;
