@@ -83,8 +83,6 @@ On the _Choose Components_ page of the installer you can select from the followi
 * *TShark* - A command-line network protocol analyzer. If you haven’t tried it
   you should.
 
-* *Wireshark 1 Legacy* - The old (GTK+) user interface in case you need it.
-
 * *Plugins &amp; Extensions* - Extras for the Wireshark and TShark dissection engines
 
   - *Dissector Plugins* - Plugins with some extended dissections.
@@ -325,10 +323,7 @@ distributions follow the same system):
 * The `wireshark` package contains the core Wireshark libraries and command-line
   tools.
 
-* The `wireshark-qt` package contains the Qt-based GUI.
-
-* The `wireshark-gtk` (formerly `wireshark-gnome`) package contains the legacy
-Gtk+ based GUI.
+* The `wireshark` or `wireshark-qt` package contains the Qt-based GUI.
 
 Many distributions use `yum` or a similar package management tool to make
 installation of software (including its dependencies) easier.  If your
@@ -383,7 +378,7 @@ Use the following command to install Wireshark under Gentoo Linux with all of
 the extra features:
 
 ----
-$ USE="c-ares gtk ipv6 portaudio snmp ssl kerberos threads selinux" emerge wireshark
+$ USE="c-ares ipv6 portaudio snmp ssl kerberos threads selinux" emerge wireshark
 ----
 
 ==== Installing from packages under FreeBSD

@@ -55,19 +55,10 @@ Most of the Win32 binary libraries you will find on the web are in this
 format. You will recognize MSVC libraries by the .lib/.dll file extension.
 
 
-[[ChLibsFormatWin32Cygwin]]
-
-
-==== Win32: cygwin gcc
-
-Cygwin provides most of the required libraries (with file extension .a or .lib)
-for Wireshark suitable for cygwin’s gcc compiler.
-
-
 [[ChLibsSetup]]
 
 
-=== Win32: Automated library download
+=== Win32: Automated Library Download
 
 The required libraries (apart from Qt) are automatically downloaded as part of
 the CMake generation step, and subsequently as required when libraries are updated.
@@ -106,44 +97,35 @@ It is available at https://www.qt.io/download-open-source/#section-2[].
 
 ==== Win32 MSVC
 
-Qt5 must be installed manually, from the Qt installers page
-https://www.qt.io/download-open-source/#section-2[], using the version of Qt
+Qt5 must be installed manually from the Qt installers page
+https://www.qt.io/download-open-source/#section-2[] using the version of Qt
 appropriate for your compiler.  Note that separate installations (into different directories) of Qt
 are required for 32 bit and 64 bit builds.  The environment variable QT5_BASE_DIR should be
 set as appropriate for your environment and should point to the Qt directory that contains the
-bin directory, e.g. C:\Qt\Qt5.6.2\5.6\msvc2013
+bin directory, e.g. _C:\Qt\5.9.5\msvc2017_64_.
 
-[[ChLibsGtk]]
+[[ChLibsGLib]]
 
-=== GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv
+=== GLib And Supporting Libraries
 
-The Glib library is used as a basic platform abstraction library, it’s
-not related to graphical user interface (GUI) things. For a detailed
-description about GLib, see <<ChCodeGLib>>.
+The GLib library is used as a basic platform abstraction library and can
+be used in both CLI and GUI applications. For a detailed description
+about GLib see <<ChCodeGLib>>.
 
-The GTK and its dependent libraries are used to build the older, deprecated, Wireshark GUI.
-For a detailed description of the GTK libraries, see <<ChUIGTK>>.
+GLib depends on GNU libiconv, GNU gettext, and other libraries. You will
+typically not come into contact with these while doing Wireshark
+development. Wireshark's build system check for and require both GLib
+and its dependencies.
 
-All other libraries are dependent on the two libraries mentioned above,
-you will typically not come in touch with these while doing Wireshark
-development.
-
-As the requirements for the GLib/GTK libraries have increased in the past,
-the required additional libraries depend on the GLib/GTK versions you have.
-The 2.x versions require all mentioned libs.
-
-[[ChLibsUnixGTK]]
+[[ChLibsUnixGLib]]
 
 ==== Unix
 
-The GLib/GTK+ libraries are available for many unix-like platforms and
-Cygwin.
+The GLib library is available for most Linux distributions and UNIX
+flavors. If it isn't already installed and isn't available as a package
+for your platform, you can get it at http://www.gtk.org/download.html[].
 
-If these libraries aren't already installed and also aren't available as a
-package for your platform, you can get them at
-http://www.gtk.org/download.html[].
-
-[[ChLibsWin32GTK]]
+[[ChLibsWin32GLib]]
 
 ==== Win32 MSVC
 

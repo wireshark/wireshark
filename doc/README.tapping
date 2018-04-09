@@ -5,7 +5,7 @@ internals are required.
 
 As examples on how to use the tap system see the implementation of
 tap-rpcstat.c     	(tshark version)
-gtk/rpc_stat.c		(gtk-wireshark version)
+ui/qt/rpc_service_response_time_dialog.cpp	(wireshark version)
 
 If all you need is to keep some counters, there's the stats_tree API,
 which offers a simple way to make a GUI and tshark tap-listener; see
@@ -151,7 +151,7 @@ void (*draw)(void *tapdata)
 This callback is used when Wireshark wants your application to redraw its
 output. It will usually not be called unless your application has received
 new data through the (*packet) callback.
-On some ports of Wireshark (gtk2) (*draw) will be called asynchronously
+On some ports of Wireshark (Qt) (*draw) will be called asynchronously
 from a separate thread up to once every 2-3 seconds.
 On other ports it might only be called once when the capture is finished
 or the file has been [re]read completely.

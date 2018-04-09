@@ -451,21 +451,15 @@ be informative when things don't work as expected.
 [[ChSrcRunFirstTimeWin32]]
 
 
-==== Win32 native
+==== Win32 Native
 
 During the build all relevant program files are collected in a
 subdirectory `run\RelWithDebInfo`. You can run the program from there by
 launching the Wireshark.exe executable.
 
-The older GTK based version is also available in the same subdirectory.
-You can run the program from there by launching the wireshark-gtk.exe
-executable.
-
-
 [[ChSrcDebug]]
 
-
-=== Debug your generated Wireshark
+=== Debug Your Generated Wireshark
 
 [[ChSrcUnixDebug]]
 

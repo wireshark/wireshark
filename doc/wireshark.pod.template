@@ -1522,10 +1522,9 @@ Below the drawing area and the scrollbar are the controls.  On the
 bottom left there will be five similar sets of controls to control each
 individual graph such as "Display:<button>" which button will toggle
 that individual graph on/off.  If <button> is ticked, the graph will be
-displayed.  "Color:<color>" which is just a button to show which color
-will be used to draw that graph (color is only available in Gtk2
-version) and finally "Filter:<filter-text>" which can be used to specify
-a display filter for that particular graph.
+displayed. "Color:<color>" which is just a button to show which color
+will be used to draw that graph. Finally "Filter:<filter-text>" which
+can be used to specify a display filter for that particular graph.
 
 If filter-text is empty then all packets will be used to calculate the
 quantity for that graph.  If filter-text is specified only those packets
@@ -2847,16 +2846,6 @@ dialog.
 If the global F<colorfilters> file exists, it is used only if the personal
 F<colorfilters> file does not exist; global and personal color filters are
 not merged.
-
-=item GTK rc files
-
-The F<gtkrc> files contain system-wide and personal GTK theme settings.
-
-The global F<gtkrc> file uses the same directory as the
-global preferences file.
-
-The personal F<gtkrc> file uses the same directory as the personal
-preferences file.
 
 =item Plugins
 

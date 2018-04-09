@@ -348,10 +348,6 @@ The menu entries themselves are generated with the following code structure:
     ext_menubar_add_entry(os_menu, "Test Entry B",
             NULL, menu_cb, <user_data>);
 
-This will not work with the GTK version on macOS; the GTK interface is
-currently not supported on this platform.  The Qt interface on macOS
-provides the menu.
-
 For a more detailed information, please refer to plugin_if.h
 
 6.2 Implement interactions with the main interface

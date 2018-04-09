@@ -367,7 +367,7 @@ in the proto_tree, then we jump to instruction 3.
 
 00002 ANY_EQ            reg#0 == reg#1
 
-This checks to see if any of the fields in register 0 
+This checks to see if any of the fields in register 0
 (which has the pre-loaded constant value of 127.0.0.1) are equal
 to any of the fields in register 1 (which are all of the ip.addr
 fields in the proto tree). The resulting value in the
@@ -550,8 +550,8 @@ Go to wireshark/ and run make. One thing to do is make dftest and see
 if you can construct valid display filters with your new operator. Or
 you may want to move directly to the generation of Wireshark.
 
-Look also at wireshark/gtk/dfilter_expr_dlg.c and edit the display filter
-expression generator.
+Also look at ui/qt/display_filter_expression_dialog.cpp and the display
+filter expression generator.
 
 How to add a new test to dfilter-test.py
 ========================================

@@ -475,7 +475,7 @@ When reporting problems with Wireshark, it is helpful if you supply the
 following information:
 
 . The version number of Wireshark and the dependent libraries linked with
-it, e.g. Qt, GTK+, etc. You can obtain this with the command
+it, e.g. Qt, GLib, etc. You can obtain this with the command
 `wireshark -v`.
 
 . Information about the platform you run Wireshark on.

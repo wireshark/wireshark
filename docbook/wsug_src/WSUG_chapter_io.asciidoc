@@ -769,7 +769,7 @@ you save them to disk. If you have a capture running, this list is automatically
 updated every few seconds with any new objects seen. The saved objects can then
 be opened with the proper viewer or executed in the case of executables (if it
 is for the same platform you are running Wireshark on) without any further work
-on your part. This feature is not available when using GTK2 versions below 2.4.
+on your part.
 
 .The “Export Objects” dialog box
 image::wsug_graphics/ws-export-objects.png[{screenshot-attrs}]

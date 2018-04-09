@@ -24,7 +24,7 @@ image::wsdg_graphics/ws-function-blocks.png[{pdf-scaledwidth}]
 The function blocks in more detail:
 
 GUI:: Handling of all user input/output (all windows, dialogs and such).
-Source code can be found in the _ui/qt_ and _ui/gtk_ directory.
+Source code can be found in the _ui/qt_ directory.
 
 Core:: Main "glue code" that holds the other blocks together. Source
 code can be found in the root directory.
