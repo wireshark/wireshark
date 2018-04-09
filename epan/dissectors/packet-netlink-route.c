@@ -15,6 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/aftypes.h>
+#include <epan/to_str.h>
 
 #include "packet-arp.h"
 #include "packet-netlink.h"
@@ -275,6 +276,17 @@ enum {
 	WS_NUD_PERMANENT        = 0x80
 };
 
+/* values for ifla.operstate <uapi/linux/if.h> */
+enum {
+	WS_IF_OPER_UNKNOWN,
+	WS_IF_OPER_NOTPRESENT,
+	WS_IF_OPER_DOWN,
+	WS_IF_OPER_LOWERLAYERDOWN,
+	WS_IF_OPER_TESTING,
+	WS_IF_OPER_DORMANT,
+	WS_IF_OPER_UP,
+};
+
 static int proto_netlink_route;
 
 static dissector_handle_t netlink_route_handle;
@@ -286,6 +298,9 @@ static header_field_info *hfi_netlink_route = NULL;
 static gint ett_netlink_route = -1;
 static gint ett_netlink_route_attr = -1;
 static gint ett_netlink_route_if_flags = -1;
+static gint ett_netlink_route_attr_linkstats = -1;
+static gint ett_netlink_route_attr_linkstats_rxerrs = -1;
+static gint ett_netlink_route_attr_linkstats_txerrs = -1;
 
 typedef int netlink_route_attributes_cb_t(tvbuff_t *, struct netlink_route_info *, proto_tree *, int rta_type, int offset, int len);
 
@@ -379,19 +394,18 @@ static header_field_info hfi_netlink_route_ifi_flags NETLINK_ROUTE_HFI_INIT =
 	{ "Device flags", "netlink-route.ifi_flags", FT_UINT32, BASE_CUSTOM,
 	  CF_FUNC(hfi_netlink_route_ifi_flags_label), 0x00, NULL, HFILL };
 
-static const true_false_string hfi_netlink_route_ifi_flags_iff_up_tfs = { "Up", "Down" };
-
 static header_field_info hfi_netlink_route_ifi_flags_iff_up NETLINK_ROUTE_HFI_INIT =
 	{ "Interface", "netlink-route.ifi_flags.iff_up", FT_BOOLEAN, 32,
-	  &hfi_netlink_route_ifi_flags_iff_up_tfs, WS_IFF_UP, NULL, HFILL };
+	  &tfs_up_down, WS_IFF_UP, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifi_flags_iff_broadcast NETLINK_ROUTE_HFI_INIT =
 	{ "Broadcast", "netlink-route.ifi_flags.iff_broadcast", FT_BOOLEAN, 32,
 	  &tfs_valid_invalid, WS_IFF_BROADCAST, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifi_change NETLINK_ROUTE_HFI_INIT =
-	{ "Device change flags", "netlink-route.ifi_change", FT_UINT32, BASE_DEC,
-	  NULL, 0x00, NULL, HFILL };
+       { "Device change flags", "netlink-route.ifi_change", FT_UINT32, BASE_DEC,
+	 NULL, 0x00, NULL, HFILL };
+
 
 static int
 dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset)
@@ -434,7 +448,7 @@ dissect_netlink_route_ifinfomsg(tvbuff_t *tvb, struct netlink_route_info *info, 
 
 static const value_string netlink_route_ifla_attr_vals[] = {
 	{ WS_IFLA_UNSPEC,         "Unspecified" },
-	{ WS_IFLA_ADDRESS,        "Address" },
+	{ WS_IFLA_ADDRESS,        "HW Address" },
 	{ WS_IFLA_BROADCAST,      "Broadcast" },
 	{ WS_IFLA_IFNAME,         "Device name" },
 	{ WS_IFLA_MTU,            "MTU" },
@@ -454,8 +468,8 @@ static const value_string netlink_route_ifla_attr_vals[] = {
 	{ WS_IFLA_LINKINFO,       "Link info"},
 	{ WS_IFLA_NET_NS_PID,     "NetNs id"},
 	{ WS_IFLA_IFALIAS,        "Ifalias"},
-	{ WS_IFLA_NUM_VF,         "Num vf"},
-	{ WS_IFLA_VFINFO_LIST,    "Vf Info"},
+	{ WS_IFLA_NUM_VF,         "Num VF"},
+	{ WS_IFLA_VFINFO_LIST,    "VF Info"},
 	{ WS_IFLA_STATS64,        "Stats" },
 	{ WS_IFLA_VF_PORTS,       "VF ports" },
 	{ WS_IFLA_PORT_SELF,      "Port self" },
@@ -473,10 +487,21 @@ static const value_string netlink_route_ifla_attr_vals[] = {
 	{ WS_IFLA_LINK_NETNSID,   "Link network namespace ID" },
 	{ WS_IFLA_PHYS_PORT_NAME, "Physical port name" },
 	{ WS_IFLA_PROTO_DOWN,     "IFLA_PROTO_DOWN" },
-	{ WS_IFLA_GSO_MAX_SEGS,   "IFLA_GSO_MAX_SEGS" },
-	{ WS_IFLA_GSO_MAX_SIZE,   "IFLA_GSO_MAX_SIZE" },
+	{ WS_IFLA_GSO_MAX_SEGS,   "Maximum GSO segment count" },
+	{ WS_IFLA_GSO_MAX_SIZE,   "Maximum GSO size" },
 	{ WS_IFLA_PAD,            "IFLA_PAD" },
 	{ WS_IFLA_XDP,            "IFLA_XDP" },
+	{ 0, NULL }
+};
+
+static const value_string netlink_route_ifla_operstate_vals[] = {
+	{ WS_IF_OPER_UNKNOWN,        "Unknown" },
+	{ WS_IF_OPER_NOTPRESENT,     "Not present" },
+	{ WS_IF_OPER_DOWN,           "Down" },
+	{ WS_IF_OPER_LOWERLAYERDOWN, "Lower layer down" },
+	{ WS_IF_OPER_TESTING,        "Testing" },
+	{ WS_IF_OPER_DORMANT,        "Dormant" },
+	{ WS_IF_OPER_UP,             "Up"},
 	{ 0, NULL }
 };
 
@@ -492,26 +517,311 @@ static header_field_info hfi_netlink_route_ifla_mtu NETLINK_ROUTE_HFI_INIT =
 	{ "MTU of device", "netlink-route.ifla_mtu", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
+static header_field_info hfi_netlink_route_ifla_txqlen NETLINK_ROUTE_HFI_INIT =
+	{ "TxQueue length", "netlink-route.ifla_txqlen", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_operstate NETLINK_ROUTE_HFI_INIT =
+	{ "Operstate", "netlink-route.ifla_operstate", FT_UINT8, BASE_DEC,
+	  VALS(netlink_route_ifla_operstate_vals), 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_promiscuity NETLINK_ROUTE_HFI_INIT =
+	{ "Promiscuity", "netlink-route.ifla_promiscuity", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_txqnum NETLINK_ROUTE_HFI_INIT =
+	{ "Number of Tx queues", "netlink-route.ifla_txqnum", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_rxqnum NETLINK_ROUTE_HFI_INIT =
+	{ "Number of Rx queues", "netlink-route.ifla_rxqnum", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_group NETLINK_ROUTE_HFI_INIT =
+	{ "Group", "netlink-route.ifla_group", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_gso_maxsize NETLINK_ROUTE_HFI_INIT =
+	{ "Maximum GSO size", "netlink-route.ifla_gso_maxsize", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_gso_maxsegs NETLINK_ROUTE_HFI_INIT =
+	{ "Maximum GSO segment count", "netlink-route.ifla_gso_maxsegs", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_carrier NETLINK_ROUTE_HFI_INIT =
+	{ "Carrier", "netlink-route.ifla_carrier", FT_BOOLEAN, 32,
+	  &tfs_restricted_not_restricted, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_qdisc NETLINK_ROUTE_HFI_INIT =
+	{ "Queueing discipline", "netlink-route.ifla_qdisc", FT_STRINGZ, STR_ASCII,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_carrier_changes NETLINK_ROUTE_HFI_INIT =
+	{ "Carrier changes", "netlink-route.ifla_carrier_changes", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_hwaddr NETLINK_ROUTE_HFI_INIT =
+	{ "HW Adress", "netlink-route.ifla_hwaddr", FT_BYTES, SEP_COLON,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_broadcast NETLINK_ROUTE_HFI_INIT =
+	{ "Broadcast", "netlink-route.ifla_broadcast", FT_BYTES, SEP_COLON,
+	  NULL, 0x00, NULL, HFILL };
+
+
+static header_field_info hfi_netlink_route_ifla_map_memstart NETLINK_ROUTE_HFI_INIT =
+	{ "Memory start", "netlink-route.ifla_map.mem_start", FT_UINT64, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_map_memend NETLINK_ROUTE_HFI_INIT =
+	{ "Memory end", "netlink-route.ifla_map.mem_end", FT_UINT64, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_map_baseaddr NETLINK_ROUTE_HFI_INIT =
+	{ "Base address", "netlink-route.ifla_map.base_addr", FT_UINT64, BASE_HEX,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_map_irq NETLINK_ROUTE_HFI_INIT =
+	{ "IRQ", "netlink-route.ifla_map.irq", FT_UINT16, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_map_dma NETLINK_ROUTE_HFI_INIT =
+	{ "DMA", "netlink-route.ifla_map.dma", FT_UINT8, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_map_port NETLINK_ROUTE_HFI_INIT =
+	{ "Port", "netlink-route.ifla_map.port", FT_UINT8, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rxpackets NETLINK_ROUTE_HFI_INIT =
+	{ "Rx packets", "netlink-route.ifla_linkstats.rxpackets", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_txpackets NETLINK_ROUTE_HFI_INIT =
+	{ "Tx packets", "netlink-route.ifla_linkstats.txpackets", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rxbytes NETLINK_ROUTE_HFI_INIT =
+	{ "Rx bytes", "netlink-route.ifla_linkstats.rxbytes", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_txbytes NETLINK_ROUTE_HFI_INIT =
+	{ "Tx packets", "netlink-route.ifla_linkstats.txbytes", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rxerrors NETLINK_ROUTE_HFI_INIT =
+	{ "Rx errors", "netlink-route.ifla_linkstats.rxerrors", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_txerrors NETLINK_ROUTE_HFI_INIT =
+	{ "Tx errors", "netlink-route.ifla_linkstats.txerrors", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rxdropped NETLINK_ROUTE_HFI_INIT =
+	{ "Rx dropped", "netlink-route.ifla_linkstats.rxdropped", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_txdropped NETLINK_ROUTE_HFI_INIT =
+	{ "Tx dropped", "netlink-route.ifla_linkstats.txdropped", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_multicast NETLINK_ROUTE_HFI_INIT =
+	{ "Multicast Rx", "netlink-route.ifla_linkstats.multicast", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_collisions NETLINK_ROUTE_HFI_INIT =
+	{ "Collisions", "netlink-route.ifla_linkstats.collisions", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info* linkstat_root_hfis[] = {
+	&hfi_netlink_route_ifla_linkstats_rxpackets,
+	&hfi_netlink_route_ifla_linkstats_txpackets,
+	&hfi_netlink_route_ifla_linkstats_rxbytes,
+	&hfi_netlink_route_ifla_linkstats_txbytes,
+	&hfi_netlink_route_ifla_linkstats_rxerrors,
+	&hfi_netlink_route_ifla_linkstats_txerrors,
+	&hfi_netlink_route_ifla_linkstats_rxdropped,
+	&hfi_netlink_route_ifla_linkstats_txdropped,
+	&hfi_netlink_route_ifla_linkstats_multicast,
+	&hfi_netlink_route_ifla_linkstats_collisions,
+};
+
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rx_len_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Length errors", "netlink-route.ifla_linkstats.rx_errors.length_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rx_over_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Ring buffer overflow errors", "netlink-route.ifla_linkstats.rx_errors.over_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rx_crc_errs NETLINK_ROUTE_HFI_INIT =
+	{ "CRC errors", "netlink-route.ifla_linkstats.rx_errors.crc_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rx_frame_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Frame aligment errors", "netlink-route.ifla_linkstats.rx_errors.frame_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rx_fifo_errs NETLINK_ROUTE_HFI_INIT =
+	{ "FIFO overrun errors", "netlink-route.ifla_linkstats.rx_errors.fifo_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_rx_miss_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Missed packet errors", "netlink-route.ifla_linkstats.rx_errors.miss_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+
+static header_field_info* linkstat_rxerr_hfis[] = {
+	&hfi_netlink_route_ifla_linkstats_rx_len_errs,
+	&hfi_netlink_route_ifla_linkstats_rx_over_errs,
+	&hfi_netlink_route_ifla_linkstats_rx_crc_errs,
+	&hfi_netlink_route_ifla_linkstats_rx_frame_errs,
+	&hfi_netlink_route_ifla_linkstats_rx_fifo_errs,
+	&hfi_netlink_route_ifla_linkstats_rx_miss_errs,
+};
+
+
+static header_field_info hfi_netlink_route_ifla_linkstats_tx_abort_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Abort errors", "netlink-route.ifla_linkstats.rx_errors.abort_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_tx_carrier_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Carrier errors", "netlink-route.ifla_linkstats.rx_errors.carrier_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_tx_fifo_errs NETLINK_ROUTE_HFI_INIT =
+	{ "FIFO errors", "netlink-route.ifla_linkstats.rx_errors.fifo_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_tx_heartbeat_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Heartbeat errors", "netlink-route.ifla_linkstats.rx_errors.heartbeat_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifla_linkstats_tx_window_errs NETLINK_ROUTE_HFI_INIT =
+	{ "Window errors", "netlink-route.ifla_linkstats.rx_errors.window_errs", FT_UINT64, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info* linkstat_txerr_hfis[] = {
+	&hfi_netlink_route_ifla_linkstats_tx_abort_errs,
+	&hfi_netlink_route_ifla_linkstats_tx_carrier_errs,
+	&hfi_netlink_route_ifla_linkstats_tx_fifo_errs,
+	&hfi_netlink_route_ifla_linkstats_tx_heartbeat_errs,
+	&hfi_netlink_route_ifla_linkstats_tx_window_errs,
+};
+
+static int
+dissect_netlink_route_ifla_linkstats(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int offset, int byte_size) {
+	proto_tree* rxerr_subtree;
+	const gint rxerr_hfis_len = (sizeof(linkstat_rxerr_hfis) / sizeof(header_field_info*));
+	proto_tree* txerr_subtree;
+	const gint txerr_hfis_len = (sizeof(linkstat_txerr_hfis) / sizeof(header_field_info*));
+
+	for (size_t i = 0; i < (sizeof(linkstat_root_hfis) / sizeof(header_field_info*)); i++) {
+		proto_tree_add_item(tree, linkstat_root_hfis[i], tvb, offset, byte_size, info->encoding);
+		offset += byte_size;
+	}
+
+	rxerr_subtree = proto_tree_add_subtree(tree, tvb, offset, byte_size * rxerr_hfis_len, ett_netlink_route_attr_linkstats_rxerrs, NULL, "Rx errors");
+	for (gint i = 0; i < rxerr_hfis_len; i++) {
+		proto_tree_add_item(rxerr_subtree, linkstat_rxerr_hfis[i], tvb, offset, byte_size, info->encoding);
+		offset += byte_size;
+	}
+
+	txerr_subtree = proto_tree_add_subtree(tree, tvb, offset, byte_size * txerr_hfis_len, ett_netlink_route_attr_linkstats_txerrs, NULL, "Tx errors");
+	for (gint i = 0; i < txerr_hfis_len; i++) {
+		proto_tree_add_item(txerr_subtree, linkstat_txerr_hfis[i], tvb, offset, byte_size, info->encoding);
+		offset += byte_size;
+	}
+
+
+	return 1;
+}
+
 static int
 dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info, proto_tree *tree, int rta_type, int offset, int len)
 {
 	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) rta_type;
 	const guint8* str;
-
+	guint32 gint;
+	proto_tree* subtree;
 	switch (type) {
 		case WS_IFLA_IFNAME:
 			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifla_ifname.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
-
 		case WS_IFLA_MTU:
-			if (len == 4) {
-				proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
-				proto_tree_add_item(tree, &hfi_netlink_route_ifla_mtu, tvb, offset, len, info->encoding);
-				return 1;
-			}
-			return 0;
-
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_mtu, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_TXQLEN:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqlen, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_OPERSTATE:
+			proto_tree_add_item_ret_uint(tree, hfi_netlink_route_ifla_operstate.id, tvb, offset, len, info->encoding, &gint);
+			return 1;
+		case WS_IFLA_PROMISCUITY:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_promiscuity, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_NUM_TX_QUEUES:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqnum, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_NUM_RX_QUEUES:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_rxqnum, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_GROUP:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_group, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_GSO_MAX_SEGS:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_gso_maxsegs, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_GSO_MAX_SIZE:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_gso_maxsize, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_CARRIER:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_CARRIER_CHANGES:
+			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_carrier_changes, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_ADDRESS:
+			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, len, ':'));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_hwaddr, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_BROADCAST:
+			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, len, ':'));
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_broadcast, tvb, offset, len, info->encoding);
+			return 1;
+		case WS_IFLA_STATS:
+			subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_netlink_route_attr_linkstats, NULL, "Statistics");
+			return dissect_netlink_route_ifla_linkstats(tvb, info, subtree, offset, 4);
+		case WS_IFLA_STATS64:
+			subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_netlink_route_attr_linkstats, NULL, "Statistics");
+			return dissect_netlink_route_ifla_linkstats(tvb, info, subtree, offset, 8);
+		case WS_IFLA_QDISC:
+			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifla_qdisc.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_item_append_text(tree, ": %s", str);
+			return 1;
+		case WS_IFLA_MAP:
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_memstart, tvb, offset, 8, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_memend, tvb, offset + 8, 8, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_baseaddr, tvb, offset + 16, 8, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_irq, tvb, offset + 24, 2, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_dma, tvb, offset + 26, 1, info->encoding);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_map_port, tvb, offset + 27, 1, info->encoding);
+			return 1;
 		default:
 			return 0;
 	}
@@ -617,6 +927,14 @@ static header_field_info hfi_netlink_route_ifa_flags32 NETLINK_ROUTE_HFI_INIT =
 	{ "Address flags", "netlink-route.ifa_flags32", FT_UINT32, BASE_CUSTOM,
 	  CF_FUNC(hfi_netlink_route_ifa_flags_label), 0x00, NULL, HFILL };
 
+static header_field_info hfi_netlink_route_ifa_addr6 NETLINK_ROUTE_HFI_INIT =
+	{ "Address", "netlink-route.ifa_address", FT_IPv6, BASE_NONE,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_route_ifa_addr4 NETLINK_ROUTE_HFI_INIT =
+	{ "Address", "netlink-route.ifa_address", FT_IPv4, BASE_NONE,
+	  NULL, 0x00, NULL, HFILL };
+
 static int
 dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _U_, proto_tree *tree, int rta_type, int offset, int len)
 {
@@ -632,7 +950,15 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _
 		case WS_IFA_FLAGS:
 			proto_tree_add_item(tree, &hfi_netlink_route_ifa_flags32, tvb, offset, 4, info->encoding);
 			return 1;
-
+		case WS_IFA_ADDRESS:
+			if (len == 4) {
+				proto_item_append_text(tree, ": %s", tvb_ip_to_str(tvb, offset));
+				proto_tree_add_item(tree, &hfi_netlink_route_ifa_addr4, tvb, offset, len, info->encoding);
+			} else {
+				proto_item_append_text(tree, ": %s", tvb_ip6_to_str(tvb, offset));
+				proto_tree_add_item(tree, &hfi_netlink_route_ifa_addr6, tvb, offset, len, info->encoding);
+			}
+			return 1;
 		default:
 			return 0;
 	}
@@ -1043,7 +1369,50 @@ proto_register_netlink_route(void)
 		&hfi_netlink_route_ifla_attr_type,
 		&hfi_netlink_route_ifla_ifname,
 		&hfi_netlink_route_ifla_mtu,
-
+		&hfi_netlink_route_ifla_txqlen,
+		&hfi_netlink_route_ifla_operstate,
+		&hfi_netlink_route_ifla_promiscuity,
+		&hfi_netlink_route_ifla_txqnum,
+		&hfi_netlink_route_ifla_rxqnum,
+		&hfi_netlink_route_ifla_group,
+		&hfi_netlink_route_ifla_gso_maxsize,
+		&hfi_netlink_route_ifla_gso_maxsegs,
+		&hfi_netlink_route_ifla_carrier,
+		&hfi_netlink_route_ifla_qdisc,
+		&hfi_netlink_route_ifla_carrier_changes,
+		&hfi_netlink_route_ifla_hwaddr,
+		&hfi_netlink_route_ifla_broadcast,
+	/* Interface map */
+		&hfi_netlink_route_ifla_map_memstart,
+		&hfi_netlink_route_ifla_map_memend,
+		&hfi_netlink_route_ifla_map_baseaddr,
+		&hfi_netlink_route_ifla_map_irq,
+		&hfi_netlink_route_ifla_map_dma,
+		&hfi_netlink_route_ifla_map_port,
+	/* Interface statistics */
+		&hfi_netlink_route_ifla_linkstats_rxpackets,
+		&hfi_netlink_route_ifla_linkstats_txpackets,
+		&hfi_netlink_route_ifla_linkstats_rxbytes,
+		&hfi_netlink_route_ifla_linkstats_txbytes,
+		&hfi_netlink_route_ifla_linkstats_rxerrors,
+		&hfi_netlink_route_ifla_linkstats_txerrors,
+		&hfi_netlink_route_ifla_linkstats_rxdropped,
+		&hfi_netlink_route_ifla_linkstats_txdropped,
+		&hfi_netlink_route_ifla_linkstats_multicast,
+		&hfi_netlink_route_ifla_linkstats_collisions,
+	/* Interface RX error statistics */
+		&hfi_netlink_route_ifla_linkstats_rx_len_errs,
+		&hfi_netlink_route_ifla_linkstats_rx_over_errs,
+		&hfi_netlink_route_ifla_linkstats_rx_crc_errs,
+		&hfi_netlink_route_ifla_linkstats_rx_frame_errs,
+		&hfi_netlink_route_ifla_linkstats_rx_fifo_errs,
+		&hfi_netlink_route_ifla_linkstats_rx_miss_errs,
+	/* Interface TX error statistics */
+		&hfi_netlink_route_ifla_linkstats_tx_abort_errs,
+		&hfi_netlink_route_ifla_linkstats_tx_carrier_errs,
+		&hfi_netlink_route_ifla_linkstats_tx_fifo_errs,
+		&hfi_netlink_route_ifla_linkstats_tx_heartbeat_errs,
+		&hfi_netlink_route_ifla_linkstats_tx_window_errs,
 	/* IP address */
 		&hfi_netlink_route_ifa_family,
 		&hfi_netlink_route_ifa_prefixlen,
@@ -1054,7 +1423,8 @@ proto_register_netlink_route(void)
 		&hfi_netlink_route_ifa_attr_type,
 		&hfi_netlink_route_ifa_label,
 		&hfi_netlink_route_ifa_flags32,
-
+		&hfi_netlink_route_ifa_addr6,
+		&hfi_netlink_route_ifa_addr4,
 	/* Network Route */
 		&hfi_netlink_route_rt_family,
 		&hfi_netlink_route_rt_dst_len,
@@ -1082,7 +1452,10 @@ proto_register_netlink_route(void)
 	static gint *ett[] = {
 		&ett_netlink_route,
 		&ett_netlink_route_attr,
-		&ett_netlink_route_if_flags
+		&ett_netlink_route_if_flags,
+		&ett_netlink_route_attr_linkstats,
+		&ett_netlink_route_attr_linkstats_rxerrs,
+		&ett_netlink_route_attr_linkstats_txerrs,
 	};
 
 	proto_netlink_route = proto_register_protocol("Linux rtnetlink (route netlink) protocol", "rtnetlink", "netlink-route" );
