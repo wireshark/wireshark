@@ -98,6 +98,20 @@ static const value_string iso14443_short_frame[] = {
     { 0, NULL }
 };
 
+/* the bit rate definitions in the attrib message */
+#define BITRATE_106  0x00
+#define BITRATE_212  0x01
+#define BITRATE_424  0x02
+#define BITRATE_847  0x03
+
+static const value_string iso14443_bitrates[] = {
+    { BITRATE_106, "106 kbit/s" },
+    { BITRATE_212, "212 kbit/s" },
+    { BITRATE_424, "424 kbit/s" },
+    { BITRATE_847, "827 kbit/s" },
+    { 0, NULL }
+};
+
 /* convert a length code into the length it encodes
    code_to_len[x] is the length encoded by x
    this conversion is used for type A's FSCI and FSDI and for type B's
@@ -254,6 +268,8 @@ static int hf_iso14443_min_tr1 = -1;
 static int hf_iso14443_eof = -1;
 static int hf_iso14443_sof = -1;
 static int hf_iso14443_param2 = -1;
+static int hf_iso14443_bitrate_picc_pcd = -1;
+static int hf_iso14443_bitrate_pcd_picc = -1;
 static int hf_iso14443_param3 = -1;
 static int hf_iso14443_param4 = -1;
 static int hf_iso14443_mbli = -1;
@@ -847,6 +863,10 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     p2_it = proto_tree_add_item(tree, hf_iso14443_param2,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     p2_tree = proto_item_add_subtree( p2_it, ett_iso14443_attr_p2);
+    proto_tree_add_item(p2_tree, hf_iso14443_bitrate_picc_pcd,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(p2_tree, hf_iso14443_bitrate_pcd_picc,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
     max_frame_size_code = tvb_get_guint8(tvb, offset) & 0x0F;
     proto_tree_add_uint_bits_format_value(p2_tree,
             hf_iso14443_max_frame_size_code,
@@ -1691,6 +1711,14 @@ proto_register_iso14443(void)
         { &hf_iso14443_param2,
             { "Param 2", "iso14443.param2",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_bitrate_picc_pcd,
+            { "Bit rate PICC to PCD", "iso14443.bitrate_picc_pcd", FT_UINT8,
+                BASE_HEX, VALS(iso14443_bitrates), 0xC0, NULL, HFILL }
+        },
+        { &hf_iso14443_bitrate_pcd_picc,
+            { "Bit rate PCD to PICC", "iso14443.bitrate_pcd_picc", FT_UINT8,
+                BASE_HEX, VALS(iso14443_bitrates), 0x30, NULL, HFILL }
         },
         { &hf_iso14443_param3,
             { "Param 3", "iso14443.param3",
