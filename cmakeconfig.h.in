@@ -482,4 +482,12 @@
 #  define NEED_STRPTIME_H 1
 #endif
 
+#if defined(__APPLE__)
+   /* This is to trigger the integration of objective-c
+    * code builds for removing unnecessary menu entries
+    * in 10.12 > and Qt 5.3 >
+    */
+#  define CMAKE_BUILD 1
+#endif
+
 #include <ws_diag_control.h>
