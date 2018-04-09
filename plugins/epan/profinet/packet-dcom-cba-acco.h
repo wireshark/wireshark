@@ -16,7 +16,7 @@ typedef struct cba_pdev_s {
     dcom_object_t   *object;
     gint            first_packet;
 
-    const guint8    ip[4];
+    guint8          ip[4];
 } cba_pdev_t;
 
 typedef struct cba_ldev_s {

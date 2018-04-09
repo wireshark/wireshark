@@ -272,7 +272,7 @@ typedef struct cba_frame_s {
     guint         packet_last;
 
     guint16       length;
-    const guint8  consmac[6];
+    guint8        consmac[6];
     guint16       conscrid;
     guint32       provcrid;
     guint32       conncrret;
