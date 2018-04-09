@@ -1,5 +1,6 @@
 /* packet-user_encap.c
  * Allow users to specify the dissectors for DLTs
+ *
  * Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * Wireshark - Network traffic analyzer
@@ -199,9 +200,15 @@ static void* user_copy_cb(void* dest, const void* orig, size_t len _U_)
     const user_encap_t *o = (const user_encap_t *)orig;
     user_encap_t *d = (user_encap_t *)dest;
 
+    d->encap = o->encap;
     d->payload_proto_name = g_strdup(o->payload_proto_name);
-    d->header_proto_name  = g_strdup(o->header_proto_name);
+    d->payload_proto = o->payload_proto;
+    d->header_proto_name = g_strdup(o->header_proto_name);
+    d->header_proto = o->header_proto;
     d->trailer_proto_name = g_strdup(o->trailer_proto_name);
+    d->trailer_proto = o->trailer_proto;
+    d->header_size = o->header_size;
+    d->trailer_size = o->trailer_size;
 
     return d;
 }
