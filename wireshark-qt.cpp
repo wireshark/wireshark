@@ -113,6 +113,10 @@
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QTextCodec>
 #endif
+/* Handle the addition of View menu items without request */
+#if CMAKE_BUILD && defined(Q_OS_MAC)
+#include <ui/macosx/cocoa_bridge.h>
+#endif
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -411,6 +415,10 @@ int main(int argc, char *qt_argv[])
     QTextCodec::setCodecForCStrings(utf8codec);
     // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
     QTextCodec::setCodecForTr(utf8codec);
+#endif
+#if CMAKE_BUILD && defined(Q_OS_MAC)
+    /* Disable automatic addition of tab menu entries in view menu */
+    CocoaBridge::cleanOSGeneratedMenuItems();
 #endif
 
     /* Set the C-language locale to the native environment. */
