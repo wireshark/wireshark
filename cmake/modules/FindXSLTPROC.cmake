@@ -33,7 +33,6 @@ set (_common_xsltproc_args
     --stringparam admon.graphics.extension .svg
     --stringparam section.autolabel 1
     --stringparam section.label.includes.component.label 1
-    --stringparam toc.section.depth 1
     --stringparam html.stylesheet ws.css
     )
 
