@@ -249,9 +249,9 @@ AX_LIB_SOCKET_NSL
 # GUI toolkit options
 #
 AC_ARG_WITH([qt],
-  AC_HELP_STRING( [--with-qt=@<:@yes/no/4/5@:>@],
+  AC_HELP_STRING( [--with-qt=@<:@yes/no@:>@],
 		  [use Qt @<:@default=yes, if available@:>@]),
-  with_qt="$withval", with_qt="unspecified")
+  with_qt="$withval", with_qt="yes")
 
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to
@@ -1200,12 +1200,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			#
 			case "$host_os" in
 			darwin*)
-				if test $qt_version -le 4
-				then
-					AC_MSG_ERROR([macOS builds should use Qt5])
-				else
-					Qt_LDFLAGS="-Wl,-rpath,"`$PKG_CONFIG --libs Qt${qt_version}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
-				fi
+				Qt_LDFLAGS="-Wl,-rpath,"`$PKG_CONFIG --libs Qt${qt_version}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
 				;;
 			esac
 			AC_SUBST(Qt_LDFLAGS)
@@ -1213,13 +1208,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			if test -z "${MOC_OPTIONS+1}"
 			then
 				# Squelch moc verbose "nothing to do" output
-				if test $QT_VERSION_MAJOR -eq 5
-				then
-					MOC_OPTIONS="-nn"
-				elif test $QT_VERSION_MAJOR -eq 4 -a $QT_VERSION_MINOR -ge 8
-				then
-					MOC_OPTIONS="-nn"
-				fi
+				MOC_OPTIONS="-nn"
 			fi
 			AC_SUBST(MOC_OPTIONS)
 		],
@@ -1493,7 +1482,6 @@ AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 AC_SUBST(wireshark_SUBDIRS)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
-AM_CONDITIONAL(HAVE_QT_VERSION_4, [test $qt_version -eq 4])
 AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 
 # Enable/disable tshark
@@ -2635,11 +2623,7 @@ else
 	RPMBUILD_WITH_ARGS="--without gtk2 --without gtk3"
 fi
 if test "x$have_qt" = "xyes" ; then
-	if test "$qt_version" -eq "5"; then
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt5"
-	else
-		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt"
-	fi
+	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt5"
 else
 	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without qt --without qt5"
 fi

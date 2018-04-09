@@ -301,7 +301,7 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
   --with-extcap=no \
 %endif
 %if %{with qt}
-  --with-qt=4 \
+  --with-qt=5 \
 %else
 %if %{with qt5}
   --with-qt=5 \

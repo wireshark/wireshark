@@ -422,10 +422,6 @@ if HAVE_Qt
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC) wireshark-qt.cpp
 
 wireshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS) $(Qt_CFLAGS)
-# Define compatibility macros for Qt 4.8
-if HAVE_QT_VERSION_4
-wireshark_CPPFLAGS += -DQ_NULLPTR=NULL
-endif
 
 wireshark_LDFLAGS = $(AM_LDFLAGS) $(Qt_LDFLAGS)
 

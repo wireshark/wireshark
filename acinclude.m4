@@ -1676,18 +1676,6 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK_WITH_QT_VERSION],
 [
 	case "$3" in
 
-	4)
-		#
-		# Check for Qt 4.
-		#
-		modprefix="Qt"
-		#
-		# Version of the module we're checking for.
-		# Default to 4.0.0.
-		#
-		min_qt_version=ifelse([$2], ,4.0.0,$2)
-		;;
-
 	5)
 		#
 		# Check for Qt 5.
@@ -1695,9 +1683,9 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK_WITH_QT_VERSION],
 		modprefix="Qt5"
 		#
 		# Version of the module we're checking for.
-		# Default to 5.0.0.
+		# Default to 5.2.0.
 		#
-		min_qt_version=5.0.0
+		min_qt_version=5.2.0
 		;;
 
 	*)
@@ -1737,30 +1725,16 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 	#
 	case "$3" in
 
-	yes|unspecified)
+	yes|5)
 		#
 		# Check for all versions of Qt we support.
 		# Try the Qt 5 version first.
-		#
-		versions="5 4"
-		;;
-
-	4)
-		#
-		# Check for Qt 4.
-		#
-		versions="4"
-		;;
-
-	5)
-		#
-		# Check for Qt 5.
 		#
 		versions="5"
 		;;
 
 	*)
-		AC_MSG_ERROR([Qt version $3 is not a known Qt version])
+		AC_MSG_ERROR([$3 is not a known Qt option])
 		;;
 	esac
 
@@ -1769,7 +1743,7 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 		AC_WIRESHARK_QT_MODULE_CHECK_WITH_QT_VERSION($1, $2,
 		    $version, [foundit=yes], [foundit=no])
 		if test "x$foundit" = "xyes"; then
-                        break
+			break
 		fi
 	done
 
