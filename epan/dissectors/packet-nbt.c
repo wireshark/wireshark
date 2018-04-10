@@ -1783,10 +1783,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * Construct a tvbuff containing the amount of the payload we have
          * available.  Make its reported length the amount of data in the PDU.
          */
-        length = length_remaining;
-        if (length > plen)
-            length = plen;
-        next_tvb = tvb_new_subset(tvb, offset, length, plen);
+        next_tvb = tvb_new_subset_length(tvb, offset, plen);
 
         dissect_nbss_packet(next_tvb, pinfo, tree, is_cifs);
 
