@@ -180,10 +180,10 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length_caplen(tvbuff_t *backing,
 /**
  * Similar to tvb_new_subset_length_caplen() but with captured length calculated
  * to fit within the existing captured length and the specified
- * backing length (which is used as the reported length).
+ * reported length.
  * Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length(tvbuff_t *backing,
-    const gint backing_offset, const gint backing_length);
+    const gint backing_offset, const gint reported_length);
 
 /** Similar to tvb_new_subset_length_caplen() but with backing_length and reported_length set
  * to -1.  Can throw ReportedBoundsError. */
