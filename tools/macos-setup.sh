@@ -552,21 +552,12 @@ install_glib() {
         GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
         GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         GLIB_DOTDOT_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        if [[ $GLIB_MAJOR_VERSION -gt 2 ||
-             ($GLIB_MAJOR_VERSION -eq 2 && $GLIB_MINOR_VERSION -gt 28) ||
-             ($GLIB_MAJOR_VERSION -eq 2 && $GLIB_MINOR_VERSION -eq 28 && $GLIB_DOTDOT_VERSION -ge 8) ]]
-        then
-            #
-            # Starting with GLib 2.28.8, xz-compressed tarballs are available.
-            #
-            [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
-            $no_build && echo "Skipping installation" && return
-            xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
-        else
-            [ -f glib-$GLIB_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.bz2 || exit 1
-            $no_build && echo "Skipping installation" && return
-            bzcat glib-$GLIB_VERSION.tar.bz2 | tar xf - || exit 1
-        fi
+        #
+        # Starting with GLib 2.28.8, xz-compressed tarballs are available.
+        #
+        [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
+        xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
         cd glib-$GLIB_VERSION
         #
         # macOS ships with libffi, but doesn't provide its pkg-config file;
@@ -604,17 +595,6 @@ install_glib() {
             LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
         fi
 
-        #
-        # Apply the fix to GNOME bug 529806:
-        #
-        #    https://bugzilla.gnome.org/show_bug.cgi?id=529806
-        #
-        # if we have a version of GLib prior to 2.30.
-        #
-        if [[ $GLIB_MAJOR_VERSION -eq 2 && $GLIB_MINOR_VERSION -le 30 ]]
-        then
-            patch -p0 <../../macosx-support-lib-patches/glib-gconvert.c.patch || exit 1
-        fi
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
@@ -624,13 +604,6 @@ install_glib() {
 
 uninstall_glib() {
     if [ ! -z "$installed_glib_version" ] ; then
-        #
-        # ATK, Pango, and GTK depend on this, so uninstall them.
-        #
-        uninstall_gtk
-        uninstall_pango
-        uninstall_atk
-
         echo "Uninstalling GLib:"
         cd glib-$installed_glib_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -643,7 +616,7 @@ uninstall_glib() {
             # Get rid of the previously downloaded and unpacked version.
             #
             rm -rf glib-$installed_glib_version
-            rm -rf glib-$installed_glib_version.tar.xz glib-$installed_glib_version.tar.bz2
+            rm -rf glib-$installed_glib_version.tar.xz
         fi
 
         installed_glib_version=""
@@ -2097,12 +2070,6 @@ CXXFLAGS="-g -O2"
 # To make this work on Leopard (rather than working *on* Snow Leopard
 # when building *for* Leopard) will take more work.
 #
-# For one thing, Leopard's /usr/X11/lib/libXdamage.la claims, at least
-# with all software updates applied, that the Xdamage shared library
-# is libXdamage.1.0.0.dylib, but it is, in fact, libXdamage.1.1.0.dylib.
-# This causes problems when building GTK+, so the script would have to
-# fix that file.
-#
 if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
     echo "This script does not support any versions of macOS before Snow Leopard" 1>&2
     exit 1
@@ -2223,33 +2190,6 @@ then
 
     if [[ "$min_osx_target" == "10.5" ]]
     then
-        # GLib 2.29.6 includes an implementation of g_bit_lock() that,
-        # on x86 (32-bit and 64-bit), uses asms in a fashion
-        # ("asm volatile goto") that requires GCC 4.5 or later, which
-        # is later than the compilers that come with Leopard and Snow
-        # Leopard.  Recent versions of GLib check for that, but 2.29.6
-        # doesn't, so, if you want to build GLib 2.29.6 on Leopard or
-        # Snow Leopard, you would have to patch glib/gbitlock.c to do
-        # what the newer versions of GLib do:
-        #
-        #  define a USE_ASM_GOTO macro that indicates whether "asm goto"
-        #  can be used:
-        #    #if (defined (i386) || defined (__amd64__))
-        #      #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
-        #        #define USE_ASM_GOTO 1
-        #      #endif
-        #    #endif
-        #
-        #  replace all occurrences of
-        #
-        #    #if defined (__GNUC__) && (defined (i386) || defined (__amd64__))
-        #
-        #  with
-        #
-        #    #ifdef USE_ASM_GOTO
-        #
-        GLIB_VERSION=2.16.3
-
         #
         # Libgcrypt 1.5.0 fails to compile due to some problem with an
         # asm in rijndael.c, at least with i686-apple-darwin10-gcc-4.2.1
@@ -2301,23 +2241,8 @@ if [ "$QT_VERSION" ]; then
         exit 1
     fi
 fi
-if [ "$GTK_VERSION" ]; then
-    #
-    # If we're building with GTK+, you also need the X11 SDK; with at least
-    # some versions of macOS and Xcode, that is, I think, an optional install.
-    # (Or it might be installed with X11, but I think *that* is an optional
-    # install on at least some versions of macOS.)
-    #
-    if [ ! -d /usr/X11/include ]; then
-        echo "Please install X11 and the X11 SDK first."
-        echo "  You can either download the latest package from"
-        echo "  http://www.xquartz.org/ and install it or install"
-        echo "  the native Apple package if you are on Lion or below."
-        exit 1
-    fi
-fi
 
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 #
 # Do all the downloads and untarring in a subdirectory, so all that
@@ -2341,9 +2266,6 @@ if [ "$QT_VERSION" ]; then
     qt_base_path=$HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64
     pkg_config_path="$pkg_config_path":"$qt_base_path/lib/pkgconfig"
     CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH":"$qt_base_path/lib/cmake"
-fi
-if [ "$GTK_VERSION" ]; then
-    pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
 fi
 
 if $no_build; then
