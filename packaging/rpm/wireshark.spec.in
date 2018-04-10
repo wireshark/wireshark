@@ -275,6 +275,7 @@ DESTDIR=$RPM_BUILD_ROOT ninja install
 DESTDIR=$RPM_BUILD_ROOT ninja install_guides
 %else
 make DESTDIR=$RPM_BUILD_ROOT install
+make DESTDIR=$RPM_BUILD_ROOT install_guides
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where
