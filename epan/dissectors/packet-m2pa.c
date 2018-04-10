@@ -362,8 +362,8 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
   guint16 type;
   tvbuff_t *message_data_tvb;
 
-  message_data_length = (gint) tvb_get_ntohl(message_tvb, V2_LENGTH_OFFSET);
-  if ((gint) message_data_length < 1) {
+  message_data_length = tvb_get_ntohl(message_tvb, V2_LENGTH_OFFSET);
+  if (message_data_length < 1 || message_data_length > G_MAXINT) {
     proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V2_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
     return;
@@ -394,7 +394,7 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
   tvbuff_t *message_data_tvb;
 
   message_data_length = tvb_get_ntohl(message_tvb, V8_LENGTH_OFFSET) - V8_HEADER_LENGTH;
-  if ((gint) message_data_length < 1) {
+  if (message_data_length < 1 || message_data_length > G_MAXINT) {
     proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V8_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
     return;
