@@ -1092,7 +1092,7 @@ gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, prot
 {
     proto_item *mi;
     proto_tree *pWrethMailboxTree;
-    gint        Nb    = 0;
+    guint32     Nb    = 0;
     guint16     Codef = 0;
 
     mi = proto_tree_add_protocol_format(pWrethTree, wreth_proto, tvb, Offset, -1, "MailBox");
@@ -1144,8 +1144,7 @@ gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, prot
         proto_tree_add_item(pWrethMailboxTree, hf_Wreth_Mail_Nes, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
         Offset += 2;
         /*Mail Nb*/
-        Nb = (gint)tvb_get_letohs(tvb,Offset);
-        proto_tree_add_item(pWrethMailboxTree, hf_Wreth_Mail_Nb, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(pWrethMailboxTree, hf_Wreth_Mail_Nb, tvb, Offset, 2, ENC_LITTLE_ENDIAN, &Nb);
         Offset += 2;
         /*Mail TypVar*/
         proto_tree_add_item(pWrethMailboxTree, hf_Wreth_Mail_TypVar, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
