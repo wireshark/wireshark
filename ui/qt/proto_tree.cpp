@@ -47,6 +47,10 @@ ProtoTree::ProtoTree(QWidget *parent) :
     // similar to PacketListModel::data.
     setHeaderHidden(true);
 
+    // Shrink down to a small but nonzero size in the main splitter.
+    int one_em = fontMetrics().height();
+    setMinimumSize(one_em, one_em);
+
     setModel(proto_tree_model_);
 
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));

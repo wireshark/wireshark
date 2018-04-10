@@ -249,6 +249,10 @@ PacketList::PacketList(QWidget *parent) :
     setUniformRowHeights(true);
     setAccessibleName("Packet list");
 
+    // Shrink down to a small but nonzero size in the main splitter.
+    int one_em = fontMetrics().height();
+    setMinimumSize(one_em, one_em);
+
     overlay_sb_ = new OverlayScrollBar(Qt::Vertical, this);
     setVerticalScrollBar(overlay_sb_);
 

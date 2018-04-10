@@ -484,6 +484,8 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     master_split_.setObjectName("splitterMaster");
     extra_split_.setObjectName("splitterExtra");
+    master_split_.setChildrenCollapsible(false);
+    extra_split_.setChildrenCollapsible(false);
     main_ui_->mainStack->addWidget(&master_split_);
 
     empty_pane_.setObjectName("emptyPane");

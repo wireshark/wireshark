@@ -38,6 +38,10 @@ ByteViewTab::ByteViewTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     setTabPosition(QTabWidget::South);
     setDocumentMode(true);
 
+    // Shrink down to a small but nonzero size in the main splitter.
+    int one_em = fontMetrics().height();
+    setMinimumSize(one_em, one_em);
+
     if (!edt_fixed) {
         connect(wsApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
     }
