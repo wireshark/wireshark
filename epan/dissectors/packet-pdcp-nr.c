@@ -161,6 +161,7 @@ static const value_string control_pdu_type_vals[] = {
     { 0,   NULL }
 };
 
+#if 0
 static const value_string integrity_algorithm_vals[] = {
     { 0,   "NIA0" },
     { 1,   "NIA1" },
@@ -176,6 +177,7 @@ static const value_string ciphering_algorithm_vals[] = {
     { 3,   "NEA3" },
     { 0,   NULL }
 };
+#endif
 
 
 static dissector_handle_t ip_handle;
