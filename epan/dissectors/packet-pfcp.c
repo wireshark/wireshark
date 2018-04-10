@@ -375,6 +375,7 @@ static int hf_pfcp_query_urr_reference = -1;
 static int hf_pfcp_additional_usage_reports_information = -1;
 static int hf_pfcp_additional_usage_reports_information_b14_b0_number_value = -1;
 static int hf_pfcp_additional_usage_reports_information_b15_auri = -1;
+static int hf_pfcp_traffic_endpoint_id = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -464,6 +465,10 @@ static void dissect_pfcp_error_indication_report(tvbuff_t *tvb, packet_info *pin
 static void dissect_pfcp_user_plane_path_failure_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 static void dissect_pfcp_update_duplicating_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 static void dissect_pfcp_aggregated_urrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
+static void dissect_pfcp_create_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
+static void dissect_pfcp_created_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
+static void dissect_pfcp_update_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
+static void dissect_pfcp_remove_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -545,6 +550,10 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_USER_PLANE_PATH_FAILURE_REPORT   102
 #define PFCP_UPDATE_DUPLICATING_PARAMETERS    105
 #define PFCP_AGGREGATED_URRS                  118
+#define PFCP_CREATE_TRAFFIC_ENDPOINT          127
+#define PFCP_CREATED_TRAFFIC_ENDPOINT         128
+#define PFCP_UPDATE_TRAFFIC_ENDPOINT          129
+#define PFCP_REMOVE_TRAFFIC_ENDPOINT          130
 
 static const value_string pfcp_ie_type[] = {
 
@@ -671,15 +680,15 @@ static const value_string pfcp_ie_type[] = {
     { 120, "Aggregated URR ID IE" },                                /* Fixed Length / Subclause 8.2.85 */
     { 121, "Subsequent Volume Quota" },                             /* Extendable / Subclause 8.2.86 */
     { 122, "Subsequent Time Quota" },                               /* Extendable / Subclause 8.2.87 */
-    { 123, "RQI"},                                                  /* Extendable / Subclause 8.2.88 */
-    { 124, "QFI"},                                                  /* Extendable / Subclause 8.2.89 */
-    { 125, "Query URR Reference"},                                  /* Extendable / Subclause 8.2.90 */
-    { 126, "Additional Usage Reports Information"},                 /* Extendable / Subclause 8.2.91 */
-    //    { 127, "Create Traffic Endpoint"},                        /* Extendable / Table 7.5.2.7 */
-    //    { 128, "Created Traffic Endpoint"},                       /* Extendable / Table 7.5.3.5 */
-    //    { 129, "Update Traffic Endpoint"},                        /* Extendable / Table 7.5.4.13 */
-    //    { 130, "Remove Traffic Endpoint"},                        /* Extendable / Table 7.5.4.14 */
-    //    { 131, "Traffic Endpoint ID"},                            /* Extendable / Subclause 8.2.92 */
+    { 123, "RQI" },                                                 /* Extendable / Subclause 8.2.88 */
+    { 124, "QFI" },                                                 /* Extendable / Subclause 8.2.89 */
+    { 125, "Query URR Reference" },                                 /* Extendable / Subclause 8.2.90 */
+    { 126, "Additional Usage Reports Information" },                /* Extendable / Subclause 8.2.91 */
+    { 127, "Create Traffic Endpoint" },                             /* Extendable / Table 7.5.2.7 */
+    { 128, "Created Traffic Endpoint" },                            /* Extendable / Table 7.5.3.5 */
+    { 129, "Update Traffic Endpoint" },                             /* Extendable / Table 7.5.4.13 */
+    { 130, "Remove Traffic Endpoint" },                             /* Extendable / Table 7.5.4.14 */
+    { 131, "Traffic Endpoint ID" },                                 /* Extendable / Subclause 8.2.92*/
     //    { 132, "Ethernet Packet Filter"},                         /* Extendable / Table 7.5.2.2-3 */
     //    { 133, "MAC address"},                                    /* Extendable / Subclause 8.2.93 */
     //    { 134, "C-TAG"},                                          /* Extendable / Subclause 8.2.94 */
@@ -3540,7 +3549,7 @@ dissect_pfcp_rqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
-    return ;
+    return;
 }
 
 /*
@@ -3559,7 +3568,7 @@ dissect_pfcp_qfi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
-    return ;
+    return;
 }
 
 /*
@@ -3612,6 +3621,22 @@ dissect_pfcp_additional_usage_reports_information(tvbuff_t *tvb, packet_info *pi
         if (offset < length) {
             proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
         }
+}
+
+/*
+ *   8.2.92 Traffic Endpoint ID
+ */
+static void dissect_pfcp_traffic_endpoint_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_pfcp_traffic_endpoint_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+    return;
 }
 
 /* Array of functions to dissect IEs
@@ -3749,7 +3774,20 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    124 */    { dissect_pfcp_qfi },                                           /* QFI                                             Extendable / Subclause 8.2.89 */
 /*    125 */    { dissect_pfcp_query_urr_reference },                           /* Query URR Reference                             Extendable / Subclause 8.2.90 */
 /*    126 */    { dissect_pfcp_additional_usage_reports_information },          /* Additional Usage Reports Information            Extendable /  Subclause 8.2.91 */
-       //127 (140) to 65535    Spare. For future use.
+/*    127 */    { dissect_pfcp_create_traffic_endpoint },                       /* Create Traffic Endpoint                         Extendable / Table 7.5.2.7 */
+/*    128 */    { dissect_pfcp_created_traffic_endpoint },                      /* Created Traffic Endpoint                        Extendable / Table 7.5.3.5 */
+/*    129 */    { dissect_pfcp_update_traffic_endpoint },                       /* Update Traffic Endpoint                         Extendable / Table 7.5.4.13 */
+/*    130 */    { dissect_pfcp_remove_traffic_endpoint },                       /* Remove Traffic Endpoint                         Extendable / Table 7.5.4.14 */
+/*    131 */    { dissect_pfcp_traffic_endpoint_id },                           /* Traffic Endpoint ID                             Extendable / Subclause 8.2.92 */
+/*    132 */                         /* Ethernet Packet Filter  Extendable / Table 7.5.2.2-3 */
+/*    133 */                         /*MAC address  Extendable / Subclause 8.2.93 */
+/*    134 */                         /*C-TAG Extendable / Subclause 8.2.94 */
+/*    135 */                         /*S-TAG Extendable / Subclause 8.2.95 */
+/*    136 */                         /*Ethertype Extendable / Subclause 8.2.96 */
+/*    137 */                         /*Proxying Extendable / Subclause 8.2.97 */
+/*    138 */                         /*Ethernet Filter ID Extendable / Subclause 8.2.98 */
+/*    139 */                         /*Ethernet Filter Properties Extendable / Subclause 8.2.99  */
+//140 to 65535     Spare. For future use.
     { NULL },                                                        /* End of List */
 };
 
@@ -3983,6 +4021,30 @@ static void
 dissect_pfcp_aggregated_urrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_AGGREGATED_URRS]);
+}
+
+static void
+dissect_pfcp_create_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_CREATE_TRAFFIC_ENDPOINT]);
+}
+
+static void
+dissect_pfcp_created_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_CREATED_TRAFFIC_ENDPOINT]);
+}
+
+static void
+dissect_pfcp_update_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_UPDATE_TRAFFIC_ENDPOINT]);
+}
+
+static void
+dissect_pfcp_remove_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_REMOVE_TRAFFIC_ENDPOINT]);
 }
 
 static void
@@ -5705,6 +5767,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_additional_usage_reports_information_b14_b0_number_value,
         { "Number of Additional Usage Reports value", "pfcp.additional_usage_reports_information_value",
             FT_UINT16, BASE_DEC, NULL, 0x7FFF,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_traffic_endpoint_id,
+        { "Traffic Endpoint ID", "pfcp.traffic_endpoint_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
