@@ -1494,7 +1494,7 @@ static void get_parameter_definitions(packet_info* pinfo, int offset, guint8 com
 					data_type = tvb_get_guint8(tvb, offset);
 					proto_tree_add_item(ecmp_parameter_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
-					dec = (gint8)tvb_get_guint8(tvb, offset);
+					dec = tvb_get_gint8(tvb, offset);
 					if (dec != -1) {
 						proto_tree_add_int(ecmp_parameter_tree, hf_ecmp_number_of_decimal_places, tvb, offset, 1, dec);
 					} else {
@@ -1695,7 +1695,7 @@ static int get_parameter_responses(packet_info* pinfo, int offset, guint8 comman
 				offset = get_address_scheme(pinfo, offset, scheme, tvb, ecmp_parameter_response_tree);
 			} else {
 				/*if status is error */
-				if ((gint8)tvb_get_guint8(tvb, offset+1) < 0) {
+				if (tvb_get_gint8(tvb, offset+1) < 0) {
 					/*output status*/
 					st_error = 1;
 					offset++;
@@ -1727,7 +1727,7 @@ static int get_parameter_responses(packet_info* pinfo, int offset, guint8 comman
 					if ((command_value == ECMP_COMMAND_READWITHTYPE) && (st_error!= 1)) {
 						offset++;
 						/*display decimal places*/
-						dec = (gint8)tvb_get_guint8(tvb, offset);
+						dec = tvb_get_gint8(tvb, offset);
 						if (dec != -1) {
 							proto_tree_add_int(ecmp_parameter_response_tree, hf_ecmp_number_of_decimal_places, tvb, offset, 1, dec);
 						} else {
@@ -1804,7 +1804,7 @@ static void file_open(int offset, gboolean request, tvbuff_t *tvb, proto_tree* e
 		/*display file status*/
 		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		if ((gint8)tvb_get_guint8(tvb, offset) >= 0) {
+		if (tvb_get_gint8(tvb, offset) >= 0) {
 			offset++;
 			/*display file handle*/
 			proto_tree_add_item(ecmp_tree, hf_ecmp_file_handle, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1830,7 +1830,7 @@ static void file_read(int offset, gboolean request, tvbuff_t *tvb, proto_tree* e
 		/*display file status*/
 		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		if ((gint8)tvb_get_guint8(tvb, offset)>= 0) {
+		if (tvb_get_gint8(tvb, offset)>= 0) {
 			offset++;
 
 			/*display bytes for reading*/
@@ -2036,7 +2036,7 @@ static void file_pos(int offset, gboolean request, tvbuff_t *tvb, proto_tree* ec
 		/*display file status*/
 		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		if((gint8)tvb_get_guint8(tvb,offset) >= 0) {
+		if(tvb_get_gint8(tvb,offset) >= 0) {
 			offset++;
 
 			/*display offset from ref point*/
@@ -2069,7 +2069,7 @@ static void file_list(packet_info* pinfo, int offset, gboolean request, tvbuff_t
 		/*display file status*/
 		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		if ((gint8)tvb_get_guint8(tvb,offset) >= 0) {
+		if (tvb_get_gint8(tvb,offset) >= 0) {
 			offset++;
 
 			/*display number of files to list*/
@@ -2952,7 +2952,7 @@ static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint8 chunk_id_value = 0;
 		gint8 status_value = 0;
 
-		status_value = (gint8)tvb_get_guint8(tvb, offset); /*stores a signed value for status */
+		status_value = tvb_get_gint8(tvb, offset); /*stores a signed value for status */
 
 		proto_tree_add_item(ecmp_tree, hf_ecmp_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 

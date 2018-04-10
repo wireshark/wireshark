@@ -3417,7 +3417,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_MD__TX_CURRENT_OUTPUT_POWER:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					temp_gint32 = tvb_get_ntohil(tvb, offset);
 					float_value = (float) 0.1 * (float) temp_gint32;
 					proto_tree_add_float(tree, hf_hytec_tx_current_output_power, tvb, offset, msg_len, float_value);
 				}
@@ -3430,7 +3430,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_MD__RX_CURRENT_INPUT_POWER:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					temp_gint32 = tvb_get_ntohil(tvb, offset);
 					float_value = (float) 0.1 * (float) temp_gint32;
 					proto_tree_add_float(tree, hf_hytec_rx_current_input_power, tvb, offset, msg_len, float_value);
 				}
@@ -3443,7 +3443,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_MD__RX_INPUT_SNR:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					temp_gint32 = tvb_get_ntohil(tvb, offset);
 					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
 					else float_value = (float) (temp_gint32 >> 8);
 					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.00390625 == 0.5 ^ 8 */
@@ -3458,7 +3458,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_MD__LINELOSS:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					temp_gint32 = tvb_get_ntohil(tvb, offset);
 					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
 					else float_value = (float) (temp_gint32 >> 8);
 					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.5 ^ 8 */

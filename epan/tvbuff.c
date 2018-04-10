@@ -832,7 +832,16 @@ tvb_get_guint8(tvbuff_t *tvb, const gint offset)
 {
 	const guint8 *ptr;
 
-	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint8));
+	ptr = fast_ensure_contiguous(tvb, offset, 1);
+	return *ptr;
+}
+
+gint8
+tvb_get_gint8(tvbuff_t *tvb, const gint offset)
+{
+	const guint8 *ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 1);
 	return *ptr;
 }
 
@@ -841,7 +850,16 @@ tvb_get_ntohs(tvbuff_t *tvb, const gint offset)
 {
 	const guint8 *ptr;
 
-	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint16));
+	ptr = fast_ensure_contiguous(tvb, offset, 2);
+	return pntoh16(ptr);
+}
+
+gint16
+tvb_get_ntohis(tvbuff_t *tvb, const gint offset)
+{
+	const guint8 *ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 2);
 	return pntoh16(ptr);
 }
 
@@ -854,12 +872,31 @@ tvb_get_ntoh24(tvbuff_t *tvb, const gint offset)
 	return pntoh24(ptr);
 }
 
+gint32
+tvb_get_ntohi24(tvbuff_t *tvb, const gint offset)
+{
+	guint32 ret;
+
+	ret = ws_sign_ext32(tvb_get_ntoh24(tvb, offset), 24);
+
+	return (gint32)ret;
+}
+
 guint32
 tvb_get_ntohl(tvbuff_t *tvb, const gint offset)
 {
 	const guint8 *ptr;
 
-	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
+	ptr = fast_ensure_contiguous(tvb, offset, 4);
+	return pntoh32(ptr);
+}
+
+gint32
+tvb_get_ntohil(tvbuff_t *tvb, const gint offset)
+{
+	const guint8 *ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 4);
 	return pntoh32(ptr);
 }
 
@@ -925,7 +962,16 @@ tvb_get_ntoh64(tvbuff_t *tvb, const gint offset)
 {
 	const guint8 *ptr;
 
-	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint64));
+	ptr = fast_ensure_contiguous(tvb, offset, 8);
+	return pntoh64(ptr);
+}
+
+gint64
+tvb_get_ntohi64(tvbuff_t *tvb, const gint offset)
+{
+	const guint8 *ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 8);
 	return pntoh64(ptr);
 }
 
@@ -938,6 +984,15 @@ tvb_get_guint16(tvbuff_t *tvb, const gint offset, const guint encoding) {
 	}
 }
 
+gint16
+tvb_get_gint16(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohis(tvb, offset);
+	} else {
+		return tvb_get_ntohis(tvb, offset);
+	}
+}
+
 guint32
 tvb_get_guint24(tvbuff_t *tvb, const gint offset, const guint encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
@@ -947,12 +1002,30 @@ tvb_get_guint24(tvbuff_t *tvb, const gint offset, const guint encoding) {
 	}
 }
 
+gint32
+tvb_get_gint24(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohi24(tvb, offset);
+	} else {
+		return tvb_get_ntohi24(tvb, offset);
+	}
+}
+
 guint32
 tvb_get_guint32(tvbuff_t *tvb, const gint offset, const guint encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohl(tvb, offset);
 	} else {
 		return tvb_get_ntohl(tvb, offset);
+	}
+}
+
+gint32
+tvb_get_gint32(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohil(tvb, offset);
+	} else {
+		return tvb_get_ntohil(tvb, offset);
 	}
 }
 
@@ -1019,6 +1092,15 @@ tvb_get_guint64(tvbuff_t *tvb, const gint offset, const guint encoding) {
 	}
 }
 
+gint64
+tvb_get_gint64(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohi64(tvb, offset);
+	} else {
+		return tvb_get_ntohi64(tvb, offset);
+	}
+}
+
 gfloat
 tvb_get_ieee_float(tvbuff_t *tvb, const gint offset, const guint encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
@@ -1043,19 +1125,19 @@ tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, const guint encoding) {
  *
  * For now, we treat only the VAX as such a platform.
  *
- * XXX - other non-IEEE boxes that can run UNIX include some Crays,
- * and possibly other machines.
- *
- * It appears that the official Linux port to System/390 and
- * zArchitecture uses IEEE format floating point (not a
- * huge surprise).
- *
- * I don't know whether there are any other machines that
- * could run Wireshark and that don't use IEEE format.
- * As far as I know, all of the main commercial microprocessor
- * families on which OSes that support Wireshark can run
- * use IEEE format (x86, 68k, SPARC, MIPS, PA-RISC, Alpha,
- * IA-64, and so on).
+ * XXX - other non-IEEE boxes that can run UN*X include some Crays,
+ * and possibly other machines.  However, I don't know whether there
+ * are any other machines that could run Wireshark and that don't use
+ * IEEE format.  As far as I know, all of the main current and past
+ * commercial microprocessor families on which OSes that support
+ * Wireshark can run use IEEE format (x86, ARM, 68k, SPARC, MIPS,
+ * PA-RISC, Alpha, IA-64, and so on), and it appears that the official
+ * Linux port to System/390 and zArchitecture uses IEEE format floating-
+ * point rather than IBM hex floating-point (not a huge surprise), so
+ * I'm not sure that leaves any 32-bit or larger UN*X or Windows boxes,
+ * other than VAXes, that don't use IEEE format.  If you're not running
+ * UN*X or Windows, the floating-point format is probably going to be
+ * the least of your problems in a port.
  */
 
 #if defined(vax)
@@ -1245,7 +1327,16 @@ tvb_get_letohs(tvbuff_t *tvb, const gint offset)
 {
 	const guint8 *ptr;
 
-	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint16));
+	ptr = fast_ensure_contiguous(tvb, offset, 2);
+	return pletoh16(ptr);
+}
+
+gint16
+tvb_get_letohis(tvbuff_t *tvb, const gint offset)
+{
+	const guint8 *ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 2);
 	return pletoh16(ptr);
 }
 
@@ -1258,12 +1349,31 @@ tvb_get_letoh24(tvbuff_t *tvb, const gint offset)
 	return pletoh24(ptr);
 }
 
+gint32
+tvb_get_letohi24(tvbuff_t *tvb, const gint offset)
+{
+	guint32 ret;
+
+	ret = ws_sign_ext32(tvb_get_letoh24(tvb, offset), 24);
+
+	return (gint32)ret;
+}
+
 guint32
 tvb_get_letohl(tvbuff_t *tvb, const gint offset)
 {
 	const guint8 *ptr;
 
-	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
+	ptr = fast_ensure_contiguous(tvb, offset, 4);
+	return pletoh32(ptr);
+}
+
+gint32
+tvb_get_letohil(tvbuff_t *tvb, const gint offset)
+{
+	const guint8 *ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 4);
 	return pletoh32(ptr);
 }
 
@@ -1329,7 +1439,16 @@ tvb_get_letoh64(tvbuff_t *tvb, const gint offset)
 {
 	const guint8 *ptr;
 
-	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint64));
+	ptr = fast_ensure_contiguous(tvb, offset, 8);
+	return pletoh64(ptr);
+}
+
+gint64
+tvb_get_letohi64(tvbuff_t *tvb, const gint offset)
+{
+	const guint8 *ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 8);
 	return pletoh64(ptr);
 }
 

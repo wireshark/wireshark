@@ -13520,15 +13520,15 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
     guint       extra = 2;
 
     bacapp_seq = 0;
-    tmp = (gint) tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_gint8(tvb, offset);
     bacapp_flags = tmp & 0x0f;
 
     if (ack == 0) {
         extra = 3;
     }
-    *svc = (gint) tvb_get_guint8(tvb, offset+extra);
+    *svc = tvb_get_gint8(tvb, offset+extra);
     if (bacapp_flags & 0x08)
-        *svc = (gint) tvb_get_guint8(tvb, offset+extra+2);
+        *svc = tvb_get_gint8(tvb, offset+extra+2);
 
     proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     tc = proto_tree_add_item(bacapp_tree, hf_bacapp_pduflags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -13896,7 +13896,7 @@ do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 flag, bacapp_type;
     guint  offset = 0;
 
-    flag = (gint) tvb_get_guint8(tvb, 0);
+    flag = tvb_get_gint8(tvb, 0);
     bacapp_type = (flag >> 4) & 0x0f;
 
     if (tvb == NULL) {

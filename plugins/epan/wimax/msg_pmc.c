@@ -206,7 +206,7 @@ static int dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 		pwr_control_mode = 0xC0 & tvb_get_guint8(tvb, offset);
 		offset++;
 
-		value = (gint8)tvb_get_guint8(tvb, offset);
+		value = tvb_get_gint8(tvb, offset);
 		power_change = (float)0.25 * value;  /* 0.25dB incr */
 		/* Check if Power Control Mode is 0 */
 		if (pwr_control_mode == 0) {

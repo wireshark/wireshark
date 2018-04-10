@@ -2355,7 +2355,7 @@ guint c_dissect_object_locator(proto_tree *root, gint hf,
 	off = c_dissect_encoded(tree, &enchdr, 3, 6, tvb, off, data);
 
 	proto_item_append_text(ti, ", Pool: %"G_GINT64_MODIFIER"d",
-			       (gint64)tvb_get_letoh64(tvb, off));
+			       tvb_get_letohi64(tvb, off));
 	proto_tree_add_item(tree, hf_pool, tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 

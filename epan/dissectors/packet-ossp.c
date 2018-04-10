@@ -476,7 +476,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         offset += 2;
 
                         /* value */
-                        timestamp = (gint32)tvb_get_ntohl(tvb, offset);
+                        timestamp = tvb_get_ntohil(tvb, offset);
                         item_c = proto_tree_add_item(tree_b, hf_esmc_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
                         if (!timestamp_valid_flag) proto_item_append_text(item_c, " [invalid]");
                         offset += 4;

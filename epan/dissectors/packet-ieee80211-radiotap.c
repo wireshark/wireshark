@@ -1528,7 +1528,7 @@ dissect_radiotap_dbm_antsignal(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset, struct _radiotap_info *radiotap_info,
 	struct ieee_802_11_phdr *phdr)
 {
-	gint8 dbm = (gint8)tvb_get_guint8(tvb, offset);
+	gint8 dbm = tvb_get_gint8(tvb, offset);
 
 	phdr->has_signal_dbm = TRUE;
 	phdr->signal_dbm = dbm;
@@ -1543,7 +1543,7 @@ dissect_radiotap_dbm_antnoise(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset, struct _radiotap_info *radiotap_info,
 	struct ieee_802_11_phdr *phdr)
 {
-	gint dbm = (gint8) tvb_get_guint8(tvb, offset);
+	gint dbm = tvb_get_gint8(tvb, offset);
 
 	phdr->has_noise_dbm = TRUE;
 	phdr->noise_dbm = dbm;

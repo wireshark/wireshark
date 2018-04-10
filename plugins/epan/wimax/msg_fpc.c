@@ -67,7 +67,7 @@ static int dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U
 			offset += 2;
 
 			/* display the Power adjust value */
-			value = (gint8)tvb_get_guint8(tvb, offset);
+			value = tvb_get_gint8(tvb, offset);
 			power_change = (float)0.25 * value;  /* 0.25dB incr */
 
 			/* display the Power adjust value in dB */

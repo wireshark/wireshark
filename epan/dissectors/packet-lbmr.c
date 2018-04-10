@@ -5167,7 +5167,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             gint packet_len;
 
             packet_len = tvb_reported_length_remaining(tvb, 0);
-            opt_total_len = (gint)tvb_get_ntohs(tvb, -L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN);
+            opt_total_len = tvb_get_ntohis(tvb, -L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN);
             if (packet_len > opt_total_len)
             {
                 gint tvb_len = packet_len - opt_total_len;

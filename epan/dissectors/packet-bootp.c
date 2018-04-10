@@ -1741,7 +1741,7 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		}
 
 		if (hf != NULL) {
-			time_s_secs = (gint32) tvb_get_ntohl(tvb, offset);
+			time_s_secs = tvb_get_ntohil(tvb, offset);
 			proto_tree_add_int_format_value(tree, *hf,
 				tvb, offset, 4, time_s_secs, "(%ds) %s", time_s_secs, signed_time_secs_to_str(wmem_packet_scope(), time_s_secs));
 		}

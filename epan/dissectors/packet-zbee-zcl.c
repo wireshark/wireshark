@@ -1580,7 +1580,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_8_BIT_INT:
             /* Display 8 bit integer */
-            attr_int = (gint8)tvb_get_guint8(tvb, *offset);
+            attr_int = tvb_get_gint8(tvb, *offset);
             proto_item_append_text(tree, ", %s: %-d",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
             proto_tree_add_item(tree, hf_zbee_zcl_attr_int8, tvb, *offset, 1, ENC_NA);
@@ -1618,7 +1618,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_16_BIT_INT:
             /* Display 16 bit integer */
-            attr_int = (gint16)tvb_get_letohs(tvb, *offset);
+            attr_int = tvb_get_letohis(tvb, *offset);
             proto_item_append_text(tree, ", %s: %-d",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
             proto_tree_add_item(tree, hf_zbee_zcl_attr_int16, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -1647,7 +1647,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_24_BIT_INT:
             /* Display 24 bit signed integer */
-            attr_int = (gint)tvb_get_letoh24(tvb, *offset);
+            attr_int = tvb_get_letohi24(tvb, *offset);
             /* sign extend into int32 */
             if (attr_int & INT24_SIGN_BITS) attr_int |= INT24_SIGN_BITS;
             proto_item_append_text(tree, ", %s: %-d",
@@ -1678,7 +1678,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_32_BIT_INT:
             /* Display 32 bit signed integer */
-            attr_int = (gint)tvb_get_letohl(tvb, *offset);
+            attr_int = tvb_get_letohil(tvb, *offset);
             proto_item_append_text(tree, ", %s: %-d",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
             proto_tree_add_item(tree, hf_zbee_zcl_attr_int32, tvb, *offset, 4, ENC_LITTLE_ENDIAN);

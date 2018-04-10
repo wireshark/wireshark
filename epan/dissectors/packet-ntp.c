@@ -971,7 +971,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 * the total roundtrip delay to the primary reference source,
 	 * in seconds with fraction point between bits 15 and 16.
 	 */
-	rootdelay = ((gint16)tvb_get_ntohs(tvb, 4)) +
+	rootdelay = tvb_get_ntohis(tvb, 4) +
 			(tvb_get_ntohs(tvb, 6) / 65536.0);
 	proto_tree_add_double(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4, rootdelay);
 
@@ -979,7 +979,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 * the nominal error relative to the primary reference source, in
 	 * seconds with fraction point between bits 15 and 16.
 	 */
-	rootdispersion = ((gint16)tvb_get_ntohs(tvb, 8)) +
+	rootdispersion = tvb_get_ntohis(tvb, 8) +
 				(tvb_get_ntohs(tvb, 10) / 65536.0);
 	proto_tree_add_double(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4, rootdispersion);
 

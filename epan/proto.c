@@ -1493,26 +1493,22 @@ get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const g
 	switch (length) {
 
 	case 1:
-		value = (gint8)tvb_get_guint8(tvb, offset);
+		value = tvb_get_gint8(tvb, offset);
 		break;
 
 	case 2:
-		value = (gint16) (encoding ? tvb_get_letohs(tvb, offset)
-					   : tvb_get_ntohs(tvb, offset));
+		value = encoding ? tvb_get_letohis(tvb, offset)
+				 : tvb_get_ntohis(tvb, offset);
 		break;
 
 	case 3:
-		value = encoding ? tvb_get_letoh24(tvb, offset)
-				 : tvb_get_ntoh24(tvb, offset);
-		if (value & 0x00800000) {
-			/* Sign bit is set; sign-extend it. */
-			value |= 0xFF000000;
-		}
+		value = encoding ? tvb_get_letohi24(tvb, offset)
+				 : tvb_get_ntohi24(tvb, offset);
 		break;
 
 	case 4:
-		value = encoding ? tvb_get_letohl(tvb, offset)
-				 : tvb_get_ntohl(tvb, offset);
+		value = encoding ? tvb_get_letohil(tvb, offset)
+				 : tvb_get_ntohil(tvb, offset);
 		break;
 
 	default:
@@ -1521,8 +1517,8 @@ get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const g
 			value = 0;
 		} else {
 			length_error = FALSE;
-			value = encoding ? tvb_get_letohl(tvb, offset)
-					 : tvb_get_ntohl(tvb, offset);
+			value = encoding ? tvb_get_letohil(tvb, offset)
+					 : tvb_get_ntohil(tvb, offset);
 		}
 		report_type_length_mismatch(tree, "a signed integer", length, length_error);
 		break;

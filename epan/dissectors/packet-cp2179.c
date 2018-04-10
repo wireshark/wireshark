@@ -604,7 +604,7 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
                     /*Report the values of the requested SCAN inclusive data. To figure out which sequence ID the values in the response associated with,
                     we read the bs_request_frame information and show the corresponding sequence ID of the data in response frame.*/
                     do{
-                        analogtestvalue = (gint16)tvb_get_letohs(tvb, offset);
+                        analogtestvalue = tvb_get_letohis(tvb, offset);
                         proto_tree_add_uint_format(cp2179_data_tree, hf_cp2179_analog_16bit, tvb, offset, 2, request_data->requested_points[point_num],
                                                    "Analog (16 bit) %u : %i",  request_data->requested_points[point_num], analogtestvalue);
                         point_num += 1;
@@ -638,7 +638,7 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
 
                         case ANALOG_16_BIT:
                             do{
-                                analogtestvalue =(gint16)tvb_get_letohs(tvb, offset);
+                                analogtestvalue = tvb_get_letohis(tvb, offset);
                                 proto_tree_add_uint_format(cp2179_data_tree, hf_cp2179_analog_16bit, tvb, offset, 2, analog16_num,
                                                            "Analog (16 bit) %u : %i", analog16_num, analogtestvalue);
                                 analog16_num += 1;

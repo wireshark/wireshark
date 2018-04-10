@@ -2408,7 +2408,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         if (length < 4)
             return 0; /* too short */
         value  = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT32_MODIFIER "i",
-                                    (gint32)tvb_get_ntohl(tvb, offset));
+                                    tvb_get_ntohil(tvb, offset));
         offset += 4;
         break;
     case 'D':
@@ -2474,7 +2474,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         if (length < 1)
             return 0; /* too short */
         value   = wmem_strdup_printf(wmem_packet_scope(), "%d",
-                                     (gint8)tvb_get_guint8(tvb, offset));
+                                     tvb_get_gint8(tvb, offset));
         offset += 1;
         break;
     case 'B': /* unsigned 8-bit */
@@ -2490,7 +2490,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         if (length < 2)
             return 0; /* too short */
         value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT16_MODIFIER "i",
-                                    (gint16)tvb_get_ntohs(tvb, offset));
+                                     tvb_get_ntohis(tvb, offset));
         offset += 2;
         break;
     case 'u': /* unsigned 16-bit */
@@ -2514,7 +2514,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         if (length < 8)
             return 0; /* too short */
         value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "i",
-                                     (gint64)tvb_get_ntoh64(tvb, offset));
+                                     tvb_get_ntohi64(tvb, offset));
         offset += 8;
         break;
     case 'f': /* 32-bit float */
@@ -10348,13 +10348,13 @@ format_amqp_1_0_int(tvbuff_t *tvb,
     gint64 val;
 
     if (length == 1)
-        val = (gint8)tvb_get_guint8(tvb, offset);
+        val = tvb_get_gint8(tvb, offset);
     else if (length == 2)
-        val = (gint16)tvb_get_ntohs(tvb, offset);
+        val = tvb_get_ntohis(tvb, offset);
     else if (length == 4)
-        val = (gint32)tvb_get_ntohl(tvb, offset);
+        val = tvb_get_ntohil(tvb, offset);
     else if (length == 8)
-        val = (gint64)tvb_get_ntoh64(tvb, offset);
+        val = tvb_get_ntohi64(tvb, offset);
     else {
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
         return length;
@@ -10529,11 +10529,11 @@ format_amqp_0_10_int(tvbuff_t *tvb,
     int val;
 
     if (length == 1)
-        val = (gint8)tvb_get_guint8(tvb, offset);
+        val = tvb_get_gint8(tvb, offset);
     else if (length == 2)
-        val = (gint16)tvb_get_ntohs(tvb, offset);
+        val = tvb_get_ntohis(tvb, offset);
     else if (length == 4)
-        val = (gint32)tvb_get_ntohl(tvb, offset);
+        val = tvb_get_ntohil(tvb, offset);
     else {
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
         return length;

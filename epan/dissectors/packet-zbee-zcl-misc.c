@@ -322,13 +322,13 @@ dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, guint offset)
         offset += 2;
 
         if (mode_sequence & ZBEE_ZCL_CMD_THERMOSTAT_SCHEDULE_MODE_SEQUENCE_HEAT) {
-            float setpoint = (gint16)tvb_get_letohs(tvb, offset);
+            float setpoint = tvb_get_letohis(tvb, offset);
             proto_tree_add_float(tree, hf_zbee_zcl_thermostat_schedule_heat,
                     tvb, offset, 2, (setpoint / 100.0f));
             offset += 2;
         }
         if (mode_sequence & ZBEE_ZCL_CMD_THERMOSTAT_SCHEDULE_MODE_SEQUENCE_COOL) {
-            float setpoint = (gint16)tvb_get_letohs(tvb, offset);
+            float setpoint = tvb_get_letohis(tvb, offset);
             proto_tree_add_float(tree, hf_zbee_zcl_thermostat_schedule_cool,
                     tvb, offset, 2, (setpoint / 100.0f));
             offset += 2;
@@ -379,7 +379,7 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_zbee_zcl_thermostat_setpoint_mode,
                     tvb, offset, 1, ENC_NA);
                 offset++;
-                amount = (gint8)tvb_get_guint8(tvb, offset);
+                amount = tvb_get_gint8(tvb, offset);
                 proto_tree_add_float(tree, hf_zbee_zcl_thermostat_setpoint_amount,
                     tvb, offset, 1, (amount / 100.0f));
                 offset++;

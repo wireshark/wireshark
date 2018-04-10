@@ -276,10 +276,14 @@ WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
 /* All accessors will throw an exception if appropriate */
 
 WS_DLL_PUBLIC guint8 tvb_get_guint8(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint8 tvb_get_gint8(tvbuff_t *tvb, const gint offset);
 
 WS_DLL_PUBLIC guint16 tvb_get_ntohs(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint16 tvb_get_ntohis(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_ntoh24(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint32 tvb_get_ntohi24(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_ntohl(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint32 tvb_get_ntohil(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh40(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gint64 tvb_get_ntohi40(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh48(tvbuff_t *tvb, const gint offset);
@@ -287,13 +291,17 @@ WS_DLL_PUBLIC gint64 tvb_get_ntohi48(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh56(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gint64 tvb_get_ntohi56(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_ntoh64(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_ntohi64(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gfloat tvb_get_ntohieee_float(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gdouble tvb_get_ntohieee_double(tvbuff_t *tvb,
     const gint offset);
 
 WS_DLL_PUBLIC guint16 tvb_get_letohs(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint16 tvb_get_letohis(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_letoh24(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint32 tvb_get_letohi24(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint32 tvb_get_letohl(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint32 tvb_get_letohil(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh40(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gint64 tvb_get_letohi40(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh48(tvbuff_t *tvb, const gint offset);
@@ -301,13 +309,17 @@ WS_DLL_PUBLIC gint64 tvb_get_letohi48(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh56(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gint64 tvb_get_letohi56(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC guint64 tvb_get_letoh64(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC gint64 tvb_get_letohi64(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,
     const gint offset);
 
 WS_DLL_PUBLIC guint16 tvb_get_guint16(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gint16 tvb_get_gint16(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC guint32 tvb_get_guint24(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gint32 tvb_get_gint24(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC guint32 tvb_get_guint32(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gint32 tvb_get_gint32(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC guint64 tvb_get_guint40(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC gint64 tvb_get_gint40(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC guint64 tvb_get_guint48(tvbuff_t *tvb, const gint offset, const guint encoding);
@@ -315,6 +327,7 @@ WS_DLL_PUBLIC gint64 tvb_get_gint48(tvbuff_t *tvb, const gint offset, const guin
 WS_DLL_PUBLIC guint64 tvb_get_guint56(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC gint64 tvb_get_gint56(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC guint64 tvb_get_guint64(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gint64 tvb_get_gint64(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC gfloat tvb_get_ieee_float(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, const guint encoding);
 

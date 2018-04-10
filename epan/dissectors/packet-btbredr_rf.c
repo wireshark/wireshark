@@ -548,13 +548,13 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     if ((flags & (FLAGS_SIGNAL_POWER_VALID | FLAGS_NOISE_POWER_VALID)) == (FLAGS_SIGNAL_POWER_VALID | FLAGS_NOISE_POWER_VALID)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (SP: %4i, NP: %4i)",
-                (gint)(gint8)tvb_get_guint8(tvb, 1), (gint)(gint8)tvb_get_guint8(tvb, 2));
+                (gint)tvb_get_gint8(tvb, 1), (gint)tvb_get_gint8(tvb, 2));
     } else if (flags & FLAGS_SIGNAL_POWER_VALID) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (SP: %4i)",
-                (gint)(gint8)tvb_get_guint8(tvb, 1));
+                (gint)tvb_get_gint8(tvb, 1));
     } else if (flags & FLAGS_NOISE_POWER_VALID) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (NP: %4i)",
-                (gint)(gint8)tvb_get_guint8(tvb, 2));
+                (gint)tvb_get_gint8(tvb, 2));
     }
 
    if (flags & FLAGS_PACKET_HEADER_AND_BR_EDR_PAYLOAD_DEWHITENED)

@@ -583,8 +583,8 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, g
                 guint64 fraction = 0;
                 gint8 shift_count;
 
-                exponent = (gint8)tvb_get_guint8(tvb, offset);
-                mantissa = (gint64)tvb_get_guint64(tvb, offset + 1, encoding);
+                exponent = tvb_get_gint8(tvb, offset);
+                mantissa = tvb_get_gint64(tvb, offset + 1, encoding);
                 if (exponent >= 0)
                 {
                     whole = mantissa;

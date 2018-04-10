@@ -1,7 +1,6 @@
 /* packet-iec104.c
  * Routines for IEC-60870-5-104 (iec104) Protocol disassembly
  *
- *
  * Copyright (c) 2008 by Joan Ramio <joan@ramio.cat>
  * Joan is a masculine catalan name. Search the Internet for Joan Pujol (alias Garbo).
  *
@@ -884,7 +883,7 @@ static void get_NVA(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 	gint16 value;
 	float fvalue;
 
-	value = (gint16)tvb_get_letohs(tvb, *offset);
+	value = tvb_get_letohis(tvb, *offset);
 	fvalue = (float)value / 32768;
 
 	/* Normalized value F16[1..16]<-1..+1-2^-15> */
@@ -898,7 +897,7 @@ static void get_NVAspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
 	gint16 value;
 	float fvalue;
 
-	value = (gint16)tvb_get_letohs(tvb, *offset);
+	value = tvb_get_letohis(tvb, *offset);
 	fvalue = (float)value / 32768;
 
 	/* Normalized value F16[1..16]<-1..+1-2^-15> */

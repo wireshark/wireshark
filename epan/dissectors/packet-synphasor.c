@@ -719,7 +719,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 
 	/* DATA_RATE */
 	{
-		gint16 tmp = tvb_get_ntohs(tvb, offset);
+		gint16 tmp = tvb_get_ntohis(tvb, offset);
 		if (tmp > 0)
 			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
                         "%d frame(s) per second", tmp);
@@ -881,8 +881,8 @@ static int dissect_single_phasor(tvbuff_t *tvb, int offset,
 	else {
 		if (polar == notation) {
 			/* int, polar */
-			*mag	= (guint16)tvb_get_ntohs(tvb, offset	);
-			*phase	= (gint16) tvb_get_ntohs(tvb, offset + 2);
+			*mag	= tvb_get_ntohs(tvb, offset	);
+			*phase	= tvb_get_ntohis(tvb, offset + 2);
 			*phase /= 10000.0; /* angle is in radians*10^4 */
 		}
 		else {

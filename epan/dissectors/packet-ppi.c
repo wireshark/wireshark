@@ -570,7 +570,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     }
     ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, ENC_LITTLE_ENDIAN);
 
-    dbm_value = (gint8) tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
+    dbm_value = tvb_get_gint8(tvb, ptvcursor_current_offset(csr));
     if (dbm_value != -128 && dbm_value != 0) {
         /*
          * XXX - the spec says -128 is invalid, presumably meaning "use
@@ -584,7 +584,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     }
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antsignal, 1, 0x80); /* -128 */
 
-    dbm_value = (gint8) tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
+    dbm_value = tvb_get_gint8(tvb, ptvcursor_current_offset(csr));
     if (dbm_value != -128 && dbm_value != 0) {
         /*
          * XXX - the spec says -128 is invalid, presumably meaning "use

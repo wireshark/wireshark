@@ -10512,9 +10512,9 @@ dissect_btgatt_microbit_accelerometer_data(tvbuff_t *tvb, packet_info *pinfo _U_
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    x_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
-    y_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
-    z_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+    x_axis = (gdouble) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (gdouble) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (gdouble) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
 
     sub_item = proto_tree_add_item(tree, hf_gatt_microbit_accelerometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_accelerometer);
@@ -10557,9 +10557,9 @@ dissect_btgatt_microbit_magnetometer_data(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    x_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
-    y_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
-    z_axis = (gdouble) (gint16) tvb_get_guint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+    x_axis = (gdouble) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (gdouble) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (gdouble) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
 
     sub_item = proto_tree_add_item(tree, hf_gatt_microbit_magnetometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_magnetometer);
