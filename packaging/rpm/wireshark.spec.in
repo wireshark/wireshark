@@ -261,7 +261,11 @@ Requires:	libmaxminddb
   .
 
 %if %{with ninja}
-ninja
+NINJA=$(which ninja || which ninja-build)
+%endif
+
+%if %{with ninja}
+$NINJA
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
 # %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
@@ -271,8 +275,8 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 %if %{with ninja}
-DESTDIR=$RPM_BUILD_ROOT ninja install
-DESTDIR=$RPM_BUILD_ROOT ninja install_guides
+DESTDIR=$RPM_BUILD_ROOT $NINJA install
+DESTDIR=$RPM_BUILD_ROOT $NINJA install_guides
 %else
 make DESTDIR=$RPM_BUILD_ROOT install
 make DESTDIR=$RPM_BUILD_ROOT install_guides
