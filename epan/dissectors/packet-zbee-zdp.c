@@ -151,6 +151,8 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_manager = -1;
        int hf_zbee_zdp_tx_total = -1;
        int hf_zbee_zdp_tx_fail = -1;
+       int hf_zbee_zdp_tx_retries = -1;
+       int hf_zbee_zdp_period_time_results = -1;
        int hf_zbee_zdp_channel_count = -1;
        int hf_zbee_zdp_channel_mask = -1;
        int hf_zbee_zdp_channel_page = -1;
@@ -277,6 +279,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_MGMT_NWKUPDATE,                "Network Update Request" },
     { ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH,            "Network Update Enhanced Request" },
     { ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Request" },
+    { ZBEE_ZDP_REQ_MGMT_UNSOLICITED_NWKUPDATE,    "Unsolicited Enhanced Network Update Notify" },
 
     { ZBEE_ZDP_RSP_NWK_ADDR,                      "Network Address Response" },
     { ZBEE_ZDP_RSP_IEEE_ADDR,                     "Extended Address Response" },
@@ -1130,6 +1133,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST:
             dissect_zbee_zdp_req_mgmt_ieee_join_list(zdp_tvb, pinfo, zdp_tree);
             break;
+        case ZBEE_ZDP_REQ_MGMT_UNSOLICITED_NWKUPDATE:
+            dissect_zbee_zdp_req_mgmt_unsolicited_nwkupdate(zdp_tvb, pinfo, zdp_tree);
+            break;
         case ZBEE_ZDP_RSP_NWK_ADDR:
             dissect_zbee_zdp_rsp_nwk_addr(zdp_tvb, pinfo, zdp_tree);
             break;
@@ -1640,6 +1646,14 @@ void proto_register_zbee_zdp(void)
 
         { &hf_zbee_zdp_tx_fail,
         { "Failed Transmissions",       "zbee_zdp.tx_fail", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_tx_retries,
+        { "Retried Transmissions",       "zbee_zdp.tx_retries", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_period_time_results,
+        { "Period of Time For Results",  "zbee_zdp.period_time_results", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_channel_count,

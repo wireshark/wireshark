@@ -62,6 +62,7 @@
 #define ZBEE_ZDP_REQ_MGMT_NWKUPDATE               0x0038  /* ZigBee 2007 & later. */
 #define ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH           0x0039  /* R22 */
 #define ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST          0x003a  /* R22 */
+#define ZBEE_ZDP_REQ_MGMT_UNSOLICITED_NWKUPDATE   0x003b  /* R22 */
 
 #define ZBEE_ZDP_RSP_NWK_ADDR                     0x8000
 #define ZBEE_ZDP_RSP_IEEE_ADDR                    0x8001
@@ -250,6 +251,8 @@ extern int hf_zbee_zdp_update_id;
 extern int hf_zbee_zdp_manager;
 extern int hf_zbee_zdp_tx_total;
 extern int hf_zbee_zdp_tx_fail;
+extern int hf_zbee_zdp_tx_retries;
+extern int hf_zbee_zdp_period_time_results;
 extern int hf_zbee_zdp_channel_count;
 extern int hf_zbee_zdp_channel_mask;
 extern int hf_zbee_zdp_channel_page;
@@ -383,6 +386,7 @@ extern void dissect_zbee_zdp_req_mgmt_cache             (tvbuff_t *tvb, packet_i
 extern void dissect_zbee_zdp_req_mgmt_nwkupdate         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_nwkupdate_enh     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_ieee_join_list    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_req_mgmt_unsolicited_nwkupdate    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 extern void dissect_zbee_zdp_rsp_nwk_addr               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_rsp_ext_addr               (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
