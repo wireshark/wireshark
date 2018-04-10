@@ -37,6 +37,10 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, Captur
 
     ui->detailsTextEdit->setAcceptRichText(true);
 
+    // make the details box larger than the comments
+    ui->splitter->setStretchFactor(0, 6);
+    ui->splitter->setStretchFactor(1, 1);
+
     QPushButton *button = ui->buttonBox->button(QDialogButtonBox::Reset);
     if (button) {
         button->setText(tr("Refresh"));
