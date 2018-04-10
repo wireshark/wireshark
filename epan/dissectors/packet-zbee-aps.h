@@ -147,6 +147,7 @@
 /* ZCL Cluster IDs - Closures */
 #define ZBEE_ZCL_CID_SHADE_CONFIG                   0x0100
 #define ZBEE_ZCL_CID_DOOR_LOCK                      0X0101
+#define ZBEE_ZCL_CID_WINDOW_COVERING                0X0102
 
 /* ZCL Cluster IDs - HVAC */
 #define ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL            0x0200

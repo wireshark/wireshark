@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <wsutil/bits_ctz.h>
+#include <wsutil/utf8_entities.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
@@ -2100,8 +2101,8 @@ proto_reg_handoff_zbee_zcl_groups(void)
 /* Defines               */
 /*************************/
 
-#define ZBEE_ZCL_SCENES_NUM_ETT                                 2
-#define ZBEE_ZCL_ATTR_SCENES_SCENE_VALID_MASK                     0x01  /* bit     0 */
+#define ZBEE_ZCL_SCENES_NUM_ETT                                 3
+#define ZBEE_ZCL_ATTR_SCENES_SCENE_VALID_MASK                   0x01  /* bit     0 */
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_SCENES_SCENE_COUNT                     0x0000  /* Scene Count */
@@ -2165,6 +2166,7 @@ static void dissect_zcl_scenes_remove_all_scenes_response                   (tvb
 static void dissect_zcl_scenes_get_scene_membership_response                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_scenes_copy_scene_response                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
+static void dissect_zcl_scenes_extension_fields                             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_scenes_attr_data                                    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /* Private functions prototype */
@@ -2186,7 +2188,24 @@ static int hf_zbee_zcl_scenes_scene_id_from = -1;
 static int hf_zbee_zcl_scenes_scene_id_to = -1;
 static int hf_zbee_zcl_scenes_transit_time = -1;
 static int hf_zbee_zcl_scenes_enh_transit_time = -1;
-static int hf_zbee_zcl_scenes_extension_set_field = -1;
+static int hf_zbee_zcl_scenes_extension_set= -1;
+static int hf_zbee_zcl_scenes_extension_set_cluster = -1;
+static int hf_zbee_zcl_scenes_extension_set_onoff = -1;
+static int hf_zbee_zcl_scenes_extension_set_level = -1;
+static int hf_zbee_zcl_scenes_extension_set_x = -1;
+static int hf_zbee_zcl_scenes_extension_set_y = -1;
+static int hf_zbee_zcl_scenes_extension_set_hue = -1;
+static int hf_zbee_zcl_scenes_extension_set_saturation = -1;
+static int hf_zbee_zcl_scenes_extension_set_color_loop_active = -1;
+static int hf_zbee_zcl_scenes_extension_set_color_loop_direction = -1;
+static int hf_zbee_zcl_scenes_extension_set_color_loop_time = -1;
+static int hf_zbee_zcl_scenes_extension_set_cooling_setpoint = -1;
+static int hf_zbee_zcl_scenes_extension_set_heating_setpoint = -1;
+static int hf_zbee_zcl_scenes_extension_set_system_mode = -1;
+static int hf_zbee_zcl_scenes_extension_set_lock_state = -1;
+static int hf_zbee_zcl_scenes_extension_set_lift_percentage = -1;
+static int hf_zbee_zcl_scenes_extension_set_tilt_percentage = -1;
+
 static int hf_zbee_zcl_scenes_status = -1;
 static int hf_zbee_zcl_scenes_capacity = -1;
 static int hf_zbee_zcl_scenes_scene_count = -1;
@@ -2196,9 +2215,11 @@ static int hf_zbee_zcl_scenes_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_scenes_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_scenes_scene_list = -1;
 static int hf_zbee_zcl_scenes_copy_mode = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_scenes = -1;
 static gint ett_zbee_zcl_scenes_scene_ctrl = -1;
+static gint ett_zbee_zcl_scenes_extension_field_set = -1;
 
 /* Attributes */
 static const value_string zbee_zcl_scenes_attr_names[] = {
@@ -2254,9 +2275,53 @@ static const value_string zbee_zcl_scenes_copy_mode_values[] = {
     { 0, NULL }
 };
 
+/* Color Loop Directions */
+static const value_string zbee_zcl_scenes_color_loop_direction_values[] = {
+    { 0x00,   "Hue is Decrementing" },
+    { 0x01,   "Hue is Incrementing" },
+    { 0, NULL }
+};
+
+
 /*************************/
 /* Function Bodies       */
 /*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *    decode_color_xy
+ *  DESCRIPTION
+ *    this function decodes color xy values
+ *  PARAMETERS
+ *      guint *s        - string to display
+ *      guint16 value   - value to decode
+ *  RETURNS
+ *    none
+ *---------------------------------------------------------------
+ */
+static void
+decode_color_xy(gchar *s, guint16 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.4lf", value/65535.0);
+    return;
+} /*decode_power_conf_voltage*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *    decode_setpoint
+ *  DESCRIPTION
+ *    this function decodes the setpoint
+ *  PARAMETERS
+ *      guint *s        - string to display
+ *      guint16 value   - value to decode
+ *  RETURNS
+ *    none
+ *---------------------------------------------------------------
+ */
+void decode_setpoint(gchar *s, gint16 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2lf [" UTF8_DEGREE_SIGN "C]", value/100.0);
+}
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2434,7 +2499,7 @@ dissect_zcl_scenes_add_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset, gbo
     *offset += attr_uint;
 
     /* Retrieve "Extension Set" field */
-    proto_tree_add_item(tree, hf_zbee_zcl_scenes_extension_set_field, tvb, *offset, -1, ENC_NA);
+    dissect_zcl_scenes_extension_fields(tvb, tree, offset);
 
 } /*dissect_zcl_scenes_add_scene*/
 
@@ -2614,7 +2679,7 @@ dissect_zcl_scenes_view_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *o
         *offset += attr_uint;
 
         /* Retrieve "Extension Set" field */
-        proto_tree_add_item(tree, hf_zbee_zcl_scenes_extension_set_field, tvb, *offset, -1, ENC_NA);
+        dissect_zcl_scenes_extension_fields(tvb, tree, offset);
 
     }
 
@@ -2733,6 +2798,155 @@ dissect_zcl_scenes_copy_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *o
    *offset += 1;
 
 } /*dissect_zcl_scenes_copy_scene_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_scenes_extension_fields
+ *  DESCRIPTION
+ *      this function decodes the extension set fields
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void dissect_zcl_scenes_extension_fields(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8      set = 1;
+    proto_tree *subtree;
+
+    // Is there an extension field?
+    gboolean hasExtensionField = hasExtensionField = tvb_offset_exists(tvb, *offset+2);
+
+    while (hasExtensionField)
+    {
+        // Retrieve the cluster and the length
+        guint32 cluster = tvb_get_guint16(tvb, *offset, ENC_LITTLE_ENDIAN);
+        guint8  length  = tvb_get_guint8 (tvb, *offset+2);
+
+        // Create a subtree
+        subtree = proto_tree_add_subtree_format(tree, tvb, *offset, length, ett_zbee_zcl_scenes_extension_field_set, NULL, "Extension field set %d", set++);
+        proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_cluster, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 3;
+
+        switch (cluster)
+        {
+        case ZBEE_ZCL_CID_ON_OFF:
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_onoff, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            break;
+
+        case ZBEE_ZCL_CID_LEVEL_CONTROL:
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_level, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            break;
+
+        case ZBEE_ZCL_CID_COLOR_CONTROL:
+            if (length >= 2)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_x, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                length  -= 2;
+                *offset += 2;
+            }
+            if (length >= 2)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_y, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                length  -= 2;
+                *offset += 2;
+            }
+            if (length >= 2)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_hue, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                length  -= 2;
+                *offset += 2;
+            }
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_saturation, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_color_loop_active, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_color_loop_direction, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            if (length >= 2)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_color_loop_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                length  -= 2;
+                *offset += 2;
+            }
+            break;
+
+        case ZBEE_ZCL_CID_DOOR_LOCK:
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_lock_state, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            break;
+
+        case ZBEE_ZCL_CID_WINDOW_COVERING:
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_lift_percentage, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_tilt_percentage, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            break;
+
+        case ZBEE_ZCL_CID_THERMOSTAT:
+            if (length >= 2)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_cooling_setpoint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                length  -= 2;
+                *offset += 2;
+            }
+            if (length >= 2)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_heating_setpoint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                length  -= 2;
+                *offset += 2;
+            }
+            if (length >= 1)
+            {
+                proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_system_mode, tvb, *offset, 1, ENC_NA);
+                length  -= 1;
+                *offset += 1;
+            }
+            break;
+        }
+
+        *offset += length;
+        hasExtensionField = tvb_offset_exists(tvb, *offset+2);
+    }
+}
 
 
 /*FUNCTION:------------------------------------------------------
@@ -2865,8 +3079,72 @@ proto_register_zbee_zcl_scenes(void)
             { "String", "zbee_zcl_general.scenes.attr_str", FT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL }},
 
-        { &hf_zbee_zcl_scenes_extension_set_field,
+        { &hf_zbee_zcl_scenes_extension_set,
             { "Extension Set", "zbee_zcl_general.scenes.extension_set", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_cluster,
+            { "Cluster", "zbee_zcl_general.scenes.extension_set.cluster", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_onoff,
+            { "On/Off", "zbee_zcl_general.scenes.extension_set.onoff", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_level,
+            { "Level", "zbee_zcl_general.scenes.extension_set.level", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_x,
+            { "Color X", "zbee_zcl_general.scenes.extension_set.color_x", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_color_xy),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_y,
+            { "Color Y", "zbee_zcl_general.scenes.extension_set.color_y", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_color_xy),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_hue,
+            { "Enhanced Hue", "zbee_zcl_general.scenes.extension_set.hue", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_saturation,
+            { "Saturation", "zbee_zcl_general.scenes.extension_set.saturation", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_color_loop_active,
+            { "Color Loop Active", "zbee_zcl_general.scenes.extension_set.color_loop_active", FT_BOOLEAN, 8, TFS(&tfs_true_false),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_color_loop_direction,
+            { "Color Loop Direction", "zbee_zcl_general.scenes.extension_set.color_loop_direction", FT_UINT8, BASE_DEC, VALS(zbee_zcl_scenes_color_loop_direction_values),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_color_loop_time,
+            { "Color Loop Time", "zbee_zcl_general.scenes.extension_set.color_loop_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_seconds),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_lock_state,
+            { "Lock State", "zbee_zcl_general.scenes.extension_set.lock_state", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_lift_percentage,
+            { "Current Position Lift Percentage", "zbee_zcl_general.scenes.extension_set.current_position_lift_percentage", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_tilt_percentage,
+            { "Current Position Tilt Percentage", "zbee_zcl_general.scenes.extension_set.current_position_tilt_percentage", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_cooling_setpoint,
+            { "Occupied Cooling Setpoint", "zbee_zcl_general.scenes.extension_set.occupied_cooling_setpoint", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_setpoint),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_heating_setpoint,
+            { "Occupied Heating Setpoint", "zbee_zcl_general.scenes.extension_set.occupied_heating_setpoint", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_setpoint),
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_system_mode,
+            { "System Mode", "zbee_zcl_general.scenes.extension_set.system_mode", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL }},
 
         { &hf_zbee_zcl_scenes_copy_mode,
@@ -2887,6 +3165,7 @@ proto_register_zbee_zcl_scenes(void)
     static gint *ett[ZBEE_ZCL_SCENES_NUM_ETT];
     ett[0] = &ett_zbee_zcl_scenes;
     ett[1] = &ett_zbee_zcl_scenes_scene_ctrl;
+    ett[2] = &ett_zbee_zcl_scenes_extension_field_set;
 
     /* Register the ZigBee ZCL Scenes cluster protocol name and description */
     proto_zbee_zcl_scenes = proto_register_protocol("ZigBee ZCL Scenes", "ZCL Scenes", ZBEE_PROTOABBREV_ZCL_SCENES);
