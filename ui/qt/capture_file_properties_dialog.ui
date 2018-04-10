@@ -19,36 +19,57 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,3,0,1,0">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <widget class="QLabel" name="detailsLabel">
-     <property name="text">
-      <string>Details</string>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTextEdit" name="detailsTextEdit">
-     <property name="readOnly">
-      <bool>true</bool>
+     <property name="opaqueResize">
+      <bool>false</bool>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="commentsLabel">
-     <property name="text">
-      <string>Capture file comments</string>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTextEdit" name="commentsTextEdit">
-     <property name="sizeIncrement">
-      <size>
-       <width>0</width>
-       <height>10</height>
-      </size>
-     </property>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="detailsLabel">
+         <property name="text">
+          <string>Details</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="detailsTextEdit">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="commentsLabel">
+         <property name="text">
+          <string>Capture file comments</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="commentsTextEdit">
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>10</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
@@ -60,5 +81,6 @@
    </item>
   </layout>
  </widget>
+ <resources/>
  <connections/>
 </ui>
