@@ -121,7 +121,7 @@ echo "Gettext devel is unavailable" >&2
 add_package ADDITIONAL_LIST perl-Pod-Html ||
 echo "perl-Pod-Html is unavailable" >&2
 
-add_package ADDITIONAL_LIST asciidoctor ||
+add_package ADDITIONAL_LIST asciidoctor || add_package ADDITIONAL_LIST rubygem-asciidoctor.noarch ||
 echo "asciidoctor is unavailable" >&2
 
 $PM install $BASIC_LIST
