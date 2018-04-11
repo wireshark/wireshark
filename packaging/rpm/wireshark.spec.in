@@ -250,7 +250,7 @@ Requires:	libmaxminddb
 %if %{with libxml2}
   -DENABLE_LIBXML2=ON \
 %else
-  -ENABLE_LIBXML2=OFF \
+  -DENABLE_LIBXML2=OFF \
 %endif
 %if %{with nghttp2}
   -DENABLE_NGHTTP2=ON \
