@@ -917,9 +917,9 @@ extcap_verify_capture_filter(const char *ifname, const char *filter, gchar **err
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
               get_extcap_dir());
 
-        arguments = g_list_append(arguments, EXTCAP_ARGUMENT_CAPTURE_FILTER);
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CAPTURE_FILTER));
         arguments = g_list_append(arguments, g_strdup(filter));
-        arguments = g_list_append(arguments, EXTCAP_ARGUMENT_INTERFACE);
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
         arguments = g_list_append(arguments, g_strdup(ifname));
 
         extcap_callback_info_t cb_info;
