@@ -784,9 +784,10 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Needs to be at least as long as:
        - the signature string
-       - mandatory fields
-       - at least the payload tag and a byte of data.
-       However, let attempted dissection show if there are any tags at all. */
+       - fixed header byte(s)
+       - tag for data
+       - at least one byte of PDCP PDU payload.
+      However, let attempted dissection show if there are any tags at all. */
     gint min_length = (gint)(strlen(PDCP_NR_START_STRING) + 3); /* signature */
 
     if (tvb_captured_length_remaining(tvb, offset) < min_length) {
@@ -811,15 +812,18 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
         infoAlreadySet = TRUE;
     }
 
+    /* Read fixed fields */
+    p_pdcp_nr_info->plane = (enum pdcp_nr_plane)tvb_get_guint8(tvb, offset++);
+    if (p_pdcp_nr_info->plane == NR_SIGNALING_PLANE) {
+        /* Signalling plane always has 12 SN bits */
+        p_pdcp_nr_info->seqnum_length = PDCP_NR_SN_LENGTH_12_BITS;
+    }
 
     /* Read tagged fields */
     while (tag != PDCP_NR_PAYLOAD_TAG) {
         /* Process next tag */
         tag = tvb_get_guint8(tvb, offset++);
         switch (tag) {
-            case PDCP_NR_PLANE_TAG:
-                p_pdcp_nr_info->plane = (enum pdcp_nr_plane)tvb_get_guint8(tvb, offset++);
-                break;
             case PDCP_NR_SEQNUM_LENGTH_TAG:
                 p_pdcp_nr_info->seqnum_length = tvb_get_guint8(tvb, offset);
                 offset++;
@@ -841,14 +845,12 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                 p_pdcp_nr_info->ueid = tvb_get_ntohs(tvb, offset);
                 offset += 2;
                 break;
-
             case PDCP_NR_ROHC_COMPRESSION_TAG:
-                p_pdcp_nr_info->rohc.rohc_compression = tvb_get_guint8(tvb, offset);
-                offset += 2;
+                p_pdcp_nr_info->rohc.rohc_compression = TRUE;
                 break;
             case PDCP_NR_ROHC_IP_VERSION_TAG:
-                p_pdcp_nr_info->rohc.rohc_ip_version = tvb_get_ntohs(tvb, offset);
-                offset += 2;
+                p_pdcp_nr_info->rohc.rohc_ip_version = tvb_get_guint8(tvb, offset);
+                offset++;
                 break;
             case PDCP_NR_ROHC_CID_INC_INFO_TAG:
                 p_pdcp_nr_info->rohc.cid_inclusion_info = tvb_get_guint8(tvb, offset);
