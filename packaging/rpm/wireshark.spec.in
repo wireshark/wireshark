@@ -266,7 +266,6 @@ Requires:	libmaxminddb
 %if %{with ninja}
   -G Ninja \
 %endif
-  .
 
 %if %{with ninja}
 # Older RPM-based distributions used ninja-build in order to prevent a collision with
