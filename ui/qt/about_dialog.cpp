@@ -248,10 +248,12 @@ FolderListModel::FolderListModel(QObject * parent):
     foreach(QString path, extPaths)
         appendRow( QStringList() << tr("Extcap path") << path.trimmed() << tr("Extcap Plugins search path"));
 
+#ifdef HAVE_MAXMINDDB
     /* MaxMind DB */
     QStringList maxMindDbPaths = QString(maxmind_db_get_paths()).split(G_SEARCHPATH_SEPARATOR_S);
     foreach(QString path, maxMindDbPaths)
         appendRow( QStringList() << tr("MaxMind DB path") << path.trimmed() << tr("MaxMind DB database search path"));
+#endif
 
 #ifdef HAVE_LIBSMI
     /* SMI MIBs/PIBs */
