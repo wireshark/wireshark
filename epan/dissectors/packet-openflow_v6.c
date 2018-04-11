@@ -1104,7 +1104,6 @@ static int
 dissect_openflow_oxm_header_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     guint16 oxm_class;
-    guint8  oxm_length;
 
     /* oxm_class */
     oxm_class = tvb_get_ntohs(tvb, offset);
@@ -1123,17 +1122,8 @@ dissect_openflow_oxm_header_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=1;
 
     /* oxm_length */
-    oxm_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_openflow_v6_oxm_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
-
-    if (oxm_class == OFPXMC_EXPERIMENTER) {
-        /* uint32_t experimenter; */
-        proto_tree_add_item(tree, hf_openflow_v6_oxm_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset+=4;
-        proto_tree_add_item(tree, hf_openflow_v6_oxm_experimenter_value, tvb, offset, oxm_length - 4, ENC_NA);
-        offset+=(oxm_length - 4);
-    }
 
     return offset;
 }
@@ -1271,6 +1261,12 @@ dissect_openflow_oxm_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset = oxm_end;
         }
 
+    } else if (oxm_class == OFPXMC_EXPERIMENTER) {
+        /* uint32_t experimenter; */
+        proto_tree_add_item(oxm_tree, hf_openflow_v6_oxm_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(oxm_tree, hf_openflow_v6_oxm_experimenter_value, tvb, offset, oxm_length - 4, ENC_NA);
+        offset+=(oxm_length - 4);
     } else {
         proto_tree_add_expert_format(oxm_tree, pinfo, &ei_openflow_v6_oxm_undecoded,
                                      tvb, offset, oxm_length, "Unknown OXM body.");
