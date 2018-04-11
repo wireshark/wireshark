@@ -205,6 +205,11 @@ Requires:	libmaxminddb
 %prep
 %setup -q -n %{name}-%{package_version}
 
+# Suse has a wrong bindir for cmake. Set it to the right one.
+%if 0%{?suse_version}
+%define _bindir /usr/bin
+%endif
+
 # Don't specify the prefix here: configure is a macro which expands to set
 # the prefix and everything else too.  If you need to change the prefix
 # set _prefix (note the underscore) either in this file or on rpmbuild's
