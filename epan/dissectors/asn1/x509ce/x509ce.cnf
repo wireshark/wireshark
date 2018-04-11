@@ -169,8 +169,16 @@ EnhancedCertificateAssertion/pathToName			enhancedPathToName
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY GeneralName/iPAddress
-	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset+=4;
+  switch (tvb_reported_length(tvb)) {
+  case 4:   /* IPv4 */
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    break;
+  case 16:  /* IPv6 */
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
+    offset += 16;
+    break;
+  }
 
 #.FN_PARS OtherNameType
   FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
