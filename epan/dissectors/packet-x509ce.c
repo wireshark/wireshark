@@ -41,7 +41,8 @@ static int proto_x509ce = -1;
 static int hf_x509ce_id_ce_invalidityDate = -1;
 static int hf_x509ce_id_ce_baseUpdateTime = -1;
 static int hf_x509ce_object_identifier_id = -1;
-static int hf_x509ce_IPAddress = -1;
+static int hf_x509ce_IPAddress_ipv4 = -1;
+static int hf_x509ce_IPAddress_ipv6 = -1;
 
 /*--- Included file: packet-x509ce-hf.c ---*/
 #line 1 "./asn1/x509ce/packet-x509ce-hf.c"
@@ -244,7 +245,7 @@ static int hf_x509ce_EntrustInfoFlags_webCategory = -1;
 static int hf_x509ce_EntrustInfoFlags_sETCategory = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-#line 38 "./asn1/x509ce/packet-x509ce-template.c"
+#line 39 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -312,7 +313,7 @@ static gint ett_x509ce_EntrustInfoFlags = -1;
 static gint ett_x509ce_ScramblerCapabilities = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-#line 41 "./asn1/x509ce/packet-x509ce-template.c"
+#line 42 "./asn1/x509ce/packet-x509ce-template.c"
 
 /*--- Included file: packet-x509ce-fn.c ---*/
 #line 1 "./asn1/x509ce/packet-x509ce-fn.c"
@@ -339,7 +340,7 @@ dissect_x509ce_OtherNameType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 179 "./asn1/x509ce/x509ce.cnf"
+#line 187 "./asn1/x509ce/x509ce.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -396,7 +397,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 182 "./asn1/x509ce/x509ce.cnf"
+#line 190 "./asn1/x509ce/x509ce.cnf"
 
 	PROTO_ITEM_SET_URL(actx->created_item);
 
@@ -409,8 +410,16 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 172 "./asn1/x509ce/x509ce.cnf"
-	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset+=4;
+  switch (tvb_reported_length(tvb)) {
+  case 4:   /* IPv4 */
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    break;
+  case 16:  /* IPv6 */
+    proto_tree_add_item(tree, hf_x509ce_IPAddress_ipv6, tvb, offset, 16, ENC_NA);
+    offset += 16;
+    break;
+  }
 
 
 
@@ -1934,7 +1943,7 @@ static int dissect_CicamBrandId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-#line 42 "./asn1/x509ce/packet-x509ce-template.c"
+#line 43 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
     that use OIDs which are not officially assigned
@@ -1995,9 +2004,12 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_object_identifier_id,
       { "Id", "x509ce.id", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
-    { &hf_x509ce_IPAddress,
-      { "iPAddress", "x509ce.IPAddress", FT_IPv4, BASE_NONE, NULL, 0,
-        "IP Address", HFILL }},
+    { &hf_x509ce_IPAddress_ipv4,
+      { "iPAddress", "x509ce.IPAddress.ipv4", FT_IPv4, BASE_NONE, NULL, 0,
+        "IPv4 address", HFILL }},
+    { &hf_x509ce_IPAddress_ipv6,
+      { "iPAddress", "x509ce.IPAddress.ipv6", FT_IPv6, BASE_NONE, NULL, 0,
+        "IPv6 address", HFILL }},
 
 
 /*--- Included file: packet-x509ce-hfarr.c ---*/
@@ -2788,7 +2800,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 107 "./asn1/x509ce/packet-x509ce-template.c"
+#line 111 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2858,7 +2870,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_ScramblerCapabilities,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 112 "./asn1/x509ce/packet-x509ce-template.c"
+#line 116 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2921,7 +2933,7 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 127 "./asn1/x509ce/packet-x509ce-template.c"
+#line 131 "./asn1/x509ce/packet-x509ce-template.c"
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }

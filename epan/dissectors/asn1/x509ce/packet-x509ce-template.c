@@ -33,7 +33,8 @@ static int proto_x509ce = -1;
 static int hf_x509ce_id_ce_invalidityDate = -1;
 static int hf_x509ce_id_ce_baseUpdateTime = -1;
 static int hf_x509ce_object_identifier_id = -1;
-static int hf_x509ce_IPAddress = -1;
+static int hf_x509ce_IPAddress_ipv4 = -1;
+static int hf_x509ce_IPAddress_ipv6 = -1;
 #include "packet-x509ce-hf.c"
 
 /* Initialize the subtree pointers */
@@ -99,9 +100,12 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_object_identifier_id,
       { "Id", "x509ce.id", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
-    { &hf_x509ce_IPAddress,
-      { "iPAddress", "x509ce.IPAddress", FT_IPv4, BASE_NONE, NULL, 0,
-        "IP Address", HFILL }},
+    { &hf_x509ce_IPAddress_ipv4,
+      { "iPAddress", "x509ce.IPAddress.ipv4", FT_IPv4, BASE_NONE, NULL, 0,
+        "IPv4 address", HFILL }},
+    { &hf_x509ce_IPAddress_ipv6,
+      { "iPAddress", "x509ce.IPAddress.ipv6", FT_IPv6, BASE_NONE, NULL, 0,
+        "IPv6 address", HFILL }},
 
 #include "packet-x509ce-hfarr.c"
   };
