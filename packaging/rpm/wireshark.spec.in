@@ -15,10 +15,11 @@
 %bcond_with	ninja
 %bcond_with	lz4_and_snappy
 %bcond_with	c_ares
-%bcond_without spandsp
-%bcond_without bcg729
-%bcond_with	 libxml2
+%bcond_without	spandsp
+%bcond_without	bcg729
+%bcond_with	libxml2
 %bcond_with	nghttp2
+%bcond_with	guides
 
 # To do: Add bcond_with clang
 
@@ -57,8 +58,10 @@ BuildRequires:	python
 BuildRequires:	perl
 BuildRequires:	flex
 BuildRequires:	bison
+%if %{with guides}
 # HTML guides
 BuildRequires:	asciidoctor
+%endif
 
 BuildRequires:	glib2-devel >= @GLIB2_MIN_VERSION@
 Requires:	glib2 >= @GLIB2_MIN_VERSION@
@@ -261,6 +264,8 @@ Requires:	libmaxminddb
   .
 
 %if %{with ninja}
+# Older RPM-based distributions used ninja-build in order to prevent a collision with
+# the Ninja IRC client: https://bugzilla.redhat.com/show_bug.cgi?id=1166135
 NINJA=$(which ninja || which ninja-build)
 %endif
 
@@ -276,10 +281,14 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 %if %{with ninja}
 DESTDIR=$RPM_BUILD_ROOT $NINJA install
+%if %{with guides}
 DESTDIR=$RPM_BUILD_ROOT $NINJA install_guides
+%endif
 %else
 make DESTDIR=$RPM_BUILD_ROOT install
+%if %{with guides}
 make DESTDIR=$RPM_BUILD_ROOT install_guides
+%endif
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where
@@ -330,6 +339,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog INSTALL NEWS README*
 
+%if %{with guides}
 # Include the User Guide:
 %if %{with ninja}
 %docdir %{_datadir}/doc/Wireshark/
@@ -338,6 +348,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %docdir %{_datadir}/doc/wireshark/guides/
 %{_datadir}/doc/wireshark/guides/
 %else
+%endif
 %endif
 
 # Don't pick up any of the wireshark (GUI) binaries here
@@ -397,6 +408,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %changelog
+* Wed Apr 11 2018 Gerald Combs
+- Make documentation installation conditional.
+
 * Tue Mar 20 2018 Gerald Combs
 - Migrate from Autotools to CMake.
 - Remove Qt4, GTK+ 2, and GTK+ 3 sections.
