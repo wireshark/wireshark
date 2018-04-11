@@ -477,9 +477,9 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str)
 
     if (extcap_if_exists(ifname))
     {
-        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_DLTS) );
-        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE) );
-        arguments = g_list_append(arguments, g_strdup(ifname) );
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_LIST_DLTS));
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
+        arguments = g_list_append(arguments, g_strdup(ifname));
 
         extcap_callback_info_t cb_info;
         cb_info.data = &caps;
@@ -827,9 +827,9 @@ extcap_get_if_configuration(const char *ifname)
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
               get_extcap_dir());
 
-        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG) );
-        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE) );
-        arguments = g_list_append(arguments, g_strdup(ifname) );
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG));
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
+        arguments = g_list_append(arguments, g_strdup(ifname));
 
         extcap_callback_info_t cb_info;
         cb_info.data = &ret;
@@ -876,11 +876,11 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
               get_extcap_dir());
 
-        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_CONFIG) );
-        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_INTERFACE) );
-        args = g_list_append(args, g_strdup(ifname) );
-        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_RELOAD_OPTION) );
-        args = g_list_append(args, g_strdup(argname) );
+        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_CONFIG));
+        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
+        args = g_list_append(args, g_strdup(ifname));
+        args = g_list_append(args, g_strdup(EXTCAP_ARGUMENT_RELOAD_OPTION));
+        args = g_list_append(args, g_strdup(argname));
 
         if ( arguments )
         {
@@ -888,8 +888,8 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
             while ( keys )
             {
                 const gchar * key_data = (const gchar *)keys->data;
-                args = g_list_append(args, g_strdup(key_data) );
-                args = g_list_append(args, g_strdup((const gchar *)g_hash_table_lookup(arguments, key_data)) );
+                args = g_list_append(args, g_strdup(key_data));
+                args = g_list_append(args, g_strdup((const gchar *)g_hash_table_lookup(arguments, key_data)));
                 keys = g_list_next(keys);
             }
         }
