@@ -33,9 +33,6 @@
 /* Defines               */
 /*************************/
 
-#define ZBEE_ZCL_BASIC_NUM_GENERIC_ETT                  3
-#define ZBEE_ZCL_BASIC_NUM_ETT                          ZBEE_ZCL_BASIC_NUM_GENERIC_ETT
-
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_BASIC_ZCL_VERSION              0x0000  /* ZCL Version */
 #define ZBEE_ZCL_ATTR_ID_BASIC_APPL_VERSION             0x0001  /* Application Version */
@@ -368,11 +365,11 @@ proto_register_zbee_zcl_basic(void)
     };
 
     /* ZCL Basic subtrees */
-    static gint *ett[ZBEE_ZCL_BASIC_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_basic;
-    ett[1] = &ett_zbee_zcl_basic_alarm_mask;
-    ett[2] = &ett_zbee_zcl_basic_dis_local_cfg;
+    static gint *ett[] = {
+        &ett_zbee_zcl_basic,
+        &ett_zbee_zcl_basic_alarm_mask,
+        &ett_zbee_zcl_basic_dis_local_cfg
+    };
 
     /* Register the ZigBee ZCL Basic cluster protocol name and description */
     proto_zbee_zcl_basic = proto_register_protocol("ZigBee ZCL Basic", "ZCL Basic", ZBEE_PROTOABBREV_ZCL_BASIC);
@@ -1071,7 +1068,7 @@ proto_register_zbee_zcl_device_temperature_configuration(void)
     };
 
     /* ZCL Device Temperature Configuration subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
         &ett_zbee_zcl_device_temperature_configuration,
         &ett_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask
     };
@@ -1119,9 +1116,6 @@ proto_reg_handoff_zbee_zcl_device_temperature_configuration(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_IDENTIFY_NUM_GENERIC_ETT               1
-#define ZBEE_ZCL_IDENTIFY_NUM_ETT                       ZBEE_ZCL_IDENTIFY_NUM_GENERIC_ETT
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_IDENTIFY_IDENTIFY_TIME         0x0000  /* Identify Time */
@@ -1451,8 +1445,9 @@ proto_register_zbee_zcl_identify(void)
     };
 
     /* ZCL Identify subtrees */
-    static gint *ett[ZBEE_ZCL_IDENTIFY_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_identify;
+    static gint *ett[] = {
+        &ett_zbee_zcl_identify
+    };
 
     /* Register the ZigBee ZCL Identify cluster protocol name and description */
     proto_zbee_zcl_identify = proto_register_protocol("ZigBee ZCL Identify", "ZCL Identify", ZBEE_PROTOABBREV_ZCL_IDENTIFY);
@@ -1501,7 +1496,6 @@ proto_reg_handoff_zbee_zcl_identify(void)
 /* Defines               */
 /*************************/
 
-#define ZBEE_ZCL_GROUPS_NUM_ETT                                 2
 #define ZBEE_ZCL_CMD_ID_GROUPS_NAME_SUPPORT_MASK                0x80  /*Name support Mask*/
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_GROUPS_NAME_SUPPORT                    0x0000  /* Groups Name Support*/
@@ -2050,9 +2044,10 @@ proto_register_zbee_zcl_groups(void)
     };
 
     /* ZCL Groups subtrees */
-    static gint *ett[ZBEE_ZCL_GROUPS_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_groups;
-    ett[1] = &ett_zbee_zcl_groups_grp_ctrl;
+    static gint *ett[] = {
+        &ett_zbee_zcl_groups,
+        &ett_zbee_zcl_groups_grp_ctrl
+    };
 
     /* Register the ZigBee ZCL Groups cluster protocol name and description */
     proto_zbee_zcl_groups = proto_register_protocol("ZigBee ZCL Groups", "ZCL Groups", ZBEE_PROTOABBREV_ZCL_GROUPS);
@@ -2101,7 +2096,6 @@ proto_reg_handoff_zbee_zcl_groups(void)
 /* Defines               */
 /*************************/
 
-#define ZBEE_ZCL_SCENES_NUM_ETT                                 3
 #define ZBEE_ZCL_ATTR_SCENES_SCENE_VALID_MASK                   0x01  /* bit     0 */
 
 /* Attributes */
@@ -3161,10 +3155,11 @@ proto_register_zbee_zcl_scenes(void)
     };
 
     /* ZCL Scenes subtrees */
-    static gint *ett[ZBEE_ZCL_SCENES_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_scenes;
-    ett[1] = &ett_zbee_zcl_scenes_scene_ctrl;
-    ett[2] = &ett_zbee_zcl_scenes_extension_field_set;
+    static gint *ett[] = {
+        &ett_zbee_zcl_scenes,
+        &ett_zbee_zcl_scenes_scene_ctrl,
+        &ett_zbee_zcl_scenes_extension_field_set
+    };
 
     /* Register the ZigBee ZCL Scenes cluster protocol name and description */
     proto_zbee_zcl_scenes = proto_register_protocol("ZigBee ZCL Scenes", "ZCL Scenes", ZBEE_PROTOABBREV_ZCL_SCENES);
@@ -3740,7 +3735,7 @@ proto_register_zbee_zcl_on_off_switch_configuration(void)
     };
 
     /* ZCL Identify subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
         &ett_zbee_zcl_on_off_switch_configuration
     };
 
@@ -3786,8 +3781,6 @@ proto_reg_handoff_zbee_zcl_on_off_switch_configuration(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_ALARMS_NUM_ETT                     1
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_ALARMS_ALARM_COUNT         0x0000  /* Alarm Count */
@@ -4096,8 +4089,9 @@ proto_register_zbee_zcl_alarms(void)
     };
 
     /* ZCL Alarms subtrees */
-    static gint *ett[ZBEE_ZCL_ALARMS_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_alarms;
+    static gint *ett[] = {
+        &ett_zbee_zcl_alarms
+    };
 
     /* Register the ZigBee ZCL Alarms cluster protocol name and description */
     proto_zbee_zcl_alarms = proto_register_protocol("ZigBee ZCL Alarms", "ZCL Alarms", ZBEE_PROTOABBREV_ZCL_ALARMS);
@@ -4145,8 +4139,6 @@ proto_reg_handoff_zbee_zcl_alarms(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_TIME_NUM_ETT                   2
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_TIME_TIME              0x0000  /* Time */
@@ -4332,10 +4324,10 @@ proto_register_zbee_zcl_time(void)
     };
 
     /* ZCL Time subtrees */
-    static gint *ett[ZBEE_ZCL_TIME_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_time;
-    ett[1] = &ett_zbee_zcl_time_status_mask;
+    static gint *ett[] = {
+        &ett_zbee_zcl_time,
+        &ett_zbee_zcl_time_status_mask
+    };
 
     /* Register the ZigBee ZCL Time cluster protocol name and description */
     proto_zbee_zcl_time = proto_register_protocol("ZigBee ZCL Time", "ZCL Time", ZBEE_PROTOABBREV_ZCL_TIME);
@@ -4382,8 +4374,6 @@ proto_reg_handoff_zbee_zcl_time(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_LEVEL_CONTROL_NUM_ETT                          1
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_CURRENT_LEVEL            0x0000  /* Current Level */
@@ -4742,8 +4732,9 @@ proto_register_zbee_zcl_level_control(void)
     };
 
     /* ZCL Identify subtrees */
-    static gint *ett[ZBEE_ZCL_LEVEL_CONTROL_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_level_control;
+    static gint *ett[] = {
+        &ett_zbee_zcl_level_control
+    };
 
     /* Register the ZigBee ZCL Level Control cluster protocol name and description */
     proto_zbee_zcl_level_control = proto_register_protocol("ZigBee ZCL Level Control", "ZCL Level Control", ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL);
@@ -4791,8 +4782,6 @@ proto_reg_handoff_zbee_zcl_level_control(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_RSSI_LOCATION_NUM_ETT                                      3
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE                        0x0000  /* Location Type */
@@ -5947,10 +5936,11 @@ proto_register_zbee_zcl_rssi_location(void)
     };
 
     /* ZCL RSSI Location subtrees */
-    static gint *ett[ZBEE_ZCL_RSSI_LOCATION_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_rssi_location;
-    ett[1] = &ett_zbee_zcl_rssi_location_location_type;
-    ett[2] = &ett_zbee_zcl_rssi_location_header;
+    static gint *ett[] = {
+        &ett_zbee_zcl_rssi_location,
+        &ett_zbee_zcl_rssi_location_location_type,
+        &ett_zbee_zcl_rssi_location_header
+    };
 
     /* Register the ZigBee ZCL RSSI Location cluster protocol name and description */
     proto_zbee_zcl_rssi_location = proto_register_protocol("ZigBee ZCL RSSI Location", "ZCL RSSI Location", ZBEE_PROTOABBREV_ZCL_RSSI_LOCATION);
@@ -6235,7 +6225,7 @@ proto_register_zbee_zcl_analog_input_basic(void)
     };
 
     /* ZCL Analog Input Basic subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
         &ett_zbee_zcl_analog_input_basic,
         &ett_zbee_zcl_analog_input_basic_status_flags
     };
@@ -6525,7 +6515,7 @@ proto_register_zbee_zcl_analog_output_basic(void)
     };
 
     /* ZCL Analog Output Basic subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
         &ett_zbee_zcl_analog_output_basic,
         &ett_zbee_zcl_analog_output_basic_status_flags,
         &ett_zbee_zcl_analog_output_basic_priority_array,
@@ -6808,7 +6798,7 @@ proto_register_zbee_zcl_analog_value_basic(void)
     };
 
     /* ZCL Analog Value Basic subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
         &ett_zbee_zcl_analog_value_basic,
         &ett_zbee_zcl_analog_value_basic_status_flags,
         &ett_zbee_zcl_analog_value_basic_priority_array,
@@ -7064,7 +7054,7 @@ proto_register_zbee_zcl_binary_input_basic(void)
     };
 
     /* ZCL Binary Input Basic subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
              &ett_zbee_zcl_binary_input_basic,
              &ett_zbee_zcl_binary_input_basic_status_flags
     };
@@ -7369,7 +7359,7 @@ proto_register_zbee_zcl_binary_output_basic(void)
     };
 
     /* ZCL Binary Output Basic subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
             &ett_zbee_zcl_binary_output_basic,
             &ett_zbee_zcl_binary_output_basic_status_flags,
             &ett_zbee_zcl_binary_output_basic_priority_array,
@@ -7658,7 +7648,7 @@ proto_register_zbee_zcl_binary_value_basic(void)
     };
 
     /* ZCL Binary Value Basic subtrees */
-    static gint *ett[]={
+    static gint *ett[] = {
         &ett_zbee_zcl_binary_value_basic,
         &ett_zbee_zcl_binary_value_basic_status_flags,
         &ett_zbee_zcl_binary_value_basic_priority_array,
@@ -7708,8 +7698,6 @@ proto_reg_handoff_zbee_zcl_binary_value_basic(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_MULTISTATE_INPUT_BASIC_NUM_ETT                                 2
 
 /*Attributes*/
 #define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_STATE_TEXT                      0x000E  /* State Text */
@@ -7896,10 +7884,10 @@ proto_register_zbee_zcl_multistate_input_basic(void)
     };
 
     /* ZCL Multistate Input Basic subtrees */
-    static gint *ett[ZBEE_ZCL_MULTISTATE_INPUT_BASIC_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_multistate_input_basic;
-    ett[1] = &ett_zbee_zcl_multistate_input_basic_status_flags;
+    static gint *ett[] = {
+        &ett_zbee_zcl_multistate_input_basic,
+        &ett_zbee_zcl_multistate_input_basic_status_flags
+    };
 
     /* Register the ZigBee ZCL Multistate Input Basic cluster protocol name and description */
     proto_zbee_zcl_multistate_input_basic = proto_register_protocol("ZigBee ZCL Multistate Input Basic", "ZCL Multistate Input Basic", ZBEE_PROTOABBREV_ZCL_MULTISTATE_INPUT_BASIC);
@@ -7944,8 +7932,6 @@ proto_reg_handoff_zbee_zcl_multistate_input_basic(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_MULTISTATE_OUTPUT_BASIC_NUM_ETT                                 4
 
 /*Attributes*/
 #define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_STATE_TEXT                      0x000E  /* State Text */
@@ -8185,12 +8171,12 @@ proto_register_zbee_zcl_multistate_output_basic(void)
 };
 
     /* ZCL Multistate Output Basic subtrees */
-    static gint *ett[ZBEE_ZCL_MULTISTATE_OUTPUT_BASIC_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_multistate_output_basic;
-    ett[1] = &ett_zbee_zcl_multistate_output_basic_status_flags;
-    ett[2] = &ett_zbee_zcl_multistate_output_basic_priority_array;
-    ett[3] = &ett_zbee_zcl_multistate_output_basic_priority_array_structure;
+    static gint *ett[] = {
+        &ett_zbee_zcl_multistate_output_basic,
+        &ett_zbee_zcl_multistate_output_basic_status_flags,
+        &ett_zbee_zcl_multistate_output_basic_priority_array,
+        &ett_zbee_zcl_multistate_output_basic_priority_array_structure
+    };
 
     /* Register the ZigBee ZCL Multistate Output Basic cluster protocol name and description */
     proto_zbee_zcl_multistate_output_basic = proto_register_protocol("ZigBee ZCL Multistate Output Basic", "ZCL Multistate Output Basic", ZBEE_PROTOABBREV_ZCL_MULTISTATE_OUTPUT_BASIC);
@@ -8235,8 +8221,6 @@ proto_reg_handoff_zbee_zcl_multistate_output_basic(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_MULTISTATE_VALUE_BASIC_NUM_ETT                                 4
 
 /*Attributes*/
 #define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_STATE_TEXT                      0x000E  /* State Text */
@@ -8477,12 +8461,12 @@ proto_register_zbee_zcl_multistate_value_basic(void)
     };
 
     /* ZCL Multistate Value Basic subtrees */
-    static gint *ett[ZBEE_ZCL_MULTISTATE_VALUE_BASIC_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_multistate_value_basic;
-    ett[1] = &ett_zbee_zcl_multistate_value_basic_status_flags;
-    ett[2] = &ett_zbee_zcl_multistate_value_basic_priority_array;
-    ett[3] = &ett_zbee_zcl_multistate_value_basic_priority_array_structure;
+    static gint *ett[] = {
+        &ett_zbee_zcl_multistate_value_basic,
+        &ett_zbee_zcl_multistate_value_basic_status_flags,
+        &ett_zbee_zcl_multistate_value_basic_priority_array,
+        &ett_zbee_zcl_multistate_value_basic_priority_array_structure
+    };
 
     /* Register the ZigBee ZCL Multistate Value Basic cluster protocol name and description */
     proto_zbee_zcl_multistate_value_basic = proto_register_protocol("ZigBee ZCL Multistate Value Basic", "ZCL Multistate Value Basic", ZBEE_PROTOABBREV_ZCL_MULTISTATE_VALUE_BASIC);
@@ -8526,8 +8510,6 @@ proto_reg_handoff_zbee_zcl_multistate_value_basic(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_COMMISSIONING_NUM_ETT                                      3
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_COMMISSIONING_SHORT_ADDRESS                        0x0000  /* Short Address */
@@ -9078,10 +9060,11 @@ proto_register_zbee_zcl_commissioning(void)
     };
 
     /* ZCL Commissioning subtrees */
-    static gint *ett[ZBEE_ZCL_COMMISSIONING_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_commissioning;
-    ett[1] = &ett_zbee_zcl_commissioning_restart_device_options;
-    ett[2] = &ett_zbee_zcl_commissioning_reset_startup_options;
+    static gint *ett[] = {
+        &ett_zbee_zcl_commissioning,
+        &ett_zbee_zcl_commissioning_restart_device_options,
+        &ett_zbee_zcl_commissioning_reset_startup_options
+    };
 
     /* Register the ZigBee ZCL Commissioning cluster protocol name and description */
     proto_zbee_zcl_commissioning = proto_register_protocol("ZigBee ZCL Commissioning", "ZCL Commissioning", ZBEE_PROTOABBREV_ZCL_COMMISSIONING);
@@ -9637,11 +9620,11 @@ void proto_register_zbee_zcl_part(void)
     };
 
     /* ZCL Partition subtrees */
-    gint *ett[ZBEE_ZCL_PART_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_part;
-    ett[1] = &ett_zbee_zcl_part_fragm_options;
-    ett[2] = &ett_zbee_zcl_part_ack_opts;
+    gint *ett[ZBEE_ZCL_PART_NUM_ETT] = {
+        &ett_zbee_zcl_part,
+        &ett_zbee_zcl_part_fragm_options,
+        &ett_zbee_zcl_part_ack_opts
+    };
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_PART_NUM_GENERIC_ETT; i < ZBEE_ZCL_PART_NUM_NACK_ID_ETT; i++, j++) {
@@ -9698,9 +9681,6 @@ void proto_reg_handoff_zbee_zcl_part(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_OTA_NUM_GENERIC_ETT                        3
-#define ZBEE_ZCL_OTA_NUM_ETT                                (ZBEE_ZCL_OTA_NUM_GENERIC_ETT)
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_OTA_UPGRADE_SERVER_ID              0x0000  /* Upgrade Server ID */
@@ -10842,10 +10822,11 @@ void proto_register_zbee_zcl_ota(void)
    };
 
     /* ZCL OTA subtrees */
-    gint *ett[ZBEE_ZCL_OTA_NUM_ETT];
-    ett[0] = &ett_zbee_zcl_ota;
-    ett[1] = &ett_zbee_zcl_ota_field_ctrl;
-    ett[2] = &ett_zbee_zcl_ota_file_version;
+    gint *ett[] = {
+        &ett_zbee_zcl_ota,
+        &ett_zbee_zcl_ota_field_ctrl,
+        &ett_zbee_zcl_ota_file_version
+    };
 
     /* Register ZigBee ZCL Ota protocol with Wireshark. */
     proto_zbee_zcl_ota = proto_register_protocol("ZigBee ZCL OTA", "ZCL OTA", ZBEE_PROTOABBREV_ZCL_OTA);
@@ -11970,12 +11951,12 @@ proto_register_zbee_zcl_pwr_prof(void)
   };
 
     /* ZCL PowerProfile subtrees */
-    static gint *ett[ZBEE_ZCL_PWR_PROF_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_pwr_prof;
-    ett[1] = &ett_zbee_zcl_pwr_prof_options;
-    ett[2] = &ett_zbee_zcl_pwr_prof_en_format;
-    ett[3] = &ett_zbee_zcl_pwr_prof_sched_mode;
+    static gint *ett[ZBEE_ZCL_PWR_PROF_NUM_ETT] = {
+        &ett_zbee_zcl_pwr_prof,
+        &ett_zbee_zcl_pwr_prof_options,
+        &ett_zbee_zcl_pwr_prof_en_format,
+        &ett_zbee_zcl_pwr_prof_sched_mode
+    };
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_PWR_PROF_NUM_GENERIC_ETT; i < ZBEE_ZCL_PWR_PROF_NUM_PWR_PROF_ETT; i++, j++ ) {
@@ -12649,11 +12630,11 @@ proto_register_zbee_zcl_appl_ctrl(void)
     };
 
     /* ZCL ApplianceControl subtrees */
-    gint *ett[ZBEE_ZCL_APPL_CTRL_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_appl_ctrl;
-    ett[1] = &ett_zbee_zcl_appl_ctrl_flags;
-    ett[2] = &ett_zbee_zcl_appl_ctrl_time;
+    gint *ett[ZBEE_ZCL_APPL_CTRL_NUM_ETT] = {
+        &ett_zbee_zcl_appl_ctrl,
+        &ett_zbee_zcl_appl_ctrl_flags,
+        &ett_zbee_zcl_appl_ctrl_time
+    };
 
     /* initialize attribute subtree types */
     for ( i = 0, j = ZBEE_ZCL_APPL_CTRL_NUM_GENERIC_ETT; i < ZBEE_ZCL_APPL_CTRL_NUM_FUNC_ETT; i++, j++) {
@@ -12705,8 +12686,6 @@ proto_reg_handoff_zbee_zcl_appl_ctrl(void)
 /*************************/
 /* Defines               */
 /*************************/
-
-#define ZBEE_ZCL_POLL_CTRL_NUM_ETT                      1
 
 /* Poll Control Attributes */
 #define ZBEE_ZCL_ATTR_ID_POLL_CTRL_CHECK_IN             0x0000
@@ -12925,9 +12904,9 @@ proto_register_zbee_zcl_poll_ctrl(void)
     };
 
     /* ZCL Poll Control subtrees */
-    static gint *ett[ZBEE_ZCL_POLL_CTRL_NUM_ETT];
-
-    ett[0] = &ett_zbee_zcl_poll_ctrl;
+    static gint *ett[] = {
+        &ett_zbee_zcl_poll_ctrl
+    };
 
     /* Register the ZigBee ZCL Poll Control cluster protocol name and description */
     proto_zbee_zcl_poll_ctrl = proto_register_protocol("ZigBee ZCL Poll Control", "ZCL Poll Control", ZBEE_PROTOABBREV_ZCL_POLL);
