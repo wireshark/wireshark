@@ -678,6 +678,11 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     }
 
     if (p_pdcp_info->plane == NR_USER_PLANE) {
+        /* Seqnum length */
+        ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_seqnum_length, tvb, 0, 0,
+                                 p_pdcp_info->seqnum_length);
+        PROTO_ITEM_SET_GENERATED(ti);
+
         /* ROHC compression */
         ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_rohc_compression, tvb, 0, 0,
                                     p_pdcp_info->rohc.rohc_compression);
