@@ -1362,7 +1362,9 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 offset++;
                 break;
             case PDCP_LTE_ROHC_IP_VERSION_TAG:
-                p_pdcp_lte_info->rohc.rohc_ip_version = tvb_get_ntohs(tvb, offset);
+                /* RoHC IP version field is now 1 byte only; let's skip most significant byte
+                   to keep backward compatibility with existing UDP framing protocol */
+                p_pdcp_lte_info->rohc.rohc_ip_version = tvb_get_guint8(tvb, offset+1);
                 offset += 2;
                 break;
             case PDCP_LTE_ROHC_CID_INC_INFO_TAG:

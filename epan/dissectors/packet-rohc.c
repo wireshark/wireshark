@@ -211,7 +211,7 @@ static dissector_handle_t ipv6_handle;
 
 typedef struct _rohc_cid_context_t
 {
-    guint16            rohc_ip_version;
+    guint8             rohc_ip_version;
     gboolean           large_cid_present;
     enum rohc_mode     mode;
     enum rohc_d_mode   d_mode;
@@ -3083,7 +3083,7 @@ proto_register_rohc(void)
 
             { &hf_rohc_ir_ip_version,
               { "Mode","rohc.ir_ip_version",
-                FT_UINT16, BASE_DEC, VALS(rohc_ip_version_vals), 0x0,
+                FT_UINT8, BASE_DEC, VALS(rohc_ip_version_vals), 0x0,
                 NULL , HFILL
               }
             },

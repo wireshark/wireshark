@@ -37,7 +37,7 @@ enum rohc_d_mode
 typedef struct rohc_info
 {
     gboolean           rohc_compression;
-    guint16            rohc_ip_version;
+    guint8             rohc_ip_version;
     gboolean           cid_inclusion_info;
     gboolean           large_cid_present;
     enum rohc_mode     mode;
@@ -50,7 +50,7 @@ typedef struct rohc_info
 
 typedef struct rohc_context
 {
-    guint16            rohc_ip_version[MAX_CID+1];
+    guint8             rohc_ip_version[MAX_CID+1];
     gboolean           large_cid_present[MAX_CID+1];
     enum rohc_mode     mode[MAX_CID+1];
     enum rohc_d_mode   d_mode[MAX_CID+1];
