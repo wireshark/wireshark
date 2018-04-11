@@ -42,6 +42,8 @@ static int hf_pcap_packet_included_length = -1;
 static int hf_pcap_packet_origin_length = -1;
 static int hf_pcap_packet_data = -1;
 
+static expert_field ei_pcap_inc_larger_than_orig = EI_INIT;
+
 static gint ett_pcap = -1;
 static gint ett_pcap_header = -1;
 static gint ett_pcap_packet = -1;
@@ -82,6 +84,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item      *timestamp_item;
     proto_tree      *packet_data_tree;
     proto_item      *packet_data_item;
+    proto_item      *inc_len_item;
     volatile guint32 encoding;
     volatile guint   timestamp_scale_factor;
     const char      *magic;
@@ -161,11 +164,17 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_tree_add_item(timestamp_tree, hf_pcap_packet_timestamp_usec, tvb, offset, 4, encoding);
         offset += 4;
 
-        proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_included_length, tvb, offset, 4, encoding, &length);
+        inc_len_item = proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_included_length, tvb, offset, 4, encoding, &length);
         offset += 4;
 
         proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_origin_length, tvb, offset, 4, encoding, &origin_length);
         offset += 4;
+
+        if (length > origin_length) {
+            expert_add_info(pinfo, inc_len_item,
+                    &ei_pcap_inc_larger_than_orig);
+            break;
+        }
 
         packet_data_item = proto_tree_add_item(packet_tree, hf_pcap_packet_data, tvb, offset, length, ENC_NA);
         packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcap_packet_data);
@@ -201,6 +210,7 @@ void
 proto_register_file_pcap(void)
 {
     module_t         *module;
+    expert_module_t  *expert_pcap;
 
     static hf_register_info hf[] = {
         { &hf_pcap_header,
@@ -280,6 +290,13 @@ proto_register_file_pcap(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_pcap_inc_larger_than_orig,
+            { "pcap.inc_len_larger_than_orig_len", PI_MALFORMED, PI_ERROR,
+                "included length is larger than original length",
+                EXPFILL }}
+    };
+
     static gint *ett[] = {
         &ett_pcap,
         &ett_pcap_header,
@@ -291,6 +308,8 @@ proto_register_file_pcap(void)
     proto_pcap = proto_register_protocol("PCAP File Format", "File-PCAP", "file-pcap");
     proto_register_field_array(proto_pcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_pcap = expert_register_protocol(proto_pcap);
+    expert_register_field_array(expert_pcap, ei, array_length(ei));
 
     register_dissector("file-pcap", dissect_pcap, proto_pcap);
 
