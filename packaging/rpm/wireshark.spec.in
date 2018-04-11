@@ -280,6 +280,7 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 %if %{with ninja}
+NINJA=$(which ninja || which ninja-build)
 DESTDIR=$RPM_BUILD_ROOT $NINJA install
 %if %{with guides}
 DESTDIR=$RPM_BUILD_ROOT $NINJA install_guides
