@@ -345,8 +345,8 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %docdir %{_datadir}/doc/Wireshark/
 %{_datadir}/doc/Wireshark/
 %else
-%docdir %{_datadir}/doc/wireshark/guides/
-%{_datadir}/doc/wireshark/guides/
+%docdir %{_datadir}/doc/wireshark/
+%{_datadir}/doc/wireshark/
 %else
 %endif
 %endif
