@@ -25,6 +25,7 @@
 #include <lz4.h>
 #if LZ4_VERSION_NUMBER >= 10301
 #include <lz4frame.h>
+#define HAVE_LZ4_FRAME
 #endif /* LZ4_VERSION_NUMBER >= 10301 */
 #endif
 #include "packet-tcp.h"
@@ -345,7 +346,7 @@ dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 /* HELPERS */
 
-#if defined HAVE_LZ4 && LZ4_VERSION_NUMBER >= 10301
+#if defined HAVE_LZ4_FRAME
 /* Local copy of XXH32() algorithm as found in https://github.com/lz4/lz4/blob/v1.7.5/lib/xxhash.c
    as some packagers are not providing xxhash.h in liblz4 */
 typedef struct {
@@ -458,7 +459,7 @@ static guint XXH32(const void* input, size_t len, guint seed)
     else
         return XXH32_endian(input, len, seed, XXH_bigEndian);
 }
-#endif /* HAVE_LZ4 && LZ4_VERSION_NUMBER >= 10301 */
+#endif /* HAVE_LZ4_FRAME */
 
 static const char *
 kafka_error_to_str(kafka_error_t error)
@@ -819,7 +820,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
             break;
 #endif
         case KAFKA_MESSAGE_CODEC_LZ4:
-#if defined HAVE_LZ4 && LZ4_VERSION_NUMBER >= 10301
+#ifdef HAVE_LZ4_FRAME
             raw = kafka_get_bytes(subtree, tvb, pinfo, offset);
             offset += 4;
             if (raw) {
@@ -909,7 +910,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                 offset += compressed_size;
             }
             break;
-#endif /* HAVE_LZ4 && LZ4_VERSION_NUMBER >= 10301 */
+#endif /* HAVE_LZ4_FRAME */
 
         case KAFKA_MESSAGE_CODEC_NONE:
         default:
