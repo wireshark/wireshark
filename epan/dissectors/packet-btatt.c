@@ -1095,6 +1095,66 @@ static int hf_btatt_service_required_service_required = -1;
 static int hf_btatt_scientific_temperature_celsius = -1;
 static int hf_btatt_string = -1;
 static int hf_btatt_network_availability = -1;
+static int hf_btatt_fitness_machine_features = -1;
+static int hf_btatt_fitness_machine_features_reserved = -1;
+static int hf_btatt_fitness_machine_features_user_data_retention = -1;
+static int hf_btatt_fitness_machine_features_force_on_belt_and_power_output = -1;
+static int hf_btatt_fitness_machine_features_power_measurement = -1;
+static int hf_btatt_fitness_machine_features_remaining_time = -1;
+static int hf_btatt_fitness_machine_features_elapsed_time = -1;
+static int hf_btatt_fitness_machine_features_metabolic_equivalent = -1;
+static int hf_btatt_fitness_machine_features_heart_rate_measurement = -1;
+static int hf_btatt_fitness_machine_features_expended_energy = -1;
+static int hf_btatt_fitness_machine_features_stride_count = -1;
+static int hf_btatt_fitness_machine_features_resistance_level = -1;
+static int hf_btatt_fitness_machine_features_step_count = -1;
+static int hf_btatt_fitness_machine_features_pace = -1;
+static int hf_btatt_fitness_machine_features_elevation_gain = -1;
+static int hf_btatt_fitness_machine_features_inclination = -1;
+static int hf_btatt_fitness_machine_features_total_distance = -1;
+static int hf_btatt_fitness_machine_features_cadence = -1;
+static int hf_btatt_fitness_machine_features_average_speed = -1;
+static int hf_btatt_target_setting_features = -1;
+static int hf_btatt_target_setting_features_reserved = -1;
+static int hf_btatt_target_setting_features_targeted_cadence_configuration = -1;
+static int hf_btatt_target_setting_features_spin_down_control = -1;
+static int hf_btatt_target_setting_features_wheel_circumference_configuration = -1;
+static int hf_btatt_target_setting_features_indoor_bike_simulation_parameters = -1;
+static int hf_btatt_target_setting_features_targeted_time_in_five_heart_rate_zones_configuration = -1;
+static int hf_btatt_target_setting_features_targeted_time_in_three_heart_rate_zones_configuration = -1;
+static int hf_btatt_target_setting_features_targeted_time_in_two_heart_rate_zones_configuration = -1;
+static int hf_btatt_target_setting_features_targeted_training_time_configuration = -1;
+static int hf_btatt_target_setting_features_targeted_distance_configuration = -1;
+static int hf_btatt_target_setting_features_targeted_stride_number_configuration = -1;
+static int hf_btatt_target_setting_features_targeted_step_number_configuration = -1;
+static int hf_btatt_target_setting_features_targeted_expended_energy_configuration = -1;
+static int hf_btatt_target_setting_features_heart_rate_target_setting = -1;
+static int hf_btatt_target_setting_features_power_target_setting = -1;
+static int hf_btatt_target_setting_features_resistance_target_setting = -1;
+static int hf_btatt_target_setting_features_inclination_target_setting = -1;
+static int hf_btatt_target_setting_features_speed_target_setting = -1;
+static int hf_btatt_training_status_flags = -1;
+static int hf_btatt_training_status_flags_reserved = -1;
+static int hf_btatt_training_status_flags_extended_string = -1;
+static int hf_btatt_training_status_flags_training_status_string = -1;
+static int hf_btatt_training_status_status = -1;
+static int hf_btatt_training_status_status_string = -1;
+static int hf_btatt_supported_speed_range_minimum_speed = -1;
+static int hf_btatt_supported_speed_range_maximum_speed = -1;
+static int hf_btatt_supported_speed_range_minimum_increment = -1;
+static int hf_btatt_supported_inclination_range_minimum_inclination = -1;
+static int hf_btatt_supported_inclination_range_maximum_inclination = -1;
+static int hf_btatt_supported_inclination_range_minimum_increment = -1;
+static int hf_btatt_supported_resistance_level_range_minimum_resistance_level = -1;
+static int hf_btatt_supported_resistance_level_range_maximum_resistance_level = -1;
+static int hf_btatt_supported_resistance_level_range_minimum_increment = -1;
+static int hf_btatt_supported_heart_rate_range_minimum_heart_rate = -1;
+static int hf_btatt_supported_heart_rate_range_maximum_heart_rate = -1;
+static int hf_btatt_supported_heart_rate_range_minimum_increment = -1;
+static int hf_btatt_supported_power_range_minimum_power = -1;
+static int hf_btatt_supported_power_range_maximum_power = -1;
+static int hf_btatt_supported_power_range_minimum_increment = -1;
+
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
@@ -1954,6 +2014,57 @@ static const int *hfx_btatt_removable[] = {
 static const int *hfx_btatt_service_required[] = {
     &hf_btatt_service_required_reserved,
     &hf_btatt_service_required_service_required,
+    NULL
+};
+
+static const int *hfx_btatt_fitness_machine_features[] = {
+    &hf_btatt_fitness_machine_features_reserved,
+    &hf_btatt_fitness_machine_features_user_data_retention,
+    &hf_btatt_fitness_machine_features_force_on_belt_and_power_output,
+    &hf_btatt_fitness_machine_features_power_measurement,
+    &hf_btatt_fitness_machine_features_remaining_time,
+    &hf_btatt_fitness_machine_features_elapsed_time,
+    &hf_btatt_fitness_machine_features_metabolic_equivalent,
+    &hf_btatt_fitness_machine_features_heart_rate_measurement,
+    &hf_btatt_fitness_machine_features_expended_energy,
+    &hf_btatt_fitness_machine_features_stride_count,
+    &hf_btatt_fitness_machine_features_resistance_level,
+    &hf_btatt_fitness_machine_features_step_count,
+    &hf_btatt_fitness_machine_features_pace,
+    &hf_btatt_fitness_machine_features_elevation_gain,
+    &hf_btatt_fitness_machine_features_inclination,
+    &hf_btatt_fitness_machine_features_total_distance,
+    &hf_btatt_fitness_machine_features_cadence,
+    &hf_btatt_fitness_machine_features_average_speed,
+    NULL
+};
+
+static const int *hfx_btatt_target_setting_features[] = {
+    &hf_btatt_target_setting_features_reserved,
+    &hf_btatt_target_setting_features_targeted_cadence_configuration,
+    &hf_btatt_target_setting_features_spin_down_control,
+    &hf_btatt_target_setting_features_wheel_circumference_configuration,
+    &hf_btatt_target_setting_features_indoor_bike_simulation_parameters,
+    &hf_btatt_target_setting_features_targeted_time_in_five_heart_rate_zones_configuration,
+    &hf_btatt_target_setting_features_targeted_time_in_three_heart_rate_zones_configuration,
+    &hf_btatt_target_setting_features_targeted_time_in_two_heart_rate_zones_configuration,
+    &hf_btatt_target_setting_features_targeted_training_time_configuration,
+    &hf_btatt_target_setting_features_targeted_distance_configuration,
+    &hf_btatt_target_setting_features_targeted_stride_number_configuration,
+    &hf_btatt_target_setting_features_targeted_step_number_configuration,
+    &hf_btatt_target_setting_features_targeted_expended_energy_configuration,
+    &hf_btatt_target_setting_features_heart_rate_target_setting,
+    &hf_btatt_target_setting_features_power_target_setting,
+    &hf_btatt_target_setting_features_resistance_target_setting,
+    &hf_btatt_target_setting_features_inclination_target_setting,
+    &hf_btatt_target_setting_features_speed_target_setting,
+    NULL
+};
+
+static const int *hfx_btatt_training_status_flags[] = {
+    &hf_btatt_training_status_flags_reserved,
+    &hf_btatt_training_status_flags_extended_string,
+    &hf_btatt_training_status_flags_training_status_string,
     NULL
 };
 
@@ -3738,6 +3849,26 @@ static const value_string network_availability_vals[] = {
     {0, NULL }
 };
 
+static const value_string training_status_status_vals[] = {
+    { 0x00, "Other" },
+    { 0x01, "Idle" },
+    { 0x02, "Warming Up" },
+    { 0x03, "Low Intensity Interval" },
+    { 0x04, "High Intensity Interval" },
+    { 0x05, "Recovery Interval" },
+    { 0x06, "Isometric" },
+    { 0x07, "Heart Rate Control" },
+    { 0x08, "Fitness Test" },
+    { 0x09, "Speed Outside of Control Region - Low" },
+    { 0x0A, "Speed Outside of Control Region - High" },
+    { 0x0B, "Cool Down" },
+    { 0x0C, "Watt Control" },
+    { 0x0D, "Manual Mode (Quick Start)" },
+    { 0x0E, "Pre-Workout" },
+    { 0x0F, "Post-Workout" },
+    {0, NULL }
+};
+
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
     "Turn Off" };
@@ -3773,10 +3904,52 @@ static const true_false_string timezone_information_type_tfs = {
     "Information relative to UTC"
 };
 
-static void base_signed_one_tenth(gchar *buf, guint32 value) {
-    gint32 signed_value = (gint) value;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%i.%u", signed_value / 10, value % 10);
+
+static const char *unit_unitless = "";
+
+/* signed area*/
+
+static void helper_base_signed_negative_exponent(gchar * const buf, const gint base, const gchar * const unit, const guint32 value)
+{
+    const gint32 signed_value = (const gint32) value;
+    const gint32 fraction = (((signed_value < 0) ? -1 : 1) * signed_value) % base;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%i.%i%s", signed_value / base, fraction, unit);
 }
+
+static void base_signed_one_tenth_unitless(gchar *buf, guint32 value) {
+    helper_base_signed_negative_exponent(buf, 10, unit_unitless, value);
+}
+
+static void base_signed_one_tenth_percentage(gchar *buf, guint32 value) {
+    helper_base_signed_negative_exponent(buf, 10, "%%", value);
+}
+
+static void base_signed_one_one_watt(gchar *buf, guint32 value) {
+    helper_base_signed_negative_exponent(buf, 1, "W", value);
+}
+
+/* unsigned area */
+
+static void base_unsigned_one_tenth_unitless(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u", value / 10, value % 10);
+}
+
+static void base_unsigned_one_hundredth_km_h(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%02u km/h", value / 100, value % 100);
+}
+
+static void base_unsigned_one_tenth_percentage(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u%%", value / 10, value % 10);
+}
+
+static void base_unsigned_one_one_bpm(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u BPM", value);
+}
+
+static void base_unsigned_one_one_watt(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%uW", value);
+}
+
 
 union request_parameters_union {
     void *data;
@@ -9719,10 +9892,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_fitness_machine_features, ett_btatt_value, hfx_btatt_fitness_machine_features, ENC_NA);
+        offset += 4;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_target_setting_features, ett_btatt_value, hfx_btatt_target_setting_features, ENC_NA);
+        offset += 4;
 
         break;
     case 0x2ACD: /* Treadmill Data */
@@ -9825,10 +9999,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_training_status_flags, ett_btatt_value, hfx_btatt_training_status_flags, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_training_status_status, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_training_status_status_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
     case 0x2AD4: /* Supported Speed Range */
@@ -9840,10 +10018,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_item(tree, hf_btatt_supported_speed_range_minimum_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_speed_range_maximum_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_speed_range_minimum_increment, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
 
         break;
     case 0x2AD5: /* Supported Inclination Range */
@@ -9855,10 +10037,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_item(tree, hf_btatt_supported_inclination_range_minimum_inclination, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_inclination_range_maximum_inclination, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_inclination_range_minimum_increment, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
 
         break;
     case 0x2AD6: /* Supported Resistance Level Range */
@@ -9870,10 +10056,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_item(tree, hf_btatt_supported_resistance_level_range_minimum_resistance_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_resistance_level_range_maximum_resistance_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_resistance_level_range_minimum_increment, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
 
         break;
     case 0x2AD7: /* Supported Heart Rate Range */
@@ -9885,10 +10075,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_item(tree, hf_btatt_supported_heart_rate_range_minimum_heart_rate, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_supported_heart_rate_range_maximum_heart_rate, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_supported_heart_rate_range_minimum_increment, tvb, offset, 1, ENC_NA);
+        offset += 1;
 
         break;
     case 0x2AD8: /* Supported Power Range */
@@ -9900,10 +10094,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        proto_tree_add_item(tree, hf_btatt_supported_power_range_minimum_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_power_range_maximum_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_btatt_supported_power_range_minimum_increment, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
 
         break;
     case 0x2AD9: /* Fitness Machine Control Point */
@@ -16321,12 +16519,12 @@ proto_register_btatt(void)
         },
         {&hf_btatt_temperature_celsius,
             {"Temperature Celsius", "btatt.temperature_celsius",
-            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth), 0x0,
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth_unitless), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_temperature_fahrenheit,
             {"Temperature Fahrenheit", "btatt.temperature_fahrenheit",
-            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth), 0x0,
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth_unitless), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_removable,
@@ -16372,6 +16570,301 @@ proto_register_btatt(void)
         {&hf_btatt_network_availability,
             {"Network Availability", "btatt.network_availability",
             FT_UINT8, BASE_HEX, VALS(network_availability_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features,
+            {"Fitness Machine Features", "btatt.fitness_machine_features",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_reserved,
+            {"Reserved", "btatt.fitness_machine_features.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFE0000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_user_data_retention,
+            {"User Data Retention", "btatt.fitness_machine_features.user_data_retention",
+            FT_BOOLEAN, 32, NULL, 0x00010000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_force_on_belt_and_power_output,
+            {"Force on Belt_and Power Output", "btatt.fitness_machine_features.force_on_belt_and_power_output",
+            FT_BOOLEAN, 32, NULL, 0x00008000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_power_measurement,
+            {"Power Measurement", "btatt.fitness_machine_features.power_measurement",
+            FT_BOOLEAN, 32, NULL, 0x00004000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_remaining_time,
+            {"Remaining Time", "btatt.fitness_machine_features.remaining_time",
+            FT_BOOLEAN, 32, NULL, 0x00002000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_elapsed_time,
+            {"Elapsed Time", "btatt.fitness_machine_features.elapsed_time",
+            FT_BOOLEAN, 32, NULL, 0x00001000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_metabolic_equivalent,
+            {"Metabolic Equivalent", "btatt.fitness_machine_features.metabolic_equivalent",
+            FT_BOOLEAN, 32, NULL, 0x00000800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_heart_rate_measurement,
+            {"Heart Rate Measurement", "btatt.fitness_machine_features.heart_rate_measurement",
+            FT_BOOLEAN, 32, NULL, 0x00000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_expended_energy,
+            {"Expended Energy", "btatt.fitness_machine_features.expended_energy",
+            FT_BOOLEAN, 32, NULL, 0x00000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_stride_count,
+            {"Stride Count", "btatt.fitness_machine_features.stride_count",
+            FT_BOOLEAN, 32, NULL, 0x00000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_resistance_level,
+            {"Resistance Level", "btatt.fitness_machine_features.resistance_level",
+            FT_BOOLEAN, 32, NULL, 0x00000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_step_count,
+            {"Step Count", "btatt.fitness_machine_features.step_count",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_pace,
+            {"Pace", "btatt.fitness_machine_features.pace",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_elevation_gain,
+            {"Elevation Gain", "btatt.fitness_machine_features.elevation_gain",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_inclination,
+            {"Inclination", "btatt.fitness_machine_features.inclination",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_total_distance,
+            {"Total Distance", "btatt.fitness_machine_features.total_distance",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_cadence,
+            {"Cadence", "btatt.fitness_machine_features.cadence",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_features_average_speed,
+            {"Average Speed", "btatt.fitness_machine_features.average_speed",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features,
+            {"Target Setting Features", "btatt.target_setting_features",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_reserved,
+            {"Reserved", "btatt.target_setting_features.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFE0000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_cadence_configuration,
+            {"Targeted Cadence Configuration", "btatt.target_setting_features.targeted_cadence_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00010000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_spin_down_control,
+            {"Spin Down Control", "btatt.target_setting_features.spin_down_control",
+            FT_BOOLEAN, 32, NULL, 0x00008000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_wheel_circumference_configuration,
+            {"Wheel Circumference Configuration", "btatt.target_setting_features.wheel_circumference_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00004000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_indoor_bike_simulation_parameters,
+            {"Indoor Bike Simulation Parameters", "btatt.target_setting_features.indoor_bike_simulation_parameters",
+            FT_BOOLEAN, 32, NULL, 0x00002000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_time_in_five_heart_rate_zones_configuration,
+            {"Targeted Time in Five Heart Rate Zones Configuration", "btatt.target_setting_features.targeted_time_in_five_heart_rate_zones_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00001000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_time_in_three_heart_rate_zones_configuration,
+            {"Targeted Time in Three Heart Rate Zones Configuration", "btatt.target_setting_features.targeted_time_in_three_heart_rate_zones_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00000800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_time_in_two_heart_rate_zones_configuration,
+            {"Targeted Time in Two Heart Rate Zones Configuration", "btatt.target_setting_features.targeted_time_in_two_heart_rate_zones_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_training_time_configuration,
+            {"Targeted Training Time Configuration", "btatt.target_setting_features.targeted_training_time_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_distance_configuration,
+            {"Targeted Distance Configuration", "btatt.target_setting_features.targeted_distance_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_stride_number_configuration,
+            {"Targeted Stride Number Configuration", "btatt.target_setting_features.targeted_stride_number_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_step_number_configuration,
+            {"Targeted Step Number Configuration", "btatt.target_setting_features.targeted_step_number_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_targeted_expended_energy_configuration,
+            {"Targeted Expended Energy Configuration", "btatt.target_setting_features.targeted_expended_energy_configuration",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_heart_rate_target_setting,
+            {"Heart Rate Target Setting", "btatt.target_setting_features.heart_rate_target_setting",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_power_target_setting,
+            {"Power Target Setting", "btatt.target_setting_features.power_target_setting",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_resistance_target_setting,
+            {"Resistance Target Setting", "btatt.target_setting_features.resistance_target_setting",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_inclination_target_setting,
+            {"Inclination Target Setting", "btatt.target_setting_features.inclination_target_setting",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_target_setting_features_speed_target_setting,
+            {"Speed Target Setting", "btatt.target_setting_features.speed_target_setting",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_training_status_flags,
+            {"Target Setting Features", "btatt.training_status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_training_status_flags_reserved,
+            {"Reserved", "btatt.training_status.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL}
+        },
+        {&hf_btatt_training_status_flags_extended_string,
+            {"Extended String", "btatt.training_status.extended_string",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_training_status_flags_training_status_string,
+            {"Training Status String", "btatt.training_status.training_status_string",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_training_status_status,
+            {"Status", "btatt.training_status.status",
+            FT_UINT8, BASE_HEX, VALS(training_status_status_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_training_status_status_string,
+            {"Status String", "btatt.training_status.status_string",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_speed_range_minimum_speed,
+            {"Minimum Speed", "btatt.supported_speed_range.minimum_speed",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_hundredth_km_h), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_speed_range_maximum_speed,
+            {"Maximum Speed", "btatt.supported_speed_range.maximum_speed",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_hundredth_km_h), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_speed_range_minimum_increment,
+            {"Minimum Increment", "btatt.supported_speed_range.minimum_increment",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_hundredth_km_h), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_inclination_range_minimum_inclination,
+            {"Minimum Inclination", "btatt.supported_inclination_range.minimum_inclination",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth_percentage), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_inclination_range_maximum_inclination,
+            {"Maximum Inclination", "btatt.supported_inclination_range.maximum_inclination",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth_percentage), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_inclination_range_minimum_increment,
+            {"Minimum Increment", "btatt.supported_inclination_range.minimum_increment",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_tenth_percentage), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_resistance_level_range_minimum_resistance_level,
+            {"Minimum Resistance Level", "btatt.supported_resistance_level_range.minimum_resistance_level",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth_unitless), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_resistance_level_range_maximum_resistance_level,
+            {"Maximum Resistance Level", "btatt.supported_resistance_level_range.maximum_resistance_level",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth_unitless), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_resistance_level_range_minimum_increment,
+            {"Minimum Increment", "btatt.supported_resistance_level_range.minimum_increment",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_tenth_unitless), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_heart_rate_range_minimum_heart_rate,
+            {"Minimum Heart Rate", "btatt.supported_heart_rate_range.minimum_heart_rate",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_bpm), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_heart_rate_range_maximum_heart_rate,
+            {"Maximum Heart Rate", "btatt.supported_heart_rate_range.maximum_heart_rate",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_bpm), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_heart_rate_range_minimum_increment,
+            {"Minimum Increment", "btatt.supported_heart_rate_range.minimum_increment",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_bpm), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_power_range_minimum_power,
+            {"Minimum Resistance Level", "btatt.supported_power_range.minimum_power",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_one_watt), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_power_range_maximum_power,
+            {"Maximum Resistance Level", "btatt.supported_power_range.maximum_power",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_one_watt), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_supported_power_range_minimum_increment,
+            {"Minimum Increment", "btatt.supported_power_range.minimum_increment",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_watt), 0x0,
             NULL, HFILL}
         },
         {&hf_request_in_frame,
