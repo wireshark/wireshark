@@ -23,10 +23,10 @@
 #endif
 #ifdef HAVE_LZ4
 #include <lz4.h>
-#if LZ4_VERSION_NUMBER >= 10301
+#if LZ4_VERSION_NUMBER >= 10500
 #include <lz4frame.h>
 #define HAVE_LZ4_FRAME
-#endif /* LZ4_VERSION_NUMBER >= 10301 */
+#endif /* LZ4_VERSION_NUMBER >= 10500 */
 #endif
 #include "packet-tcp.h"
 
@@ -346,7 +346,7 @@ dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 /* HELPERS */
 
-#if defined HAVE_LZ4_FRAME
+#ifdef HAVE_LZ4_FRAME
 /* Local copy of XXH32() algorithm as found in https://github.com/lz4/lz4/blob/v1.7.5/lib/xxhash.c
    as some packagers are not providing xxhash.h in liblz4 */
 typedef struct {
