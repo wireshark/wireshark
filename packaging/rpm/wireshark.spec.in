@@ -315,6 +315,7 @@ cd -
 # SuSE's packaging conventions
 # (http://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
+install -Dm 0644 %{buildroot}/usr/local/share/applications/wireshark.desktop %{buildroot}/usr/share/applications/wireshark.desktop
 %suse_update_desktop_file %{name}
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
@@ -410,6 +411,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %files qt
 %defattr(-,root,root)
 %{_datadir}/applications/wireshark.desktop
+%if 0%{?suse_version}
+/usr/share/applications/wireshark.desktop
+%endif
 %{_datadir}/appdata/wireshark.appdata.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
