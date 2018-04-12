@@ -283,6 +283,9 @@ make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
+%if 0%{?suse_version}
+cd build
+%endif
 %if %{with ninja}
 NINJA=$(which ninja || which ninja-build)
 DESTDIR=$RPM_BUILD_ROOT $NINJA install
@@ -294,6 +297,9 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %if %{with guides}
 make DESTDIR=$RPM_BUILD_ROOT install_guides
 %endif
+%endif
+%if 0%{?suse_version}
+cd -
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where
