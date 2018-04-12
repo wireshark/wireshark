@@ -1195,9 +1195,9 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 static int
 dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
-    guint         offset = 0;
-    conversation_t    *conv;
-    const char *saved_proto;
+    volatile guint offset = 0;
+    conversation_t *conv;
+    const char     *saved_proto;
 
     conv = find_or_create_conversation(pinfo);
 
