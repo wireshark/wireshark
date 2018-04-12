@@ -119,6 +119,7 @@ static expert_field ei_rlc_nr_am_sn = EI_INIT;
 static expert_field ei_rlc_nr_header_only = EI_INIT;
 static expert_field ei_rlc_nr_reserved_bits_not_zero = EI_INIT;
 static expert_field ei_rlc_nr_no_per_frame_info = EI_INIT;
+static expert_field ei_rlc_nr_unknown_udp_framing_tag = EI_INIT;
 
 /* Value-strings */
 static const value_string direction_vals[] =
@@ -822,8 +823,19 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     break;
                 default:
                     /* It must be a recognised tag */
+                    {
+                        proto_item *ti;
+                        proto_tree *subtree;
+
+                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-NR");
+                        col_clear(pinfo->cinfo, COL_INFO);
+                        ti = proto_tree_add_item(tree, proto_rlc_nr, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+                        subtree = proto_item_add_subtree(ti, ett_rlc_nr);
+                        proto_tree_add_expert(subtree, pinfo, &ei_rlc_nr_unknown_udp_framing_tag,
+                                              tvb, offset-1, 1);
+                    }
                     wmem_free(wmem_file_scope(), p_rlc_nr_info);
-                    return FALSE;
+                    return TRUE;
             }
         } while (tag != RLC_NR_PAYLOAD_TAG);
 
@@ -1246,7 +1258,8 @@ void proto_register_rlc_nr(void)
         { &ei_rlc_nr_um_data_no_data, { "rlc-nr.um-data.no-data", PI_MALFORMED, PI_ERROR, "UM data PDU doesn't contain any data", EXPFILL }},
         { &ei_rlc_nr_am_data_no_data, { "rlc-nr.am-data.no-data", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data", EXPFILL }},
         { &ei_rlc_nr_context_mode, { "rlc-nr.mode.invalid", PI_MALFORMED, PI_ERROR, "Unrecognised RLC Mode set", EXPFILL }},
-        { &ei_rlc_nr_no_per_frame_info, { "rlc-nr.no_per_frame_info", PI_UNDECODED, PI_ERROR, "Can't dissect NR RLC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_rlc_nr_no_per_frame_info, { "rlc-nr.no-per-frame-info", PI_UNDECODED, PI_ERROR, "Can't dissect NR RLC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_rlc_nr_unknown_udp_framing_tag, { "rlc-nr.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }}
     };
 
     module_t *rlc_nr_module;
