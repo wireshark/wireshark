@@ -233,6 +233,8 @@ static expert_field ei_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame
 static expert_field ei_rlc_lte_sequence_analysis_last_segment_not_continued = EI_INIT;
 static expert_field ei_rlc_lte_reserved_bits_not_zero = EI_INIT;
 static expert_field ei_rlc_lte_no_per_frame_info = EI_INIT;
+static expert_field ei_rlc_lte_unknown_udp_framing_tag = EI_INIT;
+static expert_field ei_rlc_lte_missing_udp_framing_tag = EI_INIT;
 
 /* Value-strings */
 static const value_string direction_vals[] =
@@ -2766,6 +2768,18 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+static void report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
+                              tvbuff_t *tvb, gint start, gint length)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
+    col_clear(pinfo->cinfo, COL_INFO);
+    ti = proto_tree_add_item(tree, proto_rlc_lte, tvb, 0, -1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_rlc_lte);
+    proto_tree_add_expert(subtree, pinfo, eiindex, tvb, start, length);
+}
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
@@ -2860,13 +2874,15 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
             default:
                 /* It must be a recognised tag */
-                return FALSE;
+                report_heur_error(tree, pinfo, &ei_rlc_lte_unknown_udp_framing_tag, tvb, offset-1, 1);
+                return TRUE;
         }
     }
 
     if ((p_rlc_lte_info->rlcMode == RLC_UM_MODE) && (seqNumLengthTagPresent == FALSE)) {
         /* Conditional field is not present */
-        return FALSE;
+        report_heur_error(tree, pinfo, &ei_rlc_lte_missing_udp_framing_tag, tvb, 0, offset);
+        return TRUE;
     }
 
     if (!infoAlreadySet) {
@@ -3610,6 +3626,8 @@ void proto_register_rlc_lte(void)
         { &ei_rlc_lte_am_data_no_data, { "rlc-lte.am-data.no-data", PI_MALFORMED, PI_ERROR, "AM data PDU doesn't contain any data", EXPFILL }},
         { &ei_rlc_lte_context_mode, { "rlc-lte.mode.invalid", PI_MALFORMED, PI_ERROR, "Unrecognised RLC Mode set", EXPFILL }},
         { &ei_rlc_lte_no_per_frame_info, { "rlc-lte.no_per_frame_info", PI_UNDECODED, PI_ERROR, "Can't dissect LTE RLC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_rlc_lte_unknown_udp_framing_tag, { "rlc-lte.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }},
+        { &ei_rlc_lte_missing_udp_framing_tag, { "rlc-lte.missing-udp-framing-tag", PI_UNDECODED, PI_WARN, "Missing UDP framing conditional tag, aborting dissection", EXPFILL }}
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
