@@ -323,7 +323,7 @@ wtap_get_all_capture_file_extensions_list(void)
  * If your file format has an expected extension (e.g., ".pcap") then you
  * should probably also add it to file_type_extensions_base[] (in this file).
  */
-static struct open_info open_info_base[] = {
+static const struct open_info open_info_base[] = {
 	{ "Wireshark/tcpdump/... - pcap",           OPEN_INFO_MAGIC,     libpcap_open,             "pcap",     NULL, NULL },
 	{ "Wireshark/... - pcapng",                 OPEN_INFO_MAGIC,     pcapng_open,              "pcapng",   NULL, NULL },
 	{ "Sniffer (DOS)",                          OPEN_INFO_MAGIC,     ngsniffer_open,           NULL,       NULL, NULL },
