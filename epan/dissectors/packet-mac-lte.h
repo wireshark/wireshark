@@ -373,7 +373,7 @@ void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info);
 
 /* Function to attempt to populate p_mac_lte_info using framing definition above */
 gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
-                                        gint *p_offset);
+                                        packet_info *pinfo, proto_tree *tree, gint *p_offset);
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

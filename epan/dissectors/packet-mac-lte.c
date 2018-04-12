@@ -440,6 +440,7 @@ static expert_field ei_mac_lte_no_per_frame_data = EI_INIT;
 static expert_field ei_mac_lte_sch_invalid_length = EI_INIT;
 static expert_field ei_mac_lte_mch_invalid_length = EI_INIT;
 static expert_field ei_mac_lte_invalid_sc_mcch_sc_mtch_subheader_multiplexing = EI_INIT;
+static expert_field ei_mac_lte_unknown_udp_framing_tag = EI_INIT;
 
 
 /* Constants and value strings */
@@ -2423,7 +2424,7 @@ call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo
 /* Dissect context fields in the format described in packet-mac-lte.h.
    Return TRUE if the necessary information was successfully found */
 gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
-                                        gint *p_offset)
+                                        packet_info *pinfo, proto_tree *tree, gint *p_offset)
 {
     gint    offset = *p_offset;
     guint8  tag = 0;
@@ -2624,6 +2625,17 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 
             default:
                 /* It must be a recognised tag */
+                {
+                    proto_item *ti;
+                    proto_tree *subtree;
+
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
+                    col_clear(pinfo->cinfo, COL_INFO);
+                    ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+                    subtree = proto_item_add_subtree(ti, ett_mac_lte);
+                    proto_tree_add_expert(subtree, pinfo, &ei_mac_lte_unknown_udp_framing_tag,
+                                          tvb, offset-1, 1);
+                }
                 return FALSE;
         }
     }
@@ -2672,22 +2684,19 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Dissect the fields to populate p_mac_lte */
-    if (!dissect_mac_lte_context_fields(p_mac_lte_info, tvb, &offset)) {
-        return FALSE;
+    if (dissect_mac_lte_context_fields(p_mac_lte_info, tvb, pinfo, tree, &offset)) {
+        if (!infoAlreadySet) {
+            /* Store info in packet */
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
+        }
+
+        /**************************************/
+        /* OK, now dissect as MAC LTE         */
+
+        /* Create tvb that starts at actual MAC PDU */
+        mac_tvb = tvb_new_subset_remaining(tvb, offset);
+        dissect_mac_lte(mac_tvb, pinfo, tree, NULL);
     }
-
-
-    if (!infoAlreadySet) {
-        /* Store info in packet */
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
-    }
-
-    /**************************************/
-    /* OK, now dissect as MAC LTE         */
-
-    /* Create tvb that starts at actual MAC PDU */
-    mac_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_mac_lte(mac_tvb, pinfo, tree, NULL);
 
     return TRUE;
 }
@@ -9514,6 +9523,7 @@ void proto_register_mac_lte(void)
         { &ei_mac_lte_sch_invalid_length, { "mac-lte.sch.invalid-length", PI_MALFORMED, PI_WARN, "Invalid PDU length (should be >= 32768)", EXPFILL }},
         { &ei_mac_lte_mch_invalid_length, { "mac-lte.mch.invalid-length", PI_MALFORMED, PI_WARN, "Invalid PDU length (should be >= 32768)", EXPFILL }},
         { &ei_mac_lte_invalid_sc_mcch_sc_mtch_subheader_multiplexing, { "mac-lte.mch.invalid-sc-mcch-sc-mtch-subheader-multiplexing", PI_MALFORMED, PI_ERROR, "SC-MCCH/SC-MTCH header multiplexed with non padding", EXPFILL }},
+        { &ei_mac_lte_unknown_udp_framing_tag, { "mac-lte.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }}
     };
 
     static const enum_val_t show_info_col_vals[] = {

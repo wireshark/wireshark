@@ -59,7 +59,7 @@ static int dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Dissect the fields to populate p_mac_lte */
-    if (!dissect_mac_lte_context_fields(p_mac_lte_info, tvb, &offset)) {
+    if (!dissect_mac_lte_context_fields(p_mac_lte_info, tvb, pinfo, tree, &offset)) {
         return offset;
     }
 
