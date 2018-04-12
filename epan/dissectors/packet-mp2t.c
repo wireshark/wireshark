@@ -24,6 +24,8 @@
 #include <epan/reassemble.h>
 #include <epan/address_types.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include "packet-l2tp.h"
 
 void proto_register_mp2t(void);
@@ -1195,11 +1197,38 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
     guint         offset = 0;
     conversation_t    *conv;
+    const char *saved_proto;
 
     conv = find_or_create_conversation(pinfo);
 
     for (; tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE; offset += MP2T_PACKET_SIZE) {
-       dissect_tsp(tvb, offset, pinfo, tree, conv);
+        /*
+         * Dissect the TSP.
+         *
+         * If it gets an error that means there's no point in
+         * dissecting any more TSPs, rethrow the exception in
+         * question.
+         *
+         * If it gets any other error, report it and continue, as that
+         * means that TSP got an error, but that doesn't mean we should
+         * stop dissecting TSPs within this frame or chunk of reassembled
+         * data.
+         */
+        saved_proto = pinfo->current_proto;
+        TRY {
+            dissect_tsp(tvb, offset, pinfo, tree, conv);
+        }
+        CATCH_NONFATAL_ERRORS {
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+
+            /*
+             * Restore the saved protocol as well; we do this after
+             * show_exception(), so that the "Malformed packet" indication
+             * shows the protocol for which dissection failed.
+             */
+            pinfo->current_proto = saved_proto;
+        }
+        ENDTRY;
     }
     return tvb_captured_length(tvb);
 }
