@@ -1663,9 +1663,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_get_const_stringz@Base 1.9.1
  tvb_get_ds_tvb@Base 1.9.1
  tvb_get_ether_name@Base 1.99.3
+ tvb_get_gint16@Base 2.9.0
+ tvb_get_gint24@Base 2.9.0
+ tvb_get_gint32@Base 2.9.0
  tvb_get_gint40@Base 1.99.2
  tvb_get_gint48@Base 1.99.2
  tvb_get_gint56@Base 1.99.2
+ tvb_get_gint64@Base 2.9.0
+ tvb_get_gint8@Base 2.9.0
  tvb_get_guid@Base 1.9.1
  tvb_get_guint16@Base 1.99.2
  tvb_get_guint24@Base 1.99.2
@@ -1685,11 +1690,15 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_get_letoh56@Base 1.9.1
  tvb_get_letoh64@Base 1.9.1
  tvb_get_letohguid@Base 1.9.1
+ tvb_get_letohi24@Base 2.9.0
  tvb_get_letohi40@Base 1.12.0~rc1
  tvb_get_letohi48@Base 1.12.0~rc1
  tvb_get_letohi56@Base 1.12.0~rc1
+ tvb_get_letohi64@Base 2.9.0
  tvb_get_letohieee_double@Base 1.9.1
  tvb_get_letohieee_float@Base 1.9.1
+ tvb_get_letohil@Base 2.9.0
+ tvb_get_letohis@Base 2.9.0
  tvb_get_letohl@Base 1.9.1
  tvb_get_letohs@Base 1.9.1
  tvb_get_manuf_name@Base 1.9.1
@@ -1702,11 +1711,15 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_get_ntoh56@Base 1.9.1
  tvb_get_ntoh64@Base 1.9.1
  tvb_get_ntohguid@Base 1.9.1
+ tvb_get_ntohi24@Base 2.9.0
  tvb_get_ntohi40@Base 1.12.0~rc1
  tvb_get_ntohi48@Base 1.12.0~rc1
  tvb_get_ntohi56@Base 1.12.0~rc1
+ tvb_get_ntohi64@Base 2.9.0
  tvb_get_ntohieee_double@Base 1.9.1
  tvb_get_ntohieee_float@Base 1.9.1
+ tvb_get_ntohil@Base 2.9.0
+ tvb_get_ntohis@Base 2.9.0
  tvb_get_ntohl@Base 1.9.1
  tvb_get_ntohs@Base 1.9.1
  tvb_get_ptr@Base 1.9.1
