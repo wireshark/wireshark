@@ -1302,15 +1302,14 @@ again:
 
 
     /* is it completely desegmented? */
-    if (ipfd_head) {
+    if (ipfd_head && ipfd_head->reassembled_in == pinfo->num) {
         /*
          * Yes, we think it is.
          * We only call subdissector for the last segment.
          * Note that the last segment may include more than what
          * we needed.
          */
-        if (ipfd_head->reassembled_in == pinfo->num &&
-            nxtseq < ipfd_head->datalen) {
+        if (nxtseq < msp->nxtpdu) {
             /*
              * This is *not* the last segment. It is part of a PDU in the same
              * frame, so no another PDU can follow this one.
@@ -1322,7 +1321,7 @@ again:
             another_pdu_follows = 0;
             col_clear(pinfo->cinfo, COL_INFO);
             another_segment_in_frame = TRUE;
-        } else if (ipfd_head->reassembled_in == pinfo->num) {
+        } else {
             /*
              * OK, this is the last segment of the PDU and also the
              * last segment in this frame.
