@@ -10512,9 +10512,9 @@ dissect_btgatt_microbit_accelerometer_data(tvbuff_t *tvb, packet_info *pinfo _U_
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    x_axis = (gdouble) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
-    y_axis = (gdouble) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
-    z_axis = (gdouble) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+    x_axis = (gdouble) (gint) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (gdouble) (gint) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (gdouble) (gint) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
 
     sub_item = proto_tree_add_item(tree, hf_gatt_microbit_accelerometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_accelerometer);
@@ -10557,9 +10557,9 @@ dissect_btgatt_microbit_magnetometer_data(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    x_axis = (gdouble) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
-    y_axis = (gdouble) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
-    z_axis = (gdouble) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+    x_axis = (gdouble) (gint) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (gdouble) (gint) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (gdouble) (gint) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
 
     sub_item = proto_tree_add_item(tree, hf_gatt_microbit_magnetometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_magnetometer);
@@ -16190,11 +16190,11 @@ proto_register_btgatt(void)
 void
 proto_reg_handoff_btgatt(void)
 {
-    struct uuid_dissectors_t {
-        const gchar *uuid;
-        const gchar *short_name;
+    const struct uuid_dissectors_t {
+        const gchar * const uuid;
+              gchar * const short_name;
 
-        int (*dissect_func)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+        int (* const dissect_func)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
     } uuid_dissectors[] = {
         { "6e400001-b5a3-f393-e0a9-e50e24dcca9e", "Nordic UART Service",      NULL },
         { "6e400002-b5a3-f393-e0a9-e50e24dcca9e", "Nordic UART Tx",           dissect_btgatt_nordic_uart_tx },
@@ -16238,7 +16238,7 @@ proto_reg_handoff_btgatt(void)
     };
 
     for (gint i = 0; uuid_dissectors[i].uuid; i++) {
-        wmem_tree_insert_string(bluetooth_uuids, uuid_dissectors[i].uuid, (gchar *) uuid_dissectors[i].short_name, 0);
+        wmem_tree_insert_string(bluetooth_uuids, uuid_dissectors[i].uuid, uuid_dissectors[i].short_name, 0);
 
         if (uuid_dissectors[i].dissect_func) {
             dissector_handle_t handle = create_dissector_handle(uuid_dissectors[i].dissect_func, proto_btgatt);
