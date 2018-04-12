@@ -247,6 +247,7 @@ static int ett_mac_nr_me_phr_entry = -1;
 
 static expert_field ei_mac_nr_no_per_frame_data = EI_INIT;
 static expert_field ei_mac_nr_sdu_length_different_from_dissected = EI_INIT;
+static expert_field ei_mac_nr_unknown_udp_framing_tag = EI_INIT;
 
 static dissector_handle_t nr_rrc_bcch_bch_handle;
 
@@ -1861,8 +1862,19 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     continue;
                 default:
                     /* It must be a recognised tag */
+                    {
+                        proto_item *ti;
+                        proto_tree *subtree;
+
+                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-NR");
+                        col_clear(pinfo->cinfo, COL_INFO);
+                        ti = proto_tree_add_item(tree, proto_mac_nr, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+                        subtree = proto_item_add_subtree(ti, ett_mac_nr);
+                        proto_tree_add_expert(subtree, pinfo, &ei_mac_nr_unknown_udp_framing_tag,
+                                              tvb, offset-1, 1);
+                    }
                     wmem_free(wmem_file_scope(), p_mac_nr_info);
-                    return FALSE;
+                    return TRUE;
             }
         } while (tag != MAC_NR_PAYLOAD_TAG);
 
@@ -3113,6 +3125,7 @@ void proto_register_mac_nr(void)
     static ei_register_info ei[] = {
         { &ei_mac_nr_no_per_frame_data,                   { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
         { &ei_mac_nr_sdu_length_different_from_dissected, { "mac-nr.sdu-length-different-from-dissected", PI_UNDECODED, PI_WARN, "Something is wrong with sdu length or dissection is wrong", EXPFILL }},
+        { &ei_mac_nr_unknown_udp_framing_tag,             { "mac-nr.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }}
     };
 
     module_t *mac_nr_module;
