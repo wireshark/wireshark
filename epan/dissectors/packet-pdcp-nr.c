@@ -98,6 +98,8 @@ static expert_field ei_pdcp_nr_sequence_analysis_wrong_sequence_number = EI_INIT
 static expert_field ei_pdcp_nr_reserved_bits_not_zero = EI_INIT;
 static expert_field ei_pdcp_nr_sequence_analysis_sn_repeated = EI_INIT;
 static expert_field ei_pdcp_nr_sequence_analysis_sn_missing = EI_INIT;
+static expert_field ei_pdcp_nr_unknown_udp_framing_tag = EI_INIT;
+static expert_field ei_pdcp_nr_missing_udp_framing_tag = EI_INIT;
 
 
 
@@ -774,6 +776,19 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_nr_info  *p_pd
 /* Forwad declarations */
 static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
+static void report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
+                              tvbuff_t *tvb, gint start, gint length)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-NR");
+    col_clear(pinfo->cinfo, COL_INFO);
+    ti = proto_tree_add_item(tree, proto_pdcp_nr, tvb, 0, -1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_pdcp);
+    proto_tree_add_expert(subtree, pinfo, eiindex, tvb, start, length);
+}
+
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
@@ -889,13 +904,15 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
             default:
                 /* It must be a recognised tag */
-                return FALSE;
+                report_heur_error(tree, pinfo, &ei_pdcp_nr_unknown_udp_framing_tag, tvb, offset-1, 1);
+                return TRUE;
         }
     }
 
     if ((p_pdcp_nr_info->plane == NR_USER_PLANE) && (seqnumLengthTagPresent == FALSE)) {
         /* Conditional field is not present */
-        return FALSE;
+        report_heur_error(tree, pinfo, &ei_pdcp_nr_missing_udp_framing_tag, tvb, 0, offset);
+        return TRUE;
     }
 
     if (!infoAlreadySet) {
@@ -1549,6 +1566,8 @@ void proto_register_pdcp_nr(void)
         { &ei_pdcp_nr_sequence_analysis_sn_repeated, { "pdcp-nr.sequence-analysis.sn-repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
         { &ei_pdcp_nr_sequence_analysis_wrong_sequence_number, { "pdcp-nr.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
         { &ei_pdcp_nr_reserved_bits_not_zero, { "pdcp-nr.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
+        { &ei_pdcp_nr_unknown_udp_framing_tag, { "pdcp-nr.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }},
+        { &ei_pdcp_nr_missing_udp_framing_tag, { "pdcp-nr.missing-udp-framing-tag", PI_UNDECODED, PI_WARN, "Missing UDP framing conditional tag, aborting dissection", EXPFILL }}
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
