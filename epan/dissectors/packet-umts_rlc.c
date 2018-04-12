@@ -144,6 +144,8 @@ static expert_field ei_rlc_header_only = EI_INIT;
 static expert_field ei_rlc_ciphered_data = EI_INIT;
 static expert_field ei_rlc_no_per_frame_data = EI_INIT;
 static expert_field ei_rlc_incomplete_sequence = EI_INIT;
+static expert_field ei_rlc_unknown_udp_framing_tag = EI_INIT;
+static expert_field ei_rlc_missing_udp_framing_tag = EI_INIT;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
@@ -2641,6 +2643,19 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return tvb_captured_length(tvb);
 }
 
+static void
+report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
+                  tvbuff_t *tvb, gint start, gint length)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+    col_clear(pinfo->cinfo, COL_INFO);
+    ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_rlc);
+    proto_tree_add_expert(subtree, pinfo, eiindex, tvb, start, length);
+}
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean
@@ -2739,13 +2754,15 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 continue;
             default:
                 /* It must be a recognised tag */
-                return FALSE;
+                report_heur_error(tree, pinfo, &ei_rlc_unknown_udp_framing_tag, tvb, offset-1, 1);
+                return TRUE;
         }
     }
 
     if ((channelTypePresent == FALSE) && (rlcModePresent == FALSE)) {
         /* Conditional fields are missing */
-        return FALSE;
+        report_heur_error(tree, pinfo, &ei_rlc_missing_udp_framing_tag, tvb, 0, offset);
+        return TRUE;
     }
 
     /* Store info in packet if needed */
@@ -3022,6 +3039,8 @@ proto_register_rlc(void)
         { &ei_rlc_ciphered_data, { "rlc.ciphered_data", PI_UNDECODED, PI_WARN, "Cannot dissect RLC frame because it is ciphered", EXPFILL }},
         { &ei_rlc_no_per_frame_data, { "rlc.no_per_frame_data", PI_PROTOCOL, PI_WARN, "Can't dissect RLC frame because no per-frame info was attached!", EXPFILL }},
         { &ei_rlc_incomplete_sequence, { "rlc.incomplete_sequence", PI_MALFORMED, PI_ERROR, "Error: Incomplete sequence", EXPFILL }},
+        { &ei_rlc_unknown_udp_framing_tag, { "rlc.unknown_udp_framing_tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }},
+        { &ei_rlc_missing_udp_framing_tag, { "rlc.missing_udp_framing_tag", PI_UNDECODED, PI_WARN, "Missing UDP framing conditional tag, aborting dissection", EXPFILL }}
     };
 
     proto_umts_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
