@@ -12,8 +12,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <wiretap/wtap.h>
 #include <epan/asn1.h>
+
+#include <wiretap/wtap.h>
 
 #include "packet-per.h"
 
@@ -69,6 +70,11 @@ static int hf_mpeg_video_data = -1;
 static dissector_handle_t mpeg_handle;
 enum { PES_PREFIX = 1 };
 
+/*
+ * XXX - some of these aren't documented in ISO/IEC 13818-1:2007;
+ * Table 2-22 "Stream_id assignments" starts with 0xbc, and also
+ * lists some types not given here.  Where are the others described?
+ */
 enum {
 	STREAM_PICTURE = 0x00,
 	STREAM_SEQUENCE = 0xb3,
@@ -452,18 +458,57 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		if ((tvb_get_guint8(tvb, 6) & 0xc0) == 0x80) {
 			int header_length;
 			tvbuff_t *es;
+			int save_offset = offset;
 
 			offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
 					tree, hf_mpeg_pes_extension);
 			/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229
-			 * A value of 0 indicates that the PES packet length is neither specified nor
-			 * bounded and is allowed only in PES packets whose payload is a video elementary
-			 * stream contained in Transport Stream packets.
-			 * XXX Some one with access to the spec should check this
+			 * A value of 0 indicates that the PES packet length
+			 * is neither specified nor bounded and is allowed
+			 * only in PES packets whose payload is a video
+			 * elementary stream contained in Transport Stream
+			 * packets.
+			 *
+			 * See ISO/IEC 13818-1:2007, section 2.4.3.7
+			 * "Semantic definition of fields in PES packet",
+			 * which says of the PES_packet_length that "A value
+			 * of 0 indicates that the PES packet length is
+			 * neither specified nor bounded and is allowed only
+			 * in PES packets whose payload consists of bytes
+			 * from a video elementary stream contained in
+			 * Transport Stream packets."
 			 */
-			 if(length !=0 && stream != STREAM_VIDEO){
-				 length -= 5;
-			 }
+			if(length !=0 && stream != STREAM_VIDEO){
+				/*
+				 * XXX - note that ISO/IEC 13818-1:2007
+				 * says that the length field is *not*
+				 * part of the above extension.
+				 *
+				 * This means that the length of the length
+				 * field itself should *not* be subtracted
+				 * from the length field; ISO/IEC 13818-1:2007
+				 * says that the PES_packet_length field is
+				 * "A 16-bit field specifying the number of
+				 * bytes in the PES packet following the
+				 * last byte of the field."
+				 *
+				 * So we calculate the size of the extension,
+				 * in bytes, by subtracting the saved bit
+				 * offset value from the current bit offset
+				 * value, divide by 8 to convert to a size
+				 * in bytes, and then subtract 2 to remove
+				 * the length field's length from the total
+				 * length.
+				 *
+				 * (In addition, ISO/IEC 13818-1:2007
+				 * suggests that the length field is
+				 * always present, but this code, when
+				 * processing some stream ID types, doesn't
+				 * treat it as being present.  Where are
+				 * the formats of those payloads specified?)
+				 */
+				length -= ((offset - save_offset) / 8) - 2;
+			}
 
 			header_length = tvb_get_guint8(tvb, 8);
 			if (header_length > 0) {
