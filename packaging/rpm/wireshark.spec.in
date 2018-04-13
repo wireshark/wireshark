@@ -348,6 +348,12 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %files
+
+%if 0%{?suse_version}
+# Before packing, we need to restore the bindir to the wireshark one
+%define _bindir /usr/local/bin
+%endif
+
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog INSTALL NEWS README*
 
