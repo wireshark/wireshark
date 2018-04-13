@@ -2789,10 +2789,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     struct rlc_lte_info  *p_rlc_lte_info;
     tvbuff_t             *rlc_tvb;
     guint8               tag = 0;
-    gboolean             infoAlreadySet = FALSE;
     gboolean             seqNumLengthTagPresent = FALSE;
-
-    /* Do this again on re-dissection to re-discover offset of actual PDU */
 
     /* Needs to be at least as long as:
        - the signature string
@@ -2815,79 +2812,77 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (p_rlc_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_rlc_lte_info = wmem_new0(wmem_file_scope(), struct rlc_lte_info);
-        infoAlreadySet = FALSE;
-    }
-    else {
-        infoAlreadySet = TRUE;
-    }
 
-
-    /* Read fixed fields */
-    p_rlc_lte_info->rlcMode = tvb_get_guint8(tvb, offset++);
-    if (p_rlc_lte_info->rlcMode == RLC_AM_MODE) {
-        p_rlc_lte_info->sequenceNumberLength = AM_SN_LENGTH_10_BITS;
-    }
-
-    /* Read optional fields */
-    while (tag != RLC_LTE_PAYLOAD_TAG) {
-        /* Process next tag */
-        tag = tvb_get_guint8(tvb, offset++);
-        switch (tag) {
-            case RLC_LTE_SN_LENGTH_TAG:
-                p_rlc_lte_info->sequenceNumberLength = tvb_get_guint8(tvb, offset);
-                offset++;
-                seqNumLengthTagPresent = TRUE;
-                break;
-            case RLC_LTE_DIRECTION_TAG:
-                p_rlc_lte_info->direction = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case RLC_LTE_PRIORITY_TAG:
-                p_rlc_lte_info->priority = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case RLC_LTE_UEID_TAG:
-                p_rlc_lte_info->ueid = tvb_get_ntohs(tvb, offset);
-                offset += 2;
-                break;
-            case RLC_LTE_CHANNEL_TYPE_TAG:
-                p_rlc_lte_info->channelType = tvb_get_ntohs(tvb, offset);
-                offset += 2;
-                break;
-            case RLC_LTE_CHANNEL_ID_TAG:
-                p_rlc_lte_info->channelId = tvb_get_ntohs(tvb, offset);
-                offset += 2;
-                break;
-            case RLC_LTE_EXT_LI_FIELD_TAG:
-                p_rlc_lte_info->extendedLiField = TRUE;
-                break;
-            case RLC_LTE_NB_MODE_TAG:
-                p_rlc_lte_info->nbMode =
-                    (rlc_lte_nb_mode)tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-
-            case RLC_LTE_PAYLOAD_TAG:
-                /* Have reached data, so set payload length and get out of loop */
-                p_rlc_lte_info->pduLength = tvb_reported_length_remaining(tvb, offset);
-                continue;
-
-            default:
-                /* It must be a recognised tag */
-                report_heur_error(tree, pinfo, &ei_rlc_lte_unknown_udp_framing_tag, tvb, offset-1, 1);
-                return TRUE;
+        /* Read fixed fields */
+        p_rlc_lte_info->rlcMode = tvb_get_guint8(tvb, offset++);
+        if (p_rlc_lte_info->rlcMode == RLC_AM_MODE) {
+            p_rlc_lte_info->sequenceNumberLength = AM_SN_LENGTH_10_BITS;
         }
-    }
 
-    if ((p_rlc_lte_info->rlcMode == RLC_UM_MODE) && (seqNumLengthTagPresent == FALSE)) {
-        /* Conditional field is not present */
-        report_heur_error(tree, pinfo, &ei_rlc_lte_missing_udp_framing_tag, tvb, 0, offset);
-        return TRUE;
-    }
+        /* Read optional fields */
+        while (tag != RLC_LTE_PAYLOAD_TAG) {
+            /* Process next tag */
+            tag = tvb_get_guint8(tvb, offset++);
+            switch (tag) {
+                case RLC_LTE_SN_LENGTH_TAG:
+                    p_rlc_lte_info->sequenceNumberLength = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    seqNumLengthTagPresent = TRUE;
+                    break;
+                case RLC_LTE_DIRECTION_TAG:
+                    p_rlc_lte_info->direction = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case RLC_LTE_PRIORITY_TAG:
+                    p_rlc_lte_info->priority = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case RLC_LTE_UEID_TAG:
+                    p_rlc_lte_info->ueid = tvb_get_ntohs(tvb, offset);
+                    offset += 2;
+                    break;
+                case RLC_LTE_CHANNEL_TYPE_TAG:
+                    p_rlc_lte_info->channelType = tvb_get_ntohs(tvb, offset);
+                    offset += 2;
+                    break;
+                case RLC_LTE_CHANNEL_ID_TAG:
+                    p_rlc_lte_info->channelId = tvb_get_ntohs(tvb, offset);
+                    offset += 2;
+                    break;
+                case RLC_LTE_EXT_LI_FIELD_TAG:
+                    p_rlc_lte_info->extendedLiField = TRUE;
+                    break;
+                case RLC_LTE_NB_MODE_TAG:
+                    p_rlc_lte_info->nbMode =
+                        (rlc_lte_nb_mode)tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
 
-    if (!infoAlreadySet) {
+                case RLC_LTE_PAYLOAD_TAG:
+                    /* Have reached data, so set payload length and get out of loop */
+                    p_rlc_lte_info->pduLength = tvb_reported_length_remaining(tvb, offset);
+                    continue;
+
+                default:
+                    /* It must be a recognised tag */
+                    report_heur_error(tree, pinfo, &ei_rlc_lte_unknown_udp_framing_tag, tvb, offset-1, 1);
+                    wmem_free(wmem_file_scope(), p_rlc_lte_info);
+                    return TRUE;
+            }
+        }
+
+        if ((p_rlc_lte_info->rlcMode == RLC_UM_MODE) && (seqNumLengthTagPresent == FALSE)) {
+            /* Conditional field is not present */
+            report_heur_error(tree, pinfo, &ei_rlc_lte_missing_udp_framing_tag, tvb, 0, offset);
+            wmem_free(wmem_file_scope(), p_rlc_lte_info);
+            return TRUE;
+        }
+
         /* Store info in packet */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0, p_rlc_lte_info);
+    }
+    else {
+        offset = tvb_reported_length(tvb) - p_rlc_lte_info->pduLength;
     }
 
     /**************************************/
