@@ -998,6 +998,11 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 
 static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tns_tree)
 {
+	/* TODO
+	 * According to some reverse engineers, the refuse packet is also sent when the login fails.
+	 * Byte 54 shows if this is due to invalid ID (0x02) or password (0x03).
+	 * At now we do not have pcaps with such messages to check this statement.
+	 */
 	proto_tree *refuse_tree;
 
 	refuse_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
