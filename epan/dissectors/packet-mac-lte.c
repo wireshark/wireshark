@@ -2636,6 +2636,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                     proto_tree_add_expert(subtree, pinfo, &ei_mac_lte_unknown_udp_framing_tag,
                                           tvb, offset-1, 1);
                 }
+                wmem_free(wmem_file_scope(), p_mac_lte_info);
                 return FALSE;
         }
     }
@@ -2653,9 +2654,6 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     gint                 offset = 0;
     struct mac_lte_info  *p_mac_lte_info;
     tvbuff_t             *mac_tvb;
-    gboolean             infoAlreadySet = FALSE;
-
-    /* Do this again on re-dissection to re-discover offset of actual PDU */
 
     /* Needs to be at least as long as:
        - the signature string
@@ -2677,26 +2675,23 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
-        infoAlreadySet = FALSE;
+        /* Dissect the fields to populate p_mac_lte */
+        if (!dissect_mac_lte_context_fields(p_mac_lte_info, tvb, pinfo, tree, &offset)) {
+            return TRUE;
+        }
+        /* Store info in packet */
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
     }
     else {
-        infoAlreadySet = TRUE;
+        offset = tvb_reported_length(tvb) - p_mac_lte_info->length;
     }
 
-    /* Dissect the fields to populate p_mac_lte */
-    if (dissect_mac_lte_context_fields(p_mac_lte_info, tvb, pinfo, tree, &offset)) {
-        if (!infoAlreadySet) {
-            /* Store info in packet */
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0, p_mac_lte_info);
-        }
+    /**************************************/
+    /* OK, now dissect as MAC LTE         */
 
-        /**************************************/
-        /* OK, now dissect as MAC LTE         */
-
-        /* Create tvb that starts at actual MAC PDU */
-        mac_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissect_mac_lte(mac_tvb, pinfo, tree, NULL);
-    }
+    /* Create tvb that starts at actual MAC PDU */
+    mac_tvb = tvb_new_subset_remaining(tvb, offset);
+    dissect_mac_lte(mac_tvb, pinfo, tree, NULL);
 
     return TRUE;
 }
