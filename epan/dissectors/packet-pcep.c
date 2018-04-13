@@ -2837,12 +2837,13 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
     offset2 += XRO_OBJ_MIN_LEN;
     body_obj_len -= XRO_OBJ_MIN_LEN;
 
+    if (body_obj_len < 2) {
+        expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length,
+                               "Bad XRO object: subobject goes past end of object");
+        return;
+    }
+
     while (body_obj_len >= 2) {
-        if (body_obj_len < 2) {
-            expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length,
-                                   "Bad XRO object: subobject goes past end of object");
-            break;
-        }
 
         x_type = tvb_get_guint8(tvb, offset2);
         length = tvb_get_guint8(tvb, offset2+1);
@@ -2855,7 +2856,7 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
 
         type_xro = (x_type & Mask_Type);
 
-        if (body_obj_len <length) {
+        if (body_obj_len < length) {
             proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
                                          tvb, offset2, length,
                                          "Bad XRO object: object length %u > remaining length %u",
