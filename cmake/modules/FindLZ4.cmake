@@ -36,8 +36,17 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args( LZ4 DEFAULT_MSG LZ4_INCLUDE_DIR LZ4_LIBRARY )
 
 if( LZ4_FOUND )
+  include( CheckIncludeFile )
+  include( CMakePushCheckState )
+
   set( LZ4_INCLUDE_DIRS ${LZ4_INCLUDE_DIR} )
   set( LZ4_LIBRARIES ${LZ4_LIBRARY} )
+
+  cmake_push_check_state()
+  set( CMAKE_REQUIRED_INCLUDES ${LZ4_INCLUDE_DIRS} )
+  check_include_file( lz4frame.h HAVE_LZ4FRAME_H )
+  cmake_pop_check_state()
+
   if (WIN32)
     set ( LZ4_DLL_DIR "${LZ4_HINTS}/bin"
       CACHE PATH "Path to LZ4 DLL"

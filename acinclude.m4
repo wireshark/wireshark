@@ -2040,6 +2040,10 @@ AC_DEFUN([AC_WIRESHARK_LZ4_CHECK],
 		# in order to read compressed capture files.
 		#
 		AC_CHECK_FUNCS(LZ4_decompress_safe)
+		#
+		# Check for (optional) lz4frame.h
+		#
+		AC_CHECK_HEADERS(lz4frame.h)
 		LIBS="$ac_save_LIBS"
 	fi
 

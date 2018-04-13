@@ -137,6 +137,9 @@
 /* Define to use lz4 library */
 #cmakedefine HAVE_LZ4 1
 
+/* Check for lz4frame */
+#cmakedefine HAVE_LZ4FRAME_H 1
+
 /* Define to use snappy library */
 #cmakedefine HAVE_SNAPPY 1
 
