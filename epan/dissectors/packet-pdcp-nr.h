@@ -53,6 +53,9 @@ typedef struct pdcp_nr_info
     rohc_info          rohc;
 
     guint8             is_retx;
+
+    /* Used by heuristic dissector only */
+    guint16            pdu_length;
 } pdcp_nr_info;
 
 

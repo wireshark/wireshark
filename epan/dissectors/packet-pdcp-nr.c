@@ -797,7 +797,6 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     struct pdcp_nr_info *p_pdcp_nr_info;
     tvbuff_t             *pdcp_tvb;
     guint8                tag                    = 0;
-    gboolean              infoAlreadySet         = FALSE;
     gboolean              seqnumLengthTagPresent = FALSE;
 
     /* Do this again on re-dissection to re-discover offset of actual PDU */
@@ -826,98 +825,97 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (p_pdcp_nr_info == NULL) {
         /* Allocate new info struct for this frame */
         p_pdcp_nr_info = wmem_new0(wmem_file_scope(), pdcp_nr_info);
-        infoAlreadySet = FALSE;
-    }
-    else {
-        infoAlreadySet = TRUE;
-    }
 
-    /* Read fixed fields */
-    p_pdcp_nr_info->plane = (enum pdcp_nr_plane)tvb_get_guint8(tvb, offset++);
-    if (p_pdcp_nr_info->plane == NR_SIGNALING_PLANE) {
-        /* Signalling plane always has 12 SN bits */
-        p_pdcp_nr_info->seqnum_length = PDCP_NR_SN_LENGTH_12_BITS;
-    }
-
-    /* Read tagged fields */
-    while (tag != PDCP_NR_PAYLOAD_TAG) {
-        /* Process next tag */
-        tag = tvb_get_guint8(tvb, offset++);
-        switch (tag) {
-            case PDCP_NR_SEQNUM_LENGTH_TAG:
-                p_pdcp_nr_info->seqnum_length = tvb_get_guint8(tvb, offset);
-                offset++;
-                seqnumLengthTagPresent = TRUE;
-                break;
-            case PDCP_NR_DIRECTION_TAG:
-                p_pdcp_nr_info->direction = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_BEARER_TYPE_TAG:
-                p_pdcp_nr_info->bearerType = (NRBearerType)tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_BEARER_ID_TAG:
-                p_pdcp_nr_info->bearerId = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_UEID_TAG:
-                p_pdcp_nr_info->ueid = tvb_get_ntohs(tvb, offset);
-                offset += 2;
-                break;
-            case PDCP_NR_ROHC_COMPRESSION_TAG:
-                p_pdcp_nr_info->rohc.rohc_compression = TRUE;
-                break;
-            case PDCP_NR_ROHC_IP_VERSION_TAG:
-                p_pdcp_nr_info->rohc.rohc_ip_version = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_ROHC_CID_INC_INFO_TAG:
-                p_pdcp_nr_info->rohc.cid_inclusion_info = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_ROHC_LARGE_CID_PRES_TAG:
-                p_pdcp_nr_info->rohc.large_cid_present = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_ROHC_MODE_TAG:
-                p_pdcp_nr_info->rohc.mode = (enum rohc_mode)tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_ROHC_RND_TAG:
-                p_pdcp_nr_info->rohc.rnd = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_ROHC_UDP_CHECKSUM_PRES_TAG:
-                p_pdcp_nr_info->rohc.udp_checksum_present = tvb_get_guint8(tvb, offset);
-                offset++;
-                break;
-            case PDCP_NR_ROHC_PROFILE_TAG:
-                p_pdcp_nr_info->rohc.profile = tvb_get_ntohs(tvb, offset);
-                offset += 2;
-                break;
-
-
-            case PDCP_NR_PAYLOAD_TAG:
-                /* Have reached data, so get out of loop */
-                continue;
-
-            default:
-                /* It must be a recognised tag */
-                report_heur_error(tree, pinfo, &ei_pdcp_nr_unknown_udp_framing_tag, tvb, offset-1, 1);
-                return TRUE;
+        /* Read fixed fields */
+        p_pdcp_nr_info->plane = (enum pdcp_nr_plane)tvb_get_guint8(tvb, offset++);
+        if (p_pdcp_nr_info->plane == NR_SIGNALING_PLANE) {
+            /* Signalling plane always has 12 SN bits */
+            p_pdcp_nr_info->seqnum_length = PDCP_NR_SN_LENGTH_12_BITS;
         }
-    }
 
-    if ((p_pdcp_nr_info->plane == NR_USER_PLANE) && (seqnumLengthTagPresent == FALSE)) {
-        /* Conditional field is not present */
-        report_heur_error(tree, pinfo, &ei_pdcp_nr_missing_udp_framing_tag, tvb, 0, offset);
-        return TRUE;
-    }
+        /* Read tagged fields */
+        while (tag != PDCP_NR_PAYLOAD_TAG) {
+            /* Process next tag */
+            tag = tvb_get_guint8(tvb, offset++);
+            switch (tag) {
+                case PDCP_NR_SEQNUM_LENGTH_TAG:
+                    p_pdcp_nr_info->seqnum_length = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    seqnumLengthTagPresent = TRUE;
+                    break;
+                case PDCP_NR_DIRECTION_TAG:
+                    p_pdcp_nr_info->direction = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_BEARER_TYPE_TAG:
+                    p_pdcp_nr_info->bearerType = (NRBearerType)tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_BEARER_ID_TAG:
+                    p_pdcp_nr_info->bearerId = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_UEID_TAG:
+                    p_pdcp_nr_info->ueid = tvb_get_ntohs(tvb, offset);
+                    offset += 2;
+                    break;
+                case PDCP_NR_ROHC_COMPRESSION_TAG:
+                    p_pdcp_nr_info->rohc.rohc_compression = TRUE;
+                    break;
+                case PDCP_NR_ROHC_IP_VERSION_TAG:
+                    p_pdcp_nr_info->rohc.rohc_ip_version = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_ROHC_CID_INC_INFO_TAG:
+                    p_pdcp_nr_info->rohc.cid_inclusion_info = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_ROHC_LARGE_CID_PRES_TAG:
+                    p_pdcp_nr_info->rohc.large_cid_present = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_ROHC_MODE_TAG:
+                    p_pdcp_nr_info->rohc.mode = (enum rohc_mode)tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_ROHC_RND_TAG:
+                    p_pdcp_nr_info->rohc.rnd = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_ROHC_UDP_CHECKSUM_PRES_TAG:
+                    p_pdcp_nr_info->rohc.udp_checksum_present = tvb_get_guint8(tvb, offset);
+                    offset++;
+                    break;
+                case PDCP_NR_ROHC_PROFILE_TAG:
+                    p_pdcp_nr_info->rohc.profile = tvb_get_ntohs(tvb, offset);
+                    offset += 2;
+                    break;
 
-    if (!infoAlreadySet) {
+                case PDCP_NR_PAYLOAD_TAG:
+                    /* Have reached data, so get out of loop */
+                    p_pdcp_nr_info->pdu_length = tvb_reported_length_remaining(tvb, offset);
+                    continue;
+
+                default:
+                    /* It must be a recognised tag */
+                    report_heur_error(tree, pinfo, &ei_pdcp_nr_unknown_udp_framing_tag, tvb, offset-1, 1);
+                    wmem_free(wmem_file_scope(), p_pdcp_nr_info);
+                    return TRUE;
+            }
+        }
+
+        if ((p_pdcp_nr_info->plane == NR_USER_PLANE) && (seqnumLengthTagPresent == FALSE)) {
+            /* Conditional field is not present */
+            report_heur_error(tree, pinfo, &ei_pdcp_nr_missing_udp_framing_tag, tvb, 0, offset);
+            wmem_free(wmem_file_scope(), p_pdcp_nr_info);
+            return TRUE;
+        }
+
         /* Store info in packet */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0, p_pdcp_nr_info);
+    }
+    else {
+        offset = tvb_reported_length(tvb) - p_pdcp_nr_info->pdu_length;
     }
 
     /**************************************/
