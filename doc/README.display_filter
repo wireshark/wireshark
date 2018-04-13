@@ -599,7 +599,14 @@ $ ./tools/dfilter-test.py testTVB
 # Run the the "test_contains_1" test from testTVB
 $ ./tools/dfilter-test.py testTVB.test_contains_1
 
-Note that dfilter-test.py should be run from the top of the
-Wireshark distribution, so it knows where to find the default
-tshark executable.
+# For faster, parallel tests, install the "pytest-xdist" first
+# (for example, using "pip install pytest-xdist"), then:
+$ pytest -nauto tools/dfilter-test.py
+
+# Run all tests in "testTVB", in parallel:
+$ pytest -nauto tools/dfilter-test.py -k testTVB
+
+By default dfilter-test.py assumes that the "tshark" binary is located in the
+current working directory. If that is not the case, set the environment variable
+WS_BIN_PATH to correct directory.
 

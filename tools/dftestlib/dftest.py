@@ -28,8 +28,8 @@ class DFTest(unittest.TestCase):
         # names the trace file to use for the tests. It *should*
         # reside in dftestfiles
         assert not os.path.isabs(cls.trace_file)
-        cls.trace_file = os.path.join(os.getenv("SOURCE_DIR", "."), "tools",
-                "dftestfiles", cls.trace_file)
+        toolsdir = os.path.dirname(os.path.dirname(__file__))
+        cls.trace_file = os.path.join(toolsdir, "dftestfiles", cls.trace_file)
 
     @classmethod
     def tearDownClass(cls):
