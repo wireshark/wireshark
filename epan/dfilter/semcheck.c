@@ -725,6 +725,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 		if (stnode_type_id(st_node) == STTYPE_TEST) {
 			sttype_test_set2_args(st_node, st_arg1, new_st);
 		} else {
+			/* Replace STTYPE_UNPARSED element by resolved value. */
 			sttype_set_replace_element(st_node, st_arg2, new_st);
 		}
 		stnode_free(st_arg2);
@@ -770,7 +771,10 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 		if (strcmp(relation_string, "in") != 0) {
 			g_assert_not_reached();
 		}
-		/* Attempt to interpret one element of the set at a time */
+		/* Attempt to interpret one element of the set at a time. Each
+		 * element is represented by two items in the list, the element
+		 * value and NULL. Both will be replaced by a lower and upper
+		 * value if the element is a range. */
 		nodelist = (GSList*)stnode_data(st_arg2);
 		while (nodelist) {
 			stnode_t *node = (stnode_t*)nodelist->data;
@@ -780,8 +784,26 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 				THROW(TypeError);
 				break;
 			}
-			check_relation_LHS_FIELD(dfw, "==", can_func,
-					allow_partial_value, st_arg2, st_arg1, node);
+
+			nodelist = g_slist_next(nodelist);
+			g_assert(nodelist);
+			stnode_t *node_right = (stnode_t *)nodelist->data;
+			if (node_right) {
+				/* range type, check if comparison is possible. */
+				if (!ftype_can_ge(ftype1)) {
+					dfilter_fail(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
+							hfinfo1->abbrev, ftype_pretty_name(ftype1),
+							">=");
+					THROW(TypeError);
+				}
+				check_relation_LHS_FIELD(dfw, ">=", ftype_can_ge,
+						allow_partial_value, st_arg2, st_arg1, node);
+				check_relation_LHS_FIELD(dfw, "<=", ftype_can_le,
+						allow_partial_value, st_arg2, st_arg1, node_right);
+			} else {
+				check_relation_LHS_FIELD(dfw, "==", can_func,
+						allow_partial_value, st_arg2, st_arg1, node);
+			}
 			nodelist = g_slist_next(nodelist);
 		}
 	}

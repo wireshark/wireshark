@@ -232,19 +232,16 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 }
 
 
+/**
+ * Adds an instruction for a relation operator where the values are already
+ * loaded in registers.
+ */
 static void
-gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_arg2)
+gen_relation_regs(dfwork_t *dfw, dfvm_opcode_t op, int reg1, int reg2)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2;
-	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL;
-	int		reg1 = -1, reg2 = -1;
 
-    /* Create code for the LHS and RHS of the relation */
-    reg1 = gen_entity(dfw, st_arg1, &jmp1);
-    reg2 = gen_entity(dfw, st_arg2, &jmp2);
-
-    /* Then combine them in a DFVM insruction */
 	insn = dfvm_insn_new(op);
 	val1 = dfvm_value_new(REGISTER);
 	val1->value.numeric = reg1;
@@ -253,9 +250,23 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 	insn->arg1 = val1;
 	insn->arg2 = val2;
 	dfw_append_insn(dfw, insn);
+}
 
-    /* If either of the relation argumnents need an "exit" instruction
-     * to jump to (on failure), mark them */
+static void
+gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL;
+	int		reg1 = -1, reg2 = -1;
+
+	/* Create code for the LHS and RHS of the relation */
+	reg1 = gen_entity(dfw, st_arg1, &jmp1);
+	reg2 = gen_entity(dfw, st_arg2, &jmp2);
+
+	/* Then combine them in a DFVM insruction */
+	gen_relation_regs(dfw, op, reg1, reg2);
+
+	/* If either of the relation arguments need an "exit" instruction
+	 * to jump to (on failure), mark them */
 	if (jmp1) {
 		jmp1->value.numeric = dfw->next_insn_id;
 	}
@@ -282,10 +293,10 @@ static void
 gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	dfvm_insn_t	*insn;
-	dfvm_value_t	*val1, *val2;
-	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL;
-	int		reg1 = -1, reg2 = -1;
-	stnode_t	*node;
+	dfvm_value_t	*val1, *val2, *val3;
+	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL, *jmp3 = NULL;
+	int		reg1 = -1, reg2 = -1, reg3 = -1;
+	stnode_t	*node1, *node2;
 	GSList		*nodelist;
 	GSList		*jumplist = NULL;
 
@@ -295,20 +306,35 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 	/* Create code for the set on the RHS of the relation */
 	nodelist = (GSList*)stnode_data(st_arg2);
 	while (nodelist) {
-		node = (stnode_t*)nodelist->data;
-		reg2 = gen_entity(dfw, node, &jmp2);
-
-		/* Add test to see if the item matches */
-		insn = dfvm_insn_new(ANY_EQ);
-		val1 = dfvm_value_new(REGISTER);
-		val1->value.numeric = reg1;
-		val2 = dfvm_value_new(REGISTER);
-		val2->value.numeric = reg2;
-		insn->arg1 = val1;
-		insn->arg2 = val2;
-		dfw_append_insn(dfw, insn);
-
+		node1 = (stnode_t*)nodelist->data;
 		nodelist = g_slist_next(nodelist);
+		node2 = (stnode_t*)nodelist->data;
+		nodelist = g_slist_next(nodelist);
+
+		if (node2) {
+			/* Range element: add lower/upper bound test. */
+			reg2 = gen_entity(dfw, node1, &jmp2);
+			reg3 = gen_entity(dfw, node2, &jmp3);
+
+			/* Add test to see if the item is in range. */
+			insn = dfvm_insn_new(ANY_IN_RANGE);
+			val1 = dfvm_value_new(REGISTER);
+			val1->value.numeric = reg1;
+			val2 = dfvm_value_new(REGISTER);
+			val2->value.numeric = reg2;
+			val3 = dfvm_value_new(REGISTER);
+			val3->value.numeric = reg3;
+			insn->arg1 = val1;
+			insn->arg2 = val2;
+			insn->arg3 = val3;
+			dfw_append_insn(dfw, insn);
+		} else {
+			/* Normal element: add equality test. */
+			reg2 = gen_entity(dfw, node1, &jmp2);
+
+			/* Add test to see if the item matches */
+			gen_relation_regs(dfw, ANY_EQ, reg1, reg2);
+		}
 
 		/* Exit as soon as we find a match */
 		if (nodelist) {
@@ -323,6 +349,10 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 		if (jmp2) {
 			jmp2->value.numeric = dfw->next_insn_id;
 			jmp2 = NULL;
+		}
+		if (jmp3) {
+			jmp3->value.numeric = dfw->next_insn_id;
+			jmp3 = NULL;
 		}
 	}
 

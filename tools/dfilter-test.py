@@ -21,6 +21,7 @@ from dftestlib.double import testDouble
 from dftestlib.integer import testInteger
 from dftestlib.integer_1byte import testInteger1Byte
 from dftestlib.ipv4 import testIPv4
+from dftestlib.membership import testMembership
 from dftestlib.range_method import testRange
 from dftestlib.scanner import testScanner
 from dftestlib.string_type import testString

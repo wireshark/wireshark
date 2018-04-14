@@ -119,6 +119,7 @@ static void mark_lval_deprecated(const char *s);
 ")"				return simple(TOKEN_RPAREN);
 ","				return simple(TOKEN_COMMA);
 "{"				return simple(TOKEN_LBRACE);
+".."				return simple(TOKEN_DOTDOT);
 "}"				return simple(TOKEN_RBRACE);
 
 "=="			return simple(TOKEN_TEST_EQ);
@@ -387,6 +388,7 @@ simple(int token)
 		case TOKEN_RBRACE:
 		case TOKEN_COLON:
 		case TOKEN_COMMA:
+		case TOKEN_DOTDOT:
 		case TOKEN_HYPHEN:
 		case TOKEN_TEST_EQ:
 		case TOKEN_TEST_NE:

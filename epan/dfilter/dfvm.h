@@ -59,7 +59,8 @@ typedef enum {
 	ANY_CONTAINS,
 	ANY_MATCHES,
 	MK_RANGE,
-    CALL_FUNCTION
+	CALL_FUNCTION,
+	ANY_IN_RANGE
 
 } dfvm_opcode_t;
 
