@@ -799,8 +799,6 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     guint8                tag                    = 0;
     gboolean              seqnumLengthTagPresent = FALSE;
 
-    /* Do this again on re-dissection to re-discover offset of actual PDU */
-
     /* Needs to be at least as long as:
        - the signature string
        - fixed header byte(s)
