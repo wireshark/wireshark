@@ -350,8 +350,8 @@ static const value_string status_report_reason_codes[] = {
 static const value_string bundle_block_type_codes[] = {
     {0x01, "Bundle Payload Block"},
     {0x02, "Bundle Authentication Block"},
-    {0x03, "Payload Integrity Block"},
-    {0x04, "Payload Confidentiality Block"},
+    {0x03, "Bundle Integrity Block"},
+    {0x04, "Bundle Confidentiality Block"},
     {0x05, "Previous-Hop Insertion Block"},
     {0x08, "Metadata Extension Block"},
     {0x09, "Extension Security Block"},
