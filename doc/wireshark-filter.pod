@@ -288,6 +288,16 @@ as opposed to the more verbose:
 
     tcp.port == 80 or tcp.port == 443 or tcp.port == 8080
 
+To find HTTP requests using the HEAD or GET methods:
+
+    http.request.method in {"HEAD" "GET"}
+
+The set of values can also contain ranges:
+
+    tcp.port in {443 4430 .. 4434}
+    ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1 .. 192.168.1.9}
+    frame.time_delta in {10 .. 10.5}
+
 =head2 Type conversions
 
 If a field is a text string or a byte array, it can be expressed in whichever

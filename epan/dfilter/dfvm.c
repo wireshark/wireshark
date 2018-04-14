@@ -118,6 +118,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 			case ANY_BITWISE_AND:
 			case ANY_CONTAINS:
 			case ANY_MATCHES:
+			case ANY_IN_RANGE:
 			case NOT:
 			case RETURN:
 			case IF_TRUE_GOTO:
@@ -252,6 +253,12 @@ dfvm_dump(FILE *f, dfilter_t *df)
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
+			case ANY_IN_RANGE:
+				fprintf(f, "%05d ANY_IN_RANGE\treg#%u in range reg#%u,reg#%u\n",
+					id, arg1->value.numeric, arg2->value.numeric,
+					arg3->value.numeric);
+				break;
+
 			case NOT:
 				fprintf(f, "%05d NOT\n", id);
 				break;
@@ -353,6 +360,37 @@ any_test(dfilter_t *df, FvalueCmpFunc cmp, int reg1, int reg2)
 			list_b = g_list_next(list_b);
 		}
 		list_a = g_list_next(list_a);
+	}
+	return FALSE;
+}
+
+static gboolean
+any_in_range(dfilter_t *df, int reg1, int reg2, int reg3)
+{
+	GList	*list1, *list_low, *list_high;
+	fvalue_t *low, *high;
+
+	list1 = df->registers[reg1];
+	list_low = df->registers[reg2];
+	list_high = df->registers[reg3];
+
+	/* The first register contains the values associated with a field, the
+	 * second and third arguments are expected to be a single value for the
+	 * lower and upper bound respectively. These cannot be fields and thus
+	 * the list length MUST be one. This should have been enforced by
+	 * grammar.lemon.
+	 */
+	g_assert(list_low && !g_list_next(list_low));
+	g_assert(list_high && !g_list_next(list_high));
+	low = (fvalue_t *)list_low->data;
+	high = (fvalue_t *)list_high->data;
+
+	while (list1) {
+		fvalue_t *value = (fvalue_t *)list1->data;
+		if (fvalue_ge(value, low) && fvalue_le(value, high)) {
+			return TRUE;
+		}
+		list1 = g_list_next(list1);
 	}
 	return FALSE;
 }
@@ -515,6 +553,13 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 						arg1->value.numeric, arg2->value.numeric);
 				break;
 
+			case ANY_IN_RANGE:
+				arg3 = insn->arg3;
+				accum = any_in_range(df, arg1->value.numeric,
+						arg2->value.numeric,
+						arg3->value.numeric);
+				break;
+
 			case NOT:
 				accum = !accum;
 				break;
@@ -589,6 +634,7 @@ dfvm_init_const(dfilter_t *df)
 			case ANY_BITWISE_AND:
 			case ANY_CONTAINS:
 			case ANY_MATCHES:
+			case ANY_IN_RANGE:
 			case NOT:
 			case RETURN:
 			case IF_TRUE_GOTO:

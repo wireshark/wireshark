@@ -88,6 +88,9 @@ since version 2.4.0:
 * Dns filters for retransmissions and unsolicited responses have been added.
 * The “tcptrace” TCP Stream graph now shows duplicate ACKS and zero
   window advertisements.
+* The membership operator now supports ranges, allowing display filters such as
+  `tcp.port in {4430 .. 4434}` to be expressed. See the User's Guide, chapter
+  _Building display filter expressions_ for details.
 
 //=== Removed Dissectors
 

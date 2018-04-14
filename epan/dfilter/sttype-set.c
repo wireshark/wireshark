@@ -11,10 +11,18 @@
 #include "syntax-tree.h"
 #include "sttype-set.h"
 
+/*
+ * The GSList stores a list of elements of the set. Each element is represented
+ * by two list items: (lower, upper) in case of a value range or (value, NULL)
+ * if the element is not a range value.
+ */
+
 static void
 slist_stnode_free(gpointer data, gpointer user_data _U_)
 {
-	stnode_free((stnode_t *)data);
+	if (data) {
+		stnode_free((stnode_t *)data);
+	}
 }
 
 void
@@ -29,6 +37,9 @@ sttype_set_replace_element(stnode_t *node, stnode_t *oldnode, stnode_t *newnode)
 {
 	GSList	*nodelist = (GSList*)stnode_data(node);
 
+	/* This deliberately checks both the left and right nodes, covering both
+	 * the lower and upper bound for ranges. NULL right nodes (in case of
+	 * normal, non-range elements) will usually not match "oldnode". */
 	while (nodelist) {
 		if (nodelist->data == oldnode) {
 			nodelist->data = newnode;
