@@ -1085,7 +1085,7 @@ esac
 # Enable/disable wireshark
 AC_ARG_ENABLE(wireshark,
   AC_HELP_STRING( [--enable-wireshark],
-		  [build the Wireshark GUI (with Gtk+, Qt, or both) @<:@default=yes@:>@]),
+		  [build the Wireshark GUI using Qt5 @<:@default=yes@:>@]),
     enable_wireshark=$enableval,enable_wireshark=yes)
 AM_CONDITIONAL(BUILDING_WIRESHARK, test x$enable_wireshark = xyes)
 
@@ -1130,27 +1130,21 @@ GLIB_CFLAGS="$GLIB_CONFIG $GLIB_CFLAGS"
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
-GTK2_MIN_VERSION=2.12.0
-AC_SUBST(GTK2_MIN_VERSION)
-GTK3_MIN_VERSION=3.0.0
-AC_SUBST(GTK3_MIN_VERSION)
 QT_MIN_VERSION=5.2.0
 AC_SUBST(QT_MIN_VERSION)
-# GTK+ and Qt checks; we require GTK+ $GTK2_MIN_VERSION or later or
-# GTK3_MIN_VERSION or later or Qt $QT_MIN_VERSION or later.
+# Qt checks. We require Qt $QT_MIN_VERSION or later.
 #
 # We only do those if we're going to be building Wireshark;
 # otherwise, we don't have any GUI to build, so we don't use
-# GTK+ or Qt.
+# Qt.
 #
-# We don't add $GTK_LIBS or $Qt_LIBS to LIBS, because we don't want to
-# force all programs to be built with GTK+ or Qt.
+# We don't add $Qt_LIBS to LIBS, because we don't want to
+# force all programs to be built with Qt.
 #
 # For a list of library versions and their support across different platforms,
 # see https://wiki.wireshark.org/Development/Support_library_version_tracking
 
 have_qt=no
-have_gtk=no
 if test "x$enable_wireshark" = "xyes"; then
 	if test "x$with_qt" != "xno"; then
 		#
@@ -1284,115 +1278,27 @@ if test "x$enable_wireshark" = "xyes"; then
 			esac
 		])
 	fi
-
-	for want_gtk_version in $with_gtk; do
-		AS_CASE([$want_gtk_version],
-		  [3], [PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
-			[gtk+-3.0 >= $GTK3_MIN_VERSION glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
-			[
-			  have_gtk=yes
-			  GTK_VERSION=`$PKG_CONFIG --modversion gtk+-3.0`
-			  GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk=3"
-			],
-			[
-			  :
-			])],
-		  [2], [PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
-			[gtk+-2.0 >= $GTK2_MIN_VERSION glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
-			[
-			  have_gtk=yes
-			  GTK_VERSION=`$PKG_CONFIG --modversion gtk+-2.0`
-			  GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk=2"
-			],
-			[
-			  :
-			])],
-		  [fail3], [AC_MSG_ERROR([GTK+ 3 was requested but is not installed for development])],
-		  [fail2], [AC_MSG_ERROR([GTK+ 2 was requested but is not installed for development])],
-		  [fail],  [AC_MSG_ERROR([GTK+ was requested but is not installed for development])])
-
-		AS_IF([test "x$have_gtk" = xyes], [break])
-	done
-
-	if test "$have_gtk" = "yes" ; then
-		# If we're building with GTK, complain and then add flags for it
-		#
-		AC_MSG_WARN([The GTK+ UI is deprecated and will be removed in a future release.])
-
-		# GLib flags
-		#
-		GTK_CONFIG="$GLIB_CONFIG"
-
-		gtk_major_version=`echo $GTK_VERSION | cut -d. -f1`
-		gtk_minor_version=`echo $GTK_VERSION | cut -d. -f2`
-
-		AX_APPEND_FLAG([-DGDK_DISABLE_DEPRECATED], [GTK_CONFIG])
-		if test \( $gtk_major_version -eq 3 -a $gtk_minor_version -ge 10 \) ; then
-			## Allow use of deprecated & disable deprecated warnings if Gtk >= 3.10;
-			##  The deprecations in Gtk 3.10 will not be fixed ...
-			AX_APPEND_FLAG([-DGDK_DISABLE_DEPRECATION_WARNINGS], [GTK_CONFIG])
-		else
-			AX_APPEND_FLAG([-DGTK_DISABLE_DEPRECATED], [GTK_CONFIG])
-		fi
-		AX_APPEND_FLAG([-DGTK_DISABLE_SINGLE_INCLUDES], [GTK_CONFIG])
-		if test ! \( $gtk_major_version -eq 2 -a $gtk_minor_version -lt 20 \) ; then
-			# Enable GSEAL when building with GTK > 2.20
-			# (Versions prior to 2.22 lacked some necessary accessors.)
-			AX_APPEND_FLAG([-DGSEAL_ENABLE], [GTK_CONFIG])
-		fi
-
-		GTK_CFLAGS="$GTK_CONFIG $GTK_CFLAGS"
-	fi
 fi
 
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GTK_LIBS)
 AC_SUBST(GUI_CONFIGURE_FLAGS)
 
-# Check for GTK GUI support for GResource pixbufs
-have_gresource_pixbuf=no
-if test "x$have_gtk" = "xyes"; then
-	AC_MSG_CHECKING(whether GDK-Pixbuf can load data using GResource)
-	PKG_CHECK_EXISTS([gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26],
-	  [
-	   AC_MSG_RESULT(yes)
-	   AC_DEFINE(HAVE_GDK_GRESOURCE, 1, [Defined if GResource is supported])
-	   have_gresource_pixbuf=yes
-	  ],
-	  [AC_MSG_RESULT(no)])
-fi
-AM_CONDITIONAL(HAVE_GRESOURCE_PIXBUF, test "x$have_gresource_pixbuf" = "xyes")
-
-if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
-	# We have both GTK and Qt and thus will be building both wireshark
-	# and wireshark-gtk.
-
-	wireshark_bin="wireshark\$(EXEEXT) wireshark-gtk\$(EXEEXT)"
-	wireshark_man="wireshark.1"
-	wireshark_SUBDIRS="ui/qt ui/gtk"
-elif test "$have_gtk" = "no" -a "$have_qt" = "yes" ; then
-	# We don't have GTK+ but we have Qt.
+if test "$have_qt" = "yes" ; then
+	# We have Qt.
 
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="ui/qt"
-elif test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
-	# We have GTK+ but not Qt.
-
-	wireshark_bin="wireshark-gtk\$(EXEEXT)"
-	wireshark_man="wireshark.1"
-	wireshark_SUBDIRS="ui/gtk"
-elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
-	# We have neither GTK+ nor Qt.
+else
+	# We do not have Qt.
 	#
 	# If they didn't explicitly say "--disable-wireshark",
 	# fail (so that, unless they explicitly indicated that
 	# they don't want Wireshark, we stop so they know they
-	# won't be getting Wireshark unless they fix the GTK+/Qt
+	# won't be getting Wireshark unless they fix the Qt
 	# problem).
 	#
 	if test "x$enable_wireshark" = "xyes"; then
-		if test "$with_qt" != "no" -a "$with_gtk" != "no" ; then
+		if test "$with_qt" != "no" ; then
 			case "$host_os" in
 			darwin*)
 				#
@@ -1402,7 +1308,7 @@ elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 				# install .pc files on macOS, so
 				# pkg-config can't find it.
 				#
-				AC_MSG_ERROR([Neither Qt nor GTK+ are installed for development, or Qt is installed but doesn't work with the configure script, so Wireshark can't be compiled; try using CMake, instead])
+				AC_MSG_ERROR([Qt was not installed for development, or Qt is installed but doesn't work with the configure script, so Wireshark can't be compiled; try using CMake, instead])
 				;;
 
 			*)
@@ -1411,35 +1317,11 @@ elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 				# for use by applications, not
 				# for development.
 				#
-				AC_MSG_ERROR([Neither Qt nor GTK+ are installed for development, so Wireshark can't be compiled])
+				AC_MSG_ERROR([Qt was not installed for development, so Wireshark can't be compiled])
 				;;
 			esac
-		elif test "$with_qt" != "no" -a "$with_gtk" = "no" ; then
-			case "$host_os" in
-			darwin*)
-				#
-				# This is probably macOS, and the
-				# problem could be that this is a
-				# later version of Qt that doesn't
-				# install .pc files on macOS, so
-				# pkg-config can't find it.
-				#
-				AC_MSG_ERROR([Qt is not installed or may not work with the configure script, and GTK+ was not requested, so Wireshark cannot be compiled; try using CMake, instead])
-				;;
-
-			*)
-				#
-				# Qt might be installed, but only
-				# for use by applications, not
-				# for development.
-				#
-				AC_MSG_ERROR([Qt is not installed for development and GTK+ was not requested, so Wireshark can't be compiled])
-				;;
-			esac
-		elif test "$with_qt" = "no" -a "$with_gtk" != "no" ; then
-			AC_MSG_ERROR([Qt was not requested and GTK+ is not installed for development, so Wireshark can't be compiled])
-		elif test "$with_qt" = "no" -a "$with_gtk" = "no" ; then
-			AC_MSG_ERROR([Neither Qt nor GTK+ were requested, so Wireshark can't be compiled])
+		else
+			AC_MSG_ERROR([Qt was not requested so Wireshark can't be compiled])
 		fi
 	fi
 	wireshark_bin=""
@@ -1482,7 +1364,6 @@ AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 AC_SUBST(wireshark_SUBDIRS)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
-AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 
 # Enable/disable tshark
 AC_ARG_ENABLE(tshark,
@@ -1943,43 +1824,6 @@ fi
 AM_CONDITIONAL(HAVE_LIBLUA, test x$have_lua = xyes)
 AC_SUBST(LUA_LIBS)
 AC_SUBST(LUA_CFLAGS)
-
-
-dnl portaudio check
-AC_MSG_CHECKING(whether to use libportaudio for the GTK+ RTP player)
-
-AC_ARG_WITH(portaudio,
-  AC_HELP_STRING( [--with-portaudio@<:@=DIR@:>@],
-		  [use libportaudio (located in directory DIR, if supplied) for the GTK+ RTP player @<:@default=yes, if available@:>@]),
-[
-	if test $withval = no
-	then
-		want_portaudio=no
-	elif test $withval = yes
-	then
-		want_portaudio=yes
-	else
-		want_portaudio=yes
-		portaudio_dir=$withval
-	fi
-],[
-	#
-	# Use libportaudio by default
-	#
-	want_portaudio=ifavailable
-	portaudio_dir=
-])
-if test "x$want_portaudio" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
-	AC_MSG_RESULT(yes)
-	AC_WIRESHARK_LIBPORTAUDIO_CHECK
-	if test "x$want_portaudio" = "xno" ; then
-		AC_MSG_RESULT(libportaudio not found - disabling support for the GTK+ RTP player)
-	fi
-fi
-AM_CONDITIONAL(HAVE_LIBPORTAUDIO, test x$want_portaudio = xyes)
-
 
 dnl Check if dumpcap should be installed with filesystem capabilities
 AC_PATH_PROG(SETCAP, setcap)
@@ -2613,15 +2457,6 @@ then
 fi
 
 # Gather which GUI we're building for rpmbuild
-if test "x$have_gtk" = "xyes"; then
-	if test "x$gtk_major_version" = "x3"; then
-		RPMBUILD_WITH_ARGS="--with gtk3 --without gtk2"
-	else
-		RPMBUILD_WITH_ARGS="--without gtk3 --with gtk2"
-	fi
-else
-	RPMBUILD_WITH_ARGS="--without gtk2 --without gtk3"
-fi
 if test "x$have_qt" = "xyes" ; then
 	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt5"
 else
@@ -2830,10 +2665,6 @@ AC_OUTPUT
 
 # Pretty messages
 
-if test "x$have_gtk" = "xyes"; then
-	gtk_lib_message=" (with GTK+ v$GTK_VERSION)"
-fi
-
 if test "x$have_qt" = "xyes" ; then
 	enable_wireshark_qt="yes"
 	qt_lib_message=" (with Qt$qt_version v$QT_VERSION)"
@@ -2875,12 +2706,6 @@ if test "x$have_qt_multimedia_lib" = "xyes" ; then
 	qt_multimedia_message="yes"
 else
 	qt_multimedia_message="no"
-fi
-
-if test "x$want_portaudio" = "xyes" ; then
-	portaudio_message="yes"
-else
-	portaudio_message="no"
 fi
 
 if test "x$want_krb5" = "xno" ; then
@@ -2949,7 +2774,6 @@ echo ""
 echo "The Wireshark package has been configured with the following options:"
 echo "                       GLib version : v$GLIB_VERSION"
 echo "                    Build wireshark : $enable_wireshark_qt$qt_lib_message"
-echo "                Build wireshark-gtk : $have_gtk""$gtk_lib_message"
 echo "                       Build tshark : $enable_tshark"
 echo "                      Build tfshark : $enable_tfshark"
 echo "                     Build capinfos : $enable_capinfos"
@@ -2979,7 +2803,6 @@ echo "                  Use dumpcap group : $dumpcap_group_message"
 echo "                        Use plugins : $have_plugins"
 echo "                    Use Lua library : $lua_message"
 echo "                Build Qt RTP player : $qt_multimedia_message"
-echo "              Build GTK+ RTP player : $portaudio_message"
 echo "                   Use pcap library : $want_pcap"
 echo "                   Use zlib library : $zlib_message"
 echo "               Use kerberos library : $krb5_message"

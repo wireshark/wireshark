@@ -51,7 +51,7 @@ noinst_PROGRAMS = \
 	@dftest_bin@		\
 	@fuzzshark_bin@
 
-EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype \
+EXTRA_PROGRAMS = wireshark tshark tfshark capinfos captype \
 	editcap mergecap dftest randpkt text2pcap dumpcap reordercap \
 	mmdbresolve rawshark sharkd fuzzshark
 
@@ -401,10 +401,6 @@ EPAN_EXTRA_LIBS = \
 	@LIBSMI_LIBS@
 
 # Libraries and plugin flags with which to link wireshark.
-#
-# GTK_CFLAGS/GTK_LIBS is a strict superset of GLIB_CFLAGS/GLIB_LIBS
-# (see configure.ac for pkg-config modules used).
-#
 wireshark_common_ldadd = \
 	capchild/libcapchild.a		\
 	caputils/libcaputils.a		\
@@ -435,20 +431,6 @@ if HAVE_SPEEXDSP
 wireshark_LDADD += $(SPEEXDSP_LIBS)
 endif
 endif	# HAVE_Qt
-
-if HAVE_GTK
-wireshark_gtk_SOURCES = $(WIRESHARK_COMMON_SRC)
-
-wireshark_gtk_CPPFLAGS = $(AM_CPPFLAGS) $(GTK_CFLAGS)
-
-wireshark_gtk_LDFLAGS = $(AM_LDFLAGS)
-
-wireshark_gtk_LDADD = \
-	ui/gtk/libgtkui.a		\
-	$(wireshark_common_ldadd)	\
-	$(GTK_LIBS)			\
-	@PORTAUDIO_LIBS@
-endif
 
 fuzzshark_SOURCES = \
 	tools/oss-fuzzshark/fuzzshark.c \
@@ -799,7 +781,6 @@ EXTRA_DIST = \
 	text2pcap.h		\
 	services		\
 	wireshark.desktop	\
-	wireshark-gtk.desktop	\
 	wireshark-mime-package.xml	\
 	wireshark.appdata.xml	\
 	wireshark.pc.in		\
@@ -843,7 +824,6 @@ DIST_SUBDIRS = \
 	epan		\
 	ui		\
 	ui/cli		\
-	ui/gtk		\
 	ui/qt		\
 	help		\
 	packaging	\
@@ -903,7 +883,7 @@ if BUILDING_WIRESHARK
 	$(MKDIR_P) $(DESTDIR)$(datadir)/appdata
 	$(INSTALL_DATA) $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	$(MKDIR_P) $(DESTDIR)$(datadir)/applications
-	$(INSTALL_DATA) $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications
+	$(INSTALL_DATA) $(srcdir)/wireshark.desktop $(DESTDIR)$(datadir)/applications
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		$(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps ; \
@@ -919,7 +899,6 @@ uninstall-local:
 if BUILDING_WIRESHARK
 	rm -f $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	rm -f $(DESTDIR)$(datadir)/applications/wireshark.desktop
-	rm -f $(DESTDIR)$(datadir)/applications/wireshark-gtk.desktop
 	rm -f $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	for size in 16 24 32 48 64 128 256; \
 	do \
@@ -938,9 +917,6 @@ uninstall-hook: update-databases-and-caches-uninstall
 # update-desktop-database and update-mime-database may be needed on
 # freedesktop.org desktops.
 #
-# gtk-update-icon-cache may be needed only if we're installing a GTK+
-# version of Wireshark.
-#
 # Only ldconfig may be needed if we're not building Wireshark
 # (that being the only desktop app).
 #
@@ -950,7 +926,6 @@ update-databases-and-caches-common:
 if BUILDING_WIRESHARK
 	@echo "You may need to run \"update-desktop-database $(datadir)/applications\""
 	@echo "You may need to run \"update-mime-database $(datadir)/mime\""
-	@echo "You may need to run \"gtk-update-icon-cache -f -t $(datadir)/icons/hicolor\""
 endif
 	@echo "-------------------------------------------------------------------------------"
 
@@ -967,9 +942,7 @@ test-programs:
 checkapi_local:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -build \
 	-sourcedir=$(srcdir) \
-	$(TSHARK_TAP_SRC) \
-	$(wireshark_gtk_SOURCES)
-#	$(EXTRA_wireshark_gtk_SOURCES)
+	$(TSHARK_TAP_SRC)
 
 checkapi: checkapi_local
 	cd wiretap && $(MAKE) checkapi
@@ -977,7 +950,6 @@ checkapi: checkapi_local
 	cd capchild && $(MAKE) checkapi
 	cd caputils && $(MAKE) checkapi
 	cd ui && $(MAKE) checkapi
-	cd ui/gtk && $(MAKE) checkapi
 	cd ui/cli && $(MAKE) checkapi
 	cd epan && $(MAKE) checkapi
 	cd epan/crypt && $(MAKE) checkapi
