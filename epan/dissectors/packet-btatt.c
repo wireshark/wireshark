@@ -3838,7 +3838,7 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
       case 0x17: /* Prepare Write Response */
       case 0x19: /* Execute Write Response */
       case 0x1E: /* Handle Value Confirmation */
-          if (request_data->opcode == opcode -1)
+          if (request_data->opcode == opcode - 1)
               return request_data;
 
           break;
@@ -5274,12 +5274,12 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             offset += 2;
         }
 
-        if (flags & 0x02 && !(flags & 0x04)) {
+        if ((flags & 0x02) && !(flags & 0x04)) {
             proto_tree_add_item(tree, hf_btatt_glucose_measurement_glucose_concentration_kg_per_l, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
 
-        if (flags & 0x02 && flags & 0x04) {
+        if ((flags & 0x02) && (flags & 0x04)) {
             proto_tree_add_item(tree, hf_btatt_glucose_measurement_glucose_concentration_mol_per_l, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
@@ -12906,7 +12906,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_weight_scale_feature,
-            {"Body Composition Feature", "btatt.weight_scale_feature",
+            {"Weight Scale Feature", "btatt.weight_scale_feature",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
@@ -12976,7 +12976,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_sequence_number,
-            {"Body Composition Feature", "btatt.glucose_measurement.sequence_number",
+            {"Sequence Number", "btatt.glucose_measurement.sequence_number",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
@@ -13001,7 +13001,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_type_and_sample_location,
-            {"Glucose Concentration [mol/l]", "btatt.glucose_measurement.type_and_sample_location",
+            {"Type and Sample Location", "btatt.glucose_measurement.type_and_sample_location",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
@@ -13596,7 +13596,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_record_access_control_point_response_code,
-            {"Request Opcode", "btatt.record_access_control_point.response_code",
+            {"Response Opcode", "btatt.record_access_control_point.response_code",
             FT_UINT8, BASE_DEC, VALS(record_access_control_point_response_code_vals), 0x0,
             NULL, HFILL}
         },
