@@ -2786,8 +2786,6 @@ AC_CONFIG_FILES(
   codecs/Makefile
   ui/Makefile
   ui/doxygen.cfg
-  ui/gtk/Makefile
-  ui/gtk/doxygen.cfg
   ui/cli/Makefile
   ui/qt/Makefile
   ui/qt/doxygen.cfg
