@@ -155,188 +155,188 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="23"/>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth機器</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="78"/>
         <source>BD_ADDR</source>
-        <translation type="unfinished">BD_ADDR</translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="83"/>
         <source>OUI</source>
-        <translation type="unfinished">OUI</translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="88"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="93"/>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>機器のクラス</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="98"/>
         <source>LMP Version</source>
-        <translation type="unfinished">LMPバージョン</translation>
+        <translation>LMP バージョン</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="103"/>
         <source>LMP Subverion</source>
-        <translation type="unfinished"></translation>
+        <translation>LMP サブバージョン</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="108"/>
         <source>Manufacturer</source>
-        <translation type="unfinished">製造元</translation>
+        <translation>製造者</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="113"/>
         <source>HCI Version</source>
-        <translation type="unfinished">HCIバージョン</translation>
+        <translation>HCI バージョン</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="118"/>
         <source>HCI Revision</source>
-        <translation type="unfinished">HCIリビジョン</translation>
+        <translation>HCI リビジョン</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="123"/>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>スキャン</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="128"/>
         <source>Authentication</source>
-        <translation type="unfinished">認証</translation>
+        <translation>認証</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="133"/>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>暗号化</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="138"/>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL MTU</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="143"/>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL 全パケット</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="148"/>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO MTU</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="153"/>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO 全パケット</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="158"/>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL MTU</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="163"/>
         <source>LE ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL 全パケット</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="168"/>
         <source>Inquiry Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>問い合わせモード</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="173"/>
         <source>Page Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>ページタイムアウト</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="178"/>
         <source>Simple Pairing Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>シンプルペアリングモード</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="183"/>
         <source>Voice Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>音声設定</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="188"/>
         <source>Value</source>
-        <translation type="unfinished">値</translation>
+        <translation>値</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="193"/>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>変更</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
         <location filename="bluetooth_device_dialog.cpp" line="586"/>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 変更</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="223"/>
         <source>Copy Cell</source>
-        <translation type="unfinished">セルをコピー</translation>
+        <translation>セルをコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="228"/>
         <source>Copy Rows</source>
-        <translation type="unfinished">列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="233"/>
         <source>Copy All</source>
-        <translation type="unfinished">すべてをコピー</translation>
+        <translation>すべてをコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="238"/>
         <source>Save as image</source>
-        <translation type="unfinished">画像として保存</translation>
+        <translation>画像として保存</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="180"/>
         <source>Unknown</source>
-        <translation type="unfinished">不明</translation>
+        <translation>不明</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="189"/>
         <source>Bluetooth Device - %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth機器 - %1%2</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="521"/>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>有効</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="521"/>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>無効</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="529"/>
         <source>%1 ms (%2 slots)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ミリ秒 (%2 スロット)</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="621"/>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>表の画像を保存</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="623"/>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">PNG画像 (*.png)</translation>
+        <translation>PNG画像 (*.png)</translation>
     </message>
 </context>
 <context>
@@ -405,7 +405,7 @@
         <location filename="bluetooth_devices_dialog.ui" line="146"/>
         <location filename="bluetooth_devices_dialog.cpp" line="329"/>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 アイテム; 右クリックしてより多くのオプション; ダブルクリックしてデバイスの詳細</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="163"/>
@@ -415,7 +415,7 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="168"/>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="173"/>
@@ -639,7 +639,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="612"/>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="617"/>
@@ -1175,7 +1175,9 @@
         <source>Created by Wireshark %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkによって作成されました %1
+
+</translation>
     </message>
 </context>
 <context>
@@ -1191,7 +1193,7 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="174"/>
         <source>Capture filter entry</source>
-        <translation>キャプチャフィルタ入力</translation>
+        <translation>キャプチャフィルタエントリ</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="355"/>
@@ -1243,7 +1245,8 @@
         <location filename="capture_filter_edit.cpp" line="593"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
+        <translation>キャプチャフィルタファイルを保存できません
+&quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -1410,7 +1413,7 @@
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation>選択したインタフェースのキャプチャフィルタ:</translation>
+        <translation>選択したインターフェースのキャプチャフィルタ:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1800,7 +1803,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="366"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
@@ -2032,7 +2035,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_edit.cpp" line="108"/>
         <source>Display filter entry</source>
-        <translation>表示フィルタ入力</translation>
+        <translation>表示フィルタエントリ</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="214"/>
@@ -2083,7 +2086,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_edit.cpp" line="573"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
+        <translation>表示フィルタファイルに保存できません
+&quot;%1&quot;: %2.</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="389"/>
@@ -2362,7 +2366,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="32"/>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="37"/>
@@ -2392,7 +2396,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="84"/>
         <source>Group by summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要ごとにグループ</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="107"/>
@@ -2500,7 +2504,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.cpp" line="624"/>
         <source>Packet</source>
-        <translation type="unfinished">パケット</translation>
+        <translation>パケット</translation>
     </message>
 </context>
 <context>
@@ -2509,7 +2513,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="export_dissection_dialog.cpp" line="89"/>
         <source>Export Packet Dissections</source>
         <oldsource>Wireshark: Export Packet Dissections</oldsource>
-        <translation>エキスパートパケット解析</translation>
+        <translation>パケット解析をエクスポート</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="91"/>
@@ -2540,7 +2544,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="export_dissection_dialog.cpp" line="99"/>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="100"/>
@@ -2608,7 +2612,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="export_object_dialog.cpp" line="399"/>
         <source>Object Export</source>
-        <translation>オブジェクト出力</translation>
+        <translation>オブジェクトをエクスポート</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="400"/>
@@ -2666,17 +2670,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="field_filter_edit.cpp" line="70"/>
         <source>Display filter entry</source>
-        <translation type="unfinished">表示フィルタ入力</translation>
+        <translation>表示フィルタエントリ</translation>
     </message>
     <message>
         <location filename="field_filter_edit.cpp" line="91"/>
         <source>Enter a field %1</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド %1 を入力</translation>
     </message>
     <message>
         <location filename="field_filter_edit.cpp" line="154"/>
         <source>Invalid filter: </source>
-        <translation type="unfinished">無効なフィルタ</translation>
+        <translation>無効なフィルタ</translation>
     </message>
 </context>
 <context>
@@ -2730,8 +2734,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="file_set_dialog.cpp" line="137"/>
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>セット内の %Ln ファイル</numerusform>
         </translation>
     </message>
 </context>
@@ -2906,82 +2910,82 @@ for filter files: %2.</source>
     <message>
         <location filename="firewall_rules_dialog.ui" line="22"/>
         <source>Create rules for</source>
-        <translation type="unfinished"></translation>
+        <translation>…に対してルールを作成</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.ui" line="45"/>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>入力</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.ui" line="68"/>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>否定</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="57"/>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイアウォール ACL ルール</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="59"/>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="116"/>
         <source>IPv4 source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 送信元アドレス</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="117"/>
         <source>IPv4 destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 宛先アドレス</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="121"/>
         <source>Source port.</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元ポート</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="122"/>
         <source>Destination port.</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先ポート</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="127"/>
         <source>IPv4 source address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 送信元アドレスとポート</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="128"/>
         <source>IPv4 destination address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 宛先アドレスとポート</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="132"/>
         <source>MAC source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC 送信元アドレス</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="133"/>
         <source>MAC destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC宛先アドレス</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="188"/>
         <source>Text file (*.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイル (*.txt);;すべてのファイル (</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="199"/>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <location filename="firewall_rules_dialog.cpp" line="199"/>
         <source>Unable to save %1</source>
-        <translation type="unfinished">%1を保存できません</translation>
+        <translation>% 1を保存できません</translation>
     </message>
 </context>
 <context>
@@ -3002,6 +3006,18 @@ for filter files: %2.</source>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>として保存</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln クライアントパケット, </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln サーバーパケット, </numerusform>
+        </translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
@@ -3031,7 +3047,7 @@ for filter files: %2.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="124"/>
         <source>UTF-16</source>
-        <translation type="unfinished">UTF-16形式</translation>
+        <translation>UTF-16形式</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="125"/>
@@ -3046,7 +3062,7 @@ for filter files: %2.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="138"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>戻る</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="182"/>
@@ -3056,8 +3072,8 @@ for filter files: %2.</source>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="185"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;クライアント&lt;/span&gt; パケット, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3158,7 +3174,7 @@ for filter files: %2.</source>
         <location filename="follow_stream_dialog.ui" line="68"/>
         <source>Show and save data as</source>
         <oldsource>Show data as</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>としてデータを表示して保存する</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="95"/>
@@ -3808,7 +3824,7 @@ for filter files: %2.</source>
         <location filename="io_graph_dialog.ui" line="461"/>
         <location filename="io_graph_dialog.ui" line="464"/>
         <source>Zoom In X Axis</source>
-        <translation>X軸をズーム</translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="467"/>
@@ -3819,7 +3835,7 @@ for filter files: %2.</source>
         <location filename="io_graph_dialog.ui" line="472"/>
         <location filename="io_graph_dialog.ui" line="475"/>
         <source>Zoom Out X Axis</source>
-        <translation>X軸をズームアウト</translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="478"/>
@@ -3830,7 +3846,7 @@ for filter files: %2.</source>
         <location filename="io_graph_dialog.ui" line="483"/>
         <location filename="io_graph_dialog.ui" line="486"/>
         <source>Zoom In Y Axis</source>
-        <translation>Y軸をズーム</translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="489"/>
@@ -3841,7 +3857,7 @@ for filter files: %2.</source>
         <location filename="io_graph_dialog.ui" line="494"/>
         <location filename="io_graph_dialog.ui" line="497"/>
         <source>Zoom Out Y Axis</source>
-        <translation>Y軸をズームアウト</translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="500"/>
@@ -4206,7 +4222,7 @@ for filter files: %2.</source>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
         <location filename="iax2_analysis_dialog.cpp" line="344"/>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>1つのIAX2パケットを選んでください</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="453"/>
@@ -4418,12 +4434,12 @@ for filter files: %2.</source>
     <message>
         <location filename="import_text_dialog.ui" line="136"/>
         <source>The text file has no offset</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルにはオフセットがありません</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="139"/>
         <source>None</source>
-        <translation type="unfinished">なし</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="252"/>
@@ -4886,7 +4902,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="441"/>
         <source>Copy as CSV</source>
-        <translation>CSVとしてコピー</translation>
+        <translation>CSV形式としてコピー</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="444"/>
@@ -5427,7 +5443,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="695"/>
         <source>Show the data frames/bytes column</source>
-        <translation>データフレーム数／バイト数を列に表示</translation>
+        <translation>データフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="706"/>
@@ -5447,7 +5463,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="739"/>
         <source>Show the RX data frames/bytes column</source>
-        <translation>受信データフレーム数／バイト数を列に表示</translation>
+        <translation>受信データフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="750"/>
@@ -6388,7 +6404,7 @@ for filter files: %2.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="307"/>
         <location filename="lte_rlc_graph_dialog.ui" line="310"/>
         <source>Zoom In X Axis</source>
-        <translation>X軸をズーム</translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="313"/>
@@ -6399,7 +6415,7 @@ for filter files: %2.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="318"/>
         <location filename="lte_rlc_graph_dialog.ui" line="321"/>
         <source>Zoom Out Y Axis</source>
-        <translation>Y軸をズームアウト</translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="324"/>
@@ -6410,7 +6426,7 @@ for filter files: %2.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="329"/>
         <location filename="lte_rlc_graph_dialog.ui" line="332"/>
         <source>Zoom In Y Axis</source>
-        <translation>Y軸をズームイン</translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="335"/>
@@ -6421,7 +6437,7 @@ for filter files: %2.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="340"/>
         <location filename="lte_rlc_graph_dialog.ui" line="343"/>
         <source>Zoom Out X Axis</source>
-        <translation>X軸をズームアウト</translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="346"/>
@@ -6703,12 +6719,12 @@ for filter files: %2.</source>
     <message>
         <location filename="main_welcome.ui" line="130"/>
         <source>Recent capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>最近のキャプチャファイル</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="133"/>
         <source>Capture files that have been opened previously</source>
-        <translation type="unfinished"></translation>
+        <translation>以前に開いたキャプチャファイル</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="146"/>
@@ -6728,12 +6744,12 @@ for filter files: %2.</source>
     <message>
         <location filename="main_welcome.ui" line="197"/>
         <source>Interface list</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース一覧</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="200"/>
         <source>List of available capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>利用可能なキャプチャインターフェース一覧</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="226"/>
@@ -6804,7 +6820,37 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;ユーザーズガイド&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;質問と回答&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;メーリングリスト&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="226"/>
@@ -6868,7 +6914,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="167"/>
         <source>Export Packet Dissections</source>
-        <translation>エキスパートパケット解析</translation>
+        <translation>パケット解析をエクスポート</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="179"/>
@@ -7250,7 +7296,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1107"/>
         <source>Export specified packets</source>
-        <translation>指定したパケットを出力</translation>
+        <translation>指定したパケットをエクスポート</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1133"/>
@@ -7489,7 +7535,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1242"/>
         <source>As JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>JSONとして…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1265"/>
@@ -8088,7 +8134,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2464"/>
         <source>Show each dissector table and its entries</source>
-        <translation>各々のダイセクター表とそのエントリを表示します</translation>
+        <translation>各々のダイセクター表とその入力を表示します</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2469"/>
@@ -8214,12 +8260,12 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2922"/>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイアウォール ACL ルール</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2925"/>
         <source>Create firewall ACL rules</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイアウォール ACL ルールを作成します</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1170"/>
@@ -9151,7 +9197,7 @@ a:hover {
     <message>
         <location filename="main_window.cpp" line="1609"/>
         <source>Save before Continue</source>
-        <translation type="unfinished"></translation>
+        <translation>続ける前に保存</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1611"/>
@@ -9162,26 +9208,26 @@ a:hover {
         <location filename="main_window.cpp" line="1623"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>保存せずに停止して終了</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1635"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>保存せずに終了</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1626"/>
         <location filename="main_window.cpp" line="1639"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>保存しないで続ける</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1629"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>保存せずに停止して続ける</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1961"/>
@@ -10291,7 +10337,7 @@ a:hover {
     <message>
         <location filename="profile_dialog.cpp" line="172"/>
         <source>(system provided)</source>
-        <translation type="unfinished"></translation>
+        <translation>(システム提供)</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="178"/>
@@ -10501,12 +10547,12 @@ a:hover {
     <message>
         <location filename="preferences_dialog.cpp" line="110"/>
         <source>Default</source>
-        <translation type="unfinished">デフォルト</translation>
+        <translation>デフォルト</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="112"/>
         <source>Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>変更済</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="130"/>
@@ -11076,22 +11122,22 @@ a:hover {
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="118"/>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルト</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="120"/>
         <source>DLT %1</source>
-        <translation type="unfinished"></translation>
+        <translation>DLT %1</translation>
     </message>
     <message>
         <location filename="../../wireshark-qt.cpp" line="803"/>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">無効な表示フィルタ</translation>
+        <translation>無効な表示フィルタ</translation>
     </message>
     <message>
         <location filename="../../wireshark-qt.cpp" line="804"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ式 %1 は有効な表示フィルタではありません(%2)</translation>
     </message>
 </context>
 <context>
@@ -11918,12 +11964,12 @@ a:hover {
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1430"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>このバージョンのWiresharkには &quot;rtp.ssrc&quot; フィールドはありません</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1464"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC値をもつRTPv2パケットを選んでください</translation>
     </message>
 </context>
 <context>
@@ -12446,12 +12492,12 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.ui" line="199"/>
         <source>Copy as CSV</source>
-        <translation>CSVとしてコピー</translation>
+        <translation>CSV形式としてコピー</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="202"/>
         <source>Copy stream list as CSV.</source>
-        <translation>CSVとしてストリーム一覧をコピーします</translation>
+        <translation>CSV形式としてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="207"/>
@@ -12482,7 +12528,7 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.cpp" line="257"/>
         <source>as CSV</source>
-        <translation>CSVとして</translation>
+        <translation>CSV形式として</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="260"/>
@@ -12571,7 +12617,7 @@ a:hover {
         <location filename="sctp_all_assocs_dialog.ui" line="162"/>
         <location filename="sctp_all_assocs_dialog.ui" line="165"/>
         <source>Zoom In</source>
-        <translation>ズームイン</translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="168"/>
@@ -12582,7 +12628,7 @@ a:hover {
         <location filename="sctp_all_assocs_dialog.ui" line="173"/>
         <location filename="sctp_all_assocs_dialog.ui" line="176"/>
         <source>Zoom Out</source>
-        <translation>ズームアウト</translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="179"/>
@@ -13403,17 +13449,17 @@ a:hover {
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;コマンドを選択して望んだフィルタを入力したら適用を押してください&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>コマンド:</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSIサービス応答時間</translation>
     </message>
 </context>
 <context>
@@ -13575,12 +13621,12 @@ a:hover {
     <message>
         <location filename="sequence_dialog.cpp" line="116"/>
         <source>Time</source>
-        <translation type="unfinished">時間</translation>
+        <translation>時間</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="124"/>
         <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
+        <translation>コメント</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="170"/>
@@ -13691,7 +13737,30 @@ a:hover {
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値のあり、素晴らしく時間を節約できるキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;グラフを初期状態にリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソルのあるパケットへ移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;次のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;前のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="74"/>
@@ -13757,23 +13826,23 @@ a:hover {
         <location filename="sequence_dialog.ui" line="235"/>
         <location filename="sequence_dialog.ui" line="238"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="241"/>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="246"/>
         <location filename="sequence_dialog.ui" line="249"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="252"/>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="257"/>
@@ -13907,32 +13976,32 @@ a:hover {
     <message>
         <location filename="sequence_dialog.ui" line="378"/>
         <source>Go To Next Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケットに移動</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="381"/>
         <source>Go to the next packet</source>
-        <translation type="unfinished">次のパケットに移動します</translation>
+        <translation>次のパケットに移動</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="384"/>
         <source>N</source>
-        <translation type="unfinished">N</translation>
+        <translation>N</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="389"/>
         <source>Go To Previous Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケットに移動</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="392"/>
         <source>Go to the previous packet</source>
-        <translation type="unfinished">前のパケットに移動します</translation>
+        <translation>前のパケットに移動</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="395"/>
         <source>P</source>
-        <translation type="unfinished">P</translation>
+        <translation>P</translation>
     </message>
 </context>
 <context>
@@ -14002,7 +14071,7 @@ a:hover {
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="72"/>
         <source>Quoted-Printable</source>
-        <translation type="unfinished"></translation>
+        <translation>節に分けて印刷可能</translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="73"/>
@@ -14169,7 +14238,7 @@ a:hover {
     <message>
         <location filename="splash_overlay.cpp" line="164"/>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>ローカルインターフェースを見つけています</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="167"/>
@@ -14462,7 +14531,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="219"/>
         <location filename="tcp_stream_dialog.ui" line="222"/>
         <source>Zoom In</source>
-        <translation>ズームイン</translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="225"/>
@@ -14473,7 +14542,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="230"/>
         <location filename="tcp_stream_dialog.ui" line="233"/>
         <source>Zoom Out</source>
-        <translation>ズームアウト</translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="236"/>
@@ -14765,7 +14834,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="472"/>
         <location filename="tcp_stream_dialog.ui" line="475"/>
         <source>Zoom In X Axis</source>
-        <translation>X軸をズームイン</translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="478"/>
@@ -14776,7 +14845,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="483"/>
         <location filename="tcp_stream_dialog.ui" line="486"/>
         <source>Zoom Out X Axis</source>
-        <translation>X軸をズームアウト</translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="489"/>
@@ -14787,7 +14856,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="494"/>
         <location filename="tcp_stream_dialog.ui" line="497"/>
         <source>Zoom In Y Axis</source>
-        <translation>Y軸をズームイン</translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="500"/>
@@ -14798,7 +14867,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="505"/>
         <location filename="tcp_stream_dialog.ui" line="508"/>
         <source>Zoom Out Y Axis</source>
-        <translation>Y軸をズームアウト</translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="511"/>
@@ -15077,12 +15146,12 @@ a:hover {
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;開始時間列に絶対的な時間を表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>絶対的開始時間</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="91"/>
@@ -15136,13 +15205,13 @@ a:hover {
         <location filename="uat_dialog.ui" line="42"/>
         <source>Remove this entry.</source>
         <oldsource>Remove this profile.</oldsource>
-        <translation>このエントリを削除します</translation>
+        <translation>この入力を削除します</translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="53"/>
         <source>Copy this entry.</source>
         <oldsource>Copy this profile.</oldsource>
-        <translation>このエントリをコピーします</translation>
+        <translation>この入力をコピーします</translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="89"/>
@@ -15230,22 +15299,22 @@ a:hover {
     <message>
         <location filename="voip_calls_dialog.ui" line="112"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished">CSVとしてコピー</translation>
+        <translation>CSV形式としてコピー</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="115"/>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished">CSVとしてストリーム一覧をコピーします</translation>
+        <translation>CSV形式としてストリーム一覧をコピー</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="120"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished">YAMLとしてコピー</translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="123"/>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished">YAMLとしてストリーム一覧をコピーします</translation>
+        <translation>YAMLとしてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="215"/>
@@ -15271,17 +15340,17 @@ a:hover {
     <message>
         <location filename="voip_calls_dialog.cpp" line="226"/>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="229"/>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV形式として</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="232"/>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとして</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="392"/>
@@ -15383,22 +15452,22 @@ a:hover {
     <message>
         <location filename="wireshark_application.cpp" line="563"/>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Dell Backup and Recovery が見つかりました</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="564"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dell Backup and Recovery 1.8 が起動しています</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="565"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBARは &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;Wiresharkを含めて&lt;/a&gt;多くのアプリケーションのクラッシュを起こします</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="569"/>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>問題DLL: %1</translation>
     </message>
 </context>
 <context>
