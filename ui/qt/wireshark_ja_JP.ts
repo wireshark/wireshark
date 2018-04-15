@@ -140,7 +140,7 @@
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="185"/>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="190"/>
@@ -156,7 +156,7 @@
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="200"/>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="203"/>
         <source>Mark/Unmark Row</source>
-        <translation>列をマーク／マーク解除</translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="206"/>
@@ -166,7 +166,7 @@
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="211"/>
         <source>Mark/Unmark Cell</source>
-        <translation>セルをマーク／マーク解除</translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.cpp" line="368"/>
@@ -320,7 +320,7 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="228"/>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="233"/>
@@ -336,7 +336,7 @@
         <location filename="bluetooth_device_dialog.ui" line="243"/>
         <location filename="bluetooth_device_dialog.ui" line="246"/>
         <source>Mark/Unmark Row</source>
-        <translation>列をマーク／マーク解除</translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="249"/>
@@ -346,7 +346,7 @@
     <message>
         <location filename="bluetooth_device_dialog.ui" line="254"/>
         <source>Mark/Unmark Cell</source>
-        <translation>セルをマーク／マーク解除</translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="180"/>
@@ -450,7 +450,7 @@
         <location filename="bluetooth_devices_dialog.ui" line="146"/>
         <location filename="bluetooth_devices_dialog.cpp" line="380"/>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation>%1 アイテム; ミギクリックしてより多くのオプション; ダブルクリックしてデバイスの詳細</translation>
+        <translation>%1 アイテム; 右クリックしてより多くのオプション; ダブルクリックしてデバイスの詳細</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="163"/>
@@ -460,7 +460,7 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="168"/>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="173"/>
@@ -476,7 +476,7 @@
         <location filename="bluetooth_devices_dialog.ui" line="183"/>
         <location filename="bluetooth_devices_dialog.ui" line="186"/>
         <source>Mark/Unmark Row</source>
-        <translation>列をマーク／マーク解除</translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="189"/>
@@ -486,7 +486,7 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="194"/>
         <source>Mark/Unmark Cell</source>
-        <translation>セルをマーク／マーク解除</translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.cpp" line="341"/>
@@ -715,7 +715,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="686"/>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="691"/>
@@ -731,7 +731,7 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="701"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="704"/>
         <source>Mark/Unmark Row</source>
-        <translation>列をマーク／マーク解除</translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="707"/>
@@ -741,7 +741,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="712"/>
         <source>Mark/Unmark Cell</source>
-        <translation>セルをマーク／マーク解除</translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="362"/>
@@ -1895,17 +1895,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="column_editor_frame.cpp" line="176"/>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>見つからないフィールド</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="178"/>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィールド</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="180"/>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なオカレンス値</translation>
     </message>
 </context>
 <context>
@@ -2415,7 +2415,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="59"/>
         <source>Group by summary</source>
-        <translation>概要ごとにグループ化</translation>
+        <translation>概要ごとにグループ</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="82"/>
@@ -2492,12 +2492,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.cpp" line="111"/>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて閉じる</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.cpp" line="115"/>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて展開</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.cpp" line="194"/>
@@ -2531,32 +2531,32 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="196"/>
         <source>Packet</source>
-        <translation type="unfinished">パケット</translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="198"/>
         <source>Severity</source>
-        <translation type="unfinished"></translation>
+        <translation>重要度</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>グループ</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="204"/>
         <source>Protocol</source>
-        <translation type="unfinished">プロトコル</translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="206"/>
         <source>Count</source>
-        <translation type="unfinished">カウント</translation>
+        <translation>回数</translation>
     </message>
 </context>
 <context>
@@ -2565,7 +2565,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="export_dissection_dialog.cpp" line="89"/>
         <source>Export Packet Dissections</source>
         <oldsource>Wireshark: Export Packet Dissections</oldsource>
-        <translation>エキスパートパケット解析</translation>
+        <translation>パケット解析をエクスポート</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="91"/>
@@ -2664,7 +2664,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="export_object_dialog.cpp" line="389"/>
         <source>Object Export</source>
-        <translation>オブジェクト出力</translation>
+        <translation>オブジェクトをエクスポート</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="390"/>
@@ -2894,17 +2894,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="filter_expression_frame.cpp" line="129"/>
         <source>Missing label.</source>
-        <translation type="unfinished"></translation>
+        <translation>見つからないラベル</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="131"/>
         <source>Missing filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>見つからないフィルタ式</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="133"/>
         <source>Invalid filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィルタ式</translation>
     </message>
 </context>
 <context>
@@ -3142,7 +3142,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="245"/>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>正規表現検索:</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="276"/>
@@ -3178,7 +3178,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="940"/>
         <source>Entire conversation (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>全体の会話 (%1)</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="944"/>
@@ -3193,7 +3193,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="539"/>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ストリーム出力が切り詰められました]</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="850"/>
@@ -3558,12 +3558,12 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;h3&gt;価値のあり、すばらしく、時間を節約するキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸のズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸のズームアウト&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸を縮小&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
@@ -3577,9 +3577,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -3874,7 +3874,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="io_graph_dialog.ui" line="461"/>
         <location filename="io_graph_dialog.ui" line="464"/>
         <source>Zoom In X Axis</source>
-        <translation>X軸をズーム</translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="467"/>
@@ -3885,7 +3885,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="io_graph_dialog.ui" line="472"/>
         <location filename="io_graph_dialog.ui" line="475"/>
         <source>Zoom Out X Axis</source>
-        <translation>X軸をズームアウト</translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="478"/>
@@ -3896,7 +3896,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="io_graph_dialog.ui" line="483"/>
         <location filename="io_graph_dialog.ui" line="486"/>
         <source>Zoom In Y Axis</source>
-        <translation>Y軸をズーム</translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="489"/>
@@ -3907,7 +3907,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="io_graph_dialog.ui" line="494"/>
         <location filename="io_graph_dialog.ui" line="497"/>
         <source>Zoom Out Y Axis</source>
-        <translation>Y軸をズームアウト</translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="500"/>
@@ -4740,7 +4740,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="interface_sort_filter_model.cpp" line="380"/>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation>インターフェースが表示されません。 %1 インタフェースがフィルタされました。</translation>
+        <translation>インターフェースが表示されません。 %1 インターフェースがフィルタされました。</translation>
     </message>
 </context>
 <context>
@@ -4776,7 +4776,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="interface_tree_model.cpp" line="81"/>
         <source>No Interfaces found.</source>
         <oldsource>No Interfaces found!</oldsource>
-        <translation>インタフェースが見つかりません</translation>
+        <translation>インターフェースが見つかりません</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="265"/>
@@ -5652,7 +5652,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="695"/>
         <source>Show the data frames/bytes column</source>
-        <translation>データフレーム数／バイト数を列に表示</translation>
+        <translation>データフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="706"/>
@@ -5672,7 +5672,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="739"/>
         <source>Show the RX data frames/bytes column</source>
-        <translation>受信データフレーム数／バイト数を列に表示</translation>
+        <translation>受信データフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="750"/>
@@ -6356,12 +6356,12 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;h3&gt;価値のあり、すばらしく、時間を節約するキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸のズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸のズームアウト&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸を縮小&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
@@ -6375,9 +6375,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -6613,7 +6613,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="307"/>
         <location filename="lte_rlc_graph_dialog.ui" line="310"/>
         <source>Zoom In X Axis</source>
-        <translation>X軸をズーム</translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="313"/>
@@ -6624,7 +6624,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="318"/>
         <location filename="lte_rlc_graph_dialog.ui" line="321"/>
         <source>Zoom Out Y Axis</source>
-        <translation>Y軸をズームアウト</translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="324"/>
@@ -6635,7 +6635,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="329"/>
         <location filename="lte_rlc_graph_dialog.ui" line="332"/>
         <source>Zoom In Y Axis</source>
-        <translation>Y軸をズームイン</translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="335"/>
@@ -6646,7 +6646,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="340"/>
         <location filename="lte_rlc_graph_dialog.ui" line="343"/>
         <source>Zoom Out X Axis</source>
-        <translation>X軸をズームアウト</translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="346"/>
@@ -7085,7 +7085,7 @@ a:hover {
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
         <translation>
-            <numerusform>%n インタフェースが表示, %1 非表示</numerusform>
+            <numerusform>%n インターフェース表示, %1 非表示</numerusform>
         </translation>
     </message>
     <message>
@@ -7155,7 +7155,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="170"/>
         <source>Export Packet Dissections</source>
-        <translation>エキスパートパケット解析</translation>
+        <translation>パケット解析をエクスポート</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="182"/>
@@ -7537,7 +7537,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1152"/>
         <source>Export specified packets</source>
-        <translation>指定したパケットを出力</translation>
+        <translation>指定したパケットをエクスポート</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1178"/>
@@ -8426,7 +8426,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2508"/>
         <source>Show each dissector table and its entries</source>
-        <translation>各々のダイセクター表とそのエントリを表示します</translation>
+        <translation>各々のダイセクター表とその入力を表示します</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2513"/>
@@ -10449,7 +10449,7 @@ a:hover {
     <message>
         <location filename="preference_editor_frame.cpp" line="260"/>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効な値</translation>
     </message>
 </context>
 <context>
@@ -11394,12 +11394,12 @@ a:hover {
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="876"/>
+        <location filename="../../wireshark-qt.cpp" line="884"/>
         <source>Invalid Display Filter</source>
         <translation>無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="877"/>
+        <location filename="../../wireshark-qt.cpp" line="885"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>%1 フィルターの書式は有効な表示フィルタではありません (%2)</translation>
     </message>
@@ -11409,22 +11409,22 @@ a:hover {
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Error</source>
-        <translation type="unfinished">エラー</translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="121"/>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">リモートインターフェースは見つかりませんでした</translation>
+        <translation>リモートインターフェースが見つかりませんでした</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <source>PCAP not found</source>
-        <translation type="unfinished">PCAPは見つかりません</translation>
+        <translation>PCAPが見つかりません</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>未知のエラー</translation>
     </message>
 </context>
 <context>
@@ -11581,7 +11581,7 @@ a:hover {
     <message>
         <location filename="resolved_addresses_dialog.ui" line="53"/>
         <source>Show the IPv4 hash table entries.</source>
-        <translation>IPv4ハッシュ表エントリを表示します</translation>
+        <translation>IPv4ハッシュ表入力を表示します</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="61"/>
@@ -12430,8 +12430,8 @@ a:hover {
 &lt;h3&gt;価値のあるすばらしく時間を節約できるキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態へリセット&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
@@ -12442,7 +12442,7 @@ a:hover {
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグとズームを切替&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャとセッション時間基準を切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャーとセッション時間基準を切替&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字表示を切替&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
@@ -12998,7 +12998,7 @@ a:hover {
         <location filename="sctp_all_assocs_dialog.ui" line="162"/>
         <location filename="sctp_all_assocs_dialog.ui" line="165"/>
         <source>Zoom In</source>
-        <translation>ズームイン</translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="168"/>
@@ -13009,7 +13009,7 @@ a:hover {
         <location filename="sctp_all_assocs_dialog.ui" line="173"/>
         <location filename="sctp_all_assocs_dialog.ui" line="176"/>
         <source>Zoom Out</source>
-        <translation>ズームアウト</translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="179"/>
@@ -13830,17 +13830,17 @@ a:hover {
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;コマンドを選択して望んだフィルタを入力したら適用を押してください&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>コマンド</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSIサービス応答時間</translation>
     </message>
 </context>
 <context>
@@ -14123,8 +14123,8 @@ a:hover {
 &lt;h3&gt;価値のあり、素晴らしく時間を節約できるキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;グラフを初期状態にリセット&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
@@ -14207,7 +14207,7 @@ a:hover {
         <location filename="sequence_dialog.ui" line="235"/>
         <location filename="sequence_dialog.ui" line="238"/>
         <source>Zoom In</source>
-        <translation>ズームイン</translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="241"/>
@@ -14540,7 +14540,7 @@ a:hover {
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="228"/>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>正規表現を検索:</translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="305"/>
@@ -14794,12 +14794,12 @@ a:hover {
 &lt;h3&gt;価値のありすばらしく時間を節約するキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸にズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸にズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸にズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸にズームアウト&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸を縮小&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
@@ -14900,12 +14900,12 @@ a:hover {
     <message>
         <location filename="tcp_stream_dialog.ui" line="235"/>
         <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延時間対シーケンス番号を表示</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="238"/>
         <source>RTT By Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス番号毎の往復遅延時間</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="248"/>
@@ -14981,7 +14981,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="359"/>
         <location filename="tcp_stream_dialog.ui" line="362"/>
         <source>Zoom In</source>
-        <translation>ズームイン</translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="365"/>
@@ -14992,7 +14992,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="370"/>
         <location filename="tcp_stream_dialog.ui" line="373"/>
         <source>Zoom Out</source>
-        <translation>ズームアウト</translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="376"/>
@@ -15285,7 +15285,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="612"/>
         <location filename="tcp_stream_dialog.ui" line="615"/>
         <source>Zoom In X Axis</source>
-        <translation>X軸をズームイン</translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="618"/>
@@ -15296,7 +15296,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="623"/>
         <location filename="tcp_stream_dialog.ui" line="626"/>
         <source>Zoom Out X Axis</source>
-        <translation>X軸をズームアウト</translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="629"/>
@@ -15307,7 +15307,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="634"/>
         <location filename="tcp_stream_dialog.ui" line="637"/>
         <source>Zoom In Y Axis</source>
-        <translation>Y軸をズームイン</translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="640"/>
@@ -15318,7 +15318,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="645"/>
         <location filename="tcp_stream_dialog.ui" line="648"/>
         <source>Zoom Out Y Axis</source>
-        <translation>Y軸をズームアウト</translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="651"/>
@@ -15650,19 +15650,19 @@ a:hover {
     <message>
         <location filename="uat_dialog.ui" line="44"/>
         <source>Create a new entry.</source>
-        <translation>新規エントリを作成します</translation>
+        <translation>新規入力を作成します</translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="58"/>
         <source>Remove this entry.</source>
         <oldsource>Remove this profile.</oldsource>
-        <translation>このエントリを削除します</translation>
+        <translation>この入力を削除します</translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="69"/>
         <source>Copy this entry.</source>
         <oldsource>Copy this profile.</oldsource>
-        <translation>このエントリをコピーします</translation>
+        <translation>この入力をコピーします</translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="90"/>
