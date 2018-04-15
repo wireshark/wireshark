@@ -312,28 +312,6 @@ http://www.lua.org/download.html[].
 We provide a copy of the official package at
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
-[[ChLibsPortAudio]]
-
-=== PortAudio (optional)
-
-The PortAudio library enables audio output for RTP streams.
-
-[[ChLibsUnixPortAudio]]
-
-==== Unix
-
-If this library isn't already installed or available as a
-package for your platform, you can get it at
-http://www.portaudio.com/download.html[].
-
-[[ChLibsWin32PortAudio]]
-
-==== Win32 MSVC
-
-The PortAudio sources are downloaded from
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
-locally.
-
 [[ChLibsMaxMindDB]]
 
 === MaxMindDB (optional)

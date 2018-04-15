@@ -93,9 +93,8 @@ get_zlib_compiled_version_info(void)
  *
  * "append_info" is called at the end to append any additional
  * information after the standard library information.  This is
- * required in order to, for example, put the Portaudio information
- * at the end of the string, as we currently don't use Portaudio in
- * TShark.
+ * required in order to, for example, put Qt information at the
+ * end of the string, as we don't use Qt in TShark.
  */
 GString *
 get_compiled_version_info(void (*prepend_info)(GString *),
@@ -301,8 +300,8 @@ get_locale(void)
  *
  * "additional_info" is called at the end to append any additional
  * information; this is required in order to, for example, put the
- * Portaudio information at the end of the string, as we currently
- * don't use Portaudio in TShark.
+ * libcap information at the end of the string, as we currently
+ * don't use libcap in TShark.
  */
 GString *
 get_runtime_version_info(void (*additional_info)(GString *))
