@@ -2930,6 +2930,11 @@ if(RPMBUILD_EXECUTABLE AND GIT_EXECUTABLE)
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
+	if (NOT _git_description)
+		# We're building the rpm outside the source. Guess the version from the dirname.
+		get_filename_component(CMAKE_SOURCE_DIR_NAME ${CMAKE_SOURCE_DIR} NAME)
+		string(SUBSTRING "${CMAKE_SOURCE_DIR_NAME}" 10 -1 _git_description)
+	endif()
 	string(SUBSTRING "${_git_description}" 1 -1 RPM_TARBALL_VERSION)
 	string(REPLACE "-" "_" RPM_VERSION "${RPM_TARBALL_VERSION}")
 	configure_file(packaging/rpm/wireshark.spec.in ${CMAKE_BINARY_DIR}/packaging/rpm/SPECS/wireshark.spec)
