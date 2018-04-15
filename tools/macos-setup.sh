@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Setup development environment on macOS (tested with 10.6.8 and Xcode
 # 3.2.6 and with 10.12.4 and Xcode 8.3).
 #
@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+shopt -s extglob
 #
 # To install cmake
 #
@@ -52,7 +53,7 @@ LZIP_VERSION=1.19
 #
 # In case we want to build with cmake.
 #
-CMAKE_VERSION=${CMAKE_VERSION-2.8.12.2}
+CMAKE_VERSION=${CMAKE_VERSION-3.11.0}
 
 #
 # The following libraries and tools are required even to build only TShark.
@@ -76,15 +77,15 @@ LIBGCRYPT_VERSION=1.7.7
 # set to the new values. Setting the variable to empty will disable building
 # the toolkit and will uninstall # any version previously installed by the
 # script, e.g.
-# "QT_VERSION=5.9.1 ./macos-setup.sh"
-# will build and install with QT 5.9.1.
+# "QT_VERSION=5.10.1 ./macos-setup.sh"
+# will build and install with QT 5.10.1.
 #
 # Note that Qt 5, prior to 5.5.0, mishandles context menus in ways that,
 # for example, cause them not to work reliably in the packet detail or
 # packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
 # and QTBUG-43464, all of which seem to be the same bug.
 #
-QT_VERSION=${QT_VERSION-5.8.0}
+QT_VERSION=${QT_VERSION-5.9.5}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
@@ -479,7 +480,7 @@ install_gettext() {
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-       touch gettext-$GETTEXT_VERSION-done
+        touch gettext-$GETTEXT_VERSION-done
     fi
 }
 
@@ -630,7 +631,10 @@ install_qt() {
         # What you get for this URL might just be a 302 Found reply, so use
         # -L so we get redirected.
         #
-        QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
+        # 5.0 - 5.1:  qt-mac-opensource-5.0.2-clang-offline.dmg
+        # 5.2 - 5.8:  qt-opensource-mac-x64-clang-5.2.1.dmg
+        # 5.9 -    :  qt-opensource-mac-x64-5.10.1.dmg
+        QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
         [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
         $no_build && echo "Skipping installation" && return
         sudo hdiutil attach $QT_VOLUME.dmg || exit 1
@@ -673,7 +677,7 @@ uninstall_qt() {
             #
             # Get rid of the previously downloaded version.
             #
-            rm -rf qt-opensource-mac-x64-clang-$installed_qt_version.dmg
+            rm -rf qt-opensource-mac-x64-?(clang-)$installed_qt_version.dmg
         fi
 
         installed_qt_version=""
@@ -1853,9 +1857,9 @@ install_all() {
 }
 
 uninstall_all() {
-    if [ -d macosx-support-libs ]
+    if [ -d "${MACOSX_SUPPORT_LIBS}" ]
     then
-        cd macosx-support-libs
+        cd "${MACOSX_SUPPORT_LIBS}"
 
         #
         # Uninstall items in the reverse order from the order in which they're
@@ -1866,11 +1870,11 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
-	uninstall_bcg729
+        uninstall_bcg729
 
-	uninstall_spandsp
+        uninstall_spandsp
 
-	uninstall_libtiff
+        uninstall_libtiff
 
         uninstall_nghttp2
 
@@ -1956,10 +1960,22 @@ fi
 # code will attempt to get you there, but is not perfect (particulary
 # if someone copies the script).
 
-dir=`dirname $0`
-cd $dir/..
+topdir=`pwd`/`dirname $0`/..
+cd $topdir
 
-#
+# Preference of the support libraries directory:
+#   ${MACOSX_SUPPORT_LIBS}
+#   ../macosx-support-libs
+#   ./macosx-support-libs (default if none exists)
+if [ ! -d "${MACOSX_SUPPORT_LIBS}" ]; then
+  unset MACOSX_SUPPORT_LIBS
+fi
+if [ -d ../macosx-support-libs ]; then
+  MACOSX_SUPPORT_LIBS=${MACOSX_SUPPORT_LIBS-../macosx-support-libs}
+else
+  MACOSX_SUPPORT_LIBS=${MACOSX_SUPPORT_LIBS-./macosx-support-libs}
+fi
+
 #
 # If we have SDKs available, the default target OS is the major version
 # of the one we're running; get that and strip off the third component
@@ -2015,9 +2031,9 @@ done
 #
 # Get the version numbers of installed packages, if any.
 #
-if [ -d macosx-support-libs ]
+if [ -d "${MACOSX_SUPPORT_LIBS}" ]
 then
-    cd macosx-support-libs
+    cd "${MACOSX_SUPPORT_LIBS}"
 
     installed_xz_version=`ls xz-*-done 2>/dev/null | sed 's/xz-\(.*\)-done/\1/'`
     installed_lzip_version=`ls lzip-*-done 2>/dev/null | sed 's/lzip-\(.*\)-done/\1/'`
@@ -2047,7 +2063,7 @@ then
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
     installed_libtiff_version=`ls tiff-*-done 2>/dev/null | sed 's/tiff-\(.*\)-done/\1/'`
 
-    cd ..
+    cd $topdir
 fi
 
 if [ "$do_uninstall" = "yes" ]
@@ -2247,12 +2263,12 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 #
 # Do all the downloads and untarring in a subdirectory, so all that
 # stuff can be removed once we've installed the support libraries.
-#
-if [ ! -d macosx-support-libs ]
+
+if [ ! -d "${MACOSX_SUPPORT_LIBS}" ]
 then
-    mkdir macosx-support-libs || exit 1
+    mkdir "${MACOSX_SUPPORT_LIBS}" || exit 1
 fi
-cd macosx-support-libs
+cd "${MACOSX_SUPPORT_LIBS}"
 
 install_all
 
