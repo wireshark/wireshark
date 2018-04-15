@@ -2256,7 +2256,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>ExtArgSelector</name>
     <message>
         <source>Reload data</source>
-        <translation type="unfinished"></translation>
+        <translation>Daten neu laden</translation>
     </message>
 </context>
 <context>
