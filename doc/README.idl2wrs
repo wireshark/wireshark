@@ -96,7 +96,6 @@ steps 3 or 4 instead.
    following files to include the packet-test-idl.c
  
    cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/
-   edit epan/dissectors/Makefile.am
    edit epan/dissectors/CMakeLists.txt
 
 6. Run configure

@@ -206,7 +206,7 @@ In most cases you should handle the changeEvent in order to catch
 Qt makes translating the Wireshark UI into different languages easy. To add a new
 translation, do the following:
 
-- Add your translation (_ui/qt/wireshark_XX.ts_) to _ui/qt/Makefile.am_ and _ui/qt/CMakeLists.txt_
+- Add your translation (_ui/qt/wireshark_XX.ts_) to _ui/qt/CMakeLists.txt_
 - (Recommended) Add a flag image for your language in _images/languages/XX.svg_. Update _image/languages/languages.qrc_ accordingly.
 - Run `lupdate ui/qt -ts ui/qt/wireshark_XX.ts` to generate/update your translation file.
 - Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.

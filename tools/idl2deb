@@ -4,10 +4,6 @@
 # Debian GNU/Linux packages from idl2wrs modules for Wireshark.
 # Copyright 2003, 2008, W. Martin Borgert
 
-# Makefile.am and configure.ac code by:
-# Copyright 2001, Ericsson Inc.
-# Frank Singleton <frank.singleton@ericsson.com>
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.com>
 # Copyright 1998 Gerald Combs
@@ -24,13 +20,6 @@ scriptinfo = """idl2deb version 2008-03-10
 Copyright 2003, 2008, W. Martin Borgert
 Free software, released under the terms of the GPL."""
 
-def bootstrap():
-    """Generate Makefile.in and configure script."""
-    os.system("aclocal")
-    os.system("autoconf")
-    os.system("libtoolize --automake --copy --force")
-    os.system("automake --add-missing --copy --foreign")
-
 def create_file(preserve, filename, content, mode = None):
     """Create a file with given content."""
     if preserve and os.path.isfile(filename):
@@ -44,57 +33,6 @@ def create_file(preserve, filename, content, mode = None):
 def create_files(version, deb, email, idl, name, preserve, iso, rfc):
     """Create all files for the .deb build process."""
     base = os.path.basename(idl.lower().split(".idl")[0])
-    create_file(preserve, "Makefile.am", """#
-
-plugindir = @plugindir@
-
-plugin_LTLIBRARIES = %s.la
-%s_la_SOURCES = packet-%s.c
-%s_la_LDFLAGS = -module -avoid-version
-
-GLIB_CFLAGS = `pkg-config --cflags glib-2.0`
-GLIB_LIBS = `pkg-config --libs glib-2.0`
-BUILT_SOURCES = packet-%s.c
-INCLUDES = -DHAVE_CONFIG -DHAVE_SYS_TYPES_H -DHAVE_SYS_TIME_H \\
-    -DHAVE_STDARG_H -D_U_=\"__attribute__((unused))\" \\
-    -I/usr/include/wireshark -DWS_VAR_IMPORT=extern $(GLIB_CFLAGS)
-LDADD = $(GLIB_LIBS)
-
-# Libs must be cleared, or else libtool won't create a shared module.
-# If your module needs to be linked against any particular libraries,
-# add them here.
-LIBS =
-
-%s_la_DEPENDENCIES = packet-%s-static.o
-
-packet-%s-static.o: packet-%s.c
-	$(LTCOMPILE) -c -o packet-%s-static.o \\
-	  -D__WIRESHARK_STATIC__ packet-%s.c
-
-packet-%s.c: """  % ((base,) * 12) + idl + """
-	$(IDL2WRS) -I. $< > $@
-""")
-
-    create_file(preserve, "configure.ac", """AC_INIT(%s, 1.0)
-AC_PROG_LIBTOOL
-AM_INIT_AUTOMAKE
-AM_MAINTAINER_MODE
-AC_PROG_CC
-AC_STDC_HEADERS
-AC_PROG_INSTALL
-AC_SUBST(CFLAGS)
-AC_SUBST(CPPFLAGS)
-AC_SUBST(LDFLAGS)
-PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.2.2)
-AC_SUBST(GLIB_CFLAGS)
-AC_SUBST(GLIB_LIBS)
-IDL2WRS=\"`type -p idl2wrs`\"
-AC_SUBST(IDL2WRS)
-WIRESHARK_VERSION=\"%s\"
-plugindir=\"$libdir/wireshark/plugins/$WIRESHARK_VERSION\"
-AC_SUBST(plugindir)
-AC_OUTPUT([Makefile])
-""" % (base, version))
 
     if not os.path.isdir("debian"):
         os.mkdir("debian")
@@ -170,7 +108,6 @@ def main():
     create_files(version, deb,
                  opts.email, opts.idl, opts.name, opts.preserve,
                  iso, rfc)
-    bootstrap()
     os.system("dpkg-buildpackage " + opts.dbopts)
 
 def process_opts(argv):

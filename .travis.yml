@@ -8,21 +8,13 @@ compiler:
   - clang
   - gcc
 env:
- - BUILD_CMAKE=yes
- - BUILD_CMAKE=yes CMAKE_OPTS="-DBUILD_wireshark_gtk=ON"
- - BUILD_CMAKE=yes CMAKE_OPTS="-DENABLE_PCAP=OFF"
- - BUILD_CMAKE=no AUTOTOOLS_OPTS="--with-gtk=3"
+ - CMAKE_OPTS="-DENABLE_PCAP=ON"
+ - CMAKE_OPTS="-DENABLE_PCAP=OFF"
 matrix:
   exclude:
   # Exclude gcc build (Need some work) with osx
   - os: osx
     compiler: gcc
-  # Exclude autotools build (missing libtool...) with osx
-  - os: osx
-    env: BUILD_CMAKE=no AUTOTOOLS_OPTS="--with-gtk=3"
-  # Exclude build with GTK+3
-  - os: osx
-    env: BUILD_CMAKE=yes CMAKE_OPTS="-DBUILD_wireshark_gtk=ON"
 before_install:
   - echo $TRAVIS_OS_NAME
   - $CC --version
@@ -38,6 +30,8 @@ before_install:
   - $CC --version
 before_script:
   - sudo gem install asciidoctor
-  - if [ ${BUILD_CMAKE} == "yes" ]; then mkdir build && cd build && cmake ${CMAKE_OPTS} ..; else ./autogen.sh && ./configure ${AUTOTOOLS_OPTS} ; fi
+  - mkdir build
+  - cd build
+  - cmake ${CMAKE_OPTS} ..
 script:
   - make

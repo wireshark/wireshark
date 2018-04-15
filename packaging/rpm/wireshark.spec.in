@@ -375,8 +375,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 # This generates a warning because dumpcap is listed twice. That's
 # probably preferable to listing each program (and keeping the list up to
-# date)...  Maybe if we can find a way to get the toplevel Makefile.am's
-# bin_PROGRAMS in here?
+# date)...
 %if %{use_wireshark_group} && %{setuid_dumpcap}
 # Setuid but only executable by members of the 'wireshark' group
 %attr(4750, root, wireshark) %{_bindir}/dumpcap

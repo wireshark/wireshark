@@ -13,8 +13,6 @@
 # Elements are separated by whitespace.
 # tapname source_file_for_struct typedef_name_of_struct an_enum_name another_enum_name ...
 #
-# Note: Make sure you update the taps_used variable in Makefile.am
-# every time you add a new file to the list
 
 #frame ../dissectors/packet_frame.h void
 

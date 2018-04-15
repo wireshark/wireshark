@@ -975,12 +975,12 @@ directory, you’d run `patch` in _that_ directory and run it with `-p0`.
 
 If you run it without `-pat` all, the patch tool
 flattens path names, so that if you
-have a patch file with patches to _Makefile.am_ and
-_wiretap/Makefile.am_,
+have a patch file with patches to _CMakeLists.txt_ and
+_wiretap/CMakeLists.txt_,
 it'll try to apply the first patch to the top-level
-_Makefile.am_ and then apply the
-_wiretap/Makefile.am_ patch to the top-level
-_Makefile.am_ as well.
+_CMakeLists.txt_ and then apply the
+_wiretap/CMakeLists.txt_ patch to the top-level
+_CMakeLists.txt_ as well.
 
 At which position in the filesystem should the patch tool be called?
 
@@ -993,7 +993,7 @@ if somebody did a patch to _packet-ip.c_ and ran `diff` or `git diff` in
 the _epan/dissectors_ directory -- you’d run it in that subdirectory.
 It is preferred that people *not* submit patches like
 that, especially if they're only patching files that exist in multiple
-directories such as _Makefile.am_.
+directories such as _CMakeLists.txt_.
 
 [[ChSrcBinary]]
 

@@ -30,12 +30,6 @@
 
 %global package_version @VERSION@
 
-# Set this variable to 1 if you have modified this file to patch Wireshark in
-# such a way that automake needs to be re-run (e.g., you modified a Makefile.am,
-# for example to add a dissector).
-# Setting this causes ./autogen.sh to be re-run (which runs automake, etc.).
-%global run_automake 0
-
 
 Summary:	Wireshark is the world's foremost protocol analyzer
 Name:		wireshark
@@ -57,13 +51,6 @@ BuildRequires:	libtool
 BuildRequires:	gcc
 BuildRequires:	python
 BuildRequires:	perl
-
-%if %{run_automake}
-BuildRequires:	autoconf >= @AC_MIN_VERSION@
-BuildRequires:	automake
-BuildRequires:	flex
-BuildRequires:	bison
-%endif
 
 BuildRequires:	glib2-devel >= @GLIB_MIN_VERSION@
 Requires:	glib2 >= @GLIB_MIN_VERSION@
@@ -265,10 +252,6 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
 %prep
 %setup -q -n %{name}-%{package_version}
 
-%if %{run_automake}
-./autogen.sh
-%endif
-
 # Don't specify the prefix here: configure is a macro which expands to set
 # the prefix and everything else too.  If you need to change the prefix
 # set _prefix (note the underscore) either in this file or on rpmbuild's
@@ -429,8 +412,7 @@ fi
 
 # This generates a warning because dumpcap is listed twice. That's
 # probably preferable to listing each program (and keeping the list up to
-# date)...  Maybe if we can find a way to get the toplevel Makefile.am's
-# bin_PROGRAMS in here?
+# date)...
 %if %{use_wireshark_group} && %{setuid_dumpcap}
 # Setuid but only executable by members of the 'wireshark' group
 %attr(4750, root, wireshark) %{_bindir}/dumpcap

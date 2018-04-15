@@ -27,12 +27,6 @@ options = {'asn':      None,
            'preserve': 0,
            'version':  0}
 
-def bootstrap():
-    """Generate Makefile.in and configure script."""
-    os.system("aclocal-1.7")
-    os.system("autoconf")
-    os.system("automake-1.7 --add-missing --copy --foreign")
-
 def create_file(filename, content, mode = None):
     """Create a file with given content."""
     global options
@@ -47,27 +41,6 @@ def create_file(filename, content, mode = None):
 def create_files(version, deb, email, asn, name, iso, rfc):
     """Create all files for the .deb build process."""
     base = asn.lower()[:-5]
-    create_file("Makefile.am", """#
-
-BUILT_SOURCES = %s.tt
-asn1ttdir = $(datadir)/wireshark/asn1
-asn1tt_DATA = %s.tt
-
-%s.tt: """  % ((base,) * 3) + asn + """
-	snacc -u /usr/include/snacc/asn1/asn-useful.asn1 -T $@ $<
-""")
-
-    create_file("configure.ac", """AC_INIT(%s, 1.0)
-AM_INIT_AUTOMAKE
-AM_MAINTAINER_MODE
-AC_PROG_INSTALL
-SNACC=\"`type -p snacc`\"
-AC_SUBST(SNACC)
-dnl WIRESHARK_VERSION=\"%s\"
-dnl plugindir=\"$prefix/share/wireshark/asn.1\"
-dnl AC_SUBST(plugindir)
-AC_OUTPUT([Makefile])
-""" % (base, version))
 
     if not os.path.isdir("debian"):
         os.mkdir("debian")
@@ -143,7 +116,6 @@ def main():
     create_files(version, deb,
                  options['email'], options['asn'], options['name'],
                  iso, rfc)
-    bootstrap()
     os.system("dpkg-buildpackage " + options['dbopts'])
 
 def process_opts(argv):

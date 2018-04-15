@@ -57,59 +57,6 @@ wiretap/version_info.c
 wireshark-tap-register.c
 ui/make-taps
 
-# Generated makefile system #
-#############################
-.dirstamp
-aclocal.m4
-androiddump
-autom4te.cache
-capinfos
-captype
-ciscodump
-compile
-config.h
-config.h.in
-config.cache
-config.log
-config.status
-configure
-depcomp
-dftest
-dumpcap
-editcap
-exntest
-fuzzshark
-install-sh
-libtool
-libtool.m4
-lt~obsolete.m4
-ltmain.sh
-ltoptions.m4
-ltsugar.m4
-ltversion.m4
-Makefile
-Makefile.in
-mergecap
-missing
-mmdbresolve
-oids_test
-randpkt
-randpktdump
-rawshark
-reordercap
-reassemble_test
-sharkd
-sshdump
-stamp-h1
-text2pcap
-tfshark
-tshark
-tvbtest
-udpdump
-wireshark
-wmem_test
-ylwrap
-
 # CMake #
 ##################
 CMakeCache.txt
@@ -130,15 +77,6 @@ rules.ninja
 epan/dissectors/asn1/*/*-stamp
 epan/dissectors/pidl/*-stamp
 epan/dissectors/dcerpc/*-stamp
-
-
-# Generated dir #
-##################
-.deps
-.libs
-packaging/rpm/RPMS
-packaging/rpm/SRPMS
-
 
 # Doc #
 ########

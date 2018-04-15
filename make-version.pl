@@ -431,37 +431,6 @@ sub update_cmakelists_txt
 	print "$filepath has been updated.\n";
 }
 
-# Read configure.ac, then write it back out with an updated
-# "AC_INIT" line.
-sub update_configure_ac
-{
-	my $line;
-	my $contents = "";
-	my $version = "";
-	my $filepath = "$srcdir/configure.ac";
-
-	return if (!$set_version && $package_string eq "");
-
-	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
-	while ($line = <CFGIN>) {
-		if ($line =~ /^m4_define\( *\[?version_major\]? *,.*?([\r\n]+)$/) {
-			$line = sprintf("m4_define([version_major], [%d])$1", $version_pref{"version_major"});
-		} elsif ($line =~ /^m4_define\( *\[?version_minor\]? *,.*?([\r\n]+)$/) {
-			$line = sprintf("m4_define([version_minor], [%d])$1", $version_pref{"version_minor"});
-		} elsif ($line =~ /^m4_define\( *\[?version_micro\]? *,.*?([\r\n]+)$/) {
-			$line = sprintf("m4_define([version_micro], [%d])$1", $version_pref{"version_micro"});
-		} elsif ($line =~ /^m4_define\( *\[?version_extra\]? *,.*?([\r\n]+)$/) {
-			$line = sprintf("m4_define([version_extra], [%s])$1", $package_string);
-		}
-		$contents .= $line
-	}
-
-	open(CFGIN, "> $filepath") || die "Can't write $filepath!";
-	print(CFGIN $contents);
-	close(CFGIN);
-	print "$filepath has been updated.\n";
-}
-
 # Read docbook/attributes.asciidoc, then write it back out with an updated
 # wireshark-version replacement line.
 sub update_attributes_asciidoc
@@ -544,42 +513,6 @@ sub update_debian_changelog
 	print "$filepath has been updated.\n";
 }
 
-# Read Makefile.am for each library, then write back out an updated version.
-sub update_automake_lib_releases
-{
-	my $line;
-	my $contents = "";
-	my $version = "";
-	my $filedir;
-	my $filepath;
-
-	# The Libtool manual says
-	#   "If the library source code has changed at all since the last
-	#    update, then increment revision (‘c:r:a’ becomes ‘c:r+1:a’)."
-	# epan changes with each minor release, almost by definition. wiretap
-	# changes with *most* releases.
-	#
-	# http://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info
-	for $filedir ("$srcdir/epan", "$srcdir/wiretap") {	# "$srcdir/wsutil"
-		$contents = "";
-		$filepath = $filedir . "/Makefile.am";
-		open(MAKEFILE_AM, "< $filepath") || die "Can't read $filepath!";
-		while ($line = <MAKEFILE_AM>) {
-			# libwireshark_la_LDFLAGS = -version-info 2:1:1 -export-symbols
-
-			if ($line =~ /^(lib\w+_la_LDFLAGS.*version-info\s+\d+:)\d+(:\d+.*[\r\n]+)$/) {
-				$line = sprintf("$1%d$2", $version_pref{"version_micro"});
-			}
-			$contents .= $line
-		}
-
-		open(MAKEFILE_AM, "> $filepath") || die "Can't write $filepath!";
-		print(MAKEFILE_AM $contents);
-		close(MAKEFILE_AM);
-		print "$filepath has been updated.\n";
-	}
-}
-
 # Read CMakeLists.txt for each library, then write back out an updated version.
 sub update_cmake_lib_releases
 {
@@ -618,12 +551,10 @@ sub update_versioned_files
                 $version_pref{"version_minor"}, $version_pref{"version_micro"},
                 $package_string;
 	&update_cmakelists_txt;
-	&update_configure_ac;
 	if ($set_version) {
 		&update_attributes_asciidoc;
 		&update_docinfo_asciidoc;
 		&update_debian_changelog;
-		&update_automake_lib_releases;
 		&update_cmake_lib_releases;
 	}
 }
@@ -775,8 +706,7 @@ make-version.pl [options] [source directory]
     --set-version, -v          Set the major, minor, and micro versions in
                                the top-level CMakeLists.txt, configure.ac,
                                docbook/attributes.asciidoc, debian/changelog,
-                               the Makefile.am for all libraries, and the
-                               CMakeLists.txt for all libraries.
+                               and the CMakeLists.txt for all libraries.
                                Resets the release information when used by
                                itself.
     --set-release, -r          Set the release information in the top-level

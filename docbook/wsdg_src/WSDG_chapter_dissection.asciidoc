@@ -168,8 +168,6 @@ It doesn't do much at present, other than identify the protocol and label it.
 In order to compile this dissector and create a plugin a couple of support files
 are required, besides the dissector source in _packet-foo.c_:
 
-* _Makefile.am_ - The UNIX/Linux makefile template.
-
 * _CMakeLists.txt_ - Contains the CMake file and version info for this plugin.
 
 * _packet-foo.c_ - Your dissector source.
@@ -177,9 +175,8 @@ are required, besides the dissector source in _packet-foo.c_:
 * _plugin.rc.in_ - Contains the DLL resource template for Windows. (optional)
 
 You can find a good example for these files in the gryphon plugin directory.
-_Makefile.am_ has to be modified to reflect the relevant files and dissector
-name. _CMakeLists.txt_ has to be modified with the correct
-plugin name and version info, along with the relevant files to compile.
+_CMakeLists.txt_ has to be modified with the correct plugin name and version
+info, along with the relevant files to compile.
 In the main top-level source directory, copy CMakeListsCustom.txt.example to
 CMakeListsCustom.txt and add the path of your plugin to the list in
 CUSTOM_PLUGIN_SRC_DIR.
@@ -1250,39 +1247,47 @@ Wireshark source directory.
 $ cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/
 ----
 
-The new dissector has to be added to Makefile.am in the same directory. Look
-for the declaration CLEAN_DISSECTOR_SRC and add the new dissector there. For
+The new dissector has to be added to CMakeLists.txt in the same directory. Look
+for the declaration DISSECTOR_SRC and add the new dissector there. For
 example,
 
 ----
-CLEAN_DISSECTOR_SRC = \
-        packet-2dparityfec.c    \
-        packet-3com-njack.c     \
+DISSECTOR_SRC = \
+        ${CMAKE_CURRENT_SOURCE_DIR}/packet-2dparityfec.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/packet-3com-njack.c
         ...
 ----
 
 becomes
 
 ----
-CLEAN_DISSECTOR_SRC = \
-        packet-test-idl.c       \
-        packet-2dparityfec.c    \
-        packet-3com-njack.c     \
+DISSECTOR_SRC = \
+        ${CMAKE_CURRENT_SOURCE_DIR}/packet-test-idl.c       \
+        ${CMAKE_CURRENT_SOURCE_DIR}/packet-2dparityfec.c    \
+        ${CMAKE_CURRENT_SOURCE_DIR}/packet-3com-njack.c     \
         ...
 ----
 --
 
 For the next steps, go up to the top of your Wireshark source directory.
 
-* Run configure
+* Create a build dir
 +
 --
 ----
-$ ./configure (or ./autogen.sh)
+$ mkdir build && cd build
 ----
 --
 
-* Compile the code
+* Run cmake
++
+--
+----
+$ cmake ..
+----
+--
+
+* Build the code
 +
 --
 ----
