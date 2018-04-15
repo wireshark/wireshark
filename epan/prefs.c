@@ -2310,12 +2310,6 @@ stats_callback(void)
     if (prefs.tap_update_interval < 100 || prefs.tap_update_interval > 10000)
         prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
 
-#ifdef HAVE_LIBPORTAUDIO
-    /* Test for a sane max channels entry */
-    if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
-        prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
-#endif
-
     /* burst resolution can't be less than 1 (ms) */
     if (prefs.st_burst_resolution < 1) {
         prefs.st_burst_resolution = 1;
@@ -3557,13 +3551,7 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.tap_update_interval);
 
-#ifdef HAVE_LIBPORTAUDIO
-    prefs_register_uint_preference(stats_module, "rtp_player_max_visible",
-                                   "Max visible channels in RTP Player",
-                                   "Determines maximum height of RTP Player window",
-                                   10,
-                                   &prefs.rtp_player_max_visible);
-#endif
+    prefs_register_obsolete_preference(stats_module, "rtp_player_max_visible");
 
     prefs_register_bool_preference(stats_module, "st_enable_burstinfo",
             "Enable the calculation of burst information",
@@ -4172,7 +4160,6 @@ pre_init_prefs(void)
 
 /* set the default values for the tap/statistics dialog box */
     prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
-    prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
     prefs.st_enable_burstinfo = TRUE;
     prefs.st_burst_showcount = FALSE;
     prefs.st_burst_resolution = ST_DEF_BURSTRES;
@@ -5768,8 +5755,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                 }
             } else if (strcmp(module->name, "taps") == 0) {
                 /* taps preferences moved to "statistics" module */
-                if (strcmp(dotp, "update_interval") == 0 ||
-                    strcmp(dotp, "rtp_player_max_visible") == 0)
+                if (strcmp(dotp, "update_interval") == 0)
                     pref = prefs_find_preference(stats_module, dotp);
             } else if (strcmp(module->name, "packet_list") == 0) {
                 /* packet_list preferences moved to protocol module */

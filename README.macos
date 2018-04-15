@@ -139,16 +139,6 @@ is to run the configure script with the --disable-asm argument, so that
 the assembler-language routines are not used.  The tools/macos-setup.sh
 will configure libgcrypt with that option.
 
-PortAudio - when compiling on macOS, the configure script for the
-pa_stable_v19_20071207 version of PortAudio will cause certain
-platform-dependent build environment #defines to be set in the Makefile
-rules, and to cause a universal build to be done; those #defines will be
-incorrect for all but one of the architectures for which the build is
-being done, and that will cause a compile-time error on Snow Leopard.
-Newer versions don't have this problem, but still fail to build on Lion
-if a universal build is attempted.  The tools/macos-setup.sh script
-downloads a newer version, and also suppresses the universal build.
-
 If you want to build Wireshark installer packages on a system that
 doesn't include Xcode 3.x or earlier, you will need to install some
 additional tools.  From the Xcode menu, select the Open Developer Tool

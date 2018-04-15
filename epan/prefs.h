@@ -32,7 +32,6 @@ extern "C" {
 
 #define MAX_VAL_LEN  1024
 
-#define RTP_PLAYER_DEFAULT_VISIBLE 4
 #define TAP_UPDATE_DEFAULT_INTERVAL 3000
 #define ST_DEF_BURSTRES 5
 #define ST_DEF_BURSTLEN 100
@@ -204,7 +203,6 @@ typedef struct _e_prefs {
   gboolean     capture_no_extcap;
   gboolean     capture_show_info;
   GList       *capture_columns;
-  guint        rtp_player_max_visible;
   guint        tap_update_interval;
   gboolean     display_hidden_proto_items;
   gboolean     display_byte_fields_with_spaces;
