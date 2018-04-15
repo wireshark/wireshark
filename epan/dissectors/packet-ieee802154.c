@@ -3697,7 +3697,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     }
     /* Check whether the payload is truncated by a snapshot length. */
     if (tvb_bytes_exist(tvb, offset, reported_len)) {
-    	/* It's not, so we have all of the payload. */
+        /* It's not, so we have all of the payload. */
         captured_len = reported_len;
     }
     else {
