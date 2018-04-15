@@ -3684,26 +3684,38 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
 
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
 
-    /* Get the captured and on-the-wire length of the payload. */
+    /* Get the captured and on-the-air length of the payload. */
     M = IEEE802154_MIC_LENGTH(packet->security_level);
     *decrypt_info->rx_mic_length = M;
 
+    /* Is the MIC larger than the total amount of data? */
     reported_len = tvb_reported_length_remaining(tvb, offset) - M;
     if (reported_len < 0) {
+        /* Yes.  Give up. */
         *decrypt_info->status = DECRYPT_PACKET_TOO_SMALL;
         return NULL;
     }
-    /* Check of the payload is truncated.  */
+    /* Check whether the payload is truncated by a snapshot length. */
     if (tvb_bytes_exist(tvb, offset, reported_len)) {
+    	/* It's not, so we have all of the payload. */
         captured_len = reported_len;
     }
     else {
+        /*
+         * It is, so we don't have all of the payload - and we don't
+         * have the MIC, either, as that comes after the payload.
+         * As the MIC isn't part of the captured data - the captured
+         * data was cut short before the first byte of the MIC - we
+         * don't subtract the length of the MIC from the amount of
+         * captured data.
+         */
         captured_len = tvb_captured_length_remaining(tvb, offset);
     }
 
     /* Check if the MIC is present in the captured data. */
     have_mic = tvb_bytes_exist(tvb, offset + reported_len, M);
     if (have_mic) {
+        /* It is - save a copy of it. */
         tvb_memcpy(tvb, decrypt_info->rx_mic, offset + reported_len, M);
     }
 
@@ -3739,7 +3751,11 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     else
         ccm_init_block(tmp, FALSE, 0, srcAddr, packet->frame_counter, packet->security_level, 0, NULL);
 
-    /* Decrypt the ciphertext, and place the plaintext in a new tvb. */
+    /*
+     * If the payload is encrypted, so that it's the ciphertext, and we
+     * have at least one byte of it in the captured data, decrypt the
+     * ciphertext, and place the plaintext in a new tvb.
+     */
     if (IEEE802154_IS_ENCRYPTED(packet->security_level) && captured_len) {
         guint8 *text;
         /*
@@ -3762,8 +3778,11 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
         add_new_data_source(pinfo, ptext_tvb, "Decrypted IEEE 802.15.4 payload");
         *decrypt_info->status = DECRYPT_PACKET_SUCCEEDED;
     }
-    /* There is no ciphertext. Wrap the plaintext in a new tvb. */
     else {
+        /*
+         * Either the payload isn't encrypted or we don't have any of it
+         * in the captured data.
+         */
         /* Decrypt the MIC (if present). */
         if ((have_mic) && (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, NULL, 0))) {
             *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
