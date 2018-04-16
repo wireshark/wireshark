@@ -1106,13 +1106,10 @@ endforeach()
 include( UseWinLibs )
 
 # dist target that prepares source dir
+# XXX Duplicated in the RPM section below.
 add_custom_target(dist
-    COMMAND "${CMAKE_COMMAND}"
-        -DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
-        -DGIT_EXECUTABLE="${GIT_EXECUTABLE}"
-        -DWS_SOURCE_DIR="${WS_SOURCE_DIR}"
-        -P "${CMAKE_SOURCE_DIR}/cmake/modules/Dist.cmake"
-    COMMAND "${CMAKE_MAKE_PROGRAM}" package_source
+	COMMAND ./tools/git-export-release.sh -d "${CMAKE_BINARY_DIR}"
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 
@@ -2943,24 +2940,24 @@ if(RPMBUILD_EXECUTABLE)
 	string(REPLACE "-" "_" RPM_VERSION "${RPM_TARBALL_VERSION}")
 	configure_file(packaging/rpm/wireshark.spec.in ${CMAKE_BINARY_DIR}/packaging/rpm/SPECS/wireshark.spec)
 
+	# XXX Replace with the "dist" target?
 	set(_export_tarball "${CPACK_PACKAGE_NAME}-${RPM_TARBALL_VERSION}.tar.xz")
 	add_custom_command(
-		OUTPUT "${CMAKE_SOURCE_DIR}/${_export_tarball}"
-		COMMAND ./tools/git-export-release.sh "${_git_description}"
+		OUTPUT "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
+		COMMAND ./tools/git-export-release.sh
+			-d "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES"
+			"${_git_description}"
 		# XXX Add an option to git-export-release.sh to write to a
 		# specific directory so that we can get rid of `ln` below.
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 	add_custom_target(rpm-package
-		COMMAND ${CMAKE_COMMAND} -E create_symlink
-			"${CMAKE_SOURCE_DIR}/${_export_tarball}"
-			"SOURCES/${_export_tarball}"
 		COMMAND ${RPMBUILD_EXECUTABLE}
 			--define "_topdir ${CMAKE_BINARY_DIR}/packaging/rpm"
 			--define "_prefix ${CMAKE_INSTALL_PREFIX}"
 			${_rpmbuild_with_args}
 			--clean -ba SPECS/wireshark.spec
-		DEPENDS "${CMAKE_SOURCE_DIR}/${_export_tarball}"
+		DEPENDS "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
 		COMMENT "Create a tarball from the current git commit."
 	)

@@ -12,7 +12,16 @@
 
 set -e
 
-# First paremeter, if set, is a git commit, like v1.12.0-rc1 or 54819e5699f
+DESTDIR=.
+
+while getopts "d:" OPTCHAR ; do
+    case $OPTCHAR in
+        d) DESTDIR=$OPTARG ;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+# The remaining parameter, if set, is a git commit, like v1.12.0-rc1 or 54819e5699f
 # By default HEAD is used.
 # Note, that filtering takes place base on the _exported_ version's
 # .gitattributes files thus archives generated from older commits will contain
@@ -59,7 +68,7 @@ fi
 
 echo "Creating wireshark-$VERSION.tar.xz"
 
-git archive --prefix=wireshark-${VERSION}/ ${COMMIT}  | xz > wireshark-${VERSION}.tar.xz
+git archive --prefix=wireshark-${VERSION}/ ${COMMIT} | xz > ${DESTDIR}/wireshark-${VERSION}.tar.xz
 
 if [ "$STASH_POP" == "True" ] ; then
     git stash pop
