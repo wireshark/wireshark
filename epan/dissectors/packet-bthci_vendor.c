@@ -1255,7 +1255,7 @@ proto_register_bthci_vendor_broadcom(void)
             NULL, HFILL }
         },
         { &hf_broadcom_sco_pcm_interface_clock_mode,
-            { "SCO PCM Interface Clock Mode",              "bthci_vendor.broadcom.sco.interface.",
+            { "SCO PCM Interface Clock Mode",              "bthci_vendor.broadcom.sco.interface.clock_mode",
             FT_UINT8, BASE_HEX, VALS(broadcom_mode_slave_master_vals), 0x0,
             NULL, HFILL }
         },

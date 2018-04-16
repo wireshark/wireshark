@@ -12941,27 +12941,27 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_context_flags_medication_id_and_medication,
-            {"Medication ID And Medication", "btatt.glucose_measurement_context.flags.",
+            {"Medication ID And Medication", "btatt.glucose_measurement_context.flags.medication_id_and_medication",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_context_flags_exercise_duration_and_exercise_intensity,
-            {"Exercise Duration And Exercise Intensity", "btatt.glucose_measurement_context.flags.",
+            {"Exercise Duration And Exercise Intensity", "btatt.glucose_measurement_context.flags.exercise_duration_and_exercise_intensity",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_context_flags_tester_health,
-            {"Tester Health", "btatt.glucose_measurement_context.flags.",
+            {"Tester Health", "btatt.glucose_measurement_context.flags.tester_health",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_context_flags_meal,
-            {"Meal", "btatt.glucose_measurement_context.flags.",
+            {"Meal", "btatt.glucose_measurement_context.flags.meal",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_context_flags_carbohydrate_id_and_carbohydrate,
-            {"Carbohydrate ID And Carbohydrate", "btatt.glucose_measurement_context.flags.",
+            {"Carbohydrate ID And Carbohydrate", "btatt.glucose_measurement_context.flags.carbohydrate_id_and_carbohydrate",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL}
         },
@@ -14658,7 +14658,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_cgm_e2e_crc,
-            {"E2E-CRC", "btatt.cgm.e2e_crc.",
+            {"E2E-CRC", "btatt.cgm.e2e_crc",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
