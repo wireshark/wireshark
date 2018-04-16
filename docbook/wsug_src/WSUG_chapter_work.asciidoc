@@ -442,7 +442,7 @@ tcp.port == 80 || tcp.port == 443 || tcp.port == 8080
 
 The set of values can also contain ranges:
 ----
-tcp.port in {443 4430 .. 4434}
+tcp.port in {443 4430..4434}
 ----
 This is not merely a shortcut for `tcp.port == 443 || (tcp.port >= 4430 &&
 tcp.port <= 4434)`. Comparison operators are usually satisfied when any field
@@ -453,7 +453,7 @@ membership operator instead tests the same field against the range condition.
 Sets are not just limited to numbers, other types can be used as well:
 ----
 http.request.method in {"HEAD" "GET"}
-ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1 .. 192.168.1.9}
+ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1..192.168.1.9}
 frame.time_delta in {10 .. 10.5}
 ----
 

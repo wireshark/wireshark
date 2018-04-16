@@ -13,7 +13,7 @@ class testMembership(dftest.DFTest):
         self.assertDFilterCount(dfilter, 1)
 
     def test_membership_2_range_match(self):
-        dfilter = 'tcp.port in {80 .. 81}'
+        dfilter = 'tcp.port in {80..81}'
         self.assertDFilterCount(dfilter, 1)
 
     def test_membership_3_range_no_match(self):
@@ -38,5 +38,10 @@ class testMembership(dftest.DFTest):
         self.assertDFilterCount(dfilter, 1)
 
     def test_membership_8_ip_range(self):
-        dfilter = 'ip.addr in { 10.0.0.5 .. 10.0.0.9 }'
+        dfilter = 'ip.addr in { 10.0.0.5 .. 10.0.0.9 10.0.0.1..10.0.0.1 }'
         self.assertDFilterCount(dfilter, 1)
+
+    def test_membership_9_range_weird_float(self):
+        # expression should be parsed as "0.1 .. .7"
+        dfilter = 'frame.time_delta in {0.1...7}'
+        self.assertDFilterCount(dfilter, 0)
