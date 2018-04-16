@@ -138,16 +138,13 @@ typedef struct _e_prefs {
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
   color_t      gui_text_valid, gui_text_invalid, gui_text_deprecated;
-  gboolean     gui_altern_colors; /* GTK only */
   gboolean     gui_expert_composite_eyecandy;
   gboolean     filter_toolbar_show_in_statusbar;
   gboolean     restore_filter_after_following_stream;
   gint         gui_ptree_line_style;
   gint         gui_ptree_expander_style;
-  gboolean     gui_hex_dump_highlight_style;
   gint         gui_toolbar_main_style;
-  gint         gui_toolbar_filter_style; /* GTK only? */
-  gchar       *gui_gtk2_font_name;
+  gint         gui_toolbar_filter_style;
   gchar       *gui_qt_font_name;
   color_t      gui_marked_fg;
   color_t      gui_marked_bg;
@@ -158,7 +155,6 @@ typedef struct _e_prefs {
   gboolean     gui_geometry_save_position;
   gboolean     gui_geometry_save_size;
   gboolean     gui_geometry_save_maximized;
-  gboolean     gui_macosx_style; /* GTK only */
   console_open_e gui_console_open;
   guint        gui_recent_df_entries_max;
   guint        gui_recent_files_count_max;
@@ -173,8 +169,6 @@ typedef struct _e_prefs {
   gchar       *gui_prepend_window_title;
   gchar       *gui_start_title;
   version_info_e gui_version_placement;
-  gboolean     gui_auto_scroll_on_expand; /* GTK+ only */
-  guint        gui_auto_scroll_percentage; /* GTK+ only */
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;
@@ -199,7 +193,7 @@ typedef struct _e_prefs {
   gboolean     capture_prom_mode;
   gboolean     capture_pcap_ng;
   gboolean     capture_real_time;
-  gboolean     capture_auto_scroll;
+  gboolean     capture_auto_scroll; /* XXX - Move to recent */
   gboolean     capture_no_extcap;
   gboolean     capture_show_info;
   GList       *capture_columns;

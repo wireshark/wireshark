@@ -80,9 +80,6 @@ typedef enum {
  * - simple_dialog_primary_end
  * - Optionally, the secondary message.
  *
- * In the GTK+ UI primary_start and primary_end make up a <span> that adds
- * text formatting. The whole string is then shoved into a GtkLabel.
- *
  * In the Qt UI we use primary_start and _end to split the primary and
  * secondary messages. They are then added to a QMessageBox via setText and
  * setInformativeText respectively. No formatting is applied.
@@ -100,12 +97,10 @@ extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
 
 /** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
- *  To highlight the first sentence (will take effect on GTK2 only).
  */
 extern const char *simple_dialog_primary_start(void);
 /** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
- *  To highlight the first sentence (will take effect on GTK2 only).
  */
 extern const char *simple_dialog_primary_end(void);
 

@@ -33,15 +33,12 @@ typedef struct window_geometry_s {
     gboolean    set_size;       /**< set the width and height values */
     gint        width;          /**< the windows width */
     gint        height;         /**< the windows height */
-
-    gboolean    set_maximized;  /**< set the maximized state (GTK2 only) */
-    gboolean    maximized;      /**< the windows maximized state (GTK2 only) */
+    gboolean    set_maximized;  /**< set the maximized state */
+    gboolean    maximized;      /**< the windows maximized state */
 } window_geometry_t;
 
 /* update the main window */
 extern void main_window_update(void);
-/* quit a nested main window. GTK+ only. */
-extern void main_window_nested_quit(void);
 /* quit the main window */
 extern void main_window_quit(void);
 
@@ -68,7 +65,6 @@ void packet_list_recolor_packets(void);
 void packet_list_queue_draw(void);
 void packet_list_select_first_row(void);
 void packet_list_moveto_end(void);
-gboolean packet_list_check_end(void); /* GTK+ only */
 gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
 void packet_list_resize_column(gint col);
 

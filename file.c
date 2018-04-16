@@ -71,10 +71,6 @@
 # include <ws2tcpip.h>
 #endif
 
-#ifdef HAVE_LIBPCAP
-gboolean auto_scroll_live; /* GTK+ only? */
-#endif
-
 static gboolean read_record(capture_file *cf, dfilter_t *dfcode,
     epan_dissect_t *edt, column_info *cinfo, gint64 offset);
 
@@ -756,7 +752,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   *err = 0;
 
-  packet_list_check_end();
   /* Don't freeze/thaw the list when doing live capture */
   /*packet_list_freeze();*/
 
@@ -825,7 +820,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   /* moving to the end of the packet list - if the user requested so and
      we have some new packets. */
-  if (newly_displayed_packets && auto_scroll_live && cf->count != 0)
+  if (newly_displayed_packets && cf->count != 0)
       packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
@@ -903,7 +898,6 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ERROR;
   }
 
-  packet_list_check_end();
   /* Don't freeze/thaw the list when doing live capture */
   /*packet_list_freeze();*/
 
@@ -936,9 +930,6 @@ cf_finish_tail(capture_file *cf, int *err)
     cf_close(cf);
     return CF_READ_ABORTED;
   }
-
-  if (auto_scroll_live && cf->count != 0)
-    packet_list_moveto_end();
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
@@ -3666,8 +3657,6 @@ cf_select_packet(capture_file *cf, int row)
 
   dfilter_macro_build_ftv_cache(cf->edt->tree);
 
-  cf_callback_invoke(cf_cb_packet_selected, cf);
-
   if (old_edt != NULL)
     epan_dissect_free(old_edt);
 
@@ -3685,23 +3674,9 @@ cf_unselect_packet(capture_file *cf)
   cf->current_frame = NULL;
   cf->current_row = 0;
 
-  cf_callback_invoke(cf_cb_packet_unselected, cf);
-
-  /* No protocol tree means no selected field. */
-  cf_unselect_field(cf);
-
   /* Destroy the epan_dissect_t for the unselected packet. */
   if (old_edt != NULL)
     epan_dissect_free(old_edt);
-}
-
-/* Unset the selected protocol tree field, if any. */
-void
-cf_unselect_field(capture_file *cf)
-{
-  cf->finfo_selected = NULL;
-
-  cf_callback_invoke(cf_cb_field_unselected, cf);
 }
 
 /*
@@ -4585,8 +4560,6 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   GArray                      *nrb_hdrs = NULL;
   int                          encap;
 
-  cf_callback_invoke(cf_cb_file_export_specified_packets_started, (gpointer)fname);
-
   packet_range_process_init(range);
 
   /* We're writing out specified packets from the specified capture
@@ -4653,7 +4626,6 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
       wtap_dump_close(pdh, &err);
       if (fname_new != NULL)
         ws_unlink(fname_new);
-      cf_callback_invoke(cf_cb_file_export_specified_packets_stopped, NULL);
       return CF_WRITE_ABORTED;
     break;
 
@@ -4682,7 +4654,6 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     }
   }
 
-  cf_callback_invoke(cf_cb_file_export_specified_packets_finished, NULL);
   return CF_WRITE_OK;
 
 fail:
@@ -4696,7 +4667,6 @@ fail:
     ws_unlink(fname_new);
     g_free(fname_new);
   }
-  cf_callback_invoke(cf_cb_file_export_specified_packets_failed, NULL);
   return CF_WRITE_ERROR;
 }
 

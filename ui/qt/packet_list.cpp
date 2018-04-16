@@ -134,12 +134,6 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
     return FALSE;
 }
 
-gboolean
-packet_list_check_end(void)
-{
-    return FALSE; // GTK+ only.
-}
-
 void
 packet_list_clear(void)
 {

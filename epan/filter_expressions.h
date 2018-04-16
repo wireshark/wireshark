@@ -25,7 +25,6 @@ extern "C" {
  */
 
 typedef struct filter_expression {
-	gpointer button;	/* Filter toolbar (GTK only) */
 	gchar	*label;
 	gchar	*expression;
 	gchar	*comment;

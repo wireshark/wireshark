@@ -41,7 +41,7 @@ typedef struct _rtd_stat_table {
  */
 typedef struct _rtd_data_t {
 	rtd_stat_table  stat_table;  /**< RTD table data */
-	void        *user_data;       /**< "GUI" specifics (GTK+ only) */
+	void        *user_data;       /**< "GUI" specifics (sharkd only?) */
 } rtd_data_t;
 
 /** Structure for information about a registered service response table */

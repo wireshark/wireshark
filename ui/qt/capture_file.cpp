@@ -246,12 +246,6 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         // the equivalent?
         break;
 
-    case(cf_cb_packet_selected):
-    case(cf_cb_packet_unselected):
-    case(cf_cb_field_unselected):
-        // GTK+ only. Handled in Qt via signals and slots.
-        break;
-
     case(cf_cb_file_save_started):
     {
         emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Started, QString((const char *)data)));
@@ -265,13 +259,6 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         break;
     case(cf_cb_file_save_stopped):
         emit captureEvent(new CaptureEvent(CaptureEvent::Save, CaptureEvent::Stopped));
-        break;
-
-    case cf_cb_file_export_specified_packets_started:
-    case cf_cb_file_export_specified_packets_finished:
-    case cf_cb_file_export_specified_packets_failed:
-    case cf_cb_file_export_specified_packets_stopped:
-        // GTK+ only.
         break;
 
     default:

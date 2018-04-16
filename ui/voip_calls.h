@@ -158,8 +158,6 @@ typedef struct _voip_calls_info {
     nstime_t                start_rel_ts;
     frame_data             *stop_fd;
     nstime_t                stop_rel_ts;
-    gboolean                selected; /* GTK+ only */
-
 } voip_calls_info_t;
 
 /**

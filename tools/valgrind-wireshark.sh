@@ -54,9 +54,6 @@ while getopts ":2a:b:C:lmnpP:rstTYwcevWdG" OPTCHAR ; do
         W) COMMAND=wireshark
            COMMAND_ARGS=""
            VALID=1 ;;
-        G) COMMAND=wireshark-gtk
-           COMMAND_ARGS=""
-           VALID=1 ;;
         d) COMMAND=dumpcap
            COMMAND_ARGS="-i eth1 -c 3000"
            VALID=1 ;;
@@ -126,7 +123,6 @@ else
 fi
 
 cmdline="$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions $ADDITIONAL_SUPPRESSION_FILE \
---suppressions=`dirname $0`/gtk.suppression \
 --tool=$TOOL $CALLGRIND_OUT_FILE $VERBOSE $LEAK_CHECK $REACHABLE $GEN_SUPPRESSIONS $TRACK_ORIGINS \
 $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2"
 

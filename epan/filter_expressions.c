@@ -72,7 +72,6 @@ static void* display_filter_copy_cb(void* n, const void* o, size_t siz _U_) {
 	filter_expression_t* new_record = (filter_expression_t*)n;
 	const filter_expression_t* old_record = (const filter_expression_t*)o;
 
-	new_record->button = old_record->button;
 	new_record->label = g_strdup(old_record->label);
 	new_record->expression = g_strdup(old_record->expression);
 	new_record->comment = g_strdup(old_record->comment);

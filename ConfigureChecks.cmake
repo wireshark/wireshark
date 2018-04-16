@@ -84,7 +84,6 @@ cmake_push_check_state()
 set(CMAKE_REQUIRED_INCLUDES ${M_INCLUDE_DIRS})
 set(CMAKE_REQUIRED_LIBRARIES ${M_LIBRARIES})
 check_symbol_exists("floorl" "math.h"    HAVE_FLOORL)
-check_symbol_exists("lrint"  "math.h"    HAVE_LRINT) # GTK+ only
 cmake_pop_check_state()
 
 check_function_exists("getopt_long"      HAVE_GETOPT_LONG)

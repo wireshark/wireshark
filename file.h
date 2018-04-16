@@ -63,18 +63,11 @@ typedef enum {
     cf_cb_file_retap_finished,
     cf_cb_file_merge_started, /* Qt only */
     cf_cb_file_merge_finished, /* Qt only */
-    cf_cb_file_fast_save_finished, /* GTK+ only? */
-    cf_cb_packet_selected, /* GTK+ only. */
-    cf_cb_packet_unselected, /* GTK+ only. */
-    cf_cb_field_unselected, /* GTK+ only. */
+    cf_cb_file_fast_save_finished,
     cf_cb_file_save_started,
     cf_cb_file_save_finished,
     cf_cb_file_save_failed,
     cf_cb_file_save_stopped,
-    cf_cb_file_export_specified_packets_started, /* GTK+ only. */
-    cf_cb_file_export_specified_packets_finished, /* GTK+ only. */
-    cf_cb_file_export_specified_packets_failed, /* GTK+ only. */
-    cf_cb_file_export_specified_packets_stopped /* GTK+ only. */
 } cf_cbs;
 
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
@@ -605,13 +598,6 @@ void cf_select_packet(capture_file *cf, int row);
  * @param cf the capture file
  */
 void cf_unselect_packet(capture_file *cf);
-
-/**
- * Unselect all protocol tree fields, if any.
- *
- * @param cf the capture file
- */
-void cf_unselect_field(capture_file *cf);
 
 /**
  * Mark a particular frame in a particular capture.

@@ -59,9 +59,6 @@ typedef struct _rtp_stream_info {
     gboolean        tag_vlan_error;
     gboolean        tag_diffserv_error;
 
-    gboolean        decode; /**< Decode this stream. GTK+ only? */
-    GList          *rtp_packet_list; /**< List of RTP rtp_packet_t. GTK+ only */
-
     tap_rtp_stat_t  rtp_stats;  /**< here goes the RTP statistics info */
     gboolean        problem;    /**< if the streams had wrong sequence numbers or wrong timestamps */
     gchar          *ed137_info;

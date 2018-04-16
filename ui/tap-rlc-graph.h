@@ -61,9 +61,6 @@ struct rlc_graph {
     guint16         channelId;
     guint8          rlcMode;
     guint8          direction;
-
-    /* Lists of elements to draw. N.B. GTK version only. */
-    struct element_list *elists;
 };
 
 gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *tg, gboolean stream_known,

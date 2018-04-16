@@ -248,8 +248,6 @@ color_filter_clone(color_filter_t *colorf)
     new_colorf->fg_color            = colorf->fg_color;
     new_colorf->disabled            = colorf->disabled;
     new_colorf->c_colorfilter       = NULL;
-    new_colorf->color_edit_dlg_info = NULL;
-    new_colorf->selected            = FALSE;
 
     return new_colorf;
 }
@@ -760,7 +758,7 @@ write_filter(gpointer filter_arg, gpointer data_arg)
     color_filter_t *colorf = (color_filter_t *)filter_arg;
     FILE *f = data->f;
 
-    if ( (colorf->selected || !data->only_selected) &&
+    if ( (!data->only_selected) &&
          (strstr(colorf->filter_name,CONVERSATION_COLOR_PREFIX)==NULL) ) {
         fprintf(f,"%s@%s@%s@[%u,%u,%u][%u,%u,%u]\n",
                 colorf->disabled ? "!" : "",

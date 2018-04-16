@@ -141,12 +141,6 @@ void main_window_update(void)
 
 #ifdef HAVE_LIBPCAP
 
-/* quit a nested main window */
-void main_window_nested_quit(void)
-{
-    wsApp->quit();
-}
-
 /* quit the main window */
 void main_window_quit(void)
 {

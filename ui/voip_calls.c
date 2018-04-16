@@ -934,7 +934,6 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
             callsinfo->from_identity=g_strdup("T38 Media only");
             callsinfo->to_identity=g_strdup("T38 Media only");
             copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-            callsinfo->selected=FALSE;
             callsinfo->start_fd = pinfo->fd;
             callsinfo->start_rel_ts = pinfo->rel_ts;
             callsinfo->protocol=MEDIA_T38;
@@ -1129,7 +1128,6 @@ sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt ,
             callsinfo->from_identity=g_strdup(pi->tap_from_addr);
             callsinfo->to_identity=g_strdup(pi->tap_to_addr);
             copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-            callsinfo->selected=FALSE;
             callsinfo->start_fd=pinfo->fd;
             callsinfo->start_rel_ts=pinfo->rel_ts;
             callsinfo->protocol=VOIP_SIP;
@@ -1365,7 +1363,6 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         callsinfo->call_active_state = VOIP_ACTIVE;
         callsinfo->call_state = VOIP_UNKNOWN;
         copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-        callsinfo->selected       = FALSE;
         callsinfo->start_fd       = pinfo->fd;
         callsinfo->start_rel_ts   = pinfo->rel_ts;
         callsinfo->protocol       = VOIP_ISUP;
@@ -1779,7 +1776,6 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             callsinfo->from_identity=g_strdup(tapinfo->q931_calling_number);
             callsinfo->to_identity=g_strdup(tapinfo->q931_called_number);
             copy_address(&(callsinfo->initial_speaker),tapinfo->actrace_direction?&pstn_add:&(pinfo->src));
-            callsinfo->selected=FALSE;
             callsinfo->start_fd=pinfo->fd;
             callsinfo->start_rel_ts=pinfo->rel_ts;
             callsinfo->protocol=VOIP_AC_ISDN;
@@ -1997,7 +1993,6 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         callsinfo->from_identity=g_strdup("");
         callsinfo->to_identity=g_strdup("");
         copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-        callsinfo->selected=FALSE;
         callsinfo->start_fd=pinfo->fd;
         callsinfo->start_rel_ts=pinfo->rel_ts;
         callsinfo->protocol=VOIP_H323;
@@ -2639,7 +2634,6 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             callsinfo->to_identity=g_strdup(pi->endpointId);
         }
         copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-        callsinfo->selected=FALSE;
         callsinfo->start_fd=pinfo->fd;
         callsinfo->start_rel_ts=pinfo->rel_ts;
         callsinfo->protocol=VOIP_MGCP;
@@ -2847,7 +2841,6 @@ actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
             callsinfo->from_identity=g_strdup("N/A");
             callsinfo->to_identity=g_strdup("N/A");
             copy_address(&(callsinfo->initial_speaker),tapinfo->actrace_direction?&pstn_add:&(pinfo->src));
-            callsinfo->selected=FALSE;
             callsinfo->start_fd=pinfo->fd;
             callsinfo->start_rel_ts=pinfo->rel_ts;
             callsinfo->protocol=VOIP_AC_CAS;
@@ -2993,8 +2986,6 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
         callsinfo->start_rel_ts = pinfo->rel_ts;
         callsinfo->stop_fd = pinfo->fd;
         callsinfo->stop_rel_ts = pinfo->rel_ts;
-
-        callsinfo->selected = FALSE;
 
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
 
@@ -3168,7 +3159,6 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
         callsinfo->stop_fd = pinfo->fd;
         callsinfo->stop_rel_ts = pinfo->rel_ts;
 
-        callsinfo->selected = FALSE;
         callsinfo->call_num = tapinfo->ncalls++;
 
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
@@ -3387,7 +3377,6 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
                 callsinfo->from_identity=g_strdup_printf("%x",pi->termid);
                 callsinfo->to_identity=g_strdup("UNKNOWN");
                 copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-                callsinfo->selected=FALSE;
 
                 /* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
                 /* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
@@ -3644,7 +3633,6 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
             callsinfo->from_identity=g_strdup("UNKNOWN");
             callsinfo->to_identity=g_strdup("UNKNOWN");
             copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-            callsinfo->selected=FALSE;
 
             /* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
             /* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
@@ -3891,7 +3879,6 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
         callsinfo->stop_fd = pinfo->fd;
         callsinfo->stop_rel_ts = pinfo->rel_ts;
 
-        callsinfo->selected = FALSE;
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
     } else {
         if (si->callingParty) {
@@ -4050,7 +4037,6 @@ iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt
         callsinfo->stop_fd = pinfo->fd;
         callsinfo->stop_rel_ts = pinfo->rel_ts;
 
-        callsinfo->selected = FALSE;
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
 
     } else {
@@ -4157,7 +4143,6 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         callsinfo->from_identity = g_strdup((pi->from_identity)?pi->from_identity:"");
         callsinfo->to_identity = g_strdup((pi->to_identity)?pi->to_identity:"");
         copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-        callsinfo->selected=FALSE;
         callsinfo->start_fd=pinfo->fd;
         callsinfo->start_rel_ts=pinfo->rel_ts;
         callsinfo->protocol=VOIP_COMMON;

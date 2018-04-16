@@ -398,7 +398,6 @@ setup_tree_presentation(gpointer k _U_, gpointer v, gpointer p)
     stats_tree_cfg *cfg = (stats_tree_cfg *)v;
     struct _stats_tree_pres_cbs *d = (struct _stats_tree_pres_cbs *)p;
 
-    cfg->in_use = FALSE;
     cfg->setup_node_pr = d->setup_node_pr;
     cfg->free_tree_pr = d->free_tree_pr;
 

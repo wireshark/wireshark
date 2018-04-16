@@ -97,13 +97,6 @@ static const enum_val_t gui_ptree_expander_style[] = {
     {NULL, NULL, -1}
 };
 
-/* GTK+ only. */
-static const enum_val_t gui_hex_dump_highlight_style[] = {
-    {"BOLD", "BOLD", 0},
-    {"INVERSE", "INVERSE", 1},
-    {NULL, NULL, -1}
-};
-
 static const enum_val_t gui_console_open_type[] = {
     {"NEVER", "NEVER", console_open_never},
     {"AUTOMATIC", "AUTOMATIC", console_open_auto},
@@ -125,8 +118,6 @@ static const enum_val_t gui_fileopen_style[] = {
     {NULL, NULL, -1}
 };
 
-/* GTK knows of two ways representing "both", vertical and horizontal aligned.
- * as this may not work on other guis, we use only "both" in general here */
 static const enum_val_t gui_toolbar_style[] = {
     {"ICONS", "ICONS", 0},
     {"TEXT", "TEXT", 1},
@@ -278,21 +269,6 @@ const char* prefs_get_name(pref_t *pref)
 guint32 prefs_get_max_value(pref_t *pref)
 {
     return pref->info.max_value;
-}
-
-void* prefs_get_control(pref_t *pref)
-{
-    return pref->control;
-}
-
-void prefs_set_control(pref_t *pref, void* control)
-{
-    pref->control = control;
-}
-
-int prefs_get_ordinal(pref_t *pref)
-{
-    return pref->ordinal;
 }
 
 /*
@@ -3035,11 +3011,7 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_module, "scrollbar_on_right");
     prefs_register_obsolete_preference(gui_module, "packet_list_sel_browse");
     prefs_register_obsolete_preference(gui_module, "protocol_tree_sel_browse");
-
-    prefs_register_bool_preference(gui_module, "tree_view_altern_colors",
-                                   "Alternating colors in TreeViews",
-                                   "Alternating colors in TreeViews?",
-                                   &prefs.gui_altern_colors);
+    prefs_register_obsolete_preference(gui_module, "tree_view_altern_colors");
 
     prefs_register_bool_preference(gui_module, "expert_composite_eyecandy",
                                    "Display Icons on Expert Composite Dialog Tabs",
@@ -3066,10 +3038,7 @@ prefs_register_modules(void)
                        "Protocol-tree expander style",
                        &prefs.gui_ptree_expander_style, gui_ptree_expander_style, FALSE);
 
-    prefs_register_enum_preference(gui_module, "hex_dump_highlight_style",
-                       "Hex dump highlight style",
-                       "Hex dump highlight style",
-                       &prefs.gui_hex_dump_highlight_style, gui_hex_dump_highlight_style, FALSE);
+    prefs_register_obsolete_preference(gui_module, "hex_dump_highlight_style");
 
     gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
 
@@ -3114,9 +3083,7 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
-    register_string_like_preference(gui_font_module, "gtk2.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)",
-        &prefs.gui_gtk2_font_name, PREF_STRING, NULL, TRUE);
+    prefs_register_obsolete_preference(gui_font_module, "gtk2.font_name");
 
     register_string_like_preference(gui_font_module, "qt.font_name", "Font name",
         "Font name for packet list, protocol tree, and hex dump panes. (Qt)",
@@ -3239,11 +3206,7 @@ prefs_register_modules(void)
                                    "Save window maximized state at exit?",
                                    &prefs.gui_geometry_save_maximized);
 
-    /* GTK+ only */
-    prefs_register_bool_preference(gui_module, "macosx_style",
-                                   "Use macOS style",
-                                   "Use macOS style (macOS with native GTK only)?",
-                                   &prefs.gui_macosx_style);
+    prefs_register_obsolete_preference(gui_module, "macosx_style");
 
     prefs_register_obsolete_preference(gui_module, "geometry.main.x");
     prefs_register_obsolete_preference(gui_module, "geometry.main.y");
@@ -3298,18 +3261,8 @@ prefs_register_modules(void)
                        "Show version in the start page and/or main screen's title bar",
                        (gint*)(void*)(&prefs.gui_version_placement), gui_version_placement_type, FALSE);
 
-    prefs_register_bool_preference(gui_module, "auto_scroll_on_expand",
-                                   "Automatically scroll packet details",
-                                   "When selecting a new packet, automatically scroll"
-                                   "to the packet detail item that matches the most"
-                                   "recently selected item",
-                                   &prefs.gui_auto_scroll_on_expand);
-
-    prefs_register_uint_preference(gui_module, "auto_scroll_percentage",
-                                   "Packet detail scroll percentage",
-                                   "The percentage down the view the recently expanded detail item should be scrolled",
-                                   10,
-                                   &prefs.gui_auto_scroll_percentage);
+    prefs_register_obsolete_preference(gui_module, "auto_scroll_on_expand");
+    prefs_register_obsolete_preference(gui_module, "auto_scroll_percentage");
 
     /* User Interface : Layout */
     gui_layout_module = prefs_register_subtree(gui_module, "Layout", "Layout", gui_layout_callback);
@@ -3492,7 +3445,7 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "auto_scroll", "Scroll packet list during capture",
         "Scroll packet list during capture?", &prefs.capture_auto_scroll);
 
-    /* GTK+ only */
+    /* GTK+ only, but we might implement this in Qt */
     prefs_register_bool_preference(capture_module, "show_info", "Show capture info dialog while capturing",
         "Show capture info dialog while capturing?", &prefs.capture_show_info);
 
@@ -4000,22 +3953,13 @@ pre_init_prefs(void)
     g_free(prefs.pr_cmd);
     prefs.pr_cmd     = g_strdup("lpr");
 
-    prefs.gui_altern_colors = FALSE;
     prefs.gui_expert_composite_eyecandy = FALSE;
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
-    prefs.gui_hex_dump_highlight_style = 1; /* GTK+ only */
     prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.restore_filter_after_following_stream = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
     prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
-    /* These will be g_freed, so they must be g_mallocated. */
-    g_free(prefs.gui_gtk2_font_name);
-#ifdef _WIN32
-    prefs.gui_gtk2_font_name         = g_strdup("Lucida Console 10");
-#else
-    prefs.gui_gtk2_font_name         = g_strdup("Monospace 10");
-#endif
     /* We try to find the best font in the Qt code */
     g_free(prefs.gui_qt_font_name);
     prefs.gui_qt_font_name           = g_strdup("");
@@ -4075,7 +4019,6 @@ pre_init_prefs(void)
     prefs.gui_geometry_save_position = TRUE;
     prefs.gui_geometry_save_size     = TRUE;
     prefs.gui_geometry_save_maximized= TRUE;
-    prefs.gui_macosx_style           = TRUE;
     prefs.gui_console_open           = console_open_never;
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_df_entries_max  = 10;
@@ -4098,8 +4041,6 @@ pre_init_prefs(void)
     g_free(prefs.gui_start_title);
     prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
     prefs.gui_version_placement      = version_both;
-    prefs.gui_auto_scroll_on_expand  = FALSE;
-    prefs.gui_auto_scroll_percentage = 0;
     prefs.gui_layout_type            = layout_type_5;
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;

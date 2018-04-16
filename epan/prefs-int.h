@@ -201,12 +201,6 @@ unsigned int prefs_get_module_effect_flags(module_t * module);
 WS_DLL_PUBLIC
 void prefs_set_module_effect_flags(module_t * module, unsigned int flags);
 
-
-// GTK only
-WS_DLL_PUBLIC void* prefs_get_control(pref_t *pref);
-WS_DLL_PUBLIC void prefs_set_control(pref_t *pref, void* control);
-WS_DLL_PUBLIC int prefs_get_ordinal(pref_t *pref);
-
 WS_DLL_PUBLIC
 gboolean prefs_set_range_value_work(pref_t *pref, const gchar *value,
                            gboolean return_range_errors, unsigned int *changed_flags);
