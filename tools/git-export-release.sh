@@ -32,6 +32,20 @@ DESCRIPTION=$(git describe --abbrev=8 --match "v[1-9]*" ${COMMIT})
 VERSION=${DESCRIPTION#v}
 STASH_POP=False
 
+# We might be able to avoid stashing by doing one of the following:
+#
+# Use tar to append a new or updated version.conf to the archive.
+# This would require detecting our local tar flavor (GNU or BSD) and
+# constructing a compatible command. BSD tar appears to support inline
+# inline filtering via `-a @- -s /^/wireshark-${VERSION} version.conf`
+# or something similar. GNU tar appears to require that we write to
+# a file and append to it. I'm not sure if we can add a path prefix.
+#
+# Use the 'export-subst' gitattribute along with
+# 'git_description=$Format:...$' in version.conf. export-subst uses
+# 'git log' formatting. I'm not sure if we can build $DESCRIPTION
+# from that.
+
 if [ "$COMMIT" == "HEAD" ] ; then
     echo "Adding description $DESCRIPTION"
     echo "git_description=$DESCRIPTION" >> version.conf
