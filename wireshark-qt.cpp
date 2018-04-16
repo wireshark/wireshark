@@ -821,8 +821,6 @@ int main(int argc, char *qt_argv[])
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();
 
-    packet_list_enable_color(recent.packet_list_colorize);
-
     if (!color_filters_init(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);

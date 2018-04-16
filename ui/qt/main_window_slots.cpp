@@ -2554,7 +2554,7 @@ void MainWindow::on_actionViewNormalSize_triggered()
 
 void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
     recent.packet_list_colorize = checked;
-    packet_list_enable_color(checked);
+    packet_list_recolor_packets();
     packet_list_->packetListModel()->resetColorized();
 }
 
