@@ -16,7 +16,6 @@
 #include <wsutil/interface.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/glib-compat.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>
 

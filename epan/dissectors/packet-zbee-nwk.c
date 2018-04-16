@@ -26,7 +26,6 @@
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-aps.h"    /* for ZBEE_APS_CMD_KEY_LENGTH */
 #include "packet-zbee-security.h"
-#include <wsutil/glib-compat.h>
 
 /*************************/
 /* Function Declarations */

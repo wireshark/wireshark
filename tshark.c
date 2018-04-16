@@ -754,9 +754,6 @@ main(int argc, char *argv[])
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
   create_app_running_mutex();
-#if !GLIB_CHECK_VERSION(2,31,0)
-  g_thread_init(NULL);
-#endif
 #endif /* _WIN32 */
 
   /*
@@ -2325,12 +2322,8 @@ pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_pro
   pipe_input.input_cb       = input_cb;
 
 #ifdef _WIN32
-#if GLIB_CHECK_VERSION(2,31,0)
   pipe_input.callback_running = g_malloc(sizeof(GMutex));
   g_mutex_init(pipe_input.callback_running);
-#else
-  pipe_input.callback_running = g_mutex_new();
-#endif
   /* Tricky to use pipes in win9x, as no concept of wait.  NT can
      do this but that doesn't cover all win32 platforms.  GTK can do
      this but doesn't seem to work over processes.  Attempt to do

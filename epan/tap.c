@@ -28,7 +28,6 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
-#include <wsutil/glib-compat.h>
 
 static gboolean tapping_is_active=FALSE;
 

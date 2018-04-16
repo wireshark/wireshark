@@ -22,7 +22,6 @@
 
 #include <version_info.h>
 #include <wsutil/report_message.h>
-#include <wsutil/glib-compat.h>
 
 #include <epan/exceptions.h>
 
@@ -191,13 +190,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	 * GLib 2.24, multiple invocations are allowed. Check for an earlier
 	 * invocation just in case.
 	 */
-#if !GLIB_CHECK_VERSION(2,31,0)
-#   if !GLIB_CHECK_VERSION(2,24,0)
-	if (!g_thread_get_initialized())
-#   endif
-		g_thread_init(NULL);
-#endif
-
 	/* initialize memory allocation subsystem */
 	wmem_init();
 

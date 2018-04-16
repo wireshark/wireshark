@@ -30,7 +30,6 @@
 #include <version_info.h>
 #include <wsutil/utf8_entities.h>
 #include <ftypes/ftypes-int.h>
-#include <wsutil/glib-compat.h>
 
 #define PDML_VERSION "0"
 #define PSML_VERSION "0"

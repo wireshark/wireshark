@@ -62,7 +62,6 @@
 
 #include <epan/maxmind_db.h>
 
-#include <wsutil/glib-compat.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 

@@ -37,7 +37,6 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
-#include <wsutil/glib-compat.h>
 #include "packet-tcp.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"

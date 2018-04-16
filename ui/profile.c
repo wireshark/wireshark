@@ -23,7 +23,6 @@
 #include "ui/recent.h"
 
 #include <wsutil/file_util.h>
-#include <wsutil/glib-compat.h>
 
 static GList *current_profiles = NULL;
 static GList *edited_profiles = NULL;

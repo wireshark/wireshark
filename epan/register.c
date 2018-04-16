@@ -12,7 +12,6 @@
 #include "ws_attributes.h"
 
 #include <glib.h>
-#include <wsutil/glib-compat.h>
 #include "epan/dissectors/dissectors.h"
 
 static const char *cur_cb_name = NULL;

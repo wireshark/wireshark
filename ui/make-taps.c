@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include <wsutil/glib-compat.h>
 
 #define ARRAY_RESERVED_SIZE     128
 #define STRING_RESERVED_SIZE    (8 * 1024)

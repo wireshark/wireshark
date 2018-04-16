@@ -18,7 +18,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/glib-compat.h>
 
 #include <errno.h>
 #include <string.h>

@@ -17,7 +17,6 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/glib-compat.h>
 #include <wsutil/report_message.h>
 
 #include "ui/filter_files.h"

@@ -41,12 +41,8 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList
     close_bt->setDefault(true);
 
     interface_list_ = ui->interfaceList;
-#if GLIB_CHECK_VERSION(2,31,0)
     pcap_compile_mtx = g_new(GMutex,1);
     g_mutex_init(pcap_compile_mtx);
-#else
-    pcap_compile_mtx = g_mutex_new();
-#endif
 #ifdef HAVE_LIBPCAP
     compileFilter();
 #endif

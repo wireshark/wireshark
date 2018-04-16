@@ -228,21 +228,9 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
 
     /* free the graph data items */
 
-#if GLIB_CHECK_VERSION (2, 32, 0)
        if (sainfo->items != NULL)
             g_queue_free_full(sainfo->items, sequence_analysis_item_free);
        sainfo->items = g_queue_new();
-#else
-    {
-        GList *list = g_queue_peek_nth_link(sainfo->items, 0);
-        while (list)
-        {
-            sequence_analysis_item_free(list->data);
-            list = g_list_next(list);
-        }
-        g_queue_clear(sainfo->items);
-    }
-#endif
 
     if (NULL != sainfo->ht) {
         g_hash_table_remove_all(sainfo->ht);
@@ -368,12 +356,7 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
     if (len > ins_len) {
         len = ins_len;
     } else if (len < ins_len) {
-#if GLIB_CHECK_VERSION(2,30,0)
         ins_str = g_utf8_substring(text_to_insert, 0, len);
-#else
-        gchar *end = g_utf8_offset_to_pointer(text_to_insert, len);
-        ins_str = g_strndup(text_to_insert, end - text_to_insert);
-#endif
     }
 
     if (!ins_str) ins_str = g_strdup(text_to_insert);

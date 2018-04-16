@@ -39,7 +39,6 @@
 
 #include "ui/iface_toolbar.h"
 
-#include <wsutil/glib-compat.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_pipe.h>

@@ -118,9 +118,6 @@
 #endif
 #endif
 
-/* for g_thread_new */
-#include "wsutil/glib-compat.h"
-
 #ifdef DEBUG_CHILD_DUMPCAP
 FILE *debug_log;   /* for logging debug messages to  */
                    /*  a file if DEBUG_CHILD_DUMPCAP */
@@ -2049,9 +2046,6 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
            PD_ERR } result;
 #ifdef _WIN32
-#if !GLIB_CHECK_VERSION(2,31,18)
-    GTimeVal  wait_time;
-#endif
     gpointer  q_status;
     wchar_t  *err_str;
 #endif
@@ -2101,13 +2095,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
         }
 #ifdef _WIN32
         else {
-#if GLIB_CHECK_VERSION(2,31,18)
             q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-#else
-            g_get_current_time(&wait_time);
-            g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
-            q_status = g_async_queue_timed_pop(pcap_src->cap_pipe_done_q, &wait_time);
-#endif
             if (pcap_src->cap_pipe_err == PIPEOF) {
                 result = PD_PIPE_EOF;
                 break;
@@ -2163,13 +2151,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
 #ifdef _WIN32
         else {
 
-#if GLIB_CHECK_VERSION(2,31,18)
             q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-#else
-            g_get_current_time(&wait_time);
-            g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
-            q_status = g_async_queue_timed_pop(pcap_src->cap_pipe_done_q, &wait_time);
-#endif /* GLIB_CHECK_VERSION(2,31,18) */
             if (pcap_src->cap_pipe_err == PIPEOF) {
                 result = PD_PIPE_EOF;
                 break;
@@ -2295,9 +2277,6 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
            PD_ERR } result;
 #ifdef _WIN32
-#if !GLIB_CHECK_VERSION(2,31,18)
-    GTimeVal  wait_time;
-#endif
     gpointer  q_status;
     wchar_t  *err_str;
 #endif
@@ -2338,13 +2317,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
         }
 #ifdef _WIN32
         else {
-#if GLIB_CHECK_VERSION(2,31,18)
             q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-#else
-            g_get_current_time(&wait_time);
-            g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
-            q_status = g_async_queue_timed_pop(pcap_src->cap_pipe_done_q, &wait_time);
-#endif
             if (pcap_src->cap_pipe_err == PIPEOF) {
                 result = PD_PIPE_EOF;
                 break;
@@ -2394,13 +2367,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
 #ifdef _WIN32
         else {
 
-#if GLIB_CHECK_VERSION(2,31,18)
             q_status = g_async_queue_timeout_pop(pcap_src->cap_pipe_done_q, PIPE_READ_TIMEOUT);
-#else
-            g_get_current_time(&wait_time);
-            g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
-            q_status = g_async_queue_timed_pop(pcap_src->cap_pipe_done_q, &wait_time);
-#endif /* GLIB_CHECK_VERSION(2,31,18) */
             if (pcap_src->cap_pipe_err == PIPEOF) {
                 result = PD_PIPE_EOF;
                 break;
@@ -2617,12 +2584,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         pcap_src->cap_pipe_state = STATE_EXPECT_REC_HDR;
         pcap_src->cap_pipe_err = PIPOK;
 #ifdef _WIN32
-#if GLIB_CHECK_VERSION(2,31,0)
         pcap_src->cap_pipe_read_mtx = g_malloc(sizeof(GMutex));
         g_mutex_init(pcap_src->cap_pipe_read_mtx);
-#else
-        pcap_src->cap_pipe_read_mtx = g_mutex_new();
-#endif
         pcap_src->cap_pipe_pending_q = g_async_queue_new();
         pcap_src->cap_pipe_done_q = g_async_queue_new();
 #endif
@@ -3656,18 +3619,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         /* dispatch incoming packets */
         if (use_threads) {
             pcap_queue_element *queue_element;
-#if GLIB_CHECK_VERSION(2,31,18)
 
             g_async_queue_lock(pcap_queue);
             queue_element = (pcap_queue_element *)g_async_queue_timeout_pop_unlocked(pcap_queue, WRITER_THREAD_TIMEOUT);
-#else
-            GTimeVal write_thread_time;
-
-            g_get_current_time(&write_thread_time);
-            g_time_val_add(&write_thread_time, WRITER_THREAD_TIMEOUT);
-            g_async_queue_lock(pcap_queue);
-            queue_element = (pcap_queue_element *)g_async_queue_timed_pop_unlocked(pcap_queue, &write_thread_time);
-#endif
             if (queue_element) {
                 if (queue_element->pcap_src->from_pcapng) {
                     pcap_queue_bytes -= queue_element->u.bh.block_total_length;
@@ -4569,11 +4523,6 @@ main(int argc, char *argv[])
 
     /* Initialize the pcaps list */
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(capture_src *));
-
-#if !GLIB_CHECK_VERSION(2,31,0)
-    /* Initialize the thread system */
-    g_thread_init(NULL);
-#endif
 
 #ifdef _WIN32
     /* Load wpcap if possible. Do this before collecting the run-time version information */
