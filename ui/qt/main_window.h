@@ -10,6 +10,32 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+/** @defgroup main_window_group Main window
+ * The main window has the following submodules:
+   @dot
+  digraph main_dependencies {
+      node [shape=record, fontname=Helvetica, fontsize=10];
+      main [ label="main window" URL="\ref main.h"];
+      menu [ label="menubar" URL="\ref menus.h"];
+      toolbar [ label="toolbar" URL="\ref main_toolbar.h"];
+      packet_list [ label="packet list pane" URL="\ref packet_list.h"];
+      proto_draw [ label="packet details & bytes panes" URL="\ref main_proto_draw.h"];
+      recent [ label="recent user settings" URL="\ref recent.h"];
+      main -> menu [ arrowhead="open", style="solid" ];
+      main -> toolbar [ arrowhead="open", style="solid" ];
+      main -> packet_list [ arrowhead="open", style="solid" ];
+      main -> proto_draw [ arrowhead="open", style="solid" ];
+      main -> recent [ arrowhead="open", style="solid" ];
+  }
+  @enddot
+ */
+
+/** @file
+ *  The main window
+ *  @ingroup main_window_group
+ *  @ingroup windows_group
+ */
+
 #include <stdio.h>
 
 #include <config.h>

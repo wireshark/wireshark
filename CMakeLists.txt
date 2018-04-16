@@ -1433,13 +1433,15 @@ set( libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}" )
 set( includedir  "\${prefix}/include" )
 set( plugindir "\${libdir}/wireshark/${PLUGIN_VERSION_DIR}" )
 
+# Doxygen variables
+file(GLOB TOP_LEVEL_SOURCE_LIST *.c *.cpp *.h)
+string (REPLACE ";" " " DOXYGEN_TOP_LEVEL_SOURCES "${TOP_LEVEL_SOURCE_LIST}")
+set(DOXYGEN_INPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 set(ICON_PATH "${CMAKE_SOURCE_DIR}/image/")
 set( IN_FILES
-	capchild/doxygen.cfg.in
-	caputils/doxygen.cfg.in
 	doxygen.cfg.in
-	doxygen_global.cfg
-	epan/doxygen.cfg.in
 	image/libwireshark.rc.in
 	image/text2pcap.rc.in
 	image/capinfos.rc.in
@@ -1461,11 +1463,7 @@ set( IN_FILES
 	packaging/macosx/osx-app.sh.in
 	packaging/macosx/osx-dmg.sh.in
 	packaging/macosx/Wireshark_package.pmdoc/index.xml.in
-	randpkt_core/doxygen.cfg.in
-	ui/doxygen.cfg.in
-	ui/qt/doxygen.cfg.in
 	wireshark.pc.in
-	writecap/doxygen.cfg.in
 )
 foreach( _in_file ${IN_FILES} )
 	get_filename_component( _path ${_in_file} PATH )
@@ -3097,6 +3095,18 @@ install(
 	DESTINATION
 		${CMAKE_INSTALL_MODULES_DIR}
 )
+
+if (DOXYGEN_EXECUTABLE)
+	# API reference
+	add_custom_target(wsar_html
+		COMMAND ${DOXYGEN_EXECUTABLE} doxygen.cfg
+	)
+
+	add_custom_target(wsar_html_zip
+		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "wsar_html.zip" --format=zip wsar_html
+		DEPENDS wsar_html wsar_html/index.html
+	)
+endif(DOXYGEN_EXECUTABLE)
 
 # Test suite wrapper
 if(ENABLE_APPLICATION_BUNDLE)

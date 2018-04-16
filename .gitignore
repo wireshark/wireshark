@@ -149,8 +149,6 @@ packaging/rpm/SRPMS
 AUTHORS.git
 AUTHORS-SHORT
 AUTHORS-SHORT-FORMAT
-doxygen.cfg
-doxygen-*.tag
 help/faq.txt
 pod2htm[di].tmp
 wireshark.pod

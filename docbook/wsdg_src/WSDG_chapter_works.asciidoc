@@ -29,7 +29,7 @@ Source code can be found in the _ui/qt_ directory.
 Core:: Main "glue code" that holds the other blocks together. Source
 code can be found in the root directory.
 
-Epan:: Ethereal Packet ANalyzer -- the packet analyzing engine.
+Epan:: Enhanced Packet ANalyzer -- the packet analyzing engine.
 Source code can be found in the _epan_ directory. Epan provides
 the following APIs:
 

@@ -51,9 +51,7 @@ extern plugins_t *libwireshark_plugins;
 #endif
 
 /**
-	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
-
-	@section Introduction
+	@section Epan The Enhanced Packet ANalyzer
 
 	XXX
 
@@ -62,7 +60,7 @@ extern plugins_t *libwireshark_plugins;
 /*
 Ref 1
 Epan
-Ethereal Packet ANalyzer (XXX - is this correct?) the packet analyzing engine. Source code can be found in the epan directory.
+Enhanced Packet ANalyzer, aka the packet analyzing engine. Source code can be found in the epan directory.
 
 Protocol-Tree - Keep data of the capture file protocol information.
 
