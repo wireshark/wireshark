@@ -1473,7 +1473,7 @@ proto_register_srvloc(void)
         },
 
         { &hf_srvloc_flags_v1_overflow,
-          { "Overflow", "srvloc.flags_v1.overflow.", FT_BOOLEAN, 8,
+          { "Overflow", "srvloc.flags_v1.overflow", FT_BOOLEAN, 8,
             TFS(&tfs_srvloc_flags_overflow), FLAG_O, "Can whole packet fit into a datagram?", HFILL }},
 
         { &hf_srvloc_flags_v1_monolingual,

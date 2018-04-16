@@ -409,18 +409,6 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	return g_ascii_strcasecmp(p1->short_name, p2->short_name);
 }
 
-static inline guchar
-check_charset(const guint8 table[256], const char *str)
-{
-	const char *p = str;
-	guchar c;
-
-	do {
-		c = *(p++);
-	} while (table[c]);
-	return c;
-}
-
 #ifdef HAVE_PLUGINS
 static GSList *dissector_plugins = NULL;
 
@@ -6442,15 +6430,34 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start,
 	fi->appendix_length = length;
 }
 
+static void
+check_valid_filter_name_or_fail(const char *filter_name)
+{
+	gboolean found_invalid = proto_check_field_name(filter_name);
+
+	/* Additionally forbid upper case characters. */
+	if (!found_invalid) {
+		for (guint i = 0; filter_name[i]; i++) {
+			if (g_ascii_isupper(filter_name[i])) {
+				found_invalid = TRUE;
+				break;
+			}
+		}
+	}
+
+	if (found_invalid) {
+		g_error("Protocol filter name \"%s\" has one or more invalid characters."
+			" Allowed are lower characters, digits, '-', '_' and non-repeating '.'."
+			" This might be caused by an inappropriate plugin or a development error.", filter_name);
+	}
+}
+
 int
 proto_register_protocol(const char *name, const char *short_name,
 			const char *filter_name)
 {
 	protocol_t *protocol;
 	header_field_info *hfinfo;
-	guint i;
-	gchar c;
-	gboolean found_invalid;
 
 	/*
 	 * Make sure there's not already a protocol with any of those
@@ -6471,18 +6478,7 @@ proto_register_protocol(const char *name, const char *short_name,
 			" This might be caused by an inappropriate plugin or a development error.", short_name);
 	}
 
-	found_invalid = FALSE;
-	for (i = 0; filter_name[i]; i++) {
-		c = filter_name[i];
-		if (!(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '-' || c == '_' || c == '.')) {
-			found_invalid = TRUE;
-		}
-	}
-	if (found_invalid) {
-		g_error("Protocol filter name \"%s\" has one or more invalid characters."
-			" Allowed are lower characters, digits, '-', '_' and '.'."
-			" This might be caused by an inappropriate plugin or a development error.", filter_name);
-	}
+	check_valid_filter_name_or_fail(filter_name);
 
 	if (g_hash_table_lookup(proto_filter_names, filter_name)) {
 		g_error("Duplicate protocol filter_name \"%s\"!"
@@ -6531,9 +6527,6 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
 {
 	protocol_t *protocol;
 	header_field_info *hfinfo;
-	guint i;
-	gchar c;
-	gboolean found_invalid = FALSE;
 
 	/*
 	 * Helper protocols don't need the strict rules as a "regular" protocol
@@ -6548,17 +6541,7 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
 			" This might be caused by an inappropriate plugin or a development error.", name);
 	}
 
-	for (i = 0; filter_name[i]; i++) {
-		c = filter_name[i];
-		if (!(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '-' || c == '_' || c == '.')) {
-			found_invalid = TRUE;
-		}
-	}
-	if (found_invalid) {
-		g_error("Protocol filter name \"%s\" has one or more invalid characters."
-			" Allowed are lower characters, digits, '-', '_' and '.'."
-			" This might be caused by an inappropriate plugin or a development error.", filter_name);
-	}
+	check_valid_filter_name_or_fail(filter_name);
 
 	/* Add this protocol to the list of helper protocols (just so it can be properly freed) */
 	protocol = g_new(protocol_t, 1);
@@ -7242,7 +7225,7 @@ proto_free_deregistered_fields (void)
 	deregistered_data = g_ptr_array_new();
 }
 
-/* chars allowed in field abbrev */
+/* chars allowed in field abbrev: alphanumerics, '-', "_", and ".". */
 static
 const guint8 fld_abbrev_chars[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
@@ -7883,12 +7866,15 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 
 		/* Check that the filter name (abbreviation) is legal;
 		 * it must contain only alphanumerics, '-', "_", and ".". */
-		c = check_charset(fld_abbrev_chars, hfinfo->abbrev);
+		c = proto_check_field_name(hfinfo->abbrev);
 		if (c) {
-			if (g_ascii_isprint(c))
+			if (c == '.') {
+				fprintf(stderr, "Invalid leading, duplicated or trailing '.' found in filter name '%s'\n", hfinfo->abbrev);
+			} else if (g_ascii_isprint(c)) {
 				fprintf(stderr, "Invalid character '%c' in filter name '%s'\n", c, hfinfo->abbrev);
-			else
+			} else {
 				fprintf(stderr, "Invalid byte \\%03o in filter name '%s'\n", c, hfinfo->abbrev);
+			}
 			DISSECTOR_ASSERT_NOT_REACHED();
 		}
 
@@ -11834,7 +11820,23 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 guchar
 proto_check_field_name(const gchar *field_name)
 {
-	return check_charset(fld_abbrev_chars, field_name);
+	const char *p = field_name;
+	guchar c = '.', lastc;
+
+	do {
+		lastc = c;
+		c = *(p++);
+		/* Leading '.' or substring ".." are disallowed. */
+		if (c == '.' && lastc == '.') {
+			break;
+		}
+	} while (fld_abbrev_chars[c]);
+
+	/* Trailing '.' is disallowed. */
+	if (lastc == '.') {
+		return '.';
+	}
+	return c;
 }
 
 gboolean

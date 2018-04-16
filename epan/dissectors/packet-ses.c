@@ -1332,7 +1332,7 @@ proto_register_ses(void)
 			&hf_session_exception_report,
 			{
 				"Session exception report",
-				"ses.exception_report.",
+				"ses.exception_report",
 				FT_BOOLEAN, 16,
 				NULL,
 				SES_EXCEPTION_REPORT,

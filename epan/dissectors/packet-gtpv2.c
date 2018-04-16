@@ -7933,12 +7933,12 @@ void proto_register_gtpv2(void)
            "SGSN", HFILL}
         },
         { &hf_gtpv2_tra_info_sgsn_mbms,
-          {"MBMS Context", "gtpv2.tra_into_sgsn_mbms",
+          {"MBMS Context", "gtpv2.tra_info_sgsn_mbms",
            FT_UINT8, BASE_DEC, NULL, 0x08,
            "SGSN", HFILL}
         },
         { &hf_gtpv2_tra_info_sgsn_reserved,
-          {"Reserved", "gtpv2.",
+          {"Reserved", "gtpv2.tra_info_sgsn_reserved",
            FT_UINT8, BASE_DEC, NULL, 0x0,
            "SGSN", HFILL}
         },

@@ -9111,7 +9111,7 @@ void proto_register_nfapi(void)
 			"The number of cell specific transmit antenna ports within the DRS occasions", HFILL }
 		},
 		{ &hf_nfapi_transmission_power_for_drs,
-			{ "Transmission power for DRS", "nfapi.transmission.power.for.drs.",
+			{ "Transmission power for DRS", "nfapi.transmission.power.for.drs",
 			FT_UINT16, BASE_CUSTOM, CF_FUNC(power_offset_conversion_fn), 0x0,
 			"Offset of cell specific Reference signals power within DRS occasions to the reference signal power", HFILL }
 		},
@@ -10205,7 +10205,7 @@ void proto_register_nfapi(void)
 			"Valid for DCI format 6-2", HFILL }
 		},
 		{ &hf_nfapi_number_of_tx_antenna_ports,
-			{ "Number of TX Antenna ports", "nfapi.num.of.tx.antenna.ports.",
+			{ "Number of TX Antenna ports", "nfapi.num.of.tx.antenna.ports",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Number of TX physical antenna ports", HFILL }
 		},
@@ -11135,7 +11135,7 @@ void proto_register_nfapi(void)
 			"Indicates HARQ results", HFILL }
 		},
 		{ &hf_nfapi_harq_tb_1,
-			{ "HARQ TB1", "nfapi.harq.tb.",
+			{ "HARQ TB1", "nfapi.harq.tb.1",
 			FT_UINT8, BASE_DEC, VALS(harq_value_vals), 0x0,
 			"HARQ feedback of 1st TB.", HFILL }
 		},

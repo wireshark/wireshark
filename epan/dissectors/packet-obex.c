@@ -3580,7 +3580,7 @@ proto_register_obex(void)
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_parameter_mask_alarm_status,
-          { "Alarm Status", "obex.parameter.ctn.parameter_mask.",
+          { "Alarm Status", "obex.parameter.ctn.parameter_mask.alarm_status",
             FT_UINT32, BASE_HEX, NULL, 0x00000080,
             NULL, HFILL}
         },

@@ -641,7 +641,7 @@ proto_register_fpp(void)
 				"Bad mCRC checksum", EXPFILL }
 		},
 		{ &ei_fpp_crc32,
-			{ "fpp..crc32_bad", PI_CHECKSUM, PI_ERROR,
+			{ "fpp.crc32_bad", PI_CHECKSUM, PI_ERROR,
 				"Bad CRC checksum", EXPFILL }
 		},
 	};
@@ -678,9 +678,9 @@ proto_reg_handoff_fpp(void)
  * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: nil
+ * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
  */

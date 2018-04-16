@@ -8589,7 +8589,7 @@ proto_register_bootp(void)
 		    "Option 120: SIP Server Address", HFILL }},
 
 		{ &hf_bootp_option_classless_static_route,
-		  { "Subnet/MaskWidth-Router", "bootp.option.classless_static_route.",
+		  { "Subnet/MaskWidth-Router", "bootp.option.classless_static_route",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 121: Subnet/MaskWidth-Router", HFILL }},
 

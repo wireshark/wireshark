@@ -2070,7 +2070,7 @@ void proto_register_ldap(void) {
         TFS(&tfs_ads_rodc), 0x00000800, "Is this an read only dc?", HFILL }},
 
     { &hf_mscldap_netlogon_flags_wdc,
-      { "WDC", "mscldap.netlogon.flags.writabledc.", FT_BOOLEAN, 32,
+      { "WDC", "mscldap.netlogon.flags.writabledc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_wdc), 0x00001000, "Is this an writable dc (Windows 2008)?", HFILL }},
 
     { &hf_mscldap_netlogon_flags_dns,

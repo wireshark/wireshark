@@ -6506,11 +6506,11 @@ proto_register_zbee_zcl_analog_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_priority_array,
-            { "Priority Array", "zbee_zcl_general.analog_output_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            { "Priority Array", "zbee_zcl_general.analog_output_basic.priority_array", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_structure,
-            { "Structure", "zbee_zcl_general.analog_output_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            { "Structure", "zbee_zcl_general.analog_output_basic.structure", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } }
     };
 
@@ -6789,11 +6789,11 @@ proto_register_zbee_zcl_analog_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_priority_array,
-            { "Priority Array", "zbee_zcl_general.analog_value_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            { "Priority Array", "zbee_zcl_general.analog_value_basic.priority_array", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_value_basic_structure,
-            { "Structure", "zbee_zcl_general.analog_value_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            { "Structure", "zbee_zcl_general.analog_value_basic.structure", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } }
     };
 
@@ -7350,11 +7350,11 @@ proto_register_zbee_zcl_binary_output_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_priority_array,
-            { "Priority Array", "zbee_zcl_general.binary_output_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            { "Priority Array", "zbee_zcl_general.binary_output_basic.priority_array", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_output_basic_structure,
-            { "Structure", "zbee_zcl_general.binary_output_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            { "Structure", "zbee_zcl_general.binary_output_basic.structure", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } }
     };
 
@@ -7639,11 +7639,11 @@ proto_register_zbee_zcl_binary_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_priority_array,
-            { "Priority Array", "zbee_zcl_general.binary_value_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            { "Priority Array", "zbee_zcl_general.binary_value_basic.priority_array", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_binary_value_basic_structure,
-            { "Structure", "zbee_zcl_general.binary_value_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            { "Structure", "zbee_zcl_general.binary_value_basic.structure", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } }
     };
 
@@ -8162,11 +8162,11 @@ proto_register_zbee_zcl_multistate_output_basic(void)
             0x00, NULL, HFILL } } ,
 
         { &hf_zbee_zcl_multistate_output_basic_priority_array,
-            { "Priority Array", "zbee_zcl_general.multistate_output_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            { "Priority Array", "zbee_zcl_general.multistate_output_basic.priority_array", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_output_basic_structure,
-            { "Structure", "zbee_zcl_general.multistate_output_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            { "Structure", "zbee_zcl_general.multistate_output_basic.structure", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } }
 };
 
@@ -8452,11 +8452,11 @@ proto_register_zbee_zcl_multistate_value_basic(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_priority_array,
-            { "Priority Array", "zbee_zcl_general.multistate_value_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            { "Priority Array", "zbee_zcl_general.multistate_value_basic.priority_array", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_multistate_value_basic_structure,
-            { "Structure", "zbee_zcl_general.multistate_value_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            { "Structure", "zbee_zcl_general.multistate_value_basic.structure", FT_NONE, BASE_NONE, NULL,
             0x00, NULL, HFILL } }
     };
 
@@ -15317,7 +15317,7 @@ proto_register_zbee_zcl_gp(void)
 
         /* GP Sink Commissioning Mode command */
         { &hf_zbee_zcl_gp_cmd_sink_comm_mode_options,
-          { "Options", "zbee_zcl_general.gp.sink_comm_mode.", FT_UINT8, BASE_HEX,
+          { "Options", "zbee_zcl_general.gp.sink_comm_mode.options", FT_UINT8, BASE_HEX,
             NULL, 0, NULL, HFILL }},
 
         { &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action,
@@ -15575,7 +15575,7 @@ proto_register_zbee_zcl_gp(void)
           { "Translation Table", "zbee_zcl_general.gp.attr.gps_func.translation_table", FT_BOOLEAN, 24,
             NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_TRANSLATION_TABLE, NULL, HFILL }},
         { &hf_zbee_zcl_gp_attr_gps_func_fld_gpd_ieee_address,
-          { "GPD IEEE address", "zbee_zcl_general.gp.attr.gps_func.", FT_BOOLEAN, 24,
+          { "GPD IEEE address", "zbee_zcl_general.gp.attr.gps_func.gpd_ieee_address", FT_BOOLEAN, 24,
             NULL, ZBEE_ZCL_GP_ATTR_GPS_FUNC_FLD_GPD_IEEE_ADDRESS, NULL, HFILL }},
 
         /* gpsActiveFunctionality attribute */

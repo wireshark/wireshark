@@ -4761,7 +4761,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_signature_value,
-      { "signature_value",  "reload.signature.value.",  FT_NONE,
+      { "signature_value",  "reload.signature.value",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -5171,7 +5171,7 @@ proto_register_reload(void)
     },
 
     { &hf_reload_configupdatereq,
-      { "ConfigUpdateReq",  "reload.configupdatereq.",  FT_NONE,
+      { "ConfigUpdateReq",  "reload.configupdatereq",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
