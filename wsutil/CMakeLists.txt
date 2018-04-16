@@ -39,7 +39,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	filesystem.h
 	frequency-utils.h
 	g711.h
-	glib-compat.h
 	inet_addr.h
 	inet_ipv6.h
 	interface.h
@@ -96,7 +95,6 @@ set(WSUTIL_COMMON_FILES
 	filesystem.c
 	frequency-utils.c
 	g711.c
-	glib-compat.c
 	inet_addr.c
 	interface.c
 	jsmn.c
