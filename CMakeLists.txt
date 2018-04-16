@@ -2886,8 +2886,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_program(GIT_EXECUTABLE git)
 endif()
 
-# This will fail if we're not building from a git checkout.
-if(RPMBUILD_EXECUTABLE AND GIT_EXECUTABLE)
+if(RPMBUILD_EXECUTABLE)
 	foreach(_rpm_dir BUILD RPMS SOURCES SPECS SRPMS)
 		file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm/${_rpm_dir}")
 	endforeach()
@@ -2924,15 +2923,20 @@ if(RPMBUILD_EXECUTABLE AND GIT_EXECUTABLE)
 		list(APPEND _rpmbuild_with_args --with nghttp2)
 	endif()
 
-	execute_process(
-		COMMAND git describe --abbrev=8 --match v[1-9]*
-		OUTPUT_VARIABLE _git_description
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	)
+	if(GIT_EXECUTABLE)
+		execute_process(
+			COMMAND ${GIT_EXECUTABLE} describe --abbrev=8 --match v[1-9]*
+			OUTPUT_VARIABLE _git_description
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		)
+	else()
+		set(_git_description "")
+	endif()
 	if (NOT _git_description)
 		# We're building the rpm outside the source. Guess the version from the dirname.
 		get_filename_component(CMAKE_SOURCE_DIR_NAME ${CMAKE_SOURCE_DIR} NAME)
+		# XXX this assumes the directory to start with "wireshark-"
 		string(SUBSTRING "${CMAKE_SOURCE_DIR_NAME}" 10 -1 _git_description)
 	endif()
 	string(SUBSTRING "${_git_description}" 1 -1 RPM_TARBALL_VERSION)
