@@ -11,8 +11,8 @@
 
 /*
  * See https://quicwg.github.io/
- * https://tools.ietf.org/html/draft-ietf-quic-transport-09
- * https://tools.ietf.org/html/draft-ietf-quic-tls-09
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-10
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-10
  */
 
 #include <config.h>
@@ -95,8 +95,6 @@ static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 static int hf_quic_frame_type_ss_stream_id = -1;
 static int hf_quic_frame_type_ss_application_error_code = -1;
-static int hf_quic_frame_type_pong_length = -1;
-static int hf_quic_frame_type_pong_data = -1;
 
 static expert_field ei_quic_ft_unknown = EI_INIT;
 static expert_field ei_quic_decryption_failed = EI_INIT;
@@ -181,6 +179,7 @@ const value_string quic_version_vals[] = {
     { 0xff000007, "draft-07" },
     { 0xff000008, "draft-08" },
     { 0xff000009, "draft-09" },
+    { 0xff00000a, "draft-10" },
     { 0, NULL }
 };
 
@@ -228,8 +227,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_STREAM_ID_BLOCKED 0x0a
 #define FT_NEW_CONNECTION_ID 0x0b
 #define FT_STOP_SENDING     0x0c
-#define FT_PONG             0x0d
-#define FT_ACK              0x0e
+#define FT_ACK              0x0d
 #define FT_STREAM_10        0x10
 #define FT_STREAM_11        0x11
 #define FT_STREAM_12        0x12
@@ -253,8 +251,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x0a, 0x0a,   "STREAM_ID_BLOCKED" },
     { 0x0b, 0x0b,   "NEW_CONNECTION_ID" },
     { 0x0c, 0x0c,   "STOP_SENDING" },
-    { 0x0d, 0x0d,   "PONG" },
-    { 0x0e, 0x0e,   "ACK" },
+    { 0x0d, 0x0d,   "ACK" },
     { 0x10, 0x17,   "STREAM" },
     { 0,    0,        NULL },
 };
@@ -589,20 +586,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
         }
         break;
-        case FT_PONG:{
-            guint len_pong;
-
-            proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_pong_length, tvb, offset, 1, ENC_BIG_ENDIAN, &len_pong);
-            offset += 1;
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_pong_data, tvb, offset, len_pong, ENC_NA);
-            offset += len_pong;
-
-            proto_item_set_len(ti_ft, 1 + 1 + len_pong);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PONG");
-        }
-        break;
-        case FT_ACK: {
+        case FT_ACK:{
             guint64 ack_block_count;
             guint32 lenvar;
 
@@ -1762,17 +1746,6 @@ proto_register_quic(void)
             { "Application Error code", "quic.frame_type.ss.application_error_code",
               FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
               "Indicates why the sender is ignoring the stream", HFILL }
-        },
-        /* PONG */
-        { &hf_quic_frame_type_pong_length,
-            { "Length", "quic.frame_type.pong.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Describes the length of the Data field", HFILL }
-        },
-        { &hf_quic_frame_type_pong_data,
-            { "Data", "quic.frame_type.pong.data",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
-              "Contains arbitrary data", HFILL }
         },
 
     };
