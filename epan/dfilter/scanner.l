@@ -339,10 +339,17 @@ static void mark_lval_deprecated(const char *s);
         return set_lval(TOKEN_UNPARSED, yytext);
 }
 
-[-\+[:alnum:]_.:]+	{
-	/* Is it a field name? */
+		([.][-+[:alnum:]_:]+)+[.]{0,2} |
+[-+[:alnum:]_:]+([.][-+[:alnum:]_:]+)*[.]{0,2} {
+	/* Is it a field name or some other value (float, integer, bytes, ...)? */
 	header_field_info *hfinfo;
 	df_func_def_t *df_func_def;
+
+	/* Trailing dot is allowed for floats, but make sure that trailing ".."
+	 * is interpreted as a token on its own. */
+	if (strstr(yytext, "..")) {
+		yyless(yyleng-2);
+	}
 
 	hfinfo = proto_registrar_get_byname(yytext);
 	if (hfinfo) {

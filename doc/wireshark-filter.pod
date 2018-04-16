@@ -294,8 +294,8 @@ To find HTTP requests using the HEAD or GET methods:
 
 The set of values can also contain ranges:
 
-    tcp.port in {443 4430 .. 4434}
-    ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1 .. 192.168.1.9}
+    tcp.port in {443 4430..4434}
+    ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1..192.168.1.9}
     frame.time_delta in {10 .. 10.5}
 
 =head2 Type conversions
