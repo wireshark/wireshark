@@ -49,6 +49,7 @@ typedef struct {
 typedef struct {
 	dfwork_t *dfw;
 	GString* quoted_string;
+	gboolean in_set;	/* true if parsing set elements for the membership operator */
 } df_scanner_state_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
