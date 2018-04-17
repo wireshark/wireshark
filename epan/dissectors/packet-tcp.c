@@ -132,6 +132,7 @@ static int proto_tcp_option_tfo = -1;
 static int proto_tcp_option_rvbd_probe = -1;
 static int proto_tcp_option_rvbd_trpy = -1;
 static int proto_tcp_option_exp = -1;
+static int proto_tcp_option_unknown = -1;
 static int proto_mptcp = -1;
 
 static int hf_tcp_srcport = -1;
@@ -207,6 +208,7 @@ static int hf_tcp_option_qs_rate = -1;
 static int hf_tcp_option_qs_ttl_diff = -1;
 static int hf_tcp_option_exp_data = -1;
 static int hf_tcp_option_exp_magic_number = -1;
+static int hf_tcp_option_unknown_payload = -1;
 
 static int hf_tcp_option_rvbd_probe_version1 = -1;
 static int hf_tcp_option_rvbd_probe_version2 = -1;
@@ -571,6 +573,7 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 static dissector_handle_t tcp_handle;
 static dissector_handle_t sport_handle;
+static dissector_handle_t tcp_opt_unknown_handle;
 static guint32 tcp_stream_count;
 static guint32 mptcp_stream_count;
 
@@ -3661,6 +3664,24 @@ tcp_option_len_check(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int pr
 }
 
 static int
+dissect_tcpopt_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    proto_item *item;
+    proto_tree *exp_tree;
+    int offset = 0, optlen = tvb_reported_length(tvb);
+
+    item = proto_tree_add_item(tree, proto_tcp_option_unknown, tvb, offset, -1, ENC_NA);
+    exp_tree = proto_item_add_subtree(item, ett_tcp_unknown_opt);
+
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    if (optlen > 2)
+        proto_tree_add_item(exp_tree, hf_tcp_option_unknown_payload, tvb, offset + 2, optlen - 2, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
 dissect_tcpopt_default_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto, int ett)
 {
     proto_item *item;
@@ -5397,6 +5418,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
             option_dissector = dissector_get_uint_handle(tcp_option_table, opt);
             if (option_dissector == NULL) {
                 name = wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%02x)", opt);
+                option_dissector = tcp_opt_unknown_handle;
             } else {
                 name = dissector_handle_get_short_name(option_dissector);
             }
@@ -5428,14 +5450,10 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
                 return;
             }
 
-            if (option_dissector == NULL) {
-                proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, ett_tcp_unknown_opt, NULL, "%s (%u byte%s)",
-                                              name, optlen, plurality(optlen, "", "s"));
-            } else {
-                next_tvb = tvb_new_subset_length(tvb, offset, optlen);
-                call_dissector_with_data(option_dissector, next_tvb, pinfo, opt_tree/* tree */, data);
-                proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
-            }
+            next_tvb = tvb_new_subset_length(tvb, offset, optlen);
+            call_dissector_with_data(option_dissector, next_tvb, pinfo, opt_tree/* tree */, data);
+            proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
+
             offset += optlen;
             length -= (optlen-2); //already accounted for type and len bytes
         }
@@ -6786,6 +6804,10 @@ proto_register_tcp(void)
           { "Magic Number", "tcp.options.experimental.magic_number", FT_UINT16,
             BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
+        { &hf_tcp_option_unknown_payload,
+          { "Payload", "tcp.options.unknown.payload", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
         { &hf_tcp_option_sack_sle,
           {"TCP SACK Left Edge", "tcp.options.sack_le", FT_UINT32,
            BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -7468,6 +7490,7 @@ proto_register_tcp(void)
     proto_tcp_option_rvbd_probe = proto_register_protocol_in_name_only("TCP Option - Riverbed Probe", "Riverbed Probe", "tcp.options.rvbd.probe", proto_tcp, FT_BYTES);
     proto_tcp_option_rvbd_trpy = proto_register_protocol_in_name_only("TCP Option - Riverbed Transparency", "Riverbed Transparency", "tcp.options.rvbd.trpy", proto_tcp, FT_BYTES);
     proto_tcp_option_exp = proto_register_protocol_in_name_only("TCP Option - Experimental", "Experimental", "tcp.options.experimental", proto_tcp, FT_BYTES);
+    proto_tcp_option_unknown = proto_register_protocol_in_name_only("TCP Option - Unknown", "Unknown", "tcp.options.unknown", proto_tcp, FT_BYTES);
 
     register_capture_dissector_table("tcp.port", "TCP");
 
@@ -7625,6 +7648,8 @@ proto_reg_handoff_tcp(void)
     dissector_add_uint("tcp.option", TCPOPT_EXP_FD, create_dissector_handle( dissect_tcpopt_exp, proto_tcp_option_exp ));
     dissector_add_uint("tcp.option", TCPOPT_EXP_FE, create_dissector_handle( dissect_tcpopt_exp, proto_tcp_option_exp ));
     dissector_add_uint("tcp.option", TCPOPT_MPTCP, create_dissector_handle( dissect_tcpopt_mptcp, proto_mptcp ));
+    /* Common handle for all the unknown/unsupported TCP options */
+    tcp_opt_unknown_handle = create_dissector_handle( dissect_tcpopt_unknown, proto_tcp_option_unknown );
 
     mptcp_tap = register_tap("mptcp");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_4);
