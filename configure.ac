@@ -2603,14 +2603,11 @@ AC_CONFIG_FILES(
   epan/dissectors/asn1/x509if/Makefile
   epan/dissectors/asn1/x509sat/Makefile
   capchild/Makefile
-  capchild/doxygen.cfg
   caputils/Makefile
-  caputils/doxygen.cfg
   doc/Makefile
   docbook/Makefile
   epan/Makefile
   epan/crypt/Makefile
-  epan/doxygen.cfg
   epan/dfilter/Makefile
   epan/dissectors/Makefile
   epan/dissectors/dcerpc/Makefile
@@ -2620,10 +2617,8 @@ AC_CONFIG_FILES(
   extcap/Makefile
   codecs/Makefile
   ui/Makefile
-  ui/doxygen.cfg
   ui/cli/Makefile
   ui/qt/Makefile
-  ui/qt/doxygen.cfg
   help/Makefile
   packaging/Makefile
   packaging/macosx/Info.plist
@@ -2650,13 +2645,11 @@ AC_CONFIG_FILES(
   plugins/wiretap/usbdump/Makefile
   plugins/codecs/l16_mono/Makefile
   _CUSTOM_PLUGIN_CONFIG_FILES_
-  randpkt_core/doxygen.cfg
   randpkt_core/Makefile
   tools/Makefile
   tools/lemon/Makefile
   wiretap/Makefile
   writecap/Makefile
-  writecap/doxygen.cfg
   wsutil/Makefile
 )
 
