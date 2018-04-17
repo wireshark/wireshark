@@ -161,8 +161,8 @@ typedef struct quic_info_data {
     gboolean        skip_decryption : 1; /**< Set to 1 if no keys are available. */
     guint8          cipher_keylen;  /**< Cipher key length. */
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
-    tls13_cipher *client_handshake_cipher;
-    tls13_cipher *server_handshake_cipher;
+    tls13_cipher    client_handshake_cipher;
+    tls13_cipher    server_handshake_cipher;
     quic_pp_state_t client_pp;
     quic_pp_state_t server_pp;
     guint64 max_client_pkn;
@@ -681,12 +681,20 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 #define QUIC_LONG_HEADER_LENGTH     17
 
 #ifdef HAVE_LIBGCRYPT_AEAD
+static gcry_error_t
+qhkdf_expand(int md, const guint8 *secret, guint secret_len,
+             const char *label, guint8 *out, guint out_len);
+
+static gboolean
+quic_cipher_init_keyiv(tls13_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret);
+
+
 /**
  * Given a QUIC message (header + non-empty payload), the actual packet number,
  * try to decrypt it using the cipher.
  *
  * The actual packet number must be constructed according to
- * https://tools.ietf.org/html/draft-ietf-quic-transport-07#section-5.7
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-10#section-5.7
  */
 static void
 quic_decrypt_message(tls13_cipher *cipher, tvbuff_t *head, guint header_length, guint64 packet_number, quic_decrypt_result_t *result)
@@ -700,6 +708,7 @@ quic_decrypt_message(tls13_cipher *cipher, tvbuff_t *head, guint header_length, 
     const guchar  **error = &result->error;
 
     DISSECTOR_ASSERT(cipher != NULL);
+    DISSECTOR_ASSERT(cipher->hd != NULL);
     DISSECTOR_ASSERT(header_length <= sizeof(header));
     tvb_memcpy(head, header, 0, header_length);
 
@@ -751,89 +760,54 @@ quic_decrypt_message(tls13_cipher *cipher, tvbuff_t *head, guint header_length, 
 /**
  * Compute the client and server handshake secrets given Connection ID "cid".
  *
- * On success TRUE is returned and the two handshake secrets are returned (these
- * must be freed with wmem_free(NULL, ...)). FALSE is returned on error.
+ * On success TRUE is returned and the two handshake secrets are set.
+ * FALSE is returned on error (see "error" parameter for the reason).
  */
 static gboolean
 quic_derive_handshake_secrets(guint64 cid,
-                              guint8 **client_handshake_secret,
-                              guint8 **server_handshake_secret,
-                              quic_info_data_t *quic_info,
+                              guint8 client_handshake_secret[HASH_SHA2_256_LENGTH],
+                              guint8 server_handshake_secret[HASH_SHA2_256_LENGTH],
+                              quic_info_data_t *quic_info _U_,
                               const gchar **error)
 {
-
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-09#section-5.2.1
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-10#section-5.2.2
      *
-     * quic_version_1_salt = afc824ec5fc77eca1e9d36f37fb2d46518c36639
-     *
-     * handshake_secret = HKDF-Extract(quic_version_1_salt,
-     *                                 client_connection_id)
+     * handshake_salt = 0x9c108f98520a5c5c32968e950e8a2c5fe06d6c38
+     * handshake_secret =
+     *     HKDF-Extract(handshake_salt, client_connection_id)
      *
      * client_handshake_secret =
-     *                    QHKDF-Expand-Label(handshake_secret,
-     *                                      "client hs",
-     *                                      "", Hash.length)
+     *    QHKDF-Expand(handshake_secret, "client hs", Hash.length)
      * server_handshake_secret =
-     *                    QHKDF-Expand-Label(handshake_secret,
-     *                                      "server hs",
-     *                                      "", Hash.length)
+     *    QHKDF-Expand(handshake_secret, "server hs", Hash.length)
+     *
      * Hash for handshake packets is SHA-256 (output size 32).
-     *
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-09#section-5.2.3
-     *
-     * HKDF-Expand-Label uses HKDF-Expand [RFC5869] as shown:
-     *
-     * QHKDF-Expand(Secret, Label, Length) =
-     *      HKDF-Expand(Secret, QuicHkdfLabel, Length)
-     *
-     *  Where the info parameter, QuicHkdfLabel, is specified as:
-     *
-     *  struct {
-     *      uint16 length = Length;
-     *      opaque label<6..255> = "QUIC " + Label;
-     *      uint8 hashLength = 0;
-     *  } QuicHkdfLabel;
      */
-    static const guint8 quic_version_1_salt[20] = {
-        0xaf, 0xc8, 0x24, 0xec, 0x5f, 0xc7, 0x7e, 0xca, 0x1e, 0x9d,
-        0x36, 0xf3, 0x7f, 0xb2, 0xd4, 0x65, 0x18, 0xc3, 0x66, 0x39
+    static const guint8 handshake_salt[20] = {
+        0x9c, 0x10, 0x8f, 0x98, 0x52, 0x0a, 0x5c, 0x5c, 0x32, 0x96,
+        0x8e, 0x95, 0x0e, 0x8a, 0x2c, 0x5f, 0xe0, 0x6d, 0x6c, 0x38
     };
-    const char     *label_prefix = "QUIC ";
     gcry_error_t    err;
-    guint8          secret_bytes[HASH_SHA2_256_LENGTH];
-    StringInfo      secret = { (guchar *) &secret_bytes, HASH_SHA2_256_LENGTH };
+    guint8          secret[HASH_SHA2_256_LENGTH];
     guint8          cid_bytes[8];
-    const gchar     *client_label = "client hs";
-    const gchar     *server_label = "server hs";
-
-    /* draft-08 don't use the same prefix label and label... */
-    if (quic_info->version == 0xFF000008) {
-        label_prefix = "tls13 ";
-        client_label = "QUIC client handshake secret";
-        server_label = "QUIC server handshake secret";
-    }
 
     phton64(cid_bytes, cid);
-    err = hkdf_extract(GCRY_MD_SHA256, quic_version_1_salt, sizeof(quic_version_1_salt),
-                       cid_bytes, sizeof(cid_bytes), secret.data);
+    err = hkdf_extract(GCRY_MD_SHA256, handshake_salt, sizeof(handshake_salt),
+                       cid_bytes, sizeof(cid_bytes), secret);
     if (err) {
         *error = wmem_strdup_printf(wmem_packet_scope(), "Failed to extract secrets: %s", gcry_strerror(err));
         return FALSE;
     }
 
-
-
-    if (!tls13_hkdf_expand_label(GCRY_MD_SHA256, &secret, label_prefix, client_label,
-                                 HASH_SHA2_256_LENGTH, client_handshake_secret)) {
+    if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "client hs",
+                     client_handshake_secret, HASH_SHA2_256_LENGTH)) {
         *error = "Key expansion (client) failed";
         return FALSE;
     }
 
-    if (!tls13_hkdf_expand_label(GCRY_MD_SHA256, &secret, label_prefix, server_label,
-                                 HASH_SHA2_256_LENGTH, server_handshake_secret)) {
-        wmem_free(NULL, *client_handshake_secret);
-        *client_handshake_secret = NULL;
+    if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "server hs",
+                     server_handshake_secret, HASH_SHA2_256_LENGTH)) {
         *error = "Key expansion (server) failed";
         return FALSE;
     }
@@ -845,33 +819,32 @@ quic_derive_handshake_secrets(guint64 cid,
 static gboolean
 quic_create_handshake_decoders(guint64 cid, const gchar **error, quic_info_data_t *quic_info)
 {
-    tls13_cipher   *client_cipher, *server_cipher;
-    StringInfo      client_secret = { NULL, HASH_SHA2_256_LENGTH };
-    StringInfo      server_secret = { NULL, HASH_SHA2_256_LENGTH };
-    const char     *hkdf_label_prefix = "QUIC ";
+    guint8          client_secret[HASH_SHA2_256_LENGTH];
+    guint8          server_secret[HASH_SHA2_256_LENGTH];
 
-    /* draft-08 uses a different label prefix for HKDF-Expand-Label. */
-    if (quic_info->version == 0xFF000008) {
-        hkdf_label_prefix = "tls13 ";
-    }
-
-    if (!quic_derive_handshake_secrets(cid, &client_secret.data, &server_secret.data, quic_info, error)) {
+    if (!quic_derive_handshake_secrets(cid, client_secret, server_secret, quic_info, error)) {
         return FALSE;
     }
+
+    /* Destroy any previous ciphers in case there exist multiple Initial packets */
+    gcry_cipher_close(quic_info->client_handshake_cipher.hd);
+    gcry_cipher_close(quic_info->server_handshake_cipher.hd);
+    memset(&quic_info->client_handshake_cipher, 0, sizeof(tls13_cipher));
+    memset(&quic_info->server_handshake_cipher, 0, sizeof(tls13_cipher));
 
     /* handshake packets are protected with AEAD_AES_128_GCM */
-    client_cipher = tls13_cipher_create(hkdf_label_prefix, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &client_secret, error);
-    server_cipher = tls13_cipher_create(hkdf_label_prefix, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &server_secret, error);
-
-    wmem_free(NULL, client_secret.data);
-    wmem_free(NULL, server_secret.data);
-
-    if (!client_cipher || !server_cipher) {
+    if (gcry_cipher_open(&quic_info->client_handshake_cipher.hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 0) ||
+        gcry_cipher_open(&quic_info->server_handshake_cipher.hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 0)) {
+        *error = "Failed to create ciphers";
         return FALSE;
     }
 
-    quic_info->client_handshake_cipher = client_cipher;
-    quic_info->server_handshake_cipher = server_cipher;
+    guint cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
+    if (!quic_cipher_init_keyiv(&quic_info->client_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, client_secret) ||
+        !quic_cipher_init_keyiv(&quic_info->server_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, server_secret)) {
+        *error = "Failed to derive key material for cipher";
+        return FALSE;
+    }
 
     return TRUE;
 }
@@ -884,14 +857,13 @@ static gcry_error_t
 qhkdf_expand(int md, const guint8 *secret, guint secret_len,
              const char *label, guint8 *out, guint out_len)
 {
-    /* draft-ietf-quic-tls-09
+    /* https://tools.ietf.org/html/draft-ietf-quic-tls-10#section-5.2.1
      *     QHKDF-Expand(Secret, Label, Length) =
-     *          HKDF-Expand(Secret, QuicHkdfLabel, Length)
+     *          HKDF-Expand(Secret, QhkdfLabel, Length)
      *     struct {
      *         uint16 length = Length;
      *         opaque label<6..255> = "QUIC " + Label;
-     *         uint8 hashLength = 0;        // removed in draft -10
-     *     } QuicHkdfLabel;
+     *     } QhkdfLabel;
      */
     gcry_error_t err;
     const guint label_length = (guint) strlen(label);
@@ -899,18 +871,15 @@ qhkdf_expand(int md, const guint8 *secret, guint secret_len,
     /* Some sanity checks */
     DISSECTOR_ASSERT(label_length > 0 && 5 + label_length <= 255);
 
-    /* info = QuicHkdfLabel { length, label, hashLength } */
+    /* info = QhkdfLabel { length, label } */
     GByteArray *info = g_byte_array_new();
     const guint16 length = g_htons(out_len);
     g_byte_array_append(info, (const guint8 *)&length, sizeof(length));
 
     const guint8 label_vector_length = 5 + label_length;
-    g_byte_array_append(info, "QUIC ", 5);
     g_byte_array_append(info, &label_vector_length, 1);
+    g_byte_array_append(info, "QUIC ", 5);
     g_byte_array_append(info, label, label_length);
-
-    const guint8 hash_length = 0;
-    g_byte_array_append(info, &hash_length, 1);
 
     err = hkdf_expand(md, secret, secret_len, info->data, info->len, out, out_len);
     g_byte_array_free(info, TRUE);
@@ -935,31 +904,25 @@ quic_get_pp0_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state
 }
 
 /**
- * Expands the packet protection secret and initialize cipher with the new key.
+ * Expands the secret (length MUST be the same as the "hash_algo" digest size)
+ * and initialize cipher with the new key.
  */
 static gboolean
 quic_cipher_init_keyiv(tls13_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
 {
-    const char *label_prefix = "QUIC ";
-    guchar     *write_key = NULL, *write_iv = NULL;
-    guint       iv_length = TLS13_AEAD_NONCE_LENGTH;
+    guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
     guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
-    StringInfo  secret_si = { secret, hash_len };
-    gboolean    success = FALSE;
 
-    if (!tls13_hkdf_expand_label(hash_algo, &secret_si, label_prefix, "key", key_length, &write_key)) {
+    if (key_length > sizeof(write_key)) {
         return FALSE;
     }
-    if (!tls13_hkdf_expand_label(hash_algo, &secret_si, label_prefix, "iv", iv_length, &write_iv)) {
-        goto end;
+
+    if (qhkdf_expand(hash_algo, secret, hash_len, "key", write_key, key_length) ||
+        qhkdf_expand(hash_algo, secret, hash_len, "iv", cipher->iv, sizeof(cipher->iv))) {
+        return FALSE;
     }
 
-    memcpy(cipher->iv, write_iv, iv_length);
-    success = gcry_cipher_setkey(cipher->hd, write_key, key_length) == 0;
-end:
-    wmem_free(NULL, write_key);
-    wmem_free(NULL, write_iv);
-    return success;
+    return gcry_cipher_setkey(cipher->hd, write_key, key_length) == 0;
 }
 
 /**
@@ -1078,7 +1041,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
      * pass and store the result for later use.
      */
     if (!PINFO_FD_VISITED(pinfo)) {
-        if (!quic_packet->decryption.error && cipher) {
+        if (!quic_packet->decryption.error && cipher && cipher->hd) {
             quic_decrypt_message(cipher, tvb, offset, pkn, &quic_packet->decryption);
         }
     }
@@ -1136,7 +1099,7 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
     quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                         quic_info, quic_packet, quic_info->client_handshake_cipher, pkn);
+                         quic_info, quic_packet, &quic_info->client_handshake_cipher, pkn);
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
@@ -1150,7 +1113,7 @@ dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
 
     ti = proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
 
-    tls13_cipher *cipher = from_server ? quic_info->server_handshake_cipher : quic_info->client_handshake_cipher;
+    tls13_cipher *cipher = from_server ? &quic_info->server_handshake_cipher : &quic_info->client_handshake_cipher;
     quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                          quic_info, quic_packet, cipher, pkn);
     offset += tvb_reported_length_remaining(tvb, offset);
@@ -1168,7 +1131,7 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
 
     /* Retry coming always from server */
     quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                         quic_info, quic_packet, quic_info->server_handshake_cipher, pkn);
+                         quic_info, quic_packet, &quic_info->server_handshake_cipher, pkn);
     offset += tvb_reported_length_remaining(tvb, offset);
 
 
@@ -1302,6 +1265,9 @@ static gboolean
 quic_info_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     quic_info_data_t *quic_info = (quic_info_data_t *) user_data;
+
+    gcry_cipher_close(quic_info->client_handshake_cipher.hd);
+    gcry_cipher_close(quic_info->server_handshake_cipher.hd);
 
     gcry_cipher_close(quic_info->client_pp.cipher[0].hd);
     gcry_cipher_close(quic_info->client_pp.cipher[1].hd);
