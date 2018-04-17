@@ -52,7 +52,7 @@ function_dup(gconstpointer data)
 }
 
 static void
-slist_stnode_free(gpointer data, gpointer user_data _U_)
+slist_stnode_free(gpointer data)
 {
 	stnode_free((stnode_t *)data);
 }
@@ -60,8 +60,7 @@ slist_stnode_free(gpointer data, gpointer user_data _U_)
 void
 st_funcparams_free(GSList *params)
 {
-	g_slist_foreach(params, slist_stnode_free, NULL);
-	g_slist_free(params);
+	g_slist_free_full(params, slist_stnode_free);
 }
 
 static void

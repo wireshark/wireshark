@@ -219,7 +219,7 @@ color_filter_delete(color_filter_t *colorf)
 
 /* delete the specified filter (called from g_slist_foreach) */
 static void
-color_filter_delete_cb(gpointer filter_arg, gpointer unused _U_)
+color_filter_delete_cb(gpointer filter_arg)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
 
@@ -230,8 +230,7 @@ color_filter_delete_cb(gpointer filter_arg, gpointer unused _U_)
 void
 color_filter_list_delete(GSList **cfl)
 {
-    g_slist_foreach(*cfl, color_filter_delete_cb, NULL);
-    g_slist_free(*cfl);
+    g_slist_free_full(*cfl, color_filter_delete_cb);
     *cfl = NULL;
 }
 

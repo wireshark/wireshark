@@ -1225,12 +1225,6 @@ capture_opts_free_interface_t_links(gpointer elem, gpointer unused _U_)
     g_free(elem);
 }
 
-static void
-capture_opts_free_interface_t_addrs(gpointer elem, gpointer unused _U_)
-{
-    g_free(elem);
-}
-
 void
 capture_opts_free_interface_t(interface_t *device)
 {
@@ -1253,9 +1247,7 @@ capture_opts_free_interface_t(interface_t *device)
         g_free(device->if_info.name);
         g_free(device->if_info.friendly_name);
         g_free(device->if_info.vendor_description);
-        g_slist_foreach(device->if_info.addrs,
-                        capture_opts_free_interface_t_addrs, NULL);
-        g_slist_free(device->if_info.addrs);
+        g_slist_free_full(device->if_info.addrs, g_free);
         g_free(device->if_info.extcap);
     }
 }

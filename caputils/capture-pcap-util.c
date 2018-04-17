@@ -527,12 +527,6 @@ get_interface_list_findalldevs(int *err, char **err_str)
 #endif /* HAVE_PCAP_FINDALLDEVS */
 
 static void
-free_if_info_addr_cb(gpointer addr, gpointer user_data _U_)
-{
-	g_free(addr);
-}
-
-static void
 free_if_cb(gpointer data, gpointer user_data _U_)
 {
 	if_info_t *if_info = (if_info_t *)data;
@@ -541,8 +535,7 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 	g_free(if_info->friendly_name);
 	g_free(if_info->vendor_description);
 	g_free(if_info->extcap);
-	g_slist_foreach(if_info->addrs, free_if_info_addr_cb, NULL);
-	g_slist_free(if_info->addrs);
+	g_slist_free_full(if_info->addrs, g_free);
 	g_free(if_info);
 }
 

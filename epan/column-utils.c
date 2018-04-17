@@ -71,17 +71,10 @@ col_setup(column_info *cinfo, const gint num_cols)
 }
 
 static void
-col_custom_ids_free_wrapper(gpointer data, gpointer user_data _U_)
-{
-  g_free(data);
-}
-
-static void
 col_custom_fields_ids_free(GSList** custom_fields_id)
 {
   if (*custom_fields_id != NULL) {
-    g_slist_foreach(*custom_fields_id, col_custom_ids_free_wrapper, NULL);
-    g_slist_free(*custom_fields_id);
+    g_slist_free_full(*custom_fields_id, g_free);
   }
   *custom_fields_id = NULL;
 }

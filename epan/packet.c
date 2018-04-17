@@ -139,8 +139,7 @@ destroy_depend_dissector_list(void *data)
 	depend_dissector_list_t dissector_list = (depend_dissector_list_t)data;
 	GSList **list = &(dissector_list->dissectors);
 
-	g_slist_foreach(*list, (GFunc)g_free, NULL);
-	g_slist_free(*list);
+	g_slist_free_full(*list, g_free);
 	g_slice_free(struct depend_dissector_list, dissector_list);
 }
 
@@ -158,7 +157,7 @@ static GHashTable *heur_dissector_lists = NULL;
 static GHashTable* heuristic_short_names  = NULL;
 
 static void
-destroy_heuristic_dissector_entry(gpointer data, gpointer user_data _U_)
+destroy_heuristic_dissector_entry(gpointer data)
 {
 	heur_dtbl_entry_t *hdtbl_entry = (heur_dtbl_entry_t *)data;
 	g_free(hdtbl_entry->list_name);
@@ -172,8 +171,7 @@ destroy_heuristic_dissector_list(void *data)
 	heur_dissector_list_t dissector_list = (heur_dissector_list_t)data;
 	GSList **list = &(dissector_list->dissectors);
 
-	g_slist_foreach(*list, destroy_heuristic_dissector_entry, NULL);
-	g_slist_free(*list);
+	g_slist_free_full(*list, destroy_heuristic_dissector_entry);
 	g_slice_free(struct heur_dissector_list, dissector_list);
 }
 

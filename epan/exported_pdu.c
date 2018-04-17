@@ -320,16 +320,9 @@ void export_pdu_init(void)
 {
 }
 
-static void
-free_list_element(gpointer elem, gpointer data _U_)
-{
-	g_free(elem);
-}
-
 void export_pdu_cleanup(void)
 {
-	g_slist_foreach(export_pdu_tap_name_list, free_list_element, NULL);
-	g_slist_free(export_pdu_tap_name_list);
+	g_slist_free_full(export_pdu_tap_name_list, g_free);
 }
 
 /*
