@@ -56,8 +56,6 @@ wiretap/k12text.c
 wiretap/version_info.c
 wireshark-tap-register.c
 ui/make-taps
-ui/gtk/wireshark-gresources.c
-ui/gtk/wireshark-gresources.h
 
 # Generated makefile system #
 #############################
@@ -227,11 +225,9 @@ Wireshark.sln
 Wireshark.*.suo
 x64/
 _libs_check_
-/wireshark-gtk*
 doc/ws.css
 ui/qt/config.pri
 packaging/nsis/all-manifest.nsh
-packaging/nsis/gtk-dll-manifest.nsh
 /packaging/portableapps/WiresharkPortable/
 /zlib/
 

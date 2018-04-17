@@ -806,20 +806,12 @@ Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
 
 ; Create File Extensions (depending on additional tasks page)
 ; None Associate
+; XXX Replace with a checkbox.
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State"
 StrCmp $0 "1" SecRequired_skip_FileExtensions
-; GTK+ Associate
-ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "State"
-StrCmp $0 "1" SecRequired_GTK_FileExtensions
 ; Qt Associate
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "State"
 StrCmp $0 "1" SecRequired_QT_FileExtensions
-
-SecRequired_GTK_FileExtensions:
-WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark capture file"
-WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "%1"'
-WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME_PATH_GTK}",1'
-Goto SecRequired_Associate_FileExtensions
 
 SecRequired_QT_FileExtensions:
 WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark capture file"
@@ -957,43 +949,6 @@ SetOutPath $INSTDIR
 File "${STAGING_DIR}\tshark.exe"
 File "${STAGING_DIR}\tshark.html"
 SectionEnd
-
-
-!ifdef GTK_DIR
-Section /o "${PROGRAM_NAME} 1" SecWiresharkGtk
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\${PROGRAM_NAME_PATH_GTK}"
-; Write an entry for ShellExecute
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH_GTK}" "" '$INSTDIR\${PROGRAM_NAME_PATH_GTK}'
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH_GTK}" "Path" '$INSTDIR'
-
-!include gtk-dll-manifest.nsh
-
-Push $0
-
-; Create start menu entries (depending on additional tasks page)
-ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State"
-StrCmp $0 "0" SecRequired_skip_StartMenuGtk
-CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
-SecRequired_skip_StartMenuGtk:
-
-; Create desktop icon (depending on additional tasks page and command line option)
-ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State"
-StrCmp $0 "0" SecRequired_skip_DesktopIconGtk
-CreateShortCut "$DESKTOP\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
-SecRequired_skip_DesktopIconGtk:
-
-; Create quick launch icon (depending on additional tasks page and command line option)
-ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State"
-StrCmp $0 "0" SecRequired_skip_QuickLaunchIconGtk
-CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
-SecRequired_skip_QuickLaunchIconGtk:
-
-Pop $0
-SectionEnd ; "SecWiresharkGtk"
-!endif
-
 
 SectionGroup "Plugins & Extensions" SecPluginsGroup
 
@@ -1191,9 +1146,6 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkQt} "The main network protocol analyzer application."
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "Text based network protocol analyzer."
-!ifdef GTK_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGtk} "The classic user interface."
-!endif
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Plugins and extensions for both ${PROGRAM_NAME} and TShark."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Additional protocol dissectors."
@@ -1230,12 +1182,12 @@ SectionEnd
 ; Callback functions
 ; ============================================================================
 !ifdef QT_DIR
-; Disable File extensions and icon if Wireshark (Qt / GTK+) isn't selected
+; Disable File extensions and icon if Wireshark (Qt) isn't selected
 Function .onSelChange
     Push $0
     Goto onSelChange.checkqt
 
-;Check Wireshark Qt and after check GTK+
+;Check Wireshark Qt
 onSelChange.checkqt:
     SectionGetFlags ${SecWiresharkQt} $0
     IntOp  $0 $0 & ${SF_SELECTED}
@@ -1256,7 +1208,7 @@ onSelChange.unselectqt:
     WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 9" "Flags" "DISABLED"
     ; Select "None Association"
     WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 1
-    Goto onSelChange.checkgtk
+    Goto onSelChange.end
 
 onSelChange.selectqt:
     ; Qt Icon
@@ -1272,43 +1224,6 @@ onSelChange.selectqt:
     ; Force None and GTK+ Association to no selected
     WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 11" "State" 0
     WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "State" 0
-    Goto onSelChange.checkgtk
-
-;Check Wireshark GTK+
-onSelChange.checkgtk:
-!ifdef GTK_DIR
-    SectionGetFlags ${SecWiresharkGtk} $0
-    IntOp  $0 $0 & ${SF_SELECTED}
-    IntCmp $0 0 onSelChange.unselectgtk
-    IntCmp $0 ${SF_SELECTED} onSelChange.selectgtk
-!endif
-    Goto onSelChange.end
-
-!ifdef GTK_DIR
-onSelChange.unselectgtk:
-    ;GTK+ Icon
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 0
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 0
-    ;GTK+ Association
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" "DISABLED"
-    Goto onSelChange.end
-
-onSelChange.selectgtk:
-    ;GTK+ Icon
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
-    ;GTK+ Association
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
-    Goto onSelChange.end
-!endif
 
 onSelChange.end:
     Pop $0
@@ -1324,19 +1239,6 @@ Var NPCAP_NAME ; DisplayName from Npcap installation
 Var USBPCAP_NAME ; DisplayName from USBPcap installation
 
 Function myShowCallback
-
-!ifdef GTK_DIR
-    ; If GTK+ is available enable icon and associate from additional tasks
-    ; GTK+ Icon
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "Flags" ""
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 5" "State" 1
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "State" 1
-    ;Qt Association
-    WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
-!endif
 
     ClearErrors
     ; detect if WinPcap should be installed
