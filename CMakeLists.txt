@@ -3098,13 +3098,16 @@ install(
 
 if (DOXYGEN_EXECUTABLE)
 	# API reference
+	# We don't have a good way of tracking dependencies, so we simply
+	# recreate the whole thing from scratch each time.
 	add_custom_target(wsar_html
+		COMMAND ${CMAKE_COMMAND} -E remove_directory wsar_html
 		COMMAND ${DOXYGEN_EXECUTABLE} doxygen.cfg
 	)
 
 	add_custom_target(wsar_html_zip
 		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "wsar_html.zip" --format=zip wsar_html
-		DEPENDS wsar_html wsar_html/index.html
+		DEPENDS wsar_html
 	)
 endif(DOXYGEN_EXECUTABLE)
 
