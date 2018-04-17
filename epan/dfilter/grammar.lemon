@@ -313,7 +313,7 @@ setnode_list(L) ::= entity(E).
 	L = g_slist_append(L, NULL);
 }
 
-setnode_list(L) ::= setnode_list(P) entity(E).
+setnode_list(L) ::= setnode_list(P) WHITESPACE entity(E).
 {
 	L = g_slist_append(P, E);
 	L = g_slist_append(L, NULL);
@@ -326,7 +326,7 @@ setnode_list(L) ::= entity(X) DOTDOT entity(Y).
 	L = g_slist_append(L, Y);
 }
 
-setnode_list(L) ::= setnode_list(P) entity(X) DOTDOT entity(Y).
+setnode_list(L) ::= setnode_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
 {
 	L = g_slist_append(P, X);
 	L = g_slist_append(L, Y);

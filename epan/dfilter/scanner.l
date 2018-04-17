@@ -111,16 +111,30 @@ static void mark_lval_deprecated(const char *s);
 
 %%
 
-[[:blank:]\n]+	/* ignore whitespace */
+[[:blank:]\n]+		{
+	/* Ignore whitespace, unless set elements are being parsed. Perhaps it
+	 * should have used commas from the beginning, but now we are stuck with
+	 * whitespace as separators. */
+	if (yyextra->in_set) {
+		return simple(TOKEN_WHITESPACE);
+	}
+}
 
 
 
 "("				return simple(TOKEN_LPAREN);
 ")"				return simple(TOKEN_RPAREN);
 ","				return simple(TOKEN_COMMA);
-"{"				return simple(TOKEN_LBRACE);
-".."				return simple(TOKEN_DOTDOT);
-"}"				return simple(TOKEN_RBRACE);
+
+"{"[[:blank:]\n]*	{
+	yyextra->in_set = TRUE;
+	return simple(TOKEN_LBRACE);
+}
+[[:blank:]\n]*".."[[:blank:]\n]*	return simple(TOKEN_DOTDOT);
+[[:blank:]\n]*"}"	{
+	yyextra->in_set = FALSE;
+	return simple(TOKEN_RBRACE);
+}
 
 "=="			return simple(TOKEN_TEST_EQ);
 "eq"			return simple(TOKEN_TEST_EQ);
@@ -397,6 +411,7 @@ simple(int token)
 		case TOKEN_COMMA:
 		case TOKEN_DOTDOT:
 		case TOKEN_HYPHEN:
+		case TOKEN_WHITESPACE:
 		case TOKEN_TEST_EQ:
 		case TOKEN_TEST_NE:
 		case TOKEN_TEST_GT:
