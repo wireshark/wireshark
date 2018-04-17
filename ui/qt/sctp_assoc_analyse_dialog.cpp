@@ -66,10 +66,10 @@ sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file* cf)
         assoc = (sctp_assoc_info_t*)(list->data);
 
         framelist = g_list_first(assoc->frame_numbers);
+        guint32 fn;
         while (framelist) {
-            guint32 *fn;
-            fn = (guint32 *)framelist->data;
-            if (*fn == fdata->num) {
+            fn = GPOINTER_TO_UINT(framelist->data);
+            if (fn == fdata->num) {
                 frame_found = TRUE;
                 break;
             }
