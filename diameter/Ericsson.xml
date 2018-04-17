@@ -201,8 +201,37 @@
 	<avp name="Gx-Capability-List" code="1060" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Unsigned32"/>
 	</avp>
+	<avp name="Result-Code-Extension" code="1067" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Subscription-Id-Location" code="1074" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Other-Party-Id" code="1075" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<grouped>
+			<gavp name="Other-Party-Id-Nature"/>
+			<gavp name="Other-Party-Id-Data"/>
+			<gavp name="Other-Party-Id-Type"/>
+		</grouped>
+	</avp>
+	<avp name="Other-Party-Id-Nature" code="1076" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="UNKNOWN" code="0"/>
+		<enum name="INTERNATIONAL" code="1"/>
+		<enum name="NATIONAL" code="2"/>
+	</avp>
+	<avp name="Other-Party-Id-Data" code="1077" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Other-Party-Id-Type" code="1078" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="END_USER_MSISDN" code="0"/>
+		<enum name="END_USER_IMSI" code="1"/>
+		<enum name="END_USER_SIP_URL" code="2"/>
+		<enum name="END_USER_NAI" code="3"/>
+		<enum name="END_USER_PRIVATE" code="4"/>
+	</avp>
 	<avp name="Ericsson-Customer-Id" code="1146" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="UTF8String"/>
 	</avp>
-
 </vendor>
