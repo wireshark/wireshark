@@ -69,6 +69,9 @@ static int hf_quic_frame_type_ack_fab = -1;
 static int hf_quic_frame_type_ack_gap = -1;
 static int hf_quic_frame_type_ack_ack_block = -1;
 
+static int hf_quic_frame_type_path_challenge_data = -1;
+static int hf_quic_frame_type_path_response_data = -1;
+
 static int hf_quic_frame_type_padding_length = -1;
 static int hf_quic_frame_type_padding = -1;
 static int hf_quic_frame_type_rsts_stream_id = -1;
@@ -84,8 +87,6 @@ static int hf_quic_frame_type_md_maximum_data = -1;
 static int hf_quic_frame_type_msd_stream_id = -1;
 static int hf_quic_frame_type_msd_maximum_stream_data = -1;
 static int hf_quic_frame_type_msi_stream_id = -1;
-static int hf_quic_frame_type_ping_length = -1;
-static int hf_quic_frame_type_ping_data = -1;
 static int hf_quic_frame_type_blocked_offset = -1;
 static int hf_quic_frame_type_sb_stream_id = -1;
 static int hf_quic_frame_type_sb_offset = -1;
@@ -228,6 +229,8 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_NEW_CONNECTION_ID 0x0b
 #define FT_STOP_SENDING     0x0c
 #define FT_ACK              0x0d
+#define FT_PATH_CHALLENGE   0x0e
+#define FT_PATH_RESPONSE    0x0f
 #define FT_STREAM_10        0x10
 #define FT_STREAM_11        0x11
 #define FT_STREAM_12        0x12
@@ -252,6 +255,8 @@ static const range_string quic_frame_type_vals[] = {
     { 0x0b, 0x0b,   "NEW_CONNECTION_ID" },
     { 0x0c, 0x0c,   "STOP_SENDING" },
     { 0x0d, 0x0d,   "ACK" },
+    { 0x0e, 0x0e,   "PATH_CHALLENGE" },
+    { 0x0f, 0x0f,   "PATH_RESPONSE" },
     { 0x10, 0x17,   "STREAM" },
     { 0,    0,        NULL },
 };
@@ -504,16 +509,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
         }
         break;
         case FT_PING:{
-            guint len_ping;
-
-            proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ping_length, tvb, offset, 1, ENC_BIG_ENDIAN, &len_ping);
-            offset += 1;
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ping_data, tvb, offset, len_ping, ENC_NA);
-            offset += len_ping;
-
-            proto_item_set_len(ti_ft, 1 + 1 + len_ping);
-
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PING");
+            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PING, ");
         }
         break;
         case FT_BLOCKED:{
@@ -616,6 +612,20 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
                 ack_block_count--;
             }
+        }
+        break;
+        case FT_PATH_CHALLENGE:{
+            proto_tree_add_item(ft_tree, hf_quic_frame_type_path_challenge_data, tvb, offset, 8, ENC_NA);
+            offset += 8;
+
+            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PATH_CHALLENGE, ");
+        }
+        break;
+        case FT_PATH_RESPONSE:{
+            proto_tree_add_item(ft_tree, hf_quic_frame_type_path_response_data, tvb, offset, 8, ENC_NA);
+            offset += 8;
+
+            col_prepend_fstr(pinfo->cinfo, COL_INFO, "PATH_RESPONSE, ");
         }
         break;
         case FT_STREAM_10:
@@ -1570,6 +1580,18 @@ proto_register_quic(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicating the number of contiguous acknowledged packets preceding the largest packet number, as determined by the preceding Gap", HFILL }
         },
+        /* PATH_CHALLENGE */
+        { &hf_quic_frame_type_path_challenge_data,
+          { "Data", "quic.frame_type.path_challenge.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Arbitrary data that must be matched by a PATH_RESPONSE frame", HFILL }
+        },
+        /* PATH_RESPONSE */
+        { &hf_quic_frame_type_path_response_data,
+          { "Data", "quic.frame_type.path_response.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Arbitrary data that must match a PATH_CHALLENGE frame", HFILL }
+        },
         /* PADDING */
         { &hf_quic_frame_type_padding_length,
           { "Padding Length", "quic.frame_type.padding.length",
@@ -1651,17 +1673,6 @@ proto_register_quic(void)
             { "Stream ID", "quic.frame_type.msi.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "ID of the maximum peer-initiated stream ID for the connection", HFILL }
-        },
-        /* PING */
-        { &hf_quic_frame_type_ping_length,
-            { "Length", "quic.frame_type.ping.length",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Describes the length of the Data field", HFILL }
-        },
-        { &hf_quic_frame_type_ping_data,
-            { "Data", "quic.frame_type.ping.data",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
-              "Contains arbitrary data", HFILL }
         },
         /* BLOCKED */
         { &hf_quic_frame_type_blocked_offset,
