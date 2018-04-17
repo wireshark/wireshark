@@ -99,6 +99,7 @@ static int hf_quic_frame_type_ss_application_error_code = -1;
 
 static expert_field ei_quic_ft_unknown = EI_INIT;
 static expert_field ei_quic_decryption_failed = EI_INIT;
+static expert_field ei_quic_protocol_violation = EI_INIT;
 
 static gint ett_quic = -1;
 static gint ett_quic_ft = -1;
@@ -192,15 +193,12 @@ static const value_string quic_short_long_header_vals[] = {
 
 #define SH_OCID 0x40
 #define SH_KP   0x20
-#define SH_PT   0x1F
+#define SH_PT   0x07
 
 static const value_string quic_short_packet_type_vals[] = {
-    { 0x01, "1 octet" },
-    { 0x02, "2 octet" },
-    { 0x03, "4 octet" },
-    { 0x1F, "1 octet" },
-    { 0x1E, "2 octet" },
-    { 0x1D, "4 octet" },
+    { 0x00, "1 octet" },
+    { 0x01, "2 octet" },
+    { 0x02, "4 octet" },
     { 0, NULL }
 };
 #define QUIC_LPT_INITIAL    0x7F
@@ -270,6 +268,7 @@ static const range_string quic_frame_type_vals[] = {
 /* > draft 07 */
 #define QUIC_NO_ERROR                   0x0000
 #define QUIC_INTERNAL_ERROR             0x0001
+#define QUIC_SERVER_BUSY                0x0002
 #define QUIC_FLOW_CONTROL_ERROR         0x0003
 #define QUIC_STREAM_ID_ERROR            0x0004
 #define QUIC_STREAM_STATE_ERROR         0x0005
@@ -278,7 +277,7 @@ static const range_string quic_frame_type_vals[] = {
 #define QUIC_TRANSPORT_PARAMETER_ERROR  0x0008
 #define QUIC_VERSION_NEGOTIATION_ERROR  0x0009
 #define QUIC_PROTOCOL_VIOLATION         0x000A
-#define QUIC_UNSOLICITED_PONG           0x000B
+#define QUIC_UNSOLICITED_PATH_RESPONSE  0x000B
 #define TLS_HANDSHAKE_FAILED            0x0201
 #define TLS_FATAL_ALERT_GENERATED       0x0202
 #define TLS_FATAL_ALERT_RECEIVED        0x0203
@@ -286,6 +285,7 @@ static const range_string quic_frame_type_vals[] = {
 static const value_string quic_error_code_vals[] = {
     { QUIC_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error.)" },
     { QUIC_INTERNAL_ERROR, "INTERNAL_ERROR (The endpoint encountered an internal error and cannot continue with the connection)" },
+    { QUIC_SERVER_BUSY, "SERVER_BUSY (The server is currently busy and does not accept any new connections." },
     { QUIC_FLOW_CONTROL_ERROR, "FLOW_CONTROL_ERROR (An endpoint received more data than An endpoint received more data tha)" },
     { QUIC_STREAM_ID_ERROR, "STREAM_ID_ERROR (An endpoint received a frame for a stream identifier that exceeded its advertised maximum stream ID)" },
     { QUIC_STREAM_STATE_ERROR, "STREAM_STATE_ERROR (An endpoint received a frame for a stream that was not in a state that permitted that frame)" },
@@ -294,7 +294,7 @@ static const value_string quic_error_code_vals[] = {
     { QUIC_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
     { QUIC_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
     { QUIC_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
-    { QUIC_UNSOLICITED_PONG, "An endpoint received a PONG frame that did not correspond to any PING frame that it previously sent" },
+    { QUIC_UNSOLICITED_PATH_RESPONSE, "An endpoint received a PATH_RESPONSE frame that did not correspond to any PATH_CHALLENGE frame that it previously sent" },
     /* TLS */
     { TLS_HANDSHAKE_FAILED, "TLS_HANDSHAKE_FAILED (The TLS handshake failed)" },
     { TLS_FATAL_ALERT_GENERATED, "TLS_FATAL_ALERT_GENERATED (A TLS fatal alert was sent causing the TLS connection to end prematurely)" },
@@ -305,21 +305,15 @@ static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_er
 
 static guint32 get_len_packet_number(guint8 short_packet_type){
 
-    switch(short_packet_type & SH_PT){
-        case 1:
-        case 0x1F:
+    switch (short_packet_type & SH_PT){
+        case 0x0:
             return 1;
-        break;
-        case 2:
-        case 0x1E:
+        case 0x1:
             return 2;
-        break;
-        case 3:
-        case 0x1D:
+        case 0x2:
             return 4;
-        break;
         default:
-        break;
+            break;
     }
     return 1;
 }
@@ -1205,7 +1199,11 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     short_flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(quic_tree, hf_quic_short_ocid_flag, tvb, offset, 1, ENC_NA);
     proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag, tvb, offset, 1, ENC_NA, &key_phase);
-    proto_tree_add_item(quic_tree, hf_quic_short_packet_type, tvb, offset, 1, ENC_NA);
+    ti = proto_tree_add_item(quic_tree, hf_quic_short_packet_type, tvb, offset, 1, ENC_NA);
+    if ((short_flags & 0x18) != 0x10) {
+        expert_add_info_format(pinfo, ti, &ei_quic_protocol_violation,
+                "Fourth bit (0x10) must be 1, fifth bit (0x8) must be set to 0.");
+    }
     offset += 1;
 
     /* Connection ID */
@@ -1741,6 +1739,10 @@ proto_register_quic(void)
         { &ei_quic_decryption_failed,
           { "quic.decryption_failed", PI_DECRYPTION, PI_WARN,
             "Failed to decrypt handshake", EXPFILL }
+        },
+        { &ei_quic_protocol_violation,
+          { "quic.protocol_violation", PI_PROTOCOL, PI_WARN,
+            "Invalid data according to the protocol", EXPFILL }
         },
     };
 
