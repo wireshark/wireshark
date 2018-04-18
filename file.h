@@ -67,7 +67,7 @@ typedef enum {
     cf_cb_file_save_started,
     cf_cb_file_save_finished,
     cf_cb_file_save_failed,
-    cf_cb_file_save_stopped,
+    cf_cb_file_save_stopped
 } cf_cbs;
 
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
