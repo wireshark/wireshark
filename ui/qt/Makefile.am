@@ -730,6 +730,7 @@ WIRESHARK_QT_TAP_SRC = \
 
 noinst_HEADERS = \
 	$(MOC_HDRS)			\
+	capture_event.h			\
 	simple_dialog.h			\
 	models/packet_list_record.h	\
 	widgets/qcustomplot.h		\
