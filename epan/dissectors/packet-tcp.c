@@ -5364,12 +5364,12 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
         if ((opt == TCPOPT_EOL) || (opt == TCPOPT_NOP)) {
             int local_proto;
             proto_item* field_item;
-          /* We assume that the only options with no length are EOL and NOP options,
-             so that we can treat unknown options as having a minimum length of 2,
-             and at least be able to move on to the next option by using the length in the option. */
 
-            if (opt == TCPOPT_EOL)
-            {
+            /* We assume that the only options with no length are EOL and
+               NOP options, so that we can treat unknown options as having
+               a minimum length of 2, and at least be able to move on to
+               the next option by using the length in the option. */
+            if (opt == TCPOPT_EOL) {
                 local_proto = proto_tcp_option_eol;
             } else if (opt == TCPOPT_NOP) {
                 local_proto = proto_tcp_option_nop;
