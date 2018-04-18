@@ -173,7 +173,7 @@ README.windows for those instructions.
 9. Run 'make', or 'ninja' if you chose to create Ninja build files.
    Hopefully, you won't run into any problems.
 
-10. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are
+10. Run './run/wireshark' or './run/tshark' or ./run/dumpcap, and make sure things are
    working. You must have root privileges in order to capture live data.
 
 11./a. Run 'make install'.  If you're running a system that supports
