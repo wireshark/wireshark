@@ -1154,6 +1154,32 @@ static int hf_btatt_supported_heart_rate_range_minimum_increment = -1;
 static int hf_btatt_supported_power_range_minimum_power = -1;
 static int hf_btatt_supported_power_range_maximum_power = -1;
 static int hf_btatt_supported_power_range_minimum_increment = -1;
+static int hf_btatt_fitness_machine_status_opcode = -1;
+static int hf_btatt_fitness_machine_control_information = -1;
+static int hf_btatt_fitness_machine_spin_down_status = -1;
+static int hf_btatt_fitness_machine_speed = -1;
+static int hf_btatt_fitness_machine_incline = -1;
+static int hf_btatt_fitness_machine_resistance_level = -1;
+static int hf_btatt_fitness_machine_power = -1;
+static int hf_btatt_fitness_machine_heart_rate = -1;
+static int hf_btatt_fitness_machine_expended_energy = -1;
+static int hf_btatt_fitness_machine_number_of_steps = -1;
+static int hf_btatt_fitness_machine_number_of_strides = -1;
+static int hf_btatt_fitness_machine_distance = -1;
+static int hf_btatt_fitness_machine_training_time = -1;
+static int hf_btatt_fitness_machine_wheel_circumference = -1;
+static int hf_btatt_fitness_machine_cadence = -1;
+static int hf_btatt_fitness_machine_wind_speed = -1;
+static int hf_btatt_fitness_machine_grade = -1;
+static int hf_btatt_fitness_machine_coefficient_of_rolling_resistance = -1;
+static int hf_btatt_fitness_machine_wind_resistance_coefficient = -1;
+static int hf_btatt_fitness_machine_targeted_time_in_fat_burn_zone = -1;
+static int hf_btatt_fitness_machine_targeted_time_in_fitness_zone = -1;
+static int hf_btatt_fitness_machine_targeted_time_in_very_light_zone = -1;
+static int hf_btatt_fitness_machine_targeted_time_in_light_zone = -1;
+static int hf_btatt_fitness_machine_targeted_time_in_moderate_zone = -1;
+static int hf_btatt_fitness_machine_targeted_time_in_hard_zone = -1;
+static int hf_btatt_fitness_machine_targeted_time_in_maximum_zone = -1;
 
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
@@ -3869,6 +3895,47 @@ static const value_string training_status_status_vals[] = {
     {0, NULL }
 };
 
+static const value_string fitness_machine_status_opcode_vals[] = {
+    { 0x01, "Reset" },
+    { 0x02, "Fitness Machine Stopped or Paused by the User" },
+    { 0x03, "Fitness Machine Stopped by Safety Key" },
+    { 0x04, "Fitness Machine Started or Resumed by the User" },
+    { 0x05, "Target Speed Changed" },
+    { 0x06, "Target Incline Changed" },
+    { 0x07, "Target Resistance Level Changed" },
+    { 0x08, "Target Power Changed" },
+    { 0x09, "Target Heart Rate Changed" },
+    { 0x0A, "Targeted Expended Energy Changed" },
+    { 0x0B, "Targeted Number of Steps Changed" },
+    { 0x0C, "Targeted Number of Strides Changed" },
+    { 0x0D, "Targeted Distance Changed" },
+    { 0x0E, "Targeted Training Time Changed" },
+    { 0x0F, "Targeted Time in Three Heart Rate Zones Changed" },
+    { 0x10, "Targeted Time in Three Heart Rate Zones Changed" },
+    { 0x11, "Targeted Time in Five Heart Rate Zones Changed" },
+    { 0x12, "Indoor Bike Simulation Parameters Changed" },
+    { 0x13, "Wheel Circumference Changed" },
+    { 0x14, "Spin Down Status" },
+    { 0x15, "Targeted Cadence Changed" },
+    { 0xFF, "Control Permission Lost" },
+    {0, NULL }
+};
+
+static const value_string fitness_machine_control_information_vals[] = {
+    { 0x01, "Stop" },
+    { 0x02, "Pause" },
+    {0, NULL }
+};
+
+static const value_string fitness_machine_spin_down_status_vals[] = {
+    { 0x01, "Spin Down Requested" },
+    { 0x02, "Success" },
+    { 0x03, "Error" },
+    { 0x04, "Stop Pedaling" },
+    {0, NULL }
+};
+
+
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
     "Turn Off" };
@@ -3924,8 +3991,12 @@ static void base_signed_one_tenth_percentage(gchar *buf, guint32 value) {
     helper_base_signed_negative_exponent(buf, 10, "%%", value);
 }
 
-static void base_signed_one_one_watt(gchar *buf, guint32 value) {
-    helper_base_signed_negative_exponent(buf, 1, "W", value);
+static void base_signed_one_thousandth_meters_per_seconds(gchar *buf, guint32 value) {
+    helper_base_signed_negative_exponent(buf, 1000, "m/s", value);
+}
+
+static void base_signed_one_hundredth_percentage(gchar *buf, guint32 value) {
+    helper_base_signed_negative_exponent(buf, 100, "%%", value);
 }
 
 /* unsigned area */
@@ -3942,12 +4013,21 @@ static void base_unsigned_one_tenth_percentage(gchar *buf, guint32 value) {
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u%%", value / 10, value % 10);
 }
 
-static void base_unsigned_one_one_bpm(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u BPM", value);
+static void base_unsigned_one_tenth_milimeters(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%umm", value / 10, value % 10);
 }
 
-static void base_unsigned_one_one_watt(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%uW", value);
+static void base_unsigned_one_half_half_minute(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%um 1/min", value / 2, value % 2);
+}
+
+static void base_unsigned_one_ten_thousandth_unitless(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u", value / 10000, value % 10000);
+}
+
+
+static void base_unsigned_one_hundredth_kg_per_meter(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u Kg/m", value / 100, value % 100);
 }
 
 
@@ -10061,6 +10141,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_supported_resistance_level_range_maximum_resistance_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
+        /* NOTE: can Resistance be negative? Bluetooth bug? see also hf_btatt_fitness_machine_resistance_level */
 
         proto_tree_add_item(tree, hf_btatt_supported_resistance_level_range_minimum_increment, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
@@ -10122,7 +10203,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset = tvb_captured_length(tvb);
 
         break;
-    case 0x2ADA: /* Fitness Machine Status */
+    case 0x2ADA: /* Fitness Machine Status */ {
         if (service_uuid.bt_uuid == GATT_SERVICE_FITNESS_MACHINE) {
             if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
                 expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
@@ -10131,11 +10212,143 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-/* TODO */
-        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
-        offset = tvb_captured_length(tvb);
+        guint32 ftm_status_opcode;
 
+        proto_tree_add_item_ret_uint(tree, hf_btatt_fitness_machine_status_opcode, tvb, offset, 1, ENC_NA, &ftm_status_opcode);
+        offset += 1;
+
+        switch (ftm_status_opcode) {
+        case 0x02: /* Fitness Machine Stopped or Paused by the User */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_control_information, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x05: /* Target Speed Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x06: /* Target Incline Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_incline, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x07: /* Target Resistance Level Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_resistance_level, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            /* NOTE: this is 8bit, but hf_btatt_supported_resistance_level_range_maximum_resistance_level is 16bit, Bluetooth bug?*/
+
+            break;
+        case 0x08: /* Target Power Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x09: /* Target Heart Rate Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_heart_rate, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x0A: /* Targeted Expended Energy Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_expended_energy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x0B: /* Targeted Number of Steps Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_number_of_steps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x0C: /* Targeted Number of Strides Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_number_of_strides, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x0D: /* Targeted Distance Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_distance, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+
+            break;
+        case 0x0E: /* Targeted Training Time Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_training_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x0F: /* Targeted Time in Three Heart Rate Zones Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_fat_burn_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_fitness_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x10: /* Targeted Time in Three Heart Rate Zones Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_light_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_moderate_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_hard_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x11: /* Targeted Time in Five Heart Rate Zones Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_very_light_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_light_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_moderate_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_hard_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_targeted_time_in_maximum_zone, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x12: /* Indoor Bike Simulation Parameters Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_wind_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_grade, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_coefficient_of_rolling_resistance, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_wind_resistance_coefficient, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x13: /* Wheel Circumference Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_wheel_circumference, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x14: /* Spin Down Status */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_spin_down_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x15: /* Targeted Cadence Changed */
+            proto_tree_add_item(tree, hf_btatt_fitness_machine_cadence, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x01: /* Reset */
+        case 0x03: /* Fitness Machine Stopped by Safety Key */
+        case 0x04: /* Fitness Machine Started or Resumed by the User */
+        case 0xFF: /* Control Permission Lost */
+        default:
+            /* N/A */
+            break;
+        }
+
+        }
         break;
     case 0x2A62: /* Pulse Oximetry Control Point */ /* APPROVED: NO */
     case 0x2ADB: /* Mesh Provisioning Data In */
@@ -16839,32 +17052,162 @@ proto_register_btatt(void)
         },
         {&hf_btatt_supported_heart_rate_range_minimum_heart_rate,
             {"Minimum Heart Rate", "btatt.supported_heart_rate_range.minimum_heart_rate",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_bpm), 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_heart_rate_range_maximum_heart_rate,
             {"Maximum Heart Rate", "btatt.supported_heart_rate_range.maximum_heart_rate",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_bpm), 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_heart_rate_range_minimum_increment,
             {"Minimum Increment", "btatt.supported_heart_rate_range.minimum_increment",
-            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_bpm), 0x0,
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_power_range_minimum_power,
-            {"Minimum Resistance Level", "btatt.supported_power_range.minimum_power",
-            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_one_watt), 0x0,
+            {"Minimum Power", "btatt.supported_power_range.minimum_power",
+            FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_power_range_maximum_power,
-            {"Maximum Resistance Level", "btatt.supported_power_range.maximum_power",
-            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_one_watt), 0x0,
+            {"Maximum Power", "btatt.supported_power_range.maximum_power",
+            FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_supported_power_range_minimum_increment,
             {"Minimum Increment", "btatt.supported_power_range.minimum_increment",
-            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_one_watt), 0x0,
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_status_opcode,
+            {"Opcode", "btatt.fitness_machine_status.opcode",
+            FT_UINT8, BASE_HEX, VALS(fitness_machine_status_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_control_information,
+            {"Control Information", "btatt.fitness_machine.control_information",
+            FT_UINT8, BASE_HEX, VALS(fitness_machine_control_information_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_spin_down_status,
+            {"Spin Down Status", "btatt.fitness_machine.spin_down_status",
+            FT_UINT8, BASE_HEX, VALS(fitness_machine_spin_down_status_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_speed,
+            {"Speed", "btatt.fitness_machine.speed",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_hundredth_km_h), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_incline,
+            {"Inclination", "btatt.fitness_machine.inclination",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_tenth_percentage), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_resistance_level,
+            {"Resistance Level", "btatt.fitness_machine.resistance_level",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_tenth_unitless), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_power,
+            {"Power", "btatt.fitness_machine.power",
+            FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_watt, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_heart_rate,
+            {"Heart Rate", "btatt.fitness_machine.heart_rate",
+            FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_bpm, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_expended_energy,
+            {"Expended Energy", "btatt.fitness_machine.expended_energy",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_calorie, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_number_of_steps,
+            {"Number of Steps", "btatt.fitness_machine.number_of_steps",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_number_of_strides,
+            {"Number of Strides", "btatt.fitness_machine.number_of_strides",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_distance,
+            {"Distance", "btatt.fitness_machine.distance",
+            FT_UINT24, BASE_DEC | BASE_UNIT_STRING, &units_meters, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_training_time,
+            {"Training Time", "btatt.fitness_machine.training_time",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_wheel_circumference,
+            {"Wheel Circumference", "btatt.fitness_machine.wheel_circumference",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_tenth_milimeters), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_cadence,
+            {"Cadence", "btatt.fitness_machine.cadence",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(base_unsigned_one_half_half_minute), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_wind_speed,
+            {"Wind Speed", "btatt.fitness_machine.wind_speed",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_thousandth_meters_per_seconds), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_grade,
+            {"Grade", "btatt.fitness_machine.grade",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(base_signed_one_hundredth_percentage), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_coefficient_of_rolling_resistance,
+            {"Coefficient_of Rolling Resistance", "btatt.fitness_machine.coefficient_of_rolling_resistance",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_ten_thousandth_unitless), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_wind_resistance_coefficient,
+            {"Wind Resistance Coefficient", "btatt.fitness_machine.wind_resistance_coefficient",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(base_unsigned_one_hundredth_kg_per_meter), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_targeted_time_in_fat_burn_zone,
+            {"Targeted Time in Fat Burn Zone", "btatt.fitness_machine.targeted_time_in_fat_burn_zone",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_targeted_time_in_fitness_zone,
+            {"Targeted Time in Fitness Zone", "btatt.fitness_machine.targeted_time_in_fitness_zone",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_targeted_time_in_very_light_zone,
+            {"Targeted Time in Very Light Zone", "btatt.fitness_machine.targeted_time_in_very_light_zone",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_targeted_time_in_light_zone,
+            {"Targeted Time in Light Zone", "btatt.fitness_machine.targeted_time_in_light_zone",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_targeted_time_in_moderate_zone,
+            {"Targeted Time in Moderate Zone", "btatt.fitness_machine.targeted_time_in_moderate_zone",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_targeted_time_in_hard_zone,
+            {"Targeted Time in Hard Zone", "btatt.fitness_machine.targeted_time_in_hard_zone",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_fitness_machine_targeted_time_in_maximum_zone,
+            {"Targeted Time in Maximum Zone", "btatt.fitness_machine.targeted_time_in_maximum_zone",
+            FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
             NULL, HFILL}
         },
         {&hf_request_in_frame,

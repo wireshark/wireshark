@@ -101,6 +101,8 @@ const unit_name_string units_liter_per_hour = { "L/h", NULL };
 const unit_name_string units_amp = { "A", NULL };
 const unit_name_string units_watthour = { "Wh", NULL };
 const unit_name_string units_watt = { "W", NULL };
+const unit_name_string units_bpm = { " BPM", NULL };
+const unit_name_string units_calorie = { " cal", NULL };
 
 
 /*

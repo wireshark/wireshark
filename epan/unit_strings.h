@@ -93,6 +93,8 @@ WS_DLL_PUBLIC const unit_name_string units_liter_per_hour;
 WS_DLL_PUBLIC const unit_name_string units_amp;
 WS_DLL_PUBLIC const unit_name_string units_watthour;
 WS_DLL_PUBLIC const unit_name_string units_watt;
+WS_DLL_PUBLIC const unit_name_string units_bpm;
+WS_DLL_PUBLIC const unit_name_string units_calorie;
 
 #ifdef __cplusplus
 }
