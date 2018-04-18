@@ -516,7 +516,7 @@ static const value_string tcp_option_kind_vs[] = {
     { TCPOPT_MPTCP, "Multipath TCP" },
     { TCPOPT_TFO, "TCP Fast Open Cookie" },
     { TCPOPT_RVBD_PROBE, "Riverbed Probe" },
-    { TCPOPT_RVBD_TRPY, "Riverbed Transparancy" },
+    { TCPOPT_RVBD_TRPY, "Riverbed Transparency" },
     { TCPOPT_EXP_FD, "RFC3692-style Experiment 1" },
     { TCPOPT_EXP_FE, "RFC3692-style Experiment 2" },
     { 0, NULL }
