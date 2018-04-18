@@ -4,6 +4,8 @@
 #  JSONGLIB_FOUND - system has Glib
 #  JSONGLIB_INCLUDE_DIRS - the Glib include directories
 #  JSONGLIB_LIBRARIES - link these to use Glib
+#
+# Depends on FindGLIB2.cmake to include the gobject library.
 
 include(FindWSWinLibs)
 FindWSWinLibs("libjson-glib-.*" "JSONGLIB_HINTS")

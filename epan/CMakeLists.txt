@@ -283,6 +283,7 @@ set(epan_LIBS
 	${SNAPPY_LIBRARIES}
 	${WIN_PSAPI_LIBRARY}
 	${LIBXML2_LIBRARIES}
+	${JSONGLIB_LIBRARIES}
 )
 
 set_source_files_properties(

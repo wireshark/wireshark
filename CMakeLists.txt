@@ -1684,11 +1684,6 @@ set(LIBEPAN_LIBS
 		${WINSPARKLE_LIBRARIES}
 )
 
-if(JSONGLIB_FOUND)
-	list(APPEND LIBEPAN_LIBS ${JSONGLIB_LIBRARIES})
-endif()
-
-
 if(WIN32)
 	set(_dll_output_dir "${DATAFILE_DIR}")
 	add_custom_target(copy_cli_dlls)
