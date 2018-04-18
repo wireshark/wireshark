@@ -1,6 +1,7 @@
 /* packet-quic.c
- * Routines for Quick UDP Internet Connections (IETF) dissection
+ * Routines for QUIC (IETF) dissection
  * Copyright 2017, Alexis La Goutte <alexis.lagoutte at gmail dot com>
+ * Copyright 2018 Peter Wu <peter@lekensteyn.nl>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -11,8 +12,8 @@
 
 /*
  * See https://quicwg.github.io/
- * https://tools.ietf.org/html/draft-ietf-quic-transport-10
- * https://tools.ietf.org/html/draft-ietf-quic-tls-10
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-11
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-11
  */
 
 #include <config.h>
@@ -20,6 +21,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/to_str.h>
 #include "packet-ssl-utils.h"
 #include "packet-ssl.h"
 #include <epan/prefs.h>
@@ -38,14 +40,20 @@ void proto_register_quic(void);
 static int proto_quic = -1;
 static int hf_quic_header_form = -1;
 static int hf_quic_long_packet_type = -1;
-static int hf_quic_connection_id = -1;
+static int hf_quic_dcid = -1;
+static int hf_quic_scid = -1;
+static int hf_quic_dcil = -1;
+static int hf_quic_scil = -1;
+static int hf_quic_payload_length = -1;
 static int hf_quic_packet_number = -1;
 static int hf_quic_packet_number_full = -1;
 static int hf_quic_version = -1;
 static int hf_quic_supported_version = -1;
 static int hf_quic_vn_unused = -1;
 static int hf_quic_short_ocid_flag = -1;
+static int hf_quic_short_kp_flag_draft10 = -1;
 static int hf_quic_short_kp_flag = -1;
+static int hf_quic_short_packet_type_draft10 = -1;
 static int hf_quic_short_packet_type = -1;
 static int hf_quic_initial_payload = -1;
 static int hf_quic_handshake_payload = -1;
@@ -140,6 +148,11 @@ typedef struct quic_decrypt_result {
     guint           data_len;   /**< Size of decrypted data. */
 } quic_decrypt_result_t;
 
+typedef struct quic_cid {
+    guint8      len;
+    guint8      cid[18];
+} quic_cid_t;
+
 /** Per-packet information about QUIC, populated on the first pass. */
 typedef struct quic_packet_info {
     guint64         packet_number;  /**< Reconstructed full packet number. */
@@ -171,7 +184,17 @@ typedef struct quic_info_data {
     guint64 max_server_pkn;
 } quic_info_data_t;
 
-#define QUIC_DRAFT 0xff0000
+/* Returns the QUIC draft version or 0 if not applicable. */
+static inline guint8 quic_draft_version(guint32 version) {
+    if ((version >> 8) == 0xff0000) {
+       return (guint8) version;
+    }
+    return 0;
+}
+static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
+    guint8 draft_version = quic_draft_version(version);
+    return draft_version && draft_version <= max_version;
+}
 
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
@@ -192,9 +215,11 @@ static const value_string quic_short_long_header_vals[] = {
     { 0, NULL }
 };
 
-#define SH_OCID 0x40
-#define SH_KP   0x20
-#define SH_PT   0x07
+#define SH_OCID     0x40    /* until draft -10 */
+#define SH_KP_10    0x20    /* until draft -10 */
+#define SH_PT_10    0x07    /* until draft -10 */
+#define SH_KP       0x40    /* since draft -11 */
+#define SH_PT       0x03    /* since draft -11 */
 
 static const value_string quic_short_packet_type_vals[] = {
     { 0x00, "1 octet" },
@@ -202,6 +227,27 @@ static const value_string quic_short_packet_type_vals[] = {
     { 0x02, "4 octet" },
     { 0, NULL }
 };
+
+static const value_string quic_cid_len_vals[] = {
+    { 0,    "0 octets" },
+    { 1,    "4 octets" },
+    { 2,    "5 octets" },
+    { 3,    "6 octets" },
+    { 4,    "7 octets" },
+    { 5,    "8 octets" },
+    { 6,    "9 octets" },
+    { 7,    "10 octets" },
+    { 8,    "11 octets" },
+    { 9,    "12 octets" },
+    { 10,   "13 octets" },
+    { 11,   "14 octets" },
+    { 12,   "15 octets" },
+    { 13,   "16 octets" },
+    { 14,   "17 octets" },
+    { 15,   "18 octets" },
+    { 0, NULL }
+};
+
 #define QUIC_LPT_INITIAL    0x7F
 #define QUIC_LPT_RETRY      0x7E
 #define QUIC_LPT_HANDSHAKE  0x7D
@@ -367,6 +413,17 @@ dissect_quic_packet_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     PROTO_ITEM_SET_GENERATED(ti);
 
     return pkn;
+}
+
+static const char *
+cid_to_string(const quic_cid_t *cid)
+{
+    if (cid->len == 0) {
+        return "(none)";
+    }
+    char *str = (char *)wmem_alloc0(wmem_packet_scope(), 2 * cid->len + 1);
+    bytes_to_hexstr(str, cid->cid, cid->len);
+    return str;
 }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -769,7 +826,7 @@ quic_decrypt_message(tls13_cipher *cipher, tvbuff_t *head, guint header_length, 
  * FALSE is returned on error (see "error" parameter for the reason).
  */
 static gboolean
-quic_derive_handshake_secrets(guint64 cid,
+quic_derive_handshake_secrets(const quic_cid_t *cid,
                               guint8 client_handshake_secret[HASH_SHA2_256_LENGTH],
                               guint8 server_handshake_secret[HASH_SHA2_256_LENGTH],
                               quic_info_data_t *quic_info _U_,
@@ -795,11 +852,9 @@ quic_derive_handshake_secrets(guint64 cid,
     };
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
-    guint8          cid_bytes[8];
 
-    phton64(cid_bytes, cid);
     err = hkdf_extract(GCRY_MD_SHA256, handshake_salt, sizeof(handshake_salt),
-                       cid_bytes, sizeof(cid_bytes), secret);
+                       cid->cid, cid->len, secret);
     if (err) {
         *error = wmem_strdup_printf(wmem_packet_scope(), "Failed to extract secrets: %s", gcry_strerror(err));
         return FALSE;
@@ -822,7 +877,7 @@ quic_derive_handshake_secrets(guint64 cid,
 }
 
 static gboolean
-quic_create_handshake_decoders(guint64 cid, const gchar **error, quic_info_data_t *quic_info)
+quic_create_handshake_decoders(const quic_cid_t *cid, const gchar **error, quic_info_data_t *quic_info)
 {
     guint8          client_secret[HASH_SHA2_256_LENGTH];
     guint8          server_secret[HASH_SHA2_256_LENGTH];
@@ -1081,9 +1136,9 @@ static int
 dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
                      quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, guint64 pkn,
 #ifdef HAVE_LIBGCRYPT_AEAD
-                     guint64 cid
+                     const quic_cid_t *cid
 #else /* !HAVE_LIBGCRYPT_AEAD */
-                     guint64 cid _U_
+                     const quic_cid_t *cid _U_
 #endif /* !HAVE_LIBGCRYPT_AEAD */
                      )
 {
@@ -1143,29 +1198,103 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
     return offset;
 }
 
+/**
+ * Dissects the common part after the first byte for packets using the Long
+ * Header form. If this is a normal long packet, remember the version number.
+ */
+static int
+dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
+                                guint offset, quic_info_data_t *quic_info,
+                                quic_cid_t *dcid, quic_cid_t *scid)
+{
+    guint32     version;
+    gboolean    is_draft10 = FALSE;
+    guint32     dcil, scil;
+
+    version = tvb_get_ntohl(tvb, offset);
+
+    if (!(version == 0 || quic_draft_version(version) >= 11)) {
+        // not a draft -11 version negotiation packet nor draft -11 version,
+        // assume draft -10 or older. Its version comes after CID.
+        version = tvb_get_ntohl(tvb, offset + 8);
+        is_draft10 = TRUE;
+    }
+    if (version) {
+        /* Normal packet, assume authorative for version. */
+        quic_info->version = version;
+    }
+
+    if (is_draft10) {
+        proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, 8, ENC_NA);
+        tvb_memcpy(tvb, dcid->cid, offset, 8);
+        dcid->len = 8;
+        offset += 8;
+
+        proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    } else {
+        // draft -11 and up.
+        proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_dcil, tvb, offset, 1, ENC_BIG_ENDIAN, &dcil);
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_scil, tvb, offset, 1, ENC_BIG_ENDIAN, &scil);
+        offset++;
+
+        if (dcil) {
+            dcil += 3;
+            proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, dcil, ENC_NA);
+            tvb_memcpy(tvb, dcid->cid, offset, dcil);
+            dcid->len = dcil;
+            offset += dcil;
+        }
+
+        if (scil) {
+            scil += 3;
+            proto_tree_add_item(quic_tree, hf_quic_scid, tvb, offset, scil, ENC_NA);
+            tvb_memcpy(tvb, scid->cid, offset, scil);
+            scid->len = scil;
+            offset += scil;
+        }
+    }
+    if (dcid->len > 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", DCID=%s", cid_to_string(dcid));
+    }
+    if (scid->len > 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", SCID=%s", cid_to_string(scid));
+    }
+    return offset;
+}
+
 static int
 dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
                          quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server)
 {
     guint32 long_packet_type;
-    guint64 cid, pkn;
+    quic_cid_t  dcid = {.len=0}, scid = {.len=0};
+    guint32 len_payload_length;
+    guint64 payload_length;
+    guint64 pkn;
 
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA, &long_packet_type);
     offset += 1;
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(long_packet_type, quic_long_packet_type_vals, "Long Header"));
 
-    proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
-    offset += 8;
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_info, &dcid, &scid);
 
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &quic_info->version);
-    offset += 4;
+    if (!is_quic_draft_max(quic_info->version, 10)) {
+        proto_tree_add_item_ret_varint(quic_tree, hf_quic_payload_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
+        offset += len_payload_length;
+    }
 
     pkn = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server, 4);
     offset += 4;
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
 
     /* Payload */
     switch(long_packet_type) {
         case QUIC_LPT_INITIAL: /* Initial */
-            offset = dissect_quic_initial(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, pkn, cid);
+            offset = dissect_quic_initial(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, pkn, &dcid);
         break;
         case QUIC_LPT_HANDSHAKE: /* Handshake */
             offset = dissect_quic_handshake(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server, pkn);
@@ -1180,8 +1309,6 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         break;
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, PKN: %" G_GINT64_MODIFIER "u, CID: 0x%" G_GINT64_MODIFIER "x", val_to_str(long_packet_type, quic_long_packet_type_vals, "Unknown Packet Type"), pkn, cid);
-
     return offset;
 }
 
@@ -1190,27 +1317,36 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
                           quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server)
 {
     guint8 short_flags;
-    guint64 cid = 0;
+    quic_cid_t dcid = {.len=0};
     guint32 pkn_len;
     guint64 pkn;
     proto_item *ti;
-    gboolean    key_phase;
+    gboolean    key_phase = FALSE;
     tls13_cipher *cipher = NULL;
+    gboolean is_draft10 = is_quic_draft_max(quic_info->version, 10);
 
     short_flags = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(quic_tree, hf_quic_short_ocid_flag, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag, tvb, offset, 1, ENC_NA, &key_phase);
-    ti = proto_tree_add_item(quic_tree, hf_quic_short_packet_type, tvb, offset, 1, ENC_NA);
-    if ((short_flags & 0x18) != 0x10) {
-        expert_add_info_format(pinfo, ti, &ei_quic_protocol_violation,
-                "Fourth bit (0x10) must be 1, fifth bit (0x8) must be set to 0.");
+    if (is_draft10) {
+        gboolean omit_cid;
+        proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_ocid_flag, tvb, offset, 1, ENC_NA, &omit_cid);
+        tvb_memcpy(tvb, dcid.cid, offset, 8);
+        dcid.len = omit_cid ? 0 : 8;
+        proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag_draft10, tvb, offset, 1, ENC_NA, &key_phase);
+        ti = proto_tree_add_item(quic_tree, hf_quic_short_packet_type_draft10, tvb, offset, 1, ENC_NA);
+        if ((short_flags & 0x18) != 0x10) {
+            expert_add_info_format(pinfo, ti, &ei_quic_protocol_violation,
+                    "Fourth bit (0x10) must be 1, fifth bit (0x8) must be set to 0.");
+        }
+    } else {
+        proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag, tvb, offset, 1, ENC_NA, &key_phase);
+        proto_tree_add_item(quic_tree, hf_quic_short_packet_type, tvb, offset, 1, ENC_NA);
     }
     offset += 1;
 
     /* Connection ID */
-    if ((short_flags & SH_OCID) == 0){
-        proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
-        offset += 8;
+    if (dcid.len > 0) {
+        proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, dcid.len, ENC_NA);
+        offset += dcid.len;
     }
 
     /* Packet Number */
@@ -1218,10 +1354,11 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     pkn = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server, pkn_len);
     offset += pkn_len;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Protected Payload (KP%u), PKN: %" G_GINT64_MODIFIER "u", short_flags & SH_KP, pkn);
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Protected Payload (KP%u), PKN: %" G_GINT64_MODIFIER "u", key_phase, pkn);
 
-    if(cid){
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: 0x%" G_GINT64_MODIFIER "x", cid);
+    if (dcid.len > 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", DCID=%s", cid_to_string(&dcid));
     }
 
     /* Protected Payload */
@@ -1241,22 +1378,18 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 }
 
 static int
-dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_){
-    guint64 cid;
+dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info)
+{
+    quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32 supported_version;
     proto_item *ti;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "Version Negotiation");
 
     proto_tree_add_item(quic_tree, hf_quic_vn_unused, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    /* Connection ID */
-    proto_tree_add_item_ret_uint64(quic_tree, hf_quic_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN, &cid);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "CID: 0x%" G_GINT64_MODIFIER "x", cid);
-    offset += 8;
-
-    /* Version */
-    proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_info, &dcid, &scid);
 
     /* Supported Version */
     while(tvb_reported_length_remaining(tvb, offset) > 0){
@@ -1328,7 +1461,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *quic_tree;
     guint       offset = 0;
-    guint32     header_form, version;
+    guint32     header_form;
     conversation_t  *conv;
     quic_info_data_t  *quic_info;
     quic_packet_info_t *quic_packet = NULL;
@@ -1362,16 +1495,14 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 packet_type = tvb_get_guint8(tvb, offset) & 0x7f;
     gboolean from_server = quic_is_from_server(pinfo, header_form, packet_type, quic_info);
     if(header_form) {
-        version = tvb_get_ntohl(tvb, offset + 1 + 8);
-        if (version == 0x00000000) { /* Version Negotiation ? */
-                col_set_str(pinfo->cinfo, COL_INFO, "VN, ");
-                offset = dissect_quic_version_negotiation(tvb, pinfo, quic_tree, offset, quic_info);
+        gboolean is_vn = tvb_get_ntohl(tvb, offset + 1) == 0;
+        is_vn = is_vn || tvb_get_ntohl(tvb, offset + 1 + 8) == 0; // before draft -11
+        if (is_vn) {
+            offset = dissect_quic_version_negotiation(tvb, pinfo, quic_tree, offset, quic_info);
             return offset;
         }
-        col_set_str(pinfo->cinfo, COL_INFO, "LH, ");
         offset = dissect_quic_long_header(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server);
     } else {
-        col_set_str(pinfo->cinfo, COL_INFO, "SH, ");
         offset = dissect_quic_short_header(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server);
     }
 
@@ -1380,11 +1511,25 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-
+    /*
+     * Since draft -11:
+     * Flag (1 byte) + Version (4 bytes) + DCIL/SCIL (1 byte) +
+     * Destination Connection ID (0/4..18 based on DCIL) +
+     * Source Connection ID (0/4..18 based on SCIL) +
+     * Payload length (1/2/4/8) + Packet number (4 bytes) + Payload.
+     * (absolute minimum: 11 + payload)
+     * (for Version Negotiation, payload len + PKN + payload is replaced by
+     * Supported Version (multiple of 4 bytes.)
+     *
+     * Draft -10 and before:
+     * Flag (1 byte) + Connection ID (8 bytes) + Version (4 bytes) + packet
+     * number (4 bytes) + Payload.
+     * (absolute minimum: 17 + payload)
+     */
     conversation_t *conversation = NULL;
     int offset = 0;
     guint8 flags;
-    guint32 version;
+    gboolean is_quic = FALSE;
 
     /* Verify packet size  (Flag (1 byte) + Connection ID (8 bytes) + Version (4 bytes)) */
     if (tvb_captured_length(tvb) < 13)
@@ -1399,19 +1544,20 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
     offset += 1;
 
-    /* Connection ID */
-    offset += 8;
+    // check for draft QUIC version (for draft -11 and newer)
+    is_quic = quic_draft_version(tvb_get_ntohl(tvb, offset)) >= 11;
 
-    /* Check if version start with 0xFF0000... (QUIC draft release)*/
-    version = tvb_get_ntoh24(tvb, offset);
-    if ( version == QUIC_DRAFT ) {
+    // check for draft QUIC version (after 8 byte CID) for draft -10 and older
+    if (!is_quic && tvb_bytes_exist(tvb, offset + 8, 4)) {
+        is_quic = is_quic_draft_max(tvb_get_ntohl(tvb, offset + 8), 10);
+    }
+
+    if (is_quic) {
         conversation = find_or_create_conversation(pinfo);
         conversation_set_dissector(conversation, quic_handle);
         dissect_quic(tvb, pinfo, tree, data);
-        return TRUE;
     }
-
-    return FALSE;
+    return is_quic;
 }
 
 
@@ -1433,11 +1579,32 @@ proto_register_quic(void)
             FT_UINT8, BASE_DEC, VALS(quic_long_packet_type_vals), 0x7F,
             "Long Header Packet Type", HFILL }
         },
-        { &hf_quic_connection_id,
-          { "Connection ID", "quic.connection_id",
-            FT_UINT64, BASE_HEX, NULL, 0x0,
+        { &hf_quic_dcid,
+          { "Destination Connection ID", "quic.dcid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_quic_scid,
+          { "Source Connection ID", "quic.scid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_dcil,
+          { "Destination Connection ID Length", "quic.dcil",
+            FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0xf0,
+            "Destination Connection ID Length (for non-zero lengths, add 3 for actual length)", HFILL }
+        },
+        { &hf_quic_scil,
+          { "Source Connection ID Length", "quic.scil",
+            FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0x0f,
+            "Source Connection ID Length (for non-zero lengths, add 3 for actual length)", HFILL }
+        },
+        { &hf_quic_payload_length,
+          { "Payload Length", "quic.payload_length",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_quic_packet_number,
           { "Packet Number", "quic.packet_number",
             FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -1468,10 +1635,20 @@ proto_register_quic(void)
             FT_BOOLEAN, 8, NULL, SH_OCID,
             NULL, HFILL }
         },
+        { &hf_quic_short_kp_flag_draft10,
+          { "Key Phase Bit", "quic.short.kp_flag_draft10",
+            FT_BOOLEAN, 8, NULL, SH_KP_10,
+            NULL, HFILL }
+        },
         { &hf_quic_short_kp_flag,
           { "Key Phase Bit", "quic.short.kp_flag",
             FT_BOOLEAN, 8, NULL, SH_KP,
             NULL, HFILL }
+        },
+        { &hf_quic_short_packet_type_draft10,
+          { "Packet Type", "quic.short.packet_type_draft10",
+            FT_UINT8, BASE_DEC, VALS(quic_short_packet_type_vals), SH_PT_10,
+            "Short Header Packet Type", HFILL }
         },
         { &hf_quic_short_packet_type,
           { "Packet Type", "quic.short.packet_type",
