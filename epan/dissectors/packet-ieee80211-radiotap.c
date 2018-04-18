@@ -351,6 +351,7 @@ static expert_field ei_radiotap_data_past_header = EI_INIT;
 static expert_field ei_radiotap_present_reserved = EI_INIT;
 static expert_field ei_radiotap_present = EI_INIT;
 static expert_field ei_radiotap_invalid_data_rate = EI_INIT;
+static expert_field ei_radiotap_he_mu_upgrade_needed = EI_INIT;
 
 static dissector_handle_t ieee80211_radio_handle;
 
@@ -1206,6 +1207,13 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	gboolean mu_preamble_puncturing_known = FALSE;
 	gboolean bw_from_bw_sig_a_known = FALSE;
 	guint16 flags2;
+
+	/*
+	 * Because the spec has changed, anyone with captures that include
+	 * the HE_MU header must upgrade.
+	 */
+	expert_add_info(pinfo, tree,
+		    &ei_radiotap_he_mu_upgrade_needed);
 
 	if (flags1 & IEEE80211_RADIOTAP_HE_MU_SIG_B_MCS_KNOWN)
 		sig_b_mcs_known = TRUE;
@@ -4163,6 +4171,7 @@ void proto_register_radiotap(void)
 		{ &ei_radiotap_present_reserved, { "radiotap.present.reserved.unknown", PI_UNDECODED, PI_NOTE, "Unknown Radiotap fields, code not implemented, Please check radiotap documentation, Contact Wireshark developers if you want this supported", EXPFILL }},
 		{ &ei_radiotap_data_past_header, { "radiotap.data_past_header", PI_MALFORMED, PI_ERROR, "Radiotap data goes past the end of the radiotap header", EXPFILL }},
 		{ &ei_radiotap_invalid_data_rate, { "radiotap.vht.datarate.invalid", PI_PROTOCOL, PI_WARN, "Data rate invalid", EXPFILL }},
+		{ &ei_radiotap_he_mu_upgrade_needed, { "radiotap.he_mu_upgrade_needed", PI_PROTOCOL, PI_WARN, "A newer version of wireshark is needed to dissect the HE_MU header", EXPFILL }},
 	};
 
 	module_t *radiotap_module;
