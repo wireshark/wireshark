@@ -182,6 +182,7 @@ const value_string quic_version_vals[] = {
     { 0xff000008, "draft-08" },
     { 0xff000009, "draft-09" },
     { 0xff00000a, "draft-10" },
+    { 0xff00000b, "draft-11" },
     { 0, NULL }
 };
 
