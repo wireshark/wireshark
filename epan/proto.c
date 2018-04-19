@@ -10153,7 +10153,7 @@ proto_registrar_dump_elastic(void)
 	json_generator_set_pretty(generator, TRUE);
 	root = json_builder_get_root(builder);
 	json_generator_set_root(generator, root);
-	json_node_unref(root);
+	json_node_free(root);
 	g_object_unref(builder);
 	data = json_generator_to_data(generator, &length);
 	g_object_unref(generator);
