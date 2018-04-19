@@ -8,13 +8,13 @@
 # Depends on FindGLIB2.cmake to include the gobject library.
 
 include(FindWSWinLibs)
-FindWSWinLibs("libjson-glib-.*" "JSONGLIB_HINTS")
+FindWSWinLibs("json-glib-*" "JSONGLIB_HINTS")
 
 find_path(JSONGLIB_INCLUDE_DIR
     NAMES
       json-glib/json-glib.h
     HINTS
-      ${JSONGLIB_HINTS}
+      "${JSONGLIB_HINTS}/include"
     PATHS
       /usr/include
       /usr/local/include
@@ -31,7 +31,7 @@ find_library(JSONGLIB_LIBRARY
       json-glib-1.0
       json-glib-1.0-0
     HINTS
-      ${JSONGLIB_HINTS}
+      "${JSONGLIB_HINTS}/lib"
     PATHS
       /usr/lib
       /usr/local/lib
@@ -43,14 +43,14 @@ find_library(JSONGLIB_LIBRARY
 
 if(WIN32)
     set(JSONGLIB_DLL_DIR "${JSONGLIB_HINTS}/bin"
-      CACHE PATH "Path to libjson-glib DLL"
+      CACHE PATH "Path to json-glib DLL"
     )
-    file(GLOB _libssh_dll RELATIVE "${JSONGLIB_DLL_DIR}"
-      "${JSONGLIB_DLL_DIR}/json-glib-1.0.dll"
+    file(GLOB _jsonglib_dll RELATIVE "${JSONGLIB_DLL_DIR}"
+      "${JSONGLIB_DLL_DIR}/libjson-glib-1.0-0.dll"
     )
     set(JSONGLIB_DLL ${_jsonglib_dll}
       # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "libjson-glib DLL file name"
+      CACHE FILEPATH "json-glib DLL file name"
     )
     mark_as_advanced(JSONGLIB_DLL_DIR JSONGLIB_DLL)
 endif()

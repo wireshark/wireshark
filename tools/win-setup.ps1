@@ -97,6 +97,7 @@ $Win64Archives = @{
     "c-ares-1.14.0-win64ws.zip" = "";
     "gnutls-3.4.11-1.35-win64ws.zip" = "";
     "glib2-2.52.2-1.31-win64ws.zip" = "";
+    "json-glib-1.0.2-4.31-win64ws.zip" = "";
     "kfw-3-2-2-x64-ws.zip" = "";
     "libgcrypt-1.7.6-win64ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
@@ -120,6 +121,7 @@ $Win32Archives = @{
     "c-ares-1.14.0-win32ws.zip" = "";
     "gnutls-3.4.11-1.36-win32ws.zip" = "";
     "glib2-2.52.2-1.34-win32ws.zip" = "";
+    "json-glib-1.0.2-4.37-win32ws.zip" = "";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
     "libgcrypt-1.7.6-win32ws.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
@@ -169,6 +171,7 @@ $CleanupItems = @(
     "glib2-2.*-win??ws"
     "gtk2"
     "gtk3"
+    "json-glib-1.0.2-*-win??ws"
     "kfw-3-2-2-final"
     "kfw-3-2-2-i386-ws-vc6"
     "kfw-3-2-2-x64-ws"
