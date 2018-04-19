@@ -66,7 +66,7 @@ S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
 S<[ E<lt>capture filterE<gt> ]>
 
 B<tshark>
-B<-G> [ E<lt>report typeE<gt> ]
+B<-G> [ E<lt>report typeE<gt> ] [ --elastic-mapping-filter E<lt>protocolsE<gt> ]
 
 =head1 DESCRIPTION
 
@@ -839,7 +839,12 @@ Example of usage to import data into Elasticsearch:
 
 Elastic requires a mapping file to be loaded as template for packets-*
 index in order to convert wireshark types to elastic types. This file
-can be auto-generated with the command "tshark -G elastic-mapping".
+can be auto-generated with the command "tshark -G elastic-mapping". Since
+the mapping file can be huge, protocols can be selected by using the option
+--elastic-mapping-filter:
+
+  tshark -G elastic-mapping --elastic-mapping-filter ip,udp,dns
+
 
 B<fields> The values of fields specified with the B<-e> option, in a
 form specified by the B<-E> option.  For example,
@@ -1742,6 +1747,14 @@ configuring color filters.
 If a key appears multiple times in an object, only write it a single time with
 as value a json array containing all the separate values. (Only works with
 -T json)
+
+=item --elastic-mapping-filter E<lt>protocolE<gt>,E<lt>protocolE<gt>,...
+
+When generating the ElasticSearch mapping file, only put the specified protocols
+in it, to avoid a huge mapping file that can choke some software (such as Kibana).
+The option takes a list of wanted protocol abbreviations, separated by comma.
+
+Example: ip,udp,dns puts only those three protocols in the mapping file.
 
 =item --export-objects E<lt>protocolE<gt>,E<lt>destdirE<gt>
 

@@ -10052,7 +10052,7 @@ dot_to_underscore(gchar* str)
 /* Dumps a mapping file for ElasticSearch
  */
 void
-proto_registrar_dump_elastic(void)
+proto_registrar_dump_elastic(const gchar* filter)
 {
 	header_field_info *hfinfo;
 	header_field_info *parent_hfinfo;
@@ -10065,11 +10065,20 @@ proto_registrar_dump_elastic(void)
 	const char* prev_proto = NULL;
 	gchar* data;
 	gchar* str;
+	gchar** protos = NULL;
+	gchar* proto;
+	gboolean found;
+	guint j;
+
+	/* We have filtering protocols. Extract them. */
+	if (filter) {
+		protos = g_strsplit(filter, ",", -1);
+	}
 
 	/*
-		To help traking down the json tree, objects have been appended with a comment:
-		n.label -> where n is the indentation level and label the name of the object
-	*/
+	 * To help tracking down the json tree, objects have been appended with a comment:
+	 * n.label -> where n is the indentation level and label the name of the object
+	 */
 
 	builder = json_builder_new();
 	json_builder_begin_object(builder); // 1.root
@@ -10104,13 +10113,33 @@ proto_registrar_dump_elastic(void)
 
 		/*
 		 * Skip the pseudo-field for "proto_tree_add_text()" since
-		 * we don't want it in the list of filterable fields.
+		 * we don't want it in the list of filterable protocols.
 		 */
 		if (hfinfo->id == hf_text_only)
 			continue;
 
 		if (!proto_registrar_is_protocol(i)) {
 			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
+
+			/*
+			 * Skip the field if filter protocols have been set and this one's
+			 * parent is not listed.
+			 */
+			if (protos) {
+				found = FALSE;
+				j = 0;
+				proto = protos[0];
+				while(proto) {
+					if (!g_strcmp0(proto, parent_hfinfo->abbrev)) {
+						found = TRUE;
+						break;
+					}
+					j++;
+					proto = protos[j];
+				}
+				if (!found)
+					continue;
+			}
 
 			if (prev_proto && g_strcmp0(parent_hfinfo->abbrev, prev_proto)) {
 				json_builder_end_object(builder); // 8.properties
@@ -10159,6 +10188,7 @@ proto_registrar_dump_elastic(void)
 	g_object_unref(generator);
 	ws_debug_printf("%s\n", data);
 	g_free(data);
+	g_strfreev(protos);
 }
 #endif
 

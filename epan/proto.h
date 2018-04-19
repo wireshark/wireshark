@@ -2455,7 +2455,7 @@ WS_DLL_PUBLIC void proto_registrar_dump_values(void);
 
 #ifdef HAVE_JSONGLIB
 /** Dumps a mapping file for loading tshark output into ElasticSearch */
-WS_DLL_PUBLIC void proto_registrar_dump_elastic(void);
+WS_DLL_PUBLIC void proto_registrar_dump_elastic(const gchar* filter);
 #endif
 
 /** Dumps the number of protocol and field registrations to STDOUT.
