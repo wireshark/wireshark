@@ -237,9 +237,11 @@ void ExpertInfoDialog::showExpertInfoMenu(QPoint pos)
 {
     bool enable = true;
     QModelIndex expertIndex = ui->expertInfoTreeView->indexAt(pos);
+    if (!expertIndex.isValid()) {
+        return;
+    }
 
-    if (!expertIndex.isValid() ||
-        (expert_info_model_->data(expertIndex.sibling(expertIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt() < 0)) {
+    if (proxyModel_->data(expertIndex.sibling(expertIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt() < 0) {
         enable = false;
     }
 
@@ -260,27 +262,26 @@ void ExpertInfoDialog::showExpertInfoMenu(QPoint pos)
 
 void ExpertInfoDialog::filterActionTriggered()
 {
-    QModelIndex packetIndex = ui->expertInfoTreeView->currentIndex();
+    QModelIndex modelIndex = ui->expertInfoTreeView->currentIndex();
     FilterAction *fa = qobject_cast<FilterAction *>(QObject::sender());
 
-    if (!fa || !packetIndex.isValid()) {
+    if (!fa || !modelIndex.isValid()) {
         return;
     }
 
-    QModelIndex modelIndex = proxyModel_->mapToSource(packetIndex);
-    int hf_index = expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt();
+    int hf_index = proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colHf), Qt::DisplayRole).toInt();
 
     if (hf_index > -1) {
         QString filter_string;
         if (fa->action() == FilterAction::ActionWebLookup) {
             filter_string = QString("%1 %2")
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
         } else if (fa->action() == FilterAction::ActionCopy) {
             filter_string = QString("%1 %2: %3")
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colPacket), Qt::DisplayRole).toUInt())
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
-                    .arg(expert_info_model_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colPacket), Qt::DisplayRole).toUInt())
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colProtocol), Qt::DisplayRole).toString())
+                    .arg(proxyModel_->data(modelIndex.sibling(modelIndex.row(), ExpertInfoModel::colSummary), Qt::DisplayRole).toString());
         } else {
             filter_string = proto_registrar_get_abbrev(hf_index);
         }
