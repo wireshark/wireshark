@@ -59,7 +59,6 @@ MYDIR=$(dirname $0)
 if [ -d run ]; then
 	if [ -e run/tshark -o -e run/dumpcap -o -e run/rawshark ]; then
 		WS_BIN_PATH=${WS_BIN_PATH:-$(cd run && pwd)}
-		WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$WS_BIN_PATH}
 	fi
 fi
 source $MYDIR/test-backend.sh
