@@ -476,7 +476,9 @@ glossary_option_help(void)
   fprintf(output, "  -G column-formats        dump column format codes and exit\n");
   fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
   fprintf(output, "  -G dissector-tables      dump dissector table names, types, and properties\n");
+#ifdef HAVE_JSONGLIB
   fprintf(output, "  -G elastic-mapping       dump ElasticSearch mapping file\n");
+#endif
   fprintf(output, "  -G fieldcount            dump count of header fields and exit\n");
   fprintf(output, "  -G fields                dump fields glossary and exit\n");
   fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
