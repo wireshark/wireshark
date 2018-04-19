@@ -699,7 +699,9 @@ find_assoc_index(assoc_info_t* tmpinfo, gboolean visited)
         inf.direction = info->direction;
         return inf;
       } else if ((tmpinfo->verification_tag1 != 0 && tmpinfo->verification_tag1 == info->verification_tag2) ||
-                 (tmpinfo->verification_tag2 != 0 && tmpinfo->verification_tag2 == info->verification_tag1)) {
+                 (tmpinfo->verification_tag2 != 0 && tmpinfo->verification_tag2 == info->verification_tag1) ||
+                 (tmpinfo->verification_tag1 == 0 && tmpinfo->initiate_tag != 0 &&
+                 tmpinfo->initiate_tag == info->verification_tag1)) {
         inf.assoc_index = info->assoc_index;
         if (info->direction == 1)
           inf.direction = 2;

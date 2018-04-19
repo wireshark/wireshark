@@ -159,17 +159,14 @@ typedef struct _sctp_tmp_info {
 	guint32 n_tvbs;
 } sctp_tmp_info_t;
 
-typedef struct _sctp_min_max {
-	guint32 tmp_min_secs;
-	guint32 tmp_min_usecs;
-	guint32 tmp_max_secs;
-	guint32 tmp_max_usecs;
-	guint32 tmp_min_tsn1;
-	guint32 tmp_min_tsn2;
-	guint32 tmp_max_tsn1;
-	guint32 tmp_max_tsn2;
-	gint	tmp_secs;
-} sctp_min_max_t;
+typedef struct _sctp_init_collision {
+	guint32 init_vtag;		/* initiate tag of the INIT chunk */
+	guint32 initack_vtag;		/* initiate tag of the INIT-ACK chunk */
+	guint32 init_min_tsn;		/* initial tsn of the INIT chunk */
+	guint32 initack_min_tsn;	/* initial tsn of the INIT-ACK chunk */
+	gboolean init:1;
+	gboolean initack:1;
+} sctp_init_collision_t;
 
 struct tsn_sort{
 	guint32 tsnumber;
@@ -234,8 +231,10 @@ typedef struct _sctp_assoc_info {
 	guint32	   max_window2;
 	guint32	   arwnd1;
 	guint32	   arwnd2;
-	gboolean   init;
-	gboolean   initack;
+	gboolean   init:1;
+	gboolean   initack:1;
+	gboolean   firstdata:1;
+	gboolean   init_collision:1;
 	guint16	   initack_dir;
 	guint16	   direction;
 	guint32	   min_secs;
@@ -248,6 +247,8 @@ typedef struct _sctp_assoc_info {
 	guint32	   max_tsn2;
 	guint32	   max_bytes1;
 	guint32	   max_bytes2;
+	sctp_init_collision_t *dir1;
+	sctp_init_collision_t *dir2;
 	GSList	  *min_max;
 	GList	  *frame_numbers;
 	GList	  *tsn1;

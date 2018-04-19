@@ -304,7 +304,6 @@ void SCTPGraphDialog::drawTSNGraph()
 void SCTPGraphDialog::drawGraph(int which)
 {
     guint32 maxTSN, minTSN;
-    gint64 minBound;
 
     gIsSackChunkPresent = false;
     gIsNRSackChunkPresent = false;
@@ -339,12 +338,7 @@ void SCTPGraphDialog::drawGraph(int which)
     connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
     // set axes ranges, so we see all data:
     QCPRange myXRange(selected_assoc->min_secs, (selected_assoc->max_secs+1));
-    if (maxTSN - minTSN < 5) {
-        minBound = 0;
-    } else {
-        minBound = minTSN;
-    }
-    QCPRange myYRange(minBound, maxTSN);
+    QCPRange myYRange(minTSN, maxTSN);
     ui->sctpPlot->xAxis->setRange(myXRange);
     ui->sctpPlot->yAxis->setRange(myYRange);
     ui->sctpPlot->replot();

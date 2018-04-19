@@ -142,6 +142,8 @@ reset(void *arg)
             g_slist_foreach(info->min_max, free_first, NULL);
             info->min_max = NULL;
         }
+        g_free(info->dir1);
+        g_free(info->dir2);
 
         g_free(list->data);
         list = g_list_next(list);
@@ -389,6 +391,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             info->init              = FALSE;
             info->initack           = FALSE;
             info->check_address     = FALSE;
+            info->firstdata         = TRUE;
             info->direction         = sctp_info->direction;
             info                    = calc_checksum(sctp_info, info);
             info->n_packets         = 1;
@@ -421,6 +424,12 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             info->sort_tsn2         = g_ptr_array_new();
             info->sort_sack1        = g_ptr_array_new();
             info->sort_sack2        = g_ptr_array_new();
+            info->dir1              = g_new0(sctp_init_collision_t, 1);
+            info->dir1->init_min_tsn = 0xffffffff;
+            info->dir1->initack_min_tsn = 0xffffffff;
+            info->dir2              = g_new0(sctp_init_collision_t, 1);
+            info->dir2->init_min_tsn = 0xffffffff;
+            info->dir2->initack_min_tsn = 0xffffffff;
 
             for (i=0; i < NUM_CHUNKS; i++)
             {
@@ -514,6 +523,27 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 info->chunk_count[idx]++;
                 info->ep1_chunk_count[idx]++;
                 info = add_chunk_count(&tmp_info.src, info, 1, idx);
+                if (info->direction == 1) {
+                    if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID) {
+                        info->dir1->init = TRUE;
+                        info->dir1->init_min_tsn = info->min_tsn1;
+                        info->dir1->init_vtag = info->verification_tag2;
+                    } else if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_ACK_CHUNK_ID) {
+                        info->dir1->initack = TRUE;
+                        info->dir1->initack_min_tsn = info->min_tsn1;
+                        info->dir1->initack_vtag = info->verification_tag2;
+                    }
+                } else {
+                    if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID) {
+                        info->dir2->init = TRUE;
+                        info->dir2->init_min_tsn = info->min_tsn1;
+                        info->dir2->init_vtag = info->verification_tag2;
+                    } else if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_ACK_CHUNK_ID) {
+                        info->dir2->initack = TRUE;
+                        info->dir2->initack_min_tsn = info->min_tsn1;
+                        info->dir2->initack_vtag = info->verification_tag2;
+                    }
+                }
             }
             else
             {
@@ -559,8 +589,8 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     }
                     if (datachunk || forwardchunk)
                     {
-
                         tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], DATA_CHUNK_TSN_OFFSET);
+                        info->firstdata = FALSE;
                         if (tsnumber < info->min_tsn1)
                             info->min_tsn1 = tsnumber;
                         if (tsnumber > info->max_tsn1)
@@ -802,7 +832,6 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID))
         {
             tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], INIT_CHUNK_INITIAL_TSN_OFFSET);
-
             if (info->direction == 2)
             {
                 if (tsnumber < info->min_tsn2)
@@ -849,6 +878,33 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     store = g_new(address, 1);
                     alloc_address_tvb(NULL, store, AT_IPv6, 16, sctp_info->tvb[chunk_number], IPV6_ADDRESS_OFFSET);
                     info = add_address(store, info, info->direction);
+                }
+            }
+            if (info->direction == 1) {
+                if (info->dir1->init || info->dir1->initack) {
+                    info->init_collision = TRUE;
+                }
+                if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID) {
+                    info->dir1->init = TRUE;
+                    info->dir1->init_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->dir1->init_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
+                } else if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_ACK_CHUNK_ID) {
+                    info->dir1->initack = TRUE;
+                    info->dir1->initack_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->dir1->initack_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
+                }
+            } else {
+                if (info->dir2->init || info->dir2->initack) {
+                    info->init_collision = TRUE;
+                }
+                if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID) {
+                    info->dir2->init = TRUE;
+                    info->dir2->init_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->dir2->init_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
+                } else if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_ACK_CHUNK_ID) {
+                    info->dir2->initack = TRUE;
+                    info->dir2->initack_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->dir2->initack_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
                 }
             }
             if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_ACK_CHUNK_ID)
@@ -923,7 +979,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     }
                     tsn->tsns = g_list_append(tsn->tsns, t_s_n);
 
-                    tsn_s = g_new(struct tsn_sort, 1);
+                    tsn_s = g_new0(struct tsn_sort, 1);
                     tsn_s->tsnumber = tsnumber;
                     tsn_s->secs  = tsn->secs = (guint32)pinfo->rel_ts.secs;
                     tsn_s->usecs = tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
@@ -949,9 +1005,19 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
                     if (info->direction == 1)
                     {
-                        if(tsnumber < info->min_tsn1)
-                            info->min_tsn1 = tsnumber;
-                        if ((info->init == TRUE || (info->initack == TRUE && info->initack_dir == 1))&& tsnumber >= info->min_tsn1 && tsnumber <= info->max_tsn1)
+                        if (info->firstdata) {
+                            info->firstdata = FALSE;
+                            if (info->init_collision) {
+                                if (tsnumber != info->min_tsn1) {
+                                    info->min_tsn1 = info->dir1->init_min_tsn;
+                                }
+                            }
+                        } else {
+                            if(tsnumber < info->min_tsn1) {
+                                info->min_tsn1 = tsnumber;
+                            }
+                        }
+                        if ((info->init || (info->initack && info->initack_dir == 1))&& tsnumber >= info->min_tsn1 && tsnumber <= info->max_tsn1)
                         {
                             if (datachunk)
                             {
@@ -989,11 +1055,20 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     }
                     else if (info->direction == 2)
                     {
+                        if (info->firstdata) {
+                            info->firstdata = FALSE;
+                            if (info->init_collision) {
+                                if (tsnumber != info->min_tsn2) {
+                                    info->min_tsn2 = info->dir2->init_min_tsn;
+                                    info->initack_dir = 2;
+                                }
+                            }
+                        } else {
+                            if(tsnumber < info->min_tsn2)
+                                info->min_tsn2 = tsnumber;
+                        }
 
-                        if(tsnumber < info->min_tsn2)
-                            info->min_tsn2 = tsnumber;
-
-                        if ((info->initack == TRUE && info->initack_dir == 2)&& tsnumber >= info->min_tsn2 && tsnumber <= info->max_tsn2)
+                        if ((info->initack && info->initack_dir == 2)&& tsnumber >= info->min_tsn2 && tsnumber <= info->max_tsn2)
                         {
                             if (datachunk)
                             {
@@ -1054,7 +1129,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
                     sack->tsns = g_list_append(sack->tsns, t_s_n);
                     sackchunk = TRUE;
-                    tsn_s = g_new(struct tsn_sort, 1);
+                    tsn_s = g_new0(struct tsn_sort, 1);
                     tsn_s->tsnumber = tsnumber;
                     tsn_s->secs   = tsn->secs = (guint32)pinfo->rel_ts.secs;
                     tsn_s->usecs  = tsn->usecs = (guint32)pinfo->rel_ts.nsecs/1000;
@@ -1092,7 +1167,6 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     }
                     else if (info->direction == 1)
                     {
-
                         if(tsnumber < info->min_tsn2)
                             info->min_tsn2 = tsnumber;
                         if(tsnumber > info->max_tsn2)
