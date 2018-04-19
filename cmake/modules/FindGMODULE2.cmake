@@ -35,15 +35,7 @@ if( GMODULE2_FOUND  )
 	endif()
 else()
 	include( FindWSWinLibs )
-	if( BUILD_wireshark )
-		if( ENABLE_GTK3 )
-			FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
-		else()
-			FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
-		endif()
-	else()
-		message( ERROR "Unsupported build setup" )
-	endif()
+	FindWSWinLibs( "glib2-*" "GMODULE2_HINTS" )
 	find_path( GMODULE2_INCLUDE_DIRS
 		NAMES
 			gmodule.h

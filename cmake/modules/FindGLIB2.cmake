@@ -20,12 +20,7 @@ if( GLIB2_MAIN_INCLUDE_DIR AND GLIB2_LIBRARIES )
 endif()
 
 include( FindWSWinLibs )
-
-if( ENABLE_GTK3 )
-	FindWSWinLibs( "gtk3" "GLIB2_HINTS" )
-else()
-	FindWSWinLibs( "gtk2" "GLIB2_HINTS" )
-endif()
+FindWSWinLibs( "glib2-*" "GLIB2_HINTS" )
 
 if (NOT WIN32)
 	find_package(PkgConfig)
