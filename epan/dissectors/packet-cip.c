@@ -2965,7 +2965,7 @@ void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const va
    col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
-void add_cip_pccc_function_to_info_column(packet_info *pinfo, guint8 fnc, const value_string* fnc_vals)
+static void add_cip_pccc_function_to_info_column(packet_info *pinfo, guint8 fnc, const value_string* fnc_vals)
 {
    col_append_fstr( pinfo->cinfo, COL_INFO,
       " - %s", val_to_str(fnc, fnc_vals, "Function (0x%02x)"));
