@@ -3986,7 +3986,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   /* Collect stats */
-  if (!pinfo->flags.in_error_pkt) {
+  if (pinfo->flags.in_error_pkt) {
     return;
   }
   if (is_mdns) {
