@@ -2182,7 +2182,6 @@ static int hf_zbee_zcl_scenes_scene_id_from = -1;
 static int hf_zbee_zcl_scenes_scene_id_to = -1;
 static int hf_zbee_zcl_scenes_transit_time = -1;
 static int hf_zbee_zcl_scenes_enh_transit_time = -1;
-static int hf_zbee_zcl_scenes_extension_set= -1;
 static int hf_zbee_zcl_scenes_extension_set_cluster = -1;
 static int hf_zbee_zcl_scenes_extension_set_onoff = -1;
 static int hf_zbee_zcl_scenes_extension_set_level = -1;
@@ -3070,10 +3069,6 @@ proto_register_zbee_zcl_scenes(void)
 
         { &hf_zbee_zcl_scenes_attr_str,
             { "String", "zbee_zcl_general.scenes.attr_str", FT_STRING, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_zbee_zcl_scenes_extension_set,
-            { "Extension Set", "zbee_zcl_general.scenes.extension_set", FT_BYTES, BASE_NONE, NULL,
             0x00, NULL, HFILL }},
 
         { &hf_zbee_zcl_scenes_extension_set_cluster,
