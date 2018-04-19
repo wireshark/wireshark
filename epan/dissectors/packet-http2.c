@@ -1105,7 +1105,7 @@ get_http2_session(packet_info *pinfo)
 }
 
 #ifdef HAVE_NGHTTP2
-static int
+static guint32
 select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
 {
     struct tcp_analysis *tcpd;
@@ -1147,7 +1147,7 @@ get_oneway_stream_info(packet_info *pinfo, gboolean the_other_direction)
 {
     http2_session_t *http2_session = get_http2_session(pinfo);
     http2_stream_info_t *http2_stream_info = get_stream_info(http2_session);
-    int flow_index = select_http2_flow_index(pinfo, http2_session);
+    guint32 flow_index = select_http2_flow_index(pinfo, http2_session);
     if (the_other_direction) {
         /* need stream info of the other direction,
         so set index from 0 to 1, or from 1 to 0 */
@@ -1181,7 +1181,7 @@ push_settings(packet_info *pinfo, http2_session_t *h2session,
               http2_settings_t *settings)
 {
     wmem_queue_t *queue;
-    int flow_index;
+    guint32 flow_index;
 
     flow_index = select_http2_flow_index(pinfo, h2session);
 
@@ -1196,7 +1196,7 @@ apply_and_pop_settings(packet_info *pinfo, http2_session_t *h2session)
     wmem_queue_t *queue;
     http2_settings_t *settings;
     nghttp2_hd_inflater *inflater;
-    int flow_index;
+    guint32 flow_index;
 
     /* When header table size is applied, it affects the inflater of
        opposite side. */
@@ -1566,7 +1566,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     int rv;
     int header_len = 0;
     int final;
-    int flow_index;
+    guint32 flow_index;
     http2_header_data_t *header_data;
     http2_header_repr_info_t *header_repr_info;
     wmem_list_t *header_list;
@@ -2043,7 +2043,7 @@ get_reassembly_id_from_stream(packet_info *pinfo)
 {
     http2_session_t *session = get_http2_session(pinfo);
     http2_stream_info_t *stream_info = get_stream_info(session);
-    int flow_index = select_http2_flow_index(pinfo, session);
+    guint32 flow_index = select_http2_flow_index(pinfo, session);
 
     /* With a stream ID being 31 bits, use the most significant bit to determine the flow direction of the
      * stream. We use this for the ID in the body reassembly using the reassemble API */

@@ -2472,7 +2472,7 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, g
 
     /* Add all set bits to the header, including the ones we don't understand */
     for (bit_offset = 0; bit_offset < 32; bit_offset++) {
-      if (ext_hdrs[int_offset] & (1 << bit_offset)) {
+      if (ext_hdrs[int_offset] & (1U << bit_offset)) {
         proto_item_append_text(subtree_pi, ", %s", val_to_str(ext_hdr_num, ehdr_type_vals, "%d"));
 
         /* Also add to the top level */

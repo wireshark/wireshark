@@ -640,7 +640,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 				memset(bits_str, '.', 32);
 				bits_str[32] = '\0';
 
-				if ((val & (1 << i)))
+				if ((val & (1U << i)))
 				{
 					col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "%s%.2X", sepa, this_pid);
 					ti = proto_tree_add_uint(tree, hf_obdii_mode01_supported_pid, tvb, value_offset, oinfo->value_bytes, this_pid);

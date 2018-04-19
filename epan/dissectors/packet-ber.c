@@ -2684,7 +2684,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) calling subdissector\n"
         /* OK - we didn't find some of the elements we expected */
 
         for (set_idx = 0;  (cset = &set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
-            if (mandatory_fields & (1 << set_idx)) {
+            if (mandatory_fields & (1U << set_idx)) {
                 /* here is something we should have seen - but didn't! */
                 cause = proto_tree_add_string_format_value(
                     tree, hf_ber_error, tvb, offset, lenx, "missing_field",

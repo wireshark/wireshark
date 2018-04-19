@@ -241,7 +241,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				guint32 val = tvb_get_letohl(tvb, offset);
 
 				for (j = 0; j < 32; j++) {
-					int r = !!(val & (1 << j));
+					int r = !!(val & (1U << j));
 
 					proto_item_append_text(ti, "%s, ", r ? "T" : "F");
 					proto_tree_add_boolean(yami_param, &hfi_yami_param_value_bool, tvb, offset+(j/8), 1, r);
