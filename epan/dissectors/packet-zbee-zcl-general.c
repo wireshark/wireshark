@@ -2311,7 +2311,7 @@ decode_color_xy(gchar *s, guint16 value)
  *    none
  *---------------------------------------------------------------
  */
-void decode_setpoint(gchar *s, gint16 value)
+static void decode_setpoint(gchar *s, gint16 value)
 {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.2lf [" UTF8_DEGREE_SIGN "C]", value/100.0);
 }
