@@ -266,7 +266,7 @@ extern value_string_ext scsi_asc_val_ext;
 			 * supposed to.					\
 			 */						\
 			tvb_get_guint8(try_tvb,try_end_data_offset);	\
-	    	}							\
+		}							\
 	} /* TRY */							\
 	CATCH(BoundsError) {						\
 		if(try_short_packet){					\
