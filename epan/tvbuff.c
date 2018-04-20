@@ -483,7 +483,7 @@ tvb_captured_length(const tvbuff_t *tvb)
 static inline gint
 _tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset, rem_length;
+	guint abs_offset = 0, rem_length;
 	int   exception;
 
 	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
