@@ -227,6 +227,11 @@ set(wsutil_LIBS
 	${WIN_WSOCK32_LIBRARY}
 	${GNUTLS_LIBRARIES}
 )
+
+IF(HAVE_JSONGLIB)
+	list(APPEND wsutil_LIBS ${JSONGLIB_LIBRARIES})
+ENDIF()
+
 IF(WIN32)
 	set(wsutil_LIBS ${wsutil_LIBS} "iphlpapi.lib" "ws2_32.lib")
 ENDIF(WIN32)

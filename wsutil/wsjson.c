@@ -10,6 +10,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #include "wsjson.h"
 
 #include <string.h>
@@ -18,13 +20,22 @@
 #include <wsutil/unicode-utils.h>
 #include "log.h"
 
+#ifdef HAVE_JSONGLIB
+#include <json-glib/json-glib.h>
+#endif
+
 gboolean wsjson_is_valid_json(const guint8* buf, const size_t len)
 {
+        gboolean ret = TRUE;
+#ifdef HAVE_JSONGLIB
+        JsonParser *parser = json_parser_new();
+        GError* error;
+        ret = json_parser_load_from_data(parser, buf, len, &error);
+#else
         /* We expect no more than 1024 tokens */
         guint max_tokens = 1024;
         jsmntok_t* t;
         jsmn_parser p;
-        gboolean ret = TRUE;
         int rcode;
 
         t = g_new0(jsmntok_t, max_tokens);
@@ -54,7 +65,7 @@ gboolean wsjson_is_valid_json(const guint8* buf, const size_t len)
         }
 
         g_free(t);
-
+#endif
         return ret;
 }
 
