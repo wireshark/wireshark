@@ -562,7 +562,7 @@ static header_field_info hfi_netlink_route_ifla_carrier_changes NETLINK_ROUTE_HF
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_hwaddr NETLINK_ROUTE_HFI_INIT =
-	{ "HW Adress", "netlink-route.ifla_hwaddr", FT_BYTES, SEP_COLON,
+	{ "HW Address", "netlink-route.ifla_hwaddr", FT_BYTES, SEP_COLON,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_broadcast NETLINK_ROUTE_HFI_INIT =
