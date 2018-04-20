@@ -463,7 +463,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     /* try to find field_info first */
     if (data) {
         const gchar* message_info = (const gchar*)data;
-        /* find call_path + request or reponse part from format:
+        /* find call_path + request or response part from format:
         *   http2_content_type "," http2_path "," ("request" / "response")
         * Acording to grpc wire format guide, it will be:
         *   "application/grpc" [("+proto" / "+json" / {custom})] "," "/" service-name "/" method-name "/" "," ("request" / "response")
