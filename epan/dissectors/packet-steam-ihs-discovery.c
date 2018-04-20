@@ -1371,7 +1371,7 @@ proto_register_steam_ihs_discovery(void)
         },
         /* CMsgRemoteDeviceProofResponse */
         { &hf_steam_ihs_discovery_body_proofresponse_response,
-          { "Reponse", "steam_ihs_discovery.body_proofresponse_response",
+          { "Response", "steam_ihs_discovery.body_proofresponse_response",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         }
