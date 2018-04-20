@@ -150,10 +150,11 @@ file(APPEND "${_all_manifest_wix}" "  </Fragment>\n")
 file(APPEND "${_all_manifest_wix}" "  <Fragment>\n")
 file(APPEND "${_all_manifest_wix}" "    <ComponentGroup Id=\"CG.RequiredDependencies\">\n")
 SET(unique_file "")
-foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS} ${ZLIB_DLL}
+foreach(_dll ${GLIB2_DLLS} ${CARES_DLL} ${GCRYPT_DLLS} ${JSONGLIB_DLL}
 		${GNUTLS_DLLS} ${KERBEROS_DLLS} ${LIBSSH_DLL} ${LUA_DLL}
 		${LZ4_DLL} ${NGHTTP2_DLL} ${SBC_DLL} ${SMI_DLL} ${SNAPPY_DLL}
 		${SPANDSP_DLL} ${BCG729_DLL} ${LIBXML2_DLL} ${WINSPARKLE_DLL}
+		${ZLIB_DLL}
 		# mmdbresolve
 		${MAXMINDDB_DLL}
 	)
