@@ -128,6 +128,7 @@ static gint ett_camel_RPcause = -1;
 static gint ett_camel_stat = -1;
 static gint ett_camel_calledpartybcdnumber = -1;
 static gint ett_camel_callingpartynumber = -1;
+static gint ett_camel_originalcalledpartyid = -1;
 static gint ett_camel_locationnumber = -1;
 static gint ett_camel_additionalcallingpartynumber = -1;
 
@@ -1490,6 +1491,7 @@ void proto_register_camel(void) {
     &ett_camel_stat,
     &ett_camel_calledpartybcdnumber,
     &ett_camel_callingpartynumber,
+    &ett_camel_originalcalledpartyid,
     &ett_camel_locationnumber,
     &ett_camel_additionalcallingpartynumber,
 

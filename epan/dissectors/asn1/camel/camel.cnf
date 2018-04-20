@@ -428,12 +428,14 @@ proto_tree *subtree;
 #.FN_BODY OriginalCalledPartyID VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
+ proto_tree	*subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
- dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_originalcalledpartyid);
+ dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
