@@ -261,13 +261,13 @@ extern value_string_ext scsi_asc_val_ext;
 	TRY {
 
 #define END_TRY_SCSI_CDB_ALLOC_LEN 					\
-		    if(try_end_data_offset){				\
+		if(try_end_data_offset){				\
 			/* just verify we can read all the bytes we were\
 			 * supposed to.					\
 			 */						\
 			tvb_get_guint8(try_tvb,try_end_data_offset);	\
 	    	}							\
-	    } /* TRY */							\
+	} /* TRY */							\
 	CATCH(BoundsError) {						\
 		if(try_short_packet){					\
 			/* this was a short packet */			\
@@ -281,7 +281,7 @@ extern value_string_ext scsi_asc_val_ext;
 			 * important one				\
 			 */						\
 		}							\
-	    }								\
+	}								\
 	CATCH(ReportedBoundsError) {					\
 		if(try_short_packet){					\
 			/* this was a short packet */			\
@@ -292,7 +292,7 @@ extern value_string_ext scsi_asc_val_ext;
 			 */						\
 			THROW(ScsiBoundsError);				\
 		}							\
-	    }								\
+	}								\
 	ENDTRY;								\
     }
 
