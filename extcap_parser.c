@@ -169,6 +169,8 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
                 param_type = EXTCAP_PARAM_FILE_MUSTEXIST;
             } else if (g_ascii_strcasecmp(arg, "fileext") == 0) {
                 param_type = EXTCAP_PARAM_FILE_EXTENSION;
+            } else if (g_ascii_strcasecmp(arg, "group") == 0) {
+                param_type = EXTCAP_PARAM_GROUP;
             } else if (g_ascii_strcasecmp(arg, "name") == 0) {
                 param_type = EXTCAP_PARAM_NAME;
             } else if (g_ascii_strcasecmp(arg, "enabled") == 0) {
@@ -251,6 +253,7 @@ void extcap_free_arg(extcap_arg *a) {
     g_free(a->placeholder);
     g_free(a->fileextension);
     g_free(a->regexp);
+    g_free(a->group);
     g_free(a->device_name);
 
     if (a->range_start != NULL)
@@ -460,6 +463,11 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_VALIDATION)))
                 != NULL) {
             target_arg->regexp = g_strdup(param_value);
+        }
+
+        if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_GROUP)))
+                != NULL) {
+            target_arg->group = g_strdup(param_value);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_REQUIRED)))

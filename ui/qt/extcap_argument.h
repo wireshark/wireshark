@@ -94,6 +94,9 @@ public:
 
     void resetValue();
 
+    virtual QString group() const;
+    virtual int argNr() const;
+
     static ExtcapArgument * create(extcap_arg * argument = Q_NULLPTR, QObject * parent = Q_NULLPTR);
 
 Q_SIGNALS:
@@ -110,6 +113,7 @@ protected:
 
     extcap_arg * _argument;
     QLabel * _label;
+    int _number;
 
     const QString label_style;
 

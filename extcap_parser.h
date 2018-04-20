@@ -62,6 +62,7 @@ typedef enum {
     EXTCAP_PARAM_ENABLED,
     EXTCAP_PARAM_FILE_MUSTEXIST,
     EXTCAP_PARAM_FILE_EXTENSION,
+    EXTCAP_PARAM_GROUP,
     EXTCAP_PARAM_PARENT,
     EXTCAP_PARAM_REQUIRED,
     EXTCAP_PARAM_RELOAD,
@@ -112,6 +113,8 @@ typedef struct _extcap_arg {
     gboolean reload;
 
     gchar * regexp;
+
+    gchar * group;
 
     extcap_arg_type arg_type;
 

@@ -17,12 +17,13 @@
 #include <wireshark_application.h>
 
 #include <QMessageBox>
-#include <QMap>
+#include <QHash>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QUrl>
 #include <QDesktopServices>
+#include <QTabWidget>
 
 #include "ringbuffer.h"
 #include "ui/capture_ui_utils.h"
@@ -244,20 +245,79 @@ void ExtcapOptionsDialog::updateWidgets()
     /* find existing layout */
     if (ui->verticalLayout->children().count() > 0)
     {
-        QGridLayout * layout = (QGridLayout *)ui->verticalLayout->itemAt(0);
-        ui->verticalLayout->removeItem(layout);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        QWidget * item = ui->verticalLayout->itemAt(0)->widget();
+        if ( item )
+        {
+            ui->verticalLayout->removeItem(ui->verticalLayout->itemAt(0));
+            delete item;
+        }
     }
 
-    QGridLayout * layout = new QGridLayout();
+    QHash<QString, QWidget *> layouts;
 
     /* Load all extcap arguments */
     loadArguments();
 
+    /* exit if no arguments have been found. This is a precaution, it should
+     * never happen, that this dialog get's called without any arguments */
+    if ( extcapArguments.count() == 0 )
+    {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+        return;
+    }
+
+    QStringList groupKeys;
+    QString defaultKeyName(tr("Default"));
+    /* QMap sorts keys, therefore the groups are sorted by appearance */
+    QMap<int, QString> groups;
+
+    /* Look for all necessary tabs */
     ExtcapArgumentList::iterator iter = extcapArguments.begin();
     while ( iter != extcapArguments.end() )
     {
         argument = (ExtcapArgument *)(*iter);
+        QString groupKey = argument->group();
+        if ( groupKey.length() > 0 )
+        {
+            if ( ! groups.values().contains(groupKey) )
+                groups.insert(argument->argNr(), groupKey);
+        }
+        else if ( ! groups.keys().contains(0) )
+        {
+            groups.insert(0, defaultKeyName);
+            groupKey = defaultKeyName;
+        }
+
+        if ( ! layouts.keys().contains(groupKey) )
+        {
+            QWidget * tabWidget = new QWidget(this);
+            QGridLayout * tabLayout = new QGridLayout(tabWidget);
+            tabWidget->setLayout(tabLayout);
+
+            layouts.insert(groupKey, tabWidget);
+        }
+
+        ++iter;
+    }
+    groupKeys << groups.values();
+
+    /* Iterate over all arguments and do the following:
+     *  1. create the label for each element
+     *  2. create an editor for each element
+     *  3. add both to the layout for the tab widget
+     */
+    iter = extcapArguments.begin();
+    while ( iter != extcapArguments.end() )
+    {
+        argument = (ExtcapArgument *)(*iter);
+        QString groupKey = defaultKeyName;
+        if ( argument->group().length() > 0 )
+            groupKey = argument->group();
+
+        Q_ASSERT(layouts.keys().contains(groupKey));
+
+        QGridLayout * layout = ((QGridLayout *)layouts[groupKey]->layout());
         lblWidget = argument->createLabel((QWidget *)this);
         if ( lblWidget != NULL )
         {
@@ -285,12 +345,34 @@ void ExtcapOptionsDialog::updateWidgets()
 
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
 
-        ui->verticalLayout->addLayout(layout);
+        QWidget * mainWidget = Q_NULLPTR;
+
+        /* We should never display the dialog, if no settings are present */
+        Q_ASSERT(layouts.count() > 0);
+
+        if ( layouts.count() > 1 )
+        {
+            QTabWidget * tabs = new QTabWidget(this);
+            foreach ( QString key, groupKeys )
+            {
+                layouts[key]->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
+                tabs->addTab(layouts[key], key);
+            }
+
+            tabs->setCurrentIndex(0);
+            mainWidget = tabs;
+        }
+        else if ( layouts.count() == 1 )
+            mainWidget = layouts[layouts.keys().at(0)];
+
+        ui->verticalLayout->addWidget(mainWidget);
         ui->verticalLayout->addSpacerItem(new QSpacerItem(20, 100, QSizePolicy::Minimum, QSizePolicy::Expanding));
     }
     else
     {
-        delete layout;
+        QList<QString> keys = layouts.keys();
+        foreach ( QString key, keys )
+            delete(layouts[key]);
     }
 }
 
@@ -382,45 +464,74 @@ void ExtcapOptionsDialog::resetValues()
 {
     ExtcapArgumentList::const_iterator iter;
     QString value;
+    bool doStore = false;
 
-    if (ui->verticalLayout->children().count() > 0)
+    int count = ui->verticalLayout->count();
+    if (count > 0)
     {
-        QGridLayout * layout = (QGridLayout *)ui->verticalLayout->findChild<QGridLayout *>();
-
-        for ( int row = 0; row < layout->rowCount(); row++ )
+        QList<QLayout *> layouts;
+        if ( qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget()) )
         {
-            QWidget * child = layout->itemAtPosition(row, 1)->widget();
-
-            if ( child )
+            QTabWidget * tabs = qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget());
+            for ( int cnt = 0; cnt < tabs->count(); cnt++ )
             {
-                /* Don't need labels, the edit widget contains the extcapargument property value */
-                ExtcapArgument * arg = 0;
-                QVariant prop = child->property(QString("extcap").toLocal8Bit());
+                layouts.append(tabs->widget(cnt)->layout());
+            }
+        }
+        else
+            layouts.append(ui->verticalLayout->itemAt(0)->layout());
 
-                if ( prop.isValid() )
+        for ( int cnt = 0; cnt < layouts.count(); cnt++ )
+        {
+            QGridLayout * layout = qobject_cast<QGridLayout *>(layouts.at(cnt));
+            if ( ! layout )
+                continue;
+
+            for ( int row = 0; row < layout->rowCount(); row++ )
+            {
+                QWidget * child = Q_NULLPTR;
+                if ( layout->itemAtPosition(row, 1) )
+                    child = qobject_cast<QWidget *>(layout->itemAtPosition(row, 1)->widget());
+
+                if ( child )
                 {
-                    arg = VariantPointer<ExtcapArgument>::asPtr(prop);
+                    /* Don't need labels, the edit widget contains the extcapargument property value */
+                    ExtcapArgument * arg = 0;
+                    QVariant prop = child->property(QString("extcap").toLocal8Bit());
 
-                    /* value<> can fail */
-                    if (arg)
+                    if ( prop.isValid() )
                     {
-                        arg->resetValue();
+                        arg = VariantPointer<ExtcapArgument>::asPtr(prop);
 
-                        /* replacing the edit widget after resetting will lead to default value */
-                        layout->removeItem(layout->itemAtPosition(row, 1));
-                        QWidget * editWidget = arg->createEditor((QWidget *) this);
-                        if ( editWidget != NULL )
+                        /* value<> can fail */
+                        if (arg)
                         {
-                            editWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(arg));
-                            layout->addWidget(editWidget, row, 1, Qt::AlignVCenter);
+                            arg->resetValue();
+
+                            /* replacing the edit widget after resetting will lead to default value */
+                            QWidget * newWidget = arg->createEditor((QWidget *) this);
+                            if ( newWidget != NULL )
+                            {
+                                newWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(arg));
+                                QLayoutItem * oldItem = layout->replaceWidget(child, newWidget);
+                                if ( oldItem )
+                                {
+                                    delete child;
+                                    delete oldItem;
+                                }
+                            }
+
+                            doStore = true;
                         }
                     }
                 }
             }
+
         }
 
         /* this stores all values to the preferences */
-        storeValues();
+        if ( doStore )
+            storeValues();
     }
 }
 
