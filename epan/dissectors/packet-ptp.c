@@ -1007,8 +1007,8 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_FLAGS_SPECIFIC2_BITMASK                              0x4000
 #define PTP_V2_FLAGS_SECURITY_BITMASK                               0x8000
 
-#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_DROP                0x01
-#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_COLOR               0x02
+#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_DROP                0x01
+#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_COLOR               0x02
 
 #define PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_CURRENT               0x01
 #define PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_NEXT                  0x02
@@ -6475,18 +6475,18 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags,
-          { "timeAdressFlags", "ptp.v2.oe.smpte.timeadressflags",
+          { "timeAddressFlags", "ptp.v2.oe.smpte.timeaddressflags",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_drop,
-          { "Drop frame", "ptp.v2.oe.smpte.timeadressflags.drop",
-            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_DROP,
+          { "Drop frame", "ptp.v2.oe.smpte.timeaddressflags.drop",
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_DROP,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_color,
-          { "Color frame identification", "ptp.v2.oe.smpte.timeadressflags.color",
-            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_COLOR,
+          { "Color frame identification", "ptp.v2.oe.smpte.timeaddressflags.color",
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADDRESS_FIELD_COLOR,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_currentlocaloffset,
