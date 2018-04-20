@@ -74,15 +74,16 @@ tvb_new(const struct tvb_ops *ops)
 
 	tvb = (tvbuff_t *) g_slice_alloc(size);
 
-	tvb->next	     = NULL;
-	tvb->ops	     = ops;
-	tvb->initialized     = FALSE;
-	tvb->flags	     = 0;
-	tvb->length	     = 0;
-	tvb->reported_length = 0;
-	tvb->real_data	     = NULL;
-	tvb->raw_offset	     = -1;
-	tvb->ds_tvb	     = NULL;
+	tvb->next		 = NULL;
+	tvb->ops		 = ops;
+	tvb->initialized	 = FALSE;
+	tvb->flags		 = 0;
+	tvb->length		 = 0;
+	tvb->reported_length	 = 0;
+	tvb->contained_length	 = 0;
+	tvb->real_data		 = NULL;
+	tvb->raw_offset		 = -1;
+	tvb->ds_tvb		 = NULL;
 
 	return tvb;
 }
@@ -160,14 +161,72 @@ tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 static inline int
 validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 {
-	if (G_LIKELY(abs_offset <= tvb->length))
+	if (G_LIKELY(abs_offset <= tvb->length)) {
+		/* It's OK. */
 		return 0;
-	else if (abs_offset <= tvb->reported_length)
+	}
+
+	/*
+	 * It's not OK, but why?  Which boundaries is it
+	 * past?
+	 */
+	if (abs_offset <= tvb->contained_length) {
+		/*
+		 * It's past the captured length, but not past
+		 * the reported end of any parent tvbuffs from
+		 * which this is constructed, or the reported
+		 * end of this tvbuff, so it's out of bounds
+		 * solely because we're past the end of the
+		 * captured data.
+		 */
 		return BoundsError;
-	else if (tvb->flags & TVBUFF_FRAGMENT)
+	}
+
+	/*
+	 * There's some actual packet boundary, not just the
+	 * artificial boundary imposed by packet slicing, that
+	 * we're past.
+	 */
+	if (abs_offset <= tvb->reported_length) {
+		/*
+		 * We're within the bounds of what this tvbuff
+		 * purportedly contains, based on some length
+		 * value, but we're not within the bounds of
+		 * something from which this tvbuff was
+		 * extracted, so that length value ran past
+		 * the end of some parent tvbuff.
+		 */
+		return ContainedBoundsError;
+	}
+
+	/*
+	 * OK, we're past the bounds of what this tvbuff
+	 * purportedly contains.
+	 */
+	if (tvb->flags & TVBUFF_FRAGMENT) {
+		/*
+		 * This tvbuff is the first fragment of a larger
+		 * packet that hasn't been reassembled, so we
+		 * assume that's the source of the prblem - if
+		 * we'd reassembled the packet, we wouldn't
+		 * have gone past the end.
+		 *
+		 * That might not be true, but for at least
+		 * some forms of reassembly, such as IP
+		 * reassembly, you don't know how big the
+		 * reassembled packet is unless you reassemble
+		 * it, so, in those cases, we can't determine
+		 * whether we would have gone past the end
+		 * had we reassembled the packet.
+		 */
 		return FragmentBoundsError;
-	else
-		return ReportedBoundsError;
+	}
+
+	/*
+	 * OK, it looks as if we ran past the claimed length
+	 * of data.
+	 */
+	return ReportedBoundsError;
 }
 
 static inline int
@@ -175,10 +234,12 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 {
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
-		if ((guint) offset <= tvb->length) {
+		if (G_LIKELY((guint) offset <= tvb->length)) {
 			*offset_ptr = offset;
-		} else if ((guint) offset <= tvb->reported_length) {
+		} else if ((guint) offset <= tvb->contained_length) {
 			return BoundsError;
+		} else if ((guint) offset <= tvb->reported_length) {
+			return ContainedBoundsError;
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			return FragmentBoundsError;
 		} else {
@@ -187,10 +248,12 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 	}
 	else {
 		/* Negative offset - relative to the end of the packet. */
-		if ((guint) -offset <= tvb->length) {
+		if (G_LIKELY((guint) -offset <= tvb->length)) {
 			*offset_ptr = tvb->length + offset;
-		} else if ((guint) -offset <= tvb->reported_length) {
+		} else if ((guint) -offset <= tvb->contained_length) {
 			return BoundsError;
+		} else if ((guint) -offset <= tvb->reported_length) {
+			return ContainedBoundsError;
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			return FragmentBoundsError;
 		} else {
@@ -216,8 +279,11 @@ compute_offset_and_remaining(const tvbuff_t *tvb, const gint offset, guint *offs
 /* Computes the absolute offset and length based on a possibly-negative offset
  * and a length that is possible -1 (which means "to the end of the data").
  * Returns integer indicating whether the offset is in bounds (0) or
- * not (exception number). The integer ptrs are modified with the new offset and length.
- * No exception is thrown.
+ * not (exception number). The integer ptrs are modified with the new offset,
+ * captured (available) length, and contained length (amount that's present
+ * in the parent tvbuff based on its reported length).
+ * No exception is thrown; on success, we return 0, otherwise we return an
+ * exception for the caller to throw if appropriate.
  *
  * XXX - we return success (0), if the offset is positive and right
  * after the end of the tvbuff (i.e., equal to the length).  We do this
@@ -460,14 +526,15 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 		 * There aren't any bytes available, so throw the appropriate
 		 * exception.
 		 */
-		if (abs_offset >= tvb->reported_length) {
-			if (tvb->flags & TVBUFF_FRAGMENT) {
-				THROW(FragmentBoundsError);
-			} else {
-				THROW(ReportedBoundsError);
-			}
-		} else
+		if (abs_offset < tvb->contained_length) {
 			THROW(BoundsError);
+		} else if (abs_offset < tvb->reported_length) {
+			THROW(ContainedBoundsError);
+		} else if (tvb->flags & TVBUFF_FRAGMENT) {
+			THROW(FragmentBoundsError);
+		} else {
+			THROW(ReportedBoundsError);
+		}
 	}
 	return rem_length;
 }
@@ -540,10 +607,12 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
-		if ((guint) offset <= tvb->length) {
+		if (G_LIKELY((guint) offset <= tvb->length)) {
 			real_offset = offset;
-		} else if ((guint) offset <= tvb->reported_length) {
+		} else if ((guint) offset <= tvb->contained_length) {
 			THROW(BoundsError);
+		} else if ((guint) offset <= tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
 		} else {
@@ -552,10 +621,12 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 	}
 	else {
 		/* Negative offset - relative to the end of the packet. */
-		if ((guint) -offset <= tvb->length) {
+		if (G_LIKELY((guint) -offset <= tvb->length)) {
 			real_offset = tvb->length + offset;
-		} else if ((guint) -offset <= tvb->reported_length) {
+		} else if ((guint) -offset <= tvb->contained_length) {
 			THROW(BoundsError);
+		} else if ((guint) -offset <= tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
 		} else {
@@ -576,8 +647,10 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 
 	if (G_LIKELY(end_offset <= tvb->length))
 		return;
-	else if (end_offset <= tvb->reported_length)
+	else if (end_offset <= tvb->contained_length)
 		THROW(BoundsError);
+	else if (end_offset <= tvb->reported_length)
+		THROW(ContainedBoundsError);
 	else if (tvb->flags & TVBUFF_FRAGMENT)
 		THROW(FragmentBoundsError);
 	else
@@ -637,7 +710,7 @@ tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
  * whose headers contain an explicit length and where the calling
  * dissector's payload may include padding as well as the packet for
  * this protocol.
- * Also adjusts the data length. */
+ * Also adjusts the available and contained length. */
 void
 tvb_set_reported_length(tvbuff_t *tvb, const guint reported_length)
 {
@@ -649,6 +722,8 @@ tvb_set_reported_length(tvbuff_t *tvb, const guint reported_length)
 	tvb->reported_length = reported_length;
 	if (reported_length < tvb->length)
 		tvb->length = reported_length;
+	if (reported_length < tvb->contained_length)
+		tvb->contained_length = reported_length;
 }
 
 guint
@@ -725,19 +800,17 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 	u_offset = offset;
 	end_offset = u_offset + length;
 
-	if (end_offset <= tvb->length) {
+	if (G_LIKELY(end_offset <= tvb->length)) {
 		return tvb->real_data + u_offset;
+	} else if (end_offset <= tvb->contained_length) {
+		THROW(BoundsError);
+	} else if (end_offset <= tvb->reported_length) {
+		THROW(ContainedBoundsError);
+	} else if (tvb->flags & TVBUFF_FRAGMENT) {
+		THROW(FragmentBoundsError);
+	} else {
+		THROW(ReportedBoundsError);
 	}
-
-	if (end_offset > tvb->reported_length) {
-		if (tvb->flags & TVBUFF_FRAGMENT) {
-			THROW(FragmentBoundsError);
-		} else {
-			THROW(ReportedBoundsError);
-		}
-		/* not reached */
-	}
-	THROW(BoundsError);
 	/* not reached */
 	return NULL;
 }
@@ -2130,21 +2203,15 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
 		/*
 		 * OK, we hit the end of the tvbuff, so we should throw
 		 * an exception.
-		 *
-		 * Did we hit the end of the captured data, or the end
-		 * of the actual data?	If there's less captured data
-		 * than actual data, we presumably hit the end of the
-		 * captured data, otherwise we hit the end of the actual
-		 * data.
 		 */
-		if (tvb->length < tvb->reported_length) {
+		if (tvb->length < tvb->contained_length) {
 			THROW(BoundsError);
+		} else if (tvb->length < tvb->reported_length) {
+			THROW(ContainedBoundsError);
+		} else if (tvb->flags & TVBUFF_FRAGMENT) {
+			THROW(FragmentBoundsError);
 		} else {
-			if (tvb->flags & TVBUFF_FRAGMENT) {
-				THROW(FragmentBoundsError);
-			} else {
-				THROW(ReportedBoundsError);
-			}
+			THROW(ReportedBoundsError);
 		}
 	}
 	return (nul_offset - abs_offset) + 1;

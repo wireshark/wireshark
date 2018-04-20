@@ -259,6 +259,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
 	DISSECTOR_ASSERT(tvb->length == 0);
 	DISSECTOR_ASSERT(tvb->reported_length == 0);
+	DISSECTOR_ASSERT(tvb->contained_length == 0);
 
 	composite   = &composite_tvb->composite;
 	num_members = g_slist_length(composite->tvbs);
@@ -278,6 +279,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 		composite->start_offsets[i] = tvb->length;
 		tvb->length += member_tvb->length;
 		tvb->reported_length += member_tvb->reported_length;
+		tvb->contained_length += member_tvb->contained_length;
 		composite->end_offsets[i] = tvb->length - 1;
 		i++;
 	}

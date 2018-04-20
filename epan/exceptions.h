@@ -17,8 +17,7 @@
 #define XCEPT_GROUP_WIRESHARK 1
 
 /**
-    Index is out of range.
-    An attempt was made to read past the end of a buffer.
+    Index is beyond the captured length of the tvbuff.
     This generally means that the capture was done with a "slice"
     length or "snapshot" length less than the maximum packet size,
     and a link-layer packet was cut short by that, so not all of the
@@ -27,28 +26,37 @@
 #define BoundsError		1
 
 /**
-    Index is beyond reported length (not cap_len)
-    An attempt was made to read past the logical end of a buffer. This
-    differs from a BoundsError in that the parent protocol established a
-    limit past which this dissector should not process in the buffer and that
-    limit was exceeded.
+    Index is beyond the contained length of the tvbuff.
+    This generally means that the tvbuff was constructed as
+    a subset of a parent tvbuff, based on a length specified
+    by data in the packet, but the length in question runs
+    past the reported length of the data in the parent tvbuff.
+    That means that the packet is invalid, as the data indicating
+    the length says the length exceeds what's contained in the
+    packet.  It is therefore currently reported as a "Malformed
+    packet".
+**/
+#define ContainedBoundsError	2
+
+/**
+    Index is beyond the reported length of the tvbuff.
     This generally means that the packet is invalid, i.e. whatever
     code constructed the packet and put it on the wire didn't put enough
     data into it.  It is therefore currently reported as a "Malformed
     packet".
 **/
-#define ReportedBoundsError	2
+#define ReportedBoundsError	3
 
 /**
-    Index is beyond fragment length but not reported length.
+    Index is beyond the fragment length but not the reported length.
     This means that the packet wasn't reassembled.
 **/
-#define FragmentBoundsError	3
+#define FragmentBoundsError	4
 
 /**
     During dfilter parsing
 **/
-#define TypeError		4
+#define TypeError		5
 
 /**
     A bug was detected in a dissector.
@@ -59,7 +67,7 @@
 
     Instead, use the DISSECTOR_ASSERT(), etc. macros in epan/proto.h.
 **/
-#define DissectorError		5
+#define DissectorError		6
 
 /**
     Index is out of range.
@@ -70,13 +78,13 @@
     to get the "size" of lun list back after which the initiator will
     reissue the command with an allocation_length that is big enough.
 **/
-#define ScsiBoundsError		6
+#define ScsiBoundsError		7
 
 /**
     Running out of memory.
     A dissector tried to allocate memory but that failed.
 **/
-#define OutOfMemoryError	7
+#define OutOfMemoryError	8
 
 /**
     The reassembly state machine was passed a bad fragment offset,
@@ -85,7 +93,7 @@
     contains a bad fragment offset, the dissector shouldn't have to figure
     that out by itself since that's what the reassembly machine is for.
 **/
-#define ReassemblyError         8
+#define ReassemblyError         9
 
 /*
  * Catch errors that, if you're calling a subdissector and catching
@@ -111,14 +119,14 @@
  * separately.
  */
 #define CATCH_NONFATAL_ERRORS \
-	CATCH3(ReportedBoundsError, ScsiBoundsError, ReassemblyError)
+	CATCH4(ReportedBoundsError, ContainedBoundsError, ScsiBoundsError, ReassemblyError)
 
 /*
  * Catch all bounds-checking errors.
  */
 #define CATCH_BOUNDS_ERRORS \
-	CATCH4(BoundsError, FragmentBoundsError, ReportedBoundsError, \
-	       ScsiBoundsError)
+	CATCH5(BoundsError, FragmentBoundsError, ReportedBoundsError, \
+	       ContainedBoundsError, ScsiBoundsError)
 
 /*
  * Catch all bounds-checking errors, and catch dissector bugs.
@@ -126,8 +134,9 @@
  * go all the way to the top level and get reported immediately.
  */
 #define CATCH_BOUNDS_AND_DISSECTOR_ERRORS \
-	CATCH6(BoundsError, FragmentBoundsError, ReportedBoundsError, \
-	       ScsiBoundsError, DissectorError, ReassemblyError)
+	CATCH7(BoundsError, FragmentBoundsError, ContainedBoundsError, \
+	       ReportedBoundsError, ScsiBoundsError, DissectorError, \
+	       ReassemblyError)
 
 /* Usage:
  *
@@ -156,6 +165,10 @@
  * }
  *
  * CATCH6(exception1, exception2, exception3, exception4, exception5, exception6) {
+ * 	code;
+ * }
+ *
+ * CATCH7(exception1, exception2, exception3, exception4, exception5, exception6, exception7) {
  * 	code;
  * }
  *
@@ -327,6 +340,18 @@
 #define CATCH6(u,v,w,x,y,z) \
 	if (except_state == 0 && exc != 0 && \
 	    (exc->except_id.except_code == (u) || \
+	     exc->except_id.except_code == (v) || \
+	     exc->except_id.except_code == (w) || \
+	     exc->except_id.except_code == (x) || \
+	     exc->except_id.except_code == (y) || \
+	     exc->except_id.except_code == (z)) && \
+	    (except_state|=EXCEPT_CAUGHT)) \
+		/* user's code goes here */
+
+#define CATCH7(t, u,v,w,x,y,z) \
+	if (except_state == 0 && exc != 0 && \
+	    (exc->except_id.except_code == (t) || \
+	     exc->except_id.except_code == (u) || \
 	     exc->except_id.except_code == (v) || \
 	     exc->except_id.except_code == (w) || \
 	     exc->except_id.except_code == (x) || \

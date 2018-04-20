@@ -659,7 +659,7 @@ static const value_string scsi_disc_info_disc_type_val[] = {
 };
 
 static void
-dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo, proto_tree *tree,
+dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset_a, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata)
 {
@@ -946,7 +946,7 @@ static const value_string scsi_rti_address_type_val[] = {
 };
 
 static void
-dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo, proto_tree *tree,
+dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset_a, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata)
 

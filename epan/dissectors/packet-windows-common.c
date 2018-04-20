@@ -86,12 +86,12 @@ static gint ett_nt_ace_object = -1;
 static gint ett_nt_ace_object_flags = -1;
 static gint ett_nt_security_information = -1;
 
+static expert_field ei_nt_owner_sid_beyond_data = EI_INIT;
 static expert_field ei_nt_owner_sid_beyond_reassembled_data = EI_INIT;
+static expert_field ei_nt_ace_extends_beyond_data = EI_INIT;
 static expert_field ei_nt_ace_extends_beyond_reassembled_data = EI_INIT;
-static expert_field ei_nt_ace_extends_beyond_capture = EI_INIT;
+static expert_field ei_nt_group_sid_beyond_data = EI_INIT;
 static expert_field ei_nt_group_sid_beyond_reassembled_data = EI_INIT;
-static expert_field ei_nt_group_sid_beyond_captured_data = EI_INIT;
-static expert_field ei_nt_owner_sid_beyond_captured_data = EI_INIT;
 static expert_field ei_nt_item_offs_out_of_range = EI_INIT;
 
 
@@ -2189,8 +2189,8 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 		  }
 		}
 
-		CATCH(BoundsError) {
-			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_capture, tvb, offset_v, 0);
+		CATCH(ContainedBoundsError) {
+			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_data, tvb, offset_v, 0);
 			missing_data = TRUE;
 		}
 
@@ -2430,8 +2430,8 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	        end_offset = offset_v;
 	    }
 
-	    CATCH(BoundsError) {
-	      proto_tree_add_expert(tree, pinfo, &ei_nt_owner_sid_beyond_captured_data, tvb, item_offset, 0);
+	    CATCH(ContainedBoundsError) {
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_owner_sid_beyond_data, tvb, item_offset, 0);
 	    }
 
 	    CATCH(ReportedBoundsError) {
@@ -2455,8 +2455,8 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	        end_offset = offset_v;
 	    }
 
-	    CATCH(BoundsError) {
-	      proto_tree_add_expert(tree, pinfo, &ei_nt_group_sid_beyond_captured_data, tvb, item_offset, 0);
+	    CATCH(ContainedBoundsError) {
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_group_sid_beyond_data, tvb, item_offset, 0);
 	    }
 
 	    CATCH(ReportedBoundsError) {
@@ -2888,11 +2888,11 @@ proto_do_register_windows_common(int proto_smb)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_nt_ace_extends_beyond_capture, { "nt.ace_extends_beyond_capture", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of captured data", EXPFILL }},
+		{ &ei_nt_ace_extends_beyond_data, { "nt.ace_extends_beyond_data", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of data", EXPFILL }},
 		{ &ei_nt_ace_extends_beyond_reassembled_data, { "nt.ace_extends_beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of reassembled data", EXPFILL }},
-		{ &ei_nt_owner_sid_beyond_captured_data, { "nt.owner_sid.beyond_captured_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of captured data", EXPFILL }},
+		{ &ei_nt_owner_sid_beyond_data, { "nt.owner_sid.beyond_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of data", EXPFILL }},
 		{ &ei_nt_owner_sid_beyond_reassembled_data, { "nt.owner_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of reassembled data", EXPFILL }},
-		{ &ei_nt_group_sid_beyond_captured_data, { "nt.group_sid.beyond_captured_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of captured data", EXPFILL }},
+		{ &ei_nt_group_sid_beyond_data, { "nt.group_sid.beyond_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of data", EXPFILL }},
 		{ &ei_nt_group_sid_beyond_reassembled_data, { "nt.group_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of reassembled data", EXPFILL }},
 		{ &ei_nt_item_offs_out_of_range, { "nt.item_offset.out_of_range", PI_MALFORMED, PI_ERROR, "Item offset is out of range", EXPFILL }},
 	};

@@ -64,10 +64,11 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 
 	tvb = tvb_new(&tvb_real_ops);
 
-	tvb->real_data       = data;
-	tvb->length          = length;
-	tvb->reported_length = reported_length;
-	tvb->initialized     = TRUE;
+	tvb->real_data           = data;
+	tvb->length              = length;
+	tvb->reported_length     = reported_length;
+	tvb->contained_length    = reported_length;
+	tvb->initialized         = TRUE;
 
 	/*
 	 * This is the top-level real tvbuff for this data source,
