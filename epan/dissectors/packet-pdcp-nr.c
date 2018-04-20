@@ -1317,7 +1317,6 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* Last 4 bytes are MAC */
         guint32 mac = tvb_get_ntohl(payload_tvb, mac_offset);
         proto_tree_add_item(pdcp_tree, hf_pdcp_nr_mac, payload_tvb, mac_offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x", mac);
     }
