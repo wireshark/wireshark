@@ -1,4 +1,4 @@
-/* wsjsmn.c
+/* wsjson.c
  * Utility to check if a payload is json using libjsmn
  *
  * Copyright 2016, Dario Lombardo
@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "wsjsmn.h"
+#include "wsjson.h"
 
 #include <string.h>
 #include <wsutil/jsmn.h>
@@ -58,7 +58,7 @@ gboolean jsmn_is_json(const guint8* buf, const size_t len)
         return ret;
 }
 
-int wsjsmn_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
+int wsjson_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
 {
         jsmn_parser p;
 
@@ -66,7 +66,7 @@ int wsjsmn_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
         return jsmn_parse(&p, buf, strlen(buf), tokens, max_tokens);
 }
 
-gboolean wsjsmn_unescape_json_string(const char *input, char *output)
+gboolean wsjson_unescape_json_string(const char *input, char *output)
 {
         while (*input) {
                 char ch = *input++;

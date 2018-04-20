@@ -68,7 +68,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	ws_mempbrk_int.h
 	ws_pipe.h
 	ws_printf.h
-	wsjsmn.h
+	wsjson.h
 	xtea.h
 )
 
@@ -116,7 +116,7 @@ set(WSUTIL_COMMON_FILES
 	ws_mempbrk.c
 	ws_pipe.c
 	wsgcrypt.c
-	wsjsmn.c
+	wsjson.c
 	xtea.c
 )
 

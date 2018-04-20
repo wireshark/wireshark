@@ -18,7 +18,7 @@
 
 #include <glib.h>
 
-#include <wsutil/wsjsmn.h>
+#include <wsutil/wsjson.h>
 #include <wsutil/ws_printf.h>
 
 #include <file.h>
@@ -79,7 +79,7 @@ static GHashTable *filter_table = NULL;
 static gboolean
 json_unescape_str(char *input)
 {
-	return wsjsmn_unescape_json_string(input, input);
+	return wsjson_unescape_json_string(input, input);
 }
 
 static const char *
@@ -4008,7 +4008,7 @@ sharkd_session_main(void)
 		/* every command is line seperated JSON */
 		int ret;
 
-		ret = wsjsmn_parse(buf, NULL, 0);
+		ret = wsjson_parse(buf, NULL, 0);
 		if (ret < 0)
 		{
 			fprintf(stderr, "invalid JSON -> closing\n");
@@ -4026,7 +4026,7 @@ sharkd_session_main(void)
 
 		memset(tokens, 0, ret * sizeof(jsmntok_t));
 
-		ret = wsjsmn_parse(buf, tokens, ret);
+		ret = wsjson_parse(buf, tokens, ret);
 		if (ret < 0)
 		{
 			fprintf(stderr, "invalid JSON(2) -> closing\n");

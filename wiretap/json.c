@@ -13,7 +13,7 @@
 #include "file_wrappers.h"
 
 #include "json.h"
-#include <wsutil/wsjsmn.h>
+#include <wsutil/wsjson.h>
 
 static gboolean json_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
