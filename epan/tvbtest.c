@@ -335,7 +335,7 @@ run_tests(void)
 		tvb_set_free_cb(tvb_large[i], g_free);
 	}
 
-	/* Test the TVBUFF_REAL_DATA objects. */
+	/* Test the "real" tvbuff objects. */
 	test(tvb_small[0], "Small 0", small[0], small_length[0], small_reported_length[0]);
 	test(tvb_small[1], "Small 1", small[1], small_length[1], small_reported_length[1]);
 	test(tvb_small[2], "Small 2", small[2], small_length[2], small_reported_length[2]);
@@ -374,7 +374,7 @@ run_tests(void)
 	tvb_subset[5]		  = tvb_new_subset_length_caplen(tvb_subset[2], 4, 8, 9);
 	subset[5]		  = &small[1][4];
 
-	/* Test the TVBUFF_SUBSET objects. */
+	/* Test the "subset" tvbuff objects. */
 	test(tvb_subset[0], "Subset 0", subset[0], subset_length[0], subset_reported_length[0]);
 	test(tvb_subset[1], "Subset 1", subset[1], subset_length[1], subset_reported_length[1]);
 	test(tvb_subset[2], "Subset 2", subset[2], subset_length[2], subset_reported_length[2]);
@@ -464,7 +464,7 @@ run_tests(void)
 	tvb_composite_append(tvb_comp[5], tvb_comp[3]);
 	tvb_composite_finalize(tvb_comp[5]);
 
-	/* Test the TVBUFF_COMPOSITE objects. */
+	/* Test the "composite" tvbuff objects. */
 	test(tvb_comp[0], "Composite 0", comp[0], comp_length[0], comp_reported_length[0]);
 	test(tvb_comp[1], "Composite 1", comp[1], comp_length[1], comp_reported_length[1]);
 	test(tvb_comp[2], "Composite 2", comp[2], comp_length[2], comp_reported_length[2]);

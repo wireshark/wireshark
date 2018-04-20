@@ -79,18 +79,18 @@ typedef struct tvbuff tvbuff_t;
  * @{
  */
 
-/** TVBUFF_REAL_DATA contains a guint8* that points to real data.
+/** A "real" tvbuff contains a guint8* that points to real data.
  * The data is allocated and contiguous.
  *
- * TVBUFF_SUBSET has a backing tvbuff. The TVBUFF_SUBSET is a "window"
- * through which the program sees only a portion of the backing tvbuff.
+ * A "subset" tvbuff has a backing tvbuff. It is a "window" through
+ * which the program sees only a portion of the backing tvbuff.
  *
- * TVBUFF_COMPOSITE combines multiple tvbuffs sequentially to produce
- * a larger byte array.
+ * A "composite" tvbuff combines multiple tvbuffs sequentially to
+ * produce a larger byte array.
  *
  * tvbuff's of any type can be used as the backing-tvbuff of a
- * TVBUFF_SUBSET or as the member of a TVBUFF_COMPOSITE.
- * TVBUFF_COMPOSITEs can have member-tvbuffs of different types.
+ * "subset" tvbuff or as a member of a "composite" tvbuff.
+ * "composite" tvbuffs can have member-tvbuffs of different types.
  *
  * Once a tvbuff is create/initialized/finalized, the tvbuff is read-only.
  * That is, it cannot point to any other data. A new tvbuff must be created if
@@ -133,18 +133,18 @@ WS_DLL_PUBLIC void tvb_free_chain(tvbuff_t *tvb);
 /** Set a callback function to call when a tvbuff is actually freed
  * One argument is passed to that callback --- a void* that points
  * to the real data. Obviously, this only applies to a
- * TVBUFF_REAL_DATA tvbuff. */
+ * "real" tvbuff. */
 WS_DLL_PUBLIC void tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func);
 
-/** Attach a TVBUFF_REAL_DATA tvbuff to a parent tvbuff. This connection
- * is used during a tvb_free_chain()... the "child" TVBUFF_REAL_DATA acts
- * as if it is part of the chain-of-creation of the parent tvbuff, although it
+/** Attach a "real" tvbuff to a parent tvbuff. This connection is used
+ * during a tvb_free_chain()... the "child" "real" tvbuff acts as if it
+ * is part of the chain-of-creation of the parent tvbuff, although it
  * isn't. This is useful if you need to take the data from some tvbuff,
- * run some operation on it, like decryption or decompression, and make a new
- * tvbuff from it, yet want the new tvbuff to be part of the chain. The reality
- * is that the new tvbuff *is* part of the "chain of creation", but in a way
- * that these tvbuff routines are ignorant of. Use this function to make
- * the tvbuff routines knowledgable of this fact. */
+ * run some operation on it, like decryption or decompression, and make
+ * a new tvbuff from it, yet want the new tvbuff to be part of the chain.
+ * The reality is that the new tvbuff *is* part of the "chain of creation",
+ * but in a way that these tvbuff routines are ignorant of. Use this
+ * function to make the tvbuff routines knowledgable of this fact. */
 WS_DLL_PUBLIC void tvb_set_child_real_data_tvbuff(tvbuff_t *parent,
     tvbuff_t *child);
 
@@ -436,8 +436,8 @@ WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset,
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in
- * different TVBUFF_REAL_DATA tvbuffs. This function assumes that the
- * target memory is already allocated; it does not allocate or free the
+ * different "real" tvbuffs. This function assumes that the target
+ * memory is already allocated; it does not allocate or free the
  * target memory. */
 WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset,
     size_t length);
@@ -480,7 +480,7 @@ WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
  * guint8* points to read-only data that the tvbuff manages.
  *
  * Return a pointer into our buffer if the data asked for via 'offset'/'length'
- * is contiguous (which might not be the case for TVBUFF_COMPOSITE). If the
+ * is contiguous (which might not be the case for a "composite" tvbuff). If the
  * data is not contiguous, a tvb_memdup() is called for the entire buffer
  * and the pointer to the newly-contiguous data is returned. This dynamically-
  * allocated memory will be freed when the tvbuff is freed, after the
