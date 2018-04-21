@@ -25,7 +25,7 @@ extern "C" {
 /**
  * Check if a buffer is json an returns true if it is.
  */
-WS_DLL_PUBLIC gboolean jsmn_is_json(const guint8* buf, const size_t len);
+WS_DLL_PUBLIC gboolean wsjson_is_valid_json(const guint8* buf, const size_t len);
 
 WS_DLL_PUBLIC int wsjson_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
 

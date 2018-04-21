@@ -1,5 +1,5 @@
 /* wsjson.c
- * Utility to check if a payload is json using libjsmn
+ * Utility to check if a payload is json using other libraries.
  *
  * Copyright 2016, Dario Lombardo
  *
@@ -18,7 +18,7 @@
 #include <wsutil/unicode-utils.h>
 #include "log.h"
 
-gboolean jsmn_is_json(const guint8* buf, const size_t len)
+gboolean wsjson_is_valid_json(const guint8* buf, const size_t len)
 {
         /* We expect no more than 1024 tokens */
         guint max_tokens = 1024;
