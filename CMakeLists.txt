@@ -1277,6 +1277,8 @@ set_target_properties(checkAPI
 		EXCLUDE_FROM_DEFAULT_BUILD True
 )
 
+include( UseCheckAPI )
+
 add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
@@ -3193,7 +3195,6 @@ else ()
 	endif()
 endif()
 
-include( UseCheckAPI )
 CHECKAPI(
 	NAME
 	  main

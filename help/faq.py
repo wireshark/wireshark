@@ -570,8 +570,7 @@ answer("""
 Many distributions have separate Wireshark packages, one for non-GUI
 components such as TShark, editcap, dumpcap, etc. and one for the GUI.
 If this is the case on your system, there's probably a separate package
-named <code>wireshark-gnome</code> or <code>wireshark-gtk+</code>.  Find it and
-install it.
+named <code>wireshark-qt</code>.  Find it and install it.
 """)
 
 
@@ -636,25 +635,6 @@ which it is installed before searching the directory with the version of
 """)
 
 question("""
-When I try to build Wireshark on Solaris, why does the link fail
-complaining that <code>plugin_list</code> is undefined?
-""")
-
-answer("""
-This appears to be due to a problem with some versions of the GTK+ and
-GLib packages from www.sunfreeware.org; un-install those packages, and
-try getting the 1.2.10 versions from that site, or the versions from <a
-href="http://www.thewrittenword.com">The Written Word</a>, or the
-versions from Sun's GNOME distribution, or the versions from the
-supplemental software CD that comes with the Solaris media kit, or build
-them from source from <a href="http://www.gtk.org/">the GTK Web
-site</a>.  Then re-run the configuration script, and try rebuilding
-Wireshark.  (If you get the 1.2.10 versions from www.sunfreeware.org, and
-the problem persists, un-install them and try installing one of the
-other versions mentioned.)
-""")
-
-question("""
 When I try to build Wireshark on Windows, why does the build fail because
 of conflicts between <code>winsock.h</code> and <code>winsock2.h</code>?
 """)
@@ -681,28 +661,6 @@ same version as the version of WinPcap you have installed.
 section("Starting Wireshark")
 #################################################################
 
-
-question("""Why does Wireshark crash with a Bus Error when I try to run
-it on Solaris 8?""")
-
-answer("""
-Some versions of the GTK+ library from www.sunfreeware.org appear to be
-buggy, causing Wireshark to drop core with a Bus Error.  Un-install those
-packages, and try getting the 1.2.10 version from that site, or the
-version from <a href="http://www.thewrittenword.com">The Written
-Word</a>, or the version from Sun's GNOME distribution, or the version
-from the supplemental software CD that comes with the Solaris media kit,
-or build it from source from <a href="http://www.gtk.org/">the GTK Web
-site</a>.  Update the GLib library to the 1.2.10 version, from the same
-source, as well.  (If you get the 1.2.10 versions from
-www.sunfreeware.org, and the problem persists, un-install them and try
-installing one of the other versions mentioned.)
-
-<br>
-
-Similar problems may exist with older versions of GTK+ for earlier
-versions of Solaris.
-""")
 
 question("""When I try to run Wireshark, why does it complain about
 <code>sprint_realloc_objid</code> being undefined?""")
