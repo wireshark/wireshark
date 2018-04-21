@@ -153,12 +153,6 @@ typedef struct quic_cid {
     guint8      cid[18];
 } quic_cid_t;
 
-/** Per-packet information about QUIC, populated on the first pass. */
-typedef struct quic_packet_info {
-    guint64         packet_number;  /**< Reconstructed full packet number. */
-    quic_decrypt_result_t   decryption;
-} quic_packet_info_t;
-
 /**
  * Packet protection state for an endpoint.
  */
@@ -169,8 +163,19 @@ typedef struct quic_pp_state {
     gboolean        key_phase : 1;  /**< Current key phase. */
 } quic_pp_state_t;
 
+/** Singly-linked list of Connection IDs. */
+typedef struct quic_cid_item quic_cid_item_t;
+struct quic_cid_item {
+    struct quic_cid_item   *next;
+    quic_cid_t              data;
+};
+
+/**
+ * State for a single QUIC connection, identified by one or more Destination
+ * Connection IDs (DCID).
+ */
 typedef struct quic_info_data {
-    guint32 version;
+    guint32         version;
     address         server_address;
     guint16         server_port;
     gboolean        skip_decryption : 1; /**< Set to 1 if no keys are available. */
@@ -180,9 +185,34 @@ typedef struct quic_info_data {
     tls13_cipher    server_handshake_cipher;
     quic_pp_state_t client_pp;
     quic_pp_state_t server_pp;
-    guint64 max_client_pkn;
-    guint64 max_server_pkn;
+    guint64         max_client_pkn;
+    guint64         max_server_pkn;
+    quic_cid_item_t client_cids;    /**< SCID of client from first Initial Packet. */
+    quic_cid_item_t server_cids;    /**< SCID of server from first Retry/Handshake. */
+    quic_cid_t      client_dcid_initial;    /**< DCID from Initial Packet. */
 } quic_info_data_t;
+
+/** Per-packet information about QUIC, populated on the first pass. */
+typedef struct quic_packet_info {
+    quic_info_data_t       *conn;
+    guint64                 packet_number;  /**< Reconstructed full packet number. */
+    quic_decrypt_result_t   decryption;
+    gboolean                from_server : 1;
+} quic_packet_info_t;
+
+/**
+ * Maps CID (quic_cid_t *) to a QUIC Connection (quic_info_data_t *).
+ * This assumes that the CIDs are not shared between two different connections
+ * (potentially with different versions) as that would break dissection.
+ *
+ * These mappings are authorative. For example, Initial.SCID is stored in
+ * quic_client_connections while Retry.SCID is stored in
+ * quic_server_connections. Retry.DCID should normally correspond to an entry in
+ * quic_client_connections.
+ */
+static wmem_map_t *quic_client_connections, *quic_server_connections;
+static wmem_map_t *quic_initial_connections;    /* Initial.DCID -> connection */
+static wmem_list_t *quic_connections;   /* All unique connections. */
 
 /* Returns the QUIC draft version or 0 if not applicable. */
 static inline guint8 quic_draft_version(guint32 version) {
@@ -251,12 +281,14 @@ static const value_string quic_cid_len_vals[] = {
 #define QUIC_LPT_INITIAL    0x7F
 #define QUIC_LPT_RETRY      0x7E
 #define QUIC_LPT_HANDSHAKE  0x7D
+#define QUIC_LPT_0RTT       0x7C
+#define QUIC_SHORT_PACKET   0xff    /* dummy value that is definitely not LPT */
 
 static const value_string quic_long_packet_type_vals[] = {
     { QUIC_LPT_INITIAL, "Initial" },
     { QUIC_LPT_RETRY, "Retry" },
     { QUIC_LPT_HANDSHAKE, "Handshake" },
-    { 0x7C, "0-RTT Protected" },
+    { QUIC_LPT_0RTT, "0-RTT Protected" },
     { 0, NULL }
 };
 
@@ -387,16 +419,21 @@ static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
 static guint64
 dissect_quic_packet_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
                            quic_info_data_t *quic_info, quic_packet_info_t *quic_packet,
-                           gboolean from_server, guint pkn_len)
+                           guint pkn_len)
 {
     proto_item *ti;
     guint64     pkn;
 
     proto_tree_add_item_ret_uint64(tree, hf_quic_packet_number, tvb, offset, pkn_len, ENC_BIG_ENDIAN, &pkn);
 
+    if (!quic_info) {
+        // if not part of a connection, the full PKN cannot be reconstructed.
+        return pkn;
+    }
+
     /* Sequential first pass, try to reconstruct full packet number. */
     if (!PINFO_FD_VISITED(pinfo)) {
-        if (from_server) {
+        if (quic_packet->from_server) {
             pkn = quic_pkt_adjust_pkt_num(quic_info->max_server_pkn, pkn, 8 * pkn_len);
             quic_info->max_server_pkn = pkn;
         } else {
@@ -425,6 +462,216 @@ cid_to_string(const quic_cid_t *cid)
     bytes_to_hexstr(str, cid->cid, cid->len);
     return str;
 }
+
+/* QUIC Connection tracking. {{{ */
+static guint
+quic_connection_hash(gconstpointer key)
+{
+    const quic_cid_t *cid = (const quic_cid_t *)key;
+
+    return wmem_strong_hash((const guint8 *)cid, cid->len);
+}
+
+static gboolean
+quic_connection_equal(gconstpointer a, gconstpointer b)
+{
+    const quic_cid_t *cid1 = (const quic_cid_t *)a;
+    const quic_cid_t *cid2 = (const quic_cid_t *)b;
+
+    return cid1->len == cid2->len && !memcmp(cid1->cid, cid2->cid, cid1->len);
+}
+
+static gboolean
+quic_cids_has_match(const quic_cid_item_t *items, const quic_cid_t *raw_cid)
+{
+    while (items) {
+        const quic_cid_t *cid = &items->data;
+        // "raw_cid" potentially has some trailing data that is not part of the
+        // actual CID, so accept any prefix match against "cid".
+        // Note that this explicitly matches an empty CID.
+        if (raw_cid->len >= cid->len && !memcmp(raw_cid->cid, cid->cid, cid->len)) {
+            return TRUE;
+        }
+        items = items->next;
+    }
+    return FALSE;
+}
+
+/**
+ * Tries to lookup a matching connection (Connection ID is optional).
+ * If connection is found, "from_server" is set accordingly.
+ */
+static quic_info_data_t *
+quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *from_server)
+{
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-11#section-6.1
+     *
+     * "If the packet has a Destination Connection ID corresponding to an
+     * existing connection, QUIC processes that packet accordingly."
+     * "If the Destination Connection ID is zero length and the packet matches
+     * the address/port tuple of a connection where the host did not require
+     * connection IDs, QUIC processes the packet as part of that connection."
+     */
+    quic_info_data_t *conn = NULL;
+    gboolean check_ports = FALSE;
+
+    if (dcid && dcid->len > 0) {
+        conn = (quic_info_data_t *) wmem_map_lookup(quic_client_connections, dcid);
+        if (conn) {
+            // DCID recognized by client, so it was from server.
+            *from_server = TRUE;
+            // On collision (both client and server choose the same CID), check
+            // the port to learn about the side.
+            // This is required for supporting draft -10 which has a single CID.
+            check_ports = !!wmem_map_lookup(quic_server_connections, dcid);
+        } else {
+            conn = (quic_info_data_t *) wmem_map_lookup(quic_server_connections, dcid);
+            if (conn) {
+                // DCID recognized by server, so it was from client.
+                *from_server = FALSE;
+            }
+        }
+    } else {
+        conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+        if (conv) {
+            conn = (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
+            check_ports = !!conn;
+        }
+    }
+
+    if (check_ports) {
+        *from_server = conn->server_port == pinfo->srcport &&
+                addresses_equal(&conn->server_address, &pinfo->src);
+    }
+
+    return conn;
+}
+
+/**
+ * Try to find a QUIC connection based on DCID. For short header packets, DCID
+ * will be modified in order to find the actual length.
+ * DCID can be empty, in that case a connection is looked up by address only.
+ */
+static quic_info_data_t *
+quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
+                     quic_cid_t *dcid, gboolean *from_server)
+{
+    gboolean is_long_packet = long_packet_type != QUIC_SHORT_PACKET;
+    quic_info_data_t *conn = NULL;
+
+    if ((long_packet_type == QUIC_LPT_INITIAL || long_packet_type == QUIC_LPT_0RTT) && dcid->len > 0) {
+        conn = (quic_info_data_t *) wmem_map_lookup(quic_initial_connections, dcid);
+    } else {
+        conn = quic_connection_find_dcid(pinfo, dcid, from_server);
+    }
+
+    if (!is_long_packet && !conn) {
+        // For short packets, first try to find a match based on the address.
+        conn = quic_connection_find_dcid(pinfo, NULL, from_server);
+        if (conn) {
+            if ((from_server && !quic_cids_has_match(&conn->server_cids, dcid)) ||
+                (!from_server && !quic_cids_has_match(&conn->client_cids, dcid))) {
+                // Connection does not match packet.
+                conn = NULL;
+            }
+        }
+
+        // No match found so far, potentially connection migration. Length of
+        // actual DCID is unknown, so just keep decrementing until found.
+        while (!conn && dcid->len > 4) {
+            dcid->len--;
+            conn = quic_connection_find_dcid(pinfo, dcid, from_server);
+        }
+        if (!conn) {
+            // No match found, truncate DCID (not really needed, but this
+            // ensures that debug prints clearly show that DCID is invalid).
+            dcid->len = 0;
+        }
+    }
+    return conn;
+}
+
+/** Create a new QUIC Connection based on a Client Initial packet. */
+static quic_info_data_t *
+quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *scid, const quic_cid_t *dcid)
+{
+    quic_info_data_t *conn = NULL;
+
+    conn = wmem_new0(wmem_file_scope(), quic_info_data_t);
+    wmem_list_append(quic_connections, conn);
+    conn->version = version;
+    copy_address_wmem(wmem_file_scope(), &conn->server_address, &pinfo->dst);
+    conn->server_port = pinfo->destport;
+
+    // Key connection by Client CID (if provided).
+    if (!is_quic_draft_max(version, 10) && scid->len) {
+        memcpy(&conn->client_cids.data, scid, sizeof(quic_cid_t));
+        wmem_map_insert(quic_client_connections, &conn->client_cids.data, conn);
+    }
+    if (dcid->len > 0) {
+        // According to the spec, the Initial Packet DCID MUST be at least 8
+        // bytes, but non-conforming implementations could exist.
+        memcpy(&conn->client_dcid_initial, dcid, sizeof(quic_cid_t));
+        wmem_map_insert(quic_initial_connections, &conn->client_dcid_initial, conn);
+    }
+
+    // For faster lookups without having to check DCID
+    conversation_t *conv = find_or_create_conversation(pinfo);
+    conversation_add_proto_data(conv, proto_quic, conn);
+
+    return conn;
+}
+
+/** Create or update a connection. */
+static void
+quic_connection_create_or_update(quic_info_data_t **conn_p,
+                                 packet_info *pinfo, guint32 long_packet_type,
+                                 guint32 version, const quic_cid_t *scid,
+                                 const quic_cid_t *dcid, gboolean from_server)
+{
+    quic_info_data_t *conn = *conn_p;
+
+    switch (long_packet_type) {
+    case QUIC_LPT_INITIAL:
+        // The first Initial Packet creates a new connection.
+        if (!conn) {
+            *conn_p = quic_connection_create(pinfo, version, scid, dcid);
+        }
+        break;
+    case QUIC_LPT_RETRY:
+    case QUIC_LPT_HANDSHAKE:
+        // Remember CID from first server Retry/Handshake packet
+        if (conn && conn->server_cids.data.len == 0 && from_server) {
+            memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
+            if (scid->len) {
+                wmem_map_insert(quic_server_connections, &conn->server_cids.data, conn);
+            }
+
+            // in draft -10, the Initial Packet CID is useless for tracking,
+            // instead the CID from this Handshake message is used.
+            if (is_quic_draft_max(version, 10)) {
+                DISSECTOR_ASSERT(scid->len);
+                memcpy(&conn->client_cids.data, scid, sizeof(quic_cid_t));
+                wmem_map_insert(quic_client_connections, &conn->client_cids.data, conn);
+            }
+        }
+        break;
+    }
+}
+
+static void
+quic_connection_destroy(quic_info_data_t *conn)
+{
+    gcry_cipher_close(conn->client_handshake_cipher.hd);
+    gcry_cipher_close(conn->server_handshake_cipher.hd);
+
+    gcry_cipher_close(conn->client_pp.cipher[0].hd);
+    gcry_cipher_close(conn->client_pp.cipher[1].hd);
+    gcry_cipher_close(conn->server_pp.cipher[0].hd);
+    gcry_cipher_close(conn->server_pp.cipher[1].hd);
+}
+/* QUIC Connection tracking. }}} */
+
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static int
@@ -1147,6 +1394,9 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
 
     ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
 
+    // An Initial Packet should always result in creating a new connection.
+    DISSECTOR_ASSERT(quic_info);
+
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo)) {
         const gchar *error = NULL;
@@ -1168,13 +1418,19 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
 
 static int
 dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
-                       quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server, guint64 pkn)
+                       quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, guint64 pkn)
 {
     proto_item *ti;
 
     ti = proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
 
-    tls13_cipher *cipher = from_server ? &quic_info->server_handshake_cipher : &quic_info->client_handshake_cipher;
+    if (!quic_info) {
+        // No connection might be available if the Initial Packet is missing.
+        // TODO expert info?
+        return tvb_reported_length_remaining(tvb, offset);
+    }
+
+    tls13_cipher *cipher = quic_packet->from_server ? &quic_info->server_handshake_cipher : &quic_info->client_handshake_cipher;
     quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                          quic_info, quic_packet, cipher, pkn);
     offset += tvb_reported_length_remaining(tvb, offset);
@@ -1190,6 +1446,12 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
 
     ti = proto_tree_add_item(quic_tree, hf_quic_retry_payload, tvb, offset, -1, ENC_NA);
 
+    if (!quic_info) {
+        // No connection might be available if the Initial Packet is missing.
+        // TODO expert info?
+        return tvb_reported_length_remaining(tvb, offset);
+    }
+
     /* Retry coming always from server */
     quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                          quic_info, quic_packet, &quic_info->server_handshake_cipher, pkn);
@@ -1201,12 +1463,12 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
 
 /**
  * Dissects the common part after the first byte for packets using the Long
- * Header form. If this is a normal long packet, remember the version number.
+ * Header form.
  */
 static int
 dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
-                                guint offset, quic_info_data_t *quic_info,
-                                quic_cid_t *dcid, quic_cid_t *scid)
+                                guint offset, const quic_packet_info_t *quic_packet _U_,
+                                guint32 *version_out, quic_cid_t *dcid, quic_cid_t *scid)
 {
     guint32     version;
     gboolean    is_draft10 = FALSE;
@@ -1217,12 +1479,14 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     if (!(version == 0 || quic_draft_version(version) >= 11)) {
         // not a draft -11 version negotiation packet nor draft -11 version,
         // assume draft -10 or older. Its version comes after CID.
-        version = tvb_get_ntohl(tvb, offset + 8);
-        is_draft10 = TRUE;
+        guint32 version10 = tvb_get_ntohl(tvb, offset + 8);
+        is_draft10 = is_quic_draft_max(version10, 10);
+        if (is_draft10) {
+            version = version10;
+        }
     }
-    if (version) {
-        /* Normal packet, assume authorative for version. */
-        quic_info->version = version;
+    if (version_out) {
+        *version_out = version;
     }
 
     if (is_draft10) {
@@ -1245,6 +1509,7 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
         if (dcil) {
             dcil += 3;
             proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, dcil, ENC_NA);
+            // TODO expert info on CID mismatch with connection
             tvb_memcpy(tvb, dcid->cid, offset, dcil);
             dcid->len = dcil;
             offset += dcil;
@@ -1253,6 +1518,7 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
         if (scil) {
             scil += 3;
             proto_tree_add_item(quic_tree, hf_quic_scid, tvb, offset, scil, ENC_NA);
+            // TODO expert info on CID mismatch with connection
             tvb_memcpy(tvb, scid->cid, offset, scil);
             scid->len = scil;
             offset += scil;
@@ -1269,39 +1535,41 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
 
 static int
 dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
-                         quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server)
+                         quic_packet_info_t *quic_packet)
 {
     guint32 long_packet_type;
+    guint32 version;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32 len_payload_length;
     guint64 payload_length;
     guint64 pkn;
+    quic_info_data_t *conn = quic_packet->conn;
 
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA, &long_packet_type);
     offset += 1;
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(long_packet_type, quic_long_packet_type_vals, "Long Header"));
 
-    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_info, &dcid, &scid);
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
-    if (!is_quic_draft_max(quic_info->version, 10)) {
+    if (!is_quic_draft_max(version, 10)) {
         proto_tree_add_item_ret_varint(quic_tree, hf_quic_payload_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
         offset += len_payload_length;
     }
 
-    pkn = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server, 4);
+    pkn = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, 4);
     offset += 4;
     col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
 
     /* Payload */
     switch(long_packet_type) {
         case QUIC_LPT_INITIAL: /* Initial */
-            offset = dissect_quic_initial(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, pkn, &dcid);
+            offset = dissect_quic_initial(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn, &dcid);
         break;
         case QUIC_LPT_HANDSHAKE: /* Handshake */
-            offset = dissect_quic_handshake(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server, pkn);
+            offset = dissect_quic_handshake(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn);
         break;
         case QUIC_LPT_RETRY: /* Retry */
-            offset = dissect_quic_retry(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, pkn);
+            offset = dissect_quic_retry(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn);
         break;
         default:
             /* Protected (Encrypted) Payload */
@@ -1315,7 +1583,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
 static int
 dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
-                          quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server)
+                          quic_packet_info_t *quic_packet)
 {
     guint8 short_flags;
     quic_cid_t dcid = {.len=0};
@@ -1324,7 +1592,9 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     proto_item *ti;
     gboolean    key_phase = FALSE;
     tls13_cipher *cipher = NULL;
-    gboolean is_draft10 = is_quic_draft_max(quic_info->version, 10);
+    quic_info_data_t *conn = quic_packet->conn;
+    // Best-effort guess: if no connection is known, assume newer draft version.
+    gboolean is_draft10 = conn && is_quic_draft_max(conn->version, 10);
 
     short_flags = tvb_get_guint8(tvb, offset);
     if (is_draft10) {
@@ -1352,7 +1622,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
     /* Packet Number */
     pkn_len = get_len_packet_number(short_flags);
-    pkn = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server, pkn_len);
+    pkn = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn_len);
     offset += pkn_len;
 
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1365,21 +1635,23 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     /* Protected Payload */
     ti = proto_tree_add_item(quic_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
 
+    if (conn) {
 #ifdef HAVE_LIBGCRYPT_AEAD
-    if (!PINFO_FD_VISITED(pinfo)) {
-        cipher = quic_get_pp_cipher(pinfo, key_phase, pkn, quic_info, from_server);
-    }
+        if (!PINFO_FD_VISITED(pinfo)) {
+            cipher = quic_get_pp_cipher(pinfo, key_phase, pkn, conn, quic_packet->from_server);
+        }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
-    quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                         quic_info, quic_packet, cipher, pkn);
+        quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
+                             conn, quic_packet, cipher, pkn);
+    }
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
 }
 
 static int
-dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info)
+dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, const quic_packet_info_t *quic_packet)
 {
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32 supported_version;
@@ -1390,7 +1662,7 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_item(quic_tree, hf_quic_vn_unused, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_info, &dcid, &scid);
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, NULL, &dcid, &scid);
 
     /* Supported Version */
     while(tvb_reported_length_remaining(tvb, offset) > 0){
@@ -1404,54 +1676,75 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     return offset;
 }
 
-static gboolean
-quic_info_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+/**
+ * Extracts necessary information from header to find any existing connection.
+ * "long_packet_type" is set to QUIC_SHORT_PACKET for short header packets.
+ * DCID and SCID are not modified unless available. For short header packets,
+ * DCID length is unknown, so the caller should truncate it as needed.
+ */
+static void
+quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
+                    quic_cid_t *dcid, quic_cid_t *scid)
 {
-    quic_info_data_t *quic_info = (quic_info_data_t *) user_data;
+    guint offset = 0;
 
-    gcry_cipher_close(quic_info->client_handshake_cipher.hd);
-    gcry_cipher_close(quic_info->server_handshake_cipher.hd);
-
-    gcry_cipher_close(quic_info->client_pp.cipher[0].hd);
-    gcry_cipher_close(quic_info->client_pp.cipher[1].hd);
-    gcry_cipher_close(quic_info->server_pp.cipher[0].hd);
-    gcry_cipher_close(quic_info->server_pp.cipher[1].hd);
-
-    return FALSE;
-}
-
-static gboolean
-quic_is_from_server(packet_info *pinfo, gboolean is_long, guint8 packet_type, quic_info_data_t *quic_info)
-{
-    if (quic_info->server_address.type != AT_NONE) {
-        return quic_info->server_port == pinfo->srcport &&
-            addresses_equal(&quic_info->server_address, &pinfo->src);
+    guint8 packet_type = tvb_get_guint8(tvb, offset);
+    gboolean is_long_header = packet_type & 0x80;
+    if (is_long_header) {
+        // long header form
+        *long_packet_type = packet_type & 0x7f;
     } else {
-        /*
-         * If server side is unknown, try heuristics. The weakest heuristics is
-         * assuming that a lower port number is the server.
-         */
-        gboolean from_server = pinfo->srcport < pinfo->destport;
-        if (is_long) {
-            if (packet_type == QUIC_LPT_INITIAL) {
-                // definitely from client
-                from_server = FALSE;
-            }
-            if (packet_type == QUIC_LPT_RETRY) {
-                // definitely from server
-                from_server = TRUE;
-            }
-            /* Version Negotiation is always from server, but as dissection of
-             * that does not need this information, skip that check here. */
+        // short header form, store dummy value that is not a long packet type.
+        *long_packet_type = QUIC_SHORT_PACKET;
+    }
+    offset++;
+
+    guint32 maybe_version = tvb_get_ntohl(tvb, offset);
+    gboolean is_draft10 = FALSE;
+    if (!(maybe_version == 0 || quic_draft_version(maybe_version) >= 11)) {
+        // not a draft -11 version negotiation packet nor draft -11 version,
+        // assume draft -10 or older. Its version comes after CID.
+        guint32 version10 = tvb_get_ntohl(tvb, offset + 8);
+        is_draft10 = is_quic_draft_max(version10, 10);
+        if (is_draft10) {
+            maybe_version = version10;
         }
-        if (from_server) {
-            copy_address_wmem(wmem_file_scope(), &quic_info->server_address, &pinfo->src);
-            quic_info->server_port = pinfo->srcport;
-        } else {
-            copy_address_wmem(wmem_file_scope(), &quic_info->server_address, &pinfo->dst);
-            quic_info->server_port = pinfo->destport;
+    }
+    *version = maybe_version;
+
+    if (is_draft10) {
+        tvb_memcpy(tvb, dcid->cid, offset, 8);
+        dcid->len = 8;
+    } else if (is_long_header) {
+        // skip version
+        offset += 4;
+
+        // read DCIL/SCIL (Connection ID Lengths).
+        guint8 cid_lengths = tvb_get_guint8(tvb, offset);
+        guint8 dcil = cid_lengths >> 4;
+        guint8 scil = cid_lengths & 0xf;
+        offset++;
+
+        if (dcil) {
+            dcil += 3;
+            tvb_memcpy(tvb, dcid->cid, offset, dcil);
+            dcid->len = dcil;
+            offset += dcil;
         }
-        return from_server;
+
+        if (scil) {
+            scil += 3;
+            tvb_memcpy(tvb, scid->cid, offset, scil);
+            scid->len = scil;
+        }
+    } else {
+        // Definitely not draft -10, set version to dummy value.
+        *version = 0;
+        // For short headers, the DCID length is unknown and could be 0 or
+        // anything from 4 to 18 bytes. Copy the maximum possible and let the
+        // consumer truncate it as necessary.
+        tvb_memcpy(tvb, dcid->cid, offset, 18);
+        dcid->len = 18;
     }
 }
 
@@ -1463,22 +1756,9 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *quic_tree;
     guint       offset = 0;
     guint32     header_form;
-    conversation_t  *conv;
-    quic_info_data_t  *quic_info;
     quic_packet_info_t *quic_packet = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
-
-    /* get conversation, create if necessary*/
-    conv = find_or_create_conversation(pinfo);
-
-    /* get associated state information, create if necessary */
-    quic_info = (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
-    if (!quic_info) {
-        quic_info = wmem_new0(wmem_file_scope(), quic_info_data_t);
-        wmem_register_callback(wmem_file_scope(), quic_info_destroy_cb, quic_info);
-        conversation_add_proto_data(conv, proto_quic, quic_info);
-    }
 
     if (PINFO_FD_VISITED(pinfo)) {
         quic_packet = (quic_packet_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
@@ -1492,19 +1772,46 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     quic_tree = proto_item_add_subtree(ti, ett_quic);
 
+    if (!PINFO_FD_VISITED(pinfo)) {
+        guint8      long_packet_type;
+        guint32     version;
+        quic_cid_t  dcid = {.len=0}, scid = {.len=0};
+        gboolean    from_server = FALSE;
+        quic_info_data_t *conn;
+
+        quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
+        conn = quic_connection_find(pinfo, long_packet_type, &dcid, &from_server);
+        if (is_quic_draft_max(version, 10)) {
+            // In draft -10 and before, there is only a single CID.
+            if (long_packet_type == QUIC_LPT_HANDSHAKE && !conn) {
+                // the first handshake packet from server sets CID, only after
+                // that it will be possible to match by CID.
+                conn = quic_connection_find_dcid(pinfo, NULL, &from_server);
+            }
+            quic_connection_create_or_update(&conn, pinfo, long_packet_type, version, &dcid, &dcid, from_server);
+        } else {
+            quic_connection_create_or_update(&conn, pinfo, long_packet_type, version, &scid, &dcid, from_server);
+        }
+        quic_packet->conn = conn;
+        quic_packet->from_server = from_server;
+#if 0
+        proto_tree_add_debug_text(quic_tree, "Connection: %d %p DCID=%s SCID=%s from_server:%d", pinfo->num, quic_packet->conn, cid_to_string(&dcid), cid_to_string(&scid), quic_packet->from_server);
+    } else {
+        proto_tree_add_debug_text(quic_tree, "Connection: %d %p from_server:%d", pinfo->num, quic_packet->conn, quic_packet->from_server);
+#endif
+    }
+
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, tvb, offset, 1, ENC_NA, &header_form);
-    guint8 packet_type = tvb_get_guint8(tvb, offset) & 0x7f;
-    gboolean from_server = quic_is_from_server(pinfo, header_form, packet_type, quic_info);
     if(header_form) {
         gboolean is_vn = tvb_get_ntohl(tvb, offset + 1) == 0;
         is_vn = is_vn || tvb_get_ntohl(tvb, offset + 1 + 8) == 0; // before draft -11
         if (is_vn) {
-            offset = dissect_quic_version_negotiation(tvb, pinfo, quic_tree, offset, quic_info);
+            offset = dissect_quic_version_negotiation(tvb, pinfo, quic_tree, offset, quic_packet);
             return offset;
         }
-        offset = dissect_quic_long_header(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server);
+        offset = dissect_quic_long_header(tvb, pinfo, quic_tree, offset, quic_packet);
     } else {
-        offset = dissect_quic_short_header(tvb, pinfo, quic_tree, offset, quic_info, quic_packet, from_server);
+        offset = dissect_quic_short_header(tvb, pinfo, quic_tree, offset, quic_packet);
     }
 
     return offset;
@@ -1562,6 +1869,25 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 
+/** Initialize QUIC dissection state for a new capture file. */
+static void
+quic_init(void)
+{
+    quic_connections = wmem_list_new(wmem_file_scope());
+    quic_initial_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
+    quic_client_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
+    quic_server_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
+}
+
+/** Release QUIC dissection state on closing a capture file. */
+static void
+quic_cleanup(void)
+{
+    wmem_list_foreach(quic_connections, (GFunc)quic_connection_destroy, NULL);
+    quic_initial_connections = NULL;
+    quic_client_connections = NULL;
+    quic_server_connections = NULL;
+}
 
 void
 proto_register_quic(void)
@@ -1935,6 +2261,8 @@ proto_register_quic(void)
 
     quic_handle = register_dissector("quic", dissect_quic, proto_quic);
 
+    register_init_routine(quic_init);
+    register_cleanup_routine(quic_cleanup);
 }
 
 void
