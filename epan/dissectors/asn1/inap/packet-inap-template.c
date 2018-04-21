@@ -66,6 +66,7 @@ static int hf_inap_cause_indicator = -1;
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
+static gint ett_inap_RedirectionInformation = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
 static gint ett_inap_extension_data = -1;
 static gint ett_inap_cause = -1;
@@ -206,6 +207,7 @@ void proto_register_inap(void) {
   static gint *ett[] = {
     &ett_inap,
     &ett_inapisup_parameter,
+    &ett_inap_RedirectionInformation,
     &ett_inap_HighLayerCompatibility,
     &ett_inap_extension_data,
     &ett_inap_cause,

@@ -261,13 +261,15 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
 #.FN_BODY RedirectionInformation VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
   if (!parameter_tvb)
     return offset;
 
- dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+ subtree = proto_item_add_subtree(actx->created_item, ett_inap_RedirectionInformation);
+ dissect_isup_redirection_information_parameter(parameter_tvb, subtree, NULL);
 
 #.FN_BODY OriginalCalledPartyID VAL_PTR = &parameter_tvb
 
