@@ -496,7 +496,7 @@ _tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 gint
 tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset, rem_length;
+	guint abs_offset = 0, rem_length;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -547,7 +547,7 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 gboolean
 tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 {
-	guint abs_offset, abs_length;
+	guint abs_offset = 0, abs_length;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -660,7 +660,7 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 gboolean
 tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset;
+	guint abs_offset = 0;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -691,7 +691,7 @@ tvb_reported_length(const tvbuff_t *tvb)
 gint
 tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset;
+	guint abs_offset = 0;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
