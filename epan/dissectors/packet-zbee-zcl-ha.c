@@ -713,7 +713,7 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -738,7 +738,7 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_tx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -1049,7 +1049,7 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_rx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -1078,7 +1078,7 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_tx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);

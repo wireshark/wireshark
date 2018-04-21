@@ -369,7 +369,7 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_thermostat_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_thermostat_srv_rx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         /* Handle the command dissection. */
@@ -410,7 +410,7 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_thermostat_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_thermostat_srv_tx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         /* Handle the command dissection. */
@@ -808,7 +808,7 @@ dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_ias_zone_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_ias_zone_srv_rx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         /* Handle the command dissection. */
@@ -830,7 +830,7 @@ dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_ias_zone_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_item(tree, hf_zbee_zcl_ias_zone_srv_tx_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         /* Handle the command dissection. */
