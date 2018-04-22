@@ -1655,11 +1655,11 @@ struct tds7_login_packet_hdr {
 
 static void
 dissect_tds_nt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               guint offset, guint length)
+               guint offset)
 {
     tvbuff_t *nt_tvb;
 
-    nt_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, length);
+    nt_tvb = tvb_new_subset_remaining(tvb, offset);
     if(tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0)
         call_dissector(ntlmssp_handle, nt_tvb, pinfo, tree);
     else
@@ -3678,8 +3678,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
      */
     length_remaining = tvb_reported_length_remaining(tvb, offset2 + len);
     if (length_remaining > 0) {
-        dissect_tds_nt(tvb, pinfo, login_tree, offset2 + len,
-                       length_remaining);
+        dissect_tds_nt(tvb, pinfo, login_tree, offset2 + len);
     }
 }
 
@@ -6030,7 +6029,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                       tds_info);
                 break;
             case TDS_SSPI_PKT:
-                dissect_tds_nt(next_tvb, pinfo, tds_tree, offset - 8, -1);
+                dissect_tds_nt(next_tvb, pinfo, tds_tree, offset - 8);
                 break;
             case TDS_TRANS_MGR_PKT:
                 dissect_tds_transmgr_packet(next_tvb, pinfo, tds_tree);
