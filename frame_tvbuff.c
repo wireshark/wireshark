@@ -62,7 +62,7 @@ frame_cache(struct tvb_frame *frame_tvb)
 	wtap_rec_init(&rec);
 
 	if (frame_tvb->buf == NULL) {
-		if G_UNLIKELY(!buffer_cache) buffer_cache = g_ptr_array_sized_new(1024);
+		if (G_UNLIKELY(!buffer_cache)) buffer_cache = g_ptr_array_sized_new(1024);
 
 		if (buffer_cache->len > 0) {
 			frame_tvb->buf = (struct Buffer *) g_ptr_array_remove_index(buffer_cache, buffer_cache->len - 1);

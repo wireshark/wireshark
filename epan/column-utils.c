@@ -409,7 +409,7 @@ col_append_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
       va_start(ap, str1);
       str = str1;
       do {
-         if G_UNLIKELY(str == NULL)
+         if (G_UNLIKELY(str == NULL))
              str = "(null)";
 
          pos += g_strlcpy(&col_item->col_buf[pos], str, max_len - pos);
@@ -747,7 +747,7 @@ col_add_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
       va_start(ap, str1);
       str = str1;
       do {
-         if G_UNLIKELY(str == NULL)
+         if (G_UNLIKELY(str == NULL))
              str = "(null)";
 
          pos += g_strlcpy(&col_item->col_buf[pos], str, max_len - pos);

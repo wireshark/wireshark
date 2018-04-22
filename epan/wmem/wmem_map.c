@@ -28,7 +28,7 @@ void
 wmem_init_hashing(void)
 {
     x = g_random_int();
-    if G_UNLIKELY(x == 0)
+    if (G_UNLIKELY(x == 0))
         x = 1;
 
     preseed  = g_random_int();

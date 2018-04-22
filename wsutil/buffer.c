@@ -21,7 +21,7 @@ void
 ws_buffer_init(Buffer* buffer, gsize space)
 {
 	g_assert(buffer);
-	if G_UNLIKELY(!small_buffers) small_buffers = g_ptr_array_sized_new(1024);
+	if (G_UNLIKELY(!small_buffers)) small_buffers = g_ptr_array_sized_new(1024);
 
 	if (space <= SMALL_BUFFER_SIZE) {
 		if (small_buffers->len > 0) {
