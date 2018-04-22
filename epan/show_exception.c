@@ -117,7 +117,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case ContainedBoundsError:
 		col_append_fstr(pinfo->cinfo, COL_INFO, "[Malformed Packet: length of contained item exceeds length of containing item]");
 		item = proto_tree_add_protocol_format(tree, proto_malformed,
-		    tvb, 0, 0, "[Malformed Packet: length of contained item exceeds length of containing item: %s]",
+		    tvb, 0, 0, "[Malformed Packet: %s: length of contained item exceeds length of containing item]",
 		    pinfo->current_proto);
 		expert_add_info(pinfo, item, &ei_malformed);
 		break;
