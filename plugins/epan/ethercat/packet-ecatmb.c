@@ -1091,7 +1091,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
       anItem = proto_tree_add_bytes_format(tree, hf_ecat_mailbox_foe, tvb, offset, foe_length, NULL, "Foe");
 
       aparent = proto_item_get_parent(anItem);
-      proto_item_append_text(aparent,"FoE ");
+      proto_item_append_text(aparent,": FoE");
    }
 
    if( foe_length >= ETHERCAT_FOE_HEADER_LEN )
@@ -1123,8 +1123,6 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_packetno, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                offset+=4; /*+2 for Reserved2*/
 
-               proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_data, tvb, offset, foe_length-offset, ENC_NA);
-
                if( foe_length-offset >= sizeof(TEFWUPDATE_HEADER) )
                {
                   anItem = proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_efw, tvb, offset, foe_length-offset, ENC_NA);
@@ -1142,6 +1140,10 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                   offset+=2;
 
                   proto_tree_add_item(ecat_foe_efw_tree, hf_ecat_mailbox_foe_efw_data, tvb, offset, foe_length-offset, ENC_NA);
+               }
+               else
+               {
+                  proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_data, tvb, offset, foe_length-offset, ENC_NA);
                }
             }
             break;
