@@ -7,7 +7,7 @@
  * NCS 1.0: PacketCable Network-Based Call Signaling Protocol Specification,
  *          PKT-SP-EC-MGCP-I09-040113, January 13, 2004, Cable Television
  *          Laboratories, Inc., http://www.PacketCable.com/
- * NCS 1.5: PKT-SP-NCS1.5-I03-070412, April 12, 2007 Cable Television
+ * NCS 1.5: PKT-SP-NCS1.5-I04-120412, April 12, 2012 Cable Television
  *          Laboratories, Inc., http://www.PacketCable.com/
  * www.iana.org/assignments/mgcp-localconnectionoptions
  *
@@ -91,6 +91,31 @@ static int hf_mgcp_param_localconnoptions_rdir = -1;
 static int hf_mgcp_param_localconnoptions_rsh = -1;
 static int hf_mgcp_param_localconnoptions_mp = -1;
 static int hf_mgcp_param_localconnoptions_fxr = -1;
+static int hf_mgcp_param_localvoicemetrics = -1;
+static int hf_mgcp_param_remotevoicemetrics = -1;
+static int hf_mgcp_param_voicemetrics_nlr = -1;
+static int hf_mgcp_param_voicemetrics_jdr = -1;
+static int hf_mgcp_param_voicemetrics_bld = -1;
+static int hf_mgcp_param_voicemetrics_gld = -1;
+static int hf_mgcp_param_voicemetrics_bd = -1;
+static int hf_mgcp_param_voicemetrics_gd = -1;
+static int hf_mgcp_param_voicemetrics_rtd = -1;
+static int hf_mgcp_param_voicemetrics_esd = -1;
+static int hf_mgcp_param_voicemetrics_sl = -1;
+static int hf_mgcp_param_voicemetrics_nl = -1;
+static int hf_mgcp_param_voicemetrics_rerl = -1;
+static int hf_mgcp_param_voicemetrics_gmn = -1;
+static int hf_mgcp_param_voicemetrics_nsr = -1;
+static int hf_mgcp_param_voicemetrics_xsr = -1;
+static int hf_mgcp_param_voicemetrics_mlq = -1;
+static int hf_mgcp_param_voicemetrics_mcq = -1;
+static int hf_mgcp_param_voicemetrics_plc = -1;
+static int hf_mgcp_param_voicemetrics_jba = -1;
+static int hf_mgcp_param_voicemetrics_jbr = -1;
+static int hf_mgcp_param_voicemetrics_jbn = -1;
+static int hf_mgcp_param_voicemetrics_jbm = -1;
+static int hf_mgcp_param_voicemetrics_jbs = -1;
+static int hf_mgcp_param_voicemetrics_iaj = -1;
 static int hf_mgcp_param_connectionmode = -1;
 static int hf_mgcp_param_reqevents = -1;
 static int hf_mgcp_param_restartmethod = -1;
@@ -221,6 +246,8 @@ static int ett_mgcp = -1;
 static int ett_mgcp_param = -1;
 static int ett_mgcp_param_connectionparam = -1;
 static int ett_mgcp_param_localconnectionoptions = -1;
+static int ett_mgcp_param_localvoicemetrics = -1;
+static int ett_mgcp_param_remotevoicemetrics = -1;
 
 /*
  * Define the tap for mgcp
@@ -268,7 +295,12 @@ static void dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb
 static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb,
 						gint offset, gint param_type_len,
 						gint param_val_len);
-
+static void dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb,
+						gint offset, gint param_type_len,
+						gint param_val_len);
+static void dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb,
+						gint offset, gint param_type_len,
+						gint param_val_len);
 
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
@@ -836,6 +868,26 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 					*hf = &hf_mgcp_param_requestid;
 					tvb_current_offset--;
 				}
+				/* XRM/MCR */
+				else
+				if (len > (tvb_current_offset - offset) &&
+				   (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == 'R')
+				{
+					/* Move past 'R' */
+					tvb_current_offset += 3;
+					if (len > (tvb_current_offset - offset) &&
+						(tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == 'R')
+					{
+						*hf = &hf_mgcp_param_remotevoicemetrics;
+					}
+					else
+					if (len > (tvb_current_offset - offset) &&
+					   (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == 'L')
+					{
+						*hf = &hf_mgcp_param_localvoicemetrics;
+					}
+					tvb_current_offset -= 4;
+				}
 
 				/* X+...: or X-....: are vendor extension parameters */
 				else
@@ -1042,7 +1094,8 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 
 	/* For these types, show the whole line */
 	if ((*hf == &hf_mgcp_param_invalid) ||
-	    (*hf == &hf_mgcp_param_extension) || (*hf == &hf_mgcp_param_extension_critical))
+	    (*hf == &hf_mgcp_param_extension) || (*hf == &hf_mgcp_param_extension_critical) ||
+	    (*hf == &hf_mgcp_param_localvoicemetrics) || (*hf == &hf_mgcp_param_remotevoicemetrics))
 	{
 		returnvalue = offset;
 	}
@@ -1493,6 +1546,20 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi
 							tvb_tokenbegin - tvb_linebegin, tokenlen);
 				}
 				else
+				if (*my_param == hf_mgcp_param_localvoicemetrics)
+				{
+					tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
+					dissect_mgcp_localvoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
+					                         tvb_tokenbegin - tvb_linebegin, tokenlen);
+				}
+				else
+				if (*my_param == hf_mgcp_param_remotevoicemetrics)
+				{
+					tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
+					dissect_mgcp_remotevoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
+					                         tvb_tokenbegin - tvb_linebegin, tokenlen);
+				}
+				else
 				{
 					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
 					proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
@@ -1772,7 +1839,154 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 				proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
 			}
 		}
-		else
+	}
+}
+
+/* Dissect the Local Voice Metrics option */
+static void
+dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len)
+{
+	proto_tree *tree = parent_tree;
+	proto_item *item = NULL;
+
+	gchar *tokenline = NULL;
+	gchar **tokens = NULL;
+	gchar **typval = NULL;
+	guint i = 0;
+	guint tokenlen = 0;
+	int hf_string = -1;
+
+	if (parent_tree)
+	{
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_localvoicemetrics, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+		tree = proto_item_add_subtree(item, ett_mgcp_param_localvoicemetrics);
+	}
+
+	/* The XRM/LVM: line */
+	offset += 9; /* skip the XRM/LVM: */
+	tokenline = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, param_val_len - 9, ENC_ASCII);
+
+	/* Split into type=value pairs separated by comma and WSP */
+	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
+	for (i = 0; tokens[i] != NULL; i++)
+	{
+		hf_string = -1;
+
+		tokenlen = (int)strlen(tokens[i]);
+		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
+		if ((typval[0] != NULL) && (typval[1] != NULL))
+		{
+			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NLR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_nlr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JDR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jdr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "BLD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_bld;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "GLD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_gld;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "BD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_bd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "GD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_gd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "RTD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_rtd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "ESD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_esd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "SL"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_sl;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NL"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_nl;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "RERL"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_rerl;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "GMN"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_gmn;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NSR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_nsr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "XSR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_xsr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "MLQ"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_mlq;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "MCQ"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_mcq;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PLC"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_plc;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBA"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jba;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBN"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbn;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBM"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbm;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBS"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbs;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "IAJ"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_iaj;
+			}
+			else
+			{
+				hf_string = -1;
+			}
+
+			/* Add item */
+			if (tree)
+			{
+				if (hf_string != -1)
+				{
+					proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
+				}
+				else
+				{
+					proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
+				}
+			}
+		}
+		else if (tree)
 		{
 			proto_tree_add_string(tree, hf_mgcp_malformed_parameter, tvb, offset, tokenlen, tokens[i]);
 		}
@@ -1780,7 +1994,156 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 	}
 }
 
+/* Dissect the Remote Voice Metrics option */
+static void
+dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len)
+{
+	proto_tree *tree = parent_tree;
+	proto_item *item = NULL;
 
+	gchar *tokenline = NULL;
+	gchar **tokens = NULL;
+	gchar **typval = NULL;
+	guint i = 0;
+	guint tokenlen = 0;
+	int hf_string = -1;
+
+	if (parent_tree)
+	{
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_remotevoicemetrics, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+		tree = proto_item_add_subtree(item, ett_mgcp_param_remotevoicemetrics);
+	}
+
+	/* The XRM/RVM: line */
+	offset += 9; /* skip the XRM/RVM: */
+	tokenline = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, param_val_len - 9, ENC_ASCII);
+
+	/* Split into type=value pairs separated by comma and WSP */
+	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
+	for (i = 0; tokens[i] != NULL; i++)
+	{
+		hf_string = -1;
+		tokenlen = (int)strlen(tokens[i]);
+		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
+		if ((typval[0] != NULL) && (typval[1] != NULL))
+		{
+			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NLR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_nlr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JDR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jdr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "BLD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_bld;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "GLD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_gld;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "BD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_bd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "GD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_gd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "RTD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_rtd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "ESD"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_esd;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "SL"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_sl;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NL"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_nl;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "RERL"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_rerl;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "GMN"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_gmn;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NSR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_nsr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "XSR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_xsr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "MLQ"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_mlq;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "MCQ"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_mcq;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PLC"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_plc;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBA"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jba;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBR"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbr;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBN"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbn;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBM"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbm;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JBS"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_jbs;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "IAJ"))
+			{
+				hf_string = hf_mgcp_param_voicemetrics_iaj;
+			}
+			else
+			{
+				hf_string = -1;
+			}
+
+			/* Add item */
+			if (tree)
+			{
+				if (hf_string != -1)
+				{
+					proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
+				}
+				else
+				{
+					proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
+				}
+			}
+		}
+		else if (tree)
+		{
+			proto_tree_add_string(tree, hf_mgcp_malformed_parameter, tvb, offset, tokenlen, tokens[i]);
+		}
+		offset += tokenlen + 1; /* 1 extra for the delimiter */
+	}
+}
 
 /*
  * tvb_find_null_line - Returns the length from offset to the first null
@@ -2113,6 +2476,81 @@ void proto_register_mgcp(void)
 			{ &hf_mgcp_param_localconnoptions_fxr,
 			  { "FXR (fxr/fx)", "mgcp.param.localconnectionoptions.fxr", FT_STRING, BASE_NONE, NULL, 0x0,
 			    "FXR", HFILL }},
+			{ &hf_mgcp_param_localvoicemetrics,
+			  { "LocalVoiceMetrics (XRM/LVM)", "mgcp.param.localvoicemetrics", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Local Voice Metrics", HFILL }},
+			{ &hf_mgcp_param_remotevoicemetrics,
+			  { "RemoteVoiceMetrics (XRM/RVM)", "mgcp.param.remotevoicemetrics", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Remote Voice Metrics", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_nlr,
+			  { "Network packet loss rate(NLR)", "mgcp.param.voicemetrics.nlr", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics NLR", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_jdr,
+			  { "Jitter buffer discard rate(JDR)", "mgcp.param.voicemetrics.jdr", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics JDR", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_bld,
+			  { "Burst loss density(BLD)", "mgcp.param.voicemetrics.bld", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics BLD", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_gld,
+			  { "Gap loss density(GLD)", "mgcp.param.voicemetrics.gld", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics GLD", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_bd,
+			  { "Burst duration(BD)", "mgcp.param.voicemetrics.bd", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics BD", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_gd,
+			  { "Gap duration(GD)", "mgcp.param.voicemetrics.gd", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics GD", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_rtd,
+			  { "Round trip network delay(RTD)", "mgcp.param.voicemetrics.rtd", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics RTD", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_esd,
+			  { "End system delay(ESD)", "mgcp.param.voicemetrics.esd", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics ESD", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_sl,
+			  { "Signal level(SL)", "mgcp.param.voicemetrics.sl", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics SL", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_nl,
+			  { "Noise level(NL)", "mgcp.param.voicemetrics.nl", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metricsx NL", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_rerl,
+			  { "Residual echo return loss(RERL)", "mgcp.param.voicemetrics.rerl", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics ERL", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_gmn,
+			  { "Minimum gap threshold(GMN)", "mgcp.param.voicemetrics.gmn", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics GMN", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_nsr,
+			  { "R factor(NSR)", "mgcp.param.voicemetrics.nsr", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics NSR", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_xsr,
+			  { "External R factor(XSR)", "mgcp.param.voicemetrics.xsr", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics XSR", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_mlq,
+			  { "Estimated MOS-LQ(MLQ)", "mgcp.param.voicemetrics.mlq", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics MLQ", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_mcq,
+			  { "Estimated MOS-CQ(MCQ)", "mgcp.param.voicemetrics.mcq", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics MCQ", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_plc,
+			  { "Packet loss concealment type(PLC)", "mgcp.param.voicemetrics.plc", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics PLC", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_jba,
+			  { "Jitter Buffer Adaptive(JBA)", "mgcp.param.voicemetrics.jba", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics JBA", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_jbr,
+			  { "Jitter Buffer Rate(JBR)", "mgcp.param.voicemetrics.jbr", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics JBR", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_jbn,
+			  { "Nominal jitter buffer delay(JBN)", "mgcp.param.voicemetrics.jbn", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics JBN", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_jbm,
+			  { "Maximum jitter buffer delay(JBM)", "mgcp.param.voicemetrics.jbm", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics JBM", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_jbs,
+			  { "Absolute maximum jitter buffer delay(JBS)", "mgcp.param.voicemetrics.jbs", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics JBS", HFILL }},
+			{ &hf_mgcp_param_voicemetrics_iaj,
+			  { "Inter-arrival Jitter(IAJ)", "mgcp.param.voicemetrics.iaj", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Voice Metrics IAJ", HFILL }},
 			{ &hf_mgcp_param_connectionmode,
 			  { "ConnectionMode (M)", "mgcp.param.connectionmode", FT_STRING, BASE_NONE, NULL, 0x0,
 			    "Connection Mode", HFILL }},
@@ -2243,7 +2681,9 @@ void proto_register_mgcp(void)
 			&ett_mgcp,
 			&ett_mgcp_param,
 			&ett_mgcp_param_connectionparam,
-			&ett_mgcp_param_localconnectionoptions
+			&ett_mgcp_param_localconnectionoptions,
+			&ett_mgcp_param_localvoicemetrics,
+			&ett_mgcp_param_remotevoicemetrics
 		};
 
 	static ei_register_info ei[] = {
@@ -2351,7 +2791,7 @@ void proto_reg_handoff_mgcp(void)
 	callagent_tcp_port = global_mgcp_callagent_tcp_port;
 	callagent_udp_port = global_mgcp_callagent_udp_port;
 
-    /* Names of port preferences too specific to add "auto" preference here */
+	/* Names of port preferences too specific to add "auto" preference here */
 	dissector_add_uint("tcp.port", global_mgcp_gateway_tcp_port,   mgcp_tpkt_handle);
 	dissector_add_uint("udp.port", global_mgcp_gateway_udp_port,   mgcp_handle);
 	dissector_add_uint("tcp.port", global_mgcp_callagent_tcp_port, mgcp_tpkt_handle);
