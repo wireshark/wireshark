@@ -1,14 +1,16 @@
 #
-# - Find kerberos
-# Find the native KERBEROS includes and library
+# - Find Kerberos
+# Find the native Kerberos includes and library
 #
-#  KERBEROS_INCLUDE_DIRS - where to find krb5.h, etc.
-#  KERBEROS_LIBRARIES    - List of libraries when using krb5.
-#  KERBEROS_FOUND        - True if krb5 found.
-#  KERBEROS_DLL_DIR      - (Windows) Path to the Kerberos DLLs.
-#  KERBEROS_DLLS         - (Windows) List of required Kerberos DLLs.
-#  HAVE_HEIMDAL_KERBEROS - set if the Kerberos vendor is Heimdal
-#  HAVE_MIT_KERBEROS     - set if the Kerberos vendor is MIT
+#  KERBEROS_INCLUDE_DIRS  - where to find krb5.h, etc.
+#  KERBEROS_DEFINITIONS   - -D and other compiler flags to use with krb5.
+#  KERBEROS_LIBRARIES     - List of libraries when using krb5.
+#  KERBEROS_LINK_FLAGS    - other linker flags to use with krb5.
+#  KERBEROS_FOUND         - True if krb5 found.
+#  KERBEROS_DLL_DIR       - (Windows) Path to the Kerberos DLLs.
+#  KERBEROS_DLLS          - (Windows) List of required Kerberos DLLs.
+#  HAVE_HEIMDAL_KERBEROS  - set if the Kerberos vendor is Heimdal
+#  HAVE_MIT_KERBEROS      - set if the Kerberos vendor is MIT
 
 
 if(KERBEROS_INCLUDE_DIRS)
@@ -24,7 +26,33 @@ if(NOT WIN32)
   pkg_search_module(KERBEROS krb5 mit-krb5 heimdal-krb5)
 endif()
 
-if(NOT KERBEROS_FOUND)
+if(KERBEROS_FOUND)
+  #
+  # Turn KERBEROS_CFLAGS_OTHER into KERBEROS_DEFINITIONS;
+  # <XPREFIX>_DEFINITIONS really means "flags other than -I,
+  # including both -D and other flags".
+  #
+  set(KERBEROS_DEFINITIONS "${KERBEROS_CFLAGS_OTHER}")
+
+  #
+  # KERBEROS_LIBRARIES is a list of library names, not library
+  # paths, and KERBEROS_LIBRARY_DIRS is a list of -L flag
+  # arguments.  Turn KERBEROS_LIBRARIES into a list of absolute
+  # paths for libraries, by searching for the libraries in
+  # directories including KERBEROS_LIBRARY_DIRS.
+  #
+  set(_kerberos_libraries "${KERBEROS_LIBRARIES}")
+  set(KERBEROS_LIBRARIES "")
+  foreach(_library ${_kerberos_libraries})
+    #
+    # Search for the library, using the library directories from
+    # pkg_search_module as hints.
+    #
+    find_library(_abspath_${_library} NAMES ${_library}
+                 HINTS ${KERBEROS_LIBDIR} ${KERBEROS_LIBRARY_DIRS})
+    list(APPEND KERBEROS_LIBRARIES ${_abspath_${_library}})
+  endforeach()
+else()
   # Fallback detection if pkg-config files are not installed.
   # Note, this fallback will not add k5crypto and com_err libraries on Linux,
   # ensure that pkg-config files are installed for full support.
@@ -87,4 +115,4 @@ if(WIN32)
   endif()
 endif()
 
-mark_as_advanced(KERBEROS_LIBRARIES KERBEROS_INCLUDE_DIRS)
+mark_as_advanced(KERBEROS_LIBRARIES KERBEROS_INCLUDE_DIRS KERBEROS_DEFINITIONS)
