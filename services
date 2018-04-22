@@ -8528,7 +8528,6 @@ esri-sde         5151/udp # ESRI SDE Remote Start    IANA assigned this well-for
 esri_sde         5151/udp # ESRI SDE Remote Start [Peter_Aronson] [Peter_Aronson] This entry is an alias to "esri-sde".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 sde-discovery    5152/tcp # ESRI SDE Instance Discovery [Peter_Aronson] [Peter_Aronson] Unauthorized Use Known on ports 5151 and 5152
 sde-discovery    5152/udp # ESRI SDE Instance Discovery [Peter_Aronson] [Peter_Aronson] Unauthorized Use Known on ports 5151 and 5152
-toruxserver      5153/tcp # ToruX Game Server [Josse_van_Dobben_de] [Josse_van_Dobben_de] 2009-07-01
 bzflag           5154/tcp # BZFlag game server [Tim_Riker] [Tim_Riker] 2003-07
 bzflag           5154/udp # BZFlag game server [Tim_Riker] [Tim_Riker] 2003-07
 asctrl-agent     5155/tcp # Oracle asControl Agent [Todd_Guay] [Todd_Guay] 2005-08
