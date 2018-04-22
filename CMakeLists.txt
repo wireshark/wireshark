@@ -3035,6 +3035,7 @@ set(SHARK_PUBLIC_HEADERS
 	ws_compiler_tests.h
 	ws_diag_control.h
 	ws_symbol_export.h
+	version_info.h
 )
 
 if(NOT WIN32)

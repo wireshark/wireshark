@@ -40,6 +40,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	frequency-utils.h
 	g711.h
 	inet_addr.h
+	inet_ipv4.h
 	inet_ipv6.h
 	interface.h
 	jsmn.h

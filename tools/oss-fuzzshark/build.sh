@@ -32,8 +32,7 @@ generate_fuzzer()
 
   fuzzer_name="fuzzshark_$1"
 
-  # -I$SRC/wireshark is correct, wireshark don't install header files.
-  $CC $CFLAGS -I $SRC/wireshark/ `pkg-config --cflags glib-2.0` \
+  $CC $CFLAGS -I $WIRESHARK_INSTALL_PATH/include/wireshark/ `pkg-config --cflags glib-2.0` \
       $SRC/wireshark/tools/oss-fuzzshark/fuzzshark.c \
       -c -o $WORK/${fuzzer_name}.o \
       $fuzzer_cflags -DFUZZ_DISSECTOR_LIST="$DISSECTOR_LIST"
