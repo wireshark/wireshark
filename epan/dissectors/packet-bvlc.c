@@ -462,8 +462,8 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	case 0x0c: /* Distribute-Broadcast-To-Network */
 	default:
 		/*
-			* Going to the next dissector...
-			*/
+		 * Going to the next dissector...
+		 */
 		break;
 	}
 
