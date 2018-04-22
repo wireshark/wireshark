@@ -4333,7 +4333,6 @@ social-alarm	5146/tcp	# Social Alarm Service
 atmp		5150/tcp/udp	# Ascend Tunnel Management Protocol
 esri-sde	5151/tcp/udp	# ESRI SDE Instance
 sde-discovery	5152/tcp/udp	# ESRI SDE Instance Discovery
-toruxserver	5153/tcp	# ToruX Game Server
 bzflag		5154/tcp/udp	# BZFlag game server
 asctrl-agent	5155/tcp/udp	# Oracle asControl Agent
 rugameonline	5156/tcp	# Russian Online Game
