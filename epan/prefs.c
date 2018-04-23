@@ -6087,7 +6087,6 @@ prefs_pref_type_description(pref_t *pref)
         }
         g_string_append(enum_str, "\n(case-insensitive).");
         return g_string_free(enum_str, FALSE);
-        break;
     }
 
     case PREF_STRING:

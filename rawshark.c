@@ -700,14 +700,12 @@ main(int argc, char *argv[])
                 g_string_free(comp_info_str, TRUE);
                 g_string_free(runtime_info_str, TRUE);
                 goto clean_exit;
-                break;
             }
             default:
             case '?':        /* Bad flag - print usage message */
                 print_usage(stderr);
                 ret = INVALID_OPTION;
                 goto clean_exit;
-                break;
         }
     }
 

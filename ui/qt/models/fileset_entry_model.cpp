@@ -44,7 +44,6 @@ QVariant FilesetEntryModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case Name:
             return QString(entry->name);
-            break;
         case Created:
         {
             QString created = nameToDate(entry->name);
@@ -66,14 +65,11 @@ QVariant FilesetEntryModel::data(const QModelIndex &index, int role) const
                 }
             }
             return created;
-            break;
         }
         case Modified:
             return time_tToString(entry->mtime);
-            break;
         case Size:
             return file_size_to_qstring(entry->size);
-            break;
         default:
             break;
         }
@@ -98,16 +94,12 @@ QVariant FilesetEntryModel::headerData(int section, Qt::Orientation, int role) c
     switch (section) {
     case Name:
         return tr("Filename");
-        break;
     case Created:
         return tr("Created");
-        break;
     case Modified:
         return tr("Modified");
-        break;
     case Size:
         return tr("Size");
-        break;
     default:
         break;
     }

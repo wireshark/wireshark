@@ -319,7 +319,6 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                     /* Private key found, return it. */
                     priv_key = rsa_pkey;
                     goto done;
-                    break;
                 }
 
                 default: ;
