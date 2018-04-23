@@ -116,19 +116,19 @@ typedef struct pdcp_nr_info
 /* 1 byte */
 
 #define PDCP_NR_ROHC_CID_INC_INFO_TAG      0x09
-/* 1 byte */
+/* 0 byte */
 
 #define PDCP_NR_ROHC_LARGE_CID_PRES_TAG    0x0A
-/* 1 byte */
+/* 0 byte */
 
 #define PDCP_NR_ROHC_MODE_TAG              0x0B
 /* 1 byte */
 
 #define PDCP_NR_ROHC_RND_TAG               0x0C
-/* 1 byte */
+/* 0 byte */
 
 #define PDCP_NR_ROHC_UDP_CHECKSUM_PRES_TAG 0x0D
-/* 1 byte */
+/* 0 byte */
 
 #define PDCP_NR_ROHC_PROFILE_TAG           0x0E
 /* 2 bytes, network order */

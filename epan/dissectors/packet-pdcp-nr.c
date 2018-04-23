@@ -699,13 +699,13 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* Show RND */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_rohc_rnd, tvb, 0, 0,
-                                     p_pdcp_info->rohc.rnd);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_rohc_rnd, tvb, 0, 0,
+                                        p_pdcp_info->rohc.rnd);
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* UDP Checksum */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_rohc_udp_checksum_present, tvb, 0, 0,
-                                     p_pdcp_info->rohc.udp_checksum_present);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_rohc_udp_checksum_present, tvb, 0, 0,
+                                        p_pdcp_info->rohc.udp_checksum_present);
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* ROHC profile */
@@ -714,13 +714,13 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* CID Inclusion Info */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_cid_inclusion_info, tvb, 0, 0,
-                                     p_pdcp_info->rohc.cid_inclusion_info);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_cid_inclusion_info, tvb, 0, 0,
+                                        p_pdcp_info->rohc.cid_inclusion_info);
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* Large CID */
-            ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_large_cid_present, tvb, 0, 0,
-                                     p_pdcp_info->rohc.large_cid_present);
+            ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_large_cid_present, tvb, 0, 0,
+                                        p_pdcp_info->rohc.large_cid_present);
             PROTO_ITEM_SET_GENERATED(ti);
         }
     }
@@ -865,24 +865,20 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     offset++;
                     break;
                 case PDCP_NR_ROHC_CID_INC_INFO_TAG:
-                    p_pdcp_nr_info->rohc.cid_inclusion_info = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.cid_inclusion_info = TRUE;
                     break;
                 case PDCP_NR_ROHC_LARGE_CID_PRES_TAG:
-                    p_pdcp_nr_info->rohc.large_cid_present = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.large_cid_present = TRUE;
                     break;
                 case PDCP_NR_ROHC_MODE_TAG:
                     p_pdcp_nr_info->rohc.mode = (enum rohc_mode)tvb_get_guint8(tvb, offset);
                     offset++;
                     break;
                 case PDCP_NR_ROHC_RND_TAG:
-                    p_pdcp_nr_info->rohc.rnd = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.rnd = TRUE;
                     break;
                 case PDCP_NR_ROHC_UDP_CHECKSUM_PRES_TAG:
-                    p_pdcp_nr_info->rohc.udp_checksum_present = tvb_get_guint8(tvb, offset);
-                    offset++;
+                    p_pdcp_nr_info->rohc.udp_checksum_present = TRUE;
                     break;
                 case PDCP_NR_ROHC_PROFILE_TAG:
                     p_pdcp_nr_info->rohc.profile = tvb_get_ntohs(tvb, offset);
@@ -1389,13 +1385,13 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_rohc_rnd,
             { "RND",
-              "pdcp-nr.rohc.rnd", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.rohc.rnd", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "RND of outer ip header", HFILL
             }
         },
         { &hf_pdcp_nr_rohc_udp_checksum_present,
             { "UDP Checksum",
-              "pdcp-nr.rohc.checksum-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.rohc.checksum-present", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "UDP Checksum present", HFILL
             }
         },
@@ -1407,13 +1403,13 @@ void proto_register_pdcp_nr(void)
         },
         { &hf_pdcp_nr_cid_inclusion_info,
             { "CID Inclusion Info",
-              "pdcp-nr.cid-inclusion-info", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.cid-inclusion-info", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
         { &hf_pdcp_nr_large_cid_present,
             { "Large CID Present",
-              "pdcp-nr.large-cid-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-nr.large-cid-present", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
