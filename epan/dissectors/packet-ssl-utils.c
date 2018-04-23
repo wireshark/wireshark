@@ -95,6 +95,8 @@ const value_string ssl_versions[] = {
     { 0x7F18,               "TLS 1.3 (draft 24)" },
     { 0x7F19,               "TLS 1.3 (draft 25)" },
     { 0x7F1A,               "TLS 1.3 (draft 26)" },
+    { 0x7F1B,               "TLS 1.3 (draft 27)" },
+    { 0x7F1C,               "TLS 1.3 (draft 28)" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
