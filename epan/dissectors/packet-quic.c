@@ -1600,7 +1600,6 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     if (is_draft10) {
         gboolean omit_cid;
         proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_ocid_flag, tvb, offset, 1, ENC_NA, &omit_cid);
-        tvb_memcpy(tvb, dcid.cid, offset, 8);
         dcid.len = omit_cid ? 0 : 8;
         proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag_draft10, tvb, offset, 1, ENC_NA, &key_phase);
         ti = proto_tree_add_item(quic_tree, hf_quic_short_packet_type_draft10, tvb, offset, 1, ENC_NA);
@@ -1611,12 +1610,16 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     } else {
         proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag, tvb, offset, 1, ENC_NA, &key_phase);
         proto_tree_add_item(quic_tree, hf_quic_short_packet_type, tvb, offset, 1, ENC_NA);
+        if (conn) {
+            dcid.len = quic_packet->from_server ? conn->client_cids.data.len : conn->server_cids.data.len;
+        }
     }
     offset += 1;
 
     /* Connection ID */
     if (dcid.len > 0) {
         proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, dcid.len, ENC_NA);
+        tvb_memcpy(tvb, dcid.cid, offset, dcid.len);
         offset += dcid.len;
     }
 
