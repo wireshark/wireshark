@@ -4470,8 +4470,8 @@ proto_register_enip(void)
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
 
-   register_conversation_filter("enip", "ENIP IO", enip_io_conv_valid, enip_io_conv_filter);
-   register_conversation_filter("enip", "ENIP Explicit", enip_exp_conv_valid, enip_exp_conv_filter);
+   register_conversation_filter("enip", "CIP I/O Connection", enip_io_conv_valid, enip_io_conv_filter);
+   register_conversation_filter("enip", "CIP Explicit Connection", enip_exp_conv_valid, enip_exp_conv_filter);
 
    subdissector_io_table = register_decode_as_next_proto(proto_enip, "ENIP I/O", "enip.io", "ENIP IO Payload", enip_prompt);
 } /* end of proto_register_enip() */
