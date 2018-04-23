@@ -740,7 +740,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 }
 #endif /* HAVE_LIBGCRYPT_AEAD */
 
-#define QUIC_LONG_HEADER_LENGTH     17
+/* Maximum for draft -11: type, version, DCIL/SCIL, DCID, SCID, payload length, PKN. */
+#define QUIC_LONG_HEADER_MAX_LENGTH     (1+4+1+18+18+8+4)
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static gcry_error_t
@@ -756,13 +757,13 @@ quic_cipher_init_keyiv(tls13_cipher *cipher, int hash_algo, guint8 key_length, g
  * try to decrypt it using the cipher.
  *
  * The actual packet number must be constructed according to
- * https://tools.ietf.org/html/draft-ietf-quic-transport-10#section-5.7
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-11#section-4.8
  */
 static void
 quic_decrypt_message(tls13_cipher *cipher, tvbuff_t *head, guint header_length, guint64 packet_number, quic_decrypt_result_t *result)
 {
     gcry_error_t    err;
-    guint8          header[QUIC_LONG_HEADER_LENGTH];
+    guint8          header[QUIC_LONG_HEADER_MAX_LENGTH];
     guint8          nonce[TLS13_AEAD_NONCE_LENGTH];
     guint8         *buffer;
     guint8         *atag[16];
