@@ -2038,10 +2038,10 @@ fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
 gboolean
 is_cause_accepted(guint8 cause, guint32 version) {
     if (version == 1) {
-        return cause == 128;
+        return cause == 128 || cause == 129 || cause == 130;
     }
     else if (version == 2) {
-        return cause == 16;
+        return cause == 16 || cause == 17 || cause == 18 || cause == 19;
     }
     return FALSE;
 }
