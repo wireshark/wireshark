@@ -101,6 +101,7 @@ static int hf_quic_frame_type_sb_stream_id = -1;
 static int hf_quic_frame_type_sb_offset = -1;
 static int hf_quic_frame_type_sib_stream_id = -1;
 static int hf_quic_frame_type_nci_sequence = -1;
+static int hf_quic_frame_type_nci_connection_id_length = -1;
 static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 static int hf_quic_frame_type_ss_stream_id = -1;
@@ -681,10 +682,13 @@ quic_connection_destroy(quic_info_data_t *conn)
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_){
-    proto_item *ti_ft, *ti_ftflags;
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_packet_info_t *quic_packet)
+{
+    proto_item *ti_ft, *ti_ftflags, *ti;
     proto_tree *ft_tree, *ftflags_tree;
     guint32 frame_type;
+    quic_info_data_t *conn = quic_packet->conn;
+    guint32 version = conn ? conn->version : 0;
 
     ti_ft = proto_tree_add_item(quic_tree, hf_quic_frame, tvb, offset, 1, ENC_NA);
     ft_tree = proto_item_add_subtree(ti_ft, ett_quic_ft);
@@ -856,17 +860,32 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
         break;
         case FT_NEW_CONNECTION_ID:{
             guint32 len_sequence;
+            guint32 nci_length;
+            gboolean valid_cid = FALSE;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
             offset += len_sequence;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+            if (is_quic_draft_max(version, 10)) {
+                nci_length = 8;
+            } else {
+                ti = proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_nci_connection_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &nci_length);
+                offset++;
+
+                valid_cid = nci_length >= 4 && nci_length <= 18;
+                if (!valid_cid) {
+                    expert_add_info_format(pinfo, ti, &ei_quic_protocol_violation,
+                            "Connection ID Length must be between 4 and 18 bytes");
+                }
+            }
+
+            proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_connection_id, tvb, offset, nci_length, ENC_NA);
+            offset += nci_length;
 
             proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_stateless_reset_token, tvb, offset, 16, ENC_NA);
             offset += 16;
 
-            proto_item_set_len(ti_ft, 1 + len_sequence + 8 + 16);
+            proto_item_set_len(ti_ft, 1 + len_sequence + nci_length + 16);
 
             col_prepend_fstr(pinfo->cinfo, COL_INFO, "New Connection ID");
 
@@ -1370,7 +1389,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
         guint decrypted_offset = 0;
         while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0) {
-            decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_info);
+            decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_packet);
         }
     } else if (quic_info->skip_decryption) {
         expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed,
@@ -2244,9 +2263,14 @@ proto_register_quic(void)
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Increases by 1 for each connection ID that is provided by the server", HFILL }
         },
+        { &hf_quic_frame_type_nci_connection_id_length,
+            { "Connection ID Length", "quic.frame_type.nci.connection_id.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_quic_frame_type_nci_connection_id,
             { "Connection ID", "quic.frame_type.nci.connection_id",
-              FT_UINT64, BASE_DEC, NULL, 0x0,
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_quic_frame_type_nci_stateless_reset_token,
