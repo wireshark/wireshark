@@ -3127,6 +3127,10 @@ if (DOXYGEN_EXECUTABLE)
 		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "wsar_html.zip" --format=zip wsar_html
 		DEPENDS wsar_html
 	)
+	set_target_properties(wsar_html wsar_html_zip PROPERTIES
+		FOLDER "Docs"
+		EXCLUDE_FROM_DEFAULT_BUILD True
+	)
 endif(DOXYGEN_EXECUTABLE)
 
 # Test suite wrapper

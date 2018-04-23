@@ -1,20 +1,26 @@
 #
-# - Find unix commands from cygwin
-# This module looks for some usual Unix commands.
+# - Find Doxygen
+# This module looks for a native (non-Cygwin) Doxygen.
 #
-
-include( FindCygwin )
 
 find_program( DOXYGEN_EXECUTABLE
   NAMES
     doxygen
   PATHS
-    ${CYGWIN_INSTALL_PATH}/bin
     /bin
     /usr/bin
     /usr/local/bin
     /sbin
 )
+
+# We set various paths in doxygen.cfg via configure_file(). These are
+# native system paths which aren't compatible with Cygwin's Doxygen.
+string(TOLOWER ${DOXYGEN_EXECUTABLE} _de_lower)
+if(${_de_lower} MATCHES "cyg")
+	set(_ignore_reason "Cygwin Doxygen found at ${DOXYGEN_EXECUTABLE}. Ignoring.")
+	message(STATUS ${_ignore_reason})
+	set(DOXYGEN_EXECUTABLE DOXYGEN_EXECUTABLE-NOTFOUND CACHE FILEPATH ${_ignore_reason} FORCE)
+endif()
 
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( DOXYGEN DEFAULT_MSG DOXYGEN_EXECUTABLE )
