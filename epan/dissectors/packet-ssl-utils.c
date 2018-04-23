@@ -6598,6 +6598,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
     while (offset < next_offset) {
         guint32 parameter_type;
         proto_tree *parameter_tree;
+        guint32 parameter_end_offset;
 
         parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 4, hf->ett.hs_ext_quictp_parameter,
                                                 NULL, "Parameter");
@@ -6615,6 +6616,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         offset += 2;
         proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);
         proto_item_set_len(parameter_tree, 4 + parameter_length);
+        parameter_end_offset = offset + parameter_length;
 
         proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_value,
                             tvb, offset, parameter_length, ENC_NA);
@@ -6634,9 +6636,9 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI:
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_bidi,
-                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
-                offset += 4;
+                offset += 2;
             break;
             case SSL_HND_QUIC_TP_IDLE_TIMEOUT:
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_idle_timeout,
@@ -6667,9 +6669,9 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI:
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_uni,
-                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
-                offset += 4;
+                offset += 2;
             break;
             default:
                 offset += parameter_length;
@@ -6677,6 +6679,10 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             break;
         }
 
+        if (!ssl_end_vector(hf, tvb, pinfo, parameter_tree, offset, parameter_end_offset)) {
+            /* Dissection did not end at expected location, fix it. */
+            offset = parameter_end_offset;
+        }
     }
 
     return offset;

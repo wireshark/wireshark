@@ -1896,7 +1896,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_initial_max_streams_bidi,    \
       { "initial_max_streams_bidi", prefix ".quic.parameter.initial_max_streams_bidi",  \
-        FT_UINT32, BASE_DEC, NULL, 0x00,                                \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "Initial maximum number of application-owned bidirectional streams", HFILL } \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_idle_timeout,                  \
@@ -1921,7 +1921,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_initial_max_streams_uni,    \
       { "initial_max_streams_uni", prefix ".quic.parameter.initial_max_streams_uni",  \
-        FT_UINT32, BASE_DEC, NULL, 0x00,                                \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "Initial maximum number of application-owned unidirectional streams", HFILL } \
     }
 /* }}} */
