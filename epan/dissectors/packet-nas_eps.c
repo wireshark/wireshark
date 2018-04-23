@@ -347,6 +347,7 @@ static expert_field ei_nas_eps_wrong_nb_of_elems = EI_INIT;
 static expert_field ei_nas_eps_unknown_msg_type = EI_INIT;
 static expert_field ei_nas_eps_unknown_pd = EI_INIT;
 static expert_field ei_nas_eps_esm_tp_not_integ_prot = EI_INIT;
+static expert_field ei_nas_eps_sec_hdr_wrong_pd = EI_INIT;
 static expert_field ei_nas_eps_missing_mandatory_elemen = EI_INIT;
 
 /* Global variables */
@@ -6045,18 +6046,18 @@ static void
 dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean second_header)
 {
     const gchar *msg_str;
-    guint32      len;
+    guint32      len, security_header_type;
     gint         ett_tree;
     int          hf_idx;
     void       (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
-    guint8       security_header_type, oct;
+    guint8       oct;
 
     len = tvb_reported_length(tvb);
 
     /* 9.3.1    Security header type */
     if (second_header) {
         security_header_type = tvb_get_guint8(tvb,offset)>>4;
-        proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_nas_eps_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN, &security_header_type);
         proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         if (security_header_type != 0) {
@@ -6208,14 +6209,15 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 {
     proto_item *item;
     proto_tree *nas_eps_tree;
-    guint8      pd, security_header_type;
+    guint32     pd, security_header_type;
     int         offset = 0;
     guint32     len;
     guint32     msg_auth_code;
 
     len = tvb_reported_length(tvb);
     /* The protected NAS message header is 6 octets long, and the NAS message header is at least 2 octets long. */
-    /* If the length of the tvbuffer is less than 8 octets, we can safely conclude the message is not protected. */
+    /* If the length of the tvbuffer is less than 8 octets, we can safely conclude the message is not protected
+       or is a service request. */
     if (len < 8) {
         dissect_nas_eps_plain(tvb, pinfo, tree, data);
         return tvb_captured_length(tvb);
@@ -6233,23 +6235,24 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
     /* Security header type Security header type 9.3.1 M V 1/2 */
-    security_header_type = tvb_get_guint8(tvb,offset)>>4;
-    proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN, &security_header_type);
     /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
-    proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
-    pd = tvb_get_guint8(tvb,offset)&0x0f;
+    proto_tree_add_item_ret_uint(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN, &pd);
     offset++;
     /* Message authentication code  Message authentication code 9.5 M   V   4 */
     if (security_header_type == 0) {
         if (pd == 7) {
             /* Plain EPS mobility management messages. */
             dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
-            return tvb_captured_length(tvb);
         } else {
-            proto_tree_add_expert(nas_eps_tree, pinfo, &ei_nas_eps_esm_tp_not_integ_prot, tvb, offset, len);
+            proto_tree_add_expert(nas_eps_tree, pinfo, &ei_nas_eps_esm_tp_not_integ_prot, tvb, offset, len-4);
+        }
+        return tvb_captured_length(tvb);
+    } else {
+        if (pd != 7) {
+            proto_tree_add_expert(nas_eps_tree, pinfo, &ei_nas_eps_sec_hdr_wrong_pd, tvb, offset, len-4);
             return tvb_captured_length(tvb);
         }
-    } else {
         /* SERVICE REQUEST (12 or greater) is not a plain NAS message treat separately */
         if (security_header_type >= 12) {
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
@@ -7728,6 +7731,7 @@ proto_register_nas_eps(void)
         { &ei_nas_eps_unknown_msg_type, { "nas_eps.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL }},
         { &ei_nas_eps_unknown_pd, { "nas_eps.unknown_pd", PI_PROTOCOL, PI_ERROR, "Unknown protocol discriminator", EXPFILL }},
         { &ei_nas_eps_esm_tp_not_integ_prot, { "nas_eps.esm_tp_not_integrity_protected", PI_PROTOCOL, PI_ERROR, "All ESM / Test Procedures messages should be integrity protected", EXPFILL }},
+        { &ei_nas_eps_sec_hdr_wrong_pd, { "nas_eps.sec_hdr_wrong_pd", PI_PROTOCOL, PI_ERROR, "A security header should use EMM protocol discriminator", EXPFILL }},
         { &ei_nas_eps_missing_mandatory_elemen, { "nas_eps.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
     };
 
