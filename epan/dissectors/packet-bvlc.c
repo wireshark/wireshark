@@ -147,7 +147,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		bvlc_length = packet_length;
 	}
 
-	if (bvlc_length < 4) {
+	if (bvlc_length < 4 || bvlc_length > packet_length) {
 		return 0;	/* reject */
 	}
 	if (tree) {
