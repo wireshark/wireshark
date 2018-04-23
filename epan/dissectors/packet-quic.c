@@ -38,6 +38,7 @@ void proto_register_quic(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_quic = -1;
+static int hf_quic_connection_number = -1;
 static int hf_quic_header_form = -1;
 static int hf_quic_long_packet_type = -1;
 static int hf_quic_dcid = -1;
@@ -105,11 +106,13 @@ static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 static int hf_quic_frame_type_ss_stream_id = -1;
 static int hf_quic_frame_type_ss_application_error_code = -1;
 
+static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
 static expert_field ei_quic_decryption_failed = EI_INIT;
 static expert_field ei_quic_protocol_violation = EI_INIT;
 
 static gint ett_quic = -1;
+static gint ett_quic_connection_info = -1;
 static gint ett_quic_ft = -1;
 static gint ett_quic_ftflags = -1;
 
@@ -175,6 +178,7 @@ struct quic_cid_item {
  * Connection IDs (DCID).
  */
 typedef struct quic_info_data {
+    guint32         number;         /** Similar to "udp.stream", but for identifying QUIC connections across migrations. */
     guint32         version;
     address         server_address;
     guint16         server_port;
@@ -213,6 +217,7 @@ typedef struct quic_packet_info {
 static wmem_map_t *quic_client_connections, *quic_server_connections;
 static wmem_map_t *quic_initial_connections;    /* Initial.DCID -> connection */
 static wmem_list_t *quic_connections;   /* All unique connections. */
+static guint quic_connections_count;
 
 /* Returns the QUIC draft version or 0 if not applicable. */
 static inline guint8 quic_draft_version(guint32 version) {
@@ -599,6 +604,7 @@ quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *sc
 
     conn = wmem_new0(wmem_file_scope(), quic_info_data_t);
     wmem_list_append(quic_connections, conn);
+    conn->number = quic_connections_count++;
     conn->version = version;
     copy_address_wmem(wmem_file_scope(), &conn->server_address, &pinfo->dst);
     conn->server_port = pinfo->destport;
@@ -1426,7 +1432,6 @@ dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
 
     if (!quic_info) {
         // No connection might be available if the Initial Packet is missing.
-        // TODO expert info?
         return tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -1448,7 +1453,6 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
 
     if (!quic_info) {
         // No connection might be available if the Initial Packet is missing.
-        // TODO expert info?
         return tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -1459,6 +1463,28 @@ dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, gui
 
 
     return offset;
+}
+
+static void
+quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, quic_packet_info_t *quic_packet)
+{
+    proto_tree         *ctree;
+    proto_item         *pi;
+    quic_info_data_t   *conn = quic_packet->conn;
+
+    ctree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_quic_connection_info, NULL, "QUIC Connection information");
+    if (!conn) {
+        expert_add_info(pinfo, ctree, &ei_quic_connection_unknown);
+        return;
+    }
+
+    pi = proto_tree_add_uint(ctree, hf_quic_connection_number, tvb, 0, 0, conn->number);
+    PROTO_ITEM_SET_GENERATED(pi);
+#if 0
+    proto_tree_add_debug_text(ctree, "Client CID: %s", cid_to_string(&conn->client_cids.data));
+    proto_tree_add_debug_text(ctree, "Server CID: %s", cid_to_string(&conn->server_cids.data));
+    proto_tree_add_debug_text(ctree, "InitialCID: %s", cid_to_string(&conn->client_dcid_initial));
+#endif
 }
 
 /**
@@ -1804,6 +1830,8 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
     }
 
+    quic_add_connection_info(tvb, pinfo, quic_tree, quic_packet);
+
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, tvb, offset, 1, ENC_NA, &header_form);
     if(header_form) {
         gboolean is_vn = tvb_get_ntohl(tvb, offset + 1) == 0;
@@ -1877,6 +1905,7 @@ static void
 quic_init(void)
 {
     quic_connections = wmem_list_new(wmem_file_scope());
+    quic_connections_count = 0;
     quic_initial_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
     quic_client_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
     quic_server_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
@@ -1898,6 +1927,12 @@ proto_register_quic(void)
     expert_module_t *expert_quic;
 
     static hf_register_info hf[] = {
+        { &hf_quic_connection_number,
+          { "Connection Number", "quic.connection.number",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Connection identifier within this capture file", HFILL }
+        },
+
         { &hf_quic_header_form,
           { "Header Form", "quic.header_form",
             FT_UINT8, BASE_DEC, VALS(quic_short_long_header_vals), 0x80,
@@ -2235,11 +2270,16 @@ proto_register_quic(void)
 
     static gint *ett[] = {
         &ett_quic,
+        &ett_quic_connection_info,
         &ett_quic_ft,
         &ett_quic_ftflags
     };
 
     static ei_register_info ei[] = {
+        { &ei_quic_connection_unknown,
+          { "quic.connection.unknown", PI_PROTOCOL, PI_NOTE,
+            "Unknown QUIC connection. Missing Initial Packet or migrated connection?", EXPFILL }
+        },
         { &ei_quic_ft_unknown,
           { "quic.ft.unknown", PI_UNDECODED, PI_NOTE,
             "Unknown Frame Type", EXPFILL }
