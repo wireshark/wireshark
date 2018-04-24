@@ -228,7 +228,7 @@ proto_reg_handoff_zbee_zcl_keep_alive(void)
                             ZBEE_ZCL_CID_KEEP_ALIVE,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_keep_alive_attr_id,
-                            hf_zbee_zcl_keep_alive_attr_id,
+                            -1,
                             -1, -1,
                             (zbee_zcl_fn_attr_data)dissect_zcl_keep_alive_attr_data
                          );
@@ -239,7 +239,7 @@ proto_reg_handoff_zbee_zcl_keep_alive(void)
 /* ########################################################################## */
 
 /* Attributes */
-#define zbee_zcl_price_attr_names_VALUE_STRING_LIST(XXX) \
+#define zbee_zcl_price_attr_server_names_VALUE_STRING_LIST(XXX) \
 /* Tier Label (Delivered) Set */ \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_PRICE_LABEL,              0x0000, "Tier 1 Price Label" ) \
     XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_PRICE_LABEL,              0x0001, "Tier 2 Price Label" ) \
@@ -1270,9 +1270,19 @@ proto_reg_handoff_zbee_zcl_keep_alive(void)
 /* Smart Energy */ \
     XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_PRICE,           0xFFFE, "Attribute Reporting Status" )
 
-VALUE_STRING_ENUM(zbee_zcl_price_attr_names);
-VALUE_STRING_ARRAY(zbee_zcl_price_attr_names);
-static value_string_ext zbee_zcl_price_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_price_attr_names);
+VALUE_STRING_ENUM(zbee_zcl_price_attr_server_names);
+VALUE_STRING_ARRAY(zbee_zcl_price_attr_server_names);
+static value_string_ext zbee_zcl_price_attr_server_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_price_attr_server_names);
+
+#define zbee_zcl_price_attr_client_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CLNT_PRICE_INC_RND_MINUTES,      0x0000, "Price Increase Randomize Minutes" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CLNT_PRICE_DEC_RND_MINUTES,      0x0001, "Price Decrease Randomize Minutes" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CLNT_COMMODITY_TYPE,             0x0002, "Commodity Type" ) \
+/* Smart Energy */ \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_PRICE_CLNT,      0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_price_attr_client_names);
+VALUE_STRING_ARRAY(zbee_zcl_price_attr_client_names);
 
 /* Server Commands Received */
 #define zbee_zcl_price_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -1420,7 +1430,8 @@ static int proto_zbee_zcl_price = -1;
 
 static int hf_zbee_zcl_price_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_price_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_price_attr_id = -1;
+static int hf_zbee_zcl_price_attr_server_id = -1;
+static int hf_zbee_zcl_price_attr_client_id = -1;
 static int hf_zbee_zcl_price_attr_reporting_status = -1;
 static int hf_zbee_zcl_price_provider_id = -1;
 static int hf_zbee_zcl_price_issuer_event_id = -1;
@@ -3040,8 +3051,12 @@ proto_register_zbee_zcl_price(void)
 {
     static hf_register_info hf[] = {
 
-        { &hf_zbee_zcl_price_attr_id,
-            { "Attribute", "zbee_zcl_se.price.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_price_attr_names_ext,
+        { &hf_zbee_zcl_price_attr_server_id,
+            { "Attribute", "zbee_zcl_se.price.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_price_attr_server_names_ext,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_attr_client_id,
+            { "Attribute", "zbee_zcl_se.price.attr_client_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_price_attr_client_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_attr_reporting_status,                         /* common to all SE clusters */
@@ -3549,8 +3564,8 @@ proto_reg_handoff_zbee_zcl_price(void)
                             ett_zbee_zcl_price,
                             ZBEE_ZCL_CID_PRICE,
                             ZBEE_MFG_CODE_NONE,
-                            hf_zbee_zcl_price_attr_id,
-                            hf_zbee_zcl_price_attr_id,
+                            hf_zbee_zcl_price_attr_server_id,
+                            hf_zbee_zcl_price_attr_client_id,
                             hf_zbee_zcl_price_srv_rx_cmd_id,
                             hf_zbee_zcl_price_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_price_attr_data
@@ -3562,17 +3577,16 @@ proto_reg_handoff_zbee_zcl_price(void)
 /* ########################################################################## */
 
 /* Attributes */
-#define zbee_zcl_drlc_attr_names_VALUE_STRING_LIST(XXX) \
-/* Demand Response Client Cluster */ \
-    XXX(ZBEE_ZCL_ATTR_ID_DRLC_UTILITY_ENROLLMENT_GROUP,        0x0000, "Utility Enrollment Group" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_DRLC_START_RANDOMIZATION_MINUTES,     0x0001, "Start Randomization Minutes" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_DRLC_DURATION_RANDOMIZATION_MINUTES,  0x0002, "Duration Randomization Minutes" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_DRLC_DEVICE_CLASS_VALUE,              0x0003, "Device Class Value" ) \
+#define zbee_zcl_drlc_attr_client_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_CLNT_UTILITY_ENROLLMENT_GROUP,   0x0000, "Utility Enrollment Group" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_CLNT_START_RANDOMIZATION_MINUTES,0x0001, "Start Randomization Minutes" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_CLNT_DURATION_RND_MINUTES,       0x0002, "Duration Randomization Minutes" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_CLNT_DEVICE_CLASS_VALUE,         0x0003, "Device Class Value" ) \
 /* Smart Energy */ \
-    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DRLC,           0xFFFE, "Attribute Reporting Status" )
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DRLC_CLNT,      0xFFFE, "Attribute Reporting Status" )
 
-VALUE_STRING_ENUM(zbee_zcl_drlc_attr_names);
-VALUE_STRING_ARRAY(zbee_zcl_drlc_attr_names);
+VALUE_STRING_ENUM(zbee_zcl_drlc_attr_client_names);
+VALUE_STRING_ARRAY(zbee_zcl_drlc_attr_client_names);
 
 /* Server Commands Received */
 #define zbee_zcl_drlc_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -3609,7 +3623,7 @@ static int proto_zbee_zcl_drlc = -1;
 
 static int hf_zbee_zcl_drlc_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_drlc_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_drlc_attr_id = -1;
+static int hf_zbee_zcl_drlc_attr_client_id = -1;
 static int hf_zbee_zcl_drlc_attr_reporting_status = -1;
 
 /* Initialize the subtree pointers */
@@ -3634,7 +3648,7 @@ dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint
 {
     switch (attr_id) {
         /* applies to all SE clusters */
-        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DRLC:
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DRLC_CLNT:
             proto_tree_add_item(tree, hf_zbee_zcl_drlc_attr_reporting_status, tvb, *offset, 1, ENC_NA);
             *offset += 1;
             break;
@@ -3744,8 +3758,8 @@ proto_register_zbee_zcl_drlc(void)
 {
     static hf_register_info hf[] = {
 
-        { &hf_zbee_zcl_drlc_attr_id,
-            { "Attribute", "zbee_zcl_se.drlc.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_drlc_attr_names),
+        { &hf_zbee_zcl_drlc_attr_client_id,
+            { "Attribute", "zbee_zcl_se.drlc.attr_client_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_drlc_attr_client_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_drlc_attr_reporting_status,                         /* common to all SE clusters */
@@ -3788,8 +3802,8 @@ proto_reg_handoff_zbee_zcl_drlc(void)
                             ett_zbee_zcl_drlc,
                             ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL,
                             ZBEE_MFG_CODE_NONE,
-                            hf_zbee_zcl_drlc_attr_id,
-                            hf_zbee_zcl_drlc_attr_id,
+                            -1,
+                            hf_zbee_zcl_drlc_attr_client_id,
                             hf_zbee_zcl_drlc_srv_rx_cmd_id,
                             hf_zbee_zcl_drlc_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_drlc_attr_data
@@ -4848,7 +4862,6 @@ static int hf_zbee_zcl_met_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_met_attr_server_id = -1;
 static int hf_zbee_zcl_met_attr_client_id = -1;
 static int hf_zbee_zcl_met_attr_reporting_status = -1;
-
 static int hf_zbee_zcl_met_func_noti_flags = -1;
 static int hf_zbee_zcl_met_func_noti_flag_new_ota_firmware = -1;
 static int hf_zbee_zcl_met_func_noti_flag_cbke_update_request = -1;
@@ -5960,13 +5973,7 @@ proto_reg_handoff_zbee_zcl_met(void)
 /* #### (0x0703) MESSAGING CLUSTER ########################################## */
 /* ########################################################################## */
 
-/* Attributes - None (other than Attribute Reporting Status) */
-#define zbee_zcl_msg_attr_names_VALUE_STRING_LIST(XXX) \
-/* Smart Energy */ \
-    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MSG,     0xFFFE, "Attribute Reporting Status" )
-
-VALUE_STRING_ENUM(zbee_zcl_msg_attr_names);
-VALUE_STRING_ARRAY(zbee_zcl_msg_attr_names);
+/* Attributes - None */
 
 /* Server Commands Received */
 #define zbee_zcl_msg_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -6015,9 +6022,6 @@ VALUE_STRING_ARRAY(zbee_zcl_msg_srv_tx_cmd_names);
 void proto_register_zbee_zcl_msg(void);
 void proto_reg_handoff_zbee_zcl_msg(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_msg_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
-
 /* Command Dissector Helpers */
 static void dissect_zcl_msg_display             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_msg_cancel              (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
@@ -6037,8 +6041,6 @@ static int proto_zbee_zcl_msg = -1;
 
 static int hf_zbee_zcl_msg_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_msg_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_msg_attr_id = -1;
-static int hf_zbee_zcl_msg_attr_reporting_status = -1;
 static int hf_zbee_zcl_msg_message_id = -1;
 static int hf_zbee_zcl_msg_ctrl = -1;
 static int hf_zbee_zcl_msg_ctrl_tx = -1;
@@ -6086,34 +6088,6 @@ static const value_string zbee_zcl_msg_ctrl_importance_names[] = {
 /*************************/
 /* Function Bodies       */
 /*************************/
-
-/**
- *This function is called by ZCL foundation dissector in order to decode
- *
- *@param tree pointer to data tree Wireshark uses to display packet.
- *@param tvb pointer to buffer containing raw packet.
- *@param offset pointer to buffer offset
- *@param attr_id attribute identifier
- *@param data_type attribute data type
- *@param client_attr ZCL client
-*/
-static void
-dissect_zcl_msg_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
-{
-    switch (attr_id) {
-        /* no cluster specific attributes */
-
-        /* applies to all SE clusters */
-        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MSG:
-            proto_tree_add_item(tree, hf_zbee_zcl_msg_attr_reporting_status, tvb, *offset, 1, ENC_NA);
-            *offset += 1;
-            break;
-
-        default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
-            break;
-    }
-} /*dissect_zcl_ias_zone_attr_data*/
 
 /**
  *ZigBee ZCL Messaging cluster dissector for wireshark.
@@ -6431,14 +6405,6 @@ proto_register_zbee_zcl_msg(void)
 {
     static hf_register_info hf[] = {
 
-        { &hf_zbee_zcl_msg_attr_id,
-            { "Attribute", "zbee_zcl_se.msg.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_msg_attr_names),
-            0x0, NULL, HFILL } },
-
-        { &hf_zbee_zcl_msg_attr_reporting_status,                         /* common to all SE clusters */
-            { "Attribute Reporting Status", "zbee_zcl_se.msg.attr.attr_reporting_status",
-            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
-
         { &hf_zbee_zcl_msg_srv_tx_cmd_id,
             { "Command", "zbee_zcl_se.msg.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_msg_srv_tx_cmd_names),
             0x00, NULL, HFILL } },
@@ -6566,11 +6532,10 @@ proto_reg_handoff_zbee_zcl_msg(void)
                             ett_zbee_zcl_msg,
                             ZBEE_ZCL_CID_MESSAGE,
                             ZBEE_MFG_CODE_NONE,
-                            hf_zbee_zcl_msg_attr_id,
-                            hf_zbee_zcl_msg_attr_id,
+                            -1, -1,
                             hf_zbee_zcl_msg_srv_rx_cmd_id,
                             hf_zbee_zcl_msg_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_msg_attr_data
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_msg*/
 
@@ -7157,7 +7122,7 @@ proto_reg_handoff_zbee_zcl_tun(void)
                             ZBEE_ZCL_CID_TUNNELING,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_tun_attr_id,
-                            hf_zbee_zcl_tun_attr_id,
+                            -1,
                             hf_zbee_zcl_tun_srv_rx_cmd_id,
                             hf_zbee_zcl_tun_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_tun_attr_data
@@ -8557,7 +8522,7 @@ proto_reg_handoff_zbee_zcl_pp(void)
                             ZBEE_ZCL_CID_PRE_PAYMENT,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_pp_attr_id,
-                            hf_zbee_zcl_pp_attr_id,
+                            -1,
                             hf_zbee_zcl_pp_srv_rx_cmd_id,
                             hf_zbee_zcl_pp_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_pp_attr_data
@@ -8784,7 +8749,7 @@ proto_reg_handoff_zbee_zcl_energy_management(void)
                             ZBEE_ZCL_CID_ENERGY_MANAGEMENT,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_energy_management_attr_id,
-                            hf_zbee_zcl_energy_management_attr_id,
+                            -1,
                             hf_zbee_zcl_energy_management_srv_rx_cmd_id,
                             hf_zbee_zcl_energy_management_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_energy_management_attr_data
@@ -9758,7 +9723,7 @@ proto_reg_handoff_zbee_zcl_calendar(void)
                             ZBEE_ZCL_CID_CALENDAR,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_calendar_attr_id,
-                            hf_zbee_zcl_calendar_attr_id,
+                            -1,
                             hf_zbee_zcl_calendar_srv_rx_cmd_id,
                             hf_zbee_zcl_calendar_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_calendar_attr_data
@@ -10068,13 +10033,7 @@ proto_reg_handoff_zbee_zcl_device_management(void)
 /* #### (0x0709) EVENTS CLUSTER ############################################# */
 /* ########################################################################## */
 
-/* Attributes */
-#define zbee_zcl_events_attr_names_VALUE_STRING_LIST(XXX) \
-/* Smart Energy */ \
-    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_EVENTS,          0xFFFE, "Attribute Reporting Status" )
-
-VALUE_STRING_ENUM(zbee_zcl_events_attr_names);
-VALUE_STRING_ARRAY(zbee_zcl_events_attr_names);
+/* Attributes - None */
 
 /* Server Commands Received */
 #define zbee_zcl_events_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -10099,9 +10058,6 @@ VALUE_STRING_ARRAY(zbee_zcl_events_srv_tx_cmd_names);
 void proto_register_zbee_zcl_events(void);
 void proto_reg_handoff_zbee_zcl_events(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_events_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
-
 /* Command Dissector Helpers */
 static void dissect_zcl_events_get_event_log                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_events_clear_event_log_request          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -10118,8 +10074,6 @@ static int proto_zbee_zcl_events = -1;
 
 static int hf_zbee_zcl_events_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_events_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_events_attr_id = -1;
-static int hf_zbee_zcl_events_attr_reporting_status = -1;
 static int hf_zbee_zcl_events_get_event_log_event_control_log_id = -1;
 static int hf_zbee_zcl_events_get_event_log_event_id = -1;
 static int hf_zbee_zcl_events_get_event_log_start_time = -1;
@@ -10153,32 +10107,6 @@ static gint ett_zbee_zcl_events_publish_event_log_entry[ZBEE_ZCL_SE_EVENTS_NUM_P
 /*************************/
 /* Function Bodies       */
 /*************************/
-
-/**
- *This function is called by ZCL foundation dissector in order to decode
- *
- *@param tree pointer to data tree Wireshark uses to display packet.
- *@param tvb pointer to buffer containing raw packet.
- *@param offset pointer to buffer offset
- *@param attr_id attribute identifier
- *@param data_type attribute data type
- *@param client_attr ZCL client
-*/
-static void
-dissect_zcl_events_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
-{
-    switch (attr_id) {
-        /* applies to all SE clusters */
-        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_EVENTS:
-            proto_tree_add_item(tree, hf_zbee_zcl_events_attr_reporting_status, tvb, *offset, 1, ENC_NA);
-            *offset += 1;
-            break;
-
-        default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
-            break;
-    }
-} /*dissect_zcl_events_attr_data*/
 
 /**
  *ZigBee ZCL Events cluster dissector for wireshark.
@@ -10450,14 +10378,6 @@ proto_register_zbee_zcl_events(void)
 {
     static hf_register_info hf[] = {
 
-        { &hf_zbee_zcl_events_attr_id,
-            { "Attribute", "zbee_zcl_se.events.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_events_attr_names),
-            0x0, NULL, HFILL } },
-
-        { &hf_zbee_zcl_events_attr_reporting_status,                         /* common to all SE clusters */
-            { "Attribute Reporting Status", "zbee_zcl_se.events.attr.attr_reporting_status",
-            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
-
         { &hf_zbee_zcl_events_srv_tx_cmd_id,
             { "Command", "zbee_zcl_se.events.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_events_srv_tx_cmd_names),
             0x00, NULL, HFILL } },
@@ -10585,11 +10505,10 @@ proto_reg_handoff_zbee_zcl_events(void)
                             ett_zbee_zcl_events,
                             ZBEE_ZCL_CID_EVENTS,
                             ZBEE_MFG_CODE_NONE,
-                            hf_zbee_zcl_events_attr_id,
-                            hf_zbee_zcl_events_attr_id,
+                            -1, -1,
                             hf_zbee_zcl_events_srv_rx_cmd_id,
                             hf_zbee_zcl_events_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_events_attr_data
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_events*/
 
@@ -10597,12 +10516,7 @@ proto_reg_handoff_zbee_zcl_events(void)
 /* #### (0x070A) MDU PAIRING CLUSTER ############################################ */
 /* ########################################################################## */
 
-/* Attributes */
-#define zbee_zcl_mdu_pairing_attr_names_VALUE_STRING_LIST(XXX) \
-    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MDU_PAIRING,         0xFFFE, "Attribute Reporting Status" )
-
-VALUE_STRING_ENUM(zbee_zcl_mdu_pairing_attr_names);
-VALUE_STRING_ARRAY(zbee_zcl_mdu_pairing_attr_names);
+/* Attributes - None */
 
 /* Server Commands Received */
 #define zbee_zcl_mdu_pairing_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
@@ -10624,9 +10538,6 @@ VALUE_STRING_ARRAY(zbee_zcl_mdu_pairing_srv_tx_cmd_names);
 void proto_register_zbee_zcl_mdu_pairing(void);
 void proto_reg_handoff_zbee_zcl_mdu_pairing(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_mdu_pairing_attr_data        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
-
 /* Command Dissector Helpers */
 static void dissect_zcl_mdu_pairing_request (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_mdu_pairing_response(tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -10640,8 +10551,6 @@ static int proto_zbee_zcl_mdu_pairing = -1;
 
 static int hf_zbee_zcl_mdu_pairing_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_mdu_pairing_srv_rx_cmd_id = -1;
-static int hf_zbee_zcl_mdu_pairing_attr_id = -1;
-static int hf_zbee_zcl_mdu_pairing_attr_reporting_status = -1;
 static int hf_zbee_zcl_mdu_pairing_info_version = -1;
 static int hf_zbee_zcl_mdu_pairing_total_devices_number = -1;
 static int hf_zbee_zcl_mdu_pairing_cmd_id = -1;
@@ -10656,33 +10565,6 @@ static gint ett_zbee_zcl_mdu_pairing = -1;
 /*************************/
 /* Function Bodies       */
 /*************************/
-
-/**
- *This function is called by ZCL foundation dissector in order to decode
- *
- *@param tree pointer to data tree Wireshark uses to display packet.
- *@param tvb pointer to buffer containing raw packet.
- *@param offset pointer to buffer offset
- *@param attr_id attribute identifier
- *@param data_type attribute data type
- *@param client_attr ZCL client
-*/
-static void
-dissect_zcl_mdu_pairing_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
-{
-    /* Dissect attribute data type and data */
-    switch (attr_id) {
-        /* applies to all SE clusters */
-        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MDU_PAIRING:
-            proto_tree_add_item(tree, hf_zbee_zcl_mdu_pairing_attr_reporting_status, tvb, *offset, 1, ENC_NA);
-            *offset += 1;
-            break;
-
-        default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
-            break;
-    }
-} /*dissect_zcl_mdu_pairing_attr_data*/
 
 /**
  *ZigBee ZCL MDU Pairing cluster dissector for wireshark.
@@ -10828,14 +10710,6 @@ proto_register_zbee_zcl_mdu_pairing(void)
 {
     static hf_register_info hf[] = {
 
-        { &hf_zbee_zcl_mdu_pairing_attr_id,
-            { "Attribute", "zbee_zcl_se.mdu_pairing.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_mdu_pairing_attr_names),
-            0x0, NULL, HFILL } },
-
-        { &hf_zbee_zcl_mdu_pairing_attr_reporting_status,                         /* common to all SE clusters */
-            { "Attribute Reporting Status", "zbee_zcl_se.mdu_pairing.attr.attr_reporting_status",
-            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
-
         { &hf_zbee_zcl_mdu_pairing_srv_tx_cmd_id,
             { "Command", "zbee_zcl_se.mdu_pairing.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_mdu_pairing_srv_tx_cmd_names),
             0x00, NULL, HFILL } },
@@ -10899,11 +10773,10 @@ proto_reg_handoff_zbee_zcl_mdu_pairing(void)
                             ett_zbee_zcl_mdu_pairing,
                             ZBEE_ZCL_CID_MDU_PAIRING,
                             ZBEE_MFG_CODE_NONE,
-                            hf_zbee_zcl_mdu_pairing_attr_id,
-                            hf_zbee_zcl_mdu_pairing_attr_id,
+                            -1, -1,
                             hf_zbee_zcl_mdu_pairing_srv_rx_cmd_id,
                             hf_zbee_zcl_mdu_pairing_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_mdu_pairing_attr_data
+                            NULL
                          );
 } /*proto_reg_handoff_zbee_zcl_mdu_pairing*/
 
@@ -11155,7 +11028,7 @@ proto_reg_handoff_zbee_zcl_sub_ghz(void)
                             ZBEE_ZCL_CID_SUB_GHZ,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_sub_ghz_attr_id,
-                            hf_zbee_zcl_sub_ghz_attr_id,
+                            -1,
                             hf_zbee_zcl_sub_ghz_srv_rx_cmd_id,
                             hf_zbee_zcl_sub_ghz_srv_tx_cmd_id,
                             (zbee_zcl_fn_attr_data)dissect_zcl_sub_ghz_attr_data
@@ -11244,6 +11117,7 @@ static int proto_zbee_zcl_ke = -1;
 static int hf_zbee_zcl_ke_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_ke_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_ke_attr_id = -1;
+static int hf_zbee_zcl_ke_attr_client_id = -1;
 static int hf_zbee_zcl_ke_suite = -1;
 static int hf_zbee_zcl_ke_ephemeral_time = -1;
 static int hf_zbee_zcl_ke_confirm_time = -1;
@@ -11601,6 +11475,11 @@ proto_register_zbee_zcl_ke(void)
             { "Attribute", "zbee_zcl_se.ke.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_ke_attr_names),
             0x00, NULL, HFILL } },
 
+        /* Server and client attributes are the same but should of cause be put in the correct field */
+        { &hf_zbee_zcl_ke_attr_client_id,
+            { "Attribute", "zbee_zcl_se.ke.attr_client_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_ke_attr_names),
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_ke_srv_tx_cmd_id,
             { "Command", "zbee_zcl_se.ke.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ke_srv_cmd_names),
             0x00, NULL, HFILL } },
@@ -11723,7 +11602,7 @@ proto_reg_handoff_zbee_zcl_ke(void)
                             ZBEE_ZCL_CID_KE,
                             ZBEE_MFG_CODE_NONE,
                             hf_zbee_zcl_ke_attr_id,
-                            hf_zbee_zcl_ke_attr_id,
+                            hf_zbee_zcl_ke_attr_client_id,
                             hf_zbee_zcl_ke_srv_rx_cmd_id,
                             hf_zbee_zcl_ke_srv_tx_cmd_id,
                             NULL
