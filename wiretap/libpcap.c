@@ -38,10 +38,9 @@ typedef struct {
 	void *encap_priv;
 } libpcap_t;
 
-/* Try to read the first two records of the capture file. */
+/* Try to read the first few records of the capture file. */
 static int libpcap_try(wtap *wth, int *err, gchar **err_info);
-static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
-    struct pcaprec_ss990915_hdr *hdr);
+static int libpcap_try_record(wtap *wth, FILE_T fh, int *err, gchar **err_info);
 
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
@@ -494,52 +493,15 @@ static int libpcap_try(wtap *wth, int *err, gchar **err_info)
 	int i;
 
 	/*
-	 * pcaprec_ss990915_hdr is the largest header type.
+	 * Attempt to read the first record.
 	 */
-	struct pcaprec_ss990915_hdr rec_hdr;
-
-	/*
-	 * Attempt to read the first record's header.
-	 */
-	ret = libpcap_try_header(wth, wth->fh, err, err_info, &rec_hdr);
-	if (ret == -1) {
-		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
-			/*
-			 * EOF or short read - assume the file is in this
-			 * format.
-			 * When our client tries to read the first packet
-			 * they will presumably get the same EOF or short
-			 * read.
-			 */
-			return 0;
-		}
-
-		return ret;
-	}
+	ret = libpcap_try_record(wth, wth->fh, err, err_info);
 	if (ret != 0) {
 		/*
-		 * Probably a mismatch; return the figure of merit
-		 * (demerit?).
+		 * Error or mismatch; return the error indication or
+		 * the figure of merit (demerit?).
 		 */
 		return ret;
-	}
-
-	/*
-	 * Now skip over the first record's data, under the assumption
-	 * that the header is sane.
-	 */
-	if (!wtap_read_bytes(wth->fh, NULL, rec_hdr.hdr.incl_len, err, err_info)) {
-		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
-			/*
-			 * EOF or short read - assume the file is in this
-			 * format.
-			 * When our client tries to read the second
-			 * packet they will presumably get the same
-			 * EOF or short read.
-			 */
-			return 0;
-		}
-		return -1;
 	}
 
 	/*
@@ -549,69 +511,59 @@ static int libpcap_try(wtap *wth, int *err, gchar **err_info)
 	 */
 	for (i = 1; i < MAX_RECORDS_TO_TRY; i++) {
 		/*
-		 * First, attempt to read the record's header.
+		 * Attempt to read this record.
 		 */
-		ret = libpcap_try_header(wth, wth->fh, err, err_info, &rec_hdr);
-		if (ret == -1) {
-			if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
-				/*
-				 * EOF or short read - assume the file is
-				 * in this format.
-				 * When our client tries to read this
-				 * packet they will presumably get the
-				 * same EOF or short read.
-				 */
-				return 0;
-			}
-
-			return ret;
-		}
+		ret = libpcap_try_record(wth, wth->fh, err, err_info);
 		if (ret != 0) {
 			/*
-			 * Probably a mismatch; return the figure of merit
-			 * (demerit?).
+			 * Error or mismatch; return the error indication or
+			 * the figure of merit (demerit?).
 			 */
-			return ret;
-		}
-
-		/*
-		 * That succeeded.  Now skip over the first record's data,
-		 * under the assumption that the header is sane.
-		 */
-		if (!wtap_read_bytes(wth->fh, NULL, rec_hdr.hdr.incl_len,
-		    err, err_info)) {
-			if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
-				/*
-				 * EOF or short read - assume the file is
-				 * in this format.
-				 * When our client tries to read this
-				 * packet they will presumably get the
-				 * same EOF or short read.
-				 */
-				return 0;
-			}
-
 			return ret;
 		}
 	}
 
+	/* They all succeeded. */
 	return 0;
 }
 
-/* Read the header of the next packet.
+/* Read the header of the next packet and, if that succeeds, read the
+   data of the next packet.
 
    Return -1 on an I/O error, 0 on success, or a positive number if the
    header looks corrupt.  The higher the positive number, the more things
    are wrong with the header; this is used by the heuristics that try to
    guess what type of file it is, with the type with the fewest problems
    being chosen. */
-static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
-    struct pcaprec_ss990915_hdr *hdr)
+static int libpcap_try_record(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 {
+	/*
+	 * pcaprec_ss990915_hdr is the largest header type.
+	 */
+	struct pcaprec_ss990915_hdr rec_hdr;
 	int	ret;
 
-	if (!libpcap_read_header(wth, fh, err, err_info, hdr))
+	if (!libpcap_read_header(wth, fh, err, err_info, &rec_hdr)) {
+		if (*err == 0) {
+			/*
+			 * EOF - assume the file is in this format.
+			 * This means it doesn't have all the
+			 * records we're trying to read.
+			 */
+			return 0;
+		}
+		if (*err == WTAP_ERR_SHORT_READ) {
+			/*
+			 * Short read; this might be a corrupt
+			 * file in this format or might not be
+			 * in this format.  Return a figure of
+			 * merit of 1.
+			 */
+			return 1;
+		}
+		/* Hard error. */
 		return -1;
+	}
 
 	ret = 0;	/* start out presuming everything's OK */
 	switch (wth->file_type_subtype) {
@@ -623,7 +575,7 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		 * values >= 1 000 000 000 as an indication that
 		 * the header format might not be what we think it is.
 		 */
-		if (hdr->hdr.ts_usec >= 1000000000)
+		if (rec_hdr.hdr.ts_usec >= 1000000000)
 			ret++;
 		break;
 
@@ -633,11 +585,11 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		 * values >= 1 000 000 as an indication that the header
 		 * format might not be what we think it is.
 		 */
-		if (hdr->hdr.ts_usec >= 1000000)
+		if (rec_hdr.hdr.ts_usec >= 1000000)
 			ret++;
 		break;
 	}
-	if (hdr->hdr.incl_len > wtap_max_snaplen_for_encap(wth->file_encap)) {
+	if (rec_hdr.hdr.incl_len > wtap_max_snaplen_for_encap(wth->file_encap)) {
 		/*
 		 * Probably either a corrupt capture file or a file
 		 * of a type different from the one we're trying.
@@ -645,7 +597,7 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		ret++;
 	}
 
-	if (hdr->hdr.orig_len > 128*1024*1024) {
+	if (rec_hdr.hdr.orig_len > 128*1024*1024) {
 		/*
 		 * In theory I guess the on-the-wire packet size can be
 		 * arbitrarily large, and it can certainly be larger than the
@@ -662,7 +614,7 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		ret++;
 	}
 
-	if (hdr->hdr.incl_len > wth->snapshot_length) {
+	if (rec_hdr.hdr.incl_len > wth->snapshot_length) {
 	        /*
 	         * This is not a fatal error, and packets that have one
 	         * such packet probably have thousands. For discussion,
@@ -681,14 +633,41 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		ret++;
 	}
 
-	if (hdr->hdr.incl_len > hdr->hdr.orig_len) {
+	if (rec_hdr.hdr.incl_len > rec_hdr.hdr.orig_len) {
 		/*
 		 * Another hint that this might be the wrong file type.
 		 */
 		ret++;
 	}
 
-	return ret;
+	if (ret != 0) {
+		/*
+		 * Might be the wrong file type; stop trying, and give
+		 * this as the figure of merit for this file type.
+		 */
+		return ret;
+	}
+
+	/*
+	 * Now skip over the record's data, under the assumption that
+	 * the header is sane.
+	 */
+	if (!wtap_read_bytes(wth->fh, NULL, rec_hdr.hdr.incl_len, err,
+	    err_info)) {
+		if (*err == WTAP_ERR_SHORT_READ) {
+			/*
+			 * Short read - treat that as a suggestion that
+			 * the header isn't sane, and return a figure of
+			 * merit value of 1.
+			 */
+			return 1;
+		}
+		/* Hard error. */
+		return -1;
+	}
+
+	/* Success. */
+	return 0;
 }
 
 /* Read the next packet */
