@@ -754,10 +754,10 @@ enterprises_cleanup(void)
     g_assert(g_enterprises_path);
     g_free(g_enterprises_path);
     g_enterprises_path = NULL;
-    if (g_pservices_path) {
-        g_free(g_pservices_path);
-        g_pservices_path = NULL;
-    }
+    g_free(g_penterprises_path);
+    g_penterprises_path = NULL;
+    g_free(g_pservices_path);
+    g_pservices_path = NULL;
 }
 
 /* Fill in an IP4 structure with info from subnets file or just with the
