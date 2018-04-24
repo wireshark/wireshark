@@ -411,80 +411,82 @@ dissect_bcp_data(proto_tree *bcp_tree, packet_info *pinfo, tvbuff_t *tvb,
  * dissector function of block header
  *
  * input: tree, buffer (data), offset (data pointer), number of header block
- * output: offset, command from header, length of following data
- * return: nothing
+ * output: command from header, length of following data
+ * return: updated offset
  */
-static void
-dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, guint *offset,
+static guint
+dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, guint offset,
                          guint blocknb, guint *cmd, guint *len)
 {
     proto_tree *bcp_subtree = NULL;
 
-    *cmd = tvb_get_guint8(tvb, *offset + 6);
-    *len = tvb_get_ntohs(tvb, *offset + 12);
+    *cmd = tvb_get_guint8(tvb, offset + 6);
+    *len = tvb_get_ntohs(tvb, offset + 12);
 
-    bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, *offset, BCP_BLOCK_HDR_LEN, ett_bcp_blockheader, NULL,
+    bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, BCP_BLOCK_HDR_LEN, ett_bcp_blockheader, NULL,
                "BCP Block Header (%u): Cmd=%s (%u), Len=%u",
                blocknb,
                val_to_str(*cmd, bcp_cmds, "UNKNOWN"), *cmd,
                *len
                );
 
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_sourceid, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_destid, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_transid, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_cmd, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    *offset += 1;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_slavestate, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    *offset += 1;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_blockflags, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    *offset += 4;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_len, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_fragoffset, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_timestamp, tvb, *offset, 8, ENC_BIG_ENDIAN);
-    *offset += 8;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_sourceid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_destid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_transid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_slavestate, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_blockflags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_fragoffset, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    return offset;
 }
 
 /*
  * dissector function of protocol header
  *
  * input: tree, buffer (data), offset (data pointer)
- * output: offset, flags from header
- * return: nothing
+ * output: flags, block count, segcode from header
+ * return: updated offset
  */
-static void
+static guint
 dissect_bcp_protocol_header(proto_tree *bcp_tree, tvbuff_t *tvb,
-                            guint *offset, gint *flags, guint *blocknb,
+                            guint offset, gint *flags, guint *blocknb,
                             guint *segcode)
 {
     proto_tree *bcp_subtree = NULL;
 
-    *flags = tvb_get_guint8(tvb, *offset + 2);
-    *blocknb = tvb_get_guint8(tvb, *offset + 3);
-    *segcode = tvb_get_ntohs(tvb, *offset + 4);
+    *flags = tvb_get_guint8(tvb, offset + 2);
+    *blocknb = tvb_get_guint8(tvb, offset + 3);
+    *segcode = tvb_get_ntohs(tvb, offset + 4);
 
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, 0, BCP_PROTOCOL_HDR_LEN, ett_bcp_header, NULL,
                                                 "BCP Protocol Header: BlockNb=%d, SegCode=%d",
                                                 *blocknb,
                                                 *segcode);
 
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_version, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    *offset += 1;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_format, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    *offset += 1;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_protflags, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    *offset += 1;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_blocknb, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    *offset += 1;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_segcode, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
-    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_auth, tvb, *offset, 4, ENC_BIG_ENDIAN);
-    *offset += 4;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_protflags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_blocknb, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_segcode, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(bcp_subtree, hf_bcp_hdr_auth, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    return offset;
 }
 
 
@@ -495,7 +497,7 @@ static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     guint cmd, flags, blocknb, segcode=0, block;
     guint len;
-    guint offset = 0;
+    volatile guint offset = 0;
     proto_tree *bcp_tree = NULL;
     proto_item *bcp_item_base = NULL;
     tvbuff_t *block_tvb;
@@ -511,7 +513,7 @@ static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     bcp_tree = proto_item_add_subtree(bcp_item_base, ett_bcp);
 
     /* BCP header  */
-    dissect_bcp_protocol_header(bcp_tree, tvb, &offset, &flags, &blocknb, &segcode);
+    offset = dissect_bcp_protocol_header(bcp_tree, tvb, offset, &flags, &blocknb, &segcode);
 
     /* set info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, "segcode=%u blocks=%u",
@@ -521,7 +523,7 @@ static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     for (block = 0; block < blocknb; block++)
     {
         /* BCP block header*/
-        dissect_bcp_block_header(bcp_tree, tvb, &offset, block, &cmd, &len);
+        offset = dissect_bcp_block_header(bcp_tree, tvb, offset, block, &cmd, &len);
 
         /* append text to BCP base */
         proto_item_append_text(bcp_item_base, ", %s (%u) len=%u",
