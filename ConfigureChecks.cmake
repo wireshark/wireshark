@@ -141,7 +141,7 @@ check_symbol_exists(tzname "time.h" HAVE_TZNAME)
 if (NL_FOUND)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
-		int main() {
+		int main(void) {
 			int x = NL80211_FREQUENCY_ATTR_MAX_TX_POWER;
 			x |= NL80211_ATTR_SUPPORTED_IFTYPES;
 			x |= NL80211_ATTR_SUPPORTED_COMMANDS;
@@ -153,21 +153,21 @@ if (NL_FOUND)
 	)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
-		int main() {
+		int main(void) {
 			enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;
 		}"
 		HAVE_NL80211_CMD_SET_CHANNEL
 	)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
-		int main() {
+		int main(void) {
 			enum nl80211_protocol_features x = NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP;
 		}"
 		HAVE_NL80211_SPLIT_WIPHY_DUMP
 	)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
-		int main() {
+		int main(void) {
 			enum nl80211_attrs x = NL80211_ATTR_VHT_CAPABILITY;
 		}"
 		HAVE_NL80211_VHT_CAPABILITY
