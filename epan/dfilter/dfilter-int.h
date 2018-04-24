@@ -23,6 +23,7 @@ struct epan_dfilter {
 	guint		max_registers;
 	GList		**registers;
 	gboolean	*attempted_load;
+	gboolean	*owns_memory;
 	int		*interesting_fields;
 	int		num_interesting_fields;
 	GPtrArray	*deprecated;

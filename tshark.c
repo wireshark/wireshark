@@ -2249,6 +2249,7 @@ clean_exit:
   wtap_cleanup();
   free_progdirs();
   cf_close(&cfile);
+  dfilter_free(dfcode);
   return exit_status;
 }
 

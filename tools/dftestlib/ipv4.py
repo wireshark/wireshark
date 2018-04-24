@@ -123,3 +123,11 @@ class testIPv4(dftest.DFTest):
     def test_slice_4(self):
          dfilter = "ip.src[2:2] == ff:ff"
          self.assertDFilterCount(dfilter, 0)
+
+    def test_count_1(self):
+         dfilter = "count(ip.src) == 1"
+         self.assertDFilterCount(dfilter, 2)
+
+    def test_count_2(self):
+         dfilter = "count(ip.addr) == 2"
+         self.assertDFilterCount(dfilter, 2)

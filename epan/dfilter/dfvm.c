@@ -331,14 +331,19 @@ read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 	}
 
 	df->registers[reg] = fvalues;
+	// These values are referenced only, do not try to free it later.
+	df->owns_memory[reg] = FALSE;
 	return TRUE;
 }
 
 
+/* Put a constant value in a register. These will not be cleared by
+ * free_register_overhead. */
 static gboolean
 put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 {
 	df->registers[reg] = g_list_append(NULL, fv);
+	df->owns_memory[reg] = FALSE;
 	return TRUE;
 }
 
@@ -396,8 +401,15 @@ any_in_range(dfilter_t *df, int reg1, int reg2, int reg3)
 }
 
 
-/* Free the list nodes w/o freeing the memory that each
- * list node points to. */
+static void
+free_owned_register(gpointer data, gpointer user_data _U_)
+{
+	fvalue_t *value = (fvalue_t *)data;
+	FVALUE_FREE(value);
+}
+
+/* Clear registers that were populated during evaluation (leaving constants
+ * intact). If we created the values, then these will be freed as well. */
 static void
 free_register_overhead(dfilter_t* df)
 {
@@ -406,6 +418,10 @@ free_register_overhead(dfilter_t* df)
 	for (i = 0; i < df->num_registers; i++) {
 		df->attempted_load[i] = FALSE;
 		if (df->registers[i]) {
+			if (df->owns_memory[i]) {
+				g_list_foreach(df->registers[i], free_owned_register, NULL);
+				df->owns_memory[i] = FALSE;
+			}
 			g_list_free(df->registers[i]);
 			df->registers[i] = NULL;
 		}
@@ -437,6 +453,7 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, drange_t *d_range)
 	}
 
 	df->registers[to_reg] = to_list;
+	df->owns_memory[to_reg] = TRUE;
 }
 
 
@@ -499,6 +516,8 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				}
 				accum = arg1->value.funcdef->function(param1, param2,
 						&df->registers[arg2->value.numeric]);
+				// functions create a new value, so own it.
+				df->owns_memory[arg2->value.numeric] = TRUE;
 				break;
 
 			case MK_RANGE:

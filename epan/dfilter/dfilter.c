@@ -133,11 +133,10 @@ dfilter_free(dfilter_t *df)
 
 	g_free(df->interesting_fields);
 
-	/* clear registers */
-	for (i = 0; i < df->max_registers; i++) {
-		if (df->registers[i]) {
-			g_list_free(df->registers[i]);
-		}
+	/* Clear registers with constant values (as set by dfvm_init_const).
+	 * Other registers were cleared on RETURN by free_register_overhead. */
+	for (i = df->num_registers; i < df->max_registers; i++) {
+		g_list_free(df->registers[i]);
 	}
 
 	if (df->deprecated) {
@@ -150,6 +149,7 @@ dfilter_free(dfilter_t *df)
 
 	g_free(df->registers);
 	g_free(df->attempted_load);
+	g_free(df->owns_memory);
 	g_free(df);
 }
 
@@ -350,6 +350,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 		dfilter->max_registers = dfw->next_register;
 		dfilter->registers = g_new0(GList*, dfilter->max_registers);
 		dfilter->attempted_load = g_new0(gboolean, dfilter->max_registers);
+		dfilter->owns_memory = g_new0(gboolean, dfilter->max_registers);
 
 		/* Initialize constants */
 		dfvm_init_const(dfilter);

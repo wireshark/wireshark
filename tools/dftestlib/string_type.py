@@ -156,7 +156,10 @@ class testString(dftest.DFTest):
         dfilter = 'lower(http.user_agent) contains "update"'
         self.assertDFilterCount(dfilter, 1)
 
-    def test_contains_lower_2(self):
+    def test_eq_lower_1(self):
         dfilter = 'lower(tcp.seq) == 4'
         self.assertDFilterFail(dfilter)
 
+    def test_string_len(self):
+        dfilter = 'len(http.request.method) == 4'
+        self.assertDFilterCount(dfilter, 1)
