@@ -941,6 +941,10 @@ system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
 
 To get a descriptive name for a VLAN tag ID a vlans file can be used.
 
+==== SS7 point code resolution
+
+To get a node name for a SS7 point code a ss7pcs file can be used.
+
 // XXX - mention the role of the /etc/services file (but don’t forget the files and folders section)!
 
 [[ChAdvChecksums]]

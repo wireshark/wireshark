@@ -172,6 +172,7 @@ _/usr/local/etc_.
 |_subnets_|IPv4 subnet name resolution.
 |_ipxnets_|IPX name resolution.
 |_vlans_|VLAN ID name resolution.
+|_ss7pcs_|SS7 point code resolution.
 |===============
 
 [float]
@@ -440,6 +441,24 @@ An example is:
 ----
 123     Server-LAN
 2049    HR-Client-LAN
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_ss7pcs_::
+Wireshark uses the _ss7pcs_ file to translate SS7 point codes to node names.
++
+At program start, if there is a _ss7pcs_ file in the personal
+configuration folder, it is read.
++
+--
+Each line in this file consists of one network indicator followed by a dash followed by a point code in decimal and a node name separated by whitespace or tab.
+
+An example is:
+----
+2-1234 MyPointCode1
 ----
 
 The settings from this file are read in at program start and never written by
