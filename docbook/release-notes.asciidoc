@@ -56,6 +56,7 @@ since version 2.6.0:
 --
 GSUP (Osmocom Generic Subscriber Update Protocol)
 NR (5G) PDCP protocol
+TPM 2.0 protocol
 --
 
 === Updated Protocol Support
