@@ -11,6 +11,23 @@
 # that way.
 #
 
+if [ "$1" = "--help" ]
+then
+	echo "\nUtility to setup a rpm-based system for Wireshark Development.\n"
+	echo "The basic usage installs the needed software\n\n"
+	echo "Usage: $0 [--install-optional] [...other options...]\n"
+	echo "\t--install-optional: install optional software as well"
+	echo "\t[other]: other options are passed as-is to the packet manager\n"
+	exit 1
+fi
+
+# Check if the user is root
+if [ $(id -u) -ne 0 ]
+then
+	echo "You must be root."
+	exit 1
+fi
+
 for op
 do
 	if [ "$op" = "--install-optional" ]
@@ -124,12 +141,16 @@ echo "perl-Pod-Html is unavailable" >&2
 add_package ADDITIONAL_LIST asciidoctor || add_package ADDITIONAL_LIST rubygem-asciidoctor.noarch ||
 echo "asciidoctor is unavailable" >&2
 
-$PM install $BASIC_LIST
+# Now arrange for optional support libraries
+if [ $ADDITIONAL ]
+then
+	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
+fi
+
+$PM install $ACTUAL_LIST $OPTIONS
 
 # Now arrange for optional support libraries
 if [ ! $ADDITIONAL ]
 then
 	echo -e "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
-else
-	$PM install $ADDITIONAL_LIST $OPTIONS
 fi

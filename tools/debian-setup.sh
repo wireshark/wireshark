@@ -28,7 +28,7 @@ then
 	exit 1
 fi
 
-for op in $@
+for op
 do
 	if [ "$op" = "--install-optional" ]
 	then
