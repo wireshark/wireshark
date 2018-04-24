@@ -495,7 +495,8 @@ dissect_bcp_protocol_header(proto_tree *bcp_tree, tvbuff_t *tvb,
  */
 static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint cmd, flags, blocknb, segcode=0, block;
+    guint cmd, flags, blocknb, segcode=0;
+    volatile guint block;
     guint len;
     volatile guint offset = 0;
     proto_tree *bcp_tree = NULL;
