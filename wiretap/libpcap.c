@@ -482,21 +482,26 @@ done:
 	return WTAP_OPEN_MINE;
 }
 
-/* Try to read the first two records of the capture file. */
+/*
+ * Maximum number of records to try to read.  Must be >= 2.
+ */
+#define MAX_RECORDS_TO_TRY	3
+
+/* Try to read the first MAX_RECORDS_TO_TRY records of the capture file. */
 static int libpcap_try(wtap *wth, int *err, gchar **err_info)
 {
 	int ret;
+	int i;
 
 	/*
 	 * pcaprec_ss990915_hdr is the largest header type.
 	 */
-	struct pcaprec_ss990915_hdr first_rec_hdr, second_rec_hdr;
-
+	struct pcaprec_ss990915_hdr rec_hdr;
 
 	/*
 	 * Attempt to read the first record's header.
 	 */
-	ret = libpcap_try_header(wth, wth->fh, err, err_info, &first_rec_hdr);
+	ret = libpcap_try_header(wth, wth->fh, err, err_info, &rec_hdr);
 	if (ret == -1) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
@@ -523,29 +528,74 @@ static int libpcap_try(wtap *wth, int *err, gchar **err_info)
 	 * Now skip over the first record's data, under the assumption
 	 * that the header is sane.
 	 */
-	if (!wtap_read_bytes(wth->fh, NULL, first_rec_hdr.hdr.incl_len, err, err_info))
-		return -1;
-
-	/*
-	 * Now attempt to read the second record's header.
-	 */
-	ret = libpcap_try_header(wth, wth->fh, err, err_info, &second_rec_hdr);
-	if (ret == -1) {
+	if (!wtap_read_bytes(wth->fh, NULL, rec_hdr.hdr.incl_len, err, err_info)) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
 			 * EOF or short read - assume the file is in this
 			 * format.
-			 * When our client tries to read the second packet
-			 * they will presumably get the same EOF or short
-			 * read.
+			 * When our client tries to read the second
+			 * packet they will presumably get the same
+			 * EOF or short read.
 			 */
 			return 0;
 		}
-
-		return ret;
+		return -1;
 	}
 
-	return ret;
+	/*
+	 * Now attempt to read the next MAX_RECORDS_TO_TRY-1 records.
+	 * Get the maximum figure of (de?)merit, as that represents the
+	 * figure of merit for the record that had the most problems.
+	 */
+	for (i = 1; i < MAX_RECORDS_TO_TRY; i++) {
+		/*
+		 * First, attempt to read the record's header.
+		 */
+		ret = libpcap_try_header(wth, wth->fh, err, err_info, &rec_hdr);
+		if (ret == -1) {
+			if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
+				/*
+				 * EOF or short read - assume the file is
+				 * in this format.
+				 * When our client tries to read this
+				 * packet they will presumably get the
+				 * same EOF or short read.
+				 */
+				return 0;
+			}
+
+			return ret;
+		}
+		if (ret != 0) {
+			/*
+			 * Probably a mismatch; return the figure of merit
+			 * (demerit?).
+			 */
+			return ret;
+		}
+
+		/*
+		 * That succeeded.  Now skip over the first record's data,
+		 * under the assumption that the header is sane.
+		 */
+		if (!wtap_read_bytes(wth->fh, NULL, rec_hdr.hdr.incl_len,
+		    err, err_info)) {
+			if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
+				/*
+				 * EOF or short read - assume the file is
+				 * in this format.
+				 * When our client tries to read this
+				 * packet they will presumably get the
+				 * same EOF or short read.
+				 */
+				return 0;
+			}
+
+			return ret;
+		}
+	}
+
+	return 0;
 }
 
 /* Read the header of the next packet.
