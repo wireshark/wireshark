@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-int main()
+int main(void)
 {
   __int64 off=0;
 

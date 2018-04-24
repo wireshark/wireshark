@@ -32,7 +32,7 @@ macro (CHECK_CXX_COMPILER_FLAG _FLAG _RESULT)
      set(_CheckCXXCompilerFlag_SAVED_${v} "$ENV{${v}}")
      set(ENV{${v}} C)
    endforeach()
-   CHECK_CXX_SOURCE_COMPILES("int main() { return 0; }" ${_RESULT}
+   CHECK_CXX_SOURCE_COMPILES("int main(void) { return 0; }" ${_RESULT}
      # Some compilers do not fail with a bad flag
      FAIL_REGEX "command line option .* is valid for .* but not for C\\\\+\\\\+" # GNU
      FAIL_REGEX "unrecognized .*option"                     # GNU
