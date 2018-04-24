@@ -158,12 +158,6 @@ drange_dup(drange_t *org)
 }
 
 
-static void
-drange_node_free_wrapper(gpointer data, gpointer userdata _U_)
-{
-    g_free(data);
-}
-
 /* drange destructor */
 void
 drange_free(drange_t * dr)
@@ -176,7 +170,7 @@ drange_free(drange_t * dr)
 void
 drange_node_free_list(GSList* list)
 {
-    g_slist_foreach(list, drange_node_free_wrapper, NULL);
+    g_slist_free_full(list, g_free);
 }
 
 /* drange accessors */
