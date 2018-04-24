@@ -6,8 +6,6 @@ include::attributes.asciidoc[]
 // Asciidoctor Syntax Quick Reference:
 // http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the first release candidate for Wireshark 2.6.0.
-
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer. It is
@@ -15,13 +13,19 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Wireshark 2.6 is the last release that will support the legacy (GTK+)
-user interface. It will not be supported or available in Wireshark 3.0.
-
-Many user interface improvements have been made. See the “New and Updated
-Features” section below for more details.
-
 === Bug Fixes
+
+The following vulnerabilities have been fixed:
+
+* ws-salink:2018-25[]
++
+A dissector went awry.
+(ws-buglink:xxxx[])
+// cve-idlink:2018-xxxx[]
+// Fixed in master: xxxx
+// Fixed in master-2.6: xxxx
+// Fixed in master-2.4: xxxx
+// Fixed in master-2.2: xxxx
 
 The following bugs have been fixed:
 
@@ -29,68 +33,11 @@ The following bugs have been fixed:
 //* ws_buglink:6000[Wireshark bug]
 //* cve_idlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-
-//_Non-empty section placeholder._
-
-Dumpcap might not quit if Wireshark or TShark crashes.
-(ws_buglink:1419[])
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.1rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated)
-since version 2.5.0:
-
-* HTTP Request sequences are now supported.
-* Wireshark now supports MaxMind DB files. Support for GeoIP and GeoLite
-  Legacy databases has been removed.
-* The Windows packages are now built using Microsoft Visual Studio 2017.
-* The IP map feature (the “Map” button in the “Endpoints” dialog) has been removed.
-
-The following features are new (or have been significantly updated)
-since version 2.4.0:
-
-* Display filter buttons can now be edited, disabled, and removed via a context
-  menu directly from the toolbar
-* Drag & Drop filter fields to the display filter toolbar or edit to create
-  a button on the fly or apply the filter as a display filter.
-* Application startup time has been reduced.
-* Some keyboard shortcut mix-ups have been resolved by assigning new shortcuts
-  to Edit -> Copy methods.
-* TShark now supports color using the --color option.
-* The "matches" display filter operator is now case-insensitive.
-* Display expression (button) preferences have been converted to a UAT.
-  This puts the display expressions in their own file. Wireshark still
-  supports preference files that contain the old preferences, but new
-  preference files will be written without the old fields.
-* SMI private enterprise numbers are now read from the “enterprises.tsv” configuration file.
-* The QUIC dissector has been renamed to **G**oogle QUIC (quic -> **g**quic).
-* The selected packet number can now be shown in the Status Bar by enabling
-  Preferences -> Appearance -> Layout -> Show selected packet number.
-* File load time in the Status Bar is now disabled by default and can be enabled in
-  Preferences -> Appearance -> Layout -> Show file load time.
-* Support for the G.729A codec in the RTP Player is now added via the bcg729 library.
-* Support for hardware-timestamping of packets has been added.
-* Improved NetMon .cap support with comments, event tracing, network filter,
-  network info types and some Message Analyzer exported types.
-* The personal plugins folder on Linux/Unix is now {tilde}/.local/lib/wireshark/plugins.
-* TShark can print flow graphs using `-z flow…`
-* Capinfos now prints SHA256 hashes in addition to RIPEMD160 and SHA1. MD5 output
-  has been removed.
-* The packet editor has been removed. (This was a GTK+ only experimental feature.)
-* Support BBC micro:bit Bluetooth profile
-* The Linux and UNIX installation step for Wireshark will now install
-  headers required to build plugins. A pkg-config file is provided to
-  help with this (see “doc/plugins.example” for details). Note you must
-  still rebuild all plugins between minor releases (X.Y).
-* The Windows installers and packages now ship with Qt 5.9.4.
-* The generic data dissector can now uncompress zlib compressed data.
-* DNS Stats now supports service level statistics.
-* DNS filters for retransmissions and unsolicited responses have been added.
-* The “tcptrace” TCP Stream graph now shows duplicate ACKS and zero
-  window advertisements.
-* The membership operator now supports ranges, allowing display filters such as
-  `tcp.port in {4430..4434}` to be expressed. See the User's Guide, chapter
-  _Building display filter expressions_ for details.
+There are no new features in this release.
 
 //=== Removed Dissectors
 
@@ -98,61 +45,21 @@ since version 2.4.0:
 
 === New Protocol Support
 
-// Add one protocol per line between the -- delimiters.
-[commaize]
---
-ActiveMQ Artemis Core Protocol
-AMT (Automatic Multicast Tunneling)
-AVSP (Arista Vendor Specific Protocol)
-Bluetooth Mesh
-Broadcom tags (Broadcom Ethernet switch management frames)
-CVS password server
-CAN-ETH
-Excentis DOCSIS31 XRA header
-F1 Application Protocol
-F5ethtrailer
-FP Mux
-GRPC (gRPC)
-IEEE 802.3br Frame Preemption Protocol
-IEEE 802.11ax (High Efficiency WLAN (HEW))
-IEEE 802.15.9 IEEE Recommended Practice for Transport of Key Management Protocol (KMP) Datagrams
-IEEE 1905.1a
-ISOBUS
-LoRaTap
-LoRaWAN
-Lustre Network
-Lustre Filesystem
-Nano / RaiBlocks Cryptocurrency Protocol (UDP)
-Network Functional Application Platform Interface (NFAPI) Protocol
-New Radio Radio Resource Control protocol
-New Radio Radio Link Control protocol
-NR (5G) MAC protocol
-NXP 802.15.4 Sniffer Protocol
-Object Security for Constrained RESTful Environments (OSCORE)
-PFCP (Packet Forwarding Control Protocol)
-Protobuf (Protocol Buffers)
-QUIC (IETF)
-RFC 4108 Using CMS to Protect Firmware Packages
-SolarEdge monitoring protocol
-Session Multiplex Protocol
-Steam In-Home Streaming Discovery Protocol
-Tibia
-TWAMP and OWAMP
-Wi-Fi Device Provisioning Protocol
-Wi-SUN FAN Protocol
---
+There are no new protocols in this release.
 
 === Updated Protocol Support
 
-Too many protocols have been updated to list here.
+// Add one protocol per line between the -- delimiters.
+[commaize]
+--
+--
 
 === New and Updated Capture File Support
 
 //_Non-empty section placeholder._
-// Add one file type per line between the --sort-and-group-- delimiters.
+// Add one file type per line between the -- delimiters.
 [commaize]
 --
-Microsoft Network Monitor
 --
 
 === New and Updated Capture Interfaces support
@@ -160,7 +67,6 @@ Microsoft Network Monitor
 //_Non-empty section placeholder._
 [commaize]
 --
-LoRaTap
 --
 
 //=== Major API Changes
