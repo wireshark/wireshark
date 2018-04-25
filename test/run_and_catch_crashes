@@ -64,18 +64,6 @@ echo last expr command was expr "$1" : ".*=.*"
 	then
 		#
 		# Found the executable.
-		# Is it a libtool wrapper script?  Look for a .libs
-		# directory.
-		#
-		executable_dirname=`dirname "$executable"`
-		if [ -d "$executable_dirname"/.libs ]
-		then
-			is_libtool_wrapper=yes
-		else
-			is_libtool_wrapper=no
-		fi
-
-		#
 		# Now, look for a debugger.
 		# XXX - lldb?
 		#
@@ -87,18 +75,10 @@ echo last expr command was expr "$1" : ".*=.*"
 			# cause the stack trace to go to the standard
 			# error.
 			#
-			if [ $is_libtool_wrapper = yes ]
-			then
-				$executable_dirname/libtool --mode=execute dbx "$executable" core 1>&2 <<EOF
+			dbx "$executable" core 1>&2 <<EOF
 where
 quit
 EOF
-			else
-				dbx "$executable" core 1>&2 <<EOF
-where
-quit
-EOF
-			fi
 		else
 			gdb=`which gdb`
 			if [ ! -z "$gdb" ]
@@ -108,18 +88,10 @@ EOF
 				# cause the stack trace to go to the standard
 				# error.
 				#
-				if [ $is_libtool_wrapper = yes ]
-				then
-					$executable_dirname/libtool --mode=execute gdb "$executable" core 1>&2 <<EOF
+				gdb "$executable" core 1>&2 <<EOF
 backtrace
 quit
 EOF
-				else
-					gdb "$executable" core 1>&2 <<EOF
-backtrace
-quit
-EOF
-				fi
 			fi
 		fi
 	fi

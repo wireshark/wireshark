@@ -32,17 +32,12 @@ function acc () {
 V1_PATH=$1
 V2_PATH=$2
 
-# both working copies have to be built first with autotools or with cmake
+# both working copies have to be built first with cmake
 # make -C $V1_PATH all dumpabi
 # make -C $V2_PATH all dumpabi
 
-if test -d $V1_PATH/lib; then
-	REL_LIB_PATH=../lib
-	REL_DUMP_PATH=.
-else
-	REL_LIB_PATH=.libs
-	REL_DUMP_PATH=.libs
-fi
+REL_LIB_PATH=../lib
+REL_DUMP_PATH=.
 
 acc libwiretap wiretap $V1_PATH $V2_PATH
 RET=$?
