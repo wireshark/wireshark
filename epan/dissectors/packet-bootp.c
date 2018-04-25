@@ -643,6 +643,7 @@ static expert_field ei_bootp_boot_filename_overloaded_by_dhcp = EI_INIT;
 static expert_field ei_bootp_option_isns_ignored_bitfield = EI_INIT;
 static expert_field ei_bootp_option242_avaya_l2qvlan_invalid = EI_INIT;
 static expert_field ei_bootp_option242_avaya_vlantest_invalid = EI_INIT;
+static expert_field ei_bootp_option93_client_arch_ambiguous = EI_INIT;
 
 static dissector_table_t bootp_option_table;
 static dissector_table_t bootp_enterprise_table;
@@ -1110,6 +1111,18 @@ static const value_string bootp_nbnt_vals[] = {
 	{0,	NULL	 }
 };
 
+/*
+ * There is confusion around some Client Architecture IDs: RFC 4578 section 2.1
+ * lists *requested* architecture IDs, however the actual assigned IDs
+ * (http://www.ietf.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml#processor-architecture)
+ * differ.  Specifically,
+ *
+ *    EFI Byte Code (EFI BC, EBC) was 7 in RFC 4578, but is assigned 9 by IETF.
+ *    EFI x64 was 9 in RFC 4578, but is assigned 7 by IETF.
+ *
+ * For confirmation, refer to RFC erratum 4625:
+ *    https://www.rfc-editor.org/errata/eid4625
+ */
 static const value_string bootp_client_arch[] = {
 	{ 0x0000, "IA x86 PC" },
 	{ 0x0001, "NEC/PC98" },
@@ -1118,9 +1131,32 @@ static const value_string bootp_client_arch[] = {
 	{ 0x0004, "ArcX86" },
 	{ 0x0005, "Intel Lean Client" },
 	{ 0x0006, "EFI IA32" },
-	{ 0x0007, "EFI BC" },
+	{ 0x0007, "EFI x64" }, /* *Not* EFI BC.  See comment above. */
 	{ 0x0008, "EFI Xscale" },
-	{ 0x0009, "EFI x86-64" },
+	{ 0x0009, "EFI BC" },  /* *Not* EFI x64.  See comment above. */
+	{ 0x000a, "ARM 32-bit UEFI" },
+	{ 0x000b, "ARM 64-bit UEFI" },
+	{ 0x000c, "PowerPC Open Firmware" },
+	{ 0x000d, "PowerPC ePAPR" },
+	{ 0x000e, "POWER OPAL v3" },
+	{ 0x000f, "x86 UEFI HTTP" },
+	{ 0x0010, "x64 UEFI HTTP" },
+	{ 0x0011, "EBC UEFI HTTP" },
+	{ 0x0012, "ARM 32-bit UEFI HTTP" },
+	{ 0x0013, "ARM 64-bit UEFI HTTP" },
+	{ 0x0014, "PC/AT HTTP" },
+	{ 0x0015, "ARM 32-bit uboot" },
+	{ 0x0016, "ARM 64-bit uboot" },
+	{ 0x0017, "ARM 32-bit uboot HTTP" },
+	{ 0x0018, "ARM 64-bit uboot HTTP" },
+	{ 0x0019, "RISC-V 32-bit UEFI" },
+	{ 0x001a, "RISC-V 32-bit UEFI HTTP" },
+	{ 0x001b, "RISC-V 64-bit UEFI" },
+	{ 0x001c, "RISC-V 64-bit UEFI HTTP" },
+	{ 0x001d, "RISC-V 128-bit UEFI" },
+	{ 0x001e, "RISC-V 128-bit UEFI HTTP" },
+	{ 0x001f, "s390 Basic" },
+	{ 0x0020, "s390 Extended" },
 	{ 0,	  NULL }
 };
 
@@ -1256,7 +1292,7 @@ static const string_string option242_avaya_static_vals[] = {
 #define BOOTP_OPT_NUM	256
 
 /* All of the options that have a "basic" type that can be handled by dissect_bootpopt_basic_type() */
-#define BOOTP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-93,100-101,112-113,116,118,137-138,142,150,153,156-157,161,209-210,252"
+#define BOOTP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,112-113,116,118,137-138,142,150,153,156-157,161,209-210,252"
 
 /* Re-define structure.	 Values to be updated by bootp_init_protocol */
 static struct opt_info bootp_opt[BOOTP_OPT_NUM];
@@ -1355,7 +1391,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  90 */ { "Authentication",				special, NULL},
 /*  91 */ { "Client last transaction time",		time_in_u_secs, &hf_bootp_option_client_last_transaction_time },
 /*  92 */ { "Associated IP option",			ipv4_list, &hf_bootp_option_associated_ip_option },
-/*  93 */ { "Client System Architecture",		val_u_short, &hf_bootp_option_client_system_architecture },
+/*  93 */ { "Client System Architecture",		special, NULL},
 /*  94 */ { "Client Network Device Interface",		special, NULL},
 /*  95 */ { "LDAP [TODO:RFC3679]",			opaque, NULL },
 /*  96 */ { "Removed/Unassigned",			opaque, NULL },
@@ -2472,6 +2508,47 @@ dissect_bootpopt_dhcp_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 		proto_tree_add_item(tree, hf_bootp_option_dhcp_authentication_information, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 		break;
+	}
+
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bootpopt_client_architecture(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+
+	while (tvb_reported_length_remaining(tvb, offset) > 1) {
+		guint32 architecture_id;
+		proto_item *pi;
+
+		pi = proto_tree_add_item_ret_uint(tree, hf_bootp_option_client_system_architecture, tvb, offset, 2, ENC_BIG_ENDIAN, &architecture_id);
+		offset += 2;
+
+		/*
+		 * Some Client Architecture IDs are widely misused.  For
+		 * details, refer to the comment at the definition of
+		 * bootp_client_arch.
+		 *
+		 * The most common problem is a client using architecture ID 9
+		 * when performing an EFI x64 boot.  Windows Server 2008 WDS
+		 * does not recognize ID 9, but most other DHCP servers
+		 * (including newer versions of WDS) silently map architecture
+		 * ID 9 to x64 in order to accommodate these clients.
+		 */
+		if (architecture_id == 9) {
+			expert_add_info_format(pinfo, pi, &ei_bootp_option93_client_arch_ambiguous, "Client Architecture ID 9 is often incorrectly used for EFI x64");
+		}
+
+		/*
+		 * Technically, architecture ID 7 is ambiguous for the same
+		 * reason, but it's extremely unlikely to be a real world
+		 * problem, so a warning would probably just be unwelcome
+		 * noise.
+		 */
+	}
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
+		expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "Option length isn't a multiple of 2");
 	}
 
 	return tvb_captured_length(tvb);
@@ -9167,7 +9244,8 @@ proto_register_bootp(void)
 		{ &ei_bootp_boot_filename_overloaded_by_dhcp, { "bootp.boot_filename_overloaded_by_dhcp", PI_PROTOCOL, PI_NOTE, "Boot file name option overloaded by DHCP", EXPFILL }},
 		{ &ei_bootp_option_isns_ignored_bitfield, { "bootp.option.isns.ignored_bitfield", PI_PROTOCOL, PI_NOTE, "Enabled field is not set - non-zero bitmask ignored", EXPFILL }},
 		{ &ei_bootp_option242_avaya_l2qvlan_invalid, { "bootp.option.vendor.avaya.l2qvlan.invalid", PI_PROTOCOL, PI_ERROR, "Option 242 (L2QVLAN) invalid", EXPFILL }},
-		{ &ei_bootp_option242_avaya_vlantest_invalid, { "bootp.option.vendor.avaya.vlantest.invalid", PI_PROTOCOL, PI_ERROR, "Option 242 (avaya vlantest) invalid", EXPFILL }}
+		{ &ei_bootp_option242_avaya_vlantest_invalid, { "bootp.option.vendor.avaya.vlantest.invalid", PI_PROTOCOL, PI_ERROR, "Option 242 (avaya vlantest) invalid", EXPFILL }},
+		{ &ei_bootp_option93_client_arch_ambiguous, { "bootp.option.client_architecture.ambiguous", PI_PROTOCOL, PI_WARN, "Client Architecture ID may be ambiguous", EXPFILL }},
 	};
 
 	static tap_param bootp_stat_params[] = {
@@ -9295,6 +9373,7 @@ proto_reg_handoff_bootp(void)
 	dissector_add_uint("bootp.option", 83, create_dissector_handle( dissect_bootpopt_isns, -1 ));
 	dissector_add_uint("bootp.option", 85, create_dissector_handle( dissect_bootpopt_novell_servers, -1 ));
 	dissector_add_uint("bootp.option", 90, create_dissector_handle( dissect_bootpopt_dhcp_authentication, -1 ));
+	dissector_add_uint("bootp.option", 93, create_dissector_handle( dissect_bootpopt_client_architecture, -1 ));
 	dissector_add_uint("bootp.option", 94, create_dissector_handle( dissect_bootpopt_client_network_interface_id, -1 ));
 	dissector_add_uint("bootp.option", 97, create_dissector_handle( dissect_bootpopt_client_identifier_uuid, -1 ));
 	dissector_add_uint("bootp.option", 99, create_dissector_handle( dissect_bootpopt_civic_location, -1 ));
