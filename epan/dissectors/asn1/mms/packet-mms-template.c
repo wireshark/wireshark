@@ -11,10 +11,14 @@
 
 #include "config.h"
 
+#include <glib.h>
+#include <stdio.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -39,6 +43,86 @@ static gint ett_mms = -1;
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
 static expert_field ei_mms_zero_pdu = EI_INIT;
+
+/*****************************************************************************/
+/* Packet private data                                                       */
+/* For this dissector, all access to actx->private_data should be made       */
+/* through this API, which ensures that they will not overwrite each other!! */
+/*****************************************************************************/
+
+#define BUFFER_SIZE_PRE 10
+#define BUFFER_SIZE_MORE 1024
+
+typedef struct mms_private_data_t
+{
+	char preCinfo[BUFFER_SIZE_PRE];
+	char moreCinfo[BUFFER_SIZE_MORE];
+} mms_private_data_t;
+
+
+/* Helper function to get or create the private data struct */
+static
+mms_private_data_t* mms_get_private_data(asn1_ctx_t *actx)
+{
+	packet_info *pinfo = actx->pinfo;
+	mms_private_data_t *private_data = (mms_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num);
+	if(private_data != NULL )
+		return private_data;
+	else {
+		private_data = wmem_new0(pinfo->pool, mms_private_data_t);
+		p_add_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num, private_data);
+		return private_data;
+	}
+}
+
+/* Helper function to test presence of private data struct */
+static gboolean
+mms_has_private_data(asn1_ctx_t *actx)
+{
+	packet_info *pinfo = actx->pinfo;
+	return (p_get_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num) != NULL);
+}
+
+static void
+private_data_add_preCinfo(asn1_ctx_t *actx, guint32 val)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_snprintf(private_data->preCinfo, BUFFER_SIZE_PRE, "%02d ", val);
+}
+
+static char*
+private_data_get_preCinfo(asn1_ctx_t *actx)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	return private_data->preCinfo;
+}
+
+static void
+private_data_add_moreCinfo_id(asn1_ctx_t *actx, tvbuff_t *tvb)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
+	g_strlcat(private_data->moreCinfo, tvb_get_string_enc(wmem_packet_scope(),
+				tvb, 2, tvb_get_guint8(tvb, 1), ENC_STRING), BUFFER_SIZE_MORE);
+}
+
+static void
+private_data_add_moreCinfo_float(asn1_ctx_t *actx, tvbuff_t *tvb)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_snprintf(private_data->moreCinfo, BUFFER_SIZE_MORE,
+				" %f", tvb_get_ieee_float(tvb, 1, ENC_BIG_ENDIAN));
+}
+
+static char*
+private_data_get_moreCinfo(asn1_ctx_t *actx)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	return private_data->moreCinfo;
+}
+
+/*****************************************************************************/
+
 
 #include "packet-mms-fn.c"
 
@@ -78,33 +162,33 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 void proto_register_mms(void) {
 
 	/* List of fields */
-  static hf_register_info hf[] =
-  {
+	static hf_register_info hf[] =
+	{
 #include "packet-mms-hfarr.c"
-  };
+	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
-    &ett_mms,
+	/* List of subtrees */
+	static gint *ett[] = {
+		&ett_mms,
 #include "packet-mms-ettarr.c"
-  };
+	};
 
-  static ei_register_info ei[] = {
-     { &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
-     { &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
-     { &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
-  };
+	static ei_register_info ei[] = {
+		{ &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
+		{ &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
+		{ &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
+	};
 
-  expert_module_t* expert_mms;
+	expert_module_t* expert_mms;
 
-  /* Register protocol */
-  proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("mms", dissect_mms, proto_mms);
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_mms, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  expert_mms = expert_register_protocol(proto_mms);
-  expert_register_field_array(expert_mms, ei, array_length(ei));
+	/* Register protocol */
+	proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	register_dissector("mms", dissect_mms, proto_mms);
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_mms, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	expert_mms = expert_register_protocol(proto_mms);
+	expert_register_field_array(expert_mms, ei, array_length(ei));
 
 }
 

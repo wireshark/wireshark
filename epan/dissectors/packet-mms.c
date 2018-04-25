@@ -19,10 +19,14 @@
 
 #include "config.h"
 
+#include <glib.h>
+#include <stdio.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -710,7 +714,7 @@ static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
 /*--- End of included file: packet-mms-hf.c ---*/
-#line 34 "./asn1/mms/packet-mms-template.c"
+#line 38 "./asn1/mms/packet-mms-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
@@ -927,11 +931,91 @@ static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
 /*--- End of included file: packet-mms-ett.c ---*/
-#line 38 "./asn1/mms/packet-mms-template.c"
+#line 42 "./asn1/mms/packet-mms-template.c"
 
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
 static expert_field ei_mms_zero_pdu = EI_INIT;
+
+/*****************************************************************************/
+/* Packet private data                                                       */
+/* For this dissector, all access to actx->private_data should be made       */
+/* through this API, which ensures that they will not overwrite each other!! */
+/*****************************************************************************/
+
+#define BUFFER_SIZE_PRE 10
+#define BUFFER_SIZE_MORE 1024
+
+typedef struct mms_private_data_t
+{
+	char preCinfo[BUFFER_SIZE_PRE];
+	char moreCinfo[BUFFER_SIZE_MORE];
+} mms_private_data_t;
+
+
+/* Helper function to get or create the private data struct */
+static
+mms_private_data_t* mms_get_private_data(asn1_ctx_t *actx)
+{
+	packet_info *pinfo = actx->pinfo;
+	mms_private_data_t *private_data = (mms_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num);
+	if(private_data != NULL )
+		return private_data;
+	else {
+		private_data = wmem_new0(pinfo->pool, mms_private_data_t);
+		p_add_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num, private_data);
+		return private_data;
+	}
+}
+
+/* Helper function to test presence of private data struct */
+static gboolean
+mms_has_private_data(asn1_ctx_t *actx)
+{
+	packet_info *pinfo = actx->pinfo;
+	return (p_get_proto_data(pinfo->pool, pinfo, proto_mms, pinfo->curr_layer_num) != NULL);
+}
+
+static void
+private_data_add_preCinfo(asn1_ctx_t *actx, guint32 val)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_snprintf(private_data->preCinfo, BUFFER_SIZE_PRE, "%02d ", val);
+}
+
+static char*
+private_data_get_preCinfo(asn1_ctx_t *actx)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	return private_data->preCinfo;
+}
+
+static void
+private_data_add_moreCinfo_id(asn1_ctx_t *actx, tvbuff_t *tvb)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
+	g_strlcat(private_data->moreCinfo, tvb_get_string_enc(wmem_packet_scope(),
+				tvb, 2, tvb_get_guint8(tvb, 1), ENC_STRING), BUFFER_SIZE_MORE);
+}
+
+static void
+private_data_add_moreCinfo_float(asn1_ctx_t *actx, tvbuff_t *tvb)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	g_snprintf(private_data->moreCinfo, BUFFER_SIZE_MORE,
+				" %f", tvb_get_ieee_float(tvb, 1, ENC_BIG_ENDIAN));
+}
+
+static char*
+private_data_get_moreCinfo(asn1_ctx_t *actx)
+{
+	mms_private_data_t *private_data = (mms_private_data_t*)mms_get_private_data(actx);
+	return private_data->moreCinfo;
+}
+
+/*****************************************************************************/
+
 
 
 /*--- Included file: packet-mms-fn.c ---*/
@@ -956,8 +1040,15 @@ static int dissect_mms_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 140 "./asn1/mms/mms.cnf"
+	guint32 val;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+                                                &val);
+
+	if (hf_index == hf_mms_invokeID)
+		private_data_add_preCinfo(actx, val);
+
+
 
   return offset;
 }
@@ -966,9 +1057,16 @@ dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 150 "./asn1/mms/mms.cnf"
+	int offset_id = offset;
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
+
+	if ((hf_index == hf_mms_domainId) || (hf_index == hf_mms_itemId)) {
+		if (tvb_get_guint8(tvb, offset_id) == 0x1a)
+			private_data_add_moreCinfo_id(actx,tvb);
+	}
 
   return offset;
 }
@@ -1810,8 +1908,13 @@ dissect_mms_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 146 "./asn1/mms/mms.cnf"
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+	private_data_add_moreCinfo_float(actx, tvb);
+
+
 
   return offset;
 }
@@ -1820,7 +1923,7 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "./asn1/mms/mms.cnf"
+#line 51 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 milliseconds;
@@ -1900,7 +2003,7 @@ dissect_mms_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "./asn1/mms/mms.cnf"
+#line 102 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -1937,6 +2040,7 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	}
 
 	return offset;
+
 
 
   return offset;
@@ -2321,7 +2425,7 @@ dissect_mms_Output_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 25 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
+	offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 
 
@@ -2333,7 +2437,7 @@ dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 28 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
+	offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 
 
@@ -2345,7 +2449,7 @@ dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 31 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
+	offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 
 
@@ -2357,7 +2461,7 @@ dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 34 "./asn1/mms/mms.cnf"
-  offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
+	offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 
 
@@ -7015,18 +7119,21 @@ static const ber_choice_t MMSpdu_choice[] = {
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 37 "./asn1/mms/mms.cnf"
-  gint branch_taken;
+	gint branch_taken;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MMSpdu_choice, hf_index, ett_mms_MMSpdu,
                                  &branch_taken);
 
 
-  if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", mms_MMSpdu_vals[branch_taken].strptr);
-  }
-
-
+	if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
+		if (mms_has_private_data(actx))
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s%s%s",
+				private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
+		else
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
+				mms_MMSpdu_vals[branch_taken].strptr);
+	}
 
 
 
@@ -7035,7 +7142,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 44 "./asn1/mms/packet-mms-template.c"
+#line 128 "./asn1/mms/packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -7073,8 +7180,8 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 void proto_register_mms(void) {
 
 	/* List of fields */
-  static hf_register_info hf[] =
-  {
+	static hf_register_info hf[] =
+	{
 
 /*--- Included file: packet-mms-hfarr.c ---*/
 #line 1 "./asn1/mms/packet-mms-hfarr.c"
@@ -9744,12 +9851,12 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 84 "./asn1/mms/packet-mms-template.c"
-  };
+#line 168 "./asn1/mms/packet-mms-template.c"
+	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
-    &ett_mms,
+	/* List of subtrees */
+	static gint *ett[] = {
+		&ett_mms,
 
 /*--- Included file: packet-mms-ettarr.c ---*/
 #line 1 "./asn1/mms/packet-mms-ettarr.c"
@@ -9963,25 +10070,25 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 90 "./asn1/mms/packet-mms-template.c"
-  };
+#line 174 "./asn1/mms/packet-mms-template.c"
+	};
 
-  static ei_register_info ei[] = {
-     { &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
-     { &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
-     { &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
-  };
+	static ei_register_info ei[] = {
+		{ &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
+		{ &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
+		{ &ei_mms_zero_pdu, { "mms.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte MMS PDU", EXPFILL }},
+	};
 
-  expert_module_t* expert_mms;
+	expert_module_t* expert_mms;
 
-  /* Register protocol */
-  proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("mms", dissect_mms, proto_mms);
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_mms, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  expert_mms = expert_register_protocol(proto_mms);
-  expert_register_field_array(expert_mms, ei, array_length(ei));
+	/* Register protocol */
+	proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	register_dissector("mms", dissect_mms, proto_mms);
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_mms, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	expert_mms = expert_register_protocol(proto_mms);
+	expert_register_field_array(expert_mms, ei, array_length(ei));
 
 }
 

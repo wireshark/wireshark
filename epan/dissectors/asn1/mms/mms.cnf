@@ -22,27 +22,30 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 #.FIELD_RENAME
 
 #.FN_BODY ApplicationReference/ap-title
-  offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
+	offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 #.FN_BODY ApplicationReference/ap-invocation-id
-  offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
+	offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 #.FN_BODY ApplicationReference/ae-qualifier
-  offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
+	offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 #.FN_BODY ApplicationReference/ae-invocation-id
-  offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
+	offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 #.FN_BODY MMSpdu VAL_PTR=&branch_taken
-  gint branch_taken;
+	gint branch_taken;
 
 %(DEFAULT_BODY)s
 
-  if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", mms_MMSpdu_vals[branch_taken].strptr);
-  }
-
-
+	if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
+		if (mms_has_private_data(actx))
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s%%s%%s",
+				private_data_get_preCinfo(actx), mms_MMSpdu_vals[branch_taken].strptr, private_data_get_moreCinfo(actx));
+		else
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s",
+				mms_MMSpdu_vals[branch_taken].strptr);
+	}
 
 #.FN_BODY TimeOfDay
 
@@ -132,3 +135,21 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 	}
 
 	return offset;
+
+#.FN_BODY Unsigned32 VAL_PTR=&val
+	guint32 val;
+%(DEFAULT_BODY)s
+	if (hf_index == hf_mms_invokeID)
+		private_data_add_preCinfo(actx, val);
+
+#.FN_BODY FloatingPoint
+%(DEFAULT_BODY)s
+	private_data_add_moreCinfo_float(actx, tvb);
+
+#.FN_BODY Identifier
+	int offset_id = offset;
+%(DEFAULT_BODY)s
+	if ((hf_index == hf_mms_domainId) || (hf_index == hf_mms_itemId)) {
+		if (tvb_get_guint8(tvb, offset_id) == 0x1a)
+			private_data_add_moreCinfo_id(actx,tvb);
+	}
