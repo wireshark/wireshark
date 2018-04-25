@@ -597,44 +597,6 @@ location.  If this is the case, you may have to tweak aclocal.m4.
 
 
 question("""
-Why do I get the error
-
-<em>dftest_DEPENDENCIES was already defined in condition TRUE,
-which implies condition HAVE_PLUGINS_TRUE</em>
-
-when I try to build Wireshark from SVN or a SVN snapshot?
-""")
-
-answer("""
-You probably have automake 1.5 installed on your machine (the command
-<kbd>automake --version</kbd> will report the version of automake on
-your machine).  There is a bug in that version of automake that causes
-this problem; upgrade to a later version of automake (1.6 or later).
-""")
-
-question("""
-Why does the linker fail with a number of "Output line too long." messages
-followed by linker errors when I try to build Wireshark?
-""")
-
-answer("""
-The version of the <code>sed</code> command on your system is incapable of
-handling very long lines.  On Solaris, for example,
-<code>/usr/bin/sed</code> has a line length limit too low to allow
-<code>libtool</code> to work; <code>/usr/xpg4/bin/sed</code> can handle it, as
-can GNU <code>sed</code> if you have it installed.
-
-<br>
-
-On Solaris, changing your command search path to search
-<code>/usr/xpg4/bin</code> before <code>/usr/bin</code> should make the problem
-go away; on any platform on which you have this problem, installing GNU
-<code>sed</code> and changing your command path to search the directory in
-which it is installed before searching the directory with the version of
-<code>sed</code> that came with the OS should make the problem go away.
-""")
-
-question("""
 When I try to build Wireshark on Windows, why does the build fail because
 of conflicts between <code>winsock.h</code> and <code>winsock2.h</code>?
 """)
