@@ -38,16 +38,36 @@ do
 	fi
 done
 
-BASIC_LIST="libgtk2.0-dev libpcap-dev bison flex make automake \
-	libtool python perl libgcrypt-dev"
+BASIC_LIST="qttools5-dev \
+	qttools5-dev-tools \
+	libqt5svg5-dev \
+	qtmultimedia5-dev \
+	qt5-default \
+	libpcap-dev \
+	bison \
+	flex \
+	make \
+	cmake \
+	python \
+	perl \
+	libgcrypt-dev"
 
-ADDITIONAL_LIST="libnl-3-dev qttools5-dev qttools5-dev-tools libgtk-3-dev \
-		libc-ares-dev libkrb5-dev libqt5svg5-dev libsmi2-dev \
-		asciidoctor libsbc-dev \
-		qtmultimedia5-dev liblua5.2-dev libnl-cli-3-dev \
-		libparse-yapp-perl qt5-default cmake libcap-dev \
-		liblz4-dev libsnappy-dev libspandsp-dev libxml2-dev \
-		git libjson-glib-dev"
+ADDITIONAL_LIST="libnl-3-dev \
+	libc-ares-dev \
+	libkrb5-dev \
+	libsmi2-dev \
+	asciidoctor \
+	libsbc-dev \
+	liblua5.2-dev \
+	libnl-cli-3-dev \
+	libparse-yapp-perl \
+	libcap-dev \
+	liblz4-dev \
+	libsnappy-dev \
+	libspandsp-dev \
+	libxml2-dev \
+	git \
+	libjson-glib-dev"
 
 # Adds package $2 to list variable $1 if the package is found
 add_package() {
@@ -59,10 +79,6 @@ add_package() {
 	# package is found, append it to list
 	eval "${list}=\"\${${list}} \${pkgname}\""
 }
-
-# only needed for newer distro versions where "libtool" binary is separated.
-# Debian >= jessie, Ubuntu >= 16.04
-add_package BASIC_LIST libtool-bin
 
 # Debian >= wheezy-backports, Ubuntu >= 16.04
 add_package ADDITIONAL_LIST libnghttp2-dev ||
