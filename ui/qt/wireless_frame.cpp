@@ -36,6 +36,7 @@
 #include <wsutil/frequency-utils.h>
 
 #include <QProcess>
+#include <QAbstractItemView>
 
 // To do:
 // - Disable or hide invalid channel types.
