@@ -1,11 +1,4 @@
-NOTE: this document applies to the Wireshark source releases and
-buildbot source tarballs.  It does not apply to source code checked out
-directly from Git, as files such as the configuration script are not
-checked into Git, but need to be generated from the autoconf and
-automake files.
-
-See https://wiki.wireshark.org/Development if you would like to build the
-source code checked out directly from Git.
+See also https://wiki.wireshark.org/Development.
 
 Installation
 ============
@@ -37,7 +30,6 @@ README.windows for those instructions.
    "user's" and "developer's" packages, with the former not including
    header files and the like.  For example, Red Hat users will need to
    install a "glib2-devel" .rpm.
-
 
 2. If you wish to build TShark, the line-mode version of Wireshark,
    make sure you have GLib installed.  See note #1 above for instructions
