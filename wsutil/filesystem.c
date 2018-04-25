@@ -675,33 +675,11 @@ DIAG_ON(pedantic)
         *dir_end = '\0';
 
         /*
-         * Is there a "/.libs" at the end?
+         * Is there a "/run" at the end?
          */
         dir_end = strrchr(prog_pathname, '/');
         if (dir_end != NULL) {
-            if (strcmp(dir_end, "/.libs") == 0) {
-                /*
-                 * Yup, it's ".libs".
-                 * Strip that off; it's an
-                 * artifact of libtool.
-                 */
-                *dir_end = '\0';
-
-                /*
-                 * This presumably means we're run from
-                 * the libtool wrapper, which probably
-                 * means we're being run from the build
-                 * directory.  If we weren't started
-                 * with special privileges, set
-                 * running_in_build_directory_flag.
-                 *
-                 * XXX - should we check whether what
-                 * follows ".libs/" begins with "lt-"?
-                 */
-                if (!started_with_special_privs())
-                    running_in_build_directory_flag = TRUE;
-            }
-            else if (!started_with_special_privs()) {
+            if (!started_with_special_privs()) {
                 /*
                  * Check for the CMake output directory. As people may name
                  * their directories "run" (really?), also check for the

@@ -219,22 +219,9 @@ scan_plugins_build_dir(GHashTable *plugins_module, plugin_type_e type)
         if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
             continue;        /* skip "." and ".." */
         /*
-         * Get the full path of a ".libs" subdirectory of that
-         * directory.
+         * Get the full path of that directory.
          */
-        plugin_folder = g_build_filename(dirpath, name, ".libs", (gchar *)NULL);
-        if (test_for_directory(plugin_folder) != EISDIR) {
-            /*
-             * Either it doesn't refer to a directory or it
-             * refers to something that doesn't exist.
-             *
-             * Assume that means that the plugins are in
-             * the subdirectory of the plugin directory, not
-             * a ".libs" subdirectory of that subdirectory.
-             */
-            g_free(plugin_folder);
-            plugin_folder = g_build_filename(get_plugins_dir(), name, (gchar *)NULL);
-        }
+        plugin_folder = g_build_filename(get_plugins_dir(), name, (gchar *)NULL);
         scan_plugins_dir(plugins_module, plugin_folder, type, FALSE);
         g_free(plugin_folder);
     }
