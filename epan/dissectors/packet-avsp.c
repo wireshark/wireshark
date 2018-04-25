@@ -46,11 +46,14 @@ static int proto_avsp = -1;
 /* sub trees */
 static gint ett_avsp = -1;
 static gint ett_avsp_ts_48 = -1;
+static gint ett_avsp_ts_64 = -1;
 
 /* avsp variables */
 static int hf_avsp_sub_type = -1;
 static int hf_avsp_ts_version = -1;
 static int hf_avsp_ts_64 = -1;
+static int hf_avsp_ts_64_sec = -1;
+static int hf_avsp_ts_64_ns = -1;
 static int hf_avsp_ts_48 = -1;
 static int hf_avsp_ts_48_sec = -1;
 static int hf_avsp_ts_48_ns = -1;
@@ -83,8 +86,7 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
     col_clear(pinfo->cinfo, COL_INFO);
 
     proto_item *ti = NULL;
-    proto_tree *avsp_tree = NULL, *avsp_48_tree = NULL;
-    nstime_t ts_nstime;
+    proto_tree *avsp_tree = NULL, *avsp_48_tree = NULL, *avsp_64_tree;
 
     /* Adding Items and Values to the Protocol Tree */
     ti = proto_tree_add_item(tree, proto_avsp, tvb, 0, -1,
@@ -103,12 +105,16 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
 
         switch (version) {
         case ARISTA_TIMESTAMP_V1:
+            ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_64, tvb, 0, -1,
+                    ENC_NA);
+            avsp_64_tree = proto_item_add_subtree(ti, ett_avsp);
             col_add_fstr(pinfo->cinfo, COL_INFO, "64bit-v1 timestamp");
-            ts_nstime.secs = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
-            ts_nstime.nsecs = tvb_get_guint32(tvb, offset + 4, ENC_BIG_ENDIAN);
-            proto_tree_add_time(avsp_tree, hf_avsp_ts_64, tvb,
-                    offset, 8, &ts_nstime);
-            offset += 8;
+            proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_sec, tvb, offset,
+                4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(avsp_64_tree, hf_avsp_ts_64_ns, tvb, offset,
+                4, ENC_BIG_ENDIAN);
+            offset += 4;
             break;
         case ARISTA_TIMESTAMP_V2:
             ti = proto_tree_add_item(avsp_tree, hf_avsp_ts_48, tvb, 0, -1,
@@ -162,8 +168,20 @@ void proto_register_avsp(void)
                 NULL, HFILL}
         },
         {&hf_avsp_ts_64,
-            {"Timestamp", "avsp.64ts",
-                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+            {"Timestamp (TAI)", "avsp.64ts",
+                FT_NONE, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_ts_64_sec,
+            {"Seconds", "avsp.64sec",
+                FT_UINT32, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL}
+        },
+        {&hf_avsp_ts_64_ns,
+            {"Nanoseconds", "avsp.64ns",
+                FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
         },
@@ -180,7 +198,7 @@ void proto_register_avsp(void)
                 NULL, HFILL}
         },
         {&hf_avsp_ts_48_ns,
-            {"Nano Seconds", "avsp.48ns",
+            {"Nanoseconds", "avsp.48ns",
                 FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
@@ -190,7 +208,8 @@ void proto_register_avsp(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_avsp,    /* main avsp tree */
-        &ett_avsp_ts_48, /* subtree of above for 48 bit timestamp */
+        &ett_avsp_ts_48, /* subtree above for 48 bit timestamp */
+        &ett_avsp_ts_64, /* subtree above for 64 bit timestamp */
     };
 
     /* registering the avsp protocol with 3 names */
