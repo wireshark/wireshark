@@ -2588,15 +2588,15 @@ void proto_reg_handoff_f5ethtrailer(void)
 
 #ifdef F5_POP_OTHERFIELDS
 	/* These fields are duplicates of other, well-known fields so that
-		* filtering on these fields will also pick up data out of the
-		* trailers.  If we do not build with this option, we do not want to
-		* define these as it will add overhead because this dissector would be
-		* called for coloring rules, etc.  As a further performance
-		* improvement, we only register these fields when the populate other
-		* fields option is enabled.  This helps this dissector not run when
-		* its fields are not referenced (if it has no intention of populating
-		* these fields).
-		 */
+	 * filtering on these fields will also pick up data out of the
+	 * trailers.  If we do not build with this option, we do not want to
+	 * define these as it will add overhead because this dissector would be
+	 * called for coloring rules, etc.  As a further performance
+	 * improvement, we only register these fields when the populate other
+	 * fields option is enabled.  This helps this dissector not run when
+	 * its fields are not referenced (if it has no intention of populating
+	 * these fields).
+	 */
 
 	hf_ip_ipaddr = proto_registrar_get_id_byname("ip.addr");
 	hf_ip6_ip6addr = proto_registrar_get_id_byname("ipv6.addr");
