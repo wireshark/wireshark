@@ -77,7 +77,7 @@ if( PCAP_FOUND )
   check_function_exists( "pcap_freecode" HAVE_PCAP_FREECODE )
   #
   # Note: for pcap_breakloop() and pcap_findalldevs(), the autoconf script
-  # checks for more than just whether the function exists, it also checks
+  # checked for more than just whether the function exists, it also checked
   # for whether pcap.h declares it; macOS software/security updates can
   # update libpcap without updating the headers.
   #

@@ -518,7 +518,7 @@ else() # ! MSVC
 		# least some Xcode versions that come with Mac OS X
 		# 10.5, complain about variables in function and
 		# function pointer *declarations* shadowing other
-		# variables.  The autoconf script checks for that; we
+		# variables.  The autoconf script checked for that; we
 		# don't.
 		-Wshadow
 		-Wno-pointer-sign
@@ -527,7 +527,7 @@ else() # ! MSVC
 		#
 		# Some versions of GCC, such as 4.3.2 and 4.4.5,
 		# generate logical-op warnings when strchr() is given a
-		# constant string.  The autoconf script checks for that;
+		# constant string.  The autoconf script checked for that;
 		# we don't.
 		#
 		-Wlogical-op
@@ -1206,17 +1206,17 @@ if (Qt5Widgets_FOUND)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
 	if(Qt5Multimedia_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5Multimedia_LIBRARIES})
-		# That's the name autofoo uses
+		# That's the name autotools used
 		set(QT_MULTIMEDIA_LIB 1)
 	endif()
 	if(Qt5Svg_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5Svg_LIBRARIES})
-		# That's the name autofoo uses
+		# That's the name autotools used
 		set(QT_SVG_LIB 1)
 	endif()
 	if(Qt5MacExtras_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MacExtras_LIBRARIES})
-		# That's the name autofoo uses
+		# That's the name autotools used
 		set(QT_MACEXTRAS_LIB 1)
 	endif()
 	if(Qt5WinExtras_FOUND)
@@ -1238,7 +1238,7 @@ elseif(QT4_FOUND)
 		message(STATUS "QtMultimedia includes: ${QT_INCLUDE_DIR}")
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${QT_QTMULTIMEDIA_LIBRARY})
 		message(STATUS "QtMultimedia libs: ${QT_QTMULTIMEDIA_LIBRARY}")
-		# That's the name autofoo uses
+		# That's the name autotools used
 		set(QT_MULTIMEDIA_LIB 1)
 	endif()
 	if(WIN32 OR APPLE)
