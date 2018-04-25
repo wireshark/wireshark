@@ -27,11 +27,6 @@ for macOS from
 
 	https://cmake.org/download/
 
-The Wireshark source includes an autoconf configure script; however,
-that script cannot find recent versions of Qt for macOS, and will not
-try to find macOS frameworks that Wireshark can use to improve the user
-experience, so we don't recomment using the configure script.
-
 The tools/macos-setup.sh script can be used to download, patch as
 necessary, build as necessary, and install those libraries and the
 libraries on which they depend, along with tools such as CMake; it will,
@@ -41,21 +36,10 @@ specified by variables set early in the script; you can comment out the
 settings of optional libraries if you don't want them downloaded and
 installed.  Before running the tools/macos-setup.sh script, and before
 attempting to build Wireshark, make sure your PKG_CONFIG_PATH
-environment variable's setting includes both /usr/X11/lib/pkgconfig and
-/usr/local/lib/pkgconfig.
+environment variable's setting includes /usr/local/lib/pkgconfig.
 
 The tools/macos-setup.sh script must be run from the top-level source
 directory.
-
-If you wish to build the legacy (GTK+) UI you must have X11 and the X11
-developer headers and libraries installed, as well as the Pango, ATK,
-and GTK+ libraries; otherwise, you will not be able to build or install
-GTK+.  The X11 and X11 SDK that come with macOS releases for releases
-from Panther to Lion can be used to build and run Wireshark.  Mountain
-Lion and later do not include X11; you should install X11 from
-elsewhere, such as
-
-	http://xquartz.macosforge.org/
 
 After you have installed those libraries:
 
@@ -121,12 +105,6 @@ whether libiconv is GNU iconv.  In macOS, libiconv is GNU iconv, but the
 replace all occurrences of "libiconv_open" with "iconv_open" in the
 configure script before running the script.  The tools/macos-setup.sh
 setup script will patch GLib to work around this.
-
-GTK+ - GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
-CUPS printing backend - either the CUPS API changed incompatibly or the
-backend was depending on non-API implementation details.  The
-tools/macos-setup.sh setup script will, on Mountain Lion and later,
-configure GTK+ with the CUPS printing backend disabled.
 
 libgcrypt - the libgcrypt configuration script attempts to determine
 which flavor of assembler-language routines to use based on the platform
