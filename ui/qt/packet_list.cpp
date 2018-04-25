@@ -271,16 +271,20 @@ PacketList::PacketList(QWidget *parent) :
 
     if (style_inactive_selected) {
         // XXX Style the protocol tree as well?
+        QPalette active_pal = palette();
+        active_pal.setCurrentColorGroup(QPalette::Active);
+        QColor active_border = QColor::fromRgb(ColorUtils::alphaBlend(
+                                                active_pal.highlightedText(),
+                                                active_pal.highlight(),
+                                                0.25));
+
         QPalette inactive_pal = palette();
         inactive_pal.setCurrentColorGroup(QPalette::Inactive);
-        QColor border = QColor::fromRgb(ColorUtils::alphaBlend(
+        QColor inactive_border = QColor::fromRgb(ColorUtils::alphaBlend(
                                                 inactive_pal.highlightedText(),
                                                 inactive_pal.highlight(),
                                                 0.25));
-        QColor shadow = QColor::fromRgb(ColorUtils::alphaBlend(
-                                                inactive_pal.highlightedText(),
-                                                inactive_pal.highlight(),
-                                                0.07));
+
         setStyleSheet(QString(
                           "QTreeView::item:selected:first:!active {"
                           "  border-left: 1px solid %1;"
@@ -289,17 +293,25 @@ PacketList::PacketList(QWidget *parent) :
                           "  border-right: 1px solid %1;"
                           "}"
                           "QTreeView::item:selected:!active {"
-                          "  border-top: 1px solid %1;"
-                          "  border-bottom: 1px solid %1;"
+                          "  border-top: 0px solid %1;"
+                          "  border-bottom: 0px solid %1;"
                           "  color: %2;"
-                          // Try to approximate a subtle box shadow.
-                          "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1"
-                          "    stop: 0 %4, stop: 0.2 %3, stop: 0.8 %3, stop: 1 %4);"
+                          // Use a linear background gradient
+                          "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %1, stop: 1 %3);"
+                          "}"
+                          "QTreeView::item:selected:active {"
+                          "  border-top: 0px solid %4;"
+                          "  border-bottom: 0px solid %4;"
+                          "  color: %5;"
+                          // Use a linear background gradient
+                          "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %4, stop: 1 %6);"
                           "}")
-                      .arg(border.name())
+                      .arg(inactive_border.name())
                       .arg(inactive_pal.highlightedText().color().name())
                       .arg(inactive_pal.highlight().color().name())
-                      .arg(shadow.name())
+                      .arg(active_border.name())
+                      .arg(active_pal.highlightedText().color().name())
+                      .arg(active_pal.highlight().color().name())
                       );
     }
 
