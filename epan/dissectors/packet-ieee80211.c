@@ -5797,6 +5797,8 @@ is_broadcast_bssid(const address *bssid) {
   return addresses_equal(&bssid_broadcast, bssid);
 }
 
+static heur_dissector_list_t heur_subdissector_list;
+
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t wlan_withoutfcs_handle;
 static dissector_handle_t llc_handle;
@@ -22775,6 +22777,11 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
            packet starts with 0x00 0x00 and, if so, treat it as an OLPC
            frame, or check the packet starts with the repetition of the
            sequence control field and, if so, treat it as an Atheros frame. */
+      heur_dtbl_entry_t  *hdtbl_entry;
+      if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+        pinfo->fragmented = save_fragmented;
+        goto end_of_wlan; /* heuristics dissector handled it. */
+      }
       encap_type = ENCAP_802_2;
       if (tvb_bytes_exist(next_tvb, 0, 2)) {
         octet1 = tvb_get_guint8(next_tvb, 0);
@@ -34057,6 +34064,9 @@ proto_register_ieee80211(void)
   proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
 
   proto_wlan = proto_register_protocol("IEEE 802.11 wireless LAN", "IEEE 802.11", "wlan");
+
+  heur_subdissector_list = register_heur_dissector_list("wlan_data", proto_wlan);
+
   /* Created to remove Decode As confusion */
   proto_centrino = proto_register_protocol("IEEE 802.11 wireless LAN (Centrino)", "IEEE 802.11 (Centrino)", "wlan_centrino");
   proto_register_field_array(proto_wlan, hf, array_length(hf));
