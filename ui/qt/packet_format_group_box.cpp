@@ -10,6 +10,7 @@
 #include <ui_packet_format_group_box.h>
 
 #include <QStyle>
+#include <QStyleOption>
 
 PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
     QGroupBox(parent),
