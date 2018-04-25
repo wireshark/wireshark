@@ -96,6 +96,8 @@ The filter language has the following functions:
 
     upper(string-field) - converts a string field to uppercase
     lower(string-field) - converts a string field to lowercase
+    len(field)          - returns the byte length of a string or bytes field
+    count(field)        - returns the number of field occurrences in a frame
 
 upper() and lower() are useful for performing case-insensitive string
 comparisons. For example:

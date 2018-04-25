@@ -387,11 +387,11 @@ You can combine filter expressions in Wireshark using the  logical operators sho
 |or      |\|\|      | Logical OR. `ip.scr==10.0.0.5 or ip.src==192.1.1.1`
 |xor     |^^        | Logical XOR. `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
 |not     |!         | Logical NOT. `not llc`
-|[...]   |          | See “Substring Operator” below.
+|[...]   |          | See “Slice Operator” below.
 |in      |          | See “Membership Operator” below.
 |===============
 
-==== Substring Operator
+==== Slice Operator
 Wireshark allows you to select subsequences of a sequence in rather elaborate
 ways. After a label you can place a pair of brackets [] containing a comma
 separated list of range specifiers.
@@ -427,7 +427,7 @@ eth.src[0:3,1-2,:4,4:,2] ==
 Wireshark allows you to string together single ranges in a comma separated list
 to form compound ranges as shown above.
 
-==== Membership Operator.
+==== Membership Operator
 Wireshark allows you to test a field for membership in a set of values or
 fields. After the field name, use the in operator followed by the set items
 surrounded by braces {}.
@@ -456,6 +456,33 @@ http.request.method in {"HEAD" "GET"}
 ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1..192.168.1.9}
 frame.time_delta in {10 .. 10.5}
 ----
+
+==== Functions
+
+The display filter language has a number of functions to convert fields, see
+<<DispFunctions>>.
+
+[[DispFunctions]]
+.Display Filter Functions
+[options="header",cols="1,4"]
+|===============
+|Function|Description
+|upper   |Converts a string field to uppercase.
+|lower   |Converts a string field to lowercase.
+|len     |Returns the byte length of a string or bytes field.
+|count   |Returns the number of field occurrences in a frame.
+|===============
+
+The `upper` and `lower` functions can used to force case-insensitive matches:
+`lower(http.server) contains "apache"`.
+
+To find HTTP requests with long request URIs: `len(http.request.uri) > 100`.
+Note that the `len` function yields the string length in bytes rather than
+(multi-byte) characters.
+
+Usually an IP frame has only two addresses (source and destination), but in case
+of ICMP errors or tunneling, a single packet might contain even more addresses.
+These packets can be found with `count(ip.addr) > 2`.
 
 [[ChWorkBuildDisplayFilterMistake]]
 
