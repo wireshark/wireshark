@@ -407,8 +407,8 @@ Messages with unknown control number or command will be silently ignored.
 
 DEVELOPMENT
 ===========
-To have extcap support, the specific extcap must be compiled. Examples for autotools and
-cmake compiling the extcap plugin androiddump are provided within wireshark. 
+To have extcap support, the specific extcap must be compiled. An example for
+cmake compiling the extcap plugin androiddump is provided within wireshark. 
 The extcap subsystem and the bundled extcaps are compiled by default.
 
 Additionally there is an example python script available in doc/extcap_example.py.
