@@ -92,7 +92,9 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
 
     *err = 0;
-    *err_str = NULL;
+    if (err_str) {
+        *err_str = NULL;
+    }
 
     /* Try to get our interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
