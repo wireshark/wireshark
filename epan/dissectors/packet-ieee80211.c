@@ -6043,6 +6043,22 @@ has_mesh_control(guint16 fcf, guint16 qos_ctl, guint8 mesh_flags)
           ((mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION) != MESH_FLAGS_ADDRESS_EXTENSION));
 }
 
+/****************************************************************************** */
+/*
+ * locally originated mesh frames will have a mesh control field, but no QoS header
+ * detect the presence of mesh control field by checking if mesh flags are legal
+ * and confirming that the next header is an 802.2 LLC header
+ *
+ ****************************************************************************** */
+static int
+has_mesh_control_local(guint16 fcf, guint8 mesh_flags, guint16 next_header)
+{
+  return (((FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) || (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T2)) &&
+          ((mesh_flags & ~MESH_FLAGS_ADDRESS_EXTENSION) == 0) &&
+          ((mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION) != MESH_FLAGS_ADDRESS_EXTENSION)) &&
+          next_header == 0xaaaa;
+}
+
 static int
 find_mesh_control_length(guint8 mesh_flags)
 {
@@ -21484,7 +21500,48 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           hdr_len += meshctl_len;
         }
       }
+    } else if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && !DATA_FRAME_IS_QOS(frame_type_subtype)) {
+
+      if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
+        /*
+         * QoS data frames with the Order bit set have an HT Control field;
+         * see 8.2.4.1.10 "Order field".  If they're not HT frames, they
+         * should never have the Order bit set.
+         */
+        hdr_len += 4;
+        htc_len = 4;
+      }
+
+      /*
+       * For locally originated mesh frames, the QoS header may be added by the
+       * hardware, and no present in wireshark captures.  This poses a problem
+       * as the QoS header indicates the presence of the mesh control header.
+       *
+       * Instead of QoS, we use a few heuristics to determine the presence of
+       * the mesh control header, which is tricky because it can have a
+       * variable length.
+       *
+       * Assume minimal length, and then correct if wrong.
+       */
+      meshctl_len = find_mesh_control_length(0);
+      if (tvb_bytes_exist(tvb, hdr_len, meshctl_len)) {
+        meshoff = hdr_len;
+        mesh_flags = tvb_get_guint8(tvb, meshoff);
+        /* now find correct length */
+        meshctl_len = find_mesh_control_length(mesh_flags);
+        /* ... and try to read two bytes of next header */
+        if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + sizeof(guint16))) {
+          guint16 next_header = tvb_get_letohs(tvb, meshoff + meshctl_len);
+          if (has_mesh_control_local(fcf, mesh_flags, next_header)) {
+            /* Yes, add the length of that in as well. */
+            hdr_len += meshctl_len;
+            break;
+          }
+        }
+      }
     }
+    /* failed to find a mesh header */
+    meshctl_len = 0;
     break;
 
   case EXTENSION_FRAME:
@@ -22245,16 +22302,17 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           dissect_ht_control(hdr_tree, tvb, ohdr_len - 4);
         }
 
-        if (meshctl_len != 0) {
-          proto_item *msh_fields;
-          proto_tree *msh_tree;
-
-          msh_fields = proto_tree_add_item(hdr_tree, hf_ieee80211_mesh_control_field, tvb, meshoff, meshctl_len, ENC_NA);
-          msh_tree = proto_item_add_subtree(msh_fields, ett_msh_control);
-          add_ff_mesh_control(msh_tree, tvb, pinfo, meshoff);
-        }
-
       } /* end of qos control field */
+
+      if (meshctl_len != 0) {
+        proto_item *msh_fields;
+        proto_tree *msh_tree;
+
+        msh_fields = proto_tree_add_item(hdr_tree, hf_ieee80211_mesh_control_field, tvb, meshoff, meshctl_len, ENC_NA);
+        msh_tree = proto_item_add_subtree(msh_fields, ett_msh_control);
+        add_ff_mesh_control(msh_tree, tvb, pinfo, meshoff);
+      }
+
       if (enable_decryption && !pinfo->fd->flags.visited) {
         const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
         /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
