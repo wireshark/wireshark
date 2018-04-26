@@ -1905,9 +1905,9 @@ get_datafile_path(const char *filename)
          * directory (not in the source/data directory).
          * (Oh the things we do to keep the source directory pristine...)
          */
-        return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_progfile_dir(), filename);
+        return g_build_filename(get_progfile_dir(), filename, (char *)NULL);
     } else {
-        return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(), filename);
+        return g_build_filename(get_datafile_dir(), filename, (char *)NULL);
     }
 }
 

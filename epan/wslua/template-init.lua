@@ -128,9 +128,10 @@ end
 %MENU_GROUPS%
 
 -- other useful constants
+-- DATA_DIR and USER_DIR have a trailing directory separator.
 GUI_ENABLED = gui_enabled()
-DATA_DIR = Dir.global_config_path()
-USER_DIR = Dir.personal_config_path()
+DATA_DIR = Dir.global_config_path()..package.config:sub(1,1)
+USER_DIR = Dir.personal_config_path()..package.config:sub(1,1)
 
 -- deprecated function names
 datafile_path = Dir.global_config_path
