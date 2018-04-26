@@ -29,7 +29,7 @@ class ProtoTree : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit ProtoTree(QWidget *parent = 0);
+    explicit ProtoTree(QWidget *parent = 0, epan_dissect_t *edt_fixed = 0);
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setRootNode(proto_node *root_node);
     void emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
@@ -62,6 +62,7 @@ private:
     QPoint drag_start_position_;
 
     capture_file *cap_file_;
+    epan_dissect_t *edt_;
 
     void saveSelectedField(QModelIndex &index);
     static void foreachTreeNode(proto_node *node, gpointer proto_tree_ptr);

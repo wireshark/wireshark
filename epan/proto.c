@@ -10613,9 +10613,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
  * string for the specified field; if it can do so, it returns a pointer
  * to the string, otherwise it returns NULL.
  *
- * The string is allocated with packet lifetime scope.
- * You do not need to [g_]free() this string since it will be automatically
- * freed once the next packet is dissected.
+ * The string is wmem allocated and must be freed with "wmem_free(NULL, ...)".
  */
 char *
 proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
