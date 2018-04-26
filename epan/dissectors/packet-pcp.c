@@ -49,6 +49,9 @@ static int hf_pcp_features_flags_creds_reqd = -1;
 static int hf_pcp_features_flags_secure_ack = -1;
 static int hf_pcp_features_flags_no_nss_init = -1;
 static int hf_pcp_features_flags_container = -1;
+static int hf_pcp_features_flags_cert_reqd = -1;
+static int hf_pcp_features_flags_bad_label = -1;
+static int hf_pcp_features_flags_labels = -1;
 static int hf_pcp_pmns_traverse = -1;
 static int hf_pcp_pmns_subtype = -1;
 static int hf_pcp_pmns_namelen = -1;
@@ -126,6 +129,25 @@ static int hf_pcp_text_ident = -1;
 static int hf_pcp_text_buflen = -1;
 static int hf_pcp_text_buffer = -1;
 static int hf_pcp_user_auth_payload = -1;
+static int hf_pcp_label_req = -1;
+static int hf_pcp_label = -1;
+static int hf_pcp_label_ident = -1;
+static int hf_pcp_label_type = -1;
+static int hf_pcp_label_padding = -1;
+static int hf_pcp_label_nsets = -1;
+static int hf_pcp_label_sets = -1;
+static int hf_pcp_label_sets_inst = -1;
+static int hf_pcp_label_sets_nlabels = -1;
+static int hf_pcp_label_sets_json = -1;
+static int hf_pcp_label_sets_jsonlen = -1;
+static int hf_pcp_label_sets_labels = -1;
+static int hf_pcp_label_sets_labels_nameoffset = -1;
+static int hf_pcp_label_sets_labels_namelen = -1;
+static int hf_pcp_label_sets_labels_flags = -1;
+static int hf_pcp_label_sets_labels_valueoffset = -1;
+static int hf_pcp_label_sets_labels_valuelen = -1;
+static int hf_pcp_label_sets_labels_name = -1;
+static int hf_pcp_label_sets_labels_value = -1;
 
 static gint ett_pcp = -1;
 static gint ett_pcp_pdu_length = -1;
@@ -227,6 +249,8 @@ static expert_field ei_pcp_unimplemented_value = EI_INIT;
 static expert_field ei_pcp_unimplemented_packet_type = EI_INIT;
 static expert_field ei_pcp_ssl_upgrade = EI_INIT;
 static expert_field ei_pcp_ssl_upgrade_failed = EI_INIT;
+static expert_field ei_pcp_label_error = EI_INIT;
+static expert_field ei_pcp_label_error_endianness = EI_INIT;
 
 /* Magic numbers */
 #define PCP_SECURE_ACK_SUCCESSFUL 0
@@ -246,6 +270,12 @@ static const value_string pcp_feature_flags[] = {
       { PCP_PDU_FLAG_NO_NSS_INIT,   "NO_NSS_INIT" },
 #define PCP_PDU_FLAG_CONTAINER      0x40
       { PCP_PDU_FLAG_CONTAINER,     "CONTAINER" },
+#define PCP_PDU_FLAG_CERT_REQD      0x80
+      { PCP_PDU_FLAG_CERT_REQD,     "CERT_REQD" },
+#define PCP_PDU_FLAG_BAD_LABEL      0x100
+      { PCP_PDU_FLAG_BAD_LABEL,     "BAD_LABEL" },
+#define PCP_PDU_FLAG_LABELS         0x200
+      { PCP_PDU_FLAG_LABELS,        "LABELS" },
       { 0, NULL }
 };
 
@@ -287,6 +317,10 @@ static const value_string packettypenames[] = {
        {PCP_PDU_PMNS_TRAVERSE,  "PMNS_TRAVERSE" },
 #define PCP_PDU_USER_AUTH       0x7011
        {PCP_PDU_USER_AUTH,      "USER_AUTH" },
+#define PCP_PDU_LABEL_REQ       0x7012
+       {PCP_PDU_LABEL_REQ,      "LABEL_REQ" },
+#define PCP_PDU_LABEL           0x7013
+       {PCP_PDU_LABEL,          "LABEL" },
        { 0, NULL }
 };
 
@@ -437,22 +471,36 @@ static const value_string packettypenames_creds[]= {
     { 0, NULL }
 };
 
+static const value_string packettypenames_label_req_type[]= {
+    { 1,  "PM_LABEL_CONTEXT" },
+    { 2,  "PM_LABEL_DOMAIN" },
+    { 4,  "PM_LABEL_INDOM" },
+    { 8,  "PM_LABEL_CLUSTER" },
+    { 16, "PM_LABEL_ITEM" },
+    { 32, "PM_LABEL_INSTANCES" },
+    { 0,  NULL }
+};
+
 typedef struct pcp_conv_info_t {
     wmem_array_t *pmid_name_candidates;
     wmem_map_t *pmid_to_name;
     guint32 last_pmns_names_frame;
     guint32 last_processed_pmns_names_frame;
+    gboolean using_good_labels;
 } pcp_conv_info_t;
 
 /* function prototypes */
 static pcp_conv_info_t* get_pcp_conversation_info(packet_info *pinfo);
 static int is_unvisited_pmns_names_frame(packet_info *pinfo);
+static gboolean is_using_good_labels(packet_info *pinfo);
+static gboolean label_value_length_looks_like_wrong_endianness(tvbuff_t *tvb, guint16 value_offset, guint16 value_length);
 static void add_candidate_name_for_pmid_resolution(packet_info *pinfo, tvbuff_t *tvb, int offset, int name_len);
 static void mark_this_frame_as_last_pmns_names_frame(packet_info *pinfo);
 static inline int has_unprocessed_pmns_names_frame(pcp_conv_info_t *pcp_conv_info);
 static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, guint32 num_ids);
 static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, guint32 num_ids);
 static inline int client_to_server(packet_info *pinfo);
+static inline int server_to_client(packet_info *pinfo);
 static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo);
 static guint get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static const gchar *get_pcp_features_to_string(guint16 feature_flags);
@@ -476,6 +524,8 @@ static int dissect_pcp_message_user_auth(tvbuff_t *tvb, packet_info *pinfo, prot
 static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 json_start_offset);
+static int dissect_pcp_partial_labelset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset);
 
 /* message length for dissect_tcp */
 static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -500,6 +550,10 @@ static inline int has_unprocessed_pmns_names_frame(pcp_conv_info_t *pcp_conv_inf
 
 static inline int client_to_server(packet_info *pinfo) {
     return pinfo->destport == PCP_PORT || pinfo->destport == PMPROXY_PORT;
+}
+
+static inline int server_to_client(packet_info *pinfo) {
+    return !client_to_server(pinfo);
 }
 
 static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo) {
@@ -1441,6 +1495,75 @@ static int dissect_pcp_message_user_auth(tvbuff_t *tvb, packet_info *pinfo, prot
     return tvb_reported_length(tvb);
 }
 
+/* LABEL_REQ packet format
+    int         ident
+    int         type
+*/
+static int dissect_pcp_message_label_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    /* append the type of packet */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_LABEL_REQ, packettypenames, "Unknown Type:0x%02x"));
+
+    proto_item *pcp_label_req_item = proto_tree_add_item(tree, hf_pcp_label_req, tvb, offset, -1, ENC_NA);
+    proto_tree *pcp_label_req_tree = proto_item_add_subtree(pcp_label_req_item, ett_pcp);
+
+    /* ident */
+    proto_tree_add_item(pcp_label_req_tree, hf_pcp_label_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* type */
+    proto_tree_add_item(pcp_label_req_tree, hf_pcp_label_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+/* LABEL packet format
+    int     ident
+    int     type
+    int     padding;
+    int     nsets;
+    labelset_t  sets[1];
+      |
+      |> int     inst
+         int     nlabels
+         int     json
+         int     jsonlen
+         pmLabel labels[0]
+*/
+static int dissect_pcp_message_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    /* append the type of packet */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_LABEL, packettypenames, "Unknown Type:0x%02x"));
+
+    proto_item *pcp_label_item = proto_tree_add_item(tree, hf_pcp_label, tvb, offset, -1, ENC_NA);
+    proto_tree *pcp_label_tree = proto_item_add_subtree(pcp_label_item, ett_pcp);
+
+    /* ident */
+    proto_tree_add_item(pcp_label_tree, hf_pcp_label_ident, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* type */
+    proto_tree_add_item(pcp_label_tree, hf_pcp_label_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* padding */
+    proto_tree_add_item(pcp_label_tree, hf_pcp_label_padding, tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    /* number of label sets */
+    gint32 nsets;
+    proto_tree_add_item_ret_int(pcp_label_tree, hf_pcp_label_nsets, tvb, offset, 4, ENC_NA, &nsets);
+    offset += 4;
+
+
+    for (gint32 i = 0; i < nsets; i++) {
+        offset = dissect_pcp_partial_labelset(tvb, pcp_label_tree, pinfo, offset);
+    }
+
+    return offset;
+}
+
 /* INSTANCE packet type
  pmInDom    indom
  int        numinst
@@ -1573,6 +1696,9 @@ static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto
     const gchar *feature_flags_string;
 
     static const int * pcp_feature_flags_header_fields[] = {
+            &hf_pcp_features_flags_labels,
+            &hf_pcp_features_flags_bad_label,
+            &hf_pcp_features_flags_cert_reqd,
             &hf_pcp_features_flags_container,
             &hf_pcp_features_flags_no_nss_init,
             &hf_pcp_features_flags_secure_ack,
@@ -1591,7 +1717,126 @@ static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree_add_bitmask(tree, tvb, offset, hf_pcp_features_flags, ett_pcp_start_features, pcp_feature_flags_header_fields, ENC_BIG_ENDIAN);
     offset += 2;
 
+    if ((feature_flags & PCP_PDU_FLAG_LABELS) == PCP_PDU_FLAG_LABELS && server_to_client(pinfo)) {
+        pcp_conv_info_t *pcp_conv_info = get_pcp_conversation_info(pinfo);
+        pcp_conv_info->using_good_labels = TRUE;
+    }
+
     return offset;
+}
+
+static int dissect_pcp_partial_labelset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+{
+    proto_item *pcp_label_sets_item = proto_tree_add_item(tree, hf_pcp_label_sets, tvb, offset, -1, ENC_NA);
+    proto_tree *pcp_label_sets_tree = proto_item_add_subtree(pcp_label_sets_item, ett_pcp);
+
+    /* Instance */
+    proto_tree_add_item(pcp_label_sets_tree, hf_pcp_label_sets_inst, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* Number of labels or error */
+    gint32 nlabels_or_error = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(pcp_label_sets_tree, hf_pcp_label_sets_nlabels, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    if (nlabels_or_error < 0) {
+        expert_add_info(pinfo, pcp_label_sets_tree, &ei_pcp_label_error);
+    }
+
+    /* Offset to start of JSON */
+    guint32 json_start_offset = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(pcp_label_sets_tree, hf_pcp_label_sets_json, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* Length of JSON string */
+    proto_tree_add_item(pcp_label_sets_tree, hf_pcp_label_sets_jsonlen, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* pmLabels */
+    for (gint i = 0; i < nlabels_or_error; i++) {
+        offset = dissect_pcp_partial_label(tvb, pinfo, pcp_label_sets_tree, offset, json_start_offset);
+    }
+
+    /* Fix up end length */
+    proto_item_set_end(pcp_label_sets_item, tvb, offset);
+
+    return offset;
+
+}
+
+static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 json_start_offset)
+{
+    proto_item *pcp_label_sets_label_item = proto_tree_add_item(tree, hf_pcp_label_sets_labels, tvb, offset, -1, ENC_NA);
+    proto_tree *pcp_label_sets_label_tree = proto_item_add_subtree(pcp_label_sets_label_item, ett_pcp);
+
+    /* Name offset*/
+    guint16 name_offset = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_nameoffset, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Name length */
+    guint32 name_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_namelen, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Flags */
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_flags, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Value offset */
+    guint16 value_offset = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_valueoffset, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Value Length */
+    guint16 value_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    /* Value length was not correctly converted to network-byte order in pcp v4.0.0-v4.0.1, it was encoded with whatever
+     * byte order the host uses. We try and pick this up and accommodate either by detecting the feature off the START PDU
+     * and failing that, check if the offset+length would be greater than the length of the captured packets. This isn't
+     * exhaustive but there is not much else to do apart from _only_ dissecting the known good LABEL PDUs.
+     */
+    if(is_using_good_labels(pinfo)) {
+        proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_valuelen, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+    else if(label_value_length_looks_like_wrong_endianness(tvb, value_offset, value_length)) {
+        /* We're _probably_ using the wrong endianness but we didn't capture the initial exchange to find out */
+        value_length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_valuelen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        expert_add_info(pinfo, pcp_label_sets_label_tree, &ei_pcp_label_error_endianness);
+    } else {
+        proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_valuelen, tvb, offset, 2, ENC_BIG_ENDIAN);
+        expert_add_info(pinfo, pcp_label_sets_label_tree, &ei_pcp_label_error_endianness);
+    }
+    offset += 2;
+
+    /* Name */
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_name, tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);
+
+    /* Value */
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_value, tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
+
+    /* Add to subtree  */
+    guint8 *name = tvb_get_string_enc(wmem_packet_scope(), tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);
+    guint8 *value = tvb_get_string_enc(wmem_packet_scope(), tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
+    proto_item_append_text(pcp_label_sets_label_item, " (%s:%s)", name, value);
+
+    proto_item_set_end(pcp_label_sets_label_item, tvb, offset);
+
+    return offset;
+}
+
+static gboolean is_using_good_labels(packet_info *pinfo)
+{
+    /* Try to establish if we've got good labels from an earlier START PDU */
+    return get_pcp_conversation_info(pinfo)->using_good_labels;
+}
+
+static gboolean label_value_length_looks_like_wrong_endianness(tvbuff_t *tvb, guint16 value_offset, guint16 value_length)
+{
+    /* Try to detect if the offset + length is greater than the TVB length which may happen with a
+     * wrongly-encoded endianness. This may fail in some cases if the label is early on in the frame and has
+     * many other labels that wouldn't push it over of the TVB length.
+     */
+    return tvb_reported_length(tvb) < ((guint)value_offset + (guint)value_length);
 }
 
 /* MAIN DISSECTING ROUTINE (after passed from dissect_tcp, all non-ssl packets hit function) */
@@ -1621,6 +1866,7 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         pcp_conv_info->pmid_to_name = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         pcp_conv_info->last_pmns_names_frame = 0;
         pcp_conv_info->last_processed_pmns_names_frame = 0;
+        pcp_conv_info->using_good_labels = FALSE;
     }
 
     root_pcp_item = proto_tree_add_item(tree, proto_pcp, tvb, 0, -1, ENC_NA);
@@ -1629,7 +1875,7 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     packet_type   = tvb_get_ntohl(tvb, 4);
 
     /* check if we are the client requesting or the server */
-    if (pinfo->srcport == PCP_PORT || pinfo->srcport == PMPROXY_PORT) {
+    if (server_to_client(pinfo)) {
         col_set_str(pinfo->cinfo, COL_INFO, "Server > Client ");
     } else {
         col_set_str(pinfo->cinfo, COL_INFO, "Client > Server ");
@@ -1716,6 +1962,14 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         case PCP_PDU_USER_AUTH:
             dissect_pcp_message_user_auth(tvb, pinfo, pcp_tree, offset);
+            break;
+
+        case PCP_PDU_LABEL_REQ:
+            dissect_pcp_message_label_req(tvb, pinfo, pcp_tree, offset);
+            break;
+
+        case PCP_PDU_LABEL:
+            dissect_pcp_message_label(tvb, pinfo, pcp_tree, offset);
             break;
 
         default:
@@ -1883,6 +2137,27 @@ void proto_register_pcp(void)
           { "Container", "pcp.features.flags.container",
             FT_BOOLEAN, 16,
             TFS(&tfs_set_notset), PCP_PDU_FLAG_CONTAINER,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_cert_reqd,
+          { "Certificate Required", "pcp.features.flags.cert_reqd",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_CERT_REQD,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_bad_label,
+          { "Bad Label", "pcp.features.flags.bad_label",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_BAD_LABEL,
+            "Legacy label support. Incorrectly implemented in pcp v4.0.0-v4.0.1", HFILL
+          }
+        },
+        { &hf_pcp_features_flags_labels,
+          { "Labels", "pcp.features.flags.labels",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_LABELS,
             NULL, HFILL
           }
         },
@@ -2425,6 +2700,141 @@ void proto_register_pcp(void)
             NULL, HFILL
           }
         },
+        { &hf_pcp_label_req,
+          { "Label Request", "pcp.label_req",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_label_ident,
+          { "Label Ident", "pcp.label.ident",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "Domain, PMID or pmInDom identifier", HFILL
+          }
+        },
+        { &hf_pcp_label_type,
+          { "Label Type", "pcp.label.type",
+            FT_INT32, BASE_DEC,
+            VALS(packettypenames_label_req_type), 0x0,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_label,
+          { "Labels", "pcp.label",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_label_padding,
+          { "Padding", "pcp.label.padding",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_label_nsets,
+          { "Num Label Sets", "pcp.label.nsets",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "Number of Label Sets", HFILL
+          }
+        },
+        { &hf_pcp_label_sets,
+          { "Label Set", "pcp.label.sets",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_label_sets_inst,
+          { "Instance", "pcp.label.sets.inst",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "Instance identifier or PM_IN_NULL", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_nlabels,
+          { "Num of Labels", "pcp.label.sets.nlabels",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "Number of labels or error code", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_json,
+          { "JSON Offset", "pcp.label.sets.json",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "Offset to start of JSON string", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_jsonlen,
+          { "JSON Length", "pcp.label.sets.jsonlen",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "Length of bytes of the JSON string", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels,
+          { "Label", "pcp.label.sets.label",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels_nameoffset,
+          { "Name Offset", "pcp.label.sets.label.nameoffset",
+            FT_INT16, BASE_DEC,
+            NULL, 0x0,
+            "Label name offset in the JSONB string", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels_namelen,
+          { "Name Length", "pcp.label.sets.label.namelen",
+            FT_INT8, BASE_DEC,
+            NULL, 0x0,
+            "Length of name excluding NULL terminator", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels_flags,
+          { "Flags", "pcp.label.sets.label.flags",
+            FT_INT8, BASE_DEC,
+            NULL, 0x0,
+            "Information about this label", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels_valueoffset,
+          { "Value Offset", "pcp.label.sets.label.valueoffset",
+            FT_INT16, BASE_DEC,
+            NULL, 0x0,
+            "Offset of the label value", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels_valuelen,
+          { "Value Length", "pcp.label.sets.label.valuelen",
+            FT_INT16, BASE_DEC,
+            NULL, 0x0,
+            "Length of the value in bytes", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels_name,
+          { "Name", "pcp.label.sets.label.name",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Label name", HFILL
+          }
+        },
+        { &hf_pcp_label_sets_labels_value,
+          { "Value", "pcp.label.sets.label.value",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            "Label value", HFILL
+          }
+        },
+
+
     };
 
     static gint *ett[] = {
@@ -2530,6 +2940,8 @@ void proto_register_pcp(void)
         { &ei_pcp_unimplemented_packet_type, { "pcp.type.unimplemented", PI_UNDECODED, PI_WARN, "Unimplemented Packet Type", EXPFILL }},
         { &ei_pcp_ssl_upgrade, { "pcp.ssl_upgrade", PI_COMMENTS_GROUP, PI_COMMENT, "SSL upgrade via SECURE_ACK", EXPFILL }},
         { &ei_pcp_ssl_upgrade_failed, { "pcp.ssl_upgrade_failed", PI_RESPONSE_CODE, PI_WARN, "SSL upgrade via SECURE_ACK failed", EXPFILL }},
+        { &ei_pcp_label_error, { "pcp.label.error", PI_RESPONSE_CODE, PI_NOTE, "Label returned an error", EXPFILL }},
+        { &ei_pcp_label_error_endianness, { "pcp.label.error.endianness", PI_RESPONSE_CODE, PI_NOTE, "Value length has been decoded without knowing the endianness. It has been attempted to be detected but may be wrong", EXPFILL }},
     };
 
     expert_module_t* expert_pcp;
