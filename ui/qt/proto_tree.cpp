@@ -35,12 +35,13 @@
 // To do:
 // - Fix "apply as filter" behavior.
 
-ProtoTree::ProtoTree(QWidget *parent) :
+ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     QTreeView(parent),
     proto_tree_model_(new ProtoTreeModel(this)),
     decode_as_(NULL),
     column_resize_timer_(0),
-    cap_file_(NULL)
+    cap_file_(NULL),
+    edt_(edt_fixed)
 {
     setAccessibleName(tr("Packet details"));
     // Leave the uniformRowHeights property as-is (false) since items might
@@ -516,12 +517,16 @@ const QString ProtoTree::toString(const QModelIndex &start_idx) const
 
 void ProtoTree::setCaptureFile(capture_file *cf)
 {
+    // For use by the main view, set the capture file which will later have a
+    // dissection (EDT) ready.
+    // The packet dialog sets a fixed EDT context and MUST NOT use this.
+    Q_ASSERT(edt_ == NULL);
     cap_file_ = cf;
 }
 
 bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
 {
-    if ( cap_file_ && event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove )
+    if ( event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove )
         return QTreeView::eventFilter(obj, event);
 
     /* Mouse was over scrollbar, ignoring */
@@ -552,7 +557,10 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                 emit fieldSelected(&finfo);
                 selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect);
 
-                QString filter = QString(proto_construct_match_selected_string(finfo.fieldInfo(), cap_file_->edt));
+                epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+                char *field_filter = proto_construct_match_selected_string(finfo.fieldInfo(), edt);
+                QString filter(field_filter);
+                wmem_free(NULL, field_filter);
 
                 if ( filter.length() > 0 )
                 {
