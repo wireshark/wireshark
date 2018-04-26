@@ -231,19 +231,19 @@ decodeVariableInt(tvbuff_t *tvb, const gint offset, const guint length)
 	case 1:
 		return tvb_get_guint8(tvb, offset);
 	case 2:
-		return tvb_get_letohs(tvb, offset);
+		return tvb_get_ntohs(tvb, offset);
 	case 3:
-		return tvb_get_letoh24(tvb, offset);
+		return tvb_get_ntoh24(tvb, offset);
 	case 4:
-		return tvb_get_letohl(tvb, offset);
+		return tvb_get_ntohl(tvb, offset);
 	case 5:
-		return tvb_get_letoh40(tvb, offset);
+		return tvb_get_ntoh40(tvb, offset);
 	case 6:
-		return tvb_get_letoh48(tvb, offset);
+		return tvb_get_ntoh48(tvb, offset);
 	case 7:
-		return tvb_get_letoh56(tvb, offset);
+		return tvb_get_ntoh56(tvb, offset);
 	case 8:
-		return tvb_get_letoh64(tvb, offset);
+		return tvb_get_ntoh64(tvb, offset);
 	default:
 		return 0;
 	}
