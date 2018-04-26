@@ -39,11 +39,11 @@ filter_expression_new(const gchar *label, const gchar *expr,
 {
 	filter_expression_t expression;
 
-	//UAT does the allocation of memory before copying structure
+	// UAT allocates its own memory and then deep-copies this structure in.
 	memset(&expression, 0, sizeof(expression));
-	expression.label = g_strdup(label);
-	expression.expression = g_strdup(expr);
-	expression.comment = g_strdup(comment);
+	expression.label = (gchar *)label;
+	expression.expression = (gchar *)expr;
+	expression.comment = (gchar *)comment;
 	expression.enabled = enabled;
 
 	/* XXX - This is just returned to make GTK GUI work. */
