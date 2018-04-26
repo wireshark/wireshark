@@ -292,8 +292,7 @@ WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
 
     if (running_in_build_directory()) {
         /* Running in build directory, try the source directory (Autotools) */
-        filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
-                                   G_DIR_SEPARATOR_S "%s", get_datafile_dir(), fname);
+        filename = g_build_filename("epan", "wslua", get_datafile_dir(), fname, (char *)NULL);
         if (( ! file_exists(filename))) {
             /* Try the CMake output directory */
             g_free(filename);

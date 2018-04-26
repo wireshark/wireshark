@@ -71,6 +71,11 @@ test("Dir.global_config_path",    pcall(callDirFuncBase, "global_config_path", t
 test("Dir.personal_plugins_path", pcall(callDirFuncBase, "personal_plugins_path", t))
 test("Dir.global_plugins_path",   pcall(callDirFuncBase, "global_plugins_path", t))
 
+-- Users expect trailing slashes for DATA_DIR and USER_DIR (bug 14619).
+local dirsep = package.config:sub(1,1)
+test("DATA_DIR", string.sub(DATA_DIR, -1) == dirsep)
+test("USER_DIR", string.sub(USER_DIR, -1) == dirsep)
+
 print("\nFor your information, I got the following info:\n")
 print("__FILE__ = '" .. __FILE__ .. "'")
 print("__DIR__  = '" .. __DIR__  .. "'")
