@@ -13,6 +13,8 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+* The Windows installers now ship with Qt 5.9.5. Previously they shipped with Qt 5.9.4.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
