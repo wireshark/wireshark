@@ -18,6 +18,7 @@
 
 
 #include <epan/packet.h>
+#include <wsutil/str_util.h>
 
 void proto_register_lwm2mtlv(void);
 void proto_reg_handoff_lwm2mtlv(void);
@@ -138,7 +139,10 @@ addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
 		                                     "Object Instance %02u (%u Bytes)", element->identifier, element->length_of_value);
 
 	case RESOURCE_INSTANCE:
-		str = tvb_get_string_enc(wmem_packet_scope(), tvb, valueOffset, element->length_of_value, ENC_ASCII);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, valueOffset, element->length_of_value, ENC_UTF_8);
+		if (!isprint_utf8_string (str, element->length_of_value)) {
+			str = tvb_bytes_to_str(wmem_packet_scope(), tvb, valueOffset, element->length_of_value);
+		}
 		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_resourceInstance, NULL,
 		                                     "%02u: %s", element->identifier, str);
 
@@ -147,7 +151,10 @@ addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
 		                                     "%02u: (Array of %u Bytes)", element->identifier, element->length_of_value);
 
 	case RESOURCE:
-		str = tvb_get_string_enc(wmem_packet_scope(), tvb, valueOffset, element->length_of_value, ENC_ASCII);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, valueOffset, element->length_of_value, ENC_UTF_8);
+		if (!isprint_utf8_string (str, element->length_of_value)) {
+			str = tvb_bytes_to_str(wmem_packet_scope(), tvb, valueOffset, element->length_of_value);
+		}
 		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_resource, NULL,
 		                                     "%02u: %s", element->identifier, str);
 	}
@@ -162,7 +169,7 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 
 	valueOffset = 1 + element->length_of_identifier + element->length_of_length;
 
-	proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8|ENC_NA);
 
 	switch(element->length_of_value)
 	{

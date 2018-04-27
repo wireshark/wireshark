@@ -62,6 +62,15 @@ gchar *ascii_strup_inplace(gchar *str);
 WS_DLL_PUBLIC
 gboolean isprint_string(const gchar *string);
 
+/** Check if an entire UTF-8 string consists of printable characters
+ *
+ * @param string The string to be checked
+ * @param length The number of bytes to validate
+ * @return       TRUE if the entire string is printable, otherwise FALSE
+ */
+WS_DLL_PUBLIC
+gboolean isprint_utf8_string(const gchar *string, guint length);
+
 /** Check if an entire string consists of digits
  *
  * @param string The string to be checked

@@ -80,6 +80,25 @@ isprint_string(const gchar *str)
 	return TRUE;
 }
 
+/* Check if an entire UTF-8 string is printable. */
+gboolean
+isprint_utf8_string(const gchar *str, guint length)
+{
+	const char *c;
+
+	if (!g_utf8_validate (str, length, NULL)) {
+		return FALSE;
+	}
+
+	for (c = str; *c; c = g_utf8_next_char(c)) {
+		if (!g_unichar_isprint(g_utf8_get_char(c))) {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 /* Check if an entire string is digits. */
 gboolean
 isdigit_string(guchar *str)
