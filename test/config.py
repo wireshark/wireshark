@@ -19,6 +19,7 @@ import tempfile
 commands = (
     'capinfos',
     'dumpcap',
+    'mergecap',
     'rawshark',
     'tshark',
     'wireshark',
@@ -31,6 +32,7 @@ capture_interface = None
 # Strings
 cmd_capinfos = None
 cmd_dumpcap = None
+cmd_mergecap = None
 cmd_rawshark = None
 cmd_tshark = None
 cmd_wireshark = None

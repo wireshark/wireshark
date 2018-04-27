@@ -190,13 +190,26 @@ class SubprocessTestCase(unittest.TestCase):
                 pass
         self.cleanup_files = []
 
-    def checkPacketCount(self, num_packets, cap_file=None):
-        got_num_packets = False
+    def getCaptureInfo(self, capinfos_args=None, cap_file=None):
+        '''Run capinfos on a capture file and log its output.
+
+        capinfos_args must be a sequence.
+        Default cap_file is <test id>.testout.pcap.'''
         if not cap_file:
             cap_file = self.filename_from_id('testout.pcap')
         self.log_fd.write(u'\nOutput of {0} {1}:\n'.format(config.cmd_capinfos, cap_file))
-        capinfos_testout = str(subprocess.check_output((config.cmd_capinfos, cap_file)))
-        self.log_fd_write_bytes(capinfos_testout)
+        capinfos_cmd = [config.cmd_capinfos]
+        if capinfos_args is not None:
+            capinfos_cmd += capinfos_args
+        capinfos_cmd.append(cap_file)
+        capinfos_stdout = str(subprocess.check_output(capinfos_cmd))
+        self.log_fd_write_bytes(capinfos_stdout)
+        return capinfos_stdout
+
+    def checkPacketCount(self, num_packets, cap_file=None):
+        '''Make sure a capture file contains a specific number of packets.'''
+        got_num_packets = False
+        capinfos_testout = self.getCaptureInfo(cap_file=cap_file)
         count_pat = 'Number of packets:\s+{}'.format(num_packets)
         if re.search(count_pat, capinfos_testout):
             got_num_packets = True
