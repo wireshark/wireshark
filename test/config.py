@@ -50,6 +50,8 @@ key_dir = os.path.join(this_dir, 'keys')
 lua_dir = os.path.join(this_dir, 'lua')
 
 def canCapture():
+    # XXX This appears to be evaluated at the wrong time when called
+    # from a unittest.skipXXX decorator.
     return can_capture and capture_interface is not None
 
 def setCanCapture(new_cc):
@@ -57,6 +59,7 @@ def setCanCapture(new_cc):
 
 def setCaptureInterface(iface):
     global capture_interface
+    setCanCapture(True)
     capture_interface = iface
 
 def canMkfifo():
@@ -87,7 +90,7 @@ def getTsharkInfo():
         if re.search('(with +MIT +Kerberos|with +Heimdal +Kerberos)', tshark_v):
             have_kerberos = True
         gcry_m = re.search('with +Gcrypt +([0-9]+\.[0-9]+)', tshark_v)
-        have_libgcrypt = gcry_m and float(gcry_m.group(1)) >= 1.7
+        have_libgcrypt17 = gcry_m and float(gcry_m.group(1)) >= 1.7
     except:
         pass
 
@@ -101,8 +104,8 @@ def getDefaultCaptureInterface():
     if not sys.platform.startswith('win32'):
         return
     try:
-        dumpcap_d = subprocess.check_output((cmd_dumpcap, '-D'), stderr=subprocess.PIPE)
-        for d_line in dumpcap_d.splitlines():
+        dumpcap_d_blob = str(subprocess.check_output((cmd_dumpcap, '-D'), stderr=subprocess.PIPE))
+        for d_line in dumpcap_d_blob.splitlines():
             iface_m = re.search('(\d+)\..*(Ethernet|Network Connection|VMware|Intel)', d_line)
             if iface_m:
                 capture_interface = iface_m.group(1)

@@ -14,6 +14,10 @@ import os.path
 import time
 import sys
 
+if sys.version_info[0] < 3 and sys.platform == "win32":
+    import msvcrt
+    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+
 dhcp_pcap = os.path.join(os.path.dirname(__file__), 'captures', 'dhcp.pcap')
 
 dhcp_fd = open(dhcp_pcap, 'rb')

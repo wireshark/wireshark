@@ -3193,6 +3193,7 @@ foreach(_suite_py ${_test_suite_py_list})
 	add_test(
 		NAME ${_suite_name}
 		COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
+			--verbose
 			--program-path ${_test_suite_program_path}
 			${TEST_EXTRA_ARGS}
 			${_suite_name}

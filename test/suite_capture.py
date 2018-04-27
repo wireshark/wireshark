@@ -42,7 +42,7 @@ def slow_dhcp_command():
     # XXX Do this in Python in a thread?
     sd_cmd = ''
     if sys.executable:
-        sd_cmd = sys.executable + ' '
+        sd_cmd = '"{}" '.format(sys.executable)
     sd_cmd += os.path.join(config.this_dir, 'util_slow_dhcp_pcap.py')
     return sd_cmd
 

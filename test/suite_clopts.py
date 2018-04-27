@@ -45,25 +45,28 @@ class case_dumpcap_invalid_interface_chars(subprocesstest.SubprocessTestCase):
 
 
 class case_dumpcap_capture_clopts(subprocesstest.SubprocessTestCase):
-    @unittest.skipUnless(config.canCapture(), 'Test requires capture privileges')
     def test_dumpcap_invalid_capfilter(self):
         '''Invalid capture filter'''
+        if not config.canCapture():
+            self.skipTest('Test requires capture privileges and an interface.')
         invalid_filter = '__invalid_protocol'
         # $DUMPCAP -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
         self.runProcess((config.cmd_dumpcap, '-f', invalid_filter, '-w', 'testout.pcap' ))
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    @unittest.skipUnless(config.canCapture(), 'Test requires capture privileges')
     def test_dumpcap_invalid_interface_name(self):
         '''Invalid capture interface name'''
+        if not config.canCapture():
+            self.skipTest('Test requires capture privileges and an interface.')
         invalid_interface = '__invalid_interface'
         # $DUMPCAP -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         self.runProcess((config.cmd_dumpcap, '-i', invalid_interface, '-w', 'testout.pcap'))
         self.assertTrue(self.grepOutput('The capture session could not be initiated'))
 
-    @unittest.skipUnless(config.canCapture(), 'Test requires capture privileges')
     def test_dumpcap_invalid_interface_index(self):
         '''Invalid capture interface index'''
+        if not config.canCapture():
+            self.skipTest('Test requires capture privileges and an interface.')
         invalid_index = '0'
         # $DUMPCAP -i 0 -w './testout.pcap' > ./testout.txt 2>&1
         self.runProcess((config.cmd_dumpcap, '-i', invalid_index, '-w', 'testout.pcap'))
@@ -110,25 +113,28 @@ class case_tshark_invalid_interface_chars(subprocesstest.SubprocessTestCase):
 
 
 class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
-    @unittest.skipUnless(config.canCapture(), 'Test requires capture privileges')
     def test_tshark_invalid_capfilter(self):
         '''Invalid capture filter'''
+        if not config.canCapture():
+            self.skipTest('Test requires capture privileges and an interface.')
         invalid_filter = '__invalid_protocol'
         # $TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
         self.runProcess((config.cmd_tshark, '-f', invalid_filter, '-w', 'testout.pcap' ))
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    @unittest.skipUnless(config.canCapture(), 'Test requires capture privileges')
     def test_tshark_invalid_interface_name(self):
         '''Invalid capture interface name'''
+        if not config.canCapture():
+            self.skipTest('Test requires capture privileges and an interface.')
         invalid_interface = '__invalid_interface'
         # $TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         self.runProcess((config.cmd_tshark, '-i', invalid_interface, '-w', 'testout.pcap'))
         self.assertTrue(self.grepOutput('The capture session could not be initiated'))
 
-    @unittest.skipUnless(config.canCapture(), 'Test requires capture privileges')
     def test_tshark_invalid_interface_index(self):
         '''Invalid capture interface index'''
+        if not config.canCapture():
+            self.skipTest('Test requires capture privileges and an interface.')
         invalid_index = '0'
         # $TSHARK -i 0 -w './testout.pcap' > ./testout.txt 2>&1
         self.runProcess((config.cmd_tshark, '-i', invalid_index, '-w', 'testout.pcap'))
@@ -136,8 +142,9 @@ class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
 
 
 class case_tshark_name_resolution_clopts(subprocesstest.SubprocessTestCase):
-    @unittest.skipUnless(config.canCapture(), 'Test requires capture privileges')
     def test_tshark_valid_name_resolution(self):
+        if not config.canCapture():
+            self.skipTest('Test requires capture privileges and an interface.')
         # $TSHARK -N mntC -a duration:1 > ./testout.txt 2>&1
         self.assertRun((config.cmd_tshark, '-N', 'mntC', '-a', 'duration: 1'))
 
