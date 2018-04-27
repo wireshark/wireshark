@@ -22,7 +22,10 @@ To run all tests from CMake do the following:
 * Pass `-DTEST_EXTRA_ARGS=--disable-capture` or
   `-DTEST_EXTRA_ARGS=--capture-interface=<interface>`
   as needed for your system.
-* Build the “test” target or run ctest, e.g. `ctest --jobs=4 --verbose`.
+* Build the “test” target or run ctest, e.g. `ctest --force-new-ctest-process -j 4 --verbose`.
+
+On Windows, “ctest” requires a build configuration parameter, e.g.
+`ctest -C RelWithDebInfo --force-new-ctest-process -j 4 --verbose`.
 
 To run all tests directly, run `test.py -p
 /path/to/wireshark-build/run-directory <capture args>`.
@@ -168,3 +171,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('favicon.ico'))
 ----
 
+Tests can be run in parallel. This means that any files you create must
+be unique for each test. “subprocesstest.filename_from_id” can be used
+to generate a filename based on the current test name. It also ensures
+that the file will be automatically removed after the test has run.

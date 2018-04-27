@@ -1,4 +1,5 @@
 #
+# -*- coding: utf-8 -*-
 # Wireshark tests
 # By Gerald Combs <gerald@wireshark.org>
 #
@@ -8,6 +9,8 @@
 #
 '''Subprocess test case superclass'''
 
+import config
+import difflib
 import io
 import os
 import os.path
@@ -24,6 +27,32 @@ import unittest
 # the command line.
 if sys.version_info[0] >= 3:
     process_timeout = 300 # Seconds
+
+def capture_command(cmd, *args, **kwargs):
+    '''Convert the supplied arguments into a command suitable for SubprocessTestCase.
+
+    If shell is true, return a string. Otherwise, return a list of arguments.'''
+    shell = kwargs.pop('shell', False)
+    if shell:
+        cap_cmd = ['"' + cmd + '"']
+    else:
+        cap_cmd = [cmd]
+    if cmd == config.cmd_wireshark:
+        cap_cmd += ('-o', 'gui.update.enabled:FALSE', '-k')
+    cap_cmd += args
+    if shell:
+        return ' '.join(cap_cmd)
+    else:
+        return cap_cmd
+
+def cat_dhcp_command(mode):
+    '''Create a command string for dumping dhcp.pcap to stdout'''
+    # XXX Do this in Python in a thread?
+    sd_cmd = ''
+    if sys.executable:
+        sd_cmd = sys.executable + ' '
+    sd_cmd += os.path.join(config.this_dir, 'util_dump_dhcp_pcap.py ' + mode)
+    return sd_cmd
 
 class LoggingPopen(subprocess.Popen):
     '''Run a process using subprocess.Popen. Capture and log its output.
@@ -104,7 +133,10 @@ class SubprocessTestCase(unittest.TestCase):
 
     def filename_from_id(self, filename):
         '''Generate a filename prefixed with our test ID.'''
-        return self.id() + '.' + filename
+        id_filename = self.id() + '.' + filename
+        if id_filename not in self.cleanup_files:
+            self.cleanup_files.append(id_filename)
+        return id_filename
 
     def kill_processes(self):
         '''Kill any processes we've opened so far'''
@@ -158,6 +190,18 @@ class SubprocessTestCase(unittest.TestCase):
                 pass
         self.cleanup_files = []
 
+    def checkPacketCount(self, num_packets, cap_file=None):
+        got_num_packets = False
+        if not cap_file:
+            cap_file = self.filename_from_id('testout.pcap')
+        self.log_fd.write(u'\nOutput of {0} {1}:\n'.format(config.cmd_capinfos, cap_file))
+        capinfos_testout = str(subprocess.check_output((config.cmd_capinfos, cap_file)))
+        self.log_fd_write_bytes(capinfos_testout)
+        count_pat = 'Number of packets:\s+{}'.format(num_packets)
+        if re.search(count_pat, capinfos_testout):
+            got_num_packets = True
+        self.assertTrue(got_num_packets, 'Failed to capture exactly {} packets'.format(num_packets))
+
     def countOutput(self, search_pat, proc=None):
         '''Returns the number of output lines (search_pat=None), otherwise returns a match count.'''
         match_count = 0
@@ -173,6 +217,23 @@ class SubprocessTestCase(unittest.TestCase):
 
     def grepOutput(self, search_pat, proc=None):
         return self.countOutput(search_pat, proc) > 0
+
+    def diffOutput(self, blob_a, blob_b, *args, **kwargs):
+        '''Check for differences between blob_a and blob_b. Return False and log a unified diff if they differ.
+
+        blob_a and blob_b must be UTF-8 strings.'''
+        lines_a = blob_a.splitlines()
+        lines_b = blob_b.splitlines()
+        diff = '\n'.join(list(difflib.unified_diff(lines_a, lines_b, *args, **kwargs)))
+        if len(diff) > 0:
+            if sys.version_info[0] < 3 and not isinstance(diff, unicode):
+                diff = unicode(diff, 'UTF-8', 'replace')
+            self.log_fd.flush()
+            self.log_fd.write(u'-- Begin diff output --\n')
+            self.log_fd.writelines(diff)
+            self.log_fd.write(u'-- End diff output --\n')
+            return False
+        return True
 
     def startProcess(self, proc_args, env=None, shell=False):
         '''Start a process in the background. Returns a subprocess.Popen object. You typically wait for it using waitProcess() or assertWaitProcess().'''

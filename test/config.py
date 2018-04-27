@@ -1,4 +1,5 @@
 #
+# -*- coding: utf-8 -*-
 # Wireshark tests
 # By Gerald Combs <gerald@wireshark.org>
 #
@@ -16,10 +17,11 @@ import sys
 import tempfile
 
 commands = (
+    'capinfos',
     'dumpcap',
+    'rawshark',
     'tshark',
     'wireshark',
-    'capinfos',
 )
 
 can_capture = False
@@ -27,10 +29,11 @@ capture_interface = None
 
 # Our executables
 # Strings
-cmd_tshark = None
-cmd_dumpcap = None
-cmd_wireshark = None
 cmd_capinfos = None
+cmd_dumpcap = None
+cmd_rawshark = None
+cmd_tshark = None
+cmd_wireshark = None
 # Arrays
 args_ping = None
 
