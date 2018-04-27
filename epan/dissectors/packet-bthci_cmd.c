@@ -285,6 +285,14 @@ static int hf_bthci_cmd_amp_remaining_assoc_length = -1;
 static int hf_bthci_cmd_amp_assoc_fragment = -1;
 static int hf_bthci_cmd_le_event_mask = -1;
 static int hf_bthci_cmd_le_event_mask_le_reserved = -1;
+static int hf_bthci_cmd_le_event_mask_le_channel_selection_algorithm = -1;
+static int hf_bthci_cmd_le_event_mask_le_scan_request_received = -1;
+static int hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated = -1;
+static int hf_bthci_cmd_le_event_mask_le_extended_scan_timeout = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_report = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established = -1;
+static int hf_bthci_cmd_le_event_mask_le_extended_advertising_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_phy_update_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_direct_advertising_report  = -1;
 static int hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete = -1;
@@ -498,6 +506,14 @@ static int hf_bthci_cmd_extended_inquiry_length = -1;
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
+    &hf_bthci_cmd_le_event_mask_le_channel_selection_algorithm,
+    &hf_bthci_cmd_le_event_mask_le_scan_request_received,
+    &hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated,
+    &hf_bthci_cmd_le_event_mask_le_extended_scan_timeout,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established,
+    &hf_bthci_cmd_le_event_mask_le_extended_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_phy_update_complete,
     &hf_bthci_cmd_le_event_mask_le_direct_advertising_report ,
     &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete,
@@ -6118,7 +6134,7 @@ proto_register_bthci_cmd(void)
             "Support for both LE and BR/EDR to same device", HFILL }
         },
         { &hf_bthci_cmd_le_event_mask,
-          { "LE Connection Complete",                      "bthci_cmd.le_event_mask",
+          { "LE Event Mask",                               "bthci_cmd.le_event_mask",
             FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
@@ -6182,9 +6198,49 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x800),
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_le_event_mask_le_extended_advertising_report,
+          { "LE Extended Advertising Report",              "bthci_cmd.le_event_mask.le_extended_advertising_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x1000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established,
+          { "LE Periodic Advertising Sync Established",    "bthci_cmd.le_event_mask.le_periodic_advertising_sync_established",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x2000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report,
+          { "LE Periodic Advertising Report",              "bthci_cmd.le_event_mask.le_periodic_advertising_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x4000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost,
+          { "LE Periodic Advertising Sync Lost",           "bthci_cmd.le_event_mask.le_periodic_advertising_sync_lost",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x8000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_extended_scan_timeout,
+          { "LE Extended Scan Timeout",                    "bthci_cmd.le_event_mask.le_extended_scan_timeout",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x10000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated,
+          { "LE Extended Advertising Set Terminated",      "bthci_cmd.le_event_mask.le_extended_advertising_set_terminated",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x20000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_scan_request_received,
+          { "LE Scan Request Received",                    "bthci_cmd.le_event_mask.le_scan_request_received",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x40000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_channel_selection_algorithm,
+          { "LE Channel Selection Algorithm",              "bthci_cmd.le_event_mask.le_channel_selection_algorithm",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x80000),
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_le_event_mask_le_reserved,
           { "Reserved",                                    "bthci_cmd.le_event_mask.reserved",
-            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFF000),
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFF00000),
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_advts_interval_min,
