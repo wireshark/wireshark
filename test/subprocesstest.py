@@ -50,7 +50,7 @@ def cat_dhcp_command(mode):
     # XXX Do this in Python in a thread?
     sd_cmd = ''
     if sys.executable:
-        sd_cmd = sys.executable + ' '
+        sd_cmd = '"{}" '.format(sys.executable)
     sd_cmd += os.path.join(config.this_dir, 'util_dump_dhcp_pcap.py ' + mode)
     return sd_cmd
 
