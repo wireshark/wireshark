@@ -33,7 +33,7 @@
 # are set.
 %global use_wireshark_group 1
 
-%global package_version @RPM_TARBALL_VERSION@
+%global package_version @_git_description@
 
 
 Summary:	Wireshark is the world's foremost protocol analyzer

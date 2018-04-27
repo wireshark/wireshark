@@ -2899,6 +2899,18 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_program(GIT_EXECUTABLE git)
 endif()
 
+function(_SET_GITVERSION_CMAKE_VARIABLE OUTPUT_VARIABLE)
+	# Load version string and write it to a cmake variable so it can be accessed from cmake.
+	FILE(READ "${CMAKE_CURRENT_BINARY_DIR}/version.h" VERSION_H_FILE_CONTENT)
+	string(REPLACE "\n" "" VERSION_H_FILE_CONTENT ${VERSION_H_FILE_CONTENT})
+	#define VCSVERSION "v2.9.0rc0-305-gb8e8aa87"
+	string(SUBSTRING "${VERSION_H_FILE_CONTENT}" 21 -1 VERSION_STRING)
+	STRING(REGEX REPLACE "\"" "" VERSION_STRING "${VERSION_STRING}")
+	MESSAGE(STATUS "Version string created from version.h: ${VERSION_STRING}")
+	SET(${OUTPUT_VARIABLE} "${VERSION_STRING}"  CACHE INTERNAL "${OUTPUT_VARIABLE}")
+endfunction(_SET_GITVERSION_CMAKE_VARIABLE)
+
+
 if(RPMBUILD_EXECUTABLE)
 	foreach(_rpm_dir BUILD RPMS SOURCES SPECS SRPMS)
 		file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm/${_rpm_dir}")
@@ -2936,28 +2948,27 @@ if(RPMBUILD_EXECUTABLE)
 		list(APPEND _rpmbuild_with_args --with nghttp2)
 	endif()
 
-	if(GIT_EXECUTABLE)
-		execute_process(
-			COMMAND ${GIT_EXECUTABLE} describe --abbrev=8 --match v[1-9]*
-			OUTPUT_VARIABLE _git_description
-			OUTPUT_STRIP_TRAILING_WHITESPACE
-			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		)
-	else()
-		set(_git_description "")
-	endif()
-	if (NOT _git_description)
+	execute_process(
+		COMMAND ${PERL_EXECUTABLE}
+			${CMAKE_SOURCE_DIR}/make-version.pl
+			--set-vcs ${GIT_BIN_PARAM}
+			${CMAKE_SOURCE_DIR}
+	)
+
+	_SET_GITVERSION_CMAKE_VARIABLE(_git_description)
+
+	if (NOT _git_description)	
 		# We're building the rpm outside the source. Guess the version from the dirname.
 		get_filename_component(CMAKE_SOURCE_DIR_NAME ${CMAKE_SOURCE_DIR} NAME)
 		# XXX this assumes the directory to start with "wireshark-"
 		string(SUBSTRING "${CMAKE_SOURCE_DIR_NAME}" 10 -1 _git_description)
 	endif()
-	string(SUBSTRING "${_git_description}" 1 -1 RPM_TARBALL_VERSION)
-	string(REPLACE "-" "_" RPM_VERSION "${RPM_TARBALL_VERSION}")
+	string(REPLACE "-" "_" RPM_VERSION "${_git_description}")
 	configure_file(packaging/rpm/wireshark.spec.in ${CMAKE_BINARY_DIR}/packaging/rpm/SPECS/wireshark.spec)
 
 	# XXX Replace with the "dist" target?
-	set(_export_tarball "${CPACK_PACKAGE_NAME}-${RPM_TARBALL_VERSION}.tar.xz")
+	set(_export_tarball "${CPACK_PACKAGE_NAME}-${_git_description}.tar.xz")
+	MESSAGE(STATUS "set(_export_tarball: ${_export_tarball}")
 	add_custom_command(
 		OUTPUT "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
 		COMMAND ./tools/git-export-release.sh
