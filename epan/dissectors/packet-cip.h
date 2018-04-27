@@ -439,6 +439,8 @@ enum cip_datatype {
 typedef int attribute_dissector_func(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len);
 
+#define CIP_ATTR_CLASS (TRUE)
+#define CIP_ATTR_INSTANCE (FALSE)
 typedef struct attribute_info {
    guint                     class_id;
    gboolean                  class_instance;

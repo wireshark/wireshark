@@ -36,6 +36,7 @@
 #include <epan/proto_data.h>
 #include <wmem/wmem_list.h>
 #include "packet-cip.h"
+#include "packet-cipmotion.h"
 #include "packet-cipsafety.h"
 #include "packet-mbtcp.h"
 
@@ -3825,7 +3826,8 @@ typedef struct attribute_val_array {
 static attribute_val_array_t all_attribute_vals[] = {
    {sizeof(cip_attribute_vals)/sizeof(attribute_info_t), cip_attribute_vals},
    {sizeof(enip_attribute_vals)/sizeof(attribute_info_t), enip_attribute_vals},
-   {sizeof(cip_safety_attribute_vals)/sizeof(attribute_info_t), cip_safety_attribute_vals}
+   {sizeof(cip_safety_attribute_vals)/sizeof(attribute_info_t), cip_safety_attribute_vals},
+   {sizeof(cip_motion_attribute_vals)/sizeof(attribute_info_t), cip_motion_attribute_vals},
 };
 
 attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute)
