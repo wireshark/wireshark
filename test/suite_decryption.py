@@ -24,7 +24,7 @@ uat_files = [
     'ikev2_decryption_table',
 ]
 for uat in uat_files:
-    config.setUpConfigFile(uat)
+    config.setUpUatFile(uat)
 
 
 class case_decrypt_80211(subprocesstest.SubprocessTestCase):

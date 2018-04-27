@@ -12,6 +12,7 @@
 import os
 import os.path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -45,8 +46,12 @@ have_kerberos = False
 have_libgcrypt17 = False
 
 test_env = None
+program_path = None
 home_path = None
 conf_path = None
+custom_profile_path = None
+custom_profile_name = 'Custom Profile'
+
 this_dir = os.path.dirname(__file__)
 baseline_dir = os.path.join(this_dir, 'baseline')
 capture_dir = os.path.join(this_dir, 'captures')
@@ -143,10 +148,12 @@ def setProgramPath(path):
         cmd_path = os.path.join(path, cmd + dotexe)
         if not os.path.exists(cmd_path) or not os.access(cmd_path, os.X_OK):
             cmd_path = None
+            program_path = None
             retval = False
         globals()[cmd_var] = cmd_path
     getTsharkInfo()
     getDefaultCaptureInterface()
+    setUpHostFiles()
     return retval
 
 def testEnvironment():
@@ -155,6 +162,7 @@ def testEnvironment():
 def setUpTestEnvironment():
     global home_path
     global conf_path
+    global custom_profile_path
     global test_env
     test_confdir = tempfile.mkdtemp(prefix='wireshark-tests.')
     home_path = os.path.join(test_confdir, 'home')
@@ -165,10 +173,14 @@ def setUpTestEnvironment():
         home_env = 'HOME'
         conf_path = os.path.join(home_path, '.config', 'wireshark')
     os.makedirs(conf_path)
+    # Test spaces while we're here.
+    custom_profile_path = os.path.join(conf_path, 'profiles', custom_profile_name)
+    os.makedirs(custom_profile_path)
     test_env = os.environ.copy()
+    test_env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
     test_env[home_env] = home_path
 
-def setUpConfigFile(conf_file):
+def setUpUatFile(conf_file):
     global home_path
     global conf_path
     if home_path is None or conf_path is None:
@@ -185,6 +197,24 @@ def setUpConfigFile(conf_file):
     with open(out_file, 'w') as cf_fd:
         cf_fd.write(cf_contents)
         cf_fd.close()
+
+def setUpHostFiles():
+    if program_path is None:
+        return
+    global program_path
+    global conf_path
+    global custom_profile_path
+    if conf_path is None or custom_profile_path is None:
+        setUpTestEnvironment()
+    bundle_path = os.path.join(program_path, 'Wireshark.app', 'Contents', 'MacOS')
+    if os.path.isdir(bundle_path):
+        global_path = bundle_path
+    else:
+        global_path = program_path
+    hosts_path_pfx = os.path.join(this_dir, 'hosts.')
+    shutil.copyfile(hosts_path_pfx + 'global', os.path.join(global_path, 'hosts'))
+    shutil.copyfile(hosts_path_pfx + 'personal', os.path.join(conf_path, 'hosts'))
+    shutil.copyfile(hosts_path_pfx + 'custom', os.path.join(custom_profile_path, 'hosts'))
 
 if sys.platform.startswith('win32') or sys.platform.startswith('darwin'):
     can_capture = True

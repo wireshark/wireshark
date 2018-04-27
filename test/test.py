@@ -13,6 +13,10 @@
 # To do:
 # - Avoid printing Python tracebacks when we assert? It looks like we'd need
 #   to override unittest.TextTestResult.addFailure().
+# - Switch to Python 3 only? [Windows, Linux, macOS] x [Python 2, Python 3]
+#   is painful.
+# - Remove BIN_PATH/hosts via config.tearDownHostFiles + case_name_resolution.tearDownClass?
+
 
 import argparse
 import config
