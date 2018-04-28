@@ -3252,9 +3252,6 @@ static int hf_ieee80211_3gpp_gc_plmn = -1;
 static int hf_ieee80211_3gpp_gc_plmn_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name = -1;
-static int hf_ieee80211_ff_anqp_venue_url_len = -1;
-static int hf_ieee80211_ff_anqp_venue_url_number = -1;
-static int hf_ieee80211_ff_anqp_venue_url = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_operating_class = -1;
@@ -4820,6 +4817,50 @@ static int hf_hs20_anqp_nai_hrq_encoding_type = -1;
 static int hf_hs20_anqp_nai_hrq_length = -1;
 static int hf_hs20_anqp_nai_hrq_realm_name = -1;
 static int hf_hs20_anqp_oper_class_indic = -1;
+static int hf_hs20_osu_friendly_names_len = -1;
+static int hf_hs20_osu_friendly_name_length = -1;
+static int hf_hs20_osu_friendly_name_language = -1;
+static int hf_hs20_osu_friendly_name_name = -1;
+static int hf_hs20_osu_server_uri_len = -1;
+static int hf_hs20_osu_server_uri = -1;
+static int hf_hs20_osu_method_list_len = -1;
+static int hf_hs20_osu_method_val = -1;
+static int hf_hs20_icons_avail_len = -1;
+static int hf_hs20_osu_providers_list_ssid_len = -1;
+static int hf_hs20_osu_providers_ssid = -1;
+static int hf_hs20_osu_providers_count = -1;
+static int hf_hs20_osu_prov_length = -1;
+static int hf_hs20_icon_request_filename = -1;
+static int hf_hs20_icon_binary_file_status = -1;
+static int hf_hs20_icon_type_length = -1;
+static int hf_hs20_icon_type = -1;
+static int hf_hs20_icon_binary_data_len = -1;
+static int hf_hs20_icon_binary_data = -1;
+static int hf_osu_icon_avail_width = -1;
+static int hf_osu_icon_avail_height = -1;
+static int hf_osu_icon_avail_lang_code = -1;
+static int hf_osu_icon_avail_icon_type_len = -1;
+static int hf_osu_icon_avail_icon_type = -1;
+static int hf_osu_icon_avail_filename_len = -1;
+static int hf_osu_icon_avail_filename = -1;
+static int hf_hs20_osu_nai_len = -1;
+static int hf_hs20_osu_nai = -1;
+static int hf_hs20_osu_service_desc_len = -1;
+static int hf_hs20_osu_service_desc_duple_len = -1;
+static int hf_hs20_osu_service_desc_lang = -1;
+static int hf_hs20_osu_service_desc = -1;
+static int hf_hs20_anqp_venue_url_length = -1;
+static int hf_hs20_anqp_venue_number = -1;
+static int hf_hs20_anqp_venue_url = -1;
+static int hf_hs20_anqp_advice_of_charge_length = -1;
+static int hf_hs20_anqp_advice_of_charge_type = -1;
+static int hf_hs20_anqp_aoc_nai_realm_encoding = -1;
+static int hf_hs20_anqp_aoc_nai_realm_len = -1;
+static int hf_hs20_anqp_aoc_nai_realm = -1;
+static int hf_hs20_anqp_aoc_plan_len = -1;
+static int hf_hs20_anqp_aoc_plan_lang = -1;
+static int hf_hs20_anqp_aoc_plan_curcy = -1;
+static int hf_hs20_anqp_aoc_plan_information = -1;
 
 static int hf_hs20_subscription_remediation_url_len = -1;
 static int hf_hs20_subscription_remediation_server_url = -1;
@@ -5485,6 +5526,21 @@ static gint ett_tsinfo_tree = -1;
 static gint ett_sched_tree = -1;
 
 static gint ett_fcs = -1;
+
+static gint ett_hs20_osu_providers_list = -1;
+static gint ett_hs20_osu_provider_tree = -1;
+static gint ett_hs20_friendly_names_list = -1;
+static gint ett_hs20_friendly_name_tree = -1;
+static gint ett_hs20_osu_provider_method_list = -1;
+static gint ett_osu_icons_avail_list = -1;
+static gint ett_hs20_osu_icon_tree = -1;
+static gint ett_hs20_osu_service_desc_list = -1;
+static gint ett_hs20_osu_service_desc_tree = -1;
+static gint ett_hs20_venue_url = -1;
+static gint ett_hs20_advice_of_charge = -1;
+static gint ett_hs20_aoc_plan = -1;
+
+static gint ett_hs20_ofn_tree = -1;
 
 static gint ett_adv_proto = -1;
 static gint ett_adv_proto_tuple = -1;
@@ -6988,27 +7044,6 @@ dissect_domain_name_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   }
 }
 
-static void
-dissect_venue_url_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
-{
-  guint8 len;
-
-  while (offset < end) {
-    len = tvb_get_guint8(tvb, offset);
-    proto_item *pi = NULL;
-    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_url_len,
-                        tvb, offset, 1, ENC_NA);
-    offset += 1;
-    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_url_number,
-                        tvb, offset, 1, ENC_NA);
-    offset += 1;
-    pi = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_url,
-                        tvb, offset, len - 1, ENC_ASCII|ENC_NA);
-    PROTO_ITEM_SET_URL(pi);
-    offset += len - 1;
-  }
-}
-
 static int
 dissect_hs20_subscription_remediation(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, void *data _U_)
@@ -7073,6 +7108,8 @@ dissect_hs20_deauthentication_imminent(tvbuff_t *tvb, packet_info *pinfo _U_,
 /* 9 is reserved */
 #define HS20_ANQP_ICON_REQUEST               10
 #define HS20_ANQP_ICON_BINARY_FILE           11
+#define HS20_ANQP_OPERATOR_ICON_METADATA     12
+#define HS20_ANQP_ADVICE_OF_CHARGE           13
 
 static const value_string hs20_anqp_subtype_vals[] = {
   { HS20_ANQP_HS_QUERY_LIST, "HS Query list" },
@@ -7085,6 +7122,8 @@ static const value_string hs20_anqp_subtype_vals[] = {
   { HS20_ANQP_OSU_PROVIDERS_LIST, "OSU Providers List" },
   { HS20_ANQP_ICON_REQUEST, "Icon Request" },
   { HS20_ANQP_ICON_BINARY_FILE, "Icon Binary File" },
+  { HS20_ANQP_OPERATOR_ICON_METADATA, "Operator Icon Metadata" },
+  { HS20_ANQP_ADVICE_OF_CHARGE, "Advice of Charge" },
   { 0, NULL }
 };
 
@@ -7100,22 +7139,36 @@ dissect_hs20_anqp_hs_query_list(proto_tree *tree, tvbuff_t *tvb, int offset, int
 
 static void
 dissect_hs20_anqp_operator_friendly_name(proto_tree *tree, tvbuff_t *tvb,
-                                         packet_info *pinfo, int offset, int end)
+                                         packet_info *pinfo, int offset,
+                                         int end, int hf_array[],
+                                         gint ett_val)
 {
+  int ofn_index = 0;
+
   while (offset + 4 <= end) {
     guint8 vlen = tvb_get_guint8(tvb, offset);
-    proto_item *item = proto_tree_add_item(tree, hf_hs20_anqp_ofn_length,
-                                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree *ofn_tree = NULL;
+    proto_item *item = NULL, *pi = NULL;
+    int start_offset = offset;
+
+    ofn_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_val,
+                                        &pi, "Friendly Name %d", ofn_index);
+
+    item = proto_tree_add_item(ofn_tree, hf_array[0],
+                               tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
     if (vlen > end - offset || vlen < 3) {
       expert_add_info(pinfo, item, &ei_hs20_anqp_ofn_length);
       break;
     }
-    proto_tree_add_item(tree, hf_hs20_anqp_ofn_language,
+    proto_tree_add_item(tree, hf_array[1],
                         tvb, offset, 3, ENC_ASCII|ENC_NA);
-    proto_tree_add_item(tree, hf_hs20_anqp_ofn_name,
+    proto_tree_add_item(tree, hf_array[2],
                         tvb, offset + 3, vlen - 3, ENC_UTF_8|ENC_NA);
     offset += vlen;
+
+    proto_item_set_len(pi, offset - start_offset);
+    ofn_index++;
   }
 }
 
@@ -7240,9 +7293,484 @@ dissect_hs20_anqp_oper_class_indic(proto_tree *tree, tvbuff_t *tvb, int offset, 
 }
 
 static int
+dissect_hs20_osu_friendly_names(proto_tree *tree, tvbuff_t *tvb,
+  packet_info *pinfo, int offset, int end _U_)
+{
+  int osu_fn_hf_array[3] = {hf_hs20_osu_friendly_name_length,
+                            hf_hs20_osu_friendly_name_language,
+                            hf_hs20_osu_friendly_name_name };
+  guint16 osu_fn_count = tvb_get_letohs(tvb, offset);
+  proto_tree *fn_tree = NULL;
+
+  proto_tree_add_item(tree, hf_hs20_osu_friendly_names_len, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  fn_tree = proto_tree_add_subtree(tree, tvb, offset, osu_fn_count,
+                        ett_hs20_friendly_names_list, NULL,
+                        "Friendly Names List");
+
+  dissect_hs20_anqp_operator_friendly_name(fn_tree, tvb, pinfo, offset,
+                        offset + osu_fn_count,
+                        osu_fn_hf_array, ett_hs20_friendly_name_tree);
+
+  return offset + osu_fn_count;
+}
+
+static int
+dissect_hs20_osu_icon_available(proto_tree *tree, tvbuff_t *tvb,
+  packet_info *pinfo _U_, int offset, int end _U_, guint16 icon_index)
+{
+  proto_tree *icon_avail = NULL;
+  proto_item *pi = NULL;
+  int start_offset = offset;
+  guint8 icon_type_len = 0, icon_filename_len = 0;
+
+  icon_avail = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                        ett_hs20_osu_icon_tree, &pi,
+                        "Icon Available %d", icon_index);
+
+  proto_tree_add_item(icon_avail, hf_osu_icon_avail_width, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(icon_avail, hf_osu_icon_avail_height, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(icon_avail, hf_osu_icon_avail_lang_code, tvb, offset, 3,
+                        ENC_ASCII|ENC_NA);
+  offset += 3;
+
+  icon_type_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(icon_avail, hf_osu_icon_avail_icon_type_len, tvb, offset,
+                        1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(icon_avail, hf_osu_icon_avail_icon_type, tvb, offset,
+                        icon_type_len, ENC_ASCII|ENC_NA);
+  offset += icon_type_len;
+
+  icon_filename_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(icon_avail, hf_osu_icon_avail_filename_len, tvb, offset,
+                        1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(icon_avail, hf_osu_icon_avail_filename, tvb, offset,
+                        icon_filename_len, ENC_ASCII|ENC_NA);
+  offset += icon_filename_len;
+
+  proto_item_set_len(pi, offset - start_offset);
+
+  return offset;
+}
+
+static const value_string osu_method_vals[] = {
+  { 0, "OMA DM" },
+  { 1, "SOAP XML SPP" },
+  { 0, NULL },
+};
+
+static int
+dissect_hs20_osu_provider(proto_tree *tree, tvbuff_t *tvb,
+  packet_info *pinfo, int offset, int end, guint8 provider_index)
+{
+  proto_tree *prov_tree = NULL;
+  proto_item *osupi = NULL, *uri_pi = NULL;
+  int start_offset = offset;
+  guint8 osu_server_uri_len = 0;
+  guint8 osu_method_list_len = 0;
+  guint16 icons_avail = 0, icons_index = 0;
+  guint8 osu_nai_len = 0;
+  guint16 osu_service_desc_len = 0;
+
+  prov_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                        ett_hs20_osu_provider_tree, &osupi,
+                        "OSU Provider %d", provider_index);
+
+  proto_tree_add_item(prov_tree, hf_hs20_osu_prov_length, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  offset = dissect_hs20_osu_friendly_names(prov_tree, tvb, pinfo, offset, end);
+
+  proto_item_set_len(osupi, offset - start_offset);
+
+  osu_server_uri_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(prov_tree, hf_hs20_osu_server_uri_len, tvb, offset, 1,
+                        ENC_NA);
+  offset++;
+
+  uri_pi = proto_tree_add_item(prov_tree, hf_hs20_osu_server_uri, tvb, offset,
+                        osu_server_uri_len, ENC_ASCII|ENC_NA);
+  offset += osu_server_uri_len;
+  PROTO_ITEM_SET_URL(uri_pi);
+
+  osu_method_list_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(prov_tree, hf_hs20_osu_method_list_len, tvb, offset, 1,
+                        ENC_NA);
+  offset++;
+
+  if (osu_method_list_len > 0) {
+    proto_tree *osu_method_list = NULL;
+    guint8 osu_method_list_index = 0;
+
+    osu_method_list = proto_tree_add_subtree(prov_tree, tvb, offset,
+                                osu_method_list_len,
+                                ett_hs20_osu_provider_method_list,
+                                NULL, "OSU Method List");
+    while (osu_method_list_len > osu_method_list_index) {
+      proto_item *pi = NULL;
+      guint8 method = tvb_get_guint8(tvb, offset);
+
+      pi = proto_tree_add_item(osu_method_list, hf_hs20_osu_method_val, tvb,
+                        offset, 1, ENC_NA);
+      proto_item_append_text(pi, ": %s",
+                                val_to_str(method, osu_method_vals,
+                                        "Reserved"));
+      offset++;
+      osu_method_list_index++;
+    }
+  }
+
+  icons_avail = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(prov_tree, hf_hs20_icons_avail_len, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  if (icons_avail > 0) {
+    proto_tree *icon_list = NULL;
+    proto_item *pi = NULL;
+
+    start_offset = offset;
+
+    icon_list = proto_tree_add_subtree(prov_tree, tvb, offset, -1,
+                                ett_osu_icons_avail_list, &pi,
+                                "Icons Available");
+
+    while ((offset - start_offset) < icons_avail) {
+      offset = dissect_hs20_osu_icon_available(icon_list, tvb, pinfo, offset,
+                                end, icons_index);
+      icons_index++;
+    }
+
+    proto_item_set_len(pi, offset - start_offset);
+  }
+
+  osu_nai_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(prov_tree, hf_hs20_osu_nai_len, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  if (osu_nai_len > 0) {
+    proto_tree_add_item(prov_tree, hf_hs20_osu_nai, tvb, offset,
+                        osu_nai_len, ENC_NA);
+    offset += osu_nai_len;
+  }
+
+  osu_service_desc_len = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(prov_tree, hf_hs20_osu_service_desc_len, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  if (osu_service_desc_len > 0) {
+    proto_tree *desc_tree = NULL;
+    proto_item *pi = NULL;
+    guint8 service_desc_index = 0;
+
+    start_offset = offset;
+    desc_tree = proto_tree_add_subtree(prov_tree, tvb, offset, -1,
+                                ett_hs20_osu_service_desc_list, &pi,
+                                "OSU Service Description List");
+
+    while ((offset - start_offset) < osu_service_desc_len) {
+      proto_tree *desc_duple = NULL;
+      guint8 serv_desc_len = tvb_get_guint8(tvb, offset);
+
+      desc_duple = proto_tree_add_subtree_format(desc_tree, tvb, offset,
+                                1 + serv_desc_len,
+                                ett_hs20_osu_service_desc_tree, NULL,
+                                "OSU Service Description Duple %d",
+                                service_desc_index);
+
+      proto_tree_add_item(desc_duple, hf_hs20_osu_service_desc_duple_len, tvb,
+                                offset, 1, ENC_NA);
+      offset++;
+
+      proto_tree_add_item(desc_duple, hf_hs20_osu_service_desc_lang, tvb, offset,
+                                3, ENC_ASCII|ENC_NA);
+      offset += 3;
+
+      proto_tree_add_item(desc_duple, hf_hs20_osu_service_desc, tvb, offset,
+                                serv_desc_len - 3, ENC_ASCII|ENC_NA);
+      offset += serv_desc_len - 3;
+
+      service_desc_index++;
+    }
+
+    proto_item_set_len(pi, offset - start_offset);
+  }
+
+  return end;
+}
+
+static void
+dissect_hs20_anqp_osu_providers_list(proto_tree *tree, tvbuff_t *tvb,
+  packet_info *pinfo, int offset, int end)
+{
+  guint8 ssid_len = tvb_get_guint8(tvb, offset);
+  guint8 osu_prov_count = 0, osu_prov_index = 0;
+
+  proto_tree_add_item(tree, hf_hs20_osu_providers_list_ssid_len, tvb, offset, 1,
+                        ENC_NA);
+  offset++;
+
+  proto_tree_add_item(tree, hf_hs20_osu_providers_ssid, tvb, offset, ssid_len,
+                        ENC_UTF_8|ENC_NA);
+  offset += ssid_len;
+
+  osu_prov_count = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_hs20_osu_providers_count, tvb, offset, 1,
+                        ENC_NA);
+  offset++;
+
+  if (osu_prov_count > 0) {
+    int start_offset = offset;
+    proto_item *pi = NULL;
+    proto_tree *osu_prov_list = NULL;
+
+    osu_prov_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                        ett_hs20_osu_providers_list, &pi,
+                        "OSU Providers List");
+    while (offset < end && osu_prov_count > osu_prov_index) {
+      offset = dissect_hs20_osu_provider(osu_prov_list, tvb, pinfo, offset, end,
+                        osu_prov_index);
+      osu_prov_index++;
+    }
+
+    proto_item_set_len(pi, offset - start_offset);
+  }
+}
+
+static void
+dissect_hs20_anqp_icon_request(proto_tree *tree, tvbuff_t *tvb, int offset,
+  int end)
+{
+  proto_tree_add_item(tree, hf_hs20_icon_request_filename, tvb, offset,
+                        end - offset, ENC_UTF_8|ENC_NA);
+}
+
+static const value_string hs20_icon_download_status_vals[] = {
+  { 0, "Success" },
+  { 1, "File not found" },
+  { 2, "Unspecified file error" },
+  { 0, NULL }
+};
+
+static void
+dissect_hs20_anqp_icon_binary_file(proto_tree *tree, tvbuff_t *tvb, int offset,
+  int end _U_)
+{
+  guint8 icon_download_status = tvb_get_guint8(tvb, offset);
+  proto_item *pi = NULL;
+  guint8 icon_type_len = 0;
+  guint16 icon_binary_data_len = 0;
+
+  pi = proto_tree_add_item(tree, hf_hs20_icon_binary_file_status, tvb, offset, 1,
+                        ENC_NA);
+  offset++;
+  proto_item_append_text(pi, ": %s",
+                         val_to_str(icon_download_status,
+                                    hs20_icon_download_status_vals,
+                                    "Reserved (%u)"));
+
+  icon_type_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_hs20_icon_type_length, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(tree, hf_hs20_icon_type, tvb, offset, icon_type_len,
+                        ENC_UTF_8|ENC_NA);
+  offset += icon_type_len;
+
+  icon_binary_data_len = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_hs20_icon_binary_data_len, tvb, offset, 2,
+                        ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_hs20_icon_binary_data, tvb, offset,
+                        icon_binary_data_len, ENC_NA);
+  offset += icon_binary_data_len;
+}
+
+static void
+dissect_hs20_anqp_operator_icon_metadata(proto_tree *tree, tvbuff_t *tvb,
+  int offset, int end _U_)
+{
+  proto_item *pi = NULL;
+  int start_offset = offset;
+  guint8 icon_type_len = 0, icon_filename_len = 0;
+
+  proto_tree_add_item(tree, hf_osu_icon_avail_width, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_osu_icon_avail_height, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_osu_icon_avail_lang_code, tvb, offset, 3,
+                        ENC_ASCII|ENC_NA);
+  offset += 3;
+
+  icon_type_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_osu_icon_avail_icon_type_len, tvb, offset,
+                        1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(tree, hf_osu_icon_avail_icon_type, tvb, offset,
+                        icon_type_len, ENC_ASCII|ENC_NA);
+  offset += icon_type_len;
+
+  icon_filename_len = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_osu_icon_avail_filename_len, tvb, offset,
+                        1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(tree, hf_osu_icon_avail_filename, tvb, offset,
+                        icon_filename_len, ENC_ASCII|ENC_NA);
+  offset += icon_filename_len;
+
+  proto_item_set_len(pi, offset - start_offset);
+}
+
+static void
+dissect_anqp_venue_url(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+  guint16 url_duple_index = 0;
+
+  while (offset < end) {
+    proto_tree *venue_url = NULL;
+    proto_item *url_pi = NULL;
+    guint8 url_duple_len = tvb_get_guint8(tvb, offset);
+
+    venue_url = proto_tree_add_subtree_format(tree, tvb, offset,
+                        url_duple_len + 1, ett_hs20_venue_url, NULL,
+                        "Venue URL Duple %d", url_duple_index);
+
+    proto_tree_add_item(venue_url, hf_hs20_anqp_venue_url_length, tvb, offset,
+                        1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(venue_url, hf_hs20_anqp_venue_number, tvb, offset, 1,
+                        ENC_NA);
+    offset++;
+
+    url_pi = proto_tree_add_item(venue_url, hf_hs20_anqp_venue_url, tvb, offset,
+                        url_duple_len -1, ENC_ASCII|ENC_NA);
+    PROTO_ITEM_SET_URL(url_pi);
+
+    offset += (url_duple_len - 1);
+
+    url_duple_index++;
+  }
+}
+
+static const value_string advice_of_charge_type_vals[] = {
+  { 0, "Time-based" },
+  { 1, "Data-volume-based" },
+  { 2, "Time-and-data-volume-based" },
+  { 3, "Unlimited" },
+  { 0, NULL }
+};
+
+static void
+dissect_hs20_anqp_advice_of_charge(proto_tree *tree, tvbuff_t *tvb, int offset,
+  int end _U_)
+{
+  guint16 toc_index = 0;
+
+  while (offset < end) {
+    guint16 adv_charge_len = tvb_get_letohs(tvb, offset);
+    proto_tree *aoc_tree = NULL;
+    proto_tree *plan_info_tree = NULL;
+    proto_item *pi = NULL, *tpi = NULL;
+    int start_offset = offset;
+    guint8 aoc_type = 0, nai_realm_len = 0;
+    guint8 plan_index = 0;
+    guint16 plan_tot_len = 0;
+    int plan_offset = 0;
+
+    aoc_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                        ett_hs20_advice_of_charge, &pi,
+                        "Advice of Charge Duple %d", toc_index);
+    proto_tree_add_item(aoc_tree, hf_hs20_anqp_advice_of_charge_length, tvb,
+                        offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    aoc_type = tvb_get_guint8(tvb, offset);
+    tpi = proto_tree_add_item(aoc_tree, hf_hs20_anqp_advice_of_charge_type, tvb,
+                        offset, 1, ENC_NA);
+    offset++;
+    proto_item_append_text(tpi, ": %s",
+                                val_to_str(aoc_type,
+                                        advice_of_charge_type_vals,
+                                        "Reserved (%u)"));
+
+    proto_tree_add_item(aoc_tree, hf_hs20_anqp_aoc_nai_realm_encoding, tvb,
+                        offset, 1, ENC_NA);
+    offset++;
+
+    nai_realm_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(aoc_tree, hf_hs20_anqp_aoc_nai_realm_len, tvb, offset,
+                        1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(aoc_tree, hf_hs20_anqp_aoc_nai_realm, tvb, offset,
+                        nai_realm_len, ENC_UTF_8|ENC_NA);
+    offset += nai_realm_len;
+
+    plan_tot_len = adv_charge_len - 3 - nai_realm_len;
+    plan_offset = offset;
+
+    while (offset < (plan_offset + plan_tot_len)) {
+        guint16 plan_len = tvb_get_letohs(tvb, offset);
+
+        plan_info_tree = proto_tree_add_subtree_format(aoc_tree, tvb, offset,
+                                plan_len + 2, ett_hs20_aoc_plan, NULL,
+                                "Plan #%u", plan_index);
+
+        proto_tree_add_item(plan_info_tree, hf_hs20_anqp_aoc_plan_len, tvb,
+                        offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(plan_info_tree, hf_hs20_anqp_aoc_plan_lang, tvb,
+                        offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+
+        proto_tree_add_item(plan_info_tree, hf_hs20_anqp_aoc_plan_curcy, tvb,
+                        offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+
+        proto_tree_add_item(plan_info_tree, hf_hs20_anqp_aoc_plan_information,
+                        tvb, offset, plan_len - 6, ENC_UTF_8|ENC_NA);
+        offset += plan_len - 6;
+
+        plan_index++;
+    }
+
+    proto_item_set_len(pi, offset - start_offset);
+
+    toc_index++;
+  }
+}
+
+static int
 dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint8 subtype;
+  int ofn_hf_array[3] = {hf_hs20_anqp_ofn_length,
+                         hf_hs20_anqp_ofn_language,
+                         hf_hs20_anqp_ofn_name };
+
   int end = tvb_reported_length(tvb);
   int offset = 0;
   anqp_info_dissector_data_t* anqp_data = (anqp_info_dissector_data_t*)data;
@@ -7276,7 +7804,8 @@ dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     dissect_hs20_anqp_hs_capability_list(tree, tvb, offset, end);
     break;
   case HS20_ANQP_OPERATOR_FRIENDLY_NAME:
-    dissect_hs20_anqp_operator_friendly_name(tree, tvb, pinfo, offset, end);
+    dissect_hs20_anqp_operator_friendly_name(tree, tvb, pinfo, offset, end,
+                                ofn_hf_array, ett_hs20_ofn_tree);
     break;
   case HS20_ANQP_WAN_METRICS:
     dissect_hs20_anqp_wan_metrics(tree, tvb, offset, anqp_data->request);
@@ -7289,6 +7818,21 @@ dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     break;
   case HS20_ANQP_OPERATING_CLASS_INDICATION:
     dissect_hs20_anqp_oper_class_indic(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_OSU_PROVIDERS_LIST:
+    dissect_hs20_anqp_osu_providers_list(tree, tvb, pinfo, offset, end);
+    break;
+  case HS20_ANQP_ICON_REQUEST:
+    dissect_hs20_anqp_icon_request(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_ICON_BINARY_FILE:
+    dissect_hs20_anqp_icon_binary_file(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_OPERATOR_ICON_METADATA:
+    dissect_hs20_anqp_operator_icon_metadata(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_ADVICE_OF_CHARGE:
+    dissect_hs20_anqp_advice_of_charge(tree, tvb, offset, end);
     break;
   default:
     if (offset == end)
@@ -7386,9 +7930,6 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   case ANQP_INFO_DOMAIN_NAME_LIST:
     dissect_domain_name_list(tree, tvb, offset, offset + len);
     break;
-  case ANQP_INFO_VENUE_URL:
-    dissect_venue_url_list(tree, tvb, offset, offset + len);
-    break;
   case ANQP_INFO_NEIGHBOR_REPORT:
     {
       tvbuff_t *report_tvb;
@@ -7411,6 +7952,12 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     {
       proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info, tvb, offset, len, ENC_NA);
     }
+    break;
+  case ANQP_INFO_VENUE_URL:
+    dissect_anqp_venue_url(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_ADVICE_OF_CHARGE:
+    dissect_hs20_anqp_advice_of_charge(tree, tvb, offset, offset + len);
     break;
   default:
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
@@ -22614,12 +23161,12 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&retry_flags), FLAG_RETRY,
       "Retransmission flag", HFILL }},
 
-    { &hf_ieee80211_fc_analysis_retransmission,
+    {&hf_ieee80211_fc_analysis_retransmission,
      {"Retransmission", "wlan.analysis.retransmission",
       FT_NONE, BASE_NONE, NULL, 0x0,
       "This frame is a suspected wireless retransmission", HFILL }},
 
-    { &hf_ieee80211_fc_analysis_retransmission_frame,
+    {&hf_ieee80211_fc_analysis_retransmission_frame,
      {"Retransmission of frame", "wlan.analysis.retransmission_frame",
       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
       "This is a retransmission of frame #", HFILL }},
@@ -22659,7 +23206,7 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Destination Hardware Address", HFILL }},
 
-    { &hf_ieee80211_addr_da_resolved,
+    {&hf_ieee80211_addr_da_resolved,
       {"Destination address (resolved)", "wlan.da_resolved", FT_STRING,
         BASE_NONE, NULL, 0x0,
         "Destination Hardware Address (resolved)", HFILL }},
@@ -22669,17 +23216,17 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Source Hardware Address", HFILL }},
 
-    { &hf_ieee80211_addr_sa_resolved,
+    {&hf_ieee80211_addr_sa_resolved,
       {"Source address (resolved)", "wlan.sa_resolved", FT_STRING,
        BASE_NONE, NULL, 0x0,
        "Source Hardware Address (resolved)", HFILL }},
 
-    { &hf_ieee80211_addr,
+    {&hf_ieee80211_addr,
       {"Hardware address", "wlan.addr",
        FT_ETHER, BASE_NONE, NULL, 0,
        "SA, DA, BSSID, RA or TA Hardware Address", HFILL }},
 
-    { &hf_ieee80211_addr_resolved,
+    {&hf_ieee80211_addr_resolved,
       { "Hardware address (resolved)", "wlan.addr_resolved", FT_STRING,
         BASE_NONE, NULL, 0x0,
         "SA, DA, BSSID, RA or TA Hardware Address (resolved)", HFILL }},
@@ -22689,7 +23236,7 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Receiving Station Hardware Address", HFILL }},
 
-    { &hf_ieee80211_addr_ra_resolved,
+    {&hf_ieee80211_addr_ra_resolved,
       {"Receiver address (resolved)", "wlan.ra_resolved", FT_STRING, BASE_NONE,
         NULL, 0x0, "Receiving Station Hardware Address (resolved)", HFILL }},
 
@@ -22698,7 +23245,7 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Transmitting Station Hardware Address", HFILL }},
 
-    { &hf_ieee80211_addr_ta_resolved,
+    {&hf_ieee80211_addr_ta_resolved,
       {"Transmitter address (resolved)", "wlan.ta_resolved", FT_STRING,
         BASE_NONE, NULL, 0x0,
         "Transmitting Station Hardware Address (resolved)", HFILL }},
@@ -22708,7 +23255,7 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Basic Service Set ID", HFILL }},
 
-    { &hf_ieee80211_addr_bssid_resolved,
+    {&hf_ieee80211_addr_bssid_resolved,
       {"BSS Id (resolved)", "wlan.bssid_resolved", FT_STRING, BASE_NONE, NULL,
         0x0, "Basic Service Set ID (resolved)", HFILL }},
 
@@ -22717,7 +23264,7 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Station Hardware Address", HFILL }},
 
-    { &hf_ieee80211_addr_staa_resolved,
+    {&hf_ieee80211_addr_staa_resolved,
       {"STA address (resolved)", "wlan.staa_resolved", FT_STRING, BASE_NONE, NULL,
         0x0, "Station Hardware Address (resolved)", HFILL }},
 
@@ -26067,21 +26614,6 @@ proto_register_ieee80211(void)
       FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_anqp_venue_url_len,
-     {"Length", "wlan.fixed.anqp.venue_url_list.len",
-      FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_ff_anqp_venue_url_number,
-     {"Venue Number", "wlan.fixed.anqp.venue_url_list.venue_number",
-      FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_ff_anqp_venue_url,
-     {"Venue URL", "wlan.fixed.anqp.venue_url_list.venue_url",
-      FT_STRING, BASE_NONE, NULL, 0,
-      NULL, HFILL }},
-
     {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan.fixed.dls_timeout",
       FT_UINT16, BASE_HEX, NULL, 0,
@@ -26275,6 +26807,134 @@ proto_register_ieee80211(void)
      {"Operating Class", "wlan.hs20.anqp.oper_class_indic.oper_class",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+    {&hf_hs20_osu_friendly_names_len,
+     {"OSU Friendly Name Length", "wlan.hs20.osu_friendly_names_len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_friendly_name_length,
+     {"Length", "wlan.hs20.osu_friendly_name.len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_friendly_name_language,
+     {"Language Code", "wlan.hs20.osu_friendly_name.language",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_friendly_name_name,
+     {"OSU Friendly Name", "wlan.hs20.osu_friendly_name.name",
+     FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_server_uri_len,
+     {"OSU Server URI Length", "wlan.hs20.osu_server_uri_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_server_uri,
+     {"OSU Server URI", "wlan.hs20.osu_server_uri",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_method_list_len,
+     {"OSU Method List Length", "wlan.hs20.osu_method_list_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_method_val,
+     {"OSU Method", "wlan.hs20.osu_method_list.method",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_icons_avail_len,
+     {"Icons Available Length", "wlan.hs20.osu_icons_avail_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_providers_list_ssid_len,
+     {"SSID Length", "wlan.hs20.anqp_osu_prov_list.ssid_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_providers_ssid,
+     {"SSID", "wlan.hs20.anqp_osu_prov_list.ssid",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_providers_count,
+     {"Number of OSU Providers", "wlan.hs20.anqp_osu_prov_list.number",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_prov_length,
+     {"OSU Provider Length", "wlan.hs20.anqp_osu_prov.len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_icon_request_filename,
+     {"Icon Filename", "wlan.hs20.anqp_icon_request.icon_filename",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_osu_icon_avail_width,
+     {"Icon Width", "wlan.hs20.osu_icons_avail.icon_width",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osu_icon_avail_height,
+     {"Icon Height", "wlan.hs20.osu_icons_avail.icon_height",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osu_icon_avail_lang_code,
+     {"Language Code", "wlan.hs20.osu_icons_avail.lang_code",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_osu_icon_avail_icon_type_len,
+     {"Icon Type Length", "wlan.hs20.osu_icons_avail.icon_type_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osu_icon_avail_icon_type,
+     {"Icon Type", "wlan.hs20.osu_icons_avail.icon_type",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_osu_icon_avail_filename_len,
+     {"Icon Filename Length", "wlan.hs20.osu_icons_avail.icon_filename_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_osu_icon_avail_filename,
+     {"Icon Filename", "wlan.hs20.osu_icons_avail.icon_filename",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_nai_len,
+     {"OSU_NAI Length", "wlan.hs20.osu_nai.len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_nai,
+     {"OSU_NAI", "wlan.hs20.osu_nai",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_service_desc_len,
+     {"OSU Service Desctription Length", "wlan.hs20.osu_service_desc_len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_service_desc_duple_len,
+     {"Length", "wlan.hs20.osu_service_desc.duple.len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_service_desc_lang,
+     {"Language Code", "wlan.hs20.osu_service_desc.duple.lang",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_osu_service_desc,
+     {"OSU Service Description", "wlan.hs20.osu_service_desc.duple.desc",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_icon_binary_file_status,
+     {"Download Status Code", "wlan.hs20.anqp_icon_request.download_status",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_icon_type_length,
+     {"Icon Type Length", "wlan.hs20.anqp_icon_request.icon_type_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_icon_type,
+     {"Icon Type", "wlan.hs20.anqp_icon_request.icon_type",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_icon_binary_data_len,
+     {"Icon Binary Data Length", "wlan.anqp_icon_request.icon_binary_data_len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_icon_binary_data,
+     {"Icon Binary Data", "wlan.h220.anqp_icon_request.icon_binary_data",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     {&hf_hs20_subscription_remediation_url_len,
      {"Server URL Length", "wlan.hs20.subs_remediation.server_url_len",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -26301,6 +26961,54 @@ proto_register_ieee80211(void)
 
     {&hf_hs20_deauth_imminent_reason_url,
      {"Reason URL", "wlan.hs20.deauth.reason_url",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_venue_url_length,
+     {"Length", "wlan.hs20.venue_url.len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_venue_number,
+     {"Venue number", "wlan.hs20.venue_url.venue_num",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_venue_url,
+     {"Venue URL", "wlan.hs20.venue_url.url",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_advice_of_charge_length,
+     {"Length", "wlan.hs20.advice_of_charge.len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_advice_of_charge_type,
+     {"Advice of Charge Type", "wlan.hs20.advice_of_charge.type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_aoc_nai_realm_encoding,
+     {"NAI Realm Encoding", "wlan.hs20.advice_of_charge.nai_realm_enc",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_aoc_nai_realm_len,
+     {"NAI Realm Length", "wlan.hs20.advice_of_charge.nai_realm_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_aoc_nai_realm,
+     {"NAI Realm", "wlan.hs20.advice_of_charge.nai_realm",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_aoc_plan_len,
+     {"Plan length", "wlan.hs20.advice_of_charge.plan_info_tuples.plan_len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_aoc_plan_lang,
+     {"Plan language", "wlan.hs20.advice_of_charge.plan_info_tuples.plan_lang",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_aoc_plan_curcy,
+     {"Plan currency", "wlan.hs20.advice_of_charge.plan_info_tuples.plan_curcy",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_aoc_plan_information,
+     {"Plan information", "wlan.hs20.advice_of_charge.plan_info_tuples.info",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag,
@@ -32440,6 +33148,21 @@ proto_register_ieee80211(void)
     &ett_sched_tree,
 
     &ett_fcs,
+
+    &ett_hs20_osu_providers_list,
+    &ett_hs20_osu_provider_tree,
+    &ett_hs20_friendly_names_list,
+    &ett_hs20_friendly_name_tree,
+    &ett_hs20_osu_provider_method_list,
+    &ett_osu_icons_avail_list,
+    &ett_hs20_osu_icon_tree,
+    &ett_hs20_osu_service_desc_list,
+    &ett_hs20_osu_service_desc_tree,
+    &ett_hs20_venue_url,
+    &ett_hs20_advice_of_charge,
+    &ett_hs20_aoc_plan,
+
+    &ett_hs20_ofn_tree,
 
     &ett_adv_proto,
     &ett_adv_proto_tuple,
