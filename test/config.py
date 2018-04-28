@@ -22,6 +22,7 @@ commands = (
     'dumpcap',
     'mergecap',
     'rawshark',
+    'text2pcap',
     'tshark',
     'wireshark',
 )
@@ -36,6 +37,7 @@ cmd_dumpcap = None
 cmd_mergecap = None
 cmd_rawshark = None
 cmd_tshark = None
+cmd_text2pcap = None
 cmd_wireshark = None
 # Arrays
 args_ping = None

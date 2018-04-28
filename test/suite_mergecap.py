@@ -66,7 +66,7 @@ def check_mergecap(self, mergecap_proc, file_type, encapsulation, tot_packets, g
 
     encap_pat = 'File encapsulation:\s+{}'.format(encapsulation)
     self.assertTrue(re.search(encap_pat, capinfos_testout) is not None,
-        'Failed to generate a {} file'.format(encapsulation))
+        'Failed to generate an {} encapsulation'.format(encapsulation))
 
     pkt_pat = 'Number of packets:\s+{}'.format(tot_packets)
     self.assertTrue(re.search(pkt_pat, capinfos_testout) is not None,
