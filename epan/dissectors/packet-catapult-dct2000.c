@@ -114,8 +114,8 @@ static int hf_catapult_dct2000_no_padding_bits = -1;
 static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
 static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 static gboolean catapult_dct2000_dissect_lte_rrc = TRUE;
-static gboolean catapult_dct2000_dissect_lte_s1ap = TRUE;
 static gboolean catapult_dct2000_dissect_mac_lte_oob_messages = TRUE;
+static gboolean catapult_dct2000_dissect_old_protocol_names = FALSE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
@@ -1297,86 +1297,79 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
    This includes exact matches and prefixes (e.g. "diameter_rx" -> "diameter") */
 static dissector_handle_t look_for_dissector(const char *protocol_name)
 {
-    /* Use known aliases and protocol name prefixes */
-    if (strcmp(protocol_name, "tbcp") == 0) {
-        return find_dissector("rtcp");
-    }
-    else
     if (strncmp(protocol_name, "diameter", strlen("diameter")) == 0) {
         return find_dissector("diameter");
     }
     else
-    if ((strcmp(protocol_name, "xcap_caps") == 0) ||
-        (strcmp(protocol_name, "soap") == 0) ||
-        (strcmp(protocol_name, "mm1") == 0) ||
-        (strcmp(protocol_name, "mm3") == 0) ||
-        (strcmp(protocol_name, "mm7") == 0)) {
-
-        return find_dissector("http");
+    if (strncmp(protocol_name, "gtpv2_r", 7) == 0) {
+        return find_dissector("gtpv2");
     }
     else
-    if ((strncmp(protocol_name, "fp_r", 4) == 0) ||
-        (strcmp(protocol_name, "fpiur_r5") == 0)) {
-
-        return find_dissector("fp");
-    }
-    else
-    if (strncmp(protocol_name, "iuup_rtp_r", strlen("iuup_rtp_r")) == 0) {
-        return find_dissector("rtp");
-    }
-    else
-    if (strcmp(protocol_name, "sipt") == 0) {
-        return find_dissector("sip");
-    }
-    else
-    if (strncmp(protocol_name, "nbap_sctp", strlen("nbap_sctp")) == 0) {
-        return find_dissector("nbap");
-    }
-    else
-    if (strncmp(protocol_name, "gtp", strlen("gtp")) == 0) {
-        return find_dissector("gtp");
-    }
-    else
-    if (strcmp(protocol_name, "dhcpv4") == 0) {
-        return find_dissector("bootp");
-    }
-    else
-    if (strcmp(protocol_name, "wimax") == 0) {
-        return find_dissector("wimaxasncp");
-    }
-    else
-    if (strncmp(protocol_name, "sabp", strlen("sabp")) == 0) {
-        return find_dissector("sabp");
-    }
-    else
-    if (strcmp(protocol_name, "wtp") == 0) {
-        return find_dissector("wtp-udp");
-    }
-    else
-    /* Only match with s1ap if preference turned on */
-    if (catapult_dct2000_dissect_lte_s1ap &&
-        strncmp(protocol_name, "s1ap", strlen("s1ap")) == 0) {
-
+    if (strncmp(protocol_name, "s1ap", 4) == 0) {
         return find_dissector("s1ap");
     }
     else
-    /* Always try lookup for now */
-    if ((strncmp(protocol_name, "x2ap_r8_lte", strlen("x2ap_r8_lte")) == 0) ||
-        (strncmp(protocol_name, "x2ap_r9_lte", strlen("x2ap_r9_lte")) == 0)) {
-
+    if (strncmp(protocol_name, "x2ap_r", 6) == 0) {
         return find_dissector("x2ap");
     }
-    else
-    if ((strcmp(protocol_name, "gtpv2_r8_lte") == 0) ||
-        (strcmp(protocol_name, "gtpv2_r9_lte") == 0)) {
-        return find_dissector("gtpv2");
-    }
 
+    /* Only check really old names to convert if preference is checked */
+    else if (catapult_dct2000_dissect_old_protocol_names) {
+        /* Use known aliases and protocol name prefixes */
+        if (strcmp(protocol_name, "tbcp") == 0) {
+            return find_dissector("rtcp");
+        }
+        else
+        if ((strcmp(protocol_name, "xcap_caps") == 0) ||
+            (strcmp(protocol_name, "soap") == 0) ||
+            (strcmp(protocol_name, "mm1") == 0) ||
+            (strcmp(protocol_name, "mm3") == 0) ||
+            (strcmp(protocol_name, "mm7") == 0)) {
+
+             return find_dissector("http");
+        }
+        else
+        if ((strncmp(protocol_name, "fp_r", 4) == 0) ||
+            (strcmp(protocol_name, "fpiur_r5") == 0)) {
+
+            return find_dissector("fp");
+        }
+        else
+        if (strncmp(protocol_name, "iuup_rtp_r", strlen("iuup_rtp_r")) == 0) {
+            return find_dissector("rtp");
+        }
+        else
+        if (strcmp(protocol_name, "sipt") == 0) {
+            return find_dissector("sip");
+        }
+        else
+        if (strncmp(protocol_name, "nbap_sctp", strlen("nbap_sctp")) == 0) {
+            return find_dissector("nbap");
+        }
+        else
+        if (strcmp(protocol_name, "dhcpv4") == 0) {
+            return find_dissector("bootp");
+        }
+        else
+        if (strcmp(protocol_name, "wimax") == 0) {
+            return find_dissector("wimaxasncp");
+        }
+        else
+        if (strncmp(protocol_name, "sabp", strlen("sabp")) == 0) {
+            return find_dissector("sabp");
+        }
+        else
+        if (strcmp(protocol_name, "wtp") == 0) {
+            return find_dissector("wtp-udp");
+        }
+        else
+        if (strncmp(protocol_name, "gtp", strlen("gtp")) == 0) {
+            return find_dissector("gtp");
+        }
+    }
 
     /* Try for an exact match */
-    else {
-        return find_dissector(protocol_name);
-    }
+    return find_dissector(protocol_name);
 }
 
 
@@ -3386,6 +3379,7 @@ void proto_register_catapult_dct2000(void)
     /* This preference no longer supported (introduces linkage dependency between
        dissectors and wiretap) */
     prefs_register_obsolete_preference(catapult_dct2000_module, "board_ports_only");
+    prefs_register_obsolete_preference(catapult_dct2000_module, "decode_lte_s1ap");
 
     /* Determines whether for not-handled protocols we should try to parse it if:
        - it looks like it's embedded in an ipprim message, AND
@@ -3417,14 +3411,6 @@ void proto_register_catapult_dct2000(void)
                                    "that also call the LTE RRC dissector",
                                    &catapult_dct2000_dissect_lte_rrc);
 
-    /* Determines whether LTE S1AP messages should be dissected */
-    prefs_register_bool_preference(catapult_dct2000_module, "decode_lte_s1ap",
-                                   "Attempt to decode LTE S1AP frames",
-                                   "When set, attempt to decode LTE S1AP frames. "
-                                   "Note that this won't affect other protocols "
-                                   "that also call the LTE S1AP dissector",
-                                   &catapult_dct2000_dissect_lte_s1ap);
-
     /* Determines whether out-of-band messages should dissected */
     prefs_register_bool_preference(catapult_dct2000_module, "decode_mac_lte_oob_messages",
                                    "Look for out-of-band LTE MAC events messages in comments",
@@ -3432,6 +3418,13 @@ void proto_register_catapult_dct2000(void)
                                    "specific events.  This may be quite slow, so should "
                                    "be disabled if LTE MAC is not being analysed",
                                    &catapult_dct2000_dissect_mac_lte_oob_messages);
+
+    /* Whether old protocol names conversions should be checked */
+    prefs_register_bool_preference(catapult_dct2000_module, "convert_old_protocol_names",
+                                   "Convert old protocol names to wireshark dissector names",
+                                   "When set, look for some older protocol names so that"
+                                   "they may be matched with wireshark dissectors.",
+                                   &catapult_dct2000_dissect_old_protocol_names);
 }
 
 /*
