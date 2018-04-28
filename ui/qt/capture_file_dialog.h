@@ -80,7 +80,7 @@ private:
     void addDisplayFilterEdit();
     void addPreview(QVBoxLayout &v_box);
     QString fileExtensionType(int et, bool extension_globs = true);
-    QString fileType(int ft, bool extension_globs = true);
+    QString fileType(int ft, QStringList &suffixes);
     QStringList buildFileOpenTypeList(void);
 
     QVBoxLayout left_v_box_;
@@ -99,7 +99,8 @@ private:
     QRadioButton merge_append_;
 
     QComboBox format_type_;
-    QHash<QString, int>type_hash_;
+    QHash<QString, int> type_hash_;
+    QHash<QString, QStringList> type_suffixes_;
 
     void addGzipControls(QVBoxLayout &v_box);
     void addRangeControls(QVBoxLayout &v_box, packet_range_t *range);
@@ -133,6 +134,7 @@ public slots:
 
 private slots:
 #if !defined(Q_OS_WIN)
+    void fixFilenameExtension();
     void preview(const QString & path);
     void on_buttonBox_helpRequested();
 #endif // Q_OS_WIN
