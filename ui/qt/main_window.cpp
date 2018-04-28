@@ -1464,7 +1464,10 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
         file_type = save_as_dlg.selectedFileType();
         compressed = save_as_dlg.isCompressed();
 
+#ifdef Q_OS_WIN
+        // the Windows dialog does not fixup extensions, do it manually here.
         fileAddExtension(file_name, file_type, compressed);
+#endif // Q_OS_WIN
 
 //#ifndef _WIN32
 //        /* If the file exists and it's user-immutable or not writable,
@@ -1587,7 +1590,10 @@ void MainWindow::exportSelectedPackets() {
 
         file_type = esp_dlg.selectedFileType();
         compressed = esp_dlg.isCompressed();
+#ifdef Q_OS_WIN
+        // the Windows dialog does not fixup extensions, do it manually here.
         fileAddExtension(file_name, file_type, compressed);
+#endif // Q_OS_WIN
 
 //#ifndef _WIN32
 //        /* If the file exists and it's user-immutable or not writable,
@@ -1643,6 +1649,7 @@ void MainWindow::exportDissections(export_type_e export_type) {
     ed_dlg.exec();
 }
 
+#ifdef Q_OS_WIN
 void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compressed) {
     QString file_name_lower;
     GSList  *extensions_list;
@@ -1697,6 +1704,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
         }
     }
 }
+#endif // Q_OS_WIN
 
 bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext context) {
     bool capture_in_progress = false;

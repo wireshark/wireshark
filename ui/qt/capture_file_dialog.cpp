@@ -217,6 +217,21 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
 }
 
 
+#ifndef Q_OS_WIN
+void CaptureFileDialog::accept()
+{
+    // XXX also useful for Windows, but that uses a different dialog...
+    // Ensure that the filename has a valid extension before performing file
+    // existence checks and before closing the dialog.
+    // HACK: ensure that the filename field does not have the focus, otherwise
+    // selectFile will not change the filename.
+    setFocus();
+    fixFilenameExtension();
+    QFileDialog::accept();
+}
+#endif // ! Q_OS_WIN
+
+
 // You have to use open, merge, saveAs, or exportPackets. We should
 // probably just make each type a subclass.
 int CaptureFileDialog::exec() {

@@ -126,7 +126,10 @@ signals:
 
 public slots:
 
-    int exec();
+#ifndef Q_OS_WIN
+    void accept() Q_DECL_OVERRIDE;
+#endif
+    int exec() Q_DECL_OVERRIDE;
     int open(QString &file_name, unsigned int &type);
     check_savability_t saveAs(QString &file_name, bool must_support_comments);
     check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range);

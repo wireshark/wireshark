@@ -236,7 +236,9 @@ private:
     void exportSelectedPackets();
     void exportDissections(export_type_e export_type);
 
+#ifdef Q_OS_WIN
     void fileAddExtension(QString &file_name, int file_type, bool compressed);
+#endif // Q_OS_WIN
     bool testCaptureFileClose(QString before_what, FileCloseContext context = Default);
     void captureStop();
 
