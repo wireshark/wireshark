@@ -1903,6 +1903,7 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 						       required_comment_types)) {
 				/* OK, got it. */
 				default_file_type_subtype = ft;
+				break;
 			}
 		}
 	}
