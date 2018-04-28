@@ -303,7 +303,12 @@ sub findAPIinFile($$$)
         for my $api ( @{$groupHashRef->{functions}} )
         {
                 my $cnt = 0;
-                while (${$fileContentsRef} =~ m/ \W $api \W* \( /gx)
+                # Match function calls, but ignore false positives from:
+                # C++ method definition: int MyClass::open(...)
+                # Method invocation: myClass->open(...);
+                # Function declaration: int open(...);
+                # Method invocation: QString().sprintf(...)
+                while (${$fileContentsRef} =~ m/ \W (?<!::|->|\w\ ) (?<!\.) $api \W* \( /gx)
                 {
                         $cnt += 1;
                 }
