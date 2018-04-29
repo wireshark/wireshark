@@ -3749,11 +3749,11 @@ proto_register_obex(void)
             NULL, HFILL }
         },
         { &hf_request_in_frame,
-          { "Request in Frame", "obex.request_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+          { "Request in Frame", "obex.request_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL}
         },
         { &hf_response_in_frame,
-          { "Response in Frame", "obex.response_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+          { "Response in Frame", "obex.response_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL}
         }
     };
