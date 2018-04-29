@@ -191,45 +191,6 @@ DIAG_ON(pedantic)
 }
 
 /*
- * Scan the buildir for plugins.
- */
-static void
-scan_plugins_build_dir(GHashTable *plugins_module, plugin_type_e type)
-{
-    const char *name;
-    char *dirpath;
-    char *plugin_folder;
-    WS_DIR *dir;                /* scanned directory */
-    WS_DIRENT *file;            /* current file */
-
-    /* Cmake */
-    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
-
-    /* Autotools */
-    dirpath = g_build_filename(get_plugins_dir(), type_to_dir(type), (char *)NULL);
-    dir = ws_dir_open(dirpath, 0, NULL);
-    if (dir == NULL) {
-        g_free(dirpath);
-        return;
-    }
-
-    while ((file = ws_dir_read_name(dir)) != NULL)
-    {
-        name = ws_dir_get_name(file);
-        if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
-            continue;        /* skip "." and ".." */
-        /*
-         * Get the full path of that directory.
-         */
-        plugin_folder = g_build_filename(get_plugins_dir(), name, (gchar *)NULL);
-        scan_plugins_dir(plugins_module, plugin_folder, type, FALSE);
-        g_free(plugin_folder);
-    }
-    ws_dir_close(dir);
-    g_free(dirpath);
-}
-
-/*
  * Scan for plugins.
  */
 plugins_t *
@@ -242,17 +203,8 @@ plugins_init(plugin_type_e type)
 
     /*
      * Scan the global plugin directory.
-     * If we're running from a build directory, scan the "plugins"
-     * subdirectory, as that's where plugins are located in an
-     * out-of-tree build. If we find subdirectories scan those since
-     * they will contain plugins in the case of an in-tree build.
      */
-    if (running_in_build_directory()) {
-        scan_plugins_build_dir(plugins_module, type);
-    }
-    else {
-        scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
-    }
+    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, TRUE);
 
     /*
      * If the program wasn't started with special privileges,
