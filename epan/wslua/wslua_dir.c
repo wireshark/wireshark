@@ -290,18 +290,7 @@ WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
     const char *fname = luaL_optstring(L, WSLUA_OPTARG_global_config_path_FILENAME,"");
     char* filename;
 
-    if (running_in_build_directory()) {
-        /* Running in build directory, try the source directory (Autotools) */
-        filename = g_build_filename("epan", "wslua", get_datafile_dir(), fname, (char *)NULL);
-        if (( ! file_exists(filename))) {
-            /* Try the CMake output directory */
-            g_free(filename);
-            filename = get_datafile_path(fname);
-        }
-    } else {
-        filename = get_datafile_path(fname);
-    }
-
+    filename = get_datafile_path(fname);
     lua_pushstring(L,filename);
     g_free(filename);
     WSLUA_RETURN(1); /* The full pathname for a file in wireshark's configuration directory. */
