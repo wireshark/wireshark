@@ -494,7 +494,6 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     // spare
     t_val = tvb_get_bits(tvb, bit_offset, 5, ENC_NA);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_spare, tvb, curr_offset, 4, t_val);
-    bit_offset += 5;
 
     return 16;
 }
