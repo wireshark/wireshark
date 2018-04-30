@@ -1228,8 +1228,6 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                 data_length, ENC_NA);
         }
 
-        offset += data_length;
-
         if (p_pdcp_info->bearerType == Bearer_DCCH) {
             mac_included = TRUE;
             mac_offset = tvb_reported_length(tvb)-4;
