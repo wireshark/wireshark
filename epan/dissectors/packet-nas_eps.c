@@ -2192,14 +2192,10 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct3_flags, ENC_NA);
     curr_offset++;
 
-    curr_offset++;
-
-
     /* EPS integrity algorithms supported (octet 4) */
     /* EIA0    128-EIA1    128-EIA2    128-EIA3    EIA4    EIA5    EIA6    EIA7 */
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
     curr_offset++;
-
 
     /* Octets 5, 6, and 7 are optional. If octet 5 is included,
      * then also octet 6 shall be included and octet 7 may be included.
