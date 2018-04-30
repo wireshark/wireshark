@@ -31,6 +31,7 @@ can_capture = False
 capture_interface = None
 
 # Our executables
+program_path = None
 # Strings
 cmd_capinfos = None
 cmd_dumpcap = None
@@ -60,6 +61,7 @@ capture_dir = os.path.join(this_dir, 'captures')
 config_dir = os.path.join(this_dir, 'config')
 key_dir = os.path.join(this_dir, 'keys')
 lua_dir = os.path.join(this_dir, 'lua')
+tools_dir = os.path.join(this_dir, '..', 'tools')
 
 def canCapture():
     # XXX This appears to be evaluated at the wrong time when called

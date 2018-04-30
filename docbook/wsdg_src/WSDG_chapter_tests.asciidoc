@@ -13,6 +13,9 @@ bugs as Wireshark grows and evolves.
 
 === Quick Start
 
+Before running any tests you should build the “test-programs” target. It
+is required for the “utittests” suite.
+
 The main testing script is `test.py`. It will attempt to test as much as
 possible by default, including packet capture. This means that you will
 probably either have to supply a capture interface (`--capture-interface
