@@ -31,7 +31,6 @@ can_capture = False
 capture_interface = None
 
 # Our executables
-program_path = None
 # Strings
 cmd_capinfos = None
 cmd_dumpcap = None
@@ -202,11 +201,11 @@ def setUpUatFile(conf_file):
         cf_fd.close()
 
 def setUpHostFiles():
-    if program_path is None:
-        return
     global program_path
     global conf_path
     global custom_profile_path
+    if program_path is None:
+        return
     if conf_path is None or custom_profile_path is None:
         setUpTestEnvironment()
     bundle_path = os.path.join(program_path, 'Wireshark.app', 'Contents', 'MacOS')
