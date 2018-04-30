@@ -201,8 +201,6 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		}
 		offset++;
 
-		pad_len = 0; /* Default to no padding*/
-
 		switch(attribute_type){
 		case 1: /* Beneficiary ID */
 			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_beneficiary_id, tvb, offset, 2, ENC_BIG_ENDIAN);
