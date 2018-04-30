@@ -1870,7 +1870,6 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint offs
 	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
-		hf_string = -1;
 
 		tokenlen = (int)strlen(tokens[i]);
 		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
@@ -2022,7 +2021,6 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint off
 	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
-		hf_string = -1;
 		tokenlen = (int)strlen(tokens[i]);
 		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
