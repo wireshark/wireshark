@@ -91,6 +91,7 @@ typedef struct
 	guint identifier;
 	guint length;
 	guint totalLength;
+	gboolean is_valid_utf8_string;
 } lwm2mElement_t;
 
 
@@ -140,7 +141,9 @@ addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
 
 	case RESOURCE_INSTANCE:
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, valueOffset, element->length_of_value, ENC_UTF_8);
-		if (!isprint_utf8_string (str, element->length_of_value)) {
+		if (isprint_utf8_string(str, element->length_of_value)) {
+			element->is_valid_utf8_string = TRUE;
+		} else {
 			str = tvb_bytes_to_str(wmem_packet_scope(), tvb, valueOffset, element->length_of_value);
 		}
 		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_resourceInstance, NULL,
@@ -152,7 +155,9 @@ addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
 
 	case RESOURCE:
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, valueOffset, element->length_of_value, ENC_UTF_8);
-		if (!isprint_utf8_string (str, element->length_of_value)) {
+		if (isprint_utf8_string(str, element->length_of_value)) {
+			element->is_valid_utf8_string = TRUE;
+		} else {
 			str = tvb_bytes_to_str(wmem_packet_scope(), tvb, valueOffset, element->length_of_value);
 		}
 		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_resource, NULL,
@@ -169,13 +174,17 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 
 	valueOffset = 1 + element->length_of_identifier + element->length_of_length;
 
-	proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8|ENC_NA);
+	if (element->is_valid_utf8_string) {
+		proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8|ENC_NA);
+	}
 
 	switch(element->length_of_value)
 	{
 	case 0x01:
 		proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_boolean, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+		if (tvb_get_guint8(tvb, valueOffset) < 2) {
+			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_boolean, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+		}
 		break;
 	case 0x02:
 		proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
@@ -259,6 +268,8 @@ static guint parseTLVHeader(tvbuff_t *tvb, lwm2mElement_t *element)
 	}
 
 	element->totalLength = 1 + element->length_of_identifier + element->length_of_length + element->length_of_value;
+	element->is_valid_utf8_string = FALSE;
+
 	return element->totalLength;
 }
 
