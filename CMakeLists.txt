@@ -336,8 +336,10 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   https://gitlab.kitware.com/cmake/cmake/commit/f973d49ab9d4c59b93f6dac812a94bb130200836
 		# /Qspectre                         Speculative execution attack mitigation
 		#                                   See https://blogs.msdn.microsoft.com/vcblog/2018/01/15/spectre-mitigations-in-msvc/
-		list(APPEND LOCAL_CFLAGS /Zo /utf-8 /guard:cf /Qspectre)
+		list(APPEND LOCAL_CFLAGS /Zo /utf-8 /guard:cf)
 		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
+		# /Qspectre is not available for VS2015 or older VS2017. Test for its availability.
+		set(WIRESHARK_COMMON_FLAGS /Qspectre)
 	endif()
 
 	if(ENABLE_CODE_ANALYSIS)
