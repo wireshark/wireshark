@@ -5,7 +5,8 @@
  * By David Hampton <dhampton@mac.com>
  * Copyright 2001 David Hampton
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 #include "config.h"
 
 #include <stdlib.h>

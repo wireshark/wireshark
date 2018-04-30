@@ -5,7 +5,8 @@
  * Copyright 2001 Gerald Combs
  *
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef CAPTURE_WPCAP_PACKET_H
 #define CAPTURE_WPCAP_PACKET_H

@@ -5,7 +5,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef NUMERIC_VALUE_CHOOSER_DELEGATE_H_
 #define NUMERIC_VALUE_CHOOSER_DELEGATE_H_

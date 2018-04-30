@@ -8,7 +8,8 @@
  * Copyright 2012 Parc Inc and Samsung Electronics
  * Copyright 2015, 2016 & 2017 Cisco Inc
  *
- * SPDX-License-Identifier: GPL-2.0-or-later*/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include <QScrollArea>
 
