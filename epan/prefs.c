@@ -5048,7 +5048,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
     struct port_pref_name
     {
         const char* pref_name;
-        const char* module_name;
+        const char* module_name;    /* the protocol filter name */
         const char* table_name;
         guint base;
     };
@@ -5077,7 +5077,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"rsync.tcp_port", "RSYNC", "tcp.port", 10},
         {"sametime.tcp_port", "SAMETIME", "tcp.port", 10},
         {"sigcomp.tcp.port2", "SIGCOMP", "tcp.port", 10},
-        {"synphasor.tcp_port", "SYNCHROPHASOR", "tcp.port", 10},
+        {"synphasor.tcp_port", "synphasor", "tcp.port", 10},
         {"tipc.alternate_port", "TIPC", "tcp.port", 10},
         {"vnc.alternate_port", "VNC", "tcp.port", 10},
         {"scop.port", "SCoP", "tcp.port", 10},
@@ -5087,8 +5087,8 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"actrace.udp_port", "ACtrace", "udp.port", 10},
         {"brp.port", "BRP", "udp.port", 10},
         {"bvlc.additional_udp_port", "BVLC", "udp.port", 10},
-        {"capwap.udp.port.control", "CAPWAP-CONTROL", "udp.port", 10},
-        {"capwap.udp.port.data", "CAPWAP-CONTROL", "udp.port", 10},
+        {"capwap.udp.port.control", "capwap", "udp.port", 10},
+        {"capwap.udp.port.data", "capwap", "udp.port", 10},
         {"coap.udp_port", "CoAP", "udp.port", 10},
         {"enttec.udp_port", "ENTTEC", "udp.port", 10},
         {"forces.udp_alternate_port", "ForCES", "udp.port", 10},
@@ -5105,16 +5105,15 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"rdt.default_udp_port", "RDT", "udp.port", 10},
         {"alc.default.udp_port", "ALC", "udp.port", 10},
         {"sigcomp.udp.port2", "SIGCOMP", "udp.port", 10},
-        {"synphasor.udp_port", "SYNCHROPHASOR", "udp.port", 10},
+        {"synphasor.udp_port", "synphasor", "udp.port", 10},
         {"tdmop.udpport", "TDMoP", "udp.port", 10},
         {"uaudp.port1", "UAUDP", "udp.port", 10},
         {"uaudp.port2", "UAUDP", "udp.port", 10},
         {"uaudp.port3", "UAUDP", "udp.port", 10},
         {"uaudp.port4", "UAUDP", "udp.port", 10},
         {"uhd.dissector_port", "UHD", "udp.port", 10},
-        {"vrt.dissector_port", "VITA 49", "udp.port", 10},
-        {"vuze-dht.udp_port", "Vuze-DHT", "udp.port", 10},
-        {"wimaxasncp.udp.wimax_port", "WiMAX ASN CP", "udp.port", 10},
+        {"vrt.dissector_port", "vrt", "udp.port", 10},
+        {"wimaxasncp.udp.wimax_port", "wimaxasncp", "udp.port", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
@@ -5183,10 +5182,28 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
     module_t *module;
     pref_t *pref;
 
-    for (i = 0; i < sizeof(port_prefs)/sizeof(struct port_pref_name); i++)
-    {
-        if (strcmp(pref_name, port_prefs[i].pref_name) == 0)
-        {
+    static gboolean sanity_checked;
+    if (!sanity_checked) {
+        sanity_checked = TRUE;
+        for (i = 0; i < G_N_ELEMENTS(port_prefs); i++) {
+            module = prefs_find_module(port_prefs[i].module_name);
+            if (!module) {
+                ws_g_warning("Deprecated ports pref check - module '%s' not found", port_prefs[i].module_name);
+                continue;
+            }
+            pref = prefs_find_preference(module, port_prefs[i].table_name);
+            if (!pref) {
+                ws_g_warning("Deprecated ports pref '%s.%s' not found", module->name, port_prefs[i].table_name);
+                continue;
+            }
+            if (pref->type != PREF_DECODE_AS_UINT && pref->type != PREF_DECODE_AS_RANGE) {
+                ws_g_warning("Deprecated ports pref '%s.%s' has wrong type: %#x (%s)", module->name, port_prefs[i].table_name, pref->type, prefs_pref_type_name(pref));
+            }
+        }
+    }
+
+    for (i = 0; i < G_N_ELEMENTS(port_prefs); i++) {
+        if (strcmp(pref_name, port_prefs[i].pref_name) == 0) {
             /* XXX - give an error if it doesn't fit in a guint? */
             uval = (guint)strtoul(value, &p, port_prefs[i].base);
             if (p == value || *p != '\0')
