@@ -31,6 +31,7 @@ can_capture = False
 capture_interface = None
 
 # Our executables
+program_path = None
 # Strings
 cmd_capinfos = None
 cmd_dumpcap = None
