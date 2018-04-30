@@ -5194,10 +5194,17 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
 
             module = prefs_find_module(port_prefs[i].module_name);
             pref = prefs_find_preference(module, port_prefs[i].table_name);
-            if (pref != NULL)
-            {
+            if (pref != NULL) {
                 module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-                *pref->varp.uint = uval;
+                if (pref->type == PREF_DECODE_AS_UINT) {
+                    *pref->varp.uint = uval;
+                } else if (pref->type == PREF_DECODE_AS_RANGE) {
+                    // The legacy preference was a port number, but the new
+                    // preference is a port range. Add to existing range.
+                    if (uval) {
+                        prefs_range_add_value(pref, uval);
+                    }
+                }
             }
 
             /* If the value is zero, it wouldn't add to the Decode As tables */
