@@ -158,7 +158,9 @@ class SubprocessTestCase(unittest.TestCase):
         self.log_fname = self.filename_from_id('log')
         # Our command line utilities generate UTF-8. The log file endcoding
         # needs to match that.
-        self.log_fd = io.open(self.log_fname, 'w', encoding='UTF-8')
+        # XXX newline='\n' works for now, but we might have to do more work
+        # to handle line endings in the future.
+        self.log_fd = io.open(self.log_fname, 'w', encoding='UTF-8', newline='\n')
         self.cleanup_files.append(self.log_fname)
         pre_run_problem_count = 0
         if result:

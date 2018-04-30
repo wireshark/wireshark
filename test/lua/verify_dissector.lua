@@ -2,7 +2,8 @@
 -- This script runs inside tshark.
 -- FIRST run tshark with the "dns_dissector.lua" plugin, with the dns_port.pcap file,
 -- and with full tree output (-V switch).  Pipe that to a file named testin.txt.
--- This verify script then reads in that testin.txt.
+-- This verify script then reads in that testin.txt. The filename can be specified
+-- using the "verify_file" argument.
 --
 -- tshark -r bogus.cap -X lua_script:<path_to_testdir>/lua/verify_dns_dissector.lua
 
@@ -138,12 +139,17 @@ local numtests = 1 + #lines[1] + #lines[2] + #lines[3] + #lines[4]
 
 local hasHeuristic = true
 
+local verify_file = "testin.txt"
+
 -- grab passed-in arguments
 local args = { ... }
 if #args > 0 then
     for _, arg in ipairs(args) do
+        local name, value = arg:match("(.+)=(.+)")
         if arg == "no_heur" then
             numtests = numtests - 1
+        elseif name == "verify_file" and value then
+            verify_file = value
         end
     end
 end
@@ -151,8 +157,8 @@ end
 print("going to run "..numtests.." tests")
 
 -- for an example of what we're reading through to verify, look at end of this file
-print("opening file testin.txt")
-local file = io.open("testin.txt", "r")
+print("opening file "..verify_file)
+local file = io.open(verify_file, "r")
 local line = file:read()
 
 local pktidx = 1
