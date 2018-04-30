@@ -1,17 +1,17 @@
 /* packet-nfapi.c
-* Routines for Network Function Application Platform Interface (nFAPI) dissection
-* Copyright 2017 Cisco Systems, Inc.
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*
-* References:
-* SCF082.09.04  http://scf.io/en/documents/082_-_nFAPI_and_FAPI_specifications.php
-*
-*/
+ * Routines for Network Function Application Platform Interface (nFAPI) dissection
+ * Copyright 2017 Cisco Systems, Inc.
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * References:
+ * SCF082.09.04  http://scf.io/en/documents/082_-_nFAPI_and_FAPI_specifications.php
+ *
+ */
 
 #include "config.h"
 

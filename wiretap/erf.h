@@ -1,14 +1,14 @@
 /*
-*
-* Copyright (c) 2003 Endace Technology Ltd, Hamilton, New Zealand.
-* All rights reserved.
-*
-* This software and documentation has been developed by Endace Technology Ltd.
-* along with the DAG PCI network capture cards. For further information please
-* visit http://www.endace.com/.
-*
-* SPDX-License-Identifier: BSD-3-Clause
-*/
+ *
+ * Copyright (c) 2003 Endace Technology Ltd, Hamilton, New Zealand.
+ * All rights reserved.
+ *
+ * This software and documentation has been developed by Endace Technology Ltd.
+ * along with the DAG PCI network capture cards. For further information please
+ * visit http://www.endace.com/.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef __W_ERF_H__
 #define __W_ERF_H__

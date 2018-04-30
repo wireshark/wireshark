@@ -1,13 +1,13 @@
 /* packet-grpc.c
-* Routines for GRPC dissection
-* Copyright 2017, Huang Qiangxiong <qiangxiong.huang@qq.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Routines for GRPC dissection
+ * Copyright 2017, Huang Qiangxiong <qiangxiong.huang@qq.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /*
 * The information used comes from:

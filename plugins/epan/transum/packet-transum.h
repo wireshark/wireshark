@@ -1,14 +1,14 @@
 /* packet-transum.h
-* Header file for the TRANSUM response time analyzer post-dissector
-* By Paul Offord <paul.offord@advance7.com>
-* Copyright 2016 Advance Seven Limited
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Header file for the TRANSUM response time analyzer post-dissector
+ * By Paul Offord <paul.offord@advance7.com>
+ * Copyright 2016 Advance Seven Limited
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #define ETH_TYPE_IPV4 0x0800
 #define ETH_TYPE_IPV6 0x86dd

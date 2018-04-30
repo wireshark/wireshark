@@ -1,15 +1,15 @@
 /* tvbparse.h
-*
-* an API for text tvb parsers
-*
-* Copyright 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ *
+ * an API for text tvb parsers
+ *
+ * Copyright 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 /*
  The intention behind this is to ease the writing of dissectors that have to

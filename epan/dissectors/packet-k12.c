@@ -1,14 +1,14 @@
 /* packet-k12.c
-* Helper-dissector for Tektronix k12xx-k15xx .rf5 file type
-*
-* Luis E. Garcia Ontanon <luis@ontanon.org>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Helper-dissector for Tektronix k12xx-k15xx .rf5 file type
+ *
+ * Luis E. Garcia Ontanon <luis@ontanon.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 #include "config.h"
 
 

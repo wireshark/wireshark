@@ -1,13 +1,13 @@
 /* packet-unistim.h
-  * header field declarations, value_string definitions, true_false_string
-  * definitions and function prototypes for main dissectors
-  * Copyright 2007 Don Newton <dnewton@cypresscom.net>
-  *
-  * Wireshark - Network traffic analyzer
-  * By Gerald Combs <gerald@wireshark.org>
-  * Copyright 1998 Gerald Combs
-  *
-  * SPDX-License-Identifier: GPL-2.0-or-later
+ * header field declarations, value_string definitions, true_false_string
+ * definitions and function prototypes for main dissectors
+ * Copyright 2007 Don Newton <dnewton@cypresscom.net>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef PACKET_UNISTIM_H

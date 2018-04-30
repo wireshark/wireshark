@@ -1,16 +1,16 @@
 /* packet-nas_5gs.c
-* Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
-*
-* Copyright 2018, Anders Broman <anders.broman@ericsson.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*
-* References: 3GPP TS 24.501 0.4.0
-*/
+ * Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
+ *
+ * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * References: 3GPP TS 24.501 0.4.0
+ */
 
 #include "config.h"
 

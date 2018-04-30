@@ -1,19 +1,19 @@
 /* packet-alcap.c
-* Routines for ALCAP (Q.2630.3) dissection
-* AAL type 2 signalling protocol - Capability set 3
-* 10/2003
-*
-* Copyright 2003, Michael Lum <mlum [AT] telostech.com>
-* In association with Telos Technology Inc.
-*
-* Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon [AT] gmail.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Routines for ALCAP (Q.2630.3) dissection
+ * AAL type 2 signalling protocol - Capability set 3
+ * 10/2003
+ *
+ * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
+ * In association with Telos Technology Inc.
+ *
+ * Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon [AT] gmail.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 

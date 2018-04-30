@@ -1,17 +1,17 @@
 %include {
 
 /* dtd_parser.lemon
-* XML dissector for wireshark 
-* XML's DTD grammar
-*
-* Copyright 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * XML dissector for wireshark
+ * XML's DTD grammar
+ *
+ * Copyright 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
@@ -59,7 +59,7 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 %syntax_error {
 	if (!TOKEN)
 		g_string_append_printf(bd->error,"syntax error at end of file");
-	else 
+	else
 		g_string_append_printf(bd->error,"syntax error in %s at or before '%s': \n", TOKEN->location,TOKEN->text);
 }
 
@@ -144,7 +144,7 @@ att_type ::= ATT_TYPE.
 att_type ::= enumeration.
 
 att_default ::= ATT_DEF.
-att_default ::= ATT_DEF_WITH_VALUE QUOTED. 
+att_default ::= ATT_DEF_WITH_VALUE QUOTED.
 att_default ::= QUOTED.
 att_default ::= IMPLIED_KW.
 att_default ::= REQUIRED_KW.

@@ -1,15 +1,15 @@
 /* mate_util.c
-* MATE -- Meta Analysis Tracing Engine
-* Utility Library: Single Copy Strings and Attribute Value Pairs
-*
-* Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * MATE -- Meta Analysis Tracing Engine
+ * Utility Library: Single Copy Strings and Attribute Value Pairs
+ *
+ * Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "mate.h"
 #include "mate_util.h"

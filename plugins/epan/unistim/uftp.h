@@ -1,13 +1,13 @@
 /* uftp.h
-  * header field declarations, value_string def and true_false_string
-  * definitions for uftp commands and messages
-  * Copyright 2007 Chad Singer <csinger@cypresscom.net>
-  *
-  * Wireshark - Network traffic analyzer
-  * By Gerald Combs <gerald@wireshark.org>
-  * Copyright 1998 Gerald Combs
-  *
-  * SPDX-License-Identifier: GPL-2.0-or-later
+ * header field declarations, value_string def and true_false_string
+ * definitions for uftp commands and messages
+ * Copyright 2007 Chad Singer <csinger@cypresscom.net>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef UNISTIM_UFTP_H

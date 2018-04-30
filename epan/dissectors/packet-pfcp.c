@@ -1,17 +1,17 @@
 /* packet-pfcp.c
-*
-* Routines for Packet Forwarding Control Protocol (PFCP) dissection
-*
-* Copyright 2017, Anders Broman <anders.broman@ericsson.com>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*
-* Ref 3GPP TS 29.244 V15.1.0 (2018-03-27)
-*/
+ *
+ * Routines for Packet Forwarding Control Protocol (PFCP) dissection
+ *
+ * Copyright 2017, Anders Broman <anders.broman@ericsson.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * Ref 3GPP TS 29.244 V15.1.0 (2018-03-27)
+ */
 #include "config.h"
 
 #include <epan/packet.h>

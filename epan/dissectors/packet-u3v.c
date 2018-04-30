@@ -1,17 +1,17 @@
 /* packet-u3v.c
-* Routines for AIA USB3 Vision (TM) Protocol dissection
-* Copyright 2016, AIA (www.visiononline.org)
-*
-* USB3 Vision (TM): USB3 Vision a standard developed under the sponsorship of
-* the AIA for the benefit of the machine vision industry.
-* U3V stands for USB3 Vision (TM) Protocol.
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Routines for AIA USB3 Vision (TM) Protocol dissection
+ * Copyright 2016, AIA (www.visiononline.org)
+ *
+ * USB3 Vision (TM): USB3 Vision a standard developed under the sponsorship of
+ * the AIA for the benefit of the machine vision industry.
+ * U3V stands for USB3 Vision (TM) Protocol.
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 

@@ -1,13 +1,13 @@
 /* capture_win_ifnames.c
-* Routines supporting the use of Windows friendly interface names within Wireshark
-* Copyright 2011-2012, Mike Garratt <wireshark@evn.co.nz>
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* SPDX-License-Identifier: GPL-2.0-or-later
-*/
+ * Routines supporting the use of Windows friendly interface names within Wireshark
+ * Copyright 2011-2012, Mike Garratt <wireshark@evn.co.nz>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #include "config.h"
 
