@@ -1089,6 +1089,8 @@ dissect_tpm20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		entry = (tpm_entry *)wmem_alloc(wmem_file_scope(), sizeof(tpm_entry));
 		entry->com_pnum = PNUM_UNINIT;
 		entry->resp_type = PNUM_UNINIT;
+		entry->command = 0;
+		entry->num_auths = 0;
 		wmem_tree_insert32(cmd_tree, pinfo->num, entry);
 	}
 
