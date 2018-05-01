@@ -71,7 +71,13 @@ foreach ($src_file in Get-ChildItem $SourceFiles) {
     $src_modtime = (Get-Item $src_file).LastWriteTime
 
     if (-not (Test-Path $dst_file) -or ((Get-Item $dst_file).LastWriteTime -lt $src_modtime)) {
-        $contents = Get-Content $src_file
+        # "Get-Content -Encoding" is undocumented in PS 2.0, but works
+        # here. If it doesn't work elsewhere we can use:
+        # $contents = [System.IO.File]::ReadAllLines($src_file, $no_bom_encoding)
+        $contents = Get-Content -Encoding UTF8 $src_file
+        # We might want to write this out with a BOM in order to improve
+        # the chances of Notepad's UTF-8 heuristics.
+        # https://blogs.msdn.microsoft.com/oldnewthing/20070417-00/?p=27223
         [System.IO.File]::WriteAllLines($dst_file, $contents, $no_bom_encoding)
         Write-Host "Textified $src_file to $dst_file"
     } else {
