@@ -38,6 +38,12 @@
 
    the module->host transfer is similar
 
+   a CAM Inspector file uses a 44-bit time counter to keep track of the
+   time. the counter is in units of 1us. a timestamp block in the file
+   updates a part of the global time counter. a timestamp contains a 2-bit
+   relative position within the time counter and an 11-bit value for
+   this position.
+
    error handling
    when we run into an error while assembling a data transfer, the
    primary goal is to recover so that we can handle the next transfer
@@ -47,6 +53,7 @@
 
 #include "config.h"
 
+#include <glib.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -64,6 +71,14 @@
 #define IS_TRANS_SIZE(x) \
     ((x)==TRANS_WRITE_SIZE_LOW || (x)==TRANS_WRITE_SIZE_HIGH || \
      (x)==TRANS_READ_SIZE_LOW || (x)==TRANS_READ_SIZE_HIGH)
+
+/* a block contains a timestamp if the upper three bits are 0 */
+#define IS_TIMESTAMP(x) (((x) & 0xE0) == 0x00)
+
+/* a timestamp consists of a 2-bit position, followed by an 11-bit value. */
+#define TS_VALUE_SHIFT  11
+#define TS_POS_MASK     (0x3 << TS_VALUE_SHIFT)
+#define TS_VALUE_MASK   G_GUINT64_CONSTANT((1 << TS_VALUE_SHIFT) - 1)
 
 typedef enum {
     SIZE_HAVE_NONE,
@@ -162,14 +177,35 @@ static gboolean detect_camins_file(FILE_T fh)
 }
 
 
+/* update the current time counter with infos from a timestamp block */
+static void process_timestamp(guint16 timestamp, guint64 *time_us)
+{
+    guint8 pos, shift;
+    guint64 val;
+
+    if (!time_us)
+        return;
+
+    val = timestamp & TS_VALUE_MASK;
+    pos = (timestamp & TS_POS_MASK) >> TS_VALUE_SHIFT;
+    shift = TS_VALUE_SHIFT * pos;
+
+    *time_us &= ~(TS_VALUE_MASK << shift);
+    *time_us |= (val << shift);
+}
+
+
 /* find the transaction type for the data bytes of the next packet
-    and the number of data bytes in that packet
+   and the number of data bytes in that packet
    the fd is moved such that it can be used in a subsequent call
-    to retrieve the data */
+   to retrieve the data
+   if requested by the caller, we increment the time counter as we
+   walk through the file */
 static gboolean
-find_next_pkt_dat_type_len(FILE_T fh,
+find_next_pkt_info(FILE_T fh,
         guint8 *dat_trans_type, /* transaction type used for the data bytes */
         guint16 *dat_len,       /* the number of data bytes in the packet */
+        guint64 *time_us,
         int *err, gchar **err_info)
 {
     guint8       block[2];
@@ -220,6 +256,8 @@ find_next_pkt_dat_type_len(FILE_T fh,
                 SIZE_ADD_HIGH;
                 break;
             default:
+                if (IS_TIMESTAMP(block[1]))
+                    process_timestamp(pletoh16(block), time_us);
                 break;
         }
     } while (size_stat != SIZE_HAVE_ALL);
@@ -232,7 +270,7 @@ find_next_pkt_dat_type_len(FILE_T fh,
    dat_len bytes, ... */
 static gint
 read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
-                 int *err, gchar **err_info)
+                 guint64 *time_us, int *err, gchar **err_info)
 {
     guint8  *p;
     guint8   block[2];
@@ -253,6 +291,9 @@ read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
         if (block[1] == dat_trans_type) {
             *p++ = block[0];
             bytes_count++;
+        }
+        else if (IS_TIMESTAMP(block[1])) {
+                process_timestamp(pletoh16(block), time_us);
         }
         else if (IS_TRANS_SIZE(block[1])) {
             /* go back before the size transaction block
@@ -293,14 +334,15 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
 
 static gboolean
 camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
-    int *err, gchar **err_info)
+    guint64 *time_us, int *err, gchar **err_info)
 {
     guint8      dat_trans_type;
     guint16     dat_len;
     guint8     *p;
     gint        offset, bytes_read;
 
-    if (!find_next_pkt_dat_type_len(fh, &dat_trans_type, &dat_len, err, err_info))
+    if (!find_next_pkt_info(
+                fh, &dat_trans_type, &dat_len, time_us, err, err_info))
         return FALSE;
     /*
      * The maximum value of length is 65535, which, even after
@@ -315,13 +357,13 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     offset = create_pseudo_hdr(p, dat_trans_type, dat_len);
     if (offset<0) {
         /* shouldn't happen, all invalid packets must be detected by
-           find_next_pkt_dat_type_len() */
+           find_next_pkt_info() */
         *err = WTAP_ERR_INTERNAL;
         return FALSE;
     }
 
     bytes_read = read_packet_data(fh, dat_trans_type,
-            &p[offset], dat_len, err, err_info);
+            &p[offset], dat_len, time_us, err, err_info);
     /* 0<=bytes_read<=dat_len is very likely a corrupted packet
        we let the dissector handle this */
     if (bytes_read < 0)
@@ -330,7 +372,11 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
     rec->rec_type = REC_TYPE_PACKET;
     rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_DVBCI;
-    /* timestamps aren't supported for now */
+    if (time_us) {
+        rec->presence_flags = WTAP_HAS_TS;
+        rec->ts.secs = (time_t)(*time_us / (1000 * 1000));
+        rec->ts.nsecs = (int)(*time_us % (1000 *1000) * 1000);
+    }
     rec->rec_header.packet_header.caplen = offset;
     rec->rec_header.packet_header.len = offset;
 
@@ -343,8 +389,8 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return camins_read_packet(wth->fh, &wth->rec, wth->rec_data, err,
-        err_info);
+    return camins_read_packet(wth->fh, &wth->rec, wth->rec_data,
+        (guint64 *)(wth->priv), err, err_info);
 }
 
 
@@ -355,9 +401,8 @@ camins_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return FALSE;
 
-    return camins_read_packet(wth->random_fh, rec, buf, err, err_info);
+    return camins_read_packet(wth->random_fh, rec, buf, NULL, err, err_info);
 }
-
 
 
 wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
@@ -371,9 +416,11 @@ wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
 
    wth->file_encap = WTAP_ENCAP_DVBCI;
    wth->snapshot_length = 0;
-   wth->file_tsprec = WTAP_TSPREC_MSEC;
+   wth->file_tsprec = WTAP_TSPREC_USEC;
 
-   wth->priv = NULL;
+   /* wth->priv stores a pointer to the global time counter. we update
+      it as we go through the file sequentially. */
+   wth->priv = g_malloc0(sizeof(guint64));
 
    wth->subtype_read = camins_read;
    wth->subtype_seek_read = camins_seek_read;
