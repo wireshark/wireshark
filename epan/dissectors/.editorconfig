@@ -2031,6 +2031,10 @@ indent_size = 2
 indent_style = tab
 indent_size = tab
 
+[packet-tpm20.c]
+indent_style = tab
+indent_size = tab
+
 [packet-tr.[ch]]
 indent_style = tab
 indent_size = tab
