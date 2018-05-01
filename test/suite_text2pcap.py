@@ -78,17 +78,18 @@ def check_capinfos_info(self, cap_file):
     }
     capinfos_out = self.getCaptureInfo(capinfos_args=('-t', '-E', '-c', '-d', '-M'), cap_file=cap_file)
 
-    for sp_key in str_pats:
-        str_pat = '{}:\s+([\S ]+)'.format(str_pats[sp_key])
-        str_res = re.search(str_pat, capinfos_out)
-        self.assertTrue(str_res is not None, 'Failed to generate {}'.format(sp_key))
-        cap_info[sp_key] = str_res.group(1)
+    for ci_line in capinfos_out.splitlines():
+        for sp_key in str_pats:
+            str_pat = '{}:\s+([\S ]+)'.format(str_pats[sp_key])
+            str_res = re.search(str_pat, ci_line)
+            if str_res is not None:
+                cap_info[sp_key] = str_res.group(1)
 
-    for ip_key in int_pats:
-        int_pat = '{}:\s+(\d+)'.format(int_pats[ip_key])
-        int_res = re.search(int_pat, capinfos_out)
-        self.assertTrue(int_res is not None, 'Failed to generate {}'.format(ip_key))
-        cap_info[ip_key] = int(int_res.group(1))
+        for ip_key in int_pats:
+            int_pat = '{}:\s+(\d+)'.format(int_pats[ip_key])
+            int_res = re.search(int_pat, ci_line)
+            if int_res is not None:
+                cap_info[ip_key] = int(int_res.group(1))
 
     return cap_info
 

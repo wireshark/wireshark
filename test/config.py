@@ -149,7 +149,7 @@ def setProgramPath(path):
         dotexe = '.exe'
     for cmd in commands:
         cmd_var = 'cmd_' + cmd
-        cmd_path = os.path.join(path, cmd + dotexe)
+        cmd_path = os.path.normpath(os.path.join(path, cmd + dotexe))
         if not os.path.exists(cmd_path) or not os.access(cmd_path, os.X_OK):
             cmd_path = None
             program_path = None

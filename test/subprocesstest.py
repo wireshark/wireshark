@@ -202,8 +202,12 @@ class SubprocessTestCase(unittest.TestCase):
         if capinfos_args is not None:
             capinfos_cmd += capinfos_args
         capinfos_cmd.append(cap_file)
-        capinfos_stdout = str(subprocess.check_output(capinfos_cmd))
-        self.log_fd_write_bytes(capinfos_stdout)
+        capinfos_data = subprocess.check_output(capinfos_cmd)
+        if sys.version_info[0] >= 3:
+            capinfos_stdout = capinfos_data.decode('UTF-8', 'replace')
+        else:
+            capinfos_stdout = unicode(capinfos_data, 'UTF-8', 'replace')
+        self.log_fd.write(capinfos_stdout)
         return capinfos_stdout
 
     def checkPacketCount(self, num_packets, cap_file=None):
