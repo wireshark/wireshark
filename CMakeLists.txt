@@ -3134,29 +3134,8 @@ if (DOXYGEN_EXECUTABLE)
 	)
 endif(DOXYGEN_EXECUTABLE)
 
-# Old test suite wrapper
-if(ENABLE_APPLICATION_BUNDLE)
-	set(TEST_SH_BIN_DIR ${CMAKE_BINARY_DIR}/run)
-else()
-	set(TEST_SH_BIN_DIR $<TARGET_FILE_DIR:epan>)
-endif()
-
-add_custom_target(test-sh
-	COMMAND ${CMAKE_COMMAND}
-		-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
-		-DTEST_SH_BIN_DIR=${TEST_SH_BIN_DIR}
-		-DTEST_SH_SRC_DIR=${CMAKE_SOURCE_DIR}/test
-		-P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
-	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
-)
-set_target_properties(test-sh PROPERTIES
-	FOLDER "Tests"
-	EXCLUDE_FROM_DEFAULT_BUILD True
-)
-
 add_custom_target(test-programs
-	DEPENDS test-sh
-		exntest
+	DEPENDS exntest
 		oids_test
 		reassemble_test
 		tvbtest

@@ -344,7 +344,7 @@ There is a simple test suite for wmem that lives in the file wmem_test.c and
 should get automatically built into the binary 'wmem_test' when building
 Wireshark. It contains at least basic tests for all existing functionality.
 The suite is run automatically by the build-bots via the shell script
-test/test.sh which calls out to test/suite-unittests.sh.
+test/test.py which calls out to test/suite_unittests.py.
 
 New features added to wmem (allocators, data structures, utility
 functions, etc.) MUST also have tests added to this suite.
