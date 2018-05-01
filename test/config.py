@@ -168,6 +168,8 @@ def setUpTestEnvironment():
     global conf_path
     global custom_profile_path
     global test_env
+
+    # Create our directories
     test_confdir = tempfile.mkdtemp(prefix='wireshark-tests.')
     home_path = os.path.join(test_confdir, 'home')
     if sys.platform.startswith('win32'):
@@ -180,6 +182,21 @@ def setUpTestEnvironment():
     # Test spaces while we're here.
     custom_profile_path = os.path.join(conf_path, 'profiles', custom_profile_name)
     os.makedirs(custom_profile_path)
+
+    # Populate our UAT files
+    uat_files = [
+        '80211_keys',
+        'dtlsdecrypttablefile',
+        'esp_sa',
+        'ssl_keys',
+        'c1222_decryption_table',
+        'ikev1_decryption_table',
+        'ikev2_decryption_table',
+    ]
+    for uat in uat_files:
+        setUpUatFile(uat)
+
+    # Set up our environment
     test_env = os.environ.copy()
     test_env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
     test_env[home_env] = home_path

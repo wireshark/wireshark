@@ -14,19 +14,6 @@ import os.path
 import subprocesstest
 import unittest
 
-uat_files = [
-    '80211_keys',
-    'dtlsdecrypttablefile',
-    'esp_sa',
-    'ssl_keys',
-    'c1222_decryption_table',
-    'ikev1_decryption_table',
-    'ikev2_decryption_table',
-]
-for uat in uat_files:
-    config.setUpUatFile(uat)
-
-
 class case_decrypt_80211(subprocesstest.SubprocessTestCase):
     def test_80211_wpa_psk(self):
         '''IEEE 802.11 WPA PSK'''
