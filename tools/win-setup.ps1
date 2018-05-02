@@ -117,7 +117,7 @@ $Win64Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
-    "WinSparkle-0.5.6.zip" = "";
+    "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
 }
@@ -134,7 +134,7 @@ $Win32Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
-    "WinSparkle-0.5.6.zip" = "";
+    "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
 }
