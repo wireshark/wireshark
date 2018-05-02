@@ -15,7 +15,8 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-# Autotools, Make
+# Makefiles. Although we dropped Autotools we still have a few lying around.
+[Makefile*]
 indent_style = tab
 indent_size = 8
 
