@@ -288,8 +288,7 @@ static void extcap_free_toolbar_control(iface_toolbar_control *c) {
 }
 
 void extcap_free_arg_list(GList *a) {
-    g_list_foreach(a, (GFunc)extcap_free_arg, NULL);
-    g_list_free(a);
+    g_list_free_full(a, (GDestroyNotify)extcap_free_arg);
 }
 
 static gint glist_find_numbered_arg(gconstpointer listelem, gconstpointer needle) {
