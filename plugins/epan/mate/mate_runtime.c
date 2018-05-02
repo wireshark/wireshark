@@ -691,6 +691,11 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 	}
 }
 
+static void ptr_array_free(gpointer data, gpointer user_data _U_)
+{
+	g_free(data);
+}
+
 static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto, proto_tree* tree) {
 	mate_pdu* pdu = (mate_pdu*)g_slice_new(mate_max_size);
 	field_info* cfi;
@@ -813,7 +818,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 	apply_transforms(pdu->cfg->transforms,pdu->avpl);
 
-	g_ptr_array_foreach(data.ranges, (GFunc)g_free, NULL);
+	g_ptr_array_foreach(data.ranges, ptr_array_free, NULL);
 	g_ptr_array_free(data.ranges,TRUE);
 
 	return pdu;
