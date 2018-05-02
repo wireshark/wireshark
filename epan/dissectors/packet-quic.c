@@ -667,8 +667,9 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
 }
 
 static void
-quic_connection_destroy(quic_info_data_t *conn)
+quic_connection_destroy(gpointer data, gpointer user_data _U_)
 {
+    quic_info_data_t *conn = (quic_info_data_t *)data;
     gcry_cipher_close(conn->client_handshake_cipher.hd);
     gcry_cipher_close(conn->server_handshake_cipher.hd);
 
@@ -1934,7 +1935,7 @@ quic_init(void)
 static void
 quic_cleanup(void)
 {
-    wmem_list_foreach(quic_connections, (GFunc)quic_connection_destroy, NULL);
+    wmem_list_foreach(quic_connections, quic_connection_destroy, NULL);
     quic_initial_connections = NULL;
     quic_client_connections = NULL;
     quic_server_connections = NULL;
