@@ -1,0 +1,16 @@
+# Glow conformation file
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+Root
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END

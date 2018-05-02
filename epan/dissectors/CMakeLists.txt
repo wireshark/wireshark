@@ -96,6 +96,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ess.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-f1ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftam.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-glow.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-goose.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_map.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-HI2Operations.c
@@ -1598,6 +1599,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rudp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rwall.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rx.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-s101.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-s5066sis.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-s5066dts.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-s7comm.c

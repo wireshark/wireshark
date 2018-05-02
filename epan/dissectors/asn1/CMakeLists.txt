@@ -34,6 +34,7 @@ set(ASN1_SRC_DIRS
 	ess
 	f1ap
 	ftam
+	glow
 	goose
 	gprscdr
 	gsm_map
