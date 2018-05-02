@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2017-08-23-2.2"
-$Win32CurrentTag = "2017-08-23-2.2"
+$Win64CurrentTag = "2018-05-02-2.2"
+$Win32CurrentTag = "2018-05-02-2.2"
 
 # Archive file / subdir.
 $Win64Archives = @{
