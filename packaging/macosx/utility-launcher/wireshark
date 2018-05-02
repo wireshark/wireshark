@@ -16,4 +16,8 @@ if [ ! -d "$WIRESHARK_APP_DIR" ] ; then
 	exit 1
 fi
 
-exec "$WIRESHARK_APP_DIR/Contents/MacOS/Wireshark" "$@"
+APP_NAME=`basename "$0"`
+if [ "$APP_NAME" = "wireshark" ] ; then
+	APP_NAME=Wireshark
+fi
+exec "$WIRESHARK_APP_DIR/Contents/MacOS/$APP_NAME" "$@"
