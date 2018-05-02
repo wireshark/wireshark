@@ -48,7 +48,7 @@ ConversationHashTablesDialog::~ConversationHashTablesDialog()
 static void
 populate_html_table(gpointer data, gpointer user_data)
 {
-    const conversation_key_t conv_key = (const conversation_key_t)data;
+    const conversation_key_t conv_key = (conversation_key_t)data;
     QString* html_table = (QString*)user_data;
     gchar* tmp = conversation_get_html_hash(conv_key);
 
