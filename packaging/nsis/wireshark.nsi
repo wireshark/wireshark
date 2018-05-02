@@ -1152,7 +1152,8 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTransum} "TRANSUM plugin - network and application performance analysis."
-
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiretap} "Additional capture file support."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCodec} "Additional codec support."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecProfiles} "Configuration profiles"
 
 !ifdef SMI_DIR
