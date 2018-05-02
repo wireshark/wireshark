@@ -31,6 +31,7 @@
 #include <epan/column.h>
 #include <epan/decode_as.h>
 #include "print.h"
+#include <wsutil/glib-compat.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
 #include <wsutil/report_message.h>
@@ -3813,9 +3814,7 @@ char *join_string_list(GList *sl)
 void
 prefs_clear_string_list(GList *sl)
 {
-    /* g_list_free_full() only exists since 2.28. */
-    g_list_foreach(sl, (GFunc)g_free, NULL);
-    g_list_free(sl);
+    g_list_free_full(sl, g_free);
 }
 
 /*
