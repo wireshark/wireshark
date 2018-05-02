@@ -233,8 +233,7 @@ extcap_free_toolbar_control(iface_toolbar_control *control)
     if (control->ctrl_type == INTERFACE_TYPE_STRING) {
         g_free(control->default_value.string);
     }
-    g_list_foreach(control->values, (GFunc)extcap_free_toolbar_value, NULL);
-    g_list_free(control->values);
+    g_list_free_full(control->values, (GDestroyNotify)extcap_free_toolbar_value);
     g_free(control);
 }
 
@@ -251,8 +250,7 @@ extcap_free_toolbar(gpointer data)
     g_free(toolbar->menu_title);
     g_free(toolbar->help);
     g_list_free_full(toolbar->ifnames, g_free);
-    g_list_foreach(toolbar->controls, (GFunc)extcap_free_toolbar_control, NULL);
-    g_list_free(toolbar->controls);
+    g_list_free_full(toolbar->controls, (GDestroyNotify)extcap_free_toolbar_control);
     g_free(toolbar);
 }
 
@@ -483,8 +481,7 @@ static void extcap_free_interfaces(GList *interfaces)
         return;
     }
 
-    g_list_foreach(interfaces, (GFunc)extcap_free_interface, NULL);
-    g_list_free(interfaces);
+    g_list_free_full(interfaces, extcap_free_interface);
 }
 
 static gint
@@ -1346,6 +1343,11 @@ GPtrArray *extcap_prepare_arguments(interface_options interface_opts)
     return result;
 }
 
+static void ptr_array_free(gpointer data, gpointer user_data _U_)
+{
+    g_free(data);
+}
+
 /* call mkfifo for each extcap,
  * returns FALSE if there's an error creating a FIFO */
 gboolean
@@ -1400,7 +1402,7 @@ extcap_init_interfaces(capture_options *capture_opts)
 
         pid = extcap_spawn_async(userdata, args);
 
-        g_ptr_array_foreach(args, (GFunc)g_free, NULL);
+        g_ptr_array_foreach(args, ptr_array_free, NULL);
         g_ptr_array_free(args, TRUE);
 
         if (pid == INVALID_EXTCAP_PID)
