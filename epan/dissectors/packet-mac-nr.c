@@ -229,6 +229,7 @@ static int hf_mac_nr_rar_subheader = -1;
 static int hf_mac_nr_rar_e = -1;
 static int hf_mac_nr_rar_t = -1;
 static int hf_mac_nr_rar_reserved = -1;
+static int hf_mac_nr_rar_reserved2 = -1;
 
 static int hf_mac_nr_rar_bi = -1;
 static int hf_mac_nr_rar_rapid = -1;
@@ -928,7 +929,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             /* 2 reserved bits */
             proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            /* BI */
+            /* BI (4 bits) */
             guint32 BI;
             proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_bi, tvb, offset, 1, ENC_BIG_ENDIAN, &BI);
             offset++;
@@ -941,16 +942,21 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             guint32 rapid;
             proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_rapid, tvb, offset, 1, ENC_BIG_ENDIAN, &rapid);
             offset++;
+
             if (TRUE) {
                 /* SubPDU.  Not for SI request - TODO: define RAPID range for SI request in mac_nr_info */
+
+                /* 3 reserved bits */
+                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+
                 /* TA (12 bits) */
                 guint32 ta;
                 proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
                 offset++;
 
-                /* Grant (20 bits).  TODO: break down! */
-                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_grant, tvb, offset, 3, ENC_BIG_ENDIAN);
-                offset += 3;
+                /* Grant (25 bits).  TODO: break down! */
+                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_grant, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
 
                 /* C-RNTI (2 bytes) */
                 guint32 c_rnti;
@@ -2055,6 +2061,13 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_nr_rar_reserved2,
+            { "Reserved",
+              "mac-nr.rar.reserved", FT_UINT8, BASE_DEC, NULL, 0xe0,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mac_nr_rar_subheader,
             { "Subheader",
               "mac-nr.rar.subheader", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -2075,13 +2088,13 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_rar_ta,
             { "Timing Advance",
-              "mac-nr.rar.ta", FT_UINT16, BASE_DEC, NULL, 0xfff0,
+              "mac-nr.rar.ta", FT_UINT16, BASE_DEC, NULL, 0x1ffe,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_rar_grant,
             { "Grant",
-              "mac-nr.rar.grant", FT_UINT24, BASE_DEC, NULL, 0x0fffff,
+              "mac-nr.rar.grant", FT_UINT32, BASE_DEC, NULL, 0x01ffffff,
               "UL Grant details", HFILL
             }
         },
