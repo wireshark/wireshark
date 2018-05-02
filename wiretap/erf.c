@@ -2574,8 +2574,8 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
             break;
           }
         }
-        /* Fall through */
       }
+      /* Fall through */
       case ERF_META_SECTION_HOST:
       {
         if (erf_priv->host_gentime > state->gen_time) {
