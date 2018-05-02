@@ -183,7 +183,7 @@ gint find_twamp_session_by_sender_port (gconstpointer element, gconstpointer com
 }
 
 static
-gint find_twamp_session_by_first_accept_waiting (gconstpointer element)
+gint find_twamp_session_by_first_accept_waiting (gconstpointer element, gconstpointer dummy _U_)
 {
     const twamp_session_t *session = (const twamp_session_t*) element;
     if (session->accepted == 0)
@@ -285,7 +285,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 receiver_port = tvb_get_ntohs(tvb, 2);
 
                 if ((list = g_slist_find_custom(ct->sessions, NULL,
-                        (GCompareFunc) find_twamp_session_by_first_accept_waiting)) == NULL) {
+                        find_twamp_session_by_first_accept_waiting)) == NULL) {
                     return 0;
                 }
                 session = (twamp_session_t*) list->data;
