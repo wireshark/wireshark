@@ -110,7 +110,7 @@ $Win64Archives = @{
     "sbc-1.3-1-win64ws.zip" = "";
     "snappy-1.1.3-1-win64ws.zip" = "";
     "spandsp-0.0.6-1-win64ws.zip" = "";
-    "WinSparkle-0.5.6.zip" = "";
+    "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.11-ws.zip" = "";
 }
@@ -134,7 +134,7 @@ $Win32Archives = @{
     "sbc-1.3-1-win32ws.zip" = "";
     "snappy-1.1.3-1-win32ws.zip" = "";
     "spandsp-0.0.6-1-win32ws.zip" = "";
-    "WinSparkle-0.5.6.zip" = "";
+    "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.11-ws.zip" = "";
 }
