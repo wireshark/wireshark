@@ -229,8 +229,7 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info)
 		}
 
 		reclen = strlen(buf);
-		if (reclen < strlen(COSINE_HDR_MAGIC_STR1) ||
-			reclen < strlen(COSINE_HDR_MAGIC_STR2)) {
+		if (reclen < MIN(strlen(COSINE_HDR_MAGIC_STR1), strlen(COSINE_HDR_MAGIC_STR2))) {
 			continue;
 		}
 
