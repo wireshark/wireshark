@@ -40,21 +40,6 @@ Known traps are:
 
 ====
 
-[[ChSetupChocolatey]]
-
-==== Recommended: Install Chocolatey
-
-https://chocolatey.org/[Chocolatey] is a native package manager for Windows.
-There are https://chocolatey.org/packages[packages] for most of the software
-listed below. Along with traditional Windows packages it supports Cygwin and
-the Python Package Index.
-
-// ...such as:
-// - Active Perl and/or StrawberryPerl
-// - Devbox-UnZip and/or 7zip and/or peazip
-// - Wget
-// - Git (a native win32 (MSYS) version)
-
 [[ChSetupMSVC]]
 
 ==== Install Microsoft C compiler and SDK
@@ -123,6 +108,36 @@ directory, e.g. _C:\Qt\5.9.1\msvc2015_64_
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
 upgrade Qt to newer versions.
 
+[[ChSetupChocolatey]]
+
+==== Recommended: Install Chocolatey
+
+https://chocolatey.org/[Chocolatey] is a native package manager for
+Windows. There are https://chocolatey.org/packages[packages] for most of
+the software listed below. Along with traditional Windows packages it
+supports the Python Package Index and Cygwin.
+
+Chocolatey tends to install packages into its own path (%ChocolateyInstall%).
+In most cases this is OK, but in some instances (Python in particular)
+this might not be what you want. You can install Chocolatey packages
+using the command `choco install`.
+
+[source,cmd]
+----
+> rem Flex and Bison are required.
+> choco install winflexbison
+> rem Git, CMake, Perl, Python, etc are also required, but can be installed
+> rem via their respective installation packages.
+> choco install git cmake
+> rem Choose one of Strawberry...
+> choco install strawberryperl
+> rem ...or ActiveState Perl
+> choco install activeperl
+> rem This will likely install Python in a non-standard location, but
+> rem should otherwise work.
+> choco install python3
+----
+
 [[ChSetupCygwin]]
 
 ==== Optional: Install Cygwin
@@ -132,8 +147,14 @@ On 32-bit Windows, http://www.cygwin.com/setup-x86.exe[download the
 http://www.cygwin.com/setup-x86_64.exe[download the 64-bit Cygwin
 installer] and start it.
 
-Over time the Wireshark development toolchain has been migrating away from Cygwin
-toward native tools and we hope to eliminate it as a requirement someday.
+[NOTE]
+.Cygwin is no longer required
+====
+In the past the Wireshark development toolchain depended on Cygwin, but
+it it no longer required. Although you can often use the Cygwin version
+of a particular tool for Wireshark development that's not always the
+case.
+====
 
 At the "Select Packages" page, you'll need to select
 some additional packages which are not installed by default.
@@ -141,19 +162,17 @@ Navigate to the required Category/Package row and, if the package
 has a "Skip" item in the "New" column, click on the "Skip" item
 so it shows a version number for:
 
-* Devel/bison (or install Win flex-bison - see Chocolatey below)
+* Devel/bison (or install Win flex-bison -- see Chocolatey above)
 
-* Devel/flex (or install Win flex-bison - see Chocolatey below)
+* Devel/flex (or install Win flex-bison -- see Chocolatey above)
 
-* Devel/git (recommended - see discussion about using Git below)
+* Devel/git (recommended, but it's also available via Chocolatey -- see the Git discussion below)
 
 * Interpreters/perl
 
 * Utils/patch (only if needed) (may be Devel/patch instead)
 
-* Web/wget (not needed if using CMake)
-
-* Text/docbook-xml45
+* Text/docbook-xml45 (only needed if you're building the documenation)
 
 // Also need: bash/sh, sed
 
@@ -182,13 +201,6 @@ You can directly download packages via `cyg-get`
 
 ----
 PS$>cyg-get docbook-xml45 [...]
-----
-
-You can use Chocolatey’s Win flex-bison packages rather than the Cygwin
-Bison and Flex package:
-
-----
-PS$>choco install winflexbison
 ----
 
 [[ChSetupPython]]
@@ -223,7 +235,7 @@ Chocolatey installs Python in _C:\tools\python3_ and _C:\tools\python2_ by defau
 Please note that the following is not required to build Wireshark but can be
 quite helpful when working with the sources.
 
-Working with the Git source repositories is highly recommended, see
+Working with the Git source repositories is highly recommended, as described in
 <<ChSrcObtain>>. It is much easier to update a personal source tree (local repository) with Git
 rather than downloading a zip file and merging new sources into a personal
 source tree by hand. It also makes first-time setup easy and enables the
@@ -277,7 +289,7 @@ the default location.  Ensure the directory containing cmake.exe is added to you
 Alternatively you can install CMake using Chocolatey:
 
 ----
-PS$>choco install cmake.portable
+PS$>choco install cmake
 ----
 
 Chocolatey ensures cmake.exe is on your path.
@@ -287,7 +299,7 @@ Chocolatey ensures cmake.exe is on your path.
 ==== Install Asciidoctor, Xsltproc, And DocBook
 
 http://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby
-script or via a Java wrapper (AsciidoctorJ). It is used in conjuntion
+script or via a Java wrapper (AsciidoctorJ). It is used in conjunction
 with Xsltproc and DocBook to generate the documenation you're reading
 and the User’s Guide.
 
