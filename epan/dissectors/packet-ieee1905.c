@@ -4517,7 +4517,7 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     message_type = tvb_get_ntohs(tvb, 2);
 
-    col_set_str(pinfo->cinfo, COL_INFO,
+    col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str_ext(message_type, &ieee1905_message_type_vals_ext,
                         "Unknown: %u"));
 
