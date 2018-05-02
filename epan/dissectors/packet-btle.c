@@ -799,7 +799,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 2;
 
             item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_timeout);
-            proto_item_append_text(item, " (%g msec)", data_timeout*1.25);
+            proto_item_append_text(item, " (%u msec)", data_timeout*10);
             offset += 2;
 
             sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
