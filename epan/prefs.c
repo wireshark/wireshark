@@ -3754,9 +3754,7 @@ char *join_string_list(GList *sl)
 void
 prefs_clear_string_list(GList *sl)
 {
-    /* g_list_free_full() only exists since 2.28. */
-    g_list_foreach(sl, (GFunc)g_free, NULL);
-    g_list_free(sl);
+    g_list_free_full(sl, g_free);
 }
 
 /*
