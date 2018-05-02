@@ -1906,7 +1906,7 @@ get_frame(address ip, guint32 teid, guint32 *frame) {
     return 0;
 }
 
-static void
+static gboolean
 call_foreach_ip(const void *key _U_, void *value, void *data){
     wmem_list_frame_t * elem;
     wmem_list_t *info_list = (wmem_list_t *)value;
@@ -1929,12 +1929,14 @@ call_foreach_ip(const void *key _U_, void *value, void *data){
             elem = wmem_list_frame_next(elem);
         }
     }
+
+    return FALSE;
 }
 
 void
 remove_frame_info(guint32 *f) {
     /* For each ip node */
-    wmem_tree_foreach(frame_tree, (wmem_foreach_func)call_foreach_ip, (void *)f);
+    wmem_tree_foreach(frame_tree, call_foreach_ip, (void *)f);
 }
 
 void
