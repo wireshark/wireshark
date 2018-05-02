@@ -132,8 +132,7 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err, gchar **err_info)
 		}
 
 		reclen = (guint) strlen(buf);
-		if (reclen < strlen(NETSCREEN_HDR_MAGIC_STR1) ||
-			reclen < strlen(NETSCREEN_HDR_MAGIC_STR2)) {
+		if (reclen < MIN(strlen(NETSCREEN_HDR_MAGIC_STR1), strlen(NETSCREEN_HDR_MAGIC_STR2))) {
 			continue;
 		}
 
