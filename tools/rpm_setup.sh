@@ -67,7 +67,8 @@ ADDITIONAL_LIST="libnl3-devel \
 	libsmi-devel \
 	snappy-devel \
 	lz4 \
-	json-glib-devel"
+	json-glib-devel \
+	ninja-build"
 
 # Guess which package manager we will use
 PM=`which zypper 2> /dev/null ||

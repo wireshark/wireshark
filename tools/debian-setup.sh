@@ -67,7 +67,8 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libspandsp-dev \
 	libxml2-dev \
 	git \
-	libjson-glib-dev"
+	libjson-glib-dev \
+	ninja-build"
 
 # Adds package $2 to list variable $1 if the package is found
 add_package() {
