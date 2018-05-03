@@ -5223,7 +5223,7 @@ proto_register_pfcp(void)
 
         { &hf_pfcp_up_function_features,
         { "Flags", "pfcp.up_function_features",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_up_function_features_o5_b0_bucp,
