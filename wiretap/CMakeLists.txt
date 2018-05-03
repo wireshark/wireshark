@@ -33,6 +33,7 @@ set(WIRETAP_NONGENERATED_FILES
 	csids.c
 	daintree-sna.c
 	dbs-etherwatch.c
+	dpa400.c
 	dct3trace.c
 	erf.c
 	eyesdn.c
