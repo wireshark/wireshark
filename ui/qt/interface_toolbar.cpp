@@ -771,7 +771,10 @@ void InterfaceToolbar::stopCapture()
     {
         if (interface_[ifname].reader_thread)
         {
-            interface_[ifname].reader_thread->requestInterruption();
+            if (!interface_[ifname].reader_thread->isFinished())
+            {
+                interface_[ifname].reader_thread->requestInterruption();
+            }
             interface_[ifname].reader_thread = NULL;
         }
 
