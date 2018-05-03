@@ -2468,7 +2468,7 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
 
     QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
     foreach (InterfaceToolbar *toolbar, toolbars) {
-        if (capture_in_progress && ifaces) {
+        if (capture_in_progress) {
             toolbar->startCapture(ifaces);
         } else {
             toolbar->stopCapture();
