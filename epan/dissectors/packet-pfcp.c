@@ -230,6 +230,7 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 static int hf_pfcp_offending_ie = -1;
 
 static int hf_pfcp_up_function_features = -1;
+static int hf_pfcp_up_function_features_o6_b1_pdiu = -1;
 static int hf_pfcp_up_function_features_o6_b0_empu = -1;
 static int hf_pfcp_up_function_features_o5_b7_treu = -1;
 static int hf_pfcp_up_function_features_o5_b6_heeu = -1;
@@ -1467,12 +1468,13 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         NULL
     };
     static const int * pfcp_up_function_features_o6_flags[] = {
-        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_up_function_features_o6_b1_pdiu,
         &hf_pfcp_up_function_features_o6_b0_empu,
         NULL
     };
     /* Octet 5  TREU    HEEU    PFDM    FTUP    TRST    DLBD    DDND    BUCP */
-    /* Octet 6  Spare   Spare   Spare   Spare   Spare   Spare   Spare   EMPU */
+    /* Octet 6  Spare   Spare   Spare   Spare   Spare   Spare   PDIU    EMPU */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_up_function_features,
         ett_pfcp_up_function_features, pfcp_up_function_features_o5_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset++;
@@ -5270,6 +5272,11 @@ proto_register_pfcp(void)
         { "EMPU", "pfcp.up_function_features.empu",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "Sending of End Marker packets", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o6_b1_pdiu,
+        { "PDIU", "pfcp.up_function_features.pdiu",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "Support of PDI optimised signalling", HFILL }
         },
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
