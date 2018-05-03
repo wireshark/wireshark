@@ -32,6 +32,6 @@ before_script:
   - sudo gem install asciidoctor
   - mkdir build
   - cd build
-  - cmake ${CMAKE_OPTS} ..
+  - cmake -GNinja ${CMAKE_OPTS} ..
 script:
-  - make
+  - ninja
