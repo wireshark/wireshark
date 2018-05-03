@@ -2,7 +2,7 @@
  *
  * Routines for Packet Forwarding Control Protocol (PFCP) dissection
  *
- * Copyright 2017, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2017-2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -357,7 +357,6 @@ static int hf_pfcp_upiri_teidri = -1;
 static int hf_pfcp_upiri_teid_range = -1;
 static int hf_pfcp_upiri_ipv4 = -1;
 static int hf_pfcp_upiri_ipv6 = -1;
-static int hf_pfcp_upiri_network_instance = -1;
 
 static int hf_pfcp_user_plane_inactivity_timer = -1;
 
@@ -894,20 +893,64 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 /*
  * 8.2.4    Network Instance
  */
-static void
-dissect_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+static int
+decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, gint offset, int length)
 {
-    int offset = 0;
-    /* Octet 5 5 to (n+4)   Network Instance
-     * The Network instance field shall be encoded as an OctetString
-     */
-    proto_tree_add_item(tree, hf_pfcp_network_instance, tvb, offset, length, ENC_NA);
+
+    int      name_len;
+
+    name_len = tvb_get_guint8(tvb, offset);
+    if (name_len < 0x41) {
+        /* APN */
+        guint8 *apn = NULL;
+        int     tmp;
+
+        if (length > 0) {
+            name_len = tvb_get_guint8(tvb, offset);
+
+            if (name_len < 0x20) {
+                apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
+                for (;;) {
+                    if (name_len >= length - 1)
+                        break;
+                    tmp = name_len;
+                    name_len = name_len + apn[tmp] + 1;
+                    apn[tmp] = '.';
+                }
+            } else {
+                apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+            }
+            proto_tree_add_string(tree, hf_pfcp_network_instance, tvb, offset, length, apn);
+
+        } else {
+            /* Domain name*/
+            proto_tree_add_item(tree, hf_pfcp_network_instance, tvb, offset, length, ENC_ASCII | ENC_NA);
+        }
+    }
+
+    return offset + length;
 }
+static void
+dissect_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item , guint16 length, guint8 message_type _U_)
+{
+    int      offset = 0;
+
+    /* Octet 5   Network Instance
+     * The Network instance field shall be encoded as an OctetString and shall contain an identifier
+     * which uniquely identifies a particular Network instance (e.g. PDN instance) in the UP function.
+     * It may be encoded as a Domain Name or an Access Point Name (APN)
+     */
+     /* Test for Printable character or length indicator(APN), assume first character of Domain name >= 0x41 */
+
+    decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length);
+
+}
+
 /*
  * 8.2.5    SDF Filter
  */
 static void
-dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_)
+dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
     guint64 flags_val;
@@ -1834,6 +1877,7 @@ decode_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
     return offset;
 }
+
 static void
 dissect_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
 {
@@ -2495,6 +2539,7 @@ decode_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
     return offset;
 }
+
 static void
 dissect_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
@@ -2605,8 +2650,8 @@ decode_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     * The BAR ID value shall be encoded as a binary integer value
     */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_bar_id, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
-    proto_item_append_text(item, "%u", value);
     offset++;
+    proto_item_append_text(item, "%u", value);
 
     return offset;
 }
@@ -3123,6 +3168,7 @@ decode_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
     return offset;
 }
+
 static void
 dissect_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
@@ -3159,7 +3205,6 @@ decode_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
         (qer_id & 0x7fffffff));
 
     return offset;
-
 }
 static void
 dissect_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
@@ -3445,8 +3490,7 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
     }
     if ((upiri_flags_val & 0x20) == 32) {
         /* k to (l)   Network Instance */
-        proto_tree_add_item(tree, hf_pfcp_upiri_network_instance, tvb, offset, length - offset, ENC_NA);
-        offset = length;
+        offset = decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length);
     }
 
     if (offset < length) {
@@ -4812,7 +4856,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_network_instance,
         { "Network Instance", "pfcp.network_instance",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_pdn_type,
@@ -5992,11 +6036,6 @@ proto_register_pfcp(void)
         { &hf_pfcp_upiri_ipv6,
         { "IPv6 address", "pfcp.upiri.ipv6_addr",
             FT_IPv6, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_upiri_network_instance,
-        { "Network Instance", "pfcp.upiri.network_instance",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_user_plane_inactivity_timer,
