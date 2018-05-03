@@ -68,7 +68,9 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libxml2-dev \
 	git \
 	libjson-glib-dev \
-	ninja-build"
+	ninja-build \
+	doxygen \
+	xsltproc"
 
 # Adds package $2 to list variable $1 if the package is found
 add_package() {
