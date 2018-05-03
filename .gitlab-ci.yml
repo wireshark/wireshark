@@ -34,11 +34,17 @@ gcc-7:
     - ../tools/debian-setup.sh --install-optional ninja-build  gcc-7 g++-7 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
     - ninja
-gcc-7-nopcap:
+gcc-8:
   retry: 1
   script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  gcc-7 g++-7 -y
-    - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
+    - ../tools/debian-setup.sh --install-optional ninja-build  gcc-8 g++-8 -y
+    - cmake -GNinja -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
+    - ninja
+gcc-8-nopcap:
+  retry: 1
+  script:
+    - ../tools/debian-setup.sh --install-optional ninja-build  gcc-8 g++-8 -y
+    - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
     - ninja
 clang-3.5:
   retry: 1
