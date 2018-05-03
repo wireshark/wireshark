@@ -117,6 +117,8 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
 
     QWidget * editor = new QWidget(parent);
     QHBoxLayout * layout = new QHBoxLayout();
+    QMargins margins = layout->contentsMargins();
+    layout->setContentsMargins(0, margins.top(), 0, margins.bottom());
 
     boxSelection = new QComboBox(parent);
     layout->addWidget(boxSelection);
