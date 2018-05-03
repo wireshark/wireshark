@@ -60,7 +60,7 @@ installation, copy the deployment XML file https://code.wireshark.org/review/git
 and pass the path the file to the chocolatey install command:
 
 ----
-PS$>choco install VisualStudio2015Community --timeout 0 -package-parameters "--AdminFile path\to\msvc2015AdminDeployment.xml"
+PS$>choco install -y VisualStudio2015Community --timeout 0 -package-parameters "--AdminFile path\to\msvc2015AdminDeployment.xml"
 ----
 
 You can use other Microsoft C compiler variants, but VS2015 is used to
@@ -125,17 +125,17 @@ using the command `choco install`.
 [source,cmd]
 ----
 > rem Flex and Bison are required.
-> choco install winflexbison
+> choco install -y winflexbison
 > rem Git, CMake, Perl, Python, etc are also required, but can be installed
 > rem via their respective installation packages.
-> choco install git cmake
+> choco install -y git cmake
 > rem Choose one of Strawberry...
-> choco install strawberryperl
+> choco install -y strawberryperl
 > rem ...or ActiveState Perl
-> choco install activeperl
+> choco install -y activeperl
 > rem This will likely install Python in a non-standard location, but
 > rem should otherwise work.
-> choco install python3
+> choco install -y python3
 ----
 
 [[ChSetupCygwin]]
@@ -190,8 +190,8 @@ may take a while).
 Alternatively you can install Cygwin and its packages using Chocolatey:
 
 ----
-PS$>choco install cygwin
-PS$>choco install cyg-get
+PS$>choco install -y cygwin
+PS$>choco install -y cyg-get
 ----
 //PS$>choco install sed [...] -source cygwin
 
@@ -217,13 +217,13 @@ as well.
 Alternatively you can install Python using Chocolatey:
 
 ----
-PS$>choco install python3
+PS$>choco install -y python3
 ----
 
 or
 
 ----
-PS$>choco install python2
+PS$>choco install -y python2
 ----
 
 Chocolatey installs Python in _C:\tools\python3_ and _C:\tools\python2_ by default.
@@ -270,7 +270,7 @@ https://tortoisegit.org/download/.
 
 The command line client can be installed (and updated) using Chocolatey:
 ----
-PS$> choco install git
+PS$> choco install -y git
 ----
 
 ===== Others
@@ -289,7 +289,7 @@ the default location.  Ensure the directory containing cmake.exe is added to you
 Alternatively you can install CMake using Chocolatey:
 
 ----
-PS$>choco install cmake
+PS$>choco install -y cmake
 ----
 
 Chocolatey ensures cmake.exe is on your path.
@@ -306,7 +306,7 @@ and the User’s Guide.
 The easiest way to install them on Windows is via Chocolatey:
 
 ----
-PS$>choco install asciidoctorj xsltproc docbook-bundle
+PS$>choco install -y asciidoctorj xsltproc docbook-bundle
 ----
 
 Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
