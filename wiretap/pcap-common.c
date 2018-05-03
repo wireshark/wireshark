@@ -461,6 +461,9 @@ static const struct {
 	/* mPackets as specified by 802.3br */
 	{ 274,		WTAP_ENCAP_ETHERNET_MPACKET },
 
+	/* DisplayPort AUX channel monitor */
+	{ 275,		WTAP_ENCAP_DPAUXMON },
+
 	/*
 	 * To repeat:
 	 *

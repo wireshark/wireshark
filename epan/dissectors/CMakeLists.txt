@@ -896,6 +896,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis-tlv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-docsis-vendor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dof.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpaux.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpauxmon.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dplay.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnss-link.c
