@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import dfiltertest
 
-from dftestlib import dftest
-
-class testBytes(dftest.DFTest):
+class case_bytes_type(dfiltertest.DFTestCase):
     trace_file = "arp.pcap"
 
     def test_bytes_1(self):

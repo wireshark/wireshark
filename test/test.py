@@ -63,7 +63,7 @@ def main():
     if args.capture_interface:
         config.setCaptureInterface(args.capture_interface[0])
 
-    all_tests = unittest.defaultTestLoader.discover(os.path.dirname(__file__), pattern='suite_*.py')
+    all_tests = unittest.defaultTestLoader.discover(os.path.dirname(__file__), pattern='suite_*')
 
     all_ids = []
     find_test_ids(all_tests, all_ids)

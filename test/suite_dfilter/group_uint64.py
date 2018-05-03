@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import dfiltertest
 
-from dftestlib import dftest
-
-class testUINT64(dftest.DFTest):
+class case_uint64(dfiltertest.DFTestCase):
     trace_file = "nfs.pcap"
 
     def test_uint64_1(self):

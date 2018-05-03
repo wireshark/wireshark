@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import dfiltertest
 
-from dftestlib import dftest
-
-class testRange(dftest.DFTest):
+class case_range(dfiltertest.DFTestCase):
     trace_file = "ipx_rip.pcap"
 
     def test_slice_1_pos(self):

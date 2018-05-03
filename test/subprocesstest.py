@@ -221,21 +221,32 @@ class SubprocessTestCase(unittest.TestCase):
             got_num_packets = True
         self.assertTrue(got_num_packets, 'Failed to capture exactly {} packets'.format(num_packets))
 
-    def countOutput(self, search_pat, proc=None):
+    def countOutput(self, search_pat=None, count_stdout=True, count_stderr=False, proc=None):
         '''Returns the number of output lines (search_pat=None), otherwise returns a match count.'''
         match_count = 0
+        self.assertTrue(count_stdout or count_stderr, 'No output to count.')
+
         if proc is None:
             proc = self.processes[-1]
-        # We might want to let the caller decide what we're searching.
-        out_data = proc.stdout_str + proc.stderr_str
+
+        out_data = u''
+        if count_stdout:
+            out_data = proc.stdout_str
+        if count_stderr:
+            out_data += proc.stderr_str
+
+        if search_pat is None:
+            return len(out_data.splitlines())
+
         search_re = re.compile(search_pat)
         for line in out_data.splitlines():
             if search_re.search(line):
                 match_count += 1
+
         return match_count
 
     def grepOutput(self, search_pat, proc=None):
-        return self.countOutput(search_pat, proc) > 0
+        return self.countOutput(search_pat, count_stderr=True, proc=proc) > 0
 
     def diffOutput(self, blob_a, blob_b, *args, **kwargs):
         '''Check for differences between blob_a and blob_b. Return False and log a unified diff if they differ.

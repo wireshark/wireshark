@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import dfiltertest
 
-from dftestlib import dftest
-
-class testInteger(dftest.DFTest):
+class case_integer(dfiltertest.DFTestCase):
     trace_file = "ntp.pcap"
 
     def test_eq_1(self):

@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 
-from dftestlib import dftest
+import dfiltertest
 
-class testIPv4(dftest.DFTest):
+class case_ipv4(dfiltertest.DFTestCase):
     trace_file = "nfs.pcap"
 
     def test_uint64_1(self):

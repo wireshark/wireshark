@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from dftestlib import dftest
+import dfiltertest
 
-class testBytesIPv6(dftest.DFTest):
+class case_bytes_ipv6(dfiltertest.DFTestCase):
     trace_file = "ipv6.pcap"
 
     def test_eq_1(self):

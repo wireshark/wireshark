@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import dfiltertest
 
-from dftestlib import dftest
-
-class testScanner(dftest.DFTest):
+class case_scanner(dfiltertest.DFTestCase):
     trace_file = "http.pcap"
 
     def test_dquote_1(self):

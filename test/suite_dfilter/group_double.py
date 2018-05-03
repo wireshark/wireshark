@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import dfiltertest
 
-from dftestlib import dftest
-
-class testDouble(dftest.DFTest):
+class case_double(dfiltertest.DFTestCase):
 
     trace_file = "ntp.pcap"
 

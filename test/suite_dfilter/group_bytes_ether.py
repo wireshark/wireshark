@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from dftestlib import dftest
+import dfiltertest
 
-class testBytesEther(dftest.DFTest):
+class case_bytes_ether(dfiltertest.DFTestCase):
     trace_file = "ipx_rip.pcap"
 
     ### Note: Bytes test does not yet test FT_INT64.

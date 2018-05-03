@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import dfiltertest
 
-from dftestlib import dftest
-
-class testTimeRelative(dftest.DFTest):
+class case_time_relative(dfiltertest.DFTestCase):
     trace_file = "nfs.pcap"
 
     def test_relative_time_1(self):

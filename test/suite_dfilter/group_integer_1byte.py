@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 
-from dftestlib import dftest
+import dfiltertest
 
-class testInteger1Byte(dftest.DFTest):
+class case_integer_1_byte(dfiltertest.DFTestCase):
 
     trace_file = "ipx_rip.pcap"
 

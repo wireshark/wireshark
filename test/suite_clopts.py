@@ -166,6 +166,7 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
             except:
                 pass
             self.assertRun((config.cmd_tshark, '-G', glossary))
+            self.assertEqual(self.countOutput(count_stdout=False, count_stderr=True), 0, 'Found error output while printing glossary ' + glossary)
 
     def test_tshark_glossary_valid_utf8(self):
         for glossary in glossaries:

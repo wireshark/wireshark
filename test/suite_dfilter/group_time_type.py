@@ -2,15 +2,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import os
+import dfiltertest
 
-from dftestlib import dftest
-
-# Force the timezone to UTC so the checks below work regardless of what time
-# zone we're in.
-os.environ['TZ'] = "UTC"
-
-class testTime(dftest.DFTest):
+class case_time(dfiltertest.DFTestCase):
     trace_file = "http.pcap"
 
     def test_eq_1(self):
