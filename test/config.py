@@ -118,8 +118,12 @@ def getDefaultCaptureInterface():
     if not sys.platform.startswith('win32'):
         return
     try:
-        dumpcap_d_blob = str(subprocess.check_output((cmd_dumpcap, '-D'), stderr=subprocess.PIPE))
-        for d_line in dumpcap_d_blob.splitlines():
+        dumpcap_d_data = subprocess.check_output((cmd_dumpcap, '-D'), stderr=subprocess.PIPE)
+        if sys.version_info[0] >= 3:
+            dumpcap_d_stdout = dumpcap_d_data.decode('UTF-8', 'replace')
+        else:
+            dumpcap_d_stdout = unicode(dumpcap_d_data, 'UTF-8', 'replace')
+        for d_line in dumpcap_d_stdout.splitlines():
             iface_m = re.search('(\d+)\..*(Ethernet|Network Connection|VMware|Intel)', d_line)
             if iface_m:
                 capture_interface = iface_m.group(1)
