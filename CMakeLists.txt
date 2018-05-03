@@ -2769,6 +2769,29 @@ elseif (BUILD_ciscodump)
 	#message( WARNING "Cannot find libssh, cannot build ciscodump" )
 endif()
 
+if(BUILD_dpauxmon AND HAVE_LIBNL3)
+	set(dpauxmon_LIBS
+		${GLIB2_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		wsutil
+		writecap
+		${NL_LIBRARIES}
+	)
+	set(dpauxmon_FILES
+		extcap/dpauxmon.c
+		extcap/extcap-base.c
+	)
+
+	add_executable(dpauxmon WIN32 ${dpauxmon_FILES})
+	set_extcap_executable_properties(dpauxmon)
+	target_link_libraries(dpauxmon ${dpauxmon_LIBS})
+	target_include_directories(dpauxmon PUBLIC ${NL_INCLUDE_DIR})
+	install(TARGETS dpauxmon RUNTIME DESTINATION ${EXTCAP_DIR})
+	add_dependencies(extcaps dpauxmon)
+elseif (BUILD_dpauxmon)
+	#message( WARNING "Cannot find libnl3, cannot build dpauxmon" )
+endif()
+
 if(BUILD_udpdump)
 	set(udpdump_LIBS
 		${GLIB2_LIBRARIES}

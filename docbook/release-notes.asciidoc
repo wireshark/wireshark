@@ -83,6 +83,8 @@ Too many protocols have been updated to list here.
 //_Non-empty section placeholder._
 [commaize]
 --
+A new extcap has been added: dpauxmon. It allows capturing DisplayPort AUX channel
+data from linux kernel drivers.
 --
 
 //=== Major API Changes
