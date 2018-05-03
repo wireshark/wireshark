@@ -75,7 +75,7 @@ installation, copy the deployment XML file https://code.wireshark.org/review/git
 and pass the path the file to the chocolatey install command:
 
 ----
-PS$>choco install VisualStudio2015Community --timeout 0 -package-parameters "--AdminFile path\to\msvc2015AdminDeployment.xml"
+PS$>choco install -y VisualStudio2015Community --timeout 0 -package-parameters "--AdminFile path\to\msvc2015AdminDeployment.xml"
 ----
 
 You can use other Microsoft C compiler variants, but VS2015 is used to
@@ -171,8 +171,8 @@ may take a while).
 Alternatively you can install Cygwin and its packages using Chocolatey:
 
 ----
-PS$>choco install cygwin
-PS$>choco install cyg-get
+PS$>choco install -y cygwin
+PS$>choco install -y cyg-get
 ----
 //PS$>choco install sed [...] -source cygwin
 
@@ -188,7 +188,7 @@ You can use Chocolatey’s Win flex-bison packages rather than the Cygwin
 Bison and Flex package:
 
 ----
-PS$>choco install winflexbison
+PS$>choco install -y winflexbison
 ----
 
 [[ChSetupPython]]
@@ -205,13 +205,13 @@ as well.
 Alternatively you can install Python using Chocolatey:
 
 ----
-PS$>choco install python3
+PS$>choco install -y python3
 ----
 
 or
 
 ----
-PS$>choco install python2
+PS$>choco install -y python2
 ----
 
 Chocolatey installs Python in _C:\tools\python3_ and _C:\tools\python2_ by default.
@@ -258,7 +258,7 @@ https://tortoisegit.org/download/.
 
 The command line client can be installed (and updated) using Chocolatey:
 ----
-PS$> choco install git
+PS$> choco install -y git
 ----
 
 ===== Others
@@ -277,7 +277,7 @@ the default location.  Ensure the directory containing cmake.exe is added to you
 Alternatively you can install CMake using Chocolatey:
 
 ----
-PS$>choco install cmake.portable
+PS$>choco install -y cmake.portable
 ----
 
 Chocolatey ensures cmake.exe is on your path.
@@ -294,7 +294,7 @@ and the User’s Guide.
 The easiest way to install them on Windows is via Chocolatey:
 
 ----
-PS$>choco install asciidoctorj xsltproc docbook-bundle
+PS$>choco install -y asciidoctorj xsltproc docbook-bundle
 ----
 
 Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
