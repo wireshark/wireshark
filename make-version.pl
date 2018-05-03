@@ -561,6 +561,7 @@ sub update_versioned_files
 
 sub new_version_h
 {
+	my $line;
 	if (!$enable_vcsversion) {
 		return "/* #undef VCSVERSION */\n";
 	}
@@ -573,7 +574,12 @@ sub new_version_h
 	}
 
 	if ($last_change && $num_commits) {
-		return "#define VCSVERSION \"$vcs_name Rev $num_commits from $repo_branch\"\n";
+		$line = sprintf("v%d.%d.%d",
+			$version_pref{"version_major"},
+			$version_pref{"version_minor"},
+			$version_pref{"version_micro"},
+			);
+		return "#define VCSVERSION \"$line-$vcs_name-$num_commits\"\n";
 	}
 
 	return "#define VCSVERSION \"$vcs_name Rev Unknown from unknown\"\n";
