@@ -2036,11 +2036,15 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                                 tvb, offset, -1, ENC_UTF_8|ENC_NA);
             break;
         case SDP_RTCP :
-            if (!ws_strtou16(attribute_value, NULL, &media_desc->control_port))
-                media_desc->control_port = 0; /* Just use default, if not legal port */
+            if (media_desc) {
+                if (!ws_strtou16(attribute_value, NULL, &media_desc->control_port))
+                    media_desc->control_port = 0; /* Just use default, if not legal port */
+            }
             break;
         case SDP_RTCP_MUX :
-            media_desc->control_port = media_desc->media_port;
+            if (media_desc) {
+                media_desc->control_port = media_desc->media_port;
+            }
             break;
         default:
             /* No special treatment for values of this attribute type, just add as one item. */
