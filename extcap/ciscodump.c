@@ -471,33 +471,33 @@ static int list_config(char *interface, unsigned int remote_port)
 
 	printf("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
 		"{type=string}{tooltip=The remote SSH host. It can be both "
-		"an IP address or a hostname}{required=true}\n", inc++);
+		"an IP address or a hostname}{required=true}{group=Server}\n", inc++);
 	printf("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
 		"{type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}"
-		"{range=1,65535}\n", inc++);
+		"{range=1,65535}{group=Server}\n", inc++);
 	printf("arg {number=%u}{call=--remote-username}{display=Remote SSH server username}"
 		"{type=string}{default=%s}{tooltip=The remote SSH username. If not provided, "
-		"the current user will be used}\n", inc++, g_get_user_name());
+		"the current user will be used}{group=Authentication}\n", inc++, g_get_user_name());
 	printf("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
 		"{type=password}{tooltip=The SSH password, used when other methods (SSH agent "
-		"or key files) are unavailable.}\n", inc++);
+		"or key files) are unavailable.}{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
-		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}\n",
-		inc++);
+		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}"
+		"{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call--sshkey-passphrase}{display=SSH key passphrase}"
-		"{type=password}{tooltip=Passphrase to unlock the SSH private key}\n",
-		inc++);
+		"{type=password}{tooltip=Passphrase to unlock the SSH private key}"
+		"{group=Authentication\n", inc++);
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
 		"{type=string}{required=true}{tooltip=The remote network interface used for capture"
-		"}\n", inc++);
+		"}{group=Capture}\n", inc++);
 	printf("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
 		"{type=string}{tooltip=The remote capture filter}", inc++);
 	if (ipfilter)
 		printf("{default=%s}", ipfilter);
-	printf("\n");
+	printf("{group=Capture}\n");
 	printf("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
-		"{type=unsigned}{required=true}{tooltip=The number of remote packets to capture.}\n",
-		inc++);
+		"{type=unsigned}{required=true}{tooltip=The number of remote packets to capture.}"
+		"{group=Capture}\n", inc++);
 
 	extcap_config_debug(&inc);
 
