@@ -317,6 +317,7 @@ void ProfileDialog::on_copyToolButton_clicked()
     pd_ui_->profileTreeWidget->addTopLevelItem(new_item);
     pd_ui_->profileTreeWidget->setCurrentItem(new_item);
     pd_ui_->profileTreeWidget->editItem(new_item, 0);
+    g_free(new_name);
 }
 
 void ProfileDialog::on_buttonBox_accepted()
