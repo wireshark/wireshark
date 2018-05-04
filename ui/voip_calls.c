@@ -2425,6 +2425,7 @@ is_mgcp_signal(const gchar *signal_str_p, const gchar *signalStr)
 {
     gint    i;
     gchar **resultArray;
+    gboolean found = FALSE;
 
     /* if there is no signalStr, just return false */
     if (signalStr == NULL) return FALSE;
@@ -2437,12 +2438,15 @@ is_mgcp_signal(const gchar *signal_str_p, const gchar *signalStr)
 
     for (i = 0; resultArray[i]; i++) {
         g_strstrip(resultArray[i]);
-        if (strcmp(resultArray[i], signal_str_p) == 0) return TRUE;
+        if (strcmp(resultArray[i], signal_str_p) == 0) {
+            found = TRUE;
+            break;
+        }
     }
 
     g_strfreev(resultArray);
 
-    return FALSE;
+    return found;
 }
 
 /*
