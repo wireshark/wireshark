@@ -266,7 +266,7 @@ string_compare(gconstpointer a, gconstpointer b)
 }
 
 static void
-string_elem_print(gpointer data, gpointer not_used _U_)
+string_elem_print(gpointer data)
 {
   fprintf(stderr, "    %s - %s\n",
           ((struct string_elem *)data)->sstr,
@@ -289,8 +289,7 @@ list_capture_types(void) {
       list = g_slist_insert_sorted(list, &captypes[i], string_compare);
     }
   }
-  g_slist_foreach(list, string_elem_print, NULL);
-  g_slist_free(list);
+  g_slist_free_full(list, string_elem_print);
   g_free(captypes);
 }
 
@@ -311,8 +310,7 @@ list_read_capture_types(void) {
     captypes[i].lstr = (open_routines[i].type == OPEN_INFO_MAGIC) ? magic : heuristic;
     list = g_slist_insert_sorted(list, &captypes[i], string_compare);
   }
-  g_slist_foreach(list, string_elem_print, NULL);
-  g_slist_free(list);
+  g_slist_free_full(list, string_elem_print);
   g_free(captypes);
 }
 

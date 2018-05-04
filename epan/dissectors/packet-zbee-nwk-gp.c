@@ -1486,7 +1486,7 @@ gp_init_zbee_security(void)
     }
 }
 
-static void zbee_free_key_record(gpointer ptr, gpointer user_data _U_)
+static void zbee_free_key_record(gpointer ptr)
 {
     key_record_t *k;
 
@@ -1504,9 +1504,7 @@ gp_cleanup_zbee_security(void)
     if (!zbee_gp_keyring)
         return;
 
-    g_slist_foreach(zbee_gp_keyring, zbee_free_key_record, NULL);
-
-    g_slist_free(zbee_gp_keyring);
+    g_slist_free_full(zbee_gp_keyring, zbee_free_key_record);
     zbee_gp_keyring = NULL;
 }
 

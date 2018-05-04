@@ -193,7 +193,7 @@ register_frame_end_routine(packet_info *pinfo, void (*func)(void))
 typedef void (*void_func_t)(void);
 
 static void
-call_frame_end_routine(gpointer routine, gpointer dummy _U_)
+call_frame_end_routine(gpointer routine)
 {
 	void_func_t func = (void_func_t)routine;
 	(*func)();
@@ -731,8 +731,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 
 	if (pinfo->frame_end_routines) {
-		g_slist_foreach(pinfo->frame_end_routines, &call_frame_end_routine, NULL);
-		g_slist_free(pinfo->frame_end_routines);
+		g_slist_free_full(pinfo->frame_end_routines, &call_frame_end_routine);
 		pinfo->frame_end_routines = NULL;
 	}
 
