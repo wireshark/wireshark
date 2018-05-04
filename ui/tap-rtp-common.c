@@ -77,6 +77,7 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
         while (list)
         {
             g_free(list->data);
+            /* TODO free src_addr, dest_addr and payload_type_name? */
             list = g_list_next(list);
         }
         g_list_free(tapinfo->strinfo_list);
@@ -195,15 +196,16 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
     struct _rtp_conversation_info *p_conv_data = NULL;
 
-    /* gather infos on the stream this packet is part of */
+    /* gather infos on the stream this packet is part of.
+     * Addresses and strings are read-only and must be duplicated if copied. */
     memset(&new_stream_info, 0, sizeof(rtp_stream_info_t));
-    copy_address(&(new_stream_info.src_addr), &(pinfo->src));
+    copy_address_shallow(&(new_stream_info.src_addr), &(pinfo->src));
     new_stream_info.src_port = pinfo->srcport;
-    copy_address(&(new_stream_info.dest_addr), &(pinfo->dst));
+    copy_address_shallow(&(new_stream_info.dest_addr), &(pinfo->dst));
     new_stream_info.dest_port = pinfo->destport;
     new_stream_info.ssrc = rtpinfo->info_sync_src;
     new_stream_info.payload_type = rtpinfo->info_payload_type;
-    new_stream_info.payload_type_name = g_strdup(rtpinfo->info_payload_type_str);
+    new_stream_info.payload_type_name = (char *)rtpinfo->info_payload_type_str;
 
     if (tapinfo->mode == TAP_ANALYSE) {
         /* check whether we already have a stream with these parameters in the list */
@@ -235,6 +237,10 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
                 new_stream_info.setup_frame_number = 0xFFFFFFFF;
 
             stream_info = g_new(rtp_stream_info_t,1);
+            /* Deep clone of contents. */
+            copy_address(&(new_stream_info.src_addr), &(new_stream_info.src_addr));
+            copy_address(&(new_stream_info.dest_addr), &(new_stream_info.dest_addr));
+            new_stream_info.payload_type_name = g_strdup(new_stream_info.payload_type_name);
             *stream_info = new_stream_info;  /* memberwise copy of struct */
             tapinfo->strinfo_list = g_list_prepend(tapinfo->strinfo_list, stream_info);
         }
