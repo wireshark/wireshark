@@ -1065,6 +1065,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     guint32 length = follow_data->tcph->th_seglen;
     guint32 data_length = tvb_captured_length(follow_data->tvb);
     guint32 newseq;
+    gboolean added_follow_record = FALSE;
 
     follow_record = g_new0(follow_record_t, 1);
 
@@ -1141,6 +1142,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
         if (data_length > 0) {
             follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
             follow_info->payload = g_list_append(follow_info->payload, follow_record);
+            added_follow_record = TRUE;
         }
 
         /* done with the packet, see if it caused a fragment to fit */
@@ -1159,6 +1161,10 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
 
             follow_info->fragments[follow_record->is_server] = g_list_append(follow_info->fragments[follow_record->is_server], frag_follow_record);
         }
+    }
+    if (!added_follow_record) {
+        g_byte_array_free(follow_record->data, TRUE);
+        g_free(follow_record);
     }
     return FALSE;
 }
