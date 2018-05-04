@@ -26,7 +26,7 @@ NONGENERATED_REGISTER_C_FILES = \
 NONGENERATED_C_FILES = \
 	$(NONGENERATED_REGISTER_C_FILES)
 
-wiretap_plugin_LTLIBRARIES = l16mono.la
+codecs_plugin_LTLIBRARIES = l16mono.la
 
 l16mono_la_SOURCES = \
 	$(SRC_FILES)	\
