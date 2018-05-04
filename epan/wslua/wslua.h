@@ -634,6 +634,10 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
     typedef void __dummy##C##_set_##field
 
 #define WSLUA_ERROR(name,error) { luaL_error(L, "%s%s", #name ": " ,error); }
+/* XXX This appears to unhelpfully truncate dofile() paths, e.g.
+ tshark: Lua: Error during loading:
+ [string "/you/wont/believe/how/this/very/long/path..."]:700: bad argument #1 to 'dofile' (dofile: file does not exist)
+ */
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); }
 #define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); }
 
