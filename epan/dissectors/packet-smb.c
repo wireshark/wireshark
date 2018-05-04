@@ -1231,12 +1231,12 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	gboolean                is_supported_filetype;
 	gfloat                  percent;
 
-	gchar                  *aux_smb_fid_type_string;
+	const gchar            *aux_smb_fid_type_string;
 
 	if (eo_info->smbversion==1) {
 		/* Is this an eo_smb supported file_type? (right now we only support FILE) */
 		is_supported_filetype = (eo_info->fid_type == SMB_FID_TYPE_FILE);
-		aux_smb_fid_type_string=g_strdup(try_val_to_str(eo_info->fid_type, smb_fid_types));
+		aux_smb_fid_type_string = val_to_str_const(eo_info->fid_type, smb_fid_types, "?");
 
 		/* What kind of data this packet contains? */
 		switch(eo_info->cmd) {
@@ -1255,7 +1255,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	} else {
 		/* Is this an eo_smb supported file_type? (right now we only support FILE) */
 		is_supported_filetype = (eo_info->fid_type == SMB2_FID_TYPE_FILE );
-		aux_smb_fid_type_string=g_strdup(try_val_to_str(eo_info->fid_type, smb2_fid_types));
+		aux_smb_fid_type_string = val_to_str_const(eo_info->fid_type, smb2_fid_types, "?");
 
 		/* What kind of data this packet contains? */
 		switch(eo_info->cmd) {
