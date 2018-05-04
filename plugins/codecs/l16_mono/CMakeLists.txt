@@ -28,7 +28,7 @@ set_source_files_properties(
 )
 
 include_directories(
-	${CMAKE_SOURCE_DIR}/codec
+	${CMAKE_SOURCE_DIR}/codecs
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
