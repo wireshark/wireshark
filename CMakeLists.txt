@@ -1418,8 +1418,6 @@ endif()
 include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)
 
-add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
-
 if (${GIT_EXECUTABLE})
 	set(GIT_BIN_PARAM "--git-bin ${GIT_EXECUTABLE}")
 endif()
