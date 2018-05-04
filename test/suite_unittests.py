@@ -1,7 +1,9 @@
 #
 # -*- coding: utf-8 -*-
 # Wireshark tests
-# By Gerald Combs <gerald@wireshark.org>
+# By
+# Gerald Combs <gerald@wireshark.org>
+# Gilbert Ramirez <gram [AT] alumni.rice.edu>
 #
 # Ported from a set of Bash scripts which were copyright 2005 Ulf Lamping
 #
@@ -12,7 +14,6 @@
 import config
 import os.path
 import subprocesstest
-import sys
 import unittest
 
 class case_unittests(subprocesstest.SubprocessTestCase):
@@ -44,16 +45,51 @@ class case_unittests(subprocesstest.SubprocessTestCase):
             '--verbose'
         ))
 
-    def test_unit_ftsanity(self):
-        '''ftsanity.py'''
-        fts_cmd = [
-            os.path.join(config.tools_dir, 'ftsanity.py'),
-            config.cmd_tshark
-        ]
-        if sys.executable:
-            fts_cmd.insert(0, sys.executable)
-        self.assertRun(fts_cmd)
-
     def test_unit_fieldcount(self):
         '''fieldcount'''
         self.assertRun((config.cmd_tshark, '-G', 'fieldcount'))
+
+class Proto:
+    """Data for a protocol."""
+    def __init__(self, line):
+        data = line.split("\t")
+        assert len(data) == 3, "expected 3 columns in %s" % data
+        assert data[0] == "P"
+        self.name = data[1]
+        self.abbrev = data[2]
+
+class Field:
+    """Data for a field."""
+    def __init__(self, line):
+        data = line.split("\t")
+        assert len(data) == 8, "expected 8 columns in %s" % data
+        assert data[0] == "F"
+        self.name = data[1]
+        self.abbrev = data[2]
+        self.ftype = data[3]
+        self.parent = data[4]
+        self.base = data[5]
+        self.bitmask = int(data[6],0)
+        self.blurb = data[7]
+
+class case_unit_ftsanity(subprocesstest.SubprocessTestCase):
+    def test_unit_ftsanity(self):
+        """Looks for problems in field type definitions."""
+        tshark_proc = self.assertRun((config.cmd_tshark, "-G", "fields"))
+
+        lines = tshark_proc.stdout_str.splitlines()
+        # XXX We don't currently check protos.
+        protos = [Proto(x) for x in lines if x[0] == "P"]
+        fields = [Field(x) for x in lines if x[0] == "F"]
+
+        err_list = []
+        for field in fields:
+            if field.bitmask != 0:
+                if field.ftype.find("FT_UINT") != 0 and \
+                        field.ftype.find("FT_INT") != 0 and \
+                        field.ftype != "FT_BOOLEAN" and \
+                        field.ftype != "FT_CHAR":
+                    err_list.append("%s has a bitmask 0x%x but is type %s" % \
+                            (field.abbrev, field.bitmask, field.ftype))
+
+        self.assertEqual(len(err_list), 0, 'Found field type errors: \n' + '\n'.join(err_list))
