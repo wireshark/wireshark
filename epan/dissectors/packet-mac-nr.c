@@ -235,6 +235,13 @@ static int hf_mac_nr_rar_bi = -1;
 static int hf_mac_nr_rar_rapid = -1;
 static int hf_mac_nr_rar_ta = -1;
 static int hf_mac_nr_rar_grant = -1;
+static int hf_mac_nr_rar_grant_hopping = -1;
+static int hf_mac_nr_rar_grant_fra = -1;
+static int hf_mac_nr_rar_grant_tsa = -1;
+static int hf_mac_nr_rar_grant_mcs = -1;
+static int hf_mac_nr_rar_grant_tcsp = -1;
+static int hf_mac_nr_rar_grant_csi = -1;
+
 static int hf_mac_nr_rar_temp_crnti = -1;
 
 static int hf_mac_nr_padding = -1;
@@ -244,6 +251,7 @@ static int ett_mac_nr = -1;
 static int ett_mac_nr_context = -1;
 static int ett_mac_nr_subheader = -1;
 static int ett_mac_nr_rar_subheader = -1;
+static int ett_mac_nr_rar_grant = -1;
 static int ett_mac_nr_me_phr_entry = -1;
 
 static expert_field ei_mac_nr_no_per_frame_data = EI_INIT;
@@ -753,6 +761,21 @@ static const value_string buffer_size_8bits_vals[] =
 };
 static value_string_ext buffer_size_8bits_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_8bits_vals);
 
+static const value_string tpc_command_vals[] =
+{
+    { 0,   "-6dB"},
+    { 1,   "-4dB"},
+    { 2,   "-2dB"},
+    { 3,   "0dB"},
+    { 4,   "2dB"},
+    { 5,   "4dB"},
+    { 6,   "6dB"},
+    { 7,   "8dB"},
+    { 0,   NULL }
+};
+
+
+
 static const true_false_string power_backoff_affects_power_management_vals =
 {
     "Power backoff is applied to power management",
@@ -954,8 +977,19 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
                 offset++;
 
-                /* Grant (25 bits).  TODO: break down! */
-                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_grant, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* Break down the 25-bits of the grant field, according to 38.213, section 8.2 */
+                static const int *rar_grant_fields[] = {
+                    &hf_mac_nr_rar_grant_hopping,
+                    &hf_mac_nr_rar_grant_fra,
+                    &hf_mac_nr_rar_grant_tsa,
+                    &hf_mac_nr_rar_grant_mcs,
+                    &hf_mac_nr_rar_grant_tcsp,
+                    &hf_mac_nr_rar_grant_csi,
+                    NULL
+                };
+
+                proto_tree_add_bitmask(rar_subheader_tree, tvb, offset, hf_mac_nr_rar_grant,
+                                       ett_mac_nr_rar_grant, rar_grant_fields, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 /* C-RNTI (2 bytes) */
@@ -2092,12 +2126,50 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
+
         { &hf_mac_nr_rar_grant,
             { "Grant",
-              "mac-nr.rar.grant", FT_UINT32, BASE_DEC, NULL, 0x01ffffff,
+              "mac-nr.rar.grant", FT_UINT32, BASE_HEX, NULL, 0x01ffffff,
               "UL Grant details", HFILL
             }
         },
+        { &hf_mac_nr_rar_grant_hopping,
+            { "Frequency hopping flag",
+              "mac-nr.rar.grant.hopping", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x01000000,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_fra,
+            { "Msg3 PUSCH frequency resource allocation",
+              "mac-nr.rar.grant.fra", FT_UINT32, BASE_DEC, NULL, 0x00fff000,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_tsa,
+            { "Msg3 PUSCH time resource allocation",
+              "mac-nr.rar.grant.tsa", FT_UINT32, BASE_DEC, NULL, 0x00000f00,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_mcs,
+            { "MCS",
+              "mac-nr.rar.grant.mcs", FT_UINT32, BASE_DEC, NULL, 0x000000f0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_tcsp,
+            { "TPC command for Msg3 PUSCH",
+              "mac-nr.rar.grant.tcsp", FT_UINT32, BASE_DEC, VALS(tpc_command_vals), 0x0000000e,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_rar_grant_csi,
+            { "CSI request",
+              "mac-nr.rar.grant.csi", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mac_nr_rar_temp_crnti,
             { "Temporary C-RNTI",
               "mac-nr.rar.temp_crnti", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
@@ -3132,6 +3204,7 @@ void proto_register_mac_nr(void)
         &ett_mac_nr_context,
         &ett_mac_nr_subheader,
         &ett_mac_nr_rar_subheader,
+        &ett_mac_nr_rar_grant,
         &ett_mac_nr_me_phr_entry
     };
 
