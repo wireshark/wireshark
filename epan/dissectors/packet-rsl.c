@@ -1809,7 +1809,7 @@ dissect_rsl_ie_rel_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             return offset;
     }
 
-    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_ie_rel_mode, NULL, "Release Mode IE ");
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_ie_rel_mode, NULL, "Release Mode IE ");
 
     /* Element identifier */
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
