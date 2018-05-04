@@ -387,14 +387,12 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 	if (strcmp(proto_name_str, "gtpv2-c") == 0){
 		/* Change to gtpv2 */
 		proto_name_str[5] = '\0';
-		proto_name_str[6] = '\0';
 		proto_str_len = 5;
 	}
 	/* XXX Do we need to check for function="S1" */
 	if (strcmp(proto_name_str, "nas") == 0){
 		/* Change to nas-eps_plain */
 		g_strlcpy(proto_name_str, "nas-eps_plain", 14);
-		proto_name_str[13] = '\0';
 		proto_str_len = 13;
 	}
 	if (strcmp(proto_name_str, "map") == 0) {
@@ -406,7 +404,6 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 		if (strcmp(name_str, "sai_request") == 0) {
 			use_proto_table = TRUE;
 			g_strlcpy(dissector_table_str, "gsm_map.v3.arg.opcode", 22);
-			dissector_table_str[21] = '\0';
 			dissector_table_str_len = 21;
 			dissector_table_val = 56;
 			exported_pdu_info->precense_flags = exported_pdu_info->precense_flags + EXP_PDU_TAG_COL_PROT_BIT;
@@ -414,10 +411,12 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 		else if (strcmp(name_str, "sai_response") == 0) {
 			use_proto_table = TRUE;
 			g_strlcpy(dissector_table_str, "gsm_map.v3.res.opcode", 22);
-			dissector_table_str[21] = '\0';
 			dissector_table_str_len = 21;
 			dissector_table_val = 56;
 			exported_pdu_info->precense_flags = exported_pdu_info->precense_flags + EXP_PDU_TAG_COL_PROT_BIT;
+		} else {
+			g_free(exported_pdu_info->proto_col_str);
+			exported_pdu_info->proto_col_str = NULL;
 		}
 	}
 	/* Find the start of the raw data*/
@@ -475,17 +474,15 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 		packet_buf[1] = 12; /* EXP_PDU_TAG_PROTO_NAME */
 		packet_buf[2] = 0;
 		packet_buf[3] = tag_str_len;
-		for (i = 4, j = 0; j < tag_str_len; i++, j++) {
-			packet_buf[i] = proto_name_str[j];
-		}
+		memcpy(&packet_buf[4], proto_name_str, proto_str_len);
+		i = 4 + tag_str_len;
 	}else{
 		packet_buf[0] = 0;
 		packet_buf[1] = 14; /* EXP_PDU_TAG_DISSECTOR_TABLE_NAME */
 		packet_buf[2] = 0;
 		packet_buf[3] = tag_str_len;
-		for (i = 4, j = 0; j < tag_str_len; i++, j++) {
-			packet_buf[i] = dissector_table_str[j];
-		}
+		memcpy(&packet_buf[4], dissector_table_str, dissector_table_str_len);
+		i = 4 + tag_str_len;
 		packet_buf[i] = 0;
 		i++;
 		packet_buf[i] = EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL;
