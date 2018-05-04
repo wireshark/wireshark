@@ -52,6 +52,7 @@
 #include "epan/register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
+#include <epan/uat-int.h>
 
 #include <codecs/codecs.h>
 
@@ -194,6 +195,12 @@ main(int argc, char *argv[])
 
   /* Build the column format array */
   build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
+
+#ifdef HAVE_MAXMINDDB
+  /* mmdbresolve is started from mmdb_resolve_start(), which is called from epan_load_settings via: read_prefs -> (...) uat_load_all -> maxmind_db_post_update_cb.
+   * Need to stop it, otherwise all sharkd will have same mmdbresolve process, including pipe descriptors to read and write. */
+  uat_clear(uat_get_table_by_name("MaxMind Database Paths"));
+#endif
 
   ret = sharkd_loop();
 clean_exit:

@@ -4003,6 +4003,11 @@ sharkd_session_main(void)
 
 	filter_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, sharkd_session_filter_free);
 
+#ifdef HAVE_MAXMINDDB
+	/* mmdbresolve was stopped before fork(), force starting it */
+	uat_get_table_by_name("MaxMind Database Paths")->post_update_cb();
+#endif
+
 	while (fgets(buf, sizeof(buf), stdin))
 	{
 		/* every command is line seperated JSON */
@@ -4032,6 +4037,10 @@ sharkd_session_main(void)
 			fprintf(stderr, "invalid JSON(2) -> closing\n");
 			return 2;
 		}
+
+#if defined(HAVE_C_ARES) || defined(HAVE_MAXMINDDB)
+		host_name_lookup_process();
+#endif
 
 		sharkd_session_process(buf, tokens, ret);
 	}
