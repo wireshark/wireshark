@@ -78,21 +78,20 @@ void CompiledFilterOutput::compileFilter()
                     break;
                 g_mutex_lock(pcap_compile_mtx);
                 if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().constData(), 1, 0) < 0) {
-                    compile_results.insert(interfaces, QString("%1").arg(g_strdup(pcap_geterr(pd))));
+                    compile_results.insert(interfaces, QString(pcap_geterr(pd)));
                     g_mutex_unlock(pcap_compile_mtx);
                     ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_error.png"),interfaces));
                 } else {
                     GString *bpf_code_dump = g_string_new("");
                     struct bpf_insn *insn = fcode.bf_insns;
                     int ii, n = fcode.bf_len;
-                    gchar *bpf_code_str;
                     for (ii = 0; ii < n; ++insn, ++ii) {
                         g_string_append(bpf_code_dump, bpf_image(insn, ii));
                         g_string_append(bpf_code_dump, "\n");
                     }
-                    bpf_code_str = g_string_free(bpf_code_dump, FALSE);
                     g_mutex_unlock(pcap_compile_mtx);
-                    compile_results.insert(interfaces, QString("%1").arg(g_strdup(bpf_code_str)));
+                    compile_results.insert(interfaces, QString(bpf_code_dump->str));
+                    g_string_free(bpf_code_dump, TRUE);
                     ui->interfaceList->addItem(new QListWidgetItem(interfaces));
                 }
                 break;
