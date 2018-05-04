@@ -166,6 +166,14 @@ static void uat_key_record_free_cb(void*r) {
     g_free(key->label);
 }
 
+static void zbee_free_key_record(gpointer ptr)
+{
+    key_record_t *k = (key_record_t *)ptr;
+
+    g_free(k->label);
+    g_free(k);
+}
+
 static void uat_key_record_post_update(void) {
     guint           i;
     key_record_t    key_record;
@@ -173,15 +181,15 @@ static void uat_key_record_post_update(void) {
 
     /* empty the key ring */
     if (zbee_pc_keyring) {
-       g_slist_free(zbee_pc_keyring);
+       g_slist_free_full(zbee_pc_keyring, zbee_free_key_record);
        zbee_pc_keyring = NULL;
     }
 
     /* Load the pre-configured slist from the UAT. */
     for (i=0; (uat_key_records) && (i<num_uat_key_records) ; i++) {
-        key_record.frame_num = ZBEE_SEC_PC_KEY; /* means it's a user PC key */
-        key_record.label = g_strdup(uat_key_records[i].label);
         if (zbee_security_parse_key(uat_key_records[i].string, key, uat_key_records[i].byte_order)) {
+            key_record.frame_num = ZBEE_SEC_PC_KEY; /* means it's a user PC key */
+            key_record.label = g_strdup(uat_key_records[i].label);
             memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
             zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring, g_memdup(&key_record, sizeof(key_record_t)));
         }
