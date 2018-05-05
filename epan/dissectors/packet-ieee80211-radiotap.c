@@ -217,7 +217,7 @@ static int hf_radiotap_he_data_bw_ru_allocation_known = -1;
 static int hf_radiotap_he_doppler_known = -1;
 static int hf_radiotap_he_pri_sec_80_mhz_known = -1;
 static int hf_radiotap_he_gi_known = -1;
-static int hf_radiotap_he_ltf_symbols_known = -1;
+static int hf_radiotap_he_num_ltf_symbols_known = -1;
 static int hf_radiotap_he_pre_fec_padding_factor_known = -1;
 static int hf_radiotap_he_txbf_known = -1;
 static int hf_radiotap_he_pe_disambiguity_known = -1;
@@ -259,9 +259,10 @@ static int hf_radiotap_data_bandwidth_ru_allocation = -1;
 static int hf_radiotap_data_bandwidth_ru_allocation_unknown = -1;
 static int hf_radiotap_gi = -1;
 static int hf_radiotap_gi_unknown = -1;
-static int hf_radiotap_d5_reserved_00c0 = -1;
-static int hf_radiotap_ltf_symbols = -1;
-static int hf_radiotap_ltf_symbols_unknown = -1;
+static int hf_radiotap_ltf_symbol_size = -1;
+static int hf_radiotap_ltf_symbol_size_unknown = -1;
+static int hf_radiotap_num_ltf_symbols = -1;
+static int hf_radiotap_num_ltf_symbols_unknown = -1;
 static int hf_radiotap_d5_reserved_b11 = -1;
 static int hf_radiotap_pre_fec_padding_factor = -1;
 static int hf_radiotap_pre_fec_padding_factor_unknown = -1;
@@ -820,7 +821,7 @@ static const value_string he_pdu_format_vals[] = {
 static const int *data2_headers[] = {
 	&hf_radiotap_he_pri_sec_80_mhz_known,
 	&hf_radiotap_he_gi_known,
-	&hf_radiotap_he_ltf_symbols_known,
+	&hf_radiotap_he_num_ltf_symbols_known,
 	&hf_radiotap_he_pre_fec_padding_factor_known,
 	&hf_radiotap_he_txbf_known,
 	&hf_radiotap_he_pe_disambiguity_known,
@@ -879,8 +880,8 @@ static const int *data4_he_mu_headers[] = {
 static const int *data5_headers[] = {
 	&hf_radiotap_data_bandwidth_ru_allocation,
 	&hf_radiotap_gi,
-	&hf_radiotap_d5_reserved_00c0,
-	&hf_radiotap_ltf_symbols,
+	&hf_radiotap_ltf_symbol_size,
+	&hf_radiotap_num_ltf_symbols,
 	&hf_radiotap_d5_reserved_b11,
 	&hf_radiotap_pre_fec_padding_factor,
 	&hf_radiotap_txbf,
@@ -916,7 +917,15 @@ static const value_string he_gi_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string he_ltf_symbols_vals[] = {
+static const value_string he_ltf_symbol_size_vals[] = {
+	{ 0, "unknown" },
+	{ 1, "1x" },
+	{ 2, "2x" },
+	{ 3, "4x" },
+	{ 0, NULL }
+};
+
+static const value_string he_num_ltf_symbols_vals[] = {
 	{ 0, "1x" },
 	{ 1, "2x" },
 	{ 2, "4x" },
@@ -990,7 +999,8 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	gboolean data_bw_ru_alloc_known = FALSE;
 	gboolean doppler_known = FALSE;
 	gboolean gi_known = FALSE;
-	gboolean ltf_symbols_known = FALSE;
+	gboolean num_ltf_symbols_known = FALSE;
+	gboolean ltf_symbol_size_known = FALSE;
 	gboolean pre_fec_padding_factor_known = FALSE;
 	gboolean txbf_known = FALSE;
 	gboolean pe_disambiguity_known = FALSE;
@@ -998,6 +1008,7 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	gboolean midamble_periodicity_known = FALSE;
 	guint16 data1 = tvb_get_letohs(tvb, offset);
 	guint16 data2 = 0;
+	guint8 ltf_symbol_size = 0;
 
 	/*
 	 * Determine what is known.
@@ -1051,8 +1062,8 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	 */
 	if (data2 & IEEE80211_RADIOTAP_HE_GI_KNOWN)
 		gi_known = TRUE;
-	if (data2 & IEEE80211_RADIOTAP_HE_LTF_SYMBOLS_KNOWN)
-		ltf_symbols_known = TRUE;
+	if (data2 & IEEE80211_RADIOTAP_HE_NUM_LTF_SYMBOLS_KNOWN)
+		num_ltf_symbols_known = TRUE;
 	if (data2 & IEEE80211_RADIOTAP_HE_PRE_FEC_PADDING_FACTOR_KNOWN)
 		pre_fec_padding_factor_known = TRUE;
 	if (data2 & IEEE80211_RADIOTAP_HE_TXBF_KNOWN)
@@ -1124,12 +1135,20 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	offset += 2;
 
+	/*
+	 * The LTF Symbol Size field is zero if LFT Symbol size is unknown
+	 */
+	ltf_symbol_size = (tvb_get_letohs(tvb, offset) >> 6) & 0x03;
+	if (ltf_symbol_size != 0)
+		ltf_symbol_size_known = TRUE;
 	if (!data_bw_ru_alloc_known)
 		data5_headers[0] = &hf_radiotap_data_bandwidth_ru_allocation_unknown;
 	if (!gi_known)
 		data5_headers[1] = &hf_radiotap_gi_unknown;
-	if (!ltf_symbols_known)
-		data5_headers[3] = &hf_radiotap_ltf_symbols_unknown;
+	if (!ltf_symbol_size_known)
+		data5_headers[2] = &hf_radiotap_ltf_symbol_size_unknown;
+	if (!num_ltf_symbols_known)
+		data5_headers[3] = &hf_radiotap_num_ltf_symbols_unknown;
 	if (!pre_fec_padding_factor_known)
 		data5_headers[5] = &hf_radiotap_pre_fec_padding_factor_unknown;
 	if (!txbf_known)
@@ -3628,9 +3647,9 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown), IEEE80211_RADIOTAP_HE_GI_KNOWN,
 		  NULL, HFILL}},
 
-		{&hf_radiotap_he_ltf_symbols_known,
-		 {"LTF symbols known", "radiotap.he.data_2.ltf_symbols_known",
-		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown), IEEE80211_RADIOTAP_HE_LTF_SYMBOLS_KNOWN,
+		{&hf_radiotap_he_num_ltf_symbols_known,
+		 {"LTF symbols known", "radiotap.he.data_2.num_ltf_symbols_known",
+		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown), IEEE80211_RADIOTAP_HE_NUM_LTF_SYMBOLS_KNOWN,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_he_pre_fec_padding_factor_known,
@@ -3852,20 +3871,25 @@ void proto_register_radiotap(void)
 		 FT_UINT16, BASE_HEX, NULL, IEEE80211_RADIOTAP_HE_GI_MASK,
 		 NULL, HFILL}},
 
-		{&hf_radiotap_d5_reserved_00c0,
-		 {"reserved", "radiotap.he.data_5.reserved_d5_00c0",
+		{&hf_radiotap_ltf_symbol_size,
+		 {"LTF symbol size", "radiotap.he.data_5.ltf_symbol_size",
+		 FT_UINT16, BASE_HEX, VALS(he_ltf_symbol_size_vals),
+		 IEEE80211_RADIOTAP_HE_LTF_SYMBOL_SIZE, NULL, HFILL}},
+
+		{&hf_radiotap_ltf_symbol_size_unknown,
+		 {"LTF symbol size unknown", "radiotap.he.data_5.ltf_symbol_size_unknown",
 		 FT_UINT16, BASE_HEX, NULL,
-		 IEEE80211_RADIOTAP_HE_RESERVED_D5_00C0, NULL, HFILL}},
+		 IEEE80211_RADIOTAP_HE_LTF_SYMBOL_SIZE, NULL, HFILL}},
 
-		{&hf_radiotap_ltf_symbols,
-		 {"LTF symbols", "radiotap.he.ltf_symbols",
-		  FT_UINT16, BASE_HEX, VALS(he_ltf_symbols_vals),
-		  IEEE80211_RADIOTAP_HE_LTF_SYMBOLS_MASK, NULL, HFILL}},
+		{&hf_radiotap_num_ltf_symbols,
+		 {"LTF symbols", "radiotap.he.num_ltf_symbols",
+		  FT_UINT16, BASE_HEX, VALS(he_num_ltf_symbols_vals),
+		  IEEE80211_RADIOTAP_HE_NUM_LTF_SYMBOLS_MASK, NULL, HFILL}},
 
-		{&hf_radiotap_ltf_symbols_unknown,
-		 {"LTF symbols unknown", "radiotap.he.ltf_symbols_unknown",
+		{&hf_radiotap_num_ltf_symbols_unknown,
+		 {"LTF symbols unknown", "radiotap.he.num_ltf_symbols_unknown",
 		  FT_UINT16, BASE_HEX, NULL,
-		  IEEE80211_RADIOTAP_HE_LTF_SYMBOLS_MASK, NULL, HFILL}},
+		  IEEE80211_RADIOTAP_HE_NUM_LTF_SYMBOLS_MASK, NULL, HFILL}},
 
 		{&hf_radiotap_d5_reserved_b11,
 		 {"reserved", "radiotap.he.data_5.reserved_d5_b11",
