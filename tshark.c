@@ -747,7 +747,7 @@ real_main(int argc, char *argv[])
    * Attempt to get the pathname of the directory containing the
    * executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0], main);
+  init_progfile_dir_error = init_progfile_dir(argv[0], NULL);
   if (init_progfile_dir_error != NULL) {
     fprintf(stderr,
             "tshark: Can't get pathname of directory containing the tshark program: %s.\n"
