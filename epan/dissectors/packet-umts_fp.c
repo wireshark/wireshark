@@ -4032,6 +4032,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint32 reported_length;
     guint8 frame_type;
     guint8 tfi;
+    guint8 pch_collisions_byte;
 
     /* Trying to find existing conversation */
     p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
@@ -4111,6 +4112,14 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
     if (!check_payload_crc_for_heur(tvb, 3)) {
+        return FALSE;
+    }
+
+    /* Checking if the 4th byte in the frame is zeroed. In this case the CRC checks aren't */
+    /* deterministic enough to gurantee this is a DCH since this packet could also be a PCH frame */
+    /* with PI Bitmap of 18 bytes + 0 TBs (Both CRCs will match for both formats) */
+    pch_collisions_byte = tvb_get_guint8(tvb, 3);
+    if (pch_collisions_byte == 0) {
         return FALSE;
     }
 
@@ -4502,6 +4511,8 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     gboolean pi_present;
     gboolean tb_size_found;
     gboolean pi_length_found;
+    guint8 cfn_lowest_bits;
+    guint8 dch_collisions_byte;
 
     /* To correctly dissect a PCH stream 2 parameters are required: PI Bitmap length & TB length */
     /* Both are optional in each packet and having them both in a packet without knowing any of them */
@@ -4611,6 +4622,24 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             default:
                 return FALSE;
             }
+
+            if (pi_bit_length == 144 && !tb_size_found) {
+                /* Nothing has confirmed yet that this channel is a PCH since */
+                /* both 'tb_size_found' and 'pi_length_found' are false. */
+                /* Checking if the 4 LSB bits of the CFN (the 4 leftmost bits in the 3rd byte) aren't zeroed. */
+                /* if they aren't this is probably PCH because those are reserved in DCH */
+                cfn_lowest_bits = tvb_get_guint8(tvb, 2) & 0xF0;
+                if(cfn_lowest_bits == 0) {
+                    /* Checking if the 4th byte in the frame is zeroed. In this case the CRC checks aren't */
+                    /* deterministic enough to gurantee this is a PCH since this packet could also be a DCH frame */
+                    /* with MAC's C/T is 0 and 4 leftmost bits of RLC are 0 */
+                    dch_collisions_byte = tvb_get_guint8(tvb, 3);
+                    if (dch_collisions_byte == 0) {
+                        return FALSE;
+                    }
+                }
+            }
+
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
