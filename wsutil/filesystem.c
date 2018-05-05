@@ -10,13 +10,6 @@
 
 #include <config.h>
 
-/*
- * Required with GNU libc to get dladdr().
- * We define it here because <dlfcn.h> apparently gets included by
- * one of the headers we include below.
- */
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -273,15 +266,31 @@ static gboolean running_in_build_directory_flag = FALSE;
  * passed to the program, so it shouldn't be fooled by an argv[0]
  * that doesn't match the executable path.
  *
- * Sadly, not all UN*Xes necessarily have dladdr(), and those that
- * do don't necessarily have dladdr(main) return information about
- * the executable image, and those that do aren't necessarily running
- * on a platform wherein the executable image can get its own path
- * from the kernel (either by a call or by it being handed to it along
- * with argv[] and the environment), and those that can don't
- * necessarily use that to supply the path you get from dladdr(main),
- * so we try this first and, if that fails, use dladdr(main) if
- * available.
+ * We don't use dladdr() because:
+ *
+ *   not all UN*Xes necessarily have dladdr();
+ *
+ *   those that do have it don't necessarily have dladdr(main)
+ *   return information about the executable image;
+ *
+ *   those that do have a dladdr() where dladdr(main) returns
+ *   information about the executable image don't necessarily
+ *   have a mechanism by which the executable image can get
+ *   its own path from the kernel (either by a call or by it
+ *   being handed to it along with argv[] and the environment),
+ *   so they just fall back on getting it from argv[0], which we
+ *   already have code to do;
+ *
+ *   those that do have such a mechanism don't necessarily use
+ *   it in dladdr(), and, instead, just fall back on getting it
+ *   from argv[0];
+ *
+ * so the only places where it's worth bothering to use dladdr()
+ * are platforms where dladdr(main) return information about the
+ * executable image by getting it from the kernel rather than
+ * by looking at argv[0], and where we can't get at that information
+ * ourselves, and we haven't seen any indication that there are any
+ * such platforms.
  *
  * In particular, some dynamic linkers supply a dladdr() such that
  * dladdr(main) just returns something derived from argv[0], so
@@ -289,21 +298,11 @@ static gboolean running_in_build_directory_flag = FALSE;
  * another mechanism that can get you a more reliable version of
  * the executable path.
  *
- * However, at least in newer versions of DragonFly BSD, the dynamic
- * linker *does* get it from the aux vector passed to the program
- * by the kernel,  readlink /proc/curproc/file - which came first?
- *
- * On OpenBSD, dladdr(main) returns a value derived from argv[0],
- * and there doesn't appear to be any way to get the executable path
- * from the kernel, so we're out of luck there.
- *
- * So, on platforms where some versions have a version of dladdr()
- * that gives an argv[0]-based path and that also have a mechanism
- * to get a more reliable version of the path, we try that.  On
- * other platforms, we return NULL.  If our caller gets back a NULL
- * from us, it falls back on dladdr(main) if dladdr() is available,
- * and if that fails or is unavailable, it falls back on processing
- * argv[0] itself.
+ * So, on platforms where we know of a mechanism to get that path
+ * (where getting that path doesn't involve argv[0], which is not
+ * guaranteed to reflect the path to the binary), this routine
+ * attempsts to use that platform's mechanism.  On other platforms,
+ * it just returns NULL.
  *
  * This is not guaranteed to return an absolute path; if it doesn't,
  * our caller must prepend the current directory if it's a path.
@@ -456,10 +455,6 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
     _U_
 #endif
-, int (*function_addr)(int, char **)
-#if defined(_WIN32) || !defined(HAVE_DLADDR)
-    _U_
-#endif
 )
 {
 #ifdef _WIN32
@@ -522,9 +517,6 @@ init_progfile_dir(const char *arg0
             msg, error);
     }
 #else
-#ifdef HAVE_DLADDR
-    Dl_info info;
-#endif
     const char *execname;
     char *prog_pathname;
     char *curdir;
@@ -550,24 +542,6 @@ init_progfile_dir(const char *arg0
         running_in_build_directory_flag = TRUE;
 
     execname = get_executable_path();
-#ifdef HAVE_DLADDR
-    if (function_addr != NULL && execname == NULL) {
-        /*
-         * Try to use dladdr() to find the pathname of the executable.
-         * dladdr() is not guaranteed to give you anything better than
-         * argv[0] (i.e., it might not contain a / at all, much less
-         * being an absolute path), and doesn't appear to do so on
-         * Linux, but on other platforms it could give you an absolute
-         * path and obviate the need for us to determine the absolute
-         * path.
-         */
-DIAG_OFF(pedantic)
-        if (dladdr((void *)function_addr, &info)) {
-DIAG_ON(pedantic)
-            execname = info.dli_fname;
-        }
-    }
-#endif
     if (execname == NULL) {
         /*
          * OK, guess based on argv[0].
@@ -578,7 +552,7 @@ DIAG_ON(pedantic)
     /*
      * Try to figure out the directory in which the currently running
      * program resides, given something purporting to be the executable
-     * name (from dladdr() or from the argv[0] it was started with.
+     * name (from an OS mechanism or from the argv[0] it was started with).
      * That might be the absolute path of the program, or a path relative
      * to the current directory of the process that started it, or
      * just a name for the program if it was started from the command
