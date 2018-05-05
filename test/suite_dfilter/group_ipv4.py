@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 
-import dfiltertest
+from suite_dfilter import dfiltertest
 
 class case_ipv4(dfiltertest.DFTestCase):
     trace_file = "nfs.pcap"

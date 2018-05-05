@@ -63,6 +63,8 @@ key_dir = os.path.join(this_dir, 'keys')
 lua_dir = os.path.join(this_dir, 'lua')
 tools_dir = os.path.join(this_dir, '..', 'tools')
 
+all_suites = []
+
 def canCapture():
     # XXX This appears to be evaluated at the wrong time when called
     # from a unittest.skipXXX decorator.

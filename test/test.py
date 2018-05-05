@@ -87,12 +87,15 @@ def main():
         print('\n'.join(run_ids))
         sys.exit(0)
 
+    all_suites = set()
+    for aid in all_ids:
+        aparts = aid.split('.')
+        all_suites |= {aparts[0]}
+    config.all_suites = list(all_suites)
+    config.all_suites.sort()
+
     if args.list_suites:
-        suites = set()
-        for rid in run_ids:
-            rparts = rid.split('.')
-            suites |= {rparts[0]}
-        print('\n'.join(list(suites)))
+        print('\n'.join(config.all_suites))
         sys.exit(0)
 
     if args.list_cases:
