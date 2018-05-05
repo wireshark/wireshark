@@ -75,7 +75,15 @@ include(CheckSymbolExists)
 # Platform-specific functions used in platform-specific code.
 # We check for them only on the platform on which we use them.
 #
-if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
+if(CMAKE_SYSTEM_NAME STREQUAL "HP-UX")
+	#
+	# HP-UX
+	#
+	cmake_push_check_state()
+	set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
+	check_function_exists("dlget"           HAVE_DLGET)
+	cmake_pop_check_state()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
 	#
 	# Solaris
 	#

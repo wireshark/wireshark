@@ -40,7 +40,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
-#ifdef HAVE_DLADDR
+#ifdef HAVE_DLGET
 #include <dlfcn.h>
 #endif
 #include <pwd.h>
@@ -416,8 +416,9 @@ get_executable_path(void)
         return NULL;
     executable_path[r] = '\0';
     return executable_path;
-#elif (defined(sun) || defined(__sun)) && defined(HAVE_GETEXECNAME)
+#elif defined(HAVE_GETEXECNAME)
     /*
+     * Solaris, with getexecname().
      * It appears that getexecname() dates back to at least Solaris 8,
      * but /proc/{pid}/path is first documented in the Solaris 10 documentation,
      * so we use getexecname() if available, rather than /proc/self/path/a.out
@@ -425,6 +426,19 @@ get_executable_path(void)
      * executable image file).
      */
     return getexecname();
+#elif defined(HAVE_DLGET)
+    /*
+     * HP-UX 11, with dlget(); use dlget() and dlgetname().
+     * See
+     *
+     *  https://web.archive.org/web/20081025174755/http://h21007.www2.hp.com/portal/site/dspp/menuitem.863c3e4cbcdc3f3515b49c108973a801?ciid=88086d6e1de021106d6e1de02110275d6e10RCRD#two
+     */
+    struct load_module_desc desc;
+
+    if (dlget(-2, &desc, sizeof(desc)) != NULL)
+        return dlgetname(&desc, sizeof(desc), NULL, NULL, NULL);
+    else
+        return NULL;
 #else
     /* Fill in your favorite UN*X's code here, if there is something */
     return NULL;

@@ -80,6 +80,12 @@
 /* Define if LIBSSH has ssh_userauth_agent() function */
 #cmakedefine HAVE_SSH_USERAUTH_AGENT 1
 
+/* Define if you have the 'dlget' function. */
+#cmakedefine HAVE_DLGET 1
+
+/* Define if you have the 'getexecname' function. */
+#cmakedefine HAVE_GETEXECNAME 1
+
 /* Define if you have the 'floorl' function. */
 #cmakedefine HAVE_FLOORL 1
 
