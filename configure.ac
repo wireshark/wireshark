@@ -2337,7 +2337,7 @@ AC_CHECK_FUNCS(mkstemps)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(sysconf)
 AC_CHECK_FUNCS(getifaddrs)
-AC_CHECK_FUNC(getexecname)
+AC_CHECK_FUNCS(getexecname)
 
 #
 # Check for SpeexDSP (http://www.speex.org)
