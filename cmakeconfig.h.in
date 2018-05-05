@@ -53,9 +53,6 @@
 /* Define to use c-ares library */
 #cmakedefine HAVE_C_ARES 1
 
-/* Define to 1 if you have the `dladdr' function. */
-#cmakedefine HAVE_DLADDR 1
-
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
