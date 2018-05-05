@@ -2628,7 +2628,7 @@ static const value_string ht_info_secondary_channel_offset_flags[] = {
   {0x00, NULL}
 };
 
-static const true_false_string ht_info_channel_width_flag = {
+static const true_false_string ht_info_channel_sta_width_flag = {
   "Channel of any width supported",
   "20 MHz channel width only"
 };
@@ -2636,11 +2636,6 @@ static const true_false_string ht_info_channel_width_flag = {
 static const true_false_string ht_info_rifs_mode_flag = {
   "Permitted",
   "Prohibited"
-};
-
-static const true_false_string ht_info_psmp_stas_only_flag = {
-  "Association requests are accepted from only PSMP capable STA",
-  "Association requests are accepted regardless of PSMP capability"
 };
 
 static const value_string ht_info_service_interval_granularity_flags[] = {
@@ -2655,22 +2650,17 @@ static const value_string ht_info_service_interval_granularity_flags[] = {
   {0x00, NULL}
 };
 
-static const value_string ht_info_operating_mode_flags[] = {
-  {0x00, "All STAs are - 20/40 MHz HT or in a 20/40 MHz BSS or are 20 MHz HT in a 20 MHz BSS"},
+static const value_string ht_info_operating_protection_mode_flags[] = {
+  {0x00, "No protection mode"},
   {0x01, "HT non-member protection mode"},
-  {0x02, "Only HT STAs in the BSS, however, there exists at least one 20 MHz STA"},
-  {0x03, "HT mixed mode"},
+  {0x02, "20 MHz protection mode"},
+  {0x03, "non-HT mixed mode"},
   {0x00, NULL}
 };
 
 static const true_false_string ht_info_non_greenfield_sta_present_flag = {
   "One or more associated STAs are not greenfield capable",
   "All associated STAs are greenfield capable"
-};
-
-static const true_false_string ht_info_transmit_burst_limit_flag = {
-  "2.4 GHz - 6.16 ms | All other bands - 3.08 ms",
-  "No limit"
 };
 
 static const true_false_string ht_info_obss_non_ht_stas_present_flag = {
@@ -2683,13 +2673,8 @@ static const true_false_string ht_info_dual_beacon_flag = {
   "No second beacon is transmitted"
 };
 
-static const true_false_string ht_info_dual_cts_protection_flag = {
-  "Required",
-  "Not required"
-};
-
 static const true_false_string ht_info_secondary_beacon_flag = {
-  "Secondary beacon",
+  "STBC beacon",
   "Primary beacon"
 };
 
@@ -3796,27 +3781,27 @@ static int hf_ieee80211_ht_info_primary_channel = -1;
 
 static int hf_ieee80211_ht_info_delimiter1 = -1;
 static int hf_ieee80211_ht_info_secondary_channel_offset = -1;
-static int hf_ieee80211_ht_info_channel_width = -1;
+static int hf_ieee80211_ht_info_sta_channel_width = -1;
 static int hf_ieee80211_ht_info_rifs_mode = -1;
-static int hf_ieee80211_ht_info_psmp_stas_only = -1;
-static int hf_ieee80211_ht_info_service_interval_granularity = -1;
+static int hf_ieee80211_ht_info_reserved_b4_b7 = -1;
 
 static int hf_ieee80211_ht_info_delimiter2 = -1;
-static int hf_ieee80211_ht_info_operating_mode = -1;
+static int hf_ieee80211_ht_info_protection = -1;
 static int hf_ieee80211_ht_info_non_greenfield_sta_present = -1;
-static int hf_ieee80211_ht_info_transmit_burst_limit = -1;
+static int hf_ieee80211_ht_info_reserved_b11 = -1;
 static int hf_ieee80211_ht_info_obss_non_ht_stas_present = -1;
-static int hf_ieee80211_ht_info_reserved_1 = -1;
+static int hf_ieee80211_ht_info_channel_center_freq_seg_2 = -1;
+static int hf_ieee80211_ht_info_reserved_b21_b23 = -1;
 
 static int hf_ieee80211_ht_info_delimiter3 = -1;
-static int hf_ieee80211_ht_info_reserved_2 = -1;
+static int hf_ieee80211_ht_info_reserved_b24_b29 = -1;
 static int hf_ieee80211_ht_info_dual_beacon = -1;
 static int hf_ieee80211_ht_info_dual_cts_protection = -1;
 static int hf_ieee80211_ht_info_secondary_beacon = -1;
 static int hf_ieee80211_ht_info_lsig_txop_protection_full_support = -1;
 static int hf_ieee80211_ht_info_pco_active = -1;
 static int hf_ieee80211_ht_info_pco_phase = -1;
-static int hf_ieee80211_ht_info_reserved_3 = -1;
+static int hf_ieee80211_ht_info_reserved_b36_b39 = -1;
 /*** End: 802.11n D1.10 - HT Information IE  ***/
 
 static int hf_ieee80211_tag_ap_channel_report_operating_class = -1;
@@ -14198,31 +14183,31 @@ dissect_ht_info_ie_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   int offset = 0;
   static const int *ieee80211_ht_info1_field[] = {
     &hf_ieee80211_ht_info_secondary_channel_offset,
-    &hf_ieee80211_ht_info_channel_width,
+    &hf_ieee80211_ht_info_sta_channel_width,
     &hf_ieee80211_ht_info_rifs_mode,
-    &hf_ieee80211_ht_info_psmp_stas_only,
-    &hf_ieee80211_ht_info_service_interval_granularity,
+    &hf_ieee80211_ht_info_reserved_b4_b7,
     NULL
   };
 
   static const int *ieee80211_ht_info2_field[] = {
-    &hf_ieee80211_ht_info_operating_mode,
+    &hf_ieee80211_ht_info_protection,
     &hf_ieee80211_ht_info_non_greenfield_sta_present,
-    &hf_ieee80211_ht_info_transmit_burst_limit,
+    &hf_ieee80211_ht_info_reserved_b11,
     &hf_ieee80211_ht_info_obss_non_ht_stas_present,
-    &hf_ieee80211_ht_info_reserved_1,
+    &hf_ieee80211_ht_info_channel_center_freq_seg_2,
+    &hf_ieee80211_ht_info_reserved_b21_b23,
     NULL
   };
 
   static const int *ieee80211_ht_info3_field[] = {
-    &hf_ieee80211_ht_info_reserved_2,
+    &hf_ieee80211_ht_info_reserved_b24_b29,
     &hf_ieee80211_ht_info_dual_beacon,
     &hf_ieee80211_ht_info_dual_cts_protection,
     &hf_ieee80211_ht_info_secondary_beacon,
     &hf_ieee80211_ht_info_lsig_txop_protection_full_support,
     &hf_ieee80211_ht_info_pco_active,
     &hf_ieee80211_ht_info_pco_phase,
-    &hf_ieee80211_ht_info_reserved_3,
+    &hf_ieee80211_ht_info_reserved_b36_b39,
     NULL
   };
 
@@ -28385,9 +28370,9 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, VALS(ht_info_secondary_channel_offset_flags), 0x03,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_channel_width,
+    {&hf_ieee80211_ht_info_sta_channel_width,
      {"Supported channel width", "wlan.ht.info.chanwidth",
-      FT_BOOLEAN, 8, TFS(&ht_info_channel_width_flag), 0x04,
+      FT_BOOLEAN, 8, TFS(&ht_info_channel_sta_width_flag), 0x04,
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_rifs_mode,
@@ -28395,24 +28380,18 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&ht_info_rifs_mode_flag), 0x08,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_psmp_stas_only,
-     {"Power Save Multi-Poll (PSMP) stations only", "wlan.ht.info.psmponly",
-      FT_BOOLEAN, 8, TFS(&ht_info_psmp_stas_only_flag), 0x10,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_ht_info_service_interval_granularity,
-     {"Shortest service interval", "wlan.ht.info",
-      FT_UINT8, BASE_HEX, VALS(ht_info_service_interval_granularity_flags), 0xe0,
-      NULL, HFILL }},
+    {&hf_ieee80211_ht_info_reserved_b4_b7,
+     {"Reserved", "wlan.ht.info.reserved_b4_b7",
+      FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_delimiter2,
      {"HT Information Subset (2 of 3)", "wlan.ht.info.delim2",
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_operating_mode,
-     {"Operating mode of BSS", "wlan.ht.info.operatingmode",
-      FT_UINT16, BASE_HEX, VALS(ht_info_operating_mode_flags), 0x0003,
+    {&hf_ieee80211_ht_info_protection,
+     {"HT Protection", "wlan.ht.info.ht_protection",
+      FT_UINT16, BASE_HEX, VALS(ht_info_operating_protection_mode_flags), 0x0003,
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_non_greenfield_sta_present,
@@ -28420,19 +28399,22 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&ht_info_non_greenfield_sta_present_flag), 0x0004,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_transmit_burst_limit,
-     {"Transmit burst limit", "wlan.ht.info.burstlim",
-      FT_BOOLEAN, 16, TFS(&ht_info_transmit_burst_limit_flag), 0x0008,
-      NULL, HFILL }},
+    {&hf_ieee80211_ht_info_reserved_b11,
+     {"Reserved", "wlan.ht.info.reserved_b11",
+      FT_UINT16, BASE_HEX, NULL, 0x0008, NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_obss_non_ht_stas_present,
      {"OBSS non-HT STAs present", "wlan.ht.info.obssnonht",
       FT_BOOLEAN, 16, TFS(&ht_info_obss_non_ht_stas_present_flag), 0x0010,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_reserved_1,
-     {"Reserved", "wlan.ht.info.reserved1",
-      FT_UINT16, BASE_HEX, NULL, 0xffe0,
+    {&hf_ieee80211_ht_info_channel_center_freq_seg_2,
+     {"Channel Center Frequency Segment 2", "wlan.ht.info.chan_center_freq_seg_2",
+      FT_UINT16, BASE_DEC, NULL, 0x1fe0, NULL, HFILL }},
+
+    {&hf_ieee80211_ht_info_reserved_b21_b23,
+     {"Reserved", "wlan.ht.info.reserved_b21_b23",
+      FT_UINT16, BASE_HEX, NULL, 0xe000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_delimiter3,
@@ -28440,10 +28422,9 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_reserved_2,
-     {"Reserved", "wlan.ht.info.reserved2",
-      FT_UINT16, BASE_HEX, NULL, 0x003f,
-      NULL, HFILL }},
+    {&hf_ieee80211_ht_info_reserved_b24_b29,
+     {"Reserved", "wlan.ht.info.reserved_b24_b29",
+      FT_UINT16, BASE_HEX, NULL, 0x003f, NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_dual_beacon,
      {"Dual beacon", "wlan.ht.info.dualbeacon",
@@ -28452,7 +28433,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ht_info_dual_cts_protection,
      {"Dual Clear To Send (CTS) protection", "wlan.ht.info.dualcts",
-      FT_BOOLEAN, 16, TFS(&ht_info_dual_cts_protection_flag), 0x0080,
+      FT_BOOLEAN, 16, TFS(&tfs_required_not_required), 0x0080,
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_info_secondary_beacon,
@@ -28475,8 +28456,8 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&ht_info_pco_phase_flag), 0x0800,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ht_info_reserved_3,
-     {"Reserved", "wlan.ht.info.reserved3",
+    {&hf_ieee80211_ht_info_reserved_b36_b39,
+     {"Reserved", "wlan.ht.info.reserved_b36_b39",
       FT_UINT16, BASE_HEX, NULL, 0xf000,
       NULL, HFILL }},
 
