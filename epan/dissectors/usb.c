@@ -5436,7 +5436,7 @@ static const value_string usb_products_vals[] = {
     { 0x04614d62, "HP Laser Mobile Mini Mouse" },
     { 0x04614d75, "Rocketfish RF-FLBTAD Bluetooth Adapter" },
     { 0x04614d81, "Dell N889 Optical Mouse" },
-    { 0x04614de3, "HP 5-Button Optical Comfort" },
+    { 0x04614de3, "HP 5-Button Optical Comfort Mouse" },
     { 0x04614de7, "webcam" },
     { 0x04614e04, "Lenovo Keyboard KB1021" },
     { 0x04630001, "UPS" },
