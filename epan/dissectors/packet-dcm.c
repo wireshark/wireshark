@@ -1,7 +1,7 @@
 /* packet-dcm.c
  * Routines for DICOM dissection
  * Copyright 2003, Rich Coe <richcoe2@gmail.com>
- * Copyright 2008-2017, David Aggeler <david_aggeler@hispeed.ch>
+ * Copyright 2008-2018, David Aggeler <david_aggeler@hispeed.ch>
  *
  * DICOM communication protocol: http://www.dicomstandard.org/current/
  *
@@ -23,7 +23,6 @@
  *
  * ToDo
  *
- * - Make the heuristic part working again
  * - Implement value multiplicity (VM) consistently in dissect_dcm_tag_value()
  * - Better concatenate COL_INFO for multiple PDU in one packet
  * - Update tag list
@@ -32,7 +31,16 @@
  *
  * History
  *
- * February 2017 - David Aggeler
+ * June 2018 - David Aggeler
+ *
+ * - Fixed initial COL_INFO for associations. It used to 'append' instead of 'set'.
+ * - Changed initial length check from tvb_reported_length() to tvb_captured_length()
+ * - Heuristic Dissection:
+ *   o Modified registration, so it can be clearly identified in the Enable/Disable Protocols dialog
+ *   o Enabled by default
+ *   o Return proper data type
+ *
+ * February 2018 - David Aggeler
  *
  * - Fixed Bug 14415. Some tag descriptions which are added to the parent item (32 tags).
  *   If one of those was empty a crash occurred. Mainly the RTPlan modality was affected.
@@ -4014,14 +4022,14 @@ dcm_init(void)
     }
 }
 
+/*
+Get or create conversation and DICOM data structure if desired.
+Return new or existing DICOM structure, which is used to store context IDs and transfer syntax.
+Return NULL in case of the structure couldn't be created.
+*/
 static dcm_state_t *
 dcm_state_get(packet_info *pinfo, gboolean create)
 {
-
-    /*  Get or create conversation and DICOM data structure if desired
-        Return new or existing dicom structure, which is used to store context IDs and xfer Syntax
-        Return NULL in case of the structure couldn't be created
-    */
 
     conversation_t  *conv;
     dcm_state_t     *dcm_data;
@@ -4851,7 +4859,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     }
 
     proto_item_set_text(assoc_header_pitem, "%s", buf_desc);
-    col_append_str(pinfo->cinfo, COL_INFO, buf_desc);
+    col_set_str(pinfo->cinfo, COL_INFO, buf_desc);
 
     /* proto_item and proto_tree are one and the same */
     proto_item_append_text(tree, ", %s", buf_desc);
@@ -6888,6 +6896,64 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+
+/*
+Test for DICOM traffic.
+
+- Minimum 10 Bytes
+- Look for the association request
+- Check PDU size vs TCP payload size
+
+Since used in heuristic mode, be picky for performance reasons.
+We are called in static mode, once we decoded the association request and called conversation_set_dissector()
+They we can be more liberal on the packet selection
+*/
+static gboolean
+test_dcm(tvbuff_t *tvb)
+{
+
+    guint8  pdu_type;
+    guint32 pdu_len;
+    guint16 vers;
+
+    /*
+    Ensure that the tvb_captured_length is big enough before fetching the values.
+    Otherwise it can trigger an exception during the heuristic check,
+    preventing next heuristic dissectors from being called
+
+    tvb_reported_length() is the real size of the packet as transmitted on the wire
+    tvb_captured_length() is the number of bytes captured (so you always have captured <= reported).
+
+    The 10 bytes represent an association request header including the 2 reserved bytes not used below
+    In the captures at hand, the parsing result was equal.
+    */
+
+    if (tvb_captured_length(tvb) < 8) {
+        return FALSE;
+    }
+    if (tvb_reported_length(tvb) < 10) {
+        return FALSE;
+    }
+
+    pdu_type = tvb_get_guint8(tvb, 0);
+    pdu_len = tvb_get_ntohl(tvb, 2);
+    vers = tvb_get_ntohs(tvb, 6);
+
+    /* Exit, if not an association request at version 1 */
+    if (!(pdu_type == 1 && vers == 1)) {
+        return FALSE;
+    }
+
+    /* Exit if TCP payload is bigger than PDU length (plus header)
+    OK for PRESENTATION_DATA, questionable for ASSOCIATION requests
+    */
+    if (tvb_reported_length(tvb) > pdu_len + 6) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 /*
 Main function to decode DICOM traffic. Supports reassembly of TCP packets.
 */
@@ -6898,7 +6964,6 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     guint8  pdu_type = 0;
     guint32 pdu_start = 0;
     guint32 pdu_len = 0;
-    guint16 vers = 0;
     guint32 tlen = 0;
 
     int offset = 0;
@@ -6950,46 +7015,12 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
             return tvb_captured_length(tvb);
         }
     }
-    else {
-        /* We operate in heuristic mode, be picky out of performance reasons:
-
-           - Minimum 10 Bytes
-           - Look for the association request
-           - Reasonable PDU size
-
-           Tried find_conversation() and dcm_state_get() with no benefit
-
-           But since we are called in static mode, once we decoded the association request and
-           called conversation_set_dissector(), we really only need to filter for an association request
-
-        */
-
-        if (tlen < 10) {
-            /* For all association handling ones, 10 bytes would be needed. Be happy with 6 */
-            return 0;
-        }
-
-        pdu_len = tvb_get_ntohl(tvb, 2);
-        vers = tvb_get_ntohs(tvb, 6);
-
-        /* Exit, if not an association request at version 1*/
-        if (!(pdu_type == 1 && vers == 1)) {
-            return 0;
-        }
-
-        /* Exit if TCP payload is bigger than PDU length (plus header)
-           OK for PRESENTATION_DATA, questionable for ASSOCIATION requests
-        */
-        if (pdu_len+6 < tlen) {
-            return 0;
-        }
-    }
 
 
     /* Passing this point, we should always have tlen >= 6 */
 
     pdu_len = tvb_get_ntohl(tvb, 2);
-    if (pdu_len < 4)                /* The smallest PDUs are ASSOC Rejects & Release Msgs */
+    if (pdu_len < 4)                /* The smallest PDUs are ASSOC Rejects & Release messages */
         return 0;
 
     /* Mark it. This is a DICOM packet */
@@ -7033,7 +7064,9 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     return offset;
 }
 
-/* Call back functions used to register */
+/*
+Call back function used to register
+*/
 static int
 dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -7041,16 +7074,34 @@ dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     return dissect_dcm_main(tvb, pinfo, tree, TRUE);
 }
 
-static int
+/*
+Test for an Association Request. Decode, when successful.
+*/
+static gboolean
 dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    /* Only decode conversations, which include an Association Request */
+
     /* This will be potentially called for every packet */
-    return dissect_dcm_main(tvb, pinfo, tree, FALSE);
+
+    if (!test_dcm(tvb))
+        return FALSE;
+
+    /*
+    Conversation_set_dissector() is called inside dcm_state_get() once
+    we have enough details. From there on, we will be 'static'
+    */
+
+    if (dissect_dcm_main(tvb, pinfo, tree, FALSE) == 0) {
+        /* there may have been another reason why it is not DICOM */
+        return FALSE;
+    }
+
+    return TRUE;
+
 }
 
 /*
-Dissect a single DICOM PDU. Can be an association or a data package
+Dissect a single DICOM PDU. Can be an association or a data package. Creates a tree item.
 */
 static guint32
 dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
@@ -7069,7 +7120,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     /* Get or create conversation. Used to store context IDs and xfer Syntax */
 
     dcm_data = dcm_state_get(pinfo, TRUE);
-    if (dcm_data == NULL) {     /* Internal error. Failed to create main dicom data structure */
+    if (dcm_data == NULL) {     /* Internal error. Failed to create main DICOM data structure */
         return offset;
     }
 
@@ -7334,6 +7385,7 @@ proto_register_dcm(void)
 
     dcm_module = prefs_register_protocol(proto_dcm, NULL);
 
+    /*  Used to migrate an older configuration file to a newer one  */
     prefs_register_obsolete_preference(dcm_module, "heuristic");
 
     prefs_register_bool_preference(dcm_module, "export_header",
@@ -7380,22 +7432,37 @@ proto_register_dcm(void)
     register_init_routine(&dcm_init);
 
     /* Register processing of fragmented DICOM PDVs */
-    reassembly_table_register(&dcm_pdv_reassembly_table,
-                          &addresses_reassembly_table_functions);
+    reassembly_table_register(&dcm_pdv_reassembly_table, &addresses_reassembly_table_functions);
 
 }
 
+/*
+Register static TCP port range specified in preferences.
+Register heuristic search as well.
+
+Statically defined ports take precedence over a heuristic one. I.e., if a foreign protocol claims a port,
+where DICOM is running on, we would never be called, by just having the heuristic registration.
+
+This function is also called, when preferences change.
+*/
 void
 proto_reg_handoff_dcm(void)
 {
-    /*  Register 'static' tcp port range specified in properties
-        Statically defined ports take precedence over a heuristic one,
-        I.e., if a foreign protocol claims a port, where DICOM is running on
-        We would never be called, by just having the heuristic registration
-    */
+    /* Adds a UI element to the preferences dialog. This is the static part. */
     dissector_add_uint_range_with_preference("tcp.port", DICOM_DEFAULT_RANGE, dcm_handle);
 
-    heur_dissector_add("tcp", dissect_dcm_heuristic, "DICOM over TCP", "dicom_tcp", proto_dcm, HEURISTIC_DISABLE);
+    /*
+    The following shows up as child protocol of 'DICOM' in 'Enable/Disable Protocols ...'
+
+    The registration procedure for dissectors is a two-stage procedure.
+
+    In stage 1, dissectors create tables in which other dissectors can register them. That's the stage in which proto_register_ routines are called.
+    In stage 2, dissectors register themselves in tables created in stage 1. That's the stage in which proto_reg_handoff_ routines are called.
+
+    heur_dissector_add() needs to be called in proto_reg_handoff_dcm() function.
+    */
+
+    heur_dissector_add("tcp", dissect_dcm_heuristic, "DICOM on any TCP port (heuristic)", "dicom_tcp", proto_dcm, HEURISTIC_ENABLE);
 }
 
 
