@@ -72,7 +72,6 @@
 #include "pcap-encap.h"
 #include "nettrace_3gpp_32_423.h"
 #include "mplog.h"
-#include "dpa400.h"
 
 /*
  * Add an extension, and all compressed versions thereof, to a GSList
@@ -352,7 +351,6 @@ static struct open_info open_info_base[] = {
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
 	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,               "mplog",    NULL, NULL },
-	{ "Unigraf DPA-400 capture",                OPEN_INFO_MAGIC,     dpa400_open,              "bin",      NULL, NULL },
 	{ "Novell LANalyzer",                       OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
 	/*
 	 * PacketLogger must come before MPEG, because its files
@@ -1604,11 +1602,6 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_TYPE_SUBTYPE_MPLOG */
 	{ "Micropross mplog file", "mplog", "mplog", NULL,
-	  FALSE, FALSE, 0,
-	  NULL, NULL, NULL },
-
-	/* WTAP_FILE_TYPE_SUBTYPE_DPA400 */
-	{ "Unigraf DisplayPort AUX channel monitor output parser", "dpa400", "bin", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL }
 };
