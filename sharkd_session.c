@@ -1222,8 +1222,9 @@ sharkd_session_geoip_addr(address *addr, const char *suffix)
 
 	if (addr->type == AT_IPv4)
 	{
-		guint32 ip = pntoh32(addr->data);
+		guint32 ip;
 
+		memcpy(&ip, addr->data, 4);
 		lookup = maxmind_db_lookup_ipv4(ip);
 	}
 	else if (addr->type == AT_IPv6)
