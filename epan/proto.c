@@ -11966,16 +11966,6 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
-		ti = proto_tree_add_uint_format_value(tree, hf_checksum, tvb, offset, 0, 0, "[missing]");
-		PROTO_ITEM_SET_GENERATED(ti);
-		if (hf_checksum_status != -1) {
-			ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_NOT_PRESENT);
-			PROTO_ITEM_SET_GENERATED(ti2);
-		}
-		return ti;
-	}
-
 	switch (hfinfo->type) {
 	case FT_UINT8:
 		len = 1;
@@ -11993,8 +11983,18 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
+	if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
+		ti = proto_tree_add_uint_format_value(tree, hf_checksum, tvb, offset, len, 0, "[missing]");
+		PROTO_ITEM_SET_GENERATED(ti);
+		if (hf_checksum_status != -1) {
+			ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, len, PROTO_CHECKSUM_E_NOT_PRESENT);
+			PROTO_ITEM_SET_GENERATED(ti2);
+		}
+		return ti;
+	}
+
 	if (flags & PROTO_CHECKSUM_GENERATED) {
-		ti = proto_tree_add_uint(tree, hf_checksum, tvb, offset, 0, computed_checksum);
+		ti = proto_tree_add_uint(tree, hf_checksum, tvb, offset, len, computed_checksum);
 		PROTO_ITEM_SET_GENERATED(ti);
 	} else {
 		ti = proto_tree_add_item_ret_uint(tree, hf_checksum, tvb, offset, len, encoding, &checksum);
