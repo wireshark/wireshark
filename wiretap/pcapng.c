@@ -251,7 +251,7 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
          * something we don't handle in that block, submit a change
          * to the main Wireshark source).
          */
-        g_warning("Attempt to register plugin for block type 0x%08x not allowed",
+        pcapng_debug("Attempt to register plugin for block type 0x%08x not allowed",
             block_type);
         return;
 
@@ -275,7 +275,7 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
               * No; don't allow a plugin to be registered for it, as
               * the block type needs to be registered before it's used.
               */
-            g_warning("Attempt to register plugin for reserved block type 0x%08x not allowed",
+            pcapng_debug("Attempt to register plugin for reserved block type 0x%08x not allowed",
                       block_type);
             return;
          }
