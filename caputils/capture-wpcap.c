@@ -1072,7 +1072,7 @@ get_runtime_caplibs_version(GString *str)
 			g_string_append_printf(str, "WinPcap (%s)", packetVer);
 		}
 	} else
-		g_string_append(str, "without WinPcap");
+		g_string_append(str, "without Npcap or WinPcap");
 }
 
 /*
@@ -1088,9 +1088,9 @@ npf_sys_is_running(void)
 	if (!h_scm)
 		return FALSE;
 
-	h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+	h_serv = OpenService(h_scm, _T("npcap"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
 	if (!h_serv) {
-		h_serv = OpenService(h_scm, _T("npcap"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+		h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
 		if (!h_serv) {
 			CloseServiceHandle(h_scm);
 			return FALSE;

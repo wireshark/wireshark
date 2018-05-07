@@ -491,32 +491,18 @@ init_dll_load_paths()
 gboolean
 ws_init_dll_search_path()
 {
-    gboolean dll_dir_set = FALSE, npf_found = FALSE;
+    gboolean dll_dir_set = FALSE;
     wchar_t *program_path_w;
     wchar_t npcap_path_w[MAX_PATH];
     unsigned int retval;
-    SC_HANDLE h_scm, h_serv;
 
     dll_dir_set = SetDllDirectory(_T(""));
     if (dll_dir_set) {
-        /* Do not systematically add Npcap path as long as we favor WinPcap over Npcap. */
-        h_scm = OpenSCManager(NULL, NULL, 0);
-        if (h_scm) {
-            h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
-            if (h_serv) {
-                CloseServiceHandle(h_serv);
-                npf_found = TRUE;
-            }
-            CloseServiceHandle(h_scm);
-        }
-        if (!npf_found) {
-            /* npf service was not found, so WinPcap is not (properly) installed.
-               Add Npcap folder to libraries search path. */
-            retval = GetSystemDirectoryW(npcap_path_w, MAX_PATH);
-            if (0 < retval && retval <= MAX_PATH) {
-                wcscat_s(npcap_path_w, MAX_PATH, L"\\Npcap");
-                dll_dir_set = SetDllDirectory(npcap_path_w);
-            }
+        /* Add Npcap folder to libraries search path. */
+        retval = GetSystemDirectoryW(npcap_path_w, MAX_PATH);
+        if (0 < retval && retval <= MAX_PATH) {
+            wcscat_s(npcap_path_w, MAX_PATH, L"\\Npcap");
+            dll_dir_set = SetDllDirectory(npcap_path_w);
         }
     }
 
@@ -595,8 +581,8 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
         }
     }
 
-    /* Next try the system directory */
-    full_path = g_module_build_path(system_path, module_name);
+    /* Next try the Npcap directory */
+    full_path = g_module_build_path(npcap_path, module_name);
 
     if (full_path) {
         mod = g_module_open(full_path, flags);
@@ -606,8 +592,8 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
         }
     }
 
-    /* At last try the Npcap directory */
-    full_path = g_module_build_path(npcap_path, module_name);
+    /* At last try the system directory */
+    full_path = g_module_build_path(system_path, module_name);
 
     if (full_path) {
         mod = g_module_open(full_path, flags);
