@@ -5452,7 +5452,7 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 
     if (g_gtp_session && gtp_version == 1 && !PINFO_FD_VISITED(pinfo)) {
         if (!ip_exists(*gsn_address, args->ip_list)) {
-            copy_address(&args->last_ip, gsn_address);
+            copy_address_wmem(wmem_packet_scope(), &args->last_ip, gsn_address);
             wmem_list_prepend(args->ip_list, gsn_address);
         }
     }
@@ -8410,11 +8410,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
                 else {
                     /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                     the corresponding session ID */
-                    const address * dst_address;
-                    address gsn_address;
-                    dst_address = &pinfo->dst;
-                    copy_address(&gsn_address, dst_address);
-                    if ((get_frame(gsn_address, (guint32)gtp_hdr->teid, &frame_teid_cp) == 1)) {
+                    if ((get_frame(pinfo->dst, (guint32)gtp_hdr->teid, &frame_teid_cp) == 1)) {
                         /* Then we have to set its session ID */
                         session = (guint32*)g_hash_table_lookup(session_table, &frame_teid_cp);
                         if (session != NULL) {

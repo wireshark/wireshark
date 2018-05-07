@@ -2810,11 +2810,11 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
                 wmem_list_prepend(args->teid_list, teid);
             }
             if (ipv4 != NULL && !ip_exists(*ipv4, args->ip_list)) {
-                copy_address(&args->last_ip, ipv4);
+                copy_address_wmem(wmem_packet_scope(), &args->last_ip, ipv4);
                 wmem_list_prepend(args->ip_list, ipv4);
             }
             if (ipv6 != NULL && !ip_exists(*ipv6, args->ip_list)) {
-                copy_address(&args->last_ip, ipv6);
+                copy_address_wmem(wmem_packet_scope(), &args->last_ip, ipv6);
                 wmem_list_prepend(args->ip_list, ipv6);
             }
         }
@@ -6902,11 +6902,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
             else if (gtpv2_hdr->message != GTPV2_CREATE_SESSION_RESPONSE) {
                 /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                 the corresponding session ID */
-                const address * dst_address;
-                address gsn_address;
-                dst_address = &pinfo->dst;
-                copy_address(&gsn_address, dst_address);
-                if ((get_frame(gsn_address, (guint32)gtpv2_hdr->teid, &frame_teid_cp) == 1)) {
+                if ((get_frame(pinfo->dst, (guint32)gtpv2_hdr->teid, &frame_teid_cp) == 1)) {
                     /* Then we have to set its session ID */
                     session = (guint32*)g_hash_table_lookup(session_table, &frame_teid_cp);
                     if (session != NULL) {
