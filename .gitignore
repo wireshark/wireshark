@@ -194,3 +194,4 @@ packaging/rpm/SPECS/wireshark.spec
 vgcore.*
 Wireshark.*
 .pytest_cache/
+test/*.log
