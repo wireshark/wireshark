@@ -3292,13 +3292,12 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
         }
 
+        col_append_fstr(pinfo->cinfo, COL_INFO, "  %ux%u-bit PDUs  User-Buffer-Size=%u",
+                        number_of_pdus, pdu_length, user_buffer_size);
 
         /* MAC-d PDUs */
         offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset, pdu_length,
                                        number_of_pdus, p_fp_info, data);
-
-        col_append_fstr(pinfo->cinfo, COL_INFO, "  %ux%u-bit PDUs  User-Buffer-Size=%u",
-                        number_of_pdus, pdu_length, user_buffer_size);
 
         /* Extra IEs (if there is room for them) */
         if (((p_fp_info->release == 6) ||
