@@ -139,6 +139,7 @@ static int hf_cip_axis_sts_local_ctrl       = -1;
 static int hf_cip_axis_sts_alarm            = -1;
 static int hf_cip_axis_sts_dc_bus           = -1;
 static int hf_cip_axis_sts_pwr_struct       = -1;
+static int hf_cip_axis_sts_flux_up          = -1;
 static int hf_cip_axis_sts_tracking         = -1;
 static int hf_cip_axis_sts_pos_lock         = -1;
 static int hf_cip_axis_sts_vel_lock         = -1;
@@ -154,6 +155,11 @@ static int hf_cip_axis_sts_therm_limit      = -1;
 static int hf_cip_axis_sts_feedback_integ   = -1;
 static int hf_cip_axis_sts_shutdown         = -1;
 static int hf_cip_axis_sts_in_process       = -1;
+static int hf_cip_axis_sts_dc_bus_unload    = -1;
+static int hf_cip_axis_sts_ac_pwr_loss      = -1;
+static int hf_cip_axis_sts_pos_cntrl_mode   = -1;
+static int hf_cip_axis_sts_vel_cntrl_mode   = -1;
+static int hf_cip_axis_sts_trq_cntrl_mode   = -1;
 static int hf_cip_cyclic_wrt_data           = -1;
 static int hf_cip_cyclic_rd_data            = -1;
 static int hf_cip_cyclic_write_blk          = -1;
@@ -300,6 +306,8 @@ static dissector_handle_t cipmotion3_handle;
 #define FORMAT_VAR_CONTROL_TO_DEVICE        6
 #define FORMAT_VAR_DEVICE_TO_CONTROL        7
 
+#define FEEDBACK_MODE_BITS             0x0F
+
 /* Translate function to string - connection format values */
 static const value_string cip_con_format_vals[] = {
    { FORMAT_FIXED_CONTROL_TO_DEVICE,       "Fixed Controller-to-Device"        },
@@ -391,6 +399,10 @@ static const value_string cip_axis_response_vals[] = {
    { 4,    "Shutdown Reset Acknowledge"    },
    { 5,    "Abort Acknowledge"             },
    { 6,    "Fault Reset Acknowledge"       },
+   { 7,    "Stop Process Acknowledge"      },
+   { 8,    "Change Actual Position Reference Acknowledge" },
+   { 9,    "Change Command Position Reference Acknowledge" },
+   { 127,  "Cancel Acknowledge"            },
    { 0,    NULL                            }
 };
 
@@ -454,6 +466,120 @@ static const value_string cip_sc_vals[] = {
    { 0,                            NULL                        }
 };
 
+static int dissect_axis_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   static const int* bits[] = {
+      &hf_cip_axis_sts_local_ctrl,
+      &hf_cip_axis_sts_alarm,
+      &hf_cip_axis_sts_dc_bus,
+      &hf_cip_axis_sts_pwr_struct,
+      &hf_cip_axis_sts_flux_up,
+      &hf_cip_axis_sts_tracking,
+      &hf_cip_axis_sts_pos_lock,
+      &hf_cip_axis_sts_vel_lock,
+      &hf_cip_axis_sts_vel_standstill,
+      &hf_cip_axis_sts_vel_threshold,
+      &hf_cip_axis_sts_vel_limit,
+      &hf_cip_axis_sts_acc_limit,
+      &hf_cip_axis_sts_dec_limit,
+      &hf_cip_axis_sts_torque_threshold,
+      &hf_cip_axis_sts_torque_limit,
+      &hf_cip_axis_sts_cur_limit,
+      &hf_cip_axis_sts_therm_limit,
+      &hf_cip_axis_sts_feedback_integ,
+      &hf_cip_axis_sts_shutdown,
+      &hf_cip_axis_sts_in_process,
+      &hf_cip_axis_sts_dc_bus_unload,
+      &hf_cip_axis_sts_ac_pwr_loss,
+      &hf_cip_axis_sts_pos_cntrl_mode,
+      &hf_cip_axis_sts_vel_cntrl_mode,
+      &hf_cip_axis_sts_trq_cntrl_mode,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_cip_axis_status, ett_axis_status_set, bits, ENC_LITTLE_ENDIAN);
+
+   return 4;
+}
+
+static int dissect_event_checking_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   static const int* bits[] = {
+      &hf_cip_evnt_ctrl_reg1_pos,
+      &hf_cip_evnt_ctrl_reg1_neg,
+      &hf_cip_evnt_ctrl_reg2_pos,
+      &hf_cip_evnt_ctrl_reg2_neg,
+      &hf_cip_evnt_ctrl_reg1_posrearm,
+      &hf_cip_evnt_ctrl_reg1_negrearm,
+      &hf_cip_evnt_ctrl_reg2_posrearm,
+      &hf_cip_evnt_ctrl_reg2_negrearm,
+      &hf_cip_evnt_ctrl_marker_pos,
+      &hf_cip_evnt_ctrl_marker_neg,
+      &hf_cip_evnt_ctrl_home_pos,
+      &hf_cip_evnt_ctrl_home_neg,
+      &hf_cip_evnt_ctrl_home_pp,
+      &hf_cip_evnt_ctrl_home_pm,
+      &hf_cip_evnt_ctrl_home_mp,
+      &hf_cip_evnt_ctrl_home_mm,
+      &hf_cip_evnt_ctrl_acks,
+      // The dissector will indicate if the protocol is requesting an extended event format but will not dissect it.
+      &hf_cip_evnt_extend_format,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_cip_event_checking, ett_event_check_ctrl, bits, ENC_LITTLE_ENDIAN);
+
+   return 4;
+}
+
+static int dissect_event_checking_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   static const int* bits[] = {
+      &hf_cip_evnt_sts_reg1_pos,
+      &hf_cip_evnt_sts_reg1_neg,
+      &hf_cip_evnt_sts_reg2_pos,
+      &hf_cip_evnt_sts_reg2_neg,
+      &hf_cip_evnt_sts_reg1_posrearm,
+      &hf_cip_evnt_sts_reg1_negrearm,
+      &hf_cip_evnt_sts_reg2_posrearm,
+      &hf_cip_evnt_sts_reg2_negrearm,
+      &hf_cip_evnt_sts_marker_pos,
+      &hf_cip_evnt_sts_marker_neg,
+      &hf_cip_evnt_sts_home_pos,
+      &hf_cip_evnt_sts_home_neg,
+      &hf_cip_evnt_sts_home_pp,
+      &hf_cip_evnt_sts_home_pm,
+      &hf_cip_evnt_sts_home_mp,
+      &hf_cip_evnt_sts_home_mm,
+      &hf_cip_evnt_sts_nfs,
+      // The dissector will indicate if the protocol is requesting an extended event format but will not dissect it.
+      &hf_cip_evnt_extend_format,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_cip_event_status, ett_event_check_sts, bits, ENC_LITTLE_ENDIAN);
+
+   return 4;
+}
+
+static int dissect_command_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   static const int* bits[] = {
+      &hf_cip_intrp,
+      &hf_cip_position_data_type,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_cip_command_control, ett_command_control, bits, ENC_LITTLE_ENDIAN);
+
+   return 1;
+}
+
+
 static int dissect_node_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
    int offset, int total_len _U_)
 {
@@ -489,6 +615,11 @@ static int dissect_node_status(packet_info *pinfo _U_, proto_tree *tree, proto_i
 attribute_info_t cip_motion_attribute_vals[] = {
    { 0x42, CIP_ATTR_CLASS, 14, -1, "Node Control", cip_dissector_func, NULL, dissect_node_control },
    { 0x42, CIP_ATTR_CLASS, 15, -1, "Node Status", cip_dissector_func, NULL, dissect_node_status },
+   { 0x42, CIP_ATTR_INSTANCE, 40, -1, "Control Mode", cip_usint, &hf_cip_motor_cntrl, NULL },
+   { 0x42, CIP_ATTR_INSTANCE, 60, -1, "Event Checking Control", cip_dissector_func, NULL, dissect_event_checking_control },
+   { 0x42, CIP_ATTR_INSTANCE, 61, -1, "Event Checking Status", cip_dissector_func, NULL, dissect_event_checking_status },
+   { 0x42, CIP_ATTR_INSTANCE, 92, -1, "Command Control", cip_dissector_func, NULL, dissect_command_control },
+   { 0x42, CIP_ATTR_INSTANCE, 651, -1, "Axis Status", cip_dissector_func, NULL, dissect_axis_status },
 };
 
 /*
@@ -655,8 +786,6 @@ static guint32
 dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb, guint32 offset)
 {
    guint32 bytes_used = 0;
-   proto_item *temp_proto_item;
-   proto_tree *temp_proto_tree;
 
    /* The order of these if statements is VERY important, this is the order the values will
     * appear in the cyclic data */
@@ -701,28 +830,7 @@ dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb
    if ( (status_data_set & STATUS_DATA_SET_AXIS_STATUS) == STATUS_DATA_SET_AXIS_STATUS )
    {
       /* Display the various axis state values from the device */
-      temp_proto_item = proto_tree_add_item(tree, hf_cip_axis_status, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
-      temp_proto_tree = proto_item_add_subtree( temp_proto_item, ett_axis_status_set );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_local_ctrl, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_alarm, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_dc_bus, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_pwr_struct, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_tracking, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_pos_lock, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_vel_lock, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_vel_standstill, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_vel_threshold, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_vel_limit, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_acc_limit, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_dec_limit, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_torque_threshold, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_torque_limit, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_cur_limit, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_therm_limit, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_feedback_integ, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_shutdown, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( temp_proto_tree, hf_cip_axis_sts_in_process, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      bytes_used += 4;
+      bytes_used += dissect_axis_status(NULL, tree, NULL, tvb, offset + bytes_used, 4);
 
       proto_tree_add_item(tree, hf_cip_axis_status_mfg, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
       bytes_used += 4;
@@ -834,13 +942,7 @@ dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gui
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_axis_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(temp_proto_tree, hf_cip_sts_drive_safety, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
 
-   /* Create the tree for the command control header field */
-   temp_proto_item = proto_tree_add_item(header_tree, hf_cip_command_control, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
-   temp_proto_tree = proto_item_add_subtree(temp_proto_item, ett_command_control);
-
-   /* Display the interpolation control and position format fields */
-   proto_tree_add_item(temp_proto_tree, hf_cip_intrp, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_position_data_type, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
+   dissect_command_control(NULL, header_tree, NULL, tvb, offset + 7, 1);
 
    /* Return the offset to the next byte in the message */
    return offset + 8 + bytes_used;
@@ -1000,8 +1102,7 @@ dissect_cyclic_rd(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 static guint32
 dissect_cntr_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
-   proto_item *temp_proto_item;
-   proto_tree *header_tree, *temp_proto_tree;
+   proto_tree *header_tree;
    guint32 temp_data;
    guint32 acks, cur_ack;
    guint32 bytes_used = 0;
@@ -1012,31 +1113,7 @@ dissect_cntr_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size
    /* Read the event checking control header field from the packet into memory */
    temp_data = tvb_get_letohl(tvb, offset);
 
-   /* Create the tree for the event checking control header field */
-   temp_proto_item = proto_tree_add_item(header_tree, hf_cip_event_checking, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   temp_proto_tree = proto_item_add_subtree(temp_proto_item, ett_event_check_ctrl);
-
-   /* Add the individual elements of the event checking control */
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg1_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg1_neg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg2_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg2_neg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg1_posrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg1_negrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg2_posrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_reg2_negrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_marker_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_marker_neg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_home_pos,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_home_neg,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_home_pp,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_home_pm,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_home_mp,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_home_mm,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_ctrl_acks,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   /* The dissector will indicate if the protocol is requesting an extended event format but will not dissect it,
-   * to date no products actually support this format */
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_extend_format,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   dissect_event_checking_control(NULL, header_tree, NULL, tvb, offset, 4);
 
    /* The event checking control value is 4 bytes long */
    bytes_used = 4;
@@ -1070,8 +1147,7 @@ dissect_cntr_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size
 static guint32
 dissect_devce_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
-   proto_item *temp_proto_item;
-   proto_tree *header_tree, *temp_proto_tree;
+   proto_tree *header_tree;
    guint64     temp_data;
    guint64     nots, cur_not;
    guint32     bytes_used = 0;
@@ -1082,31 +1158,7 @@ dissect_devce_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 siz
    /* Read the event checking control header field from the packet into memory */
    temp_data = tvb_get_letohl(tvb, offset);
 
-   /* Create the tree for the event checking control header field */
-   temp_proto_item = proto_tree_add_item(header_tree, hf_cip_event_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   temp_proto_tree = proto_item_add_subtree(temp_proto_item, ett_event_check_sts);
-
-   /* Add the individual elements of the event checking control */
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg1_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg1_neg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg2_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg2_neg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg1_posrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg1_negrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg2_posrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_reg2_negrearm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_marker_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_marker_neg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_home_pos,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_home_neg,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_home_pp,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_home_pm,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_home_mp,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_home_mm,    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_sts_nfs,        tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   /* The dissector will indicate if the protocol is requesting an extended event format but will not dissect it,
-   * to date no products actually support this format */
-   proto_tree_add_item(temp_proto_tree, hf_cip_evnt_extend_format,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   dissect_event_checking_status(NULL, header_tree, NULL, tvb, offset, 4);
 
    /* The event status control value is 4 bytes long */
    bytes_used = 4;
@@ -1310,7 +1362,7 @@ static guint32
 dissect_cntr_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
    proto_tree *header_tree;
-   guint8      service;
+   guint32      service;
 
    /* Create the tree for the entire service data block */
    header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_service, NULL, "Service Data Block");
@@ -1319,8 +1371,7 @@ dissect_cntr_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 si
    proto_tree_add_item(header_tree, hf_cip_svc_transction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
    /* Display the service code */
-   service = tvb_get_guint8(tvb, offset + 1);
-   proto_tree_add_item(header_tree, hf_cip_svc_code, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item_ret_uint(header_tree, hf_cip_svc_code, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN, &service);
 
    /* If the service is a set axis, get axis attribute or group sync request dissect it as well */
    if (size > 4)
@@ -1508,7 +1559,8 @@ dissect_devce_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 s
    proto_tree_add_item(header_tree, hf_cip_svc_transction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
    /* Display the service code */
-   proto_tree_add_item(header_tree, hf_cip_svc_code, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+   guint32 service_code;
+   proto_tree_add_item_ret_uint(header_tree, hf_cip_svc_code, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN, &service_code);
 
    /* Display the general status code */
    proto_tree_add_item(header_tree, hf_cip_svc_sts, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1519,7 +1571,7 @@ dissect_devce_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 s
    /* If the service is a set axis, get axis attribute response or group sync dissect it as well */
    if (size > 4)
    {
-       switch (tvb_get_guint8(tvb, offset + 1))
+       switch (service_code)
        {
        case SC_GET_AXIS_ATTRIBUTE_LIST:
            dissect_get_axis_attr_list_response(tvb, header_tree, offset + 4, size - 4);
@@ -1599,22 +1651,21 @@ static guint32
 dissect_var_cont_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_count, guint32 offset)
 {
    guint32     header_size;
-   guint32     temp_data;
    proto_item *temp_proto_item;
    proto_tree *header_tree, *temp_proto_tree;
 
    /* Calculate the header size, start with the basic header size */
    header_size = 8;
 
-   temp_data = tvb_get_guint8(tvb, offset + 7);
+   guint32 time_data_set = tvb_get_guint8(tvb, offset + 7);
 
    /* Check the time data set field for enabled bits. If either update period or
    * update time stamp fields are set, bump the header size by the appropriate size */
-   if ( (temp_data & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
+   if ( (time_data_set & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
    {
       header_size += 8;
    }
-   if ( (temp_data & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
+   if ( (time_data_set & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
    {
       header_size += 8;
    }
@@ -1629,15 +1680,9 @@ dissect_var_cont_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_coun
 
    dissect_node_control(NULL, header_tree, NULL, tvb, offset + 3, 1);
 
-   /* Read the instance count field from the packet into memory, this gets passed back out of the method */
-   *inst_count = tvb_get_guint8(tvb, offset + 4);
-
    /* Add the instance count and last update id to the connection header tree */
-   proto_tree_add_item(header_tree, hf_cip_instance_cnt, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item_ret_uint(header_tree, hf_cip_instance_cnt, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN, inst_count);
    proto_tree_add_item(header_tree, hf_cip_last_update, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-
-   /* Read the time data set from the packet into memory */
-   temp_data = tvb_get_guint8(tvb, offset + 7);
 
    /* Create the tree for the time data set field */
    temp_proto_item = proto_tree_add_item(header_tree, hf_cip_time_data_set, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
@@ -1653,13 +1698,13 @@ dissect_var_cont_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_coun
    offset = (offset + 7 + 1);
 
    /* Add the time values if they are present in the time data set header field */
-   if ( (temp_data & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
+   if ( (time_data_set & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
    {
       proto_tree_add_item(header_tree, hf_cip_cont_time_stamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
       offset = (offset + 8);
    }
 
-   if ( (temp_data & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
+   if ( (time_data_set & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
    {
       proto_tree_add_item(header_tree, hf_cip_cont_time_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
       offset = (offset + 8);
@@ -1680,27 +1725,26 @@ static guint32
 dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_count, guint32 offset)
 {
    guint32     header_size;
-   guint32     temp_data;
    proto_item *temp_proto_item;
    proto_tree *header_tree, *temp_proto_tree;
 
    /* Calculate the header size, start with the basic header size */
    header_size = 8;
 
-   temp_data = tvb_get_guint8(tvb, offset + 7);
-   if ( (temp_data & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
+   guint32 time_data_set = tvb_get_guint8(tvb, offset + 7);
+   if ( (time_data_set & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
    {
       header_size += 8;
    }
-   if ( (temp_data & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
+   if ( (time_data_set & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
    {
       header_size += 8;
    }
-   if ( (temp_data & TIME_DATA_SET_UPDATE_DIAGNOSTICS) == TIME_DATA_SET_UPDATE_DIAGNOSTICS )
+   if ( (time_data_set & TIME_DATA_SET_UPDATE_DIAGNOSTICS) == TIME_DATA_SET_UPDATE_DIAGNOSTICS )
    {
       header_size += 4;
    }
-   if ( (temp_data & TIME_DATA_SET_TIME_DIAGNOSTICS) == TIME_DATA_SET_TIME_DIAGNOSTICS )
+   if ( (time_data_set & TIME_DATA_SET_TIME_DIAGNOSTICS) == TIME_DATA_SET_TIME_DIAGNOSTICS )
    {
       header_size += 16;
    }
@@ -1715,20 +1759,14 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
 
    dissect_node_status(NULL, header_tree, NULL, tvb, offset + 3, 1);
 
-   /* Read the instance count field from the packet into memory, this gets passed back out of the method */
-   *inst_count = tvb_get_guint8(tvb, offset + 4);
-
    /* Add the instance count to the connection header tree */
-   proto_tree_add_item(header_tree, hf_cip_instance_cnt, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item_ret_uint(header_tree, hf_cip_instance_cnt, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN, inst_count);
 
    /* The device to controller header contains the node alarms and node faults fields as well. */
    proto_tree_add_item(header_tree, hf_cip_node_fltalarms, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
 
    /* Add the last update id to the connection header tree */
    proto_tree_add_item(header_tree, hf_cip_last_update, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-
-   /* Read the time data set from the packet into memory */
-   temp_data = tvb_get_guint8(tvb, offset + 7);
 
    /* Create the tree for the time data set field */
    temp_proto_item = proto_tree_add_item(header_tree, hf_cip_time_data_set, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
@@ -1744,19 +1782,19 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
    offset = (offset + 7 + 1);
 
    /* Add the time values if they are present in the time data set header field */
-   if ( (temp_data & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
+   if ( (time_data_set & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
    {
       proto_tree_add_item(header_tree, hf_cip_devc_time_stamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
       offset = (offset + 8);
    }
 
-   if ( (temp_data & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
+   if ( (time_data_set & TIME_DATA_SET_TIME_OFFSET) == TIME_DATA_SET_TIME_OFFSET )
    {
       proto_tree_add_item(header_tree, hf_cip_devc_time_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
       offset = (offset + 8);
    }
 
-   if ( (temp_data & TIME_DATA_SET_UPDATE_DIAGNOSTICS) == TIME_DATA_SET_UPDATE_DIAGNOSTICS )
+   if ( (time_data_set & TIME_DATA_SET_UPDATE_DIAGNOSTICS) == TIME_DATA_SET_UPDATE_DIAGNOSTICS )
    {
       /* If the time diagnostic bit is set then the header contains the count of lost updates, late updates, data
       * received time stamp and data transmit time stamp */
@@ -1768,7 +1806,7 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
       offset = (offset + 3);
    }
 
-   if ( (temp_data & TIME_DATA_SET_TIME_DIAGNOSTICS) == TIME_DATA_SET_TIME_DIAGNOSTICS )
+   if ( (time_data_set & TIME_DATA_SET_TIME_DIAGNOSTICS) == TIME_DATA_SET_TIME_DIAGNOSTICS )
    {
       proto_tree_add_item(header_tree, hf_cip_data_rx_time_stamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
       offset += 8;
@@ -2072,7 +2110,7 @@ proto_register_cipmotion(void)
       },
       { &hf_cip_feedback_mode,
         { "Feedback Mode", "cipm.feedback_mode",
-          FT_UINT8, BASE_DEC, VALS(cip_feedback_mode_vals), 0,
+          FT_UINT8, BASE_DEC, VALS(cip_feedback_mode_vals), FEEDBACK_MODE_BITS,
           "Cyclic Data Block: Feedback Mode", HFILL }
       },
       { &hf_cip_axis_control,
@@ -2470,9 +2508,9 @@ proto_register_cipmotion(void)
           "Event Checking Control: Home-Switch-Marker Minus Minus", HFILL}
       },
       { &hf_cip_evnt_ctrl_acks,
-        { "Event Acknowledge Blocks", "cipm.evnt.ctrl.acks",
+        { "Event Block Count", "cipm.evnt.ctrl.acks",
           FT_UINT32, BASE_DEC, NULL, 0x70000000,
-          "Event Checking Control: Event Acknowledge Blocks", HFILL}
+          "Event Checking Control: Event Block Count", HFILL}
       },
       { &hf_cip_evnt_extend_format,
         { "Extended Event Format", "cipm.evnt.extend",
@@ -2561,9 +2599,9 @@ proto_register_cipmotion(void)
           "Event Checking Status: Home-Switch-Marker Minus Minus", HFILL}
       },
       { &hf_cip_evnt_sts_nfs,
-        { "Event Notification Blocks", "cipm.evnt.sts.nfs",
+        { "Event Block Count", "cipm.evnt.sts.nfs",
           FT_UINT32, BASE_DEC, NULL, 0x70000000,
-          "Event Checking Status: Event Notification Blocks", HFILL}
+          "Event Checking Status: Event Block Count", HFILL}
       },
 
       { &hf_cip_evnt_sts_stat,
@@ -2745,6 +2783,11 @@ proto_register_cipmotion(void)
           FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008,
           "Axis Status Data Set: Power Struct", HFILL }
       },
+      { &hf_cip_axis_sts_flux_up,
+        { "Motor Flux Up", "cipm.axis.flx",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010,
+          "Axis Status Data Set: Motor Flux Up", HFILL }
+      },
       { &hf_cip_axis_sts_tracking,
         { "Tracking", "cipm.axis.track",
           FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
@@ -2820,7 +2863,31 @@ proto_register_cipmotion(void)
           FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000,
           "Axis Status Data Set: In Process", HFILL }
       },
-
+      { &hf_cip_axis_sts_dc_bus_unload,
+        { "DC Bus Unload", "cipm.axis.dcunload",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00100000,
+          "Axis Status Data Set: DC Bus Unload", HFILL }
+      },
+      { &hf_cip_axis_sts_ac_pwr_loss,
+        { "AC Power Loss", "cipm.axis.acpwrloss",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00200000,
+          "Axis Status Data Set: AC Power Loss", HFILL }
+      },
+      { &hf_cip_axis_sts_pos_cntrl_mode,
+        { "Pos Control Mode", "cipm.axis.poscntrl",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00400000,
+          "Axis Status Data Set: Position Control Mode", HFILL }
+      },
+      { &hf_cip_axis_sts_vel_cntrl_mode,
+        { "Vel Control Mode", "cipm.axis.velcntrl",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00800000,
+          "Axis Status Data Set: Velocity Control Mode", HFILL }
+      },
+      { &hf_cip_axis_sts_trq_cntrl_mode,
+        { "Torque Control Mode", "cipm.axis.trqcntrl",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x01000000,
+          "Axis Status Data Set: Torque Control Mode", HFILL }
+      },
       { &hf_cip_act_pos,
         { "Actual Position", "cipm.actpos",
           FT_INT32, BASE_DEC, NULL, 0,
