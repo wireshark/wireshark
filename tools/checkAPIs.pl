@@ -948,13 +948,15 @@ my $debug = 0;
                             }xom;
 
         ($if_lvl, $if0_lvl, $if0) = (0,0,0);
-        $$codeRef =~ s{ $preprocRegEx }{patsub($1,$2)}xegm;
+        $$codeRef =~ s{ $preprocRegEx }{patsub($1,$2,$fileName)}xegm;
 
         ($debug == 2) && print "==> After Remove if0: code: [$fileName]\n$$codeRef\n===<\n";
         return $codeRef;
     }
 
     sub patsub {
+        my $fileName = @_[2];
+
         if ($debug == 99) {
             print "-->$_[0]\n";
             (defined $_[1]) && print "  >$_[1]<\n";
@@ -982,7 +984,7 @@ my $debug = 0;
                 }
                 $if_lvl -= 1;
                 if ($if_lvl < 0) {
-                    die "patsub: #if/#endif mismatch"
+                    die "patsub: #if/#endif mismatch in $fileName"
                 }
             }
             return $_[0];  # don't remove preprocessor lines themselves
