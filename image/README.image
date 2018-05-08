@@ -7,9 +7,6 @@ File descriptions:
 
 File				Description
 
-clist_ascend.xpm		Packet list sort ascending and descending
-clist_descend.xpm		indicators
-
 wsicon.svg			Old vector source for the wireshark icon.
 
 wsiconcap.svg			Old vector source for the "capture" icon.
