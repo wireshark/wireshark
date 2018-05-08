@@ -350,7 +350,8 @@ PacketListModel *PacketList::packetListModel() const {
     return packet_list_model_;
 }
 
-void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected) {
+void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected)
+{
     QTreeView::selectionChanged(selected, deselected);
 
     if (!cap_file_) return;
@@ -378,6 +379,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (!cap_file_->edt) {
         viewport()->update();
+        emit fieldSelected(0);
         return;
     }
 
@@ -392,9 +394,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         viewport()->update();
     }
 
-    if (cap_file_->search_in_progress &&
-        (cap_file_->search_pos != 0 || (cap_file_->string && cap_file_->decode_data)))
-    {
+    if (cap_file_->search_in_progress) {
         match_data  mdata;
         field_info *fi = NULL;
 
@@ -404,16 +404,19 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             if (cf_find_string_protocol_tree(cap_file_, cap_file_->edt->tree, &mdata)) {
                 fi = mdata.finfo;
             }
-        } else {
+        } else if (cap_file_->search_pos != 0) {
             // Find the finfo that corresponds to our byte.
             fi = proto_find_field_from_offset(cap_file_->edt->tree, cap_file_->search_pos,
                                               cap_file_->edt->tvb);
         }
 
         if (fi) {
-            emit fieldSelected(new FieldInformation(fi, this));
+            FieldInformation finfo(fi, this);
+            emit fieldSelected(&finfo);
+        } else {
+            emit fieldSelected(0);
         }
-    } else if (!cap_file_->search_in_progress && proto_tree_) {
+    } else if (proto_tree_) {
         proto_tree_->restoreSelectedField();
     }
 }

@@ -476,7 +476,9 @@ void ProtoTree::restoreSelectedField()
         cur_index = proto_tree_model_->index(row, 0, cur_index);
         FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(cur_index).protoNode());
         if (!finfo.isValid() || finfo.headerInfo().id != hf_id) {
+            // Did not find the selected hfid path in the selected packet
             cur_index = QModelIndex();
+            emit fieldSelected(0);
             break;
         }
     }

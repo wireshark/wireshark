@@ -269,8 +269,10 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
 {
     QString item_info;
 
-    if ( ! finfo )
+    if ( ! finfo ) {
+        pushFieldStatus(item_info);
         return;
+    }
 
     FieldInformation::HeaderInfo hInfo = finfo->headerInfo();
 
