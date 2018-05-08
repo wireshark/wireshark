@@ -1757,7 +1757,7 @@ proto_register_dtls(void)
     { &hf_dtls_record_version,
       { "Version", "dtls.record.version",
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-        "Record layer version.", HFILL }
+        "Record layer version", HFILL }
     },
     { &hf_dtls_record_epoch,
       { "Epoch", "dtls.record.epoch",
