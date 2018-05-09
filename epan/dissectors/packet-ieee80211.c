@@ -11665,6 +11665,7 @@ dissect_hs20_osen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
                           ENC_NA);
       offset += 16;
       pmkid_index++;
+      pmkid_count--;
     }
   }
 
