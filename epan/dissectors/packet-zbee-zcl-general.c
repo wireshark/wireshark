@@ -2811,7 +2811,7 @@ static void dissect_zcl_scenes_extension_fields(tvbuff_t *tvb, proto_tree *tree,
     proto_tree *subtree;
 
     // Is there an extension field?
-    gboolean hasExtensionField = hasExtensionField = tvb_offset_exists(tvb, *offset+2);
+    gboolean hasExtensionField = tvb_offset_exists(tvb, *offset+2);
 
     while (hasExtensionField)
     {
