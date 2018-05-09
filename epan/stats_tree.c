@@ -1306,7 +1306,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
             stats_tree_format_node_as_str(g_array_index(Children,stat_node*,count), s, format_type,
                     indent, full_path, maxnamelen, sort_column, sort_descending);
         }
-        g_array_free(Children,FALSE);
+        g_array_free(Children, TRUE);
     }
     g_free(full_path);
 

@@ -660,8 +660,7 @@ static void register_mibs(void) {
 						}
 					}
 
-					hf.hfinfo.strings = vals->data;
-					g_array_free(vals,FALSE);
+					hf.hfinfo.strings = g_array_free(vals, FALSE);
 				}
 #if 0 /* packet-snmp does not handle bits yet */
 			} else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {

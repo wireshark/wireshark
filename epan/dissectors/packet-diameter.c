@@ -2006,8 +2006,7 @@ dictionary_load(void)
 		}
 	}
 
-	vnd_short_vs = (value_string *)vnd_shrt_arr->data;
-	g_array_free(vnd_shrt_arr,FALSE);
+	vnd_short_vs = (value_string *)g_array_free(vnd_shrt_arr, FALSE);
 
 	if ((c = d->cmds)) {
 		for (; c; c = c->next) {

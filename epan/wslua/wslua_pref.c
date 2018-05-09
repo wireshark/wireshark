@@ -78,9 +78,7 @@ static enum_val_t* get_enum(lua_State *L, int idx)
 
     g_array_append_val(es,last);
 
-    ret = (enum_val_t*)(void*)es->data;
-
-    g_array_free(es,FALSE);
+    ret = (enum_val_t*)(void*)g_array_free(es, FALSE);
 
     return ret;
 }

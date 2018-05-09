@@ -669,9 +669,8 @@ static void setup_tlvs(gpointer k _U_, gpointer v, gpointer p) {
 	} vs;
 
 	if (g_hash_table_lookup_extended(state->value_strings, s->name, &key, &vs.p)) {
-		s->vs = (value_string*)(void *)vs.a->data;
 		g_hash_table_steal(state->value_strings, key);
-		g_array_free(vs.a, FALSE);
+		s->vs = (value_string*)(void *)g_array_free(vs.a, FALSE);
 		g_free(key);
 	}
 }
@@ -687,9 +686,8 @@ static void setup_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	} vs;
 
 	if (g_hash_table_lookup_extended(state->value_strings, a->name, &key, &vs.p) ) {
-		a->vs = (value_string*)(void *)vs.a->data;
 		g_hash_table_steal(state->value_strings, key);
-		g_array_free(vs.a, FALSE);
+		a->vs = (value_string*)(void *)g_array_free(vs.a, FALSE);
 		g_free(key);
 	}
 

@@ -188,9 +188,7 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    vs32 = (value_string*)(void*)vs->data;
-
-    g_array_free(vs,FALSE);
+    vs32 = (value_string*)(void*)g_array_free(vs, FALSE);
 
     return vs32;
 }
@@ -243,9 +241,7 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    vs64 = (val64_string*)(void*)vs->data;
-
-    g_array_free(vs,FALSE);
+    vs64 = (val64_string*)(void*)g_array_free(vs, FALSE);
 
     return vs64;
 }
