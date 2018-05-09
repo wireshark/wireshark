@@ -163,6 +163,7 @@ static int get_time(const gchar *frame, const gchar *token, tvbuff_t *tvb,
                     &date.tm_hour, &date.tm_min, &date.tm_sec, &ms)) {
         date.tm_year = 70;
         date.tm_mon -= 1;
+        date.tm_isdst = -1;
         seconds = mktime(&date);
         ts.secs = seconds;
         ts.nsecs = (int) (ms * 1e6);
