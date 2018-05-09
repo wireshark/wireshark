@@ -9901,7 +9901,8 @@ wnm_notification_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
   len = tvb_reported_length_remaining(tvb, offset);
 
   if (wnm_type == 0) {
-    while (len > 0) {
+    int offset_end = offset + len;
+    while (offset < offset_end) {
       int start_offset = offset;
       proto_tree *wnm_list = NULL;
       proto_item *wnm_item = NULL;
