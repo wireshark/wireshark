@@ -37,6 +37,8 @@ The following bugs have been fixed:
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.1rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+The “Open”, “Save”, and other file dialogs should be shown at the correct size on HiDPI Windows systems.
+
 === New and Updated Features
 
 There are no new features in this release.
