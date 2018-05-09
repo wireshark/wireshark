@@ -1472,6 +1472,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                             date.tm_min, date.tm_sec, ms, direction_character);
                 date.tm_mon -= 1;
                 date.tm_year -= 1900;
+                date.tm_isdst = -1;
                 ts = mktime(&date);
 
                 new_hex_data = data + 29;
@@ -2126,6 +2127,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
                             &date.tm_min, &date.tm_sec, &ms)) {
                 date.tm_year = 70;
                 date.tm_mon -= 1;
+                date.tm_isdst = -1;
                 seconds = mktime(&date);
                 secs = (time_t) seconds;
                 nsecs = (int) (ms * 1e6);
