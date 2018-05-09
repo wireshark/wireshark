@@ -444,35 +444,24 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
     size_t bytes_to_read;
     ssize_t bytes_read;
 #endif
+    int ret = FALSE;
 
     if (buffer_size == 0)
     {
         /* XXX - provide an error string */
         return FALSE;
     }
-    if (buffer_size == 1)
-    {
-        /* No room for an actual string */
-        buffer[0] = '\0';
-        return TRUE;
-    }
-
-    /*
-     * Number of bytes of string data we can actually read, leaving room
-     * for the terminating NUL.
-     */
-    buffer_size--;
 
     total_bytes_read = 0;
     for (;;)
     {
-        buffer_bytes_remaining = buffer_size - total_bytes_read;
+        /* Leave room for the terminating NUL. */
+        buffer_bytes_remaining = buffer_size - total_bytes_read - 1;
         if (buffer_bytes_remaining == 0)
         {
             /* The string won't fit in the buffer. */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Buffer too small (%zd).", buffer_size);
-            buffer[buffer_size - 1] = '\0';
-            return FALSE;
+            break;
         }
 
 #ifdef _WIN32
@@ -515,7 +504,7 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
             &bytes_read, NULL))
         {
             /* XXX - provide an error string */
-            return FALSE;
+            break;
         }
 #else
         bytes_to_read = buffer_bytes_remaining;
@@ -523,11 +512,12 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
         if (bytes_read == -1)
         {
             /* XXX - provide an error string */
-            return FALSE;
+            break;
         }
 #endif
         if (bytes_read == 0)
         {
+            ret = TRUE;
             break;
         }
 
@@ -535,7 +525,7 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
     }
 
     buffer[total_bytes_read] = '\0';
-    return TRUE;
+    return ret;
 }
 
 /*
