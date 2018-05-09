@@ -2198,7 +2198,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
             if (6 == sscanf(packet + exported_pdu_headers_size, "%d-%d %d:%d:%d.%d", &date.tm_mon, &date.tm_mday, &date.tm_hour,
                             &date.tm_min, &date.tm_sec, &ms)) {
                 date.tm_mon -= 1;
-                date->tm_isdst = -1;
+                date.tm_isdst = -1;
                 seconds = mktime(&date);
                 secs = (time_t) seconds;
                 nsecs = (int) (ms * 1e6);
