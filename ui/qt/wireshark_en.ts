@@ -840,24 +840,25 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1, error after %Ln data record</numerusform>
+            <numerusform>%1, error after %Ln data records</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1, timed out at %Ln data record</numerusform>
+            <numerusform>%1, timed out at %Ln data records</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1, %Ln data record</numerusform>
+            <numerusform>%1, %Ln data records</numerusform>
         </translation>
     </message>
     <message>

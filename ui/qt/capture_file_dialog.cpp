@@ -766,7 +766,7 @@ void CaptureFileDialog::preview(const QString & path)
     if(status == PREVIEW_READ_ERROR) {
         // XXX - give error details?
         g_free(err_info);
-        preview_size_.setText(tr("%1, error after %Ln record(s)", "", stats.records)
+        preview_size_.setText(tr("%1, error after %Ln data record(s)", "", stats.records)
                               .arg(size_str));
         return;
     }
