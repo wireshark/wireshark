@@ -118,18 +118,17 @@ static int delete_directory(const char *directory) {
     /* delete all contents of directory */
     if ((dir = ws_dir_open(directory, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
-            filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S,
-                            ws_dir_get_name(file));
+            filename = g_build_filename(directory, ws_dir_get_name(file), NULL);
             if (test_for_directory(filename) != EISDIR) {
                 ret = ws_remove(filename);
             } else {
                 /* recurse */
                 ret = delete_directory (filename);
             }
+            g_free(filename);
             if (ret != 0) {
                 break;
             }
-            g_free (filename);
         }
         ws_dir_close(dir);
     }
