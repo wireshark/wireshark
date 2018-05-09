@@ -514,6 +514,8 @@ int main(int argc, char *qt_argv[])
     // one case on X11 and we don't yet support Android.
     // We do the equivalent on macOS by setting NSHighResolutionCapable
     // in Info.plist.
+    // Note that this enables Windows 8.1-style Per-monitor DPI
+    // awareness but not Windows 10-style Per-monitor v2 awareness.
     // http://doc.qt.io/qt-5/scalability.html
     // http://doc.qt.io/qt-5/highdpi.html
     // https://bugreports.qt.io/browse/QTBUG-53022 - The device pixel ratio is pretty much bogus on Windows.

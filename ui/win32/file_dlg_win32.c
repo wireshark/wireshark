@@ -93,6 +93,56 @@ static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, pa
 static TCHAR *build_file_open_type_list(void);
 static TCHAR *build_file_save_type_list(GArray *savable_file_types);
 
+#ifdef DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+typedef DPI_AWARENESS_CONTEXT (WINAPI *GetThreadDpiAwarenessContextProc)(void);
+typedef DPI_AWARENESS_CONTEXT (WINAPI *SetThreadDpiAwarenessContextProc)(DPI_AWARENESS_CONTEXT);
+
+static GetThreadDpiAwarenessContextProc GetThreadDpiAwarenessContextP;
+static SetThreadDpiAwarenessContextProc SetThreadDpiAwarenessContextP;
+static gboolean got_proc_addresses = FALSE;
+
+static gboolean get_proc_addresses(void) {
+    if (got_proc_addresses) return TRUE;
+
+    HMODULE u32_module = LoadLibrary(_T("User32.dll"));
+    if (!u32_module) {
+        got_proc_addresses = FALSE;
+        return FALSE;
+    }
+    gboolean got_all = TRUE;
+    GetThreadDpiAwarenessContextP = (GetThreadDpiAwarenessContextProc) GetProcAddress(u32_module, "GetThreadDpiAwarenessContext");
+    if (!GetThreadDpiAwarenessContextP) got_all = FALSE;
+    SetThreadDpiAwarenessContextP = (SetThreadDpiAwarenessContextProc) GetProcAddress(u32_module, "SetThreadDpiAwarenessContext");
+    if (!SetThreadDpiAwarenessContextP) got_all = FALSE;
+
+    got_proc_addresses = got_all;
+    return got_all;
+}
+
+// Enabling DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 causes issues
+// when dragging our open file dialog between differently-DPIed
+// displays. It might be time to break down and switch to common
+// item dialogs.
+HANDLE set_thread_per_monitor_v2_awareness(void) {
+    if (! get_proc_addresses()) return 0;
+#if 0
+    WCHAR info[100];
+    StringCchPrintf(info, 100,
+                    L"GetThrDpiAwarenessCtx: %d",
+                    GetThreadDpiAwarenessContextP());
+    MessageBox(NULL, info, _T("DPI info"), MB_OK);
+#endif
+    return (HANDLE) SetThreadDpiAwarenessContextP(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+}
+
+void revert_thread_per_monitor_v2_awareness(HANDLE context) {
+    SetThreadDpiAwarenessContextP((DPI_AWARENESS_CONTEXT) context);
+}
+#else // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+HANDLE set_thread_per_monitor_v2_awareness(void) { return 0; }
+void revert_thread_per_monitor_v2_awareness(HANDLE context _U_) { }
+#endif // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+
 static int             g_filetype;
 static gboolean        g_compressed;
 static packet_range_t *g_range;
@@ -114,65 +164,6 @@ static HWND  g_sf_hwnd = NULL;
 static char *g_dfilter_str = NULL;
 static unsigned int g_format_type = WTAP_TYPE_AUTO;
 
-static int
-win32_get_ofnsize()
-{
-    gboolean bVerGE5 = FALSE;
-    int ofnsize;
-    /* Remarks on OPENFILENAME_SIZE_VERSION_400:
-    *
-    * MSDN states that OPENFILENAME_SIZE_VERSION_400 should be used with
-    * WINVER and _WIN32_WINNT >= 0x0500.
-    * Unfortunately all these are compiler constants, while the underlying is a
-    * problem based is a length check of the runtime version used.
-    *
-    * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc
-    * the OPENFILENAME size plus 12 bytes.
-    * These 12 bytes are the difference between the two versions of this struct.
-    *
-    * Interestingly this fixes a bug, so the places bar e.g. "My Documents"
-    * is displayed - which wasn't the case with the former implementation.
-    *
-    * XXX - It's unclear if this length+12 works on all supported platforms,
-    * NT4 is the question here. However, even if it fails, we must calculate
-    * the length based on the runtime, not the compiler version anyway ...
-    */
-    /* This assumption does not work when compiling with MSVC2008EE as
-    * the open dialog window does not appear.
-    * Instead detect Windows version at runtime and choose size accordingly */
-#if (_MSC_VER >= 1500)
-    /*
-    * On VS2103, GetVersionEx is deprecated. Microsoft recommend to
-    * use VerifyVersionInfo instead
-    */
-#if (_MSC_VER >= 1800)
-    OSVERSIONINFOEX osvi;
-    DWORDLONG dwlConditionMask = 0;
-    int op = VER_GREATER_EQUAL;
-    /* Initialize the OSVERSIONINFOEX structure. */
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    osvi.dwMajorVersion = 5;
-    /* Initialize the condition mask. */
-    VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
-    /* Perform the test. */
-    bVerGE5=VerifyVersionInfo(
-        &osvi,
-        VER_MAJORVERSION,
-        dwlConditionMask);
-#else
-    OSVERSIONINFO osvi;
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    bVerGE5 = (osvi.dwMajorVersion >= 5);
-#endif /* _MSC_VER >= 1800 */
-    ofnsize = (bVerGE5)?sizeof(OPENFILENAME):OPENFILENAME_SIZE_VERSION_400;
-#else
-    ofnsize = sizeof(OPENFILENAME)+12;
-#endif /* _MSC_VER >= 1500 */
-    return ofnsize;
-}
 /*
  * According to http://msdn.microsoft.com/en-us/library/bb776913.aspx
  * we should use IFileOpenDialog and IFileSaveDialog on Windows Vista
@@ -184,7 +175,7 @@ win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *di
     OPENFILENAME *ofn;
     TCHAR file_name16[MAX_PATH] = _T("");
     int ofnsize;
-    gboolean gofn_ok;
+    BOOL gofn_ok;
 
     if (!file_name || !display_filter)
         return FALSE;
@@ -199,7 +190,7 @@ win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *di
         g_free(g_dfilter_str);
         g_dfilter_str = NULL;
     }
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -226,7 +217,9 @@ win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *di
     ofn->lpfnHook = open_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_OPENFILENAME_TEMPLATE");
 
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
     gofn_ok = GetOpenFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
 
     if (gofn_ok) {
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
@@ -339,7 +332,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
     int    ofnsize;
-    gboolean gsfn_ok;
+    BOOL gsfn_ok;
 
     if (!file_name || !file_type || !compressed)
         return FALSE;
@@ -361,7 +354,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
     g_compressed = FALSE;
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -385,7 +378,9 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     ofn->lpfnHook = save_as_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_SAVEASFILENAME_TEMPLATE");
 
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
     gsfn_ok = GetSaveFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
 
     if (gsfn_ok) {
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
@@ -416,7 +411,7 @@ gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name, int *file_type)
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
     int    ofnsize;
-    gboolean gsfn_ok;
+    BOOL gsfn_ok;
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
@@ -463,7 +458,9 @@ gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name, int *file_type)
     ofn->lpfnHook = save_as_statstree_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_SAVEASSTATSTREENAME_TEMPLATE");
 
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
     gsfn_ok = GetSaveFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
 
     if (gsfn_ok) {
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
@@ -487,7 +484,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
     int    ofnsize;
-    gboolean gsfn_ok;
+    BOOL gsfn_ok;
 
     if (!file_name || !file_type || !compressed || !range)
         return FALSE;
@@ -505,7 +502,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     g_cf = cf;
     g_compressed = FALSE;
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -529,7 +526,9 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     ofn->lpfnHook = export_specified_packets_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORT_SPECIFIED_PACKETS_FILENAME_TEMPLATE");
 
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
     gsfn_ok = GetSaveFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
 
     if (gsfn_ok) {
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
@@ -563,7 +562,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
     OPENFILENAME *ofn;
     TCHAR         file_name16[MAX_PATH] = _T("");
     int           ofnsize;
-    gboolean gofn_ok;
+    BOOL          gofn_ok;
 
     if (!file_name || !display_filter || !merge_type)
         return FALSE;
@@ -579,7 +578,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
         g_dfilter_str = NULL;
     }
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -606,7 +605,9 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
     ofn->lpfnHook = merge_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
 
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
     gofn_ok = GetOpenFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
 
     if (gofn_ok) {
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
@@ -644,7 +645,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
 
     g_cf = cf;
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -680,7 +681,11 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     print_args.print_formfeed      = FALSE;
     print_args.stream              = NULL;
 
-    if (GetSaveFileName(ofn)) {
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
+    BOOL gsfn_ok = GetSaveFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
+
+    if (gsfn_ok) {
         print_args.file = utf_16to8(file_name);
         switch (ofn->nFilterIndex) {
             case export_type_text:      /* Text */
@@ -756,7 +761,7 @@ win32_export_raw_file(HWND h_wnd, capture_file *cf) {
         return;
     }
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -785,7 +790,11 @@ win32_export_raw_file(HWND h_wnd, capture_file *cf) {
      * grab the info from cf->finfo_selected.  Which is more "correct"?
      */
 
-    if (GetSaveFileName(ofn)) {
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
+    BOOL gsfn_ok = GetSaveFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
+
+    if (gsfn_ok) {
         g_free( (void *) ofn);
         file_name8 = utf_16to8(file_name);
         data_p = tvb_get_ptr(cf->finfo_selected->ds_tvb, 0, -1) +
@@ -831,7 +840,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
         return;
     }
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -855,7 +864,11 @@ win32_export_sslkeys_file(HWND h_wnd) {
     ofn->lpfnHook = export_sslkeys_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTSSLKEYSFILENAME_TEMPLATE");
 
-    if (GetSaveFileName(ofn)) {
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
+    BOOL gsfn_ok = GetSaveFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
+
+    if (gsfn_ok) {
         g_free( (void *) ofn);
         file_name8 = utf_16to8(file_name);
         keylist = ssl_export_sessions();
@@ -898,7 +911,7 @@ win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list) {
     int    ofnsize;
     gchar *err_msg = NULL;
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -924,7 +937,11 @@ win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list) {
     g_filetype = cf->cd_t;
 
     /* XXX - Support marked filters */
-    if (GetSaveFileName(ofn)) {
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
+    BOOL gsfn_ok = GetSaveFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
+
+    if (gsfn_ok) {
         g_free( (void *) ofn);
         if (!color_filters_export(utf_16to8(file_name), filter_list, FALSE /* all filters */, &err_msg))
         {
@@ -949,7 +966,7 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     int    ofnsize;
     gchar *err_msg = NULL;
 
-    ofnsize = win32_get_ofnsize();
+    ofnsize = sizeof(OPENFILENAME);
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -973,7 +990,11 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     ofn->lpTemplateName = NULL;
 
     /* XXX - Support export limited to selected filters */
-    if (GetOpenFileName(ofn)) {
+    HANDLE save_da_ctx = set_thread_per_monitor_v2_awareness();
+    BOOL gofn_ok = GetOpenFileName(ofn);
+    revert_thread_per_monitor_v2_awareness(save_da_ctx);
+
+    if (gofn_ok) {
         g_free( (void *) ofn);
         if (!color_filters_import(utf_16to8(file_name), color_filters, &err_msg, color_filter_add_cb)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
@@ -1323,7 +1344,6 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
 
     g_free(strval);
 }
-
 
 static UINT_PTR CALLBACK
 open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
@@ -1872,7 +1892,6 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
     }
     return 0;
 }
-
 
 #define STATIC_LABEL_CHARS 100
 /* For each range static control, fill in its value and enable/disable it. */
