@@ -81,6 +81,7 @@ private:
         ShowAsISO8859_1,
         ShowAsRAW,
         ShowAsUTF8,
+        ShowAsUTF16,
         ShowAsYAML
     };
 

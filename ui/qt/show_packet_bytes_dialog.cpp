@@ -73,6 +73,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("ISO 8859-1"), ShowAsISO8859_1);
     ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
     ui->cbShowAs->addItem(tr("UTF-8"), ShowAsUTF8);
+    ui->cbShowAs->addItem(tr("UTF-16"), ShowAsUTF16);
     ui->cbShowAs->addItem(tr("YAML"), ShowAsYAML);
     ui->cbShowAs->setCurrentIndex(show_as_);
     ui->cbShowAs->blockSignals(false);
@@ -283,6 +284,7 @@ void ShowPacketBytesDialog::copyBytes()
         break;
 
     case ShowAsUTF8:
+    case ShowAsUTF16:
         wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText().toUtf8());
         break;
     }
@@ -328,6 +330,7 @@ void ShowPacketBytesDialog::saveAs()
     }
 
     case ShowAsUTF8:
+    case ShowAsUTF16:
     {
         QTextStream out(&file);
         out << ui->tePacketBytes->toPlainText().toUtf8();
@@ -701,6 +704,16 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         QString utf8 = QString::fromUtf8(field_bytes_.constData(), (int)field_bytes_.length());
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(utf8);
+        break;
+    }
+
+    case ShowAsUTF16:
+    {
+        // QString::fromUtf16 calls QUtf16::convertToUnicode, casting buffer
+        // back to a const char * and doubling nchars.
+        QString utf16 = QString::fromUtf16((const unsigned short *)field_bytes_.constData(), (int)field_bytes_.length() / 2);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
+        ui->tePacketBytes->setPlainText(utf16);
         break;
     }
 
