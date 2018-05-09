@@ -315,7 +315,12 @@ void ExtcapOptionsDialog::updateWidgets()
         if ( argument->group().length() > 0 )
             groupKey = argument->group();
 
-        Q_ASSERT(layouts.keys().contains(groupKey));
+        /* Skip non-assigned group keys, this happens if the configuration of the extcap is faulty */
+        if ( ! layouts.keys().contains(groupKey) )
+        {
+            ++iter;
+            continue;
+        }
 
         QGridLayout * layout = ((QGridLayout *)layouts[groupKey]->layout());
         lblWidget = argument->createLabel((QWidget *)this);
@@ -531,7 +536,10 @@ void ExtcapOptionsDialog::resetValues()
 
         /* this stores all values to the preferences */
         if ( doStore )
+        {
             storeValues();
+            anyValueChanged();
+        }
     }
 }
 
