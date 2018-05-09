@@ -171,6 +171,7 @@ static void get_time(gchar *string, struct wtap_pkthdr *phdr) {
                     &date.tm_min, &date.tm_sec, &ms)) {
         date.tm_year = 70;
         date.tm_mon -= 1;
+        date.tm_isdst = -1;
         seconds = mktime(&date);
         phdr->ts.secs = (time_t) seconds;
         phdr->ts.nsecs = (int) (ms * 1e6);
