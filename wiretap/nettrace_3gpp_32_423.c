@@ -427,6 +427,8 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 	}
 
 	if ((exported_pdu_info->precense_flags & EXP_PDU_TAG_COL_PROT_BIT) == EXP_PDU_TAG_COL_PROT_BIT) {
+		/* The assert prevents static code analyzers to raise warnings */
+		g_assert(exported_pdu_info->proto_col_str);
 		exp_pdu_tags_len += 4 + (int)strlen(exported_pdu_info->proto_col_str);
 	}
 
