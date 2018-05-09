@@ -1308,6 +1308,7 @@ main(int argc, char *argv[])
         stoptm.tm_year = 135;
         stoptm.tm_mday = 31;
         stoptm.tm_mon = 11;
+        stoptm.tm_isdst = -1;
 
         stoptime = mktime(&stoptm);
     }

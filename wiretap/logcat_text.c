@@ -159,6 +159,7 @@ static void get_time(gchar *string, wtap_rec *rec) {
                     &date.tm_min, &date.tm_sec, &ms)) {
         date.tm_year = 70;
         date.tm_mon -= 1;
+        date.tm_isdst = -1;
         seconds = mktime(&date);
         rec->ts.secs = (time_t) seconds;
         rec->ts.nsecs = (int) (ms * 1e6);
