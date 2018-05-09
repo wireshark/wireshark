@@ -409,12 +409,11 @@ done:
 	g_ptr_array_add(parts,NULL);
 
 	g_free(m->parts);
-	m->parts = (gchar**)parts->pdata;
+	m->parts = (gchar **)g_ptr_array_free(parts, FALSE);
 
 	g_free(m->args_pos);
 	m->args_pos = (int*)(void *)args_pos->data;
 
-	g_ptr_array_free(parts,FALSE);
 	g_array_free(args_pos,FALSE);
 
 	m->argc = argc;

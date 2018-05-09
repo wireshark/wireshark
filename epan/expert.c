@@ -288,7 +288,7 @@ expert_cleanup(void)
 	}
 
 	if (deregistered_expertinfos) {
-		g_ptr_array_free(deregistered_expertinfos, FALSE);
+		g_ptr_array_free(deregistered_expertinfos, TRUE);
 		deregistered_expertinfos = NULL;
 	}
 }

@@ -436,7 +436,7 @@ pdu_decl ::=
 		g_ptr_array_add(transport_stack,g_ptr_array_remove_index(Stack,i));
 	}
 
-	g_ptr_array_free(Stack,FALSE);
+	g_ptr_array_free(Stack, TRUE);
 
 	cfg->transport_ranges = transport_stack;
 	cfg->payload_ranges = Payload;

@@ -386,7 +386,7 @@ static void deregister_tap_listener (gpointer data, gpointer userdata) {
 
 int wslua_deregister_listeners(lua_State* L) {
     g_ptr_array_foreach(listeners, deregister_tap_listener, L);
-    g_ptr_array_free(listeners, FALSE);
+    g_ptr_array_free(listeners, TRUE);
     listeners = NULL;
 
     return 0;

@@ -586,12 +586,12 @@ proto_cleanup_base(void)
 	}
 
 	if (deregistered_fields) {
-		g_ptr_array_free(deregistered_fields, FALSE);
+		g_ptr_array_free(deregistered_fields, TRUE);
 		deregistered_fields = NULL;
 	}
 
 	if (deregistered_data) {
-		g_ptr_array_free(deregistered_data, FALSE);
+		g_ptr_array_free(deregistered_data, TRUE);
 		deregistered_data = NULL;
 	}
 

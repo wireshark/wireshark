@@ -244,7 +244,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *callback_da
         callback(plug->name, plug->version, plug->type_name, g_module_name(plug->handle), callback_data);
     }
 
-    g_ptr_array_free(plugins_array, FALSE);
+    g_ptr_array_free(plugins_array, TRUE);
 }
 
 static void

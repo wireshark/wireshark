@@ -78,7 +78,7 @@ static gboolean destroy_mate_gogs(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	if (gog->gog_keys) {
 		gog_remove_keys(gog);
-		g_ptr_array_free(gog->gog_keys,FALSE);
+		g_ptr_array_free(gog->gog_keys, TRUE);
 	}
 
 	g_slice_free(mate_max_size,(mate_max_size*)gog);
