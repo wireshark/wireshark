@@ -3982,7 +3982,7 @@ static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo,
 		NULL
 	};
 
-	if (version != 0x01) {
+	if (version != 0x01 && version != 0x02) {
 		proto_tree_add_expert_format(
 			tree, pinfo, &ei_batadv_tvlv_unknown_version, tvb,
 			offset, 0, "Unknown version (0x%02x)", version);
