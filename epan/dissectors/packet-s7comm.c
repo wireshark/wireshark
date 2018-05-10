@@ -2258,7 +2258,7 @@ s7comm_get_timestring_from_s7time(tvbuff_t *tvb, guint offset, char *str, gint m
     days = tvb_get_ntohs(tvb, offset + 4);
 
     t = 441763200L;             /* 1.1.1984 00:00:00 */
-    t += days * (24*60*60);
+    t += (guint32)days * (24*60*60);
     t += day_msec / 1000;
     mt = gmtime(&t);
     str[0] = '\0';

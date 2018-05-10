@@ -674,7 +674,7 @@ get_section_name_offset(tvbuff_t *tvb, guint64 shoff, guint16 shnum, guint16 she
     if (shndx > shnum)
         return NULL;
 
-    offset = value_guard(shoff + shndx * shentsize);
+    offset = value_guard(shoff + (guint32)shndx * (guint32)shentsize);
     sh_name = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
     return tvb_get_const_stringz(tvb, value_guard(shstrtab_offset + sh_name), NULL);
 }
@@ -1305,7 +1305,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (phoff) {
         segment_info[area_counter].offset = phoff;
-        segment_info[area_counter].size = phnum * phentsize;
+        segment_info[area_counter].size = (guint32)phnum * (guint32)phentsize;
         segment_info[area_counter].name = "ProgramHeader";
         area_counter += 1;
     }
@@ -1511,7 +1511,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
         offset += 4;
 
-        length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
+        length = shoff + (guint32)shstrndx * (guint32)shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
             shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
                     tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
