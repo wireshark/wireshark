@@ -45,6 +45,13 @@ since version 2.6.0:
 * The autotools build system has been removed. CMake is the one build system now.
 * tshark has now "-G elastic-mapping" option to generate an ElasticSearch mapping file.
 
+=== Removed Features and Support
+
+* The legacy (GTK+) user interface has been removed and is no longer supported.
+* Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
+* Wireshark requires GLib 2.32 or later.
+* Building Wireshark using Autotools is no longer supported.
+
 //=== Removed Dissectors
 
 //=== New File Format Decoding Support
