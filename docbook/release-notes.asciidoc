@@ -62,6 +62,7 @@ since version 2.6.0:
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+DoIP (ISO 13400-2 Diagnostic communication over Internet Protocol)
 GSUP (Osmocom Generic Subscriber Update Protocol)
 NR (5G) PDCP protocol
 TPM 2.0 protocol
