@@ -4558,7 +4558,7 @@ void proto_register_batadv(void)
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_unicast_tvlv_src,
-		  { "Destination", "batadv.unicast_tvlv.src",
+		  { "Source", "batadv.unicast_tvlv.src",
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
