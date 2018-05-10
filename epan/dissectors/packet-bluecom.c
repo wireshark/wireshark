@@ -205,7 +205,6 @@ dissect_bcp_connect_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
         proto_tree_add_item(bcp_subtree, hf_bcp_connectrsp_lenin, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(bcp_subtree, hf_bcp_connectrsp_lenout, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
     }
 }
 
@@ -300,7 +299,6 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
         if((len-(offset-offset_base)))
         {
             proto_tree_add_item(bcp_subtree, hf_bcp_searchrsp_ethaddr2, tvb, offset, BCP_ETHADDR_LEN, ENC_NA);
-            offset += BCP_ETHADDR_LEN;
         }
     }
 }
@@ -338,7 +336,6 @@ dissect_bcp_identify_data(proto_tree *bcp_tree, tvbuff_t *tvb)
     if((len-(offset-offset_base)))
     {
         proto_tree_add_item(bcp_subtree, hf_bcp_identify_ethaddr2, tvb, offset, BCP_ETHADDR_LEN, ENC_NA);
-        offset += BCP_ETHADDR_LEN;
     }
 }
 
@@ -376,7 +373,6 @@ dissect_bcp_sync_data(proto_tree *bcp_tree, tvbuff_t *tvb)
         proto_tree_add_item(bcp_subtree, hf_bcp_sync_ethaddr, tvb, offset, BCP_ETHADDR_LEN, ENC_NA);
         offset += BCP_ETHADDR_LEN;
         proto_tree_add_item(bcp_subtree, hf_bcp_sync_ethaddr2, tvb, offset, BCP_ETHADDR_LEN, ENC_NA);
-        offset += BCP_ETHADDR_LEN;
     }
 }
 
