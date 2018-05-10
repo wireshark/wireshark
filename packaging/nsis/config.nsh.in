@@ -32,5 +32,3 @@
 !define SMI_DIR "@SMI_DIR@"
 
 !define QT_DIR "@QT_DIR@"
-
-!define GTK_DIR "@GTK_DIR@"

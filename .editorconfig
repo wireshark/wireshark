@@ -30,6 +30,11 @@ indent_size = 4
 indent_style = spaces
 indent_size = 2
 
+# NSIS
+[*.ns[ih]]
+indent_style = spaces
+indent_size = 2
+
 # C/C++
 [*.{c,cpp,h}]
 indent_style = space
