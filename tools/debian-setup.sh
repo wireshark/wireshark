@@ -47,7 +47,6 @@ BASIC_LIST="qttools5-dev \
 	bison \
 	flex \
 	make \
-	cmake \
 	python \
 	perl \
 	libgcrypt-dev"
@@ -82,6 +81,11 @@ add_package() {
 	# package is found, append it to list
 	eval "${list}=\"\${${list}} \${pkgname}\""
 }
+
+# cmake3 3.5.1: Ubuntu 14.04
+# cmake >= 3.5: Debian >= jessie-backports, Ubuntu >= 16.04
+add_package BASIC_LIST cmake3 ||
+BASIC_LIST="$BASIC_LIST cmake"
 
 # Debian >= wheezy-backports, Ubuntu >= 16.04
 add_package ADDITIONAL_LIST libnghttp2-dev ||

@@ -38,21 +38,11 @@ if(WIN32)
 	# Needed for GREATER_EQUAL operator
 	cmake_minimum_required(VERSION 3.7)
 else()
-	cmake_minimum_required(VERSION 2.8.12)
+	cmake_minimum_required(VERSION 3.5)
 endif()
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
-
-# Set old behaviour for MACOSX_RPATH (since 3.0)
-if (POLICY CMP0042)
-	cmake_policy(SET CMP0042 OLD)
-endif()
-
-# Set old behaviour for variable quoting (since 3.1)
-if (POLICY CMP0054)
-	cmake_policy(SET CMP0054 OLD)
-endif()
 
 # If our target platform is enforced by our generator, set
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
@@ -61,15 +51,15 @@ endif()
 if(WIN32)
 	find_package(PowerShell REQUIRED)
 
-	if(${CMAKE_CL_64} OR "${CMAKE_GENERATOR}" MATCHES "Win64")
+	if(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
-	elseif("${CMAKE_GENERATOR}" MATCHES "Visual Studio")
+	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
 	else()
 		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
 	endif()
 
-	if ("${WIRESHARK_TARGET_PLATFORM}" MATCHES "win64")
+	if(WIRESHARK_TARGET_PLATFORM MATCHES "win64")
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE amd64)
 	else()
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE x86)
@@ -125,7 +115,7 @@ if(WIN32)
 		COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} -VSVersion ${_vsversion_args}
 		RESULT_VARIABLE _win_setup_failed
 	)
-	if (${_win_setup_failed})
+	if(_win_setup_failed)
 		message(FATAL_ERROR "Windows setup (win-setup.ps1) failed.")
 	endif()
 
@@ -177,10 +167,10 @@ include(GNUInstallDirs)
 # https://cmake.org/Wiki/CMake_RPATH_handling
 if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
 	LIST(FIND CMAKE_C_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" IS_SYSTEM_DIR)
-	if("${IS_SYSTEM_DIR}" STREQUAL "-1")
+	if(IS_SYSTEM_DIR STREQUAL "-1")
 		SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
 		SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-	endif("${IS_SYSTEM_DIR}" STREQUAL "-1")
+	endif()
 endif()
 
 # Banner shown at top right of Qt welcome screen.
@@ -210,31 +200,31 @@ include(UseAsn2Wrs)
 # lookup tables for the epan libraries
 # Check if CXX flags have been set to c++11 -> Setup Eclipse Indexer correctly!
 # Also setup the project slightly different
-if (${CMAKE_EXTRA_GENERATOR} MATCHES "Eclipse CDT4" )
+if(CMAKE_EXTRA_GENERATOR MATCHES "Eclipse CDT4")
 	SET(CXX_ENABLED 0)
 	LIST(LENGTH CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS LIST_LEN)
-	if ( ${LIST_LEN} GREATER 0 )
+	if(LIST_LEN GREATER 0)
 		SET(CXX_ENABLED 1)
 	endif()
 	SET(C_ENABLED 0)
 	LIST(LENGTH CMAKE_EXTRA_GENERATOR_C_SYSTEM_DEFINED_MACROS LIST_LEN)
-	if ( ${LIST_LEN} GREATER 0)
+	if(LIST_LEN GREATER 0)
 		SET(C_ENABLED 1)
 	endif()
-	if (${C_ENABLED} EQUAL 1 AND ${CXX_ENABLED} EQUAL 1)
+	if(C_ENABLED EQUAL 1 AND CXX_ENABLED EQUAL 1)
 		# Combined project (C and CXX). This will confuse the indexer. For that reason
 		# we unsert set the __cplusplus variable for the indexer
 		list(FIND CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS "__cplusplus" GEN_MACRO_INDEX)
-		if( ${GEN_MACRO_INDEX} GREATER -1 )
+		if(GEN_MACRO_INDEX GREATER -1)
 			list(REMOVE_AT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX})
 			list(REMOVE_AT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX})
 		endif()
 		SET(CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS} CACHE INTERNAL "")
-	elseif ( (${CXX_ENABLED} EQUAL 1) AND (${CMAKE_CXX_FLAGS} MATCHES ".*-std=c\\+\\+11.*"))
+	elseif((CXX_ENABLED EQUAL 1) AND (CMAKE_CXX_FLAGS MATCHES ".*-std=c\\+\\+11.*"))
 		#add_definitions (-D__cplusplus=201103L)
 		# CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS
 		list(FIND CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS "199711L" GEN_MACRO_INDEX)
-		if( ${GEN_MACRO_INDEX} GREATER -1 )
+		if(GEN_MACRO_INDEX GREATER -1)
 			list(REMOVE_AT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX})
 			list(INSERT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX} "201103L")
 			SET(CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS} CACHE INTERNAL "")
@@ -305,7 +295,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		/D_ALLOW_KEYWORD_MACROS
 	)
 
-	if(NOT "${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
+	if(NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
 		add_definitions("/D_BIND_TO_CURRENT_CRT_VERSION=1")
 	endif()
 
@@ -364,13 +354,13 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 else() # ! MSVC
 	if(CMAKE_OSX_DEPLOYMENT_TARGET)
 		if(APPLE)
-			if(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.0")
+			if(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.0")
 				message(FATAL_ERROR "We don't support building for Mac OS X 10.0")
-			elseif(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.1")
+			elseif(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.1")
 				message(FATAL_ERROR "We don't support building for Mac OS X 10.1")
-			elseif(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.2")
+			elseif(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.2")
 				message(FATAL_ERROR "We don't support building for Mac OS X 10.2")
-			elseif(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.4" OR ${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.5")
+			elseif(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.4" OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.5")
 				#
 				# Only 32-bit builds are supported.  10.5
 				# (and 10.4?) had a bug that causes some BPF
@@ -1051,26 +1041,18 @@ string(REPLACE ";" " " _package_list "${PACKAGELIST}")
 message(STATUS "Package List: ${_package_list}")
 # Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
-	if(${PACKAGE} STREQUAL "PythonInterp")
-		set(PACKAGE_VAR "PYTHONINTERP")
-	elseif(${PACKAGE} STREQUAL "Gettext")
-		set(PACKAGE_VAR "GETTEXT")
-	elseif(${PACKAGE} STREQUAL "Perl")
-		set(PACKAGE_VAR "PERL")
-	elseif(${PACKAGE} STREQUAL "LibXml2")
-		set(PACKAGE_VAR "LIBXML2")
+	# Most packages export uppercase variables, but there are exceptions.
+	if(PACKAGE MATCHES "^(Qt5)")
+		set(PACKAGE_VAR "${PACKAGE}")
 	else()
-		set(PACKAGE_VAR ${PACKAGE})
+		string(TOUPPER "${PACKAGE}" PACKAGE_VAR)
 	endif()
 	if(${PACKAGE}_OPTIONS)
 		find_package(${PACKAGE} ${${PACKAGE}_OPTIONS})
 	else()
 		find_package(${PACKAGE})
 	endif()
-	# FindPackageHandleStandardArgs before CMake 3.2 always uses uppercase
-	# for the FOUND variables (e.g. GIT_FOUND is set, but not Git_FOUND).
-	string(TOUPPER "${PACKAGE_VAR}" PACKAGE_VAR_UPPER)
-	if (${PACKAGE_VAR}_FOUND OR ${PACKAGE_VAR_UPPER}_FOUND)
+	if (${PACKAGE_VAR}_FOUND)
 		message(STATUS "${PACKAGE_VAR} FOUND")
 		set(HAVE_LIB${PACKAGE_VAR} 1)
 		if (NOT DEFINED ${PACKAGE_VAR}_INCLUDE_DIRS AND ${PACKAGE_VAR}_INCLUDE_DIR)
@@ -1196,14 +1178,9 @@ if (Qt5Widgets_FOUND)
 	endif()
 	if (Qt5Widgets_VERSION VERSION_GREATER 5.6
 	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
-		# Qt 5.7 and later require C++ 11. If our minmimu required CMake version
-		# is ever >= 3.1 we can use CXX_STANDARD + CXX_STANDARD_REQUIRED.
-		message(STATUS "Checking for C++ 11 support (Required by Qt 5.7 and later)")
-		check_cxx_compiler_flag(-std=c++11 CXX__std_c__11_VALID)
-		if(NOT CXX__std_c__11_VALID)
-			message(FATAL_ERROR "Qt ${Qt5Widgets_VERSION} requires C++ 11")
-		endif()
-		set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+		# Qt 5.7 and later require C++ 11.
+		set(CMAKE_CXX_STANDARD 11)
+		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 	endif()
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
@@ -1406,15 +1383,8 @@ if (GIT_EXECUTABLE)
 	set(GIT_BIN_PARAM --git-bin ${GIT_EXECUTABLE})
 endif()
 set( VERSION ${PROJECT_VERSION} )
-if(NOT CMAKE_VERSION VERSION_LESS "3.2.1")
-	# Prevents unnecessary rebuilds by ensuring that dependents are not
-	# built before make-version.pl finishes (which may touch version.h).
-	set(version_byproducts BYPRODUCTS version.h)
-else()
-	set(version_byproducts "")
-endif()
 add_custom_target(version
-	${version_byproducts}
+	BYPRODUCTS version.h
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/make-version.pl
 		--set-vcs ${GIT_BIN_PARAM}
@@ -1692,8 +1662,6 @@ if(WIN32)
 	# The gio, gnutls, png, and other OBS-generated DLLs depend on
 	# zlib1.dll. We compile zlib locally but the Debug configuration
 	# (the default) creates zlibd1.dll.
-	# Note: Passing multiple files to copy_if_different requires
-	# CMake 3.5 or later.
 	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			${GLIB2_DLLS} $<$<CONFIG:Debug>:zlib1.dll>
@@ -1823,9 +1791,7 @@ if(WIN32)
 		PATH "$ENV{PROGRAMFILES}/7-Zip" "$ENV{PROGRAMW6432}/7-Zip"
 		DOC "Path to the 7z utility."
 	)
-	# XXX "if(ZIP_EXECUTABLE)" doesn't work here. It looks like the
-	# absence of "-NOTFOUND" doesn't equal "true".
-	if (NOT "${ZIP_EXECUTABLE}" STREQUAL "ZIP_EXECUTABLE-NOTFOUND")
+	if(ZIP_EXECUTABLE)
 		add_custom_target(pdb_zip_package)
 		set_target_properties(pdb_zip_package PROPERTIES FOLDER "Packaging")
 		set(_pdb_zip "${CMAKE_BINARY_DIR}/Wireshark-pdb-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.zip")
@@ -1972,8 +1938,6 @@ list(APPEND DATA_FILES_SRC
 
 # Copy all paths from the source tree to the data directory. Directories are
 # automatically created if missing as the filename is given.
-# TODO Switch to cmake -E copy_if_different when our minimum CMake version
-# is >= 3.5 everywhere.
 file(GLOB _data_files RELATIVE "${CMAKE_SOURCE_DIR}" ${DATA_FILES_SRC})
 foreach(_data_file ${_data_files})
 	add_custom_command(OUTPUT "${DATAFILE_DIR}/${_data_file}"
@@ -1985,13 +1949,6 @@ foreach(_data_file ${_data_files})
 	)
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_data_file}")
 endforeach()
-
-if(CMAKE_VERSION VERSION_LESS 3.5)
-	# To bad -u / --update is a GNU extension.
-	set (MULTI_COPY_COMMAND cp)
-else()
-	set (MULTI_COPY_COMMAND ${CMAKE_COMMAND} -E copy_if_different)
-endif()
 
 add_custom_command(
 	OUTPUT "${DATAFILE_DIR}/dtds" "${DATAFILE_DIR}/diameter" "${DATAFILE_DIR}/radius"
@@ -2009,7 +1966,7 @@ endforeach()
 
 add_custom_command(
 	OUTPUT ${_dtds_data_files}
-	COMMAND ${MULTI_COPY_COMMAND}
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_dtds_src_files}
 		"${DATAFILE_DIR}/dtds"
 	VERBATIM
@@ -2029,7 +1986,7 @@ endforeach()
 
 add_custom_command(
 	OUTPUT ${_diameter_data_files}
-	COMMAND ${MULTI_COPY_COMMAND}
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_diameter_src_files}
 		"${DATAFILE_DIR}/diameter"
 	VERBATIM
@@ -2051,7 +2008,7 @@ endforeach()
 
 add_custom_command(
 	OUTPUT ${_radius_data_files}
-	COMMAND ${MULTI_COPY_COMMAND}
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_radius_src_files}
 		"${DATAFILE_DIR}/radius"
 	VERBATIM
@@ -2246,7 +2203,7 @@ if(BUILD_wireshark AND QT_FOUND)
 			HINTS "${_qmake_location}"
 			DOC "Path to the windeployqt utility."
 		)
-		if (NOT "${QT_WINDEPLOYQT_EXECUTABLE}" STREQUAL "QT_WINDEPLOYQT_EXECUTABLE-NOTFOUND")
+		if(QT_WINDEPLOYQT_EXECUTABLE)
 			set(QT_BIN_PATH "${_qt_bin_path}" CACHE INTERNAL
 				"Path to qmake, windeployqt, and other Qt utilities."
 			)
@@ -2663,7 +2620,7 @@ if (WIN32)
 	# Must come after executable targets are defined.
 	find_package( NSIS )
 
-	if (NOT "${MAKENSIS_EXECUTABLE}" STREQUAL "MAKENSIS_EXECUTABLE-NOTFOUND")
+	if(MAKENSIS_EXECUTABLE)
 		add_subdirectory( packaging/nsis EXCLUDE_FROM_ALL )
 		ADD_NSIS_UNINSTALLER_TARGET()
 		ADD_NSIS_PACKAGE_TARGET()
@@ -2671,17 +2628,13 @@ if (WIN32)
 
 	find_package( WiX )
 
-	if (NOT "${WIX_CANDLE_EXECUTABLE}" STREQUAL "WIX_CANDLE_EXECUTABLE-NOTFOUND")
+	if(WIX_CANDLE_EXECUTABLE)
 		add_subdirectory( packaging/wix EXCLUDE_FROM_ALL )
 		ADD_WIX_PACKAGE_TARGET()
 	endif()
 
 	find_package( PortableApps )
-	if (
-		NOT "${PORTABLEAPPS_LAUNCHER_GENERATOR_EXECUTABLE}" STREQUAL "PORTABLEAPPS_LAUNCHER_GENERATOR_EXECUTABLE-NOTFOUND"
-		AND
-		NOT "${PORTABLEAPPS_INSTALLER_EXECUTABLE}" STREQUAL "PORTABLEAPPS_INSTALLER_EXECUTABLE-NOTFOUND"
-	)
+	if(PORTABLEAPPS_LAUNCHER_GENERATOR_EXECUTABLE AND PORTABLEAPPS_INSTALLER_EXECUTABLE)
 		add_subdirectory( packaging/portableapps EXCLUDE_FROM_ALL )
 		ADD_PORTABLEAPPS_PACKAGE_TARGET()
 	endif()
@@ -3233,10 +3186,10 @@ else ()
 	find_program(HARDENING_CHECK_EXECUTABLE hardening-check
 		DOC "Path to the hardening-check utility."
 	)
-	if (NOT "${HARDENING_CHECK_EXECUTABLE}" STREQUAL "HARDENING_CHECK_EXECUTABLE-NOTFOUND")
+	if(HARDENING_CHECK_EXECUTABLE)
 		foreach(_prog ${PROGLIST})
 			get_target_property(_prog_dir ${_prog} RUNTIME_OUTPUT_DIRECTORY)
-			if ("${_prog_dir}" STREQUAL "_prog_dir-NOTFOUND")
+			if(NOT _prog_dir)
 				set(_prog_dir "${CMAKE_BINARY_DIR}/run")
 			endif()
 			set(_prog_paths ${_prog_paths} "${_prog_dir}/${_prog}")
@@ -3262,7 +3215,7 @@ CHECKAPI(
 find_program(SHELLCHECK_EXECUTABLE shellcheck
 	DOC "Path to the shellcheck utility."
 )
-if (NOT "${SHELLCHECK_EXECUTABLE}" STREQUAL "SHELLCHECK_EXECUTABLE-NOTFOUND")
+if(SHELLCHECK_EXECUTABLE)
 	add_custom_target(shellcheck)
 	set_target_properties(shellcheck PROPERTIES FOLDER "Tests")
 	# --external-sources requires 0.4.0 or later.

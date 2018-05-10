@@ -52,7 +52,7 @@ Obsoletes:	wireshark-devel
 
 BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:	cmake
+BuildRequires:	cmake >= 3.5 or cmake3 >= 3.5
 BuildRequires:	gcc
 BuildRequires:	python
 BuildRequires:	perl

@@ -591,22 +591,15 @@ include_directories(
 
 SET(CMAKE_AUTOMOC TRUE)
 
-if(CMAKE_VERSION VERSION_LESS "3.0.2")
-	# AUTOUIC and AUTORCC are not supported in CMAKE 2.8.x
-	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
-	QT5_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
-	QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
-else()
-	SET(CMAKE_AUTOUIC TRUE)
-	SET(CMAKE_AUTORCC TRUE)
+SET(CMAKE_AUTOUIC TRUE)
+SET(CMAKE_AUTORCC TRUE)
 
-	set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
-	set(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
+set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
+set(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 
-	# Add .qrc files to library dependencies for AUTORCC.
-	set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
-	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
-endif()
+# Add .qrc files to library dependencies for AUTORCC.
+set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
+QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 
 add_custom_target(
 	translations ALL
@@ -662,14 +655,9 @@ add_dependencies(qtui translations)
 set_target_properties(qtui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
-)
-if(NOT CMAKE_VERSION VERSION_LESS "3.0.2")
 	# Ensure .qm files are generated before autogenerating i18n.qrc
-	set_target_properties(qtui PROPERTIES
-		AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
-	)
-endif()
-
+	AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
+)
 if (WIN32)
 	target_link_libraries(qtui "UxTheme.lib")
 endif()

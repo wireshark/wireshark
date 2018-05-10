@@ -215,7 +215,7 @@ set_target_properties(dissectors-corba PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-if(WIN32 AND "${CMAKE_GENERATOR}" STREQUAL "Visual Studio 12 2013 Win64")
+if(WIN32 AND CMAKE_GENERATOR STREQUAL "Visual Studio 12 2013 Win64")
 	# CORBA IDL dissectors are triggering a MSVC 2013 x64 /O2 bug leading to a NULL pointer dereference (see bug 12495)
 	target_compile_options(dissectors-corba PRIVATE $<$<CONFIG:Release>:/Ox> $<$<CONFIG:RelWithDebInfo>:/Ox>)
 endif()
