@@ -13,10 +13,6 @@
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
 #include <glib.h>
 #include "inet_ipv4.h"
 #include "inet_ipv6.h"
@@ -48,18 +44,11 @@
  *
  * At least they document inet_ntop() as requiring a 16-byte or larger
  * buffer for IPv4 addresses and a 46-byte or larger buffer for
- * IPv6 addresses.
+ * IPv6 addresses. For this reason, use hard-coded numeric constants rather than
+ * INET_ADDRSTRLEN and INET6_ADDRSTRLEN.
  */
-#ifdef INET_ADDRSTRLEN
-  #define WS_INET_ADDRSTRLEN      INET_ADDRSTRLEN
-#else
-  #define WS_INET_ADDRSTRLEN      16
-#endif
-#ifdef INET6_ADDRSTRLEN
-  #define WS_INET6_ADDRSTRLEN     INET6_ADDRSTRLEN
-#else
-  #define WS_INET6_ADDRSTRLEN     46
-#endif
+#define WS_INET_ADDRSTRLEN      16
+#define WS_INET6_ADDRSTRLEN     46
 
 /*
  * To check for errors set errno to zero before calling ws_inet_ntop{4,6}.
