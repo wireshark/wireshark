@@ -1705,9 +1705,9 @@ if(WIN32)
 	# the top-level CMakeLists.txt iterates over the package list?
 
 	# Required DLLs.
-	# The cairo, freetype, gio, gnutls, png, and other OBS-generated DLLs
-	# depend on zlib1.dll. We compile zlib locally but the Debug
-	# configuration (the default) creates zlibd1.dll.
+	# The gio, gnutls, png, and other OBS-generated DLLs depend on
+	# zlib1.dll. We compile zlib locally but the Debug configuration
+	# (the default) creates zlibd1.dll.
 	# Note: Passing multiple files to copy_if_different requires
 	# CMake 3.5 or later.
 	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
