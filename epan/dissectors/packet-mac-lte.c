@@ -6682,8 +6682,8 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint32 format;
 
                 /* F(ormat) bit tells us how long the length field is */
-                proto_tree_add_item_ret_uint(pdu_subheader_tree, hf_mac_lte_slsch_format,
-                                             tvb, offset, 1, ENC_BIG_ENDIAN, &format);
+                proto_tree_add_item_ret_boolean(pdu_subheader_tree, hf_mac_lte_slsch_format,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN, &format);
 
                 /* Now read length field itself */
                 if (format) {
