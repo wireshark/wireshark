@@ -27,17 +27,6 @@
     <Feature Id="Fe.TShark" Title="TShark" Level="1" AllowAdvertise="yes" Display="expand" Description="Text based network protocol analyzer.">
       <ComponentGroupRef Id="CG.TShark" />
     </Feature>
-    <?ifdef GTK_DIR?>
-      <Feature Id="Fe.WiresharkGTK" Title="Wireshark 1" Level="2" AllowAdvertise="yes" Display="expand" Description="The classic user interface.">
-        <ComponentGroupRef Id="CG.WiresharkGTK" />
-        <ComponentGroupRef Id="CG.GTKRequiredDependencies" />
-        <ComponentGroupRef Id="CG.GTKSubdirectory" />
-        <ComponentGroupRef Id="CG.WiresharkLegacyStartMenu" />
-        <ComponentGroupRef Id="CG.WiresharkLegacyDesktopIcon" />
-        <ComponentGroupRef Id="CG.WiresharkLegacyQuickLaunchIcon" />
-        <ComponentGroupRef Id="CG.WiresharkLegacyFileAssociations" />
-      </Feature>
-    <?endif?>
     <Feature Id="Fe.Plugins" Title="Plugins &amp; Extensions" Level="1" AllowAdvertise="yes" Display="expand" Description="Plugins and extensions for both $(var.WiresharkName) and TShark.">
       <!-- XXX - Cleanup plugins directory on uninstall  -->
       <Feature Id="Fe.Plugins.Dissector" Title="Dissector Plugins" Level="1" AllowAdvertise="yes" Display="expand" Description="Additional protocol dissectors.">

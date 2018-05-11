@@ -277,22 +277,6 @@
         </ComponentGroup>
     </Fragment>
 
-  <!-- Wireshark GTK -->
-  <?ifdef GTK_DIR?>
-    <Fragment>
-      <DirectoryRef Id="INSTALLFOLDER">
-        <Component Id="cmpWiresharkGTK_exe" Guid="*">
-          <File Id="filWiresharkGTK_exe" KeyPath="yes" Source="$(var.Staging.Dir)\Wireshark-gtk.exe" />
-        </Component>
-      </DirectoryRef>
-    </Fragment>
-    <Fragment>
-      <ComponentGroup Id="CG.WiresharkGTK">
-        <ComponentRef Id="cmpWiresharkGTK_exe" />
-      </ComponentGroup>
-    </Fragment>
-  <?endif?>
-
   <!-- Configuration Profiles -->
   <Fragment>
     <DirectoryRef Id="dirProfiles">
@@ -596,33 +580,6 @@
         <RemoveFolder Id="RemoveQuickLaunchFolder" Directory="QuickLaunchFolder" On="uninstall" />
       </Component>
     </ComponentGroup>
-    <?ifdef GTK_DIR?>
-    <ComponentGroup Id="CG.WiresharkLegacyStartMenu" Directory="ProgramMenuFolder">
-      <Component Id="cmpWiresharkLegacyShortcut">
-        <Shortcut Id="scWiresharkLegacy" Name="Legacy $(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer (classic UI)" Target="[#filWiresharkGTK_exe]" WorkingDirectory="INSTALLFOLDER" />
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="StartMenuLegacyShortcut" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_LEGACY_START_MENU = "1"</Condition>
-      </Component>
-    </ComponentGroup>
-    <ComponentGroup Id="CG.WiresharkLegacyDesktopIcon" Directory="DesktopFolder">
-      <Component Id="cmpWiresharkLegacyDesktopIcon">
-        <Shortcut Id="scWiresharkLegacyDesktop" Name="Legacy $(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer (classic UI)" Target="[#filWiresharkGTK_exe]" WorkingDirectory="INSTALLFOLDER" />
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="LegacyDesktopIcon" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_LEGACY_DESKTOP_ICON = "1"</Condition>
-      </Component>
-    </ComponentGroup>
-    <ComponentGroup Id="CG.WiresharkLegacyQuickLaunchIcon" Directory="QuickLaunchFolder">
-      <Component Id="cmpWiresharkLegacyQuickLaunchIcon">
-        <Shortcut Id="scWiresharkLegacyQuickLaunch" Name="Legacy $(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer (classic UI)" Target="[#filWiresharkGTK_exe]" WorkingDirectory="INSTALLFOLDER" />
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="LegacyQuickLaunchIcon" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_LEGACY_QUICK_LAUNCH_ICON = "1"</Condition>
-        <!-- Done to keep ICE64 happy -->
-        <RemoveFolder Id="RemoveMicrosoftFolderGTK" Directory="MicrosoftFolder" On="uninstall" />
-        <RemoveFolder Id="RemoveInternetExplorerFolderGTK" Directory="InternetExplorerFolder" On="uninstall" />
-        <RemoveFolder Id="RemoveQuickLaunchFolderGTK" Directory="QuickLaunchFolder" On="uninstall" />
-      </Component>
-    </ComponentGroup>
-    <?endif?>
   </Fragment>
 
   <!-- File Associations -->
