@@ -83,3 +83,30 @@ class case_name_resolution(subprocesstest.SubprocessTestCase):
         # nameres.hosts_file_handling: True
         # Profile: Custom
         check_name_resolution(self, True, False, True, True, 'custom-4-2-2-2')
+
+    def test_hosts_any(self):
+        self.runProcess((config.cmd_tshark,
+                '-r', dns_icmp_pcapng,
+                '-qz', 'hosts',
+                ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput('174.137.42.65\twww.wireshark.org'))
+        self.assertTrue(self.grepOutput('fe80::6233:4bff:fe13:c558\tCrunch.local'))
+
+    def test_hosts_ipv4(self):
+        self.runProcess((config.cmd_tshark,
+                '-r', dns_icmp_pcapng,
+                '-qz', 'hosts,ipv4',
+                ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput('174.137.42.65\twww.wireshark.org'))
+        self.assertFalse(self.grepOutput('fe80::6233:4bff:fe13:c558\tCrunch.local'))
+
+    def test_hosts_ipv6(self):
+        self.runProcess((config.cmd_tshark,
+                '-r', dns_icmp_pcapng,
+                '-qz', 'hosts,ipv6',
+                ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput('fe80::6233:4bff:fe13:c558\tCrunch.local'))
+        self.assertFalse(self.grepOutput('174.137.42.65\twww.wireshark.org'))
