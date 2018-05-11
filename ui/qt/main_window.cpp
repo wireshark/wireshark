@@ -989,19 +989,26 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 void MainWindow::dropEvent(QDropEvent *event)
 {
     QList<QByteArray> local_files;
+    int max_dropped_files = 100; // Arbitrary
 
     foreach (QUrl drop_url, event->mimeData()->urls()) {
         QString drop_file = drop_url.toLocalFile();
         if (!drop_file.isEmpty()) {
             local_files << drop_file.toUtf8();
+            if (local_files.size() >= max_dropped_files) {
+                break;
+            }
         }
     }
 
-    if (local_files.size() < 1) {
-        return;
-    }
     event->acceptProposedAction();
 
+    if (local_files.size() < 1) {
+        event->ignore();
+        return;
+    }
+
+    event->accept();
 
     if (local_files.size() == 1) {
         openCaptureFile(local_files.at(0));
