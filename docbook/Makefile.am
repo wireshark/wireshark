@@ -148,6 +148,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-statusbar-loaded.png		\
 	wsug_graphics/ws-statusbar-profile.png		\
 	wsug_graphics/ws-statusbar-selected.png		\
+	wsug_graphics/ws-tcp-analysis.png		\
 	wsug_graphics/ws-tel-rtpstream-analysis.png		\
 	wsug_graphics/ws-telephony-menu.png		\
 	wsug_graphics/ws-tools-menu.png	\
