@@ -143,7 +143,7 @@ class TextHTMLParser(HTMLParser):
             self.skip_wrap = False
         if tag == 'a' and self.href:
             self.footnotes.append(self.href)
-            self.text_block += '[{}]'.format(len(self.footnotes))
+            self.text_block += '[{0}]'.format(len(self.footnotes))
         if tag in self.ignore_tags:
             self.ignore_level -= 1
 
@@ -165,7 +165,7 @@ class TextHTMLParser(HTMLParser):
             self.indent_levels = [1, 1]
             footnote_num = 1
             for href in self.footnotes:
-                self.text_block += '{:>2}. {}\n'.format(footnote_num, href)
+                self.text_block += '{0:>2}. {0}\n'.format(footnote_num, href)
                 footnote_num += 1
                 self._commit_block('\n')
 
