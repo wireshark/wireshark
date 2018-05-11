@@ -23,8 +23,8 @@
 
 void register_tap_listener_hosts(void);
 
-gboolean dump_v4 = FALSE;
-gboolean dump_v6 = FALSE;
+static gboolean dump_v4 = FALSE;
+static gboolean dump_v6 = FALSE;
 
 #define TAP_NAME "hosts"
 
@@ -64,14 +64,18 @@ hosts_draw(void *dummy _U_)
 	printf("# Host data gathered from %s\n", cfile.filename);
 	printf("\n");
 
-	ipv4_hash_table = get_ipv4_hash_table();
-	if (ipv4_hash_table) {
-		wmem_map_foreach( ipv4_hash_table, ipv4_hash_table_print_resolved, NULL);
+	if (dump_v4) {
+		ipv4_hash_table = get_ipv4_hash_table();
+		if (ipv4_hash_table) {
+			wmem_map_foreach( ipv4_hash_table, ipv4_hash_table_print_resolved, NULL);
+		}
 	}
 
-	ipv6_hash_table = get_ipv6_hash_table();
-	if (ipv6_hash_table) {
-		wmem_map_foreach( ipv6_hash_table, ipv6_hash_table_print_resolved, NULL);
+	if (dump_v6) {
+		ipv6_hash_table = get_ipv6_hash_table();
+		if (ipv6_hash_table) {
+			wmem_map_foreach( ipv6_hash_table, ipv6_hash_table_print_resolved, NULL);
+		}
 	}
 
 }
