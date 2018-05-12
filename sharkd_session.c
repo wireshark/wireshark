@@ -1857,7 +1857,7 @@ sharkd_session_free_tap_rtd_cb(void *arg)
 {
 	rtd_data_t *rtd_data = (rtd_data_t *) arg;
 
-	free_rtd_table(&rtd_data->stat_table, NULL, NULL);
+	free_rtd_table(&rtd_data->stat_table);
 	g_free(rtd_data);
 }
 

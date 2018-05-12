@@ -82,7 +82,7 @@ register_rtd_table(const int proto_id, const char* tap_listener, guint num_table
     wmem_tree_insert_string(registered_rtd_tables, proto_get_protocol_filter_name(proto_id), table, 0);
 }
 
-void free_rtd_table(rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *callback_data)
+void free_rtd_table(rtd_stat_table* table)
 {
     guint i;
 
@@ -93,23 +93,14 @@ void free_rtd_table(rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *c
     g_free(table->time_stats);
     table->time_stats = NULL;
     table->num_rtds = 0;
-
-    /* Give GUI the first crack at it before we clean up */
-    if (gui_callback)
-        gui_callback(table, callback_data);
 }
 
-void reset_rtd_table(rtd_stat_table* table, rtd_gui_reset_cb gui_callback, void *callback_data)
+void reset_rtd_table(rtd_stat_table* table)
 {
     guint i = 0;
 
     for (i = 0; i < table->num_rtds; i++)
         memset(table->time_stats[i].rtd, 0, sizeof(timestat_t)*table->time_stats[i].num_timestat);
-
-    /* Give GUI the first crack at it before we clean up */
-    if (gui_callback)
-        gui_callback(table, callback_data);
-
 }
 
 register_rtd_t* get_rtd_table_by_name(const char* name)
