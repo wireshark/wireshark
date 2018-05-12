@@ -373,8 +373,11 @@ static void capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_p
                                          const u_char *pd);
 static void capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
                                          const u_char *pd);
-static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
-                                    int err, gboolean is_close);
+static void capture_loop_get_errmsg(char *errmsg, size_t errmsglen,
+                                    char *secondary_errmsg,
+                                    size_t secondary_errmsglen,
+                                    const char *fname, int err,
+                                    gboolean is_close);
 
 static void WS_NORETURN exit_main(int err);
 
@@ -3369,9 +3372,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     if (global_ld.err == 0) {
         write_ok = TRUE;
     } else {
-        capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file,
-                                global_ld.err, FALSE);
-        report_capture_error(errmsg, please_report);
+        capture_loop_get_errmsg(errmsg, sizeof(errmsg), secondary_errmsg,
+                                sizeof(secondary_errmsg),
+                                capture_opts->save_file, global_ld.err, FALSE);
+        report_capture_error(errmsg, secondary_errmsg);
         write_ok = FALSE;
     }
 
@@ -3392,9 +3396,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* If we've displayed a message about a write error, there's no point
        in displaying another message about an error on close. */
     if (!close_ok && write_ok) {
-        capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, err_close,
-                                TRUE);
-        report_capture_error(errmsg, "");
+        capture_loop_get_errmsg(errmsg, sizeof(errmsg), secondary_errmsg,
+                                sizeof(secondary_errmsg),
+                                capture_opts->save_file, err_close, TRUE);
+        report_capture_error(errmsg, secondary_errmsg);
     }
 
     /*
@@ -3497,45 +3502,56 @@ capture_loop_stop(void)
 
 
 static void
-capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
+capture_loop_get_errmsg(char *errmsg, size_t errmsglen, char *secondary_errmsg,
+                        size_t secondary_errmsglen, const char *fname,
                         int err, gboolean is_close)
 {
+    static const char find_space[] =
+        "You will need to free up space on that file system"
+        " or put the capture file on a different file system.";
+
     switch (err) {
 
     case ENOSPC:
-        g_snprintf(errmsg, errmsglen,
+        g_snprintf(errmsg, (gulong)errmsglen,
                    "Not all the packets could be written to the file"
                    " to which the capture was being saved\n"
                    "(\"%s\") because there is no space left on the file system\n"
                    "on which that file resides.",
                    fname);
+        g_snprintf(secondary_errmsg, (gulong)secondary_errmsglen, "%s",
+                   find_space);
         break;
 
 #ifdef EDQUOT
     case EDQUOT:
-        g_snprintf(errmsg, errmsglen,
+        g_snprintf(errmsg, (gulong)errmsglen,
                    "Not all the packets could be written to the file"
                    " to which the capture was being saved\n"
                    "(\"%s\") because you are too close to, or over,"
                    " your disk quota\n"
                    "on the file system on which that file resides.",
                    fname);
+        g_snprintf(secondary_errmsg, (gulong)secondary_errmsglen, "%s",
+                   find_space);
         break;
 #endif
 
     default:
         if (is_close) {
-            g_snprintf(errmsg, errmsglen,
+            g_snprintf(errmsg, (gulong)errmsglen,
                        "The file to which the capture was being saved\n"
                        "(\"%s\") could not be closed: %s.",
                        fname, g_strerror(err));
         } else {
-            g_snprintf(errmsg, errmsglen,
+            g_snprintf(errmsg, (gulong)errmsglen,
                        "An error occurred while writing to the file"
                        " to which the capture was being saved\n"
                        "(\"%s\"): %s.",
                        fname, g_strerror(err));
         }
+        g_snprintf(secondary_errmsg, (gulong)secondary_errmsglen,
+                   "%s", please_report);
         break;
     }
 }
