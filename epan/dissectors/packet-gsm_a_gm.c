@@ -4353,9 +4353,11 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	}
 
 	/* Highlight bytes including the first length byte */
-	pi = proto_tree_add_string(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, str+1);
-	if (len > 100) {
-		expert_add_info(pinfo, pi, &ei_gsm_a_gm_apn_too_long);
+	if (str[0]) {
+		pi = proto_tree_add_string(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, str+1);
+		if (len > 100) {
+			expert_add_info(pinfo, pi, &ei_gsm_a_gm_apn_too_long);
+		}
 	}
 	curr_offset += len;
 
