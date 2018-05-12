@@ -574,7 +574,7 @@ dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 		coinfo->ctype_value = coap_get_opt_uint(tvb, offset, opt_length);
 	}
 
-	coinfo->ctype_str = val_to_str(coinfo->ctype_value, vals_ctype, "Unknown Type %u");
+	coinfo->ctype_str = val_to_str_const(coinfo->ctype_value, vals_ctype, "Unknown Type");
 
 	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, coinfo->ctype_str);
 
