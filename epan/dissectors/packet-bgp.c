@@ -6917,6 +6917,12 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
         attr_len_item = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_length, tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE,
                                             aoff - BGP_SIZE_OF_PATH_ATTRIBUTE, ENC_BIG_ENDIAN);
+        if (aoff + tlen > path_attr_len - i) {
+            proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                         "Path attribute length is invalid: %u byte%s", tlen,
+                                         plurality(tlen, "", "s"));
+            return;
+        }
 
         /* Path Attribute Type */
         switch (bgpa_type) {
@@ -7706,7 +7712,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
         ti =  proto_tree_add_item(tree, hf_bgp_update_path_attributes, tvb, o+2, len, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
 
-        dissect_bgp_path_attr(subtree, tvb, len-4, o+2, pinfo);
+        dissect_bgp_path_attr(subtree, tvb, len, o+2, pinfo);
 
         o += 2 + len;
 
