@@ -238,7 +238,6 @@ struct preference {
       } enum_info;                   /**< for PREF_ENUM */
     } info;                          /**< display/text file information */
     struct pref_custom_cbs custom_cbs;   /**< for PREF_CUSTOM */
-    void    *control;                /**< handle for GUI control for this preference. GTK+ only? */
 };
 
 const char* prefs_get_description(pref_t *pref)
