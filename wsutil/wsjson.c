@@ -29,8 +29,8 @@ gboolean wsjson_is_valid_json(const guint8* buf, const size_t len)
         gboolean ret = TRUE;
 #ifdef HAVE_JSONGLIB
         JsonParser *parser = json_parser_new();
-        GError* error;
-        ret = json_parser_load_from_data(parser, buf, len, &error);
+        ret = json_parser_load_from_data(parser, buf, len, NULL);
+        g_object_unref(parser);
 #else
         /* We expect no more than 1024 tokens */
         guint max_tokens = 1024;
