@@ -840,8 +840,9 @@
         <translation>errore nell&apos;apertura del file</translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
-        <translation>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%1, errore dopo %Ln record</numerusform>
             <numerusform>%1, errore dopo %Ln record</numerusform>
         </translation>

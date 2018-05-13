@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-05-05)
+# (last updated 2018-05-11)
 
 0	Reserved
 1	NxNetworks
@@ -2016,7 +2016,7 @@
 2009	A. J. Boggs & Company
 2010	Stale Odegaard AS
 2011	HUAWEI Technology Co.,Ltd
-2012	Schroff GmbH
+2012	nVent, Schroff GmbH
 2013	Rehabilitation Institute of Chicago Angie
 2014	ADC Telecommunications, Inc.
 2015	SYSTOR AG
@@ -3591,7 +3591,7 @@
 3589	SoGot
 3590	IA Information Systems AG
 3591	R.W. Shore
-3592	Draeger Medizintechnik GmbH
+3592	Drägerwerk AG & Co. KGaA	# formerly 'Draeger Medizintechnik GmbH'
 3593	Alcatel Sistemas de Informacion
 3594	LJL Enterprises, Inc.
 3595	BC TEL Advanced Communications
@@ -15871,7 +15871,7 @@
 16008	Consolidated Communications Inc
 16009	TelemaxX Telekommunikation GmbH
 16010	Kapsch BusinessCom AG
-16011	State of Utah DAS/ITS
+16011	State of Utah DTS/DET	# formerly 'State of Utah DAS/ITS'
 16012	MEMSCAP
 16013	byteCentric
 16014	Applied Materials Inc.
@@ -16254,7 +16254,7 @@
 16391	RouteOne
 16392	Cortland Communications
 16393	Sean Champ Enterprises
-16394	Pentair Technical Products	# formerly 'Pigeon Point Systems'
+16394	nVent, Schroff GmbH	# formerly 'Pentair Technical Products,' formerly 'Pigeon Point Systems'
 16395	William R Sowerbutts
 16396	justinknash.com
 16397	U.S. Army ALTESS
@@ -28299,7 +28299,7 @@
 28455	Trion World Network
 28456	QNIX Pty Ltd
 28457	NTT America Enterprise Hosting
-28458	Nokia Solutions and Networks	# formerly 'Nokia Siemens Networks'
+28458	Nokia Networks	# formerly 'Nokia Siemens Networks'
 28459	Rogue Engineering Inc.
 28460	Benone Bitencourt
 28461	Mutoh Industries Ltd.
@@ -34159,7 +34159,7 @@
 34323	Zolfo Cooper
 34324	Ministry for Information Society of Montenegro
 34325	Investec
-34326	Nokia Technologies
+34326	Nokia
 34327	Farmacia Valentini
 34328	Tmcpcorp
 34329	DOCOMO interTouch
@@ -51740,3 +51740,50 @@
 51925	Telesens IT
 51926	Amplified Engineering Pty Ltd
 51927	The Nordam Group, Inc.
+51928	Colégio Notarial do Brasil
+51929	FarmSoft Network Technology Shanghai Co.
+51930	HELMUT FISCHER GMBH INSTITUT FÜR ELEKTRONIK UND MESSTECHNIK
+51931	Pietro Fiorentini spa
+51932	Andrews University
+51933	University of Chinese Academy of Sciences
+51934	Linus Brogan
+51935	Sydney Boys High School
+51936	Matthias Merkel
+51937	BARTCO TRAFFIC EQUIPMENT PTY. LTD.
+51938	Metsähallitus Metsätalous Oy
+51939	Sirius Extrusion, LLC
+51940	Sasa Software (C.A.S) Ltd
+51941	ISYRIUS
+51942	Polskie Górnictwo Naftowe i Gazownictwo SA
+51943	Herzogsaegmuehle (Innere Mission Muenchen - Diakonie in Muenchen und Oberbayern e.V.)
+51944	DYWIDAG-Systems International GmbH
+51945	Micronova SRL
+51946	Code Designs® Inc
+51947	LL Consulting
+51948	eCH Association
+51949	ALC Industries Inc
+51950	SSR Network Solutions Inc
+51951	TSGCA, inc
+51952	Epsylon Sp. z o.o. Sp. K.
+51953	Clausohm-Software GmbH
+51954	SWILE DIGITAL ON LINE
+51955	TISCOM
+51956	BNY Mellon
+51957	Curo Teknika Inc.
+51958	Santa Rosa County School District
+51959	Paul Egy
+51960	actidata Storage Systems GmbH
+51961	Accidental Development
+51962	AD QUALITE
+51963	Transacciones y Transferencias, S.A.
+51964	Linn-Benton Community College
+51965	Plan International Canada Inc.
+51966	Ide Bekr Mobin
+51967	Smartweb s.r.o.
+51968	RobCo sp. z o.o.
+51969	Faraday&Future Inc.
+51970	Cloud9 Mobile Limited
+51971	Confédération des Jeunes Chercheurs
+51972	RELEX
+51973	Raptor Engineering, LLC
+51974	Raptor Computing Systems, LLC
