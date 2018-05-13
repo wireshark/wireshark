@@ -627,7 +627,7 @@ sub get_config {
 		   "help|h", \$show_help,
 		   "get-vcs|get-svn|g", \$get_vcs,
 		   "set-vcs|set-svn|s", \$set_vcs,
-		   "git-bin", \$git_executable,
+		   "git-bin=s" => \$git_executable,
 		   "print-vcs", \$print_vcs,
 		   "set-version|v", \$set_version,
 		   "set-release|r|package-version|p", \$set_release,
