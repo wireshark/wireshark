@@ -141,8 +141,8 @@ dissector_srt_init(const char *opt_arg, void* userdata)
 		exit(1);
 	}
 
-    /* Need to create the SRT array now */
-    global_srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
+	/* Need to create the SRT array now */
+	global_srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
 
 	srt_table_dissector_init(srt, global_srt_array);
 	init_srt_tables(srt, filter);
