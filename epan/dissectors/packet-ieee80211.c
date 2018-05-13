@@ -7571,7 +7571,6 @@ dissect_hs20_anqp_icon_binary_file(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   proto_tree_add_item(tree, hf_hs20_icon_binary_data, tvb, offset,
                         icon_binary_data_len, ENC_NA);
-  offset += icon_binary_data_len;
 }
 
 static void
