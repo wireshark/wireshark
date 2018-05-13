@@ -11393,13 +11393,13 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 		guint64 crumb_mask, crumb_value;
 		guint8	crumb_end_bit_offset;
 
-		DISSECTOR_ASSERT(i < 64);
 		crumb_value = tvb_get_bits64(tvb,
 					     bit_offset + crumb_spec[i].crumb_bit_offset,
 					     crumb_spec[i].crumb_bit_length,
 					     ENC_BIG_ENDIAN);
 		value      += crumb_value;
 		no_of_bits += crumb_spec[i].crumb_bit_length;
+		DISSECTOR_ASSERT_HINT(no_of_bits <= 64, "a value larger than 64 bits cannot be represented");
 
 		/* The bitmask is 64 bit, left-aligned, starting at the first bit of the
 		   octet containing the initial offset.
@@ -11415,8 +11415,13 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 			if (crumb_end_bit_offset > mask_greatest_bit_offset) {
 				mask_greatest_bit_offset = crumb_end_bit_offset;
 			}
-			composite_bitmask |= (crumb_mask  << (64 - crumb_end_bit_offset));
-			composite_bitmap  |= (crumb_value << (64 - crumb_end_bit_offset));
+			/* Currently the bitmap of the crumbs are only shown if
+			 * smaller than 32 bits. Do not bother calculating the
+			 * mask if it is larger than that. */
+			if (crumb_end_bit_offset <= 32) {
+				composite_bitmask |= (crumb_mask  << (64 - crumb_end_bit_offset));
+				composite_bitmap  |= (crumb_value << (64 - crumb_end_bit_offset));
+			}
 		}
 		/* Shift left for the next segment */
 		value <<= crumb_spec[++i].crumb_bit_length;
@@ -11462,6 +11467,9 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 					    (guint32)(composite_bitmap  >> (64 - mask_greatest_bit_offset)),
 					    (guint32)(composite_bitmask >> (64 - mask_greatest_bit_offset)),
 					    mask_greatest_bit_offset);
+	} else {
+		/* If the bitmask is too large, try to describe its contents. */
+		g_snprintf(bf_str, sizeof(bf_str), "%d bits", no_of_bits);
 	}
 
 	switch (hf_field->type) {
