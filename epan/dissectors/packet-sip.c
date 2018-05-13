@@ -5697,12 +5697,12 @@ static stat_tap_table_item sip_stat_fields[] = {
     {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Max Setup (s)", "%8.2f"},
 };
 
-static void sip_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void sip_stat_init(stat_tap_table_ui* new_stat)
 {
     /* XXX Should we have a single request + response table instead? */
     int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table *req_table = stat_tap_init_table("SIP Requests", num_fields, 0, NULL, gui_callback, gui_data);
-    stat_tap_table *resp_table = stat_tap_init_table("SIP Responses", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table *req_table = stat_tap_init_table("SIP Requests", num_fields, 0, NULL);
+    stat_tap_table *resp_table = stat_tap_init_table("SIP Responses", num_fields, 0, NULL);
     stat_tap_table_item_type items[sizeof(sip_stat_fields)/sizeof(stat_tap_table_item)];
     guint i;
 

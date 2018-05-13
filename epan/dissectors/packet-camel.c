@@ -8167,10 +8167,10 @@ typedef enum
 
 static stat_tap_table_item camel_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Type or Reason", "%-25s"}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-static void camel_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void camel_stat_init(stat_tap_table_ui* new_stat)
 {
   int num_fields = sizeof(camel_stat_fields)/sizeof(stat_tap_table_item);
-  stat_tap_table* table = stat_tap_init_table("CAMEL Message Counters", num_fields, 0, NULL, gui_callback, gui_data);
+  stat_tap_table* table = stat_tap_init_table("CAMEL Message Counters", num_fields, 0, NULL);
   int i;
   stat_tap_table_item_type items[sizeof(camel_stat_fields)/sizeof(stat_tap_table_item)];
 

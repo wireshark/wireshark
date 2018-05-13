@@ -442,10 +442,10 @@ static guint facility_reason_idx[FACILITY_REASONS];
 
 static guint other_idx;
 
-static void h225_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void h225_stat_init(stat_tap_table_ui* new_stat)
 {
   int num_fields = sizeof(h225_stat_fields)/sizeof(stat_tap_table_item);
-  stat_tap_table* table = stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL, gui_callback, gui_data);
+  stat_tap_table* table = stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL);
   int row_idx = 0, msg_idx;
   stat_tap_table_item_type items[sizeof(h225_stat_fields)/sizeof(stat_tap_table_item)];
 

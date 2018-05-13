@@ -16094,10 +16094,10 @@ static stat_tap_table_item stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "
         {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "  %d  "}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Total Bytes", "  %d  "},
         {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "  %8.2f  "}};
 
-static void ansi_map_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_map_stat_init(stat_tap_table_ui* new_stat)
 {
     int num_fields = sizeof(stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table* table = stat_tap_init_table("ANSI MAP Operation Statistics", num_fields, 0, "ansi_map.op_code", gui_callback, gui_data);
+    stat_tap_table* table = stat_tap_init_table("ANSI MAP Operation Statistics", num_fields, 0, "ansi_map.op_code");
     int i = 0;
     stat_tap_table_item_type items[sizeof(stat_fields)/sizeof(stat_tap_table_item)];
 

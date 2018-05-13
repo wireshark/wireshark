@@ -1751,7 +1751,7 @@ sharkd_session_free_tap_nstat_cb(void *arg)
 {
 	stat_data_t *stat_data = (stat_data_t *) arg;
 
-	free_stat_tables(stat_data->stat_tap_data, NULL, NULL);
+	free_stat_tables(stat_data->stat_tap_data);
 }
 
 /**
@@ -2317,7 +2317,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 				continue;
 			}
 
-			stat_tap->stat_tap_init_cb(stat_tap, NULL, NULL);
+			stat_tap->stat_tap_init_cb(stat_tap);
 
 			stat_data = g_new0(stat_data_t, 1);
 			stat_data->stat_tap_data = stat_tap;

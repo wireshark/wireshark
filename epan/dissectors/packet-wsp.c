@@ -5599,12 +5599,12 @@ static stat_tap_table_item wsp_stat_fields[] = {
 static int unknown_pt_idx;
 static int unknown_sc_idx;
 
-static void wsp_stat_init(stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void wsp_stat_init(stat_tap_table_ui* new_stat)
 {
 	int num_fields = sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item);
-	stat_tap_table* pt_table = stat_tap_init_table("PDU Types", num_fields, 0, NULL, gui_callback, gui_data);
+	stat_tap_table* pt_table = stat_tap_init_table("PDU Types", num_fields, 0, NULL);
 	stat_tap_table_item_type pt_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
-	stat_tap_table* sc_table = stat_tap_init_table("Status Codes", num_fields, 0, NULL, gui_callback, gui_data);
+	stat_tap_table* sc_table = stat_tap_init_table("Status Codes", num_fields, 0, NULL);
 	stat_tap_table_item_type sc_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
 	int table_idx;
 

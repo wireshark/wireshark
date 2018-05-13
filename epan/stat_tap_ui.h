@@ -116,10 +116,6 @@ typedef struct _stat_tap_table
 
 } stat_tap_table;
 
-typedef void (*stat_tap_gui_init_cb)(stat_tap_table* stat_table, void* gui_data); /* GTK+ only? */
-typedef void (*stat_tap_gui_reset_cb)(stat_tap_table* stat_table, void* gui_data); /* GTK+ only? */
-typedef void (*stat_tap_gui_free_cb)(stat_tap_table* stat_table, void* gui_data); /* GTK+ only? */
-
 /*
  * UI information for a tap with a table-based UI.
  */
@@ -128,7 +124,7 @@ typedef struct _stat_tap_table_ui {
     const char            *title;      /* title of statistic */
     const char            *tap_name;
     const char            *cli_string; /* initial part of the "-z" argument for statistic */
-    void (* stat_tap_init_cb)(struct _stat_tap_table_ui* new_stat, stat_tap_gui_init_cb gui_callback, void* gui_data);
+    void (* stat_tap_init_cb)(struct _stat_tap_table_ui* new_stat);
     tap_packet_cb packet_func;
     void (* stat_tap_reset_table_cb)(stat_tap_table* table);
     void (* stat_tap_free_table_item_cb)(stat_tap_table* table, guint row, guint column, stat_tap_table_item_type* field_data);
@@ -161,13 +157,13 @@ WS_DLL_PUBLIC void register_stat_tap_table_ui(stat_tap_table_ui *ui);
 WS_DLL_PUBLIC void stat_tap_iterate_tables(wmem_foreach_func func, gpointer user_data);
 WS_DLL_PUBLIC void stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, const char **filter, char** err);
 WS_DLL_PUBLIC stat_tap_table* stat_tap_init_table(const char *name, int num_fields, int num_elements,
-                const char *filter_string, stat_tap_gui_init_cb gui_callback, void* gui_data);
+                const char *filter_string);
 WS_DLL_PUBLIC void stat_tap_add_table(stat_tap_table_ui* new_stat, stat_tap_table* table);
 
 WS_DLL_PUBLIC void stat_tap_init_table_row(stat_tap_table *stat_table, guint table_index, guint num_fields, const stat_tap_table_item_type* fields);
 WS_DLL_PUBLIC stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_table *stat_table, guint table_index, guint field_index);
 WS_DLL_PUBLIC void stat_tap_set_field_data(stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data);
-WS_DLL_PUBLIC void reset_stat_table(stat_tap_table_ui* new_stat, stat_tap_gui_reset_cb gui_callback, void *callback_data);
+WS_DLL_PUBLIC void reset_stat_table(stat_tap_table_ui* new_stat);
 
 WS_DLL_PUBLIC stat_tap_table_ui *stat_tap_by_name(const char *name);
 
@@ -178,11 +174,8 @@ WS_DLL_PUBLIC stat_tap_table_ui *stat_tap_by_name(const char *name);
  * row.
  *
  * @param new_stat Parent stat_tap_table_ui struct, provided by the dissector.
- * @param gui_callback Per-table callback, run before rows are removed.
- * Provided by the UI.
- * @param callback_data Data for the per-table callback.
  */
-WS_DLL_PUBLIC void free_stat_tables(stat_tap_table_ui* new_stat, stat_tap_gui_free_cb gui_callback, void *callback_data);
+WS_DLL_PUBLIC void free_stat_tables(stat_tap_table_ui* new_stat);
 
 
 WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);

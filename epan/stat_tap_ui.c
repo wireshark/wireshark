@@ -172,7 +172,7 @@ void stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, const
 }
 
 stat_tap_table* stat_tap_init_table(const char *name, int num_fields, int num_elements,
-                const char *filter_string, stat_tap_gui_init_cb gui_callback, void* gui_data)
+                const char *filter_string)
 {
     stat_tap_table* new_table = g_new0(stat_tap_table, 1);
 
@@ -181,9 +181,6 @@ stat_tap_table* stat_tap_init_table(const char *name, int num_fields, int num_el
     new_table->num_fields = num_fields;
     new_table->filter_string = filter_string;
     new_table->elements = g_new0(stat_tap_table_item_type*, num_elements);
-
-    if (gui_callback)
-        gui_callback(new_table, gui_data);
 
     return new_table;
 }
@@ -237,7 +234,7 @@ void stat_tap_set_field_data(stat_tap_table *stat_table, guint table_index, guin
     field_value[field_index] = *field_data;
 }
 
-void reset_stat_table(stat_tap_table_ui* new_stat, stat_tap_gui_reset_cb gui_callback, void *callback_data)
+void reset_stat_table(stat_tap_table_ui* new_stat)
 {
     guint i = 0;
     stat_tap_table *stat_table;
@@ -246,16 +243,12 @@ void reset_stat_table(stat_tap_table_ui* new_stat, stat_tap_gui_reset_cb gui_cal
     {
         stat_table = g_array_index(new_stat->tables, stat_tap_table*, i);
 
-        /* Give GUI the first crack at it before we clean up */
-        if (gui_callback)
-            gui_callback(stat_table, callback_data);
-
         if (new_stat->stat_tap_reset_table_cb)
             new_stat->stat_tap_reset_table_cb(stat_table);
     }
 }
 
-void free_stat_tables(stat_tap_table_ui* new_stat, stat_tap_gui_free_cb gui_callback, void *callback_data)
+void free_stat_tables(stat_tap_table_ui* new_stat)
 {
     guint i = 0, element, field_index;
     stat_tap_table *stat_table;
@@ -264,10 +257,6 @@ void free_stat_tables(stat_tap_table_ui* new_stat, stat_tap_gui_free_cb gui_call
     for (i = 0; i < new_stat->tables->len; i++)
     {
         stat_table = g_array_index(new_stat->tables, stat_tap_table*, i);
-
-        /* Give GUI the first crack at it before we clean up */
-        if (gui_callback)
-            gui_callback(stat_table, callback_data);
 
         for (element = 0; element < stat_table->num_elements; element++)
         {

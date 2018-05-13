@@ -99,7 +99,7 @@ init_stat_table(stat_tap_table_ui *stat_tap, const char *filter)
 	ui->stats.stat_tap_data = stat_tap;
 	ui->stats.user_data = ui;
 
-	stat_tap->stat_tap_init_cb(stat_tap, NULL, NULL);
+	stat_tap->stat_tap_init_cb(stat_tap);
 
 	error_string = register_tap_listener(stat_tap->tap_name, &ui->stats, filter, 0, NULL, stat_tap->packet_func, simple_draw);
 	if (error_string) {
