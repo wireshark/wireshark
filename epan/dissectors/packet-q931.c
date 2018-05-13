@@ -42,8 +42,6 @@ void proto_register_q931(void);
 void proto_reg_handoff_q931(void);
 
 static void reset_q931_packet_info(q931_packet_info *pi);
-static gboolean have_valid_q931_pi=FALSE;
-static q931_packet_info *q931_pi = NULL;
 static int q931_tap = -1;
 
 static dissector_handle_t q931_handle;
@@ -264,7 +262,8 @@ static heur_dissector_list_t q931_user_heur_subdissector_list;
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset);
+    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset,
+    q931_packet_info *q931_pi);
 
 const value_string q931_message_type_vals[] = {
 /*  0 */    { Q931_ESCAPE,               "ESCAPE" },
@@ -1281,8 +1280,9 @@ static const true_false_string tfs_user_provider = { "User", "Provider" };
 static const true_false_string tfs_abnormal_normal = { "Abnormal", "Normal" };
 
 static void
-dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
+dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
+    proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals,
+    q931_packet_info *q931_pi)
 {
     guint8 octet;
     guint8 coding_standard;
@@ -1324,7 +1324,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
     *cause_value = octet & 0x7F;
 
     /* add cause value to packet info for use in tap */
-    if(have_valid_q931_pi) {
+    if (q931_pi) {
         q931_pi->cause_value = *cause_value;
     }
 
@@ -1411,10 +1411,8 @@ void
 dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
               proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
 {
-    gboolean have_valid_q931_pi_save = have_valid_q931_pi;
-    have_valid_q931_pi = FALSE;
-    dissect_q931_cause_ie_unsafe(tvb, offset, len, tree, hf_cause_value, cause_value, ie_vals);
-    have_valid_q931_pi =  have_valid_q931_pi_save;
+    /* External dissectors have no use for "q931_packet_info". */
+    dissect_q931_cause_ie_with_info(tvb, offset, len, tree, hf_cause_value, cause_value, ie_vals, NULL);
 }
 
 /*
@@ -2114,7 +2112,7 @@ static const value_string q931_redirection_reason_vals[] = {
 
 static void
 dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hfindex, e164_info_t e164_info)
+    proto_tree *tree, int hfindex, e164_info_t e164_info, q931_packet_info *q931_pi)
 {
     guint8 octet;
     gint number_plan;
@@ -2168,9 +2166,9 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
     }
 
     /* Collect q931_packet_info */
-    if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && have_valid_q931_pi)
+    if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && q931_pi)
         q931_pi->calling_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
-    if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && have_valid_q931_pi)
+    if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && q931_pi)
         q931_pi->called_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
@@ -2475,12 +2473,12 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32     frag_len;
     fragment_head *fd_head;
     tvbuff_t *next_tvb = NULL;
+    q931_packet_info *q931_pi = NULL;
 
     q931_pi=wmem_new(wmem_packet_scope(), q931_packet_info);
 
     /* Init struct for collecting q931_packet_info */
     reset_q931_packet_info(q931_pi);
-    have_valid_q931_pi=TRUE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
 
@@ -2520,9 +2518,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += call_ref_len;
     }
     message_type = tvb_get_guint8(tvb, offset);
-    if(have_valid_q931_pi && q931_pi) {
-        q931_pi->message_type = message_type;
-    }
+    q931_pi->message_type = message_type;
     col_add_str(pinfo->cinfo, COL_INFO, get_message_name(prot_discr, message_type));
 
     if (prot_discr == NLPID_DMS)
@@ -2537,13 +2533,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if ((message_type != Q931_SEGMENT) || !q931_reassembly ||
             (tvb_reported_length_remaining(tvb, offset) <= 4)) {
-        dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0);
+        dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0, q931_pi);
         return;
     }
     info_element = tvb_get_guint8(tvb, offset);
     info_element_len = tvb_get_guint8(tvb, offset + 1);
     if ((info_element != Q931_IE_SEGMENTED_MESSAGE) || (info_element_len < 2)) {
-        dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0);
+        dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0, q931_pi);
         return;
     }
     /* Segmented message IE */
@@ -2591,7 +2587,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
     if (next_tvb)
-        dissect_q931_IEs(next_tvb, pinfo, tree, q931_tree, is_over_ip, 0, 0);
+        dissect_q931_IEs(next_tvb, pinfo, tree, q931_tree, is_over_ip, 0, 0, q931_pi);
 }
 
 static const value_string q931_codeset_vals[] = {
@@ -2605,7 +2601,8 @@ static const value_string q931_codeset_vals[] = {
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset)
+    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset,
+    q931_packet_info *q931_pi)
 {
     proto_item  *ti;
     proto_tree  *ie_tree = NULL;
@@ -2821,10 +2818,10 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                     break;
 
                 case CS0 | Q931_IE_CAUSE:
-                    dissect_q931_cause_ie_unsafe(tvb,
+                    dissect_q931_cause_ie_with_info(tvb,
                         offset + 2, info_element_len,
                         ie_tree,
-                        hf_q931_cause_value, &dummy, q931_info_element_vals0);
+                        hf_q931_cause_value, &dummy, q931_info_element_vals0, q931_pi);
                     break;
 
                 case CS0 | Q931_IE_CHANGE_STATUS:
@@ -2963,7 +2960,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                         dissect_q931_number_ie(tvb,
                             offset + 2, info_element_len,
                             ie_tree,
-                            hf_q931_connected_number, e164_info);
+                            hf_q931_connected_number, e164_info, q931_pi);
                     }
                     break;
 
@@ -2973,7 +2970,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                     dissect_q931_number_ie(tvb,
                         offset + 2, info_element_len,
                         ie_tree,
-                        hf_q931_calling_party_number, e164_info);
+                        hf_q931_calling_party_number, e164_info, q931_pi);
                     break;
 
                 case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
@@ -2981,7 +2978,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                     dissect_q931_number_ie(tvb,
                         offset + 2, info_element_len,
                         ie_tree,
-                        hf_q931_called_party_number, e164_info);
+                        hf_q931_called_party_number, e164_info, q931_pi);
                     break;
 
                 case CS0 | Q931_IE_CALLING_PARTY_SUBADDR:
@@ -2998,7 +2995,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                         dissect_q931_number_ie(tvb,
                             offset + 2, info_element_len,
                             ie_tree,
-                            hf_q931_redirecting_number, e164_info);
+                            hf_q931_redirecting_number, e164_info, q931_pi);
                     }
                     break;
 
@@ -3050,10 +3047,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
         }
         codeset = locked_codeset;
     }
-    if(have_valid_q931_pi) {
-        tap_queue_packet(q931_tap, pinfo, q931_pi);
-    }
-    have_valid_q931_pi=FALSE;
+    tap_queue_packet(q931_tap, pinfo, q931_pi);
 }
 
 /*
@@ -3160,14 +3154,14 @@ dissect_q931_over_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_q931_ie_cs0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 0);
+    dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 0, NULL);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 7);
+    dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 7, NULL);
     return tvb_captured_length(tvb);
 }
 
