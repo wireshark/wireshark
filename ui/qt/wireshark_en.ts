@@ -2278,6 +2278,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Extcap Help cannot be found</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11331,6 +11335,10 @@ a:hover {
     </message>
     <message>
         <source>UTF-8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTF-16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

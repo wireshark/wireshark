@@ -840,8 +840,9 @@
         <translation>Fehler beim Öffnen der Datei</translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
-        <translation>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%1, Fehler nach %Ln Paket</numerusform>
             <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
         </translation>
@@ -2280,6 +2281,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Start</source>
         <translation>Start</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Standard</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -11488,6 +11493,10 @@ text-decoration: underline;
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
+    </message>
+    <message>
+        <source>UTF-16</source>
+        <translation type="unfinished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>

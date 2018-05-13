@@ -840,8 +840,9 @@
         <translation>errore nell&apos;apertura del file</translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
-        <translation>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%1, errore dopo %Ln record</numerusform>
             <numerusform>%1, errore dopo %Ln record</numerusform>
         </translation>
@@ -2280,6 +2281,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Start</source>
         <translation>Avvia</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Predefinito</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -11488,6 +11493,10 @@ a:hover {
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
+    </message>
+    <message>
+        <source>UTF-16</source>
+        <translation type="unfinished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>

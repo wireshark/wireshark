@@ -837,7 +837,8 @@
         <translation>打开文件出错</translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
@@ -2271,6 +2272,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Start</source>
         <translation>开始</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -11464,6 +11469,10 @@ text-decoration: underline;
     <message>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
+    </message>
+    <message>
+        <source>UTF-16</source>
+        <translation type="unfinished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>

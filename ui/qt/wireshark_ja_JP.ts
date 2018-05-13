@@ -817,7 +817,8 @@
         <translation>ファイルオープンエラー</translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
@@ -2250,6 +2251,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Start</source>
         <translation>開始</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -11395,6 +11400,10 @@ a:hover {
     <message>
         <source>UTF-8</source>
         <translation>UTF-8形式</translation>
+    </message>
+    <message>
+        <source>UTF-16</source>
+        <translation type="unfinished">UTF-16形式</translation>
     </message>
     <message>
         <source>YAML</source>

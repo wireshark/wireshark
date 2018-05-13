@@ -817,7 +817,8 @@
         <translation>erreur pour ouvrir le fichier</translation>
     </message>
     <message numerus="yes">
-        <source>%1, error after %Ln record(s)</source>
+        <source>%1, error after %Ln data record(s)</source>
+        <oldsource>%1, error after %Ln record(s)</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -2255,6 +2256,10 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Start</source>
         <translation>Démarrer</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -11408,6 +11413,10 @@ a:hover {
     <message>
         <source>UTF-8</source>
         <translation type="unfinished">UTF-8</translation>
+    </message>
+    <message>
+        <source>UTF-16</source>
+        <translation type="unfinished">UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
