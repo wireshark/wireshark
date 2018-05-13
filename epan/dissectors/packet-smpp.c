@@ -1999,7 +1999,6 @@ replace_sm(proto_tree *tree, tvbuff_t *tvb)
     if (length)
         proto_tree_add_item(tree, hf_smpp_short_message,
                             tvb, offset, length, ENC_NA);
-    offset += length;
 }
 
 static void
