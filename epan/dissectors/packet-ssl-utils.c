@@ -1424,13 +1424,13 @@ static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
 const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA, "initial_max_stream_data" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
-    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI, "initial_max_streams_bidi" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS, "initial_max_bidi_streams" },
     { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
     { SSL_HND_QUIC_TP_OMIT_CONNECTION_ID, "omit_connection_id" }, // removed in draft -11
     { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
     { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
-    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI, "initial_max_streams_uni" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS, "initial_max_uni_streams" },
     { 0, NULL }
 };
 
@@ -6636,10 +6636,10 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
                 offset += 4;
             break;
-            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI:
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_bidi,
+            case SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_bidi_streams,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohs(tvb, offset));
                 offset += 2;
             break;
             case SSL_HND_QUIC_TP_IDLE_TIMEOUT:
@@ -6669,10 +6669,10 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 /*TODO display multiplier (x8) and expert info about invaluid value (> 20) ? */
                 offset += 1;
             break;
-            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI:
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_uni,
+            case SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_uni_streams,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohs(tvb, offset));
                 offset += 2;
             break;
             default:

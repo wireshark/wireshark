@@ -198,13 +198,13 @@ typedef enum {
 
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA         0
 #define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                1
-#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI        2
+#define SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS        2
 #define SSL_HND_QUIC_TP_IDLE_TIMEOUT                    3
 #define SSL_HND_QUIC_TP_OMIT_CONNECTION_ID              4 /* removed in draft -11 */
 #define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                 5
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN           6
 #define SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT              7
-#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI         8
+#define SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS         8
 
 /*
  * Lookup tables
@@ -894,12 +894,12 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_value;
         gint hs_ext_quictp_parameter_initial_max_stream_data;
         gint hs_ext_quictp_parameter_initial_max_data;
-        gint hs_ext_quictp_parameter_initial_max_streams_bidi;
+        gint hs_ext_quictp_parameter_initial_max_bidi_streams;
         gint hs_ext_quictp_parameter_idle_timeout;
         gint hs_ext_quictp_parameter_max_packet_size;
         gint hs_ext_quictp_parameter_stateless_reset_token;
         gint hs_ext_quictp_parameter_ack_delay_exponent;
-        gint hs_ext_quictp_parameter_initial_max_streams_uni;
+        gint hs_ext_quictp_parameter_initial_max_uni_streams;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -1894,8 +1894,8 @@ ssl_common_dissect_t name = {   \
         FT_UINT32, BASE_DEC, NULL, 0x00,                                \
         "Contains the initial value for the maximum amount of data that can be sent on the connection", HFILL }                                                                 \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_initial_max_streams_bidi,    \
-      { "initial_max_streams_bidi", prefix ".quic.parameter.initial_max_streams_bidi",  \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_bidi_streams,    \
+      { "initial_max_bidi_streams", prefix ".quic.parameter.initial_max_bidi_streams",  \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "Initial maximum number of application-owned bidirectional streams", HFILL } \
     },                                                                  \
@@ -1919,8 +1919,8 @@ ssl_common_dissect_t name = {   \
         FT_UINT8, BASE_DEC, NULL, 0x00,                                \
         "Indicating an exponent used to decode the ACK Delay field in the ACK frame,", HFILL }  \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_initial_max_streams_uni,    \
-      { "initial_max_streams_uni", prefix ".quic.parameter.initial_max_streams_uni",  \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_uni_streams,    \
+      { "initial_max_uni_streams", prefix ".quic.parameter.initial_max_uni_streams",  \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "Initial maximum number of application-owned unidirectional streams", HFILL } \
     }
