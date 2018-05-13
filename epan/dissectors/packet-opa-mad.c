@@ -5937,7 +5937,7 @@ static gint parse_PortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
         return *offset;
 
     VLSelectMask = tvb_get_ntohl(tvb, local_offset + 4);
-    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32 && vlSelMskTmp; i++, vlSelMskTmp >>= 1) {
+    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32; i++, vlSelMskTmp >>= 1) {
         VLs = VLs + (vlSelMskTmp & 0x1);
     }
 
@@ -6136,7 +6136,7 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
         return *offset;
 
     VLSelectMask = tvb_get_ntohl(tvb, local_offset + 32);
-    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32 && vlSelMskTmp; i++, vlSelMskTmp >>= 1) {
+    for (i = 0, VLs = 0, vlSelMskTmp = VLSelectMask; vlSelMskTmp && i < 32; i++, vlSelMskTmp >>= 1) {
         VLs += (vlSelMskTmp & 0x1);
     }
 
