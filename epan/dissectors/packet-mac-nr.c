@@ -257,6 +257,9 @@ static int ett_mac_nr_me_phr_entry = -1;
 static expert_field ei_mac_nr_no_per_frame_data = EI_INIT;
 static expert_field ei_mac_nr_sdu_length_different_from_dissected = EI_INIT;
 static expert_field ei_mac_nr_unknown_udp_framing_tag = EI_INIT;
+static expert_field ei_mac_nr_dl_sch_control_subheader_after_data_subheader = EI_INIT;
+static expert_field ei_mac_nr_ul_sch_control_subheader_before_data_subheader = EI_INIT;
+
 
 static dissector_handle_t nr_rrc_bcch_bch_handle;
 
@@ -1102,6 +1105,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    mac_nr_info *p_mac_nr_info,
                                    proto_tree *context_tree _U_)
 {
+    gboolean ces_seen = FALSE;
+    gboolean data_seen = FALSE;
+
     /************************************************************************/
     /* Dissect each sub-pdu.                                             */
     do {
@@ -1131,7 +1137,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* LCID */
         proto_tree_add_uint(subheader_tree,
                             (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
-                                hf_mac_nr_ulsch_lcid : hf_mac_nr_dlsch_lcid,
+                                  hf_mac_nr_ulsch_lcid : hf_mac_nr_dlsch_lcid,
                             tvb, offset, 1, lcid);
         offset++;
 
@@ -1162,9 +1168,21 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
                                      "(LCID:%u %u bytes) ", lcid, SDU_length);
             offset += SDU_length;
+
+            if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
+                if (ces_seen) {
+                    expert_add_info_format(pinfo, subheader_ti, &ei_mac_nr_ul_sch_control_subheader_before_data_subheader,
+                                           "UL-SCH: should not have Data SDUs after Control Elements");
+                }
+            }
+            data_seen = TRUE;
         }
         else {
             /* Control Elements */
+            if (lcid != PADDING_LCID) {
+                ces_seen = TRUE;
+            }
+
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
                 guint32 phr_ph, phr_pcmac_c, c_rnti, lcg_id, bs;
 
@@ -1352,6 +1370,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             else {
                 /* Downlink control elements */
                 guint32 ta_tag_id, ta_ta;
+
+                if (lcid != PADDING_LCID) {
+                    if (data_seen) {
+                        expert_add_info_format(pinfo, subheader_ti, &ei_mac_nr_dl_sch_control_subheader_after_data_subheader,
+                                               "DL-SCH: should not have Control Elements after Data SDUs");
+                    }
+                }
 
                 switch (lcid) {
                     case SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID:
@@ -3209,9 +3234,11 @@ void proto_register_mac_nr(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_mac_nr_no_per_frame_data,                   { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
-        { &ei_mac_nr_sdu_length_different_from_dissected, { "mac-nr.sdu-length-different-from-dissected", PI_UNDECODED, PI_WARN, "Something is wrong with sdu length or dissection is wrong", EXPFILL }},
-        { &ei_mac_nr_unknown_udp_framing_tag,             { "mac-nr.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }}
+        { &ei_mac_nr_no_per_frame_data,                              { "mac-nr.no_per_frame_data", PI_UNDECODED, PI_WARN, "Can't dissect NR MAC frame because no per-frame info was attached!", EXPFILL }},
+        { &ei_mac_nr_sdu_length_different_from_dissected,            { "mac-nr.sdu-length-different-from-dissected", PI_UNDECODED, PI_WARN, "Something is wrong with sdu length or dissection is wrong", EXPFILL }},
+        { &ei_mac_nr_unknown_udp_framing_tag,                        { "mac-nr.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }},
+        { &ei_mac_nr_dl_sch_control_subheader_after_data_subheader,  { "mac-nr.ulsch.ce-after-data",  PI_SEQUENCE, PI_WARN, "For DL-SCH PDUs, CEs should come before data", EXPFILL }},
+        { &ei_mac_nr_ul_sch_control_subheader_before_data_subheader, { "mac-nr.dlsch.ce-before-data", PI_SEQUENCE, PI_WARN, "For UL-SCH PDUs, CEs should come after data", EXPFILL }}
     };
 
     module_t *mac_nr_module;
