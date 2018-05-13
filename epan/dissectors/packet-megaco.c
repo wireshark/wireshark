@@ -1422,12 +1422,6 @@ nextcontext:
                                 case GCP_TRX_REPLY: cmd_type = GCP_CMD_SVCCHG_REPLY; break;
                                 default: cmd_type = GCP_CMD_NONE; break;
                             }
-                        } else if ( g_str_equal(command,"Subtract") ) {
-                            switch(trx_type) {
-                                case GCP_TRX_REQUEST: cmd_type = GCP_CMD_SUB_REQ; break;
-                                case GCP_TRX_REPLY: cmd_type = GCP_CMD_SUB_REPLY; break;
-                                default: cmd_type = GCP_CMD_NONE; break;
-                            }
                         } else {
                             switch(trx_type) {
                                 case GCP_TRX_REQUEST: cmd_type = GCP_CMD_OTHER_REQ; break;
