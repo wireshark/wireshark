@@ -1005,8 +1005,9 @@ my $debug = 0;
 # 1. A complicated regex which matches C-style comments.
 my $CComment = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }x;
 
-# 1.a A regex that matches C++-style comments.
-#my $CppComment = qr{ // (.*?) \n }x;
+# 1.a A regex that matches C++/C99-style comments.
+# XXX handle comments after a statement and not just at the beginning of a line.
+my $CppComment = qr{ ^ \s* // (.*?) \n }xm;
 
 # 2. A regex which matches double-quoted strings.
 #    ?s added so that strings containing a 'line continuation'
@@ -1157,7 +1158,7 @@ while ($_ = pop @filelist)
         }
 
         # Remove all the C-comments
-        $fileContents =~ s{ $CComment } []xog;
+        $fileContents =~ s{ $CComment | $CppComment } []xog;
 
         # optionally check the hf entries (including those under #if 0)
         if ($check_hf) {
