@@ -170,26 +170,26 @@ extern "C" {
   #endif
 
   /*
-   * Berkeley YACC generates a global declaration of yylval, or the
+   * Berkeley YACC and, apparently, some versions of Bison, such as the
+   * one in Fedora 21, generate a global declaration of yylval, or the
    * appropriately prefixed version of yylval, in grammar.h, *even
    * though it's been told to generate a pure parser, meaning it
-   * doesn't have any global variables*.  Bison doesn't do this.
+   * doesn't have any global variables*.  Other versions of Bison, such
+   * as the one in macOS Sierra don't do that.
    *
    * That causes a warning due to the local declaration in the parser
    * shadowing the global declaration.
    *
-   * So, if this is Berkeley YACC, and we have _Pragma, and have pragmas
-   * to suppress diagnostics, we use it to turn off -Wshadow warnings.
+   * So, if we have _Pragma, and have pragmas to suppress diagnostics,
+   * we use it to turn off -Wshadow warnings.
+   *
+   * XXX - do this for Bison only in versions of Bison with this
+   * problem?
    */
-  #ifdef YYBYACC
-    #define DIAG_OFF_BYACC \
-      DIAG_OFF(shadow)
-    #define DIAG_ON_BYACC \
-      DIAG_ON(shadow)
-  #else
-    #define DIAG_OFF_BYACC
-    #define DIAG_ON_BYACC
-  #endif
+  #define DIAG_OFF_BYACC \
+    DIAG_OFF(shadow)
+  #define DIAG_ON_BYACC \
+    DIAG_ON(shadow)
 #endif
 
 /*
