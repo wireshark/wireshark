@@ -1939,7 +1939,7 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
         /* second_chroma_qp_index_offset 1 se(v)*/
         dissect_h264_exp_golomb_code(tree, hf_h264_second_chroma_qp_index_offset, tvb, &bit_offset, H264_SE_V);
     }
-    bit_offset = dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
+    dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
 }
 
 /*
