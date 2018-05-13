@@ -4112,6 +4112,10 @@ static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_6_ss = -1;
 static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_7_ss = -1;
 static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_8_ss = -1;
 
+static int hf_ieee80211_vht_mcsset_max_nsts_total = -1;
+static int hf_ieee80211_vht_mcsset_ext_nss_bw_cap = -1;
+static int hf_ieee80211_vht_mcsset_reserved = -1;
+
 static int hf_ieee80211_vht_mcsset_rx_highest_long_gi = -1;
 
 static int hf_ieee80211_vht_mcsset_tx_mcs_map = -1;
@@ -13283,7 +13287,7 @@ dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset)
   mcs_tree = proto_item_add_subtree(ti, ett_vht_mcsset_tree);
 
   /* B0 - B15 */
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_vht_mcsset_rx_mcs_map,
+  proto_tree_add_bitmask_with_flags(mcs_tree, tvb, offset, hf_ieee80211_vht_mcsset_rx_mcs_map,
                                     ett_vht_rx_mcsbit_tree, ieee80211_vht_mcsset_rx_max_mcs,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 2;
@@ -13291,18 +13295,24 @@ dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset)
   /* B16 - B28 13 bits*/
   proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_rx_highest_long_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-  /* B29 - B31 2 reserved bits*/
+  /* B29 - B31 Max NSTS Total*/
+  proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_max_nsts_total, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
   offset += 2;
 
   /* B32 - B47 */
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_vht_mcsset_tx_mcs_map,
+  proto_tree_add_bitmask_with_flags(mcs_tree, tvb, offset, hf_ieee80211_vht_mcsset_tx_mcs_map,
                                     ett_vht_tx_mcsbit_tree, ieee80211_vht_mcsset_tx_max_mcs,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 2;
   /* B48 - B60 13 bits */
   proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_tx_highest_long_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  /* B61 - B63 2 reserved bits*/
+
+  /* B61 */
+  proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_ext_nss_bw_cap, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  /* B62 - B63 2 reserved bits*/
+  proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
   offset += 2;
   return offset;
@@ -28022,6 +28032,10 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0xc000,
       NULL, HFILL }},
 
+    {&hf_ieee80211_vht_mcsset_max_nsts_total,
+     {"MaX NSTS Total", "wlan.vht.mcsset.max_nsts_total",
+      FT_UINT16, BASE_DEC, NULL, 0xe000, NULL, HFILL }},
+
     {&hf_ieee80211_vht_mcsset_rx_highest_long_gi,
      {"Rx Highest Long GI Data Rate (in Mb/s, 0 = subfield not in use)", "wlan.vht.mcsset.rxhighestlonggirate",
       FT_UINT16, BASE_HEX, NULL, 0x1fff,
@@ -28076,6 +28090,14 @@ proto_register_ieee80211(void)
      {"Tx Highest Long GI Data Rate  (in Mb/s, 0 = subfield not in use)", "wlan.vht.mcsset.txhighestlonggirate",
       FT_UINT16, BASE_HEX, NULL, 0x1fff,
       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_ext_nss_bw_cap,
+     {"Extended NSS BW Capable", "wlan.vht.ncsset.ext_nss_bw_cap",
+      FT_BOOLEAN, 16, TFS(&tfs_capable_not_capable), 0x2000, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_reserved,
+     {"Reserved", "wlan.vht.ncsset.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xc000, NULL, HFILL }},
 
     {&hf_ieee80211_vht_op,
      {"VHT Operation Info", "wlan.vht.op",
