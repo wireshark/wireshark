@@ -40,6 +40,8 @@
 
 #include "config.h"
 
+#include <math.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
@@ -87,6 +89,8 @@ static dissector_handle_t gtp_handle, gtp_prime_handle;
 
 static gboolean g_gtp_over_tcp = TRUE;
 gboolean g_gtp_session = FALSE;
+
+static guint pref_pair_matching_max_interval_ms = 0; /* Default: disable */
 
 static guint g_gtpv0_port  = GTPv0_PORT;
 static guint g_gtpv1c_port = GTPv1C_PORT;
@@ -3399,6 +3403,8 @@ gtp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 {
     const gtp_msg_hash_t *key1 = (const gtp_msg_hash_t *)k1;
     const gtp_msg_hash_t *key2 = (const gtp_msg_hash_t *)k2;
+    double diff;
+    nstime_t delta;
 
     if ( key1->req_frame && key2->req_frame && (key1->req_frame != key2->req_frame) ) {
         return 0;
@@ -3406,6 +3412,13 @@ gtp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 
     if ( key1->rep_frame && key2->rep_frame && (key1->rep_frame != key2->rep_frame) ) {
         return 0;
+    }
+
+    if (pref_pair_matching_max_interval_ms) {
+        nstime_delta(&delta, &key1->req_time, &key2->req_time);
+        diff = fabs(nstime_to_msec(&delta));
+
+        return key1->seq_nr == key2->seq_nr && diff < pref_pair_matching_max_interval_ms;
     }
 
     return key1->seq_nr == key2->seq_nr;
@@ -3416,6 +3429,15 @@ gtp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
     const gtp_msg_hash_t *key1 = (const gtp_msg_hash_t *)k1;
     const gtp_msg_hash_t *key2 = (const gtp_msg_hash_t *)k2;
+    double diff;
+    nstime_t delta;
+
+    if (pref_pair_matching_max_interval_ms) {
+        nstime_delta(&delta, &key1->req_time, &key2->req_time);
+        diff = fabs(nstime_to_msec(&delta));
+
+        return key1->seq_nr == key2->seq_nr && diff < pref_pair_matching_max_interval_ms;
+    }
 
     return key1->seq_nr == key2->seq_nr;
 }
@@ -3425,7 +3447,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
 {
     gtp_msg_hash_t   gcr, *gcrp = NULL;
     guint32 *session;
+
     gcr.seq_nr=seq_nr;
+    gcr.req_time = pinfo->abs_ts;
 
     switch (msgtype) {
     case GTP_MSG_ECHO_REQ:
@@ -3434,6 +3458,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_DELETE_PDP_REQ:
     case GTP_MSG_FORW_RELOC_REQ:
     case GTP_MSG_DATA_TRANSF_REQ:
+    case GTP_MSG_SGSN_CNTXT_REQ:
+    case GTP_MS_INFO_CNG_NOT_REQ:
+    case GTP_MSG_IDENT_REQ:
         gcr.is_request=TRUE;
         gcr.req_frame=pinfo->num;
         gcr.rep_frame=0;
@@ -3444,6 +3471,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_DELETE_PDP_RESP:
     case GTP_MSG_FORW_RELOC_RESP:
     case GTP_MSG_DATA_TRANSF_RESP:
+    case GTP_MSG_SGSN_CNTXT_RESP:
+    case GTP_MS_INFO_CNG_NOT_RES:
+    case GTP_MSG_IDENT_RESP:
         gcr.is_request=FALSE;
         gcr.req_frame=0;
         gcr.rep_frame=pinfo->num;
@@ -3471,6 +3501,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_DELETE_PDP_REQ:
         case GTP_MSG_FORW_RELOC_REQ:
         case GTP_MSG_DATA_TRANSF_REQ:
+        case GTP_MSG_SGSN_CNTXT_REQ:
+        case GTP_MS_INFO_CNG_NOT_REQ:
+        case GTP_MSG_IDENT_REQ:
             gcr.seq_nr=seq_nr;
 
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
@@ -3496,6 +3529,9 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_DELETE_PDP_RESP:
         case GTP_MSG_FORW_RELOC_RESP:
         case GTP_MSG_DATA_TRANSF_RESP:
+        case GTP_MSG_SGSN_CNTXT_RESP:
+        case GTP_MS_INFO_CNG_NOT_RES:
+        case GTP_MSG_IDENT_RESP:
             gcr.seq_nr=seq_nr;
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
 
@@ -10280,6 +10316,7 @@ proto_register_gtp(void)
                                                &dissect_tpdu_as,
                                                gtp_decode_tpdu_as,
                                                FALSE);
+    prefs_register_uint_preference(gtp_module, "pair_max_interval", "Max interval allowed in pair matching", "Request/reply pair matches only if their timestamps are closer than that value, in ms (default 0, i.e. don't use timestamps)", 10, &pref_pair_matching_max_interval_ms);
 
     prefs_register_obsolete_preference(gtp_module, "v0_dissect_cdr_as");
     prefs_register_obsolete_preference(gtp_module, "v0_check_etsi");

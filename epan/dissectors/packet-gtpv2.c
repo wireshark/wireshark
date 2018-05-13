@@ -13,6 +13,8 @@
 
 #include "config.h"
 
+#include <math.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/to_str.h>
@@ -1037,6 +1039,7 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define PREF_DECODE_SRVCC_P2C_TRANS_CONT_TARGET_UTRAN  1
 static gint pref_decode_srvcc_p2c_trans_cont = PREF_DECODE_SRVCC_P2C_TRANS_CONT_NO;
 
+static guint pref_pair_matching_max_interval_ms = 0; /* Default: disable */
 
 /* Table 8.1-1: Information Element types for GTPv2 */
 static const value_string gtpv2_element_type_vals[] = {
@@ -1237,6 +1240,8 @@ gtpv2_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 {
     const gtpv2_msg_hash_t *key1 = (const gtpv2_msg_hash_t *)k1;
     const gtpv2_msg_hash_t *key2 = (const gtpv2_msg_hash_t *)k2;
+    double diff;
+    nstime_t delta;
 
     if (key1->req_frame && key2->req_frame && (key1->req_frame != key2->req_frame)) {
         return 0;
@@ -1244,6 +1249,13 @@ gtpv2_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 
     if (key1->rep_frame && key2->rep_frame && (key1->rep_frame != key2->rep_frame)) {
         return 0;
+    }
+
+    if (pref_pair_matching_max_interval_ms) {
+        nstime_delta(&delta, &key1->req_time, &key2->req_time);
+        diff = fabs(nstime_to_msec(&delta));
+
+        return key1->seq_nr == key2->seq_nr && diff < pref_pair_matching_max_interval_ms;
     }
 
     return key1->seq_nr == key2->seq_nr;
@@ -1254,6 +1266,15 @@ gtpv2_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
     const gtpv2_msg_hash_t *key1 = (const gtpv2_msg_hash_t *)k1;
     const gtpv2_msg_hash_t *key2 = (const gtpv2_msg_hash_t *)k2;
+    double diff;
+    nstime_t delta;
+
+    if (pref_pair_matching_max_interval_ms) {
+        nstime_delta(&delta, &key1->req_time, &key2->req_time);
+        diff = fabs(nstime_to_msec(&delta));
+
+        return key1->seq_nr == key2->seq_nr && diff < pref_pair_matching_max_interval_ms;
+    }
 
     return key1->seq_nr == key2->seq_nr;
 }
@@ -6936,7 +6957,9 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
 {
     gtpv2_msg_hash_t   gcr, *gcrp = NULL;
     guint32 *session;
+
     gcr.seq_nr = seq_nr;
+    gcr.req_time = pinfo->abs_ts;
 
     switch (msgtype) {
     case GTPV2_CREATE_SESSION_REQUEST:
@@ -9790,6 +9813,8 @@ void proto_register_gtpv2(void)
         "Use this setting to decode the Transparent Containers in the SRVCC PS-to-CS messages.\n"
         "This is needed until there's a reliable way to determine the contents of the transparent containers.",
         &pref_decode_srvcc_p2c_trans_cont, decode_srvcc_ps_to_cs_trans_cont_vals, FALSE);
+
+    prefs_register_uint_preference(gtpv2_module, "pair_max_interval", "Max interval allowed in pair matching", "Request/reply pair matches only if their timestamps are closer than that value, in ms (default 0, i.e. don't use timestamps)", 10, &pref_pair_matching_max_interval_ms);
 
     proto_register_field_array(proto_gtpv2, hf_gtpv2, array_length(hf_gtpv2));
     proto_register_subtree_array(ett_gtpv2_array, array_length(ett_gtpv2_array));
