@@ -232,9 +232,6 @@ void commandline_early_options(int argc, char *argv[],
      * We thus ignore errors - *and* set "opterr" to 0 to suppress the
      * error messages.
      *
-     * XXX - should we, instead, first call gtk_parse_args(), without
-     * calling gtk_init(), and then call this?
-     *
      * In order to handle, for example, -o options, we also need to call it
      * *after* epan_init() gets called, so that the dissectors have had a
      * chance to register their preferences, so we have another getopt_long()
