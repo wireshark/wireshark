@@ -1600,7 +1600,6 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
   /* NT Token */
   proto_tree_add_item(tree, hf_mscldap_netlogon_nt_token, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  offset += 2;
 
   return tvb_captured_length(tvb);
 }

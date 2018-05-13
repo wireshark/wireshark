@@ -4518,7 +4518,6 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
   /* NT Token */
   proto_tree_add_item(tree, hf_mscldap_netlogon_nt_token, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  offset += 2;
 
   return tvb_captured_length(tvb);
 }
@@ -5626,7 +5625,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2143 "./asn1/ldap/packet-ldap-template.c"
+#line 2142 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5700,7 +5699,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2157 "./asn1/ldap/packet-ldap-template.c"
+#line 2156 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5888,7 +5887,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2328 "./asn1/ldap/packet-ldap-template.c"
+#line 2327 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }
