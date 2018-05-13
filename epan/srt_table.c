@@ -75,7 +75,7 @@ free_srt_table_data(srt_stat_table *rst)
     rst->num_procs=0;
 }
 
-void free_srt_table(register_srt_t *srt, GArray* srt_array, srt_gui_free_cb gui_callback, void *callback_data)
+void free_srt_table(register_srt_t *srt, GArray* srt_array)
 {
     guint i = 0;
     srt_stat_table *srt_table;
@@ -83,10 +83,6 @@ void free_srt_table(register_srt_t *srt, GArray* srt_array, srt_gui_free_cb gui_
     for (i = 0; i < srt_array->len; i++)
     {
         srt_table = g_array_index(srt_array, srt_stat_table*, i);
-
-        /* Give GUI the first crack at it before we clean up */
-        if (gui_callback)
-            gui_callback(srt_table, callback_data);
 
         free_srt_table_data(srt_table);
         g_free(srt_table);
@@ -109,7 +105,7 @@ static void reset_srt_table_data(srt_stat_table *rst)
     }
 }
 
-void reset_srt_table(GArray* srt_array, srt_gui_reset_cb gui_callback, void *callback_data)
+void reset_srt_table(GArray* srt_array)
 {
     guint i = 0;
     srt_stat_table *srt_table;
@@ -117,10 +113,6 @@ void reset_srt_table(GArray* srt_array, srt_gui_reset_cb gui_callback, void *cal
     for (i = 0; i < srt_array->len; i++)
     {
         srt_table = g_array_index(srt_array, srt_stat_table*, i);
-
-        /* Give GUI the first crack at it before we clean up */
-        if (gui_callback)
-            gui_callback(srt_table, callback_data);
 
         reset_srt_table_data(srt_table);
     }
@@ -169,9 +161,9 @@ void srt_table_get_filter(register_srt_t* srt, const char *opt_arg, const char *
     g_free(cmd_str);
 }
 
-void srt_table_dissector_init(register_srt_t* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void *callback_data)
+void srt_table_dissector_init(register_srt_t* srt, GArray* srt_array)
 {
-    srt->srt_init(srt, srt_array, gui_callback, callback_data);
+    srt->srt_init(srt, srt_array);
 }
 
 void
@@ -207,7 +199,7 @@ void srt_table_iterate_tables(wmem_foreach_func func, gpointer user_data)
 
 srt_stat_table*
 init_srt_table(const char *name, const char *short_name, GArray *srt_array, int num_procs, const char* proc_column_name,
-                const char *filter_string, srt_gui_init_cb gui_callback, void* gui_data, void* table_specific_data)
+                const char *filter_string, void* table_specific_data)
 {
     int i;
     srt_stat_table *table = g_new(srt_stat_table, 1);
@@ -228,9 +220,6 @@ init_srt_table(const char *name, const char *short_name, GArray *srt_array, int 
     g_array_insert_val(srt_array, srt_array->len, table);
 
     table->table_specific_data = table_specific_data;
-
-    if (gui_callback)
-        gui_callback(table, gui_data);
 
     return table;
 }

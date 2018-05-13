@@ -340,7 +340,7 @@ rpcstat_find_procs(const gchar *table_name _U_, ftenum_t selector_type _U_, gpoi
 }
 
 static void
-rpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+rpcstat_init(struct register_srt* srt, GArray* srt_array)
 {
 	rpcstat_tap_data_t* tap_data = (rpcstat_tap_data_t*)get_srt_table_param_data(srt);
 	srt_stat_table *rpc_srt_table;
@@ -354,7 +354,7 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_ca
 	hfi=proto_registrar_get_nth(hf_index);
 
 	g_snprintf(table_name, sizeof(table_name), "%s Version %u", tap_data->prog, tap_data->version);
-	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, gui_callback, gui_data, tap_data);
+	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, tap_data);
 	for (i = 0; i < rpc_srt_table->num_procs; i++)
 	{
 		char *proc_name = rpc_proc_name_internal(NULL, tap_data->program, tap_data->version, i);

@@ -1908,7 +1908,7 @@ uuid_equal(e_guid_t *uuid1, e_guid_t *uuid2)
 }
 
 static void
-dcerpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+dcerpcstat_init(struct register_srt* srt, GArray* srt_array)
 {
     dcerpcstat_tap_data_t* tap_data = (dcerpcstat_tap_data_t*)get_srt_table_param_data(srt);
     srt_stat_table *dcerpc_srt_table;
@@ -1921,9 +1921,9 @@ dcerpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui
     procs    = dcerpc_get_proto_sub_dissector(&tap_data->uuid, tap_data->ver);
 
     if(hf_opnum != -1){
-        dcerpc_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, tap_data->num_procedures, NULL, proto_registrar_get_nth(hf_opnum)->abbrev, gui_callback, gui_data, tap_data);
+        dcerpc_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, tap_data->num_procedures, NULL, proto_registrar_get_nth(hf_opnum)->abbrev, tap_data);
     } else {
-        dcerpc_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, tap_data->num_procedures, NULL, NULL, gui_callback, gui_data, tap_data);
+        dcerpc_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, tap_data->num_procedures, NULL, NULL, tap_data);
     }
 
     for(i=0;i<tap_data->num_procedures;i++){

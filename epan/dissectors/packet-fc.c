@@ -234,12 +234,12 @@ fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 #define FC_NUM_PROCEDURES     256
 
 static void
-fcstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
     srt_stat_table *fc_srt_table;
     guint32 i;
 
-    fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, NULL, gui_callback, gui_data, NULL);
+    fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, NULL, NULL);
     for (i = 0; i < FC_NUM_PROCEDURES; i++)
     {
         gchar* tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");

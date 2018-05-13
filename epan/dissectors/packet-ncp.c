@@ -398,45 +398,45 @@ WS_DLL_PUBLIC_DEF const value_string ncp_nds_verb_vals[] = {
 };
 
 static void
-ncpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+ncpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
     /* Initialize all of the SRT tables with 0 rows.  That way we can "filter" the drawing
        function to only output tables with rows > 0 */
 
-    init_srt_table("NCP", "Groups", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.group", gui_callback, gui_data, NULL);
+    init_srt_table("NCP", "Groups", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.group", NULL);
 
     /* NDS Verbs */
-    init_srt_table("NDS Verbs", "NDS", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.ndsverb", gui_callback, gui_data, NULL);
+    init_srt_table("NDS Verbs", "NDS", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.ndsverb", NULL);
 
     /* NCP Functions */
-    init_srt_table("NCP Functions without Subfunctions", "Functions", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func", gui_callback, gui_data, NULL);
+    init_srt_table("NCP Functions without Subfunctions", "Functions", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func", NULL);
 
     /* Secret Store Verbs */
-    init_srt_table("Secret Store Verbs", "SSS", srt_array, NCP_NUM_PROCEDURES, NULL, "sss.subverb", gui_callback, gui_data, NULL);
+    init_srt_table("Secret Store Verbs", "SSS", srt_array, NCP_NUM_PROCEDURES, NULL, "sss.subverb", NULL);
 
     /* NMAS Verbs */
-    init_srt_table("NMAS Verbs", "NMAS", srt_array, NCP_NUM_PROCEDURES, NULL, "nmas.subverb", gui_callback, gui_data, NULL);
+    init_srt_table("NMAS Verbs", "NMAS", srt_array, NCP_NUM_PROCEDURES, NULL, "nmas.subverb", NULL);
 
     /* NCP Subfunctions */
-    init_srt_table("Subfunctions for NCP 17", "17", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==17 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 21", "21", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==21 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 22", "22", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==22 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 23", "23", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==23 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 32", "32", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==32 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 34", "34", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==34 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 35", "35", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==35 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 36", "36", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==36 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 86", "86", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==86 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 87", "87", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==87 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 89 (Extended NCP's with UTF8 Support)", "89", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==89 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 90", "90", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==90 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 92 (Secret Store Services)", "92", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==92 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 94 (Novell Modular Authentication Services)", "94", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==94 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 104", "104", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==104 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 111", "111", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==111 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 114", "114", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==114 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 123", "123", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==123 && ncp.subfunc", gui_callback, gui_data, NULL);
-    init_srt_table("Subfunctions for NCP 131", "131", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==131 && ncp.subfunc", gui_callback, gui_data, NULL);
+    init_srt_table("Subfunctions for NCP 17", "17", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==17 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 21", "21", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==21 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 22", "22", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==22 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 23", "23", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==23 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 32", "32", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==32 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 34", "34", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==34 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 35", "35", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==35 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 36", "36", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==36 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 86", "86", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==86 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 87", "87", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==87 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 89 (Extended NCP's with UTF8 Support)", "89", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==89 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 90", "90", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==90 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 92 (Secret Store Services)", "92", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==92 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 94 (Novell Modular Authentication Services)", "94", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==94 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 104", "104", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==104 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 111", "111", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==111 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 114", "114", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==114 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 123", "123", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==123 && ncp.subfunc", NULL);
+    init_srt_table("Subfunctions for NCP 131", "131", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==131 && ncp.subfunc", NULL);
 }
 
 static int

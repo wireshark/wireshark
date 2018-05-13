@@ -1295,13 +1295,13 @@ static void dbg(guint level, char *fmt, ...) {
 #endif
 
 static void
-camelstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+camelstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
   srt_stat_table *camel_srt_table;
   gchar* tmp_str;
   guint32 i;
 
-  camel_srt_table = init_srt_table("CAMEL Commands", NULL, srt_array, NB_CAMELSRT_CATEGORY, NULL, NULL, gui_callback, gui_data, NULL);
+  camel_srt_table = init_srt_table("CAMEL Commands", NULL, srt_array, NB_CAMELSRT_CATEGORY, NULL, NULL, NULL);
   for (i = 0; i < NB_CAMELSRT_CATEGORY; i++)
   {
     tmp_str = val_to_str_wmem(NULL,i,camelSRTtype_naming,"Unknown (%d)");

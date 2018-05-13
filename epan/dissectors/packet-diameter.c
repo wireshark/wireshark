@@ -360,7 +360,7 @@ static GHashTable* diameterstat_cmd_str_hash = NULL;
 #define DIAMETER_NUM_PROCEDURES     1
 
 static void
-diameterstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+diameterstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
 	srt_stat_table *diameter_srt_table;
 	int* idx;
@@ -381,7 +381,7 @@ diameterstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_
 	 * Note to make it work the command code must be stored rather than the
 	 * index.
 	 */
-	diameter_srt_table = init_srt_table("Diameter Requests", NULL, srt_array, DIAMETER_NUM_PROCEDURES, NULL, NULL, gui_callback, gui_data, NULL);
+	diameter_srt_table = init_srt_table("Diameter Requests", NULL, srt_array, DIAMETER_NUM_PROCEDURES, NULL, NULL, NULL);
 	init_srt_table_row(diameter_srt_table, 0, "Unknown");
 }
 

@@ -1085,12 +1085,12 @@ value_string_ext afp_server_addr_type_vals_ext = VALUE_STRING_EXT_INIT(afp_serve
 #define AFP_NUM_PROCEDURES     256
 
 static void
-afpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+afpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
 	srt_stat_table *afp_srt_table;
 	guint32 i;
 
-	afp_srt_table = init_srt_table("AFP Commands", NULL, srt_array, AFP_NUM_PROCEDURES, NULL, "afp.command", gui_callback, gui_data, NULL);
+	afp_srt_table = init_srt_table("AFP Commands", NULL, srt_array, AFP_NUM_PROCEDURES, NULL, "afp.command", NULL);
 	for (i = 0; i < AFP_NUM_PROCEDURES; i++)
 	{
 		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown(%u)");

@@ -905,16 +905,16 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 #define NT_SRT_TABLE_INDEX     2
 
 static void
-smbstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+smbstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
 	srt_stat_table *smb_srt_table;
 	srt_stat_table *trans2_srt_table;
 	srt_stat_table *nt_srt_table;
 	guint32 i;
 
-	smb_srt_table = init_srt_table("SMB Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "Commands", "smb.cmd", gui_callback, gui_data, NULL);
-	trans2_srt_table = init_srt_table("Transaction2 Sub-Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "Transaction2 Commands", "smb.trans2.cmd", gui_callback, gui_data, NULL);
-	nt_srt_table = init_srt_table("NT Transaction Sub-Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "NT Transaction Sub-Commands", "smb.nt.function", gui_callback, gui_data, NULL);
+	smb_srt_table = init_srt_table("SMB Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "Commands", "smb.cmd", NULL);
+	trans2_srt_table = init_srt_table("Transaction2 Sub-Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "Transaction2 Commands", "smb.trans2.cmd", NULL);
+	nt_srt_table = init_srt_table("NT Transaction Sub-Commands", NULL, srt_array, SMB_NUM_PROCEDURES, "NT Transaction Sub-Commands", "smb.nt.function", NULL);
 	for (i = 0; i < SMB_NUM_PROCEDURES; i++)
 	{
 		init_srt_table_row(smb_srt_table, i, val_to_str_ext_const(i, &smb_cmd_vals_ext, "<unknown>"));

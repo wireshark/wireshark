@@ -1796,11 +1796,11 @@ static const value_string geographic_location_type[] = {
 #define MM_PROTO_NON_CALL_RELATED       0x0B
 
 static void
-gtpstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+gtpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
     srt_stat_table *gtp_srt_table;
 
-    gtp_srt_table = init_srt_table("GTP Requests", NULL, srt_array, 4, NULL, NULL, gui_callback, gui_data, NULL);
+    gtp_srt_table = init_srt_table("GTP Requests", NULL, srt_array, 4, NULL, NULL, NULL);
     init_srt_table_row(gtp_srt_table, 0, "Echo");
     init_srt_table_row(gtp_srt_table, 1, "Create PDP context");
     init_srt_table_row(gtp_srt_table, 2, "Update PDP context");

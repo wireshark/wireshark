@@ -1963,7 +1963,7 @@ sharkd_session_free_tap_srt_cb(void *arg)
 	srt_data_t *srt_data = (srt_data_t *) arg;
 	register_srt_t *srt = (register_srt_t *) srt_data->user_data;
 
-	free_srt_table(srt, srt_data->srt_array, NULL, NULL);
+	free_srt_table(srt, srt_data->srt_array);
 	g_array_free(srt_data->srt_array, TRUE);
 	g_free(srt_data);
 }
@@ -2380,7 +2380,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			srt_data = g_new0(srt_data_t, 1);
 			srt_data->srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table *));
 			srt_data->user_data = srt;
-			srt_table_dissector_init(srt, srt_data->srt_array, NULL, NULL);
+			srt_table_dissector_init(srt, srt_data->srt_array);
 
 			tap_error = register_tap_listener(get_srt_tap_listener_name(srt), srt_data, tap_filter, 0, NULL, get_srt_packet_func(srt), sharkd_session_process_tap_srt_cb);
 

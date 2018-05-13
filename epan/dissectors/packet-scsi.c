@@ -949,7 +949,7 @@ typedef struct scsistat_tap_data
 } scsistat_tap_data_t;
 
 static void
-scsistat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+scsistat_init(struct register_srt* srt, GArray* srt_array)
 {
     scsistat_tap_data_t* tap_data = (scsistat_tap_data_t*)get_srt_table_param_data(srt);
     srt_stat_table *scsi_srt_table;
@@ -957,7 +957,7 @@ scsistat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_c
 
     DISSECTOR_ASSERT(tap_data);
 
-    scsi_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, SCSI_NUM_PROCEDURES, NULL, tap_data->hf_name, gui_callback, gui_data, tap_data);
+    scsi_srt_table = init_srt_table(tap_data->prog, NULL, srt_array, SCSI_NUM_PROCEDURES, NULL, tap_data->hf_name, tap_data);
     for (i = 0; i < SCSI_NUM_PROCEDURES; i++)
     {
         init_srt_table_row(scsi_srt_table, i, val_to_str_ext_const(i, tap_data->cdbnames_ext, "Unknown-0x%02x"));

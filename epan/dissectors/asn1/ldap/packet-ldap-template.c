@@ -290,12 +290,12 @@ static const value_string netlogon_opcode_vals[] = {
 #define LDAP_NUM_PROCEDURES     24
 
 static void
-ldapstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+ldapstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
   srt_stat_table *ldap_srt_table;
   guint32 i;
 
-  ldap_srt_table = init_srt_table("LDAP Commands", NULL, srt_array, LDAP_NUM_PROCEDURES, NULL, "ldap.protocolOp", gui_callback, gui_data, NULL);
+  ldap_srt_table = init_srt_table("LDAP Commands", NULL, srt_array, LDAP_NUM_PROCEDURES, NULL, "ldap.protocolOp", NULL);
   for (i = 0; i < LDAP_NUM_PROCEDURES; i++)
   {
     init_srt_table_row(ldap_srt_table, i, val_to_str_const(i, ldap_procedure_names, "<unknown>"));

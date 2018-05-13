@@ -116,7 +116,7 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 
 	error_string = register_tap_listener(get_srt_tap_listener_name(srt), &ui->data, filter, 0, NULL, get_srt_packet_func(srt), srt_draw);
 	if (error_string) {
-		free_srt_table(srt, global_srt_array, NULL, NULL);
+		free_srt_table(srt, global_srt_array);
 		g_free(ui);
 		fprintf(stderr, "tshark: Couldn't register srt tap: %s\n", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -144,7 +144,7 @@ dissector_srt_init(const char *opt_arg, void* userdata)
     /* Need to create the SRT array now */
     global_srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
 
-	srt_table_dissector_init(srt, global_srt_array, NULL, NULL);
+	srt_table_dissector_init(srt, global_srt_array);
 	init_srt_tables(srt, filter);
 }
 

@@ -819,12 +819,12 @@ static const val64_string unique_unsolicited_response[] = {
 #define SMB2_NUM_PROCEDURES     256
 
 static void
-smb2stat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_cb gui_callback, void* gui_data)
+smb2stat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
 	srt_stat_table *smb2_srt_table;
 	guint32 i;
 
-	smb2_srt_table = init_srt_table("SMB2", NULL, srt_array, SMB2_NUM_PROCEDURES, "Commands", "smb2.cmd", gui_callback, gui_data, NULL);
+	smb2_srt_table = init_srt_table("SMB2", NULL, srt_array, SMB2_NUM_PROCEDURES, "Commands", "smb2.cmd", NULL);
 	for (i = 0; i < SMB2_NUM_PROCEDURES; i++)
 	{
 		init_srt_table_row(smb2_srt_table, i, val_to_str_ext_const(i, &smb2_cmd_vals_ext, "<unknown>"));
