@@ -7877,7 +7877,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					"Level | State | Codepage | WBXML Token Description         | Rendering");
 
 	/* If content_map == NULL, WBXML only, no interpretation of the content */
-	len = parse_wbxml_tag_defined (tag_tree,
+	parse_wbxml_tag_defined (tag_tree,
 							tvb, pinfo, offset, str_tbl, &level, &codepage_stag,
 							&codepage_attr, content_map);
 }
