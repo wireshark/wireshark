@@ -2638,18 +2638,6 @@ static const true_false_string ht_info_rifs_mode_flag = {
   "Prohibited"
 };
 
-static const value_string ht_info_service_interval_granularity_flags[] = {
-  {0x00, "5 ms"},
-  {0x01, "10 ms"},
-  {0x02, "15 ms"},
-  {0x03, "20 ms"},
-  {0x04, "25 ms"},
-  {0x05, "30 ms"},
-  {0x06, "35 ms"},
-  {0x07, "40 ms"},
-  {0x00, NULL}
-};
-
 static const value_string ht_info_operating_protection_mode_flags[] = {
   {0x00, "No protection mode"},
   {0x01, "HT non-member protection mode"},
