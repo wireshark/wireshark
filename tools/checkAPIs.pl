@@ -1002,10 +1002,10 @@ my $debug = 0;
 # http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
 # They are in the public domain.
 
-# 1. A complicated regex which matches C-style comments.
+# 1. A complicated regex which matches "classic C"-style comments.
 my $CComment = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }x;
 
-# 1.a A regex that matches C++/C99-style comments.
+# 1.a A regex that matches C++/C99-and-later-style comments.
 # XXX handle comments after a statement and not just at the beginning of a line.
 my $CppComment = qr{ ^ \s* // (.*?) \n }xm;
 
@@ -1023,11 +1023,6 @@ my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }x;
 #    regex in capturing parenthesis to store the contents
 #    of the comment in $1.
 #    my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr)|($CComment)|($CppComment)};
-
-# 4. Wireshark is strictly a C program so don't take out C++ style comments
-#    since they shouldn't be there anyway...
-#    Also: capturing the comment isn't necessary.
-## my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComment) }x;
 
 #
 # MAIN
@@ -1157,7 +1152,7 @@ while ($_ = pop @filelist)
                 $errorCount++;
         }
 
-        # Remove all the C-comments
+        # Remove all the C/C++ comments
         $fileContents =~ s{ $CComment | $CppComment } []xog;
 
         # optionally check the hf entries (including those under #if 0)
