@@ -2334,7 +2334,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
         {
             ia5_string_len = len - (curr_offset - offset);
             ia5_string = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, ia5_string_len);
-            *extracted_address = (gchar *)wmem_alloc(wmem_packet_scope(), ia5_string_len);
+            *extracted_address = (gchar *)wmem_alloc(wmem_packet_scope(), ia5_string_len + 1);
 
             invalid_ia5_char = FALSE;
             for(i = 0; i < ia5_string_len; i++)
