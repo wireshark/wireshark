@@ -446,7 +446,7 @@ const gchar* expert_get_summary(expert_field *eiindex)
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(eiindex->ei, eiinfo);
 
-    return eiinfo->summary;
+	return eiinfo->summary;
 }
 
 /** clear flags according to the mask and set new flag values */
