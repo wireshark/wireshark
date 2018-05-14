@@ -47,7 +47,7 @@ XZ_VERSION=5.2.3
 LZIP_VERSION=1.19
 
 #
-# In case we want to build with cmake.
+# CMake is required to do the build.
 #
 CMAKE_VERSION=${CMAKE_VERSION-3.11.0}
 
