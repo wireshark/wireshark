@@ -696,6 +696,7 @@ static expert_field ei_rtcp_missing_sender_ssrc = EI_INIT;
 static expert_field ei_rtcp_missing_block_header = EI_INIT;
 static expert_field ei_rtcp_block_length = EI_INIT;
 static expert_field ei_srtcp_encrypted_payload = EI_INIT;
+static expert_field ei_rtcp_rtpfb_transportcc_bad = EI_INIT;
 
 /* Main dissection function */
 static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -1111,15 +1112,14 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 #define RTCP_HEADER_LENGTH      12
 
 static int
-dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, int pkt_len)
+dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtcp_tree, int pkt_len)
 {
     proto_tree *fci_tree, *pkt_chunk_tree, *recv_delta_tree;
     proto_item *item       = NULL;
     guint8  *delta_array;
     guint16 *pkt_seq_array;
-    guint32 i, pkt_base_seq, pkt_seq_num, pkt_count;
+    guint32 i, pkt_base_seq, pkt_seq_num, pkt_count, delta_index = 0;
     gint fci_length        = pkt_len - RTCP_HEADER_LENGTH;
-    int delta_index        = 0;
     int padding_length     = offset;
 
     fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, fci_length, ett_ssrc, NULL, "Transport-cc" );
@@ -1162,14 +1162,12 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, proto_tree *rtcp_tre
         if ( !(chunk & 0x8000) )
         {
             /* Run length chunk, first bit is zero */
-            int length = chunk & 0x1FFF;
+            guint length = chunk & 0x1FFF;
 
-            if ( length <= 0 )
+            if ( length <= 0 || pkt_count - delta_index < length )
             {
-                /*Malfromed Packet, stop parse it*/
-                delta_array = NULL;
-                pkt_seq_array = NULL;
-
+                /* Malformed packet (zero or too many packets), stop parsing. */
+                proto_tree_add_expert(pkt_chunk_tree, pinfo, &ei_rtcp_rtpfb_transportcc_bad, tvb, offset, 2);
                 offset += 2;
                 return offset;
             }
@@ -1182,7 +1180,7 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, proto_tree *rtcp_tre
             else if ( chunk & 0x2000 )
             {
                 proto_item_append_text( item, " [Run Length Chunk] Small Delta. Length : %d", length);
-                for (int j = 0; j < length; j++)
+                for (guint j = 0; j < length; j++)
                 {
                     /*1 means 1 byte delta, 2 means 2 bytes delta*/
                     delta_array[delta_index+j] = 1;
@@ -1193,7 +1191,7 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, proto_tree *rtcp_tre
             else if ( chunk & 0x4000 )
             {
                 proto_item_append_text( item, " [Run Length Chunk] Large or Negative Delta. Length : %d", length);
-                for (int j = 0; j < length; j++)
+                for (guint j = 0; j < length; j++)
                 {
                     delta_array[delta_index+j] = 2;
                     pkt_seq_array[delta_index+j] = pkt_seq_num++;
@@ -1238,6 +1236,12 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, proto_tree *rtcp_tre
                     }
                     else
                     {
+                        if (delta_index >= pkt_count) {
+                            /* Malformed packet (too many status packets). */
+                            proto_tree_add_expert(pkt_chunk_tree, pinfo, &ei_rtcp_rtpfb_transportcc_bad, tvb, offset, 2);
+                            offset += 2;
+                            return offset;
+                        }
                         wmem_strbuf_append(status, " R |");
                         delta_array[delta_index] = 1;
                         pkt_seq_array[delta_index] = pkt_seq_num++;
@@ -1271,6 +1275,12 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, proto_tree *rtcp_tre
                             break;
 
                         case 1: /*01 Packet received, small delta*/
+                            if (delta_index >= pkt_count) {
+                                /* Malformed packet (too many status packets). */
+                                proto_tree_add_expert(pkt_chunk_tree, pinfo, &ei_rtcp_rtpfb_transportcc_bad, tvb, offset, 2);
+                                offset += 2;
+                                return offset;
+                            }
                             wmem_strbuf_append(status, " SD |");
                             delta_array[delta_index] = 1;
                             pkt_seq_array[delta_index] = pkt_seq_num++;
@@ -1278,6 +1288,12 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, int offset, proto_tree *rtcp_tre
                             break;
 
                         case 2: /*10 Packet received, large or negative delta*/
+                            if (delta_index >= pkt_count) {
+                                /* Malformed packet (too many status packets). */
+                                proto_tree_add_expert(pkt_chunk_tree, pinfo, &ei_rtcp_rtpfb_transportcc_bad, tvb, offset, 2);
+                                offset += 2;
+                                return offset;
+                            }
                             wmem_strbuf_append(status, " LD |");
                             delta_array[delta_index] = 2;
                             pkt_seq_array[delta_index] = pkt_seq_num++;
@@ -1451,7 +1467,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
         offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
       } else if (rtcp_rtpfb_fmt == 15) {
         /* Handle transport-cc (RTP Extensions for Transport-wide Congestion Control) - https://tools.ietf.org/html/draft-holmer-rmcat-transport-wide-cc-extensions-01 */
-        offset = dissect_rtcp_rtpfb_transport_cc( tvb, offset, rtcp_tree, packet_length);
+        offset = dissect_rtcp_rtpfb_transport_cc( tvb, offset, pinfo, rtcp_tree, packet_length);
       } else {
         /* Unknown FMT */
         proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, start_offset + packet_length - offset, ENC_NA );
@@ -6832,6 +6848,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_missing_block_header, { "rtcp.missing_block_header", PI_PROTOCOL, PI_WARN, "Missing Required Block Headers", EXPFILL }},
         { &ei_rtcp_block_length, { "rtcp.block_length.invalid", PI_PROTOCOL, PI_WARN, "Block length is greater than packet length", EXPFILL }},
         { &ei_srtcp_encrypted_payload, { "srtcp.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted RTCP Payload - not dissected", EXPFILL }},
+        { &ei_rtcp_rtpfb_transportcc_bad, { "rtcp.rtpfb.transportcc_bad", PI_MALFORMED, PI_WARN, "Too many packet chunks (more than packet status count)", EXPFILL }},
     };
 
     module_t *rtcp_module;
