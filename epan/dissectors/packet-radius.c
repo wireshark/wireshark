@@ -1369,11 +1369,19 @@ vsa_buffer_destroy(gpointer k _U_, gpointer v, gpointer p _U_)
 }
 
 static void
-vsa_buffer_table_destroy(void *table)
+eap_buffer_free_indirect(void *context)
 {
-	if (table) {
-		g_hash_table_foreach_remove((GHashTable *)table, vsa_buffer_destroy, NULL);
-		g_hash_table_destroy((GHashTable *)table);
+	guint8 *eap_buffer = *(guint8 **)context;
+	g_free(eap_buffer);
+}
+
+static void
+vsa_buffer_table_destroy_indirect(void *context)
+{
+	GHashTable *vsa_buffer_table = *(GHashTable **)context;
+	if (vsa_buffer_table) {
+		g_hash_table_foreach_remove(vsa_buffer_table, vsa_buffer_destroy, NULL);
+		g_hash_table_destroy(vsa_buffer_table);
 	}
 }
 
@@ -1397,8 +1405,8 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 	 * In case we throw an exception, clean up whatever stuff we've
 	 * allocated (if any).
 	 */
-	CLEANUP_PUSH_PFX(la, g_free, eap_buffer);
-	CLEANUP_PUSH_PFX(lb, vsa_buffer_table_destroy, (void *)vsa_buffer_table);
+	CLEANUP_PUSH_PFX(la, eap_buffer_free_indirect, &eap_buffer);
+	CLEANUP_PUSH_PFX(lb, vsa_buffer_table_destroy_indirect, &vsa_buffer_table);
 
 	while (length > 0) {
 		radius_attr_info_t *dictionary_entry = NULL;
@@ -1847,13 +1855,13 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 	}  /* while (length > 0) */
 
-	CLEANUP_CALL_AND_POP_PFX(lb); /* vsa_buffer_table_destroy(vsa_buffer_table) */
+	CLEANUP_CALL_AND_POP_PFX(lb); /* vsa_buffer_table_destroy_indirect(&vsa_buffer_table) */
 
 	/*
 	 * Call the cleanup handler to free any reassembled data we haven't
 	 * attached to a tvbuff, and pop the handler.
 	 */
-	CLEANUP_CALL_AND_POP_PFX(la);
+	CLEANUP_CALL_AND_POP_PFX(la); /* eap_buffer_free_indirect(&eap_buffer); */
 }
 
 /* This function tries to determine whether a packet is radius or not */
