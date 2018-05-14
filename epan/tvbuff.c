@@ -485,6 +485,13 @@ tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
+	/*
+	 * Negative lengths are not possible and indicate a bug (e.g. arithmetic
+	 * error or an overly large value from packet data).
+	 */
+	if (length < 0)
+		return FALSE;
+
 	exception = check_offset_length_no_exception(tvb, offset, length, &abs_offset, &abs_length);
 	if (exception)
 		return FALSE;
