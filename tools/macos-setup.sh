@@ -12,10 +12,6 @@
 
 shopt -s extglob
 #
-# To install cmake
-#
-CMAKE=1
-#
 # To install autotools
 #
 AUTOTOOLS=1
@@ -352,7 +348,7 @@ uninstall_libtool() {
 }
 
 install_cmake() {
-    if [ -n "$CMAKE" -a ! -f cmake-$CMAKE_VERSION-done ]; then
+    if [ ! -f cmake-$CMAKE_VERSION-done ]; then
         echo "Downloading and installing CMake:"
         CMAKE_MAJOR_VERSION="`expr $CMAKE_VERSION : '\([0-9][0-9]*\).*'`"
         CMAKE_MINOR_VERSION="`expr $CMAKE_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
@@ -1703,11 +1699,6 @@ install_all() {
         else
             echo "Requested CMake version is $CMAKE_VERSION"
         fi
-        #
-        # XXX - really remove this?
-        # Or should we remember it as installed only if this script
-        # installed it?
-        #
         uninstall_cmake -r
     fi
 
@@ -2291,31 +2282,17 @@ fi
 
 echo "You are now prepared to build Wireshark."
 echo
-if [[ $CMAKE ]]; then
-    echo "To build with CMAKE:"
-    echo
-    echo "export PKG_CONFIG_PATH=$pkg_config_path"
-    echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
-    echo "export PATH=$PATH:$qt_base_path/bin"
-    echo
-    echo "mkdir build; cd build"
-    echo "cmake .."
-    echo "make $MAKE_BUILD_OPTS app_bundle"
-    echo "make install/strip"
-    echo
-fi
-if [[ $AUTOTOOLS ]]; then
-    echo "To build with AUTOTOOLS:"
-    echo
-    echo "export PKG_CONFIG_PATH=$pkg_config_path"
-    echo
-    echo "./autogen.sh"
-    echo "mkdir build; cd build"
-    echo "../configure"
-    echo "make $MAKE_BUILD_OPTS"
-    echo "make install"
-    echo
-fi
+echo "To build:"
+echo
+echo "export PKG_CONFIG_PATH=$pkg_config_path"
+echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
+echo "export PATH=$PATH:$qt_base_path/bin"
+echo
+echo "mkdir build; cd build"
+echo "cmake .."
+echo "make $MAKE_BUILD_OPTS app_bundle"
+echo "make install/strip"
+echo
 echo "Make sure you are allowed capture access to the network devices"
 echo "See: https://wiki.wireshark.org/CaptureSetup/CapturePrivileges"
 echo
