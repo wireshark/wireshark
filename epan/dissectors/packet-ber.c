@@ -1346,6 +1346,11 @@ try_get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind, gi
         }
     }
 
+    /* Several users treat the length as signed value, clamp the value to avoid
+     * an overflow to negative values. */
+    if (tmp_length > (guint32)G_MAXINT32)
+        tmp_length = (guint32)G_MAXINT32;
+
     if (length)
         *length = tmp_length;
     if (ind)
