@@ -169,13 +169,14 @@ PS$>cyg-get sed asciidoc
 
 === CMake
 
-Wireshark’s build environment can be configured using CMake on Windows,
-Linux, macOS, and UNIX. CMake is designed to support out of tree builds.
-So much so, that in tree builds do not work properly in all cases. Along
-with being cross-platform, CMake supports many build tools and
-environments including traditional make, Ninja, and MSBuild. Our
-Buildbot runs CMake steps on Ubuntu, Win32, Win64, and macOS. In
-particular, the macOS and Windows packages are built using CMake.
+Wireshark’s build environment can be configured using CMake on Windo
+and various UN*Xes, including Linux, macOS, and *BSD.  CMake is designed
+to support out of tree builds.  So much so, that in tree builds do not
+work properly in all cases.  Along with being cross-platform, CMake
+supports many build tools and environments including traditional make,
+Ninja, and MSBuild.  Our Buildbot runs CMake steps on Ubuntu, Win32,
+Win64, and macOS.  In particular, the macOS and Windows packages are
+built using CMake.
 
 Building with CMake typically includes creating a build directory and
 specifying a *generator*, aka a build tool. For example, to build
