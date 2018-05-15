@@ -38,6 +38,13 @@ LZIP_VERSION=1.19
 CMAKE_VERSION=${CMAKE_VERSION-3.11.0}
 
 #
+# Ninja isn't required, as make is provided with Xcode, but it is
+# claimed to build faster than make.
+# Comment it out if you don't want it.
+#
+NINJA_VERSION=${NINJA_VERSION-1.8.2}
+
+#
 # The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.19.8.1
@@ -330,6 +337,33 @@ uninstall_libtool() {
         fi
 
         installed_libtool_version=""
+    fi
+}
+
+install_ninja() {
+    if [ "$NINJA_VERSION" -a ! -f ninja-$NINJA_VERSION-done ] ; then
+        echo "Downloading and installing Ninja:"
+        #
+        # Download the zipball, unpack it, and move the binary to
+        # /usr/local/bin.
+        #
+        [ -f ninja-mac-v$NINJA_VERSION.zip ] || curl -L -o ninja-mac-v$NINJA_VERSION.zip https://github.com/ninja-build/ninja/releases/download/v$NINJA_VERSION/ninja-mac.zip || exit 1
+        $no_build && echo "Skipping installation" && return
+        unzip ninja-mac-v$NINJA_VERSION.zip
+        sudo mv ninja /usr/local/bin
+        touch ninja-$NINJA_VERSION-done
+    fi
+}
+
+uninstall_ninja() {
+    if [ ! -z "$installed_ninja_version" ]; then
+        echo "Uninstalling Ninja:"
+        sudo rm /usr/local/bin/ninja
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            rm -f ninja-mac-v$installed_ninja_version.zip
+        fi
+
+        installed_ninja_version=""
     fi
 }
 
@@ -1740,6 +1774,17 @@ install_all() {
         uninstall_gettext -r
     fi
 
+    if [ ! -z "$installed_ninja_version" -a \
+              "$installed_ninja_version" != "$NINJA_VERSION" ] ; then
+        echo "Installed Ninja version is $installed_ninja_version"
+        if [ -z "$NINJA_VERSION" ] ; then
+            echo "Ninja is not requested"
+        else
+            echo "Requested Ninja version is $NINJA_VERSION"
+        fi
+        uninstall_ninja -r
+    fi
+
     if [ ! -z "$installed_cmake_version" -a \
               "$installed_cmake_version" != "$CMAKE_VERSION" ] ; then
         echo "Installed CMake version is $installed_cmake_version"
@@ -1820,6 +1865,8 @@ install_all() {
     install_libtool
 
     install_cmake
+
+    install_ninja
 
     #
     # Start with GNU gettext; GLib requires it, and macOS doesn't have it
@@ -1954,6 +2001,8 @@ uninstall_all() {
 
         uninstall_gettext
 
+        uninstall_ninja
+
         #
         # XXX - really remove this?
         # Or should we remember it as installed only if this script
@@ -2081,6 +2130,7 @@ then
     installed_automake_version=`ls automake-*-done 2>/dev/null | sed 's/automake-\(.*\)-done/\1/'`
     installed_libtool_version=`ls libtool-*-done 2>/dev/null | sed 's/libtool-\(.*\)-done/\1/'`
     installed_cmake_version=`ls cmake-*-done 2>/dev/null | sed 's/cmake-\(.*\)-done/\1/'`
+    installed_ninja_version=`ls ninja-*-done 2>/dev/null | sed 's/ninja-\(.*\)-done/\1/'`
     installed_gettext_version=`ls gettext-*-done 2>/dev/null | sed 's/gettext-\(.*\)-done/\1/'`
     installed_pkg_config_version=`ls pkg-config-*-done 2>/dev/null | sed 's/pkg-config-\(.*\)-done/\1/'`
     installed_glib_version=`ls glib-*-done 2>/dev/null | sed 's/glib-\(.*\)-done/\1/'`
