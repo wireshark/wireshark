@@ -857,51 +857,39 @@ capture filter that matches aspects of the connection.
 
 The following environment variables are analyzed:
 
-_$$SSH_CONNECTION$$_ (ssh)::
+`SSH_CONNECTION` (ssh)::
 <remote IP> <remote port> <local IP> <local port>
 
 
-_$$SSH_CLIENT$$_ (ssh)::
+`SSH_CLIENT` (ssh)::
 <remote IP> <remote port> <local port>
 
 
-_REMOTEHOST_ (tcsh, others?)::
+`REMOTEHOST` (tcsh, others?)::
 <remote name>
 
-_DISPLAY_ (x11)::
+`DISPLAY` (x11)::
 [remote name]:<display num>
 
 
-_SESSIONNAME_ (terminal server)::
+`SESSIONNAME` (terminal server)::
 <remote name>
 
 On Windows it asks the operating system if it’s running in a Remote Desktop Services environment.
-
-////
-
-// XXX Capture Info is currently disabled, but might be resurrected. See
-// capture_info.[ch] and their git logs for details.
 
 [[ChCapRunningSection]]
 
 === While a Capture is running ...
 
-While a capture is running, the following dialog box is shown:
+You might see the following dialog box while a capture is running:
 
 [[ChCapCaptureInfoDialog]]
-.The “Capture Info” dialog box
+.The “Capture Information” dialog box
 image::wsug_graphics/ws-capture-info.png[{screenshot-attrs}]
 
-This dialog box will inform you about the number of captured packets and the
-time since the capture was started. The selection of which protocols are counted
-cannot be changed.
-
-[TIP]
-====
-This “Capture Info” dialog box can be hidden using the “Hide capture info
-dialog” option in the Capture Options dialog box.
-====
-////
+This dialog box shows a list of protocols and their activity over time.
+It can be enabled via the “capture.show_info” setting in the “Advanced”
+preferences.
 
 [[ChCapStopSection]]
 
@@ -909,17 +897,11 @@ dialog” option in the Capture Options dialog box.
 
 A running capture session will be stopped in one of the following ways:
 
-. Using the btn:[Stop] button from the “Capture Info” dialog box.
+. The btn:[Stop Capture] button in the “Capture Information” dialog box.
 
-[NOTE]
-====
-The “Capture Info” dialog box might be hidden if the “Hide capture info
-dialog” option is used.
-====
+. The menu:Capture[Stop] menu item.
 
-. Using the menu:Capture[Stop] menu item.
-
-. Using the btn:[Stop] toolbar button.
+. The btn:[Stop] toolbar button.
 
 . Pressing kbd:[Ctrl+E].
 

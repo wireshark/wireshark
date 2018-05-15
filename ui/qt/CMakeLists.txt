@@ -476,6 +476,7 @@ set(WIRESHARK_QT_UI
 	bluetooth_devices_dialog.ui
 	bluetooth_hci_summary_dialog.ui
 	capture_file_properties_dialog.ui
+	capture_info_dialog.ui
 	capture_interfaces_dialog.ui
 	capture_preferences_frame.ui
 	coloring_rules_dialog.ui

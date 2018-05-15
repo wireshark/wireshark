@@ -162,7 +162,7 @@ gboolean call_capture_dissector(capture_dissector_handle_t handle, const guchar 
 
 guint32 capture_dissector_get_count(packet_counts* counts, const int proto)
 {
-    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(counts->counts_hash, GUINT_TO_POINTER(proto));
+    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(counts->counts_hash, GINT_TO_POINTER(proto));
     if (hash_count == NULL)
         return 0;
 
@@ -172,11 +172,11 @@ guint32 capture_dissector_get_count(packet_counts* counts, const int proto)
 void capture_dissector_increment_count(capture_packet_info_t *cpinfo, const int proto)
 {
     /* See if we already have a counter for the protocol */
-    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(cpinfo->counts, GUINT_TO_POINTER(proto));
+    capture_dissector_count_t* hash_count = (capture_dissector_count_t*)g_hash_table_lookup(cpinfo->counts, GINT_TO_POINTER(proto));
     if (hash_count == NULL)
     {
         hash_count = g_new0(capture_dissector_count_t, 1);
-        g_hash_table_insert(cpinfo->counts, GUINT_TO_POINTER(proto), (gpointer)hash_count);
+        g_hash_table_insert(cpinfo->counts, GINT_TO_POINTER(proto), (gpointer)hash_count);
     }
 
     hash_count->count++;

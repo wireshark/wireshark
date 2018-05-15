@@ -44,6 +44,7 @@ since version 2.6.0:
   _Building display filter expressions_ for details.
 * The autotools build system has been removed. CMake is the one build system now.
 * tshark has now "-G elastic-mapping" option to generate an ElasticSearch mapping file.
+* The “Capture Information” dialog has been added back (ws_buglink:12004[]).
 
 === Removed Features and Support
 

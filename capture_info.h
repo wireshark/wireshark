@@ -15,12 +15,6 @@
  *
  */
 
-/*
- * GTK+ only.
- * If we add this to the Qt UI we should modernize the statistics we show.
- * At the very least we should remove or hide IPX and VINES.
- */
-
 #ifndef __CAPTURE_INFO_H__
 #define __CAPTURE_INFO_H__
 
@@ -33,13 +27,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 /** Current Capture info. */
-typedef struct {
+typedef struct _capture_info {
     /* handle */
     gpointer        ui;             /**< user interface handle */
 
     /* capture info */
     packet_counts   *counts;        /**< protocol specific counters */
-    time_t          running_time;   /**< running time since last update */
     gint            new_packets;    /**< packets since last update */
 } capture_info;
 

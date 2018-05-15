@@ -492,7 +492,7 @@ PLEASE NOTE: One option MUST be selected.</string>
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Show extra capture information dialog</string>
+               <string>Show capture information during live capture</string>
               </property>
              </widget>
             </item>

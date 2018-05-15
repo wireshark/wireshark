@@ -3444,9 +3444,8 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "auto_scroll", "Scroll packet list during capture",
         "Scroll packet list during capture?", &prefs.capture_auto_scroll);
 
-    /* GTK+ only, but we might implement this in Qt */
-    prefs_register_bool_preference(capture_module, "show_info", "Show capture info dialog while capturing",
-        "Show capture info dialog while capturing?", &prefs.capture_show_info);
+    prefs_register_bool_preference(capture_module, "show_info", "Show capture information dialog while capturing",
+        "Show capture information dialog while capturing?", &prefs.capture_show_info);
 
     prefs_register_obsolete_preference(capture_module, "syntax_check_filter");
 
