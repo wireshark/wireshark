@@ -196,6 +196,7 @@ typedef struct gquic_info_data {
 #define GQUIC_MIN_LENGTH 3
 #define GQUIC_MAGIC2 0x513032
 #define GQUIC_MAGIC3 0x513033
+#define GQUIC_MAGIC4 0x513034
 
 /**************************************************************************/
 /*                      Public Flags                                      */
@@ -2186,9 +2187,9 @@ static gboolean dissect_gquic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
     offset += 8;
 
-    /* Check if version start with Q02... (0x51 0x30 0x32) or Q03... (0x51 0x30 0x33) */
+    /* Check if version start with Q02... (0x51 0x30 0x32), Q03... (0x51 0x30 0x33) or Q04... (0x51 0x30 0x34) */
     version = tvb_get_ntoh24(tvb, offset);
-    if ( version == GQUIC_MAGIC2 || version == GQUIC_MAGIC3) {
+    if ( version == GQUIC_MAGIC2 || version == GQUIC_MAGIC3 || version == GQUIC_MAGIC4) {
         conversation = find_or_create_conversation(pinfo);
         conversation_set_dissector(conversation, gquic_handle);
         dissect_gquic(tvb, pinfo, tree, data);
