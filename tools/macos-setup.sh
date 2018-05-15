@@ -15,20 +15,6 @@ shopt -s extglob
 # To install autotools
 #
 AUTOTOOLS=1
-#
-# To build all libraries as 32-bit libraries uncomment the following three lines.
-#
-# export CFLAGS="$CFLAGS -arch i386"
-# export CXXFLAGS="$CXXFLAGS -arch i386"
-# export LDFLAGS="$LDFLAGS -arch i386"
-#
-# and change "macx-clang" to "macx-clang-32" in the line below.
-#
-# Note: when building against the 10.6 SDK, clang fails, because there's
-# a missing libstdc++.dylib in the SDK; this does not bother g++, however.
-#
-#TARGET_PLATFORM=macx-g++
-TARGET_PLATFORM=macx-clang
 
 #
 # Versions of packages to download and install.
@@ -627,39 +613,59 @@ install_qt() {
         # What you get for this URL might just be a 302 Found reply, so use
         # -L so we get redirected.
         #
-        # 5.0 - 5.1:  qt-mac-opensource-5.0.2-clang-offline.dmg
-        # 5.2 - 5.8:  qt-opensource-mac-x64-clang-5.2.1.dmg
-        # 5.9 -    :  qt-opensource-mac-x64-5.10.1.dmg
-        QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
-        [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
-        $no_build && echo "Skipping installation" && return
-        sudo hdiutil attach $QT_VOLUME.dmg || exit 1
+        # 5.0 - 5.1:  qt-mac-opensource-{version}-clang-offline.dmg
+        # 5.2.0:      qt-mac-opensource-{version}.dmg
+        # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
+        # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
+        # 5.9 - 5.10: qt-opensource-mac-x64-{version}.dmg
+        #
+        case $QT_MAJOR_VERSION in
 
-        #
-        # Run the installer executable directly, so that we wait for
-        # it to finish.  Then unmount the volume.
-        #
-        /Volumes/$QT_VOLUME/$QT_VOLUME.app/Contents/MacOS/$QT_VOLUME
-        sudo hdiutil detach /Volumes/$QT_VOLUME
+        1|2|3|4)
+            echo "Qt $QT_VERSION" is too old 1>&2
+            ;;
 
-        #
-        # Versions 5.3.x through 5.5.0, at least, have bogus .pc files.
-        # See bugs QTBUG-35256 and QTBUG-47162.
-        #
-        # Fix the files.
-        #
-        for i in $HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64/lib/pkgconfig/*.pc
-        do
-            ed - $i <<EOF
-H
-g/Cflags: /s;;Cflags: -F\${libdir} ;
-g/Cflags: /s;-I\${includedir}/Qt\([a-zA-Z0-9_]*\);-I\${libdir}/Qt\1.framework/Versions/5/Headers;
-g/Libs: /s;';;g
-w
-q
-EOF
-        done
-        touch qt-$QT_VERSION-done
+        5*)
+            case $QT_MINOR_VERSION in
+
+            0|1)
+                QT_VOLUME=qt-mac-opensource-$QT_VERSION-clang-offline
+                ;;
+
+            2)
+                case $QT_DOTDOT_VERSION in
+
+                0)
+                    QT_VOLUME=qt-mac-opensource-$QT_VERSION
+                    ;;
+
+                1)
+                    QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
+                    ;;
+                esac
+                ;;
+
+            3|4|5|6|7|8)
+                QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
+                ;;
+
+            9|10)
+                QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
+                ;;
+            esac
+echo "Downloading http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg"
+            [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
+            $no_build && echo "Skipping installation" && return
+            sudo hdiutil attach $QT_VOLUME.dmg || exit 1
+
+            #
+            # Run the installer executable directly, so that we wait for
+            # it to finish.  Then unmount the volume.
+            #
+            /Volumes/$QT_VOLUME/$QT_VOLUME.app/Contents/MacOS/$QT_VOLUME
+            sudo hdiutil detach /Volumes/$QT_VOLUME
+            touch qt-$QT_VERSION-done
+        esac
     fi
 }
 
@@ -673,7 +679,51 @@ uninstall_qt() {
             #
             # Get rid of the previously downloaded version.
             #
-            rm -rf qt-opensource-mac-x64-?(clang-)$installed_qt_version.dmg
+            # 5.0 - 5.1:  qt-mac-opensource-{version}-clang-offline.dmg
+            # 5.2.0:      qt-mac-opensource-{version}.dmg
+            # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
+            # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
+            # 5.9 - 5.10: qt-opensource-mac-x64-{version}.dmg
+            #
+            installed_qt_major_version="`expr $installed_qt_version : '\([0-9][0-9]*\).*'`"
+            installed_qt_minor_version="`expr $installed_qt_version : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+            installed_qt_dotdot_version="`expr $installed_qt_version : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+            case $installed_qt_major_version in
+
+            1|2|3|4)
+                echo "Qt $installed_qt_version" is too old 1>&2
+                ;;
+
+            5*)
+                case $installed_qt_minor_version in
+
+                0|1)
+                    installed_qt_volume=qt-mac-opensource-$installed_qt_version-clang-offline.dmg
+                    ;;
+
+                2)
+                    case $installed_qt_dotdot_version in
+
+                    0)
+                        installed_qt_volume=qt-mac-opensource-$installed_qt_version.dmg
+                        ;;
+
+                    1)
+                        installed_qt_volume=qt-opensource-mac-x64-clang-$installed_qt_version.dmg
+                        ;;
+                    esac
+                    ;;
+
+                3|4|5|6|7|8)
+                    installed_qt_volume=qt-opensource-mac-x64-clang-$installed_qt_version.dmg
+                    ;;
+
+                9|10)
+                    installed_qt_volume=qt-opensource-mac-x64-$installed_qt_version.dmg
+                    ;;
+                esac
+            esac
+            rm -f $installed_qt_volume
         fi
 
         installed_qt_version=""
