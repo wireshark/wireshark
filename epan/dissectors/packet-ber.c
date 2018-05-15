@@ -3905,11 +3905,11 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         len = tvb_reported_length_remaining(tvb, offset);
         end_offset = offset+len;
     }
-    if (len == 0) {
+    if ((int)len <= 0) {
         proto_tree_add_expert_format(
             parent_tree, actx->pinfo, &ei_ber_constr_bitstr, tvb, offset, len,
-            "dissect_ber_constrained_bitstring(): frame:%u offset:%d Was passed an illegal length of 0",
-            actx->pinfo->num, offset);
+            "dissect_ber_constrained_bitstring(): frame:%u offset:%d Was passed an illegal length of %d",
+            actx->pinfo->num, offset, len);
         return offset;
     }
     actx->created_item = NULL;
