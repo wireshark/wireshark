@@ -653,7 +653,6 @@ install_qt() {
                 QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
                 ;;
             esac
-echo "Downloading http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg"
             [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
             $no_build && echo "Skipping installation" && return
             sudo hdiutil attach $QT_VOLUME.dmg || exit 1
