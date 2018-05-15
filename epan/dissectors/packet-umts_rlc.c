@@ -470,8 +470,7 @@ rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb,
              guint16 offset, guint16 length)
 {
     frag->len  = length;
-    frag->data = (guint8 *)g_malloc(length);
-    tvb_memcpy(tvb, frag->data, offset, length);
+    frag->data = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, offset, length);
     return 0;
 }
 
@@ -848,7 +847,7 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
     temp = sdu->frags;
     while (temp && ((offs + temp->len) <= sdu->len)) {
         memcpy(sdu->data + offs, temp->data, temp->len);
-        g_free(temp->data);
+        wmem_free(wmem_file_scope(), temp->data);
         temp->data = NULL;
         /* mark this fragment in reassembled table */
         g_hash_table_insert(reassembled_table, temp, sdu);
