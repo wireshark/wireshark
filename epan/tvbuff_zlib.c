@@ -64,7 +64,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	guint      bytes_in       = tvb_captured_length_remaining(tvb, offset);
 #endif
 
-	if (tvb == NULL) {
+	if (tvb == NULL || comprlen <= 0) {
 		return NULL;
 	}
 
