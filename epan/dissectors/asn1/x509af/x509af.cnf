@@ -44,6 +44,8 @@ AttributeCertificate	B "2.5.4.58" "id-at-attributeCertificate"
 CertificateList			B "2.5.4.59" "id-at-attributeCertificateRevocationList"
 
 DSS-Params				B "1.2.840.10040.4.1" "id-dsa"
+# WS Implemet from RFC 1274
+Userid					B "0.9.2342.19200300.100.1.1" "id-userid"
 
 #.TYPE_RENAME
 AttributeCertificateInfo/subject	InfoSubject

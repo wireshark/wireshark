@@ -276,6 +276,10 @@ DSS-Params ::= SEQUENCE {
   q INTEGER,
   g INTEGER
 }
+-- WS Add some stuff fytom RFC 1274
+
+ub-user-identifier INTEGER ::= 256
+Userid ::= UTF8String (SIZE (1 .. ub-user-identifier))
 
 END
 
