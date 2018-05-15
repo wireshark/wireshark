@@ -4436,6 +4436,7 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
     guint64              pfcp_flags;
     guint8               message_type;
     guint32              length;
+    guint32              length_remaining;
 
     static const int * pfcp_hdr_flags[] = {
         &hf_pfcp_version,
@@ -4483,6 +4484,14 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
     /* Octet 3 - 4 Message Length */
     proto_tree_add_item_ret_uint(sub_tree, hf_pfcp_msg_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     offset += 2;
+    /*
+     * The length field shall indicate the length of the message in octets
+     * excluding the mandatory part of the PFCP header (the first 4 octets).
+     */
+    length_remaining = tvb_reported_length_remaining(tvb, offset);
+    if (length != length_remaining) {
+        proto_tree_add_expert_format(sub_tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, offset, -1, "Invalid Length for the message: %d instead of %d", length, length_remaining);
+    }
 
     if ((pfcp_flags & 0x1) == 1) {
         /* If S flag is set to 1, then SEID shall be placed into octets 5-12*/
