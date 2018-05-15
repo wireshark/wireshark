@@ -1651,7 +1651,8 @@ get_stringzpad_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
 /*
  * Epochs for various non-UN*X time stamp formats.
  */
-#define NTP_BASETIME G_GUINT64_CONSTANT(2208988800)	/* NTP */
+#define NTP_TIMEDIFF1900TO1970SEC G_GINT64_CONSTANT(2208988800)	/* NTP Time Diff 1900 to 1970 in sec */
+#define NTP_TIMEDIFF1970TO2036SEC G_GINT64_CONSTANT(2085978496)	/* NTP Time Diff 1970 to 2036 in sec */
 #define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)	/* System/3x0 and z/Architecture TOD clock */
 
 /* this can be called when there is no tree, so tree may be null */
@@ -1714,12 +1715,17 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			/* We need a temporary variable here so the unsigned math
 			 * works correctly (for years > 2036 according to RFC 2030
 			 * chapter 3).
+			 *
+			 * If bit 0 is set, the UTC time is in the range 1968-2036 and
+			 * UTC time is reckoned from 0h 0m 0s UTC on 1 January 1900.
+			 * If bit 0 is not set, the time is in the range 2036-2104 and
+			 * UTC time is reckoned from 6h 28m 16s UTC on 7 February 2036.
 			 */
 			tmpsecs  = tvb_get_ntohl(tvb, start);
-			if (tmpsecs)
-				time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+			if ((tmpsecs & 0x80000000) != 0)
+				time_stamp->secs = (time_t)((gint64)tmpsecs - NTP_TIMEDIFF1900TO1970SEC);
 			else
-				time_stamp->secs = tmpsecs; /* 0 */
+				time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 
 			if (length == 8) {
 				/*
@@ -1742,11 +1748,20 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			 */
 			DISSECTOR_ASSERT(!is_relative);
 
+			/* We need a temporary variable here so the unsigned math
+			 * works correctly (for years > 2036 according to RFC 2030
+			 * chapter 3).
+			 *
+			 * If bit 0 is set, the UTC time is in the range 1968-2036 and
+			 * UTC time is reckoned from 0h 0m 0s UTC on 1 January 1900.
+			 * If bit 0 is not set, the time is in the range 2036-2104 and
+			 * UTC time is reckoned from 6h 28m 16s UTC on 7 February 2036.
+			 */
 			tmpsecs  = tvb_get_letohl(tvb, start);
-			if (tmpsecs)
-				time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+			if ((tmpsecs & 0x80000000) != 0)
+				time_stamp->secs = (time_t)((gint64)tmpsecs - NTP_TIMEDIFF1900TO1970SEC);
 			else
-				time_stamp->secs = tmpsecs; /* 0 */
+				time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 
 			if (length == 8) {
 				/*
@@ -1967,16 +1982,20 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 			if (length == 4) {
 				/*
-				 * We need a temporary variable here so the
-				 * unsigned math works correctly (for
-				 * years > 2036 according to RFC 2030
-				 * chapter 3).
-				 */
+				* We need a temporary variable here so the unsigned math
+				* works correctly (for years > 2036 according to RFC 2030
+				* chapter 3).
+				*
+				* If bit 0 is set, the UTC time is in the range 1968-2036 and
+				* UTC time is reckoned from 0h 0m 0s UTC on 1 January 1900.
+				* If bit 0 is not set, the time is in the range 2036-2104 and
+				* UTC time is reckoned from 6h 28m 16s UTC on 7 February 2036.
+				*/
 				tmpsecs  = tvb_get_ntohl(tvb, start);
-				if (tmpsecs)
-					time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+				if ((tmpsecs & 0x80000000) != 0)
+					time_stamp->secs = (time_t)((gint64)tmpsecs - NTP_TIMEDIFF1900TO1970SEC);
 				else
-					time_stamp->secs = tmpsecs; /* 0 */
+					time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 				time_stamp->nsecs = 0;
 			} else
 				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, TRUE);
@@ -1990,12 +2009,22 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			 */
 			DISSECTOR_ASSERT(!is_relative);
 
+			/*
+			 * We need a temporary variable here so the unsigned math
+			 * works correctly (for years > 2036 according to RFC 2030
+			 * chapter 3).
+			 *
+			 * If bit 0 is set, the UTC time is in the range 1968-2036 and
+			 * UTC time is reckoned from 0h 0m 0s UTC on 1 January 1900.
+			 * If bit 0 is not set, the time is in the range 2036-2104 and
+			 * UTC time is reckoned from 6h 28m 16s UTC on 7 February 2036.
+			 */
 			if (length == 4) {
 				tmpsecs  = tvb_get_letohl(tvb, start);
-				if (tmpsecs)
-					time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+				if ((tmpsecs & 0x80000000) != 0)
+					time_stamp->secs = (time_t)((gint64)tmpsecs - NTP_TIMEDIFF1900TO1970SEC);
 				else
-					time_stamp->secs = tmpsecs; /* 0 */
+					time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 				time_stamp->nsecs = 0;
 			} else
 				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, TRUE);
@@ -2011,7 +2040,16 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 				msecs = get_uint64_value(tree, tvb, start, length, encoding);
 				tmpsecs = (guint32)(msecs / 1000);
-				time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+				/*
+				* If bit 0 is set, the UTC time is in the range 1968-2036 and
+				* UTC time is reckoned from 0h 0m 0s UTC on 1 January 1900.
+				* If bit 0 is not set, the time is in the range 2036-2104 and
+				* UTC time is reckoned from 6h 28m 16s UTC on 7 February 2036.
+				*/
+				if ((tmpsecs & 0x80000000) != 0)
+					time_stamp->secs = (time_t)((gint64)tmpsecs - NTP_TIMEDIFF1900TO1970SEC);
+				else
+					time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 				time_stamp->nsecs = (int)(msecs % 1000)*1000000;
 			}
 			else
