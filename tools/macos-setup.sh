@@ -2389,8 +2389,13 @@ echo "export PATH=$PATH:$qt_base_path/bin"
 echo
 echo "mkdir build; cd build"
 echo "cmake .."
-echo "make $MAKE_BUILD_OPTS app_bundle"
-echo "make install/strip"
+if [ ! -z "$NINJA_VERSION" ]; then
+    echo "ninja app_bundle"
+    echo "ninja install/strip"
+else
+    echo "make $MAKE_BUILD_OPTS app_bundle"
+    echo "make install/strip"
+fi
 echo
 echo "Make sure you are allowed capture access to the network devices"
 echo "See: https://wiki.wireshark.org/CaptureSetup/CapturePrivileges"
