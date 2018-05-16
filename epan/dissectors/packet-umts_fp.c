@@ -21,6 +21,7 @@
 #include <wsutil/crc7.h> /* For FP data header and control frame CRC. */
 #include <wsutil/crc16-plain.h> /* For FP Payload CRC. */
 #include <wsutil/crc11.h> /* For FP EDCH header CRC. */
+#include <wsutil/pint.h>
 
 #include "packet-umts_fp.h"
 #include "packet-nbap.h"
@@ -3945,12 +3946,12 @@ generate_ue_id_for_heur(packet_info *pinfo)
         /* srcXor: [ ------- Source Address ------- ] (4 bytes)*/
         /*                         XOR                         */
         /*         [  Source Port  ][  Source Port  ] (4 bytes)*/
-        int srcXor = *((const guint32*)pinfo->src.data) ^ ((pinfo->srcport << 16) | (pinfo->srcport));
+        int srcXor = pntoh32(pinfo->src.data) ^ ((pinfo->srcport << 16) | (pinfo->srcport));
 
         /* dstXor: [ ---- Destination  Address ---- ] (4 bytes)*/
         /*                         XOR                         */
         /*         [ - Dest Port - ][ - Dest Port - ] (4 bytes)*/
-        int dstXor = *((const guint32*)pinfo->dst.data) ^ ((pinfo->destport << 16) | (pinfo->destport));
+        int dstXor = pntoh32(pinfo->dst.data) ^ ((pinfo->destport << 16) | (pinfo->destport));
         return srcXor ^ dstXor;
     }
     else {
