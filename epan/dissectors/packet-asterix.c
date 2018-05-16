@@ -626,6 +626,73 @@ static gint hf_025_140_COUNTER = -1;
 static gint hf_025_200 = -1;
 static gint hf_025_200_MID = -1;
 static gint hf_025_SP = -1;
+/* Category 032 */
+static gint hf_032_010 = -1;
+static gint hf_032_015 = -1;
+static gint hf_032_015_UN = -1;
+static gint hf_032_018 = -1;
+static gint hf_032_020 = -1;
+static gint hf_032_035 = -1;
+static gint hf_032_035_FAM = -1;
+static gint hf_032_035_NAT = -1;
+static gint hf_032_040 = -1;
+static gint hf_032_040_TRK = -1;
+static gint hf_032_050 = -1;
+static gint hf_032_050_SUI = -1;
+static gint hf_032_050_STN = -1;
+static gint hf_032_060 = -1;
+static gint hf_032_060_M3 = -1;
+static gint hf_032_400 = -1;
+static gint hf_032_400_CALL = -1;
+static gint hf_032_410 = -1;
+static gint hf_032_410_PLN = -1;
+static gint hf_032_420 = -1;
+static gint hf_032_420_GAT = -1;
+static gint hf_032_420_FR = -1;
+static gint hf_032_420_SP = -1;
+static gint hf_032_430 = -1;
+static gint hf_032_430_TYP = -1;
+static gint hf_032_435 = -1;
+static gint hf_032_435_TUR = -1;
+static gint hf_032_440 = -1;
+static gint hf_032_440_DEP = -1;
+static gint hf_032_450 = -1;
+static gint hf_032_450_DEST = -1;
+static gint hf_032_460 = -1;
+static gint hf_032_460_SSR = -1;
+static gint hf_032_480 = -1;
+static gint hf_032_480_CFL = -1;
+static gint hf_032_490 = -1;
+static gint hf_032_490_CEN = -1;
+static gint hf_032_490_POS = -1;
+static gint hf_032_500 = -1;
+static gint hf_032_500_01 = -1;
+static gint hf_032_500_IFI_TYP = -1;
+static gint hf_032_500_IFI_NBR = -1;
+static gint hf_032_500_02 = -1;
+static gint hf_032_500_RVSM_RVSM = -1;
+static gint hf_032_500_RVSM_HPR = -1;
+static gint hf_032_500_03 = -1;
+static gint hf_032_500_RUNWAY_NU1 = -1;
+static gint hf_032_500_RUNWAY_NU2 = -1;
+static gint hf_032_500_RUNWAY_LTR = -1;
+static gint hf_032_500_04 = -1;
+static gint hf_032_500_TIME_TYP = -1;
+static gint hf_032_500_TIME_DAY = -1;
+static gint hf_032_500_TIME_HOR = -1;
+static gint hf_032_500_TIME_MIN = -1;
+static gint hf_032_500_TIME_AVS = -1;
+static gint hf_032_500_TIME_SEC = -1;
+static gint hf_032_500_05 = -1;
+static gint hf_032_500_AIR_STD = -1;
+static gint hf_032_500_06 = -1;
+static gint hf_032_500_STS_EMP = -1;
+static gint hf_032_500_STS_AVL = -1;
+static gint hf_032_500_07 = -1;
+static gint hf_032_500_SID = -1;
+static gint hf_032_500_08 = -1;
+static gint hf_032_500_SIA = -1;
+static gint hf_032_RE = -1;
 /* Category 034 */
 static gint hf_034_000 = -1;
 static gint hf_034_000_MT = -1;
@@ -1963,6 +2030,35 @@ static gint ett_025_140_COUNTER = -1;
 static gint ett_025_200 = -1;
 static gint ett_025_200_MID = -1;
 static gint ett_025_SP = -1;
+/* Category 032 */
+static gint ett_032_010 = -1;
+static gint ett_032_015 = -1;
+static gint ett_032_018 = -1;
+static gint ett_032_020 = -1;
+static gint ett_032_035 = -1;
+static gint ett_032_040 = -1;
+static gint ett_032_050 = -1;
+static gint ett_032_060 = -1;
+static gint ett_032_400 = -1;
+static gint ett_032_410 = -1;
+static gint ett_032_420 = -1;
+static gint ett_032_430 = -1;
+static gint ett_032_435 = -1;
+static gint ett_032_440 = -1;
+static gint ett_032_450 = -1;
+static gint ett_032_460 = -1;
+static gint ett_032_480 = -1;
+static gint ett_032_490 = -1;
+static gint ett_032_500 = -1;
+static gint ett_032_500_1 = -1;
+static gint ett_032_500_2 = -1;
+static gint ett_032_500_3 = -1;
+static gint ett_032_500_4 = -1;
+static gint ett_032_500_5 = -1;
+static gint ett_032_500_6 = -1;
+static gint ett_032_500_7 = -1;
+static gint ett_032_500_8 = -1;
+static gint ett_032_RE = -1;
 /* Category 034 */
 static gint ett_034_000 = -1;
 static gint ett_034_000_MT = -1;
@@ -5101,6 +5197,274 @@ static const enum_val_t I025_versions[] = {
 };
 
 /* *********************** */
+/*      Category 032       */
+/* *********************** */
+static const value_string valstr_032_035_NAT[] = {
+    { 1, "Flight Plan to Track Initial Correlation" },
+    { 2, "Miniplan Update" },
+    { 3, "End of Correlation" },
+    { 4, "Miniplan Cancellation" },
+    { 5, "Retained Miniplan" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_420_GAT[] = {
+    { 0, "Unknown" },
+    { 1, "General Air Traffic" },
+    { 2, "Operational Air Traffic" },
+    { 3, "Not Applicable" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_420_FR[] = {
+    { 0, "Instrument Flight Rules"},
+    { 1, "Visual Flight Rules"},
+    { 2, "Not Applicable"},
+    { 3, "Controlled Visual Flight Rules"},
+    { 0, NULL}
+};
+
+static const value_string valstr_032_435_CAT[] = {
+    { 76, "L: Light" },
+    { 77, "M: Medium" },
+    { 78, "H: Heavy" },
+    { 79, "J: Super" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_PLN[] = {
+    { 0, "Plan Number" },
+    { 1, "Unit 1 Internal Flight Number" },
+    { 2, "Unit 2 Internal Flight Number" },
+    { 3, "Unit 3 Internal Flight Number" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_RVSM[] = {
+    { 0, "Unknown" },
+    { 1, "Approved" },
+    { 2, "Exempt" },
+    { 3, "Not Approved" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_HPR[] = {
+    { 0, "Normal Priority Flight" },
+    { 1, "High Priority Flight" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_TYP[] = {
+    { 0, "Scheduled Off-Block Time" },
+    { 1, "Estimated Off-Block Time" },
+    { 2, "Estimated Take-Off Time" },
+    { 3, "Actual Off-Block Time" },
+    { 4, "Predicted Time At Runway Hold" },
+    { 5, "Actual Time at Runway Hold" },
+    { 6, "Actual Line-up Time" },
+    { 7, "Actual Take-Off Time" },
+    { 8, "Estimated Time of Arrival" },
+    { 9, "Predicted Landing Time" },
+    { 10, "Actual Landing Time" },
+    { 11, "Actual Time Off Runway" },
+    { 12, "Predicted Time To Gate" },
+    { 13, "Actual On Block Time" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_DAY[] = {
+    { 0, "Today" },
+    { 1, "Yesterday" },
+    { 2, "Tomorrow" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_STS_EMP[] = {
+    { 0, "Empty" },
+    { 1, "Occupied" },
+    { 2, "Unknown" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_STS_AVL[] = {
+    { 0, "Available" },
+    { 1, "Not Available" },
+    { 2, "Unknown" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+
+static const value_string valstr_032_500_AVS[] = {
+    { 0, "Seconds Available" },
+    { 1, "Seconds Not Available" },
+    { 0, NULL }
+};
+
+/* Fields */
+/* I032/015 - User Number */
+static const FieldPart I032_015_USR = { 16, 1.0, FIELD_PART_UINT, &hf_032_015_UN, NULL };
+static const FieldPart *I032_015_PARTS[] = { &I032_015_USR, NULL };
+
+/* I032/035 - Type of Message */
+static const FieldPart I032_035_FAM = { 4, 1.0, FIELD_PART_UINT, &hf_032_035_FAM, NULL };
+static const FieldPart I032_035_NAT = { 4, 1.0, FIELD_PART_UINT, &hf_032_035_NAT, NULL };
+static const FieldPart *I032_035_PARTS[] = { &I032_035_FAM, &I032_035_NAT, NULL };
+
+/* I032/040 - Track Number */
+static const FieldPart I032_040_TRK = { 12, 1.0, FIELD_PART_UINT, &hf_032_040_TRK, NULL };
+static const FieldPart *I032_040_PARTS[] = { &I032_040_TRK, NULL };
+
+/* I032/050 - Composed Track Number */
+static const FieldPart I032_050_SUI = { 8, 1.0, FIELD_PART_UINT, &hf_032_050_SUI, NULL };
+static const FieldPart I032_050_STN = { 11, 1.0, FIELD_PART_UINT, &hf_032_050_STN, NULL };
+static const FieldPart *I032_050_PARTS[] = { &I032_050_SUI, &I032_050_STN, &IXXX_FX, NULL };
+
+/* I032/060 - Track Mode 3A */
+static const FieldPart I032_060_MD3 = { 12, 1.0, FIELD_PART_SQUAWK, &hf_032_060_M3, NULL };
+static const FieldPart *I032_060_PARTS[] = { &I032_060_MD3, NULL };
+
+/* I032/400 - Callsign */
+static const FieldPart I032_400_CAL = { 56, 1.0, FIELD_PART_ASCII, &hf_032_400_CALL, NULL };
+static const FieldPart *I032_400_PARTS[] = { &I032_400_CAL, NULL };
+
+/* I032/410 - Plan Number */
+static const FieldPart I032_410_PLN = { 16, 1.0, FIELD_PART_UINT, &hf_032_410_PLN, NULL };
+static const FieldPart *I032_410_PARTS[] = { &I032_410_PLN, NULL };
+
+/* I032/420 - Flight Category */
+static const FieldPart I032_420_GAT = { 2, 1.0, FIELD_PART_UINT, &hf_032_420_GAT, NULL };
+static const FieldPart I032_420_FR = { 2, 1.0, FIELD_PART_UINT, &hf_032_420_FR, NULL };
+static const FieldPart I032_420_SP = { 3, 1.0, FIELD_PART_UINT, &hf_032_420_SP, NULL };
+static const FieldPart *I032_420_PARTS[] = { &I032_420_GAT, &I032_420_FR, &I032_420_SP, NULL };
+
+/* I032/430 - Type of Aircraft */
+static const FieldPart I032_430_TYP = { 32, 1.0, FIELD_PART_ASCII, &hf_032_430_TYP, NULL };
+static const FieldPart *I032_430_PARTS[] = { &I032_430_TYP, NULL };
+
+/* I032/435 - Category of Turbulance */
+static const FieldPart I032_435_TURB = { 8, 1.0, FIELD_PART_UINT, &hf_032_435_TUR, NULL };
+static const FieldPart *I032_435_PARTS[] = { &I032_435_TURB, NULL };
+
+/* I032/440 - Departure Airport */
+static const FieldPart I032_440_DEP = { 32, 1.0, FIELD_PART_ASCII, &hf_032_440_DEP, NULL };
+static const FieldPart *I032_440_PARTS[] = { &I032_440_DEP, NULL };
+
+/* I032/450 - Destination Airport */
+static const FieldPart I032_450_DEST = { 32, 1.0, FIELD_PART_ASCII, &hf_032_450_DEST, NULL };
+static const FieldPart *I032_450_PARTS[] = { &I032_450_DEST, NULL };
+
+/* I032/460 - Allocated SSR Codes */
+static const FieldPart I032_460_SSR = { 12, 1.0, FIELD_PART_SQUAWK, &hf_032_460_SSR, NULL };
+static const FieldPart *I032_460_PARTS[] = { &IXXX_4bit_spare, &I032_460_SSR, NULL };
+
+/* I032/480 - Current Cleared Flight Level */
+static const FieldPart I032_480_CCFL = { 16, 25, FIELD_PART_UINT, &hf_032_480_CFL, NULL };
+static const FieldPart *I032_480_PARTS[] = { &I032_480_CCFL, NULL };
+
+/* I032/490 - Current Control Position */
+static const FieldPart I032_490_CEN = { 4, 1.0, FIELD_PART_UINT, &hf_032_490_CEN, NULL };
+static const FieldPart I032_490_POS = { 4, 1.0, FIELD_PART_UINT, &hf_032_490_POS, NULL };
+static const FieldPart *I032_490_PARTS[] = { &I032_490_CEN, &I032_490_POS, NULL };
+
+/* I032/500/1 - IFPS Flight ID */
+static const FieldPart I032_500_IFI_TYP = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_IFI_TYP, NULL };
+static const FieldPart I032_500_IFI_NBR = { 30, 1.0, FIELD_PART_UINT, &hf_032_500_IFI_NBR, NULL };
+static const FieldPart *I032_500_IFI_PARTS[] = { &I032_500_IFI_TYP, &I032_500_IFI_NBR, NULL };
+
+/* I032/500/2 - RVSM & Flight Priority */
+static const FieldPart I032_500_RVSM_RVSM = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_RVSM_RVSM, NULL };
+static const FieldPart I032_500_RVSM_HPR = { 1, 1.0, FIELD_PART_UINT, &hf_032_500_RVSM_HPR, NULL };
+static const FieldPart *I032_500_RVSM_PARTS[] = { &I032_500_RVSM_RVSM, &I032_500_RVSM_HPR, NULL };
+
+/* I032/500/3 - Runway Desigination */
+static const FieldPart I032_500_RUNWAY_NU1 = { 8, 1.0, FIELD_PART_ASCII, &hf_032_500_RUNWAY_NU1, NULL };
+static const FieldPart I032_500_RUNWAY_NU2 = { 8, 1.0, FIELD_PART_ASCII, &hf_032_500_RUNWAY_NU2, NULL };
+static const FieldPart I032_500_RUNWAY_LTR = { 8, 1.0, FIELD_PART_ASCII, &hf_032_500_RUNWAY_LTR, NULL };
+static const FieldPart *I032_500_RUNWAY_PARTS[] = { &I032_500_RUNWAY_NU1, &I032_500_RUNWAY_NU2, &I032_500_RUNWAY_LTR, NULL };
+
+/* I032/500/4 - Time of Departure Arrival */
+static const FieldPart I032_500_TIME_TYP = { 5, 1.0, FIELD_PART_UINT, &hf_032_500_TIME_TYP, NULL };
+static const FieldPart I032_500_TIME_DAY = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_TIME_DAY, NULL };
+static const FieldPart I032_500_TIME_HOR = { 4, 1.0, FIELD_PART_UINT, &hf_032_500_TIME_HOR, NULL };
+static const FieldPart I032_500_TIME_MIN = { 6, 1.0, FIELD_PART_UINT, &hf_032_500_TIME_MIN, NULL };
+static const FieldPart I032_500_TIME_AVS = { 1, 1.0, FIELD_PART_UINT, &hf_032_500_TIME_AVS, NULL };
+static const FieldPart I032_500_TIME_SECS = { 5, 1.0, FIELD_PART_UINT, &hf_032_500_TIME_SEC, NULL };
+static const FieldPart *I032_500_TIME_PARTS[] = { &I032_500_TIME_TYP, &I032_500_TIME_DAY, &I032_500_TIME_HOR, &I032_500_TIME_MIN, &I032_500_TIME_AVS, &I032_500_TIME_SECS, NULL };
+
+/* I032/500/5 - Aircraft Stand */
+static const FieldPart I032_500_AIR_STD = { 48, 1.0, FIELD_PART_ASCII, &hf_032_500_AIR_STD, NULL };
+static const FieldPart *I032_500_AIR_STD_PARTS[] = { &I032_500_AIR_STD, NULL };
+
+/* I032/500/6 - Stand Status */
+static const FieldPart I032_500_STS_EMP = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_STS_EMP, NULL };
+static const FieldPart I032_500_STS_AVL = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_STS_AVL, NULL };
+static const FieldPart *I032_500_STS_PARTS[] = { &I032_500_STS_EMP, &I032_500_STS_AVL, NULL };
+
+/* I032/500/7 - Standard Instrument Departure */
+static const FieldPart I032_500_SID = { 56, 1.0, FIELD_PART_ASCII, &hf_032_500_SID, NULL };
+static const FieldPart *I032_500_SID_PARTS[] = { &I032_500_SID, NULL };
+
+/* I032/500/8 - Standard Instrument Arrival */
+static const FieldPart I032_500_SIA = { 56, 1.0, FIELD_PART_ASCII, &hf_032_500_SIA, NULL };
+static const FieldPart *I032_500_SIA_PARTS[] = { &I032_500_SIA, NULL };
+
+DIAG_OFF(pedantic)
+/*AsterixField Definitions*/
+static const AsterixField I032_010 = { FIXED, 2, 0, 0, &hf_032_010, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I032_015 = { FIXED, 2, 0, 0, &hf_032_015, I032_015_PARTS, { NULL } };
+static const AsterixField I032_018 = { FIXED, 2, 0, 0, &hf_032_018, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I032_035 = { FIXED, 1, 0, 0, &hf_032_035, I032_035_PARTS, { NULL } };
+static const AsterixField I032_020 = { FIXED, 3, 0, 0, &hf_032_020, IXXX_TOD, { NULL } };
+static const AsterixField I032_040 = { FIXED, 2, 0, 0, &hf_032_040, I032_040_PARTS, { NULL } };
+static const AsterixField I032_050 = { FX, 3, 0, 0, &hf_032_050, I032_050_PARTS, { NULL } };
+static const AsterixField I032_060 = { FIXED, 2, 0, 0, &hf_032_060, I032_060_PARTS, { NULL } };
+static const AsterixField I032_400 = { FIXED, 7, 0, 0, &hf_032_400, I032_400_PARTS, { NULL } };
+static const AsterixField I032_410 = { FIXED, 2, 0, 0, &hf_032_410, I032_410_PARTS, { NULL } };
+static const AsterixField I032_420 = { FIXED, 1, 0, 0, &hf_032_420, I032_420_PARTS, { NULL } };
+static const AsterixField I032_440 = { FIXED, 4, 0, 0, &hf_032_440, I032_440_PARTS, { NULL } };
+static const AsterixField I032_450 = { FIXED, 4, 0, 0, &hf_032_450, I032_450_PARTS, { NULL } };
+static const AsterixField I032_480 = { FIXED, 2, 0, 0, &hf_032_480, I032_480_PARTS, { NULL } };
+static const AsterixField I032_490 = { FIXED, 2, 0, 0, &hf_032_490, I032_490_PARTS, { NULL } };
+static const AsterixField I032_430 = { FIXED, 4, 0, 0, &hf_032_430, I032_430_PARTS, { NULL } };
+static const AsterixField I032_435 = { FIXED, 1, 0, 0, &hf_032_435, I032_435_PARTS, { NULL } };
+static const AsterixField I032_460 = { REPETITIVE, 2, 1, 0, &hf_032_460, I032_460_PARTS, { NULL } };
+static const AsterixField I032_500_01 = { FIXED, 4, 0, 0, &hf_032_500_01, I032_500_IFI_PARTS, { NULL } };
+static const AsterixField I032_500_02 = { FIXED, 1, 0, 0, &hf_032_500_02, I032_500_RVSM_PARTS, { NULL } };
+static const AsterixField I032_500_03 = { FIXED, 3, 0, 0, &hf_032_500_03, I032_500_RUNWAY_PARTS, { NULL } };
+static const AsterixField I032_500_04 = { REPETITIVE, 4, 1, 0, &hf_032_500_04, I032_500_TIME_PARTS, { NULL } };
+static const AsterixField I032_500_05 = { FIXED, 6, 0, 0, &hf_032_500_05, I032_500_AIR_STD_PARTS, { NULL } };
+static const AsterixField I032_500_06 = { FIXED, 1, 0, 0, &hf_032_500_06, I032_500_STS_PARTS, { NULL } };
+static const AsterixField I032_500_07 = { FIXED, 7, 0, 0, &hf_032_500_07, I032_500_SID_PARTS, { NULL } };
+static const AsterixField I032_500_08 = { FIXED, 7, 0, 0, &hf_032_500_08, I032_500_SIA_PARTS, { NULL } };
+static const AsterixField I032_500 = { COMPOUND, 0, 0, 0, &hf_032_500, NULL, {  &I032_500_01,
+                                                                                &I032_500_02,
+                                                                                &I032_500_03,
+                                                                                &I032_500_04,
+                                                                                &I032_500_05,
+                                                                                &I032_500_06,
+                                                                                &I032_500_07,
+                                                                                &I032_500_08,
+                                                                                NULL } };
+static const AsterixField I032_RE = { RE, 0, 0, 1, &hf_032_RE, NULL, { NULL } };
+
+/* Define the UAP */
+static const AsterixField *I032_v1_0_uap[] = {  &I032_010, &I032_015, &I032_018, &I032_035, &I032_020, &I032_040,
+                                                &I032_050, &I032_060, &I032_400, &I032_410, &I032_420, &I032_440,
+                                                &I032_450, &I032_480, &I032_490, &I032_430, &I032_435, &I032_460,
+                                                &I032_500, &IX_SPARE, &I032_RE,  NULL };
+static const AsterixField **I032_v1_0[] = { I032_v1_0_uap, NULL };
+static const AsterixField ***I032[] = { I032_v1_0 };
+
+DIAG_ON(pedantic)
+
+static const enum_val_t I032_versions[] = {
+                { "I032_v1_0", "Version 1.0", 0 },
+                { NULL, NULL, 0 }
+};
+
+/* *********************** */
 /*      Category 034       */
 /* *********************** */
 /* Fields */
@@ -8181,7 +8545,7 @@ static const AsterixField ****categories[] = {
     NULL, /* 029 */
     NULL, /* 030 */
     NULL, /* 031 */
-    NULL, /* 032 */
+    I032, /* 032 */
     NULL, /* 033 */
     I034, /* 034 */
     NULL, /* 035 */
@@ -9333,6 +9697,73 @@ void proto_register_asterix (void)
         { &hf_025_200, { "200, Message Identification", "asterix.025_200", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_025_200_MID, { "MID", "asterix.025_200_MID", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_025_SP, { "Special Field", "asterix.025_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        /* Category 032 */
+        { &hf_032_010, { "010, Data Source Identifier", "asterix.032_010", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_015, { "015, User Number", "asterix.032_015", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_015_UN, { "User Number", "asterix.032_015_UN", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_018, { "018, Data Source Identification Tag", "asterix.032_018", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_020, { "020, Time Of Message", "asterix.032_020", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_035, { "035, Type Of Message", "asterix.032_035", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_035_FAM, { "Family", "asterix.032_035_FAM", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL } },
+        { &hf_032_035_NAT, { "Nature", "asterix.032_035_NAT", FT_UINT8, BASE_DEC, VALS(valstr_032_035_NAT), 0x0F, NULL, HFILL } },
+        { &hf_032_040, { "040, Track Number", "asterix.032_040", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_040_TRK, { "TN", "asterix.032_040_TN", FT_UINT16, BASE_DEC, NULL, 0xFFFF, NULL, HFILL } },
+        { &hf_032_050, { "050, Composed Track Number", "asterix.032_050", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_050_SUI, { "SUI", "asterix.032_050_SUI", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_050_STN, { "STN", "asterix.032_050_STN", FT_UINT16, BASE_DEC, NULL, 0x1FFE, NULL, HFILL } },
+        { &hf_032_060, { "060, Track Mode 3/A", "asterix.032_060", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_060_M3, { "M3A", "asterix.032_060_M3", FT_UINT16, BASE_OCT, NULL, 0x0FFF, NULL, HFILL } },
+        { &hf_032_400, { "400, Callsign", "asterix.032_400", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_400_CALL, { "CS", "asterix.032_400_CALL", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_410, { "410, Plan Number", "asterix.032_410", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_410_PLN, { "PLN", "asterix.032_410_PLN", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_420, { "420, Flight Category", "asterix.032_420", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_420_GAT, { "GAT", "asterix.032_420_GAT", FT_UINT8, BASE_DEC, VALS(valstr_032_420_GAT), 0xC0, NULL, HFILL } },
+        { &hf_032_420_FR, { "FR", "asterix.032_420_FR", FT_UINT8, BASE_DEC, VALS(valstr_032_420_FR), 0x30, NULL, HFILL } },
+        { &hf_032_420_SP, { "SP", "asterix.032_420_SP", FT_UINT8, BASE_HEX, NULL, 0x0E, NULL, HFILL } },
+        { &hf_032_430, { "430, Type of Aircraft", "asterix.032_430", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_430_TYP, { "TYP", "asterix.032_430_TYP", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_435, { "435, Category of Turbulance", "asterix.032_435", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_435_TUR, { "TURB", "asterix.032_435_TUR", FT_UINT8, BASE_DEC, VALS(valstr_032_435_CAT), 0x00, NULL, HFILL } },
+        { &hf_032_440, { "440, Departure Airport", "asterix.032_440", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_440_DEP, { "DEP", "asterix.032_440_DEP", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_450, { "450, Destination Airport", "asterix.032_450", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_450_DEST, { "DEST", "asterix.032_450_DEST", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_460, { "460, Allocated SSR Codes", "asterix.032_460", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_460_SSR, { "SSR", "asterix.032_460_SSR", FT_UINT16, BASE_OCT, NULL, 0x0FFF, NULL, HFILL } },
+        { &hf_032_480, { "480, Current Cleared Flight Level", "asterix.032_480", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_480_CFL, { "CFL [ft]", "asterix.032_480_CFL", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_490, { "490, Current Control Position", "asterix.032_490", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_490_CEN, { "CEN", "asterix.032_490_CEN", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_490_POS, { "POS", "asterix.032_490_POS", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500, { "500, Supplementary Flight Data", "asterix.032_500", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_01, { "IFPS Flight ID", "asterix.032_500_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_IFI_TYP, { "TYP", "asterix.032_500_01_TYP", FT_UINT32, BASE_DEC, VALS(valstr_032_500_PLN), 0x90000000, NULL, HFILL } },
+        { &hf_032_500_IFI_NBR, { "NBR", "asterix.032_500_01_NBR", FT_UINT32, BASE_DEC, NULL, 0x07FFFFFF, NULL, HFILL } },
+        { &hf_032_500_02, { "RVSM & Flight Priority", "asterix.032_500_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_RVSM_RVSM, { "RVSM", "asterix.032_500_02_RVSM", FT_UINT8, BASE_DEC, VALS(valstr_032_500_RVSM), 0x06, NULL, HFILL } },
+        { &hf_032_500_RVSM_HPR, { "HPR", "asterix.032_500_02_HPR", FT_UINT8, BASE_DEC, VALS(valstr_032_500_HPR), 0x01, NULL, HFILL } },
+        { &hf_032_500_03, { "Runway Designation", "asterix.032_500_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_RUNWAY_NU1, { "NU1", "asterix.032_500_03_NU1", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_RUNWAY_NU2, { "NU2", "asterix.032_500_03_NU2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_RUNWAY_LTR, { "LTR", "asterix.032_500_03_LTR", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_04, { "Time of Departure / Arrival", "asterix.032_500_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_TIME_TYP, { "TYP", "asterix.032_500_04_TYP", FT_UINT8, BASE_DEC, VALS(valstr_032_500_TYP), 0xFE, NULL, HFILL } },
+        { &hf_032_500_TIME_DAY, { "DAY", "asterix.032_500_04_DAY", FT_UINT8, BASE_DEC, VALS(valstr_032_500_DAY), 0x06, NULL, HFILL } },
+        { &hf_032_500_TIME_HOR, { "HOR", "asterix.032_500_04_HOR", FT_UINT8, BASE_DEC, NULL, 0x01E, NULL, HFILL } },
+        { &hf_032_500_TIME_MIN, { "MIN", "asterix.032_500_04_MIN", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL } },
+        { &hf_032_500_TIME_AVS, { "AVS", "asterix.032_500_04_AVS", FT_UINT8, BASE_DEC, VALS(valstr_032_500_AVS), 0x80, NULL, HFILL } },
+        { &hf_032_500_TIME_SEC, { "SEC", "asterix.032_500_04_SEC", FT_UINT8, BASE_DEC, NULL, 0x3E, NULL, HFILL } },
+        { &hf_032_500_05, { "Aircraft Stand", "asterix.032_500_05", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_AIR_STD, { "STND", "asterix.032_500_05_STND", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_06, { "Stand Status", "asterix.032_500_06", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_STS_EMP, { "EMP", "asterix.032_500_06_EMP", FT_UINT8, BASE_DEC, VALS(valstr_032_500_STS_EMP), 0xC0, NULL, HFILL } },
+        { &hf_032_500_STS_AVL, { "AVL", "asterix.032_500_06_AVL", FT_UINT8, BASE_DEC, VALS(valstr_032_500_STS_AVL), 0x30, NULL, HFILL } },
+        { &hf_032_500_07, { "Standard Instrument Departure", "asterix.032_500_07", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_SID, { "SID", "asterix.032_500_07_SID", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_08, { "Standard Instrument Arrival", "asterix.032_500_08", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_500_SIA, { "SIA", "asterix.032_500_08_SIA", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_032_RE, { "Reserved Expansion Field", "asterix.032_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         /* Category 034 */
         { &hf_034_000, { "000, Message Type", "asterix.034_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_000_MT, { "MT", "asterix.034_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_034_000_MT), 0x0, NULL, HFILL } },
@@ -10673,6 +11104,35 @@ void proto_register_asterix (void)
         &ett_025_200,
         &ett_025_200_MID,
         &ett_025_SP,
+        /* Category 032*/
+        &ett_032_010,
+        &ett_032_015,
+        &ett_032_018,
+        &ett_032_020,
+        &ett_032_035,
+        &ett_032_040,
+        &ett_032_050,
+        &ett_032_060,
+        &ett_032_400,
+        &ett_032_410,
+        &ett_032_420,
+        &ett_032_430,
+        &ett_032_435,
+        &ett_032_440,
+        &ett_032_450,
+        &ett_032_460,
+        &ett_032_480,
+        &ett_032_490,
+        &ett_032_500,
+        &ett_032_500_1,
+        &ett_032_500_2,
+        &ett_032_500_3,
+        &ett_032_500_4,
+        &ett_032_500_5,
+        &ett_032_500_6,
+        &ett_032_500_7,
+        &ett_032_500_8,
+        &ett_032_RE,
         /* Category 034 */
         &ett_034_000,
         &ett_034_000_MT,
@@ -11441,6 +11901,7 @@ void proto_register_asterix (void)
     prefs_register_enum_preference (asterix_prefs_module, "i021_version", "I021 version", "Select the CAT021 version", &global_categories_version[21], I021_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i023_version", "I023 version", "Select the CAT023 version", &global_categories_version[23], I023_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i025_version", "I025 version", "Select the CAT025 version", &global_categories_version[25], I025_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i032_version", "I032 version", "Select the CAT032 version", &global_categories_version[32], I032_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i034_version", "I034 version", "Select the CAT034 version", &global_categories_version[34], I034_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i048_version", "I048 version", "Select the CAT048 version", &global_categories_version[48], I048_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i062_version", "I062 version", "Select the CAT062 version", &global_categories_version[62], I062_versions, FALSE);
