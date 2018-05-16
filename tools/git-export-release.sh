@@ -43,6 +43,9 @@ STASH_POP=False
 
 # We might be able to avoid stashing by doing one of the following:
 #
+# For official releases, update our build process such that we don't
+# need to modify version.conf.
+#
 # Use tar to append a new or updated version.conf to the archive.
 # This would require detecting our local tar flavor (GNU or BSD) and
 # constructing a compatible command. BSD tar appears to support inline
@@ -54,6 +57,9 @@ STASH_POP=False
 # 'git_description=$Format:...$' in version.conf. export-subst uses
 # 'git log' formatting. I'm not sure if we can build $DESCRIPTION
 # from that.
+#
+# Rewrite this script in Python and use the built-in tarfile module
+# to replace version.conf.
 
 if [ "$COMMIT" == "HEAD" ] ; then
     echo "Adding description $DESCRIPTION"
