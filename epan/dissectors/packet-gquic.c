@@ -1429,8 +1429,8 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             break;
             case TAG_RREJ:
                 while(offset_end - tag_offset >= 4){
-                    proto_tree_add_item(tag_tree, hf_gquic_tag_rrej, tvb, tag_offset_start + tag_offset, 4,  gquic_info->encoding);
-                    proto_item_append_text(ti_tag, ", Code %s", val_to_str_ext(tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding), &handshake_failure_reason_vals_ext, "Unknown"));
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_rrej, tvb, tag_offset_start + tag_offset, 4,  ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(ti_tag, ", Code %s", val_to_str_ext(tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN), &handshake_failure_reason_vals_ext, "Unknown"));
                     tag_offset += 4;
                 }
             break;
@@ -1453,10 +1453,10 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             break;
             case TAG_PUBS:
                 /*TODO FIX: 24 Length + Pubs key?.. ! */
-                proto_tree_add_item(tag_tree, hf_gquic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
                 tag_offset += 2;
                 while(offset_end - tag_offset >= 3){
-                    proto_tree_add_item(tag_tree, hf_gquic_tag_pubs, tvb, tag_offset_start + tag_offset, 3, gquic_info->encoding);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_pubs, tvb, tag_offset_start + tag_offset, 3, ENC_LITTLE_ENDIAN);
                     tag_offset += 3;
                 }
             break;
@@ -1474,7 +1474,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += tag_len;
             break;
             case TAG_EXPY:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_expy, tvb, tag_offset_start + tag_offset, 8, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_expy, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_NONC:
@@ -1483,29 +1483,29 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += 32;
             break;
             case TAG_MSPC:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_mspc, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding));
+                proto_tree_add_item(tag_tree, hf_gquic_tag_mspc, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN));
                 tag_offset += 4;
             break;
             case TAG_TCID:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_tcid, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_tcid, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_SRBF:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_srbf, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_srbf, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_ICSL:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_icsl, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_icsl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_SCLS:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_scls, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_scls, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_COPT:
                 if(tag_len){
-                    proto_tree_add_item(tag_tree, hf_gquic_tag_copt, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_copt, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                     tag_offset += 4;
                 }
             break;
@@ -1514,18 +1514,18 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += tag_len;
             break;
             case TAG_IRTT:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_irtt, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding));
+                proto_tree_add_item(tag_tree, hf_gquic_tag_irtt, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN));
                 tag_offset += 4;
             break;
             case TAG_CFCW:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_cfcw, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding));
+                proto_tree_add_item(tag_tree, hf_gquic_tag_cfcw, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN));
                 tag_offset += 4;
             break;
             case TAG_SFCW:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_sfcw, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding));
+                proto_tree_add_item(tag_tree, hf_gquic_tag_sfcw, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN));
                 tag_offset += 4;
             break;
             case TAG_CETV:
@@ -1549,16 +1549,16 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += 8;
             break;
             case TAG_RNON: /* Public Reset Tag */
-                proto_tree_add_item(tag_tree, hf_gquic_tag_rnon, tvb, tag_offset_start + tag_offset, 8, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_rnon, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_RSEQ: /* Public Reset Tag */
-                proto_tree_add_item(tag_tree, hf_gquic_tag_rseq, tvb, tag_offset_start + tag_offset, 8, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_rseq, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_CADR: /* Public Reset Tag */{
                 guint32 addr_type;
-                proto_tree_add_item_ret_uint(tag_tree, hf_gquic_tag_cadr_addr_type, tvb, tag_offset_start + tag_offset, 2, gquic_info->encoding, &addr_type);
+                proto_tree_add_item_ret_uint(tag_tree, hf_gquic_tag_cadr_addr_type, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN, &addr_type);
                 tag_offset += 2;
                 switch(addr_type){
                     case 2: /* IPv4 */
@@ -1574,27 +1574,27 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                     tag_offset += tag_len + 2 + 2 ;
                     break;
                 }
-                proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_port, tvb, tag_offset_start + tag_offset, 2, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_port, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
                 tag_offset += 2;
             }
             break;
             case TAG_MIDS:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_mids, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding));
+                proto_tree_add_item(tag_tree, hf_gquic_tag_mids, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN));
                 tag_offset += 4;
             break;
             case TAG_FHOL:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_fhol, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding));
+                proto_tree_add_item(tag_tree, hf_gquic_tag_fhol, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN));
                 tag_offset += 4;
             break;
             case TAG_STTL:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_sttl, tvb, tag_offset_start + tag_offset, 8, gquic_info->encoding);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_sttl, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_SMHL:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_smhl, tvb, tag_offset_start + tag_offset, 4, gquic_info->encoding);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, gquic_info->encoding));
+                proto_tree_add_item(tag_tree, hf_gquic_tag_smhl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN));
                 tag_offset += 4;
             break;
             case TAG_TBKP:
