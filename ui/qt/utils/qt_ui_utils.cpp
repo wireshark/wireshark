@@ -116,7 +116,7 @@ const QString address_to_display_qstring(const _address *address)
 
 const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt)
 {
-    QString val_qstr = QString();
+    QString val_qstr;
     gchar* gchar_p = val_to_str_wmem(NULL, val, vs, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
@@ -126,7 +126,7 @@ const QString val_to_qstring(const guint32 val, const value_string *vs, const ch
 
 const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt)
 {
-    QString val_qstr = QString();
+    QString val_qstr;
     gchar* gchar_p = val_to_str_ext_wmem(NULL, val, vse, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
