@@ -885,7 +885,7 @@ You might see the following dialog box while a capture is running:
 
 [[ChCapCaptureInfoDialog]]
 .The “Capture Information” dialog box
-image::wsug_graphics/ws-capture-info.png[{screenshot-attrs}]
+image::wsug_graphics/ws-capture-info.png[{small-screenshot-attrs}]
 
 This dialog box shows a list of protocols and their activity over time.
 It can be enabled via the “capture.show_info” setting in the “Advanced”
