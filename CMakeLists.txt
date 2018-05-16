@@ -96,23 +96,12 @@ if(WIN32)
 	# Download third-party libraries
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
 	file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
-	if(MSVC14)
-		set(_vsversion_args "14")
-	elseif(MSVC12)
-		set(_vsversion_args "12")
-	elseif(MSVC11)
-		set(_vsversion_args "11")
-	elseif(MSVC10)
-		set(_vsversion_args "10")
-	else()
-		message(FATAL_ERROR "Unsupported compiler ${CMAKE_C_COMPILER}")
-	endif()
 
 	# Is it possible to have a one-time, non-cached option in CMake? If
 	# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
 	# win-setup.ps1.
 	execute_process(
-		COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} -VSVersion ${_vsversion_args}
+		COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM}
 		RESULT_VARIABLE _win_setup_failed
 	)
 	if(_win_setup_failed)
@@ -321,28 +310,21 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 
 	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
 
-	if(MSVC12)
-		# /Zo                               Enhanced debugging of optimised code for VS2013 Update 3 and beyond,
-		#                                   Assume all VS2013 builds are at least Update 3.
-		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
-		list(APPEND LOCAL_CFLAGS /Zo)
-	elseif(MSVC14)
-		# To do: Add /external:... See https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
-		#
-		# /Zo                               Enhanced debugging of optimised code
-		# /utf-8                            Set Source and Executable character sets to UTF-8
-		#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
-		# /guard:cf                         Control Flow Guard (compile and link).
-		#                                   See https://msdn.microsoft.com/en-us/library/windows/desktop/mt637065.aspx
-		#                                   Note: This requires CMake 3.9.0 or newer.
-		#                                   https://gitlab.kitware.com/cmake/cmake/commit/f973d49ab9d4c59b93f6dac812a94bb130200836
-		# /Qspectre                         Speculative execution attack mitigation
-		#                                   See https://blogs.msdn.microsoft.com/vcblog/2018/01/15/spectre-mitigations-in-msvc/
-		list(APPEND LOCAL_CFLAGS /Zo /utf-8 /guard:cf)
-		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
-		# /Qspectre is not available for VS2015 or older VS2017. Test for its availability.
-		set(WIRESHARK_COMMON_FLAGS /Qspectre)
-	endif()
+	# To do: Add /external:... See https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
+	#
+	# /Zo                               Enhanced debugging of optimised code
+	# /utf-8                            Set Source and Executable character sets to UTF-8
+	#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
+	# /guard:cf                         Control Flow Guard (compile and link).
+	#                                   See https://msdn.microsoft.com/en-us/library/windows/desktop/mt637065.aspx
+	#                                   Note: This requires CMake 3.9.0 or newer.
+	#                                   https://gitlab.kitware.com/cmake/cmake/commit/f973d49ab9d4c59b93f6dac812a94bb130200836
+	# /Qspectre                         Speculative execution attack mitigation
+	#                                   See https://blogs.msdn.microsoft.com/vcblog/2018/01/15/spectre-mitigations-in-msvc/
+	list(APPEND LOCAL_CFLAGS /Zo /utf-8 /guard:cf)
+	set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
+	# /Qspectre is not available for VS2015 or older VS2017. Test for its availability.
+	set(WIRESHARK_COMMON_FLAGS /Qspectre)
 
 	if(ENABLE_CODE_ANALYSIS)
 		list(APPEND LOCAL_CFLAGS /analyze:WX-)
