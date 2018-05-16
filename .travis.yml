@@ -26,7 +26,6 @@ addons:
     - clang-5.0
 before_install:
   - echo $TRAVIS_OS_NAME
-  - $CC --version
   # macos
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then PATH=/usr/local/opt/qt5/bin:$PATH; fi
