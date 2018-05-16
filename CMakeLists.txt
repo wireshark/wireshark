@@ -123,6 +123,19 @@ if(WIN32)
 
 	# Head off any attempts to use Cygwin's Python.
 	include(LocatePythonExecutable)
+
+	# Prepopulate some ConfigureChecks values. Compilation checks
+	# on Windows can be slow.
+	set(HAVE_FCNTL_H TRUE)
+	set(HAVE_SYS_STAT_H TRUE)
+	set(HAVE_FLOORL TRUE)
+	set(HAVE_LRINT TRUE)
+
+	# It looks like we call check_type_size somewhere, which checks
+	# for these.
+	set(HAVE_SYS_TYPES_H TRUE)
+	set(HAVE_STDINT_H TRUE)
+	set(HAVE_STDDEF_H TRUE)
 endif(WIN32)
 
 include(UseCustomIncludes)

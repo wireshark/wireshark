@@ -9,14 +9,6 @@
 
 include(CMakePushCheckState)
 
-if(WIN32)
-	# Prepopulate some values. Compilation checks on Windows can be slow.
-	set(HAVE_FCNTL_H TRUE)
-	set(HAVE_SYS_STAT_H TRUE)
-	set(HAVE_FLOORL TRUE)
-	set(HAVE_LRINT TRUE)
-endif(WIN32)
-
 #check system for includes
 include(CheckIncludeFile)
 check_include_file("arpa/inet.h"         HAVE_ARPA_INET_H)
