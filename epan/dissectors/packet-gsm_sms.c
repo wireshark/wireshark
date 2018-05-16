@@ -582,7 +582,7 @@ static const value_string dis_field_addr_numbering_plan_vals[] = {
    {0,      NULL }
 };
 
-static void
+void
 dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offset_p, const gchar *title)
 {
     static gchar digit_table[] = {"0123456789*#abc\0"};

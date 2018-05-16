@@ -6530,8 +6530,19 @@ dissect_gsm_map_sm_SM_RP_MTI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_gsm_map_sm_SM_RP_SMEA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 1173 "./asn1/gsm_map/gsm_map.cnf"
+  tvbuff_t *payload_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &payload_tvb);
+
+  if (payload_tvb) {
+    guint32 tvb_offset = 0;
+    PROTO_ITEM_SET_HIDDEN(actx->created_item);
+    dis_field_addr(payload_tvb, actx->pinfo, tree, &tvb_offset, "SM-RP-SMEA");
+  }
+
+
+
 
   return offset;
 }

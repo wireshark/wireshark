@@ -1169,6 +1169,16 @@ MAP interfaces
     }
   }
 
+#.FN_BODY SM-RP-SMEA VAL_PTR=&payload_tvb
+  tvbuff_t *payload_tvb;
+%(DEFAULT_BODY)s
+  if (payload_tvb) {
+    guint32 tvb_offset = 0;
+    PROTO_ITEM_SET_HIDDEN(actx->created_item);
+    dis_field_addr(payload_tvb, actx->pinfo, tree, &tvb_offset, "SM-RP-SMEA");
+  }
+
+
 # Make dissector table for V3 messages
 #.REGISTER
 
