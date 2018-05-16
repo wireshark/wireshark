@@ -408,6 +408,12 @@ else() # ! MSVC
 	# compilers for which CMake supports it, we may still have
 	# to do it ourselves on other compilers.
 	#
+	# In addition, CMake 3.5.2 seems to think that GCC versions
+	# less than 4.4 don't support -std=gnu99, which we need in
+	# order to get support for "for (int i = 0; i < n; i++) ;",
+	# which is another reason not to rely on CMake's CMAKE_C_STANDARD
+	# support.
+	#
 	# See the CMake documentation for the CMAKE_<LANG>_COMPILER_ID
 	# variables for a list of compiler IDs.
 	#
