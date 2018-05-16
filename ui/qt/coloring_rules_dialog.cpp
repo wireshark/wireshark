@@ -20,9 +20,9 @@
 #include "wsutil/filesystem.h"
 
 #include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QColorDialog>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -279,7 +279,7 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
     QString err;
 
     if (button == import_button_) {
-        QString file_name = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Coloring Rules")),
+        QString file_name = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Coloring Rules")),
                                                          wsApp->lastOpenDir().path());
         if (!file_name.isEmpty()) {
             if (!colorRuleModel_.importColors(file_name, err)) {
@@ -297,7 +297,7 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             return;
 
         QString caption = wsApp->windowTitleString(tr("Export %1 Coloring Rules").arg(num_items));
-        QString file_name = QFileDialog::getSaveFileName(this, caption,
+        QString file_name = WiresharkFileDialog::getSaveFileName(this, caption,
                                                          wsApp->lastOpenDir().path());
         if (!file_name.isEmpty()) {
             if (!colorRuleModel_.exportColors(file_name, err)) {

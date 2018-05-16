@@ -77,6 +77,7 @@ DIAG_ON(frame-larger-than=)
 
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/drag_drop_toolbar.h>
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #ifdef HAVE_SOFTWARE_UPDATE
 #include "ui/software_update.h"
@@ -1986,7 +1987,7 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
 
     if (!capture_file_.capFile() || !capture_file_.capFile()->finfo_selected) return;
 
-    file_name = QFileDialog::getSaveFileName(this,
+    file_name = WiresharkFileDialog::getSaveFileName(this,
                                              wsApp->windowTitleString(tr("Export Selected Packet Bytes")),
                                              wsApp->lastOpenDir().canonicalPath(),
                                              tr("Raw data (*.bin *.dat *.raw);;All Files (" ALL_FILES_WILDCARD ")")
@@ -2061,7 +2062,7 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
     }
 
     save_title.append(wsApp->windowTitleString(tr("Export SSL Session Keys (%Ln key(s))", "", keylist_len)));
-    file_name = QFileDialog::getSaveFileName(this,
+    file_name = WiresharkFileDialog::getSaveFileName(this,
                                              save_title,
                                              wsApp->lastOpenDir().canonicalPath(),
                                              tr("SSL Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")

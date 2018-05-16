@@ -38,6 +38,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/stock_icon_tool_button.h
 	widgets/syntax_line_edit.h
 	widgets/tabnav_tree_view.h
+	widgets/wireshark_file_dialog.h
 )
 
 set(WIRESHARK_MANAGER_HEADERS
@@ -266,6 +267,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/stock_icon_tool_button.cpp
 	widgets/syntax_line_edit.cpp
 	widgets/tabnav_tree_view.cpp
+	widgets/wireshark_file_dialog.cpp
 )
 
 set(WIRESHARK_MANAGER_SRCS

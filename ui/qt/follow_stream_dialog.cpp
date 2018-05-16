@@ -32,9 +32,11 @@
 #include "ws_symbol_export.h"
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include "progress_frame.h"
-#include <ui/qt/utils/qt_ui_utils.h>
+
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QElapsedTimer>
 #include <QKeyEvent>
@@ -261,7 +263,7 @@ void FollowStreamDialog::findText(bool go_back)
 
 void FollowStreamDialog::saveAs()
 {
-    QString file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
     if (!file_name.isEmpty()) {
         QTextStream out(&file_);
 

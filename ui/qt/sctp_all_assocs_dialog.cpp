@@ -17,7 +17,6 @@
 
 #include <QWidget>
 #include <QDir>
-#include <QFileDialog>
 #include <QPushButton>
 
 //#include <QDebug>

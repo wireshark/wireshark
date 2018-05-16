@@ -19,10 +19,10 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_analysis_dialog.h"
 #include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAction>
 #include <QClipboard>
-#include <QFileDialog>
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QTextStream>
@@ -507,7 +507,7 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
         QDir path(wsApp->lastOpenDir());
         QString save_file = path.canonicalPath() + "/" + cap_file_.fileTitle();
         QString extension;
-        file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save RTPDump As" UTF8_HORIZONTAL_ELLIPSIS)),
+        file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save RTPDump As" UTF8_HORIZONTAL_ELLIPSIS)),
                                                  save_file, "RTPDump Format (*.rtpdump)", &extension);
 
         if (file_name.length() > 0) {
