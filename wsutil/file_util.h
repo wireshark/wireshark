@@ -32,9 +32,7 @@ extern "C" {
 #include <unistd.h>	/* for read(), write(), close(), etc. */
 #endif
 
-#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>	/* for stat() and struct stat */
-#endif
 
 /*
  * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't

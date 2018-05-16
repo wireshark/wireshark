@@ -18,9 +18,7 @@
 #ifndef __CAPTURE_OPTS_H__
 #define __CAPTURE_OPTS_H__
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>     /* for gid_t */
-#endif
+#include <sys/types.h>     /* for gid_t */
 
 #include <caputils/capture_ifinfo.h>
 

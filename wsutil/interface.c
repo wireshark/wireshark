@@ -17,9 +17,7 @@
 #include <string.h>
 #include <wsutil/inet_addr.h>
 
-#ifdef HAVE_SYS_TYPES_H
-	#include <sys/types.h>
-#endif
+#include <sys/types.h>
 
 #ifdef HAVE_SYS_SOCKET_H
 	#include <sys/socket.h>

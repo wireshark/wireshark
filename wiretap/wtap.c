@@ -11,9 +11,7 @@
 #include <string.h>
 #include <errno.h>
 
-#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
 
 #include "wtap-int.h"
 #include "wtap_opttypes.h"

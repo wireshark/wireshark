@@ -127,7 +127,6 @@ if(WIN32)
 	# Prepopulate some ConfigureChecks values. Compilation checks
 	# on Windows can be slow.
 	set(HAVE_FCNTL_H TRUE)
-	set(HAVE_SYS_STAT_H TRUE)
 	set(HAVE_FLOORL TRUE)
 	set(HAVE_LRINT TRUE)
 
