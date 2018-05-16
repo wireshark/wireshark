@@ -21,6 +21,7 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     - llvm-toolchain-trusty-5.0
+    - sourceline: 'ppa:wireshark-dev/stable'
     packages:
     - g++-8
     - clang-5.0
