@@ -38,17 +38,12 @@ contain the pattern "wireshark-*-libs".
 .PARAMETER Platform
 Target platform. One of "win64" or "win32".
 
-.PARAMETER VSVersion
-Visual Studio version. Must be the numeric version (e.g. "12", "11"),
-not the year.
-
 .PARAMETER Force
 Download each library even if exists on the local system.
 
 .INPUTS
 -Destination Destination directory.
 -Platform Target platform.
--VSVersion Visual Studio version.
 -Force Force fresh downloads.
 
 .OUTPUTS
@@ -70,11 +65,6 @@ Param(
     [ValidateSet("win32", "win64")]
     [String]
     $Platform,
-
-    [Parameter(Mandatory=$false, Position=2)]
-    [ValidateSet("14", "12", "11", "10")]
-    [String]
-    $VSVersion,
 
     [Parameter(Mandatory=$false)]
     [Switch]
