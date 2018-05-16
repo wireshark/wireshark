@@ -90,6 +90,7 @@ CaptureInfoDialog::CaptureInfoDialog(struct _capture_info *cap_info, struct _cap
     cap_session_(cap_session)
 {
     ui->setupUi(this);
+    loadGeometry();
     setWindowTitle(wsApp->windowTitleString(tr("Capture Information")));
 
     QPushButton *button = ui->buttonBox->button(QDialogButtonBox::Abort);
