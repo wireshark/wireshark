@@ -509,7 +509,7 @@ test_fragment_add_seq_partial_reassembly(void)
     fragment_set_partial_reassembly(&test_reassembly_table, &pinfo, 12, NULL);
 
     pinfo.num = 5;
-    fd_head=fragment_add_seq(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
+    fragment_add_seq(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
                              3, 40, FALSE, 0);
 
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
