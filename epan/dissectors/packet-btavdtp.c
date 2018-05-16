@@ -1468,8 +1468,6 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 key[0].key    = &interface_id;
                 key[1].length = 1;
                 key[1].key    = &adapter_id;
-                key[2].length = 1;
-                key[2].key    = &chandle;
                 key[3].length = 1;
                 key[3].key    = &cid;
                 key[4].length = 1;
