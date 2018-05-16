@@ -663,7 +663,7 @@ install_qt() {
             case $QT_MINOR_VERSION in
 
             0|1)
-                QT_VOLUME=qt-mac-opensource-$QT_VERSION-clang-offline
+                echo "Qt $QT_VERSION" is too old 1>&2
                 ;;
 
             2)
