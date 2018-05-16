@@ -1202,9 +1202,6 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     msglen = (int)raw_msglen;
 
     msgid.channel = channel;
-    msgid.msg_def_id = 0;
-    msgid.ver_major = 0;
-    msgid.ver_minor = 0;
     msgid.offset_table = NULL;
     subtree_item = proto_tree_add_protocol_format(tree, proto_lbmpdm, tvb, offset, msglen, "LBMPDM Protocol");
     subtree = proto_item_add_subtree(subtree_item, ett_lbmpdm);
