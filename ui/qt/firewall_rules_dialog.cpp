@@ -23,9 +23,9 @@
 #include "wsutil/utf8_entities.h"
 
 #include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTextCursor>
@@ -170,7 +170,7 @@ void FirewallRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
     if (button == ui->buttonBox->button(QDialogButtonBox::Save)) {
         QString save_title = QString("Save %1 rules as" UTF8_HORIZONTAL_ELLIPSIS)
                 .arg(firewall_product_name(prod_));
-        QByteArray file_name = QFileDialog::getSaveFileName(this,
+        QByteArray file_name = WiresharkFileDialog::getSaveFileName(this,
                                                  save_title,
                                                  wsApp->lastOpenDir().canonicalPath(),
                                                  tr("Text file (*.txt);;All Files (" ALL_FILES_WILDCARD ")")

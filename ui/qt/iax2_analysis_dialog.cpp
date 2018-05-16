@@ -29,7 +29,6 @@
 #include <wsutil/g711.h>
 #include <wsutil/pint.h>
 
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTemporaryFile>
@@ -38,6 +37,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 #include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 /*
  * @file RTP stream analysis dialog
@@ -584,7 +584,7 @@ void Iax2AnalysisDialog::on_actionSaveGraph_triggered()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileTitle());
     }
-    file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              save_file, filter, &extension);
 
     if (!file_name.isEmpty()) {
@@ -894,7 +894,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
         ext_filter.append(tr(";;Raw (*.raw)"));
     }
     QString sel_filter;
-    QString file_path = QFileDialog::getSaveFileName(
+    QString file_path = WiresharkFileDialog::getSaveFileName(
                 this, caption, wsApp->lastOpenDir().absoluteFilePath("Saved RTP Audio.au"),
                 ext_filter, &sel_filter);
 
@@ -1160,7 +1160,7 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
         break;
     }
 
-    QString file_path = QFileDialog::getSaveFileName(
+    QString file_path = WiresharkFileDialog::getSaveFileName(
                 this, caption, wsApp->lastOpenDir().absoluteFilePath("RTP Packet Data.csv"),
                 tr("Comma-separated values (*.csv)"));
 

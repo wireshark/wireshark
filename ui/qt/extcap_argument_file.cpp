@@ -12,13 +12,14 @@
 
 #include <wsutil/utf8_entities.h>
 
+#include "ui/qt/widgets/wireshark_file_dialog.h"
+
 #include <QObject>
 #include <QWidget>
 #include <QLabel>
 #include <QLineEdit>
 #include <QBoxLayout>
 #include <QPushButton>
-#include <QFileDialog>
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>
@@ -106,7 +107,7 @@ void ExtcapArgumentFileSelection::openFileDialog()
             fileExt.prepend(";;").prepend(givenExt);
     }
 
-    filename = QFileDialog::getOpenFileName((QWidget *)(textBox->parent()),
+    filename = WiresharkFileDialog::getOpenFileName((QWidget *)(textBox->parent()),
         QString().fromUtf8(_argument->display) + " " + tr("Open File"),
         workingDir.absolutePath(), fileExt);
 

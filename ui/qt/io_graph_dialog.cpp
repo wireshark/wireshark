@@ -29,9 +29,9 @@
 #include <wsutil/report_message.h>
 
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
-#include <QFileDialog>
 #include <QFontMetrics>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -1404,7 +1404,7 @@ void IOGraphDialog::on_buttonBox_accepted()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileTitle());
     }
-    file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              save_file, filter, &extension);
 
     if (file_name.length() > 0) {

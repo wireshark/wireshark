@@ -12,6 +12,7 @@
 
 #include "main_window.h"
 #include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include "epan/charsets.h"
 
@@ -292,7 +293,7 @@ void ShowPacketBytesDialog::copyBytes()
 
 void ShowPacketBytesDialog::saveAs()
 {
-    QString file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Selected Packet Bytes As" UTF8_HORIZONTAL_ELLIPSIS)));
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Selected Packet Bytes As" UTF8_HORIZONTAL_ELLIPSIS)));
 
     if (file_name.isEmpty())
         return;

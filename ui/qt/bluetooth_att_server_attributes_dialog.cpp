@@ -21,11 +21,12 @@
 
 #include "ui/simple_dialog.h"
 
+#include "ui/qt/widgets/wireshark_file_dialog.h"
+
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QPushButton>
 #include <QTreeWidget>
-#include <QFileDialog>
 
 static const int column_number_handle = 0;
 static const int column_number_uuid = 1;
@@ -356,7 +357,7 @@ void BluetoothAttServerAttributesDialog::on_actionSave_as_image_triggered()
 {
     QPixmap image;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Table Image"),
+    QString fileName = WiresharkFileDialog::getSaveFileName(this, tr("Save Table Image"),
                            "att_server_attributes_table.png",
                            tr("PNG Image (*.png)"));
 

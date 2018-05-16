@@ -10,6 +10,7 @@
  */
 
 #include <ui/qt/widgets/editor_file_dialog.h>
+#include <ui/qt/widgets/wireshark_file_dialog.h>
 
 #include <QKeyEvent>
 #include <QStyle>
@@ -93,11 +94,11 @@ void EditorFileDialog::applyFilename()
 
     if (mode_ == Directory)
     {
-        file = QFileDialog::getExistingDirectory(this, caption_, directory_, options_);
+        file = WiresharkFileDialog::getExistingDirectory(this, caption_, directory_, options_);
     }
     else
     {
-        file = QFileDialog::getOpenFileName(this, caption_, directory_, filter_, NULL, options_);
+        file = WiresharkFileDialog::getOpenFileName(this, caption_, directory_, filter_, NULL, options_);
     }
 
     if (!file.isEmpty())

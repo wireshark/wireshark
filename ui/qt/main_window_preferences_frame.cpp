@@ -17,8 +17,8 @@
 #include <epan/prefs-int.h>
 #include <ui/qt/models/pref_models.h>
 #include <wsutil/filesystem.h>
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
-#include <QFileDialog>
 #include <QDebug>
 
 MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
@@ -164,7 +164,7 @@ void MainWindowPreferencesFrame::on_foStyleSpecifiedLineEdit_textEdited(const QS
 
 void MainWindowPreferencesFrame::on_foStyleSpecifiedPushButton_clicked()
 {
-    QString specified_dir = QFileDialog::getExistingDirectory(this, tr("Open Files In"));
+    QString specified_dir = WiresharkFileDialog::getExistingDirectory(this, tr("Open Files In"));
 
     if (specified_dir.isEmpty()) return;
 

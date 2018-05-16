@@ -40,7 +40,6 @@
 #include <ui/qt/models/path_chooser_delegate.h>
 
 #include <QCheckBox>
-#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QStandardItemModel>
