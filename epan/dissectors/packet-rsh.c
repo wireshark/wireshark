@@ -287,11 +287,6 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 hash_info->server_username=wmem_strdup(wmem_file_scope(), (gchar*)field_stringz);
             }
 
-            /* Next field we need */
-            hash_info->state = WAIT_FOR_COMMAND;
-        } else {
-            /* Since the data doesn't match this field, it must be data only */
-            hash_info->state = WAIT_FOR_DATA;
         }
 
         /* Used if the next field is in the same packet */
