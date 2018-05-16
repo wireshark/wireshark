@@ -31,6 +31,7 @@ struct pem_priv {
     GRegex *re_blank_line;
     GRegex *re_pre_eb;
     GRegex *re_post_eb;
+    GRegex *re_base64;
 };
 
 static char *read_complete_text_line(char line[MAX_LINE_LENGTH], FILE_T fh, int *err, gchar **err_info)
@@ -93,6 +94,12 @@ static gboolean pem_read_value(wtap *wth, FILE_T fh, wtap_rec *rec,
         if (g_regex_match(priv->re_post_eb, line, (GRegexMatchFlags)0, NULL))
             break;
 
+        if (!g_regex_match(priv->re_base64, line, (GRegexMatchFlags)0, NULL)) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup("invalid base64 line");
+            return FALSE;
+        }
+
         guchar decoded[(sizeof(line) / 4) * 3 + 3];
         guint32 decoded_size = (guint32) g_base64_decode_step(
             line, line_end - line, decoded, &base64_state, &base64_save);
@@ -136,8 +143,10 @@ static void pem_close(wtap *wth)
 {
     struct pem_priv *priv = (struct pem_priv *)wth->priv;
 
+    g_regex_unref(priv->re_blank_line);
     g_regex_unref(priv->re_pre_eb);
     g_regex_unref(priv->re_post_eb);
+    g_regex_unref(priv->re_base64);
 }
 
 wtap_open_return_val pem_open(wtap *wth, int *err, gchar **err_info)
@@ -174,13 +183,17 @@ wtap_open_return_val pem_open(wtap *wth, int *err, gchar **err_info)
         (GRegexCompileFlags)(G_REGEX_RAW | G_REGEX_NO_AUTO_CAPTURE),
         (GRegexMatchFlags)0, NULL);
 
+    priv->re_base64 = g_regex_new("^[\\sA-Za-z0-9+/]*(=\\s*(=\\s*)?)?$",
+        (GRegexCompileFlags)(G_REGEX_RAW | G_REGEX_NO_AUTO_CAPTURE),
+        (GRegexMatchFlags)0, NULL);
+
     wth->priv = priv;
 
     wth->subtype_read = pem_read;
     wth->subtype_seek_read = pem_seek_read;
     wth->subtype_close = pem_close;
 
-    if (!priv->re_blank_line || !priv->re_pre_eb || !priv->re_post_eb) {
+    if (!priv->re_blank_line || !priv->re_pre_eb || !priv->re_post_eb || !priv->re_base64) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = g_strdup("failed to initialize reader");
         return WTAP_OPEN_ERROR;
