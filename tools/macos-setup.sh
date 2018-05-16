@@ -35,7 +35,7 @@ LZIP_VERSION=1.19
 #
 # CMake is required to do the build.
 #
-CMAKE_VERSION=${CMAKE_VERSION-3.11.0}
+CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
 
 #
 # Ninja isn't required, as make is provided with Xcode, but it is
