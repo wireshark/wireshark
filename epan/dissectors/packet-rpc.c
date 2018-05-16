@@ -1601,12 +1601,6 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 		             tvb_new_subset_remaining(tvb, offset),
 			     pinfo, tree, gssapi_encrypt);
 
-	if (!gssapi_encrypt->gssapi_decrypted_tvb) {
-		/* failed to decrypt the data */
-		offset += length;
-		return offset;
-	}
-
 	offset += length;
 	return offset;
 }
