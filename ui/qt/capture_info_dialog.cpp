@@ -107,6 +107,7 @@ CaptureInfoDialog::CaptureInfoDialog(struct _capture_info *cap_info, struct _cap
 
 CaptureInfoDialog::~CaptureInfoDialog()
 {
+    delete ui;
     cap_info_->ui = NULL;
 }
 
