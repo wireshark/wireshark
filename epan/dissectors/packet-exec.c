@@ -268,12 +268,6 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		if(length != 1 && length <= EXEC_PASSWORD_LEN
 		&& isprint_string(field_stringz)){
 			proto_tree_add_string(exec_tree, hf_exec_password, tvb, offset, length, (gchar*)field_stringz);
-
-			/* Next field we need */
-			hash_info->state = WAIT_FOR_COMMAND;
-		} else {
-			/* Since the data doesn't match this field, it must be data only */
-			hash_info->state = WAIT_FOR_DATA;
 		}
 
 		/* Used if the next field is in the same packet */
