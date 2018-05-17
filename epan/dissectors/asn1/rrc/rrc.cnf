@@ -1123,22 +1123,40 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   guint32 s_rnc_id;
   guint32 s_rnti;
   guint32 u_rnti_value;
+  guint32 original_offset;
+  proto_item *ti;
+  guint32 item_len;
+  proto_tree *sub_tree;
+  gboolean is_new_urnti;
+  int generated_field_hf;
+  original_offset = offset;
 %(DEFAULT_BODY)s
-  gboolean is_new_urnti = hf_index != hf_rrc_u_RNTI; /* hf_rrc_u_RNTI is for current U-RNTI, any other hf is for new U-RNTI */
+
+  /* Reconstructing the U-RNTI from the parsed components */
   s_rnc_id = private_data_get_s_rnc_id(actx);
   s_rnti = private_data_get_s_rnti(actx);
-  if(s_rnc_id != 0 && s_rnti != 0) {
-      u_rnti_value = (s_rnc_id << 20) | s_rnti;
-      /* Distinguishing between new allocated U-RNTIs and previously used ones */
-      if (is_new_urnti) {
-          private_data_set_new_u_rnti(actx, u_rnti_value);
-      }
-      else {
-          private_data_set_current_u_rnti(actx, u_rnti_value);
-      }
-      /* Adding U-RNTI value to it's tree item */
-      proto_item_append_text(actx->created_item,": %%08x", u_rnti_value);
+  u_rnti_value = (s_rnc_id << 20) | s_rnti;
+
+  /* Distinguishing between new allocated U-RNTIs and previously used ones */
+  /* hf_rrc_u_RNTI is for current U-RNTI, any other hf is for new U-RNTI */
+  is_new_urnti = hf_index != hf_rrc_u_RNTI;
+  if (is_new_urnti) {
+    private_data_set_new_u_rnti(actx, u_rnti_value);
+    generated_field_hf = hf_urnti_new;
   }
+  else {
+    private_data_set_current_u_rnti(actx, u_rnti_value);
+    generated_field_hf = hf_urnti_current;
+  }
+
+  /* Adding a "Current U-RNTI" or "New U-RNTI" as generated field */
+  sub_tree = proto_item_get_subtree(actx->created_item);
+  item_len = proto_item_get_len(actx->created_item);
+  ti = proto_tree_add_uint(sub_tree, generated_field_hf, tvb, original_offset/8, item_len, u_rnti_value);
+  PROTO_ITEM_SET_GENERATED(ti);
+  ti = proto_tree_add_uint(sub_tree, hf_urnti, tvb, original_offset/8, item_len, u_rnti_value);
+  PROTO_ITEM_SET_HIDDEN(ti);
+
   private_data_set_s_rnc_id(actx, 0);
   private_data_set_s_rnti(actx, 0);
 
