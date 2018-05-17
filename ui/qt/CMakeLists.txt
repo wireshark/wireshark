@@ -625,11 +625,19 @@ else()
 	endif()
 endif()
 
+if (WIN32)
+add_custom_target(
+	translations
+	DEPENDS
+		${WIRESHARK_QT_QM}
+)
+else()
 add_custom_target(
 	translations ALL
 	DEPENDS
 		${WIRESHARK_QT_QM}
 )
+endif()
 set_target_properties(translations PROPERTIES FOLDER "UI")
 
 set_source_files_properties(
@@ -675,7 +683,9 @@ add_library(qtui STATIC
 	${WIRESHARK_QT_QRC_SRC}
 	wireshark-tap-register.c
 )
+if (NOT WIN32)
 add_dependencies(qtui translations)
+endif()
 set_target_properties(qtui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
