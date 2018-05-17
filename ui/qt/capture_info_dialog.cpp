@@ -127,17 +127,10 @@ void CaptureInfoDialog::updateInfo()
 
 void CaptureInfoDialog::stopCapture()
 {
-    cap_info_->ui = NULL;
 #ifdef HAVE_LIBPCAP
     capture_stop(cap_session_); // ...or we could connect to MainWindow::stopCapture.
 #endif // HAVE_LIBPCAP
 }
-
-void CaptureInfoDialog::on_buttonBox_rejected()
-{
-    cap_info_->ui = NULL;
-}
-
 
 CaptureInfoModel::CaptureInfoModel(struct _capture_info *cap_info, QObject *parent) :
     QAbstractTableModel(parent),

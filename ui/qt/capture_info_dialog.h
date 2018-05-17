@@ -60,7 +60,6 @@ public slots:
 
 private slots:
     void stopCapture();
-    void on_buttonBox_rejected();
 
 private:
     Ui::CaptureInfoDialog *ui;
