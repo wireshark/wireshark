@@ -186,6 +186,7 @@ MOC_WIDGET_HDRS = \
 	widgets/syntax_line_edit.h			\
 	widgets/stock_icon_tool_button.h		\
 	widgets/tabnav_tree_view.h			\
+	widgets/wireshark_file_dialog.h			\
 	widgets/qcustomplot.h
 
 
@@ -541,6 +542,7 @@ WIRESHARK_QT_WIDGET_SRC = \
 	widgets/range_syntax_lineedit.cpp		\
 	widgets/syntax_line_edit.cpp			\
 	widgets/tabnav_tree_view.cpp			\
+	widgets/wireshark_file_dialog.cpp		\
 	widgets/qcustomplot.cpp
 
 # Files that are general manager classes with
