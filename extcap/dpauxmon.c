@@ -120,7 +120,7 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 	return EXIT_SUCCESS;
 }
 
-static int dump_packet(FILE* fp, const char* buf, const ssize_t buflen, guint64 ts_usecs)
+static int dump_packet(FILE* fp, const char* buf, const guint32 buflen, guint64 ts_usecs)
 {
 	guint64 bytes_written = 0;
 	int err;
@@ -328,7 +328,7 @@ static int handle_data(struct nl_cache_ops *unused _U_, struct genl_cmd *cmd _U_
 			 struct genl_info *info, void *arg _U_)
 {
 	unsigned char *data;
-	int data_size;
+	guint32 data_size;
 	guint64 ts = 0;
 	guint8 packet[21] = { 0x00 };
 
