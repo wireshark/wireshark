@@ -136,6 +136,7 @@ HANDLE set_thread_per_monitor_v2_awareness(void) {
 }
 
 void revert_thread_per_monitor_v2_awareness(HANDLE context) {
+    if (! get_proc_addresses()) return;
     SetThreadDpiAwarenessContextP((DPI_AWARENESS_CONTEXT) context);
 }
 #else // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
