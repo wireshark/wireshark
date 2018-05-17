@@ -50,6 +50,7 @@
 #include <wsutil/crc32.h>
 #include <wsutil/pint.h>
 
+#include <epan/proto.h> /* for DISSECTOR_ASSERT. */
 #include <epan/tvbuff.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
@@ -563,6 +564,9 @@ static INT AirPDcapScanForKeys(
 #endif
     AIRPDCAP_DEBUG_TRACE_START("AirPDcapScanForKeys");
 
+    /* Callers provide these guarantees, so let's make them explicit. */
+    DISSECTOR_ASSERT(tot_len <= AIRPDCAP_MAX_CAPLEN);
+
     /* cache offset in the packet data */
     offset = mac_header_len;
 
@@ -682,7 +686,9 @@ static INT AirPDcapScanForKeys(
         guint status, offset_rsne = 0, offset_fte = 0, offset_link = 0, offset_timeout = 0;
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "Authentication: TDLS Action Frame", AIRPDCAP_DEBUG_LEVEL_3);
 
-        /* skip LLC header */
+        /* Skip LLC header, after this we have at least
+         * DOT11DECRYPT_CRYPTED_DATA_MINLEN-10 = 7 bytes in "data[offset]". That
+         * TDLS payload contains a TDLS Action field (802.11-2016 9.6.13) */
         offset+=10;
         tot_len_left-=10;
 
@@ -696,8 +702,6 @@ static INT AirPDcapScanForKeys(
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "Not Response nor confirm", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
-
-        /* check status */
         offset++;
         tot_len_left--;
 
@@ -707,7 +711,7 @@ static INT AirPDcapScanForKeys(
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
         status=pntoh16(data+offset);
-        if (status!=0) {
+        if (status!=0 && status != 85) {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "TDLS setup not successfull", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
@@ -719,20 +723,33 @@ static INT AirPDcapScanForKeys(
         /* search for RSN, Fast BSS Transition, Link Identifier and Timeout Interval IEs */
 
         while(offset < (tot_len - 2)) {
-            if (data[offset] == 48) {
+            guint8 element_id = data[offset];
+            guint8 length = data[offset + 1];
+            guint min_length = length;
+            switch (element_id) {
+            case 48:    /* RSN (802.11-2016 9.4.2.35) */
                 offset_rsne = offset;
-            } else if (data[offset] == 55) {
+                min_length = 1;
+                break;
+            case 55:    /* FTE (802.11-2016 9.4.2.48) */
                 offset_fte = offset;
-            } else if (data[offset] == 56) {
+                /* Plus variable length optional parameter(s) */
+                min_length = 2 + 16 + 32 + 32;
+                break;
+            case 56:    /* Timeout Interval (802.11-2016 9.4.2.49) */
                 offset_timeout = offset;
-            } else if (data[offset] == 101) {
+                min_length = 1 + 4;
+                break;
+            case 101:   /* Link Identifier (802.11-2016 9.4.2.62) */
                 offset_link = offset;
+                min_length = 6 + 6 + 6;
+                break;
             }
 
-            if (tot_len < offset + data[offset + 1] + 2) {
+            if (length < min_length || tot_len < offset + 2 + length) {
                 return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
             }
-            offset += data[offset + 1] + 2;
+            offset += 2 + length;
         }
 
         if (offset_rsne == 0 || offset_fte == 0 ||
