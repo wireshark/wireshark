@@ -605,7 +605,7 @@ set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 
 add_custom_target(
-	translations ALL
+	translations
 	DEPENDS
 		${WIRESHARK_QT_QM}
 )
@@ -654,7 +654,6 @@ add_library(qtui STATIC
 	${WIRESHARK_QT_QRC_SRC}
 	wireshark-tap-register.c
 )
-add_dependencies(qtui translations)
 set_target_properties(qtui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
