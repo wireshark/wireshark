@@ -1293,7 +1293,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     section_header_tree = proto_tree_add_subtree_format(main_tree, tvb, value_guard(shoff),
             shnum * shentsize, ett_elf_section_header, NULL, "Section Header Table [%d entries]", shnum);
 
-    file_size = ehsize + phnum * phentsize + shnum * shentsize;
+    file_size = ehsize + (guint32)phnum * (guint32)phentsize + (guint32)shnum * (guint32)shentsize;
 
     /* Collect infos for blackholes */
     segment_info = (segment_info_t *) wmem_alloc(wmem_packet_scope(), sizeof(segment_info_t) * (shnum + phnum + 3));
@@ -1312,7 +1312,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (shoff) {
         segment_info[area_counter].offset = shoff;
-        segment_info[area_counter].size = shnum * shentsize;
+        segment_info[area_counter].size = (guint32)shnum * (guint32)shentsize;
         segment_info[area_counter].name = "SectionHeader";
         area_counter += 1;
     }
@@ -1436,7 +1436,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         offset += 4;
 
-        length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
+        length = shoff + (guint32)shstrndx * (guint32)shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
             shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
                     tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
