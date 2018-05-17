@@ -27,6 +27,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 
 #define BIT_IS_SET(var, bit) ((var) & (1 << (bit)))
 #define BIT_IS_CLEAR(var, bit) !BIT_IS_SET(var, bit)
@@ -149,6 +150,49 @@ static expert_field ei_dvb_s2_bb_issy_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_npd_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_upl_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_reserved = EI_INIT;
+
+/* Reassembly support */
+
+static reassembly_table dvbs2_reassembly_table;
+
+static void
+dvbs2_defragment_init(void)
+{
+  reassembly_table_init(&dvbs2_reassembly_table,
+                        &addresses_reassembly_table_functions);
+}
+
+static gint ett_dvbs2_fragments = -1;
+static gint ett_dvbs2_fragment  = -1;
+static int hf_dvbs2_fragments = -1;
+static int hf_dvbs2_fragment = -1;
+static int hf_dvbs2_fragment_overlap = -1;
+static int hf_dvbs2_fragment_overlap_conflict = -1;
+static int hf_dvbs2_fragment_multiple_tails = -1;
+static int hf_dvbs2_fragment_too_long_fragment = -1;
+static int hf_dvbs2_fragment_error = -1;
+static int hf_dvbs2_fragment_count = -1;
+static int hf_dvbs2_reassembled_in = -1;
+static int hf_dvbs2_reassembled_length = -1;
+static int hf_dvbs2_reassembled_data = -1;
+
+static const fragment_items dvbs2_frag_items = {
+  &ett_dvbs2_fragment,
+  &ett_dvbs2_fragments,
+  &hf_dvbs2_fragments,
+  &hf_dvbs2_fragment,
+  &hf_dvbs2_fragment_overlap,
+  &hf_dvbs2_fragment_overlap_conflict,
+  &hf_dvbs2_fragment_multiple_tails,
+  &hf_dvbs2_fragment_too_long_fragment,
+  &hf_dvbs2_fragment_error,
+  &hf_dvbs2_fragment_count,
+  &hf_dvbs2_reassembled_in,
+  &hf_dvbs2_reassembled_length,
+  &hf_dvbs2_reassembled_data,
+  "DVB-S2 fragments"
+};
+
 
 static unsigned char _use_low_rolloff_value = 0;
 
@@ -848,6 +892,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
 
     tvbuff_t   *next_tvb, *data_tvb;
     gboolean   dissected = FALSE;
+    gboolean   update_col_info = TRUE;
 
     static int * const gse_header_bitfields[] = {
         &hf_dvb_s2_gse_hdr_start,
@@ -884,20 +929,23 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
         proto_tree_add_bitmask_with_flags(dvb_s2_gse_tree, tvb, cur_off + DVB_S2_GSE_OFFS_HDR, hf_dvb_s2_gse_hdr,
             ett_dvb_s2_gse_hdr, gse_header_bitfields, ENC_BIG_ENDIAN, BMT_NO_TFS);
 
+        /* Get the fragment ID for reassembly */
+        guint8 fragid = tvb_get_guint8(tvb, cur_off + new_off);
         if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_START_POS) || BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
-
+            /* Not a start or end packet, add only the fragid */
             proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_fragid, tvb, cur_off + new_off, 1, ENC_BIG_ENDIAN);
 
             new_off += 1;
         }
         if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_START_POS) && BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
-
+            /* Start packet, add the fragment size */
             proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_totlength, tvb, cur_off + new_off, 2, ENC_BIG_ENDIAN);
             col_append_str(pinfo->cinfo, COL_INFO, "(frag) ");
 
             new_off += 2;
         }
         if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_START_POS)) {
+            /* Start packet, decode the header */
             gse_proto = tvb_get_ntohs(tvb, cur_off + new_off);
 
             proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_proto, tvb, cur_off + new_off, 2, ENC_BIG_ENDIAN);
@@ -950,7 +998,32 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
             data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE);
         }
 
-        data_tvb = tvb_new_subset_length(tvb, cur_off + new_off, data_len);
+        data_tvb = NULL;
+        if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_START_POS) || BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
+            fragment_head *dvbs2_frag_head = NULL;
+            int offset = cur_off + new_off;
+            if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_START_POS)) {
+                offset -= 2; /* re-include GSE type in reassembled data */
+                data_len += 2;
+            }
+            dvbs2_frag_head = fragment_add_seq_next(&dvbs2_reassembly_table, tvb, offset,
+                pinfo, fragid, NULL, data_len, BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_STOP_POS));
+
+            if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
+                dvbs2_frag_head = fragment_end_seq_next(&dvbs2_reassembly_table, pinfo, fragid, NULL);
+
+            data_tvb = process_reassembled_data(tvb, cur_off + new_off, pinfo, "Reassembled DVB-S2",
+                dvbs2_frag_head, &dvbs2_frag_items, &update_col_info, tree);
+        }
+
+        if (data_tvb != NULL) {
+            /* We have a reassembled packet. Extract the gse_proto from it. */
+            gse_proto = tvb_get_ntohs(data_tvb, 0);
+            /* And then remove it from the reassembled data */
+            data_tvb = tvb_new_subset_remaining(data_tvb, 2);
+        } else {
+            data_tvb = tvb_new_subset_length(tvb, cur_off + new_off, data_len);
+        }
 
         switch (gse_proto) {
             case ETHERTYPE_IP:
@@ -1534,13 +1607,61 @@ void proto_register_dvb_s2_modeadapt(void)
                 "CRC", "dvb-s2_gse.crc",
                 FT_UINT32, BASE_HEX, NULL, 0x0,
                 "CRC-32", HFILL}
-        }
+        },
+        { &hf_dvbs2_fragment_overlap,
+            { "Fragment overlap", "dvb-s2_gse.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+                NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+
+        { &hf_dvbs2_fragment_overlap_conflict,
+            { "Conflicting data in fragment overlap", "dvb-s2_gse.fragment.overlap.conflict",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Overlapping fragments contained conflicting data", HFILL }},
+
+        { &hf_dvbs2_fragment_multiple_tails,
+            { "Multiple tail fragments found", "dvb-s2_gse.fragment.multipletails",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Several tails were found when defragmenting the packet", HFILL }},
+
+        { &hf_dvbs2_fragment_too_long_fragment,
+            { "Fragment too long", "dvb-s2_gse.fragment.toolongfragment",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Fragment contained data past end of packet", HFILL }},
+
+        { &hf_dvbs2_fragment_error,
+            { "Defragmentation error", "dvb-s2_gse.fragment.error", FT_FRAMENUM, BASE_NONE,
+                NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+
+        { &hf_dvbs2_fragment_count,
+            { "Fragment count", "dvb-s2_gse.fragment.count", FT_UINT32, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+
+        { &hf_dvbs2_fragment,
+            { "DVB-S2 GSE Fragment", "dvb-s2_gse.fragment", FT_FRAMENUM, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+
+        { &hf_dvbs2_fragments,
+            { "DVB-S2 GSE Fragments", "dvb-s2_gse.fragments", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+
+        { &hf_dvbs2_reassembled_in,
+            { "Reassembled DVB-S2 GSE in frame", "dvb-s2_gse.reassembled_in", FT_FRAMENUM, BASE_NONE,
+                NULL, 0x0, "This GSE packet is reassembled in this frame", HFILL }},
+
+        { &hf_dvbs2_reassembled_length,
+            { "Reassembled DVB-S2 GSE length", "dvb-s2_gse.reassembled.length", FT_UINT32, BASE_DEC,
+                NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+
+        { &hf_dvbs2_reassembled_data,
+            { "Reassembled DVB-S2 GSE data", "dvb-s2_gse.reassembled.data", FT_BYTES, BASE_NONE,
+                NULL, 0x0, "The reassembled payload", HFILL }}
     };
 
     static gint *ett_gse[] = {
         &ett_dvb_s2_gse,
         &ett_dvb_s2_gse_hdr,
-        &ett_dvb_s2_gse_ncr
+        &ett_dvb_s2_gse_ncr,
+        &ett_dvbs2_fragments,
+        &ett_dvbs2_fragment,
     };
 
     static ei_register_info ei[] = {
@@ -1584,6 +1705,8 @@ void proto_register_dvb_s2_modeadapt(void)
         "Enable dissection of GSE data",
         "Check this to enable full protocol dissection of data above GSE Layer",
         &dvb_s2_full_dissection);
+
+    register_init_routine(dvbs2_defragment_init);
 }
 
 void proto_reg_handoff_dvb_s2_modeadapt(void)
