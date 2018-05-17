@@ -8,8 +8,8 @@ compiler:
   - clang
   - gcc
 env:
- - CMAKE_OPTS="-DENABLE_PCAP=ON"
- - CMAKE_OPTS="-DENABLE_PCAP=OFF"
+ - PCAP=ON
+ - PCAP=OFF
 matrix:
   exclude:
   # Exclude gcc build (Need some work) with osx
@@ -38,6 +38,7 @@ before_script:
   - sudo gem install asciidoctor
   - mkdir build
   - cd build
-  - cmake -GNinja ${CMAKE_OPTS} ..
+  - cmake -GNinja -DENABLE_PCAP=${PCAP} ..
 script:
   - ninja
+  - if [ "$PCAP" == "ON" ]; then ninja test-programs && ninja test; fi
