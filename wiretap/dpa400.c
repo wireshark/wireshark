@@ -12,6 +12,7 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
+#include "dpa400.h"
 
 enum {
 	DPA400_DATA = 0x00,
