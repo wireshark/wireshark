@@ -242,7 +242,7 @@ out_fail_cb:
  * netlink callback handlers
  */
 
-int nl_receive_timeout(struct nl_sock* sk, struct sockaddr_nl* nla, unsigned char** buf, struct ucred** creds)
+static int nl_receive_timeout(struct nl_sock* sk, struct sockaddr_nl* nla, unsigned char** buf, struct ucred** creds)
 {
 	struct pollfd fds = {nl_socket_get_fd(sk), POLLIN, 0};
 	int poll_res = poll(&fds, 1, 500);
