@@ -46,6 +46,7 @@ args_ping = None
 have_lua = False
 have_nghttp2 = False
 have_kerberos = False
+have_libgcrypt16 = False
 have_libgcrypt17 = False
 
 test_env = None
@@ -91,10 +92,12 @@ def getTsharkInfo():
     global have_lua
     global have_nghttp2
     global have_kerberos
+    global have_libgcrypt16
     global have_libgcrypt17
     have_lua = False
     have_nghttp2 = False
     have_kerberos = False
+    have_libgcrypt16 = False
     have_libgcrypt17 = False
     try:
         tshark_v_blob = str(subprocess.check_output((cmd_tshark, '--version'), stderr=subprocess.PIPE))
@@ -106,6 +109,7 @@ def getTsharkInfo():
         if re.search('(with +MIT +Kerberos|with +Heimdal +Kerberos)', tshark_v):
             have_kerberos = True
         gcry_m = re.search('with +Gcrypt +([0-9]+\.[0-9]+)', tshark_v)
+        have_libgcrypt16 = gcry_m and float(gcry_m.group(1)) >= 1.6
         have_libgcrypt17 = gcry_m and float(gcry_m.group(1)) >= 1.7
     except:
         pass

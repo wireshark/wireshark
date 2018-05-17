@@ -68,9 +68,12 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
 
     def test_80211_wpa_tdls(self):
         '''WPA decode traffic in a TDLS (Tunneled Direct-Link Setup) session (802.11z)'''
+        if not config.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
         # Included in git sources test/captures/wpa-test-decode-tdls.pcap.gz
         capture_file = os.path.join(config.capture_dir, 'wpa-test-decode-tdls.pcap.gz')
         self.runProcess((config.cmd_tshark,
+                #'-ouat:80211_keys:"wpa-pwd","12345678"',
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file,
                 '-Y', 'icmp',
