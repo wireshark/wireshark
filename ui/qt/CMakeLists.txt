@@ -224,19 +224,11 @@ set(WIRESHARK_QT_HEADERS
 )
 
 if(HAVE_PCAP_REMOTE)
-	set(WIRESHARK_QT_HEADERS
-		${WIRESHARK_QT_HEADERS}
+	list(APPEND WIRESHARK_QT_HEADERS
 		remote_capture_dialog.h
 		remote_settings_dialog.h
 	)
 endif()
-
-file(GLOB EXTRA_QT_HEADERS
-	packet_list_record.h
-	models/sparkline_delegate.h
-	utils/qt_ui_utils.h
-	utils/stock_icon.h
-)
 
 set(WIRESHARK_WIDGET_SRCS
 	widgets/additional_toolbar.cpp
@@ -439,8 +431,7 @@ set(WIRESHARK_QT_SRC
 )
 
 if(HAVE_PCAP_REMOTE)
-	set(WIRESHARK_QT_SRC
-		${WIRESHARK_QT_SRC}
+	list(APPEND WIRESHARK_QT_SRC
 		remote_capture_dialog.cpp
 		remote_settings_dialog.cpp
 	)
@@ -553,8 +544,7 @@ set(WIRESHARK_QT_UI
 )
 
 if(HAVE_PCAP_REMOTE)
-	set(WIRESHARK_QT_UI
-		${WIRESHARK_QT_UI}
+	list(APPEND WIRESHARK_QT_UI
 		remote_capture_dialog.ui
 		remote_settings_dialog.ui
 	)
@@ -592,16 +582,10 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-SET(CMAKE_AUTOMOC TRUE)
+set(CMAKE_AUTOMOC TRUE)
+set(CMAKE_AUTOUIC TRUE)
+set(CMAKE_AUTORCC TRUE)
 
-SET(CMAKE_AUTOUIC TRUE)
-SET(CMAKE_AUTORCC TRUE)
-
-set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
-set(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
-
-# Add .qrc files to library dependencies for AUTORCC.
-set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 
 add_custom_target(
@@ -649,9 +633,11 @@ add_library(qtui STATIC
 	${WIRESHARK_UTILS_SRCS}
 	${WIRESHARK_MODEL_SRCS}
 
+	# For AUTOUIC and AUTORCC.
+	${WIRESHARK_QT_UI}
+	${WIRESHARK_QT_QRC}
+
 	${WIRESHARK_QT_TAP_SRC}
-	${WIRESHARK_QT_UI_SRC}
-	${WIRESHARK_QT_QRC_SRC}
 	wireshark-tap-register.c
 )
 set_target_properties(qtui PROPERTIES
@@ -660,7 +646,7 @@ set_target_properties(qtui PROPERTIES
 	# Ensure .qm files are generated before autogenerating i18n.qrc
 	AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
 )
-if (WIN32)
+if(WIN32)
 	target_link_libraries(qtui "UxTheme.lib")
 endif()
 
