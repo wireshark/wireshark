@@ -40,8 +40,8 @@ static struct option longopts[] = {
 	{ "version",				no_argument,		NULL, OPT_VERSION},
 	{ "maxbytes",				required_argument,	NULL, OPT_MAXBYTES},
 	{ "count",					required_argument,	NULL, OPT_COUNT},
-	{ "random-type",			required_argument, 	NULL, OPT_RANDOM_TYPE},
-	{ "all-random",				required_argument,	NULL, OPT_ALL_RANDOM},
+	{ "random-type",			no_argument,		NULL, OPT_RANDOM_TYPE},
+	{ "all-random",				no_argument,		NULL, OPT_ALL_RANDOM},
 	{ "type",					required_argument,	NULL, OPT_TYPE},
     { 0, 0, 0, 0 }
 };
@@ -90,10 +90,10 @@ static int list_config(char *interface)
 		"{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}\n",
 		inc++);
 	printf("arg {number=%u}{call=--random-type}{display=Random type}"
-		"{type=boolean}{default=false}{tooltip=The packets type is randomly chosen}\n",
+		"{type=boolflag}{default=false}{tooltip=The packets type is randomly chosen}\n",
 		inc++);
 	printf("arg {number=%u}{call=--all-random}{display=All random packets}"
-		"{type=boolean}{default=false}{tooltip=Packet type for each packet is randomly chosen}\n",
+		"{type=boolflag}{default=false}{tooltip=Packet type for each packet is randomly chosen}\n",
 		inc++);
 
 	/* Now the types */
@@ -197,15 +197,11 @@ int main(int argc, char *argv[])
 			break;
 
 		case OPT_RANDOM_TYPE:
-			if (!g_ascii_strcasecmp("true", optarg)) {
-				random_type = TRUE;
-			}
+			random_type = TRUE;
 			break;
 
 		case OPT_ALL_RANDOM:
-			if (!g_ascii_strcasecmp("true", optarg)) {
-				all_random = TRUE;
-			}
+			all_random = TRUE;
 			break;
 
 		case OPT_TYPE:
@@ -229,11 +225,6 @@ int main(int argc, char *argv[])
 	}
 
 	extcap_cmdline_debug(argv, argc);
-
-	if (optind != argc) {
-		g_warning("Invalid option: %s", argv[optind]);
-		goto end;
-	}
 
 	if (extcap_base_handle_interface(extcap_conf)) {
 		ret = EXIT_SUCCESS;
