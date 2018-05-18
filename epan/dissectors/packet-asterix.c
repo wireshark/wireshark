@@ -2832,7 +2832,7 @@ struct FieldPart_s {
     const char *format_string;  /* format string for showing float values */
 };
 
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 typedef struct AsterixField_s AsterixField;
 struct AsterixField_s {
     guint8               type;                    /* type of field */
@@ -2843,7 +2843,7 @@ struct AsterixField_s {
     const FieldPart    **part;                    /* Look declaration and description of FieldPart above. */
     const AsterixField  *field[];                 /* subfields */
 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static void dissect_asterix_packet (tvbuff_t *, packet_info *pinfo, proto_tree *);
 static void dissect_asterix_data_block (tvbuff_t *tvb, packet_info *pinfo, guint, proto_tree *, guint8, gint);
@@ -2909,9 +2909,9 @@ static const FieldPart IXXX_BDS2 = { 4, 1.0, FIELD_PART_UINT, &hf_XXX_BDS2, NULL
 static const FieldPart *IXXX_MB[] = { &IXXX_MB_DATA, &IXXX_BDS1, &IXXX_BDS2, NULL };
 
 /* Spare Item */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField IX_SPARE = { FIXED, 0, 0, 0, &hf_spare, NULL, { NULL } };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 /* *********************** */
 /*      Category 001       */
@@ -3134,7 +3134,7 @@ static const FieldPart *I001_170_PARTS[] = { &I001_170_CON, &I001_170_RAD, &I001
                                               &I001_170_TRE, &IXXX_6bit_spare, &IXXX_FX, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I001_010 = { FIXED, 2, 0, 0, &hf_001_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I001_020 = { FX + UAP, 1, 0, 0, &hf_001_020, I001_020_PARTS, { NULL } };
 static const AsterixField I001_030 = { FX, 1, 0, 0, &hf_001_030, I001_030_PARTS, { NULL } };
@@ -3169,7 +3169,7 @@ static const AsterixField *I001_TRACK_v1_2_uap[] = { &I001_010, &I001_020, &I001
 /* array of two (PLOT, TRACK) is for two different user application profiles (UAPs) */
 static const AsterixField **I001_v1_2[] = { I001_PLOT_v1_2_uap, I001_TRACK_v1_2_uap, NULL };
 static const AsterixField ***I001[] = { I001_v1_2 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I001_versions[] = {
     { "I001_v1_2", "Version 1.2", 0 },
@@ -3235,7 +3235,7 @@ static const FieldPart I002_100_THETAE = { 16, 360.0/65536.0, FIELD_PART_UFLOAT,
 static const FieldPart *I002_100_PARTS[] = { &I002_100_RHOS, &I002_100_RHOE, &I002_100_THETAS, &I002_100_THETAE, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I002_000 = { FIXED, 1, 0, 0, &hf_002_000, I002_000_PARTS, { NULL } };
 static const AsterixField I002_010 = { FIXED, 2, 0, 0, &hf_002_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I002_020 = { FIXED, 1, 0, 0, &hf_002_020, I002_020_PARTS, { NULL } };
@@ -3254,7 +3254,7 @@ static const AsterixField *I002_v1_0_uap[] = { &I002_010, &I002_000, &I002_020, 
                                                &I002_070, &I002_100, &I002_090, &I002_080, &IX_SPARE, &I002_SP,  &I002_RE, NULL };
 static const AsterixField **I002_v1_0[] = { I002_v1_0_uap, NULL };
 static const AsterixField ***I002[] = { I002_v1_0 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I002_versions[] = {
     { "I002_v1_0", "Version 1.0", 0 },
@@ -3779,7 +3779,7 @@ static const FieldPart I004_171_10_CF2 = { 16, 0.25, FIELD_PART_FLOAT, &hf_004_1
 static const FieldPart *I004_171_10_PARTS[] = { &I004_171_10_CF2, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I004_000 = { FIXED, 1, 0, 0, &hf_004_000, I004_000_PARTS, { NULL } };
 static const AsterixField I004_010 = { FIXED, 2, 0, 0, &hf_004_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I004_015 = { REPETITIVE, 2, 1, 0, &hf_004_015, IXXX_SAC_SIC, { NULL } };
@@ -3878,7 +3878,7 @@ static const AsterixField *I004_v1_7_uap[] = { &I004_010, &I004_000, &I004_015, 
                                                &I004_100, &I004_035, &I004_171, &I004_110, &IX_SPARE, &I004_RE,  &I004_SP, NULL };
 static const AsterixField **I004_v1_7[] = { I004_v1_7_uap, NULL };
 static const AsterixField ***I004[] = { I004_v1_7 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I004_versions[] = {
     { "I004_v1_7", "Version 1.7", 0 },
@@ -3998,7 +3998,7 @@ static const FieldPart I008_120_COUNT = { 16, 1.0, FIELD_PART_UINT, &hf_008_120_
 static const FieldPart *I008_120_PARTS[] = { &I008_120_COUNT, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I008_000 = { FIXED, 1, 0, 0, &hf_008_000, I008_000_PARTS, { NULL } };
 static const AsterixField I008_010 = { FIXED, 2, 0, 0, &hf_008_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I008_020 = { FX, 1, 0, 0, &hf_008_020, I008_020_PARTS, { NULL } };
@@ -4018,7 +4018,7 @@ static const AsterixField *I008_v1_1_uap[] = { &I008_010, &I008_000, &I008_020, 
                                                &I008_090, &I008_100, &I008_110, &I008_120, &I008_038, &I008_SP,  &I008_RFS, NULL };
 static const AsterixField **I008_v1_1[] = { I008_v1_1_uap, NULL };
 static const AsterixField ***I008[] = { I008_v1_1 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I008_versions[] = {
     { "I008_v1_1", "Version 1.1", 0 },
@@ -4096,7 +4096,7 @@ static const FieldPart I009_100_VC = { 16, 1.0, FIELD_PART_UINT, &hf_009_100_VC,
 static const FieldPart *I009_100_PARTS[] = { &I009_100_VC, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I009_000 = { FIXED, 1, 0, 0, &hf_009_000, I009_000_PARTS, { NULL } };
 static const AsterixField I009_010 = { FIXED, 2, 0, 0, &hf_009_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I009_020 = { FX, 1, 0, 0, &hf_009_020, I009_020_PARTS, { NULL } };
@@ -4111,7 +4111,7 @@ static const AsterixField *I009_v2_0_uap[] = { &I009_010, &I009_000, &I009_020, 
                                                &I009_090, &I009_100, NULL };
 static const AsterixField **I009_v2_0[] = { I009_v2_0_uap, NULL };
 static const AsterixField ***I009[] = { I009_v2_0 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I009_versions[] = {
     { "I009_v2_0", "Version 2.0", 0 },
@@ -4756,7 +4756,7 @@ static const FieldPart I021_400_RID = { 8, 1.0, FIELD_PART_UINT, &hf_021_400_RID
 static const FieldPart *I021_400_PARTS[] = { &I021_400_RID, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I021_008 = { FIXED, 1, 0, 0, &hf_021_008, I021_008_PARTS, { NULL } };
 static const AsterixField I021_010 = { FIXED, 2, 0, 0, &hf_021_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I021_015 = { FIXED, 1, 0, 0, &hf_021_015, I021_015_PARTS, { NULL } };
@@ -4880,7 +4880,7 @@ static const AsterixField *I021_v2_1_uap[] = { &I021_010, &I021_040_v2_1, &I021_
 static const AsterixField **I021_v2_3[] = { I021_v2_3_uap, NULL };
 static const AsterixField **I021_v2_1[] = { I021_v2_1_uap, NULL };
 static const AsterixField ***I021[] = { I021_v2_3, I021_v2_1 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I021_versions[] = {
     { "I021_v2_3", "Version 2.3", 0 },
@@ -5035,7 +5035,7 @@ static const FieldPart I023_200_RANGE = { 8, 1.0, FIELD_PART_UFLOAT, &hf_023_200
 static const FieldPart *I023_200_PARTS[] = { &I023_200_RANGE, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I023_000 = { FIXED, 1, 0, 0, &hf_023_000, I023_000_PARTS, { NULL } };
 static const AsterixField I023_010 = { FIXED, 2, 0, 0, &hf_023_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I023_015 = { FIXED, 1, 0, 0, &hf_023_015, I023_015_PARTS, { NULL } };
@@ -5052,7 +5052,7 @@ static const AsterixField *I023_v1_2_uap[] = { &I023_010, &I023_000, &I023_015, 
                                                &I023_110, &I023_120, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I023_RE,  &I023_SP, NULL };
 static const AsterixField **I023_v1_2[] = { I023_v1_2_uap, NULL };
 static const AsterixField ***I023[] = { I023_v1_2 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I023_versions[] = {
     { "I023_v1_2", "Version 1.2", 0 },
@@ -5172,7 +5172,7 @@ static const FieldPart I025_200_MID = { 24, 1.0, FIELD_PART_UINT, &hf_025_200_MI
 static const FieldPart *I025_200_PARTS[] = { &I025_200_MID, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I025_000 = { FIXED, 1, 0, 0, &hf_025_000, I025_000_PARTS, { NULL } };
 static const AsterixField I025_010 = { FIXED, 2, 0, 0, &hf_025_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I025_015 = { FIXED, 1, 0, 0, &hf_025_015, I025_015_PARTS, { NULL } };
@@ -5189,7 +5189,7 @@ static const AsterixField *I025_v1_1_uap[] = { &I025_010, &I025_000, &I025_200, 
                                                &I025_105, &I025_120, &I025_140, &I025_SP, NULL };
 static const AsterixField **I025_v1_1[] = { I025_v1_1_uap, NULL };
 static const AsterixField ***I025[] = { I025_v1_1 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I025_versions[] = {
     { "I025_v1_1", "Version 1.1", 0 },
@@ -5410,7 +5410,7 @@ static const FieldPart *I032_500_SID_PARTS[] = { &I032_500_SID, NULL };
 static const FieldPart I032_500_SIA = { 56, 1.0, FIELD_PART_ASCII, &hf_032_500_SIA, NULL };
 static const FieldPart *I032_500_SIA_PARTS[] = { &I032_500_SIA, NULL };
 
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 /*AsterixField Definitions*/
 static const AsterixField I032_010 = { FIXED, 2, 0, 0, &hf_032_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I032_015 = { FIXED, 2, 0, 0, &hf_032_015, I032_015_PARTS, { NULL } };
@@ -5457,7 +5457,7 @@ static const AsterixField *I032_v1_0_uap[] = {  &I032_010, &I032_015, &I032_018,
 static const AsterixField **I032_v1_0[] = { I032_v1_0_uap, NULL };
 static const AsterixField ***I032[] = { I032_v1_0 };
 
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I032_versions[] = {
                 { "I032_v1_0", "Version 1.0", 0 },
@@ -5742,7 +5742,7 @@ static const FieldPart I034_120_LON = { 24, 180.0/8388608.0, FIELD_PART_FLOAT, &
 static const FieldPart *I034_120_PARTS[] = { &I034_120_H, &I034_120_LAT, &I034_120_LON, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I034_000 = { FIXED, 1, 0, 0, &hf_034_000, I034_000_PARTS, { NULL } };
 static const AsterixField I034_010 = { FIXED, 2, 0, 0, &hf_034_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I034_020 = { FIXED, 1, 0, 0, &hf_034_020, I034_020_PARTS, { NULL } };
@@ -5782,7 +5782,7 @@ static const AsterixField *I034_v1_27_uap[] = { &I034_010, &I034_000, &I034_030,
                                                 &I034_070, &I034_100, &I034_110, &I034_120, &I034_090, &I034_RE,  &I034_SP, NULL };
 static const AsterixField **I034_v1_27[] = { I034_v1_27_uap, NULL };
 static const AsterixField ***I034[] = { I034_v1_27 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I034_versions[] = {
     { "I034_v1_27", "Version 1.27", 0 },
@@ -6261,7 +6261,7 @@ static const FieldPart I048_260_ACAS = { 56, 1.0, FIELD_PART_HEX, &hf_048_260_AC
 static const FieldPart *I048_260_PARTS[] = { &I048_260_ACAS, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I048_010 = { FIXED, 2, 0, 0, &hf_048_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I048_020 = { FX, 1, 0, 0, &hf_048_020, I048_020_PARTS, { NULL } };
 static const AsterixField I048_030 = { FX, 1, 0, 0, &hf_048_030, I048_030_PARTS, { NULL } };
@@ -6315,7 +6315,7 @@ static const AsterixField *I048_v1_17_uap[] = { &I048_010, &I048_140, &I048_020,
                                                 &I048_260, &I048_055, &I048_050, &I048_065, &I048_060, &I048_SP,  &I048_RE, NULL };
 static const AsterixField **I048_v1_17[] = { I048_v1_17_uap, NULL };
 static const AsterixField ***I048[] = { I048_v1_17 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I048_versions[] = {
     { "I048_v1_17", "Version 1.17", 0 },
@@ -7665,7 +7665,7 @@ static const FieldPart *I062_RE_STS_PARTS[] = { &I062_RE_STS_FDR, NULL };
 
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I062_010 = { FIXED, 2, 0, 0, &hf_062_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I062_015 = { FIXED, 1, 0, 0, &hf_062_015, I062_015_PARTS, { NULL } };
 static const AsterixField I062_040 = { FIXED, 2, 0, 0, &hf_062_040, IXXX_TN_16_PARTS, { NULL } };
@@ -7985,7 +7985,7 @@ static const AsterixField *I062_v0_17_uap[] = { &I062_010, &I062_015, &I062_070,
 static const AsterixField **I062_v1_16[] = { I062_v1_16_uap, NULL };
 static const AsterixField **I062_v0_17[] = { I062_v0_17_uap, NULL };
 static const AsterixField ***I062[] = { I062_v1_16, I062_v0_17 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I062_versions[] = {
     { "I062_v1_16", "Version 1.16", 0 },
@@ -8119,7 +8119,7 @@ static const FieldPart I063_092_PEB = { 16, 360.0 / 65536.0, FIELD_PART_FLOAT, &
 static const FieldPart *I063_092_PARTS[] = { &I063_092_PEB, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I063_010 = { FIXED, 2, 0, 0, &hf_063_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I063_015 = { FIXED, 1, 0, 0, &hf_063_015, I063_015_PARTS, { NULL } };
 static const AsterixField I063_030 = { FIXED, 3, 0, 0, &hf_063_030, IXXX_TOD, { NULL } };
@@ -8138,7 +8138,7 @@ static const AsterixField *I063_v1_3_uap[] = { &I063_010, &I063_015, &I063_030, 
                                                &I063_081, &I063_090, &I063_091, &I063_092, &IX_SPARE, &I063_RE,  &I063_SP, NULL };
 static const AsterixField **I063_v1_3[] = { I063_v1_3_uap, NULL };
 static const AsterixField ***I063[] = { I063_v1_3 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I063_versions[] = {
     { "I063_v1_3", "Version 1.3", 0 },
@@ -8229,7 +8229,7 @@ static const FieldPart I065_050_REP = { 8, 1.0, FIELD_PART_UINT, &hf_065_050_REP
 static const FieldPart *I065_050_PARTS[] = { &I065_050_REP, NULL };
 
 /* Items */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 static const AsterixField I065_000 = { FIXED, 1, 0, 0, &hf_065_000, I065_000_PARTS, { NULL } };
 static const AsterixField I065_010 = { FIXED, 2, 0, 0, &hf_065_010, IXXX_SAC_SIC, { NULL } };
 static const AsterixField I065_015 = { FIXED, 1, 0, 0, &hf_065_015, I065_015_PARTS, { NULL } };
@@ -8244,7 +8244,7 @@ static const AsterixField *I065_v1_3_uap[] = { &I065_010, &I065_000, &I065_015, 
                                                &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I065_RE,  &I065_SP, NULL };
 static const AsterixField **I065_v1_3[] = { I065_v1_3_uap, NULL };
 static const AsterixField ***I065[] = { I065_v1_3 };
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 static const enum_val_t I065_versions[] = {
     { "I065_v1_3", "Version 1.3", 0 },

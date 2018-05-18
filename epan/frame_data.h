@@ -49,7 +49,7 @@ typedef enum {
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
    number unknown". */
 struct _color_filter; /* Forward */
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 typedef struct _frame_data {
   GSList      *pfd;          /**< Per frame proto data */
   guint32      num;          /**< Frame number */
@@ -81,7 +81,7 @@ typedef struct _frame_data {
   guint32      frame_ref_num; /**< Previous reference frame (0 if this is one) */
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
 } frame_data;
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 /** compare two frame_datas */
 WS_DLL_PUBLIC gint frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);

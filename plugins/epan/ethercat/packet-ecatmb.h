@@ -12,7 +12,7 @@
 #define _PACKET_ECATMAILBOX_H_
 
 #include <ws_diag_control.h>
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 
 /* Ensure the same data layout for all platforms */
 
@@ -467,5 +467,5 @@ typedef struct TETHERCAT_SOE_HEADER
 
 extern void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset);
 
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 #endif /* _PACKET_ECATMAILBOX_H_ */

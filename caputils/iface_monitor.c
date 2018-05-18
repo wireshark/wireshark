@@ -25,13 +25,13 @@
 #include <string.h>
 #include <errno.h>
 
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 #include <netlink/msg.h>
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 #include <netlink/attr.h>
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 #include <netlink/route/link.h>
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
 #ifndef IFF_UP
 /*

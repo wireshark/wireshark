@@ -29,14 +29,14 @@ SPDX-License-Identifier: ISC
 #include <net/if.h>
 #include <sys/ioctl.h>
 
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 #include <netlink/genl/genl.h>
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 #include <netlink/genl/family.h>
 #include <netlink/genl/ctrl.h>
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 #include <netlink/msg.h>
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 #include <netlink/attr.h>
 
 #include <linux/nl80211.h>

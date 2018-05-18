@@ -48,6 +48,18 @@ extern "C" {
     #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
     #define DIAG_ON(x) DIAG_PRAGMA(pop)
   #endif
+
+  /*
+   * Not all versions of Clang understand -Wpedantic.  Clang 4.0 appears
+   * to be the first version to do so.
+   */
+  #if WS_IS_AT_LEAST_CLANG_VERSION(4,0)
+    #define DIAG_OFF_PEDANTIC DIAG_OFF(pedantic)
+    #define DIAG_ON_PEDANTIC DIAG_ON(pedantic)
+  #else
+    #define DIAG_OFF_PEDANTIC
+    #define DIAG_ON_PEDANTIC
+  #endif
 #elif defined(__GNUC__)
   /*
    * GCC, or a compiler (other than Clang) that claims to be GCC.
@@ -65,6 +77,15 @@ extern "C" {
     #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
     #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
     #define DIAG_ON(x) DIAG_PRAGMA(pop)
+
+    /*
+     * We assume GCC 4.8 and later understand -Wpedantic.
+     */
+    #define DIAG_OFF_PEDANTIC DIAG_OFF(pedantic)
+    #define DIAG_ON_PEDANTIC DIAG_ON(pedantic)
+  #else
+    #define DIAG_OFF_PEDANTIC
+    #define DIAG_ON_PEDANTIC
   #endif
 #endif
 
@@ -79,6 +100,8 @@ extern "C" {
    */
   #define DIAG_OFF(x)
   #define DIAG_ON(x)
+  #define DIAG_OFF_PEDANTIC
+  #define DIAG_ON_PEDANTIC
 #endif
 
 /* Use for clang specific pragmas, so we can keep -Wpragmas enabled */

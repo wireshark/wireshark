@@ -14,7 +14,7 @@
 #include <ws_diag_control.h>
 
 /* structure for decoding the header -----------------------------------------*/
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
 typedef union _EtherCATFrameParser
 {
    struct
@@ -25,7 +25,7 @@ typedef union _EtherCATFrameParser
    } v;
    guint16 hdr;
 } EtherCATFrameParserHDR;
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 typedef EtherCATFrameParserHDR *PEtherCATFrameParserHDR;
 
 #define EtherCATFrameParserHDR_Len (int)sizeof(EtherCATFrameParserHDR)

@@ -172,10 +172,10 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
             continue;
         }
 
-DIAG_OFF(pedantic)
+DIAG_OFF_PEDANTIC
         /* Found it, call the plugin registration function. */
         ((plugin_register_func)symbol)();
-DIAG_ON(pedantic)
+DIAG_ON_PEDANTIC
 
         new_plug = (plugin *)g_malloc(sizeof(plugin));
         new_plug->handle = handle;
