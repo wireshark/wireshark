@@ -5109,7 +5109,6 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"uaudp.port4", "UAUDP", "udp.port", 10},
         {"uhd.dissector_port", "UHD", "udp.port", 10},
         {"vrt.dissector_port", "vrt", "udp.port", 10},
-        {"wimaxasncp.udp.wimax_port", "wimaxasncp", "udp.port", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
