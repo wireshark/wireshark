@@ -17,6 +17,21 @@ shopt -s extglob
 AUTOTOOLS=1
 
 #
+# Get the major version of Darwin, so we can check the major macOS
+# version.
+#
+DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
+
+#
+# To make this work on Leopard (rather than working *on* Snow Leopard
+# when building *for* Leopard) will take more work.
+#
+if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
+    echo "This script does not support any versions of macOS before Snow Leopard" 1>&2
+    exit 1
+fi
+
+#
 # Versions of packages to download and install.
 #
 
@@ -35,6 +50,11 @@ LZIP_VERSION=1.19
 #
 # CMake is required to do the build.
 #
+# XXX - some versions fail on Lion due to issues with Lion's libc++, and
+# CMake 3.5 and 3.6 have an annoying "Make sure the combination of SDK
+# and Deployment Target are allowed" check that fails in some cases.
+# Figuring out what version to default to is a work in progress.
+#
 CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
 
 #
@@ -42,7 +62,20 @@ CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
 # claimed to build faster than make.
 # Comment it out if you don't want it.
 #
-NINJA_VERSION=${NINJA_VERSION-1.8.2}
+# The version of curl that comes with Lion fails to download the latest
+# Ninja, with the error
+#
+#    curl: (35) error:1407742E:SSL routines:SSL23_GET_SERVER_HELLO:tlsv1
+#        alert protocol version
+#
+# so we don't try to install it with Lion or earlier; if you want it you
+# will have to download and install it yourself.
+# XXX - what macOS version is the first one with a version of curl that
+# *can* download it?  Sierra's can.
+#
+if [[ $DARWIN_MAJOR_VERSION -gt 10 ]]; then
+    NINJA_VERSION=${NINJA_VERSION-1.8.2}
+fi
 
 #
 # The following libraries and tools are required even to build only TShark.
@@ -133,8 +166,6 @@ if [ "$SPANDSP_VERSION" ]; then
     LIBTIFF_VERSION=3.8.1
 fi
 BCG729_VERSION=1.0.2
-
-DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -2171,15 +2202,6 @@ fi
 #
 CFLAGS="-g -O2"
 CXXFLAGS="-g -O2"
-
-#
-# To make this work on Leopard (rather than working *on* Snow Leopard
-# when building *for* Leopard) will take more work.
-#
-if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
-    echo "This script does not support any versions of macOS before Snow Leopard" 1>&2
-    exit 1
-fi
 
 # if no make options are present, set default options
 if [ -z "$MAKE_BUILD_OPTS" ] ; then
