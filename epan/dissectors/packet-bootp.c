@@ -1045,8 +1045,8 @@ static const enum_val_t pkt_ccc_protocol_versions[] = {
 	{ NULL, NULL, 0 }
 };
 
-#define PACKETCABLE_BSDP  "AAPLBSDPC"
-#define PACKETCABLE_BSDPD "AAPLBSDPC/"
+#define APPLE_BSDP_SERVER "AAPLBSDPC"
+#define APPLE_BSDP_CLIENT "AAPLBSDPC/"
 
 static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
 static guint pkt_ccc_option = 122;
@@ -4303,14 +4303,14 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 }
 
 static gboolean
-dissect_packetcable_bsdpd_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int offset = 0;
 	bootp_option_data_t *option_data = (bootp_option_data_t*)data;
 	proto_tree* vendor_tree;
 
 	if ((option_data->vendor_class_id == NULL) ||
-		(strncmp((const gchar*)option_data->vendor_class_id, PACKETCABLE_BSDP, strlen(PACKETCABLE_BSDP)) != 0))
+		(strncmp((const gchar*)option_data->vendor_class_id, APPLE_BSDP_SERVER, strlen(APPLE_BSDP_SERVER)) != 0))
 		return FALSE;
 
 	/* Apple BSDP */
@@ -5920,14 +5920,14 @@ dissect_packetcable_cm_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 static gboolean
-dissect_packetcable_bsdpd_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_ )
+dissect_apple_bsdp_vendor_id_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	int vendor_id_len = (int)strlen(PACKETCABLE_BSDPD);
+	int vendor_id_len = (int)strlen(APPLE_BSDP_CLIENT);
 	if ((int)tvb_reported_length(tvb) < vendor_id_len) {
 		return FALSE;
 	}
 
-	if (tvb_memeql(tvb, 0, (const guint8*)PACKETCABLE_BSDPD, vendor_id_len) == 0 ) {
+	if (tvb_memeql(tvb, 0, (const guint8*)APPLE_BSDP_CLIENT, vendor_id_len) == 0) {
 		proto_tree_add_item(tree, hf_bootp_option_vendor_class_data, tvb, vendor_id_len, tvb_reported_length_remaining(tvb, vendor_id_len), ENC_ASCII|ENC_NA);
 		return TRUE;
 	}
@@ -9414,7 +9414,7 @@ proto_reg_handoff_bootp(void)
 	/* Create heuristic dissection for BOOTP vendor class id */
 	heur_dissector_add( "bootp.vendor_id", dissect_packetcable_mta_vendor_id_heur, "PacketCable MTA", "packetcable_mta_bootp", proto_bootp, HEURISTIC_ENABLE );
 	heur_dissector_add( "bootp.vendor_id", dissect_packetcable_cm_vendor_id_heur, "PacketCable CM", "packetcable_cm_bootp", proto_bootp, HEURISTIC_ENABLE );
-	heur_dissector_add( "bootp.vendor_id", dissect_packetcable_bsdpd_vendor_id_heur, "PacketCable BSDPD", "packetcable_bsdpd_bootp", proto_bootp, HEURISTIC_ENABLE );
+	heur_dissector_add( "bootp.vendor_id", dissect_apple_bsdp_vendor_id_heur, "Apple BSDP", "apple_bsdp_bootp", proto_bootp, HEURISTIC_ENABLE );
 
 	/* Create heuristic dissection for BOOTP vendor specific information */
 
@@ -9428,7 +9428,7 @@ proto_reg_handoff_bootp(void)
 	heur_dissector_add( "bootp.vendor_info", dissect_cablelabs_vendor_info_heur, "CableLabs", "cablelabs_bootp", proto_bootp, HEURISTIC_ENABLE );
 	heur_dissector_add( "bootp.vendor_info", dissect_aruba_ap_vendor_info_heur, ARUBA_AP, "aruba_ap_bootp", proto_bootp, HEURISTIC_ENABLE );
 	heur_dissector_add( "bootp.vendor_info", dissect_aruba_instant_ap_vendor_info_heur, ARUBA_INSTANT_AP, "aruba_instant_ap_bootp", proto_bootp, HEURISTIC_ENABLE );
-	heur_dissector_add( "bootp.vendor_info", dissect_packetcable_bsdpd_vendor_info_heur, "PacketCable BSDPD", "packetcable_bsdpd_info_bootp", proto_bootp, HEURISTIC_ENABLE );
+	heur_dissector_add( "bootp.vendor_info", dissect_apple_bsdp_vendor_info_heur, "Apple BSDP", "apple_bsdp_info_bootp", proto_bootp, HEURISTIC_ENABLE );
 
 	/* Create dissection function handles for BOOTP Enterprise dissection */
 	dissector_add_uint("bootp.enterprise", 4491, create_dissector_handle( dissect_vendor_cl_suboption, -1 ));
