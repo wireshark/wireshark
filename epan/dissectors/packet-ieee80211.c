@@ -491,7 +491,7 @@ typedef struct mimo_control
 #define TAG_MCCAOP_ADVERTISEMENT_OV  174
 #define TAG_QUIET_PERIOD_REQ         175  /* IEEE Std 802.11ad */
 #define TAG_QUIET_PERIOD_RES         177  /* IEEE Std 802.11ad */
-#define TAG_ECPAC_POLICY             182  /* IEEE Std 802.11ad */
+#define TAG_ECAPC_POLICY             182  /* IEEE Std 802.11ad */
 #define TAG_CLUSTER_TIME_OFFSET      183  /* IEEE Std 802.11ad */
 #define TAG_ANTENNA_SECTOR_ID        190  /* IEEE Std 802.11ad */
 #define TAG_VHT_CAPABILITY           191  /* IEEE Std 802.11ac/D3.1 */
@@ -659,7 +659,7 @@ static const value_string tag_num_vals[] = {
   { TAG_MCCAOP_ADVERTISEMENT_OV,              "MCCAOP Advertisement Overview" },
   { TAG_QUIET_PERIOD_REQ,                     "Quiet Period Request" },
   { TAG_QUIET_PERIOD_RES,                     "Quiet Period Response" },
-  { TAG_ECPAC_POLICY,                         "ECPAC Policy" },
+  { TAG_ECAPC_POLICY,                         "ECAPC Policy" },
   { TAG_CLUSTER_TIME_OFFSET,                  "Cluster Time Offset" },
   { TAG_ANTENNA_SECTOR_ID,                    "Antenna Sector ID" },
   { TAG_VHT_CAPABILITY,                       "VHT Capabilities" },
@@ -24083,22 +24083,22 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dmg_params_cbap_only,
-     {"CBAP Only", "wlan.dmp_params.cbap_only",
+     {"CBAP Only", "wlan.dmg_params.cbap_only",
       FT_BOOLEAN, 8, NULL, 0x04,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dmg_params_cbap_src,
-     {"CBAP Source", "wlan.dmp_params.cbap_src",
+     {"CBAP Source", "wlan.dmg_params.cbap_src",
       FT_BOOLEAN, 8, NULL, 0x08,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dmg_params_privacy,
-     {"DMG Privacy", "wlan.dmp_params.privacy",
+     {"DMG Privacy", "wlan.dmg_params.privacy",
       FT_BOOLEAN, 8, NULL, 0x10,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dmg_params_policy,
-     {"ECPAC Policy Enforced", "wlan.dmp_params.policy",
+     {"ECAPC Policy Enforced", "wlan.dmg_params.policy",
       FT_BOOLEAN, 8, NULL, 0x20,
       NULL, HFILL }},
 
