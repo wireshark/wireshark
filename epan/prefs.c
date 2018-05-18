@@ -1717,24 +1717,24 @@ gboolean prefs_set_color_value(pref_t *pref, color_t value, pref_source_t source
     switch (source)
     {
     case pref_default:
-        if ((pref->default_val.color.red != value.red) &&
-            (pref->default_val.color.green != value.green) &&
+        if ((pref->default_val.color.red != value.red) ||
+            (pref->default_val.color.green != value.green) ||
             (pref->default_val.color.blue != value.blue)) {
             changed = TRUE;
             pref->default_val.color = value;
         }
         break;
     case pref_stashed:
-        if ((pref->stashed_val.color.red != value.red) &&
-            (pref->stashed_val.color.green != value.green) &&
+        if ((pref->stashed_val.color.red != value.red) ||
+            (pref->stashed_val.color.green != value.green) ||
             (pref->stashed_val.color.blue != value.blue)) {
             changed = TRUE;
             pref->stashed_val.color = value;
         }
         break;
     case pref_current:
-        if ((pref->varp.colorp->red != value.red) &&
-            (pref->varp.colorp->green != value.green) &&
+        if ((pref->varp.colorp->red != value.red) ||
+            (pref->varp.colorp->green != value.green) ||
             (pref->varp.colorp->blue != value.blue)) {
             changed = TRUE;
             *pref->varp.colorp = value;
