@@ -73,7 +73,7 @@ CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
 # XXX - what macOS version is the first one with a version of curl that
 # *can* download it?  Sierra's can.
 #
-if [[ $DARWIN_MAJOR_VERSION -gt 10 ]]; then
+if [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
     NINJA_VERSION=${NINJA_VERSION-1.8.2}
 fi
 
