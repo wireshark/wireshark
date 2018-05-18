@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-per.h"
 #include "packet-ber.h"
@@ -38,6 +39,14 @@
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
 
+typedef struct {
+    guint32     ProcedureCode;
+    guint32     ProtocolIE_ID;
+    guint32     ddMode;
+    const char *ProcedureID;
+    const char *obj_id;
+} rnsap_private_data_t;
+
 static dissector_handle_t ranap_handle = NULL;
 static dissector_handle_t rrc_dl_ccch_handle = NULL;
 static dissector_handle_t rrc_ul_ccch_handle = NULL;
@@ -51,13 +60,6 @@ static int proto_rnsap = -1;
 static int ett_rnsap = -1;
 
 #include "packet-rnsap-ett.c"
-
-/* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ddMode;
-static const gchar *ProcedureID;
-static const char *obj_id = NULL;
 
 
 /* Dissector tables */
@@ -76,39 +78,59 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
+static rnsap_private_data_t *
+rnsap_get_private_data(packet_info *pinfo)
+{
+
+    rnsap_private_data_t *pdata = (rnsap_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_rnsap, 0);
+    if (!pdata) {
+        pdata = wmem_new0(pinfo->pool, rnsap_private_data_t);
+        pdata->ProcedureCode = 0xFFFF;
+        pdata->ddMode = 0xFFFF;
+        p_add_proto_data(pinfo->pool, pinfo, proto_rnsap, 0, pdata);
+    }
+    return pdata;
+}
+
 #include "packet-rnsap-fn.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(rnsap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  return (dissector_try_uint(rnsap_ies_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(rnsap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  return (dissector_try_uint(rnsap_extension_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (call_ber_oid_callback(obj_id, tvb, 0, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  return (call_ber_oid_callback(pdata->obj_id, tvb, 0, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(rnsap_proc_imsg_dissector_table, ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  if (!pdata->ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_imsg_dissector_table, pdata->ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(rnsap_proc_sout_dissector_table, ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  if (!pdata->ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_sout_dissector_table, pdata->ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(rnsap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  if (!pdata->ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_uout_dissector_table, pdata->ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int
@@ -123,6 +145,9 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	/* create the rnsap protocol tree */
 	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, ENC_NA);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
+
+	/* remove any rnsap_private_data_t state from previous PDUs in this packet. */
+	p_remove_proto_data(pinfo->pool, pinfo, proto_rnsap, 0);
 
 	return dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree, data);
 }

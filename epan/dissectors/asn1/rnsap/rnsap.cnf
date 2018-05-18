@@ -69,7 +69,7 @@ ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 #.END
 
-#.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
+#.FN_PARS ProtocolIE-ID  VAL_PTR = &rnsap_get_private_data(actx->pinfo)->ProtocolIE_ID
 
 #.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
@@ -77,24 +77,25 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS PrivateIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_PrivateIEFieldValue
 
-#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_HDR ProcedureCode
+  rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
+#.END
+#.FN_PARS  ProcedureCode  VAL_PTR = &pdata->ProcedureCode
 #.FN_FTR ProcedureCode
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
+                val_to_str_ext_const(pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext,
                            "unknown message"));
 #.END
-#.FN_PARS ProcedureID/ddMode VAL_PTR = &ddMode
+#.FN_PARS ProcedureID/ddMode VAL_PTR = &rnsap_get_private_data(actx->pinfo)->ddMode
 
 #.FN_HDR ProcedureID
-  ProcedureCode = 0xFFFF;
-  ddMode = 0xFFFF;
-  ProcedureID = NULL;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
 #.END
 
 #.FN_FTR ProcedureID
-  ProcedureID = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
-                                 val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
-                                 val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
+  pdata->ProcedureID = wmem_strdup_printf(actx->pinfo->pool, "%s/%s",
+                                 val_to_str_ext(pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
+                                 val_to_str(pdata->ddMode, rnsap_DdMode_vals, "unknown(%u)"));
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
@@ -107,13 +108,14 @@ ProtocolIE-ContainerPairList
 #.FN_BODY L3-Information  VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
+	rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
 
 %(DEFAULT_BODY)s
 
 	if (!parameter_tvb)
 		return offset;
 
-	switch (ProcedureCode) {
+	switch (pdata->ProcedureCode) {
 
 	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
 		/* TODO: seperate into Iur and Iur-g cases: */
@@ -133,7 +135,7 @@ ProtocolIE-ContainerPairList
 
 #.END
 
-#.FN_PARS PrivateIE-ID/global FN_VARIANT = _str  VAL_PTR = &obj_id
+#.FN_PARS PrivateIE-ID/global FN_VARIANT = _str  VAL_PTR = &rnsap_get_private_data(actx->pinfo)->obj_id
 
 #.FN_BODY RANAP-RelocationInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
