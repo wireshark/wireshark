@@ -439,7 +439,12 @@ const mmdb_lookup_t *
 maxmind_db_lookup_ipv4(guint32 addr) {
     mmdb_lookup_t *result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(addr));
 
-    // XXX Should we call maxmind_db_lookup_process first?
+    if (!result) {
+        // Try again, mainly so that we empty our pipe buffers.
+        maxmind_db_lookup_process();
+        result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(addr));
+    }
+
     if (!result) {
         if (ws_pipe_valid(&mmdbr_pipe)) {
             char addr_str[WS_INET_ADDRSTRLEN + 1];
@@ -464,7 +469,12 @@ const mmdb_lookup_t *
 maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
     mmdb_lookup_t * result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
 
-    // XXX Should we call maxmind_db_lookup_process first?
+    if (!result) {
+        // Try again, mainly so that we empty our pipe buffers.
+        maxmind_db_lookup_process();
+        result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
+    }
+
     if (!result) {
         if (ws_pipe_valid(&mmdbr_pipe)) {
             char addr_str[WS_INET6_ADDRSTRLEN + 1];
