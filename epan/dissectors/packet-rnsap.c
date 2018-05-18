@@ -26,6 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-per.h"
 #include "packet-ber.h"
@@ -1263,10 +1264,18 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
-#line 37 "./asn1/rnsap/packet-rnsap-template.c"
+#line 38 "./asn1/rnsap/packet-rnsap-template.c"
 
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
+
+typedef struct {
+    guint32     ProcedureCode;
+    guint32     ProtocolIE_ID;
+    guint32     ddMode;
+    const char *ProcedureID;
+    const char *obj_id;
+} rnsap_private_data_t;
 
 static dissector_handle_t ranap_handle = NULL;
 static dissector_handle_t rrc_dl_ccch_handle = NULL;
@@ -4384,7 +4393,7 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 49 "./asn1/rnsap/packet-rnsap-template.c"
+#line 58 "./asn1/rnsap/packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -5821,14 +5830,7 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 54 "./asn1/rnsap/packet-rnsap-template.c"
-
-/* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ddMode;
-static const gchar *ProcedureID;
-static const char *obj_id = NULL;
+#line 63 "./asn1/rnsap/packet-rnsap-template.c"
 
 
 /* Dissector tables */
@@ -5846,6 +5848,20 @@ static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+
+static rnsap_private_data_t *
+rnsap_get_private_data(packet_info *pinfo)
+{
+
+    rnsap_private_data_t *pdata = (rnsap_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_rnsap, 0);
+    if (!pdata) {
+        pdata = wmem_new0(pinfo->pool, rnsap_private_data_t);
+        pdata->ProcedureCode = 0xFFFF;
+        pdata->ddMode = 0xFFFF;
+        p_add_proto_data(pinfo->pool, pinfo, proto_rnsap, 0, pdata);
+    }
+    return pdata;
+}
 
 
 /*--- Included file: packet-rnsap-fn.c ---*/
@@ -5881,7 +5897,7 @@ dissect_rnsap_INTEGER_0_maxPrivateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_rnsap_T_global(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &obj_id);
+  offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &rnsap_get_private_data(actx->pinfo)->obj_id);
 
   return offset;
 }
@@ -5980,12 +5996,15 @@ static value_string_ext rnsap_ProcedureCode_vals_ext = VALUE_STRING_EXT_INIT(rns
 
 static int
 dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, &ProcedureCode, FALSE);
+#line 81 "./asn1/rnsap/rnsap.cnf"
+  rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
 
-#line 82 "./asn1/rnsap/rnsap.cnf"
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, &pdata->ProcedureCode, FALSE);
+
+#line 85 "./asn1/rnsap/rnsap.cnf"
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
+                val_to_str_ext_const(pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext,
                            "unknown message"));
 
   return offset;
@@ -6003,7 +6022,7 @@ static const value_string rnsap_DdMode_vals[] = {
 static int
 dissect_rnsap_DdMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, &ddMode, TRUE, 0, NULL);
+                                     3, &rnsap_get_private_data(actx->pinfo)->ddMode, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6017,18 +6036,16 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 89 "./asn1/rnsap/rnsap.cnf"
-  ProcedureCode = 0xFFFF;
-  ddMode = 0xFFFF;
-  ProcedureID = NULL;
+#line 92 "./asn1/rnsap/rnsap.cnf"
+  rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 95 "./asn1/rnsap/rnsap.cnf"
-  ProcedureID = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
-                                 val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
-                                 val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
+#line 96 "./asn1/rnsap/rnsap.cnf"
+  pdata->ProcedureID = wmem_strdup_printf(actx->pinfo->pool, "%s/%s",
+                                 val_to_str_ext(pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
+                                 val_to_str(pdata->ddMode, rnsap_DdMode_vals, "unknown(%u)"));
 
   return offset;
 }
@@ -7044,7 +7061,7 @@ static value_string_ext rnsap_ProtocolIE_ID_vals_ext = VALUE_STRING_EXT_INIT(rns
 static int
 dissect_rnsap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
+                                                            0U, maxProtocolIEs, &rnsap_get_private_data(actx->pinfo)->ProtocolIE_ID, FALSE);
 
   return offset;
 }
@@ -8772,9 +8789,10 @@ dissect_rnsap_Additional_EDCH_Setup_Info(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "./asn1/rnsap/rnsap.cnf"
+#line 109 "./asn1/rnsap/rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
+	rnsap_private_data_t *pdata = rnsap_get_private_data(actx->pinfo);
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      NO_BOUND, NO_BOUND, FALSE, &parameter_tvb, NULL);
@@ -8783,7 +8801,7 @@ dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 	if (!parameter_tvb)
 		return offset;
 
-	switch (ProcedureCode) {
+	switch (pdata->ProcedureCode) {
 
 	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
 		/* TODO: seperate into Iur and Iur-g cases: */
@@ -28486,7 +28504,7 @@ dissect_rnsap_RANAP_EnhancedRelocationInformationResponse(tvbuff_t *tvb _U_, int
 
 static int
 dissect_rnsap_RANAP_RelocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "./asn1/rnsap/rnsap.cnf"
+#line 141 "./asn1/rnsap/rnsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -49033,39 +49051,45 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 80 "./asn1/rnsap/packet-rnsap-template.c"
+#line 96 "./asn1/rnsap/packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(rnsap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  return (dissector_try_uint(rnsap_ies_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(rnsap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  return (dissector_try_uint(rnsap_extension_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (call_ber_oid_callback(obj_id, tvb, 0, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  return (call_ber_oid_callback(pdata->obj_id, tvb, 0, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(rnsap_proc_imsg_dissector_table, ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  if (!pdata->ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_imsg_dissector_table, pdata->ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(rnsap_proc_sout_dissector_table, ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  if (!pdata->ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_sout_dissector_table, pdata->ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(rnsap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+  rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
+  if (!pdata->ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_uout_dissector_table, pdata->ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int
@@ -49080,6 +49104,9 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	/* create the rnsap protocol tree */
 	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, ENC_NA);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
+
+	/* remove any rnsap_private_data_t state from previous PDUs in this packet. */
+	p_remove_proto_data(pinfo->pool, pinfo, proto_rnsap, 0);
 
 	return dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree, data);
 }
@@ -61511,7 +61538,7 @@ void proto_register_rnsap(void) {
         "Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 137 "./asn1/rnsap/packet-rnsap-template.c"
+#line 162 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -62949,7 +62976,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 143 "./asn1/rnsap/packet-rnsap-template.c"
+#line 168 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -63910,7 +63937,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 178 "./asn1/rnsap/packet-rnsap-template.c"
+#line 203 "./asn1/rnsap/packet-rnsap-template.c"
 }
 
 
