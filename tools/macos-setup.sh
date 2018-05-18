@@ -50,12 +50,19 @@ LZIP_VERSION=1.19
 #
 # CMake is required to do the build.
 #
-# XXX - some versions fail on Lion due to issues with Lion's libc++, and
-# CMake 3.5 and 3.6 have an annoying "Make sure the combination of SDK
-# and Deployment Target are allowed" check that fails in some cases.
-# Figuring out what version to default to is a work in progress.
+# Sigh.  CMake versions 3.7 and later fail on Lion due to issues with
+# Lion's libc++, and CMake 3.5 and 3.6 have an annoying "Make sure the
+# combination of SDK and Deployment Target are allowed" check that fails
+# in some cases.
 #
-CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
+# So if you're on Lion, we choose version 3.5.2, otherwise we choose
+# version 3.7.2.
+#
+if [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
+    CMAKE_VERSION=${CMAKE_VERSION-3.7.2}
+else
+    CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
+fi
 
 #
 # Ninja isn't required, as make is provided with Xcode, but it is
