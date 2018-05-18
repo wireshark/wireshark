@@ -2,6 +2,10 @@
  * Routines for EtherNet/IP (Industrial Protocol) dissection
  * EtherNet/IP Home: www.odva.org
  *
+ * This dissector includes items from:
+ *    CIP Volume 2: EtherNet/IP Adaptation of CIP
+ *    CIP Volume 8: CIP Security
+ *
  * Copyright 2003-2004
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
@@ -2172,8 +2176,8 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
             packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree,
             proto_item *enip_item, int offset, guint32 ifacehndl)
 {
-   proto_item            *temp_item, *count_item, *type_item;
-   proto_tree            *temp_tree, *count_tree, *item_tree, *sockaddr_tree;
+   proto_item            *count_item, *type_item;
+   proto_tree            *count_tree, *item_tree, *sockaddr_tree;
    int                    item_count, item_length, item, io_length;
    unsigned char          name_length;
    tvbuff_t              *next_tvb;
@@ -2586,16 +2590,17 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                break;
 
             case LIST_SERVICES_RESP:
-
+            {
                /* Encapsulation version */
                proto_tree_add_item( item_tree, hf_enip_encapver, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
 
                /* Capability flags */
-               temp_item = proto_tree_add_item( item_tree, hf_enip_lsr_capaflags, tvb, offset+8, 2, ENC_LITTLE_ENDIAN );
-               temp_tree = proto_item_add_subtree( temp_item, ett_lsrcf );
-
-               proto_tree_add_item( temp_tree, hf_enip_lsr_tcp, tvb, offset+8, 2, ENC_LITTLE_ENDIAN );
-               proto_tree_add_item( temp_tree, hf_enip_lsr_udp, tvb, offset+8, 2, ENC_LITTLE_ENDIAN );
+               static const int* capability_bits[] = {
+                  &hf_enip_lsr_tcp,
+                  &hf_enip_lsr_udp,
+                  NULL
+               };
+               proto_tree_add_bitmask(item_tree, tvb, offset + 8, hf_enip_lsr_capaflags, ett_lsrcf, capability_bits, ENC_LITTLE_ENDIAN);
 
                /* Name of service */
                proto_tree_add_item( item_tree, hf_enip_lsr_servicename, tvb, offset+10, 16, ENC_ASCII|ENC_NA );
@@ -2605,7 +2610,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                     tvb_format_stringzpad(tvb, offset+10, 16) );
                break;
 
-
+               }
             default:
 
                proto_tree_add_item(item_tree, hf_enip_cpf_data, tvb, offset+6, item_length, ENC_NA);
@@ -2739,40 +2744,37 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    encap_data_length = tvb_get_letohs( tvb, 2 );
    enip_tree = NULL;
 
-   if (tree) {
-      /* create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, ENC_NA );
+   /* create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, ENC_NA );
 
-      enip_tree = proto_item_add_subtree(ti, ett_enip);
+   enip_tree = proto_item_add_subtree(ti, ett_enip);
 
-      /* Add encapsulation header tree */
-      header_tree = proto_tree_add_subtree( enip_tree, tvb, 0, 24, ett_enip, NULL, "Encapsulation Header");
+   /* Add encapsulation header tree */
+   header_tree = proto_tree_add_subtree( enip_tree, tvb, 0, 24, ett_enip, NULL, "Encapsulation Header");
 
-      /* Add EtherNet/IP encapsulation header */
-      proto_tree_add_item( header_tree, hf_enip_command, tvb, 0, 2, ENC_LITTLE_ENDIAN );
+   /* Add EtherNet/IP encapsulation header */
+   proto_tree_add_item( header_tree, hf_enip_command, tvb, 0, 2, ENC_LITTLE_ENDIAN );
 
-      encap_data_length = tvb_get_letohs( tvb, 2 );
-      proto_tree_add_item( header_tree, hf_enip_length,       tvb,  2, 2, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( header_tree, hf_enip_session,      tvb,  4, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( header_tree, hf_enip_status,       tvb,  8, 4, ENC_LITTLE_ENDIAN );
-      if ((encap_cmd == LIST_IDENTITY) &&
-          /* Length of 0 probably indicates a request */
-          ((encap_data_length == 0) || (packet_type == ENIP_REQUEST_PACKET)))
-      {
-          proto_tree_add_item( header_tree, hf_enip_listid_delay, tvb, 12, 2, ENC_LITTLE_ENDIAN );
-          proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 14, 6, ENC_NA );
-      }
-      else
-      {
-          proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_NA );
-      }
-      proto_tree_add_item( header_tree, hf_enip_options,      tvb, 20, 4, ENC_LITTLE_ENDIAN );
+   encap_data_length = tvb_get_letohs( tvb, 2 );
+   proto_tree_add_item( header_tree, hf_enip_length, tvb, 2, 2, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item( header_tree, hf_enip_session, tvb, 4, 4, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item( header_tree, hf_enip_status, tvb, 8, 4, ENC_LITTLE_ENDIAN );
+   if ((encap_cmd == LIST_IDENTITY) &&
+      /* Length of 0 probably indicates a request */
+      ((encap_data_length == 0) || (packet_type == ENIP_REQUEST_PACKET)))
+   {
+      proto_tree_add_item( header_tree, hf_enip_listid_delay, tvb, 12, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 14, 6, ENC_NA );
+   }
+   else
+   {
+      proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_NA );
+   }
+   proto_tree_add_item( header_tree, hf_enip_options, tvb, 20, 4, ENC_LITTLE_ENDIAN );
 
-      /* Append session and command to the protocol tree */
-      proto_item_append_text( ti, ", Session: 0x%08X, %s", tvb_get_letohl( tvb, 4 ),
-         val_to_str( encap_cmd, encap_cmd_vals, "Unknown Command (0x%04x)" ) );
-
-   } /* end of tree */
+   /* Append session and command to the protocol tree */
+   proto_item_append_text( ti, ", Session: 0x%08X, %s", tvb_get_letohl( tvb, 4 ),
+      val_to_str( encap_cmd, encap_cmd_vals, "Unknown Command (0x%04x)" ) );
 
    /*
    ** For some commands we want to add some info to the info column
@@ -2963,16 +2965,15 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    else if ( dlr_frametype == DLR_FT_LINK_STAT )
    {
       /* Link_Status/Neighbor_Status */
-      proto_item* flag_item;
-      proto_tree* flag_tree;
+      static const int* bits[] = {
+         &hf_dlr_lnknbrstatus_port1,
+         &hf_dlr_lnknbrstatus_port2,
+         &hf_dlr_lnknbrstatus_reserved,
+         &hf_dlr_lnknbrstatus_frame_type,
+         NULL
+      };
 
-      flag_item = proto_tree_add_item( dlr_tree, hf_dlr_lnknbrstatus,   tvb, DLR_LNS_SOURCE_PORT,  1, ENC_BIG_ENDIAN );
-      flag_tree = proto_item_add_subtree(flag_item, ett_dlr_lnknbrstatus_flags);
-
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_port1,      tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_port2,      tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_reserved,   tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_frame_type, tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_bitmask(dlr_tree, tvb, DLR_LNS_SOURCE_PORT, hf_dlr_lnknbrstatus, ett_dlr_lnknbrstatus_flags, bits, ENC_LITTLE_ENDIAN);
 
       proto_tree_add_item( dlr_tree, hf_dlr_lnknbrreserved, tvb, DLR_LNS_RESERVED,    29, ENC_NA );
    }

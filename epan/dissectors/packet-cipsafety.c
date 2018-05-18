@@ -736,10 +736,9 @@ dissect_cip_class_s_supervisor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 static int dissect_s_supervisor_exception_detail(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int hf_size, int hf_data)
 {
-   int size;
+   guint32 size;
+   proto_tree_add_item_ret_uint(tree, hf_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 
-   proto_tree_add_item(tree, hf_size, tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_guint8( tvb, offset);
    proto_tree_add_item(tree, hf_data, tvb, offset+1, size, ENC_NA );
    proto_item_set_len(item, size+1);
 
@@ -934,19 +933,19 @@ static int dissect_s_supervisor_proposed_tunid(packet_info *pinfo, proto_tree *t
 static int dissect_s_validator_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                     int offset, int total_len)
 {
-   proto_item *pi;
-   proto_tree *item_tree;
-
    if (total_len < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_svalidator_type);
       return total_len;
    }
 
-   pi = proto_tree_add_item(tree, hf_cip_svalidator_type, tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   item_tree = proto_item_add_subtree(pi, ett_svalidator_type);
-   proto_tree_add_item(item_tree, hf_cip_svalidator_type_pc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   proto_tree_add_item(item_tree, hf_cip_svalidator_type_conn_type, tvb, offset, 1, ENC_LITTLE_ENDIAN );
+   static const int* bits[] = {
+      &hf_cip_svalidator_type_pc,
+      &hf_cip_svalidator_type_conn_type,
+      NULL
+   };
+   proto_tree_add_bitmask(tree, tvb, offset, hf_cip_svalidator_type, ett_svalidator_type, bits, ENC_LITTLE_ENDIAN);
+
    return 1;
 }
 
@@ -1432,48 +1431,35 @@ dissect_mode_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static void
-dissect_ack_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
+dissect_ack_byte( proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-   proto_item *ack_item;
-   proto_tree *ack_tree;
-#if 0 /***** Placeholder reminder to add ack_byte validation */
-   guint8 ack_byte;
+   // TODO: add ack_byte validation
+   static const int* bits[] = {
+      &hf_cipsafety_ack_byte_ping_count_reply,
+      &hf_cipsafety_ack_byte_reserved1,
+      &hf_cipsafety_ack_byte_ping_response,
+      &hf_cipsafety_ack_byte_reserved2,
+      &hf_cipsafety_ack_byte_parity_even,
+      NULL
+   };
 
-   ack_byte = tvb_get_guint8(tvb, offset);
-#endif
-   if (!tree)
-      return;
-
-   /* dissect Ack Byte bits */
-   ack_item = proto_tree_add_item(tree, hf_cipsafety_ack_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   ack_tree = proto_item_add_subtree( ack_item, ett_cipsafety_ack_byte);
-
-   proto_tree_add_item(ack_tree, hf_cipsafety_ack_byte_ping_count_reply, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(ack_tree, hf_cipsafety_ack_byte_reserved1,        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(ack_tree, hf_cipsafety_ack_byte_ping_response,    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(ack_tree, hf_cipsafety_ack_byte_reserved2,        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(ack_tree, hf_cipsafety_ack_byte_parity_even,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_bitmask(tree, tvb, offset, hf_cipsafety_ack_byte, ett_cipsafety_ack_byte, bits, ENC_LITTLE_ENDIAN);
 }
 
 static void
-dissect_mcast_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
+dissect_mcast_byte( proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-   proto_item *mcast_item;
-   proto_tree *mcast_tree;
-#if 0 /*** Placeholder reminder to add mcast_byte validation */
-   guint8 mcast_byte;
+   // TODO: add mcast_byte validation
+   static const int* bits[] = {
+      &hf_cipsafety_mcast_byte_consumer_num,
+      &hf_cipsafety_mcast_byte_reserved1,
+      &hf_cipsafety_mcast_byte_mai,
+      &hf_cipsafety_mcast_byte_reserved2,
+      &hf_cipsafety_mcast_byte_parity_even,
+      NULL
+   };
 
-   mcast_byte = tvb_get_guint8(tvb, offset);
-#endif
-   /* dissect MCast Byte bits */
-   mcast_item = proto_tree_add_item(tree, hf_cipsafety_mcast_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   mcast_tree = proto_item_add_subtree( mcast_item, ett_cipsafety_mcast_byte);
-
-   proto_tree_add_item(mcast_tree, hf_cipsafety_mcast_byte_consumer_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(mcast_tree, hf_cipsafety_mcast_byte_reserved1,    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(mcast_tree, hf_cipsafety_mcast_byte_mai,          tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(mcast_tree, hf_cipsafety_mcast_byte_reserved2,    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(mcast_tree, hf_cipsafety_mcast_byte_parity_even,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_bitmask(tree, tvb, offset, hf_cipsafety_mcast_byte, ett_cipsafety_mcast_byte, bits, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1532,7 +1518,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
       }
 
       /* consumer data */
-      dissect_ack_byte(tree, tvb, 0, pinfo);
+      dissect_ack_byte(tree, tvb, 0);
       proto_tree_add_item(tree, hf_cipsafety_consumer_time_value, tvb, 1, 2, ENC_LITTLE_ENDIAN);
       timestamp = tvb_get_letohs(tvb, 1);
 
@@ -1677,7 +1663,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
 
             if (multicast)
             {
-               dissect_mcast_byte(tree, tvb, item_length-6, pinfo);
+               dissect_mcast_byte(tree, tvb, item_length-6);
                proto_tree_add_item(tree, hf_cipsafety_time_correction, tvb, item_length-5, 2, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_mcast_byte2,     tvb, item_length-3, 1, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_crc_s3,          tvb, item_length-2, 2, ENC_LITTLE_ENDIAN);
@@ -1753,7 +1739,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
 
             if (multicast)
             {
-               dissect_mcast_byte(tree, tvb, (io_data_size*2)+5, pinfo);
+               dissect_mcast_byte(tree, tvb, (io_data_size*2)+5);
                proto_tree_add_item(tree, hf_cipsafety_time_correction, tvb, (io_data_size*2)+6, 2, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_mcast_byte2, tvb, (io_data_size*2)+8, 1, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, (io_data_size*2)+9, 2, ENC_LITTLE_ENDIAN);
@@ -1842,7 +1828,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
 
             if (multicast)
             {
-               dissect_mcast_byte(tree, tvb, item_length-6, pinfo);
+               dissect_mcast_byte(tree, tvb, item_length-6);
                proto_tree_add_item(tree, hf_cipsafety_time_correction, tvb, item_length-5, 2, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_crc_s5_0, tvb, item_length-3, 1, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_crc_s5_1, tvb, item_length-2, 1, ENC_LITTLE_ENDIAN);
@@ -1944,7 +1930,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
 
             if (multicast)
             {
-               dissect_mcast_byte(tree, tvb, (io_data_size*2)+8, pinfo);
+               dissect_mcast_byte(tree, tvb, (io_data_size*2)+8);
                proto_tree_add_item(tree, hf_cipsafety_time_correction, tvb, (io_data_size*2)+9, 2, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_crc_s5_0, tvb, (io_data_size*2)+11, 1, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(tree, hf_cipsafety_crc_s5_1, tvb, (io_data_size*2)+12, 1, ENC_LITTLE_ENDIAN);
