@@ -155,7 +155,10 @@ CARES_VERSION=1.12.0
 LIBSSH_VERSION=0.7.4
 LIBSSH_FILENUM=210
 # mmdbresolve
-MAXMINDDB_VERSION=1.3.2
+# Older versions of curl can't handle this, either.
+if [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
+    MAXMINDDB_VERSION=1.3.2
+fi
 
 NGHTTP2_VERSION=1.21.0
 SPANDSP_VERSION=0.0.6
