@@ -36,6 +36,23 @@ fi
 #
 
 #
+# We use curl, but older versions of curl in older macOS releases can't
+# handle some sites - including the xz site.
+#
+# If the version of curl in the system is older than 7.54.0, download
+# curl and install it.
+#
+current_curl_version=`curl --version | sed -n 's/curl \([0-9.]*\) .*/\1/p'`
+current_curl_major_version="`expr $current_curl_version : '\([0-9][0-9]*\).*'`"
+current_curl_minor_version="`expr $current_curl_version : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+current_curl_dotdot_version="`expr $current_curl_version : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+if [[ $current_curl_major_version -lt 7 ||
+     ($current_curl_major_version -eq 7 &&
+      $current_curl_minor_version -lt 54) ]]; then
+    CURL_VERSION=${CURL_VERSION-7.60.0}
+fi
+
+#
 # Some packages need xz to unpack their current source.
 # While tar, in newer versions of macOS, can uncompress xz'ed tarballs,
 # it can't do so in older versions, and xz isn't provided with macOS.
@@ -69,20 +86,7 @@ fi
 # claimed to build faster than make.
 # Comment it out if you don't want it.
 #
-# The version of curl that comes with Lion fails to download the latest
-# Ninja, with the error
-#
-#    curl: (35) error:1407742E:SSL routines:SSL23_GET_SERVER_HELLO:tlsv1
-#        alert protocol version
-#
-# so we don't try to install it with Lion or earlier; if you want it you
-# will have to download and install it yourself.
-# XXX - what macOS version is the first one with a version of curl that
-# *can* download it?  Sierra's can.
-#
-if [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
-    NINJA_VERSION=${NINJA_VERSION-1.8.2}
-fi
+NINJA_VERSION=${NINJA_VERSION-1.8.2}
 
 #
 # The following libraries and tools are required even to build only TShark.
@@ -162,10 +166,7 @@ CARES_VERSION=1.12.0
 LIBSSH_VERSION=0.7.4
 LIBSSH_FILENUM=210
 # mmdbresolve
-# Older versions of curl can't handle this, either.
-if [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
-    MAXMINDDB_VERSION=1.3.2
-fi
+MAXMINDDB_VERSION=1.3.2
 
 NGHTTP2_VERSION=1.21.0
 SPANDSP_VERSION=0.0.6
@@ -185,6 +186,42 @@ BCG729_VERSION=1.0.2
 AUTOCONF_VERSION=2.69
 AUTOMAKE_VERSION=1.15
 LIBTOOL_VERSION=2.4.6
+
+install_curl() {
+    if [ "$CURL_VERSION" -a ! -f curl-$CURL_VERSION-done ] ; then
+        echo "Downloading, building, and installing curl:"
+        [ -f curl-$CURL_VERSION.tar.bz2 ] || curl -L -O https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2 || exit 1
+        $no_build && echo "Skipping installation" && return
+        bzcat curl-$CURL_VERSION.tar.bz2 | tar xf - || exit 1
+        cd curl-$CURL_VERSION
+        ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch curl-$CURL_VERSION-done
+    fi
+}
+
+uninstall_curl() {
+    if [ ! -z "$installed_curl_version" ] ; then
+        echo "Uninstalling curl:"
+        cd curl-$installed_curl_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm curl-$installed_curl_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf curl-$installed_curl_version
+            rm -rf curl-$installed_curl_version.tar.bz2
+        fi
+
+        installed_curl_version=""
+    fi
+}
 
 install_xz() {
     if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
@@ -1892,8 +1929,24 @@ install_all() {
         uninstall_xz -r
     fi
 
+    if [ ! -z "$installed_curl_version" -a \
+              "$installed_curl_version" != "$CURL_VERSION" ] ; then
+        echo "Installed curl version is $installed_curl_version"
+        if [ -z "$CURL_VERSION" ] ; then
+            echo "curl is not requested"
+        else
+            echo "Requested curl version is $CURL_VERSION"
+        fi
+        uninstall_curl -r
+    fi
+
     #
-    # Start with xz: It is the sole download format of glib later than 2.31.2
+    # Start with curl: we may need it to download and install xz.
+    #
+    install_curl
+
+    #
+    # Now intall xz: it is the sole download format of glib later than 2.31.2.
     #
     install_xz
 
@@ -2060,6 +2113,8 @@ uninstall_all() {
         uninstall_lzip
 
         uninstall_xz
+
+        uninstall_curl
     fi
 }
 
