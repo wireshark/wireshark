@@ -11,11 +11,13 @@
 
 #include "config.h"
 
-#include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/show_exception.h>
 
 #include <wiretap/wtap.h>
 
@@ -1304,7 +1306,10 @@ static void
 rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
               packet_info *pinfo, proto_tree *tree)
 {
+    gboolean is_rrc_payload = TRUE;
+    volatile dissector_handle_t next_dissector = NULL;
     enum rrc_message_type msgtype;
+
     switch (channel) {
         case RLC_UL_CCCH:
             msgtype = RRC_MESSAGE_TYPE_UL_CCCH;
@@ -1313,11 +1318,10 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             msgtype = RRC_MESSAGE_TYPE_DL_CCCH;
             break;
         case RLC_DL_CTCH:
+            /* Payload of DL CTCH is BMC*/
+            is_rrc_payload = FALSE;
             msgtype = RRC_MESSAGE_TYPE_INVALID;
-            call_dissector(bmc_handle, tvb, pinfo, tree);
-            /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
-            col_append_str(pinfo->cinfo, COL_INFO," ");
-            col_set_fence(pinfo->cinfo, COL_INFO);
+            next_dissector = bmc_handle;
             break;
         case RLC_UL_DCCH:
             msgtype = RRC_MESSAGE_TYPE_UL_DCCH;
@@ -1332,17 +1336,18 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             msgtype = RRC_MESSAGE_TYPE_BCCH_FACH;
             break;
         case RLC_PS_DTCH:
+            /* Payload of PS DTCH is PDCP or just IP*/
+            is_rrc_payload = FALSE;
             msgtype = RRC_MESSAGE_TYPE_INVALID;
             /* assume transparent PDCP for now */
-            call_dissector(ip_handle, tvb, pinfo, tree);
-            /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
-            col_append_str(pinfo->cinfo, COL_INFO," ");
-            col_set_fence(pinfo->cinfo, COL_INFO);
+            next_dissector = ip_handle;
             break;
         default:
             return; /* stop dissecting */
     }
-    if (msgtype != RRC_MESSAGE_TYPE_INVALID) {
+
+    if (is_rrc_payload && msgtype != RRC_MESSAGE_TYPE_INVALID) {
+        /* Passing the RRC sub type in the 'rrc_info' struct */
         struct rrc_info *rrcinf;
         fp_info *fpinf;
         fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
@@ -1352,7 +1357,21 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rrc, 0, rrcinf);
         }
         rrcinf->msgtype[fpinf->cur_tb] = msgtype;
-        call_dissector(rrc_handle, tvb, pinfo, tree);
+        next_dissector = rrc_handle;
+    }
+
+    if(next_dissector != NULL) {
+        TRY {
+            call_dissector(next_dissector, tvb, pinfo, tree);
+        }
+        CATCH_NONFATAL_ERRORS {
+            /*
+             * Sub dissector threw an exception
+             * Show the exception and continue dissecting other SDUs.
+             */
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        ENDTRY;
         /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
         col_append_str(pinfo->cinfo, COL_INFO," ");
         col_set_fence(pinfo->cinfo, COL_INFO);
