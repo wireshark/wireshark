@@ -806,6 +806,124 @@ static const value_string assoc_protos[] = {
   { 0,                  NULL }
 };
 
+/*
+ * Fragment reassembly helpers.
+ *
+ * SCCP data can span multiple messages. As the same local reference number is
+ * used throughout a connection, this identifier is not sufficient for
+ * identifying reassembled PDUs with multiple fragments in the same frame. For
+ * that reason, create a new identifier for each group of fragments based on the
+ * more-data indicator (M-bit) and use that in place of the local reference
+ * number.
+ *
+ * As an optimization, if fragments do not need reassembly (a single message
+ * with the M-bit set), then no surrogate ID is needed nor stored since
+ * reassembly is skipped.
+ */
+static guint32 sccp_reassembly_id_next;
+
+/* Maps a key to the current identifier as used in the reassembly API (first pass only). */
+static wmem_tree_t *sccp_reassembly_ids;
+
+/* Maps (frame number, offset) to a reassembly API identifier. */
+static wmem_map_t *sccp_reassembly_id_map;
+
+static guint32
+sccp_reassembly_get_id_pass1(guint32 frame, guint32 offset, guint32 key, gboolean more_frags)
+{
+  guint32 id = GPOINTER_TO_UINT(wmem_tree_lookup32(sccp_reassembly_ids, key));
+  if (!id) {
+    if (!more_frags) {
+      /* This is the last and only fragment, no need to reassembly anything. */
+      return 0;
+    }
+
+    /* This is a new fragment and "local reference", so create a new one. */
+    id = sccp_reassembly_id_next++;
+    wmem_tree_insert32(sccp_reassembly_ids, key, GUINT_TO_POINTER(id));
+  }
+  /* Save ID for second pass. */
+  guint64 *frame_offset = wmem_new(wmem_file_scope(), guint64);
+  *frame_offset = ((guint64)frame << 32) | offset;
+  wmem_map_insert(sccp_reassembly_id_map, frame_offset, GUINT_TO_POINTER(id));
+  return id;
+}
+
+static guint32
+sccp_reassembly_get_id_pass2(guint32 frame, guint32 offset)
+{
+  guint64 frame_offset = ((guint64)frame << 32) | offset;
+  return GPOINTER_TO_UINT(wmem_map_lookup(sccp_reassembly_id_map, &frame_offset));
+}
+
+/**
+ * Returns the reassembly ID for the given frame at the given position or 0 if
+ * reassembly is not necessary.
+ */
+static guint32
+sccp_reassembly_get_id(packet_info *pinfo, guint32 offset, guint32 key, gboolean more_frags)
+{
+  if (!PINFO_FD_VISITED(pinfo)) {
+    return sccp_reassembly_get_id_pass1(pinfo->num, offset, key, more_frags);
+  } else {
+    return sccp_reassembly_get_id_pass2(pinfo->num, offset);
+  }
+}
+
+static tvbuff_t *
+sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                          guint16 length_offset, guint32 source_local_ref, gboolean more_frags)
+{
+  gboolean  save_fragmented;
+  tvbuff_t *new_tvb;
+  fragment_head *frag_msg = NULL;
+  guint     fragment_len;
+  guint32   abs_offset, frags_id;
+
+  fragment_len = tvb_get_guint8(tvb, length_offset);
+  /* Assume that the absolute offset within the tvb uniquely identifies the
+   * message in this frame. */
+  abs_offset = tvb_raw_offset(tvb) + length_offset;
+  frags_id = sccp_reassembly_get_id(pinfo, abs_offset, source_local_ref, more_frags);
+  if (frags_id) {
+    /*
+     * This fragment is part of multiple fragments, reassembly is required.
+     */
+    save_fragmented = pinfo->fragmented;
+    pinfo->fragmented = TRUE;
+    frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
+                                     tvb, length_offset + 1,
+                                     pinfo,
+                                     frags_id,        /* ID for fragments belonging together */
+                                     NULL,
+                                     fragment_len,    /* fragment length - to the end */
+                                     more_frags);     /* More fragments? */
+
+    if (!PINFO_FD_VISITED(pinfo) && frag_msg) {
+      /* Reassembly has finished, ensure that the next fragment gets a new ID. */
+      wmem_tree_remove32(sccp_reassembly_ids, source_local_ref);
+    }
+
+    new_tvb = process_reassembled_data(tvb, length_offset + 1, pinfo,
+                                       "Reassembled SCCP", frag_msg,
+                                       &sccp_xudt_msg_frag_items,
+                                       NULL, tree);
+    if (frag_msg) { /* Reassembled */
+      col_append_str(pinfo->cinfo, COL_INFO, "(Message reassembled) ");
+    } else { /* Not last packet of reassembled message */
+      col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
+    }
+    pinfo->fragmented = save_fragmented;
+  } else {
+    /*
+     * There is only a single fragment, reassembly is not required.
+     */
+    new_tvb = tvb_new_subset_length(tvb, length_offset + 1, fragment_len);
+  }
+  return new_tvb;
+}
+
+
 #define is_connectionless(m) \
   ( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS      \
     || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS  \
@@ -2728,9 +2846,7 @@ dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 {
   guint16   variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
   guint16   optional_pointer  = 0, orig_opt_ptr = 0;
-  gboolean  save_fragmented;
   tvbuff_t *new_tvb = NULL;
-  fragment_head *frag_msg = NULL;
   guint32   source_local_ref = 0;
   guint     msg_offset = tvb_offset_from_real_beginning(tvb);
 
@@ -2808,33 +2924,7 @@ dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       if ((octet & 0x0f) == 0)
         more_frag = FALSE;
 
-      save_fragmented = pinfo->fragmented;
-      pinfo->fragmented = TRUE;
-      frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
-                                       tvb, variable_pointer3 + 1,
-                                       pinfo,
-                                       source_local_ref,                            /* ID for fragments belonging together */
-                                       NULL,
-                                       tvb_get_guint8(tvb, variable_pointer3),       /* fragment length - to the end */
-                                       more_frag);                          /* More fragments? */
-
-      if ((octet & 0x80) == 0x80) /*First segment, set number of segments*/
-        fragment_set_tot_len(&sccp_xudt_msg_reassembly_table,
-                             pinfo, source_local_ref, NULL, (octet & 0xf));
-
-      new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
-                                         pinfo, "Reassembled SCCP",
-                                         frag_msg,
-                                         &sccp_xudt_msg_frag_items,
-                                         NULL, tree);
-
-      if (frag_msg) { /* Reassembled */
-        col_append_str(pinfo->cinfo, COL_INFO,"(Message reassembled) ");
-      } else { /* Not last packet of reassembled message */
-        col_append_str(pinfo->cinfo, COL_INFO,"(Message fragment) ");
-      }
-
-      pinfo->fragmented = save_fragmented;
+      new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer3, source_local_ref, more_frag);
 
       if (new_tvb)
         dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info->assoc);
@@ -2856,9 +2946,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   guint16   variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
   guint16   optional_pointer  = 0, orig_opt_ptr = 0;
   int   offset = 0;
-  gboolean  save_fragmented;
   tvbuff_t *new_tvb = NULL;
-  fragment_head *frag_msg = NULL;
   guint32   source_local_ref = 0;
   guint8    more;
   guint     msg_offset = tvb_offset_from_real_beginning(tvb);
@@ -3015,28 +3103,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                       PARAMETER_DATA, variable_pointer1, &sccp_info);
 
     } else {
-      save_fragmented = pinfo->fragmented;
-      pinfo->fragmented = TRUE;
-      frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
-                                       tvb, variable_pointer1 + 1,
-                                       pinfo,
-                                       source_local_ref,                       /* ID for fragments belonging together */
-                                       NULL,
-                                       tvb_get_guint8(tvb, variable_pointer1), /* fragment length - to the end */
-                                       more);                                  /* More fragments? */
-
-      new_tvb = process_reassembled_data(tvb, variable_pointer1 + 1, pinfo,
-                                         "Reassembled SCCP", frag_msg,
-                                         &sccp_xudt_msg_frag_items, NULL,
-                                         tree);
-
-      if (frag_msg && frag_msg->next) { /* Reassembled */
-        col_append_str(pinfo->cinfo, COL_INFO, "(Message reassembled) ");
-      } else if (more) { /* Not last packet of reassembled message */
-        col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
-      }
-
-      pinfo->fragmented = save_fragmented;
+      new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer1, source_local_ref, more);
 
       if (new_tvb)
         dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info.assoc);
@@ -3481,6 +3548,7 @@ static void
 init_sccp(void)
 {
   next_assoc_id = 1;
+  sccp_reassembly_id_next = 1;
 }
 
 /* Register the protocol with Wireshark */
@@ -4120,6 +4188,10 @@ proto_register_sccp(void)
                          &addresses_reassembly_table_functions);
 
   assocs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+  sccp_reassembly_ids = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+  sccp_reassembly_id_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+      g_int64_hash, g_int64_equal);
 
   sccp_tap = register_tap("sccp");
 
