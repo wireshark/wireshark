@@ -68,7 +68,6 @@ E-PUCH-Timeslot-Item-InfoLCR/timeSlot timeSlotLCR
 
 CellSyncBurstTiming/initialPhase initialPhase_0_1048575
 
-
 #.OMIT_ASSIGNMENT
 Presence
 ProtocolIE-FieldPair
@@ -99,7 +98,6 @@ ProtocolIE-ContainerPairList
                             "unknown message"));
 
 #.FN_PARS ProcedureID/ddMode VAL_PTR = &nbap_get_private_data(actx->pinfo)->dd_mode
-
 
 #.FN_BODY ProcedureID
   ProcedureID = NULL;
@@ -263,7 +261,6 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupFailure(FDD) ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
 
-
 # RadioLinkSetupRequestTDD
 # RadioLinkSetupResponseTDD
 # RadioLinkSetupFailureTDD
@@ -316,20 +313,14 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkAdditionRequest(FDD) ");
 #.FN_HDR RadioLinkAdditionResponseFDD
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkAdditionResponse(FDD) ");
 
-
 # RadioLinkAdditionFailureFDD
 
 #.FN_HDR RadioLinkAdditionFailureFDD
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkAdditionRequest(FDD) ");
 
-
 # RadioLinkAdditionRequestTDD
 # RadioLinkAdditionResponseTDD
 # RadioLinkAdditionFailureTDD
-
-
-
-
 
 # RadioLinkDeletionRequest
 #.FN_HDR RadioLinkDeletionRequest
@@ -337,13 +328,11 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionRequest ");
 /* CRNC -> Node B */
 actx->pinfo->link_dir=P2P_DIR_DL;
 
-
 # RadioLinkDeletionResponse
 #.FN_HDR RadioLinkDeletionResponse
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionResponse ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
-
 
 # RadioLinkReconfigurationPrepareFDD
 #.FN_HDR RadioLinkReconfigurationPrepareFDD
@@ -357,13 +346,11 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationReady ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
 
-
 # RadioLinkReconfigurationFailure
 #.FN_HDR RadioLinkReconfigurationFailure
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationFailure ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
-
 
 # RadioLinkReconfigurationPrepareTDD
 # RadioLinkReconfigurationReady
@@ -378,8 +365,6 @@ actx->pinfo->link_dir=P2P_DIR_DL;
 # RadioLinkReconfigurationResponse
 #.FN_HDR RadioLinkReconfigurationResponse
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationResponse ");
-
-
 
 # RadioLinkReconfigurationFailure
 # RadioLinkReconfigurationRequestTDD
@@ -403,13 +388,11 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationResponse
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
 
-
 # DedicatedMeasurementInitiationFailure
 #.FN_HDR DedicatedMeasurementInitiationFailure
 col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationFailure ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
-
 
 # PhysicalSharedChannelReconfigurationRequestFDD
 #.FN_HDR PhysicalSharedChannelReconfigurationRequestFDD
@@ -493,13 +476,11 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkFailureIndication ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
 
-
 # RadioLinkPreemptionRequiredIndication
 #.FN_HDR RadioLinkPreemptionRequiredIndication
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkPreemptionRequiredIndication ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
-
 
 # RadioLinkRestoreIndication
 #.FN_HDR RadioLinkRestoreIndication
@@ -507,14 +488,11 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkRestoreIndication ");
 /* CRNC -> Node B */
 actx->pinfo->link_dir=P2P_DIR_DL;
 
-
-
 # DedicatedMeasurementReport
 #.FN_HDR DedicatedMeasurementReport
 col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementReport ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
-
 
 # DedicatedMeasurementTerminationRequest
 #.FN_HDR DedicatedMeasurementTerminationRequest
@@ -527,7 +505,6 @@ actx->pinfo->link_dir=P2P_DIR_DL;
 col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementFailureIndication ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
-
 
 # DL-PowerControlRequest
 #.FN_HDR  DL-PowerControlRequest
@@ -557,7 +534,6 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 #.FN_HDR ErrorIndication
 col_set_str(actx->pinfo->cinfo, COL_INFO,"ErrorIndication ");
 
-
 # CellSynchronisationReportTDD
 # CellSynchronisationTerminationRequestTDD
 # CellSynchronisationFailureIndicationTDD
@@ -573,7 +549,6 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"PrivateMessage ");
 #.FN_HDR BearerRearrangementIndication
 col_set_str(actx->pinfo->cinfo, COL_INFO,"BearerRearrangementIndication ");
 
-
 # RadioLinkActivationCommandFDD
 # RadioLinkActivationCommandTDD
 
@@ -582,7 +557,6 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"BearerRearrangementIndication ");
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkParameterUpdateIndication(FDD) ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
-
 
 # RadioLinkParameterUpdateIndicationTDD
 # MBMSNotificationUpdateCommand
@@ -865,7 +839,6 @@ actx->pinfo->link_dir=P2P_DIR_UL;
         dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
     }
 
-
 #.FN_BODY PayloadCRC-PresenceIndicator VAL_PTR = &payload_crc_value
 guint32 payload_crc_value;
 
@@ -985,7 +958,6 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
 
 %(DEFAULT_BODY)s
 
-
   transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
   bindingID = nbap_private_data->binding_id_port;
   if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
@@ -1015,7 +987,6 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
     fp_rach_channel_info = wmem_new0(wmem_file_scope(), fp_rach_channel_info_t);
     fp_rach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     umts_fp_conversation_info->channel_specific_info = (void*)fp_rach_channel_info;
-
 
     /*Save unique UE-identifier */
     umts_fp_conversation_info->com_context_id = nbap_private_data->crnc_context_present ? nbap_private_data->com_context_id : 1;
@@ -1063,8 +1034,6 @@ guint32 PICH_Mode = 0;
             nbap_get_private_data(actx->pinfo)->paging_indications = 144;
             break;
     }
-
-
 
 #.FN_BODY PCH-ParametersItem-CTCH-SetupRqstFDD
 
@@ -1194,7 +1163,6 @@ nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
 
 nbap_private_data->transportLayerAddress_ipv4 = 0;
 nbap_private_data->binding_id_port = 0;
-
 
 nbap_private_data->transport_format_set_type = NBAP_CPCH;
 
@@ -1337,13 +1305,11 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
     nbap_dch_chnl_info[nbap_private_data->common_transport_channel_id].num_dl_chans = 0;
     nbap_dch_chnl_info[nbap_private_data->common_transport_channel_id].num_ul_chans = 0;
 
-
 #.FN_HDR TransportFormatSet-DynamicPartList
     nbap_get_private_data(actx->pinfo)->num_items = 0;
 
 #.FN_HDR TransportFormatSet-DynamicPartList/_item
     nbap_get_private_data(actx->pinfo)->num_items++;
-
 
 #.FN_BODY TransportFormatSet-NrOfTransportBlocks VAL_PTR = &NrOfTransportBlocks
 guint32 NrOfTransportBlocks;
@@ -1450,7 +1416,6 @@ nbap_private_data->dch_id = 0xFFFFFFFF;
 
 %(DEFAULT_BODY)s
 
-
         transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
         bindingID = nbap_private_data->binding_id_port;
         if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
@@ -1543,17 +1508,10 @@ nbap_private_data->dch_id = 0xFFFFFFFF;
                     set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
                 }
             }
-
             nbap_debug("Frame %%u RL-Specific-DCH-Info-Item Start", actx->pinfo->num);
             nbap_debug("    Total no of ch in flow will be: %%d", umts_fp_conversation_info->num_dch_in_flow);
             nbap_debug("Frame %%u RL-Specific-DCH-Info-Item End", actx->pinfo->num);
-
         }
-
-
-# FN_BODY RL-Specific-E-DCH-Info
-# %(DEFAULT_BODY)s
-
 
 #.FN_BODY RL-Specific-E-DCH-Information-Item
 address     dst_addr, null_addr;
@@ -1570,7 +1528,6 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
 
 nbap_private_data->transportLayerAddress_ipv4 = 0;
 nbap_private_data->binding_id_port = 0;
-
 
 %(DEFAULT_BODY)s
 
@@ -1595,8 +1552,6 @@ nbap_private_data->binding_id_port = 0;
          */
         if ((conversation == NULL) || (umts_fp_conversation_info && umts_fp_conversation_info->channel == CHANNEL_DCH)) {
 
-
-
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(actx->pinfo->num, &dst_addr,
                 &null_addr, ENDPOINT_UDP, bindingID,
@@ -1614,8 +1569,6 @@ nbap_private_data->binding_id_port = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
                 copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = bindingID;
-
-
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
                 fp_edch_channel_info = wmem_new0(wmem_file_scope(), fp_edch_channel_info_t);
@@ -1626,7 +1579,6 @@ nbap_private_data->binding_id_port = 0;
                 }else{
                     expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
                 }
-
 
                 /* Check if we allready have this context */
                 e_dch_macdflow_id = nbap_private_data->e_dch_macdflow_id;
@@ -1649,7 +1601,6 @@ nbap_private_data->binding_id_port = 0;
 
                     wmem_tree_insert32(edch_flow_port_map, umts_fp_conversation_info->com_context_id, nbap_edch_port_info);
                 }else{
-
                     nbap_debug("    Insert in existing edch_flow_port_map com_context_id %%u e_dch_macdflow_id %%u IP %%s Port %%u",
                         umts_fp_conversation_info->com_context_id,e_dch_macdflow_id,
                         address_to_str(wmem_packet_scope(), &dst_addr), bindingID);
@@ -1668,7 +1619,6 @@ nbap_private_data->binding_id_port = 0;
             }
     }
 
-
 #.FN_BODY E-DCH-MACdFlow-Specific-InfoItem
 umts_fp_conversation_info_t *p_conv_data = NULL;
 fp_edch_channel_info_t* fp_edch_channel_info = NULL;
@@ -1681,8 +1631,7 @@ nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
 nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
 
 %(DEFAULT_BODY)s
-    if (actx->pinfo->fd->flags.visited)
-    {
+    if (actx->pinfo->fd->flags.visited) {
         return offset;
     }
 
@@ -1794,8 +1743,6 @@ nbap_private_data->binding_id_port = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
                 copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = bindingID;
-
-
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
                 fp_edch_channel_info = wmem_new0(wmem_file_scope(), fp_edch_channel_info_t);
@@ -1812,14 +1759,11 @@ nbap_private_data->binding_id_port = 0;
                 copy_address_wmem(actx->pinfo->pool,&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
                 nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = bindingID;
 
-
                 /*Indicate that the frag table has to be reset*/
                 umts_fp_conversation_info->reset_frag = TRUE;
 
-
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
             }
-
 
 #.FN_BODY E-DCH-MACdFlow-Specific-InfoItem-to-Modify
 guint32 no_ddi_entries, i;
@@ -1905,9 +1849,6 @@ nbap_private_data->num_items = 1;
     /* use to display e_dch_macdflow_id */
     p_conv_data->num_dch_in_flow = 1;
     p_conv_data->dch_ids_in_flow_list[0] = e_dch_macdflow_id;
-
-
-
 
 #.FN_FTR E-DCH-LogicalChannelToModifyItem
     nbap_get_private_data(actx->pinfo)->num_items++;
@@ -2011,7 +1952,6 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
     nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
     nbap_hsdsch_channel_info = nbap_private_data->nbap_hsdsch_channel_info;
 
-
     /*Handle special cases, when the tree is weird, ie. no useful message appears in the tree, like HSDHSCH-Information-FDD */
     switch(protocol_ie_id){
             /*This flow must also be added*/
@@ -2033,7 +1973,6 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
 %(DEFAULT_BODY)s
             break;
         }
-
 
 # Reset num_items before calling the sequence
 #.FN_HDR HSDSCH-MACdFlows-to-Delete
@@ -2067,7 +2006,6 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
     nbap_private_data->num_items++;
 %(DEFAULT_BODY)s
 
-
     transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
     bindingID = nbap_private_data->binding_id_port;
     if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
@@ -2081,7 +2019,6 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
     copy_address_wmem(actx->pinfo->pool,&(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
     nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port = bindingID;
 
-
 #.FN_BODY MAC-PDU-SizeExtended
 guint32 hsdsch_macdflow_id;
 nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
@@ -2091,7 +2028,6 @@ nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_chann
     if(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port != 0){
             nbap_hsdsch_channel_info[hsdsch_macdflow_id].entity = ehs;
     }
-
 
 #.FN_BODY HSDSCH-FDD-Information
 /*
@@ -2132,7 +2068,6 @@ nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_chann
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
                                ENDPOINT_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
-
 
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
@@ -2215,13 +2150,9 @@ nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_chann
     copy_address_wmem(actx->pinfo->pool,&(nbap_hsdsch_channel_info[nbap_private_data->hsdsch_macdflow_id].crnc_address),&dst_addr);
     nbap_hsdsch_channel_info[nbap_private_data->hsdsch_macdflow_id].crnc_port = bindingID;
 
-
 #.FN_BODY HSDSCH-Information-to-Modify
 /*
  * This is pretty much the same like if we setup a previous flow
- */
-
-/*
  * Collect the information about the HSDSCH MACdFlows set up conversation(s) and set the conversation data.
  */
     address     null_addr;
@@ -2262,7 +2193,6 @@ nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_chann
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
                                ENDPOINT_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
-
 
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
@@ -2360,7 +2290,6 @@ nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_chann
     copy_address_wmem(actx->pinfo->pool,&(nbap_common_channel_info[common_macdflow_id].crnc_address),&dst_addr);
     nbap_common_channel_info[common_macdflow_id].crnc_port = nbap_private_data->binding_id_port;
 
-
 #.FN_BODY HSDSCH-Common-System-InformationFDD
 /*
  * 5.1.6 High Speed Downlink Shared Channels
@@ -2408,38 +2337,33 @@ int i;
                     &null_addr, ENDPOINT_UDP, nbap_common_channel_info[i].crnc_port,
                     0, NO_ADDR2|NO_PORT2);
 
-            /* Set dissector */
-            conversation_set_dissector(conversation, fp_handle);
-            /*Set NBAP configuration to lower layers*/
-            if(actx->pinfo->link_dir==P2P_DIR_DL){
+                /* Set dissector */
+                conversation_set_dissector(conversation, fp_handle);
+                /*Set NBAP configuration to lower layers*/
+                if(actx->pinfo->link_dir==P2P_DIR_DL){
 
-                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
-                /*Select frame type = 3 according to paragraph 5.1.6 in 3GPP TS 25.435*/
-                umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
-                umts_fp_conversation_info->division          = Division_FDD;
+                    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+                    /*Select frame type = 3 according to paragraph 5.1.6 in 3GPP TS 25.435*/
+                    umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
+                    umts_fp_conversation_info->division          = Division_FDD;
 
-                umts_fp_conversation_info->dl_frame_number   = 0;
-                umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
-                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_common_channel_info[i].crnc_address);
-                umts_fp_conversation_info->crnc_port         = nbap_common_channel_info[i].crnc_port;
+                    umts_fp_conversation_info->dl_frame_number   = 0;
+                    umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
+                    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_common_channel_info[i].crnc_address);
+                    umts_fp_conversation_info->crnc_port         = nbap_common_channel_info[i].crnc_port;
 
-                fp_hsdsch_channel_info = wmem_new0(wmem_file_scope(), fp_hsdsch_channel_info_t);
-                umts_fp_conversation_info->channel_specific_info = (void*)fp_hsdsch_channel_info;
-                fp_hsdsch_channel_info->common_macdflow_id = nbap_get_private_data(actx->pinfo)->common_macdflow_id;
-                fp_hsdsch_channel_info->hsdsch_entity = ehs;
+                    fp_hsdsch_channel_info = wmem_new0(wmem_file_scope(), fp_hsdsch_channel_info_t);
+                    umts_fp_conversation_info->channel_specific_info = (void*)fp_hsdsch_channel_info;
+                    fp_hsdsch_channel_info->common_macdflow_id = nbap_get_private_data(actx->pinfo)->common_macdflow_id;
+                    fp_hsdsch_channel_info->hsdsch_entity = ehs;
 
+                    umts_fp_conversation_info->num_dch_in_flow++;
+                    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-                umts_fp_conversation_info->num_dch_in_flow++;
-                umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
-
-                set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+                    set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+                }
             }
-
         }
-
-
-        }
-
     }
 #This guy should perhaps also be impletemented, hsdsch frame type 3
 #.FN_BODY HSDSCH-Paging-System-InformationFDD
