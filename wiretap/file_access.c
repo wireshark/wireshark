@@ -1596,7 +1596,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_MPLOG */
-	{ "Micropross mplog file", "mplog", "mplog", NULL,
+	{ "Micropross mplog", "mplog", "mplog", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL }
 };
