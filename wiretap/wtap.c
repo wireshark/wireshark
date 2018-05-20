@@ -915,6 +915,8 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_DOCSIS31_XRA31 */
 	{ "DOCSIS with Excentis XRA pseudo-header", "docsis31_xra31" },
 
+	/* WTAP_ENCAP_DPAUXMON */
+	{ "DisplayPort AUX channel with Unigraf pseudo-header", "dpauxmon" },
 };
 
 WS_DLL_LOCAL
