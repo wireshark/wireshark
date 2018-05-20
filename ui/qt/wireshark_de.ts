@@ -842,9 +842,9 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform>%1, Fehler nach %Ln Paket</numerusform>
-            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
+        <translation>
+            <numerusform>%1, Fehler nach %Ln Daten Record</numerusform>
+            <numerusform>%1, Fehler nach %Ln Daten Records</numerusform>
         </translation>
     </message>
     <message numerus="yes">

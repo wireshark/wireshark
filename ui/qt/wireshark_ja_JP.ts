@@ -840,7 +840,7 @@
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
         <translation type="unfinished">
-            <numerusform>%Ln レコードの後に %1, エラー </numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">

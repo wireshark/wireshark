@@ -842,9 +842,9 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform>%1, errore dopo %Ln record</numerusform>
-            <numerusform>%1, errore dopo %Ln record</numerusform>
+        <translation>
+            <numerusform>%1, errore dopo %Ln record di dati</numerusform>
+            <numerusform>%1, errore dopo %Ln record di dati</numerusform>
         </translation>
     </message>
     <message numerus="yes">
