@@ -842,9 +842,9 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform>%1, errore dopo %Ln record</numerusform>
-            <numerusform>%1, errore dopo %Ln record</numerusform>
+        <translation>
+            <numerusform>%1, errore dopo %Ln record di dati</numerusform>
+            <numerusform>%1, errore dopo %Ln record di dati</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1105,6 +1105,28 @@
     </message>
 </context>
 <context>
+    <name>CaptureInfoDialog</name>
+    <message>
+        <source>Capture Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 packets, %2:%3:%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureInfoModel</name>
+    <message>
+        <source>Other</source>
+        <translation type="unfinished">Altro</translation>
+    </message>
+</context>
+<context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
@@ -1305,8 +1327,9 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra la finestra di informazioni durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Show extra capture information dialog</source>
-        <translation>Mostra la finestra delle informazioni aggiuntive sulla cattura</translation>
+        <source>Show capture information during live capture</source>
+        <oldsource>Show extra capture information dialog</oldsource>
+        <translation type="unfinished">Mostra la finestra delle informazioni aggiuntive sulla cattura</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -2284,7 +2307,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Predefinito</translation>
+        <translation>Predefinito</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -11496,7 +11519,7 @@ a:hover {
     </message>
     <message>
         <source>UTF-16</source>
-        <translation type="unfinished">UTF-16</translation>
+        <translation>UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>

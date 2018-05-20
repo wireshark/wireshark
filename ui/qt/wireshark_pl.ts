@@ -1083,6 +1083,28 @@
     </message>
 </context>
 <context>
+    <name>CaptureInfoDialog</name>
+    <message>
+        <source>Capture Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 packets, %2:%3:%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureInfoModel</name>
+    <message>
+        <source>Other</source>
+        <translation type="unfinished">Inne</translation>
+    </message>
+</context>
+<context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
@@ -1283,8 +1305,9 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj okno z informacjami przechwytywania podcas przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Show extra capture information dialog</source>
-        <translation>Pokazuj dodatkowy okno z informacjami przechwytywania</translation>
+        <source>Show capture information during live capture</source>
+        <oldsource>Show extra capture information dialog</oldsource>
+        <translation type="unfinished">Pokazuj dodatkowy okno z informacjami przechwytywania</translation>
     </message>
     <message>
         <source>Name Resolution</source>

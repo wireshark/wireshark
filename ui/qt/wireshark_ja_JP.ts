@@ -1077,6 +1077,28 @@
     </message>
 </context>
 <context>
+    <name>CaptureInfoDialog</name>
+    <message>
+        <source>Capture Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 packets, %2:%3:%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureInfoModel</name>
+    <message>
+        <source>Other</source>
+        <translation type="unfinished">その他</translation>
+    </message>
+</context>
+<context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
@@ -1277,8 +1299,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にキャプチャ情報画面を表示&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Show extra capture information dialog</source>
-        <translation>拡張キャプチャ情報画面を表示</translation>
+        <source>Show capture information during live capture</source>
+        <oldsource>Show extra capture information dialog</oldsource>
+        <translation type="unfinished">拡張キャプチャ情報画面を表示</translation>
     </message>
     <message>
         <source>Name Resolution</source>

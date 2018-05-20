@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-05-11)
+# (last updated 2018-05-18)
 
 0	Reserved
 1	NxNetworks
@@ -25168,7 +25168,7 @@
 25323	AirPatrol Corporation
 25324	Rock Hill Telephone Company
 25325	Trustserver S. L.
-25326	FurreVille
+25326	Linux-Help.org	# formerly 'FurreVille'
 25327	Visible World Inc.
 25328	Deasil Systems INC
 25329	Henfield AB
@@ -32101,7 +32101,7 @@
 32264	National Institute of Informatics
 32265	Johnny Software Studio
 32266	Power PLUS Communications AG
-32267	I.S.T. Austria
+32267	IST Austria
 32268	Hobby Lobby Stores, Inc.
 32269	Novantiqua multimedia
 32270	Elseta
@@ -39388,7 +39388,7 @@
 39557	Horoquartz
 39558	that's it gmbh
 39559	derEDVdienst
-39560	Lead Innovation System Technology Corp.
+39560	Leads Technologies Limited	# formerly 'Lead Innovation System Technology Corp.'
 39561	XSD Zrt.
 39562	Greenhills IT Ltd.
 39563	Smart Messaging Solution Pte Ltd
@@ -51787,3 +51787,39 @@
 51972	RELEX
 51973	Raptor Engineering, LLC
 51974	Raptor Computing Systems, LLC
+51975	TouHou.FM
+51976	Barry Electric Cooperative, Inc.
+51977	Shirakumo
+51978	BitMEX
+51979	WestJet Airlines Ltd.
+51980	IT Forge
+51982	Red Dog Consulting LLC
+51983	Groupe Solutions TI
+51984	XnetSolutions KG
+51985	Linogate GmbH
+51986	CARVAJAL SOLUCIONES EN TECNOLOGIA S.A.S
+51987	Squar Milner
+51988	Panj Works
+51989	Irvine Company
+51990	Rigosys Information Technology
+51991	Landkreis St. Wendel
+51992	Zuercher Hochschule der Kuenste ZHdK
+51993	GKD Paderborn
+51994	Indian Institute of Science, Bangalore
+51995	Bengkel Oprek Elektronika
+51996	Grand Canyon Education
+51997	Ten Fifteen Solutions Limited
+51998	Ampd Energy Limited
+51999	Bäckebo Sågverk AB
+52000	Amsio
+52001	European External Action Service
+52002	Svod International, LLC
+52003	Starpower Home Entertainment Systems, Inc.
+52004	Elcomplus LLC
+52005	ogt11.com, llc
+52006	Designx Solutions
+52007	Garretson Resolution Group
+52008	Alliance Development Fund
+52009	Oakland Unified School District
+52010	Westmoreland Casemanagement and Supports, Inc.
+52011	Stolon

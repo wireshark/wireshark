@@ -1097,6 +1097,28 @@
     </message>
 </context>
 <context>
+    <name>CaptureInfoDialog</name>
+    <message>
+        <source>Capture Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 packets, %2:%3:%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureInfoModel</name>
+    <message>
+        <source>Other</source>
+        <translation type="unfinished">其他</translation>
+    </message>
+</context>
+<context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
@@ -1298,8 +1320,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Show extra capture information dialog</source>
-        <translation>显示额外的捕获信息对话框</translation>
+        <source>Show capture information during live capture</source>
+        <oldsource>Show extra capture information dialog</oldsource>
+        <translation type="unfinished">显示额外的捕获信息对话框</translation>
     </message>
     <message>
         <source>Name Resolution</source>
