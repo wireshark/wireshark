@@ -906,8 +906,14 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6 */
 	{ "Message Analyzer WFP Capture Auth v6", "message_analyzer_wfp_capture_auth_v6" },
 
+	/* WTAP_ENCAP_JUNIPER_ST */
+	{ "Juniper Secure Tunnel Information", "juniper-st" },
+
+	/* WTAP_ENCAP_ETHERNET_MPACKET */
+	{ "IEEE 802.3br mPackets", "ether-mpacket" },
+
 	/* WTAP_ENCAP_DOCSIS31_XRA31 */
-	{ "DOCSIS31 XRA31", "docsis31_xra31" },
+	{ "DOCSIS with Excentis XRA pseudo-header", "docsis31_xra31" },
 
 };
 
