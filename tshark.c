@@ -2286,6 +2286,13 @@ capture(void)
   if (!ret)
     return FALSE;
 
+  /*
+   * Force synchronous resolution of IP addresses; we're doing only
+   * one pass, so we can't do it in the background and fix up past
+   * dissections.
+   */
+  set_resolution_synchrony(TRUE);
+
   /* the actual capture loop
    *
    * XXX - glib doesn't seem to provide any event based loop handling.
@@ -2703,11 +2710,6 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
      run a read filter, or display filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (edt) {
-    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-        gbl_resolv_flags.transport_name)
-      /* Grab any resolved addresses */
-      host_name_lookup_process();
-
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
     if (cf->rfcode)
@@ -2776,11 +2778,6 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (edt) {
-    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-        gbl_resolv_flags.transport_name)
-      /* Grab any resolved addresses */
-      host_name_lookup_process();
-
     /* If we're running a display filter, prime the epan_dissect_t with that
        filter. */
     if (cf->dfcode)
@@ -3068,6 +3065,12 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
     }
 
+    /*
+     * Force synchronous resolution of IP addresses; in this pass, we
+     * can't do it in the background and fix up past dissections.
+     */
+    set_resolution_synchrony(TRUE);
+
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
       if (wtap_seek_read(cf->wth, fdata->file_off, &phdr, &buf, &err,
@@ -3193,6 +3196,13 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
          ("packet_details" is true). */
       edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
     }
+
+    /*
+     * Force synchronous resolution of IP addresses; we're doing only
+     * one pass, so we can't do it in the background and fix up past
+     * dissections.
+     */
+    set_resolution_synchrony(TRUE);
 
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
       framenum++;
@@ -3412,11 +3422,6 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset, struct wtap
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (edt) {
-    if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-        gbl_resolv_flags.transport_name))
-      /* Grab any resolved addresses */
-      host_name_lookup_process();
-
     /* If we're running a filter, prime the epan_dissect_t with that
        filter. */
     if (cf->dfcode)
