@@ -344,18 +344,6 @@ static ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, tim
 static  gboolean  async_dns_initialized = FALSE;
 static  guint       async_dns_in_flight = 0;
 static  wmem_list_t *async_dns_queue_head = NULL;
-
-/* push a dns request */
-static void
-add_async_dns_ipv4(int type, guint32 addr)
-{
-    async_dns_queue_msg_t *msg;
-
-    msg = wmem_new(wmem_epan_scope(), async_dns_queue_msg_t);
-    msg->family = type;
-    msg->addr.ip4 = addr;
-    wmem_list_append(async_dns_queue_head, (gpointer) msg);
-}
 #endif /* HAVE_C_ARES */
 
 typedef struct {
@@ -769,6 +757,9 @@ static hashipv4_t *
 host_lookup(const guint addr)
 {
     hashipv4_t * volatile tp;
+#ifdef HAVE_C_ARES
+    async_dns_queue_msg_t *caqm;
+#endif
 
     tp = (hashipv4_t *)wmem_map_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
     if (tp == NULL) {
@@ -796,7 +787,10 @@ host_lookup(const guint addr)
 
 #ifdef HAVE_C_ARES
         if (async_dns_initialized && name_resolve_concurrency > 0) {
-            add_async_dns_ipv4(AF_INET, addr);
+            caqm = wmem_new(wmem_epan_scope(), async_dns_queue_msg_t);
+            caqm->family = AF_INET;
+            caqm->addr.ip4 = addr;
+            wmem_list_append(async_dns_queue_head, (gpointer) caqm);
         }
 #endif
     }
