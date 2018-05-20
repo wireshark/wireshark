@@ -350,6 +350,14 @@ WS_DLL_PUBLIC
 wmem_map_t *get_ipv6_hash_table(void);
 
 /*
+ * XXX - if we ever have per-session host name etc. information, we
+ * should probably have the "resolve synchronously or asynchronously"
+ * flag be per-session, set with an epan API.
+ */
+WS_DLL_PUBLIC
+void set_resolution_synchrony(gboolean synchronous);
+
+/*
  * private functions (should only be called by epan directly)
  */
 
