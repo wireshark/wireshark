@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-05-11)
+(last updated 2018-05-18)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -80837,7 +80837,7 @@ Nancy - FRANCE
 20320
   CAE Inc
     Louis Labelle
-      tullio&cae.com
+      ianaoid&cae.com
 20321
   G+G Comsoft GmbH
     Thomas Schöll
@@ -86689,8 +86689,8 @@ Information Security of Pr
       caolq&chnsys.com.cn
 21783
   ANTGroup s.r.l
-    Mario Duchi
-      m.duchi&antgroup.it
+    Diego Maioli
+      d.maioli&antgroup.it
 21784
   Calrec Audio Ltd
     Alison Jones
@@ -88439,8 +88439,8 @@ Telecommunication Inc.
       johan&borenet.se
 22220
   LACNIC
-    Arturo Servin
-      aservin&lacnic.net
+    Juan C. Alonso
+      juancarlos&lacnic.net
 22221
   Wescom GmbH
     Markus Fischer
@@ -100874,9 +100874,9 @@ de Bruxelles, asbl
     Bruno A. Crespo
       bruno&trustserver.com
 25326
-  FurreVille
+  Linux-Help.org (formerly 'FurreVille')
     Eric Renfro
-      erenfro&gmail.com
+      erenfro&linux-help.org
 25327
   Visible World Inc.
     Erik van de Pol
@@ -128647,9 +128647,9 @@ Decentralization / Helenic Public Administra
     Bartosz Dendor
       b.dendor&ppc-ag.de
 32267
-  I.S.T. Austria
-    Ing. Michael Brandstaetter
-      iana_pen&ist-austria.ac.at
+  IST Austria
+    Core-IT
+      coreit&ist.ac.at
 32268
   Hobby Lobby Stores, Inc.
     John Sargent
@@ -132721,7 +132721,7 @@ Decentralization / Helenic Public Administra
 33285
   NavStar Geomatics Ltd
     Glen Bjorgan
-      gbjorgan&navstar.ca
+      glen.bjorgan&navstar.com
 33286
   KIPAC
     Stuart Marshall
@@ -157820,9 +157820,9 @@ Decentralization / Helenic Public Administra
     Frank Leprich
       info&derEDVdienst.de
 39560
-  Lead Innovation System Technology Corp.
+  Leads Technologies Limited (formerly 'Lead Innovation System Technology Corp.')
     Frank, H.L.Lai
-      frank&lisystec.com
+      frank&leadstec.com
 39561
   XSD Zrt.
     Adam Popper
@@ -170665,8 +170665,8 @@ Decentralization / Helenic Public Administra
       hostmaster&totalpost.com
 42771
   DGQoS
-    Mario Duchi
-      m.duchi&antgroup.it
+    Diego Maioli
+      d.maioli&antgroup.it
 42772
   Galkam PTY LTD
     Glen L Kleidon
@@ -188537,8 +188537,8 @@ Decentralization / Helenic Public Administra
       rachotta&ais.co.th
 47239
   Braincarta
-    V.M.E. Kersten
-      v.m.e.kersten&braincarta.com
+    N.F. Ramsey
+      n.f.ramsey&braincarta.com
 47240
   Syncsort Inc.
     IT Support
@@ -203561,7 +203561,7 @@ Decentralization / Helenic Public Administra
       admin&rbrettman.com
 50995
   Quantum Networks (SG) Pte. Ltd.
-    Deepak Chandrayan
+    Narasimhan Jayasri
       admin&qntmnet.com
 50996
   Wolford AG  
@@ -207479,6 +207479,154 @@ Decentralization / Helenic Public Administra
   Raptor Computing Systems, LLC
     Support Department
       support&raptorcs.com
+51975
+  TouHou.FM
+    Daniel Sonck
+      info&touhou.fm
+51976
+  Barry Electric Cooperative, Inc.
+    Nicholas Warren
+      nwarren&barryelectric.com
+51977
+  Shirakumo
+    Nicolas Hafner
+      shinmera&tymoon.eu
+51978
+  BitMEX
+    Tim Tickel
+      twt&bitmex.com
+51979
+  WestJet Airlines Ltd.
+    Devon Smibert
+      ITSecurity2&westjet.com
+51980
+  IT Forge
+    Leander Janssen
+      leander&itforge.nl
+51981
+  Unassigned
+    Returned 2018-05-17
+      ---none---
+51982
+  Red Dog Consulting LLC
+    Aaron Johnson
+      aaron&reddogconsulting.us
+51983
+  Groupe Solutions TI
+    Richard Simard
+      richard.simard&groupesti.com
+51984
+  XnetSolutions KG
+    Mr. Andreas Klaedtke
+      iana.pen&xnetsolutions.de
+51985
+  Linogate GmbH
+    Mateusz Roik
+      roik&linogate.de
+51986
+  CARVAJAL SOLUCIONES EN TECNOLOGIA S.A.S
+    Carlos Andres Guzman
+      carlos.guzmans&carvajal.com
+51987
+  Squar Milner
+    Andy Mulay
+      penadmin&squarmilner.com
+51988
+  Panj Works
+    Hrvoje Cvetkovic
+      admin&panj.ws
+51989
+  Irvine Company
+    John Barnett
+      jbarnett&irvinecompany.com
+51990
+  Rigosys Information Technology
+    huakai.han
+      huakai.han&rigosys.com
+51991
+  Landkreis St. Wendel
+    Stefan Wommer
+      s.wommer&lkwnd.de
+51992
+  Zuercher Hochschule der Kuenste ZHdK
+    Stefan Knodt
+      service.itz&zhdk.ch
+51993
+  GKD Paderborn
+    Alfred Schröder
+      alfred.schroeder&gkdpb.de
+51994
+  Indian Institute of Science, Bangalore
+    SANOOD ULLATTUTHODIYIL
+      sanood&iisc.ac.in
+51995
+  Bengkel Oprek Elektronika
+    Dwi Satria Wirawan
+      dwisatriawirawan&gmail.com
+51996
+  Grand Canyon Education
+    Staff Admin
+      staff.admin&gce.com
+51997
+  Ten Fifteen Solutions Limited
+    Matthew Burr
+      info&tenfifteen.ca
+51998
+  Ampd Energy Limited
+    Luca Valente
+      luca&ampd.energy
+51999
+  Bäckebo Sågverk AB
+    Roger Franzen
+      roger&backebosagverk.se
+52000
+  Amsio
+    Amsio Support
+      support&amsio.com
+52001
+  European External Action Service
+    Luis Felix
+      luis.felix&ext.eeas.europa.eu
+52002
+  Svod International, LLC
+    admin&svod-int.ru
+      admin&svod-int.ru
+52003
+  Starpower Home Entertainment Systems, Inc.
+    Daniel Hoag
+      ianapen&star-power.com
+52004
+  Elcomplus LLC
+    Alex Maltsev
+      MaltsevAM&elcomplus.ru
+52005
+  ogt11.com, llc
+    Sam Nicholson
+      samcn2&ogt11.com
+52006
+  Designx Solutions
+    Shakaib Safvi
+      shakaibsafvi&designxsolutions.com
+52007
+  Garretson Resolution Group
+    Alex Whitman
+      Networking&garretsongroup.com
+52008
+  Alliance Development Fund
+    Jason Stroup
+      jstroup&adf-inc.com
+52009
+  Oakland Unified School District
+    Daniel Augustine
+      dan&ousd.org
+52010
+  Westmoreland Casemanagement and Supports, Inc.
+    Joe Capozzi
+      jcapozzi&wcsi.org
+52011
+  Stolon
+    Lacoste Damien
+      damien&lacoste.io
 
 
 End of Document
