@@ -1610,7 +1610,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_DPA400 */
-	{ "Unigraf DisplayPort AUX channel monitor output parser", "dpa400", "bin", NULL,
+	{ "Unigraf DPA-400 capture", "dpa400", "bin", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
