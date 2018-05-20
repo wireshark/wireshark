@@ -338,8 +338,8 @@ static void c_ares_ghba_cb(void *arg, int status, struct hostent *hostent);
 static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
 #endif
 
-ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
-ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
+static ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
+static ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
 
 static  gboolean  async_dns_initialized = FALSE;
 static  guint       async_dns_in_flight = 0;
