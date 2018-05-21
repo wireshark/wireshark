@@ -34,7 +34,8 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     // completion for fields handled by DisplayFilterEdit.
     setAutoCompletion(false);
     setLineEdit(new DisplayFilterEdit(this, DisplayFilterToApply));
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    // Default is Preferred.
+    setSizePolicy(QSizePolicy::MinimumExpanding, sizePolicy().verticalPolicy());
     setAccessibleName(tr("Display filter selector"));
     cur_display_filter_combo = this;
     setStyleSheet(
