@@ -2114,6 +2114,7 @@ cf_retap_packets(capture_file *cf)
                                   "all packets", TRUE, retap_packet,
                                   &callback_args, TRUE);
 
+  packet_range_cleanup(&range);
   epan_dissect_cleanup(&callback_args.edt);
 
   cf_callback_invoke(cf_cb_file_retap_finished, cf);

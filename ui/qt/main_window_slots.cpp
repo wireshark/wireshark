@@ -2109,8 +2109,10 @@ void MainWindow::on_actionStatisticsHpfeeds_triggered()
 
 void MainWindow::on_actionFilePrint_triggered()
 {
-    PrintDialog pdlg(this, capture_file_.capFile());
+    capture_file *cf = capture_file_.capFile();
+    g_return_if_fail(cf);
 
+    PrintDialog pdlg(this, cf);
     pdlg.exec();
 }
 
