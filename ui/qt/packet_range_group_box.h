@@ -22,6 +22,10 @@ namespace Ui {
 class PacketRangeGroupBox;
 }
 
+/**
+ * UI element for controlling a range selection. The range provided in
+ * "initRange" is not owned by this class but will be modified.
+ */
 class PacketRangeGroupBox : public QGroupBox
 {
     Q_OBJECT

@@ -136,6 +136,7 @@ ExportDissectionDialog::~ExportDissectionDialog()
 {
 #if !defined(Q_OS_WIN)
     g_free(print_args_.file);
+    packet_range_cleanup(&print_args_.range);
 #endif
 }
 

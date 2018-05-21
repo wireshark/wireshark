@@ -1571,7 +1571,7 @@ void MainWindow::exportSelectedPackets() {
         case CANCELLED:
             /* The user said "forget it".  Just get rid of the dialog box
                and return. */
-            return;
+            goto cleanup;
         }
 
         /*
@@ -1625,7 +1625,7 @@ void MainWindow::exportSelectedPackets() {
                 packet_list_queue_draw();
             /* Add this filename to the list of recent files in the "Recent Files" submenu */
             add_menu_recent_capture_file(qUtf8Printable(file_name));
-            return;
+            goto cleanup;
 
         case CF_WRITE_ERROR:
             /* The save failed; let the user try again. */
@@ -1633,24 +1633,19 @@ void MainWindow::exportSelectedPackets() {
 
         case CF_WRITE_ABORTED:
             /* The user aborted the save; just return. */
-            return;
+            goto cleanup;
         }
     }
-    return;
+
+cleanup:
+    packet_range_cleanup(&range);
 }
 
 void MainWindow::exportDissections(export_type_e export_type) {
-    ExportDissectionDialog ed_dlg(this, capture_file_.capFile(), export_type);
-    packet_range_t range;
+    capture_file *cf = capture_file_.capFile();
+    g_return_if_fail(cf);
 
-    if (!capture_file_.capFile())
-        return;
-
-    /* Init the packet range */
-    packet_range_init(&range, capture_file_.capFile());
-    range.process_filtered = TRUE;
-    range.include_dependents = TRUE;
-
+    ExportDissectionDialog ed_dlg(this, cf, export_type);
     ed_dlg.exec();
 }
 

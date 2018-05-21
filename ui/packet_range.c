@@ -224,6 +224,10 @@ void packet_range_init(packet_range_t *range, capture_file *cf) {
     packet_range_calc_user(range);
 }
 
+void packet_range_cleanup(packet_range_t *range) {
+    wmem_free(NULL, range->user_range);
+}
+
 /* check whether the packet range is OK */
 convert_ret_t packet_range_check(packet_range_t *range) {
     if (range->process == range_process_user_range && range->user_range == NULL) {

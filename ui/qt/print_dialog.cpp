@@ -67,7 +67,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     page_pos_(0),
     in_preview_(FALSE)
 {
-    if (!cf) done(QDialog::Rejected); // ...or assert?
+    Q_ASSERT(cf);
 
     pd_ui_->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("Print")));
@@ -122,6 +122,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
 
 PrintDialog::~PrintDialog()
 {
+    packet_range_cleanup(&print_args_.range);
     delete pd_ui_;
 }
 
