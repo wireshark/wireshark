@@ -9,11 +9,11 @@
 # You can add custom builtin dissectors here by replaceing foo with your dissectors name.
 
 set(CUSTOM_DISSECTOR_SRC
-#	packet-foo.c
+#	${CMAKE_CURRENT_SOURCE_DIR}/packet-foo.c
 )
 
 set(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC
-#	packet-bar.c
+#	${CMAKE_CURRENT_SOURCE_DIR}/packet-bar.c
 )
 
 #

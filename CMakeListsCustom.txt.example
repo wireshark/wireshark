@@ -12,7 +12,7 @@
 set(CUSTOM_PLUGIN_SRC_DIR
 #	private_plugins/foo
 # or
-#	plugins/foo
+#	plugins/epan/foo
 )
 
 #
