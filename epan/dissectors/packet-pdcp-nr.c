@@ -1084,7 +1084,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 proto_tree *bitmap_tree;
                 proto_item *bitmap_ti = NULL;
                 gchar  *buff = NULL;
-#define BUFF_SIZE 81
+#define BUFF_SIZE 89
                 guint32 reserved_value;
 
                 /* 4 bits reserved */
@@ -1120,11 +1120,11 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                             if ((bits << l) & 0x80) {
                                 if (bitmap_tree) {
                                     // TODO: better to do mod and show as SN instead?
-                                    j += g_snprintf(&buff[j], BUFF_SIZE-j, "%9u,", (unsigned)(fmc+(8*i)+l));
+                                    j += g_snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
                                 }
                             } else {
                                 if (bitmap_tree) {
-                                    j += (guint)g_strlcpy(&buff[j], "         ,", BUFF_SIZE-j);
+                                    j += (guint)g_strlcpy(&buff[j], "          ,", BUFF_SIZE-j);
                                 }
                                 not_received++;
                             }
