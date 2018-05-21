@@ -2941,7 +2941,8 @@ separate_arguments(TEST_EXTRA_ARGS)
 foreach(_suite_name ${_test_suite_list})
 	add_test(
 		NAME ${_suite_name}
-		COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
+		COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
+			${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
 			--verbose
 			--program-path ${_test_suite_program_path}
 			${TEST_EXTRA_ARGS}

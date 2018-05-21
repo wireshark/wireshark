@@ -182,7 +182,7 @@ class SubprocessTestCase(unittest.TestCase):
                 # Leave some evidence behind.
                 self.cleanup_files = []
                 print('\nProcess output for {}:'.format(self.id()))
-                with io.open(self.log_fname, 'r', encoding='UTF-8') as log_fd:
+                with io.open(self.log_fname, 'r', encoding='UTF-8', errors='backslashreplace') as log_fd:
                     for line in log_fd:
                         sys.stdout.write(line)
         for filename in self.cleanup_files:

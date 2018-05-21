@@ -112,6 +112,18 @@ def main():
         parser.print_usage()
         sys.exit(1)
 
+    #
+    if sys.stdout.encoding != 'UTF-8':
+        import codecs
+        import locale
+        sys.stderr.write('Warning: Output encoding is {0} and not UTF-8.\n'.format(sys.stdout.encoding))
+        if sys.version_info[0] >= 3:
+            sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout.buffer, 'backslashreplace')
+            sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.stderr.buffer, 'backslashreplace')
+        else:
+            sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout, 'backslashreplace')
+            sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.stderr, 'backslashreplace')
+
     run_suite = unittest.defaultTestLoader.loadTestsFromNames(run_ids)
     runner = unittest.TextTestRunner(verbosity=args.verbose)
     test_result = runner.run(run_suite)
