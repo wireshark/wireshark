@@ -30,7 +30,7 @@ static gboolean json_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
          * immensely-large file.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("mime_file: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
+        *err_info = g_strdup_printf("json: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
             file_size, MAX_FILE_SIZE);
         return FALSE;
     }
