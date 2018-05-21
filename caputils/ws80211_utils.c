@@ -41,6 +41,8 @@ DIAG_ON_PEDANTIC
 
 #include <linux/nl80211.h>
 
+#include <wsutil/netlink.h>
+
 #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
 static int ws80211_get_protocol_features(int* features);
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
@@ -194,27 +196,6 @@ static struct ws80211_interface *
 	}
 	return NULL;
 }
-
-/*
- * And now for a steaming heap of suck.
- *
- * The nla_for_each_nested() macro defined by at least some versions of the
- * Linux kernel's headers doesn't do the casting required when compiling
- * with a C++ compiler or with -Wc++-compat, so we get warnings, and those
- * warnings are fatal when we compile this file.
- *
- * So we replace it with our own version, which does the requisite cast.
- */
-
-/**
- * nla_for_each_nested - iterate over nested attributes
- * @pos: loop counter, set to current attribute
- * @nla: attribute containing the nested attributes
- * @rem: initialized to len, holds bytes currently remaining in stream
- */
-#undef nla_for_each_nested
-#define nla_for_each_nested(pos, nla, rem) \
-	nla_for_each_attr(pos, (struct nlattr *)nla_data(nla), nla_len(nla), rem)
 
 #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
 static int get_features_handler(struct nl_msg *msg, void *arg)

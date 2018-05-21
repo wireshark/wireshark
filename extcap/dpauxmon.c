@@ -16,6 +16,7 @@
 
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/netlink.h>
 #include <writecap/pcapio.h>
 
 #include <netlink/netlink.h>

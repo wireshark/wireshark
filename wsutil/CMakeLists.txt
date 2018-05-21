@@ -45,6 +45,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	interface.h
 	jsmn.h
 	mpeg-audio.h
+	netlink.h
 	nstime.h
 	os_version_info.h
 	pint.h
