@@ -118,6 +118,13 @@ static int hf_gtp_ext_val = -1;
 static int hf_gtp_ext_hdr = -1;
 static int hf_gtp_ext_hdr_next = -1;
 static int hf_gtp_ext_hdr_length = -1;
+static int hf_gtp_ext_hdr_ran_cont = -1;
+static int hf_gtp_ext_hdr_spare_bits = -1;
+static int hf_gtp_ext_hdr_spare_bytes = -1;
+static int hf_gtp_ext_hdr_long_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_xw_ran_cont = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont = -1;
+static int hf_gtp_ext_hdr_pdu_session_cont = -1;
 static int hf_gtp_ext_hdr_pdcpsn = -1;
 static int hf_gtp_ext_hdr_udp_port = -1;
 static int hf_gtp_flags = -1;
@@ -457,6 +464,11 @@ static const value_string pt_types[] = {
 #define GTP_EXT_HDR_MBMS_SUPPORT_IND         0x01
 #define GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND 0x02
 #define GTP_EXT_HDR_UDP_PORT                 0x40
+#define GTP_EXT_HDR_RAN_CONT                 0x81
+#define GTP_EXT_HDR_LONG_PDCP_PDU            0x82
+#define GTP_EXT_HDR_XW_RAN_CONT              0x83
+#define GTP_EXT_HDR_NR_RAN_CONT              0x84
+#define GTP_EXT_HDR_PDU_SESSION_CONT         0x85
 #define GTP_EXT_HDR_PDCP_SN                  0xC0
 #define GTP_EXT_HDR_SUSPEND_REQ              0xC1
 #define GTP_EXT_HDR_SUSPEND_RESP             0xC2
@@ -466,6 +478,11 @@ static const value_string next_extension_header_fieldvals[] = {
     {GTP_EXT_HDR_MBMS_SUPPORT_IND, "MBMS support indication"},
     {GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND, "MS Info Change Reporting support indication"},
     {GTP_EXT_HDR_UDP_PORT, "UDP Port number"},
+    {GTP_EXT_HDR_RAN_CONT,"RAN container"},
+    {GTP_EXT_HDR_LONG_PDCP_PDU,"Long PDCP PDU number"},
+    {GTP_EXT_HDR_XW_RAN_CONT,"Xw RAN container"},
+    {GTP_EXT_HDR_NR_RAN_CONT,"NR RAN container"},
+    {GTP_EXT_HDR_PDU_SESSION_CONT,"PDU Session container"},
     {GTP_EXT_HDR_PDCP_SN, "PDCP PDU number"},
     {GTP_EXT_HDR_SUSPEND_REQ, "Suspend Request"},
     {GTP_EXT_HDR_SUSPEND_RESP, "Suspend Response"},
@@ -8723,39 +8740,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
                         switch (next_hdr) {
 
-                        case GTP_EXT_HDR_PDCP_SN:
-                            /* PDCP PDU
-                             * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
-                             *
-                             * "This extension header is transmitted, for
-                             * example in UTRAN, at SRNS relocation time,
-                             * to provide the PDCP sequence number of not
-                             * yet acknowledged N-PDUs. It is 4 octets long,
-                             * and therefore the Length field has value 1.
-                             *
-                             * When used between two eNBs at the X2 interface
-                             * in E-UTRAN, bits 5-8 of octet 2 are spare.
-                             * The meaning of the spare bits shall be set
-                             * to zero.
-                             *
-                             * Wireshark Note: TS 29.060 does not define bit
-                             * 5-6 as spare, so no check is possible unless
-                             * a preference is used.
-                             */
-                            /* First byte is length (should be 1) */
-                            if (ext_hdr_length == 1) {
-                                proto_item* ext_item;
-
-                                ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
-                                ext_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                if (ext_hdr_pdcpsn & 0x700) {
-                                    expert_add_info(pinfo, ext_item, &ei_gtp_ext_hdr_pdcpsn);
-                                }
-                            } else {
-                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the PDCP SN Extension header should be 1.");
-                            }
-                            break;
-
                         case GTP_EXT_HDR_UDP_PORT:
                             /* UDP Port
                              * 3GPP 29.281 v9.0.0, 5.2.2.1 UDP Port
@@ -8771,6 +8755,121 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             } else {
                                 /* Bad length */
                                 expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the UDP Port Extension header should be 1.");
+                            }
+                            break;
+
+                        case GTP_EXT_HDR_RAN_CONT:
+                            /* RAN Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.4 RAN Container
+                             * This extension header may be transmitted in
+                             * a G-PDU over the X2 user plane interface
+                             * between the eNBs. The RAN Container has a
+                             * variable length and its content is specified
+                             * in 3GPP TS 36.425 [25]. A G-PDU message with
+                             * this extension header may be sent without a T-PDU.
+                             */
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_ran_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            break;
+
+                        case GTP_EXT_HDR_LONG_PDCP_PDU:
+                            /* Long PDCP PDU Number
+                             * 3GPP 29.281 v15.2.0, 5.2.2.2A Long PDCP PDU Number
+                             * This extension header is used for direct X2 or
+                             * indirect S1 DL data forwarding during a Handover
+                             * procedure between two eNBs. The Long PDCP PDU number
+                             * extension header is 8 octets long, and therefore
+                             * the Length field has value 2.
+                             * The PDCP PDU number field of the Long PDCP PDU number
+                             * extension header has a maximum value which requires 18
+                             * bits (see 3GPP TS 36.323 [24]). Bit 2 of octet 2 is
+                             * the most significant bit and bit 1 of octet 4 is the
+                             * least significant bit, see Figure 5.2.2.2A-1. Bits 8 to
+                             * 3 of octet 2, and Bits 8 to 1 of octets 5 to 7 shall be
+                             * set to 0.
+                             * NOTE: A G-PDU which includes a PDCP PDU Number contains
+                             * either the extension header PDCP PDU Number or Long PDCP
+                             * PDU Number.
+                             */
+                            if (ext_hdr_length == 2) {
+                                proto_tree_add_bits_item(ext_tree, hf_gtp_ext_hdr_spare_bits, tvb, offset<<3, 6, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_long_pdcp_sn, tvb, offset, 3, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_spare_bytes, tvb, offset+3, 3, ENC_NA);
+                            } else {
+                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the Long PDCP SN Extension header should be 2.");
+                            }
+                            break;
+
+                        case GTP_EXT_HDR_XW_RAN_CONT:
+                            /* Xw RAN Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.5 Xw RAN Container
+                             * This extension header may be transmitted in a
+                             * G-PDU over the Xw user plane interface between
+                             * the eNB and the WLAN Termination (WT). The Xw
+                             * RAN Container has a variable length and its
+                             * content is specified in 3GPP TS 36.464 [27].
+                             * A G-PDU message with this extension header may
+                             * be sent without a T-PDU.
+                             */
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_xw_ran_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            break;
+
+                        case GTP_EXT_HDR_NR_RAN_CONT:
+                            /* NR RAN Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.6 NR RAN Container
+                             * This extension header may be transmitted in a
+                             * G-PDU over the X2-U, Xn-U and F1-U user plane
+                             * interfaces, within NG-RAN and, for EN-DC, within
+                             * E-UTRAN. The NR RAN Container has a variable
+                             * length and its content is specified in 3GPP TS
+                             * 38.425 [30]. A G-PDU message with this extension
+                             * header may be sent without a T-PDU.
+                             */
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_nr_ran_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            break;
+
+                        case GTP_EXT_HDR_PDU_SESSION_CONT:
+                            /* PDU Session Container
+                             * 3GPP 29.281 v15.2.0, 5.2.2.7 PDU Session Container
+                             * This extension header may be transmitted in a G-PDU
+                             * over the N3 and N9 user plane interfaces, between
+                             * NG-RAN and UPF, or between two UPFs. The PDU Session
+                             * Container has a variable length and its content is
+                             * specified in 3GPP TS 38.415 [31].
+                             */
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdu_session_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            break;
+
+                        case GTP_EXT_HDR_PDCP_SN:
+                            /* PDCP PDU
+                             * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
+                             *
+                             * "This extension header is transmitted, for
+                             * example in UTRAN, at SRNS relocation time,
+                             * to provide the PDCP sequence number of not
+                             * yet acknowledged N-PDUs. It is 4 octets long,
+                             * and therefore the Length field has value 1.
+                             *
+                             * When used during a handover procedure between
+                             * two eNBs at the X2 interface (direct DL data
+                             * forwarding) or via the S1 interface (indirect
+                             * DL data forwarding) in E-UTRAN, bit 8 of octet
+                             * 2 is spare and shall be set to zero.
+                             *
+                             * Wireshark Note: TS 29.060 does not define bit
+                             * 5-6 as spare, so no check is possible unless
+                             * a preference is used.
+                             */
+                            /* First byte is length (should be 1) */
+                            if (ext_hdr_length == 1) {
+                                proto_item* ext_item;
+
+                                ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
+                                ext_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                if (ext_hdr_pdcpsn & 0x8000) {
+                                    expert_add_info(pinfo, ext_item, &ei_gtp_ext_hdr_pdcpsn);
+                                }
+                            } else {
+                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the PDCP SN Extension header should be 1.");
                             }
                             break;
 
@@ -9096,6 +9195,41 @@ proto_register_gtp(void)
         {&hf_gtp_ext_hdr_next,
          { "Next extension header type", "gtp.ext_hdr.next",
            FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_ran_cont,
+         { "RAN Container", "gtp.ext_hdr.ran_cont",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_spare_bits,
+         { "Spare", "gtp.ext_hdr.spare_bits",
+           FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_spare_bytes,
+         { "Spare", "gtp.ext_hdr.spare_bytes",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_long_pdcp_sn,
+         { "Long PDCP Sequence Number", "gtp.ext_hdr.long_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_xw_ran_cont,
+         { "Xw RAN Container", "gtp.ext_hdr.xw_ran_cont",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont,
+         { "NR RAN Container", "gtp.ext_hdr.nr_ran_cont",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_pdu_session_cont,
+         { "PDU Session Container", "gtp.ext_hdr.pdu_session_cont",
+           FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_ext_hdr_pdcpsn,
@@ -10067,7 +10201,7 @@ proto_register_gtp(void)
 
     static ei_register_info ei[] = {
         { &ei_gtp_ext_length_mal, { "gtp.ext_length.invalid", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
-        { &ei_gtp_ext_hdr_pdcpsn, { "gtp.ext_hdr.pdcp_sn.non_zero", PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare. The meaning of the spare bits shall be set to zero.", EXPFILL }},
+        { &ei_gtp_ext_hdr_pdcpsn, { "gtp.ext_hdr.pdcp_sn.non_zero", PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bit 8 of octet 2 is spare. The meaning of the spare bits shall be set to zero.", EXPFILL }},
         { &ei_gtp_ext_length_warn, { "gtp.ext_length.invalid", PI_PROTOCOL, PI_WARN, "Length warning", EXPFILL }},
         { &ei_gtp_undecoded, { "gtp.undecoded", PI_UNDECODED, PI_WARN, "Data not decoded yet", EXPFILL }},
         { &ei_gtp_message_not_found, { "gtp.message_not_found", PI_PROTOCOL, PI_WARN, "Message not found", EXPFILL }},
