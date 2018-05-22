@@ -12,65 +12,6 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2018-25[]
-+
-The LDSS dissector could crash.
-(ws-buglink:14615[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 295abe2e83
-// Fixed in master-2.6: 35344225fa
-// Fixed in master-2.4: 6fe7632af0
-// Fixed in master-2.2: f177008b04
-
-* ws-salink:2018-28[]
-+
-Multiple dissectors could consume excessive memory.
-(ws-buglink:14678[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: d80acae40d
-// Fixed in master-2.6: b82a9a3f95
-// Fixed in master-2.4: ac55e80ae4
-// Fixed in master-2.2: ab8a33ef08
-
-* ws-salink:2018-29[]
-+
-The DNS dissector could crash.
-(ws-buglink:14681[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 843735e0ef
-// Fixed in master-2.6: d93f7b8707
-// Fixed in master-2.4: 95c884e78f
-// Fixed in master-2.2: 4425716ddb
-
-* ws-salink:2018-30[]
-+
-The GSM A DTAP dissector could crash.
-(ws-buglink:14688[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 48fac2a18d
-// Fixed in master-2.6: 521dcb0b84
-// Fixed in master-2.4: c79b342aa7
-// Fixed in master-2.2: a55b36c51f
-
-* ws-salink:2018-31[]
-+
-The Q.931 dissector could crash.
-(ws-buglink:14689[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: d08a53a7b9
-// Fixed in master-2.6: e1deea1169
-// Fixed in master-2.4: 0e67d8b5ee
-// Fixed in master-2.2: ccb1ac3c8c
-
-* ws-salink:2018-33[]
-+
-Multiple dissectors could crash.
-(ws-buglink:14703[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 40dbc0ccf2
-// Fixed in master-2.6: e50f7ced83
-// Fixed in master-2.4: fb9e31f0aa
-// Fixed in master-2.2: beaebe91b1
 
 The following bugs have been fixed:
 
@@ -78,13 +19,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.15rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* SMB2 Write requests not displayed. (ws-buglink:14598[])
-
-* Wrong default file format chosen in when saving a capture with comments added if the original format doesn't support comments. (ws-buglink:14601[])
-
-* WinSparkle 0.5.6 is out of date and is buggy. (ws-buglink:14642[])
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.16rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 
 === New and Updated Features
@@ -104,28 +39,12 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-BATADV
-BSSMAP
-BVLC
-DNS
-GSM A DTAP
-GTP
-IEEE 802.11
-LDSS
-Logcat Text
-MP2T
-MPEG PES
-NBSS
-Q.931
-S7COMM
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
-Android Logcat
-3GPP TS 32.423 Trace
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
