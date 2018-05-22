@@ -22,8 +22,6 @@ capture_duration = 5
 
 testout_pcap = 'testout.pcap'
 snapshot_len = 96
-capture_env = os.environ.copy()
-capture_env['WIRESHARK_QUIT_AFTER_CAPTURE'] = 'True'
 
 def start_pinging(self):
     ping_procs = []
@@ -62,7 +60,6 @@ def check_capture_10_packets(self, cmd=None, to_stdout=False):
             '>', testout_file,
             shell=True
         ),
-        env=capture_env,
         shell=True
         )
     else:
@@ -73,9 +70,7 @@ def check_capture_10_packets(self, cmd=None, to_stdout=False):
             '-c', '10',
             '-a', 'duration:{}'.format(capture_duration),
             '-f', 'icmp || icmp6',
-        ),
-        env=capture_env
-        )
+        ))
     capture_returncode = capture_proc.returncode
     stop_pinging(ping_procs)
     if capture_returncode != 0:
@@ -109,9 +104,7 @@ def check_capture_fifo(self, cmd=None):
         '-p',
         '-w', testout_file,
         '-a', 'duration:{}'.format(capture_duration),
-    ),
-    env=capture_env
-    )
+    ))
     fifo_proc.kill()
     self.assertTrue(os.path.isfile(testout_file))
     capture_returncode = capture_proc.returncode
@@ -135,7 +128,7 @@ def check_capture_stdin(self, cmd=None):
     )
     if cmd == config.cmd_wireshark:
         capture_cmd += ' -o console.log.level:127'
-    pipe_proc = self.runProcess(slow_dhcp_cmd + ' | ' + capture_cmd, env=capture_env, shell=True)
+    pipe_proc = self.runProcess(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
     pipe_returncode = pipe_proc.returncode
     self.assertEqual(pipe_returncode, 0)
     if cmd == config.cmd_wireshark:
@@ -170,9 +163,7 @@ def check_capture_read_filter(self, cmd=None):
         '-c', '10',
         '-a', 'duration:{}'.format(capture_duration),
         '-f', 'icmp || icmp6',
-    ),
-    env=capture_env
-    )
+    ))
     capture_returncode = capture_proc.returncode
     stop_pinging(ping_procs)
     self.assertEqual(capture_returncode, 0)
@@ -197,9 +188,7 @@ def check_capture_snapshot_len(self, cmd=None):
         '-s', str(snapshot_len),
         '-a', 'duration:{}'.format(capture_duration),
         '-f', 'icmp || icmp6',
-    ),
-    env=capture_env
-    )
+    ))
     capture_returncode = capture_proc.returncode
     stop_pinging(ping_procs)
     self.assertEqual(capture_returncode, 0)

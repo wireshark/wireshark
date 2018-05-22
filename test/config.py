@@ -208,7 +208,8 @@ def setUpTestEnvironment():
 
     # Set up our environment
     test_env = os.environ.copy()
-    test_env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
+    test_env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = 'True'
+    test_env['WIRESHARK_QUIT_AFTER_CAPTURE'] = 'True'
     test_env['TZ'] = 'UTC'
     test_env[home_env] = home_path
 
