@@ -445,11 +445,6 @@ void CaptureInterfacesDialog::on_cbAutoScroll_toggled(bool checked)
     auto_scroll_live = checked;
 }
 
-void CaptureInterfacesDialog::on_cbExtraCaptureInfo_toggled(bool checked)
-{
-    global_capture_opts.show_info = checked;
-}
-
 void CaptureInterfacesDialog::on_cbResolveMacAddresses_toggled(bool checked)
 {
     gbl_resolv_flags.mac_name = checked;
@@ -580,7 +575,6 @@ void CaptureInterfacesDialog::updateInterfaces()
 
     ui->cbUpdatePacketsRT->setChecked(global_capture_opts.real_time_mode);
     ui->cbAutoScroll->setChecked(true);
-    ui->cbExtraCaptureInfo->setChecked(global_capture_opts.show_info);
 
     ui->cbResolveMacAddresses->setChecked(gbl_resolv_flags.mac_name);
     ui->cbResolveNetworkNames->setChecked(gbl_resolv_flags.network_name);
