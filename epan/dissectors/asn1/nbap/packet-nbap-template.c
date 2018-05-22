@@ -1044,8 +1044,10 @@ dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     return FALSE;
   }
 
-  pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
-  if (pdu_type != 0x00 && pdu_type != 0x20 && pdu_type != 0x40 && pdu_type != 0x60) {
+  pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET) & 0x7f;
+  if (pdu_type & 0x1f) {
+    /* pdu_type is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
+       0x40 (unsuccesfulOutcome) or 0x60 (outcome) */
     return FALSE;
   }
 
@@ -1055,12 +1057,14 @@ dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   }
 
   dd_mode = tvb_get_guint8(tvb, DD_CRIT_OFFSET) >> 5;
-  if (dd_mode != 0x00 && dd_mode != 0x01 && dd_mode != 0x02) {
+  if (dd_mode >= 0x03) {
+    /* dd_mode is not 0x00 (tdd), 0x01 (fdd) or 0x02 (common) */
     return FALSE;
   }
 
   criticality = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x18) >> 3;
-  if (criticality != 0x00 && criticality != 0x01 && criticality != 0x02) {
+  if (criticality == 0x03) {
+    /* criticality is not 0x00 (reject), 0x01 (ignore) or 0x02 (notify) */
     return FALSE;
   }
 
@@ -1077,7 +1081,7 @@ dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      to avoid exceptions and info added to tree, info column and expert info */
   length = tvb_get_guint8(tvb, length_field_offset);
   length_field_offset += 1;
-  if ((length & 0x80) == 0x80) {
+  if (length & 0x80) {
     if ((length & 0xc0) == 0x80) {
       length &= 0x3f;
       length <<= 8;
