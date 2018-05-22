@@ -117,26 +117,55 @@ if(ASCIIDOCTOR_EXECUTABLE)
     # news: release-notes.txt
     #         ${CMAKE_COMMAND} -E copy_if_different release-notes.txt ../NEWS
 
-    MACRO( ASCIIDOCTOR2PDF _asciidocsource )
-        GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-        set( _output_pdf ${_source_base_name}.pdf )
+    FIND_PROGRAM(ASCIIDOCTOR_PDF_EXECUTABLE
+        NAMES
+            asciidoctorj
+            asciidoctor-pdf
+        PATHS
+            /bin
+            /usr/bin
+            /usr/local/bin
+            ${CHOCOLATEY_BIN_PATH}
+        DOC "Path to Asciidoctor PDF or AsciidoctorJ"
+    )
 
-        ADD_CUSTOM_COMMAND(
-            OUTPUT
-                ${_output_pdf}
-            COMMAND ${_asciidoctor_common_command}
-                --backend pdf
-                ${_asciidoctor_common_args}
-                --out-file ${_output_pdf}
-                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-            DEPENDS
-                ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-                ${ARGN}
+    if(ASCIIDOCTOR_PDF_EXECUTABLE)
+
+        set(_asciidoctor_pdf_common_command ${_env_command}
+            TZ=UTC ASCIIDOCTORJ_OPTS="${_asciidoctorj_opts}"
+            ${ASCIIDOCTOR_PDF_EXECUTABLE}
+            --require asciidoctor-pdf
+            --backend pdf
+            ${_asciidoctor_common_args}
         )
-        add_custom_target(generate_${_output_pdf} DEPENDS ${_output_pdf})
-        set_asciidoctor_target_properties(generate_${_output_pdf})
-        unset(_output_pdf)
-    ENDMACRO()
+
+        MACRO( ASCIIDOCTOR2PDF _asciidocsource )
+            GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
+            set( _output_pdf ${_source_base_name}.pdf )
+
+            ADD_CUSTOM_COMMAND(
+                OUTPUT
+                    ${_output_pdf}
+                COMMAND ${_asciidoctor_common_command}
+                    --backend pdf
+                    ${_asciidoctor_common_args}
+                    --out-file ${_output_pdf}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+                DEPENDS
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+                    ${ARGN}
+            )
+            add_custom_target(generate_${_output_pdf} DEPENDS ${_output_pdf})
+            set_asciidoctor_target_properties(generate_${_output_pdf})
+            unset(_output_pdf)
+        ENDMACRO()
+
+    else(ASCIIDOCTOR_PDF_EXECUTABLE)
+
+        MACRO( ASCIIDOCTOR2PDF _asciidocsource )
+        ENDMACRO()
+
+    endif(ASCIIDOCTOR_PDF_EXECUTABLE)
 
 endif(ASCIIDOCTOR_EXECUTABLE)
 
