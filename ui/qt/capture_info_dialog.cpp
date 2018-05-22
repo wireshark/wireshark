@@ -32,7 +32,7 @@
 
 // The GTK+ version of this dialog showed a list of protocols and a simple bar graph
 // (progress bars) showing their portion of the total number of packets. We show a
-// a time series for each protocol using a sparkline. If we wanted to show bar grapsh
+// a time series for each protocol using a sparkline. If we wanted to show bar graphs
 // instead we could do so using QProgressBars or using PercentBarDelegates.
 
 extern "C" {
