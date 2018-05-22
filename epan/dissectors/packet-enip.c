@@ -2741,9 +2741,6 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    request_key.sender_context = tvb_get_letoh64( tvb, 12 );
    request_key.conversation   = conversation->conv_index;
 
-   encap_data_length = tvb_get_letohs( tvb, 2 );
-   enip_tree = NULL;
-
    /* create display subtree for the protocol */
    ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, ENC_NA );
 
