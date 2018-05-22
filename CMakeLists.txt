@@ -1379,6 +1379,7 @@ set( exec_prefix "\${prefix}" )
 set( libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}" )
 set( includedir  "\${prefix}/include" )
 set( plugindir "\${libdir}/wireshark/${PLUGIN_VERSION_DIR}" )
+set( VERSION_RELEASE "${PROJECT_RELEASE_VERSION}" )
 
 # Doxygen variables
 file(GLOB TOP_LEVEL_SOURCE_LIST *.c *.cpp *.h)
