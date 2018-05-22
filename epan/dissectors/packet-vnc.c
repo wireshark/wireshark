@@ -1273,7 +1273,6 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
 		offset += 4;
 		proto_tree_add_item_ret_string(tree, hf_vnc_tight_signature, tvb, offset, 8, ENC_ASCII|ENC_NA, wmem_packet_scope(), &signature);
-		offset += 8;
 
 		switch(auth_code) {
 			case VNC_SECURITY_TYPE_NONE:
