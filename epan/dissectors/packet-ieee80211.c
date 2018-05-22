@@ -2817,7 +2817,7 @@ static const value_string band_id[] = {
 
 static const value_string allocation_type[] = {
   {0x0, "SP Allocation"},
-  {0x4, "CBAP allocation"},
+  {0x1, "CBAP allocation"},
   {0,   NULL}
 };
 
