@@ -19,18 +19,6 @@ FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
     DOC "Path to Asciidoctor or AsciidoctorJ"
 )
 
-FIND_PROGRAM(ASCIIDOCTOR_PDF_EXECUTABLE
-    NAMES
-        asciidoctorj
-        asciidoctor-pdf
-    PATHS
-        /bin
-        /usr/bin
-        /usr/local/bin
-        ${CHOCOLATEY_BIN_PATH}
-    DOC "Path to Asciidoctor or AsciidoctorJ"
-)
-
 if(ASCIIDOCTOR_EXECUTABLE)
     # The AsciidctorJ wrapper script sets -Xmx256m. This isn't enough
     # for the User's Guide.
@@ -123,6 +111,18 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     # news: release-notes.txt
     #         ${CMAKE_COMMAND} -E copy_if_different release-notes.txt ../NEWS
+
+    FIND_PROGRAM(ASCIIDOCTOR_PDF_EXECUTABLE
+        NAMES
+            asciidoctorj
+            asciidoctor-pdf
+        PATHS
+            /bin
+            /usr/bin
+            /usr/local/bin
+            ${CHOCOLATEY_BIN_PATH}
+        DOC "Path to Asciidoctor PDF or AsciidoctorJ"
+    )
 
     if(ASCIIDOCTOR_PDF_EXECUTABLE)
 
