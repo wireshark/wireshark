@@ -112,6 +112,8 @@ The following bugs have been fixed:
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.1rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Qt GUI does not snap to exactly half of screen in Windows. (ws_buglink:13516[])
+
 * Segmentation fault when switching profiles. (ws_buglink:14316[])
 
 * QUIC dissector produces incorrect packet numbers (wrong-endian). (ws_buglink:14462[])
