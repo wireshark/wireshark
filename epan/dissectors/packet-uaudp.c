@@ -1,6 +1,7 @@
 /* packet-uaudp.c
  * Routines for UA/UDP (Universal Alcatel over UDP) packet dissection.
  * Copyright 2012, Alcatel-Lucent Enterprise <lars.ruoff@alcatel-lucent.com>
+ * Copyright 2018, Alcatel-Lucent Enterprise <nicolas.bertin@al-enterprise.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -63,7 +64,9 @@ static expert_field ei_uaudp_tlv_length = EI_INIT;
 /* pref */
 #define UAUDP_PORT_RANGE "32000,32512" /* Not IANA registered */
 static range_t *ua_udp_range = NULL;
-static guint32 sys_ip;
+static address cs_address = ADDRESS_INIT_NONE;
+static ws_in4_addr cs_ipv4;
+static ws_in6_addr cs_ipv6;
 static const char* pref_sys_ip_s = "";
 
 static gboolean use_sys_ip = FALSE;
@@ -360,12 +363,12 @@ static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* server address, if present, has precedence on ports */
     if (use_sys_ip) {
         /* use server address to find direction*/
-        if (memcmp((pinfo->src).data, &sys_ip, sizeof(sys_ip)) == 0)
+        if (addresses_equal((address *)&pinfo->src, (address *)&cs_address))
         {
             _dissect_uaudp(tvb, pinfo, tree, SYS_TO_TERM);
             return tvb_captured_length(tvb);
         }
-        else if (memcmp((pinfo->dst).data, &sys_ip, sizeof(sys_ip)) == 0)
+        else if (addresses_equal((address *)&pinfo->dst, (address *)&cs_address))
         {
             _dissect_uaudp(tvb, pinfo, tree, TERM_TO_SYS);
             return tvb_captured_length(tvb);
@@ -392,12 +395,19 @@ static void
 apply_uaudp_prefs(void) {
     ua_udp_range = prefs_get_range_value("uaudp", "udp.port");
 
+    use_sys_ip = FALSE;
     if (*pref_sys_ip_s) {
-        use_sys_ip = ws_inet_pton4(pref_sys_ip_s, &sys_ip);
-        if (!use_sys_ip) {
-            report_failure("Invalid value for pref uaudp.system_ip: %s",
-                    pref_sys_ip_s);
+        use_sys_ip = ws_inet_pton4(pref_sys_ip_s, &cs_ipv4);
+        if (use_sys_ip) {
+            set_address((address *)&cs_address, AT_IPv4, sizeof(ws_in4_addr), &cs_ipv4);
+            return;
         }
+        use_sys_ip = ws_inet_pton6(pref_sys_ip_s, &cs_ipv6);
+        if (use_sys_ip) {
+            set_address((address *)&cs_address, AT_IPv6, sizeof(ws_in6_addr), &cs_ipv6);
+            return;
+        }
+        report_failure("Invalid value for pref uaudp.system_ip: %s", pref_sys_ip_s);
     }
 }
 
@@ -641,8 +651,8 @@ void proto_register_uaudp(void)
     uaudp_module = prefs_register_protocol(proto_uaudp, apply_uaudp_prefs);
 
     prefs_register_string_preference(uaudp_module, "system_ip",
-                     "System IP Address (optional)",
-                     "IPv4 address of the DHS3 system."
+                     "Call Server IP Address (optional)",
+                     "IPv4 (or IPv6) address of the call server."
                      " (Used only in case of identical source and destination ports)",
                      &pref_sys_ip_s);
 
