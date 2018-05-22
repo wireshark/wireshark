@@ -49111,6 +49111,84 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	return dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree, data);
 }
 
+/* Highest ProcedureCode value, used in heuristics */
+#define RNSAP_MAX_PC 61 /* id-enhancedRelocationResourceRelease = 61*/
+#define RNSAP_MSG_MIN_LENGTH 7
+static gboolean
+dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  guint8 pdu_type;
+  guint8 procedure_id;
+  guint8 dd_mode;
+  guint8 criticality;
+  guint8 transaction_id_type;
+  guint length;
+  int length_field_offset;
+
+  #define PDU_TYPE_OFFSET 0
+  #define PROC_CODE_OFFSET 1
+  #define DD_CRIT_OFFSET 2
+  if (tvb_captured_length(tvb) < RNSAP_MSG_MIN_LENGTH) {
+    return FALSE;
+  }
+
+  pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
+  if (pdu_type & 0x1F) {
+    /* pdu_type is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
+       0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
+    return FALSE;
+  }
+
+  procedure_id = tvb_get_guint8(tvb, PROC_CODE_OFFSET);
+  if (procedure_id > RNSAP_MAX_PC) {
+      return FALSE;
+  }
+
+  dd_mode = tvb_get_guint8(tvb, DD_CRIT_OFFSET) >> 5;
+  if (dd_mode >= 0x03) {
+    /* dd_mode is not 0x00 (tdd), 0x01 (fdd) or 0x02 (common) */
+    return FALSE;
+  }
+
+  criticality = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x18) >> 3;
+  if (criticality == 0x03) {
+    /* criticality is not 0x00 (reject), 0x01 (ignore) or 0x02 (notify) */
+    return FALSE;
+  }
+
+  /* Finding the offset for the length field - depends on wether the transaction id is long or short */
+  transaction_id_type = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x04) >> 2;
+  if(transaction_id_type == 0x00) { /* Short transaction id - 1 byte*/
+    length_field_offset = 4;
+  }
+  else { /* Long transaction id - 2 bytes*/
+    length_field_offset = 5;
+  }
+
+  /* compute aligned PER length determinant without calling dissect_per_length_determinant()
+     to avoid exceptions and info added to tree, info column and expert info */
+  length = tvb_get_guint8(tvb, length_field_offset);
+  length_field_offset += 1;
+  if (length & 0x80) {
+    if ((length & 0xc0) == 0x80) {
+      length &= 0x3f;
+      length <<= 8;
+      length += tvb_get_guint8(tvb, length_field_offset);
+      length_field_offset += 1;
+    } else {
+      length = 0;
+    }
+  }
+  if (length!= (tvb_reported_length(tvb) - length_field_offset)){
+    return FALSE;
+  }
+
+  dissect_rnsap(tvb, pinfo, tree, data);
+
+  return TRUE;
+}
+
+
 /*--- proto_register_rnsap -------------------------------------------*/
 void proto_register_rnsap(void) {
 
@@ -61538,7 +61616,7 @@ void proto_register_rnsap(void) {
         "Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 162 "./asn1/rnsap/packet-rnsap-template.c"
+#line 240 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -62976,7 +63054,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 168 "./asn1/rnsap/packet-rnsap-template.c"
+#line 246 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -63008,8 +63086,7 @@ proto_reg_handoff_rnsap(void)
 	rrc_ul_ccch_handle = find_dissector_add_dependency("rrc.ul.ccch", proto_rnsap);
 
 	dissector_add_uint("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
-	/* Add heuristic dissector */
-	/*heur_dissector_add("sccp", dissect_sccp_rnsap_heur, "RNSAP over SCCP", "ranap_sccp", proto_rnsap, HEURISTIC_DISABLE); */
+	heur_dissector_add("sccp", dissect_sccp_rnsap_heur, "RNSAP over SCCP", "rnsap_sccp", proto_rnsap, HEURISTIC_ENABLE);
 
 
 /*--- Included file: packet-rnsap-dis-tab.c ---*/
@@ -63937,7 +64014,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 203 "./asn1/rnsap/packet-rnsap-template.c"
+#line 280 "./asn1/rnsap/packet-rnsap-template.c"
 }
 
 
