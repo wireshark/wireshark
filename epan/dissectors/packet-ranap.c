@@ -15077,7 +15077,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   return tvb_reported_length(tvb);
 }
 
-#define RANAP_MSG_MIN_LENGTH 7
+#define RANAP_MSG_MIN_LENGTH 8
 static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -15100,15 +15100,19 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   #define LENGTH_OFFSET 3
   #define CRIT_OFFSET 2
   #define MSG_TYPE_OFFSET 1
+  #define PDU_TYPE_OFFSET 0
   if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
 
-  temp = tvb_get_guint8(tvb, 0) & 0x7f;
-  if (temp != 0x00 && temp != 0x20 &&temp != 0x40 && temp != 0x60) {
+  temp = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
+  if (temp & 0x1F) {
+    /* PDU Type byte is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
+       0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
     return FALSE;
   }
 
   temp = tvb_get_guint8(tvb, CRIT_OFFSET);
-  if (temp != 0x00 && temp != 0x40 && temp != 0x80) {
+  if (temp == 0xC0 || temp & 0x3F) {
+    /* Criticality byte is not 0x00 (reject), 0x40 (ignore) or 0x80 (notify) */
     return FALSE;
   }
 
@@ -18336,7 +18340,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 409 "./asn1/ranap/packet-ranap-template.c"
+#line 413 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -18700,7 +18704,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 417 "./asn1/ranap/packet-ranap-template.c"
+#line 421 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -19127,7 +19131,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 466 "./asn1/ranap/packet-ranap-template.c"
+#line 470 "./asn1/ranap/packet-ranap-template.c"
   } else {
     dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
   }
