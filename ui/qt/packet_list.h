@@ -134,6 +134,7 @@ private:
     void drawCurrentPacket();
     void applyRecentColumnWidths();
     void scrollViewChanged(bool at_end);
+    void colorsChanged();
 
 signals:
     void packetDissectionChanged();

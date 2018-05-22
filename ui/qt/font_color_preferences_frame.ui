@@ -73,8 +73,11 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="1">
-      <widget class="QPushButton" name="ignoredBGPushButton">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="activeFGPushButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
        </property>
@@ -83,77 +86,120 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QLineEdit" name="ignoredSampleLineEdit">
-       <property name="text">
-        <string>Sample ignored packet text</string>
-       </property>
-       <property name="readOnly">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="activeBGPushButton">
+       <property name="enabled">
         <bool>true</bool>
        </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QPushButton" name="clientBGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QLineEdit" name="markedSampleLineEdit">
-       <property name="text">
-        <string>Sample marked packet text</string>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="activeSampleLineEdit">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>Sample active selected item</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Style:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="activeStyleComboBox">
+         <item>
+          <property name="text">
+           <string>Default</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Flat</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Gradient</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="inactiveFGPushButton">
+       <property name="styleSheet">
+        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
        </property>
-       <property name="readOnly">
-        <bool>true</bool>
+       <property name="text">
+        <string/>
        </property>
       </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="inactiveBGPushButton">
+       <property name="styleSheet">
+        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLineEdit" name="inactiveSampleLineEdit">
+         <property name="text">
+          <string>Sample inactive selected item</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Style:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="inactiveStyleComboBox">
+         <item>
+          <property name="text">
+           <string>Default</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Flat</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Gradient</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="2" column="0">
-      <widget class="QPushButton" name="clientFGPushButton">
-       <property name="styleSheet">
-        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLineEdit" name="clientSampleLineEdit">
-       <property name="text">
-        <string>Sample &quot;Follow Stream&quot; client text</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QPushButton" name="serverFGPushButton">
-       <property name="styleSheet">
-        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QLineEdit" name="serverSampleLineEdit">
-       <property name="text">
-        <string>Sample &quot;Follow Stream&quot; server text</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
       <widget class="QPushButton" name="markedFGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
@@ -163,7 +209,27 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="1">
+      <widget class="QPushButton" name="markedBGPushButton">
+       <property name="styleSheet">
+        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLineEdit" name="markedSampleLineEdit">
+       <property name="text">
+        <string>Sample marked packet text</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
       <widget class="QPushButton" name="ignoredFGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
@@ -174,7 +240,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QPushButton" name="serverBGPushButton">
+      <widget class="QPushButton" name="ignoredBGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
        </property>
@@ -183,8 +249,28 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="markedBGPushButton">
+     <item row="3" column="2">
+      <widget class="QLineEdit" name="ignoredSampleLineEdit">
+       <property name="text">
+        <string>Sample ignored packet text</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QPushButton" name="clientFGPushButton">
+       <property name="styleSheet">
+        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QPushButton" name="clientBGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
        </property>
@@ -194,37 +280,17 @@
       </widget>
      </item>
      <item row="4" column="2">
-      <widget class="QLineEdit" name="validFilterSampleLineEdit">
+      <widget class="QLineEdit" name="clientSampleLineEdit">
        <property name="text">
-        <string>Sample valid filter</string>
+        <string>Sample &quot;Follow Stream&quot; client text</string>
        </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="5" column="2">
-      <widget class="QLineEdit" name="invalidFilterSampleLineEdit">
-       <property name="text">
-        <string>Sample invalid filter</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QLineEdit" name="deprecatedFilterSampleLineEdit">
-       <property name="text">
-        <string>Sample warning filter</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QPushButton" name="validFilterBGPushButton">
+     <item row="5" column="0">
+      <widget class="QPushButton" name="serverFGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
        </property>
@@ -234,6 +300,46 @@
       </widget>
      </item>
      <item row="5" column="1">
+      <widget class="QPushButton" name="serverBGPushButton">
+       <property name="styleSheet">
+        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QLineEdit" name="serverSampleLineEdit">
+       <property name="text">
+        <string>Sample &quot;Follow Stream&quot; server text</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QPushButton" name="validFilterBGPushButton">
+       <property name="styleSheet">
+        <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLineEdit" name="validFilterSampleLineEdit">
+       <property name="text">
+        <string>Sample valid filter</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
       <widget class="QPushButton" name="invalidFilterBGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
@@ -243,12 +349,32 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="2">
+      <widget class="QLineEdit" name="invalidFilterSampleLineEdit">
+       <property name="text">
+        <string>Sample invalid filter</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
       <widget class="QPushButton" name="deprecatedFilterBGPushButton">
        <property name="styleSheet">
         <string notr="true">QPushButton { border: 1px solid palette(Dark); }</string>
        </property>
        <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QLineEdit" name="deprecatedFilterSampleLineEdit">
+       <property name="text">
+        <string>Sample warning filter</string>
+       </property>
+       <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
@@ -270,5 +396,6 @@
    </item>
   </layout>
  </widget>
+ <resources/>
  <connections/>
 </ui>

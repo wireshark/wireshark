@@ -34,6 +34,12 @@ private:
     Ui::FontColorPreferencesFrame *ui;
 
     pref_t *pref_qt_gui_font_name_;
+    pref_t *pref_active_fg_;
+    pref_t *pref_active_bg_;
+    pref_t *pref_active_style_;
+    pref_t *pref_inactive_fg_;
+    pref_t *pref_inactive_bg_;
+    pref_t *pref_inactive_style_;
     pref_t *pref_marked_fg_;
     pref_t *pref_marked_bg_;
     pref_t *pref_ignored_fg_;
@@ -53,6 +59,12 @@ private:
 private slots:
     void on_fontPushButton_clicked();
 
+    void on_activeFGPushButton_clicked();
+    void on_activeBGPushButton_clicked();
+    void on_activeStyleComboBox_currentIndexChanged(int index);
+    void on_inactiveFGPushButton_clicked();
+    void on_inactiveBGPushButton_clicked();
+    void on_inactiveStyleComboBox_currentIndexChanged(int index);
     void on_markedFGPushButton_clicked();
     void on_markedBGPushButton_clicked();
     void on_ignoredFGPushButton_clicked();

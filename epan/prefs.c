@@ -139,6 +139,13 @@ static const enum_val_t gui_update_channel[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t gui_selection_style[] = {
+    {"DEFAULT", "DEFAULT",   COLOR_STYLE_DEFAULT},
+    {"FLAT",    "FLAT",      COLOR_STYLE_FLAT},
+    {"GRADIENT", "GRADIENT", COLOR_STYLE_GRADIENT},
+    {NULL, NULL, -1}
+};
+
 #if defined(HAVE_PCAP_CREATE)
 /* Can set monitor mode and buffer size. */
 static gint num_capture_cols = 7;
@@ -3091,6 +3098,24 @@ prefs_register_modules(void)
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
 
+    prefs_register_color_preference(gui_color_module, "active_frame.fg", "Foregound color for an active selected item",
+        "Foregound color for an active selected item", &prefs.gui_active_fg);
+
+    prefs_register_color_preference(gui_color_module, "active_frame.bg", "Backgound color for an active selected item",
+        "Backgound color for an active selected item", &prefs.gui_active_bg);
+
+    prefs_register_enum_preference(gui_color_module, "active_frame.style", "Color style for an active selected item",
+        "Color style for an active selected item", &prefs.gui_active_style, gui_selection_style, FALSE);
+
+    prefs_register_color_preference(gui_color_module, "inactive_frame.fg", "Foregound color for an inactive selected item",
+        "Foregound color for an inactive selected item", &prefs.gui_inactive_fg);
+
+    prefs_register_color_preference(gui_color_module, "inactive_frame.bg", "Backgound color for an inactive selected item",
+        "Backgound color for an inactive selected item", &prefs.gui_inactive_bg);
+
+    prefs_register_enum_preference(gui_color_module, "inactive_frame.style", "Color style for an inactive selected item",
+        "Color style for an inactive selected item", &prefs.gui_inactive_style, gui_selection_style, FALSE);
+
     prefs_register_color_preference(gui_color_module, "marked_frame.fg", "Color preferences for a marked frame",
         "Color preferences for a marked frame", &prefs.gui_marked_fg);
 
@@ -3955,6 +3980,20 @@ pre_init_prefs(void)
     /* We try to find the best font in the Qt code */
     g_free(prefs.gui_qt_font_name);
     prefs.gui_qt_font_name           = g_strdup("");
+    prefs.gui_active_fg.red          =         0;
+    prefs.gui_active_fg.green        =         0;
+    prefs.gui_active_fg.blue         =         0;
+    prefs.gui_active_bg.red          =     52223;
+    prefs.gui_active_bg.green        =     59647;
+    prefs.gui_active_bg.blue         =     65535;
+    prefs.gui_active_style           = COLOR_STYLE_DEFAULT;
+    prefs.gui_inactive_fg.red        =         0;
+    prefs.gui_inactive_fg.green      =         0;
+    prefs.gui_inactive_fg.blue       =         0;
+    prefs.gui_inactive_bg.red        =     61439;
+    prefs.gui_inactive_bg.green      =     61439;
+    prefs.gui_inactive_bg.blue       =     61439;
+    prefs.gui_inactive_style         = COLOR_STYLE_DEFAULT;
     prefs.gui_marked_fg.red          =     65535;
     prefs.gui_marked_fg.green        =     65535;
     prefs.gui_marked_fg.blue         =     65535;

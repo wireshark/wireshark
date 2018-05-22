@@ -259,62 +259,6 @@ PacketList::PacketList(QWidget *parent) :
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
 
-    bool style_inactive_selected = true;
-
-#ifdef Q_OS_WIN // && Qt version >= 4.8.6
-    if (QSysInfo::windowsVersion() < QSysInfo::WV_WINDOWS8) {
-        if (IsAppThemed() && IsThemeActive()) {
-            style_inactive_selected = false;
-        }
-    }
-#endif
-
-    if (style_inactive_selected) {
-        // XXX Style the protocol tree as well?
-        QPalette active_pal = palette();
-        active_pal.setCurrentColorGroup(QPalette::Active);
-        QColor active_border = QColor::fromRgb(ColorUtils::alphaBlend(
-                                                active_pal.highlightedText(),
-                                                active_pal.highlight(),
-                                                0.25));
-
-        QPalette inactive_pal = palette();
-        inactive_pal.setCurrentColorGroup(QPalette::Inactive);
-        QColor inactive_border = QColor::fromRgb(ColorUtils::alphaBlend(
-                                                inactive_pal.highlightedText(),
-                                                inactive_pal.highlight(),
-                                                0.25));
-
-        setStyleSheet(QString(
-                          "QTreeView::item:selected:first:!active {"
-                          "  border-left: 1px solid %1;"
-                          "}"
-                          "QTreeView::item:selected:last:!active {"
-                          "  border-right: 1px solid %1;"
-                          "}"
-                          "QTreeView::item:selected:!active {"
-                          "  border-top: 0px solid %1;"
-                          "  border-bottom: 0px solid %1;"
-                          "  color: %2;"
-                          // Use a linear background gradient
-                          "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %1, stop: 1 %3);"
-                          "}"
-                          "QTreeView::item:selected:active {"
-                          "  border-top: 0px solid %4;"
-                          "  border-bottom: 0px solid %4;"
-                          "  color: %5;"
-                          // Use a linear background gradient
-                          "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %4, stop: 1 %6);"
-                          "}")
-                      .arg(inactive_border.name())
-                      .arg(inactive_pal.highlightedText().color().name())
-                      .arg(inactive_pal.highlight().color().name())
-                      .arg(active_border.name())
-                      .arg(active_pal.highlightedText().color().name())
-                      .arg(active_pal.highlight().color().name())
-                      );
-    }
-
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(packet_list_model_, SIGNAL(itemHeightChanged(const QModelIndex&)), this, SLOT(updateRowHeights(const QModelIndex&)));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
@@ -334,6 +278,107 @@ PacketList::PacketList(QWidget *parent) :
             this, SIGNAL(showProtocolPreferences(QString)));
     connect(&proto_prefs_menu_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
             this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
+}
+
+void PacketList::colorsChanged()
+{
+    const QString c_active   = "active";
+    const QString c_inactive = "!active";
+
+    QString default_style_format =
+        "QTreeView::item:selected:%1 {}";
+
+    QString flat_style_format =
+        "QTreeView::item:selected:%1 {"
+        "  color: %2;"
+        "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %3, stop: 1 %3);"
+        "}";
+
+    QString gradient_style_format =
+        "QTreeView::item:selected:%1 {"
+        "  color: %2;"
+        "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %4, stop: 0.5 %3, stop: 1 %4);"
+        "}";
+
+    QString active_style   = QString();
+    QString inactive_style = QString();
+
+    bool style_inactive_selected = true;
+
+#ifdef Q_OS_WIN // && Qt version >= 4.8.6
+    if (QSysInfo::windowsVersion() < QSysInfo::WV_WINDOWS8) {
+        if (IsAppThemed() && IsThemeActive()) {
+            style_inactive_selected = false;
+        }
+    }
+#endif
+
+    if (prefs.gui_active_style == COLOR_STYLE_DEFAULT) {
+        // ACTIVE = Default
+        active_style = default_style_format.arg(c_active);
+    } else if (prefs.gui_active_style == COLOR_STYLE_FLAT) {
+        // ACTIVE = Flat OR Gradient
+        QColor foreground = ColorUtils::fromColorT(prefs.gui_active_fg);
+        QColor background = ColorUtils::fromColorT(prefs.gui_active_bg);
+
+        active_style = flat_style_format.arg(
+                           c_active,
+                           foreground.name(),
+                           background.name());
+    } else if (prefs.gui_active_style == COLOR_STYLE_GRADIENT) {
+        // ACTIVE = Gradient
+        QColor foreground  = ColorUtils::fromColorT(prefs.gui_active_fg);
+        QColor background1 = ColorUtils::fromColorT(prefs.gui_active_bg);
+        QColor background2 = QColor::fromRgb(ColorUtils::alphaBlend(foreground, background1, COLOR_STYLE_ALPHA));
+
+        active_style = gradient_style_format.arg(
+                           c_active,
+                           foreground.name(),
+                           background1.name(),
+                           background2.name());
+    }
+
+    // INACTIVE style sheet settings
+    if (prefs.gui_inactive_style == COLOR_STYLE_DEFAULT) {
+        // INACTIVE = Default
+        if (style_inactive_selected) {
+            QPalette inactive_pal = palette();
+            inactive_pal.setCurrentColorGroup(QPalette::Inactive);
+
+            QColor foreground = inactive_pal.highlightedText().color();
+            QColor background = inactive_pal.highlight().color();
+
+            inactive_style = flat_style_format.arg(
+                                 c_inactive,
+                                 foreground.name(),
+                                 background.name());
+        } else {
+            inactive_style = default_style_format.arg(c_inactive);
+        }
+    } else if (prefs.gui_inactive_style == COLOR_STYLE_FLAT) {
+        // INACTIVE = Flat
+        QColor foreground = ColorUtils::fromColorT(prefs.gui_inactive_fg);
+        QColor background = ColorUtils::fromColorT(prefs.gui_inactive_bg);
+
+        inactive_style = flat_style_format.arg(
+                             c_inactive,
+                             foreground.name(),
+                             background.name());
+    } else if (prefs.gui_inactive_style == COLOR_STYLE_GRADIENT) {
+        // INACTIVE = Gradient
+        QColor foreground  = ColorUtils::fromColorT(prefs.gui_inactive_fg);
+        QColor background1 = ColorUtils::fromColorT(prefs.gui_inactive_bg);
+        QColor background2 = QColor::fromRgb(ColorUtils::alphaBlend(foreground, background1, COLOR_STYLE_ALPHA));
+
+        inactive_style = gradient_style_format.arg(
+                             c_inactive,
+                             foreground.name(),
+                             background1.name(),
+                             background2.name());
+    }
+
+    // Set the style sheet
+    setStyleSheet(active_style + inactive_style);
 }
 
 void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -820,6 +865,9 @@ void PacketList::applyRecentColumnWidths()
 
 void PacketList::preferencesChanged()
 {
+    // Update color style changes
+    colorsChanged();
+
     // Related packet delegate
     if (prefs.gui_packet_list_show_related) {
         setItemDelegateForColumn(0, &related_packet_delegate_);

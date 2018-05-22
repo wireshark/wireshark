@@ -65,6 +65,15 @@ char string_to_name_resolve(const char *string, struct _e_addr_resolve *name_res
 #define TB_STYLE_BOTH           2
 
 /*
+ * Color styles.
+ */
+#define COLOR_STYLE_DEFAULT     0
+#define COLOR_STYLE_FLAT        1
+#define COLOR_STYLE_GRADIENT    2
+
+#define COLOR_STYLE_ALPHA       0.25
+
+/*
  * Types of layout of summary/details/hex panes.
  */
 typedef enum {
@@ -146,6 +155,12 @@ typedef struct _e_prefs {
   gint         gui_toolbar_main_style;
   gint         gui_toolbar_filter_style;
   gchar       *gui_qt_font_name;
+  color_t      gui_active_fg;
+  color_t      gui_active_bg;
+  gint         gui_active_style;
+  color_t      gui_inactive_fg;
+  color_t      gui_inactive_bg;
+  gint         gui_inactive_style;
   color_t      gui_marked_fg;
   color_t      gui_marked_bg;
   color_t      gui_ignored_fg;
