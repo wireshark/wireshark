@@ -86,7 +86,6 @@ private slots:
     void on_cbUpdatePacketsRT_toggled(bool checked);
     void on_cbAutoScroll_toggled(bool checked);
     void on_gbNewFileAuto_toggled(bool checked);
-    void on_cbExtraCaptureInfo_toggled(bool checked);
     void on_cbResolveMacAddresses_toggled(bool checked);
     void on_compileBPF_clicked();
     void on_manageButton_clicked();

@@ -487,14 +487,17 @@ PLEASE NOTE: One option MUST be selected.</string>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="cbExtraCaptureInfo">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
               </property>
-              <property name="text">
-               <string>Show extra capture information dialog</string>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>1</height>
+               </size>
               </property>
-             </widget>
+             </spacer>
             </item>
             <item>
              <spacer name="horizontalSpacer_3">
