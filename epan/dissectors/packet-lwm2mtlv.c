@@ -357,18 +357,18 @@ static void lwm2m_resource_post_update_cb(void)
 	static hf_register_info *hf;
 	static guint hf_size;
 
-	if (hf) {
+	if (hf_size > 0) {
 		/* Deregister all fields */
 		for (guint i = 0; i < hf_size; i++) {
 			proto_deregister_field(proto_lwm2mtlv, *(hf[i].p_id));
 			g_free (hf[i].p_id);
 		}
 		proto_add_deregistered_data(hf);
+		hf_size = 0;
 	}
 
 	if (num_lwm2m_uat_resources) {
 		hf = g_new0(hf_register_info, num_lwm2m_uat_resources);
-		hf_size = 0;
 
 		for (guint i = 0; i < num_lwm2m_uat_resources; i++) {
 			lwm2m_add_resource(&lwm2m_uat_resources[i], &hf[hf_size++]);
