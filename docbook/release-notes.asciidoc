@@ -13,96 +13,19 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-* The Windows installers now ship with Qt 5.9.5. Previously they shipped with Qt 5.9.4.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2018-25[]
+* ws-salink:2018-34[]
 +
-The LDSS dissector could crash.
-(ws-buglink:14615[])
+A dissector went awry.
+(ws-buglink:xxxx[])
 // cve-idlink:2018-xxxx[]
-// Fixed in master: 295abe2e83
-// Fixed in master-2.6: 35344225fa
-// Fixed in master-2.4: 6fe7632af0
-// Fixed in master-2.2: f177008b04
-
-* ws-salink:2018-26[]
-+
-The IEEE 1905.1a dissector could crash.
-(ws-buglink:14647[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 5cc6cd3ae6
-// Fixed in master-2.6: cb517a4a43
-
-* ws-salink:2018-27[]
-+
-The RTCP dissector could crash.
-(ws-buglink:14673[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 4413d43962
-// Fixed in master-2.6: 99d27a5fd2
-
-* ws-salink:2018-28[]
-+
-Multiple dissectors could consume excessive memory.
-(ws-buglink:14678[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: d80acae40d
-// Fixed in master-2.6: b82a9a3f95
-// Fixed in master-2.4: ac55e80ae4
-// Fixed in master-2.2: ab8a33ef08
-
-* ws-salink:2018-29[]
-+
-The DNS dissector could crash.
-(ws-buglink:14681[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 843735e0ef
-// Fixed in master-2.6: d93f7b8707
-// Fixed in master-2.4: 95c884e78f
-// Fixed in master-2.2: 4425716ddb
-
-* ws-salink:2018-30[]
-+
-The GSM A DTAP dissector could crash.
-(ws-buglink:14688[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 48fac2a18d
-// Fixed in master-2.6: 521dcb0b84
-// Fixed in master-2.4: c79b342aa7
-// Fixed in master-2.2: a55b36c51f
-
-* ws-salink:2018-31[]
-+
-The Q.931 dissector could crash.
-(ws-buglink:14689[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: d08a53a7b9
-// Fixed in master-2.6: e1deea1169
-// Fixed in master-2.4: 0e67d8b5ee
-// Fixed in master-2.2: ccb1ac3c8c
-
-* ws-salink:2018-32[]
-+
-The IEEE 802.11 dissector could crash.
-(ws-buglink:14686[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: f440561b8c
-// Fixed in master-2.6: 1b52f99292
-
-* ws-salink:2018-33[]
-+
-Multiple dissectors could crash.
-(ws-buglink:14703[])
-// cve-idlink:2018-xxxx[]
-// Fixed in master: 40dbc0ccf2
-// Fixed in master-2.6: e50f7ced83
-// Fixed in master-2.4: fb9e31f0aa
-// Fixed in master-2.2: beaebe91b1
-
+// Fixed in master: xxxx
+// Fixed in master-2.6: xxxx
+// Fixed in master-2.4: xxxx
+// Fixed in master-2.2: xxxx
 
 The following bugs have been fixed:
 
@@ -110,53 +33,9 @@ The following bugs have been fixed:
 //* ws_buglink:6000[Wireshark bug]
 //* cve_idlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.1rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* Qt GUI does not snap to exactly half of screen in Windows. (ws_buglink:13516[])
 
-* Segmentation fault when switching profiles. (ws_buglink:14316[])
-
-* QUIC dissector produces incorrect packet numbers (wrong-endian). (ws_buglink:14462[])
-
-* Wrong default file format chosen in when saving a capture with comments added if the original format doesn't support comments. (ws_buglink:14601[])
-
-* Lua: Error during loading [AppData directory]:1: bad argument #1 to 'dofile' (dofile: file does not exist). (ws_buglink:14619[])
-
-* Crash when selecting text. (ws_buglink:14620[])
-
-* ui/macosx directory missing from source release tarball. (ws_buglink:14627[])
-
-* Wireshark 2.9.0 snapshot crashes/segfaults on Windows when launched with -k or -i. (ws_buglink:14632[])
-
-* "Copy as printable text" isn't copying non-alphanumeric characters. (ws_buglink:14633[])
-
-* File missing from release tarball. (ws_buglink:14634[])
-
-* NEWS is out of date and does not display properly in Notepad. (ws_buglink:14636[])
-
-* l16mono.so is installed in the wrong place. (ws_buglink:14638[])
-
-* Remove: HACK to support UHD's weird header offset on data packets. (ws_buglink:14641[])
-
-* WinSparkle 0.5.6 is out of date and is buggy. (ws_buglink:14642[])
-
-* Unable to create or open VOIP captures. (ws_buglink:14648[])
-
-* RTMPT: incorrect dissection of multiple RTMP packets within a single TCP packet. (ws_buglink:14650[])
-
-* Endpoints dialog displays invalid GeoIP information due to incorrect byte order. (ws_buglink:14656[])
-
-* Qt: Crash in ShowPacketBytesDialog(). (ws_buglink:14658[])
-
-* Statistics -> Resolved addresses show IP addresses without domain. (ws_buglink:14667[])
-
-* Erroneous MAC-LTE Dissection for Sidelink Shared Channel Packets. (ws_buglink:14669[])
-
-* Files missing from docbook CMake file. (ws_buglink:14676[])
-
-* Wireshark hangs when opening certain files if it's been configured to use the new GeoIP databases. (ws_buglink:14701[])
-
-The “Open”, “Save”, and other file dialogs should now be shown at the correct size on HiDPI Windows systems.
 
 === New and Updated Features
 
@@ -175,27 +54,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-BATADV
-BT LE LL
-CoAP
-DNS
-DTLS
-GSM A GM
-GSM A DTAP
-GTP
-GTPv2
-IEEE 1905.1a
-IEEE 802.11
-LDSS
-LwM2M-TLV
-MAC LTE
-NAS EPS
-Q.931
-RTCP
-RTMPT
-SDP
-TCP
-VITA 49
 --
 
 === New and Updated Capture File Support
@@ -204,8 +62,6 @@ VITA 49
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-Android Logcat
-3GPP TS 32.423 Trace
 --
 
 === New and Updated Capture Interfaces support
