@@ -23,6 +23,15 @@
 #define MMDBR_STRINGIFY_S(s) #s
 #define OUT_BUF_SIZE 65536
 
+// Uncomment to enable slow lookups. Only useful on Windows for now.
+// #define MMDB_DEBUG_SLOW 1
+
+#ifdef MMDB_DEBUG_SLOW
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+#endif
+
 static const char *co_iso_key[]     = {"country", "iso_code", NULL};
 static const char *co_name_key[]    = {"country", "names", "en", NULL};
 static const char *ci_name_key[]    = {"city", "names", "en", NULL};
@@ -106,6 +115,12 @@ main(int argc, char *argv[])
             continue;
         }
         fprintf(stdout, "[%s]\n", addr_str);
+
+#ifdef MMDB_DEBUG_SLOW
+#ifdef _WIN32
+        Sleep(1000);
+#endif
+#endif
 
         for (size_t mmdb_idx = 0; mmdb_idx < mmdb_count; mmdb_idx++) {
             fprintf(stdout, "# %s\n", mmdbs[mmdb_idx].metadata.database_type);

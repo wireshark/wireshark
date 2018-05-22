@@ -36,25 +36,27 @@ static mmdb_lookup_t mmdb_not_found;
 #include <wsutil/strtoi.h>
 
 // To do:
-// - If we can't reliably do non-blocking reads, move process_mmdbr_stdout to a worker thread.
 // - Add RBL lookups? Along with the "is this a spammer" information that most RBL databases
 //   provide, you can also fetch AS information: http://www.team-cymru.org/IP-ASN-mapping.html
 // - Switch to a different format? I was going to use g_key_file_* to parse
 //   the mmdbresolve output, but it was easier to just parse it directly.
 
+static GThread *mmdbr_thread;
+static GAsyncQueue *mmdbr_request_q; // g_allocated char *
+static GMutex mmdbr_pipe_mtx;
+
 // Hashes of mmdb_lookup_t
 static wmem_map_t *mmdb_ipv4_map;
 static wmem_map_t *mmdb_ipv6_map;
+static gboolean new_entries;
 
 // Interned strings
 static wmem_map_t *mmdb_str_chunk;
 static wmem_map_t *mmdb_ipv6_chunk;
 
 /* Child mmdbresolve process */
-static char cur_addr[WS_INET6_ADDRSTRLEN];
-static mmdb_lookup_t cur_lookup;
-static ws_pipe_t mmdbr_pipe;
-static FILE *mmdbr_stdout;
+static ws_pipe_t mmdbr_pipe; // Requires mutex
+static FILE *mmdbr_stdout; // Requires mutex
 
 /* UAT definitions. Copied from oids.c */
 typedef struct _maxmind_db_path_t {
@@ -132,14 +134,56 @@ static void init_lookup(mmdb_lookup_t *lookup) {
     *lookup = empty_lookup;
 }
 
-static gboolean
-process_mmdbr_stdout(void) {
+static gboolean mmdbr_pipe_valid(void) {
+    g_mutex_lock(&mmdbr_pipe_mtx);
+    gboolean pipe_valid = ws_pipe_valid(&mmdbr_pipe);
+    g_mutex_unlock(&mmdbr_pipe_mtx);
+    return pipe_valid;
+}
+
+// Writing to mmdbr_pipe.stdin_fd can block. Do so in a separate thread.
+#define MMDB_WAIT_TIME (150 * 1000) // microseconds
+static gpointer
+write_mmdbr_stdin_worker(gpointer data _U_) {
+    while (1) {
+        if (!mmdbr_pipe_valid()) {
+            // Should be due to mmdb_resolve_stop.
+            MMDB_DEBUG("invalid mmdbr pipe. exiting thread.");
+            return NULL;
+        }
+
+        char *request = (char *) g_async_queue_timeout_pop(mmdbr_request_q, MMDB_WAIT_TIME);
+        if (!request) {
+            continue;
+        }
+
+        MMDB_DEBUG("write %s ql %d", request, g_async_queue_length(mmdbr_request_q));
+        g_mutex_lock(&mmdbr_pipe_mtx);
+        ssize_t req_status = ws_write(mmdbr_pipe.stdin_fd, request, (unsigned int)strlen(request));
+        g_mutex_unlock(&mmdbr_pipe_mtx);
+        if (req_status < 0) {
+            MMDB_DEBUG("write error %s. exiting thread.", g_strerror(errno));
+            return NULL;
+        }
+        g_free(request);
+    }
+    return NULL;
+}
+
+static void
+read_mmdbr_stdout(void) {
+    static char cur_addr[WS_INET6_ADDRSTRLEN];
+    static mmdb_lookup_t cur_lookup;
 
     int read_buf_size = 2048;
     char *read_buf = (char *) g_malloc(read_buf_size);
-    gboolean new_entries = FALSE;
 
-    MMDB_DEBUG("start %d", ws_pipe_data_available(mmdbr_pipe.stdout_fd));
+    g_mutex_lock(&mmdbr_pipe_mtx);
+    if (!ws_pipe_valid(&mmdbr_pipe)) {
+        g_mutex_unlock(&mmdbr_pipe_mtx);
+        return;
+    }
+    MMDB_DEBUG("read mmdbr %d", ws_pipe_data_available(mmdbr_pipe.stdout_fd));
 
     while (ws_pipe_data_available(mmdbr_pipe.stdout_fd)) {
         read_buf[0] = '\0';
@@ -213,35 +257,51 @@ process_mmdbr_stdout(void) {
             init_lookup(&cur_lookup);
         }
     }
+    g_mutex_unlock(&mmdbr_pipe_mtx);
 
     g_free(read_buf);
-    return new_entries;
 }
 
 /**
  * Stop our mmdbresolve process.
  */
 static void mmdb_resolve_stop(void) {
-    if (!ws_pipe_valid(&mmdbr_pipe)) {
+    char *request;
+
+    while (mmdbr_request_q && (request = (char *) g_async_queue_try_pop(mmdbr_request_q)) != NULL) {
+        g_free(request);
+    }
+
+    if (!mmdbr_pipe_valid()) {
         MMDB_DEBUG("not cleaning up, invalid PID %d", mmdbr_pipe.pid);
         return;
     }
 
+    g_mutex_lock(&mmdbr_pipe_mtx);
     ws_close(mmdbr_pipe.stdin_fd);
     fclose(mmdbr_stdout);
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
     g_spawn_close_pid(mmdbr_pipe.pid);
     mmdbr_pipe.pid = WS_INVALID_PID;
     mmdbr_stdout = NULL;
+    g_mutex_unlock(&mmdbr_pipe_mtx);
+
+    g_thread_join(mmdbr_thread);
+    mmdbr_thread = NULL;
 }
 
 /**
  * Start an mmdbresolve process.
  */
 static void mmdb_resolve_start(void) {
+    if (!mmdbr_request_q) {
+        mmdbr_request_q = g_async_queue_new();
+    }
+
     if (!mmdb_ipv4_map) {
         mmdb_ipv4_map = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
     }
+
     if (!mmdb_ipv6_map) {
         mmdb_ipv6_map = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
     }
@@ -296,8 +356,7 @@ static void mmdb_resolve_start(void) {
     mmdbr_stdout = ws_fdopen(mmdbr_pipe.stdout_fd, "r");
     setvbuf(mmdbr_stdout, NULL, _IONBF, 0);
 
-    // [init]
-    process_mmdbr_stdout();
+    mmdbr_thread = g_thread_new("write_mmdbr_stdin_worker", write_mmdbr_stdin_worker, NULL);
 }
 
 /**
@@ -430,9 +489,13 @@ void maxmind_db_pref_cleanup(void)
 
 gboolean maxmind_db_lookup_process(void)
 {
-    if (!ws_pipe_valid(&mmdbr_pipe)) return FALSE;
+    if (mmdbr_pipe_valid()) {
+        read_mmdbr_stdout();
+    }
 
-    return process_mmdbr_stdout();
+    gboolean prev_ne = new_entries;
+    new_entries = FALSE;
+    return prev_ne;
 }
 
 const mmdb_lookup_t *
@@ -441,21 +504,16 @@ maxmind_db_lookup_ipv4(guint32 addr) {
 
     if (!result) {
         // Try again, mainly so that we empty our pipe buffers.
-        maxmind_db_lookup_process();
+        read_mmdbr_stdout();
         result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(addr));
     }
 
     if (!result) {
-        if (ws_pipe_valid(&mmdbr_pipe)) {
-            char addr_str[WS_INET_ADDRSTRLEN + 1];
+        if (mmdbr_pipe_valid()) {
+            char addr_str[WS_INET_ADDRSTRLEN];
             ws_inet_ntop4(&addr, addr_str, WS_INET_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
-            g_strlcat(addr_str, "\n", (gsize) sizeof(addr_str));
-            ssize_t write_status = ws_write(mmdbr_pipe.stdin_fd, addr_str, (unsigned int)strlen(addr_str));
-            if (write_status < 0) {
-                MMDB_DEBUG("write error %s", g_strerror(errno));
-                mmdb_resolve_stop();
-            }
+            g_async_queue_push(mmdbr_request_q, g_strdup_printf("%s\n", addr_str));
         }
 
         result = &mmdb_not_found;
@@ -471,21 +529,16 @@ maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
 
     if (!result) {
         // Try again, mainly so that we empty our pipe buffers.
-        maxmind_db_lookup_process();
+        read_mmdbr_stdout();
         result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
     }
 
     if (!result) {
-        if (ws_pipe_valid(&mmdbr_pipe)) {
-            char addr_str[WS_INET6_ADDRSTRLEN + 1];
+        if (mmdbr_pipe_valid()) {
+            char addr_str[WS_INET6_ADDRSTRLEN];
             ws_inet_ntop6(addr, addr_str, WS_INET6_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
-            g_strlcat(addr_str, "\n", (gsize) sizeof(addr_str));
-            ssize_t write_status = ws_write(mmdbr_pipe.stdin_fd, addr_str, (unsigned int)strlen(addr_str));
-            if (write_status < 0) {
-                MMDB_DEBUG("write error %s", g_strerror(errno));
-                mmdb_resolve_stop();
-            }
+            g_async_queue_push(mmdbr_request_q, g_strdup_printf("%s\n", addr_str));
         }
 
         result = &mmdb_not_found;
