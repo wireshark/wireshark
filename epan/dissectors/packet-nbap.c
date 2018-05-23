@@ -56352,10 +56352,10 @@ dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     return FALSE;
   }
 
-  pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET) & 0x7f;
+  pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
   if (pdu_type & 0x1f) {
     /* pdu_type is not 0x00 (initiatingMessage), 0x20 (succesfulOutcome),
-       0x40 (unsuccesfulOutcome) or 0x60 (outcome) */
+       0x40 (unsuccesfulOutcome) or 0x60 (outcome), ignore extension bit (0x80) */
     return FALSE;
   }
 
