@@ -33,12 +33,16 @@ if(NOT HAVE_PROTO_REGISTER_PLUGIN)
 	message(FATAL_ERROR "Wireshark was compiled without support for plugins")
 endif()
 
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+if (CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_C_FLAGS  "-Wall -Wextra ${CMAKE_C_FLAGS}")
+endif()
+
 add_definitions(-DHAVE_PLUGINS -DVERSION=\"${PROJECT_VERSION}\" -DVERSION_RELEASE=\"${WIRESHARK_VERSION_RELEASE}\")
 
 add_library(hello MODULE hello.c)
-set_target_properties(hello PROPERTIES PREFIX "")
+set_target_properties(hello PROPERTIES PREFIX "" DEFINE_SYMBOL "")
 target_link_libraries(hello ${WIRESHARK_LIBRARIES})
-target_include_directories(hello PUBLIC ${WIRESHARK_INCLUDE_DIRS})
 target_compile_options(hello PUBLIC ${WIRESHARK_CFLAGS})
 
 if(SYSTEM_INSTALLATION)
