@@ -73,6 +73,7 @@
     #endif
 #else
     #include "wiretap/wtap.h"
+    #include "wiretap/pcap-encap.h"
 #endif
 
 #ifdef ANDROIDDUMP_USE_LIBPCAP
@@ -2412,8 +2413,11 @@ static int capture_android_tcpdump(char *interface, char *fifo,
         closesocket(sock);
         return EXIT_CODE_GENERIC;
     }
-
-    extcap_dumper = extcap_dumper_open(fifo, (int) data[20]);
+    int encap = (int)data[20];
+#ifndef ANDROIDDUMP_USE_LIBPCAP
+    encap = wtap_pcap_encap_to_wtap_encap(encap);
+#endif
+    extcap_dumper = extcap_dumper_open(fifo, encap);
 
     used_buffer_length = 0;
     while (endless_loop) {
