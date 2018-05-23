@@ -904,127 +904,127 @@ void proto_register_1722_61883(void)
 {
     static hf_register_info hf[] = {
         { &hf_1722_61883_mrfield,
-            { "Media Clock Restart", "61883.mrfield",
+            { "Media Clock Restart", "iec61883.mrfield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_MR_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_gvfield,
-            { "Gateway Info Valid", "61883.gvfield",
+            { "Gateway Info Valid", "iec61883.gvfield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_GV_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_tvfield,
-            { "Timestamp Valid", "61883.tvfield",
+            { "Timestamp Valid", "iec61883.tvfield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_TV_MASK, NULL, HFILL }
             },
         { &hf_1722_61883_seqnum,
-            { "Sequence Number", "61883.seqnum",
+            { "Sequence Number", "iec61883.seqnum",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_tufield,
-            { "Timestamp Uncertain", "61883.tufield",
+            { "Timestamp Uncertain", "iec61883.tufield",
               FT_BOOLEAN, 8, NULL, IEEE_1722_TU_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_stream_id,
-            { "Stream ID", "61883.stream_id",
+            { "Stream ID", "iec61883.stream_id",
               FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_avtp_timestamp,
-            { "AVTP Timestamp", "61883.avtp_timestamp",
+            { "AVTP Timestamp", "iec61883.avtp_timestamp",
               FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_gateway_info,
-            { "Gateway Info", "61883.gateway_info",
+            { "Gateway Info", "iec61883.gateway_info",
               FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_stream_data_length,
-            { "1394 Stream Data Length", "61883.stream_data_len",
+            { "1394 Stream Data Length", "iec61883.stream_data_len",
               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_tag,
-            { "1394 Packet Format Tag", "61883.tag",
+            { "1394 Packet Format Tag", "iec61883.tag",
               FT_UINT8, BASE_HEX, VALS(tag_vals), IEEE_1722_TAG_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_channel,
-            { "1394 Packet Channel", "61883.channel",
+            { "1394 Packet Channel", "iec61883.channel",
                 FT_UINT8, BASE_DEC, NULL, IEEE_1722_CHANNEL_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_tcode,
-            { "1394 Packet Tcode", "61883.tcode",
+            { "1394 Packet Tcode", "iec61883.tcode",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_TCODE_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_sy,
-            { "1394 App-specific Control", "61883.sy",
+            { "1394 App-specific Control", "iec61883.sy",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_SY_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_qi1,
-            { "CIP Quadlet Indicator 1", "61883.qi1",
+            { "CIP Quadlet Indicator 1", "iec61883.qi1",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_QI1_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_sid,
-            { "CIP Source ID", "61883.sid",
+            { "CIP Source ID", "iec61883.sid",
               FT_UINT8, BASE_DEC, NULL, IEEE_1722_SID_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_dbs,
-            { "CIP Data Block Size", "61883.dbs",
+            { "CIP Data Block Size", "iec61883.dbs",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fn,
-            { "CIP Fraction Number", "61883.fn",
+            { "CIP Fraction Number", "iec61883.fn",
               FT_UINT8, BASE_HEX, VALS(fraction_number_vals), IEEE_1722_FN_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_qpc,
-            { "CIP Quadlet Padding Count", "61883.qpc",
+            { "CIP Quadlet Padding Count", "iec61883.qpc",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_QPC_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_sph,
-            { "CIP Source Packet Header", "61883.sph",
+            { "CIP Source Packet Header", "iec61883.sph",
               FT_BOOLEAN, 8, NULL, IEEE_1722_SPH_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_dbc,
-            { "CIP Data Block Continuity", "61883.dbc",
+            { "CIP Data Block Continuity", "iec61883.dbc",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_cip_qi2,
-            { "CIP Quadlet Indicator 2", "61883.qi2",
+            { "CIP Quadlet Indicator 2", "iec61883.qi2",
               FT_UINT8, BASE_HEX, NULL, IEEE_1722_QI2_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fmt,
-            { "CIP Format ID", "61883.fmt",
+            { "CIP Format ID", "iec61883.fmt",
               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(format_rvals), IEEE_1722_FMT_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf_no_syt,
-            { "CIP Format Dependent Field", "61883.fdf_no_syt",
+            { "CIP Format Dependent Field", "iec61883.fdf_no_syt",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf_tsf,
-            { "Time shift flag", "61883.fdf_tsf",
+            { "Time shift flag", "iec61883.fdf_tsf",
               FT_BOOLEAN, 8, NULL, IEEE_1722_FDF_TSF_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_fdf,
-            { "CIP Format Dependent Field", "61883.fdf",
+            { "CIP Format Dependent Field", "iec61883.fdf",
               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(fdf_rvals), IEEE_1722_FDF_MASK, NULL, HFILL }
         },
         { &hf_1722_61883_cip_syt,
-            { "CIP SYT", "61883.syt",
+            { "CIP SYT", "iec61883.syt",
               FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(syt_rvals), 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_audio_data,
-            { "Audio Data", "61883.audiodata",
+            { "Audio Data", "iec61883.audiodata",
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_label,
-            { "Label", "61883.audiodata.sample.label",
+            { "Label", "iec61883.audiodata.sample.label",
               FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_sample,
-            { "Sample", "61883.audiodata.sample.sampledata",
+            { "Sample", "iec61883.audiodata.sample.sampledata",
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_video_data,
-            { "Video Data", "61883.videodata",
+            { "Video Data", "iec61883.videodata",
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_source_packet_header_timestamp,
-            { "Source Packet Header Timestamp", "61883.spht",
+            { "Source Packet Header Timestamp", "iec61883.spht",
               FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
         }
     };
@@ -1037,33 +1037,33 @@ void proto_register_1722_61883(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_1722_61883_incorrect_tag,         { "61883.incorrect_tag", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_tag,         { "iec61883.incorrect_tag", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect tag field, only 0x00 and 0x01 supported for AVTP", EXPFILL }},
-        { &ei_1722_61883_incorrect_tcode,       { "61883.incorrect_tcode", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_tcode,       { "iec61883.incorrect_tcode", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect tcode, talker shall set this field to 0x0A", EXPFILL }},
-        { &ei_1722_61883_incorrect_qi1,         { "61883.incorrect_qi1", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_qi1,         { "iec61883.incorrect_qi1", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect quadlet indicator 1 field, talker shall set this field to 0x00", EXPFILL }},
-        { &ei_1722_61883_incorrect_qpc,         { "61883.incorrect_qpc", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_qpc,         { "iec61883.incorrect_qpc", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect quadlet padding count field, shall be set to 0", EXPFILL }},
-        { &ei_1722_61883_incorrect_qi2,         { "61883.incorrect_qi2", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_qi2,         { "iec61883.incorrect_qi2", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect quadlet indicator 2 field, talker shall set this field to 0x02", EXPFILL }},
-        { &ei_1722_61883_unknown_format,        { "61883.unknown_format", PI_PROTOCOL, PI_NOTE,
+        { &ei_1722_61883_unknown_format,        { "iec61883.unknown_format", PI_PROTOCOL, PI_NOTE,
                                                   "IEC 61883 format not dissected yet", EXPFILL }},
-        { &ei_1722_61883_incorrect_channel_sid, { "61883.incorrect_channel_sid", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_channel_sid, { "iec61883.incorrect_channel_sid", PI_PROTOCOL, PI_WARN,
                                                   "1394 Packet Channel and Source ID don`t match", EXPFILL }},
-        { &ei_1722_61883_incorrect_datalen,     { "61883.incorrect_datalen", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_datalen,     { "iec61883.incorrect_datalen", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect stream data length field, must be multiple of 192 plus 8 bytes CIP header", EXPFILL }},
-        { &ei_1722_61883_4_incorrect_cip_fn,    { "61883.4_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_4_incorrect_cip_fn,    { "iec61883.4_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect fraction number, shall be 8 for IEC 61883-4", EXPFILL }},
-        { &ei_1722_61883_4_incorrect_cip_dbs,   { "61883.4_incorrect_cip_dbs", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_4_incorrect_cip_dbs,   { "iec61883.4_incorrect_cip_dbs", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect data block size, shall be 6 for IEC 61883-4", EXPFILL }},
-        { &ei_1722_61883_4_incorrect_cip_sph,   { "61883.4_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_4_incorrect_cip_sph,   { "iec61883.4_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect source packet header value, shall be 1 for IEC 61883-4", EXPFILL }},
-        { &ei_1722_61883_6_incorrect_cip_fn,    { "61883.6_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_6_incorrect_cip_fn,    { "iec61883.6_incorrect_cip_fn", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect fraction number, shall be 0 for IEC 61883-6", EXPFILL }},
-        { &ei_1722_61883_6_incorrect_cip_sph,   { "61883.6_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_6_incorrect_cip_sph,   { "iec61883.6_incorrect_cip_sph", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect source packet header value, shall be 0 for IEC 61883-6", EXPFILL }},
-        { &ei_1722_61883_incorrect_cip_fdf,     { "61883.6_incorrect_cip_fdf", PI_PROTOCOL, PI_WARN,
+        { &ei_1722_61883_incorrect_cip_fdf,     { "iec61883.6_incorrect_cip_fdf", PI_PROTOCOL, PI_WARN,
                                                   "Incorrect frame dependent field value, shall be 0", EXPFILL }}
     };
 
@@ -1073,7 +1073,7 @@ void proto_register_1722_61883(void)
     proto_1722_61883 = proto_register_protocol(
                 "IEC 61883 Protocol",   /* name */
                 "IEC 61883",            /* short name */
-                "61883");               /* abbrev */
+                "iec61883");            /* abbrev */
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_1722_61883, hf, array_length(hf));
