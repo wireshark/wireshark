@@ -1358,15 +1358,11 @@ endif()
 include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)
 
-if (GIT_EXECUTABLE)
-	set(GIT_BIN_PARAM --git-bin ${GIT_EXECUTABLE})
-endif()
 set( VERSION ${PROJECT_VERSION} )
 add_custom_target(version
 	BYPRODUCTS version.h
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/make-version.pl
-		--set-vcs ${GIT_BIN_PARAM}
 		${CMAKE_SOURCE_DIR}
 )
 set_target_properties(version PROPERTIES FOLDER "Auxiliary")
@@ -2704,7 +2700,6 @@ if(RPMBUILD_EXECUTABLE)
 	execute_process(
 		COMMAND ${PERL_EXECUTABLE}
 			${CMAKE_SOURCE_DIR}/make-version.pl
-			--set-vcs ${GIT_BIN_PARAM}
 			${CMAKE_SOURCE_DIR}
 	)
 
