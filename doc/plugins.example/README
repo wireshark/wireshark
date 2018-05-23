@@ -4,11 +4,15 @@ This is an example of how to build a Wireshark plugin out-of-tree.
 Tested on Linux using GCC 7. Note this builds against Wireshark's *installed*
 version. You should of course adapt to your own needs.
 
-To build/install the plugin (assuming wireshark was installed in /usr/local):
+To build/install the plugin:
 
-$ PREFIX=/usr/local
-$ mkdir build
-$ cd build
-$ PKG_CONFIG_PATH="$PREFIX/lib64/pkgconfig" cmake -DCMAKE_PREFIX_PATH="$PREFIX" .. # Use -DSYSTEM_INSTALLATION=Off to install as single-user
+$ mkdir build && cd build
+$ cmake ..
 $ make
 $ sudo make install
+
+If your wireshark.pc file is not in one of the standard pkg-config search paths
+you will have to tell pkg-config where to find it. Arguably the easiest way to
+do so is setting PKG_CONFIG_PATH in your build environment, for example:
+
+$ export PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig"
