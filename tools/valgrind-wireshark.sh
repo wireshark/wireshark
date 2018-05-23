@@ -130,4 +130,4 @@ if [ "$VERBOSE" != "" ];then
   echo -e "\n$cmdline\n"
 fi
 
-$cmdline > /dev/null
+exec $cmdline > /dev/null
