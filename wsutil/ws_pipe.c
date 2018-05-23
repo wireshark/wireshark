@@ -486,6 +486,7 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
         }
         if (bytes_avail <= 0)
         {
+            ret = TRUE;
             break;
         }
 
