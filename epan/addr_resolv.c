@@ -1284,11 +1284,8 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
         return -1;
 
     if ((cp = strchr(line, '#'))) {
-        cp--;
-        while (g_ascii_isspace(*cp)) {
-            cp--;
-        }
         *cp = '\0';
+        g_strchomp(line);
     }
 
     if ((cp = strtok(line, " \t")) == NULL)
@@ -1302,7 +1299,7 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
 
     g_strlcpy(eth->name, cp, MAXNAMELEN);
 
-    if ((cp = strtok(NULL, "")) != NULL)
+    if ((cp = strtok(NULL, "\t")) != NULL)
     {
         g_strlcpy(eth->longname, cp, MAXNAMELEN);
     } else {
