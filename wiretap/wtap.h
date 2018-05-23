@@ -281,6 +281,7 @@ extern "C" {
 #define WTAP_ENCAP_ETHERNET_MPACKET             198
 #define WTAP_ENCAP_DOCSIS31_XRA31               199
 #define WTAP_ENCAP_DPAUXMON                     200
+#define WTAP_ENCAP_RUBY_MARSHAL                 201
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -374,6 +375,7 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_MPLOG                         80
 #define WTAP_FILE_TYPE_SUBTYPE_DPA400                        81
 #define WTAP_FILE_TYPE_SUBTYPE_PEM                           82
+#define WTAP_FILE_TYPE_SUBTYPE_RUBY_MARSHAL                  83
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 

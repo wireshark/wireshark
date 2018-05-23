@@ -71,6 +71,7 @@ set(WIRETAP_NONGENERATED_FILES
 	pem.c
 	pppdump.c
 	radcom.c
+	ruby_marshal.c
 	snoop.c
 	stanag4607.c
 	tnef.c

@@ -74,6 +74,7 @@
 #include "mplog.h"
 #include "dpa400.h"
 #include "pem.h"
+#include "ruby_marshal.h"
 
 /*
  * Add an extension, and all compressed versions thereof, to a GSList
@@ -143,7 +144,8 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "MPEG files", FALSE, "mpg;mp3" },
 	{ "Transport-Neutral Encapsulation Format", FALSE, "tnef" },
 	{ "JPEG/JFIF files", FALSE, "jpg;jpeg;jfif" },
-	{ "JavaScript Object Notation file", FALSE, "json" }
+	{ "JavaScript Object Notation file", FALSE, "json" },
+	{ "Ruby Marshal Object", FALSE, "" }
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
@@ -402,7 +404,8 @@ static const struct open_info open_info_base[] = {
 	/* Extremely weak heuristics - put them at the end. */
 	{ "Ixia IxVeriWave .vwr Raw Capture",       OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
 	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
-	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL }
+	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
+	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",      NULL, NULL }
 };
 
 /* this is only used to build the dynamic array on load, do NOT use this
