@@ -4639,6 +4639,11 @@ static int hf_ieee80211_vs_extreme_unknown = -1;
 static int hf_ieee80211_vs_extreme_ap_length = -1;
 static int hf_ieee80211_vs_extreme_ap_name = -1;
 
+static int hf_ieee80211_vs_aerohive_unknown = -1;
+static int hf_ieee80211_vs_aerohive_hostname_length = -1;
+static int hf_ieee80211_vs_aerohive_hostname = -1;
+static int hf_ieee80211_vs_aerohive_data = -1;
+
 static int hf_ieee80211_rsn_ie_pmkid = -1;
 static int hf_ieee80211_rsn_ie_unknown = -1;
 
@@ -12748,6 +12753,53 @@ dissect_vendor_ie_mikrotik(proto_item *item _U_, proto_tree *ietree,
   }
 }
 
+#define AEROHIVE_HOSTNAME 33
+static const value_string ieee80211_vs_aerohive_type_vals[] = {
+  { AEROHIVE_HOSTNAME, "Host Name"},
+  { 0,                 NULL }
+};
+static void
+dissect_vendor_ie_aerohive(proto_item *item _U_, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
+{
+  guint32 type, length;
+  const guint8* hostname;
+  proto_item *ti_len;
+
+  /* VS OUI Type */
+  type = tvb_get_guint8(tvb, offset);
+  offset += 1;
+  tag_len -= 1;
+
+  switch(type){
+    case AEROHIVE_HOSTNAME: /* Unknown (2 bytes) + Host Name Length (1 byte) + Host Name */
+
+      proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_aerohive_type_vals, "Unknown"));
+
+      proto_tree_add_item(ietree, hf_ieee80211_vs_aerohive_unknown, tvb, offset, 2, ENC_NA);
+      offset += 2;
+      tag_len -= 2;
+
+      ti_len = proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_aerohive_hostname_length, tvb, offset, 1, ENC_NA, &length);
+      offset += 1;
+      tag_len -= 1;
+
+      if (tag_len < length) {
+        expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length < Host Name Length");
+        length = tag_len;
+      }
+
+      proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_aerohive_hostname, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &hostname);
+      proto_item_append_text(item, " (%s)", hostname);
+
+    break;
+
+    default:
+      proto_tree_add_item(ietree, hf_ieee80211_vs_aerohive_data, tvb, offset, tag_len, ENC_NA);
+    break;
+  }
+}
+
 enum vs_nintendo_type {
   NINTENDO_SERVICES = 0x11,
   NINTENDO_CONSOLEID = 0xF0
@@ -18135,6 +18187,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     case OUI_ZEBRA_EXTREME:
       dissect_vendor_ie_extreme(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
+      break;
+    case OUI_AEROHIVE:
+      dissect_vendor_ie_aerohive(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -31036,6 +31091,27 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vs_extreme_ap_name,
      {"AP Name", "wlan.vs.extreme.ap_name",
       FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    /* Vendor Specific : Aerohive */
+    {&hf_ieee80211_vs_aerohive_unknown,
+     {"Unknown", "wlan.vs.aerohive.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aerohive_hostname_length,
+     {"Host Name Length", "wlan.vs.aerohive.hostname_length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aerohive_hostname,
+     {"Host Name", "wlan.vs.aerohive.hostname",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aerohive_data,
+     {"Data", "wlan.vs.aerohive.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tsinfo,
