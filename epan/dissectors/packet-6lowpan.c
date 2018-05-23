@@ -1059,6 +1059,45 @@ lowpan_parse_nhc_proto(tvbuff_t *tvb, gint offset)
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      lowpan_reassembly_id
+ *  DESCRIPTION
+ *      Creates an identifier that groups fragments based on the given datagram
+ *      tag and the link layer destination address (to differentiate packets
+ *      forwarded over different links in a mesh network).
+ *  PARAMETERS
+ *      pinfo           : packet info.
+ *      dgram_tag       ; datagram tag (from the Fragmentation Header).
+ *  RETURNS
+ *      guint32         ; identifier for this group of fragments.
+ *---------------------------------------------------------------
+ */
+static guint32
+lowpan_reassembly_id(packet_info *pinfo, guint16 dgram_tag)
+{
+    /* Start with the datagram tag for identification. If the packet is not
+     * being forwarded, then this should be sufficient to prevent collisions
+     * which could break reassembly. */
+    guint32     frag_id = dgram_tag;
+    ieee802154_hints_t  *hints;
+
+    /* Forwarded packets in a mesh network have the same datagram tag, mix
+     * the IEEE 802.15.4 destination link layer address. */
+    if (pinfo->dl_dst.type == AT_EUI64) {
+        /* IEEE 64-bit extended address */
+        frag_id = add_address_to_hash(frag_id, &pinfo->dl_dst);
+    } else {
+        /* 16-bit short address */
+        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                    proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+        if (hints) {
+            frag_id |= hints->dst16 << 16;
+        }
+    }
+    return frag_id;
+} /* lowpan_reassembly_id */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      dissect_6lowpan_heur
  *  DESCRIPTION
  *      Heuristic dissector for 6LoWPAN. Checks if the pattern is
@@ -2797,8 +2836,9 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     tvb_set_reported_length(frag_tvb, frag_size);
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
+    guint32 frag_id = lowpan_reassembly_id(pinfo, dgram_tag);
     frag_data = fragment_add_check(&lowpan_reassembly_table,
-                    frag_tvb, 0, pinfo, dgram_tag, NULL,
+                    frag_tvb, 0, pinfo, frag_id, NULL,
                     0, frag_size, (frag_size < dgram_size));
 
     /* Attempt reassembly. */
@@ -2878,8 +2918,9 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Add this datagram to the fragment table. */
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
+    guint32 frag_id = lowpan_reassembly_id(pinfo, dgram_tag);
     frag_data = fragment_add_check(&lowpan_reassembly_table,
-                    tvb, offset, pinfo, dgram_tag, NULL,
+                    tvb, offset, pinfo, frag_id, NULL,
                     dgram_offset, frag_size, ((dgram_offset + frag_size) < dgram_size));
 
     /* Attempt reassembly. */
