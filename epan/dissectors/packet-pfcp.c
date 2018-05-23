@@ -449,7 +449,7 @@ static int ett_pfcp_measurement_info = -1;
 static int ett_pfcp_node_report_type = -1;
 static int ett_pfcp_remote_gtp_u_peer = -1;
 static int ett_pfcp_oci_flags = -1;
-static int ett_sx_assoc_rel_req_flags = -1;
+static int ett_pfcp_assoc_rel_req_flags = -1;
 static int ett_pfcp_upiri_flags = -1;
 static int ett_pfcp_flow_desc = -1;
 static int ett_pfcp_tos = -1;
@@ -528,33 +528,33 @@ static const true_false_string pfcp_id_predef_dynamic_tfs = {
 
 static const value_string pfcp_message_type[] = {
     {PFCP_MSG_RESERVED_0,             "Reserved"},
-    /* Sx Node related messages */
+    /* PFCP Node related messages */
 
-    { 1, "Sx Heartbeat Request"},
-    { 2, "Sx Heartbeat Response"},
-    { 3, "Sx PFD Management Request"},
-    { 4, "Sx PFD Management Response"},
-    { 5, "Sx Association Setup Request"},
-    { 6, "Sx Association Setup Response"},
-    { 7, "Sx Association Update Request"},
-    { 8, "Sx Association Update Response"},
-    { 9, "Sx Association Release Request"},
-    { 10, "Sx Association Release Response"},
-    { 11, "Sx Version Not Supported Response"},
-    { 12, "Sx Node Report Request"},
-    { 13, "Sx Node Report Response"},
-    { 14, "Sx Session Set Deletion Request"},
-    { 15, "Sx Session Set Deletion Response"},
+    { 1, "PFCP Heartbeat Request"},
+    { 2, "PFCP Heartbeat Response"},
+    { 3, "PFCP PFD Management Request"},
+    { 4, "PFCP PFD Management Response"},
+    { 5, "PFCP Association Setup Request"},
+    { 6, "PFCP Association Setup Response"},
+    { 7, "PFCP Association Update Request"},
+    { 8, "PFCP Association Update Response"},
+    { 9, "PFCP Association Release Request"},
+    { 10, "PFCP Association Release Response"},
+    { 11, "PFCP Version Not Supported Response"},
+    { 12, "PFCP Node Report Request"},
+    { 13, "PFCP Node Report Response"},
+    { 14, "PFCP Session Set Deletion Request"},
+    { 15, "PFCP Session Set Deletion Response"},
     //16 to 49    For future use
-    //Sx Session related messages
-    { 50, "Sx Session Establishment Request"},
-    { 51, "Sx Session Establishment Response"},
-    { 52, "Sx Session Modification Request"},
-    { 53, "Sx Session Modification Response"},
-    { 54, "Sx Session Deletion Request"},
-    { 55, "Sx Session Deletion Response"},
-    { 56, "Sx Session Report Request"},
-    { 57, "Sx Session Report Response"},
+    //PFCP Session related messages
+    { 50, "PFCP Session Establishment Request"},
+    { 51, "PFCP Session Establishment Response"},
+    { 52, "PFCP Session Modification Request"},
+    { 53, "PFCP Session Modification Response"},
+    { 54, "PFCP Session Deletion Request"},
+    { 55, "PFCP Session Deletion Response"},
+    { 56, "PFCP Session Report Request"},
+    { 57, "PFCP Session Report Response"},
     //58 to 99    For future use
     //Other messages
     //100 to 255     For future use
@@ -619,7 +619,7 @@ static const value_string pfcp_ie_type[] = {
     { 9, "Update PDR" },                                            /* Extendable / Table 7.5.4.2-1 */
     { 10, "Update FAR" },                                           /* Extendable / Table 7.5.4.3-1 */
     { 11, "Update Forwarding Parameters" },                         /* Extendable / Table 7.5.4.3-2 */
-    { 12, "Update BAR (Sx Session Report Response)" },              /* Extendable / Table 7.5.9.2-1 */
+    { 12, "Update BAR (PFCP Session Report Response)" },              /* Extendable / Table 7.5.9.2-1 */
     { 13, "Update URR" },                                           /* Extendable / Table 7.5.4.4 */
     { 14, "Update QER" },                                           /* Extendable / Table 7.5.4.5 */
     { 15, "Remove PDR" },                                           /* Extendable / Table 7.5.4.6 */
@@ -718,7 +718,7 @@ static const value_string pfcp_ie_type[] = {
     { 108, "FAR ID" },                                              /* Extendable / Subclause 8.2.74 */
     { 109, "QER ID" },                                              /* Extendable / Subclause 8.2.75 */
     { 110, "OCI Flags" },                                           /* Extendable / Subclause 8.2.76 */
-    { 111, "Sx Association Release Request" },                      /* Extendable / Subclause 8.2.77 */
+    { 111, "PFCP Association Release Request" },                      /* Extendable / Subclause 8.2.77 */
     { 112, "Graceful Release Period" },                             /* Extendable / Subclause 8.2.78 */
     { 113, "PDN Type" },                                            /* Fixed Length / Subclause 8.2.79 */
     { 114, "Failed Rule ID" },                                      /* Extendable / Subclause 8.2.80 */
@@ -775,7 +775,7 @@ static const value_string pfcp_cause_vals[] = {
     { 69, "Mandatory IE incorrect" },
     { 70, "Invalid Forwarding Policy" },
     { 71, "Invalid F - TEID allocation option" },
-    { 72, "No established Sx Association" },
+    { 72, "No established PFCP Association" },
     { 73, "Rule creation / modification Failure" },
     { 74, "PFCP entity in congestion" },
     { 75, "No resources available" },
@@ -851,7 +851,7 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
      *         present and the UP function shall assign an F-TEID with an IP4 or an IPv6 address if the V4 or V6 bit is set respectively.
      *         This bit shall only be set by the CP function.
      * Bit 4 - CHID (CHOOSE_ID):If this bit is set to "1", then the UP function shall assign the same F-TEID to the
-     *         PDRs requested to be created in a Sx Session Establishment Request or Sx Session Modification Request with
+     *         PDRs requested to be created in a PFCP Session Establishment Request or PFCP Session Modification Request with
      *         the same CHOOSE ID value.
      *         This bit may only be set to "1" if the CH bit is set to "1".
      *         This bit shall only be set by the CP function.
@@ -3205,14 +3205,14 @@ dissect_pfcp_pfcp_assoc_rel_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     int offset = 0;
 
-    static const int * pfcp_sx_assoc_rel_req_flags[] = {
+    static const int * pfcp_pfcp_assoc_rel_req_flags[] = {
         &hf_pfcp_spare_b7_b1,
         &hf_pfcp_pfcp_assoc_rel_req_b0_sarr,
         NULL
     };
     /* Octet 5  Spare    SARR */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_pfcp_assoc_rel_req_flags,
-        ett_sx_assoc_rel_req_flags, pfcp_sx_assoc_rel_req_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+        ett_pfcp_assoc_rel_req_flags, pfcp_pfcp_assoc_rel_req_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
 
     if (offset < length) {
@@ -3947,7 +3947,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*      9 */    { dissect_pfcp_update_pdr },                                    /* Update PDR                                       Extendable / Table 7.5.4.2-1 */
 /*     10 */    { dissect_pfcp_update_far },                                    /* Update FAR                                       Extendable / Table 7.5.4.3-1 */
 /*     11 */    { dissect_pfcp_upd_forwarding_param },                          /* Update Forwarding Parameters                     Extendable / Table 7.5.4.3-2 */
-/*     12 */    { dissect_pfcp_update_bar },                                    /* Update BAR (Sx Session Report Response)          Extendable / Table 7.5.9.2-1 */
+/*     12 */    { dissect_pfcp_update_bar },                                    /* Update BAR (PFCP Session Report Response)        Extendable / Table 7.5.9.2-1 */
 /*     13 */    { dissect_pfcp_update_urr },                                    /* Update URR                                       Extendable / Table 7.5.4.4 */
 /*     14 */    { dissect_pfcp_update_qer },                                    /* Update QER                                       Extendable / Table 7.5.4.5 */
 /*     15 */    { dissect_pfcp_remove_pdr },                                    /* Remove PDR                                       Extendable / Table 7.5.4.6 */
@@ -6287,7 +6287,7 @@ proto_register_pfcp(void)
     ett[28] = &ett_pfcp_node_report_type;
     ett[29] = &ett_pfcp_remote_gtp_u_peer;
     ett[30] = &ett_pfcp_oci_flags;
-    ett[31] = &ett_sx_assoc_rel_req_flags;
+    ett[31] = &ett_pfcp_assoc_rel_req_flags;
     ett[32] = &ett_pfcp_upiri_flags;
     ett[33] = &ett_pfcp_flow_desc;
     ett[34] = &ett_pfcp_tos;
