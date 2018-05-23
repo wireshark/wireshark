@@ -347,8 +347,8 @@ static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hoste
 typedef struct _sync_dns_data
 {
     union {
-        guint32      ip4;
-        ws_in6_addr  ip6;
+        guint32            ip4;
+        struct e_in6_addr  ip6;
     } addr;
     int              family;
     gboolean        *completed;
@@ -465,7 +465,7 @@ sync_lookup_ip4(const guint32 addr)
 }
 
 static void
-sync_lookup_ip6(const ws_in6_addr *addr)
+sync_lookup_ip6(const struct e_in6_addr *addr)
 {
     gboolean completed = FALSE;
     sync_dns_data_t *sdd;
@@ -484,7 +484,7 @@ sync_lookup_ip6(const ws_in6_addr *addr)
     sdd->family = AF_INET6;
     memcpy(&sdd->addr.ip6, addr, sizeof(sdd->addr.ip6));
     sdd->completed = &completed;
-    ares_gethostbyaddr(ghba_chan, &addr, sizeof(ws_in6_addr), AF_INET6,
+    ares_gethostbyaddr(ghba_chan, &addr, sizeof(struct e_in6_addr), AF_INET6,
                        c_ares_ghba_sync_cb, sdd);
 
     /*
