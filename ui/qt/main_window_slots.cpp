@@ -1384,14 +1384,14 @@ void MainWindow::setMenusForSelectedPacket()
         next_selection_history = packet_list_->haveNextHistory();
         previous_selection_history = packet_list_->havePreviousHistory();
         have_frames = capture_file_.capFile()->count > 0;
-        have_marked = frame_selected && capture_file_.capFile()->marked_count > 0;
+        have_marked = capture_file_.capFile()->marked_count > 0;
         another_is_marked = have_marked &&
-                !(capture_file_.capFile()->marked_count == 1 && capture_file_.capFile()->current_frame->flags.marked);
+                !(capture_file_.capFile()->marked_count == 1 && frame_selected && capture_file_.capFile()->current_frame->flags.marked);
         have_filtered = capture_file_.capFile()->displayed_count > 0 && capture_file_.capFile()->displayed_count != capture_file_.capFile()->count;
         have_ignored = capture_file_.capFile()->ignored_count > 0;
         have_time_ref = capture_file_.capFile()->ref_time_count > 0;
-        another_is_time_ref = frame_selected && have_time_ref &&
-                !(capture_file_.capFile()->ref_time_count == 1 && capture_file_.capFile()->current_frame->flags.ref_time);
+        another_is_time_ref = have_time_ref &&
+                !(capture_file_.capFile()->ref_time_count == 1 && frame_selected && capture_file_.capFile()->current_frame->flags.ref_time);
 
         if (capture_file_.capFile()->edt)
         {
