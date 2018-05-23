@@ -67,6 +67,7 @@ GSUP (Osmocom Generic Subscriber Update Protocol)
 NR (5G) PDCP protocol
 TPM 2.0 protocol
 PROXY (v2) protocol
+Ruby Marshal format
 --
 GSM-R protocol (User-to-User Information Element usage)
 --
