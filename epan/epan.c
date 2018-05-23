@@ -298,7 +298,7 @@ epan_cleanup(void)
 {
 #ifdef HAVE_PLUGINS
 	g_slist_foreach(epan_plugins, epan_plugin_cleanup, NULL);
-	g_slist_free_full(epan_plugins, g_free);
+	g_slist_free(epan_plugins);
 	epan_plugins = NULL;
 #endif
 	g_slist_free(epan_register_all_procotols);
