@@ -154,108 +154,45 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_set_len(tlv_item, length+2);
             offset++;
 
-            switch(type)
+            if ((length >= 1) && (length <= 4))
             {
-            case UAUDP_CONNECT_VERSION:
-                if ((length >= 1) && (length <= 4))
+                switch(type)
                 {
-                    proto_tree_add_item(connect_tree, hf_uaudp_version, tvb, offset, length, ENC_BIG_ENDIAN);
+                    case UAUDP_CONNECT_VERSION:
+                        proto_tree_add_item(connect_tree, hf_uaudp_version, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_WINDOW_SIZE:
+                        proto_tree_add_item(connect_tree, hf_uaudp_window_size, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_MTU:
+                        proto_tree_add_item(connect_tree, hf_uaudp_mtu, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_UDP_LOST:
+                        proto_tree_add_item(connect_tree, hf_uaudp_udp_lost, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_UDP_LOST_REINIT:
+                        proto_tree_add_item(connect_tree, hf_uaudp_udp_lost_reinit, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_KEEPALIVE:
+                        proto_tree_add_item(connect_tree, hf_uaudp_keepalive, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_QOS_IP_TOS:
+                        proto_tree_add_item(connect_tree, hf_uaudp_qos_ip_tos, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_QOS_8021_VLID:
+                        proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_vlid, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                   case UAUDP_CONNECT_QOS_8021_PRI:
+                        proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_pri, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case UAUDP_CONNECT_SUPERFAST_CONNECT:
+                        proto_tree_add_item(connect_tree, hf_uaudp_superfast_connect, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
                 }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_WINDOW_SIZE:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_window_size, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_MTU:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_mtu, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_UDP_LOST:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_udp_lost, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_UDP_LOST_REINIT:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_udp_lost_reinit, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_KEEPALIVE:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_keepalive, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_QOS_IP_TOS:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_qos_ip_tos, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_QOS_8021_VLID:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_vlid, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_QOS_8021_PRI:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_pri, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
-            case UAUDP_CONNECT_SUPERFAST_CONNECT:
-                if ((length >= 1) && (length <= 4))
-                {
-                    proto_tree_add_item(connect_tree, hf_uaudp_superfast_connect, tvb, offset, length, ENC_BIG_ENDIAN);
-                }
-                else
-                {
-                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
-                }
-                break;
+            }
+            else
+            {
+                expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
             }
             offset += length;
         }
