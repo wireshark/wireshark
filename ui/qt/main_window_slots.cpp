@@ -2225,6 +2225,7 @@ void MainWindow::on_actionEditMarkPacket_triggered()
     freeze();
     packet_list_->markFrame();
     thaw();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditMarkAllDisplayed_triggered()
@@ -2232,6 +2233,7 @@ void MainWindow::on_actionEditMarkAllDisplayed_triggered()
     freeze();
     packet_list_->markAllDisplayedFrames(true);
     thaw();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditUnmarkAllDisplayed_triggered()
@@ -2239,6 +2241,7 @@ void MainWindow::on_actionEditUnmarkAllDisplayed_triggered()
     freeze();
     packet_list_->markAllDisplayedFrames(false);
     thaw();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditNextMark_triggered()
@@ -2258,6 +2261,7 @@ void MainWindow::on_actionEditIgnorePacket_triggered()
     freeze();
     packet_list_->ignoreFrame();
     thaw();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditIgnoreAllDisplayed_triggered()
@@ -2265,6 +2269,7 @@ void MainWindow::on_actionEditIgnoreAllDisplayed_triggered()
     freeze();
     packet_list_->ignoreAllDisplayedFrames(true);
     thaw();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditUnignoreAllDisplayed_triggered()
@@ -2272,16 +2277,19 @@ void MainWindow::on_actionEditUnignoreAllDisplayed_triggered()
     freeze();
     packet_list_->ignoreAllDisplayedFrames(false);
     thaw();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditSetTimeReference_triggered()
 {
     packet_list_->setTimeReference();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditUnsetAllTimeReferences_triggered()
 {
     packet_list_->unsetAllTimeReferences();
+    setMenusForSelectedPacket();
 }
 
 void MainWindow::on_actionEditNextTimeReference_triggered()
