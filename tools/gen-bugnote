@@ -59,7 +59,7 @@ bug_title=$(
         -e 's/{/\\{/' \
     )
 
-echo -e "* $bug_title (ws-buglink:$bug_id[])\n" \
+echo -e "* $bug_title (wsbuglink:$bug_id[])\n" \
         | $recode_cmd \
         | $clipboard_cmd
 
