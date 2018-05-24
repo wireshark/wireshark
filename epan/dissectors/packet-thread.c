@@ -1,5 +1,5 @@
 /* packet-thread.c
- * Routines for Thread CoAP and beacon packet dissection
+ * Routines for Thread over CoAP and beacon packet dissection
  *
  * Robert Cragie <robert.cragie@arm.com>
  *
@@ -681,7 +681,6 @@ static const value_string thread_bcn_tlv_vals[] = {
 };
 
 /* Preferences */
-static gboolean thread_coap_decode = FALSE;
 static gboolean thread_use_pan_id_in_key = FALSE;
 static const gchar *thread_seq_ctr_str = NULL;
 static gboolean thread_auto_acq_seq_ctr = TRUE;
@@ -3362,11 +3361,7 @@ proto_register_thread(void)
     proto_thread = proto_register_protocol("Thread", "Thread", "thread");
 
     thread_module = prefs_register_protocol(proto_thread, proto_reg_handoff_thread);
-    prefs_register_bool_preference(thread_module, "thr_coap_decode",
-                                   "Decode CoAP for Thread",
-                                   "Try to decode CoAP for Thread",
-                                   &thread_coap_decode);
-
+    prefs_register_obsolete_preference(thread_module, "thr_coap_decode");
     prefs_register_string_preference(thread_module, "thr_seq_ctr",
                                      "Thread sequence counter",
                                      "32-bit sequence counter for hash",
@@ -3429,11 +3424,8 @@ void
 proto_reg_handoff_thread(void)
 {
     /* Thread Content-Format is opaque byte string, i.e. application/octet-stream */
-    if (thread_coap_decode) {
-        dissector_add_string("media_type", "application/octet-stream", thread_coap_handle);
-    } else {
-        dissector_delete_string("media_type", "application/octet-stream", thread_coap_handle);
-    }
+    /* Enable decoding "Internet media type" as Thread over CoAP */
+    dissector_add_for_decode_as("media_type", thread_coap_handle);
 
     proto_coap = proto_get_id_by_filter_name("coap");
 }
