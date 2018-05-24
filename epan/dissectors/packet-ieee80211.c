@@ -19470,9 +19470,13 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     NULL
   };
 
-  if (tag_len != 22)
+  /*
+   * Plenty of devices still do not conform to the older version of this
+   * field. So, it must be at least 17 bytes in length.
+   */
+  if (tag_len < 17)
   {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 22", tag_len);
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must contain at least 17 bytes", tag_len);
     return tvb_captured_length(tvb);
   }
 
@@ -19488,6 +19492,18 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   offset += 2;
   proto_tree_add_bitmask_list(tree, tvb, offset, 2, ieee80211_tag_dmg_cap4, ENC_LITTLE_ENDIAN);
   offset += 2;
+
+  /*
+   * There are many captures out there that do not conform to the 2016
+   * version, so give them a malformed IE message now after we have dissected
+   * the above
+   */
+  if (tag_len != 22)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u does not conform to IEEE802.11-2016, should contain 22 bytes", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
   proto_tree_add_item(tree, hf_ieee80211_tag_sta_beam_track, tvb, offset, 2, ENC_NA);
   offset += 2;
   proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_tag_dmg_cap5, ENC_LITTLE_ENDIAN);
@@ -24778,8 +24794,8 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ext_sc_mcs_tx_code_7_8, /* DMG STA Ext SC MCS Capa: Tx code rate 7/8*/
-     {"Extended SC Tx MCS code rate 7/8 supported", "wlan.dmg_capa.ext_sc_mcs_tx_code_7_8",
-      FT_BOOLEAN, 8, NULL, GENMASK(3, 3),
+     {"Extended SC Tx MCS code rate 7/8", "wlan.dmg_capa.ext_sc_mcs_tx_code_7_8",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), GENMASK(3, 3),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ext_sc_mcs_max_rx, /* DMG STA Ext SC MCS Capa: Max RX*/
@@ -24788,8 +24804,8 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ext_sc_mcs_rx_code_7_8, /* DMG STA Ext SC MCS Capa: Rx code rate 7/8*/
-     {"Extended SC Rx MCS code rate 7/8 suported", "wlan.dmg_capa.ext_sc_mcs_rx_code_7_8",
-      FT_BOOLEAN, 8, NULL, GENMASK(7, 7),
+     {"Extended SC Rx MCS code rate 7/8", "wlan.dmg_capa.ext_sc_mcs_rx_code_7_8",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), GENMASK(7, 7),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_max_basic_sf_amsdu, /* DMG Max Number of Basic Subframes in an A-MSDU*/
