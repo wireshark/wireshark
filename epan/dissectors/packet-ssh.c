@@ -649,7 +649,7 @@ ssh_tree_add_string(tvbuff_t *tvb, int offset, proto_tree *tree,
     return 4+len;
 }
 
-static int
+static guint
 ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *tree_name,
                      int ett_idx)
 {
