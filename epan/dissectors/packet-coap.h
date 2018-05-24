@@ -47,8 +47,6 @@ typedef struct {
 	guint32  req_frame;
 	guint32  rsp_frame;
 	nstime_t req_time;
-	const gchar *req_ctype_str;
-	guint req_ctype_value;
 	wmem_strbuf_t *uri_str_strbuf;
 	oscore_info_t *oscore_info;		/* OSCORE transaction to decrypt response */
 } coap_transaction;

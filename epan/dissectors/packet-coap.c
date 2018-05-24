@@ -1098,10 +1098,6 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 					coap_trans->req_frame = pinfo->num;
 					coap_trans->rsp_frame = 0;
 					coap_trans->req_time = pinfo->fd->abs_ts;
-					if (coinfo->ctype_str) {
-						coap_trans->req_ctype_str = coinfo->ctype_str;
-						coap_trans->req_ctype_value = coinfo->ctype_value;
-					}
 					if (coinfo->uri_str_strbuf) {
 						/* Store the URI into CoAP transaction info */
 						coap_trans->uri_str_strbuf = wmem_strbuf_new(wmem_file_scope(), wmem_strbuf_get_str(coinfo->uri_str_strbuf));
@@ -1125,10 +1121,6 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 					if (!PINFO_FD_VISITED(pinfo)) {
 						/* Log the first matching response frame */
 						coap_trans->rsp_frame = pinfo->num;
-					}
-					if (coap_trans->req_ctype_str) {
-						coinfo->ctype_str = coap_trans->req_ctype_str;
-						coinfo->ctype_value = coap_trans->req_ctype_value;
 					}
 					if (coap_trans->uri_str_strbuf) {
 						/* Copy the URI stored in matching transaction info into CoAP packet info */
