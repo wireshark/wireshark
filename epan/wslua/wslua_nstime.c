@@ -20,6 +20,9 @@
 #include "wslua.h"
 #include <wsutil/nstime.h>
 
+/* 1s = 10^9 ns. */
+#define NS_PER_S 1000000000
+
 /* WSLUA_CONTINUE_MODULE Pinfo */
 
 
@@ -61,8 +64,33 @@ WSLUA_METHOD NSTime_tonumber(lua_State* L) {
 WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
     NSTime nstime = checkNSTime(L,1);
     gchar *str;
+    long secs = (long)nstime->secs;
+    gint nsecs = nstime->nsecs;
+    gboolean negative_zero = FALSE;
 
-    str = wmem_strdup_printf(NULL, "%ld.%09d", (long)nstime->secs, nstime->nsecs);
+    /* Time is defined as sec + nsec/10^9, both parts can be negative.
+     * Translate this into the more familiar sec.nsec notation instead. */
+    if (secs > 0 && nsecs < 0) {
+        /* sign mismatch: (2, -3ns) -> 1.7 */
+        nsecs += NS_PER_S;
+        secs--;
+    } else if (secs < 0 && nsecs > 0) {
+        /* sign mismatch: (-2, 3ns) -> -1.7 */
+        nsecs = NS_PER_S - nsecs;
+        secs--;
+    } else if (nsecs < 0) {
+        /* Drop sign, the integer part already has it: (-2, -3ns) -> -2.3 */
+        nsecs = -nsecs;
+        /* In case the integer part is zero, it does not has a sign, so remember
+         * that it must be explicitly added. */
+        negative_zero = secs == 0;
+    }
+
+    if (negative_zero) {
+        str = wmem_strdup_printf(NULL, "-0.%09d", nsecs);
+    } else {
+        str = wmem_strdup_printf(NULL, "%ld.%09d", secs, nsecs);
+    }
     lua_pushstring(L, str);
     wmem_free(NULL, str);
 
