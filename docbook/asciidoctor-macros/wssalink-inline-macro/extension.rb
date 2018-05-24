@@ -7,12 +7,12 @@ include ::Asciidoctor
 #
 # Usage
 #
-#   ws_salink:<dddd>[]
+#   wssalink:<dddd>[]
 #
 class WSSALinkInlineMacro < Extensions::InlineMacroProcessor
   use_dsl
 
-  named :'ws_salink'
+  named :'wssalink'
 
   def process parent, sanum, attrs
     satext = "wnpa-sec-#{sanum}"

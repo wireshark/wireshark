@@ -340,9 +340,9 @@ HTMLHELP_XSLTPROC_ARGS = \
 
 ASCIIDOCTOR_COMMON_ARGS = \
 	--require $(srcdir)/asciidoctor-macros/commaize-block.rb \
-	--require $(srcdir)/asciidoctor-macros/cve_idlink-inline-macro.rb \
-	--require $(srcdir)/asciidoctor-macros/ws_buglink-inline-macro.rb \
-	--require $(srcdir)/asciidoctor-macros/ws_salink-inline-macro.rb
+	--require $(srcdir)/asciidoctor-macros/cveidlink-inline-macro.rb \
+	--require $(srcdir)/asciidoctor-macros/wsbuglink-inline-macro.rb \
+	--require $(srcdir)/asciidoctor-macros/wssalink-inline-macro.rb
 
 ASCIIDOCTOR_COMMON_COMMAND = TZ=UTC ASCIIDOCTORJ_OPTS="-Xmx800m ${ASCIIDOCTORJ_OPTS}" \
 	$(ASCIIDOCTOR) \

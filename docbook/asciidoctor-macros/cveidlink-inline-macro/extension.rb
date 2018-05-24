@@ -7,12 +7,12 @@ include ::Asciidoctor
 #
 # Usage
 #
-#   cve_idlink:<cve-number>[]
+#   cveidlink:<cve-number>[]
 #
 class CVEIdLinkInlineMacro < Extensions::InlineMacroProcessor
   use_dsl
 
-  named :cve_idlink
+  named :cveidlink
 
   def process parent, cvenum, attrs
     cvename = "CVE-#{cvenum}"

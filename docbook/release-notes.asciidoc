@@ -17,11 +17,11 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2018-34[]
+* wssalink:2018-34[]
 +
 A dissector went awry.
-(ws-buglink:xxxx[])
-// cve-idlink:2018-xxxx[]
+(wsbuglink:xxxx[])
+// cveidlink:2018-xxxx[]
 // Fixed in master: xxxx
 // Fixed in master-2.6: xxxx
 // Fixed in master-2.4: xxxx
@@ -29,9 +29,9 @@ A dissector went awry.
 
 The following bugs have been fixed:
 
-//* ws_buglink:5000[]
-//* ws_buglink:6000[Wireshark bug]
-//* cve_idlink:2014-2486[]
+//* wsbuglink:5000[]
+//* wsbuglink:6000[Wireshark bug]
+//* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
@@ -96,21 +96,21 @@ locations on your system.
 == Known Problems
 
 The BER dissector might infinitely loop.
-(ws_buglink:1516[])
+(wsbuglink:1516[])
 
 Capture filters aren't applied when capturing from named pipes.
-(ws_buglink:1814[])
+(wsbuglink:1814[])
 
 Filtering tshark captures with read filters (`-R`) no longer works.
-(ws_buglink:2234[])
+(wsbuglink:2234[])
 
 Application crash when changing real-time option.
-(ws_buglink:4035[])
+(wsbuglink:4035[])
 
 Wireshark and TShark will display incorrect delta times in some cases.
-(ws_buglink:4985[])
+(wsbuglink:4985[])
 
-Wireshark should let you work with multiple capture files. (ws_buglink:10488[])
+Wireshark should let you work with multiple capture files. (wsbuglink:10488[])
 
 == Getting Help
 
