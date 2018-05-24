@@ -12,11 +12,10 @@
 
 #include "config.h"
 
-#include "epan/packet.h"
-#include "epan/prefs.h"
-#include "epan/expert.h"
-#include "wsutil/report_message.h"
-#include "wsutil/inet_addr.h"
+#include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/expert.h>
+#include <wsutil/report_message.h>
 
 #include "packet-uaudp.h"
 
@@ -24,16 +23,6 @@ void proto_register_uaudp(void);
 void proto_reg_handoff_uaudp(void);
 
 /* GLOBALS */
-
-#if 0
-static dissector_table_t uaudp_opcode_dissector_table;
-#endif
-
-#if 0
-static int uaudp_tap                = -1;
-#endif
-
-static tap_struct_uaudp ua_tap_info;
 
 static dissector_handle_t uaudp_handle;
 
@@ -120,10 +109,6 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     opcode = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    ua_tap_info.opcode = opcode;
-    ua_tap_info.expseq = 0;
-    ua_tap_info.sntseq = 0;
-
     /* print in "INFO" column the type of UAUDP message */
     col_add_fstr(pinfo->cinfo,
                 COL_INFO,
@@ -182,7 +167,7 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     case UAUDP_CONNECT_QOS_8021_VLID:
                         proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_vlid, tvb, offset, length, ENC_BIG_ENDIAN);
                         break;
-                   case UAUDP_CONNECT_QOS_8021_PRI:
+                    case UAUDP_CONNECT_QOS_8021_PRI:
                         proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_pri, tvb, offset, length, ENC_BIG_ENDIAN);
                         break;
                     case UAUDP_CONNECT_SUPERFAST_CONNECT:
@@ -214,21 +199,19 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         int datalen;
 
-        proto_tree_add_item_ret_uint(uaudp_tree,
+        proto_tree_add_item(uaudp_tree,
                     hf_uaudp_expseq,
                     tvb,
                     offset+0,
                     2,
-                    ENC_BIG_ENDIAN,
-                    &ua_tap_info.expseq);
+                    ENC_BIG_ENDIAN);
 
-        proto_tree_add_item_ret_uint(uaudp_tree,
+        proto_tree_add_item(uaudp_tree,
                     hf_uaudp_sntseq,
                     tvb,
                     offset+2,
                     2,
-                    ENC_BIG_ENDIAN,
-                    &ua_tap_info.sntseq);
+                    ENC_BIG_ENDIAN);
 
         offset  += 4;
         datalen  = tvb_reported_length(tvb) - offset;
@@ -252,7 +235,6 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             COL_INFO,
                             "Data - Couldn't resolve direction. Check UAUDP Preferences.");
             }
-            ua_tap_info.expseq = hf_uaudp_expseq;
         }
         else {
             /* print in "INFO" column */
@@ -265,31 +247,7 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     default:
         break;
     }
-#if 0
-    tap_queue_packet(uaudp_tap, pinfo, &ua_tap_info);
-#endif
 }
-
-#if 0
-/* XXX: The following are never actually used ?? */
-static int dissect_uaudp_dir_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
-{
-    _dissect_uaudp(tvb, pinfo, tree, DIR_UNKNOWN);
-    return tvb_captured_length(tvb);
-}
-
-static void dissect_uaudp_term_to_serv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
-{
-    _dissect_uaudp(tvb, pinfo, tree, TERM_TO_SYS);
-    return tvb_captured_length(tvb);
-}
-
-static void dissect_uaudp_serv_to_term(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
-{
-    _dissect_uaudp(tvb, pinfo, tree, SYS_TO_TERM);
-    return tvb_captured_length(tvb);
-}
-#endif
 
 /*
  * UA/UDP DISSECTOR
@@ -565,24 +523,11 @@ void proto_register_uaudp(void)
     proto_uaudp = proto_register_protocol("UA/UDP Encapsulation Protocol", "UAUDP", "uaudp");
 
     uaudp_handle = register_dissector("uaudp", dissect_uaudp, proto_uaudp);
-#if 0 /* XXX: Not used ?? */
-    register_dissector("uaudp_dir_unknown",  dissect_uaudp_dir_unknown,  proto_uaudp);
-    register_dissector("uaudp_term_to_serv", dissect_uaudp_term_to_serv, proto_uaudp);
-    register_dissector("uaudp_serv_to_term", dissect_uaudp_serv_to_term, proto_uaudp);
-#endif
 
     proto_register_field_array(proto_uaudp, hf_uaudp, array_length(hf_uaudp));
     proto_register_subtree_array(ett, array_length(ett));
     expert_uaudp = expert_register_protocol(proto_uaudp);
     expert_register_field_array(expert_uaudp, ei, array_length(ei));
-
-#if 0
-    uaudp_opcode_dissector_table =
-            register_dissector_table("uaudp.opcode",
-                                     "UAUDP opcode",
-                                     FT_UINT8,
-                                     BASE_DEC);
-#endif
 
     /* Register preferences */
     uaudp_module = prefs_register_protocol(proto_uaudp, apply_uaudp_prefs);
@@ -592,11 +537,6 @@ void proto_register_uaudp(void)
                      "IPv4 (or IPv6) address of the call server."
                      " (Used only in case of identical source and destination ports)",
                      &pref_sys_ip_s);
-
-#if 0
-    /* Register tap  */
-    uaudp_tap = register_tap("uaudp");*/
-#endif
 }
 
 void proto_reg_handoff_uaudp(void)
