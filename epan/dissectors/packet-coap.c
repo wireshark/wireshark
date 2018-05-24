@@ -575,7 +575,7 @@ dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 		coinfo->ctype_value = coap_get_opt_uint(tvb, offset, opt_length);
 	}
 
-	coinfo->ctype_str = val_to_str_const(coinfo->ctype_value, vals_ctype, "Unknown Type");
+	coinfo->ctype_str = val_to_str(coinfo->ctype_value, vals_ctype, "Unknown Type %u");
 
 	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, coinfo->ctype_str);
 
@@ -1102,10 +1102,6 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 					coap_trans->req_frame = pinfo->num;
 					coap_trans->rsp_frame = 0;
 					coap_trans->req_time = pinfo->fd->abs_ts;
-					if (coinfo->ctype_str) {
-						coap_trans->req_ctype_str = coinfo->ctype_str;
-						coap_trans->req_ctype_value = coinfo->ctype_value;
-					}
 					if (coinfo->uri_str_strbuf) {
 						/* Store the URI into CoAP transaction info */
 						coap_trans->uri_str_strbuf = wmem_strbuf_new(wmem_file_scope(), wmem_strbuf_get_str(coinfo->uri_str_strbuf));
@@ -1129,10 +1125,6 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 					if (!PINFO_FD_VISITED(pinfo)) {
 						/* Log the first matching response frame */
 						coap_trans->rsp_frame = pinfo->num;
-					}
-					if (coap_trans->req_ctype_str) {
-						coinfo->ctype_str = coap_trans->req_ctype_str;
-						coinfo->ctype_value = coap_trans->req_ctype_value;
 					}
 					if (coap_trans->uri_str_strbuf) {
 						/* Copy the URI stored in matching transaction info into CoAP packet info */
