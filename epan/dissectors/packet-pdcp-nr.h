@@ -46,8 +46,9 @@ typedef struct pdcp_nr_info
     guint8             bearerId;
 
     /* Details of PDCP header */
-    enum pdcp_nr_plane    plane;
+    enum pdcp_nr_plane plane;
     guint8             seqnum_length;
+    gboolean           maci_present;
 
     /* RoHC settings */
     rohc_info          rohc;
@@ -133,6 +134,8 @@ typedef struct pdcp_nr_info
 #define PDCP_NR_ROHC_PROFILE_TAG           0x0E
 /* 2 bytes, network order */
 
+#define PDCP_NR_MACI_PRES_TAG              0x0F
+/* 0 byte */
 
 /* PDCP PDU. Following this tag comes the actual PDCP PDU (there is no length, the PDU
    continues until the end of the frame) */

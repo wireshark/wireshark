@@ -884,6 +884,9 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     p_pdcp_nr_info->rohc.profile = tvb_get_ntohs(tvb, offset);
                     offset += 2;
                     break;
+                case PDCP_NR_MACI_PRES_TAG:
+                    p_pdcp_nr_info->maci_present = TRUE;
+                    break;
 
                 case PDCP_NR_PAYLOAD_TAG:
                     /* Have reached data, so get out of loop */
@@ -927,14 +930,12 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     const char           *mode;
-    proto_tree           *pdcp_tree           = NULL;
-    proto_item           *root_ti             = NULL;
+    proto_tree           *pdcp_tree          = NULL;
+    proto_item           *root_ti            = NULL;
     proto_item           *ti;
     gint                 offset              = 0;
     struct pdcp_nr_info  *p_pdcp_info;
-    tvbuff_t             *rohc_tvb            = NULL;
-    gboolean             mac_included = FALSE;
-    guint32              mac_offset = 0;
+    tvbuff_t             *rohc_tvb           = NULL;
 
     tvbuff_t *payload_tvb;
 
@@ -1229,16 +1230,14 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
 
         if (p_pdcp_info->bearerType == Bearer_DCCH) {
-            mac_included = TRUE;
-            mac_offset = tvb_reported_length(tvb)-4;
+            p_pdcp_info->maci_present = TRUE;
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes data)", data_length);
         }
     }
     else if (tvb_captured_length_remaining(payload_tvb, offset)) {
-        /* User-plane payload here.  Optional, not clear how it will be signalled yet. For now assume not. */
-        mac_included = FALSE;
-        gint payload_length = tvb_reported_length_remaining(payload_tvb, offset) - ((mac_included) ? 4 : 0);
+        /* User-plane payload here. */
+        gint payload_length = tvb_reported_length_remaining(payload_tvb, offset) - ((p_pdcp_info->maci_present) ? 4 : 0);
 
         /* If not compressed with ROHC, show as user-plane data */
         if (!p_pdcp_info->rohc.rohc_compression) {
@@ -1272,12 +1271,9 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
                 }
                 else {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_nr_user_plane_data, payload_tvb, offset, -1, ENC_NA);
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_nr_user_plane_data, payload_tvb, offset, payload_length, ENC_NA);
                 }
             }
-
-            /* Let RLC write to columns again */
-            col_set_writable(pinfo->cinfo, COL_INFO, global_pdcp_nr_layer_to_show == ShowRLCLayer);
         }
         else {
             /***************************/
@@ -1288,27 +1284,30 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             if (!global_pdcp_dissect_rohc) {
                 col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
                                 val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
-                return 1;
-            }
-
-            rohc_tvb = tvb_new_subset_length(payload_tvb, offset, payload_length);
-
-            /* Only enable writing to column if configured to show ROHC */
-            if (global_pdcp_nr_layer_to_show != ShowTrafficLayer) {
-                col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+                proto_tree_add_item(pdcp_tree, hf_pdcp_nr_user_plane_data, payload_tvb, offset, payload_length, ENC_NA);
             }
             else {
-                col_clear(pinfo->cinfo, COL_INFO);
+                rohc_tvb = tvb_new_subset_length(payload_tvb, offset, payload_length);
+
+                /* Only enable writing to column if configured to show ROHC */
+                if (global_pdcp_nr_layer_to_show != ShowTrafficLayer) {
+                    col_set_writable(pinfo->cinfo, COL_INFO, FALSE);
+                }
+                else {
+                    col_clear(pinfo->cinfo, COL_INFO);
+                }
+
+                /* Call the ROHC dissector */
+                call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, &p_pdcp_info->rohc);
             }
 
-            /* Call the ROHC dissector */
-            call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, &p_pdcp_info->rohc);
         }
     }
 
     /* MAC */
-    if (mac_included) {
+    if (p_pdcp_info->maci_present) {
         /* Last 4 bytes are MAC */
+        gint mac_offset = tvb_reported_length(tvb)-4;
         guint32 mac = tvb_get_ntohl(payload_tvb, mac_offset);
         proto_tree_add_item(pdcp_tree, hf_pdcp_nr_mac, payload_tvb, mac_offset, 4, ENC_BIG_ENDIAN);
 
