@@ -28,6 +28,7 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 
+#include "packet-isup.h"
 #include "packet-per.h"
 #include "packet-ber.h"
 
@@ -1264,7 +1265,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
-#line 38 "./asn1/rnsap/packet-rnsap-template.c"
+#line 39 "./asn1/rnsap/packet-rnsap-template.c"
 
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
@@ -1284,6 +1285,9 @@ static dissector_handle_t rrc_ul_ccch_handle = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_rnsap = -1;
 
+static int hf_rnsap_transportLayerAddress_ipv4 = -1;
+static int hf_rnsap_transportLayerAddress_ipv6 = -1;
+static int hf_rnsap_transportLayerAddress_nsap = -1;
 
 /*--- Included file: packet-rnsap-hf.c ---*/
 #line 1 "./asn1/rnsap/packet-rnsap-hf.c"
@@ -4393,10 +4397,12 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 58 "./asn1/rnsap/packet-rnsap-template.c"
+#line 62 "./asn1/rnsap/packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
+static int ett_rnsap_transportLayerAddress = -1;
+static int ett_rnsap_transportLayerAddress_nsap = -1;
 
 
 /*--- Included file: packet-rnsap-ett.c ---*/
@@ -5830,7 +5836,7 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 63 "./asn1/rnsap/packet-rnsap-template.c"
+#line 69 "./asn1/rnsap/packet-rnsap-template.c"
 
 
 /* Dissector tables */
@@ -7811,8 +7817,23 @@ dissect_rnsap_EDCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_rnsap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 158 "./asn1/rnsap/rnsap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+  guint16 binding_id_port;
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 4, TRUE, NULL);
+                                       1, 4, TRUE, &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+
+  if(tvb_reported_length(parameter_tvb)>=2){
+    binding_id_port = tvb_get_ntohs(parameter_tvb,0);
+    proto_item_append_text(actx->created_item, " (%u)",binding_id_port);
+  }
+
+
 
   return offset;
 }
@@ -7821,8 +7842,51 @@ dissect_rnsap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 174 "./asn1/rnsap/rnsap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  proto_item *item;
+  proto_tree *subtree, *nsap_tree;
+  guint8 *padded_nsap_bytes;
+  tvbuff_t *nsap_tvb;
+  gint tvb_len;
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, NULL, NULL);
+                                     1, 160, TRUE, &parameter_tvb, NULL);
+
+  if (!parameter_tvb)
+    return offset;
+
+  /* Get the length */
+  tvb_len = tvb_reported_length(parameter_tvb);
+  subtree = proto_item_add_subtree(actx->created_item, ett_rnsap_transportLayerAddress);
+  if (tvb_len == 4){
+    /* IPv4 */
+    proto_tree_add_item(subtree, hf_rnsap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
+  }
+  if (tvb_len == 16){
+    /* IPv6 */
+    proto_tree_add_item(subtree, hf_rnsap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, ENC_NA);
+  }
+  if (tvb_len == 20 || tvb_len == 7){
+    /* NSAP */
+    if (tvb_len == 7){
+      /* Unpadded IPv4 NSAP */
+      /* Creating a new TVB with padding */
+      padded_nsap_bytes = (guint8*) wmem_alloc0(actx->pinfo->pool, 20);
+      tvb_memcpy(parameter_tvb, padded_nsap_bytes, 0, tvb_len);
+      nsap_tvb = tvb_new_child_real_data(tvb, padded_nsap_bytes, 20, 20);
+      add_new_data_source(actx->pinfo, nsap_tvb, "Padded NSAP Data");
+    }else{
+      /* Padded NSAP*/
+      nsap_tvb = parameter_tvb;
+    }
+    item = proto_tree_add_item(subtree, hf_rnsap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
+    nsap_tree = proto_item_add_subtree(item, ett_rnsap_transportLayerAddress_nsap);
+    dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
+  }
+
+
+
 
   return offset;
 }
@@ -49051,7 +49115,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 96 "./asn1/rnsap/packet-rnsap-template.c"
+#line 102 "./asn1/rnsap/packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -49193,8 +49257,19 @@ dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void proto_register_rnsap(void) {
 
   /* List of fields */
-
   static hf_register_info hf[] = {
+    { &hf_rnsap_transportLayerAddress_ipv4,
+      { "transportLayerAddress IPv4", "rnsap.transportLayerAddress_ipv4",
+      FT_IPv4, BASE_NONE, NULL, 0,
+    NULL, HFILL }},
+    { &hf_rnsap_transportLayerAddress_ipv6,
+      { "transportLayerAddress IPv6", "rnsap.transportLayerAddress_ipv6",
+      FT_IPv6, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+    { &hf_rnsap_transportLayerAddress_nsap,
+      { "transportLayerAddress NSAP", "rnsap.transportLayerAddress_NSAP",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
 
 /*--- Included file: packet-rnsap-hfarr.c ---*/
 #line 1 "./asn1/rnsap/packet-rnsap-hfarr.c"
@@ -61616,12 +61691,14 @@ void proto_register_rnsap(void) {
         "Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 240 "./asn1/rnsap/packet-rnsap-template.c"
+#line 257 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-		  &ett_rnsap,
+    &ett_rnsap,
+    &ett_rnsap_transportLayerAddress,
+    &ett_rnsap_transportLayerAddress_nsap,
 
 /*--- Included file: packet-rnsap-ettarr.c ---*/
 #line 1 "./asn1/rnsap/packet-rnsap-ettarr.c"
@@ -63054,7 +63131,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 246 "./asn1/rnsap/packet-rnsap-template.c"
+#line 265 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -64014,7 +64091,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 280 "./asn1/rnsap/packet-rnsap-template.c"
+#line 299 "./asn1/rnsap/packet-rnsap-template.c"
 }
 
 

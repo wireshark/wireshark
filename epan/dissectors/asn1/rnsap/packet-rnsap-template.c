@@ -20,6 +20,7 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 
+#include "packet-isup.h"
 #include "packet-per.h"
 #include "packet-ber.h"
 
@@ -54,10 +55,15 @@ static dissector_handle_t rrc_ul_ccch_handle = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_rnsap = -1;
 
+static int hf_rnsap_transportLayerAddress_ipv4 = -1;
+static int hf_rnsap_transportLayerAddress_ipv6 = -1;
+static int hf_rnsap_transportLayerAddress_nsap = -1;
 #include "packet-rnsap-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
+static int ett_rnsap_transportLayerAddress = -1;
+static int ett_rnsap_transportLayerAddress_nsap = -1;
 
 #include "packet-rnsap-ett.c"
 
@@ -234,14 +240,27 @@ dissect_sccp_rnsap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void proto_register_rnsap(void) {
 
   /* List of fields */
-
   static hf_register_info hf[] = {
+    { &hf_rnsap_transportLayerAddress_ipv4,
+      { "transportLayerAddress IPv4", "rnsap.transportLayerAddress_ipv4",
+      FT_IPv4, BASE_NONE, NULL, 0,
+    NULL, HFILL }},
+    { &hf_rnsap_transportLayerAddress_ipv6,
+      { "transportLayerAddress IPv6", "rnsap.transportLayerAddress_ipv6",
+      FT_IPv6, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+    { &hf_rnsap_transportLayerAddress_nsap,
+      { "transportLayerAddress NSAP", "rnsap.transportLayerAddress_NSAP",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
 #include "packet-rnsap-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-		  &ett_rnsap,
+    &ett_rnsap,
+    &ett_rnsap_transportLayerAddress,
+    &ett_rnsap_transportLayerAddress_nsap,
 #include "packet-rnsap-ettarr.c"
   };
 
