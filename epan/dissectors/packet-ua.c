@@ -12,10 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
-#include "packet-rtp.h"
-#include "packet-rtcp.h"
 #include "packet-uaudp.h"
 
 void proto_register_ua_msg(void);
@@ -30,8 +27,6 @@ static dissector_table_t ua_opcode_dissector_table;
 
 static int  proto_ua_msg        = -1;
 static gint ett_ua_msg          = -1;
-
-static gboolean setup_conversations_enabled = TRUE;
 
 static dissector_handle_t noe_handle;
 static dissector_handle_t ua3g_handle;
@@ -167,57 +162,8 @@ static void _dissect_ua_msg(tvbuff_t       *tvb,
 
     while (tvb_offset_exists(tvb, offset))
     {
-        gint length;
-        gint opcode;
-
-        length = tvb_get_letohs(tvb, offset) + 2;
-        opcode = tvb_get_guint8(tvb, offset+2);
-
-        /* RTP/RTCP conversation setup */
-        if (setup_conversations_enabled && (opcode==0x13) && (tvb_get_guint8(tvb, offset+3)==0x01))
-        {
-            address remote_rtp_addr;
-            guint32 remote_rtp_port;
-            gint    suboffset;
-
-            remote_rtp_addr.data = NULL;
-            remote_rtp_port = 0;
-
-            /* StartRTP */
-            suboffset = offset + 5;
-
-            while (suboffset < offset+length)
-            {
-                switch (tvb_get_guint8(tvb, suboffset))
-                {
-                case 0x00: /* local port */
-                    {
-                    /*local_rtp_port = tvb_get_ntohs(tvb, suboffset+2);*/
-                    break;
-                    }
-                case 0x01: /* remote IP */
-                    {
-                    set_address_tvb(&remote_rtp_addr, AT_IPv4, 4, tvb, suboffset+2);
-                    break;
-                    }
-                case 0x02: /* remote port */
-                    {
-                    remote_rtp_port = tvb_get_ntohs(tvb, suboffset+2);
-                    break;
-                    }
-                }
-
-            suboffset += tvb_get_guint8(tvb, suboffset+1) + 2;
-            }
-
-            if ((remote_rtp_addr.data != NULL) && (remote_rtp_port != 0))
-            {
-                rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port, 0,
-                        "UA", pinfo->num, 0, NULL);
-                rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port+1, 0,
-                         "UA", pinfo->num);
-            }
-        }
+        gint length = tvb_get_letohs(tvb, offset) + 2;
+        gint opcode = tvb_get_guint8(tvb, offset+2);
 
         uadecode(direction, ua_msg_tree, pinfo, tvb, offset, opcode, length);
 
@@ -245,8 +191,6 @@ static int dissect_ua_term_to_sys(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 void proto_register_ua_msg(void)
 {
-    module_t *ua_msg_module;
-
     static gint *ett[] =
     {
         &ett_ua_msg,
@@ -260,14 +204,6 @@ void proto_register_ua_msg(void)
 
     /* Common subtree array registration */
     proto_register_subtree_array(ett, array_length(ett));
-
-    /* Register preferences */
-    ua_msg_module = prefs_register_protocol(proto_ua_msg, NULL);
-
-    prefs_register_bool_preference(ua_msg_module, "setup_conversations",
-        "Setup RTP/RTCP conversations on Start RTP",
-        "Setup RTP/RTCP conversations when parsing Start RTP messages",
-        &setup_conversations_enabled);
 }
 
 void proto_reg_handoff_ua_msg(void)

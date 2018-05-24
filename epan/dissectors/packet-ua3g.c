@@ -12,7 +12,12 @@
 
 #include "config.h"
 
-#include "epan/packet.h"
+#include <epan/packet.h>
+#include <epan/prefs.h>
+
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
+
 #include "packet-uaudp.h"
 
 void proto_register_ua3g(void);
@@ -25,7 +30,6 @@ void proto_reg_handoff_ua3g(void);
 static dissector_table_t ua3g_opcode_dissector_table;
 #endif
 
-
 static int  proto_ua3g          = -1;
 static gint ett_ua3g            = -1;
 static gint ett_ua3g_body       = -1;
@@ -34,6 +38,8 @@ static gint ett_ua3g_param_sub  = -1;
 static gint ett_ua3g_option     = -1;
 static gint ett_ua3g_beep_beep_destination = -1;
 static gint ett_ua3g_note       = -1;
+
+static gboolean setup_conversations_enabled = TRUE;
 
 static int  hf_ua3g_length                  = -1;
 static int  hf_ua3g_opcode_sys              = -1;
@@ -1201,6 +1207,9 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x01: /* START RTP */
         {
+            address remote_rtp_addr = ADDRESS_INIT_NONE;
+            guint32 remote_rtp_port = 0;
+
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_rtp_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
@@ -1227,8 +1236,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     case 0x01: /* Remote IP Address */
                     case 0x11: /* Destination For RTCP Sender Reports - IP Address */
                     case 0x13: /* Destination For RTCP Receiver Reports - IP Address */
-                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-                            break;
+                        if (parameter_id == 0x01)
+                           set_address_tvb(&remote_rtp_addr, AT_IPv4, 4, tvb, offset);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        break;
                     case 0x04: /* Compressor */
                         if (parameter_length <= 8) {
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_compressor, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
@@ -1279,6 +1290,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         break;
                     case 0x00: /* Local UDP Port */
                     case 0x02: /* Remote UDP Port */
+                        if (parameter_id == 0x02)
+                           remote_rtp_port = tvb_get_ntohs(tvb, offset);
                     case 0x03: /* Type Of Service */
                     case 0x05: /* Payload Concatenation */
                     case 0x08: /* 802.1 Q User Priority */
@@ -1309,6 +1322,15 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
                     offset += parameter_length;
                     length -= parameter_length;
+                }
+            }
+
+            if (setup_conversations_enabled)
+            {
+                if ((remote_rtp_addr.data != NULL) && (remote_rtp_port != 0))
+                {
+                    rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port, 0, "UA3G", pinfo->num, 0, NULL);
+                    rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port+1, 0, "UA3G", pinfo->num);
                 }
             }
             break;
@@ -4742,8 +4764,18 @@ proto_register_ua3g(void)
         &ett_ua3g_note,
     };
 
+    module_t *ua3g_module;
+
     /* UA3G dissector registration */
     proto_ua3g = proto_register_protocol("UA3G Message", "UA3G", "ua3g");
+
+    /* Register preferences */
+    ua3g_module = prefs_register_protocol(proto_ua3g, NULL);
+
+    prefs_register_bool_preference(ua3g_module, "setup_conversations",
+        "Setup RTP/RTCP conversations on Start RTP",
+        "Setup RTP/RTCP conversations when parsing Start RTP messages",
+        &setup_conversations_enabled);
 
     proto_register_field_array(proto_ua3g, hf, array_length(hf));
 
