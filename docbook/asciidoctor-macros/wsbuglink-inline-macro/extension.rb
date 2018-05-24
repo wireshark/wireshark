@@ -7,13 +7,13 @@ include ::Asciidoctor
 #
 # Usage
 #
-#   ws_buglink:<number>[<bug text>]
+#   wsbuglink:<number>[<bug text>]
 #   Default bug text is "Bug".
 #
 class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
   use_dsl
 
-  named :ws_buglink
+  named :wsbuglink
   parse_content_as :text
   name_positional_attributes 'bugtext'
 

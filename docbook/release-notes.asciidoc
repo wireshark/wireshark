@@ -24,15 +24,15 @@ Features” section below for more details.
 
 The following bugs have been fixed:
 
-//* ws_buglink:5000[]
-//* ws_buglink:6000[Wireshark bug]
-//* cve_idlink:2014-2486[]
+//* wsbuglink:5000[]
+//* wsbuglink:6000[Wireshark bug]
+//* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 
 //_Non-empty section placeholder._
 
 Dumpcap might not quit if Wireshark or TShark crashes.
-(ws_buglink:1419[])
+(wsbuglink:1419[])
 
 === New and Updated Features
 
@@ -44,7 +44,7 @@ since version 2.6.0:
   _Building display filter expressions_ for details.
 * The autotools build system has been removed. CMake is the one build system now.
 * tshark has now "-G elastic-mapping" option to generate an ElasticSearch mapping file.
-* The “Capture Information” dialog has been added back (ws_buglink:12004[]).
+* The “Capture Information” dialog has been added back (wsbuglink:12004[]).
 
 === Removed Features and Support
 
@@ -114,21 +114,21 @@ locations on your system.
 == Known Problems
 
 The BER dissector might infinitely loop.
-(ws_buglink:1516[])
+(wsbuglink:1516[])
 
 Capture filters aren't applied when capturing from named pipes.
-(ws_buglink:1814[])
+(wsbuglink:1814[])
 
 Filtering tshark captures with read filters (-R) no longer works.
-(ws_buglink:2234[])
+(wsbuglink:2234[])
 
 Application crash when changing real-time option.
-(ws_buglink:4035[])
+(wsbuglink:4035[])
 
 Wireshark and TShark will display incorrect delta times in some cases.
-(ws_buglink:4985[])
+(wsbuglink:4985[])
 
-Wireshark should let you work with multiple capture files. (ws_buglink:10488[])
+Wireshark should let you work with multiple capture files. (wsbuglink:10488[])
 
 == Getting Help
 
