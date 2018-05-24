@@ -94,8 +94,6 @@ docbook/developer-guide*.xml
 docbook/user-guide-toc.hhc
 docbook/user-guide.hhp
 docbook/user-guide*.xml
-docbook/ws?g_src/WS?G_*.dbk
-docbook/*-guide-*.fo
 docbook/*-guide-*.pdf
 docbook/ws?g_html/
 docbook/ws?g_html_chunked/
@@ -109,19 +107,11 @@ wsar_html.zip
 
 # Qt #
 ######
-qtshark
 /ui/qt/__/
-/ui/qt/*.qrc.depends
-/ui/qt/*.pro.user
 /ui/qt/*.qm
 /ui/qt/**/moc_*.cpp
-/ui/qt/**/moc_*.cpp_parameters
-/ui/qt/**/*.moc.cpp
-/ui/qt/**/*.rcc.cpp
-/ui/qt/**/moc_*.cxx
 /ui/qt/i18n.qrc
 /ui/qt/qrc_*.cpp
-/ui/qt/qrc_*.cxx
 /ui/qt/ui_*.h
 /ui/qt/console.lua
 /wireshark-qt*
@@ -164,7 +154,6 @@ Wireshark.*.suo
 x64/
 _libs_check_
 doc/ws.css
-ui/qt/config.pri
 packaging/nsis/all-manifest.nsh
 /packaging/portableapps/WiresharkPortable/
 /zlib/
