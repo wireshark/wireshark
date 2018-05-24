@@ -23,6 +23,7 @@
  * print routines
  */
 void proto_register_data(void);
+void proto_reg_handoff_data(void);
 
 int proto_data = -1;
 
@@ -52,6 +53,8 @@ static gboolean show_as_text = FALSE;
 static gboolean generate_md5_hash = FALSE;
 
 static gint ett_data = -1;
+
+static dissector_handle_t data_handle;
 
 static int
 dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -147,7 +150,7 @@ proto_register_data(void)
 		"data"		/* abbrev */
 		);
 
-	register_dissector("data", dissect_data, proto_data);
+	data_handle = register_dissector("data", dissect_data, proto_data);
 
 	proto_register_fields(proto_data, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -181,6 +184,12 @@ proto_register_data(void)
 	 * is disabled, so it cannot itself be disabled.
 	 */
 	proto_set_cant_toggle(proto_data);
+}
+
+void
+proto_reg_handoff_data(void)
+{
+	dissector_add_string("media_type", "application/octet-stream", data_handle);
 }
 
 /*
