@@ -251,7 +251,8 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 			*(keypos + keylength) != '\\' &&
 			*(keypos + keylength) != '\0'
 			;
-			keylength++) ;
+			keylength++)
+		;
 		keyvaluesep = keypos + keylength;
 		if (*keyvaluesep == '\0') break;
 		valuepos = keyvaluesep+1;
@@ -260,7 +261,8 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 			*(valuepos + valuelength) != '\\' &&
 			*(valuepos + valuelength) != '\0'
 			;
-			valuelength++) ;
+			valuelength++)
+		;
 		valueend = valuepos + valuelength;
 		if (*valueend == '\0') {
 			end_of_info = TRUE;
