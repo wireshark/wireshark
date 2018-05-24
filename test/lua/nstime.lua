@@ -31,7 +31,7 @@ end
 -- note ip only runs 3 times because it gets removed
 -- and bootp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
-local taptests = { [FRAME]=4, [OTHER]=40 }
+local taptests = { [FRAME]=4, [OTHER]=44 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -142,6 +142,13 @@ first.nsecs = 100
 test("NSTime.set-38", first == NSTime(123,100))
 test("NSTime.get-39", first.secs == 123)
 test("NSTime.get-40", first.nsecs == 100)
+
+local minus0_4 = NSTime() - NSTime(0,400000000)
+test("NSTime.negative_tonumber-41", minus0_4:tonumber() == -0.4)
+test("NSTime.negative_tostring-42", tostring(minus0_4) == "-0.400000000")
+local minus0_4 = NSTime() - NSTime(1,400000000)
+test("NSTime.negative_tonumber-43", minus0_4:tonumber() == -1.4)
+test("NSTime.negative_tostring-44", tostring(minus0_4) == "-1.400000000")
 
 
 ----------------------------------
