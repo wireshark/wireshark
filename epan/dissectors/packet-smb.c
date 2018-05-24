@@ -1011,7 +1011,8 @@ static const value_string smb2_fid_types[] = {
 	the row# in this GSList will match the row# in the entry list */
 
 typedef struct _active_file {
-	guint16   tid, uid, fid;
+	guint16   tid, uid;
+	guint32   fid;              /* 16-bit fid (smb) or 32-bit compressed fid (smb2) */
 	guint64   file_length;      /* The last free reported offset. We treat it as the file length */
 	guint64   data_gathered;    /* The actual total of data gathered */
 	guint8    flag_contains;    /* What kind of data it contains     */
