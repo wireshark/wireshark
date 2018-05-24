@@ -11,17 +11,6 @@ if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 	set(ANDROIDDUMP_USE_LIBPCAP 1)
 endif()
 
-# Target platform locations
-# UN*X in general, including macOS if not building an app bundle:
-# $DESTDIR/lib/wireshark/extcap
-# Windows: $DESTDIR/extcap
-# macOS app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
-if (WIN32)
-	set(EXTCAP_DIR "extcap")
-else ()
-	set(EXTCAP_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap")
-endif()
-
 if(LIBSSH_FOUND)
 	SET(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LIBSSH_LIBRARIES})
 	CHECK_FUNCTION_EXISTS(ssh_userauth_agent LIBSSH_USERAUTH_AGENT_FOUND)

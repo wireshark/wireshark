@@ -1247,6 +1247,17 @@ set_target_properties(checkAPI
 
 include( UseCheckAPI )
 
+# Target platform locations
+# UN*X in general, including macOS if not building an app bundle:
+# $DESTDIR/lib/wireshark/extcap
+# Windows: $DESTDIR/extcap
+# macOS app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
+if (WIN32)
+	set(EXTCAP_DIR "extcap" CACHE INTERNAL "The extcap dir")
+else ()
+	set(EXTCAP_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap" CACHE INTERNAL "The extcap dir")
+endif()
+
 add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
