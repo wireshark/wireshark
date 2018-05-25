@@ -486,33 +486,40 @@ void ProtoTree::restoreSelectedField()
     autoScrollTo(cur_index);
 }
 
-const QString ProtoTree::toString(const QModelIndex &start_idx) const
+QString ProtoTree::traverseTree(const QModelIndex & travTree, int identLevel) const
 {
-    QModelIndex cur_idx = start_idx.isValid() ? start_idx : proto_tree_model_->index(0, 0);
-    QModelIndex stop_idx = proto_tree_model_->index(cur_idx.row() + 1, 0, cur_idx.parent());
-    QString tree_string;
-    int indent_level = 0;
+    QString result = "";
 
-    do {
-        tree_string.append(QString("    ").repeated(indent_level));
-        tree_string.append(cur_idx.data().toString());
-        tree_string.append("\n");
-        // Next child
-        if (isExpanded(cur_idx)) {
-            cur_idx = proto_tree_model_->index(0, 0, cur_idx);
-            indent_level++;
-            continue;
+    if ( travTree.isValid() )
+    {
+        result.append(QString("    ").repeated(identLevel));
+        result.append(travTree.data().toString());
+        result.append("\n");
+
+        /* if the element is expanded, we traverse one level down */
+        if ( isExpanded(travTree) )
+        {
+            int children = proto_tree_model_->rowCount(travTree);
+            identLevel++;
+            for ( int child = 0; child < children; child++ )
+                result += traverseTree(proto_tree_model_->index(child, 0, travTree), identLevel);
         }
-        // Next sibling
-        QModelIndex sibling = proto_tree_model_->index(cur_idx.row() + 1, 0, cur_idx.parent());
-        if (sibling.isValid()) {
-            cur_idx = sibling;
-            continue;
-        }
-        // Next parent
-        cur_idx = proto_tree_model_->index(cur_idx.parent().row() + 1, 0, cur_idx.parent().parent());
-        indent_level--;
-    } while (cur_idx.isValid() && cur_idx.internalPointer() != stop_idx.internalPointer() && indent_level >= 0);
+    }
+
+    return result;
+}
+
+QString ProtoTree::toString(const QModelIndex &start_idx) const
+{
+    QString tree_string = "";
+    if ( start_idx.isValid() )
+        tree_string = traverseTree(start_idx, 0);
+    else
+    {
+        int children = proto_tree_model_->rowCount();
+        for ( int child = 0; child < children; child++ )
+            tree_string += traverseTree(proto_tree_model_->index(child, 0, QModelIndex()), 0);
+    }
 
     return tree_string;
 }

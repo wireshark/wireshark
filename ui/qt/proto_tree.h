@@ -38,7 +38,7 @@ public:
     void clear();
     void closeContextMenu();
     void restoreSelectedField();
-    const QString toString(const QModelIndex &start_idx = QModelIndex()) const;
+    QString toString(const QModelIndex &start_idx = QModelIndex()) const;
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
@@ -46,6 +46,8 @@ protected:
     virtual void keyReleaseEvent(QKeyEvent *event);
     virtual bool eventFilter(QObject * obj, QEvent * ev);
     virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+
+    QString traverseTree(const QModelIndex & rootNode, int identLevel = 0) const;
 
 private:
     ProtoTreeModel *proto_tree_model_;
