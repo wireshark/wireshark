@@ -348,7 +348,7 @@ static const value_string message_tag_vals[] = {
 /**************************************************************************/
 /*                      Tag                                               */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/crypto/crypto_protocol.h */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/third_party/quic/core/crypto/crypto_protocol.h */
 
 #define TAG_PAD  0x50414400
 #define TAG_SNI  0x534E4900
@@ -484,7 +484,7 @@ static const value_string cadr_type_vals[] = {
 /**************************************************************************/
 /*                      Error Code                                        */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_error_codes.h */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/third_party/quic/core/quic_error_codes.h */
 
 enum QuicErrorCode {
     QUIC_NO_ERROR = 0,
@@ -688,6 +688,10 @@ enum QuicErrorCode {
     QUIC_CONNECTION_MIGRATION_NO_NEW_NETWORK = 83,
     /* Network changed, but connection had one or more non-migratable streams. */
     QUIC_CONNECTION_MIGRATION_NON_MIGRATABLE_STREAM = 84,
+    /* Network changed, but connection migration was disabled by config. */
+    QUIC_CONNECTION_MIGRATION_DISABLED_BY_CONFIG = 99,
+    /* Network changed, but error was encountered on the alternative network. */
+    QUIC_CONNECTION_MIGRATION_INTERNAL_ERROR = 100,
 
     /* Stream frames arrived too discontiguously so that stream sequencer buffer maintains too many gaps. */
     QUIC_TOO_MANY_FRAME_GAPS = 93,
@@ -698,8 +702,11 @@ enum QuicErrorCode {
     /* Connection closed because of server hits max number of sessions allowed. */
     QUIC_TOO_MANY_SESSIONS_ON_SERVER = 96,
 
+    /* Receive a RST_STREAM with offset larger than kMaxStreamLength. */
+    QUIC_STREAM_LENGTH_OVERFLOW = 98,
+
     /* No error. Used as bound while iterating. */
-    QUIC_LAST_ERROR = 98
+    QUIC_LAST_ERROR = 101
 };
 
 
@@ -804,6 +811,9 @@ static const value_string error_code_vals[] = {
     { QUIC_STREAM_SEQUENCER_INVALID_STATE, "Sequencer buffer get into weird state where continuing read/write will lead to crash" },
     { QUIC_TOO_MANY_SESSIONS_ON_SERVER, "Connection closed because of server hits max number of sessions allowed" },
     { QUIC_HEADERS_STREAM_DATA_DECOMPRESS_FAILURE, "Invalid data on the headers stream received because of decompression failure" },
+    { QUIC_STREAM_LENGTH_OVERFLOW, "Receive a RST_STREAM with offset larger than kMaxStreamLength" },
+    { QUIC_CONNECTION_MIGRATION_DISABLED_BY_CONFIG, "Network changed, but connection migration was disabled by config" },
+    { QUIC_CONNECTION_MIGRATION_INTERNAL_ERROR, "Network changed, but error was encountered on the alternative network" },
     { QUIC_LAST_ERROR, "No error. Used as bound while iterating" },
     { 0, NULL }
 };
@@ -813,7 +823,7 @@ static value_string_ext error_code_vals_ext = VALUE_STRING_EXT_INIT(error_code_v
 /**************************************************************************/
 /*                      RST Stream Error Code                             */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_error_codes.h (enum QuicRstStreamErrorCode) */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/third_party/quic/core/quic_error_codes.h (enum QuicRstStreamErrorCode) */
 
 enum QuicRstStreamErrorCode {
   /* Complete response has been sent, sending a RST to ask the other endpoint to stop sending request data without discarding the response. */
@@ -849,6 +859,8 @@ enum QuicRstStreamErrorCode {
   QUIC_PUSH_STREAM_TIMED_OUT,
   /* Received headers were too large. */
   QUIC_HEADERS_TOO_LARGE,
+  /* The data is not likely arrive in time. */
+  QUIC_STREAM_TTL_EXPIRED,
   /* No error. Used as bound while iterating. */
   QUIC_STREAM_LAST_ERROR,
 };
@@ -870,6 +882,7 @@ static const value_string rststream_error_code_vals[] = {
     { QUIC_INVALID_PROMISE_METHOD, "Only GET and HEAD methods allowed" },
     { QUIC_PUSH_STREAM_TIMED_OUT, "The push stream is unclaimed and timed out" },
     { QUIC_HEADERS_TOO_LARGE, "Received headers were too large" },
+    { QUIC_STREAM_TTL_EXPIRED, "The data is not likely arrive in time" },
     { QUIC_STREAM_LAST_ERROR, "No error. Used as bound while iterating" },
     { 0, NULL }
 };
@@ -878,7 +891,7 @@ static value_string_ext rststream_error_code_vals_ext = VALUE_STRING_EXT_INIT(rs
 /**************************************************************************/
 /*                      Handshake Failure Reason                          */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/crypto/crypto_handshake.h */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/third_party/quic/core/crypto/crypto_handshake.h */
 
 enum HandshakeFailureReason {
     HANDSHAKE_OK = 0,
