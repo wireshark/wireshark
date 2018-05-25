@@ -147,6 +147,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 		from_source = !get_from(&hdr);
 		ws_buffer_append(buf, &from_source, 1);
+		ctr++;
 
 		while (1) {
 			if (!wtap_read_bytes_or_eof(fh, chunk, sizeof(chunk), err, err_info))
