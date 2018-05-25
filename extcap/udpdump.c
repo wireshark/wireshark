@@ -179,7 +179,7 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 	}
 
 	if (!libpcap_write_file_header(*fp, 252, PCAP_SNAPLEN, FALSE, &bytes_written, &err)) {
-		g_warning("Can't write pcap file header");
+		g_warning("Can't write pcap file header: %s", g_strerror(err));
 		return EXIT_FAILURE;
 	}
 
@@ -280,7 +280,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	offset += (guint)buflen;
 
 	if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), offset, offset, mbuf, &bytes_written, &err)) {
-		g_warning("Can't write packet");
+		g_warning("Can't write packet: %s", g_strerror(err));
 		ret = EXIT_FAILURE;
 	}
 
