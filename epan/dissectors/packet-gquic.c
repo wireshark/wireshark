@@ -1504,8 +1504,8 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += 4;
             break;
             case TAG_COPT:
-                if(tag_len){
-                    proto_tree_add_item(tag_tree, hf_gquic_tag_copt, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                while(offset_end - tag_offset >= 4){
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_copt, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
                     tag_offset += 4;
                 }
             break;
@@ -2735,7 +2735,7 @@ proto_register_gquic(void)
         },
         { &hf_gquic_tag_copt,
             { "Connection options", "gquic.tag.copt",
-              FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+              FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_gquic_tag_ccrt,
