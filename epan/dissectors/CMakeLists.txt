@@ -906,6 +906,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnss-link.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dpnss.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-drda.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-drb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dtcp-ip.c

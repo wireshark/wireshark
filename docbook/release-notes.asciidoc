@@ -68,6 +68,7 @@ NR (5G) PDCP protocol
 TPM 2.0 protocol
 PROXY (v2) protocol
 Ruby Marshal format
+Ruby Distributed protocol
 --
 GSM-R protocol (User-to-User Information Element usage)
 --
