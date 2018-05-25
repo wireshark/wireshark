@@ -15,6 +15,15 @@
  * - draft-ietf-behave-nat-behavior-discovery-03
  * - draft-ietf-behave-turn-07
  * - draft-ietf-behave-turn-ipv6-03
+ *
+ * XXX - these are now:
+ * - RFC 5389
+ * - RFC 5245
+ * - RFC 5780
+ * - RFC 5766
+ * - RFC 6156
+ *
+ * Update as necessary.
  */
 
 #include "config.h"
