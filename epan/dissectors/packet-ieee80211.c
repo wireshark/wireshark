@@ -19513,7 +19513,6 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   proto_tree_add_item(tree, hf_ieee80211_tag_max_basic_sf_amsdu, tvb, offset, 1, ENC_NA);
   offset += 1;
   proto_tree_add_item(tree, hf_ieee80211_tag_max_short_sf_amsdu, tvb, offset, 1, ENC_NA);
-  offset += 1;
 
   return tvb_captured_length(tvb);
 }
