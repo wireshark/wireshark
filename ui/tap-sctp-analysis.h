@@ -179,7 +179,7 @@ struct tsn_sort{
 
 typedef struct _sctp_addr_chunk {
 	guint32	 direction;
-	address *addr;
+	address addr;
 	/* The array is initialized to MAX_SCTP_CHUNK_TYPE
 	 * so that there is no memory overwrite
 	 * when accessed using sctp chunk type as index.
