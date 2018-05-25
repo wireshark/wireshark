@@ -53,10 +53,20 @@ tsn_free(gpointer data, gpointer user_data _U_)
     {
         g_list_foreach(tsn->tsns, free_first, NULL);
         g_list_free(tsn->tsns);
-        tsn->tsns=NULL;
     }
+    free_address(&tsn->src);
+    free_address(&tsn->dst);
+    g_free(tsn);
 }
 
+static void
+store_free(gpointer data, gpointer user_data _U_)
+{
+    address *addr = (address *) data;
+
+    free_address(addr);
+    g_free(addr);
+}
 
 static void
 reset(void *arg)
@@ -72,14 +82,14 @@ reset(void *arg)
 
         if (info->addr1 != NULL)
         {
-            g_list_foreach(info->addr1, free_first, NULL);
+            g_list_foreach(info->addr1, store_free, NULL);
             g_list_free(info->addr1);
             info->addr1 = NULL;
         }
 
         if (info->addr2 != NULL)
         {
-            g_list_foreach(info->addr2,free_first, NULL);
+            g_list_foreach(info->addr2, store_free, NULL);
             g_list_free(info->addr2);
             info->addr2 = NULL;
         }
@@ -142,6 +152,8 @@ reset(void *arg)
             g_slist_foreach(info->min_max, free_first, NULL);
             info->min_max = NULL;
         }
+        free_address(&info->src);
+        free_address(&info->dst);
 
         g_free(list->data);
         list = g_list_next(list);
@@ -229,9 +241,7 @@ static sctp_assoc_info_t *
 add_chunk_count(address *vadd, sctp_assoc_info_t *info, guint32 direction, guint32 type)
 {
     GList *list;
-    address *v=NULL;
     sctp_addr_chunk *ch=NULL;
-    guint8 * dat;
     int i;
 
     list = g_list_first(info->addr_chunk_count);
@@ -241,8 +251,7 @@ add_chunk_count(address *vadd, sctp_assoc_info_t *info, guint32 direction, guint
         ch = (sctp_addr_chunk *)(list->data);
         if (ch->direction == direction)
         {
-            v = (address *) (ch->addr);
-            if (addresses_equal(vadd, v))
+            if (addresses_equal(vadd, &ch->addr))
             {
                 if (IS_SCTP_CHUNK_TYPE(type))
                     ch->addr_count[type]++;
@@ -260,12 +269,7 @@ add_chunk_count(address *vadd, sctp_assoc_info_t *info, guint32 direction, guint
     }
     ch = g_new(sctp_addr_chunk, 1);
     ch->direction = direction;
-    ch->addr = g_new(address, 1);
-    ch->addr->type = vadd->type;
-    ch->addr->len = vadd->len;
-    dat = (guint8 *)g_malloc(vadd->len);
-    memcpy(dat, vadd->data, vadd->len);
-    ch->addr->data = dat;
+    copy_address(&ch->addr, vadd);
     for (i=0; i < NUM_CHUNKS; i++)
         ch->addr_count[i] = 0;
 
@@ -293,6 +297,7 @@ add_address(address *vadd, sctp_assoc_info_t *info, guint16 direction)
     {
         v = (address *) (list->data);
         if (addresses_equal(vadd, v)) {
+            free_address(vadd);
             g_free(vadd);
             return info;
         }
@@ -326,6 +331,8 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     struct tsn_sort *tsn_s;
     int i;
     guint8 idx = 0;
+    gboolean tsn_used = FALSE;
+    gboolean sack_used = FALSE;
 
     framenumber = pinfo->num;
 
@@ -677,10 +684,14 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     info = add_address(store, info, 1);
                 number = pinfo->num;
                 info->frame_numbers=g_list_prepend(info->frame_numbers, GUINT_TO_POINTER(number));
-                if (datachunk || forwardchunk)
+                if (datachunk || forwardchunk) {
                     info->tsn1 = g_list_prepend(info->tsn1, tsn);
-                if (sackchunk == TRUE)
+                    tsn_used = TRUE;
+                }
+                if (sackchunk == TRUE) {
                     info->sack2 = g_list_prepend(info->sack2, sack);
+                    sack_used = TRUE;
+                }
                 sctp_tapinfo_struct.assoc_info_list = g_list_append(sctp_tapinfo_struct.assoc_info_list, info);
             }
             else
@@ -707,9 +718,6 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 error->info_text = "INFOS";
                 info->error_info_list = g_list_append(info->error_info_list, error);
             }
-        } else {
-            free_address_wmem(NULL, &tmp_info.src);
-            free_address_wmem(NULL, &tmp_info.dst);
         }
     } /* endif (!info) */
     else
@@ -813,6 +821,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 info->outstream2 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
                 info->arwnd2 = tvb_get_ntohl(sctp_info->tvb[0],INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
                 info->tsn2 = g_list_prepend(info->tsn2, tsn);
+                tsn_used = TRUE;
             }
             else if (info->direction == 1)
             {
@@ -824,6 +833,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 info->outstream1 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
                 info->arwnd1 = tvb_get_ntohl(sctp_info->tvb[0],INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
                 info->tsn1 = g_list_prepend(info->tsn1, tsn);
+                tsn_used = TRUE;
             }
 
             idx = tvb_get_guint8(sctp_info->tvb[0],0);
@@ -1106,19 +1116,13 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             }
         }
 
-        free_address_wmem(NULL, &tmp_info.src);
-        free_address_wmem(NULL, &tmp_info.dst);
-
         if (datachunk || forwardchunk)
         {
             if (info->direction == 1)
                 info->tsn1 = g_list_prepend(info->tsn1, tsn);
             else if (info->direction == 2)
                 info->tsn2 = g_list_prepend(info->tsn2, tsn);
-        }
-        else
-        {
-            g_free(tsn);
+            tsn_used = TRUE;
         }
         if (sackchunk == TRUE)
         {
@@ -1126,16 +1130,19 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 info->sack2 = g_list_prepend(info->sack2, sack);
             else if(info->direction == 2)
                 info->sack1 = g_list_prepend(info->sack1, sack);
-        }
-        else
-        {
-            g_free(sack);
+            sack_used = TRUE;
         }
         info->n_tvbs += sctp_info->number_of_tvbs;
         sctp_tapinfo_struct.sum_tvbs += sctp_info->number_of_tvbs;
         info = calc_checksum(sctp_info, info);
         info->n_packets++;
     }
+    if (tsn && !tsn_used)
+        tsn_free(tsn, NULL);
+    if (sack && !sack_used)
+        tsn_free(sack, NULL);
+    free_address(&tmp_info.src);
+    free_address(&tmp_info.dst);
     return TRUE;
 }
 
