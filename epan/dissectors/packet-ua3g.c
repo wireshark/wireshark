@@ -1290,8 +1290,6 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         break;
                     case 0x00: /* Local UDP Port */
                     case 0x02: /* Remote UDP Port */
-                        if (parameter_id == 0x02)
-                           remote_rtp_port = tvb_get_ntohs(tvb, offset);
                     case 0x03: /* Type Of Service */
                     case 0x05: /* Payload Concatenation */
                     case 0x08: /* 802.1 Q User Priority */
@@ -1312,6 +1310,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     case 0x39: /* Integrity method of Thales component */
                     case 0x50: /* MD5 Authentication */
                     default:
+                        if (parameter_id == 0x02)
+                            remote_rtp_port = tvb_get_ntohs(tvb, offset);
                         if (parameter_length <= 8) {
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                         } else {
