@@ -1324,10 +1324,8 @@ dissect_6lowpan_6loRH(tvbuff_t *tvb, guint offset, proto_tree *tree)
                     }
                     else if (loRHE_type == LOWPAN_IP_IN_IP_6LORH) {
                         memset(&ipv6.ip6h_src, 0, sizeof(ipv6.ip6h_src));
-                        proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_length, tvb, offset, 2,
-                                            loRH_flags & LOWPAN_PATTERN_6LORHE_LENGTH);
-                        proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2,
-                                            loRHE_type);
+                        proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(loRH_tree, hf_6lowpan_6lorhe_hoplimit, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
                         if (loRHE_length > 1) {
