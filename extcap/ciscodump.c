@@ -249,7 +249,11 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 
 			if (status == CISCODUMP_PARSER_END_PACKET) {
 				/* dump the packet to the pcap file */
-				libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), packet_size, packet_size, packet, &bytes_written, &err);
+				if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), packet_size,
+						packet_size, packet, &bytes_written, &err)) {
+					g_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
+					break;
+				}
 				g_debug("Dumped packet %lu size: %u", packets, packet_size);
 				packet_size = 0;
 				status = CISCODUMP_PARSER_STARTING;
