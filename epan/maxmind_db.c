@@ -175,15 +175,15 @@ read_mmdbr_stdout(void) {
     static char cur_addr[WS_INET6_ADDRSTRLEN];
     static mmdb_lookup_t cur_lookup;
 
-    int read_buf_size = 2048;
-    char *read_buf = (char *) g_malloc(read_buf_size);
-
     g_mutex_lock(&mmdbr_pipe_mtx);
     if (!ws_pipe_valid(&mmdbr_pipe)) {
         g_mutex_unlock(&mmdbr_pipe_mtx);
         return;
     }
     MMDB_DEBUG("read mmdbr %d", ws_pipe_data_available(mmdbr_pipe.stdout_fd));
+
+    int read_buf_size = 2048;
+    char *read_buf = (char *) g_malloc(read_buf_size);
 
     while (ws_pipe_data_available(mmdbr_pipe.stdout_fd)) {
         read_buf[0] = '\0';
