@@ -278,6 +278,8 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
     beginInsertRows(QModelIndex(), row, row);
 
     DecodeAsItem* item = new DecodeAsItem();
+    DecodeAsItem* alternativeItem = NULL;
+    bool lastItemIsOk = false;
 
     if (cap_file_ && cap_file_->edt) {
         //populate the new Decode As item with the last protocol layer
@@ -294,6 +296,7 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                 if (g_strcmp0(proto_name, entry->name) == 0) {
                     dissector_handle_t dissector = NULL;
                     ftenum_t selector_type = get_dissector_table_selector_type(entry->table_name);
+                    bool itemOk = false;
 
                     //reset the default and current protocols in case previous layer
                     //populated it and this layer doesn't have a handle for it
@@ -314,23 +317,35 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                         } else {
                             item->selectorString_ = "";
                         }
+                        itemOk = !item->selectorString_.isEmpty();
 
                     } else if (IS_FT_UINT(selector_type)) {
 
                         //pick the first value in the packet as the default
                         cap_file_->edt->pi.curr_layer_num = curr_layer_num;
                         item->selectorUint_ = GPOINTER_TO_UINT(entry->values[0].build_values[0](&cap_file_->edt->pi));
+                        itemOk = item->selectorUint_ != 0;
 
                         dissector = dissector_get_default_uint_handle(entry->table_name, item->selectorUint_);
                     } else if (selector_type == FT_NONE) {
                         // There is no default for an FT_NONE dissector table
                         dissector = NULL;
+                        itemOk = true;
                     } else if (selector_type == FT_GUID) {
                         /* Special handling for DCE/RPC dissectors */
                         if (strcmp(entry->name, "dcerpc") == 0) {
                             item->selectorDCERPC_ = (decode_dcerpc_bind_values_t*)entry->values[0].build_values[0](&cap_file_->edt->pi);
+                            itemOk = true;
                         }
                     }
+
+                    if (itemOk) {
+                        if (!alternativeItem) {
+                            alternativeItem = new DecodeAsItem();
+                        }
+                        *alternativeItem = *item;
+                    }
+                    lastItemIsOk = itemOk;
 
                     if (dissector != NULL) {
                         item->default_proto_ = dissector_handle_get_short_name(dissector);
@@ -347,6 +362,16 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
         cap_file_->edt->pi.curr_layer_num = curr_layer_num_saved;
     }
 
+    // If the last item has an empty selector (e.g. an empty port number),
+    // prefer an entry that has a valid selector.
+    if (alternativeItem) {
+        if (lastItemIsOk) {
+            delete alternativeItem;
+        } else {
+            delete item;
+            item = alternativeItem;
+        }
+    }
     decode_as_items_ << item;
 
     endInsertRows();
