@@ -498,6 +498,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
                 break;
             }
         }
+        g_ptr_array_free(finfo_array, TRUE);
     }
     proto_prefs_menu_.setModule(module_name);
 
