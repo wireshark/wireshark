@@ -461,8 +461,12 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
     if ((captured_length >= TCP_FRAME_COOKIE_LEN) &&
         (tvb_get_ntohl(tvb, 6) == 0x2112a442)) {
-        /* The magic cookie is off by two, this appears
-           to be RFC4571 framing */
+        /*
+         * The magic cookie is off by two, so this appears to be
+         * RFC 4571 framing, as per RFC 6544; use the length
+         * field from that framing, rather than the STUN/TURN
+         * ChannelData length field.
+         */
         return (tvb_get_ntohs(tvb, 0) + 2);
     }
 
@@ -564,7 +568,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     tcp_framing_offset = 0;
     if ((!is_udp) && (captured_length >= TCP_FRAME_COOKIE_LEN) &&
        (tvb_get_ntohl(tvb, 6) == 0x2112a442)) {
-        /* we found ICE TCP framing according to RFC 4571 */
+        /*
+         * The magic cookie is off by two, so this appears to be
+         * RFC 4571 framing, as per RFC 6544; the STUN/TURN
+         * ChannelData header begins after the 2-octet
+         * RFC 4571 length field.
+         */
         tcp_framing_offset = 2;
     }
 
