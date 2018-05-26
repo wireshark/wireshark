@@ -13,8 +13,7 @@
 
 #include <wsutil/strtoi.h>
 
-#include <string>
-
+#include <ui/qt/utils/qt_ui_utils.h>
 
 SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf) :
     QDialog(parent),
@@ -37,7 +36,7 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
+    this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3")).arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(selected_assoc->port1).arg(selected_assoc->port2));
  //   connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(on_sectionMoved(int, int, int)));
 
     ctx_menu_.addAction(ui->actionHideChunkType);

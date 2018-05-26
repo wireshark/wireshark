@@ -216,7 +216,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->showBytesOutCheckBox->blockSignals(false);
 
     QCustomPlot *sp = ui->streamPlot;
-    QCPPlotTitle *file_title = new QCPPlotTitle(sp, cf_get_display_name(cap_file_));
+    QCPPlotTitle *file_title = new QCPPlotTitle(sp, gchar_free_to_qstring(cf_get_display_name(cap_file_)));
     file_title->setFont(sp->xAxis->labelFont());
     title_ = new QCPPlotTitle(sp);
     sp->plotLayout()->insertRow(0);
