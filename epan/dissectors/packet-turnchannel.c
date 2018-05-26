@@ -52,6 +52,7 @@ static int hf_turnchannel_len = -1;
 /* Initialize the subtree pointers */
 static gint ett_turnchannel = -1;
 
+static dissector_handle_t turnchannel_tcp_handle;
 static dissector_handle_t turnchannel_udp_handle;
 
 static int
@@ -184,6 +185,7 @@ proto_register_turnchannel(void)
 	proto_turnchannel = proto_register_protocol("TURN Channel",
 	    "TURNCHANNEL", "turnchannel");
 
+	turnchannel_tcp_handle = register_dissector("turnchannel-tcp", dissect_turnchannel_tcp, proto_turnchannel);
 	turnchannel_udp_handle = register_dissector("turnchannel", dissect_turnchannel_message, proto_turnchannel);
 
 /* subdissectors */
@@ -199,10 +201,6 @@ proto_register_turnchannel(void)
 void
 proto_reg_handoff_turnchannel(void)
 {
-	dissector_handle_t turnchannel_tcp_handle;
-
-	turnchannel_tcp_handle = create_dissector_handle(dissect_turnchannel_tcp, proto_turnchannel);
-
 	/* Register for "Decode As" in case STUN negotiation isn't captured */
 	dissector_add_for_decode_as_with_preference("tcp.port", turnchannel_tcp_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", turnchannel_udp_handle);
