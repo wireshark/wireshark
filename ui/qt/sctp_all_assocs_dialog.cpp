@@ -32,7 +32,6 @@ SCTPAllAssocsDialog::SCTPAllAssocsDialog(QWidget *parent, capture_file *cf) :
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    sctp_assocs = (sctp_allassocs_info_t *)g_malloc(sizeof(sctp_allassocs_info_t));
     fillTable();
 }
 
