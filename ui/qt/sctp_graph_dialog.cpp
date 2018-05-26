@@ -21,6 +21,7 @@
 
 #include <QMessageBox>
 
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/qcustomplot.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include "wireshark_application.h"
@@ -44,7 +45,7 @@ SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capt
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3")).arg(cf_get_display_name(cap_file_)).arg(selected_assoc->port1).arg(selected_assoc->port2));
+    this->setWindowTitle(QString(tr("SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3")).arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(selected_assoc->port1).arg(selected_assoc->port2));
     if ((direction == 1 && selected_assoc->n_array_tsn1 == 0) || (direction == 2 && selected_assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
         msgBox.setText(tr("No Data Chunks sent"));
