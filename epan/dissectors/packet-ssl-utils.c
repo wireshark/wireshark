@@ -1401,6 +1401,9 @@ static const bytes_string ct_logids[] = {
     { NULL, 0, NULL }
 };
 
+/*
+ * http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids
+ */
 /* string_string is inappropriate as it compares strings while
  * "byte strings MUST NOT be truncated" (RFC 7301) */
 typedef struct ssl_alpn_protocol {
@@ -1408,17 +1411,30 @@ typedef struct ssl_alpn_protocol {
     gboolean         match_exact;
     const char      *dissector_name;
 } ssl_alpn_protocol_t;
-/* http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids */
+
+/*
+ * For SSL/TLS; the dissectors should handle running atop a byte-stream
+ * protocol such as TCP.
+ */
 static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
     { "http/1.1",           TRUE,   "http" },
     /* SPDY moves so fast, just 1, 2 and 3 are registered with IANA but there
      * already exists 3.1 as of this writing... match the prefix. */
     { "spdy/",              FALSE,  "spdy" },
-    { "stun.turn",          TRUE,   "turnchannel" },
-    { "stun.nat-discovery", TRUE,   "stun" },
+    { "stun.turn",          TRUE,   "turnchannel-tcp" }, /* RFC 7443 */
+    { "stun.nat-discovery", TRUE,   "stun-tcp" },        /* RFC 7443 */
     /* draft-ietf-httpbis-http2-16 */
     { "h2-",                FALSE,  "http2" }, /* draft versions */
     { "h2",                 TRUE,   "http2" }, /* final version */
+};
+
+/*
+ * For DTLS; the dissectors should handle running atop a datagram
+ * protocol such as UDP.
+ */
+static const ssl_alpn_protocol_t dtls_alpn_protocols[] = {
+    { "stun.turn",          TRUE,   "turnchannel" }, /* RFC 7443 */
+    { "stun.nat-discovery", TRUE,   "stun-udp" },    /* RFC 7443 */
 };
 
 const value_string quic_transport_parameter_id[] = {
@@ -5863,7 +5879,8 @@ static gint
 ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                packet_info *pinfo, proto_tree *tree,
                                guint32 offset, guint32 offset_end,
-                               guint8 hnd_type, SslSession *session)
+                               guint8 hnd_type, SslSession *session,
+                               gboolean is_dtls)
 {
 
     /* https://tools.ietf.org/html/rfc7301#section-3.1
@@ -5877,6 +5894,8 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     guint32     next_offset, alpn_length, name_length;
     guint8     *proto_name = NULL;
     guint32     proto_name_length = 0;
+    const ssl_alpn_protocol_t *alpn_protocols;
+    size_t      n_alpn_protocols;
 
     /* ProtocolName protocol_name_list<2..2^16-1> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &alpn_length,
@@ -5914,9 +5933,11 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* If ALPN is given in ServerHello, then ProtocolNameList MUST contain
      * exactly one "ProtocolName". */
     if (proto_name) {
+        alpn_protocols = is_dtls ? dtls_alpn_protocols : ssl_alpn_protocols;
+        n_alpn_protocols = is_dtls ? G_N_ELEMENTS(dtls_alpn_protocols) : G_N_ELEMENTS(ssl_alpn_protocols);
         /* '\0'-terminated string for prefix/full string comparison purposes. */
-        for (size_t i = 0; i < G_N_ELEMENTS(ssl_alpn_protocols); i++) {
-            const ssl_alpn_protocol_t *alpn_proto = &ssl_alpn_protocols[i];
+        for (size_t i = 0; i < n_alpn_protocols; i++) {
+            const ssl_alpn_protocol_t *alpn_proto = &alpn_protocols[i];
 
             if ((alpn_proto->match_exact &&
                         proto_name_length == strlen(alpn_proto->proto_name) &&
@@ -8148,7 +8169,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset++;
             break;
         case SSL_HND_HELLO_EXT_ALPN:
-            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, session);
+            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, session, is_dtls);
             break;
         case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
             if (hnd_type == SSL_HND_CLIENT_HELLO)
