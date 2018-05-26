@@ -4405,20 +4405,574 @@ static int dissect_segment_symbolic(tvbuff_t *tvb, proto_tree *path_seg_tree,
    return seg_size;
 }
 
+static int dissect_segment_port(tvbuff_t* tvb, int offset, gboolean generate,
+   proto_tree* path_seg_tree, proto_item* path_seg_item, proto_item* epath_item)
+{
+   int segment_len = 0;
+   gboolean extended_port = FALSE;
+   int extended_port_offset = 0;
+   proto_tree* port_tree;
+   proto_item* port_item;
+   guint8 segment_type = tvb_get_guint8(tvb, offset);
+
+   /* Add Extended Link Address flag & Port Identifier*/
+   if (generate)
+   {
+      proto_item* it = proto_tree_add_boolean(path_seg_tree, hf_cip_port_ex_link_addr, tvb, 0, 0, segment_type & CI_PORT_SEG_EX_LINK_ADDRESS);
+      PROTO_ITEM_SET_GENERATED(it);
+      it = proto_tree_add_uint(path_seg_tree, hf_cip_port, tvb, 0, 0, (segment_type & CI_PORT_SEG_PORT_ID_MASK));
+      PROTO_ITEM_SET_GENERATED(it);
+      port_tree = proto_tree_add_subtree(path_seg_tree, tvb, 0, 0, ett_port_path, &port_item, "Port Segment");
+      PROTO_ITEM_SET_GENERATED(port_item);
+   }
+   else
+   {
+      proto_tree_add_item(path_seg_tree, hf_cip_port_ex_link_addr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(path_seg_tree, hf_cip_port, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      port_tree = proto_tree_add_subtree(path_seg_tree, tvb, offset, 1, ett_port_path, &port_item, "Port Segment");
+   }
+
+   guint8 port_id = segment_type & CI_PORT_SEG_PORT_ID_MASK;
+   if (port_id == 0xF)
+   {
+      extended_port = TRUE;
+   }
+
+   proto_item_append_text(path_seg_item, " (Port Segment)");
+
+   const gchar *port_name = try_val_to_str(port_id, cip_port_number_vals);
+   if (port_name)
+   {
+      proto_item_append_text(epath_item, "Port: %s", port_name);
+   }
+   else
+   {
+      proto_item_append_text(epath_item, "Port: %d", port_id);
+   }
+
+   if (segment_type & CI_PORT_SEG_EX_LINK_ADDRESS)
+   {
+      int offset_link_address = 2;
+
+      if (extended_port == TRUE)
+      {
+         offset_link_address += 2;
+         extended_port_offset = offset + 2;
+      }
+
+      guint8 opt_link_size = tvb_get_guint8(tvb, offset + 1);
+
+      if (generate)
+      {
+         /* Add size of extended link address */
+         proto_item* it = proto_tree_add_uint(port_tree, hf_cip_link_address_size, tvb, 0, 0, opt_link_size);
+         PROTO_ITEM_SET_GENERATED(it);
+         /* Add extended link address */
+         it = proto_tree_add_string(port_tree, hf_cip_link_address_string, tvb, 0, 0, tvb_format_text(tvb, offset + offset_link_address, opt_link_size));
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+      {
+         proto_tree_add_item(port_tree, hf_cip_link_address_size, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(port_tree, hf_cip_link_address_string, tvb, offset + offset_link_address, opt_link_size, ENC_ASCII | ENC_NA);
+      }
+
+      proto_item_append_text(epath_item, ", Address: %s", tvb_format_text(tvb, offset + offset_link_address, opt_link_size));
+
+      /* Pad byte */
+      if (opt_link_size % 2)
+      {
+         segment_len = 1 + offset_link_address + opt_link_size;
+      }
+      else
+      {
+         segment_len = offset_link_address + opt_link_size;
+      }
+   }
+   else
+   {
+      int offset_link_address = 1;
+
+      segment_len = 2;
+
+      if (extended_port == TRUE)
+      {
+         segment_len += 2;
+         offset_link_address += 2;
+         extended_port_offset = offset + 1;
+      }
+
+      /* Add Link Address */
+      if (generate)
+      {
+         guint8 link_address_byte = tvb_get_guint8(tvb, offset + offset_link_address);
+         proto_item* it = proto_tree_add_uint(port_tree, hf_cip_link_address_byte, tvb, 0, 0, link_address_byte);
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+      {
+         proto_tree_add_item(port_tree, hf_cip_link_address_byte, tvb, offset + offset_link_address, 1, ENC_LITTLE_ENDIAN);
+      }
+
+      proto_item_append_text(epath_item, ", Address: %d", tvb_get_guint8(tvb, offset + offset_link_address));
+   }
+
+   if (extended_port == TRUE)
+   {
+      if (generate)
+      {
+         guint16 port_extended = tvb_get_letohs(tvb, extended_port_offset);
+         proto_item* it = proto_tree_add_uint(port_tree, hf_cip_port_extended, tvb, 0, 0, port_extended);
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+      {
+         proto_tree_add_item(port_tree, hf_cip_port_extended, tvb, extended_port_offset, 2, ENC_LITTLE_ENDIAN);
+      }
+   }
+
+   if (generate == FALSE)
+   {
+      proto_item_set_len(port_item, segment_len);
+      proto_item_set_len(path_seg_item, segment_len);
+   }
+
+   return segment_len;
+}
+
+static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset, gboolean generate,
+   proto_tree* net_tree, cip_safety_epath_info_t* safety)
+{
+   guint16 seg_size = tvb_get_guint8(tvb, offset + 1) * 2;
+   int segment_len = seg_size + 2;
+
+   if (generate)
+   {
+      /* TODO: Skip printing information in response packets for now. Think of a better way to handle
+         generated data that doesn't require a lot of copy-paste. */
+      return segment_len;
+   }
+
+   /* Segment size */
+   proto_tree_add_item(net_tree, hf_cip_seg_network_size, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+
+   guint32 safety_format;
+   proto_tree_add_item_ret_uint(net_tree, hf_cip_seg_safety_format, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN, &safety_format);
+
+   /* Safety Network Segment Format */
+   if (safety_format < 3)
+   {
+      proto_tree* safety_tree = proto_tree_add_subtree(net_tree, tvb, offset + 3, seg_size - 1,
+         ett_network_seg_safety, NULL, val_to_str_const(safety_format, cip_safety_segment_format_type_vals, "Reserved"));
+      switch (safety_format)
+      {
+      case 0:
+      {
+         /* Target Format */
+         if (safety != NULL)
+            safety->format = CIP_SAFETY_BASE_FORMAT;
+
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_configuration_crc, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+         dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset + 8,
+            hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset + 14, 4, ENC_LITTLE_ENDIAN);
+         dissect_net_param16(tvb, offset + 18, safety_tree,
+            hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
+            hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
+            hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
+            ett_network_seg_safety_time_correction_net_params);
+         proto_item* it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset + 20, 10, ENC_NA);
+         dissect_unid(tvb, pinfo, offset + 20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
+            hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
+            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
+         it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset + 30, 10, ENC_NA);
+         dissect_unid(tvb, pinfo, offset + 30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
+            hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
+            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset + 40, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset + 42, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_timeout_multiplier, tvb, offset + 46, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_consumer_number, tvb, offset + 47, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_conn_param_crc, tvb, offset + 48, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset + 52, 4, ENC_LITTLE_ENDIAN);
+         break;
+      }
+      case 1:
+         /* Router Format */
+         if (safety != NULL)
+            safety->format = CIP_SAFETY_BASE_FORMAT;
+
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset + 8, 4, ENC_LITTLE_ENDIAN);
+         dissect_net_param16(tvb, offset + 12, safety_tree,
+            hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
+            hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
+            hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
+            ett_network_seg_safety_time_correction_net_params);
+         break;
+      case 2:
+      {
+         /* Extended Format */
+         if (safety != NULL)
+            safety->format = CIP_SAFETY_EXTENDED_FORMAT;
+
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_configuration_crc, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+         dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset + 8,
+            hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset + 14, 4, ENC_LITTLE_ENDIAN);
+         dissect_net_param16(tvb, offset + 18, safety_tree,
+            hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
+            hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
+            hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
+            ett_network_seg_safety_time_correction_net_params);
+         proto_item* it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset + 20, 10, ENC_NA);
+         dissect_unid(tvb, pinfo, offset + 20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
+            hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
+            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
+         it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset + 30, 10, ENC_NA);
+         dissect_unid(tvb, pinfo, offset + 30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
+            hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
+            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset + 40, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset + 42, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_timeout_multiplier, tvb, offset + 46, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_consumer_number, tvb, offset + 47, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_fault_number, tvb, offset + 48, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_conn_param_crc, tvb, offset + 50, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset + 54, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_init_timestamp, tvb, offset + 58, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(safety_tree, hf_cip_seg_safety_init_rollover, tvb, offset + 60, 2, ENC_LITTLE_ENDIAN);
+         break;
+      }
+      }  // END switch
+   }
+   else
+   {
+      proto_tree_add_item(net_tree, hf_cip_seg_safety_data, tvb, offset + 3, seg_size - 1, ENC_NA);
+   }
+
+   if (safety != NULL)
+   {
+      safety->safety_seg = TRUE;
+   }
+
+   return segment_len;
+}
+
+static int dissect_segment_data_simple(tvbuff_t* tvb, int offset, gboolean generate,
+   proto_tree* ds_tree, proto_item* ds_item, proto_item* path_seg_item)
+{
+   /* Segment size */
+   guint16 seg_size = tvb_get_guint8(tvb, offset + 1) * 2;
+
+   if (generate)
+   {
+      proto_item* it = proto_tree_add_uint(ds_tree, hf_cip_data_seg_size_simple, tvb, 0, 0, seg_size);
+      PROTO_ITEM_SET_GENERATED(it);
+   }
+   else
+   {
+      proto_tree_add_item(ds_tree, hf_cip_data_seg_size_simple, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+   }
+
+   /* Segment data  */
+   if (seg_size != 0 && generate == FALSE)
+   {
+      proto_item* ds_data_item;
+      proto_tree* ds_data_tree = proto_tree_add_subtree(ds_tree, tvb, offset + 2, 0, ett_data_seg_data, &ds_data_item, "Data");
+
+      for (int i = 0; i < seg_size / 2; i++)
+         proto_tree_add_item(ds_data_tree, hf_cip_data_seg_item, tvb, offset + 2 + (i * 2), 2, ENC_LITTLE_ENDIAN);
+
+      proto_item_set_len(ds_data_item, seg_size);
+   }
+
+   if (generate == FALSE)
+   {
+      proto_item_set_len(ds_item, 2 + seg_size);
+      proto_item_set_len(path_seg_item, 2 + seg_size);
+   }
+
+   return 2 + seg_size;
+}
+
+static int dissect_segment_ansi_extended_symbol(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   gboolean generate, proto_tree* ds_tree, proto_item* ds_item,
+   proto_item* epath_item, int display_type,
+   gboolean is_msp_item, proto_item* msp_item, proto_item* path_seg_item)
+{
+   /* Segment size */
+   guint16 seg_size = tvb_get_guint8(tvb, offset + 1);
+   if (generate)
+   {
+      proto_item* it = proto_tree_add_uint(ds_tree, hf_cip_data_seg_size_extended, tvb, 0, 0, seg_size);
+      PROTO_ITEM_SET_GENERATED(it);
+   }
+   else
+      proto_tree_add_item(ds_tree, hf_cip_data_seg_size_extended, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+
+   /* Segment data  */
+   if (seg_size != 0)
+   {
+      gchar* symbol_name = tvb_format_text(tvb, offset + 2, seg_size);
+
+      if (generate)
+      {
+         proto_item* it = proto_tree_add_string(ds_tree, hf_cip_symbol, tvb, 0, 0, symbol_name);
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+         proto_tree_add_item(ds_tree, hf_cip_symbol, tvb, offset + 2, seg_size, ENC_ASCII | ENC_NA);
+
+      proto_item_append_text(epath_item, "%s", symbol_name);
+
+      if (cip_enhanced_info_column == TRUE && is_msp_item == FALSE)
+      {
+         add_cip_symbol_to_info_column(pinfo, symbol_name, display_type);
+      }
+
+      if (msp_item != NULL)
+      {
+         proto_item_append_text(msp_item, "'%s' - ", symbol_name);
+      }
+   }
+
+   /* Check for pad byte */
+   if (seg_size % 2)
+      seg_size++;
+
+   if (!generate)
+   {
+      proto_item_set_len(ds_item, 2 + seg_size);
+      proto_item_set_len(path_seg_item, 2 + seg_size);
+   }
+
+   return 2 + seg_size;
+}
+
+static int dissect_segment_logical_special(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   gboolean generate, proto_tree* cia_tree, proto_item* cia_item,
+   proto_item* path_seg_item, proto_item* epath_item)
+{
+   int segment_len = 0;
+
+   guint8 segment_type = tvb_get_guint8(tvb, offset);
+
+   /* Logical Special ID, the only logical format specified is electronic key */
+   if ((segment_type & CI_LOGICAL_SEG_FORMAT_MASK) == CI_LOGICAL_SEG_E_KEY)
+   {
+      guint8 key_format = tvb_get_guint8(tvb, offset + 1);
+      if (key_format == CI_E_KEY_FORMAT_VAL)
+      {
+         if (generate)
+         {
+            proto_item* it = proto_tree_add_uint(cia_tree, hf_cip_ekey_format, tvb, 0, 0, key_format);
+            PROTO_ITEM_SET_GENERATED(it);
+         }
+         else
+         {
+            proto_tree_add_item(cia_tree, hf_cip_ekey_format, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+
+            /* dissect the device ID */
+            dissect_deviceid(tvb, offset + 2, cia_tree,
+               hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
+               hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev);
+
+            proto_item_set_len(path_seg_item, 10);
+            proto_item_set_len(cia_item, 10);
+         }
+
+         /* Add "summary" information to parent item */
+         guint16 vendor_id = tvb_get_letohs(tvb, offset + 2);
+         proto_item_append_text(cia_tree, " (VendorID: 0x%04X", vendor_id);
+
+         guint16 device_type = tvb_get_letohs(tvb, offset + 4);
+         proto_item_append_text(cia_tree, ", DevTyp: 0x%04X", device_type);
+
+         guint8 major_rev = tvb_get_guint8(tvb, offset + 8);
+         guint8 minor_rev = tvb_get_guint8(tvb, offset + 9);
+
+         proto_item_append_text(cia_tree, ", %d.%d)", (major_rev & 0x7F), minor_rev);
+         proto_item_append_text(epath_item, "[Key]");
+
+         segment_len = 10;
+      }
+      else
+      {
+         expert_add_info(pinfo, epath_item, &ei_proto_electronic_key_format);
+      }
+   }
+   else
+   {
+      expert_add_info(pinfo, epath_item, &ei_proto_special_segment_format);
+   }
+
+   return segment_len;
+}
+
+static int dissect_segment_network(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   gboolean generate, proto_tree* path_seg_tree, proto_item* path_seg_item,
+   proto_item* epath_item, int display_type, cip_safety_epath_info_t* safety)
+{
+   int segment_len = 0;
+   proto_tree* net_tree;
+   proto_item* net_item;
+
+   guint8 segment_type = tvb_get_guint8(tvb, offset);
+
+   /* Network segment -Determine the segment sub-type */
+   if (generate)
+   {
+      proto_item* it = proto_tree_add_uint(path_seg_tree, hf_cip_network_seg_type, tvb, 0, 0, segment_type & CI_NETWORK_SEG_TYPE_MASK);
+      PROTO_ITEM_SET_GENERATED(it);
+      net_tree = proto_tree_add_subtree(path_seg_tree, tvb, 0, 0, ett_network_seg, &net_item,
+         val_to_str_const((segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
+      PROTO_ITEM_SET_GENERATED(net_item);
+   }
+   else
+   {
+      proto_tree_add_item(path_seg_tree, hf_cip_network_seg_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      net_tree = proto_tree_add_subtree(path_seg_tree, tvb, offset, 1, ett_network_seg, &net_item,
+         val_to_str_const((segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
+   }
+
+   proto_item_append_text(path_seg_item, " (%s)", val_to_str_const((segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
+
+   switch (segment_type & CI_NETWORK_SEG_TYPE_MASK)
+   {
+   case CI_NETWORK_SEG_SCHEDULE:
+      if (generate)
+      {
+         guint8 schedule = tvb_get_guint8(tvb, offset + 1);
+         proto_item* it = proto_tree_add_uint(net_tree, hf_cip_seg_schedule, tvb, 0, 0, schedule);
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+      {
+         proto_tree_add_item(net_tree, hf_cip_seg_schedule, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+      }
+
+      segment_len = 2;
+      break;
+
+   case CI_NETWORK_SEG_FIXED_TAG:
+      if (generate)
+      {
+         guint8 fixed_tag = tvb_get_guint8(tvb, offset + 1);
+         proto_item* it = proto_tree_add_uint(net_tree, hf_cip_seg_fixed_tag, tvb, 0, 0, fixed_tag);
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+      {
+         proto_tree_add_item(net_tree, hf_cip_seg_fixed_tag, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+      }
+
+      segment_len = 2;
+      break;
+
+   case CI_NETWORK_SEG_PROD_INHI:
+      if (generate)
+      {
+         guint8 inhibit_time = tvb_get_guint8(tvb, offset + 1);
+         proto_item* it = proto_tree_add_uint(net_tree, hf_cip_seg_prod_inhibit_time, tvb, 0, 0, inhibit_time);
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+      {
+         proto_tree_add_item(net_tree, hf_cip_seg_prod_inhibit_time, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+      }
+
+      segment_len = 2;
+      break;
+
+   case CI_NETWORK_SEG_PROD_INHI_US:
+      segment_len = dissect_segment_network_production_inhibit_us(tvb, offset, generate, net_tree);
+      break;
+
+   case CI_NETWORK_SEG_EXTENDED:
+      segment_len = dissect_segment_network_extended(pinfo, epath_item, tvb, offset, generate, net_tree);
+      proto_item_append_text(epath_item, "[Data]");
+      break;
+
+   case CI_NETWORK_SEG_SAFETY:
+      proto_item_append_text(epath_item, "[Safety]");
+
+      if (display_type == DISPLAY_CONNECTION_PATH)
+      {
+         col_append_str(pinfo->cinfo, COL_INFO, " [Safety]");
+      }
+
+      segment_len = dissect_segment_safety(pinfo, tvb, offset, generate, net_tree, safety);
+      break;
+
+   default:
+      expert_add_info(pinfo, epath_item, &ei_proto_log_sub_seg_type);
+      segment_len = 0;
+      break;
+   } /* End of switch sub-type */
+
+   if (generate == FALSE)
+   {
+      proto_item_set_len(net_item, segment_len);
+      proto_item_set_len(path_seg_item, segment_len);
+   }
+
+   return segment_len;
+}
+
+static int dissect_segment_logical_service_id(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   gboolean generate, proto_tree* cia_tree, proto_item* cia_item,
+   proto_item* path_seg_item, proto_item* epath_item)
+{
+   int segment_len = 0;
+
+   guint8 segment_type = tvb_get_guint8(tvb, offset);
+
+   /* Logical Service ID - the only logical format specified is 8-bit Service ID */
+   if ((segment_type & CI_LOGICAL_SEG_FORMAT_MASK) == CI_LOGICAL_SEG_8_BIT)
+   {
+      guint8 service_id = tvb_get_guint8(tvb, offset + 1);
+
+      if (generate)
+      {
+         proto_item* it = proto_tree_add_uint(cia_tree, hf_cip_serviceid8, tvb, 0, 0, service_id);
+         PROTO_ITEM_SET_GENERATED(it);
+      }
+      else
+      {
+         proto_tree_add_item(cia_tree, hf_cip_serviceid8, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+
+         proto_item_set_len(path_seg_item, 2);
+         proto_item_set_len(cia_item, 2);
+      }
+
+      proto_item_append_text(epath_item, "Service ID: 0x%x", service_id);
+
+      segment_len = 2;
+   }
+   else
+   {
+      expert_add_info(pinfo, epath_item, &ei_proto_log_seg_type);
+   }
+
+   return segment_len;
+}
+
 static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *path_tree, proto_item *epath_item,
                     gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety,
                     int display_type, proto_item *msp_item,
                     gboolean is_msp_item)
 {
-   int temp_data, temp_data2, seg_size, i;
    int segment_len = 0;
-   unsigned char segment_type, opt_link_size;
-   proto_tree *port_tree, *net_tree;
-   proto_tree *cia_tree, *ds_tree, *ds_data_tree, *path_seg_tree, *safety_tree;
-   proto_item *it, *cia_item, *cia_ret_item, *port_item, *ds_item, *ds_data_item;
-   proto_item *net_item, *path_seg_item;
-
-   attribute_info_t* att_info;
+   unsigned char segment_type;
+   proto_tree *cia_tree, *path_seg_tree;
+   proto_item *it, *cia_item, *cia_ret_item;
+   proto_item *path_seg_item;
 
    {
       if (tvb_reported_length_remaining(tvb, offset) <= 0)
@@ -4451,133 +5005,7 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
       {
          case CI_PORT_SEGMENT:
          {
-            guint8 port_id;
-            gboolean extended_port = FALSE;
-            int extended_port_offset = 0;
-
-            /* Add Extended Link Address flag & Port Identifier*/
-            if ( generate )
-            {
-               it = proto_tree_add_boolean(path_seg_tree, hf_cip_port_ex_link_addr, tvb, 0, 0, segment_type & CI_PORT_SEG_EX_LINK_ADDRESS);
-               PROTO_ITEM_SET_GENERATED(it);
-               it = proto_tree_add_uint(path_seg_tree, hf_cip_port, tvb, 0, 0, ( segment_type & CI_PORT_SEG_PORT_ID_MASK ) );
-               PROTO_ITEM_SET_GENERATED(it);
-               port_tree = proto_tree_add_subtree(path_seg_tree, tvb, 0, 0, ett_port_path, &port_item, "Port Segment");
-               PROTO_ITEM_SET_GENERATED(port_item);
-            }
-            else
-            {
-               proto_tree_add_item(path_seg_tree, hf_cip_port_ex_link_addr, tvb, offset, 1, ENC_LITTLE_ENDIAN );
-               proto_tree_add_item(path_seg_tree, hf_cip_port, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-               port_tree = proto_tree_add_subtree(path_seg_tree, tvb, offset, 1, ett_port_path, &port_item, "Port Segment");
-            }
-
-            port_id = segment_type & CI_PORT_SEG_PORT_ID_MASK;
-            if (port_id == 0xF)
-            {
-               extended_port = TRUE;
-            }
-
-            proto_item_append_text( path_seg_item, " (Port Segment)");
-
-            const gchar *port_name;
-            port_name = try_val_to_str(port_id, cip_port_number_vals);
-            if (port_name)
-            {
-                proto_item_append_text(epath_item, "Port: %s", port_name);
-            }
-            else
-            {
-                proto_item_append_text(epath_item, "Port: %d", port_id);
-            }
-
-            if( segment_type & CI_PORT_SEG_EX_LINK_ADDRESS )
-            {
-               int offset_link_address = 2;
-
-               if (extended_port == TRUE)
-               {
-                  offset_link_address += 2;
-                  extended_port_offset = offset + 2;
-               }
-
-               opt_link_size = tvb_get_guint8(tvb, offset + 1);
-
-               if ( generate )
-               {
-                  /* Add size of extended link address */
-                  it = proto_tree_add_uint(port_tree, hf_cip_link_address_size, tvb, 0, 0, opt_link_size);
-                  PROTO_ITEM_SET_GENERATED(it);
-                  /* Add extended link address */
-                  it = proto_tree_add_string(port_tree, hf_cip_link_address_string, tvb, 0, 0, tvb_format_text(tvb, offset+offset_link_address, opt_link_size) );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-               {
-                  proto_tree_add_item( port_tree, hf_cip_link_address_size, tvb, offset+1, 1, ENC_LITTLE_ENDIAN );
-                  proto_tree_add_item( port_tree, hf_cip_link_address_string, tvb, offset+offset_link_address, opt_link_size, ENC_ASCII|ENC_NA );
-               }
-
-               proto_item_append_text( epath_item, ", Address: %s", tvb_format_text(tvb, offset+offset_link_address, opt_link_size) );
-
-               /* Pad byte */
-               if( opt_link_size % 2 )
-               {
-                  segment_len = 1 + offset_link_address + opt_link_size;
-               }
-               else
-               {
-                  segment_len = offset_link_address + opt_link_size;
-               }
-            }
-            else
-            {
-               int offset_link_address = 1;
-
-               segment_len = 2;
-
-               if (extended_port == TRUE)
-               {
-                  segment_len += 2;
-                  offset_link_address += 2;
-                  extended_port_offset = offset + 1;
-               }
-
-               /* Add Link Address */
-               if ( generate )
-               {
-                  temp_data = tvb_get_guint8( tvb, offset + offset_link_address );
-                  it = proto_tree_add_uint(port_tree, hf_cip_link_address_byte, tvb, 0, 0, temp_data);
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-               {
-                  proto_tree_add_item(port_tree, hf_cip_link_address_byte, tvb, offset+offset_link_address, 1, ENC_LITTLE_ENDIAN );
-               }
-
-               proto_item_append_text( epath_item, ", Address: %d",tvb_get_guint8( tvb, offset + offset_link_address ) );
-            }
-
-            if (extended_port == TRUE)
-            {
-               if (generate)
-               {
-                  temp_data = tvb_get_letohs(tvb, extended_port_offset);
-                  it = proto_tree_add_uint(port_tree, hf_cip_port_extended, tvb, 0, 0, temp_data);
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-               {
-                  proto_tree_add_item(port_tree, hf_cip_port_extended, tvb, extended_port_offset, 2, ENC_LITTLE_ENDIAN);
-               }
-            }
-
-            if (generate == FALSE)
-            {
-               proto_item_set_len(port_item, segment_len);
-               proto_item_set_len(path_seg_item, segment_len);
-            }
-
+            segment_len = dissect_segment_port(tvb, offset, generate, path_seg_tree, path_seg_item, epath_item);
             break;
          }
 
@@ -4643,10 +5071,6 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Instance", NULL, (req_data == NULL) ? NULL : &req_data->iInstance,
                        hf_cip_instance8, hf_cip_instance16, hf_cip_instance32);
-                  if (segment_len == 0)
-                  {
-                     return 0;
-                  }
                   break;
 
                case CI_LOGICAL_SEG_MBR_ID:
@@ -4654,10 +5078,6 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Member", NULL, (req_data == NULL) ? NULL : &req_data->iMember,
                        hf_cip_member8, hf_cip_member16, hf_cip_member32);
-                  if (segment_len == 0)
-                  {
-                     return 0;
-                  }
                   break;
 
                case CI_LOGICAL_SEG_ATTR_ID:
@@ -4672,7 +5092,7 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
 
                   if (req_data != NULL)
                   {
-                     att_info = cip_get_attribute(req_data->iClass, req_data->iInstance,
+                     attribute_info_t* att_info = cip_get_attribute(req_data->iClass, req_data->iInstance,
                                                   req_data->iAttribute);
                      if (att_info != NULL)
                      {
@@ -4687,95 +5107,16 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Connection Point", NULL, (req_data == NULL) ? NULL : &req_data->iConnPoint,
                        hf_cip_conpoint8, hf_cip_conpoint16, hf_cip_conpoint32);
-                  if (segment_len == 0)
-                  {
-                     return 0;
-                  }
                   break;
 
                case CI_LOGICAL_SEG_SPECIAL:
-
-                  /* Logical Special ID, the only logical format specified is electronic key */
-                  if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_E_KEY )
-                  {
-                     /* Get the Key Format */
-                     temp_data = tvb_get_guint8( tvb, offset + 1 );
-
-                     if( temp_data == CI_E_KEY_FORMAT_VAL )
-                     {
-                        if (generate)
-                        {
-                           it = proto_tree_add_uint(cia_tree, hf_cip_ekey_format, tvb, 0, 0, temp_data);
-                           PROTO_ITEM_SET_GENERATED(it);
-                        }
-                        else
-                        {
-                           proto_tree_add_item(cia_tree, hf_cip_ekey_format, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-                           /* dissect the device ID */
-                           dissect_deviceid(tvb, offset + 2, cia_tree,
-                              hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
-                              hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev);
-
-                           proto_item_set_len(path_seg_item, 10);
-                           proto_item_set_len(cia_item, 10);
-                        }
-
-                        /* Add "summary" information to parent item */
-                        temp_data = tvb_get_letohs( tvb, offset + 2 );
-                        proto_item_append_text( cia_tree, " (VendorID: 0x%04X", temp_data );
-                        temp_data = tvb_get_letohs( tvb, offset + 4 );
-                        proto_item_append_text( cia_tree, ", DevTyp: 0x%04X", temp_data );
-                        temp_data = tvb_get_guint8( tvb, offset + 8 );
-                        temp_data2 = tvb_get_guint8( tvb, offset + 9 );
-
-                        proto_item_append_text(cia_tree, ", %d.%d)", ( temp_data & 0x7F ), temp_data2 );
-                        proto_item_append_text(epath_item, "[Key]" );
-
-                        segment_len = 10;
-                     }
-                     else
-                     {
-                        expert_add_info(pinfo, epath_item, &ei_proto_electronic_key_format);
-                        return 0;
-                     }
-                  }
-                  else
-                  {
-                     expert_add_info(pinfo, epath_item, &ei_proto_special_segment_format);
-                     return 0;
-                  }
-                  break;
+                   segment_len = dissect_segment_logical_special(pinfo, tvb, offset, generate,
+                      cia_tree, cia_item, path_seg_item, epath_item);
+                   break;
 
                case CI_LOGICAL_SEG_SERV_ID:
-                   /* Logical Service ID - the only logical format specified is 8-bit Service ID */
-                   if ((segment_type & CI_LOGICAL_SEG_FORMAT_MASK) == CI_LOGICAL_SEG_8_BIT)
-                   {
-                       guint8 service_id;
-                       service_id = tvb_get_guint8(tvb, offset + 1);
-
-                       if (generate)
-                       {
-                           it = proto_tree_add_uint(cia_tree, hf_cip_serviceid8, tvb, 0, 0, service_id);
-                           PROTO_ITEM_SET_GENERATED(it);
-                       }
-                       else
-                       {
-                           proto_tree_add_item(cia_tree, hf_cip_serviceid8, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-                           proto_item_set_len(path_seg_item, 2);
-                           proto_item_set_len(cia_item, 2);
-                       }
-
-                       proto_item_append_text(epath_item, "Service ID: 0x%x", service_id);
-
-                       segment_len = 2;
-                   }
-                   else
-                   {
-                       expert_add_info(pinfo, epath_item, &ei_proto_log_seg_type);
-                       return 0;
-                   }
+                   segment_len = dissect_segment_logical_service_id(pinfo, tvb, offset, generate,
+                      cia_tree, cia_item, path_seg_item, epath_item);
                    break;
 
                case CI_LOGICAL_SEG_EXT_LOGICAL:
@@ -4783,10 +5124,6 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Extended Logical", NULL, NULL,
                        hf_cip_ext_logical8, hf_cip_ext_logical16, hf_cip_ext_logical32);
-                   if (segment_len == 0)
-                   {
-                      return 0;
-                   }
                    break;
 
                default:
@@ -4798,6 +5135,9 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
          }
 
          case CI_DATA_SEGMENT:
+         {
+            proto_item* ds_item;
+            proto_tree* ds_tree;
 
             /* Data segment, determine the logical type */
             if ( generate )
@@ -4820,92 +5160,13 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
             switch( segment_type & CI_DATA_SEG_TYPE_MASK)
             {
                case CI_DATA_SEG_SIMPLE:
-                  /* Segment size */
-                  seg_size = tvb_get_guint8( tvb, offset + 1 )*2;
-
-                  if (generate)
-                  {
-                      it = proto_tree_add_uint(ds_tree, hf_cip_data_seg_size_simple, tvb, 0, 0, seg_size);
-                      PROTO_ITEM_SET_GENERATED(it);
-                  }
-                  else
-                  {
-                      proto_tree_add_item(ds_tree, hf_cip_data_seg_size_simple, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-                  }
-
-                  /* Segment data  */
-                  if( seg_size != 0 && generate == FALSE )
-                  {
-                     ds_data_tree = proto_tree_add_subtree( ds_tree, tvb, offset + 2, 0, ett_data_seg_data, &ds_data_item, "Data" );
-
-                     for( i=0; i < seg_size/2; i ++ )
-                        proto_tree_add_item(ds_data_tree, hf_cip_data_seg_item, tvb, offset + 2+(i*2), 2, ENC_LITTLE_ENDIAN );
-
-                     proto_item_set_len(ds_data_item, seg_size);
-                  }
-
-                  if (generate == FALSE)
-                  {
-                     proto_item_set_len(ds_item, 2 + seg_size);
-                     proto_item_set_len(path_seg_item, 2 + seg_size);
-                  }
-                  segment_len = 2 + seg_size;
-
+                  segment_len = dissect_segment_data_simple(tvb, offset, generate, ds_tree, ds_item, path_seg_item);
                   proto_item_append_text(epath_item, "[Data]" );
                   break;
 
                case CI_DATA_SEG_SYMBOL:
-
-                  /* ANSI extended symbol segment */
-
-                  /* Segment size */
-                  seg_size = tvb_get_guint8( tvb, offset + 1 );
-                  if ( generate )
-                  {
-                     it = proto_tree_add_uint(ds_tree, hf_cip_data_seg_size_extended, tvb, 0, 0, seg_size);
-                     PROTO_ITEM_SET_GENERATED(it);
-                  }
-                  else
-                     proto_tree_add_item(ds_tree, hf_cip_data_seg_size_extended, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN );
-
-                  /* Segment data  */
-                  if( seg_size != 0 )
-                  {
-                     gchar *symbol_name;
-                     symbol_name = tvb_format_text(tvb, offset + 2, seg_size);
-
-                     if ( generate )
-                     {
-                        it = proto_tree_add_string(ds_tree, hf_cip_symbol, tvb, 0, 0, symbol_name);
-                        PROTO_ITEM_SET_GENERATED(it);
-                     }
-                     else
-                        proto_tree_add_item( ds_tree, hf_cip_symbol, tvb, offset + 2, seg_size, ENC_ASCII|ENC_NA );
-
-                     proto_item_append_text(epath_item, "%s", symbol_name);
-
-                     if (cip_enhanced_info_column == TRUE && is_msp_item == FALSE)
-                     {
-                        add_cip_symbol_to_info_column(pinfo, symbol_name, display_type);
-                     }
-
-                     if (msp_item != NULL)
-                     {
-                        proto_item_append_text(msp_item, "'%s' - ", symbol_name);
-                     }
-                  }
-
-                  /* Check for pad byte */
-                  if( seg_size %2 )
-                     seg_size++;
-
-                  if ( !generate )
-                  {
-                     proto_item_set_len( ds_item, 2 + seg_size );
-                     proto_item_set_len( path_seg_item, 2 + seg_size );
-                  }
-                  segment_len = 2 + seg_size;
-
+                  segment_len = dissect_segment_ansi_extended_symbol(pinfo, tvb, offset, generate,
+                     ds_tree, ds_item, epath_item, display_type, is_msp_item, msp_item, path_seg_item);
                   break;
 
                default:
@@ -4915,250 +5176,19 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
             } /* End of switch sub-type */
 
             break;
+         }
 
          case CI_NETWORK_SEGMENT:
-
-            /* Network segment -Determine the segment sub-type */
-            if ( generate )
-            {
-               it = proto_tree_add_uint(path_seg_tree, hf_cip_network_seg_type, tvb, 0, 0, segment_type & CI_NETWORK_SEG_TYPE_MASK);
-               PROTO_ITEM_SET_GENERATED(it);
-               net_tree = proto_tree_add_subtree(path_seg_tree, tvb, 0, 0, ett_network_seg, &net_item,
-                   val_to_str_const( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
-               PROTO_ITEM_SET_GENERATED(net_item);
-            }
-            else
-            {
-               proto_tree_add_item(path_seg_tree, hf_cip_network_seg_type, tvb, offset, 1, ENC_LITTLE_ENDIAN );
-               net_tree = proto_tree_add_subtree(path_seg_tree, tvb, offset, 1, ett_network_seg, &net_item,
-                   val_to_str_const( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
-            }
-
-            proto_item_append_text( path_seg_item, " (%s)", val_to_str_const( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
-
-            switch( segment_type & CI_NETWORK_SEG_TYPE_MASK )
-            {
-               case CI_NETWORK_SEG_SCHEDULE:
-                  if (generate)
-                  {
-                     temp_data = tvb_get_guint8(tvb, offset + 1);
-                     it = proto_tree_add_uint(net_tree, hf_cip_seg_schedule, tvb, 0, 0, temp_data);
-                     PROTO_ITEM_SET_GENERATED(it);
-                  }
-                  else
-                  {
-                     proto_tree_add_item(net_tree, hf_cip_seg_schedule, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-                     proto_item_set_len(net_item, 2);
-                     proto_item_set_len(path_seg_item, 2);
-                  }
-
-                  segment_len = 2;
-                  break;
-
-               case CI_NETWORK_SEG_FIXED_TAG:
-                  if (generate)
-                  {
-                     temp_data = tvb_get_guint8(tvb, offset + 1);
-                     it = proto_tree_add_uint(net_tree, hf_cip_seg_fixed_tag, tvb, 0, 0, temp_data);
-                     PROTO_ITEM_SET_GENERATED(it);
-                  }
-                  else
-                  {
-                     proto_tree_add_item(net_tree, hf_cip_seg_fixed_tag, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-                     proto_item_set_len(net_item, 2);
-                     proto_item_set_len(path_seg_item, 2);
-                  }
-
-                  segment_len = 2;
-                  break;
-
-               case CI_NETWORK_SEG_PROD_INHI:
-
-                  temp_data = tvb_get_guint8( tvb, offset + 1 );
-
-                  if (generate)
-                  {
-                      it = proto_tree_add_uint(net_tree, hf_cip_seg_prod_inhibit_time, tvb, 0, 0, temp_data);
-                      PROTO_ITEM_SET_GENERATED(it);
-                  }
-                  else
-                  {
-                      proto_tree_add_item(net_tree, hf_cip_seg_prod_inhibit_time,
-                          tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-                      proto_item_set_len(net_item, 2);
-                      proto_item_set_len(path_seg_item, 2);
-                  }
-
-                  segment_len = 2;
-                  break;
-
-               case CI_NETWORK_SEG_PROD_INHI_US:
-               {
-                  seg_size = dissect_segment_network_production_inhibit_us(tvb, offset, generate, net_tree);
-
-                  if (generate == FALSE)
-                  {
-                     proto_item_set_len(net_item, seg_size);
-                     proto_item_set_len(path_seg_item, seg_size);
-                  }
-
-                  segment_len = seg_size;
-
-                  break;
-               }
-
-               case CI_NETWORK_SEG_EXTENDED:
-                   seg_size = dissect_segment_network_extended(pinfo, epath_item, tvb, offset, generate, net_tree);
-
-                   proto_item_append_text(epath_item, "[Data]");
-
-                   if (generate == FALSE)
-                   {
-                      proto_item_set_len(net_tree, seg_size);
-                      proto_item_set_len(path_seg_item, seg_size);
-                   }
-
-                   segment_len = seg_size;
-                   break;
-
-               case CI_NETWORK_SEG_SAFETY:
-                  proto_item_append_text(epath_item, "[Safety]" );
-
-                  if (display_type == DISPLAY_CONNECTION_PATH)
-                  {
-                     col_append_str(pinfo->cinfo, COL_INFO, " [Safety]");
-                  }
-
-                  seg_size = tvb_get_guint8(tvb, offset + 1) * 2;
-                  if (generate)
-                  {
-                     /* TODO: Skip printing information in response packets for now. Think of a better way to handle
-                        generated data that doesn't require a lot of copy-paste. */
-                     segment_len = seg_size + 2;
-                     break;
-                  }
-
-                  /* Segment size */
-                  proto_tree_add_item(net_tree, hf_cip_seg_network_size, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-                  proto_tree_add_item(net_tree, hf_cip_seg_safety_format, tvb, offset+2, 1, ENC_LITTLE_ENDIAN );
-                  /* Safety Network Segment Format */
-                  temp_data = tvb_get_guint8( tvb, offset + 2 );
-                  if (temp_data < 3)
-                  {
-                     safety_tree = proto_tree_add_subtree(net_tree, tvb, offset + 3, seg_size-1,
-                            ett_network_seg_safety, NULL, val_to_str_const(temp_data, cip_safety_segment_format_type_vals, "Reserved"));
-                     switch (temp_data)
-                     {
-                     case 0:
-                        /* Target Format */
-                        if (safety != NULL)
-                           safety->format = CIP_SAFETY_BASE_FORMAT;
-
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset+3, 1, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_configuration_crc, tvb, offset+4, 4, ENC_LITTLE_ENDIAN );
-                        dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset+8, hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset+14, 4, ENC_LITTLE_ENDIAN );
-                        dissect_net_param16(tvb, offset+18, safety_tree,
-                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
-                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
-                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
-                              ett_network_seg_safety_time_correction_net_params);
-                        it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset+20, 10, ENC_NA);
-                        dissect_unid(tvb, pinfo, offset+20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
-                           hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
-                           ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
-                        it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset+30, 10, ENC_NA);
-                        dissect_unid(tvb, pinfo, offset+30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
-                           hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
-                           ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset+40, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset+42, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset+44, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_timeout_multiplier, tvb, offset+46, 1, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_consumer_number, tvb, offset+47, 1, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_conn_param_crc, tvb, offset+48, 4, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset+52, 4, ENC_LITTLE_ENDIAN );
-                        break;
-                     case 1:
-                        /* Router Format */
-                        if (safety != NULL)
-                           safety->format = CIP_SAFETY_BASE_FORMAT;
-
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset+3, 1, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset+4, 4, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset+8, 4, ENC_LITTLE_ENDIAN );
-                        dissect_net_param16(tvb, offset+12, safety_tree,
-                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
-                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
-                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
-                              ett_network_seg_safety_time_correction_net_params);
-                        break;
-                     case 2:
-                        /* Extended Format */
-                         if (safety != NULL)
-                           safety->format = CIP_SAFETY_EXTENDED_FORMAT;
-
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset+3, 1, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_configuration_crc, tvb, offset+4, 4, ENC_LITTLE_ENDIAN );
-                        dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset+8, hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset+14, 4, ENC_LITTLE_ENDIAN );
-                        dissect_net_param16(tvb, offset+18, safety_tree,
-                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
-                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
-                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
-                              ett_network_seg_safety_time_correction_net_params);
-                        it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset+20, 10, ENC_NA);
-                        dissect_unid(tvb, pinfo, offset+20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
-                           hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
-                           ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
-                        it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset+30, 10, ENC_NA);
-                        dissect_unid(tvb, pinfo, offset+30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
-                           hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
-                           ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset+40, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset+42, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset+44, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_timeout_multiplier, tvb, offset+46, 1, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_consumer_number, tvb, offset+47, 1, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_max_fault_number, tvb, offset+48, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_conn_param_crc, tvb, offset+50, 4, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset+54, 4, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_init_timestamp, tvb, offset+58, 2, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_init_rollover, tvb, offset+60, 2, ENC_LITTLE_ENDIAN );
-                        break;
-                     }
-                  }
-                  else
-                  {
-                     proto_tree_add_item(net_tree, hf_cip_seg_safety_data, tvb, offset+3, seg_size-1, ENC_NA );
-                  }
-
-                  if (safety != NULL)
-                     safety->safety_seg = TRUE;
-
-                  proto_item_set_len( net_item, seg_size+2);
-                  proto_item_set_len( path_seg_item, seg_size+2);
-                  segment_len = seg_size + 2;
-                  break;
-
-               default:
-                  expert_add_info(pinfo, epath_item, &ei_proto_log_sub_seg_type);
-                  return 0;
-
-            } /* End of switch sub-type */
-
+            segment_len = dissect_segment_network(pinfo, tvb, offset, generate, path_seg_tree, path_seg_item, epath_item, display_type, safety);
             break;
 
          case CI_SYMBOLIC_SEGMENT:
          {
-             seg_size = dissect_segment_symbolic(tvb, path_seg_tree,
+             segment_len = dissect_segment_symbolic(tvb, path_seg_tree,
                  path_seg_item, epath_item,
                  offset, generate);
 
-             if (seg_size == 0)
+             if (segment_len == 0)
              {
                  expert_add_info(pinfo, epath_item, &ei_proto_ext_string_format);
                  return 0;
@@ -5166,10 +5196,9 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
 
              if (generate == FALSE)
              {
-                 proto_item_set_len(path_seg_item, seg_size);
+                 proto_item_set_len(path_seg_item, segment_len);
              }
 
-             segment_len = seg_size;
              break;
          }
 
