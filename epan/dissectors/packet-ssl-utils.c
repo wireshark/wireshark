@@ -5784,8 +5784,6 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* fields specific for DTLS (cookie_len, cookie) */
     if (dtls_hfs != NULL) {
-        is_dtls = TRUE;
-
         /* look for a cookie */
         guint8 cookie_length = tvb_get_guint8(tvb, offset);
 
@@ -5797,6 +5795,8 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                 tvb, offset, cookie_length, ENC_NA);
             offset += cookie_length;
         }
+
+        is_dtls = TRUE;
     }
 
     /* tell the user how many cipher suites there are */
