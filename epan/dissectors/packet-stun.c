@@ -1707,6 +1707,7 @@ proto_register_stun(void)
     /* heuristic subdissectors (used for the DATA field) */
     heur_subdissector_list = register_heur_dissector_list("stun", proto_stun);
 
+    register_dissector("stun-tcp", dissect_stun_tcp, proto_stun);
     register_dissector("stun-udp", dissect_stun_udp, proto_stun);
     register_dissector("stun-heur", dissect_stun_heur, proto_stun);
 }
@@ -1714,8 +1715,8 @@ proto_register_stun(void)
 void
 proto_reg_handoff_stun(void)
 {
-    stun_tcp_handle = create_dissector_handle(dissect_stun_tcp, proto_stun);
-    stun_udp_handle = create_dissector_handle(dissect_stun_udp, proto_stun);
+    stun_tcp_handle = find_dissector("stun-tcp");
+    stun_udp_handle = find_dissector("stun-udp");
 
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_STUN, stun_udp_handle);
