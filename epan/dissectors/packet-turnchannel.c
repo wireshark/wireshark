@@ -182,6 +182,8 @@ proto_register_turnchannel(void)
 	proto_turnchannel = proto_register_protocol("TURN Channel",
 	    "TURNCHANNEL", "turnchannel");
 
+	register_dissector("turnchannel-tcp", dissect_turnchannel_tcp,
+			   proto_turnchannel);
 	register_dissector("turnchannel", dissect_turnchannel_message,
 			   proto_turnchannel);
 
@@ -201,7 +203,7 @@ proto_reg_handoff_turnchannel(void)
 	dissector_handle_t turnchannel_tcp_handle;
 	dissector_handle_t turnchannel_udp_handle;
 
-	turnchannel_tcp_handle = create_dissector_handle(dissect_turnchannel_tcp, proto_turnchannel);
+	turnchannel_tcp_handle = find_dissector("turnchannel-tcp");
 	turnchannel_udp_handle = find_dissector("turnchannel");
 
 	/* Register for "Decode As" in case STUN negotiation isn't captured */

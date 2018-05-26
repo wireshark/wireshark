@@ -1204,6 +1204,9 @@ const value_string tls_cert_status_type[] = {
     { 0, NULL }
 };
 
+/*
+ * http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids
+ */
 /* string_string is inappropriate as it compares strings while
  * "byte strings MUST NOT be truncated" (RFC 7301) */
 typedef struct ssl_alpn_protocol {
@@ -1211,17 +1214,30 @@ typedef struct ssl_alpn_protocol {
     gboolean         match_exact;
     const char      *dissector_name;
 } ssl_alpn_protocol_t;
-/* http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids */
+
+/*
+ * For SSL/TLS; the dissectors should handle running atop a byte-stream
+ * protocol such as TCP.
+ */
 static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
     { "http/1.1",           TRUE,   "http" },
     /* SPDY moves so fast, just 1, 2 and 3 are registered with IANA but there
      * already exists 3.1 as of this writing... match the prefix. */
     { "spdy/",              FALSE,  "spdy" },
-    { "stun.turn",          TRUE,   "turnchannel" },
-    { "stun.nat-discovery", TRUE,   "stun" },
+    { "stun.turn",          TRUE,   "turnchannel-tcp" }, /* RFC 7443 */
+    { "stun.nat-discovery", TRUE,   "stun-tcp" },        /* RFC 7443 */
     /* draft-ietf-httpbis-http2-16 */
     { "h2-",                FALSE,  "http2" }, /* draft versions */
     { "h2",                 TRUE,   "http2" }, /* final version */
+};
+
+/*
+ * For DTLS; the dissectors should handle running atop a datagram
+ * protocol such as UDP.
+ */
+static const ssl_alpn_protocol_t dtls_alpn_protocols[] = {
+    { "stun.turn",          TRUE,   "turnchannel" }, /* RFC 7443 */
+    { "stun.nat-discovery", TRUE,   "stun-udp" },    /* RFC 7443 */
 };
 
 /* Lookup tables }}} */
@@ -5183,12 +5199,15 @@ ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 static gint
 ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 ext_len,
-                               gboolean is_client, SslSession *session)
+                               gboolean is_client, SslSession *session,
+                               gboolean is_dtls)
 {
     guint16 alpn_length;
     guint8 name_length;
     proto_tree *alpn_tree;
     proto_item *ti;
+    const ssl_alpn_protocol_t *alpn_protocols;
+    size_t      n_alpn_protocols;
 
     alpn_length = tvb_get_ntohs(tvb, offset);
     if (ext_len < 2 || alpn_length != ext_len - 2) {
@@ -5209,12 +5228,14 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         guint8 *proto_name;
         size_t i;
 
+        alpn_protocols = is_dtls ? dtls_alpn_protocols : ssl_alpn_protocols;
+        n_alpn_protocols = is_dtls ? G_N_ELEMENTS(dtls_alpn_protocols) : G_N_ELEMENTS(ssl_alpn_protocols);
         name_length = tvb_get_guint8(tvb, offset);
         /* '\0'-terminated string for prefix/full string comparison purposes. */
         proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1,
                                         name_length, ENC_ASCII);
-        for (i = 0; i < G_N_ELEMENTS(ssl_alpn_protocols); i++) {
-            const ssl_alpn_protocol_t *alpn_proto = &ssl_alpn_protocols[i];
+        for (i = 0; i < n_alpn_protocols; i++) {
+            const ssl_alpn_protocol_t *alpn_proto = &alpn_protocols[i];
 
             if ((alpn_proto->match_exact &&
                         name_length == strlen(alpn_proto->proto_name) &&
@@ -5726,7 +5747,8 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 left, gboolean is_client,
-                          SslSession *session, SslDecryptSession *ssl);
+                          SslSession *session, SslDecryptSession *ssl,
+                          gboolean is_dtls);
 void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
@@ -5744,6 +5766,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      * } ClientHello;
      *
      */
+    gboolean    is_dtls = FALSE;
     proto_item *ti;
     proto_tree *cs_tree;
     guint16     cipher_suite_length;
@@ -5761,6 +5784,8 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* fields specific for DTLS (cookie_len, cookie) */
     if (dtls_hfs != NULL) {
+    	is_dtls = TRUE;
+
         /* look for a cookie */
         guint8 cookie_length = tvb_get_guint8(tvb, offset);
 
@@ -5841,7 +5866,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (length > offset - start_offset) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
                                   length - (offset - start_offset), TRUE,
-                                  session, ssl);
+                                  session, ssl, is_dtls);
     }
 }
 
@@ -5911,7 +5936,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (length > offset - start_offset) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
                                   length - (offset - start_offset), FALSE,
-                                  session, ssl);
+                                  session, ssl, is_dtls);
     }
 }
 /* Client Hello and Server Hello dissections. }}} */
@@ -6328,7 +6353,8 @@ ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 left, gboolean is_client,
-                          SslSession *session, SslDecryptSession *ssl)
+                          SslSession *session, SslDecryptSession *ssl,
+                          gboolean is_dtls)
 {
     guint16     extension_length;
     guint16     ext_type;
@@ -6385,7 +6411,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_ALPN:
-            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len, is_client, session);
+            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len, is_client, session, is_dtls);
             break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, ext_tree, offset, ext_len);
