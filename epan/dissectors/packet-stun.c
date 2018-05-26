@@ -17,9 +17,10 @@
  * - RFC 5245, formerly draft-ietf-mmusic-ice-19
  * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
  * - RFC 5766, formerly draft-ietf-behave-turn-16
- * - draft-ietf-behave-turn-ipv6-11
- * - RFC 3489, http://www.faqs.org/rfcs/rfc3489.html  (Addition of deprecated attributes for diagnostics purpose)
+ * - RFC 6156, formerly draft-ietf-behave-turn-ipv6-11
+ * - RFC 3489 (Addition of deprecated attributes for diagnostics purpose)
  * - RFC 6062
+ * - RFC 6544
  *
  * From MS (Lync)
  * MS-TURN: Traversal Using Relay NAT (TURN) Extensions http://msdn.microsoft.com/en-us/library/cc431507.aspx
@@ -461,7 +462,7 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     if ((captured_length >= TCP_FRAME_COOKIE_LEN) &&
         (tvb_get_ntohl(tvb, 6) == 0x2112a442)) {
         /* The magic cookie is off by two, this appears
-           to be RFC4751 framing */
+           to be RFC4571 framing */
         return (tvb_get_ntohs(tvb, 0) + 2);
     }
 
