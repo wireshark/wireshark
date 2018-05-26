@@ -442,10 +442,10 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             info->max_window1       = 0;
             info->max_window2       = 0;
             info->min_max           = NULL;
-            info->sort_tsn1         = g_ptr_array_new();
-            info->sort_tsn2         = g_ptr_array_new();
-            info->sort_sack1        = g_ptr_array_new();
-            info->sort_sack2        = g_ptr_array_new();
+            info->sort_tsn1         = g_ptr_array_new_with_free_func(g_free);
+            info->sort_tsn2         = g_ptr_array_new_with_free_func(g_free);
+            info->sort_sack1        = g_ptr_array_new_with_free_func(g_free);
+            info->sort_sack2        = g_ptr_array_new_with_free_func(g_free);
             info->dir1              = g_new0(sctp_init_collision_t, 1);
             info->dir1->init_min_tsn = 0xffffffff;
             info->dir1->initack_min_tsn = 0xffffffff;
