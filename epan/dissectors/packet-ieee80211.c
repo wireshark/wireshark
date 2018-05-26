@@ -15538,19 +15538,19 @@ dissect_a_control_umrs(proto_tree *tree, tvbuff_t *tvb, int offset,
    */
   umrs_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                                 ett_ieee80211_umrs_control,
-                                NULL, "UMRS Control: 0x%0x", the_bits);
+                                NULL, "UMRS Control: 0x%08x", the_bits);
 
-  proto_tree_add_bits_item(umrs_tree, hf_ieee80211_he_umrs_he_tb_ppdu_len, tvb,
+  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_umrs_he_tb_ppdu_len, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(umrs_tree, hf_ieee80211_he_umrs_ru_allocation, tvb,
+  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_umrs_ru_allocation, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(umrs_tree, hf_ieee80211_he_dl_tx_power, tvb,
+  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_dl_tx_power, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(umrs_tree, hf_ieee80211_he_ul_target_rssi, tvb,
+  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_ul_target_rssi, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(umrs_tree, hf_ieee80211_he_ul_mcs, tvb,
+  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_ul_mcs, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(umrs_tree, hf_ieee80211_he_ul_reserved, tvb,
+  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_ul_reserved, tvb,
                         offset, 4, the_bits);
 }
 
@@ -15559,24 +15559,24 @@ dissect_a_control_om(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint32 bits _U_, guint32 start_bit)
 {
   proto_tree *om_tree = NULL;
-  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x0000003FF;
+  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x000000FFF;
 
   /*
    * We isolated the bits and moved them to the bottom ... so display them
    */
   om_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                                 ett_ieee80211_om_control,
-                                NULL, "OM Control: 0x%0x", the_bits);
+                                NULL, "OM Control: 0x%04x", the_bits);
 
-  proto_tree_add_bits_item(om_tree, hf_ieee80211_he_om_rx_nss, tvb,
+  proto_tree_add_uint(om_tree, hf_ieee80211_he_om_rx_nss, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(om_tree, hf_ieee80211_he_om_channel_width, tvb,
+  proto_tree_add_uint(om_tree, hf_ieee80211_he_om_channel_width, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(om_tree, hf_ieee80211_he_om_ul_mu_disable, tvb,
+  proto_tree_add_boolean(om_tree, hf_ieee80211_he_om_ul_mu_disable, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(om_tree, hf_ieee80211_he_om_tx_nsts, tvb,
+  proto_tree_add_uint(om_tree, hf_ieee80211_he_om_tx_nsts, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(om_tree, hf_ieee80211_he_om_reserved, tvb,
+  proto_tree_add_uint(om_tree, hf_ieee80211_he_om_reserved, tvb,
                         offset, 4, the_bits);
 }
 
@@ -15592,27 +15592,27 @@ dissect_a_control_hla(proto_tree *tree, tvbuff_t *tvb, int offset,
    */
   hla_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                                 ett_ieee80211_hla_control,
-                                NULL, "HLA Control: 0x%0x", the_bits);
+                                NULL, "HLA Control: 0x%08x", the_bits);
 
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_unsolicited_mfb, tvb,
+  proto_tree_add_boolean(hla_tree, hf_ieee80211_he_hla_unsolicited_mfb, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_mrq, tvb,
+  proto_tree_add_boolean(hla_tree, hf_ieee80211_he_hla_mrq, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_nss, tvb,
+  proto_tree_add_uint(hla_tree, hf_ieee80211_he_hla_nss, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_he_mcs, tvb,
+  proto_tree_add_uint(hla_tree, hf_ieee80211_he_hla_he_mcs, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_dcm, tvb,
+  proto_tree_add_boolean(hla_tree, hf_ieee80211_he_hla_dcm, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_ru, tvb,
+  proto_tree_add_uint(hla_tree, hf_ieee80211_he_hla_ru, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_bw, tvb,
+  proto_tree_add_uint(hla_tree, hf_ieee80211_he_hla_bw, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_msi_ppdu_type, tvb,
+  proto_tree_add_uint(hla_tree, hf_ieee80211_he_hla_msi_ppdu_type, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_tx_bf, tvb,
+  proto_tree_add_boolean(hla_tree, hf_ieee80211_he_hla_tx_bf, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(hla_tree, hf_ieee80211_he_hla_reserved, tvb,
+  proto_tree_add_uint(hla_tree, hf_ieee80211_he_hla_reserved, tvb,
                         offset, 4, the_bits);
 }
 
@@ -15628,7 +15628,7 @@ dissect_a_control_bsr(proto_tree *tree, tvbuff_t *tvb, int offset,
    */
   bsr_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                                 ett_ieee80211_buffer_status_report,
-                                NULL, "Buffer Status Report: 0x%0x", the_bits);
+                                NULL, "Buffer Status Report: 0x%08x", the_bits);
 
   proto_tree_add_uint(bsr_tree, hf_ieee80211_he_bsr_aci_bitmap, tvb,
                         offset, 4, the_bits);
@@ -15649,20 +15649,20 @@ dissect_a_control_uph(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint32 bits _U_, guint32 start_bit)
 {
   proto_tree *uph_tree = NULL;
-  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x03FFFFFF;
+  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x000000FF;
 
   /*
    * We isolated the bits and moved them to the bottom ... so display them
    */
   uph_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                                 ett_ieee80211_control_uph,
-                                NULL, "UPH Control: 0x%0x", the_bits);
+                                NULL, "UPH Control: 0x%02x", the_bits);
 
-  proto_tree_add_bits_item(uph_tree, hf_ieee80211_he_uph_ul_power_headroom, tvb,
+  proto_tree_add_uint(uph_tree, hf_ieee80211_he_uph_ul_power_headroom, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(uph_tree, hf_ieee80211_he_uph_ul_min_transmit_power_flag,
+  proto_tree_add_boolean(uph_tree, hf_ieee80211_he_uph_ul_min_transmit_power_flag,
                         tvb, offset, 4, the_bits);
-  proto_tree_add_bits_item(uph_tree, hf_ieee80211_he_uph_reserved,
+  proto_tree_add_uint(uph_tree, hf_ieee80211_he_uph_reserved,
                         tvb, offset, 4, the_bits);
 }
 
@@ -15671,18 +15671,18 @@ dissect_a_control_bqr(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint32 bits _U_, guint32 start_bit)
 {
   proto_tree *bqr_tree = NULL;
-  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x03FFFFFF;
+  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x000003FF;
 
   /*
    * We isolated the bits and moved them to the bottom ... so display them
    */
   bqr_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                                 ett_ieee80211_bqr_control,
-                                NULL, "BQR Control: 0x%0x", the_bits);
+                                NULL, "BQR Control: 0x%04x", the_bits);
 
-  proto_tree_add_bits_item(bqr_tree, hf_ieee80211_he_btc_avail_chan, tvb,
+  proto_tree_add_uint(bqr_tree, hf_ieee80211_he_btc_avail_chan, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_bits_item(bqr_tree, hf_ieee80211_he_btc_reserved, tvb,
+  proto_tree_add_uint(bqr_tree, hf_ieee80211_he_btc_reserved, tvb,
                         offset, 4, the_bits);
 }
 
@@ -15691,14 +15691,14 @@ dissect_a_control_cci(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint32 bits _U_, guint32 start_bit)
 {
   proto_tree *cci_tree = NULL;
-  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x03FFFFFF;
+  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x000000FF;
 
   /*
    * We isolated the bits and moved them to the bottom ... so display them
    */
   cci_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                                 ett_ieee80211_control_cci,
-                                NULL, "Command Control Indication: 0x%0x", the_bits);
+                                NULL, "Command Control Indication: 0x%02x", the_bits);
 
   proto_tree_add_uint(cci_tree, hf_ieee80211_he_cci_ac_constraint, tvb,
                         offset, 4, the_bits);
@@ -31358,24 +31358,24 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_umrs_he_tb_ppdu_len,
      {"HE TB PPDU Length", "wlan.htc.he.a_control.umrs.he_tb_ppdu_len",
-      FT_UINT8, BASE_DEC, NULL, 0x0000001f, NULL, HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0x0000001f, NULL, HFILL }},
 
     {&hf_ieee80211_he_umrs_ru_allocation,
      {"RU Allocation", "wlan.htc.he.a_control.umrs.ru_allocation",
-      FT_UINT8, BASE_HEX, NULL, 0x00001fe0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x00001fe0, NULL, HFILL }},
 
     {&hf_ieee80211_he_dl_tx_power,
      {"DL Tx Power", "wlan.htc.he.a_control.umrs.dl_tx_power",
-      FT_UINT8, BASE_HEX, NULL, 0x0003e000, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x0003e000, NULL, HFILL }},
 
     {&hf_ieee80211_he_ul_target_rssi,
      {"UL Target RSSI", "wlan.htc.he.a_control.umrs.ul_target_rssi",
-      FT_UINT8, BASE_CUSTOM, CF_FUNC(ul_target_rssi_base_custom),
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(ul_target_rssi_base_custom),
       0x007c0000, NULL, HFILL }},
 
     {&hf_ieee80211_he_ul_mcs,
      {"UL MCS", "wlan.htc.he.a_control.umrs.ul_mcs",
-      FT_UINT8, BASE_HEX, NULL, 0x018000000, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x01800000, NULL, HFILL }},
 
     {&hf_ieee80211_he_ul_reserved,
      {"reserved", "wlan.htc.he.a_control.umrs.reserved",
@@ -31383,23 +31383,23 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_om_rx_nss,
      {"Rx NSS", "wlan.htc.he.a_control.om.rx_nss",
-      FT_UINT32, BASE_DEC, NULL, 0x00000007, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x0007, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_channel_width,
      {"Channel Width", "wlan.htc.he.a_control.om.channel_width",
-      FT_UINT32, BASE_DEC, NULL, 0x00000018, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x0018, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_ul_mu_disable,
      {"UL MU Disable", "wlan.htc.he.a_control.om.ul_mu_disable",
-      FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_tx_nsts,
      {"Tx NSTS", "wlan.htc.he.a_control.om.tx_nsts",
-      FT_UINT32, BASE_DEC, NULL, 0x000001c0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x01c0, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_reserved,
      {"Reserved", "wlan.htc.he.a_control.om.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0x000002c0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0e00, NULL, HFILL }},
 
     {&hf_ieee80211_he_hla_unsolicited_mfb,
      {"Unsolicited MFB", "wlan.htc.he.a_control.hla.unsolicited_mfb",
@@ -31443,23 +31443,23 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_bsr_aci_bitmap,
      {"ACI Bitmap", "wlan.htc.he.a_control.bsr.aci_bitmap",
-      FT_UINT32, BASE_HEX, NULL, 0x00000f, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x0000000f, NULL, HFILL }},
 
     {&hf_ieee80211_he_bsr_delta_tid,
      {"Delta TID", "wlan.htc.he.a_control.bsr.delta_tid",
-      FT_UINT32, BASE_HEX, NULL, 0x000030, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x00000030, NULL, HFILL }},
 
     {&hf_ieee80211_he_bsr_aci_high,
      {"ACI High", "wlan.htc.he.a_control.bsr.aci_high",
-      FT_UINT32, BASE_HEX, NULL, 0x0000c0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x000000c0, NULL, HFILL }},
 
     {&hf_ieee80211_he_bsr_scaling_factor,
      {"Scaling Factor", "wlan.htc.he.a_control.bsr.scaling_factor",
-      FT_UINT32, BASE_HEX, NULL, 0x000300, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x00000300, NULL, HFILL }},
 
     {&hf_ieee80211_he_bsr_queue_size_high,
      {"Queue Size High", "wlan.htc.he.a_control.bsr.queue_size_high",
-      FT_UINT32, BASE_HEX, NULL, 0x03fc00, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x0003fc00, NULL, HFILL }},
 
     {&hf_ieee80211_he_bsr_queue_size_all,
      {"Queue Size All", "wlan.htc.he.a_control.bsr.queue_size_all",
@@ -31467,23 +31467,23 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_uph_ul_power_headroom,
      {"UL Power Headroom", "wlan.htc.he.a_control.uph.ul_power_headroom",
-      FT_UINT32, BASE_DEC, NULL, 0x00000001f, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0x00000001f, NULL, HFILL }},
 
     {&hf_ieee80211_he_uph_ul_min_transmit_power_flag,
      {"Minimum Transmit Power Flag", "wlan.htc.he.a_control.uph.min_transmit_power_flag",
-      FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }},
+      FT_BOOLEAN, 8, NULL, 0x00000020, NULL, HFILL }},
 
     {&hf_ieee80211_he_uph_reserved,
      {"Reserved", "wlan.htc.he.a_control.uph.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0x000000c000, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x000000c0, NULL, HFILL }},
 
     {&hf_ieee80211_he_btc_avail_chan,
      {"Available Channel Bitmap", "wlan.htc.he.a_control.bqr.avail_chan_bitmap",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_btc_reserved,
      {"Reserved", "wlan.htc.he.a_control.bqr.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_cci_ac_constraint,
      {"AC Constraint", "wlan.htc.he.a_control.cci.ac_constraint",
