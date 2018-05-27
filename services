@@ -934,9 +934,9 @@ kshell            544/udp # krcmd
 appleqtcsrvr      545/tcp # appleqtcsrvr [Murali_Ranganathan] [Murali_Ranganathan]
 appleqtcsrvr      545/udp # appleqtcsrvr [Murali_Ranganathan] [Murali_Ranganathan]
 dhcpv6-client     546/tcp # DHCPv6 Client
-dhcpv6-client     546/udp # DHCPv6 Client
-dhcpv6-server     547/tcp # DHCPv6 Server [Jim_Bound] [Jim_Bound]
-dhcpv6-server     547/udp # DHCPv6 Server [Jim_Bound] [Jim_Bound]
+dhcpv6-client     546/udp # DHCPv6 Client [IESG] [IETF_Chair] 2018-05-21 [RFC-ietf-dhc-rfc3315bis-13]
+dhcpv6-server     547/tcp # DHCPv6 Server [IESG] [IETF_Chair] 2018-05-21 [RFC5460]
+dhcpv6-server     547/udp # DHCPv6 Server [IESG] [IETF_Chair] 2018-05-21 [RFC-ietf-dhc-rfc3315bis-13]
 afpovertcp        548/tcp # AFP over TCP [Leland_Wallace] [Leland_Wallace] Defined TXT keys: u=<username> p=<password> path=<path>
 afpovertcp        548/udp # AFP over TCP [Leland_Wallace] [Leland_Wallace] Defined TXT keys: u=<username> p=<password> path=<path>
 idfp              549/tcp # IDFP [Ramana_Kovi] [Ramana_Kovi]
@@ -1135,7 +1135,7 @@ pssc              645/tcp # PSSC [Egon_Meier_Engelen] [Egon_Meier_Engelen]
 pssc              645/udp # PSSC [Egon_Meier_Engelen] [Egon_Meier_Engelen]
 ldp               646/tcp # LDP [Bob_Thomas] [Bob_Thomas]
 ldp               646/udp # LDP [Bob_Thomas] [Bob_Thomas]
-dhcp-failover     647/tcp # DHCP Failover [Bernard_Volz] [Bernard_Volz]
+dhcp-failover     647/tcp # DHCP Failover [IESG] [IETF_Chair] 2018-05-21 [RFC8156]
 dhcp-failover     647/udp # DHCP Failover [Bernard_Volz] [Bernard_Volz]
 rrp               648/tcp # Registry Registrar Protocol (RRP) [Scott_Hollenbeck] [Scott_Hollenbeck]
 rrp               648/udp # Registry Registrar Protocol (RRP) [Scott_Hollenbeck] [Scott_Hollenbeck]

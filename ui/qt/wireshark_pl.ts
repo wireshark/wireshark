@@ -1313,55 +1313,55 @@
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="300"/>
-        <location filename="capture_interfaces_dialog.ui" line="693"/>
+        <location filename="capture_interfaces_dialog.ui" line="696"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
         <translation>megabajty</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="295"/>
-        <location filename="capture_interfaces_dialog.ui" line="688"/>
+        <location filename="capture_interfaces_dialog.ui" line="691"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
         <translation>kilobajty</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="318"/>
-        <location filename="capture_interfaces_dialog.ui" line="656"/>
+        <location filename="capture_interfaces_dialog.ui" line="659"/>
         <source>seconds</source>
         <translation>sekundach</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="323"/>
-        <location filename="capture_interfaces_dialog.ui" line="661"/>
+        <location filename="capture_interfaces_dialog.ui" line="664"/>
         <source>minutes</source>
         <translation>minutach</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="328"/>
-        <location filename="capture_interfaces_dialog.ui" line="666"/>
+        <location filename="capture_interfaces_dialog.ui" line="669"/>
         <source>hours</source>
         <translation>godzin</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="593"/>
-        <location filename="capture_interfaces_dialog.ui" line="741"/>
+        <location filename="capture_interfaces_dialog.ui" line="596"/>
+        <location filename="capture_interfaces_dialog.ui" line="744"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>Zatrzymaj przechwytywanie po przekroczeniu ustalonej liczby pakietów do przechwycenia.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="609"/>
-        <location filename="capture_interfaces_dialog.ui" line="684"/>
+        <location filename="capture_interfaces_dialog.ui" line="612"/>
+        <location filename="capture_interfaces_dialog.ui" line="687"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
         <translation>Zatrzymaj przechwytywanie po przekroczeniu ustalonego rozmiaru danych.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="625"/>
+        <location filename="capture_interfaces_dialog.ui" line="628"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po przekroczeniu ustalonego rozmiaru danych.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="635"/>
+        <location filename="capture_interfaces_dialog.ui" line="638"/>
         <source>packets</source>
         <translation>pakietach</translation>
     </message>
@@ -1449,7 +1449,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="305"/>
-        <location filename="capture_interfaces_dialog.ui" line="698"/>
+        <location filename="capture_interfaces_dialog.ui" line="701"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
         <translation>gigabajty</translation>
@@ -1466,7 +1466,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="417"/>
-        <location filename="capture_interfaces_dialog.ui" line="757"/>
+        <location filename="capture_interfaces_dialog.ui" line="760"/>
         <source>files</source>
         <translation>plików</translation>
     </message>
@@ -1501,70 +1501,68 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Automatyczne przewijanie podczas przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="492"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj okno z informacjami przechwytywania podcas przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj okno z informacjami przechwytywania podcas przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="495"/>
         <source>Show extra capture information dialog</source>
-        <translation>Pokazuj dodatkowy okno z informacjami przechwytywania</translation>
+        <translation type="vanished">Pokazuj dodatkowy okno z informacjami przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="518"/>
+        <location filename="capture_interfaces_dialog.ui" line="521"/>
         <source>Name Resolution</source>
         <translation>Rozwiązywanie nazw</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="527"/>
+        <location filename="capture_interfaces_dialog.ui" line="530"/>
         <source>Perform MAC layer name resolution while capturing.</source>
         <translation>Rozwiązuj nazwy MAC podczas przechwytywania.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="530"/>
+        <location filename="capture_interfaces_dialog.ui" line="533"/>
         <source>Resolve MAC Addresses</source>
         <translation>Rozwiązuj adresy MAC</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="537"/>
+        <location filename="capture_interfaces_dialog.ui" line="540"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rozwiązuj nazwy sieciowe podczas przechwytywanie.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="540"/>
+        <location filename="capture_interfaces_dialog.ui" line="543"/>
         <source>Resolve network names</source>
         <translation>Rozwiązuj nazwy sieciowe</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="547"/>
+        <location filename="capture_interfaces_dialog.ui" line="550"/>
         <source>Perform transport layer name resolution while capturing.</source>
         <translation>Rozwiązuj nazwy transportu podczas przechwytywania.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="550"/>
+        <location filename="capture_interfaces_dialog.ui" line="553"/>
         <source>Resolve transport names</source>
         <translation>Rozwiązuj nazwy transportu</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="578"/>
+        <location filename="capture_interfaces_dialog.ui" line="581"/>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
         <translation>Zatrzymaj przechwytywanie automatycznie po…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="642"/>
-        <location filename="capture_interfaces_dialog.ui" line="652"/>
-        <location filename="capture_interfaces_dialog.ui" line="706"/>
+        <location filename="capture_interfaces_dialog.ui" line="645"/>
+        <location filename="capture_interfaces_dialog.ui" line="655"/>
+        <location filename="capture_interfaces_dialog.ui" line="709"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
         <translation>Zatrzymaj przechwytywanie po upływie ustalonego czasu.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="674"/>
+        <location filename="capture_interfaces_dialog.ui" line="677"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po przekroczeniu ustalonej liczby pakietów do przechwycenia.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="764"/>
+        <location filename="capture_interfaces_dialog.ui" line="767"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po stworzeniu określonej liczby plików.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1589,50 +1587,50 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Wybierz plik przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="621"/>
+        <location filename="capture_interfaces_dialog.cpp" line="615"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="621"/>
+        <location filename="capture_interfaces_dialog.cpp" line="615"/>
         <source>Addresses</source>
         <translation>Adresy</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="621"/>
+        <location filename="capture_interfaces_dialog.cpp" line="615"/>
         <source>Address</source>
         <translation>Adres</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="631"/>
+        <location filename="capture_interfaces_dialog.cpp" line="625"/>
         <source>no addresses</source>
         <translation>brak adresu</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="809"/>
-        <location filename="capture_interfaces_dialog.cpp" line="817"/>
-        <location filename="capture_interfaces_dialog.cpp" line="828"/>
-        <location filename="capture_interfaces_dialog.cpp" line="832"/>
-        <location filename="capture_interfaces_dialog.cpp" line="845"/>
-        <location filename="capture_interfaces_dialog.cpp" line="853"/>
+        <location filename="capture_interfaces_dialog.cpp" line="803"/>
+        <location filename="capture_interfaces_dialog.cpp" line="811"/>
+        <location filename="capture_interfaces_dialog.cpp" line="822"/>
+        <location filename="capture_interfaces_dialog.cpp" line="826"/>
+        <location filename="capture_interfaces_dialog.cpp" line="839"/>
+        <location filename="capture_interfaces_dialog.cpp" line="847"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="810"/>
-        <location filename="capture_interfaces_dialog.cpp" line="818"/>
-        <location filename="capture_interfaces_dialog.cpp" line="846"/>
-        <location filename="capture_interfaces_dialog.cpp" line="854"/>
+        <location filename="capture_interfaces_dialog.cpp" line="804"/>
+        <location filename="capture_interfaces_dialog.cpp" line="812"/>
+        <location filename="capture_interfaces_dialog.cpp" line="840"/>
+        <location filename="capture_interfaces_dialog.cpp" line="848"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>Wiele plików: Żądane wielkość pliku jest zbyt duża! Wielkość pliku nie może być większa niż 2 GiB.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="829"/>
+        <location filename="capture_interfaces_dialog.cpp" line="823"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>Wiele plików: Nie wprowadzono nazwy pliku! Musisz wprowadzić nazwę pliku jeśli zamierzasz używać wielu plików.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="833"/>
+        <location filename="capture_interfaces_dialog.cpp" line="827"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>Wiele plików: Nie ustalono limitu! Musisz ustalić limit wielkości pliku lub czas przechwytywania 
