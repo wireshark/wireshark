@@ -1179,6 +1179,10 @@
         <translation>godzin</translation>
     </message>
     <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>Zatrzymaj przechwytywanie po przekroczeniu ustalonej liczby pakietów do przechwycenia.</translation>
     </message>
@@ -1303,11 +1307,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj okno z informacjami przechwytywania podcas przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show capture information during live capture</source>
-        <oldsource>Show extra capture information dialog</oldsource>
-        <translation type="unfinished">Pokazuj dodatkowy okno z informacjami przechwytywania</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -2862,6 +2861,30 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Sample marked packet text</source>
         <translation>Przykładowy zaznaczony pakiet</translation>
+    </message>
+    <message>
+        <source>Sample active selected item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample inactive selected item</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>

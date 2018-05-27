@@ -1108,22 +1108,22 @@
     <name>CaptureInfoDialog</name>
     <message>
         <source>Capture Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informazioni di cattura</translation>
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferma cattura</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 pacchetti, %2:%3:%4</translation>
     </message>
 </context>
 <context>
     <name>CaptureInfoModel</name>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Altro</translation>
+        <translation>Altro</translation>
     </message>
 </context>
 <context>
@@ -1199,6 +1199,10 @@
     <message>
         <source>hours</source>
         <translation>ore</translation>
+    </message>
+    <message>
+        <source>Show capture information during live capture</source>
+        <translation>Mostra le informazioni di cattura durante l&apos;esecuzione della cattura</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
@@ -1325,11 +1329,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra la finestra di informazioni durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show capture information during live capture</source>
-        <oldsource>Show extra capture information dialog</oldsource>
-        <translation type="unfinished">Mostra la finestra delle informazioni aggiuntive sulla cattura</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -2879,6 +2878,30 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Sample marked packet text</source>
         <translation>Esempio di testo per pacchetto marcato</translation>
+    </message>
+    <message>
+        <source>Sample active selected item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Predefinito</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample inactive selected item</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>

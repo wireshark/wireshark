@@ -1173,6 +1173,10 @@
         <translation>時</translation>
     </message>
     <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>指定したパケット数がキャプチャされた後にキャプチャを停止します</translation>
     </message>
@@ -1297,11 +1301,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にキャプチャ情報画面を表示&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show capture information during live capture</source>
-        <oldsource>Show extra capture information dialog</oldsource>
-        <translation type="unfinished">拡張キャプチャ情報画面を表示</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -2842,6 +2841,30 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Sample marked packet text</source>
         <translation>マークされたパケットテキストのサンプル</translation>
+    </message>
+    <message>
+        <source>Sample active selected item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample inactive selected item</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>

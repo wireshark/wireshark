@@ -25,13 +25,15 @@ editcap: The available encapsulation types for the "-T" flag are:
     dbus - D-Bus
     dct2000 - Catapult DCT2000
     docsis - Data Over Cable Service Interface Specification
-    docsis31_xra31 - DOCSIS31 XRA31
+    docsis31_xra31 - DOCSIS with Excentis XRA pseudo-header
+    dpauxmon - DisplayPort AUX channel with Unigraf pseudo-header
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
     enc - OpenBSD enc(4) encapsulating interface
     epon - Ethernet Passive Optical Network
     erf - Extensible Record Format
     ether - Ethernet
+    ether-mpacket - IEEE 802.3br mPackets
     ether-nettl - Ethernet with nettl headers
     fc2 - Fibre Channel FC-2
     fc2sof - Fibre Channel FC-2 With Frame Delimiter
@@ -81,6 +83,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     juniper-mlppp - Juniper MLPPP
     juniper-ppp - Juniper PPP
     juniper-pppoe - Juniper PPPoE
+    juniper-st - Juniper Secure Tunnel Information
     juniper-svcs - Juniper Services
     juniper-vn - Juniper VN
     juniper-vp - Juniper Voice PIC

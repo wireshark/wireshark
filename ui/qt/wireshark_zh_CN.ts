@@ -1193,6 +1193,10 @@
         <translation>小时</translation>
     </message>
     <message>
+        <source>Show capture information during live capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
@@ -1318,11 +1322,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show capture information during live capture</source>
-        <oldsource>Show extra capture information dialog</oldsource>
-        <translation type="unfinished">显示额外的捕获信息对话框</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -2863,6 +2862,30 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Sample marked packet text</source>
         <translation>标记的分组</translation>
+    </message>
+    <message>
+        <source>Sample active selected item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample inactive selected item</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>
