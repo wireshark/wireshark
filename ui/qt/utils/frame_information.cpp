@@ -60,7 +60,7 @@ void FrameInformation::loadFrameTree()
 FrameInformation::~FrameInformation()
 {
     epan_dissect_cleanup(&edt_);
-    delete(packet_data_);
+    g_free(packet_data_);
 }
 
 bool FrameInformation::isValid()

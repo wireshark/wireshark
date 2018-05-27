@@ -503,6 +503,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     proto_prefs_menu_.setModule(module_name);
 
     QModelIndex ctxIndex = indexAt(event->pos());
+    // frameData will be owned by one of the submenus, see below.
     FrameInformation * frameData =
             new FrameInformation(new CaptureFile(this, cap_file_), packet_list_model_->getRowFdata(ctxIndex.row()));
 
@@ -589,6 +590,8 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     QActionGroup * copyEntries = DataPrinter::copyActions(this, frameData);
     submenu->addActions(copyEntries->actions());
+    copyEntries->setParent(submenu);
+    frameData->setParent(submenu);
 
     ctx_menu_.addSeparator();
     ctx_menu_.addMenu(&proto_prefs_menu_);
