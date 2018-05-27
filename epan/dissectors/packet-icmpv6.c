@@ -3344,10 +3344,10 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
 
             /* UsePrefix */
             proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_useprefix, tvb, rr_offset, 16, ENC_NA);
-            rr_offset += 16;
 
             /* Add Info (Prefix, Length...) to Use Prefix Part label */
             proto_item_append_text(ti_up, ": %s/%u (keep %u)", tvb_ip6_to_str(tvb, rr_offset), uselen, keeplen);
+            rr_offset += 16;
         }
 
     }else if(icmp6_code == ICMP6_ROUTER_RENUMBERING_RESULT){
