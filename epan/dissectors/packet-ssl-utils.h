@@ -1987,6 +1987,14 @@ ssl_common_dissect_t name = {   \
 /* }}} */
 
 extern void
+ssl_common_register_ssl_alpn_dissector_table(const char *name,
+    const char *ui_name, const int proto);
+
+extern void
+ssl_common_register_dtls_alpn_dissector_table(const char *name,
+    const char *ui_name, const int proto);
+
+extern void
 ssl_common_register_options(module_t *module, ssl_common_options_t *options);
 
 #ifdef SSL_DECRYPT_DEBUG

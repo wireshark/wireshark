@@ -4647,6 +4647,10 @@ proto_register_ssl(void)
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */
     ssl_heur_subdissector_list = register_heur_dissector_list("ssl", proto_ssl);
 
+    ssl_common_register_ssl_alpn_dissector_table("ssl.handshake.extensions_alpn_str",
+        "SSL/TLS Application-Layer Protocol Negotiation (ALPN) Protocol IDs",
+        proto_ssl);
+
     ssl_handle = register_dissector("ssl", dissect_ssl, proto_ssl);
 
     register_init_routine(ssl_init);

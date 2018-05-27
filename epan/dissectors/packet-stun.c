@@ -1731,6 +1731,13 @@ proto_reg_handoff_stun(void)
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_STUN, stun_udp_handle);
 
+    /*
+     * SSL/TLS and DTLS Application-Layer Protocol Negotiation (ALPN)
+     * protocol ID.
+     */
+    dissector_add_string("ssl.handshake.extensions_alpn_str", "stun.nat-discovery", stun_tcp_handle);
+    dissector_add_string("dtls.handshake.extensions_alpn_str", "stun.nat-discovery", stun_udp_handle);
+
     heur_dissector_add("udp", dissect_stun_heur, "STUN over UDP", "stun_udp", proto_stun, HEURISTIC_ENABLE);
 
     data_handle = find_dissector("data");

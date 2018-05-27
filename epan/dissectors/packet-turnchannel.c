@@ -202,6 +202,13 @@ proto_reg_handoff_turnchannel(void)
 	dissector_add_for_decode_as_with_preference("tcp.port", turnchannel_tcp_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", turnchannel_udp_handle);
 
+	/*
+	 * SSL/TLS and DTLS Application-Layer Protocol Negotiation (ALPN)
+	 * protocol ID.
+	 */
+	dissector_add_string("ssl.handshake.extensions_alpn_str", "stun.turn", turnchannel_tcp_handle);
+	dissector_add_string("dtls.handshake.extensions_alpn_str", "stun.turn", turnchannel_udp_handle);
+
 	/* TURN negotiation is handled through STUN2 dissector (packet-stun.c),
 	   so only it should be able to determine if a packet is a TURN packet */
 	heur_dissector_add("stun", dissect_turnchannel_heur, "TURN Channel over STUN", "turnchannel_stun", proto_turnchannel, HEURISTIC_ENABLE);

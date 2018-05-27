@@ -1402,39 +1402,26 @@ static const bytes_string ct_logids[] = {
 };
 
 /*
- * http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids
+ * Application-Layer Protocol Negotiation (ALPN) dissector tables.
  */
-/* string_string is inappropriate as it compares strings while
- * "byte strings MUST NOT be truncated" (RFC 7301) */
-typedef struct ssl_alpn_protocol {
-    const char      *proto_name;
-    gboolean         match_exact;
-    const char      *dissector_name;
-} ssl_alpn_protocol_t;
+static dissector_table_t ssl_alpn_dissector_table;
+static dissector_table_t dtls_alpn_dissector_table;
 
 /*
- * For SSL/TLS; the dissectors should handle running atop a byte-stream
- * protocol such as TCP.
+ * Special cases for prefix matching of the ALPN, if the ALPN includes
+ * a version number for a draft or protocol revision.
  */
-static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
-    { "http/1.1",           TRUE,   "http" },
+typedef struct ssl_alpn_prefix_match_protocol {
+    const char      *proto_prefix;
+    const char      *dissector_name;
+} ssl_alpn_prefix_match_protocol_t;
+
+static const ssl_alpn_prefix_match_protocol_t ssl_alpn_prefix_match_protocols[] = {
     /* SPDY moves so fast, just 1, 2 and 3 are registered with IANA but there
      * already exists 3.1 as of this writing... match the prefix. */
-    { "spdy/",              FALSE,  "spdy" },
-    { "stun.turn",          TRUE,   "turnchannel-tcp" }, /* RFC 7443 */
-    { "stun.nat-discovery", TRUE,   "stun-tcp" },        /* RFC 7443 */
+    { "spdy/",              "spdy" },
     /* draft-ietf-httpbis-http2-16 */
-    { "h2-",                FALSE,  "http2" }, /* draft versions */
-    { "h2",                 TRUE,   "http2" }, /* final version */
-};
-
-/*
- * For DTLS; the dissectors should handle running atop a datagram
- * protocol such as UDP.
- */
-static const ssl_alpn_protocol_t dtls_alpn_protocols[] = {
-    { "stun.turn",          TRUE,   "turnchannel" }, /* RFC 7443 */
-    { "stun.nat-discovery", TRUE,   "stun-udp" },    /* RFC 7443 */
+    { "h2-",                "http2" }, /* draft versions */
 };
 
 const value_string quic_transport_parameter_id[] = {
@@ -5893,9 +5880,6 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_item *ti;
     guint32     next_offset, alpn_length, name_length;
     guint8     *proto_name = NULL;
-    guint32     proto_name_length = 0;
-    const ssl_alpn_protocol_t *alpn_protocols;
-    size_t      n_alpn_protocols;
 
     /* ProtocolName protocol_name_list<2..2^16-1> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &alpn_length,
@@ -5923,9 +5907,10 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                             tvb, offset, name_length, ENC_ASCII|ENC_NA);
         /* Remember first ALPN ProtocolName entry for server. */
         if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS) {
-            proto_name_length = name_length;
+            /* '\0'-terminated string for dissector table match and prefix
+             * comparison purposes. */
             proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
-                                            proto_name_length, ENC_ASCII);
+                                            name_length, ENC_ASCII);
         }
         offset += name_length;
     }
@@ -5933,30 +5918,37 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* If ALPN is given in ServerHello, then ProtocolNameList MUST contain
      * exactly one "ProtocolName". */
     if (proto_name) {
-        alpn_protocols = is_dtls ? dtls_alpn_protocols : ssl_alpn_protocols;
-        n_alpn_protocols = is_dtls ? G_N_ELEMENTS(dtls_alpn_protocols) : G_N_ELEMENTS(ssl_alpn_protocols);
-        /* '\0'-terminated string for prefix/full string comparison purposes. */
-        for (size_t i = 0; i < n_alpn_protocols; i++) {
-            const ssl_alpn_protocol_t *alpn_proto = &alpn_protocols[i];
+        dissector_handle_t handle;
 
-            if ((alpn_proto->match_exact &&
-                        proto_name_length == strlen(alpn_proto->proto_name) &&
-                        !strcmp(proto_name, alpn_proto->proto_name)) ||
-                (!alpn_proto->match_exact && g_str_has_prefix(proto_name, alpn_proto->proto_name))) {
+        if (is_dtls) {
+            handle = dissector_get_string_handle(dtls_alpn_dissector_table,
+                                                 proto_name);
+        } else {
+            handle = dissector_get_string_handle(ssl_alpn_dissector_table,
+                                                 proto_name);
+            if (handle == NULL) {
+                /* Try prefix matching */
+                for (size_t i = 0; i < G_N_ELEMENTS(ssl_alpn_prefix_match_protocols); i++) {
+                    const ssl_alpn_prefix_match_protocol_t *alpn_proto = &ssl_alpn_prefix_match_protocols[i];
 
-                dissector_handle_t handle;
-                /* ProtocolName match, so set the App data dissector handle.
-                 * This may override protocols given via the UAT dialog, but
-                 * since the ALPN hint is precise, do it anyway. */
-                handle = ssl_find_appdata_dissector(alpn_proto->dissector_name);
-                ssl_debug_printf("%s: changing handle %p to %p (%s)", G_STRFUNC,
-                                 (void *)session->app_handle,
-                                 (void *)handle, alpn_proto->dissector_name);
-                /* if dissector is disabled, do not overwrite previous one */
-                if (handle)
-                    session->app_handle = handle;
-                break;
+                    /* string_string is inappropriate as it compares strings
+                     * while "byte strings MUST NOT be truncated" (RFC 7301) */
+                    if (g_str_has_prefix(proto_name, alpn_proto->proto_prefix)) {
+                        handle = find_dissector(alpn_proto->dissector_name);
+                        break;
+                    }
+                }
             }
+        }
+        if (handle != NULL) {
+            /* ProtocolName match, so set the App data dissector handle.
+             * This may override protocols given via the UAT dialog, but
+             * since the ALPN hint is precise, do it anyway. */
+            ssl_debug_printf("%s: changing handle %p to %p (%s)", G_STRFUNC,
+                             (void *)session->app_handle,
+                             (void *)handle,
+                             dissector_handle_get_dissector_name(handle));
+            session->app_handle = handle;
         }
     }
 
@@ -8752,6 +8744,22 @@ tls13_dissect_hnd_key_update(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      *  } KeyUpdate;
      */
     proto_tree_add_item(tree, hf->hf.hs_key_update_request_update, tvb, offset, 1, ENC_NA);
+}
+
+void
+ssl_common_register_ssl_alpn_dissector_table(const char *name,
+    const char *ui_name, const int proto)
+{
+    ssl_alpn_dissector_table = register_dissector_table(name, ui_name,
+        proto, FT_STRING, FALSE);
+}
+
+void
+ssl_common_register_dtls_alpn_dissector_table(const char *name,
+    const char *ui_name, const int proto)
+{
+    dtls_alpn_dissector_table = register_dissector_table(name, ui_name,
+        proto, FT_STRING, FALSE);
 }
 
 void
