@@ -15700,11 +15700,11 @@ dissect_a_control_cci(proto_tree *tree, tvbuff_t *tvb, int offset,
                                 ett_ieee80211_control_cci,
                                 NULL, "Command Control Indication: 0x%02x", the_bits);
 
-  proto_tree_add_uint(cci_tree, hf_ieee80211_he_cci_ac_constraint, tvb,
+  proto_tree_add_boolean(cci_tree, hf_ieee80211_he_cci_ac_constraint, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_uint(cci_tree, hf_ieee80211_he_cci_rdg_more_ppdu, tvb,
+  proto_tree_add_boolean(cci_tree, hf_ieee80211_he_cci_rdg_more_ppdu, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_uint(cci_tree, hf_ieee80211_he_cci_sr_ppdu_indic, tvb,
+  proto_tree_add_boolean(cci_tree, hf_ieee80211_he_cci_sr_ppdu_indic, tvb,
                         offset, 4, the_bits);
   proto_tree_add_uint(cci_tree, hf_ieee80211_he_cci_reserved, tvb,
                         offset, 4, the_bits);
@@ -31491,7 +31491,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_cci_rdg_more_ppdu,
      {"RDG/More PPDU", "wlan.htc.he.a_control.cci.rdg_more_ppdu",
-      FT_BOOLEAN,32, NULL, 0x02, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_he_cci_sr_ppdu_indic,
      {"SR PPDU Indication", "wlan.htc.he.a_control.cci.sr_ppdu_indic",
