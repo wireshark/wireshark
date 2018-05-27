@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-05-18)
+# (last updated 2018-05-26)
 
 0	Reserved
 1	NxNetworks
@@ -3230,7 +3230,7 @@
 3226	France Connexion Ingenierie
 3227	NetLeader, Inc.
 3228	Tekmar Sistemi s.r.l.
-3229	DSTC
+3229	QUT - DSTC
 3230	Runtop Inc.
 3231	L-3 Communications
 3232	Eumetsat
@@ -7527,7 +7527,7 @@
 7544	Wirelink Co., Ltd.
 7545	QoSBA Systems Co., Ltd.
 7546	AXXESSIT ASA
-7547	CSIC/RedIRIS
+7547	RedIRIS	# formerly 'CSIC/RedIRIS'
 7548	Netcentric Systems Ltd.
 7549	DataCenterDirect.com, Inc.
 7550	Delta Data Software
@@ -35093,7 +35093,7 @@
 35259	Televersions LLC.
 35260	Rotkraut
 35261	Norwegian Defence
-35262	Versorgungs- und Verkehrsgesellschaft Saarbrücken mbH
+35262	Stadtwerke Saarbruecken GmbH	# formerly 'Versorgungs- und Verkehrsgesellschaft Saarbruecken mbH'
 35263	Araneo Limited
 35264	TetraStorm Technologies
 35265	Eltex Enterprise, Ltd.
@@ -51823,3 +51823,44 @@
 52009	Oakland Unified School District
 52010	Westmoreland Casemanagement and Supports, Inc.
 52011	Stolon
+52012	Rodmyre Technology
+52013	Hanalytics Pte Ltd.
+52014	Volkswagen Group Rus
+52015	Sabinet Online
+52016	Saab AB, Maritime Traffic Management
+52017	OOO FPK "Kosmos-Neft-Gaz"
+52018	A.D.SION Info Santé
+52019	littlemore.me.uk
+52020	Havana University
+52021	ITR Services EOOD
+52022	Spacynet
+52023	Yeraz
+52024	T-Mobile USA
+52025	AlticeUSA
+52026	Jishi Medical Tech. Co., Ltd.
+52027	Abilities Limited
+52028	Hebei Mota Electronic Technology Co., Ltd.
+52029	Kleberg Bank NA
+52030	Cross Link Group
+52031	iTreatMD Inc.
+52032	New Relic Inc
+52033	Hangzhou Youshi Industry Co., Ltd.
+52034	DEVELICT Solutions s.r.o.
+52035	Profitt ltd.
+52036	Bertil Ytterbom Skog AB
+52037	Remota Tecnologia em Comunicação
+52038	Community Colleges of Spokane
+52039	BHK Child Development Board
+52040	Torin J. Carey
+52041	Institute for Network Sciences and Cyberspace, Tsinghua University
+52042	e-Contract.be BVBA
+52043	Thüga Energienetze GmbH
+52044	AMHP - ASSOCIACAO DOS MEDICOS DE HOSPITAIS PRIVADOS DO DF
+52045	Solar Monitor s.r.o.
+52046	PAE
+52047	Jennason, LLC
+52048	Rob Andrews Consulting
+52049	Olle i Od åkeri AB
+52050	infinite io, Inc.
+52051	SHAPE Australia
+52052	SCA Energy

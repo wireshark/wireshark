@@ -1298,14 +1298,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show extra capture information dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name Resolution</source>
         <translation type="unfinished"></translation>
     </message>
