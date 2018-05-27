@@ -1359,55 +1359,55 @@
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="300"/>
-        <location filename="capture_interfaces_dialog.ui" line="693"/>
+        <location filename="capture_interfaces_dialog.ui" line="696"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
         <translation>兆字节</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="295"/>
-        <location filename="capture_interfaces_dialog.ui" line="688"/>
+        <location filename="capture_interfaces_dialog.ui" line="691"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
         <translation>千字节</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="318"/>
-        <location filename="capture_interfaces_dialog.ui" line="656"/>
+        <location filename="capture_interfaces_dialog.ui" line="659"/>
         <source>seconds</source>
         <translation>秒</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="323"/>
-        <location filename="capture_interfaces_dialog.ui" line="661"/>
+        <location filename="capture_interfaces_dialog.ui" line="664"/>
         <source>minutes</source>
         <translation>分钟</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="328"/>
-        <location filename="capture_interfaces_dialog.ui" line="666"/>
+        <location filename="capture_interfaces_dialog.ui" line="669"/>
         <source>hours</source>
         <translation>小时</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="593"/>
-        <location filename="capture_interfaces_dialog.ui" line="741"/>
+        <location filename="capture_interfaces_dialog.ui" line="596"/>
+        <location filename="capture_interfaces_dialog.ui" line="744"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="609"/>
-        <location filename="capture_interfaces_dialog.ui" line="684"/>
+        <location filename="capture_interfaces_dialog.ui" line="612"/>
+        <location filename="capture_interfaces_dialog.ui" line="687"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
         <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="625"/>
+        <location filename="capture_interfaces_dialog.ui" line="628"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="635"/>
+        <location filename="capture_interfaces_dialog.ui" line="638"/>
         <source>packets</source>
         <translation>分组</translation>
     </message>
@@ -1496,7 +1496,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="305"/>
-        <location filename="capture_interfaces_dialog.ui" line="698"/>
+        <location filename="capture_interfaces_dialog.ui" line="701"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
         <translation>千兆字节</translation>
@@ -1513,7 +1513,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="417"/>
-        <location filename="capture_interfaces_dialog.ui" line="757"/>
+        <location filename="capture_interfaces_dialog.ui" line="760"/>
         <source>files</source>
         <translation>文件</translation>
     </message>
@@ -1548,70 +1548,68 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>实时捕获时自动滚屏</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="492"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="495"/>
         <source>Show extra capture information dialog</source>
-        <translation>显示额外的捕获信息对话框</translation>
+        <translation type="vanished">显示额外的捕获信息对话框</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="518"/>
+        <location filename="capture_interfaces_dialog.ui" line="521"/>
         <source>Name Resolution</source>
         <translation>解析名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="527"/>
+        <location filename="capture_interfaces_dialog.ui" line="530"/>
         <source>Perform MAC layer name resolution while capturing.</source>
         <translation>在捕获期间进行 MAC 层名称解析。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="530"/>
+        <location filename="capture_interfaces_dialog.ui" line="533"/>
         <source>Resolve MAC Addresses</source>
         <translation>MAC地址解析</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="537"/>
+        <location filename="capture_interfaces_dialog.ui" line="540"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获期间进行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="540"/>
+        <location filename="capture_interfaces_dialog.ui" line="543"/>
         <source>Resolve network names</source>
         <translation>解析网络名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="547"/>
+        <location filename="capture_interfaces_dialog.ui" line="550"/>
         <source>Perform transport layer name resolution while capturing.</source>
         <translation>在捕获期间进行传输层名称解析。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="550"/>
+        <location filename="capture_interfaces_dialog.ui" line="553"/>
         <source>Resolve transport names</source>
         <translation>解析传输层名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="578"/>
+        <location filename="capture_interfaces_dialog.ui" line="581"/>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
         <translation>自动停止捕获，在经过…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="642"/>
-        <location filename="capture_interfaces_dialog.ui" line="652"/>
-        <location filename="capture_interfaces_dialog.ui" line="706"/>
+        <location filename="capture_interfaces_dialog.ui" line="645"/>
+        <location filename="capture_interfaces_dialog.ui" line="655"/>
+        <location filename="capture_interfaces_dialog.ui" line="709"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
         <translation>经过指定的时间后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="674"/>
+        <location filename="capture_interfaces_dialog.ui" line="677"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="764"/>
+        <location filename="capture_interfaces_dialog.ui" line="767"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;创建的文件超过指定数量后停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1636,52 +1634,52 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>指定捕获文件</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="682"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="682"/>
         <source>Addresses</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="682"/>
         <source>Address</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="698"/>
+        <location filename="capture_interfaces_dialog.cpp" line="692"/>
         <source>no addresses</source>
         <translation>无地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="878"/>
-        <location filename="capture_interfaces_dialog.cpp" line="886"/>
-        <location filename="capture_interfaces_dialog.cpp" line="897"/>
-        <location filename="capture_interfaces_dialog.cpp" line="901"/>
-        <location filename="capture_interfaces_dialog.cpp" line="914"/>
-        <location filename="capture_interfaces_dialog.cpp" line="922"/>
+        <location filename="capture_interfaces_dialog.cpp" line="872"/>
+        <location filename="capture_interfaces_dialog.cpp" line="880"/>
+        <location filename="capture_interfaces_dialog.cpp" line="891"/>
+        <location filename="capture_interfaces_dialog.cpp" line="895"/>
+        <location filename="capture_interfaces_dialog.cpp" line="908"/>
+        <location filename="capture_interfaces_dialog.cpp" line="916"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="879"/>
-        <location filename="capture_interfaces_dialog.cpp" line="887"/>
-        <location filename="capture_interfaces_dialog.cpp" line="915"/>
-        <location filename="capture_interfaces_dialog.cpp" line="923"/>
+        <location filename="capture_interfaces_dialog.cpp" line="873"/>
+        <location filename="capture_interfaces_dialog.cpp" line="881"/>
+        <location filename="capture_interfaces_dialog.cpp" line="909"/>
+        <location filename="capture_interfaces_dialog.cpp" line="917"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
         <translation>多文件：请求文件尺寸太大。文件尺寸不能超过 2 GiB。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="898"/>
+        <location filename="capture_interfaces_dialog.cpp" line="892"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
         <translation>多文件：没有给出捕获文件名。如果您想使用多个文件，必须指定一个文件名。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="902"/>
+        <location filename="capture_interfaces_dialog.cpp" line="896"/>
         <source>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file

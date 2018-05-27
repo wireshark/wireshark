@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-05-18)
+(last updated 2018-05-26)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -12922,9 +12922,9 @@ Decimal
     Andrea Sarneri
       lab&tekmar.it
 3229
-  DSTC
+  QUT - DSTC
     Dean Povey
-      security&dstc.qut.edu.au
+      qut-domain-admin&qut.edu.au
 3230
   Runtop Inc.
     David Wang
@@ -30142,9 +30142,9 @@ Decimal
     Jon Erik E. Jensen
       jon.erik.jensen&axxessit.no
 7547
-  CSIC/RedIRIS
-    Victor Castelo
-      victor.castelo&rediris.es
+  RedIRIS (formerly 'CSIC/RedIRIS')
+    Javier Masa
+      javier.masa&rediris.es
 7548
   Netcentric Systems Ltd.
     Keith Garrett
@@ -34940,7 +34940,7 @@ Decimal
 8746
   Queensland University of Technology
     Alan Agnew
-      A.Agnew&qut.edu.au
+      qut-domain-admin&qut.edu.au
 8747
   Libelle AG
     Hans-Joachim Krueger
@@ -111480,8 +111480,8 @@ Decentralization / Helenic Public Administra
       bpontillo&mcsfr.com
 27975
   Centec Networks Inc.
-    Zhang Jian-bo
-      jzhang&centecnetworks.com
+    Alexander Liu
+      xliu&centecnetworks.com
 27976
   GEO CONCEPT SA
     M. HOUDAS Olivier
@@ -140627,9 +140627,9 @@ Decentralization / Helenic Public Administra
     Sturla Moller
       sturlam&gmail.com
 35262
-  Versorgungs- und Verkehrsgesellschaft Saarbrücken mbH
+  Stadtwerke Saarbruecken GmbH (formerly 'Versorgungs- und Verkehrsgesellschaft Saarbruecken mbH')
     Bernd Kraus
-      b.kraus&vvs-konzern.de
+      bernd.kraus&sw-sb.de
 35263
   Araneo Limited
     Nathan Ward
@@ -152297,8 +152297,8 @@ Decentralization / Helenic Public Administra
       lchinnakotla&skytide.com
 38179
   Bard College
-    Damion Alexander
-      dalexand&bard.edu
+    David Brangaitis
+      dbrangaitis&bard.edu
 38180
   Kangaroo Media Inc.
     Pedro Costa
@@ -207614,7 +207614,7 @@ Decentralization / Helenic Public Administra
 52008
   Alliance Development Fund
     Jason Stroup
-      jstroup&adf-inc.com
+      infrastructure&adf-inc.com
 52009
   Oakland Unified School District
     Daniel Augustine
@@ -207627,6 +207627,170 @@ Decentralization / Helenic Public Administra
   Stolon
     Lacoste Damien
       damien&lacoste.io
+52012
+  Rodmyre Technology
+    Brian Rodmyre
+      brian&rodmyretechnology.com
+52013
+  Hanalytics Pte Ltd.
+    Mok Ming Foong
+      ethan.mok&hanalytics.sg
+52014
+  Volkswagen Group Rus
+    Mazurenko Andrey
+      andrej.mazurenko&volkswagen-rus.ru
+52015
+  Sabinet Online
+    Wynand Meijer
+      dba&sabinet.co.za
+52016
+  Saab AB, Maritime Traffic Management
+    Johan Vik
+      support.transpondertech&saabgroup.com
+52017
+  OOO FPK "Kosmos-Neft-Gaz"
+    Grigorov Konstantin
+      grigorov&kng.vrn.ru
+52018
+  A.D.SION Info Santé
+    Guillaume Girard
+      tech&adsion.fr
+52019
+  littlemore.me.uk
+    Paul Littlemore
+      webmaster&littlemore.me.uk
+52020
+  Havana University
+    Victor Puentes
+      v.puentes&estudiantes.matcom.uh.cu
+52021
+  ITR Services EOOD
+    Oleg Ivanov
+      oleg&itrservices.eu
+52022
+  Spacynet
+    Daniel Bhalla
+      Dbhalla&spacydesign.de
+52023
+  Yeraz
+    Quintard Jérôme 
+      jquintard&yeraz.fr
+52024
+  T-Mobile USA
+    Yanfeng Lu (Alex)
+      yanfeng.lu&t-mobile.com
+52025
+  AlticeUSA
+    John Solarino
+      john.solarino&alticeusa.com
+52026
+  Jishi Medical Tech. Co., Ltd.
+    Rex Chen
+      ichenrs&126.com
+52027
+  Abilities Limited
+    Connor Spencer Harries
+      connor.harries&abilities.org.uk
+52028
+  Hebei Mota Electronic Technology Co., Ltd.
+    Wang ShuHua
+      18931159311&163.com
+52029
+  Kleberg Bank NA
+    Jimmie Locklear
+      jimmie.locklear&klebergbank.com
+52030
+  Cross Link Group
+    Joseph Clark
+      infrastructure&crosslinkgroup.com
+52031
+  iTreatMD Inc.
+    George Krucik
+      george&itreatmd.com
+52032
+  New Relic Inc
+    Prakash Reddy
+      preddy&newrelic.com
+52033
+  Hangzhou Youshi Industry Co., Ltd.
+    Huang Yikun
+      hyk&lte-m.cn
+52034
+  DEVELICT Solutions s.r.o.
+    Zdeněk Lokaj
+      info&develict.com
+52035
+  Profitt ltd.
+    Alexey Sizyukhin
+      alexs&profitt.ru
+52036
+  Bertil Ytterbom Skog AB
+    Fredrik Ytterbom
+      fredrik&ostanskar.se
+52037
+  Remota Tecnologia em Comunicação
+    Jean Nack
+      jean&remotatec.com.br
+52038
+  Community Colleges of Spokane
+    Thomas Ingle
+      thomas.ingle&ccs.spokane.edu
+52039
+  BHK Child Development Board
+    Dave Anderson
+      admin&bhkfirst.org
+52040
+  Torin J. Carey
+    Torin J. Carey
+      penmaster&tcarey.uk
+52041
+  Institute for Network Sciences and Cyberspace, Tsinghua University
+    Lin He
+      he-l14&mails.tsinghua.edu.cn
+52042
+  e-Contract.be BVBA
+    Frank Cornelis
+      info&e-contract.be
+52043
+  Thüga Energienetze GmbH
+    IT Operations
+      it-operations&thuega-netze.de
+52044
+  AMHP - ASSOCIACAO DOS MEDICOS DE HOSPITAIS PRIVADOS DO DF
+    Marcelo S Mota
+      informatica&amhp.com.br
+52045
+  Solar Monitor s.r.o.
+    Dusan Ferbas
+      dferbas&solarmonitor.cz
+52046
+  PAE
+    MIS
+      mis&pae.com
+52047
+  Jennason, LLC
+    Scott Pugh
+      scott.pugh&jennason.com
+52048
+  Rob Andrews Consulting
+    Rob Andrews
+      roba&r-andrews.net
+52049
+  Olle i Od åkeri AB
+    Patrik Wernklev
+      Olleiod&telia.com
+52050
+  infinite io, Inc.
+    Jay Rolette
+      rolette&infinite.io
+52051
+  SHAPE Australia
+    Zac Avramides
+      Zac.Avramides&shapegroup.com.au
+52052
+  SCA Energy
+    Magnus Tjärnskog
+      magnus.tjarnskog&sca.com
 
 
 End of Document
