@@ -1012,6 +1012,7 @@ static const value_string set_param_req_skin_id[] = {
     {0x02   , "Rainbow"},
     {0x03   , "Crystal"},
     {0x04   , "Luxury"},
+    {0x05   , "Release"},
     {0, NULL}
 };
 
