@@ -1069,8 +1069,8 @@ static const value_string ip_device_routing_cmd_freeseating_vals[] = {
 
 static const value_string ip_device_routing_tone_direction_vals[] = {
     {0x00, "On The Phone"},
-    {0x40, "To The Network"},
-    {0x80, "On The Phone and To The Network"},
+    {0x01, "To The Network"},
+    {0x02, "On The Phone and To The Network"},
     {0, NULL}
 };
 
@@ -1450,10 +1450,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     case 0x05: /* START TONE */
         {
             guint8 ii;
-            guint8 tone_nb_entries = tvb_get_guint8(tvb, offset);
+            guint32 tone_nb_entries;
 
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN, &tone_nb_entries);
             offset++;
             length--;
 
@@ -4445,7 +4445,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_def_tones_frequency_2, { "Frequency 2 (Hz)", "ua3g.ip.def_tones.frequency_2", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_def_tones_level_2, { "Level 2 (dB)", "ua3g.ip.def_tones.level_2", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_tone_direction, { "Direction", "ua3g.ip.start_tone.direction", FT_UINT8, BASE_DEC, VALS(ip_device_routing_tone_direction_vals), 0xC0, NULL, HFILL }},
-        { &hf_ua3g_ip_device_routing_start_tone_num_entries, { "Number of entries", "ua3g.ip.start_tone.num_entries", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_start_tone_num_entries, { "Number of entries", "ua3g.ip.start_tone.num_entries", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_tone_identification, { "Identification", "ua3g.ip.start_tone.identification", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_tone_duration, { "Duration (ms)", "ua3g.ip.start_tone.duration", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_listen_rtp_parameter, { "Parameter", "ua3g.ip.listen_rtp.parameter", FT_UINT8, BASE_HEX, VALS(ip_device_routing_cmd_listen_rtp_vals), 0x0, NULL, HFILL }},
