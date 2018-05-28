@@ -5712,6 +5712,11 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
     else                        is_little_endian = TRUE;
 
 
+    /* Make sure we have all the bytes of the item; this should throw
+       and exception if vl_max is so large that it causes the offset
+       to overflow. */
+    tvb_ensure_bytes_exist(tvb, offset, vl_max);
+
     /* ---------------------------------------------------------------------------
        Potentially long types. Obey vl_max
        ---------------------------------------------------------------------------
