@@ -44,15 +44,14 @@ free_first(gpointer data, gpointer user_data _U_)
 }
 
 static void
-tsn_free(gpointer data, gpointer user_data _U_)
+tsn_free(gpointer data)
 {
     tsn_t *tsn;
 
     tsn = (tsn_t *) data;
     if (tsn->tsns != NULL)
     {
-        g_list_foreach(tsn->tsns, free_first, NULL);
-        g_list_free(tsn->tsns);
+        g_list_free_full(tsn->tsns, g_free);
     }
     free_address(&tsn->src);
     free_address(&tsn->dst);
@@ -60,7 +59,7 @@ tsn_free(gpointer data, gpointer user_data _U_)
 }
 
 static void
-chunk_free(gpointer data, gpointer user_data _U_)
+chunk_free(gpointer data)
 {
     sctp_addr_chunk *chunk = (sctp_addr_chunk *) data;
 
@@ -69,7 +68,7 @@ chunk_free(gpointer data, gpointer user_data _U_)
 }
 
 static void
-store_free(gpointer data, gpointer user_data _U_)
+store_free(gpointer data)
 {
     address *addr = (address *) data;
 
@@ -91,22 +90,19 @@ reset(void *arg)
 
         if (info->addr1 != NULL)
         {
-            g_list_foreach(info->addr1, store_free, NULL);
-            g_list_free(info->addr1);
+            g_list_free_full(info->addr1, store_free);
             info->addr1 = NULL;
         }
 
         if (info->addr2 != NULL)
         {
-            g_list_foreach(info->addr2, store_free, NULL);
-            g_list_free(info->addr2);
+            g_list_free_full(info->addr2, store_free);
             info->addr2 = NULL;
         }
 
         if (info->error_info_list != NULL)
         {
-            g_list_foreach(info->error_info_list, free_first, NULL);
-            g_list_free(info->error_info_list);
+            g_list_free_full(info->error_info_list, g_free);
             info->error_info_list = NULL;
         }
 
@@ -118,29 +114,25 @@ reset(void *arg)
 
         if (info->tsn1 != NULL)
         {
-            g_list_foreach(info->tsn1, tsn_free, NULL);
-            g_list_free(info->tsn1);
+            g_list_free_full(info->tsn1, tsn_free);
             info->tsn1 = NULL;
         }
 
         if (info->tsn2 != NULL)
         {
-            g_list_foreach(info->tsn2, tsn_free, NULL);
-            g_list_free(info->tsn2);
+            g_list_free_full(info->tsn2, tsn_free);
             info->tsn2 = NULL;
         }
 
         if (info->sack1 != NULL)
         {
-            g_list_foreach(info->sack1, tsn_free, NULL);
-            g_list_free(info->sack1);
+            g_list_free_full(info->sack1, tsn_free);
             info->sack1 = NULL;
         }
 
         if (info->sack2 != NULL)
         {
-            g_list_foreach(info->sack2, tsn_free, NULL);
-            g_list_free(info->sack2);
+            g_list_free_full(info->sack2, tsn_free);
             info->sack2 = NULL;
         }
 
@@ -163,8 +155,7 @@ reset(void *arg)
         }
 
         if (info->addr_chunk_count) {
-            g_list_foreach(info->addr_chunk_count, chunk_free, NULL);
-            g_list_free(info->addr_chunk_count);
+            g_list_free_full(info->addr_chunk_count, chunk_free);
         }
 
         g_free(info->dir1);
@@ -1227,9 +1218,9 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         info->n_packets++;
     }
     if (tsn && !tsn_used)
-        tsn_free(tsn, NULL);
+        tsn_free(tsn);
     if (sack && !sack_used)
-        tsn_free(sack, NULL);
+        tsn_free(sack);
     free_address(&tmp_info.src);
     free_address(&tmp_info.dst);
     return TRUE;
