@@ -312,7 +312,6 @@ static int hf_gtp_home_enodeb_id = -1;
 static int hf_gtp_dummy_octets = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static int hf_gtp_ggsn_2_address_ipv4 = -1;
 static int hf_gtp_rfsp_index = -1;
 static int hf_gtp_quintuplet_ciphering_key = -1;
 static int hf_gtp_kc = -1;
@@ -323,7 +322,10 @@ static int hf_gtp_container_length = -1;
 static int hf_gtp_quintuplets_length = -1;
 static int hf_gtp_auth = -1;
 static int hf_gtp_tft_length = -1;
-static int hf_gtp_ggsn_address_for_control_plane = -1;
+static int hf_gtp_ggsn_address_for_control_plane_ipv4 = -1;
+static int hf_gtp_ggsn_address_for_control_plane_ipv6 = -1;
+static int hf_gtp_ggsn_address_for_user_traffic_ipv4 = -1;
+static int hf_gtp_ggsn_address_for_user_traffic_ipv6 = -1;
 static int hf_gtp_integrity_key_ik = -1;
 static int hf_gtp_gsn_address_information_element_length = -1;
 static int hf_gtp_reordering_required = -1;
@@ -340,11 +342,9 @@ static int hf_gtp_xres_length = -1;
 static int hf_gtp_ggsn_address_length = -1;
 static int hf_gtp_apn_length = -1;
 static int hf_gtp_sequence_number_down = -1;
-static int hf_gtp_ggsn_2_address_ipv6 = -1;
 static int hf_gtp_pdp_address_ipv4 = -1;
 static int hf_gtp_activity_status_indicator = -1;
 static int hf_gtp_pdp_type = -1;
-static int hf_gtp_ggsn_address_for_user_traffic = -1;
 static int hf_gtp_quintuplet_integrity_key = -1;
 static int hf_gtp_pdp_address_ipv6 = -1;
 static int hf_gtp_rab_setup_length = -1;
@@ -354,7 +354,6 @@ static int hf_gtp_pdp_cntxt_sapi = -1;
 static int hf_gtp_xres = -1;
 static int hf_gtp_pdp_organization = -1;
 static int hf_gtp_node_address_length = -1;
-static int hf_gtp_ggsn_2_address_length = -1;
 static int hf_gtp_gsn_address_length = -1;
 static int hf_gtp_vplmn_address_allowed = -1;
 static int hf_gtp_uplink_flow_label_signalling = -1;
@@ -5269,10 +5268,10 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     switch (ggsn_addr_len) {
     case 4:
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_control_plane, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_control_plane_ipv4, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
         break;
     case 16:
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_user_traffic, tvb, offset + 1, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_control_plane_ipv6, tvb, offset + 1, 16, ENC_NA);
         break;
     default:
         break;
@@ -5283,14 +5282,14 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     if (gtp_version == 1) {
 
         ggsn_addr_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         switch (ggsn_addr_len) {
         case 4:
-            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_ipv4, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_user_traffic_ipv4, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
             break;
         case 16:
-            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_ipv6, tvb, offset + 1, 16, ENC_NA);
+            proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_for_user_traffic_ipv6, tvb, offset + 1, 16, ENC_NA);
             break;
         default:
             break;
@@ -10002,11 +10001,10 @@ proto_register_gtp(void)
       { &hf_gtp_pdp_address_ipv4, { "PDP address", "gtp.pdp_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_pdp_address_ipv6, { "PDP address", "gtp.pdp_address.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_ggsn_address_length, { "GGSN address length", "gtp.ggsn_address_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_address_for_control_plane, { "GGSN Address for control plane", "gtp.ggsn_address_for_control_plane", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_address_for_user_traffic, { "GGSN Address for User Traffic", "gtp.ggsn_address_for_user_traffic", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_2_address_length, { "GGSN 2 address length", "gtp.ggsn_2_address_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_2_address_ipv4, { "GGSN 2 address", "gtp.ggsn_2_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_ggsn_2_address_ipv6, { "GGSN 2 address", "gtp.ggsn_2_address.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_control_plane_ipv4, { "GGSN Address for control plane", "gtp.ggsn_address_for_control_plane.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_control_plane_ipv6, { "GGSN Address for control plane", "gtp.ggsn_address_for_control_plane.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_user_traffic_ipv4, { "GGSN Address for User Traffic", "gtp.ggsn_address_for_user_traffic.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ggsn_address_for_user_traffic_ipv6, { "GGSN Address for User Traffic", "gtp.ggsn_address_for_user_traffic.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_apn_length, { "APN length", "gtp.apn_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_transaction_identifier, { "Transaction identifier", "gtp.transaction_identifier", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_gsn_address_length, { "GSN address length", "gtp.gsn_address_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
