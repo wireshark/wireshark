@@ -1665,6 +1665,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         break;
     case 0x0E: /* START_RECORD_RTP */
     case 0x0F: /* STOP RECORD RTP */
+    {
+        address remote_rtp_addr = ADDRESS_INIT_NONE;
+        guint32 remote_rtp_port_in = 0;
+        guint32 remote_rtp_port_out = 0;
+
         while (length > 0) {
 
             parameter_id     = tvb_get_guint8(tvb, offset);
@@ -1687,6 +1692,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 switch (parameter_id) {
                 case 0x01: /* Remote IP Address */
                 case 0x04: /* Remote IP Address Out */
+                    if (parameter_id == 0x01)
+                        set_address_tvb(&remote_rtp_addr, AT_IPv4, 4, tvb, offset);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_remote_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
                 case 0x00: /* Recorder Index */
@@ -1702,6 +1709,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 case 0x30: /* MD5 Authentication */
                 default:
                     if (parameter_length <= 8) {
+                        if (parameter_id == 0x02)
+                            remote_rtp_port_in = tvb_get_ntohs(tvb, offset);
+                        if (parameter_id == 0x03)
+                            remote_rtp_port_out = tvb_get_ntohs(tvb, offset);
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     } else {
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_value, tvb, offset, parameter_length, ENC_NA);
@@ -1713,7 +1724,26 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 length -= parameter_length;
             }
         }
+
+        if (setup_conversations_enabled)
+        {
+            if (remote_rtp_addr.data != NULL)
+            {
+                if (remote_rtp_port_in != 0)
+                {
+                    rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port_in, 0, "UA3G", pinfo->num, 0, NULL);
+                    rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port_in+1, 0, "UA3G", pinfo->num);
+                }
+                if (remote_rtp_port_out != 0)
+                {
+                    rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port_out, 0, "UA3G", pinfo->num, 0, NULL);
+                    rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port_out+1, 0, "UA3G", pinfo->num);
+                }
+            }
+        }
+
         break;
+    }
     case 0x10: /* Set SIP Parameters */
         break;
     case 0x11: /* Free Seating */
@@ -4774,8 +4804,8 @@ proto_register_ua3g(void)
     ua3g_module = prefs_register_protocol(proto_ua3g, NULL);
 
     prefs_register_bool_preference(ua3g_module, "setup_conversations",
-        "Setup RTP/RTCP conversations on Start RTP",
-        "Setup RTP/RTCP conversations when parsing Start RTP messages",
+        "Setup RTP/RTCP conversations on Start/Record RTP",
+        "Setup RTP/RTCP conversations when parsing Start/Record RTP messages",
         &setup_conversations_enabled);
 
     proto_register_field_array(proto_ua3g, hf, array_length(hf));
