@@ -715,10 +715,10 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
     /*
      * Cycle through MMS-headers
      *
-     * NOTE - some PDUs may convey content which can be handed off
+     * NOTE - some PDUs may convey content that can be handed off
      *        to subdissectors.
      */
-    if (tree || pdu_has_content(pdut)) {
+    if (tree == NULL && !pdu_has_content(pdut)) {
         DebugLog(("tree == NULL and PDU has no potential content\n"));
         return;
     }
