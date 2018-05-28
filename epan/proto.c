@@ -112,16 +112,19 @@ struct ptvcursor {
 	   not to do so.						\
 	*/								\
 	PTREE_DATA(tree)->count++;					\
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
 	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
 		free_block;						\
 		if (getenv("WIRESHARK_ABORT_ON_TOO_MANY_ITEMS") != NULL) \
-			g_error("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS); \
+			g_error("Adding %s would put more than %d items in the tree -- possible infinite loop", \
+			    hfinfo->abbrev, MAX_TREE_ITEMS);		\
 		/* Let the exception handler add items to the tree */	\
 		PTREE_DATA(tree)->count = 0;				\
 		THROW_MESSAGE(DissectorError,				\
-			wmem_strdup_printf(wmem_packet_scope(), "More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS)); \
+			wmem_strdup_printf(wmem_packet_scope(),		\
+			    "Adding %s would put more than %d items in the tree -- possible infinite loop", \
+			    hfinfo->abbrev, MAX_TREE_ITEMS));		\
 	}								\
-	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
 	if (!(PTREE_DATA(tree)->visible)) {				\
 		if (PTREE_FINFO(tree)) {				\
 			if ((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
