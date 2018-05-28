@@ -1026,9 +1026,9 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 		framelist = g_list_first(assoc->frame_numbers);
 		while (framelist)
 		{
-			guint32	*fn;
-			fn = (guint32 *)framelist->data;
-			if (*fn == fdata->num)
+			guint32	fn;
+			fn = GPOINTER_TO_UINT(framelist->data);
+			if (fn == fdata->num)
 			{
 				frame_found = TRUE;
 				break;
