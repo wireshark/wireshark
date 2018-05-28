@@ -70,6 +70,8 @@ PROXY (v2) protocol
 --
 GSM-R protocol (User-to-User Information Element usage)
 --
+STCSIG (Spirent Test Center Signature decoding for Ethernet and FibreChannel, disabled by default)
+--
 
 === Updated Protocol Support
 
