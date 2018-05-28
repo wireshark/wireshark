@@ -3433,6 +3433,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_UPDATE_PDP_REQ:
     case GTP_MSG_DELETE_PDP_REQ:
     case GTP_MSG_FORW_RELOC_REQ:
+    case GTP_MSG_DATA_TRANSF_REQ:
         gcr.is_request=TRUE;
         gcr.req_frame=pinfo->num;
         gcr.rep_frame=0;
@@ -3442,6 +3443,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_UPDATE_PDP_RESP:
     case GTP_MSG_DELETE_PDP_RESP:
     case GTP_MSG_FORW_RELOC_RESP:
+    case GTP_MSG_DATA_TRANSF_RESP:
         gcr.is_request=FALSE;
         gcr.req_frame=0;
         gcr.rep_frame=pinfo->num;
@@ -3468,6 +3470,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_UPDATE_PDP_REQ:
         case GTP_MSG_DELETE_PDP_REQ:
         case GTP_MSG_FORW_RELOC_REQ:
+        case GTP_MSG_DATA_TRANSF_REQ:
             gcr.seq_nr=seq_nr;
 
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
@@ -3492,6 +3495,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         case GTP_MSG_UPDATE_PDP_RESP:
         case GTP_MSG_DELETE_PDP_RESP:
         case GTP_MSG_FORW_RELOC_RESP:
+        case GTP_MSG_DATA_TRANSF_RESP:
             gcr.seq_nr=seq_nr;
             gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
 
