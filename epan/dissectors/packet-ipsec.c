@@ -300,6 +300,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key)
 
     else if((raw_key_len == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
     {
+      *ascii_key = NULL;
       return 0;
     }
     else
@@ -317,15 +318,20 @@ static gboolean uat_esp_sa_record_update_cb(void* r, char** err _U_) {
   uat_esp_sa_record_t* rec = (uat_esp_sa_record_t *)r;
 
   /* Compute keys & lengths once and for all */
+  g_free(rec->encryption_key);
+  if (rec->cipher_hd_created) {
+    gcry_cipher_close(rec->cipher_hd);
+    rec->cipher_hd_created = FALSE;
+  }
   if (rec->encryption_key_string) {
     rec->encryption_key_length = compute_ascii_key(&rec->encryption_key, rec->encryption_key_string);
-    rec->cipher_hd_created = FALSE;
   }
   else {
     rec->encryption_key_length = 0;
     rec->encryption_key = NULL;
   }
 
+  g_free(rec->authentication_key);
   if (rec->authentication_key_string) {
     rec->authentication_key_length = compute_ascii_key(&rec->authentication_key, rec->authentication_key_string);
   }
@@ -347,8 +353,11 @@ static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
   new_rec->spi = g_strdup(old_rec->spi);
   new_rec->encryption_algo = old_rec->encryption_algo;
   new_rec->encryption_key_string = g_strdup(old_rec->encryption_key_string);
+  new_rec->encryption_key = NULL;
+  new_rec->cipher_hd_created = FALSE;
   new_rec->authentication_algo = old_rec->authentication_algo;
   new_rec->authentication_key_string = g_strdup(old_rec->authentication_key_string);
+  new_rec->authentication_key = NULL;
 
   /* Parse keys as in an update */
   uat_esp_sa_record_update_cb(new_rec, NULL);
@@ -416,10 +425,13 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
    /* Encryption */
    record->encryption_algo = encryption_algo;
    record->encryption_key_string = g_strdup(encryption_key);
+   record->encryption_key = NULL;
+   record->cipher_hd_created = FALSE;
 
    /* Authentication */
    record->authentication_algo = authentication_algo;
    record->authentication_key_string = g_strdup(authentication_key);
+   record->authentication_key = NULL;
 
    /* Parse keys */
    uat_esp_sa_record_update_cb(record, NULL);
