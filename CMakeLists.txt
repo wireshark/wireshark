@@ -511,7 +511,7 @@ else() # ! MSVC
 		# usage in normal operation.
 		#
 		set(COMMON_WARN_FLAGS ${COMMON_WARN_FLAGS}
-			-Wframe-larger-than=16384
+			-Wframe-larger-than=32768
 		)
 	endif()
 
