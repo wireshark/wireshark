@@ -896,7 +896,7 @@ dissect_zbee_nwk_gp_cmd_attr_reporting(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     offset += 2;
     /* Create subtree and parse ZCL Write Attribute Payload. */
     field_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2, ett_zbee_nwk_cmd_options, NULL,
-                                "Attribute reporting command for cluster: 0x%02X", cluster_id);
+                                "Attribute reporting command for cluster: 0x%04X", cluster_id);
 
     dissect_zcl_report_attr(tvb, pinfo, field_tree, &offset, cluster_id, ZBEE_MFG_CODE_NONE, ZBEE_ZCL_FCF_TO_CLIENT);
 
@@ -1342,9 +1342,9 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         /* Display GPD Src ID. */
         packet.source_id = tvb_get_letohl(tvb, offset);
         proto_tree_add_item(nwk_tree, hf_zbee_nwk_gp_zgpd_src_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(proto_root, ", GPD Src ID: 0x%04x", packet.source_id);
+        proto_item_append_text(proto_root, ", GPD Src ID: 0x%08x", packet.source_id);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", GPD Src ID: 0x%04x", packet.source_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", GPD Src ID: 0x%08x", packet.source_id);
         offset += 4;
     }
     if (packet.application_id == ZBEE_NWK_GP_APP_ID_ZGP) {
