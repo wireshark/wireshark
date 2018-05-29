@@ -894,7 +894,7 @@ static guint get_chunk_lists_size(tvbuff_t *tvb, guint max_offset, guint offset)
 static guint
 get_rdma_list_size(wmem_array_t *p_list, packet_info *pinfo)
 {
-    guint i, j, size = 0;
+    guint i, j, k, size = 0;
     request_t *p_request;
     rdma_chunk_t *p_rdma_chunk;
     rdma_segment_t *p_rdma_segment;
@@ -910,8 +910,8 @@ get_rdma_list_size(wmem_array_t *p_list, packet_info *pinfo)
                 p_rdma_segment = (rdma_segment_t *)wmem_array_index(p_rdma_chunk->segments, j);
                 p_segment_info = find_segment_info(p_rdma_conv_info, p_rdma_segment->handle);
                 if (p_segment_info) {
-                    for (i=0; i<wmem_array_get_count(p_segment_info->requests); i++) {
-                        p_request = (request_t *)wmem_array_index(p_segment_info->requests, i);
+                    for (k=0; k<wmem_array_get_count(p_segment_info->requests); k++) {
+                        p_request = (request_t *)wmem_array_index(p_segment_info->requests, k);
                         /* Add request bytes to the total */
                         size += p_request->rbytes;
                     }
