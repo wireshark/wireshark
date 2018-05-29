@@ -202,6 +202,7 @@ static guint32 calc_data_crc32(guint8 dataValue, guint32 crc32kValue)
 * writes the original client data at 'to', restoring any
 * 'mask' octets that may present in the encoded data.
 * Returns the length of the encoded data or zero if error.
+* The length of the encoded value is always smaller or equal to 'length'.
 */
 static gsize cobs_decode(guint8 *to, const guint8 *from, gsize length, guint8 mask)
 {
@@ -215,13 +216,17 @@ static gsize cobs_decode(guint8 *to, const guint8 *from, gsize length, guint8 ma
     code = from[read_index] ^ mask;
     last_code = code;
     /*
-    * Sanity check the encoding to prevent the while() loop below
-    * from overrunning the output buffer.
-    */
-    if (read_index + code > length)
+     * A code octet equal to zero or greater than the length is illegal.
+     */
+    if (code == 0 || read_index + code > length)
       return 0;
 
     read_index++;
+    /*
+     * Decode data octets. The code octet is included in the length, but the
+     * terminating zero octet is not. (Note that a data octet of zero should not
+     * occur here since the whole point of COBS encoding is to remove zeroes.)
+     */
     while (--code > 0)
       to[write_index++] = from[read_index++] ^ mask;
 
@@ -237,17 +242,14 @@ static gsize cobs_decode(guint8 *to, const guint8 *from, gsize length, guint8 ma
   return write_index;
 }
 
-#define ADJ_FOR_ENC_CRC 3
 #define SIZEOF_ENC_CRC 5
 #define CRC32K_INITIAL_VALUE 0xFFFFFFFF
 #define CRC32K_RESIDUE 0x0843323B
 #define MSTP_PREAMBLE_X55 0x55
 
 /*
-* Decodes Encoded Data and Encoded CRC-32K fields at 'from' and
-* writes the decoded client data at 'to'. Assumes 'length' contains
-* the actual combined length of these fields in octets (that is, the
-* MS/TP header Length field plus two).
+* Decodes Encoded Data and Encoded CRC-32K fields at 'from' (of length 'length')
+* and writes the decoded client data at 'to'.
 * Returns length of decoded Data in octets or zero if error.
 * NOTE: Safe to call with 'output' <= 'input' (decodes in place).
 */
@@ -258,11 +260,15 @@ static gsize cobs_frame_decode(guint8 *to, const guint8 *from, gsize length)
   guint32 crc32K;
   guint32 i;
 
+  /* Must have enough room for the encoded CRC-32K value. */
+  if (length < SIZEOF_ENC_CRC)
+    return 0;
+
   /*
   * Calculate the CRC32K over the Encoded Data octets before decoding.
   * NOTE: Adjust 'length' by removing size of Encoded CRC-32K field.
   */
-  data_len = length - ADJ_FOR_ENC_CRC;
+  data_len = length - SIZEOF_ENC_CRC;
   crc32K = CRC32K_INITIAL_VALUE;
   for (i = 0; i < data_len; i++)
     crc32K = calc_data_crc32(from[i], crc32K);
@@ -272,7 +278,7 @@ static gsize cobs_frame_decode(guint8 *to, const guint8 *from, gsize length)
   * Decode the Encoded CRC-32K field and append to data.
   */
   crc_len = cobs_decode((guint8 *)(to + data_len),
-    (guint8 *)(from + length - ADJ_FOR_ENC_CRC),
+    (guint8 *)(from + length - SIZEOF_ENC_CRC),
     SIZEOF_ENC_CRC, MSTP_PREAMBLE_X55);
 
   /*
@@ -363,7 +369,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16 decoded_len = mstp_frame_pdu_len;
 
     decode_base = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, mstp_frame_pdu_len + 2);
-    decoded_len = (guint16)cobs_frame_decode(decode_base, decode_base, decoded_len);
+    decoded_len = (guint16)cobs_frame_decode(decode_base, decode_base, decoded_len + 2);
     if (decoded_len > 0) {
       decoded_tvb = tvb_new_real_data(decode_base, decoded_len, decoded_len);
       tvb_set_child_real_data_tvbuff(tvb, decoded_tvb);
