@@ -2244,6 +2244,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     case 1:
         /* IPv4 */
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
         break;
     case 2:
         /* IPv6*/
@@ -2255,6 +2256,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
         break;
     case 3:
         /* IPv4/IPv6 */
@@ -2269,8 +2271,10 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, "IPv6 %s, ", tvb_ip6_to_str(tvb, offset));
         offset += 16;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
         break;
     default:
         break;
@@ -8325,7 +8329,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_pdn_ipv6,
           {"PDN Address and Prefix(IPv6)", "gtpv2.pdn_addr_and_prefix.ipv6",
-           FT_BYTES, BASE_NONE, NULL, 0x0,
+           FT_IPv6, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         /* Bit 7 - PCI (Pre-emption Capability): See 3GPP TS 29.212[29], clause 5.3.46 Pre-emption-Capability AVP.
