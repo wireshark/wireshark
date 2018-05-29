@@ -77,7 +77,7 @@ void CompiledFilterOutput::compileFilter()
                 if (pd == NULL)
                     break;
                 g_mutex_lock(pcap_compile_mtx);
-                if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().constData(), 1, 0) < 0) {
+                if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().data(), 1, 0) < 0) {
                     compile_results.insert(interfaces, QString(pcap_geterr(pd)));
                     g_mutex_unlock(pcap_compile_mtx);
                     ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_error.png"),interfaces));
