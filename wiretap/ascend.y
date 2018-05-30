@@ -147,8 +147,8 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 #include <wsutil/buffer.h>
 #include "ascendtext.h"
 #include "ascend-int.h"
-#include "ascend.h"
 DIAG_OFF_BYACC
+#include "ascend.h"
 #include "ascend_scanner_lex.h"
 DIAG_ON_BYACC
 #include "file_wrappers.h"
