@@ -1,4 +1,5 @@
 # Copyright (c) 2013 by Gilbert Ramirez <gram@alumni.rice.edu>
+# -*- coding: utf-8 -*-
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -161,4 +162,12 @@ class case_string(dfiltertest.DFTestCase):
 
     def test_string_len(self):
         dfilter = 'len(http.request.method) == 4'
+        self.assertDFilterCount(dfilter, 1)
+
+    def test_eq_unicode(self):
+        dfilter = 'tcp.flags.str == "·······AP···"'
+        self.assertDFilterCount(dfilter, 1)
+
+    def test_contains_unicode(self):
+        dfilter = 'tcp.flags.str contains "·······AP···"'
         self.assertDFilterCount(dfilter, 1)

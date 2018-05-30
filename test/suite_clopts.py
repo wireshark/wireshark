@@ -158,6 +158,14 @@ class case_tshark_name_resolution_clopts(subprocesstest.SubprocessTestCase):
 
     # XXX Add invalid name resolution.
 
+class case_tshark_unicode_clopts(subprocesstest.SubprocessTestCase):
+    def test_tshark_unicode_display_filter(self):
+        '''Unicode (UTF-8) display filter'''
+        cap_file = os.path.join(config.capture_dir, 'http.pcap')
+        self.runProcess((config.cmd_tshark, '-r', cap_file, '-Y', 'tcp.flags.str == "·······AP···"'))
+        self.assertTrue(self.grepOutput('HEAD.*/v4/iuident.cab'))
+
+
 class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
     def test_tshark_dump_glossary(self):
         for glossary in glossaries:
