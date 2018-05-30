@@ -1927,8 +1927,7 @@ noinst_PROGRAMS = make-dissectors
 
 make_dissectors_CFLAGS = $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
-make_dissectors_LDADD = $(GLIB_LIBS) \
-			${top_builddir}/wsutil/libwsutil.la
+make_dissectors_LDADD = $(GLIB_LIBS)
 
 # include asn1 in the source tarball. But nothing to build...
 DIST_SUBDIRS = asn1 dcerpc
