@@ -2195,16 +2195,24 @@ tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null)
 
 /* dissector helper: length of PDU */
 static guint
-get_mysql_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	int tvb_remain= tvb_reported_length_remaining(tvb, offset);
-	guint plen= tvb_get_letoh24(tvb, offset);
+	/* Regular packet header: length (3) + sequence number (1) */
+	conversation_t	   *conversation;
+	mysql_conn_data_t  *conn_data;
+	guint		    len = 4 + tvb_get_letoh24(tvb, offset);
 
-	if ((tvb_remain - plen) == 7) {
-		return plen + 7; /* compressed header 3+1+3 (len+id+cmp_len) */
-	} else {
-		return plen + 4; /* regular header 3+1 (len+id) */
+	conversation = find_conversation_pinfo(pinfo, 0);
+	if (conversation) {
+		conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
+		if (conn_data && conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE &&
+			pinfo->num > conn_data->frame_start_compressed) {
+			/* Compressed packet header includes uncompressed packet length (3) */
+			len += 3;
+		}
 	}
+
+	return len;
 }
 
 /* dissector main function: handle one PDU */
