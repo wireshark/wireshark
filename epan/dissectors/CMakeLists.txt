@@ -1882,13 +1882,6 @@ set(ALL_DISSECTOR_SRC
 	${CORBA_IDL_DISSECTOR_SRC}
 )
 
-add_executable(make-dissectors make-dissectors.c)
-target_link_libraries(make-dissectors ${GLIB2_LIBRARIES})
-
-if(WIN32)
-	add_dependencies(make-dissectors copy_cli_dlls)
-endif()
-
 #
 # We pass the arguments to make-dissectors in a file to avoid limitations
 # with the number of arguments handled by main().

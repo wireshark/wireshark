@@ -172,13 +172,6 @@ BUILT_SOURCES = $(GENERATED_HEADER_FILES)
 #
 libui_a_CFLAGS = $(AM_CFLAGS) $(PIE_CFLAGS)
 
-noinst_PROGRAMS = make-taps
-
-make_taps_CFLAGS = $(WS_CPPFLAGS) $(GLIB_CFLAGS)
-
-make_taps_LDADD = \
-	$(GLIB_LIBS)
-
 CLEANFILES = \
 	doxygen-ui.tag
 

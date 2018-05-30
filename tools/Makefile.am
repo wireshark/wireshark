@@ -23,6 +23,16 @@ include $(top_srcdir)/Makefile.am.inc
 
 SUBDIRS = lemon
 
+noinst_PROGRAMS = make-taps make-dissectors
+
+make_dissectors_CFLAGS = $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+
+make_dissectors_LDADD = $(GLIB_LIBS)
+
+make_taps_CFLAGS = $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+
+make_taps_LDADD = $(GLIB_LIBS)
+
 EXTRA_DIST = \
 	asn2deb						\
 	asn2wrs.py					\

@@ -305,8 +305,8 @@ nodist_libgtkui_a_SOURCES = \
 	$(NODIST_GENERATED_FILES)	\
 	$(BUILD_PIXBUF_CSOURCE)
 
-wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-taps
-	$(AM_V_GEN)../make-taps $@ $(filter %.c,$^)
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_builddir)/tools/make-taps
+	$(AM_V_GEN)$(top_builddir)/tools/make-taps $@ $(filter %.c,$^)
 
 wireshark-gresources.c: main.gresources.xml $(shell glib-compile-resources --sourcedir=$(top_srcdir) --generate-dependencies $(srcdir)/main.gresources.xml)
 	@echo Making $@

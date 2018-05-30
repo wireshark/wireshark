@@ -82,8 +82,8 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)
 
-tshark-tap-register.c: $(TSHARK_TAP_SRC) ../make-taps
-	$(AM_V_GEN)../make-taps $@ $(filter %.c,$^)
+tshark-tap-register.c: $(TSHARK_TAP_SRC) $(top_builddir)/tools/make-taps
+	$(AM_V_GEN)$(top_builddir)/tools/make-taps $@ $(filter %.c,$^)
 
 doxygen:
 if HAVE_DOXYGEN

@@ -1923,12 +1923,6 @@ subpkginclude_HEADERS = \
 noinst_HEADERS =	\
 	$(FILE_DISSECTOR_INCLUDES)
 
-noinst_PROGRAMS = make-dissectors
-
-make_dissectors_CFLAGS = $(WS_CPPFLAGS) $(GLIB_CFLAGS)
-
-make_dissectors_LDADD = $(GLIB_LIBS)
-
 # include asn1 in the source tarball. But nothing to build...
 DIST_SUBDIRS = asn1 dcerpc
 
@@ -1963,10 +1957,10 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 # We pass the arguments to make-dissectors in a file to avoid limitations
 # with the number of arguments handled by main().
 #
-dissectors.c: make-dissectors $(ALL_DISSECTORS_SRC)
+dissectors.c: $(top_builddir)/tools/make-dissectors $(ALL_DISSECTORS_SRC)
 	@echo Making dissectors.c
 	@echo $^ | tr ' ' '\n' | $(GREP) '\.c$$' > dissectors.in.txt && \
-	    $(builddir)/make-dissectors $@ @dissectors.in.txt
+	    $(top_builddir)/tools/make-dissectors $@ @dissectors.in.txt
 
 MOSTLYCLEANFILES = \
 	dissectors.in.txt

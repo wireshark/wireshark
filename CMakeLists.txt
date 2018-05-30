@@ -1325,7 +1325,7 @@ add_subdirectory( doc )
 add_subdirectory( docbook EXCLUDE_FROM_ALL )
 add_subdirectory( epan )
 add_subdirectory( randpkt_core )
-add_subdirectory( tools/lemon )
+add_subdirectory( tools )
 add_subdirectory( ui )
 add_subdirectory( wiretap )
 add_subdirectory( writecap )
@@ -1860,7 +1860,6 @@ if(WIN32)
 		)
 	endif(OPTIONAL_DLLS)
 
-	# This might not be needed since make-dissectors has the same dependency.
 	add_dependencies(epan copy_cli_dlls)
 
 	# We have a lot of choices for creating zip archives:
