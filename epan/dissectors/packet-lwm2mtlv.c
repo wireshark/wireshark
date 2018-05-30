@@ -235,6 +235,10 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 static lwm2m_resource_t *lwm2m_uat_resources;
 static guint num_lwm2m_uat_resources;
 
+static hf_register_info *dynamic_hf;
+static guint dynamic_hf_size;
+static hf_register_info *static_hf;
+
 static gboolean lwm2m_resource_update_cb(void *record, char **error)
 {
 	lwm2m_resource_t *rec = (lwm2m_resource_t *)record;
@@ -352,30 +356,39 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf)
 	HFILL_INIT(*hf);
 }
 
+static void deregister_resource_fields(void)
+{
+	if (dynamic_hf) {
+		/* Deregister all fields */
+		for (guint i = 0; i < dynamic_hf_size; i++) {
+			proto_deregister_field(proto_lwm2mtlv, *(dynamic_hf[i].p_id));
+			g_free (dynamic_hf[i].p_id);
+		}
+
+		proto_add_deregistered_data(dynamic_hf);
+		dynamic_hf = NULL;
+		dynamic_hf_size = 0;
+	}
+}
+
 static void lwm2m_resource_post_update_cb(void)
 {
-	static hf_register_info *hf;
-	static guint hf_size;
-
-	if (hf_size > 0) {
-		/* Deregister all fields */
-		for (guint i = 0; i < hf_size; i++) {
-			proto_deregister_field(proto_lwm2mtlv, *(hf[i].p_id));
-			g_free (hf[i].p_id);
-		}
-		proto_add_deregistered_data(hf);
-		hf_size = 0;
-	}
+	deregister_resource_fields();
 
 	if (num_lwm2m_uat_resources) {
-		hf = g_new0(hf_register_info, num_lwm2m_uat_resources);
+		dynamic_hf = g_new0(hf_register_info, num_lwm2m_uat_resources);
 
 		for (guint i = 0; i < num_lwm2m_uat_resources; i++) {
-			lwm2m_add_resource(&lwm2m_uat_resources[i], &hf[hf_size++]);
+			lwm2m_add_resource(&lwm2m_uat_resources[i], &dynamic_hf[dynamic_hf_size++]);
 		}
 
-		proto_register_field_array(proto_lwm2mtlv, hf, hf_size);
+		proto_register_field_array(proto_lwm2mtlv, dynamic_hf, dynamic_hf_size);
 	}
+}
+
+static void lwm2m_resource_reset_cb(void)
+{
+	deregister_resource_fields();
 }
 
 static gint64
@@ -709,6 +722,18 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *
 	return tvb_captured_length(tvb);
 }
 
+static void lwm2m_shutdown_routine(void)
+{
+	/* Deregister all fields */
+	for (guint i = 0; i < array_length(lwm2m_oma_resources); i++) {
+		proto_deregister_field(proto_lwm2mtlv, *(static_hf[i].p_id));
+		g_free (static_hf[i].p_id);
+	}
+
+	proto_add_deregistered_data(static_hf);
+	static_hf = NULL;
+}
+
 void proto_register_lwm2mtlv(void)
 {
 	static hf_register_info hf[] = {
@@ -818,7 +843,7 @@ void proto_register_lwm2mtlv(void)
 	                              lwm2m_resource_update_cb,
 	                              lwm2m_resource_free_cb,
 	                              lwm2m_resource_post_update_cb,
-	                              NULL,
+	                              lwm2m_resource_reset_cb,
 	                              lwm2m_resource_flds);
 
 	module_t *lwm2mtlv_module;
@@ -835,6 +860,9 @@ void proto_register_lwm2mtlv(void)
 
 	register_dissector("lwm2mtlv", dissect_lwm2mtlv, proto_lwm2mtlv);
 
+	/* Register the dissector shutdown function */
+	register_shutdown_routine(lwm2m_shutdown_routine);
+
 	lwm2mtlv_module = prefs_register_protocol(proto_lwm2mtlv, NULL);
 
 	prefs_register_uat_preference(lwm2mtlv_module, "resource_table",
@@ -842,11 +870,11 @@ void proto_register_lwm2mtlv(void)
 	                              "User Resource Names",
 	                              resource_uat);
 
-	hf_register_info *hf2 = g_new0(hf_register_info, array_length(lwm2m_oma_resources));
+	static_hf = g_new0(hf_register_info, array_length(lwm2m_oma_resources));
 	for (guint i = 0; i < array_length(lwm2m_oma_resources); i++) {
-		lwm2m_add_resource(&lwm2m_oma_resources[i], &hf2[i]);
+		lwm2m_add_resource(&lwm2m_oma_resources[i], &static_hf[i]);
 	}
-	proto_register_field_array(proto_lwm2mtlv, hf2, array_length(lwm2m_oma_resources));
+	proto_register_field_array(proto_lwm2mtlv, static_hf, array_length(lwm2m_oma_resources));
 }
 
 void

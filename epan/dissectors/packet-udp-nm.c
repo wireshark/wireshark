@@ -74,10 +74,12 @@ static gboolean g_udp_nm_swap_first_fields = TRUE;
 
 /*** stolen from the HTTP disector ;-) ***/
 
-static user_data_field_t* user_data_fields = NULL;
-static guint num_user_data_fields = 0;
-static GHashTable* user_data_fields_hash_hf = NULL;
-static GHashTable* user_data_fields_hash_ett = NULL;
+static user_data_field_t* user_data_fields;
+static guint num_user_data_fields;
+static GHashTable* user_data_fields_hash_hf;
+static hf_register_info* dynamic_hf;
+static guint dynamic_hf_size;
+static wmem_map_t* user_data_fields_hash_ett;
 
 static gboolean
 user_data_fields_update_cb(void *r, char **err)
@@ -210,7 +212,7 @@ get_ett_for_user_data(guint32 offset, guint32 length)
   guint64 key = calc_ett_key(offset, length);
 
   if (user_data_fields_hash_ett) {
-    ett_id = (gint*)g_hash_table_lookup(user_data_fields_hash_ett, &key);
+    ett_id = (gint*)wmem_map_lookup(user_data_fields_hash_ett, &key);
   }
   else {
     ett_id = NULL;
@@ -223,13 +225,31 @@ get_ett_for_user_data(guint32 offset, guint32 length)
  *
  */
 static void
+deregister_user_data(void)
+{
+  if (dynamic_hf) {
+    /* Unregister all fields */
+    for (guint i = 0; i < dynamic_hf_size; i++) {
+      proto_deregister_field(proto_udp_nm, *(dynamic_hf[i].p_id));
+      g_free(dynamic_hf[i].p_id);
+    }
+
+    proto_add_deregistered_data(dynamic_hf);
+    dynamic_hf = NULL;
+    dynamic_hf_size = 0;
+  }
+
+  if (user_data_fields_hash_hf) {
+    g_hash_table_destroy(user_data_fields_hash_hf);
+    user_data_fields_hash_hf = NULL;
+  }
+}
+
+static void
 user_data_post_update_cb(void)
 {
-  static hf_register_info* hf;
   gint* hf_id;
-  guint i;
-  //gchar* udf_name;
-
+  gint *ett_id;
   gchar* tmp = NULL;
   guint64* key = NULL;
 
@@ -238,53 +258,43 @@ user_data_post_update_cb(void)
     &ett_dummy,
   };
 
-  static gint *ett_id;
-
-  if (user_data_fields_hash_hf && hf) {
-    guint hf_size = g_hash_table_size(user_data_fields_hash_hf);
-    /* Unregister all fields */
-    for (i = 0; i < hf_size; i++) {
-      proto_deregister_field(proto_udp_nm, *(hf[i].p_id));
-    }
-    g_hash_table_destroy(user_data_fields_hash_hf);
-
-    user_data_fields_hash_hf = NULL;
-  }
+  deregister_user_data();
 
   // we cannot unregister ETTs, so we should try to limit the damage of an update
   if (num_user_data_fields) {
-    user_data_fields_hash_hf = g_hash_table_new(g_str_hash, g_str_equal);
-    hf = g_new0(hf_register_info, num_user_data_fields);
+    user_data_fields_hash_hf = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    dynamic_hf = g_new0(hf_register_info, num_user_data_fields);
+    dynamic_hf_size = num_user_data_fields;
 
     if (user_data_fields_hash_ett == NULL) {
-      user_data_fields_hash_ett = g_hash_table_new(g_int64_hash, g_int64_equal);
+      user_data_fields_hash_ett = wmem_map_new(wmem_epan_scope(), g_int64_hash, g_int64_equal);
     }
 
-    for (i = 0; i < num_user_data_fields; i++) {
+    for (guint i = 0; i < dynamic_hf_size; i++) {
       hf_id = g_new(gint, 1);
       *hf_id = -1;
 
-      hf[i].p_id = hf_id;
-      hf[i].hfinfo.strings = NULL;
-      hf[i].hfinfo.bitmask = user_data_fields[i].udf_mask;
-      hf[i].hfinfo.same_name_next = NULL;
-      hf[i].hfinfo.same_name_prev_id = -1;
+      dynamic_hf[i].p_id = hf_id;
+      dynamic_hf[i].hfinfo.strings = NULL;
+      dynamic_hf[i].hfinfo.bitmask = user_data_fields[i].udf_mask;
+      dynamic_hf[i].hfinfo.same_name_next = NULL;
+      dynamic_hf[i].hfinfo.same_name_prev_id = -1;
 
       if (user_data_fields[i].udf_mask == 0 || user_data_fields[i].udf_length <= 0 || user_data_fields[i].udf_length>4) {
-        hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_name);
-        hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s", user_data_fields[i].udf_name);
-        hf[i].hfinfo.type = FT_BYTES;
-        hf[i].hfinfo.display = BASE_NONE;
-        hf[i].hfinfo.bitmask = 0;
-        hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_desc);
+        dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_name);
+        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s", user_data_fields[i].udf_name);
+        dynamic_hf[i].hfinfo.type = FT_BYTES;
+        dynamic_hf[i].hfinfo.display = BASE_NONE;
+        dynamic_hf[i].hfinfo.bitmask = 0;
+        dynamic_hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_desc);
       }
       else {
-        hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_value_desc);
-        hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
-        hf[i].hfinfo.type = FT_BOOLEAN;
-        hf[i].hfinfo.display = 8 * (user_data_fields[i].udf_length);
-        // hf[i].hfinfo.bitmask = 0;
-        hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_value_desc);
+        dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_value_desc);
+        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
+        dynamic_hf[i].hfinfo.type = FT_BOOLEAN;
+        dynamic_hf[i].hfinfo.display = 8 * (user_data_fields[i].udf_length);
+        // dynamic_hf[i].hfinfo.bitmask = 0;
+        dynamic_hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_value_desc);
       }
 
       tmp = calc_hf_key(user_data_fields[i]);
@@ -295,18 +305,24 @@ user_data_post_update_cb(void)
         ett_dummy = -1;
         proto_register_subtree_array(ett, array_length(ett));
 
-        ett_id = g_new(gint, 1);
+        ett_id = wmem_new(wmem_epan_scope(), gint);
         *ett_id = ett_dummy;
 
-        key = g_new(guint64, 1);
+        key = wmem_new(wmem_epan_scope(), guint64);
         *key = calc_ett_key(user_data_fields[i].udf_offset, user_data_fields[i].udf_length);
 
-        g_hash_table_insert(user_data_fields_hash_ett, key, ett_id);
+        wmem_map_insert(user_data_fields_hash_ett, key, ett_id);
       }
     }
 
-    proto_register_field_array(proto_udp_nm, hf, num_user_data_fields);
+    proto_register_field_array(proto_udp_nm, dynamic_hf, dynamic_hf_size);
   }
+}
+
+static void
+user_data_reset_cb(void)
+{
+  deregister_user_data();
 }
 
 
@@ -472,7 +488,7 @@ void proto_register_udp_nm(void)
     user_data_fields_update_cb,       /* update callback       */
     user_data_fields_free_cb,         /* free callback         */
     user_data_post_update_cb,         /* post update callback  */
-    NULL,                             /* reset callback        */
+    user_data_reset_cb,               /* reset callback        */
     user_data_uat_fields);            /* UAT field definitions */
 
   prefs_register_uat_preference(udp_nm_module, "udp_nm_user_data_fields", "User Data Field Configuration",

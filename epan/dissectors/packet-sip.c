@@ -908,9 +908,11 @@ typedef struct _header_field_t {
     gchar* header_desc;
 } header_field_t;
 
-static header_field_t* sip_custom_header_fields = NULL;
-static guint sip_custom_num_header_fields = 0;
-static wmem_map_t *sip_custom_header_fields_hash = NULL;
+static header_field_t* sip_custom_header_fields;
+static guint sip_custom_num_header_fields;
+static GHashTable *sip_custom_header_fields_hash;
+static hf_register_info *dynamic_hf;
+static guint dynamic_hf_size;
 
 static gboolean
 header_fields_update_cb(void *r, char **err)
@@ -964,52 +966,67 @@ header_fields_free_cb(void*r)
 }
 
 static void
-header_fields_initialize_cb(void)
+deregister_header_fields(void)
 {
-    static hf_register_info* hf;
+    if (dynamic_hf) {
+        /* Deregister all fields */
+        for (guint i = 0; i < dynamic_hf_size; i++) {
+            proto_deregister_field(proto_sip, *(dynamic_hf[i].p_id));
+            g_free(dynamic_hf[i].p_id);
+        }
+
+        proto_add_deregistered_data(dynamic_hf);
+        dynamic_hf = NULL;
+        dynamic_hf_size = 0;
+    }
+
+    if (sip_custom_header_fields_hash) {
+        g_hash_table_destroy(sip_custom_header_fields_hash);
+        sip_custom_header_fields_hash = NULL;
+    }
+}
+
+static void
+header_fields_post_update_cb(void)
+{
     gint* hf_id;
-    guint i;
     gchar* header_name;
     gchar* header_name_key;
 
-    if (hf) {
-        guint hf_size = wmem_map_size(sip_custom_header_fields_hash);
-        /* Deregister all fields */
-        for (i = 0; i < hf_size; i++) {
-            proto_deregister_field(proto_sip, *(hf[i].p_id));
-            header_name_key = wmem_ascii_strdown(NULL, hf[i].hfinfo.name, -1);
-            wmem_map_remove(sip_custom_header_fields_hash, header_name_key);
-            wmem_free(NULL, header_name_key);
-            wmem_free(wmem_epan_scope(), hf[i].p_id);
-        }
-        proto_add_deregistered_data(hf);
-        hf = NULL;
-    }
+    deregister_header_fields();
 
     if (sip_custom_num_header_fields) {
-        hf = g_new0(hf_register_info, sip_custom_num_header_fields);
+        sip_custom_header_fields_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+        dynamic_hf = g_new0(hf_register_info, sip_custom_num_header_fields);
+        dynamic_hf_size = sip_custom_num_header_fields;
 
-        for (i = 0; i < sip_custom_num_header_fields; i++) {
-            hf_id = wmem_new(wmem_epan_scope(), gint);
+        for (guint i = 0; i < dynamic_hf_size; i++) {
+            hf_id = g_new(gint, 1);
             *hf_id = -1;
             header_name = g_strdup(sip_custom_header_fields[i].header_name);
-            header_name_key = wmem_ascii_strdown(wmem_epan_scope(), header_name, -1);
+            header_name_key = g_ascii_strdown(header_name, -1);
 
-            hf[i].p_id = hf_id;
-            hf[i].hfinfo.name = header_name;
-            hf[i].hfinfo.abbrev = g_strdup_printf("sip.%s", header_name);
-            hf[i].hfinfo.type = FT_STRING;
-            hf[i].hfinfo.display = BASE_NONE;
-            hf[i].hfinfo.strings = NULL;
-            hf[i].hfinfo.bitmask = 0;
-            hf[i].hfinfo.blurb = g_strdup(sip_custom_header_fields[i].header_desc);
-            HFILL_INIT(hf[i]);
+            dynamic_hf[i].p_id = hf_id;
+            dynamic_hf[i].hfinfo.name = header_name;
+            dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("sip.%s", header_name);
+            dynamic_hf[i].hfinfo.type = FT_STRING;
+            dynamic_hf[i].hfinfo.display = BASE_NONE;
+            dynamic_hf[i].hfinfo.strings = NULL;
+            dynamic_hf[i].hfinfo.bitmask = 0;
+            dynamic_hf[i].hfinfo.blurb = g_strdup(sip_custom_header_fields[i].header_desc);
+            HFILL_INIT(dynamic_hf[i]);
 
-            wmem_map_insert(sip_custom_header_fields_hash, header_name_key, hf_id);
+            g_hash_table_insert(sip_custom_header_fields_hash, header_name_key, hf_id);
         }
 
-        proto_register_field_array(proto_sip, hf, sip_custom_num_header_fields);
+        proto_register_field_array(proto_sip, dynamic_hf, dynamic_hf_size);
     }
+}
+
+static void
+header_fields_reset_cb(void)
+{
+    deregister_header_fields();
 }
 
 UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_name, header_field_t)
@@ -3576,7 +3593,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             value_len = (gint) (line_end_offset - value_offset);
 
             if (hf_index == -1) {
-                gint *hf_ptr = (gint*)wmem_map_lookup(sip_custom_header_fields_hash, header_name);
+                gint *hf_ptr = NULL;
+                if (sip_custom_header_fields_hash) {
+                    hf_ptr = (gint*)g_hash_table_lookup(sip_custom_header_fields_hash, header_name);
+                }
                 if (hf_ptr) {
                     sip_proto_tree_add_string(hdr_tree, *hf_ptr, tvb, offset,
                                               next_offset - offset, value_offset, value_len);
@@ -7374,8 +7394,8 @@ void proto_register_sip(void)
         header_fields_copy_cb,
         header_fields_update_cb,
         header_fields_free_cb,
-        header_fields_initialize_cb,
-        NULL,
+        header_fields_post_update_cb,
+        header_fields_reset_cb,
         sip_custom_header_uat_fields
     );
 
@@ -7419,8 +7439,6 @@ void proto_register_sip(void)
     ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE);
 
     register_stat_tap_table_ui(&sip_stat_table);
-
-    sip_custom_header_fields_hash = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 
     /* compile patterns */
     ws_mempbrk_compile(&pbrk_comma_semi, ",;");

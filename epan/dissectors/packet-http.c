@@ -159,10 +159,12 @@ typedef struct _header_field_t {
 	gchar* header_desc;
 } header_field_t;
 
-static header_field_t* header_fields = NULL;
-static guint num_header_fields = 0;
+static header_field_t* header_fields;
+static guint num_header_fields;
 
-static GHashTable* header_fields_hash = NULL;
+static GHashTable* header_fields_hash;
+static hf_register_info* dynamic_hf;
+static guint dynamic_hf_size;
 
 static gboolean
 header_fields_update_cb(void *r, char **err)
@@ -2725,52 +2727,67 @@ get_hf_for_header(char* header_name)
  *
  */
 static void
-header_fields_initialize_cb(void)
+deregister_header_fields(void)
 {
-	static hf_register_info* hf;
+	if (dynamic_hf) {
+		/* Deregister all fields */
+		for (guint i = 0; i < dynamic_hf_size; i++) {
+			proto_deregister_field (proto_http, *(dynamic_hf[i].p_id));
+			g_free (dynamic_hf[i].p_id);
+		}
+
+		proto_add_deregistered_data (dynamic_hf);
+		dynamic_hf = NULL;
+		dynamic_hf_size = 0;
+	}
+
+	if (header_fields_hash) {
+		g_hash_table_destroy (header_fields_hash);
+		header_fields_hash = NULL;
+	}
+}
+
+static void
+header_fields_post_update_cb(void)
+{
 	gint* hf_id;
-	guint i;
 	gchar* header_name;
 	gchar* header_name_key;
 
-	if (header_fields_hash && hf) {
-		guint hf_size = g_hash_table_size (header_fields_hash);
-		/* Deregister all fields */
-		for (i = 0; i < hf_size; i++) {
-			proto_deregister_field (proto_http, *(hf[i].p_id));
-			g_free (hf[i].p_id);
-		}
-		g_hash_table_destroy (header_fields_hash);
-		proto_add_deregistered_data (hf);
-		header_fields_hash = NULL;
-	}
+	deregister_header_fields();
 
 	if (num_header_fields) {
-		header_fields_hash = g_hash_table_new_full(g_str_hash, g_str_equal,
-				g_free, NULL);
-		hf = g_new0(hf_register_info, num_header_fields);
+		header_fields_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+		dynamic_hf = g_new0(hf_register_info, num_header_fields);
+		dynamic_hf_size = num_header_fields;
 
-		for (i = 0; i < num_header_fields; i++) {
+		for (guint i = 0; i < dynamic_hf_size; i++) {
 			hf_id = g_new(gint,1);
 			*hf_id = -1;
 			header_name = g_strdup(header_fields[i].header_name);
 			header_name_key = g_ascii_strdown(header_name, -1);
 
-			hf[i].p_id = hf_id;
-			hf[i].hfinfo.name = header_name;
-			hf[i].hfinfo.abbrev = g_strdup_printf("http.header.%s", header_name);
-			hf[i].hfinfo.type = FT_STRING;
-			hf[i].hfinfo.display = BASE_NONE;
-			hf[i].hfinfo.strings = NULL;
-			hf[i].hfinfo.bitmask = 0;
-			hf[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
-			HFILL_INIT(hf[i]);
+			dynamic_hf[i].p_id = hf_id;
+			dynamic_hf[i].hfinfo.name = header_name;
+			dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("http.header.%s", header_name);
+			dynamic_hf[i].hfinfo.type = FT_STRING;
+			dynamic_hf[i].hfinfo.display = BASE_NONE;
+			dynamic_hf[i].hfinfo.strings = NULL;
+			dynamic_hf[i].hfinfo.bitmask = 0;
+			dynamic_hf[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
+			HFILL_INIT(dynamic_hf[i]);
 
 			g_hash_table_insert(header_fields_hash, header_name_key, hf_id);
 		}
 
-		proto_register_field_array(proto_http, hf, num_header_fields);
+		proto_register_field_array(proto_http, dynamic_hf, dynamic_hf_size);
 	}
+}
+
+static void
+header_fields_reset_cb(void)
+{
+	deregister_header_fields();
 }
 
 /**
@@ -3989,8 +4006,8 @@ proto_register_http(void)
 			      header_fields_copy_cb,
 			      header_fields_update_cb,
 			      header_fields_free_cb,
-			      header_fields_initialize_cb,
-			      NULL,
+			      header_fields_post_update_cb,
+			      header_fields_reset_cb,
 			      custom_header_uat_fields
 	);
 

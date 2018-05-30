@@ -451,10 +451,12 @@ typedef struct _attribute_type_t {
   gchar* attribute_desc;
 } attribute_type_t;
 
-static attribute_type_t* attribute_types = NULL;
-static guint num_attribute_types = 0;
+static attribute_type_t* attribute_types;
+static guint num_attribute_types;
 
-static GHashTable* attribute_types_hash = NULL;
+static GHashTable* attribute_types_hash;
+static hf_register_info* dynamic_hf;
+static guint dynamic_hf_size;
 
 static gboolean
 attribute_types_update_cb(void *r, char **err)
@@ -531,49 +533,65 @@ get_hf_for_header(char* attribute_type)
  *
  */
 static void
-attribute_types_initialize_cb(void)
+deregister_attribute_types(void)
 {
-  static hf_register_info* hf;
-  gint* hf_id;
-  guint i;
-  gchar* attribute_type;
-
-  if (attribute_types_hash && hf) {
-    guint hf_size = g_hash_table_size (attribute_types_hash);
+  if (dynamic_hf) {
     /* Deregister all fields */
-    for (i = 0; i < hf_size; i++) {
-      proto_deregister_field (proto_ldap, *(hf[i].p_id));
-      g_free (hf[i].p_id);
+    for (guint i = 0; i < dynamic_hf_size; i++) {
+      proto_deregister_field (proto_ldap, *(dynamic_hf[i].p_id));
+      g_free (dynamic_hf[i].p_id);
     }
+
+    proto_add_deregistered_data (dynamic_hf);
+    dynamic_hf = NULL;
+    dynamic_hf_size = 0;
+  }
+
+  if (attribute_types_hash) {
     g_hash_table_destroy (attribute_types_hash);
-    proto_add_deregistered_data (hf);
     attribute_types_hash = NULL;
   }
+}
+
+static void
+attribute_types_post_update_cb(void)
+{
+  gint* hf_id;
+  gchar* attribute_type;
+
+  deregister_attribute_types();
 
   if (num_attribute_types) {
     attribute_types_hash = g_hash_table_new(g_str_hash, g_str_equal);
-    hf = g_new0(hf_register_info,num_attribute_types);
+    dynamic_hf = g_new0(hf_register_info,num_attribute_types);
+    dynamic_hf_size = num_attribute_types;
 
-    for (i = 0; i < num_attribute_types; i++) {
+    for (guint i = 0; i < dynamic_hf_size; i++) {
       hf_id = g_new(gint,1);
       *hf_id = -1;
       attribute_type = g_strdup(attribute_types[i].attribute_type);
 
-      hf[i].p_id = hf_id;
-      hf[i].hfinfo.name = attribute_type;
-      hf[i].hfinfo.abbrev = g_strdup_printf("ldap.AttributeValue.%s", attribute_type);
-      hf[i].hfinfo.type = FT_STRING;
-      hf[i].hfinfo.display = BASE_NONE;
-      hf[i].hfinfo.strings = NULL;
-      hf[i].hfinfo.bitmask = 0;
-      hf[i].hfinfo.blurb = g_strdup(attribute_types[i].attribute_desc);
-      HFILL_INIT(hf[i]);
+      dynamic_hf[i].p_id = hf_id;
+      dynamic_hf[i].hfinfo.name = attribute_type;
+      dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("ldap.AttributeValue.%s", attribute_type);
+      dynamic_hf[i].hfinfo.type = FT_STRING;
+      dynamic_hf[i].hfinfo.display = BASE_NONE;
+      dynamic_hf[i].hfinfo.strings = NULL;
+      dynamic_hf[i].hfinfo.bitmask = 0;
+      dynamic_hf[i].hfinfo.blurb = g_strdup(attribute_types[i].attribute_desc);
+      HFILL_INIT(dynamic_hf[i]);
 
       g_hash_table_insert(attribute_types_hash, attribute_type, hf_id);
     }
 
-    proto_register_field_array(proto_ldap, hf, num_attribute_types);
+    proto_register_field_array(proto_ldap, dynamic_hf, dynamic_hf_size);
   }
+}
+
+static void
+attribute_types_reset_cb(void)
+{
+  deregister_attribute_types();
 }
 
 /* MS-ADTS specification, section 7.3.1.1, NETLOGON_NT_VERSION Options Bits */
@@ -2204,8 +2222,8 @@ void proto_register_ldap(void) {
                            attribute_types_copy_cb,
                            attribute_types_update_cb,
                            attribute_types_free_cb,
-                           attribute_types_initialize_cb,
-                           NULL,
+                           attribute_types_post_update_cb,
+                           attribute_types_reset_cb,
                            custom_attribute_types_uat_fields);
 
   prefs_register_uat_preference(ldap_module, "custom_ldap_attribute_types",

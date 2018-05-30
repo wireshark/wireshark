@@ -608,6 +608,7 @@ proto_cleanup_base(void)
 void
 proto_cleanup(void)
 {
+	proto_free_deregistered_fields();
 	proto_cleanup_base();
 
 #ifdef HAVE_PLUGINS

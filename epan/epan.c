@@ -307,13 +307,22 @@ epan_cleanup(void)
 	epan_register_all_handoffs = NULL;
 
 	dfilter_cleanup();
-	proto_cleanup();
-	prefs_cleanup();
 	decode_clear_all();
+
+	/*
+	 * Note: packet_cleanup() will call registered shutdown routines which
+	 * may be used to deregister dynamically registered protocol fields,
+	 * and prefs_cleanup() will call uat_clear() which also may be used to
+	 * deregister dynamically registered protocol fields. This must be done
+	 * before proto_cleanup() to avoid inconsistency and memory leaks.
+	 */
+	packet_cleanup();
+	prefs_cleanup();
+	proto_cleanup();
+
 	conversation_filters_cleanup();
 	reassembly_table_cleanup();
 	tap_cleanup();
-	packet_cleanup();
 	expert_cleanup();
 	capture_dissector_cleanup();
 	export_pdu_cleanup();

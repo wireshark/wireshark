@@ -310,10 +310,12 @@ typedef struct _header_field_t {
   guint  add_to_col_info;
 } header_field_t;
 
-static header_field_t *header_fields = NULL;
-static guint num_header_fields = 0;
+static header_field_t *header_fields;
+static guint num_header_fields;
 
-static GHashTable *custom_field_table = NULL;
+static GHashTable *custom_field_table;
+static hf_register_info *dynamic_hf;
+static guint dynamic_hf_size;
 
 static gboolean
 header_fields_update_cb(void *r, char **err)
@@ -939,44 +941,54 @@ free_imf_field (gpointer data)
 }
 
 static void
-header_fields_initialize_cb (void)
+deregister_header_fields(void)
 {
-  static hf_register_info *hf;
-  gint *hf_id;
-  struct imf_field *imffield;
-  guint i;
-  gchar *header_name;
-
-  if (custom_field_table && hf) {
-    guint hf_size = g_hash_table_size (custom_field_table);
+  if (dynamic_hf) {
     /* Deregister all fields */
-    for (i = 0; i < hf_size; i++) {
-      proto_deregister_field (proto_imf, *(hf[i].p_id));
-      g_free (hf[i].p_id);
+    for (guint i = 0; i < dynamic_hf_size; i++) {
+      proto_deregister_field (proto_imf, *(dynamic_hf[i].p_id));
+      g_free (dynamic_hf[i].p_id);
     }
+
+    proto_add_deregistered_data (dynamic_hf);
+    dynamic_hf = NULL;
+    dynamic_hf_size = 0;
+  }
+
+  if (custom_field_table) {
     g_hash_table_destroy (custom_field_table);
-    proto_add_deregistered_data (hf);
     custom_field_table = NULL;
   }
+}
+
+static void
+header_fields_post_update_cb (void)
+{
+  gint *hf_id;
+  struct imf_field *imffield;
+  gchar *header_name;
+
+  deregister_header_fields();
 
   if (num_header_fields) {
     custom_field_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, free_imf_field);
-    hf = (hf_register_info *)g_malloc0 (sizeof (hf_register_info) * num_header_fields);
+    dynamic_hf = (hf_register_info *)g_malloc0 (sizeof (hf_register_info) * num_header_fields);
+    dynamic_hf_size = num_header_fields;
 
-    for (i = 0; i < num_header_fields; i++) {
+    for (guint i = 0; i < dynamic_hf_size; i++) {
       hf_id = (gint *)g_malloc (sizeof (gint));
       *hf_id = -1;
       header_name = g_strdup (header_fields[i].header_name);
 
-      hf[i].p_id = hf_id;
-      hf[i].hfinfo.name = header_name;
-      hf[i].hfinfo.abbrev = g_strdup_printf ("imf.header.%s", header_name);
-      hf[i].hfinfo.type = FT_STRING;
-      hf[i].hfinfo.display = BASE_NONE;
-      hf[i].hfinfo.strings = NULL;
-      hf[i].hfinfo.bitmask = 0;
-      hf[i].hfinfo.blurb = g_strdup (header_fields[i].description);
-      HFILL_INIT(hf[i]);
+      dynamic_hf[i].p_id = hf_id;
+      dynamic_hf[i].hfinfo.name = header_name;
+      dynamic_hf[i].hfinfo.abbrev = g_strdup_printf ("imf.header.%s", header_name);
+      dynamic_hf[i].hfinfo.type = FT_STRING;
+      dynamic_hf[i].hfinfo.display = BASE_NONE;
+      dynamic_hf[i].hfinfo.strings = NULL;
+      dynamic_hf[i].hfinfo.bitmask = 0;
+      dynamic_hf[i].hfinfo.blurb = g_strdup (header_fields[i].description);
+      HFILL_INIT(dynamic_hf[i]);
 
       imffield = (struct imf_field *)g_malloc (sizeof (struct imf_field));
       imffield->hf_id = hf_id;
@@ -998,7 +1010,7 @@ header_fields_initialize_cb (void)
         imffield->subdissector = dissect_imf_address_list;
         break;
       case FORMAT_SIO_LABEL:
-        hf[i].hfinfo.type = FT_NONE; /* constructed */
+        dynamic_hf[i].hfinfo.type = FT_NONE; /* constructed */
         imffield->subdissector = dissect_imf_siolabel;
         break;
       default:
@@ -1010,8 +1022,14 @@ header_fields_initialize_cb (void)
       g_hash_table_insert (custom_field_table, (gpointer)imffield->name, (gpointer)imffield);
     }
 
-    proto_register_field_array (proto_imf, hf, num_header_fields);
+    proto_register_field_array (proto_imf, dynamic_hf, dynamic_hf_size);
   }
+}
+
+static void
+header_fields_reset_cb(void)
+{
+  deregister_header_fields();
 }
 
 /* Register all the bits needed by the filtering engine */
@@ -1311,8 +1329,8 @@ proto_register_imf(void)
                                header_fields_copy_cb,
                                header_fields_update_cb,
                                header_fields_free_cb,
-                               header_fields_initialize_cb,
-                               NULL,
+                               header_fields_post_update_cb,
+                               header_fields_reset_cb,
                                attributes_flds);
 
   module_t *imf_module;
