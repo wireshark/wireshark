@@ -42,9 +42,6 @@ static void dissect_zcl_discover_attr_resp (tvbuff_t *tvb, packet_info *pinfo, p
 
 /* Helper routines */
 static void  dissect_zcl_attr_data_general(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint data_type, guint16 cluster_id, guint16 mfr_code, gboolean client_attr);
-static void  dissect_zcl_attr_data_type_val (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cmd_id, guint16 cluster_id, guint16 mfr_code, gboolean client_attr);
-static guint dissect_zcl_attr_uint8 (tvbuff_t *tvb, proto_tree *tree, guint *offset, int *length);
-static void  dissect_zcl_attr_id (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code, gboolean client_attr);
 static void  zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num, gboolean client_attr);
@@ -1452,7 +1449,7 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
  *@param mfr_code manufacturer code.
  *@param client_attr ZCL client
 */
-static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code, gboolean client_attr)
+void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id, guint16 mfr_code, gboolean client_attr)
 {
     zbee_zcl_cluster_desc *desc;
     int hf_attr_id = hf_zbee_zcl_attr_id;
@@ -1489,7 +1486,7 @@ static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, 
  *@param mfr_code manufacturer code.
  *@param client_attr ZCL client
 */
-static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint16 cluster_id, guint16 mfr_code, gboolean client_attr)
+void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 attr_id, guint16 cluster_id, guint16 mfr_code, gboolean client_attr)
 {
     zbee_zcl_cluster_desc *desc;
 
@@ -1941,7 +1938,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
  *@param hf_zbee_zcl pointer to header field index
  *@return dissected data
 */
-static guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offset, int *hf_zbee_zcl)
+guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offset, int *hf_zbee_zcl)
 {
     guint attr_uint;
 
