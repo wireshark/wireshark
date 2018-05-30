@@ -33,7 +33,6 @@ epan/dissectors/xcbproto
 epan/dissectors/packet-ncp2222.c
 epan/dissectors/dissectors.c
 epan/dissectors/dissectors.in.txt
-epan/dissectors/make-dissectors
 epan/dtd_parse.c
 epan/dtd_preparse.c
 epan/uat_load.c
@@ -49,13 +48,14 @@ plugins/codecs/*/plugin.c
 plugins/epan/mate/mate_parser.c
 version.h
 tools/lemon/lemon
+tools/make-dissectors
+tools/make-taps
 tshark-tap-register.c
 wiretap/ascend.c
 wiretap/ascend.h
 wiretap/k12text.c
 wiretap/version_info.c
 wireshark-tap-register.c
-ui/make-taps
 
 # CMake #
 ##################
