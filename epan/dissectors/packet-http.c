@@ -2869,7 +2869,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
 	header_len = colon_offset - offset;
-	header_name = wmem_ascii_strdown(wmem_packet_scope(), &line[0], header_len);
 
 	/*
 	 * Validate the header name. This allows no space between the field name
@@ -2878,7 +2877,15 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	gboolean valid_header_name = header_len != 0;
 	if (valid_header_name) {
 		for (i = 0; i < header_len; i++) {
-			if (!is_token_char(header_name[i])) {
+			/*
+			 * NUL is not a valid character; treat it specially
+			 * due to C's notion that strings are NUL-terminated.
+			 */
+			if (line[i] == '\0') {
+				valid_header_name = FALSE;
+				break;
+			}
+			if (!is_token_char(line[i])) {
 				valid_header_name = FALSE;
 				break;
 			}
@@ -2900,6 +2907,12 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		expert_add_info(pinfo, it, &ei_http_bad_header_name);
 		return;
 	}
+
+	/*
+	 * Make a null-terminated, all-lower-case version of the header
+	 * name.
+	 */
+	header_name = wmem_ascii_strdown(wmem_packet_scope(), &line[0], header_len);
 
 	hf_index = find_header_hf_value(tvb, offset, header_len);
 
