@@ -1868,7 +1868,7 @@ dissect_eip_security_preshared_keys(packet_info *pinfo, proto_tree *tree, proto_
    proto_tree* psk_tree;
    int start_offset = offset;
 
-   if (total_len < 3)
+   if (total_len < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_eip_security_preshared_keys);
       return total_len;
@@ -1897,7 +1897,7 @@ dissect_eip_security_preshared_keys(packet_info *pinfo, proto_tree *tree, proto_
          expert_add_info(pinfo, item, &ei_mal_eip_security_preshared_keys);
          return total_len;
       }
-      proto_tree_add_item(psk_tree, hf_eip_security_psk, tvb, offset, id_size, ENC_NA);
+      proto_tree_add_item(psk_tree, hf_eip_security_psk, tvb, offset, psk_size, ENC_NA);
       offset += psk_size;
    }
    proto_item_set_len(ti, offset-start_offset);
@@ -4121,12 +4121,12 @@ proto_register_enip(void)
           NULL, HFILL }},
 
       { &hf_eip_cert_capflags_push,
-        { "Path size", "cip.eip_cert.capflags.push",
+        { "Push", "cip.eip_cert.capflags.push",
           FT_BOOLEAN, 32, NULL, 0x00000001,
           NULL, HFILL }},
 
       { &hf_eip_cert_capflags_reserved,
-        { "Path size", "cip.eip_cert.capflags.reserved",
+        { "Reserved", "cip.eip_cert.capflags.reserved",
           FT_BOOLEAN, 32, NULL, 0xFFFFFFFE,
           NULL, HFILL }},
 
