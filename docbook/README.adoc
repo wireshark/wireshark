@@ -79,28 +79,42 @@ Please use the following conventions when writing documentation:
 - Use Asciidoctor macros for buttons, keys, and menus. Note that these
   are currently experimental:
 
--- The button:[Start] button
--- Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
--- Select menu:File[Open] from the main menu.
+** The button:[Start] button
+** Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
+** Select menu:File[Open] from the main menu.
 
 This ensures that UI elements are shown consistently and lets us apply styles
 to each type of element.
 
 - Command line examples should reflect the OS:
 +
-+++
 ----
 $ echo Linux and UNIX
 ----
-
++
 ----
 C:\> echo Windows
 ----
-+++
 
 Admonitions ([NOTE], [TIP], and [WARNING]) can be used to highlight important
 information. Keep in mind that they interrupt the flow of text by design. Too
 many (especially in a row) are distracting and annoying.
+
+== Asciidoctor Live Preview
+
+The Asciidoctor project provides a JavaScript version of Asciidoctor
+(asciidoctor.js), which enables live previews in many web browsers and
+text editors. See the
+https://asciidoctor.org/docs/editing-asciidoc-with-live-preview/[Live
+Preview] documentation for more information.
+
+Note that our documentation depends on attributes defined in
+_attributes.asciidoc_. The User’s Guide and Developer’s Guide are split
+across several files, and only the top-level _user-guide.asciidoc_ and
+_developer-guide.asciidoc_ include _attributes.asciidoc_. As a result,
+some markup will be incomplete. You can work around this somewhat by
+adding some attributes such as `compat-mode experimental` to your Live
+Preview settings.
 
 = HTML Help Alternatives
 
