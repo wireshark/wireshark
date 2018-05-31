@@ -844,7 +844,7 @@ sccp_reassembly_get_id_pass1(guint32 frame, guint32 offset, guint32 key, gboolea
   }
   /* Save ID for second pass. */
   guint64 *frame_offset = wmem_new(wmem_file_scope(), guint64);
-  *frame_offset = ((guint64)frame << 32) | offset;
+  *frame_offset = ((guint64)offset << 32) | frame;
   wmem_map_insert(sccp_reassembly_id_map, frame_offset, GUINT_TO_POINTER(id));
   return id;
 }
@@ -852,7 +852,7 @@ sccp_reassembly_get_id_pass1(guint32 frame, guint32 offset, guint32 key, gboolea
 static guint32
 sccp_reassembly_get_id_pass2(guint32 frame, guint32 offset)
 {
-  guint64 frame_offset = ((guint64)frame << 32) | offset;
+  guint64 frame_offset = ((guint64)offset << 32) | frame;
   return GPOINTER_TO_UINT(wmem_map_lookup(sccp_reassembly_id_map, &frame_offset));
 }
 
