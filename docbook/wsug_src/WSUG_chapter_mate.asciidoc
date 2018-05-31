@@ -1,7 +1,3 @@
-++++++++++++++++++++++++++++++++++++++
-<!-- WSUG Chapter MATE -->
-++++++++++++++++++++++++++++++++++++++
-
 [[ChMate]]
 
 == MATE
@@ -1419,19 +1415,20 @@ Gog mms {
 === MATE's configuration library
 
 The MATE library (will) contains GoP definitions for several protocols. Library
-protocols are included in your MATE config using: *Action=Include;
-Lib=proto_name;*.
+protocols are included in your MATE config using: ++*Action=Include;
+Lib=proto_name;*++.
 
 For Every protocol with a library entry, we'll find defined what from the PDU is
 needed to create a GoP for that protocol, eventually any criteria and the very
-essential GoP definition (i.e. +*GopDef*+, +*GopStart*+ and +*GopStop*+).
+essential GoP definition (i.e. ++*GopDef*++, +*GopStart*+ and +*GopStop*+).
 
 [NOTE]
-----
+====
 It seems that this code is written in the old syntax of MATE. So far it has not
 been transcribed into the new format. It may still form the basis to recreate
 these in the new format.
-----
+====
+
 ==== General use protocols
 
 ===== TCP
@@ -2320,7 +2317,3 @@ Action=Include; Filename=rtsp.mate;
 ----
 
 This will include the file called "rtsp.mate" into the current config.
-
-++++++++++++++++++++++++++++++++++++++
-<!-- End of WSUG Chapter MATE -->
-++++++++++++++++++++++++++++++++++++++
