@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include <wsutil/glib-compat.h>
 
 #define ARRAY_RESERVED_SIZE     128
 #define STRING_RESERVED_SIZE    (8 * 1024)
@@ -68,7 +67,8 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    taps = g_ptr_array_new_full(ARRAY_RESERVED_SIZE, g_free);
+    taps = g_ptr_array_sized_new(ARRAY_RESERVED_SIZE);
+    g_ptr_array_set_free_func(taps, g_free);
 
     taps_regex = g_regex_new("void\\s+(register_tap_listener_[[:alnum:]_]+)\\s*\\(\\s*void\\s*\\)\\s*{",
                                     G_REGEX_OPTIMIZE, G_REGEX_MATCH_NOTEMPTY, &err);
