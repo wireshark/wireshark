@@ -73,16 +73,16 @@ static int hf_catapult_dct2000_sctpprim_addr_v4 = -1;
 static int hf_catapult_dct2000_sctpprim_addr_v6 = -1;
 static int hf_catapult_dct2000_sctpprim_dst_port = -1;
 
-static int hf_catapult_dct2000_lte_ueid = -1;
-static int hf_catapult_dct2000_lte_srbid = -1;
-static int hf_catapult_dct2000_lte_drbid = -1;
-static int hf_catapult_dct2000_lte_cellid = -1;
-static int hf_catapult_dct2000_lte_bcch_transport = -1;
-static int hf_catapult_dct2000_lte_rlc_op = -1;
-static int hf_catapult_dct2000_lte_rlc_channel_type = -1;
-static int hf_catapult_dct2000_lte_rlc_mui = -1;
-static int hf_catapult_dct2000_lte_rlc_cnf = -1;
-static int hf_catapult_dct2000_lte_rlc_discard_req = -1;
+static int hf_catapult_dct2000_ueid = -1;
+static int hf_catapult_dct2000_srbid = -1;
+static int hf_catapult_dct2000_drbid = -1;
+static int hf_catapult_dct2000_cellid = -1;
+static int hf_catapult_dct2000_bcch_transport = -1;
+static int hf_catapult_dct2000_rlc_op = -1;
+static int hf_catapult_dct2000_rlc_channel_type = -1;
+static int hf_catapult_dct2000_rlc_mui = -1;
+static int hf_catapult_dct2000_rlc_cnf = -1;
+static int hf_catapult_dct2000_rlc_discard_req = -1;
 
 static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
 static int hf_catapult_dct2000_lte_ccpri_status = -1;
@@ -95,7 +95,6 @@ static int hf_catapult_dct2000_lte_nas_rrc_release_cause = -1;
 
 
 /* UMTS RLC fields */
-static int hf_catapult_dct2000_ueid = -1;
 static int hf_catapult_dct2000_rbid = -1;
 static int hf_catapult_dct2000_ccch_id = -1;
 static int hf_catapult_dct2000_no_crc_error = -1;
@@ -266,6 +265,11 @@ static const value_string lte_nas_rrc_opcode_vals[] = {
     { 0,     NULL}
 };
 
+/* Distinguish between similar 4G or 5G protocols */
+enum LTE_or_NR {
+    LTE,
+    NR
+};
 
 
 #define MAX_OUTHDR_VALUES 32
@@ -717,8 +721,9 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
         switch (tag) {
             case 0x72:  /* UE Id */
                 ueid = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                offset += 2;
+                proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
                 ueid_set = TRUE;
                 break;
             case 0xa2:  /* RBID */
@@ -823,11 +828,11 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
 
 
 
-/* Dissect an RRC LTE frame by first parsing the header entries then passing
-   the data to the RRC dissector, according to direction and channel type.
-   TODO: factor out common code between this function and dissect_pdcp_lte() */
-static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
-                            packet_info *pinfo, proto_tree *tree)
+/* Dissect an RRC LTE or NR frame by first parsing the header entries then passing
+   the data to the RRC dissector, according to direction and channel type. */
+static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               enum LTE_or_NR lte_or_nr)
 {
     guint8              tag;
     dissector_handle_t  protocol_handle = 0;
@@ -871,7 +876,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
             logicalChannelType = Channel_DCCH;
 
             /* UEId */
-            proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Get tag of channel type */
@@ -882,7 +887,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                     offset++;
                     col_append_fstr(pinfo->cinfo, COL_INFO, " SRB:%u",
                                     tvb_get_guint8(tvb, offset));
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_srbid,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     break;
@@ -890,7 +895,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                     offset++;
                     col_append_fstr(pinfo->cinfo, COL_INFO, " DRB:%u",
                                     tvb_get_guint8(tvb, offset));
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_drbid,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     break;
@@ -909,13 +914,13 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
             offset++;
 
             /* Cell-id */
-            proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
+            proto_tree_add_item(tree, hf_catapult_dct2000_cellid,
                                 tvb, offset, 2, ENC_BIG_ENDIAN);
             cell_id = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
             /* Logical channel type */
-            proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
+            proto_tree_add_item(tree, hf_catapult_dct2000_rlc_channel_type,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             logicalChannelType = (LogicalChannelType)tvb_get_guint8(tvb, offset);
             offset++;
@@ -934,7 +939,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 
                     /* Transport channel type */
                     bcch_transport = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_bcch_transport,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     break;
@@ -944,7 +949,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                     offset++;
 
                     /* UEId */
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
                                         tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     break;
@@ -974,10 +979,17 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
         /* Uplink channel types */
         switch (logicalChannelType) {
             case Channel_DCCH:
-                protocol_handle = find_dissector("lte_rrc.ul_dcch");
+                if (lte_or_nr == LTE) {
+                    protocol_handle = find_dissector("lte_rrc.ul_dcch");
+                }
+                else {
+                    protocol_handle = find_dissector("nr-rrc.ul.dcch");
+                }
                 break;
             case Channel_CCCH:
-                protocol_handle = find_dissector("lte_rrc.ul_ccch");
+                if (lte_or_nr == LTE) {
+                    protocol_handle = find_dissector("lte_rrc.ul_ccch");
+                }
                 break;
 
             default:
@@ -989,20 +1001,36 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
         /* Downlink channel types */
         switch (logicalChannelType) {
             case Channel_DCCH:
-                protocol_handle = find_dissector("lte_rrc.dl_dcch");
+                if (lte_or_nr == LTE) {
+                    protocol_handle = find_dissector("lte_rrc.dl_dcch");
+                }
+                else {
+                    protocol_handle = find_dissector("nr-rrc.dl.dcch");
+                }
                 break;
             case Channel_CCCH:
-                protocol_handle = find_dissector("lte_rrc.dl_ccch");
+                if (lte_or_nr == LTE) {
+                    protocol_handle = find_dissector("lte_rrc.dl_ccch");
+                }
                 break;
             case Channel_PCCH:
-                protocol_handle = find_dissector("lte_rrc.pcch");
+                if (lte_or_nr == LTE) {
+                    protocol_handle = find_dissector("lte_rrc.pcch");
+                }
                 break;
             case Channel_BCCH:
                 if (bcch_transport == 1) {
-                    protocol_handle = find_dissector("lte_rrc.bcch_bch");
+                    if (lte_or_nr == LTE) {
+                        protocol_handle = find_dissector("lte_rrc.bcch_bch");
+                    }
+                    else {
+                        protocol_handle = find_dissector("nr-rrc.bcch.bch");
+                    }
                 }
                 else {
-                    protocol_handle = find_dissector("lte_rrc.bcch_dl_sch");
+                    if (lte_or_nr == LTE) {
+                        protocol_handle = find_dissector("lte_rrc.bcch_dl_sch");
+                    }
                 }
                 break;
 
@@ -1044,7 +1072,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
     offset += 2;
 
     /* Cell-id */
-    proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
+    proto_tree_add_item(tree, hf_catapult_dct2000_cellid,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -1114,7 +1142,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
     /* Top-level opcode */
     opcode = tvb_get_guint8(tvb, offset);
     if (tree) {
-        proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_op, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_catapult_dct2000_rlc_op, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
@@ -1155,7 +1183,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
 
                     /* UEId */
                     ueid = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
                     col_append_fstr(pinfo->cinfo, COL_INFO,
                                     " UEId=%u", ueid);
                     p_pdcp_lte_info->ueid = ueid;
@@ -1170,7 +1198,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                             channelId = tvb_get_guint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " SRB:%u",
                                             channelId);
-                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
+                            proto_tree_add_item(tree, hf_catapult_dct2000_srbid,
                                                 tvb, offset++, 1, ENC_BIG_ENDIAN);
                             p_pdcp_lte_info->channelId = channelId;
                             break;
@@ -1179,7 +1207,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                             channelId = tvb_get_guint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " DRB:%u",
                                             channelId);
-                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
+                            proto_tree_add_item(tree, hf_catapult_dct2000_drbid,
                                                 tvb, offset++, 1, ENC_BIG_ENDIAN);
                             p_pdcp_lte_info->channelId = channelId;
                             break;
@@ -1198,12 +1226,12 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                     offset++;
 
                     /* Cell-id */
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_cellid,
                                         tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
                     /* Logical channel type */
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_rlc_channel_type,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     p_pdcp_lte_info->channelType = (LogicalChannelType)tvb_get_guint8(tvb, offset++);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
@@ -1217,7 +1245,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
 
                             /* Transport channel type */
                             p_pdcp_lte_info->BCCHTransport = (BCCHTransportType)tvb_get_guint8(tvb, offset);
-                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
+                            proto_tree_add_item(tree, hf_catapult_dct2000_bcch_transport,
                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
                             break;
@@ -1227,7 +1255,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                             offset++;
 
                             /* UEId */
-                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                            proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
                                                 tvb, offset, 2, ENC_BIG_ENDIAN);
                             ueid = tvb_get_ntohs(tvb, offset);
                             offset += 2;
@@ -1252,13 +1280,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                 if (tag == 0x35) {
                     /* This is MUI */
                     offset++;
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_mui,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_rlc_mui,
                                         tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
                     /* CNF follows MUI in AM */
                     if ((opcode == RLC_AM_DATA_REQ) || (opcode == RLC_AM_DATA_IND)) {
-                        proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_cnf,
+                        proto_tree_add_item(tree, hf_catapult_dct2000_rlc_cnf,
                                                tvb, offset, 1, ENC_NA);
                         offset++;
                     }
@@ -1266,7 +1294,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                 else if (tag == 0x45) {
                     /* Discard Req */
                     offset++;
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_discard_req,
+                    proto_tree_add_item(tree, hf_catapult_dct2000_rlc_discard_req,
                                            tvb, offset, 1, ENC_NA);
                     offset++;
                 }
@@ -2332,7 +2360,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* UEId */
                 offset++; /* tag */
                 offset += 2; /* 2 wasted bytes of UEId*/
-                proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 break;
@@ -2340,7 +2368,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* UEId */
                 offset++; /* tag */
                 offset += 2; /* 2 wasted bytes of UEId*/
-                proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
@@ -2358,7 +2386,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* UEId */
                 offset++; /* tag */
                 offset += 2; /* 2 wasted bytes of UEId*/
-                proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
@@ -2565,7 +2593,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 return tvb_captured_length(tvb);
             }
 
-
+            /* RRC (LTE or NR).
+               Dissect proprietary header, then pass remainder
+               to RRC dissector (depending upon direction and channel type) */
             else
             if (catapult_dct2000_dissect_lte_rrc &&
                 ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
@@ -2574,9 +2604,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                  (strcmp(protocol_name, "rrcpdcpprim_r9_lte") == 0) ||
                  (strcmp(protocol_name, "rrc_r10_lte") == 0))) {
 
-                /* Dissect proprietary header, then pass remainder
-                   to RRC (depending upon direction and channel type) */
-                dissect_rrc_lte(tvb, offset, pinfo, tree);
+                dissect_rrc_lte_nr(tvb, offset, pinfo, tree, LTE);
+                return tvb_captured_length(tvb);
+            }
+            else if (strcmp(protocol_name, "rrc_r15_5g") == 0) {
+
+                dissect_rrc_lte_nr(tvb, offset, pinfo, tree, NR);
                 return tvb_captured_length(tvb);
             }
 
@@ -3151,63 +3184,63 @@ void proto_register_catapult_dct2000(void)
             }
         },
 
-        { &hf_catapult_dct2000_lte_ueid,
+        { &hf_catapult_dct2000_ueid,
             { "UE Id",
-              "dct2000.lte.ueid", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ueid", FT_UINT16, BASE_DEC, NULL, 0x0,
               "User Equipment Identifier", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_srbid,
+        { &hf_catapult_dct2000_srbid,
             { "srbid",
-              "dct2000.lte.srbid", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "dct2000.srbid", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Signalling Radio Bearer Identifier", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_drbid,
+        { &hf_catapult_dct2000_drbid,
             { "drbid",
-              "dct2000.lte.drbid", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "dct2000.drbid", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Data Radio Bearer Identifier", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_cellid,
+        { &hf_catapult_dct2000_cellid,
             { "Cell-Id",
-              "dct2000.lte.cellid", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.cellid", FT_UINT16, BASE_DEC, NULL, 0x0,
               "Cell Identifier", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_bcch_transport,
+        { &hf_catapult_dct2000_bcch_transport,
             { "BCCH Transport",
-              "dct2000.lte.bcch-transport", FT_UINT16, BASE_DEC, VALS(bcch_transport_vals), 0x0,
+              "dct2000.bcch-transport", FT_UINT16, BASE_DEC, VALS(bcch_transport_vals), 0x0,
               "BCCH Transport Channel", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_rlc_op,
+        { &hf_catapult_dct2000_rlc_op,
             { "RLC Op",
-              "dct2000.lte.rlc-op", FT_UINT8, BASE_DEC, VALS(rlc_op_vals), 0x0,
+              "dct2000.rlc-op", FT_UINT8, BASE_DEC, VALS(rlc_op_vals), 0x0,
               "RLC top-level op", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_rlc_channel_type,
+        { &hf_catapult_dct2000_rlc_channel_type,
             { "RLC Logical Channel Type",
-              "dct2000.lte.rlc-logchan-type", FT_UINT8, BASE_DEC, VALS(rlc_logical_channel_vals), 0x0,
+              "dct2000.rlc-logchan-type", FT_UINT8, BASE_DEC, VALS(rlc_logical_channel_vals), 0x0,
               NULL, HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_rlc_mui,
+        { &hf_catapult_dct2000_rlc_mui,
             { "MUI",
-              "dct2000.lte.rlc-mui", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.rlc-mui", FT_UINT16, BASE_DEC, NULL, 0x0,
               "RLC MUI", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_rlc_cnf,
+        { &hf_catapult_dct2000_rlc_cnf,
             { "CNF",
-              "dct2000.lte.rlc-cnf", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+              "dct2000.rlc-cnf", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               "RLC CNF", HFILL
             }
         },
-        { &hf_catapult_dct2000_lte_rlc_discard_req,
+        { &hf_catapult_dct2000_rlc_discard_req,
             { "Discard Req",
-              "dct2000.lte.rlc-discard-req", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+              "dct2000.rlc-discard-req", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               "RLC Discard Req", HFILL
             }
         },
@@ -3256,13 +3289,6 @@ void proto_register_catapult_dct2000(void)
             }
         },
 
-
-        { &hf_catapult_dct2000_ueid,
-            { "UE Id",
-              "dct2000.ueid", FT_UINT32, BASE_DEC, NULL, 0x0,
-              "User Equipment Identifier", HFILL
-            }
-        },
         { &hf_catapult_dct2000_rbid,
             { "Channel",
               "dct2000.rbid", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &rlc_rbid_vals_ext, 0x0,
