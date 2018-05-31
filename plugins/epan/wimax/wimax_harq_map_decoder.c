@@ -108,6 +108,7 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		/* display the DL IE count */
 		proto_tree_add_item(harq_map_tree, hf_harq_dl_ie_count, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* get the message length */
+		/* XXX - make sure the length isn't smaller than the minimum */
 		length = ((first_24bits & WIMAX_HARQ_MAP_MSG_LENGTH_MASK) >> WIMAX_HARQ_MAP_MSG_LENGTH_SHIFT);
 		/* get the DL IE count */
 		dl_ie_count = ((first_24bits & WIMAX_HARQ_MAP_DL_IE_COUNT_MASK) >> WIMAX_HARQ_MAP_DL_IE_COUNT_SHIFT);
@@ -151,9 +152,11 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		/* add the CRC info */
 		proto_item_append_text(parent_item, ",CRC");
 		/* calculate the HARQ MAM Message CRC */
-		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - (int)sizeof(harq_map_msg_crc)), length - (int)sizeof(harq_map_msg_crc));
-		proto_tree_add_checksum(tree, tvb, length - (int)sizeof(harq_map_msg_crc), hf_harq_map_msg_crc, hf_harq_map_msg_crc_status, &ei_harq_map_msg_crc,
-								pinfo, calculated_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		if (length >= (int)sizeof(harq_map_msg_crc)) {
+			calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - (int)sizeof(harq_map_msg_crc)), length - (int)sizeof(harq_map_msg_crc));
+			proto_tree_add_checksum(tree, tvb, length - (int)sizeof(harq_map_msg_crc), hf_harq_map_msg_crc, hf_harq_map_msg_crc_status, &ei_harq_map_msg_crc,
+									pinfo, calculated_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		}
 	}
 	return tvb_captured_length(tvb);
 }
