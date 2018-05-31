@@ -461,20 +461,22 @@ typedef struct cip_connID_info {
 
 enum cip_safety_format_type {CIP_SAFETY_BASE_FORMAT, CIP_SAFETY_EXTENDED_FORMAT};
 
+typedef struct cip_connection_triad {
+   guint16 ConnSerialNumber;
+   guint16 VendorID;
+   guint32 DeviceSerialNumber;
+} cip_connection_triad_t;
+
 typedef struct cip_safety_epath_info {
    gboolean safety_seg;
    enum cip_safety_format_type format;
    guint16 running_rollover_value;  /* Keep track of the rollover value over the course of the connection */
    guint16 running_timestamp_value; /* Keep track of the timestamp value over the course of the connection */
-   guint16 target_conn_sn;
-   guint16 target_vendorID;
-   guint32 target_device_sn;
+   cip_connection_triad_t target_triad;
 } cip_safety_epath_info_t;
 
 typedef struct cip_conn_info {
-   guint16                 ConnSerialNumber;
-   guint16                 VendorID;
-   guint32                 DeviceSerialNumber;
+   cip_connection_triad_t  triad;
    guint32                 forward_open_frame;
    cip_connID_info_t       O2T;
    cip_connID_info_t       T2O;

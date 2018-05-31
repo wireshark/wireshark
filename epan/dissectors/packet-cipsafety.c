@@ -1255,12 +1255,12 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * CRC handling
  *
  ************************************************/
-static guint8 compute_crc_s1_pid(guint16 conn_serial_number, guint16 vendor_id, guint32 device_serial_number)
+static guint8 compute_crc_s1_pid(const cip_connection_triad_t* triad)
 {
     guint8 temp_buf[8];
-    memcpy(temp_buf, &vendor_id, 2);
-    memcpy(&temp_buf[2], &device_serial_number, 4);
-    memcpy(&temp_buf[6], &conn_serial_number, 2);
+    memcpy(temp_buf, &triad->VendorID, 2);
+    memcpy(&temp_buf[2], &triad->DeviceSerialNumber, 4);
+    memcpy(&temp_buf[6], &triad->ConnSerialNumber, 2);
 
     return crc8_0x37(temp_buf, 8, 0);
 }
@@ -1291,12 +1291,12 @@ static guint8 compute_crc_s2_data(guint8 pid_seed, guint8 mode_byte_mask, guint8
     return crc8_0x3B(comp_buf, len, mode_byte_crc);
 }
 
-static guint16 compute_crc_s3_pid(guint16 conn_serial_number, guint16 vendor_id, guint32 device_serial_number)
+static guint16 compute_crc_s3_pid(const cip_connection_triad_t* triad)
 {
     guint8 temp_buf[8];
-    memcpy(temp_buf, &vendor_id, 2);
-    memcpy(&temp_buf[2], &device_serial_number, 4);
-    memcpy(&temp_buf[6], &conn_serial_number, 2);
+    memcpy(temp_buf, &triad->VendorID, 2);
+    memcpy(&temp_buf[2], &triad->DeviceSerialNumber, 4);
+    memcpy(&temp_buf[6], &triad->ConnSerialNumber, 2);
 
     return crc16_0x080F_seed(temp_buf, 8, 0);
 }
@@ -1326,12 +1326,12 @@ static guint16 compute_crc_s3_time(guint16 pid_seed, guint8 ack_mcast_byte, guin
     return timestamp_crc;
 }
 
-static guint32 compute_crc_s5_pid(guint16 conn_serial_number, guint16 vendor_id, guint32 device_serial_number)
+static guint32 compute_crc_s5_pid(const cip_connection_triad_t* triad)
 {
     guint8 temp_buf[8];
-    memcpy(temp_buf, &vendor_id, 2);
-    memcpy(&temp_buf[2], &device_serial_number, 4);
-    memcpy(&temp_buf[6], &conn_serial_number, 2);
+    memcpy(temp_buf, &triad->VendorID, 2);
+    memcpy(&temp_buf[2], &triad->DeviceSerialNumber, 4);
+    memcpy(&temp_buf[6], &triad->ConnSerialNumber, 2);
 
     return crc32_0x5D6DCB_seed(temp_buf, 8, 0);
 }
@@ -1470,14 +1470,15 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    gboolean server_dir = FALSE;
    enum enip_connid_type conn_type = ECIDT_UNKNOWN;
    enum cip_safety_format_type format = CIP_SAFETY_BASE_FORMAT;
-   guint16 timestamp, conn_sn = 0, vendorID = 0;
+   guint16 timestamp;
    guint8 mode_byte;
-   guint32 device_sn = 0;
    cip_safety_packet_data_t* packet_data = NULL;
    guint32 test_crc_c5, value_c5 = 0, tmp_c5;
    proto_item *complement_item, *crc_s5_item, *crc_s5_status_item;
    gboolean short_format = TRUE;
    gboolean compute_crc = ((safety_info != NULL) && (safety_info->compute_crc == TRUE));
+   cip_connection_triad_t connection_triad;
+   memset(&connection_triad, 0, sizeof(connection_triad));
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP Safety");
@@ -1505,15 +1506,11 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
       {
          if ((conn_type == ECIDT_O2T) && (server_dir == FALSE))
          {
-            conn_sn = safety_info->eip_conn_info->ConnSerialNumber;
-            vendorID = safety_info->eip_conn_info->VendorID;
-            device_sn = safety_info->eip_conn_info->DeviceSerialNumber;
+            connection_triad = safety_info->eip_conn_info->triad;
          }
          else
          {
-            conn_sn = safety_info->eip_conn_info->safety.target_conn_sn;
-            vendorID = safety_info->eip_conn_info->safety.target_vendorID;
-            device_sn = safety_info->eip_conn_info->safety.target_device_sn;
+            connection_triad = safety_info->eip_conn_info->safety.target_triad;
          }
       }
 
@@ -1530,7 +1527,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          {
             proto_tree_add_checksum(tree, tvb, 4,
                         hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3, pinfo,
-                        compute_crc_s3_time(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                        compute_crc_s3_time(compute_crc_s3_pid(&connection_triad),
                                                                 tvb_get_guint8(tvb, 0), /* ack byte */
                                                                 timestamp),
                         ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -1550,7 +1547,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          /* CRC-S5 doesn't use proto_tree_add_checksum because the checksum is broken up into multiple fields */
          if (compute_crc)
          {
-            test_crc_c5 = compute_crc_s5_time(compute_crc_s5_pid(conn_sn, vendorID, device_sn),
+            test_crc_c5 = compute_crc_s5_time(compute_crc_s5_pid(&connection_triad),
                                     tvb_get_guint8(tvb, 0), /* ack byte */
                                     timestamp);
 
@@ -1589,15 +1586,11 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
       {
          if ((conn_type == ECIDT_O2T) && (server_dir == TRUE))
          {
-            conn_sn = safety_info->eip_conn_info->ConnSerialNumber;
-            vendorID = safety_info->eip_conn_info->VendorID;
-            device_sn = safety_info->eip_conn_info->DeviceSerialNumber;
+            connection_triad = safety_info->eip_conn_info->triad;
          }
          else
          {
-            conn_sn = safety_info->eip_conn_info->safety.target_conn_sn;
-            vendorID = safety_info->eip_conn_info->safety.target_vendorID;
-            device_sn = safety_info->eip_conn_info->safety.target_device_sn;
+            connection_triad = safety_info->eip_conn_info->safety.target_triad;
          }
       }
 
@@ -1621,14 +1614,14 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             {
                proto_tree_add_checksum(tree, tvb, io_data_size+1,
                         hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1, pinfo,
-                        compute_crc_s1_data(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                        compute_crc_s1_data(compute_crc_s1_pid(&connection_triad),
                                 (mode_byte & MODE_BYTE_CRC_S1_MASK),
                                 tvb_get_ptr(tvb, 0, io_data_size), io_data_size),
                         ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
                proto_tree_add_checksum(tree, tvb, io_data_size+2,
                         hf_cipsafety_crc_s2, hf_cipsafety_crc_s2_status, &ei_cipsafety_crc_s2, pinfo,
-                        compute_crc_s2_data(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                        compute_crc_s2_data(compute_crc_s1_pid(&connection_triad),
                                 ((mode_byte ^ 0xFF) & MODE_BYTE_CRC_S1_MASK),
                                 /* I/O data is duplicated because it will be complemented inline */
                                 (guint8*)tvb_memdup(wmem_packet_scope(), tvb, 0, io_data_size), io_data_size),
@@ -1649,7 +1642,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             {
                proto_tree_add_checksum(tree, tvb, io_data_size+5,
                         hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1, pinfo,
-                        compute_crc_s1_timestamp(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                        compute_crc_s1_timestamp(compute_crc_s1_pid(&connection_triad),
                                 (mode_byte & MODE_BYTE_CRC_S1_TIME_STAMP_MASK),
                                 timestamp),
                         ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -1689,7 +1682,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             {
                proto_tree_add_checksum(tree, tvb, io_data_size+1,
                         hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3, pinfo,
-                        compute_crc_s3_base_data(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                        compute_crc_s3_base_data(compute_crc_s3_pid(&connection_triad),
                                 mode_byte & MODE_BYTE_CRC_S3_MASK, tvb_get_ptr(tvb, 0, io_data_size), io_data_size),
                         ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
             }
@@ -1708,7 +1701,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             {
                proto_tree_add_checksum(tree, tvb, (io_data_size*2)+3,
                         hf_cipsafety_complement_crc_s3, hf_cipsafety_complement_crc_s3_status, &ei_cipsafety_complement_crc_s3, pinfo,
-                        compute_crc_s3_base_data(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                        compute_crc_s3_base_data(compute_crc_s3_pid(&connection_triad),
                                 ((mode_byte ^ 0xFF) & MODE_BYTE_CRC_S3_MASK),
                                 tvb_get_ptr(tvb, io_data_size+3, io_data_size), io_data_size),
                         ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -1725,7 +1718,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             {
                proto_tree_add_checksum(tree, tvb, (io_data_size*2)+7,
                         hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1, pinfo,
-                        compute_crc_s1_timestamp(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                        compute_crc_s1_timestamp(compute_crc_s1_pid(&connection_triad),
                                 (mode_byte & MODE_BYTE_CRC_S1_TIME_STAMP_MASK),
                                 timestamp),
                         ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -1797,7 +1790,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             /* CRC-S5 doesn't use proto_tree_add_checksum because the checksum is broken up in non-consecutive bytes */
             if (compute_crc && (packet_data != NULL))
             {
-               test_crc_c5 = compute_crc_s5_short_data(compute_crc_s5_pid(conn_sn, vendorID, device_sn),
+               test_crc_c5 = compute_crc_s5_short_data(compute_crc_s5_pid(&connection_triad),
                                         ((timestamp != 0) ? packet_data->rollover_value : 0), mode_byte & MODE_BYTE_CRC_S5_BASE_MASK, timestamp,
                                         tvb_get_ptr(tvb, 0, io_data_size), io_data_size);
 
@@ -1875,7 +1868,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
                {
                   proto_tree_add_checksum(tree, tvb, io_data_size+1,
                            hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3, pinfo,
-                           compute_crc_s3_extended_data(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                           compute_crc_s3_extended_data(compute_crc_s3_pid(&connection_triad),
                                 ((timestamp != 0) ? packet_data->rollover_value : 0), mode_byte & MODE_BYTE_CRC_S3_MASK, tvb_get_ptr(tvb, 0, io_data_size), io_data_size),
                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
                }
@@ -1898,7 +1891,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             /* CRC-S5 doesn't use proto_tree_add_checksum because the checksum is broken up in non-consecutive bytes */
             if (compute_crc && (packet_data != NULL))
             {
-               test_crc_c5 = compute_crc_s5_long_data(compute_crc_s5_pid(conn_sn, vendorID, device_sn),
+               test_crc_c5 = compute_crc_s5_long_data(compute_crc_s5_pid(&connection_triad),
                                         ((timestamp != 0) ? packet_data->rollover_value : 0), mode_byte & MODE_BYTE_CRC_S5_EXTENDED_MASK, timestamp,
                                         /* I/O data is duplicated because it will be complemented inline */
                                         (guint8*)tvb_memdup(wmem_packet_scope(), tvb, 0, io_data_size), io_data_size);

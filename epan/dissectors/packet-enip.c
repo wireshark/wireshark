@@ -894,9 +894,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 }
 
 typedef struct enip_conn_key {
-   guint16 ConnSerialNumber;
-   guint16 VendorID;
-   guint32 DeviceSerialNumber;
+   cip_connection_triad_t triad;
    guint32 O2TConnID;
    guint32 T2OConnID;
 } enip_conn_key_t;
@@ -938,7 +936,7 @@ enip_io_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
            conn->open_frame, conn->open_reply_frame, conn->close_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
    else
    {
@@ -949,7 +947,7 @@ enip_io_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",    /* Connection Triad */
            conn->open_frame, conn->open_reply_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
 
    return buf;
@@ -984,7 +982,7 @@ enip_exp_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
            conn->open_frame, conn->open_reply_frame, conn->close_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
    else
    {
@@ -995,7 +993,7 @@ enip_exp_conv_filter(packet_info *pinfo)
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
            conn->open_frame, conn->open_reply_frame,
            conn->O2TConnID, conn->T2OConnID,
-           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+           conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
    return buf;
 }
@@ -1012,9 +1010,9 @@ enip_conn_equal(gconstpointer v, gconstpointer w)
   const enip_conn_key_t *v1 = (const enip_conn_key_t *)v;
   const enip_conn_key_t *v2 = (const enip_conn_key_t *)w;
 
-  if ((v1->ConnSerialNumber == v2->ConnSerialNumber) &&
-      (v1->VendorID == v2->VendorID) &&
-      (v1->DeviceSerialNumber == v2->DeviceSerialNumber) &&
+  if ((v1->triad.ConnSerialNumber == v2->triad.ConnSerialNumber) &&
+      (v1->triad.VendorID == v2->triad.VendorID) &&
+      (v1->triad.DeviceSerialNumber == v2->triad.DeviceSerialNumber) &&
       ((v1->O2TConnID == 0) || (v2->O2TConnID == 0) || (v1->O2TConnID == v2->O2TConnID)) &&
       ((v1->T2OConnID == 0) || (v2->T2OConnID == 0) || (v1->T2OConnID == v2->T2OConnID)))
     return 1;
@@ -1028,7 +1026,7 @@ enip_conn_hash (gconstpointer v)
    const enip_conn_key_t *key = (const enip_conn_key_t *)v;
    guint val;
 
-   val = (guint)( key->ConnSerialNumber + key->VendorID + key->DeviceSerialNumber );
+   val = (guint)( key->triad.ConnSerialNumber + key->triad.VendorID + key->triad.DeviceSerialNumber );
 
    return val;
 }
@@ -1053,9 +1051,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    }
 
    conn_key = wmem_new(wmem_file_scope(), enip_conn_key_t);
-   conn_key->ConnSerialNumber = connInfo->ConnSerialNumber;
-   conn_key->VendorID = connInfo->VendorID;
-   conn_key->DeviceSerialNumber = connInfo->DeviceSerialNumber;
+   conn_key->triad = connInfo->triad;
    conn_key->O2TConnID = connInfo->O2T.connID;
    conn_key->T2OConnID = connInfo->T2O.connID;
 
@@ -1064,9 +1060,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    {
       conn_val = wmem_new(wmem_file_scope(), enip_conn_val_t);
 
-      conn_val->ConnSerialNumber       = connInfo->ConnSerialNumber;
-      conn_val->VendorID               = connInfo->VendorID;
-      conn_val->DeviceSerialNumber     = connInfo->DeviceSerialNumber;
+      conn_val->triad                  = connInfo->triad;
       conn_val->O2TConnID              = connInfo->O2T.connID;
       conn_val->T2OConnID              = connInfo->T2O.connID;
       conn_val->TransportClass_trigger = connInfo->TransportClass_trigger;
@@ -1188,8 +1182,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 }
 
 void
-enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
-                          guint16 VendorID, guint32 DeviceSerialNumber )
+enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* triad)
 {
    enip_conn_key_t  conn_key;
    enip_conn_val_t *conn_val;
@@ -1197,9 +1190,7 @@ enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
    if (pinfo->fd->flags.visited)
       return;
 
-   conn_key.ConnSerialNumber   = ConnSerialNumber;
-   conn_key.VendorID           = VendorID;
-   conn_key.DeviceSerialNumber = DeviceSerialNumber;
+   conn_key.triad              = *triad;
    conn_key.O2TConnID          = 0;
    conn_key.T2OConnID          = 0;
 
@@ -1215,14 +1206,12 @@ enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
 }
 
 /* Save the connection info for the conversation filter */
-void enip_mark_connection_triad( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber )
+void enip_mark_connection_triad(packet_info *pinfo, const cip_connection_triad_t* triad)
 {
    enip_conn_key_t  conn_key;
    enip_conn_val_t *conn_val;
 
-   conn_key.ConnSerialNumber   = ConnSerialNumber;
-   conn_key.VendorID           = VendorID;
-   conn_key.DeviceSerialNumber = DeviceSerialNumber;
+   conn_key.triad              = *triad;
    conn_key.O2TConnID          = 0;
    conn_key.T2OConnID          = 0;
 
