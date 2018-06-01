@@ -11,51 +11,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <glib.h>
+#include "make-lib.h"
 
 #define ARRAY_RESERVED_SIZE     128
 #define STRING_RESERVED_SIZE    (8 * 1024)
 
-GRegex *taps_regex;
-
-static int
-compare_symbols(gconstpointer a, gconstpointer b)
-{
-    return g_strcmp0(*(const char **)a, *(const char **)b);
-}
-
-static void
-scan_matches(GRegex *regex, const char *string, GPtrArray *dst)
-{
-    GMatchInfo *match_info;
-    char *match;
-
-    g_regex_match(regex, string, G_REGEX_MATCH_NOTEMPTY, &match_info);
-    while (g_match_info_matches(match_info)) {
-        match = g_match_info_fetch(match_info, 1);
-        g_ptr_array_add(dst, match);
-        g_match_info_next(match_info, NULL);
-    }
-    g_match_info_free(match_info);
-}
-
-static void
-scan_file(const char *file, GPtrArray *taps)
-{
-    char *contents;
-    GError *err = NULL;
-
-    if (!g_file_get_contents(file, &contents, NULL, &err)) {
-        fprintf(stderr, "%s: %s\n", file, err->message);
-        exit(1);
-    }
-    scan_matches(taps_regex, contents, taps);
-    g_free(contents);
-}
 
 int main(int argc, char **argv)
 {
+    GRegex *taps_regex;
     GPtrArray *taps = NULL;
+    struct symbol_item items[1];
     GError *err = NULL;
     guint i;
     GString *s;
@@ -76,9 +42,12 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    items[0].regex = taps_regex;
+    items[0].ptr_array = taps;
+
     outfile = argv[1];
     for (int arg = 2; arg < argc; arg++) {
-         scan_file(argv[arg], taps);
+         scan_file(argv[arg], items, G_N_ELEMENTS(items));
     }
 
     if (taps->len == 0) {

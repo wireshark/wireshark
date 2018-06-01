@@ -9,13 +9,13 @@
 
 add_subdirectory(lemon)
 
-add_executable(make-dissectors make-dissectors.c)
+add_executable(make-dissectors make-dissectors.c make-lib.c)
 target_link_libraries(make-dissectors ${GLIB2_LIBRARIES})
 if(WIN32)
 	add_dependencies(make-dissectors copy_cli_dlls)
 endif()
 
-add_executable(make-taps make-taps.c)
+add_executable(make-taps make-taps.c make-lib.c)
 target_link_libraries(make-taps ${GLIB2_LIBRARIES})
 
 #

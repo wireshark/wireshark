@@ -11,74 +11,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <glib.h>
+#include "make-lib.h"
 
 #define ARRAY_RESERVED_SIZE     2048
 #define STRING_RESERVED_SIZE    (300 * 1024)
 
-#ifdef _WIN32
-  #define SEP   "\r\n"
-#else
-  #define SEP   "\n"
-#endif
-
-GRegex *protos_regex, *handoffs_regex;
-
-static int
-compare_symbols(gconstpointer a, gconstpointer b)
-{
-    return g_strcmp0(*(const char **)a, *(const char **)b);
-}
-
-static void
-scan_matches(GRegex *regex, const char *string, GPtrArray *dst)
-{
-    GMatchInfo *match_info;
-    char *match;
-
-    g_regex_match(regex, string, G_REGEX_MATCH_NOTEMPTY, &match_info);
-    while (g_match_info_matches(match_info)) {
-        match = g_match_info_fetch(match_info, 1);
-        g_ptr_array_add(dst, match);
-        g_match_info_next(match_info, NULL);
-    }
-    g_match_info_free(match_info);
-}
-
-static void
-scan_file(const char *file, GPtrArray *protos, GPtrArray *handoffs)
-{
-    char *contents;
-    GError *err = NULL;
-
-    if (!g_file_get_contents(file, &contents, NULL, &err)) {
-        fprintf(stderr, "%s: %s\n", file, err->message);
-        exit(1);
-    }
-    scan_matches(protos_regex, contents, protos);
-    scan_matches(handoffs_regex, contents, handoffs);
-    g_free(contents);
-}
-
-static void
-scan_list(const char *file, GPtrArray *protos, GPtrArray *handoffs)
-{
-    char *contents, *arg;
-    GError *err = NULL;
-
-    if (!g_file_get_contents(file, &contents, NULL, &err)) {
-        fprintf(stderr, "%s: %s\n", file, err->message);
-        exit(1);
-    }
-    for (arg = strtok(contents, SEP); arg != NULL; arg = strtok(NULL, SEP)) {
-        scan_file(arg, protos, handoffs);
-    }
-    g_free(contents);
-}
 
 int main(int argc, char **argv)
 {
+    GRegex *protos_regex, *handoffs_regex;
     GPtrArray *protos = NULL, *handoffs = NULL;
+    struct symbol_item items[2];
     GError *err = NULL;
     guint i;
     GString *s;
@@ -106,13 +49,18 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    items[0].regex = protos_regex;
+    items[0].ptr_array = protos;
+    items[1].regex = handoffs_regex;
+    items[1].ptr_array = handoffs;
+
     outfile = argv[1];
     for (int arg = 2; arg < argc; arg++) {
         if (argv[arg][0] == '@') {
-            scan_list(&argv[arg][1], protos, handoffs);
+            scan_list(&argv[arg][1], items, G_N_ELEMENTS(items));
         }
         else {
-            scan_file(argv[arg], protos, handoffs);
+            scan_file(argv[arg], items, G_N_ELEMENTS(items));
         }
     }
 
