@@ -680,6 +680,33 @@ fragment_add_seq_offset(reassembly_table *table, const packet_info *pinfo, const
 	fd_head->fragment_nr_offset = fragment_offset;
 }
 
+/*
+ * For use with fragment_add (and not the fragment_add_seq functions).
+ * When the reassembled result is wrong (perhaps it needs to be extended), this
+ * function clears any previous reassembly result, allowing the new reassembled
+ * length to be set again.
+ */
+static void
+fragment_reset_defragmentation(fragment_head *fd_head)
+{
+	/* Caller must ensure that this function is only called when
+	 * defragmentation is safe to undo. */
+	DISSECTOR_ASSERT(fd_head->flags & FD_DEFRAGMENTED);
+
+	for (fragment_item *fd_i = fd_head->next; fd_i; fd_i = fd_i->next) {
+		if (!fd_i->tvb_data) {
+			fd_i->tvb_data = tvb_new_subset_remaining(fd_head->tvb_data, fd_i->offset);
+			fd_i->flags |= FD_SUBSET_TVB;
+		}
+		fd_i->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
+	}
+	fd_head->flags &= ~(FD_DEFRAGMENTED|FD_PARTIAL_REASSEMBLY|FD_DATALEN_SET);
+	fd_head->flags &= ~(FD_TOOLONGFRAGMENT|FD_MULTIPLETAILS);
+	fd_head->datalen = 0;
+	fd_head->reassembled_in = 0;
+	fd_head->reas_in_layer_num = 0;
+}
+
 /* This function can be used to explicitly set the total length (if known)
  * for reassembly of a PDU.
  * This is useful for reassembly of PDUs where one may have the total length specified
@@ -732,6 +759,39 @@ fragment_set_tot_len(reassembly_table *table, const packet_info *pinfo,
 	}
 
 	/* We got this far so the value is sane. */
+	fd_head->datalen = tot_len;
+	fd_head->flags |= FD_DATALEN_SET;
+}
+
+void
+fragment_reset_tot_len(reassembly_table *table, const packet_info *pinfo,
+		       const guint32 id, const void *data, const guint32 tot_len)
+{
+	fragment_head *fd_head;
+
+	fd_head = lookup_fd_head(table, pinfo, id, data, NULL);
+	if (!fd_head)
+		return;
+
+	/*
+	 * If FD_PARTIAL_REASSEMBLY is set, it would make the next fragment_add
+	 * call set the reassembled length based on the fragment offset and
+	 * length. As the length is known now, be sure to disable that magic.
+	 */
+	fd_head->flags &= ~FD_PARTIAL_REASSEMBLY;
+
+	/* If the length is already as expected, there is nothing else to do. */
+	if (tot_len == fd_head->datalen)
+		return;
+
+	if (fd_head->flags & FD_DEFRAGMENTED) {
+		/*
+		 * Fragments were reassembled before, clear it to allow
+		 * increasing the reassembled length.
+		 */
+		fragment_reset_defragmentation(fd_head);
+	}
+
 	fd_head->datalen = tot_len;
 	fd_head->flags |= FD_DATALEN_SET;
 }
@@ -907,6 +967,7 @@ MERGE_FRAG(fragment_head *fd_head, fragment_item *fd)
 	}
 	fd_i->next = fd;
 }
+
 /*
  * This function adds a new fragment to the fragment hash table.
  * If this is the first fragment seen for this datagram, a new entry
@@ -970,18 +1031,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				 * Yes.  Set flag in already empty fds &
 				 * point old fds to malloc'ed data.
 				 */
-				for(fd_i=fd_head->next; fd_i; fd_i=fd_i->next){
-					if( !fd_i->tvb_data ) {
-						fd_i->tvb_data = tvb_new_subset_remaining(fd_head->tvb_data, fd_i->offset);
-						fd_i->flags |= FD_SUBSET_TVB;
-					}
-					fd_i->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
-				}
-				fd_head->flags &= ~(FD_DEFRAGMENTED|FD_PARTIAL_REASSEMBLY|FD_DATALEN_SET);
-				fd_head->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
-				fd_head->datalen=0;
-				fd_head->reassembled_in=0;
-				fd_head->reas_in_layer_num = 0;
+				fragment_reset_defragmentation(fd_head);
 			} else {
 				/*
 				 * No.  Bail out since we have no idea what to

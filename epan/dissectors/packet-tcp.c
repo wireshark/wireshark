@@ -2981,6 +2981,37 @@ static reassembly_table tcp_reassembly_table;
 /* Enable desegmenting of TCP streams */
 static gboolean tcp_desegment = TRUE;
 
+/* Enable buffering of out-of-order TCP segments before passing it to a
+ * subdissector (depends on "tcp_desegment"). */
+static gboolean tcp_reassemble_out_of_order = FALSE;
+
+/* Returns true iff any gap exists in the segments associated with msp up to the
+ * given sequence number (it ignores any gaps after the sequence number). */
+static gboolean
+missing_segments(packet_info *pinfo, struct tcp_multisegment_pdu *msp, guint32 seq)
+{
+    fragment_head *fd_head;
+    guint32 frag_offset = seq - msp->seq;
+
+    if ((gint32)frag_offset <= 0) {
+        return FALSE;
+    }
+
+    fd_head = fragment_get(&tcp_reassembly_table, pinfo, msp->first_frame, NULL);
+    /* msp implies existence of fragments, this should never be NULL. */
+    DISSECTOR_ASSERT(fd_head);
+
+    /* Find length of contiguous fragments. */
+    guint32 max = 0;
+    for (fragment_item *frag = fd_head; frag; frag = frag->next) {
+        guint32 frag_end = frag->offset + frag->len;
+        if (frag->offset <= max && max < frag_end) {
+            max = frag_end;
+        }
+    }
+    return max < frag_offset;
+}
+
 static void
 desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
               guint32 seq, guint32 nxtseq,
@@ -2999,6 +3030,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
     proto_item *item;
     struct tcp_multisegment_pdu *msp;
     gboolean cleared_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
+    const gboolean reassemble_ooo = tcp_desegment && tcp_reassemble_out_of_order;
 
 again:
     ipfd_head = NULL;
@@ -3027,8 +3059,11 @@ again:
     if (tcpd) {
         /* Have we seen this PDU before (and is it the start of a multi-
          * segment PDU)?
+         * Only shortcircuit here when the first segment of the MSP is known,
+         * and when this this first segment is not one to complete the MSP.
          */
-        if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(tcpd->fwd->multisegment_pdus, seq))) {
+        if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(tcpd->fwd->multisegment_pdus, seq)) &&
+                !(msp->flags & MSP_FLAGS_MISSING_FIRST_SEGMENT) && msp->last_frame != pinfo->num) {
             const char* str;
 
             /* Yes.  This could be because we've dissected this frame before
@@ -3071,6 +3106,18 @@ again:
         /* The above code only finds retransmission if the PDU boundaries and the seq coincide I think
          * If we have sequence analysis active use the TCP_A_RETRANSMISSION flag.
          * XXXX Could the above code be improved?
+         * XXX the following check works great for filtering duplicate
+         * retransmissions, but could there be a case where it prevents
+         * "tcp_reassemble_out_of_order" from functioning due to skipping
+         * retransmission of a lost segment?
+         * If the latter is enabled, it could use use "maxnextseq" for ignoring
+         * retransmitted single-segment PDUs (that would require storing
+         * per-packet state (tcp_per_packet_data_t) to make it work for two-pass
+         * and random access dissection). Retransmitted segments that are part
+         * of a MSP should already be passed only once to subdissectors due to
+         * the "reassembled_in" check below.
+         * The following should also check for TCP_A_SPURIOUS_RETRANSMISSION to
+         * address bug 10289.
          */
         if((tcpd->ta) && ((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION)){
             const char* str = "Retransmitted ";
@@ -3081,7 +3128,62 @@ again:
             return;
         }
         /* Else, find the most previous PDU starting before this sequence number */
-        msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
+        if (!msp) {
+            msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
+        }
+    }
+
+    if (reassemble_ooo && tcpd && !PINFO_FD_VISITED(pinfo)) {
+        /* If there is a gap between this segment and any previous ones (that
+         * is, seqno is larger than the maximum expected seqno), then it is
+         * possibly an out-of-order segment. The very first segment is expected
+         * to be in-order though (otherwise captures starting in midst of a
+         * connection would never be reassembled).
+         */
+        if (tcpd->fwd->maxnextseq) {
+            /* Segments may be missing due to packet loss (assume later
+             * retransmission) or out-of-order (assume it will appear later).
+             *
+             * Extend an unfinished MSP when (1) missing segments exist between
+             * the start of the previous, (2) unfinished MSP and new segment.
+             *
+             * Create a new MSP when no (1) previous MSP exists and (2) a gap is
+             * detected between the previous largest nxtseq and the new segment.
+             */
+            /* Whether a previous MSP exists with missing segments. */
+            gboolean has_unfinished_msp = msp && !(msp->flags & MSP_FLAGS_GOT_ALL_SEGMENTS);
+            /* Whether the new segment creates a new gap. */
+            gboolean has_gap = LT_SEQ(tcpd->fwd->maxnextseq, seq);
+
+            if (has_unfinished_msp && missing_segments(pinfo, msp, seq)) {
+                /* The last PDU is part of a MSP which still needed more data,
+                 * extend it (if necessary) to cover the entire new segment.
+                 */
+                if (LT_SEQ(msp->nxtpdu, nxtseq)) {
+                    msp->nxtpdu = nxtseq;
+                }
+            } else if (!has_unfinished_msp && has_gap) {
+                /* Either the previous segment was a single PDU that did not
+                 * belong to a MSP, or the previous MSP was completed and cannot
+                 * be extended.
+                 * Create a new one starting at the expected next position and
+                 * extend it to the end of the new segment.
+                 */
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                    tcpd->fwd->maxnextseq, nxtseq,
+                    tcpd->fwd->multisegment_pdus);
+
+                msp->flags |= MSP_FLAGS_MISSING_FIRST_SEGMENT;
+            }
+            /* Now that the MSP is updated or created, continue adding the
+             * segments to the MSP below. The subdissector will not be called as
+             * the MSP is not complete yet. */
+        }
+        if (tcpd->fwd->maxnextseq == 0 || LT_SEQ(tcpd->fwd->maxnextseq, nxtseq)) {
+            /* Update the maximum expected seqno if unknown or if the new
+             * segment succeeds previous segments. */
+            tcpd->fwd->maxnextseq = nxtseq;
+        }
     }
 
     if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
@@ -3103,6 +3205,21 @@ again:
         }
         last_fragment_len = len;
 
+
+        if (reassemble_ooo) {
+            /*
+             * If the previous segment requested more data (setting
+             * FD_PARTIAL_REASSEMBLY as the next segment length is unknown), but
+             * subsequently an OoO segment was received (for an earlier hole),
+             * then "fragment_add" would truncate the reassembled PDU to the end
+             * of this OoO segment. To prevent that, explicitly specify the MSP
+             * length before calling "fragment_add".
+             */
+            fragment_reset_tot_len(&tcp_reassembly_table, pinfo,
+                                   msp->first_frame, NULL,
+                                   MAX(seq + len, msp->nxtpdu) - msp->seq);
+        }
+
         ipfd_head = fragment_add(&tcp_reassembly_table, tvb, offset,
                                  pinfo, msp->first_frame, NULL,
                                  seq - msp->seq, len,
@@ -3121,6 +3238,19 @@ again:
              * the code.)
              */
             msp->nxtpdu = nxtseq;
+        }
+
+        if (reassemble_ooo && !PINFO_FD_VISITED(pinfo)) {
+            /* If the first segment of the MSP was seen, remember it. */
+            if (msp->seq == seq) {
+                msp->flags &= ~MSP_FLAGS_MISSING_FIRST_SEGMENT;
+            }
+            /* Remember when all segments are ready to avoid subsequent
+             * out-of-order packets from extending this MSP. If a subsdissector
+             * needs more segments, the flag will be cleared below. */
+            if (ipfd_head) {
+                msp->flags |= MSP_FLAGS_GOT_ALL_SEGMENTS;
+            }
         }
 
         if( (msp->nxtpdu < nxtseq)
@@ -3214,6 +3344,10 @@ again:
              * desegmented, or does it think we need even more
              * data?
              */
+            if (reassemble_ooo && !PINFO_FD_VISITED(pinfo) && pinfo->desegment_len) {
+                /* "desegment_len" isn't 0, so it needs more data to extend the MSP. */
+                msp->flags &= ~MSP_FLAGS_GOT_ALL_SEGMENTS;
+            }
             old_len = (int)(tvb_reported_length(next_tvb) - last_fragment_len);
             if (pinfo->desegment_len &&
                 pinfo->desegment_offset<=old_len) {
@@ -3247,13 +3381,24 @@ again:
                      * This means that the next segment
                      * will complete reassembly even if it
                      * is only one single byte in length.
+                     * If this is an OoO segment, then increment the MSP end.
                      */
-                    msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + 1;
+                    msp->nxtpdu = MAX(seq + tvb_reported_length_remaining(tvb, offset), msp->nxtpdu) + 1;
                     msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
                 } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
                     tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
                 } else {
-                    msp->nxtpdu=seq + last_fragment_len + pinfo->desegment_len;
+                    if (seq + last_fragment_len >= msp->nxtpdu) {
+                        /* This is the segment (overlapping) the end of the MSP. */
+                        msp->nxtpdu = seq + last_fragment_len + pinfo->desegment_len;
+                    } else {
+                        /* This is a segment before the end of the MSP, so it
+                         * must be an out-of-order segmented that completed the
+                         * MSP. The requested additional data is relative to
+                         * that end.
+                         */
+                        msp->nxtpdu += pinfo->desegment_len;
+                    }
                 }
 
                 /* Since we need at least some more data
@@ -5507,10 +5652,15 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     }
 
-    if (tcp_no_subdissector_on_error && tcpd && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
+    if (tcp_no_subdissector_on_error && !(tcp_desegment && tcp_reassemble_out_of_order) &&
+        tcpd && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
         /* Don't try to dissect a retransmission high chance that it will mess
          * subdissectors for protocols that require in-order delivery of the
          * PDUs. (i.e. DCE/RPCoverHTTP and encryption)
+         * If OoO reassembly is enabled and if this segment was previously lost,
+         * then this retransmission could have finished reassembly, so continue.
+         * XXX should this option be removed? "tcp_reassemble_out_of_order"
+         * should have addressed the above in-order requirement.
          */
         return FALSE;
     }
@@ -7520,6 +7670,11 @@ proto_register_tcp(void)
         "Allow subdissector to reassemble TCP streams",
         "Whether subdissector can request TCP streams to be reassembled",
         &tcp_desegment);
+    prefs_register_bool_preference(tcp_module, "reassemble_out_of_order",
+        "Reassemble out-of-order segments",
+        "Whether out-of-order segments should be buffered and reordered before passing it to a subdissector. "
+        "To use this option you must also enable \"Allow subdissector to reassemble TCP streams\".",
+        &tcp_reassemble_out_of_order);
     prefs_register_bool_preference(tcp_module, "analyze_sequence_numbers",
         "Analyze TCP sequence numbers",
         "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",

@@ -175,6 +175,10 @@ struct tcp_multisegment_pdu {
 	nstime_t last_frame_time;
 	guint32 flags;
 #define MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT	0x00000001
+/* Whether this MSP is finished and no more segments can be added. */
+#define MSP_FLAGS_GOT_ALL_SEGMENTS		0x00000002
+/* Whether the first segment of this MSP was not yet seen. */
+#define MSP_FLAGS_MISSING_FIRST_SEGMENT		0x00000004
 };
 
 
@@ -334,6 +338,11 @@ typedef struct _tcp_flow_t {
 
 	/* see TCP_A_* in packet-tcp.c */
 	guint32 lastsegmentflags;
+
+	/* The next (largest) sequence number after all segments seen so far.
+	 * Valid only on the first pass and used to handle out-of-order segments
+	 * during reassembly. */
+	guint32 maxnextseq;
 
 	/* This tree is indexed by sequence number and keeps track of all
 	 * all pdus spanning multiple segments for this flow.

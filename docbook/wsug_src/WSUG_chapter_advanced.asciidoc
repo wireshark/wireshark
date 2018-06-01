@@ -357,6 +357,9 @@ capture file is first opened. Packets are processed in the order in
 which they appear in the packet list. You can enable or disable this
 feature via the “Analyze TCP sequence numbers” TCP dissector preference.
 
+For analysis of data or protocols layered on top of TCP (such as HTTP), see
+<<ChAdvReassemblyTcp>>.
+
 .“TCP Analysis” packet detail items
 image::wsug_graphics/ws-tcp-analysis.png[{screenshot-attrs}]
 
@@ -837,6 +840,66 @@ settings for a protocol typically requires two things:
 
 The tooltip of the higher level protocol setting will notify you if and which
 lower level protocol setting also has to be considered.
+
+[[ChAdvReassemblyTcp]]
+
+==== TCP Reassembly
+
+Protocols such as HTTP or TLS are likely to span multiple TCP segments. The
+TCP protocol preference “Allow subdissector to reassemble TCP streams” (enabled
+by default) makes it possible for Wireshark to collect a contiguous sequence of
+TCP segments and hand them over to the higher level protocol (for example, to
+reconstruct a full HTTP message). All but the final segment will be marked with
+“[TCP segment of a reassembled PDU]” in the packet list.
+
+Disable this preference to reduce memory and processing overhead if you are only
+interested in TCP sequence number analysis (<<ChAdvTCPAnalysis>>). Keep in mind,
+though, that higher level protocols might be wrongly dissected. For example,
+HTTP messages could be shown as “Continuation” and TLS records could be shown as
+“Ignored Unknown Record”. Such results can also be observed if you start
+capturing while a TCP connection was already started or when TCP segments
+are lost or delivered out-of-order.
+
+To reassemble of out-of-order TCP segments, the TCP protocol preference
+“Reassemble out-of-order segments” (currently disabled by default) must be
+enabled in addition to the previous preference.
+If all packets are received in-order, this preference will not have any effect.
+Otherwise (if missing segments are encountered while sequentially processing a
+packet capture), it is assumes that the new and missing segments belong to the
+same PDU. Caveats:
+
+* Lost packets are assumed to be received out-of-order or retransmitted later.
+  Applications usually retransmit segments until these are acknowledged, but if
+  the packet capture drops packets, then Wireshark will not be able to
+  reconstruct the TCP stream. In such cases, you can try to disable this
+  preference and hopefully have a partial dissection instead of seeing just
+  “[TCP segment of a reassembled PDU]” for every TCP segment.
+// See test/suite_decryption.py (suite_decryption.case_decrypt_80211)
+// which would break when enabling the preference.
+* When doing a capture in monitor mode (IEEE 802.11), packets are more likely to
+  get lost due to signal reception issues. In that case it is recommended to
+  disable the option.
+// See test/suite_dissection.py (case_dissect_tcp.check_tcp_out_of_order)
+* If the new and missing segments are in fact part of different PDUs,
+  then processing is currently delayed until no more segments are missing, even
+  if the begin of the missing segments completed a PDU. For example, assume six
+  segments forming two PDUs `ABC` and `DEF`. When received as `ABECDF`, an
+  application can start processing the first PDU after receiving `ABEC`.
+  Wireshark however requires the missing segment `D` to be received as well.
+  This issue will be addressed in the future.
+// See test/suite_dissection.py (case_dissect_tcp.test_tcp_out_of_order_twopass)
+* In the GUI and during a two-pass dissection (`tshark -2`), the previous
+  scenario will display both PDUs in the packet with last segment (`F`) rather
+  than displaying it in the first packet that has the final missing segment of a
+  PDU. This issue will be addressed in the future.
+* When enabled, fields such as the SMB “Time from request” (`smb.time`) might be
+  smaller if the request follows other out-of-order segments (this reflects
+  application behavior). If the previous scenario however occurs, then the time
+  of the request is based on the frame where all missing segments are received.
+
+Regardless of the setting of these two reassembly-related preferences, you can
+always use the “Follow TCP Stream” option (<<ChAdvFollowStreamSection>>) which
+displays segments in the expected order.
 
 [[ChAdvNameResolutionSection]]
 

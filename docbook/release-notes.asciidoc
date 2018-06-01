@@ -39,12 +39,12 @@ Dumpcap might not quit if Wireshark or TShark crashes.
 The following features are new (or have been significantly updated)
 since version 2.6.0:
 
-* The membership operator now supports ranges, allowing display filters such as
-  `tcp.port in {4430..4434}` to be expressed. See the User’s Guide, chapter
-  _Building display filter expressions_ for details.
 * TShark now supports the `-G elastic-mapping` option which generates an ElasticSearch mapping file.
 * The “Capture Information” dialog has been added back (wsbuglink:12004[]).
 * The Ethernet dissector no longer validates the frame check sequence (checksum) by default.
+* The TCP dissector gained a new “Reassemble out-of-order segments” preference
+  to fix dissection and decryption issues in case TCP segments are received
+  out-of-order. See the User’s Guide, chapter _TCP Reassembly_ for details.
 
 === Removed Features and Support
 

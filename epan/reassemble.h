@@ -365,6 +365,18 @@ fragment_set_tot_len(reassembly_table *table, const packet_info *pinfo,
 		     const guint32 id, const void *data, const guint32 tot_len);
 
 /*
+ * Similar to fragment_set_tot_len, it sets the expected number of bytes (for
+ * fragment_add functions) for a previously started reassembly. If the specified
+ * length already matches the reassembled length, then nothing will be done.
+ *
+ * If the fragments were previously reassembled, then this state will be
+ * cleared, allowing new fragments to extend the reassembled result again.
+ */
+void
+fragment_reset_tot_len(reassembly_table *table, const packet_info *pinfo,
+		       const guint32 id, const void *data, const guint32 tot_len);
+
+/*
  * Return the expected index for the last block (for fragment_add_seq functions)
  * or the expected number of bytes (for fragment_add functions).
  */

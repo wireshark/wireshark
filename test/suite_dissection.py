@@ -29,3 +29,53 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
             ),
             env=config.test_env)
         self.assertTrue(self.grepOutput('DATA'))
+
+class case_dissect_tcp(subprocesstest.SubprocessTestCase):
+    def check_tcp_out_of_order(self, extraArgs=[]):
+        capture_file = os.path.join(config.capture_dir, 'http-ooo.pcap')
+        self.runProcess([config.cmd_tshark,
+                '-r', capture_file,
+                '-otcp.reassemble_out_of_order:TRUE',
+                '-Y', 'http',
+            ] + extraArgs,
+            env=config.test_env)
+        self.assertEqual(self.countOutput('HTTP'), 5)
+        # TODO PDU /1 (segments in frames 1, 2, 4) should be reassembled in
+        # frame 4, but it is currently done in frame 6 because the current
+        # implementation reassembles only contiguous segments and PDU /2 has
+        # segments in frames 6, 3, 7.
+        self.assertTrue(self.grepOutput(r'^\s*6\s.*PUT /1 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*7\s.*GET /2 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*10\s.*PUT /3 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*11\s.*PUT /4 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*15\s.*PUT /5 HTTP/1.1'))
+
+    def test_tcp_out_of_order_onepass(self):
+        self.check_tcp_out_of_order()
+
+    @unittest.skip("MSP splitting is not implemented yet")
+    def test_tcp_out_of_order_twopass(self):
+        self.check_tcp_out_of_order(extraArgs=['-2'])
+
+    def test_tcp_out_of_order_twopass_with_bug(self):
+        # TODO fix the issue below, remove this and enable
+        # "test_tcp_out_of_order_twopass"
+        capture_file = os.path.join(config.capture_dir, 'http-ooo.pcap')
+        self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-otcp.reassemble_out_of_order:TRUE',
+                '-Y', 'http',
+                '-2',
+            ),
+            env=config.test_env)
+        self.assertEqual(self.countOutput('HTTP'), 3)
+        self.assertTrue(self.grepOutput(r'^\s*7\s.*PUT /1 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*7\s.*GET /2 HTTP/1.1'))
+        # TODO ideally this should not be concatenated.
+        # Normally a multi-segment PDU (MSP) covers only a single PDU, but OoO
+        # segments can extend MSP such that it covers two (or even more) PDUs.
+        # Until MSP splitting is implemented, two PDUs are shown in a single
+        # packet (and in case of -2, they are only shown in the last packet).
+        self.assertTrue(self.grepOutput(r'^\s*11\s.*PUT /3 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*11\s.*PUT /4 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*15\s.*PUT /5 HTTP/1.1'))
