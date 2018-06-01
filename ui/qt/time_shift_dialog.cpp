@@ -14,6 +14,9 @@
 #include <ui/time_shift.h>
 #include <ui/qt/utils/tango_colors.h>
 
+#include <QStyle>
+#include <QStyleOption>
+
 
 TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     QDialog(parent),
