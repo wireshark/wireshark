@@ -1846,6 +1846,48 @@ static int hf_gsm_map_ericsson_requestedEquipmentInfo = -1;  /* RequestedEquipme
 static int hf_gsm_map_ericsson_imsi = -1;         /* IMSI */
 static int hf_gsm_map_ericsson_locationInformation = -1;  /* T_locationInformation */
 static int hf_gsm_map_ericsson_extensionContainer = -1;  /* ExtensionContainer */
+static int hf_gsm_map_ericsson_isdArgType = -1;   /* IsdArgType */
+static int hf_gsm_map_ericsson_isdResType = -1;   /* IsdResType */
+static int hf_gsm_map_ericsson_dsdArgType = -1;   /* DsdArgType */
+static int hf_gsm_map_ericsson_sriArgType = -1;   /* SRIArgType */
+static int hf_gsm_map_ericsson_sriResType = -1;   /* SRIResType */
+static int hf_gsm_map_ericsson_prnArgType = -1;   /* PrnArgType */
+static int hf_gsm_map_ericsson_ulArgType = -1;    /* UlArgType */
+static int hf_gsm_map_ericsson_rdArgType = -1;    /* RdArgType */
+static int hf_gsm_map_ericsson_saiArgType = -1;   /* SaiArgType */
+static int hf_gsm_map_ericsson_saiResType = -1;   /* SaiResType */
+static int hf_gsm_map_ericsson_atiArgType = -1;   /* AtiArgType */
+static int hf_gsm_map_ericsson_atiResType = -1;   /* AtiResType */
+static int hf_gsm_map_ericsson_extAtiArgType = -1;  /* ExtAtiArgType */
+static int hf_gsm_map_ericsson_IsdArgType_item = -1;  /* IsdArgData */
+static int hf_gsm_map_ericsson_privateFeatureCode = -1;  /* PrivateFeatureCode */
+static int hf_gsm_map_ericsson_privateFeatureData = -1;  /* PrivateFeatureData */
+static int hf_gsm_map_ericsson_subscriptionTypeInfo = -1;  /* SubscriptionTypeInfo */
+static int hf_gsm_map_ericsson_oickInfo = -1;     /* OickInfo */
+static int hf_gsm_map_ericsson_ss_Status = -1;    /* Ext_SS_Status */
+static int hf_gsm_map_ericsson_inCategoryKey = -1;  /* INCategoryKey */
+static int hf_gsm_map_ericsson_subscriptionType = -1;  /* SubscriptionType */
+static int hf_gsm_map_ericsson_IsdResType_item = -1;  /* IsdResData */
+static int hf_gsm_map_ericsson_supportedPrivateFeature = -1;  /* PrivateFeatureCode */
+static int hf_gsm_map_ericsson_DsdArgType_item = -1;  /* DsdArgData */
+static int hf_gsm_map_ericsson_privateFeatureWithdraw = -1;  /* PrivateFeatureCode */
+static int hf_gsm_map_ericsson_SRIArgType_item = -1;  /* SriArgData */
+static int hf_gsm_map_ericsson_extraNetworkInfo = -1;  /* ExtraSignalInfo */
+static int hf_gsm_map_ericsson_SRIResType_item = -1;  /* SriResData */
+static int hf_gsm_map_ericsson_PrnArgType_item = -1;  /* PrnArgData */
+static int hf_gsm_map_ericsson_UlArgType_item = -1;  /* UlArgData */
+static int hf_gsm_map_ericsson_privateFeatureUlArgData = -1;  /* PrivateFeatureUlArgData */
+static int hf_gsm_map_ericsson_adc = -1;          /* IMEI */
+static int hf_gsm_map_ericsson_protocolId = -1;   /* ExtraProtocolId */
+static int hf_gsm_map_ericsson_signalInfo = -1;   /* SignalInfo */
+static int hf_gsm_map_ericsson_msisdn = -1;       /* NULL */
+static int hf_gsm_map_ericsson_noAuthenVectorsRequested = -1;  /* NULL */
+static int hf_gsm_map_ericsson_msIsdn = -1;       /* ISDN_AddressString */
+static int hf_gsm_map_ericsson_requestedInfoType = -1;  /* RequestedInfoType */
+static int hf_gsm_map_ericsson_toBeDecided = -1;  /* NULL */
+static int hf_gsm_map_ericsson_toBeDecidedOne = -1;  /* NULL */
+static int hf_gsm_map_ericsson_sgsnNumber = -1;   /* NULL */
+static int hf_gsm_map_ericsson_ExtAtiArgType_item = -1;  /* AtiArgData */
 
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
@@ -1935,32 +1977,6 @@ static int hf_NokiaMAP_Extensions_CodecListExt_item = -1;  /* CodecExt */
 static int hf_NokiaMAP_Extensions_codec = -1;     /* CodecExt */
 static int hf_NokiaMAP_Extensions_modes = -1;     /* Modes */
 static int hf_NokiaMAP_Extensions_imsi = -1;      /* IMSI */
-static int hf_NokiaMAP_Extensions_isdArgType = -1;  /* IsdArgType */
-static int hf_NokiaMAP_Extensions_isdResType = -1;  /* IsdResType */
-static int hf_NokiaMAP_Extensions_dsdArgType = -1;  /* DsdArgType */
-static int hf_NokiaMAP_Extensions_sriArgType = -1;  /* SriArgType */
-static int hf_NokiaMAP_Extensions_sriResType = -1;  /* SriResType */
-static int hf_NokiaMAP_Extensions_prnArgType = -1;  /* PrnArgType */
-static int hf_NokiaMAP_Extensions_ulArgType = -1;  /* UlArgType */
-static int hf_NokiaMAP_Extensions_IsdArgType_item = -1;  /* IsdArgData */
-static int hf_NokiaMAP_Extensions_privateFeatureCode = -1;  /* PrivateFeatureCode */
-static int hf_NokiaMAP_Extensions_privateFeatureData = -1;  /* PrivateFeatureData */
-static int hf_NokiaMAP_Extensions_oickInfo = -1;  /* OickInfo */
-static int hf_NokiaMAP_Extensions_subscriptionTypeInfo = -1;  /* SubscriptionTypeInfo */
-static int hf_NokiaMAP_Extensions_ss_Status = -1;  /* Ext_SS_Status */
-static int hf_NokiaMAP_Extensions_inCategoryKey = -1;  /* INCategoryKey */
-static int hf_NokiaMAP_Extensions_subscriptionType = -1;  /* SubscriptionType */
-static int hf_NokiaMAP_Extensions_IsdResType_item = -1;  /* IsdResData */
-static int hf_NokiaMAP_Extensions_supportedPrivateFeature = -1;  /* PrivateFeatureCode */
-static int hf_NokiaMAP_Extensions_DsdArgType_item = -1;  /* DsdArgData */
-static int hf_NokiaMAP_Extensions_privateFeatureWithdraw = -1;  /* PrivateFeatureCode */
-static int hf_NokiaMAP_Extensions_SriArgType_item = -1;  /* SriArgData */
-static int hf_NokiaMAP_Extensions_extraNetworkInfo = -1;  /* ExtraSignalInfo */
-static int hf_NokiaMAP_Extensions_SriResType_item = -1;  /* SriResData */
-static int hf_NokiaMAP_Extensions_PrnArgType_item = -1;  /* PrnArgData */
-static int hf_NokiaMAP_Extensions_UlArgType_item = -1;  /* UlArgData */
-static int hf_NokiaMAP_Extensions_privateFeatureUlArgData = -1;  /* PrivateFeatureUlArgData */
-static int hf_NokiaMAP_Extensions_adc = -1;       /* IMEI */
 static int hf_NokiaMAP_Extensions_cfuSMSCounter = -1;  /* CfuSMSCounter */
 static int hf_NokiaMAP_Extensions_cfusmcfo = -1;  /* NULL */
 static int hf_NokiaMAP_Extensions_memberInterrogate = -1;  /* NULL */
@@ -2639,6 +2655,34 @@ static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
 /* --- Module EricssonMAP --- --- ---                                         */
 
 static gint ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg = -1;
+static gint ett_gsm_map_ericsson_ExtensionType = -1;
+static gint ett_gsm_map_ericsson_IsdArgType = -1;
+static gint ett_gsm_map_ericsson_IsdArgData = -1;
+static gint ett_gsm_map_ericsson_PrivateFeatureData = -1;
+static gint ett_gsm_map_ericsson_OickInfo = -1;
+static gint ett_gsm_map_ericsson_SubscriptionTypeInfo = -1;
+static gint ett_gsm_map_ericsson_IsdResType = -1;
+static gint ett_gsm_map_ericsson_IsdResData = -1;
+static gint ett_gsm_map_ericsson_DsdArgType = -1;
+static gint ett_gsm_map_ericsson_DsdArgData = -1;
+static gint ett_gsm_map_ericsson_SRIArgType = -1;
+static gint ett_gsm_map_ericsson_SriArgData = -1;
+static gint ett_gsm_map_ericsson_SRIResType = -1;
+static gint ett_gsm_map_ericsson_SriResData = -1;
+static gint ett_gsm_map_ericsson_PrnArgType = -1;
+static gint ett_gsm_map_ericsson_PrnArgData = -1;
+static gint ett_gsm_map_ericsson_UlArgType = -1;
+static gint ett_gsm_map_ericsson_UlArgData = -1;
+static gint ett_gsm_map_ericsson_PrivateFeatureUlArgData = -1;
+static gint ett_gsm_map_ericsson_ExtraSignalInfo_U = -1;
+static gint ett_gsm_map_ericsson_SaiArgType = -1;
+static gint ett_gsm_map_ericsson_SaiResType = -1;
+static gint ett_gsm_map_ericsson_AtiArgType = -1;
+static gint ett_gsm_map_ericsson_AtiResType = -1;
+static gint ett_gsm_map_ericsson_RdArgType = -1;
+static gint ett_gsm_map_ericsson_RequestedInfoType = -1;
+static gint ett_gsm_map_ericsson_ExtAtiArgType = -1;
+static gint ett_gsm_map_ericsson_AtiArgData = -1;
 
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
@@ -2673,25 +2717,6 @@ static gint ett_NokiaMAP_Extensions_SelectedCodec = -1;
 static gint ett_NokiaMAP_Extensions_AbsentSubscriberExt_U = -1;
 static gint ett_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U = -1;
 static gint ett_NokiaMAP_Extensions_RoutingCategoryExt_U = -1;
-static gint ett_NokiaMAP_Extensions_ExtensionType = -1;
-static gint ett_NokiaMAP_Extensions_IsdArgType = -1;
-static gint ett_NokiaMAP_Extensions_IsdArgData = -1;
-static gint ett_NokiaMAP_Extensions_PrivateFeatureData = -1;
-static gint ett_NokiaMAP_Extensions_OickInfo = -1;
-static gint ett_NokiaMAP_Extensions_SubscriptionTypeInfo = -1;
-static gint ett_NokiaMAP_Extensions_IsdResType = -1;
-static gint ett_NokiaMAP_Extensions_IsdResData = -1;
-static gint ett_NokiaMAP_Extensions_DsdArgType = -1;
-static gint ett_NokiaMAP_Extensions_DsdArgData = -1;
-static gint ett_NokiaMAP_Extensions_SriArgType = -1;
-static gint ett_NokiaMAP_Extensions_SriArgData = -1;
-static gint ett_NokiaMAP_Extensions_SriResType = -1;
-static gint ett_NokiaMAP_Extensions_SriResData = -1;
-static gint ett_NokiaMAP_Extensions_PrnArgType = -1;
-static gint ett_NokiaMAP_Extensions_PrnArgData = -1;
-static gint ett_NokiaMAP_Extensions_UlArgType = -1;
-static gint ett_NokiaMAP_Extensions_UlArgData = -1;
-static gint ett_NokiaMAP_Extensions_PrivateFeatureUlArgData = -1;
 static gint ett_NokiaMAP_Extensions_SriForSMArgExt_U = -1;
 static gint ett_NokiaMAP_Extensions_ReportSMDelStatArgExt_U = -1;
 static gint ett_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U = -1;
@@ -19777,6 +19802,489 @@ dissect_gsm_map_ericsson_EnhancedCheckIMEI_Arg(gboolean implicit_tag _U_, tvbuff
 }
 
 
+
+static int
+dissect_gsm_map_ericsson_PrivateFeatureCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_map_ericsson_SubscriptionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SubscriptionTypeInfo_sequence[] = {
+  { &hf_gsm_map_ericsson_subscriptionType, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_SubscriptionType },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_SubscriptionTypeInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_SubscriptionTypeInfo_sequence, hf_index, ett_gsm_map_ericsson_SubscriptionTypeInfo);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_map_ericsson_INCategoryKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_gsm_map_TBCD_STRING(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_OickInfo_sequence[] = {
+  { &hf_gsm_map_ericsson_ss_Status, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_Ext_SS_Status },
+  { &hf_gsm_map_ericsson_inCategoryKey, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_INCategoryKey },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_OickInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_OickInfo_sequence, hf_index, ett_gsm_map_ericsson_OickInfo);
+
+  return offset;
+}
+
+
+static const value_string gsm_map_ericsson_PrivateFeatureData_vals[] = {
+  {   3, "subscriptionTypeInfo" },
+  {   7, "oickInfo" },
+  { 0, NULL }
+};
+
+static const ber_choice_t gsm_map_ericsson_PrivateFeatureData_choice[] = {
+  {   3, &hf_gsm_map_ericsson_subscriptionTypeInfo, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_SubscriptionTypeInfo },
+  {   7, &hf_gsm_map_ericsson_oickInfo, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_OickInfo },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_PrivateFeatureData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 gsm_map_ericsson_PrivateFeatureData_choice, hf_index, ett_gsm_map_ericsson_PrivateFeatureData,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_IsdArgData_sequence[] = {
+  { &hf_gsm_map_ericsson_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { &hf_gsm_map_ericsson_privateFeatureData, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_gsm_map_ericsson_PrivateFeatureData },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_IsdArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_IsdArgData_sequence, hf_index, ett_gsm_map_ericsson_IsdArgData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_IsdArgType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_IsdArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_IsdArgData },
+};
+
+static int
+dissect_gsm_map_ericsson_IsdArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_IsdArgType_sequence_of, hf_index, ett_gsm_map_ericsson_IsdArgType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_IsdResData_sequence[] = {
+  { &hf_gsm_map_ericsson_supportedPrivateFeature, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_IsdResData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_IsdResData_sequence, hf_index, ett_gsm_map_ericsson_IsdResData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_IsdResType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_IsdResType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_IsdResData },
+};
+
+static int
+dissect_gsm_map_ericsson_IsdResType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_IsdResType_sequence_of, hf_index, ett_gsm_map_ericsson_IsdResType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_DsdArgData_sequence[] = {
+  { &hf_gsm_map_ericsson_privateFeatureWithdraw, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_DsdArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_DsdArgData_sequence, hf_index, ett_gsm_map_ericsson_DsdArgData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_DsdArgType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_DsdArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_DsdArgData },
+};
+
+static int
+dissect_gsm_map_ericsson_DsdArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_DsdArgType_sequence_of, hf_index, ett_gsm_map_ericsson_DsdArgType);
+
+  return offset;
+}
+
+
+static const value_string gsm_map_ericsson_ExtraProtocolId_vals[] = {
+  {   1, "q763" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gsm_map_ericsson_ExtraProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_ExtraSignalInfo_U_sequence[] = {
+  { &hf_gsm_map_ericsson_protocolId, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_ExtraProtocolId },
+  { &hf_gsm_map_ericsson_signalInfo, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_SignalInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_ExtraSignalInfo_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_ExtraSignalInfo_U_sequence, hf_index, ett_gsm_map_ericsson_ExtraSignalInfo_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_map_ericsson_ExtraSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 1, TRUE, dissect_gsm_map_ericsson_ExtraSignalInfo_U);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SriArgData_sequence[] = {
+  { &hf_gsm_map_ericsson_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { &hf_gsm_map_ericsson_extraNetworkInfo, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_ExtraSignalInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_SriArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_SriArgData_sequence, hf_index, ett_gsm_map_ericsson_SriArgData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SRIArgType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_SRIArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_SriArgData },
+};
+
+static int
+dissect_gsm_map_ericsson_SRIArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_SRIArgType_sequence_of, hf_index, ett_gsm_map_ericsson_SRIArgType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SriResData_sequence[] = {
+  { &hf_gsm_map_ericsson_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { &hf_gsm_map_ericsson_inCategoryKey, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_INCategoryKey },
+  { &hf_gsm_map_ericsson_subscriptionType, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_SubscriptionType },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_SriResData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_SriResData_sequence, hf_index, ett_gsm_map_ericsson_SriResData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SRIResType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_SRIResType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_SriResData },
+};
+
+static int
+dissect_gsm_map_ericsson_SRIResType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_SRIResType_sequence_of, hf_index, ett_gsm_map_ericsson_SRIResType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_PrnArgData_sequence[] = {
+  { &hf_gsm_map_ericsson_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { &hf_gsm_map_ericsson_extraNetworkInfo, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_ExtraSignalInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_PrnArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_PrnArgData_sequence, hf_index, ett_gsm_map_ericsson_PrnArgData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_PrnArgType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_PrnArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_PrnArgData },
+};
+
+static int
+dissect_gsm_map_ericsson_PrnArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_PrnArgType_sequence_of, hf_index, ett_gsm_map_ericsson_PrnArgType);
+
+  return offset;
+}
+
+
+static const value_string gsm_map_ericsson_PrivateFeatureUlArgData_vals[] = {
+  {   3, "adc" },
+  { 0, NULL }
+};
+
+static const ber_choice_t gsm_map_ericsson_PrivateFeatureUlArgData_choice[] = {
+  {   3, &hf_gsm_map_ericsson_adc, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_PrivateFeatureUlArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 gsm_map_ericsson_PrivateFeatureUlArgData_choice, hf_index, ett_gsm_map_ericsson_PrivateFeatureUlArgData,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_UlArgData_sequence[] = {
+  { &hf_gsm_map_ericsson_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { &hf_gsm_map_ericsson_privateFeatureUlArgData, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_gsm_map_ericsson_PrivateFeatureUlArgData },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_UlArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_UlArgData_sequence, hf_index, ett_gsm_map_ericsson_UlArgData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_UlArgType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_UlArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_UlArgData },
+};
+
+static int
+dissect_gsm_map_ericsson_UlArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_UlArgType_sequence_of, hf_index, ett_gsm_map_ericsson_UlArgType);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gsm_map_ericsson_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_RdArgType_sequence[] = {
+  { &hf_gsm_map_ericsson_toBeDecidedOne, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_NULL },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_RdArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_RdArgType_sequence, hf_index, ett_gsm_map_ericsson_RdArgType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SaiArgType_sequence[] = {
+  { &hf_gsm_map_ericsson_msisdn, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_NULL },
+  { &hf_gsm_map_ericsson_noAuthenVectorsRequested, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_NULL },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_SaiArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_SaiArgType_sequence, hf_index, ett_gsm_map_ericsson_SaiArgType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_SaiResType_sequence[] = {
+  { &hf_gsm_map_ericsson_msIsdn, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_SaiResType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_SaiResType_sequence, hf_index, ett_gsm_map_ericsson_SaiResType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_RequestedInfoType_sequence[] = {
+  { &hf_gsm_map_ericsson_sgsnNumber, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_NULL },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_RequestedInfoType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_RequestedInfoType_sequence, hf_index, ett_gsm_map_ericsson_RequestedInfoType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_AtiArgType_sequence[] = {
+  { &hf_gsm_map_ericsson_requestedInfoType, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_RequestedInfoType },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_AtiArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_AtiArgType_sequence, hf_index, ett_gsm_map_ericsson_AtiArgType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_AtiResType_sequence[] = {
+  { &hf_gsm_map_ericsson_toBeDecided, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_NULL },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_AtiResType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_AtiResType_sequence, hf_index, ett_gsm_map_ericsson_AtiResType);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_AtiArgData_sequence[] = {
+  { &hf_gsm_map_ericsson_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrivateFeatureCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_AtiArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_map_ericsson_AtiArgData_sequence, hf_index, ett_gsm_map_ericsson_AtiArgData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_map_ericsson_ExtAtiArgType_sequence_of[1] = {
+  { &hf_gsm_map_ericsson_ExtAtiArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ericsson_AtiArgData },
+};
+
+static int
+dissect_gsm_map_ericsson_ExtAtiArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      gsm_map_ericsson_ExtAtiArgType_sequence_of, hf_index, ett_gsm_map_ericsson_ExtAtiArgType);
+
+  return offset;
+}
+
+
+static const ber_choice_t gsm_map_ericsson_ExtensionType_choice[] = {
+  {   1, &hf_gsm_map_ericsson_isdArgType, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_IsdArgType },
+  {   2, &hf_gsm_map_ericsson_isdResType, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_IsdResType },
+  {   3, &hf_gsm_map_ericsson_dsdArgType, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_DsdArgType },
+  {   4, &hf_gsm_map_ericsson_sriArgType, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_SRIArgType },
+  {   5, &hf_gsm_map_ericsson_sriResType, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_SRIResType },
+  {   6, &hf_gsm_map_ericsson_prnArgType, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_PrnArgType },
+  {   7, &hf_gsm_map_ericsson_ulArgType, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_UlArgType },
+  {   8, &hf_gsm_map_ericsson_rdArgType, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_RdArgType },
+  {   9, &hf_gsm_map_ericsson_saiArgType, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_SaiArgType },
+  {  10, &hf_gsm_map_ericsson_saiResType, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_SaiResType },
+  {  11, &hf_gsm_map_ericsson_atiArgType, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_AtiArgType },
+  {  12, &hf_gsm_map_ericsson_atiResType, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_AtiResType },
+  {  13, &hf_gsm_map_ericsson_extAtiArgType, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_gsm_map_ericsson_ExtAtiArgType },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ericsson_ExtensionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 gsm_map_ericsson_ExtensionType_choice, hf_index, ett_gsm_map_ericsson_ExtensionType,
+                                 NULL);
+
+  return offset;
+}
+
+
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
 
@@ -20814,322 +21322,6 @@ static int
 dissect_NokiaMAP_Extensions_RoutingCategoryExt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_PRI, 0, TRUE, dissect_NokiaMAP_Extensions_RoutingCategoryExt_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_NokiaMAP_Extensions_PrivateFeatureCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_NokiaMAP_Extensions_INCategoryKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_gsm_map_TBCD_STRING(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_OickInfo_sequence[] = {
-  { &hf_NokiaMAP_Extensions_ss_Status, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_Ext_SS_Status },
-  { &hf_NokiaMAP_Extensions_inCategoryKey, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_INCategoryKey },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_OickInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_OickInfo_sequence, hf_index, ett_NokiaMAP_Extensions_OickInfo);
-
-  return offset;
-}
-
-
-
-static int
-dissect_NokiaMAP_Extensions_SubscriptionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_SubscriptionTypeInfo_sequence[] = {
-  { &hf_NokiaMAP_Extensions_subscriptionType, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_SubscriptionType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_SubscriptionTypeInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_SubscriptionTypeInfo_sequence, hf_index, ett_NokiaMAP_Extensions_SubscriptionTypeInfo);
-
-  return offset;
-}
-
-
-static const value_string NokiaMAP_Extensions_PrivateFeatureData_vals[] = {
-  {   7, "oickInfo" },
-  {   3, "subscriptionTypeInfo" },
-  { 0, NULL }
-};
-
-static const ber_choice_t NokiaMAP_Extensions_PrivateFeatureData_choice[] = {
-  {   7, &hf_NokiaMAP_Extensions_oickInfo, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_OickInfo },
-  {   3, &hf_NokiaMAP_Extensions_subscriptionTypeInfo, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_SubscriptionTypeInfo },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_PrivateFeatureData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 NokiaMAP_Extensions_PrivateFeatureData_choice, hf_index, ett_NokiaMAP_Extensions_PrivateFeatureData,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_IsdArgData_sequence[] = {
-  { &hf_NokiaMAP_Extensions_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_PrivateFeatureCode },
-  { &hf_NokiaMAP_Extensions_privateFeatureData, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_NokiaMAP_Extensions_PrivateFeatureData },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_IsdArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_IsdArgData_sequence, hf_index, ett_NokiaMAP_Extensions_IsdArgData);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_IsdArgType_sequence_of[1] = {
-  { &hf_NokiaMAP_Extensions_IsdArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_IsdArgData },
-};
-
-static int
-dissect_NokiaMAP_Extensions_IsdArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NokiaMAP_Extensions_IsdArgType_sequence_of, hf_index, ett_NokiaMAP_Extensions_IsdArgType);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_IsdResData_sequence[] = {
-  { &hf_NokiaMAP_Extensions_supportedPrivateFeature, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_PrivateFeatureCode },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_IsdResData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_IsdResData_sequence, hf_index, ett_NokiaMAP_Extensions_IsdResData);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_IsdResType_sequence_of[1] = {
-  { &hf_NokiaMAP_Extensions_IsdResType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_IsdResData },
-};
-
-static int
-dissect_NokiaMAP_Extensions_IsdResType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NokiaMAP_Extensions_IsdResType_sequence_of, hf_index, ett_NokiaMAP_Extensions_IsdResType);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_DsdArgData_sequence[] = {
-  { &hf_NokiaMAP_Extensions_privateFeatureWithdraw, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_PrivateFeatureCode },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_DsdArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_DsdArgData_sequence, hf_index, ett_NokiaMAP_Extensions_DsdArgData);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_DsdArgType_sequence_of[1] = {
-  { &hf_NokiaMAP_Extensions_DsdArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_DsdArgData },
-};
-
-static int
-dissect_NokiaMAP_Extensions_DsdArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NokiaMAP_Extensions_DsdArgType_sequence_of, hf_index, ett_NokiaMAP_Extensions_DsdArgType);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_SriArgData_sequence[] = {
-  { &hf_NokiaMAP_Extensions_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_PrivateFeatureCode },
-  { &hf_NokiaMAP_Extensions_extraNetworkInfo, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_ExtraSignalInfo },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_SriArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_SriArgData_sequence, hf_index, ett_NokiaMAP_Extensions_SriArgData);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_SriArgType_sequence_of[1] = {
-  { &hf_NokiaMAP_Extensions_SriArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_SriArgData },
-};
-
-static int
-dissect_NokiaMAP_Extensions_SriArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NokiaMAP_Extensions_SriArgType_sequence_of, hf_index, ett_NokiaMAP_Extensions_SriArgType);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_SriResData_sequence[] = {
-  { &hf_NokiaMAP_Extensions_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_PrivateFeatureCode },
-  { &hf_NokiaMAP_Extensions_inCategoryKey, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_INCategoryKey },
-  { &hf_NokiaMAP_Extensions_subscriptionType, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_SubscriptionType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_SriResData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_SriResData_sequence, hf_index, ett_NokiaMAP_Extensions_SriResData);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_SriResType_sequence_of[1] = {
-  { &hf_NokiaMAP_Extensions_SriResType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_SriResData },
-};
-
-static int
-dissect_NokiaMAP_Extensions_SriResType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NokiaMAP_Extensions_SriResType_sequence_of, hf_index, ett_NokiaMAP_Extensions_SriResType);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_PrnArgData_sequence[] = {
-  { &hf_NokiaMAP_Extensions_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_PrivateFeatureCode },
-  { &hf_NokiaMAP_Extensions_extraNetworkInfo, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_ExtraSignalInfo },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_PrnArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_PrnArgData_sequence, hf_index, ett_NokiaMAP_Extensions_PrnArgData);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_PrnArgType_sequence_of[1] = {
-  { &hf_NokiaMAP_Extensions_PrnArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_PrnArgData },
-};
-
-static int
-dissect_NokiaMAP_Extensions_PrnArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NokiaMAP_Extensions_PrnArgType_sequence_of, hf_index, ett_NokiaMAP_Extensions_PrnArgType);
-
-  return offset;
-}
-
-
-static const value_string NokiaMAP_Extensions_PrivateFeatureUlArgData_vals[] = {
-  {   3, "adc" },
-  { 0, NULL }
-};
-
-static const ber_choice_t NokiaMAP_Extensions_PrivateFeatureUlArgData_choice[] = {
-  {   3, &hf_NokiaMAP_Extensions_adc, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_PrivateFeatureUlArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 NokiaMAP_Extensions_PrivateFeatureUlArgData_choice, hf_index, ett_NokiaMAP_Extensions_PrivateFeatureUlArgData,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_UlArgData_sequence[] = {
-  { &hf_NokiaMAP_Extensions_privateFeatureCode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_PrivateFeatureCode },
-  { &hf_NokiaMAP_Extensions_privateFeatureUlArgData, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_NokiaMAP_Extensions_PrivateFeatureUlArgData },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_UlArgData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NokiaMAP_Extensions_UlArgData_sequence, hf_index, ett_NokiaMAP_Extensions_UlArgData);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NokiaMAP_Extensions_UlArgType_sequence_of[1] = {
-  { &hf_NokiaMAP_Extensions_UlArgType_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NokiaMAP_Extensions_UlArgData },
-};
-
-static int
-dissect_NokiaMAP_Extensions_UlArgType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NokiaMAP_Extensions_UlArgType_sequence_of, hf_index, ett_NokiaMAP_Extensions_UlArgType);
-
-  return offset;
-}
-
-
-static const ber_choice_t NokiaMAP_Extensions_ExtensionType_choice[] = {
-  {   1, &hf_NokiaMAP_Extensions_isdArgType, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_IsdArgType },
-  {   2, &hf_NokiaMAP_Extensions_isdResType, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_IsdResType },
-  {   3, &hf_NokiaMAP_Extensions_dsdArgType, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_DsdArgType },
-  {   4, &hf_NokiaMAP_Extensions_sriArgType, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_SriArgType },
-  {   5, &hf_NokiaMAP_Extensions_sriResType, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_SriResType },
-  {   6, &hf_NokiaMAP_Extensions_prnArgType, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_PrnArgType },
-  {   7, &hf_NokiaMAP_Extensions_ulArgType, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_NokiaMAP_Extensions_UlArgType },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_NokiaMAP_Extensions_ExtensionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 NokiaMAP_Extensions_ExtensionType_choice, hf_index, ett_NokiaMAP_Extensions_ExtensionType,
-                                 NULL);
 
   return offset;
 }
@@ -22816,6 +23008,14 @@ static int dissect_gsm_mapext_PlmnContainer(tvbuff_t *tvb, packet_info *pinfo, p
   return dissect_gsm_old_PlmnContainer(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
+static int dissect_gsm_map_ericsson_ext_ExtensionType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
+    proto_tree    *tree;
+    asn1_ctx_t asn1_ctx;
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_gsm_map_ericsson_ExtensionType, NULL, "Ericsson Extension");
+    return dissect_gsm_map_ericsson_ExtensionType(FALSE, tvb, 0, &asn1_ctx, tree, -1);
+}
+
 static int dissect_NokiaMAP_ext_SriResExtension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
   proto_tree    *tree;
   asn1_ctx_t asn1_ctx;
@@ -22957,12 +23157,6 @@ static int dissect_NokiaMAP_ext_AnyTimeModArgExt(tvbuff_t *tvb, packet_info *pin
   tree = proto_tree_add_subtree(parent_tree, tvb, 0, -1, ett_NokiaMAP_Extensions_AnyTimeModArgExt_U, NULL, "Nokia Extension");
 
   return dissect_NokiaMAP_Extensions_AnyTimeModArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
-}
-
-static int dissect_NokiaMAP_ext_ExtensionType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  return dissect_NokiaMAP_Extensions_ExtensionType(FALSE, tvb, 0, &asn1_ctx, parent_tree, -1);
 }
 
 static int dissect_NokiaMAP_ext_AccessTypeExt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
@@ -23716,11 +23910,11 @@ void proto_reg_handoff_gsm_map(void) {
     register_ber_oid_dissector("0.34.25",dissect_NokiaMAP_ext_RoutingCategoryExt,proto_gsm_map,"Nokia Routing Category Extension");
     register_ber_oid_dissector("0.34.26",dissect_NokiaMAP_ext_AnyTimeModArgExt,proto_gsm_map,"Nokia AnyTimeMod Extension");
 
-    register_ber_oid_dissector("1.2.826.0.1249.58.1.0",dissect_NokiaMAP_ext_ExtensionType,proto_gsm_map,"Nokia ExtensionType Extension");
-
     register_ber_oid_dissector("1.3.12.2.1107.3.66.1.1",dissect_NokiaMAP_ext_AccessTypeExt,proto_gsm_map,"Nokia AccessTypeExt Extension");
     register_ber_oid_dissector("1.3.12.2.1107.3.66.1.3",dissect_NokiaMAP_ext_AccessSubscriptionListExt,proto_gsm_map,"Nokia AccessSubscriptionListExt Extension");
     register_ber_oid_dissector("1.3.12.2.1107.3.66.1.6",dissect_NokiaMAP_ext_AllowedServiceData,proto_gsm_map,"Nokia AllowedServiceData Extension");
+
+    register_ber_oid_dissector("1.2.826.0.1249.58.1.0",dissect_gsm_map_ericsson_ext_ExtensionType,proto_gsm_map,"Ericsson ExtensionType Extension");
   }
   else {
     range_foreach(ssn_range, range_delete_callback, NULL);
@@ -30670,6 +30864,174 @@ void proto_register_gsm_map(void) {
       { "extensionContainer", "gsm_map.ericsson.extensionContainer_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_map_ericsson_isdArgType,
+      { "isdArgType", "gsm_map.ericsson.isdArgType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_isdResType,
+      { "isdResType", "gsm_map.ericsson.isdResType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_dsdArgType,
+      { "dsdArgType", "gsm_map.ericsson.dsdArgType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_sriArgType,
+      { "sriArgType", "gsm_map.ericsson.sriArgType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_sriResType,
+      { "sriResType", "gsm_map.ericsson.sriResType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_prnArgType,
+      { "prnArgType", "gsm_map.ericsson.prnArgType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_ulArgType,
+      { "ulArgType", "gsm_map.ericsson.ulArgType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_rdArgType,
+      { "rdArgType", "gsm_map.ericsson.rdArgType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_saiArgType,
+      { "saiArgType", "gsm_map.ericsson.saiArgType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_saiResType,
+      { "saiResType", "gsm_map.ericsson.saiResType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_atiArgType,
+      { "atiArgType", "gsm_map.ericsson.atiArgType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_atiResType,
+      { "atiResType", "gsm_map.ericsson.atiResType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_extAtiArgType,
+      { "extAtiArgType", "gsm_map.ericsson.extAtiArgType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_IsdArgType_item,
+      { "IsdArgData", "gsm_map.ericsson.IsdArgData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_privateFeatureCode,
+      { "privateFeatureCode", "gsm_map.ericsson.privateFeatureCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_privateFeatureData,
+      { "privateFeatureData", "gsm_map.ericsson.privateFeatureData",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ericsson_PrivateFeatureData_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_subscriptionTypeInfo,
+      { "subscriptionTypeInfo", "gsm_map.ericsson.subscriptionTypeInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_oickInfo,
+      { "oickInfo", "gsm_map.ericsson.oickInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_ss_Status,
+      { "ss-Status", "gsm_map.ericsson.ss_Status",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Ext_SS_Status", HFILL }},
+    { &hf_gsm_map_ericsson_inCategoryKey,
+      { "inCategoryKey", "gsm_map.ericsson.inCategoryKey",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_subscriptionType,
+      { "subscriptionType", "gsm_map.ericsson.subscriptionType",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_IsdResType_item,
+      { "IsdResData", "gsm_map.ericsson.IsdResData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_supportedPrivateFeature,
+      { "supportedPrivateFeature", "gsm_map.ericsson.supportedPrivateFeature",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "PrivateFeatureCode", HFILL }},
+    { &hf_gsm_map_ericsson_DsdArgType_item,
+      { "DsdArgData", "gsm_map.ericsson.DsdArgData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_privateFeatureWithdraw,
+      { "privateFeatureWithdraw", "gsm_map.ericsson.privateFeatureWithdraw",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "PrivateFeatureCode", HFILL }},
+    { &hf_gsm_map_ericsson_SRIArgType_item,
+      { "SriArgData", "gsm_map.ericsson.SriArgData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_extraNetworkInfo,
+      { "extraNetworkInfo", "gsm_map.ericsson.extraNetworkInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ExtraSignalInfo", HFILL }},
+    { &hf_gsm_map_ericsson_SRIResType_item,
+      { "SriResData", "gsm_map.ericsson.SriResData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_PrnArgType_item,
+      { "PrnArgData", "gsm_map.ericsson.PrnArgData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_UlArgType_item,
+      { "UlArgData", "gsm_map.ericsson.UlArgData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_privateFeatureUlArgData,
+      { "privateFeatureUlArgData", "gsm_map.ericsson.privateFeatureUlArgData",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ericsson_PrivateFeatureUlArgData_vals), 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_adc,
+      { "adc", "gsm_map.ericsson.adc",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "IMEI", HFILL }},
+    { &hf_gsm_map_ericsson_protocolId,
+      { "protocolId", "gsm_map.ericsson.protocolId",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ericsson_ExtraProtocolId_vals), 0,
+        "ExtraProtocolId", HFILL }},
+    { &hf_gsm_map_ericsson_signalInfo,
+      { "signalInfo", "gsm_map.ericsson.signalInfo",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_msisdn,
+      { "msisdn", "gsm_map.ericsson.msisdn_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_noAuthenVectorsRequested,
+      { "noAuthenVectorsRequested", "gsm_map.ericsson.noAuthenVectorsRequested_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_msIsdn,
+      { "msIsdn", "gsm_map.ericsson.msIsdn",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ISDN_AddressString", HFILL }},
+    { &hf_gsm_map_ericsson_requestedInfoType,
+      { "requestedInfoType", "gsm_map.ericsson.requestedInfoType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_toBeDecided,
+      { "toBeDecided", "gsm_map.ericsson.toBeDecided_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_toBeDecidedOne,
+      { "toBeDecidedOne", "gsm_map.ericsson.toBeDecidedOne_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_sgsnNumber,
+      { "sgsnNumber", "gsm_map.ericsson.sgsnNumber_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ericsson_ExtAtiArgType_item,
+      { "AtiArgData", "gsm_map.ericsson.AtiArgData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
@@ -31017,110 +31379,6 @@ void proto_register_gsm_map(void) {
       { "imsi", "NokiaMAP-Extensions.imsi",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_isdArgType,
-      { "isdArgType", "NokiaMAP-Extensions.isdArgType",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_isdResType,
-      { "isdResType", "NokiaMAP-Extensions.isdResType",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_dsdArgType,
-      { "dsdArgType", "NokiaMAP-Extensions.dsdArgType",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_sriArgType,
-      { "sriArgType", "NokiaMAP-Extensions.sriArgType",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_sriResType,
-      { "sriResType", "NokiaMAP-Extensions.sriResType",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_prnArgType,
-      { "prnArgType", "NokiaMAP-Extensions.prnArgType",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_ulArgType,
-      { "ulArgType", "NokiaMAP-Extensions.ulArgType",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_IsdArgType_item,
-      { "IsdArgData", "NokiaMAP-Extensions.IsdArgData_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_privateFeatureCode,
-      { "privateFeatureCode", "NokiaMAP-Extensions.privateFeatureCode",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_privateFeatureData,
-      { "privateFeatureData", "NokiaMAP-Extensions.privateFeatureData",
-        FT_UINT32, BASE_DEC, VALS(NokiaMAP_Extensions_PrivateFeatureData_vals), 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_oickInfo,
-      { "oickInfo", "NokiaMAP-Extensions.oickInfo_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_subscriptionTypeInfo,
-      { "subscriptionTypeInfo", "NokiaMAP-Extensions.subscriptionTypeInfo_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_ss_Status,
-      { "ss-Status", "NokiaMAP-Extensions.ss_Status",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "Ext_SS_Status", HFILL }},
-    { &hf_NokiaMAP_Extensions_inCategoryKey,
-      { "inCategoryKey", "NokiaMAP-Extensions.inCategoryKey",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_subscriptionType,
-      { "subscriptionType", "NokiaMAP-Extensions.subscriptionType",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_IsdResType_item,
-      { "IsdResData", "NokiaMAP-Extensions.IsdResData_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_supportedPrivateFeature,
-      { "supportedPrivateFeature", "NokiaMAP-Extensions.supportedPrivateFeature",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PrivateFeatureCode", HFILL }},
-    { &hf_NokiaMAP_Extensions_DsdArgType_item,
-      { "DsdArgData", "NokiaMAP-Extensions.DsdArgData_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_privateFeatureWithdraw,
-      { "privateFeatureWithdraw", "NokiaMAP-Extensions.privateFeatureWithdraw",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PrivateFeatureCode", HFILL }},
-    { &hf_NokiaMAP_Extensions_SriArgType_item,
-      { "SriArgData", "NokiaMAP-Extensions.SriArgData_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_extraNetworkInfo,
-      { "extraNetworkInfo", "NokiaMAP-Extensions.extraNetworkInfo_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ExtraSignalInfo", HFILL }},
-    { &hf_NokiaMAP_Extensions_SriResType_item,
-      { "SriResData", "NokiaMAP-Extensions.SriResData_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_PrnArgType_item,
-      { "PrnArgData", "NokiaMAP-Extensions.PrnArgData_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_UlArgType_item,
-      { "UlArgData", "NokiaMAP-Extensions.UlArgData_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_privateFeatureUlArgData,
-      { "privateFeatureUlArgData", "NokiaMAP-Extensions.privateFeatureUlArgData",
-        FT_UINT32, BASE_DEC, VALS(NokiaMAP_Extensions_PrivateFeatureUlArgData_vals), 0,
-        NULL, HFILL }},
-    { &hf_NokiaMAP_Extensions_adc,
-      { "adc", "NokiaMAP-Extensions.adc",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "IMEI", HFILL }},
     { &hf_NokiaMAP_Extensions_cfuSMSCounter,
       { "cfuSMSCounter", "NokiaMAP-Extensions.cfuSMSCounter",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -31175,7 +31433,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3398 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3400 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -31839,6 +32097,34 @@ void proto_register_gsm_map(void) {
 /* --- Module EricssonMAP --- --- ---                                         */
 
     &ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg,
+    &ett_gsm_map_ericsson_ExtensionType,
+    &ett_gsm_map_ericsson_IsdArgType,
+    &ett_gsm_map_ericsson_IsdArgData,
+    &ett_gsm_map_ericsson_PrivateFeatureData,
+    &ett_gsm_map_ericsson_OickInfo,
+    &ett_gsm_map_ericsson_SubscriptionTypeInfo,
+    &ett_gsm_map_ericsson_IsdResType,
+    &ett_gsm_map_ericsson_IsdResData,
+    &ett_gsm_map_ericsson_DsdArgType,
+    &ett_gsm_map_ericsson_DsdArgData,
+    &ett_gsm_map_ericsson_SRIArgType,
+    &ett_gsm_map_ericsson_SriArgData,
+    &ett_gsm_map_ericsson_SRIResType,
+    &ett_gsm_map_ericsson_SriResData,
+    &ett_gsm_map_ericsson_PrnArgType,
+    &ett_gsm_map_ericsson_PrnArgData,
+    &ett_gsm_map_ericsson_UlArgType,
+    &ett_gsm_map_ericsson_UlArgData,
+    &ett_gsm_map_ericsson_PrivateFeatureUlArgData,
+    &ett_gsm_map_ericsson_ExtraSignalInfo_U,
+    &ett_gsm_map_ericsson_SaiArgType,
+    &ett_gsm_map_ericsson_SaiResType,
+    &ett_gsm_map_ericsson_AtiArgType,
+    &ett_gsm_map_ericsson_AtiResType,
+    &ett_gsm_map_ericsson_RdArgType,
+    &ett_gsm_map_ericsson_RequestedInfoType,
+    &ett_gsm_map_ericsson_ExtAtiArgType,
+    &ett_gsm_map_ericsson_AtiArgData,
 
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
@@ -31873,25 +32159,6 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AbsentSubscriberExt_U,
     &ett_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U,
     &ett_NokiaMAP_Extensions_RoutingCategoryExt_U,
-    &ett_NokiaMAP_Extensions_ExtensionType,
-    &ett_NokiaMAP_Extensions_IsdArgType,
-    &ett_NokiaMAP_Extensions_IsdArgData,
-    &ett_NokiaMAP_Extensions_PrivateFeatureData,
-    &ett_NokiaMAP_Extensions_OickInfo,
-    &ett_NokiaMAP_Extensions_SubscriptionTypeInfo,
-    &ett_NokiaMAP_Extensions_IsdResType,
-    &ett_NokiaMAP_Extensions_IsdResData,
-    &ett_NokiaMAP_Extensions_DsdArgType,
-    &ett_NokiaMAP_Extensions_DsdArgData,
-    &ett_NokiaMAP_Extensions_SriArgType,
-    &ett_NokiaMAP_Extensions_SriArgData,
-    &ett_NokiaMAP_Extensions_SriResType,
-    &ett_NokiaMAP_Extensions_SriResData,
-    &ett_NokiaMAP_Extensions_PrnArgType,
-    &ett_NokiaMAP_Extensions_PrnArgData,
-    &ett_NokiaMAP_Extensions_UlArgType,
-    &ett_NokiaMAP_Extensions_UlArgData,
-    &ett_NokiaMAP_Extensions_PrivateFeatureUlArgData,
     &ett_NokiaMAP_Extensions_SriForSMArgExt_U,
     &ett_NokiaMAP_Extensions_ReportSMDelStatArgExt_U,
     &ett_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U,
@@ -31903,7 +32170,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3434 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3436 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -32047,7 +32314,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3494 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3496 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
