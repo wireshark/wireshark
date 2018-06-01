@@ -38,7 +38,7 @@ DIAG_ON(frame-larger-than=)
 
 void MainWindow::showWelcome()
 {
-    main_ui_->mainStack->setCurrentWidget(main_welcome_);
+    main_ui_->mainStack->setCurrentWidget(welcome_page_);
 }
 
 void MainWindow::showCapture()

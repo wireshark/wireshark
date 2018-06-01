@@ -163,7 +163,7 @@ set(WIRESHARK_QT_HEADERS
 	lte_mac_statistics_dialog.h
 	lte_rlc_statistics_dialog.h
 	main_status_bar.h
-	main_welcome.h
+	welcome_page.h
 	main_window.h
 	main_window_preferences_frame.h
 	manage_interfaces_dialog.h
@@ -372,7 +372,7 @@ set(WIRESHARK_QT_SRC
 	lte_rlc_graph_dialog.cpp
 	lte_rlc_statistics_dialog.cpp
 	main_status_bar.cpp
-	main_welcome.cpp
+	welcome_page.cpp
 	main_window.cpp
 	main_window_preferences_frame.cpp
 	main_window_layout.cpp
@@ -503,7 +503,7 @@ set(WIRESHARK_QT_UI
 	lbm_lbtru_transport_dialog.ui
 	lbm_stream_dialog.ui
 	lte_rlc_graph_dialog.ui
-	main_welcome.ui
+	welcome_page.ui
 	main_window.ui
 	main_window_preferences_frame.ui
 	manage_interfaces_dialog.ui

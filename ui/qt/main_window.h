@@ -81,7 +81,7 @@ class CaptureInterfacesDialog;
 class FileSetDialog;
 class FilterDialog;
 class FunnelStatistics;
-class MainWelcome;
+class WelcomePage;
 class PacketList;
 class ProtoTree;
 class WirelessFrame;
@@ -165,7 +165,7 @@ private:
     QSplitter master_split_;
     QSplitter extra_split_;
     QVector<unsigned> cur_layout_;
-    MainWelcome *main_welcome_;
+    WelcomePage *welcome_page_;
     DisplayFilterCombo *df_combo_box_;
     CaptureFile capture_file_;
     QFont mono_font_;

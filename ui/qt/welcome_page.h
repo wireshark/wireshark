@@ -1,4 +1,4 @@
-/* main_welcome.h
+/* welcome_page.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -7,8 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef MAIN_WELCOME_H
-#define MAIN_WELCOME_H
+#ifndef WELCOME_PAGE_H
+#define WELCOME_PAGE_H
 
 #include <QFrame>
 
@@ -20,15 +20,15 @@ class QMenu;
 #include "interface_frame.h"
 
 namespace Ui {
-    class MainWelcome;
+    class WelcomePage;
 }
 
-class MainWelcome : public QFrame
+class WelcomePage : public QFrame
 {
     Q_OBJECT
 public:
-    explicit MainWelcome(QWidget *parent = 0);
-    virtual ~MainWelcome();
+    explicit WelcomePage(QWidget *parent = 0);
+    virtual ~WelcomePage();
     InterfaceFrame *getInterfaceFrame();
     const QString captureFilter();
     void setCaptureFilter(const QString capture_filter);
@@ -46,7 +46,7 @@ protected slots:
     void on_helpLabel_clicked();
 
 private:
-    Ui::MainWelcome *welcome_ui_;
+    Ui::WelcomePage *welcome_ui_;
     QString flavor_;
     QString show_in_str_;
 
@@ -85,7 +85,7 @@ private slots:
     void on_interfaceFrame_startCapture();
 };
 
-#endif // MAIN_WELCOME_H
+#endif // WELCOME_PAGE_H
 
 /*
  * Editor modelines

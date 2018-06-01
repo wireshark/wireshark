@@ -133,7 +133,7 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
-      <widget class="MainWelcome" name="welcomePage"/>
+      <widget class="WelcomePage" name="welcomePage"/>
      </widget>
     </item>
    </layout>
@@ -2998,9 +2998,9 @@
    <header>main_status_bar.h</header>
   </customwidget>
   <customwidget>
-   <class>MainWelcome</class>
+   <class>WelcomePage</class>
    <extends>QFrame</extends>
-   <header>main_welcome.h</header>
+   <header>welcome_page.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

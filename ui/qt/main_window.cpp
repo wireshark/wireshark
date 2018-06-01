@@ -510,7 +510,7 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->setProtoTree(proto_tree_);
     packet_list_->installEventFilter(this);
 
-    main_welcome_ = main_ui_->welcomePage;
+    welcome_page_ = main_ui_->welcomePage;
 
     connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
             this, SIGNAL(fieldSelected(FieldInformation *)));
@@ -575,13 +575,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->mainStack, SIGNAL(currentChanged(int)),
             this, SLOT(mainStackChanged(int)));
 
-    connect(main_welcome_, SIGNAL(startCapture()),
+    connect(welcome_page_, SIGNAL(startCapture()),
             this, SLOT(startCapture()));
-    connect(main_welcome_, SIGNAL(recentFileActivated(QString)),
+    connect(welcome_page_, SIGNAL(recentFileActivated(QString)),
             this, SLOT(openCaptureFile(QString)));
-    connect(main_welcome_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+    connect(welcome_page_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
-    connect(main_welcome_, SIGNAL(popFilterSyntaxStatus()),
+    connect(welcome_page_, SIGNAL(popFilterSyntaxStatus()),
             main_ui_->statusBar, SLOT(popFilterStatus()));
 
     connect(main_ui_->addressEditorFrame, SIGNAL(editAddressStatus(QString)),
@@ -691,7 +691,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SLOT(captureFilterSyntaxChanged(bool)));
 
-        connect(this->main_welcome_, SIGNAL(showExtcapOptions(QString&)),
+        connect(this->welcome_page_, SIGNAL(showExtcapOptions(QString&)),
                 this, SLOT(showExtcapOptionsDialog(QString&)));
 
 #endif // HAVE_LIBPCAP
@@ -945,7 +945,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     if (capture_interfaces_dialog_) capture_interfaces_dialog_->close();
 #endif
     // Make sure we kill any open dumpcap processes.
-    delete main_welcome_;
+    delete welcome_page_;
 
     // One of the many places we assume one main window.
     if(!wsApp->isInitialized()) {

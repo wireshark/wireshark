@@ -1,4 +1,4 @@
-/* main_welcome.cpp
+/* welcome_page.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -18,8 +18,8 @@
 
 #include "version_info.h"
 
-#include "main_welcome.h"
-#include <ui_main_welcome.h>
+#include "welcome_page.h"
+#include <ui_welcome_page.h>
 #include <ui/qt/utils/tango_colors.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -41,9 +41,9 @@
 
 #include <extcap.h>
 
-MainWelcome::MainWelcome(QWidget *parent) :
+WelcomePage::WelcomePage(QWidget *parent) :
     QFrame(parent),
-    welcome_ui_(new Ui::MainWelcome),
+    welcome_ui_(new Ui::WelcomePage),
     flavor_(tr(VERSION_FLAVOR)),
     #ifdef Q_OS_MAC
     show_in_str_(tr("Show in Finder")),
@@ -62,10 +62,10 @@ MainWelcome::MainWelcome(QWidget *parent) :
     QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
 
     QString welcome_ss = QString(
-                "MainWelcome {"
+                "WelcomePage {"
                 "  padding: 1em;"
                 " }"
-                "MainWelcome, QAbstractItemView {"
+                "WelcomePage, QAbstractItemView {"
                 "  background-color: palette(base);"
                 "  color: palette(text);"
                 " }"
@@ -185,22 +185,22 @@ MainWelcome::MainWelcome(QWidget *parent) :
     splash_overlay_ = new SplashOverlay(this);
 }
 
-MainWelcome::~MainWelcome()
+WelcomePage::~WelcomePage()
 {
     delete welcome_ui_;
 }
 
-InterfaceFrame *MainWelcome::getInterfaceFrame()
+InterfaceFrame *WelcomePage::getInterfaceFrame()
 {
     return welcome_ui_->interfaceFrame;
 }
 
-const QString MainWelcome::captureFilter()
+const QString WelcomePage::captureFilter()
 {
     return welcome_ui_->captureFilterComboBox->currentText();
 }
 
-void MainWelcome::setCaptureFilter(const QString capture_filter)
+void WelcomePage::setCaptureFilter(const QString capture_filter)
 {
     // capture_filter comes from the current filter in
     // CaptureInterfacesDialog. We need to find a good way to handle
@@ -208,7 +208,7 @@ void MainWelcome::setCaptureFilter(const QString capture_filter)
     welcome_ui_->captureFilterComboBox->lineEdit()->setText(capture_filter);
 }
 
-void MainWelcome::interfaceListChanged()
+void WelcomePage::interfaceListChanged()
 {
     QString btnText = tr("All interfaces shown");
     if (welcome_ui_->interfaceFrame->interfacesHidden() > 0) {
@@ -220,7 +220,7 @@ void MainWelcome::interfaceListChanged()
     welcome_ui_->btnInterfaceType->setMenu(welcome_ui_->interfaceFrame->getSelectionMenu());
 }
 
-void MainWelcome::appInitialized()
+void WelcomePage::appInitialized()
 {
     // XXX Add a "check for updates" link?
     QString full_release;
@@ -264,7 +264,7 @@ void MainWelcome::appInitialized()
 // of the capture filter lineedit. We do so here so that we don't clobber
 // filters set in the Capture Options / Interfaces dialog or ones set via
 // the command line.
-void MainWelcome::captureFilterTextEdited(const QString capture_filter)
+void WelcomePage::captureFilterTextEdited(const QString capture_filter)
 {
     if (global_capture_opts.num_selected > 0) {
         interface_t *device;
@@ -290,7 +290,7 @@ void MainWelcome::captureFilterTextEdited(const QString capture_filter)
 }
 #else
 // No-op if we don't have capturing.
-void MainWelcome::captureFilterTextEdited(const QString)
+void WelcomePage::captureFilterTextEdited(const QString)
 {
 }
 #endif
@@ -300,7 +300,7 @@ void MainWelcome::captureFilterTextEdited(const QString)
 // sources such as our remote connection, the command line, or a previous
 // selection.
 // Must not change any interface data.
-void MainWelcome::interfaceSelected()
+void WelcomePage::interfaceSelected()
 {
     QPair <const QString, bool> sf_pair = CaptureFilterEdit::getSelectedFilter();
     const QString user_filter = sf_pair.first;
@@ -317,17 +317,17 @@ void MainWelcome::interfaceSelected()
     emit interfacesChanged();
 }
 
-void MainWelcome::on_interfaceFrame_showExtcapOptions(QString device_name)
+void WelcomePage::on_interfaceFrame_showExtcapOptions(QString device_name)
 {
     emit showExtcapOptions(device_name);
 }
 
-void MainWelcome::on_interfaceFrame_startCapture()
+void WelcomePage::on_interfaceFrame_startCapture()
 {
     emit startCapture();
 }
 
-void MainWelcome::updateRecentCaptures() {
+void WelcomePage::updateRecentCaptures() {
     QString itemLabel;
     QListWidgetItem *rfItem;
     QFont rfFont;
@@ -393,12 +393,12 @@ void MainWelcome::updateRecentCaptures() {
     }
 }
 
-void MainWelcome::openRecentItem(QListWidgetItem *item) {
+void WelcomePage::openRecentItem(QListWidgetItem *item) {
     QString cfPath = item->data(Qt::UserRole).toString();
     emit recentFileActivated(cfPath);
 }
 
-void MainWelcome::resizeEvent(QResizeEvent *event)
+void WelcomePage::resizeEvent(QResizeEvent *event)
 {
     if (splash_overlay_)
         splash_overlay_->resize(event->size());
@@ -407,13 +407,13 @@ void MainWelcome::resizeEvent(QResizeEvent *event)
     QFrame::resizeEvent(event);
 }
 
-void MainWelcome::setCaptureFilterText(const QString capture_filter)
+void WelcomePage::setCaptureFilterText(const QString capture_filter)
 {
     welcome_ui_->captureFilterComboBox->lineEdit()->setText(capture_filter);
     captureFilterTextEdited(capture_filter);
 }
 
-void MainWelcome::changeEvent(QEvent* event)
+void WelcomePage::changeEvent(QEvent* event)
 {
     if (0 != event)
     {
@@ -431,7 +431,7 @@ void MainWelcome::changeEvent(QEvent* event)
     QFrame::changeEvent(event);
 }
 
-void MainWelcome::showRecentContextMenu(QPoint pos)
+void WelcomePage::showRecentContextMenu(QPoint pos)
 {
     QListWidgetItem *li = recent_files_->itemAt(pos);
     if (!li) return;
@@ -457,7 +457,7 @@ void MainWelcome::showRecentContextMenu(QPoint pos)
     recent_ctx_menu_->exec(recent_files_->mapToGlobal(pos));
 }
 
-void MainWelcome::showRecentFolder()
+void WelcomePage::showRecentFolder()
 {
     QAction *ria = qobject_cast<QAction*>(sender());
     if (!ria) return;
@@ -466,7 +466,7 @@ void MainWelcome::showRecentFolder()
     desktop_show_in_folder(cf_path);
 }
 
-void MainWelcome::copyRecentPath()
+void WelcomePage::copyRecentPath()
 {
     QAction *ria = qobject_cast<QAction*>(sender());
     if (!ria) return;
@@ -477,7 +477,7 @@ void MainWelcome::copyRecentPath()
     wsApp->clipboard()->setText(cf_path);
 }
 
-void MainWelcome::removeRecentPath()
+void WelcomePage::removeRecentPath()
 {
     QAction *ria = qobject_cast<QAction*>(sender());
     if (!ria) return;
@@ -488,17 +488,17 @@ void MainWelcome::removeRecentPath()
     wsApp->removeRecentItem(cf_path);
 }
 
-void MainWelcome::on_captureLabel_clicked()
+void WelcomePage::on_captureLabel_clicked()
 {
     wsApp->doTriggerMenuItem(WiresharkApplication::CaptureOptionsDialog);
 }
 
-void MainWelcome::on_helpLabel_clicked()
+void WelcomePage::on_helpLabel_clicked()
 {
     QDesktopServices::openUrl(QUrl(topic_online_url(ONLINEPAGE_DOCS)));
 }
 
-void MainWelcome::on_recentLabel_clicked()
+void WelcomePage::on_recentLabel_clicked()
 {
     wsApp->doTriggerMenuItem(WiresharkApplication::FileOpenDialog);
 }

@@ -1456,7 +1456,7 @@ void MainWindow::captureFilterSyntaxChanged(bool valid)
 void MainWindow::startInterfaceCapture(bool valid, const QString capture_filter)
 {
     capture_filter_valid_ = valid;
-    main_welcome_->setCaptureFilter(capture_filter);
+    welcome_page_->setCaptureFilter(capture_filter);
     // The interface tree will update the selected interfaces via its timer
     // so no need to do anything here.
     startCapture();
@@ -3711,17 +3711,17 @@ void MainWindow::on_actionCaptureOptions_triggered()
         connect(capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
 
         connect(capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
-                this->main_welcome_->getInterfaceFrame(), SLOT(getPoints(int,PointList*)));
+                this->welcome_page_->getInterfaceFrame(), SLOT(getPoints(int,PointList*)));
         connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
-                this->main_welcome_, SLOT(interfaceSelected()));
+                this->welcome_page_, SLOT(interfaceSelected()));
         connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
-                this->main_welcome_->getInterfaceFrame(), SLOT(updateSelectedInterfaces()));
+                this->welcome_page_->getInterfaceFrame(), SLOT(updateSelectedInterfaces()));
         connect(capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
-                this->main_welcome_->getInterfaceFrame(), SLOT(interfaceListChanged()));
+                this->welcome_page_->getInterfaceFrame(), SLOT(interfaceListChanged()));
         connect(capture_interfaces_dialog_, SIGNAL(captureFilterTextEdited(QString)),
-                this->main_welcome_, SLOT(setCaptureFilterText(QString)));
+                this->welcome_page_, SLOT(setCaptureFilterText(QString)));
         // Propagate selection changes from main UI to dialog.
-        connect(this->main_welcome_, SIGNAL(interfacesChanged()),
+        connect(this->welcome_page_, SIGNAL(interfacesChanged()),
                 capture_interfaces_dialog_, SLOT(interfaceSelected()));
 
         connect(capture_interfaces_dialog_, SIGNAL(setFilterValid(bool, const QString)),
@@ -3784,7 +3784,7 @@ void MainWindow::extcap_options_finished(int result)
     if (result == QDialog::Accepted) {
         startCapture();
     }
-    this->main_welcome_->getInterfaceFrame()->interfaceListChanged();
+    this->welcome_page_->getInterfaceFrame()->interfaceListChanged();
 }
 
 void MainWindow::showExtcapOptionsDialog(QString &device_name)
