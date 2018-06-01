@@ -51,6 +51,8 @@
 #define PLUGINS_DIR_NAME    "plugins"
 #define PROFILES_INFO_NAME  "profile_files.txt"
 
+#define ENV_CONFIG_PATH_VAR  "WIRESHARK_CONFIG_DIR"
+
 char *persconffile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
@@ -1230,28 +1232,28 @@ profile_store_persconffiles(gboolean store)
 static const char *
 get_persconffile_dir_no_profile(void)
 {
-#ifdef _WIN32
     const char *env;
-#else
-    char *xdg_path, *path;
-    struct passwd *pwd;
-    const char *homedir;
-#endif
 
     /* Return the cached value, if available */
     if (persconffile_dir != NULL)
         return persconffile_dir;
 
-#ifdef _WIN32
     /*
      * See if the user has selected an alternate environment.
      */
-    env = g_getenv("WIRESHARK_APPDATA");
+    env = g_getenv(ENV_CONFIG_PATH_VAR);
+#ifdef _WIN32
+    if (env == NULL) {
+        /* for backward compatibility */
+        env = g_getenv("WIRESHARK_APPDATA");
+    }
+#endif
     if (env != NULL) {
         persconffile_dir = g_strdup(env);
         return persconffile_dir;
     }
 
+#ifdef _WIN32
     /*
      * Use %APPDATA% or %USERPROFILE%, so that configuration
      * files are stored in the user profile, rather than in
@@ -1284,6 +1286,10 @@ get_persconffile_dir_no_profile(void)
     persconffile_dir = g_build_filename("C:", "Wireshark", NULL);
     return persconffile_dir;
 #else
+    char *xdg_path, *path;
+    struct passwd *pwd;
+    const char *homedir;
+
     /*
      * Check if XDG_CONFIG_HOME/wireshark exists and is a directory.
      */
