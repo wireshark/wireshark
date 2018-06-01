@@ -307,6 +307,9 @@ public slots:
     void updatePreferenceActions();
     void updateRecentActions();
 
+    void showWelcome();
+    void showCapture();
+
     void setTitlebarForCaptureFile();
     void setWSWindowTitle(QString title = QString());
 

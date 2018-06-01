@@ -375,6 +375,7 @@ set(WIRESHARK_QT_SRC
 	main_welcome.cpp
 	main_window.cpp
 	main_window_preferences_frame.cpp
+	main_window_layout.cpp
 	main_window_slots.cpp
 	manage_interfaces_dialog.cpp
 	module_preferences_scroll_area.cpp

@@ -307,167 +307,6 @@ void MainWindow::filterPackets(QString new_filter, bool force)
     }
 }
 
-// A new layout should be applied when it differs from the old layout AND
-// at the following times:
-// - At startup
-// - When the preferences change
-// - When the profile changes
-void MainWindow::layoutPanes()
-{
-    QVector<unsigned> new_layout = QVector<unsigned>() << prefs.gui_layout_type
-                                                       << prefs.gui_layout_content_1
-                                                       << prefs.gui_layout_content_2
-                                                       << prefs.gui_layout_content_3
-                                                       << recent.packet_list_show
-                                                       << recent.tree_view_show
-                                                       << recent.byte_view_show;
-
-    if (cur_layout_ == new_layout) return;
-
-    QSplitter *parents[3];
-
-    // Reparent all widgets and add them back in the proper order below.
-    // This hides each widget as well.
-    packet_list_->freeze(); // Clears tree and byte view tabs.
-    packet_list_->setParent(main_ui_->mainStack);
-    proto_tree_->setParent(main_ui_->mainStack);
-    byte_view_tab_->setParent(main_ui_->mainStack);
-    empty_pane_.setParent(main_ui_->mainStack);
-    extra_split_.setParent(main_ui_->mainStack);
-
-    // XXX We should try to preserve geometries if we can, e.g. by
-    // checking to see if the layout type is the same.
-    switch(prefs.gui_layout_type) {
-    case(layout_type_2):
-    case(layout_type_1):
-        extra_split_.setOrientation(Qt::Horizontal);
-        /* Fall Through */
-    case(layout_type_5):
-        master_split_.setOrientation(Qt::Vertical);
-        break;
-
-    case(layout_type_4):
-    case(layout_type_3):
-        extra_split_.setOrientation(Qt::Vertical);
-        /* Fall Through */
-    case(layout_type_6):
-        master_split_.setOrientation(Qt::Horizontal);
-        break;
-
-    default:
-        g_assert_not_reached();
-    }
-
-    switch(prefs.gui_layout_type) {
-    case(layout_type_5):
-    case(layout_type_6):
-        parents[0] = &master_split_;
-        parents[1] = &master_split_;
-        parents[2] = &master_split_;
-        break;
-    case(layout_type_2):
-    case(layout_type_4):
-        parents[0] = &master_split_;
-        parents[1] = &extra_split_;
-        parents[2] = &extra_split_;
-        break;
-    case(layout_type_1):
-    case(layout_type_3):
-        parents[0] = &extra_split_;
-        parents[1] = &extra_split_;
-        parents[2] = &master_split_;
-        break;
-    default:
-        g_assert_not_reached();
-    }
-
-    if (parents[0] == &extra_split_) {
-        master_split_.addWidget(&extra_split_);
-    }
-
-    parents[0]->addWidget(getLayoutWidget(prefs.gui_layout_content_1));
-
-    if (parents[2] == &extra_split_) {
-        master_split_.addWidget(&extra_split_);
-    }
-
-    parents[1]->addWidget(getLayoutWidget(prefs.gui_layout_content_2));
-    parents[2]->addWidget(getLayoutWidget(prefs.gui_layout_content_3));
-
-    const QList<QWidget *> ms_children = master_split_.findChildren<QWidget *>();
-
-    extra_split_.setVisible(ms_children.contains(&extra_split_));
-    packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
-    proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
-    byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
-
-    packet_list_->thaw(true);
-    cur_layout_ = new_layout;
-}
-
-// The recent layout geometry should be applied after the layout has been
-// applied AND at the following times:
-// - At startup
-// - When the profile changes
-void MainWindow::applyRecentPaneGeometry()
-{
-    // XXX This shrinks slightly each time the application is run. For some
-    // reason the master_split_ geometry is two pixels shorter when
-    // saveWindowGeometry is invoked.
-
-    // This is also an awful lot of trouble to go through to reuse the GTK+
-    // pane settings. We might want to add gui.geometry_main_master_sizes
-    // and gui.geometry_main_extra_sizes and save QSplitter::saveState in
-    // each.
-
-    // Force a geometry recalculation
-    QWidget *cur_w = main_ui_->mainStack->currentWidget();
-    main_ui_->mainStack->setCurrentWidget(&master_split_);
-    QRect geom = main_ui_->mainStack->geometry();
-    QList<int> master_sizes = master_split_.sizes();
-    QList<int> extra_sizes = extra_split_.sizes();
-    main_ui_->mainStack->setCurrentWidget(cur_w);
-
-    int master_last_size = master_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
-    master_last_size -= master_split_.handleWidth() * (master_sizes.length() - 1);
-
-    int extra_last_size = extra_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
-    extra_last_size -= extra_split_.handleWidth();
-
-    if (recent.gui_geometry_main_upper_pane > 0) {
-        master_sizes[0] = recent.gui_geometry_main_upper_pane;
-        master_last_size -= recent.gui_geometry_main_upper_pane;
-    } else {
-        master_sizes[0] = master_last_size / master_sizes.length();
-        master_last_size -= master_last_size / master_sizes.length();
-    }
-
-    if (recent.gui_geometry_main_lower_pane > 0) {
-        if (master_sizes.length() > 2) {
-            master_sizes[1] = recent.gui_geometry_main_lower_pane;
-            master_last_size -= recent.gui_geometry_main_lower_pane;
-        } else if (extra_sizes.length() > 0) {
-            extra_sizes[0] = recent.gui_geometry_main_lower_pane;
-            extra_last_size -= recent.gui_geometry_main_lower_pane;
-            extra_sizes.last() = extra_last_size;
-        }
-    } else {
-        if (master_sizes.length() > 2) {
-            master_sizes[1] = master_last_size / 2;
-            master_last_size -= master_last_size / 2;
-        } else {
-            extra_sizes[0] = extra_last_size / 2;
-            extra_last_size -= extra_last_size / 2;
-            extra_sizes.last() = extra_last_size;
-        }
-    }
-
-    master_sizes.last() = master_last_size;
-
-    master_split_.setSizes(master_sizes);
-    extra_split_.setSizes(extra_sizes);
-}
-
 void MainWindow::layoutToolbars()
 {
     Qt::ToolButtonStyle tbstyle = Qt::ToolButtonIconOnly;
@@ -660,7 +499,7 @@ void MainWindow::captureCapturePrepared(capture_session *) {
 
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
-    main_ui_->mainStack->setCurrentWidget(&master_split_);
+    showCapture();
 #endif // HAVE_LIBPCAP
 }
 
@@ -732,7 +571,7 @@ void MainWindow::captureCaptureFailed(capture_session *) {
     capture_stopping_ = false;
 
     setForCaptureInProgress(false);
-    main_ui_->mainStack->setCurrentWidget(main_welcome_);
+    showWelcome();
 
     // Reset expert information indicator
     main_ui_->statusBar->captureFileClosing();
@@ -908,7 +747,7 @@ void MainWindow::captureFileReadStarted(const QString &action) {
     QString msg = QString(tr("%1: %2")).arg(action).arg(capture_file_.fileName());
     QString msgtip = QString();
     main_ui_->statusBar->pushFileStatus(msg, msgtip);
-    main_ui_->mainStack->setCurrentWidget(&master_split_);
+    showCapture();
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
     main_ui_->wirelessTimelineWidget->captureFileReadStarted(capture_file_.capFile());
 
@@ -977,7 +816,7 @@ void MainWindow::captureFileClosed() {
 
 #ifdef HAVE_LIBPCAP
     if (!global_capture_opts.multi_files_on)
-        main_ui_->mainStack->setCurrentWidget(main_welcome_);
+        showWelcome();
 #endif
 }
 
@@ -1070,7 +909,7 @@ void MainWindow::startCapture() {
         return;
     }
 
-    main_ui_->mainStack->setCurrentWidget(&master_split_);
+    showCapture();
 
     /* XXX - we might need to init other pref data as well... */
 
@@ -1910,7 +1749,7 @@ void MainWindow::on_actionFileImportFromHexDump_triggered()
 void MainWindow::on_actionFileClose_triggered() {
     QString before_what(tr(" before closing the file"));
     if (testCaptureFileClose(before_what))
-        main_ui_->mainStack->setCurrentWidget(main_welcome_);
+        showWelcome();
 }
 
 void MainWindow::on_actionFileSave_triggered()

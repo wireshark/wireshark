@@ -709,7 +709,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Register Interface Toolbar callbacks */
     iface_toolbar_register_cb(mainwindow_add_toolbar, mainwindow_remove_toolbar);
 
-    main_ui_->mainStack->setCurrentWidget(main_welcome_);
+    showWelcome();
 }
 
 MainWindow::~MainWindow()
@@ -1110,22 +1110,6 @@ void MainWindow::saveWindowGeometry()
     }
 }
 
-QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
-    switch (type) {
-        case layout_pane_content_none:
-            return &empty_pane_;
-        case layout_pane_content_plist:
-            return packet_list_;
-        case layout_pane_content_pdetails:
-            return proto_tree_;
-        case layout_pane_content_pbytes:
-            return byte_view_tab_;
-        default:
-            g_assert_not_reached();
-            return NULL;
-    }
-}
-
 // Our event loop becomes nested whenever we call update_progress_dlg, which
 // includes several places in file.c. The GTK+ UI stays out of trouble by
 // showing a modal progress dialog. We attempt to do the equivalent below by
@@ -1319,7 +1303,7 @@ void MainWindow::importCaptureFile() {
     import_dlg.exec();
 
     if (import_dlg.result() != QDialog::Accepted) {
-        main_ui_->mainStack->setCurrentWidget(main_welcome_);
+        showWelcome();
         return;
     }
 
