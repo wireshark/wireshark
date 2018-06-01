@@ -735,9 +735,14 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
         return;
     }
 
+#undef DISSECTOR_ASSERT
+#define DISSECTOR_ASSERT(x)
+
     while (offset < tvb_reported_length(tvb))
     {
+#if 0
         guint save_offset = offset;
+#endif
 
         field = tvb_get_guint8(tvb, offset++);
         if (field == MM_CTYPE_HDR)
