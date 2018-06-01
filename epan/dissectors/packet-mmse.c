@@ -735,9 +735,13 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
         return;
     }
 
-    while ((offset < tvb_reported_length(tvb)) &&
-            (field = tvb_get_guint8(tvb, offset++)) != MM_CTYPE_HDR)
+    while (offset < tvb_reported_length(tvb))
     {
+        guint save_offset = offset;
+
+        field = tvb_get_guint8(tvb, offset++);
+        if (field == MM_CTYPE_HDR)
+            break;
         DebugLog(("\tField =  0x%02X (offset = %u): %s\n",
                     field, offset,
                     val_to_str(field, vals_mm_header_names,
@@ -749,6 +753,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 proto_tree_add_string(mmse_tree, hf_mmse_transaction_id,
                         tvb, offset - 1, length + 1,strval);
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_VERSION_HDR:            /* nibble-Major/nibble-minor*/
                 {
@@ -756,6 +761,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     char    *vers_string;
 
                     version = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                     major = (version & 0x70) >> 4;
                     minor = version & 0x0F;
                     if (minor == 0x0F)
@@ -771,12 +777,14 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 proto_tree_add_string(mmse_tree, hf_mmse_bcc, tvb,
                         offset - 1, length + 1, strval);
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_CC_HDR:                 /* Encoded-string-value */
                 length = get_encoded_strval(tvb, offset, &strval, pinfo);
                 proto_tree_add_string(mmse_tree, hf_mmse_cc, tvb,
                         offset - 1, length + 1, strval);
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_CLOCATION_HDR:          /* Uri-value            */
                 if (pdut == PDU_M_MBOX_DELETE_CONF) {
@@ -801,6 +809,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             tvb, offset - 1, length + 1, strval);
                 }
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_DATE_HDR:               /* Long-integer         */
                 {
@@ -814,9 +823,11 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             offset - 1, count + 1, &tmptime);
                 }
                 offset += count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_DREPORT_HDR:            /* Yes|No               */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree,
                         hf_mmse_delivery_report,
                         tvb, offset - 2, 2, field);
@@ -850,6 +861,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                 length + count + 1, &tmptime);
                 }
                 offset += length + count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_EXPIRY_HDR:
                 {
@@ -878,6 +890,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                 length + count + 1, &tmptime);
                 }
                 offset += length + count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_FROM_HDR:
                 /*
@@ -897,6 +910,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             offset-1, length + count + 1, strval);
                 }
                 offset += length + count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_MCLASS_HDR:
                 /*
@@ -905,6 +919,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 field = tvb_get_guint8(tvb, offset);
                 if (field & 0x80) {
                     offset++;
+DISSECTOR_ASSERT(offset > save_offset);
                     proto_tree_add_uint(mmse_tree,
                             hf_mmse_message_class_id,
                             tvb, offset - 2, 2, field);
@@ -915,6 +930,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             tvb, offset - 1, length + 1,
                             strval);
                     offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 }
                 break;
             case MM_MID_HDR:                /* Text-string          */
@@ -922,20 +938,24 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 proto_tree_add_string(mmse_tree, hf_mmse_message_id,
                         tvb, offset - 1, length + 1, strval);
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_MSIZE_HDR:              /* Long-integer         */
                 length = get_long_integer(tvb, offset, &count);
                 proto_tree_add_uint(mmse_tree, hf_mmse_message_size,
                         tvb, offset - 1, count + 1, length);
                 offset += count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_PRIORITY_HDR:           /* Low|Normal|High      */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree, hf_mmse_priority, tvb,
                         offset - 2, 2, field);
                 break;
             case MM_RREPLY_HDR:             /* Yes|No               */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 if (version == 0x80) { /* MMSE 1.0 */
                     proto_tree_add_uint(mmse_tree, hf_mmse_read_reply,
                             tvb, offset - 2, 2, field);
@@ -946,11 +966,13 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 break;
             case MM_RALLOWED_HDR:           /* Yes|No               */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree, hf_mmse_report_allowed,
                         tvb, offset - 2, 2, field);
                 break;
             case MM_RSTATUS_HDR:
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree, hf_mmse_response_status,
                         tvb, offset - 2, 2, field);
                 break;
@@ -977,14 +999,17 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             length + 1, strval);
                 }
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_SVISIBILITY_HDR:        /* Hide|Show            */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree,hf_mmse_sender_visibility,
                         tvb, offset - 2, 2, field);
                 break;
             case MM_STATUS_HDR:
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree, hf_mmse_status, tvb,
                         offset - 2, 2, field);
                 break;
@@ -993,12 +1018,14 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 proto_tree_add_string(mmse_tree, hf_mmse_subject, tvb,
                         offset - 1, length + 1, strval);
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_TO_HDR:                 /* Encoded-string-value */
                 length = get_encoded_strval(tvb, offset, &strval, pinfo);
                 proto_tree_add_string(mmse_tree, hf_mmse_to, tvb,
                         offset - 1, length + 1, strval);
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
 
                 /*
@@ -1006,6 +1033,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                  */
             case MM_RETRIEVE_STATUS_HDR:    /* Well-known-value */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree, hf_mmse_retrieve_status,
                         tvb, offset - 2, 2, field);
                 break;
@@ -1034,14 +1062,17 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             length + 1, strval);
                 }
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_READ_STATUS_HDR:        /* Well-known-value */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree, hf_mmse_read_status,
                         tvb, offset - 2, 2, field);
                 break;
             case MM_REPLY_CHARGING_HDR:     /* Well-known-value */
                 field = tvb_get_guint8(tvb, offset++);
+DISSECTOR_ASSERT(offset > save_offset);
                 proto_tree_add_uint(mmse_tree, hf_mmse_reply_charging,
                         tvb, offset - 2, 2, field);
                 break;
@@ -1073,6 +1104,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                 length + count + 1, &tmptime);
                 }
                 offset += length + count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_REPLY_CHARGING_ID_HDR:  /* Text-string */
                 length = get_text_string(tvb, offset, &strval);
@@ -1080,6 +1112,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         hf_mmse_reply_charging_id,
                         tvb, offset - 1, length + 1, strval);
                 offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_REPLY_CHARGING_SIZE_HDR:        /* Long-integer */
                 length = get_long_integer(tvb, offset, &count);
@@ -1087,6 +1120,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         hf_mmse_reply_charging_size,
                         tvb, offset - 1, count + 1, length);
                 offset += count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_PREV_SENT_BY_HDR:
                 {
@@ -1120,6 +1154,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             tvb, offset + count + count1, count2, strval);
                 }
                 offset += length + count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
             case MM_PREV_SENT_DATE_HDR:
                 {
@@ -1157,6 +1192,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             tvb, offset + count + count1, count2, strval);
                 }
                 offset += length + count;
+DISSECTOR_ASSERT(offset > save_offset);
                 break;
 
                 /* MMS Encapsulation 1.2 */
@@ -1197,6 +1233,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                 hdr_name);
                     }
                     offset += length;
+DISSECTOR_ASSERT(offset > save_offset);
                 } else { /* Literal WSP header encoding */
                     guint            length2;
                     const char       *strval2;
@@ -1206,6 +1243,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     DebugLog(("\t\tUndecoded literal header: %s\n",
                                 strval));
                     length2= get_text_string(tvb, offset+length, &strval2);
+DISSECTOR_ASSERT(length + length2 > 1);
 
                     proto_tree_add_string_format(mmse_tree,
                             hf_mmse_ffheader, tvb, offset,
@@ -1217,6 +1255,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                             format_text(wmem_packet_scope(), strval2, strlen(strval2)));
 
                     offset += length + length2;
+DISSECTOR_ASSERT(offset > save_offset);
                 }
                 break;
         }
