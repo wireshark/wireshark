@@ -462,7 +462,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
   guint32 i;
   nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
 
-  if (pinfo->fd->flags.visited){
+  if (PINFO_FD_VISITED(pinfo)){
     return;
   }
 

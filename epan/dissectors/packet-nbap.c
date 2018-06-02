@@ -10432,7 +10432,7 @@ nbap_hsdsch_channel_info = nbap_private_data->nbap_hsdsch_channel_info;
 
   nbap_private_data->hrnti = hrnti;
 
-    if (actx->pinfo->fd->flags.visited){
+    if (PINFO_FD_VISITED(actx->pinfo)){
         return offset;
     }
 
@@ -12250,7 +12250,7 @@ dissect_nbap_CommonMACFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, 
 
     transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
     bindingID = nbap_private_data->binding_id_port;
-    if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+    if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
         return offset;
     }
 
@@ -12295,7 +12295,7 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
 
 
     nbap_private_data->mac_d_pdu_size = mac_d_pdu_size;
-    if (actx->pinfo->fd->flags.visited)
+    if (PINFO_FD_VISITED(actx->pinfo))
     {
         return offset;
     }
@@ -12617,7 +12617,7 @@ nbap_private_data->binding_id_port = 0;
 
   transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
   bindingID = nbap_private_data->binding_id_port;
-  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+  if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
     return offset;
   }
 
@@ -18297,7 +18297,7 @@ dissect_nbap_E_DCH_DDI_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
   nbap_private_data->e_dch_ddi_value = e_dch_ddi_value;
-  if (actx->pinfo->fd->flags.visited)
+  if (PINFO_FD_VISITED(actx->pinfo))
   {
       return offset;
   }
@@ -18494,7 +18494,7 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_E_DCH_MACdFlow_Specific_InfoItem, E_DCH_MACdFlow_Specific_InfoItem_sequence);
 
-    if (actx->pinfo->fd->flags.visited) {
+    if (PINFO_FD_VISITED(actx->pinfo)) {
         return offset;
     }
 
@@ -18755,7 +18755,7 @@ nbap_private_data->num_items = 1;
                                    ett_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify, E_DCH_MACdFlow_Specific_InfoItem_to_Modify_sequence);
 
 
-    if (actx->pinfo->fd->flags.visited)
+    if (PINFO_FD_VISITED(actx->pinfo))
     {
         return offset;
     }
@@ -18896,7 +18896,7 @@ nbap_private_data->binding_id_port = 0;
 
         transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
         bindingID = nbap_private_data->binding_id_port;
-        if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+        if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
             return offset;
         }
         /*
@@ -23596,7 +23596,7 @@ nbap_common_channel_info = nbap_get_private_data(actx->pinfo)->nbap_common_chann
 
 int i;
 
-    if (!actx->pinfo->fd->flags.visited){
+    if (!PINFO_FD_VISITED(actx->pinfo)){
         /* Set port to zero use that as an indication of whether we have data or not */
         for (i = 0; i < maxNrOfCommonMACFlows; i++) {
             nbap_common_channel_info[i].crnc_port = 0;
@@ -23609,7 +23609,7 @@ int i;
                                    ett_nbap_HSDSCH_Common_System_InformationFDD, HSDSCH_Common_System_InformationFDD_sequence);
 
 
-    if (actx->pinfo->fd->flags.visited){
+    if (PINFO_FD_VISITED(actx->pinfo)){
         return offset;
     }
     /* Set port to zero use that as an indication of whether we have data or not */
@@ -23770,7 +23770,7 @@ dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_
 
     transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
     bindingID = nbap_private_data->binding_id_port;
-    if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+    if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
         return offset;
     }
 
@@ -23950,7 +23950,7 @@ dissect_nbap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn
     switch(protocol_ie_id){
             /*This flow must also be added*/
             case id_HSDSCH_MACdFlows_to_Add:
-                if (!actx->pinfo->fd->flags.visited){
+                if (!PINFO_FD_VISITED(actx->pinfo)){
                 /* Set port to zero use that as an indication of whether we have data or not */
                     for (i = 0; i < maxNrOfMACdFlows; i++) {
                         nbap_hsdsch_channel_info[i].crnc_port = 0;
@@ -24064,7 +24064,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
     nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_channel_info;
 
-    if (!actx->pinfo->fd->flags.visited){
+    if (!PINFO_FD_VISITED(actx->pinfo)){
         /* Set port to zero use that as an indication of whether we have data or not */
         for (i = 0; i < maxNrOfMACdFlows; i++) {
             nbap_hsdsch_channel_info[i].crnc_port = 0;
@@ -24078,7 +24078,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                    ett_nbap_HSDSCH_FDD_Information, HSDSCH_FDD_Information_sequence);
 
 
-    if (actx->pinfo->fd->flags.visited){
+    if (PINFO_FD_VISITED(actx->pinfo)){
         return offset;
     }
 
@@ -24213,7 +24213,7 @@ dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int 
 
     transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
     bindingID = nbap_private_data->binding_id_port;
-    if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+    if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
         return offset;
     }
 
@@ -24407,7 +24407,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
     nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
     nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_channel_info;
 
-    if (!actx->pinfo->fd->flags.visited){
+    if (!PINFO_FD_VISITED(actx->pinfo)){
         /* Set port to zero use that as an indication of whether we have data or not */
         for (i = 0; i < maxNrOfMACdFlows; i++) {
             nbap_hsdsch_channel_info[i].crnc_port = 0;
@@ -24421,7 +24421,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                                    ett_nbap_HSDSCH_Information_to_Modify, HSDSCH_Information_to_Modify_sequence);
 
 
-    if (actx->pinfo->fd->flags.visited){
+    if (PINFO_FD_VISITED(actx->pinfo)){
         return offset;
     }
 
@@ -28522,7 +28522,7 @@ dissect_nbap_NodeB_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn
   crnc_context_present = nbap_private_data->crnc_context_present;
   if(crnc_context_present) {
     /* This message contains both context fields. Updaaing the contexts map if needed. */
-    if (actx->pinfo->fd->flags.visited){
+    if (PINFO_FD_VISITED(actx->pinfo)){
         return offset;
     }
 
@@ -29128,7 +29128,7 @@ nbap_private_data->dch_id = 0xFFFFFFFF;
 
         transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
         bindingID = nbap_private_data->binding_id_port;
-        if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+        if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
             return offset;
         }
 
@@ -29275,7 +29275,7 @@ nbap_private_data->binding_id_port = 0;
 
         transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
         bindingID = nbap_private_data->binding_id_port;
-        if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+        if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
             return offset;
         }
         clear_address(&null_addr);
@@ -32835,7 +32835,7 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
 
   transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
   bindingID = nbap_private_data->binding_id_port;
-  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+  if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
     return offset;
   }
   clear_address(&null_addr);
@@ -33009,7 +33009,7 @@ nbap_private_data->num_items = 1;
 
   transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
   bindingID = nbap_private_data->binding_id_port;
-  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+  if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
     return offset;
   }
   clear_address(&null_addr);
@@ -33153,7 +33153,7 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
 
   transportLayerAddress_ipv4 = nbap_private_data->transportLayerAddress_ipv4;
   bindingID = nbap_private_data->binding_id_port;
-  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || bindingID == 0){
+  if (PINFO_FD_VISITED(actx->pinfo) || transportLayerAddress_ipv4 == 0 || bindingID == 0){
     return offset;
   }
   clear_address(&null_addr);
@@ -55634,7 +55634,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
   guint32 i;
   nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
 
-  if (pinfo->fd->flags.visited){
+  if (PINFO_FD_VISITED(pinfo)){
     return;
   }
 
