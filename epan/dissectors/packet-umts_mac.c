@@ -877,7 +877,7 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
     ch.ueid = ueid;
 
     /* If in first scan-through. */
-    if (pinfo->fd->flags.visited == FALSE) {
+    if (!PINFO_FD_VISITED(pinfo)) {
         /* Get body parts array for this channel. */
         body_parts ** body_parts_array = get_body_parts(&ch);
         /* Middle segment */
