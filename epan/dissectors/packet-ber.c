@@ -2268,7 +2268,7 @@ ber_sequence_try_again:
          * Skip check completely if ber_class == ANY
          * of if NOCHKTAG is set
          */
-/* XXX Bug in asn2eth,
+/* XXX Bug in asn2wrs,
  * for   scope            [7]  Scope OPTIONAL,
  * it generates
  *   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_scope },
@@ -3914,7 +3914,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
 
         /* sanity check: we only handle Universal BitStrings */
 
-        /* for an IMPLICIT APPLICATION tag asn2eth seems to call this
+        /* for an IMPLICIT APPLICATION tag asn2wrs seems to call this
            function with implicit_tag = FALSE. BER_FLAGS_NOOWNTAG was
            set so the APPLICATION tag was still present.
            So here we relax it for APPLICATION tags. CONTEXT tags may
