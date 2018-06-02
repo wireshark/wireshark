@@ -156,6 +156,9 @@ void proto_reg_handoff_uds(void);
 #define UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_LENGTH_MASK      0xF0
 #define UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_OFFSET           (UDS_RD_LENGTH_FORMAT_IDENTIFIER_OFFSET + UDS_RD_LENGTH_FORMAT_IDENTIFIER_LEN)
 
+#define UDS_TD_SEQUENCE_COUNTER_OFFSET                (UDS_DATA_OFFSET + 0)
+#define UDS_TD_SEQUENCE_COUNTER_LEN                   1
+
 #define UDS_TP_SUB_FUNCTION_OFFSET                    (UDS_DATA_OFFSET + 0)
 #define UDS_TP_SUB_FUNCTION_LEN                       1
 #define UDS_TP_SUB_FUNCTION_MASK                      0x7f
@@ -341,6 +344,8 @@ static int hf_uds_rd_memory_size = -1;
 static int hf_uds_rd_max_number_of_block_length_length = -1;
 static int hf_uds_rd_max_number_of_block_length = -1;
 
+static int hf_uds_td_sequence_counter = -1;
+
 static int hf_uds_tp_sub_function = -1;
 static int hf_uds_tp_suppress_pos_rsp_msg_indification = -1;
 
@@ -362,6 +367,7 @@ static gint ett_uds_wdbi = -1;
 static gint ett_uds_iocbi = -1;
 static gint ett_uds_rc = -1;
 static gint ett_uds_rd = -1;
+static gint ett_uds_td = -1;
 static gint ett_uds_tp = -1;
 static gint ett_uds_err = -1;
 static gint ett_uds_cdtcs = -1;
@@ -655,6 +661,15 @@ dissect_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data 
             }
             break;
 
+        case UDS_SERVICES_TD: {
+            guint32 sequence_no;
+            subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_td, NULL, service_name);
+
+            proto_tree_add_item_ret_uint(subtree, hf_uds_td_sequence_counter, tvb,
+                                     UDS_TD_SEQUENCE_COUNTER_OFFSET, UDS_TD_SEQUENCE_COUNTER_LEN, ENC_NA, &sequence_no);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   Block Sequence Counter %d", sequence_no);
+            break;
+        }
         case UDS_SERVICES_TP: {
             guint8 sub_function_a, sub_function;
             subtree = proto_tree_add_subtree(uds_tree, tvb, 0, -1, ett_uds_tp, NULL, service_name);
@@ -992,6 +1007,16 @@ proto_register_uds(void)
 
 
             {
+                    &hf_uds_td_sequence_counter,
+                    {
+                            "Block Sequence Counter", "uds.td.block_sequence_counter",
+                            FT_UINT8, BASE_DEC,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+
+            {
                     &hf_uds_tp_sub_function,
                     {
                             "Suppress reply", "uds.tp.suppress_reply",
@@ -1053,6 +1078,7 @@ proto_register_uds(void)
                     &ett_uds_iocbi,
                     &ett_uds_rc,
                     &ett_uds_rd,
+                    &ett_uds_td,
                     &ett_uds_tp,
                     &ett_uds_err,
                     &ett_uds_cdtcs,
