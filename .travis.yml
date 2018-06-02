@@ -31,11 +31,11 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then PATH=/usr/local/opt/qt5/bin:$PATH; fi
   # linux
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then  if [ "$CXX" = "g++" ]; then export CXX="g++-8" CC="gcc-8"; fi ; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" = "g++" ]; then export CXX="g++-8" CC="gcc-8"; fi ; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
   - $CC --version
 before_script:
-  - sudo gem install asciidoctor
+  - sudo gem install asciidoctor --no-document
   - mkdir build
   - cd build
   - cmake -GNinja -DENABLE_PCAP=${PCAP} ..
