@@ -735,14 +735,18 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
         return;
     }
 
-#undef DISSECTOR_ASSERT
-#define DISSECTOR_ASSERT(x)
-
+/*
+ * Try to force failures of *these* DISSECTOR_ASSERT() calls to cause
+ * the program to abort, so that if any of them fail, the fuzz test
+ * will fail.  (Not all systems have setenv(), but it appears that
+ * Linux systems do, and the fuzz testing is being done on Ubuntu.)
+ */
+#ifdef __linux__
+setenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG", "1", 1);
+#endif
     while (offset < tvb_reported_length(tvb))
     {
-#if 0
         guint save_offset = offset;
-#endif
 
         field = tvb_get_guint8(tvb, offset++);
         if (field == MM_CTYPE_HDR)
