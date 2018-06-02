@@ -1024,7 +1024,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     endlist = get_endlist(pinfo, &ch_lookup, atm);
 
     /* If already done reassembly */
-    if (pinfo->fd->flags.visited) {
+    if (PINFO_FD_VISITED(pinfo)) {
         if (tree && len > 0) {
             if (endlist->list && endlist->list->next) {
                 gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % snmod;
@@ -2425,10 +2425,10 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     /* do not detect duplicates or reassemble, if prefiltering is done */
     if (pinfo->num == 0) return;
     /* check for duplicates, but not if already visited */
-    if (pinfo->fd->flags.visited == FALSE && rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num, atm) == TRUE) {
+    if (!PINFO_FD_VISITED(pinfo) && rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num, atm) == TRUE) {
         g_hash_table_insert(duplicate_table, GUINT_TO_POINTER(pinfo->num), GUINT_TO_POINTER(orig_num));
         return;
-    } else if (pinfo->fd->flags.visited == TRUE && tree) {
+    } else if (PINFO_FD_VISITED(pinfo) && tree) {
         gpointer value = g_hash_table_lookup(duplicate_table, GUINT_TO_POINTER(pinfo->num));
         if (value != NULL) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]  SN=%u %s", seq, (polling != 0) ? "(P)" : "");
