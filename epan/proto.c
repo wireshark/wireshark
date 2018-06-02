@@ -1335,9 +1335,10 @@ proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint
 
 void proto_report_dissector_bug(const char *message)
 {
-	if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+	if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) {
+		fprintf(stderr, "Dissector bug: %s\n", message);
 		abort();
-	else
+	} else
 		THROW_MESSAGE(DissectorError, message);
 }
 
