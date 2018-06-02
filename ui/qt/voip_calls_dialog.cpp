@@ -240,9 +240,9 @@ void VoipCallsDialog::prepareFilter()
 
     QString filter_str;
     QSet<guint16> selected_calls;
+    QString frame_numbers;
 
     /* Build a new filter based on frame numbers */
-    const char *or_prepend = "";
     foreach (QModelIndex index, ui->callTreeView->selectionModel()->selectedIndexes()) {
         voip_calls_info_t *call_info = VoipCallsInfoModel::indexToCallInfo(index);
         if (!call_info) {
@@ -255,10 +255,14 @@ void VoipCallsDialog::prepareFilter()
     while (cur_ga_item && cur_ga_item->data) {
         seq_analysis_item_t *ga_item = (seq_analysis_item_t*) cur_ga_item->data;
         if (selected_calls.contains(ga_item->conv_num)) {
-            filter_str += QString("%1frame.number == %2").arg(or_prepend).arg(ga_item->frame_number);
-            or_prepend = " or ";
+            frame_numbers += QString("%1 ").arg(ga_item->frame_number);
         }
         cur_ga_item = g_list_next(cur_ga_item);
+    }
+
+    if (!frame_numbers.isEmpty()) {
+        frame_numbers.chop(1);
+        filter_str = QString("frame.number in {%1} or rtp.setup-frame in {%1}").arg(frame_numbers);
     }
 
 #if 0
