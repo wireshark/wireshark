@@ -230,7 +230,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm-CCCH");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -254,7 +254,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -382,7 +382,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfiguration");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -423,7 +423,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfiguration");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -498,7 +498,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 new_u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 %(DEFAULT_BODY)s
-  if (actx->pinfo->fd->flags.visited) {
+  if (PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -588,7 +588,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   guint32 u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfiguration");
 %(DEFAULT_BODY)s
-  if(actx->pinfo->fd->flags.visited) {
+  if(PINFO_FD_VISITED(actx->pinfo)) {
     return offset;
   }
 
@@ -1179,7 +1179,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
     c_rnti = tvb_get_ntohs(c_rnti_tvb,0);
   }
 
-  if(actx->pinfo->fd->flags.visited) /* Frame was already checked*/
+  if(PINFO_FD_VISITED(actx->pinfo)) /* Frame was already checked*/
     return offset;
 
   /* Trying to figure where to get the U-RNTI from Either from an ASN.1 field (if this is CCCH) or RLC's attached info (if this is DCCH) */
