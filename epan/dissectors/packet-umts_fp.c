@@ -2021,7 +2021,7 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      ENC_NA);
             proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
 
-            if(preferences_track_paging_indications && !pinfo->fd->flags.visited){
+            if(preferences_track_paging_indications && !PINFO_FD_VISITED(pinfo)){
                 paging_indications_info_t* current_pi_info;
                 current_pi_info = wmem_new0(wmem_file_scope(), paging_indications_info_t);
                 current_pi_info->frame_number = pinfo->num;
@@ -5217,7 +5217,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
 #if 0
     /*Only do this the first run, signals that we need to reset the RLC fragtable*/
-    if (!pinfo->fd->flags.visited &&  p_conv_data->reset_frag ) {
+    if (!PINFO_FD_VISITED(pinfo) &&  p_conv_data->reset_frag ) {
         fpi->reset_frag = p_conv_data->reset_frag;
         p_conv_data->reset_frag = FALSE;
     }
@@ -5531,7 +5531,7 @@ update_pch_coversation_info(umts_fp_conversation_info_t *p_conv_data, packet_inf
     DISSECTOR_ASSERT(p_conv_data->channel == CHANNEL_PCH);
 
     fp_pch_channel_info = (fp_pch_channel_info_t*)p_conv_data->channel_specific_info;
-    if(p_fp_info->current_paging_indications && !pinfo->fd->flags.visited)
+    if(p_fp_info->current_paging_indications && !PINFO_FD_VISITED(pinfo))
     {
         /* Saving the PI info for the next packet to find */
         fp_pch_channel_info->last_paging_indication_info = p_fp_info->current_paging_indications;
