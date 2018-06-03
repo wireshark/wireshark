@@ -31,7 +31,7 @@ guint
 tvb_get_guintvar (tvbuff_t *tvb, guint offset,
         guint *octetCount, packet_info *pinfo, expert_field *ei)
 {
-    guint value   = 0;
+    guint value   = 0, previous_value;
     guint octet;
     guint counter = 0;
 
@@ -44,15 +44,15 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset,
         octet = tvb_get_guint8 (tvb, offset+counter);
 
         counter++;
-        if (counter > sizeof(value)) {
-            proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
-            value = 0;
-            counter = 0;
-            break;
-        }
 
+        previous_value = value;
         value <<= 7;  /* Value only exists in 7 of the 8 bits */
         value += (octet & 0x7F);
+        if (value < previous_value) {
+            /* overflow; clamp the value at UINT_MAX */
+            proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
+            value = UINT_MAX;
+        }
 
 #ifdef DEBUG
         fprintf(stderr,
