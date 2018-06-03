@@ -1552,14 +1552,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Défilement automatique de la barre pendant la capture</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Montre la boite d&apos;information de capture pendant la capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show extra capture information dialog</source>
-        <translation type="vanished">Afficher une fenetre d&apos;information de capture supplémentaire</translation>
-    </message>
-    <message>
         <location filename="capture_interfaces_dialog.ui" line="521"/>
         <source>Name Resolution</source>
         <translation>Résolution de nom</translation>
