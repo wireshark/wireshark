@@ -1301,14 +1301,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Automatisches Scrollen während des Mitschnitts</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mitschnittinformationen während der Aufzeichnung anzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show extra capture information dialog</source>
-        <translation type="vanished">Extra Mitschnittinformationen anzeigen</translation>
-    </message>
-    <message>
         <source>Name Resolution</source>
         <translation>Namensauflösung</translation>
     </message>
