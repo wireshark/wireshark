@@ -1503,14 +1503,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Scorri automaticamente durante la cattura</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra la finestra di informazioni durante la cattura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show extra capture information dialog</source>
-        <translation type="vanished">Mostra la finestra delle informazioni aggiuntive sulla cattura</translation>
-    </message>
-    <message>
         <location filename="capture_interfaces_dialog.ui" line="521"/>
         <source>Name Resolution</source>
         <translation>Risoluzione dei nomi</translation>
