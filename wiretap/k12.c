@@ -1219,7 +1219,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
             obj.record.hwpart_len = g_htons(0x18);
             for( i=0; i<32; i++ ) {
                 obj.record.extra.desc.ds0mask.mask[i] =
-                (src_desc->input_info.ds0mask & (1 << i)) ? 0xff : 0x00;
+                (src_desc->input_info.ds0mask & (1UL << i)) ? 0xff : 0x00;
             }
             offset = 0x3c;
             break;
