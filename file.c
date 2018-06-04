@@ -267,11 +267,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
      the packets, so we know how much we'll ultimately need. */
   ws_buffer_init(&cf->buf, 1500);
 
-  /* Create new epan session for dissection.
-   * (The old one was freed in cf_close().)
-   */
-  cf->epan = ws_epan_new(cf);
-
   /* We're about to start reading the file. */
   cf->state = FILE_READ_IN_PROGRESS;
 
@@ -312,6 +307,11 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->provider.prev_dis = NULL;
   cf->provider.prev_cap = NULL;
   cf->cum_bytes = 0;
+
+  /* Create new epan session for dissection.
+   * (The old one was freed in cf_close().)
+   */
+  cf->epan = ws_epan_new(cf);
 
   packet_list_queue_draw();
   cf_callback_invoke(cf_cb_file_opened, cf);

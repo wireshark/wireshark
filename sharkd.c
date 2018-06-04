@@ -413,10 +413,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   /* The open succeeded.  Fill in the information for this file. */
 
-  /* Create new epan session for dissection. */
-  epan_free(cf->epan);
-  cf->epan = sharkd_epan_new(cf);
-
   cf->provider.wth = wth;
   cf->f_datalen = 0; /* not used, but set it anyway */
 
@@ -441,6 +437,10 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->provider.ref = NULL;
   cf->provider.prev_dis = NULL;
   cf->provider.prev_cap = NULL;
+
+  /* Create new epan session for dissection. */
+  epan_free(cf->epan);
+  cf->epan = sharkd_epan_new(cf);
 
   cf->state = FILE_READ_IN_PROGRESS;
 

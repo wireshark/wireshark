@@ -4064,10 +4064,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   /* The open succeeded.  Fill in the information for this file. */
 
-  /* Create new epan session for dissection. */
-  epan_free(cf->epan);
-  cf->epan = tshark_epan_new(cf);
-
   cf->provider.wth = wth;
   cf->f_datalen = 0; /* not used, but set it anyway */
 
@@ -4093,7 +4089,9 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->provider.prev_dis = NULL;
   cf->provider.prev_cap = NULL;
 
-  cf->state = FILE_READ_IN_PROGRESS;
+  /* Create new epan session for dissection. */
+  epan_free(cf->epan);
+  cf->epan = tshark_epan_new(cf);
 
   wtap_set_cb_new_ipv4(cf->provider.wth, add_ipv4_name);
   wtap_set_cb_new_ipv6(cf->provider.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
