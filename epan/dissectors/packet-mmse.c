@@ -955,6 +955,12 @@ save_offset, offset, length, count, length + count));
                             offset-1, length + count + 1, strval);
                 }
                 offset += length + count;
+if (length > 0x7fffffff) {
+if (((int)(length + count + 1)) < 0)
+REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+"MM_FROM_HDR: %u (%d) should have thrown an exception overflowed to %u because length is %u, count is %u, adding up to %u",
+length, length, offset + length + count + 1, length, count, length + count + 1));
+}
 if (offset <= save_offset) {
 REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
 "MM_FROM_HDR: offset of %u overflowed to %u because length is %u, count is %u, adding up to %u",

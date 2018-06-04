@@ -3877,7 +3877,26 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	proto_item	  *pi;
 	header_field_info *hfinfo;
 
+if (length < 0 && tree == NULL)
+REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+	"Invalid length %d passed to proto_tree_add_string when tree is NULL",
+			length));
 	CHECK_FOR_NULL_TREE(tree);
+
+if (length < 0) {
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	if (!(PTREE_DATA(tree)->visible)) {
+		if (PTREE_FINFO(tree)) {
+			if ((hfinfo->ref_type != HF_REF_TYPE_DIRECT)
+			    && (hfinfo->type != FT_PROTOCOL ||
+				PTREE_DATA(tree)->fake_protocols)) {
+REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+	"Invalid length %d passed to proto_tree_add_string when tree not visible, field not directly referenced, and not protocol or faking protocols",
+			length));
+			}
+		}
+	}
+}
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
