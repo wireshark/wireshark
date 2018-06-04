@@ -80,9 +80,9 @@ fi
 # runs and we aren't left with broken HTML.
 trap : INT
 
-$CPPCHECK --force --enable=style $QUIET  \
-          $SUPPRESSIONS $INCLUDES        \
-          --std=c89 --template=$TEMPLATE \
+$CPPCHECK --force --enable=style $QUIET    \
+          $SUPPRESSIONS $INCLUDES -i asn1/ \
+          --std=c99 --template=$TEMPLATE   \
           -j $THREADS $TARGET 2>&1 | colorize
 
 if [ "$MODE" = "html" ]; then
