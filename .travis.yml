@@ -35,7 +35,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
   - $CC --version
 before_script:
-  - sudo gem install asciidoctor --no-document
+  - sudo gem install asciidoctor --no-ri --no-rdoc
   - mkdir build
   - cd build
   - cmake -GNinja -DENABLE_PCAP=${PCAP} ..
