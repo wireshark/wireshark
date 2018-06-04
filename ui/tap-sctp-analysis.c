@@ -903,10 +903,12 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID) {
                     info->dir1->init = TRUE;
                     info->dir1->init_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->min_tsn1 = info->dir1->init_min_tsn;
                     info->dir1->init_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
                 } else if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_ACK_CHUNK_ID) {
                     info->dir1->initack = TRUE;
                     info->dir1->initack_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->min_tsn1 = info->dir1->initack_min_tsn;
                     info->dir1->initack_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
                 }
             } else {
@@ -916,10 +918,12 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID) {
                     info->dir2->init = TRUE;
                     info->dir2->init_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->min_tsn2 = info->dir2->init_min_tsn;
                     info->dir2->init_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
                 } else if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_ACK_CHUNK_ID) {
                     info->dir2->initack = TRUE;
                     info->dir2->initack_min_tsn = tvb_get_ntohl((sctp_info->tvb)[0], INIT_CHUNK_INITIAL_TSN_OFFSET);
+                    info->min_tsn2 = info->dir2->initack_min_tsn;
                     info->dir2->initack_vtag = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_INITIATE_TAG_OFFSET);
                 }
             }
@@ -1027,6 +1031,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                                 if (tsnumber != info->min_tsn1) {
                                     info->min_tsn1 = info->dir1->init_min_tsn;
                                 }
+                                info->min_tsn2 = info->dir2->initack_min_tsn;
                             }
                         } else {
                             if(tsnumber < info->min_tsn1) {
@@ -1078,6 +1083,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                                     info->min_tsn2 = info->dir2->init_min_tsn;
                                     info->initack_dir = 2;
                                 }
+                                info->min_tsn1 = info->dir1->initack_min_tsn;
                             }
                         } else {
                             if(tsnumber < info->min_tsn2)
