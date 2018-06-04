@@ -6727,12 +6727,12 @@ dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo,
     */
 
     /* Octets 8 to 11 Start timestamp */
-    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    time_str = tvb_ntp_fmt_ts_sec(tvb, offset);
     proto_tree_add_string(tree, hf_gtpv2_secondary_rat_usage_data_report_start_timestamp, tvb, offset, 4, time_str);
     offset += 4;
 
     /* Octets 12 to 15 End timestamp */
-    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    time_str = tvb_ntp_fmt_ts_sec(tvb, offset);
     proto_tree_add_string(tree, hf_gtpv2_secondary_rat_usage_data_report_end_timestamp, tvb, offset, 4, time_str);
     offset += 4;
 
