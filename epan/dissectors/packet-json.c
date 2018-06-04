@@ -275,7 +275,7 @@ static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbp
 		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
 		if (JSON_INSIDE_ARRAY(idx)) {
-			ti_compact = proto_tree_add_none_format(tree_compact, hfi_json_object_compact.id, tok->tvb, tok->offset, tok->len, "%d:", idx);
+			ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_object_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
 			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_object_compact);
 			json_array_index_increment(data);
 		} else {
@@ -330,7 +330,7 @@ static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbp
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
 			char *key_str = json_string_unescape(key_tok);
-			ti_compact = proto_tree_add_none_format(tree_compact, hfi_json_member_compact.id, tok->tvb, tok->offset, tok->len, "%s:", key_str);
+			ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_str);
 		} else {
 			ti_compact = proto_tree_add_item(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, ENC_NA);
 		}
@@ -605,7 +605,7 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 		}
 
 		if (JSON_INSIDE_ARRAY(idx)) {
-			proto_tree_add_none_format(tree_compact, hfi_json_array_item_compact.id, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
+			proto_tree_add_none_format(tree_compact, &hfi_json_array_item_compact, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
 			json_array_index_increment(data);
 		} else {
 			proto_item *parent_item = proto_tree_get_parent(tree_compact);

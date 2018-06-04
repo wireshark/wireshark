@@ -3053,8 +3053,17 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
 #define proto_tree_add_boolean(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_boolean(tree, (hfinfo)->id, tvb, start, length, value)
 
+#define proto_tree_add_boolean_format(tree, hfinfo, tvb, start, length, value, format, ...) \
+	proto_tree_add_boolean_format(tree, (hfinfo)->id, tvb, start, length, value, format, __VA_ARGS__)
+
 #define proto_tree_add_string(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_string(tree, (hfinfo)->id, tvb, start, length, value)
+
+#define proto_tree_add_string_format(tree, hfinfo, tvb, start, length, value, format, ...) \
+	proto_tree_add_string_format(tree, (hfinfo)->id, tvb, start, length, value, format,  __VA_ARGS__)
+
+#define proto_tree_add_item_ret_string(tree, hfinfo, tvb, start, length, encoding, scope, retval) \
+	proto_tree_add_item_ret_string(tree, (hfinfo)->id, tvb, start, length, encoding, scope, retval)
 
 #define proto_tree_add_time(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_time(tree, (hfinfo)->id, tvb, start, length, value)
@@ -3062,16 +3071,56 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
 #define proto_tree_add_int(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_int(tree, (hfinfo)->id, tvb, start, length, value)
 
+#define proto_tree_add_int_format(tree, hfinfo, tvb, start, length, value, format, ...) \
+	proto_tree_add_int_format(tree, (hfinfo)->id, tvb, start, length, value, format, __VA_ARGS__)
+
 #define proto_tree_add_uint(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_uint(tree, (hfinfo)->id, tvb, start, length, value)
+
+#define proto_tree_add_uint_format(tree, hfinfo, tvb, start, length, value, format, ...) \
+	proto_tree_add_uint_format(tree, (hfinfo)->id, tvb, start, length, value, format, __VA_ARGS__)
+
+#define proto_tree_add_uint_format_value(tree, hfinfo, tvb, start, length, value, format, ...) \
+	proto_tree_add_uint_format_value(tree, (hfinfo)->id, tvb, start, length, value, format, __VA_ARGS__)
+
+#define proto_tree_add_item_ret_uint(tree, hfinfo, tvb, start, length, encoding, retval) \
+	proto_tree_add_item_ret_uint(tree, (hfinfo)->id, tvb, start, length, encoding, retval)
+
+#define proto_tree_add_uint64(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_uint64(tree, (hfinfo)->id, tvb, start, length, value)
 
 #define proto_tree_add_float(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_float(tree, (hfinfo)->id, tvb, start, length, value)
 
-#define proto_tree_add_float_format_value(tree, hfinfo, \
-                  tvb, start, length, value, format, ...) \
-	proto_tree_add_float_format_value(tree, (hfinfo)->id, \
-         tvb, start, length, value, format, __VA_ARGS__)
+#define proto_tree_add_float_format_value(tree, hfinfo, tvb, start, length, value, format, ...) \
+	proto_tree_add_float_format_value(tree, (hfinfo)->id, tvb, start, length, value, format, __VA_ARGS__)
+
+#define proto_tree_add_double(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_double(tree, (hfinfo)->id, tvb, start, length, value)
+
+#define proto_tree_add_bytes_format(tree, hfinfo, tvb, start, length, format, ...) \
+	proto_tree_add_bytes_format(tree, (hfinfo)->id, tvb, start, length, format, __VA_ARGS__)
+
+#define proto_tree_add_bytes_format_value(tree, hfinfo, tvb, start, length, format, ...) \
+	proto_tree_add_bytes_format_value(tree, (hfinfo)->id, tvb, start, length, format, __VA_ARGS__)
+
+#define proto_tree_add_bitmask(tree, tvb, start, hfinfo, ett, fields, encoding) \
+	proto_tree_add_bitmask(tree, tvb, start, (hfinfo)->id, ett, fields, encoding)
+
+#define proto_tree_add_bitmask_with_flags(tree, tvb, start, hfinfo, ett, fields, encoding, flags) \
+	proto_tree_add_bitmask_with_flags(tree, tvb, start, (hfinfo)->id, ett, fields, encoding, flags)
+
+#define proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, start, hfinfo, ett, fields, encoding, flags, retval) \
+	proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, start, (hfinfo)->id, ett, fields, encoding, flags, retval)
+
+#define proto_tree_add_none_format(tree, hfinfo, tvb, start, length, format, ...) \
+	proto_tree_add_none_format(tree, (hfinfo)->id, tvb, start, length, format, __VA_ARGS__)
+
+#define proto_tree_add_checksum(tree, tvb, offset, hf_checksum, hf_checksum_status, \
+		bad_checksum_expert, pinfo, computed_checksum, encoding, flags) \
+	proto_tree_add_checksum(tree, tvb, offset, (hf_checksum)->id, hf_checksum_status, \
+		bad_checksum_expert, pinfo, computed_checksum, encoding, flags)
+
 #endif
 
 /** @} */

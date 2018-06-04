@@ -384,12 +384,12 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 	if ((hdr_flags & WS_NLM_F_REQUEST) && (hdr_flags & 0x0f00)) {
 		/* XXX detect based on the protocol family and message type
 		 * whether this is a GET, NEW or regular request. */
-		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
+		proto_tree_add_bitmask(fh_hdr, tvb, offset, &hfi_netlink_hdr_flags,
 			ett_netlink_hdr_flags, netlink_header_get_flags, encoding);
-		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
+		proto_tree_add_bitmask(fh_hdr, tvb, offset, &hfi_netlink_hdr_flags,
 			ett_netlink_hdr_flags, netlink_header_new_flags, encoding);
 	} else {
-		proto_tree_add_bitmask(fh_hdr, tvb, offset, hfi_netlink_hdr_flags.id,
+		proto_tree_add_bitmask(fh_hdr, tvb, offset, &hfi_netlink_hdr_flags,
 			ett_netlink_hdr_flags, netlink_header_standard_flags, encoding);
 	}
 

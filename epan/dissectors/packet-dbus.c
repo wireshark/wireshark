@@ -232,7 +232,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = tvb_get_guint8(tvb, offset);
 			offset += 1;
 
-			proto_tree_add_uint_format(tree, hfi_dbus_value_uint.id, tvb, org_offset, offset - org_offset, val, "BYTE: %u", val);
+			proto_tree_add_uint_format(tree, &hfi_dbus_value_uint, tvb, org_offset, offset - org_offset, val, "BYTE: %u", val);
 			ret->uint = val;
 			return offset;
 		}
@@ -244,7 +244,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->get32(tvb, offset);
 			offset += 4;
 
-			ti = proto_tree_add_boolean_format(tree, hfi_dbus_value_bool.id, tvb, org_offset, offset - org_offset, val, "BOOLEAN: %s", val ? "True" : "False");
+			ti = proto_tree_add_boolean_format(tree, &hfi_dbus_value_bool, tvb, org_offset, offset - org_offset, val, "BOOLEAN: %s", val ? "True" : "False");
 			if (val != 0 && val != 1) {
 				expert_add_info_format(dinfo->pinfo, ti, &ei_dbus_value_bool_invalid, "Invalid boolean value (must be 0 or 1 is: %u)", val);
 				return -1;
@@ -260,7 +260,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = (gint16 )dinfo->get16(tvb, offset);
 			offset += 2;
 
-			proto_tree_add_uint_format(tree, hfi_dbus_value_int.id, tvb, org_offset, offset - org_offset, val, "INT16: %d", val);
+			proto_tree_add_uint_format(tree, &hfi_dbus_value_int, tvb, org_offset, offset - org_offset, val, "INT16: %d", val);
 			/* XXX ret */
 			return offset;
 		}
@@ -272,7 +272,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->get16(tvb, offset);
 			offset += 2;
 
-			proto_tree_add_uint_format(tree, hfi_dbus_value_uint.id, tvb, org_offset, offset - org_offset, val, "UINT16: %u", val);
+			proto_tree_add_uint_format(tree, &hfi_dbus_value_uint, tvb, org_offset, offset - org_offset, val, "UINT16: %u", val);
 			ret->uint = val;
 			return offset;
 		}
@@ -284,7 +284,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = (gint32) dinfo->get32(tvb, offset);
 			offset += 4;
 
-			proto_tree_add_int_format(tree, hfi_dbus_value_int.id, tvb, org_offset, offset - org_offset, val, "INT32: %d", val);
+			proto_tree_add_int_format(tree, &hfi_dbus_value_int, tvb, org_offset, offset - org_offset, val, "INT32: %d", val);
 			/* XXX ret */
 			return offset;
 		}
@@ -296,7 +296,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->get32(tvb, offset);
 			offset += 4;
 
-			proto_tree_add_uint_format(tree, hfi_dbus_value_uint.id, tvb, org_offset, offset - org_offset, val, "UINT32: %u", val);
+			proto_tree_add_uint_format(tree, &hfi_dbus_value_uint, tvb, org_offset, offset - org_offset, val, "UINT32: %u", val);
 			ret->uint = val;
 			return offset;
 		}
@@ -312,7 +312,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->getdouble(tvb, offset);
 			offset += 8;
 
-			proto_tree_add_double(tree, hfi_dbus_value_double.id, tvb, org_offset, offset - org_offset, val);
+			proto_tree_add_double(tree, &hfi_dbus_value_double, tvb, org_offset, offset - org_offset, val);
 			/* XXX ret */
 			return offset;
 		}
@@ -330,13 +330,13 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			offset += (len + 1 /* NUL-byte */);
 
 			if (sig == 's') {
-				ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "STRING: %s", val);
+				ti = proto_tree_add_string_format(tree, &hfi_dbus_value_str, tvb, org_offset, offset - org_offset, val, "STRING: %s", val);
 				if (!g_utf8_validate(val, -1, NULL)) {
 					expert_add_info(dinfo->pinfo, ti, &ei_dbus_value_str_invalid);
 					return -1;
 				}
 			} else {
-				ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "OBJECT_PATH: %s", val);
+				ti = proto_tree_add_string_format(tree, &hfi_dbus_value_str, tvb, org_offset, offset - org_offset, val, "OBJECT_PATH: %s", val);
 				if (!dbus_validate_object_path(val)) {
 					expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_object_path);
 					return -1;
@@ -357,7 +357,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
 			offset += (len + 1);
 
-			ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "SIGNATURE: %s", val);
+			ti = proto_tree_add_string_format(tree, &hfi_dbus_value_str, tvb, org_offset, offset - org_offset, val, "SIGNATURE: %s", val);
 			if (!dbus_validate_signature(val)) {
 				expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_signature);
 				return -1;

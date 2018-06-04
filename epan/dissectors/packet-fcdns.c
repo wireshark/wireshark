@@ -581,7 +581,7 @@ dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, const hea
         NULL
     };
 
-    proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hfinfo->id,
+    proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hfinfo,
                                 ett_cos_flags, flags, ENC_BIG_ENDIAN, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
@@ -603,7 +603,7 @@ dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset
     type = tvb_get_guint8(tvb, offset+1);
 
     if(type==FC_TYPE_SCSI){
-        proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hfi_fcdns_fc4features.id,
+        proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, &hfi_fcdns_fc4features,
                                 ett_fc4features, flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
     } else {
         proto_tree_add_item(parent_tree, &hfi_fcdns_fc4features, tvb, offset, 1, ENC_NA);
@@ -623,7 +623,7 @@ dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
         NULL
     };
 
-    proto_tree_add_bitmask(parent_tree, tvb, offset, hfi_fcdns_fc4features_i.id,
+    proto_tree_add_bitmask(parent_tree, tvb, offset, &hfi_fcdns_fc4features_i,
                            ett_fc4features, flags, ENC_NA);
 }
 

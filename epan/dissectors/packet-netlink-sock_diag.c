@@ -311,7 +311,7 @@ sock_diag_proto_tree_add_cookie(proto_tree *tree, netlink_sock_diag_info_t *info
 
 	/* XXX support for INET_DIAG_NOCOOKIE (~0) */
 
-	proto_tree_add_uint64(tree, hfi_netlink_sock_diag_cookie.id, tvb, offset, 8, cookie);
+	proto_tree_add_uint64(tree, &hfi_netlink_sock_diag_cookie, tvb, offset, 8, cookie);
 }
 
 static const value_string netlink_sock_diag_shutdown_flags_vals[] = {

@@ -194,7 +194,7 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla
 		break;
 	case WS_CTRL_ATTR_OP_ID:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, hfi_genl_ctrl_op_id.id, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_op_id, tvb, offset, 4, info->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			proto_item_append_text(ptree, ", id=%u", value);
 			offset += 4;
@@ -204,7 +204,8 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla
 		if (len == 4) {
 			guint64 op_flags;
 			/* XXX it would be nice if the flag names are appended to the tree */
-			proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hfi_genl_ctrl_op_flags.id, ett_genl_ctrl_op_flags, genl_ctrl_op_flags_fields, info->encoding, BMT_NO_FALSE, &op_flags);
+			proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, &hfi_genl_ctrl_op_flags,
+				ett_genl_ctrl_op_flags, genl_ctrl_op_flags_fields, info->encoding, BMT_NO_FALSE, &op_flags);
 			proto_item_append_text(tree, ": 0x%08x", (guint32)op_flags);
 			proto_item_append_text(ptree, ", flags=0x%08x", (guint32)op_flags);
 			offset += 4;
@@ -237,14 +238,14 @@ dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int 
 	case WS_CTRL_ATTR_MCAST_GRP_UNSPEC:
 		break;
 	case WS_CTRL_ATTR_MCAST_GRP_NAME:
-		proto_tree_add_item_ret_string(tree, hfi_genl_ctrl_group_name.id, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &strval);
+		proto_tree_add_item_ret_string(tree, &hfi_genl_ctrl_group_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &strval);
 		proto_item_append_text(tree, ": %s", strval);
 		proto_item_append_text(ptree, ", name=%s", strval);
 		offset += len;
 		break;
 	case WS_CTRL_ATTR_MCAST_GRP_ID:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, hfi_genl_ctrl_group_id.id, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_group_id, tvb, offset, 4, info->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			proto_item_append_text(ptree, ", id=%u", value);
 			offset += 4;
@@ -296,34 +297,34 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_typ
 		break;
 	case WS_CTRL_ATTR_FAMILY_ID:
 		if (len == 2) {
-			proto_tree_add_item_ret_uint(tree, hfi_genl_ctrl_family_id.id, tvb, offset, 2, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_family_id, tvb, offset, 2, info->encoding, &value);
 			proto_item_append_text(tree, ": %#x", value);
 			info->family_id = value;
 			offset += 2;
 		}
 		break;
 	case WS_CTRL_ATTR_FAMILY_NAME:
-		proto_tree_add_item_ret_string(tree, hfi_genl_ctrl_family_name.id, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &info->family_name);
+		proto_tree_add_item_ret_string(tree, &hfi_genl_ctrl_family_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &info->family_name);
 		proto_item_append_text(tree, ": %s", info->family_name);
 		offset += len;
 		break;
 	case WS_CTRL_ATTR_VERSION:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, hfi_genl_ctrl_version.id, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_version, tvb, offset, 4, info->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
 		break;
 	case WS_CTRL_ATTR_HDRSIZE:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, hfi_genl_ctrl_hdrsize.id, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_hdrsize, tvb, offset, 4, info->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
 		break;
 	case WS_CTRL_ATTR_MAXATTR:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, hfi_genl_ctrl_maxattr.id, tvb, offset, 4, info->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_maxattr, tvb, offset, 4, info->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}

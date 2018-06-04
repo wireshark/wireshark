@@ -768,7 +768,7 @@ dissect_nfct_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, in
 
 	switch (type) {
 		case WS_CTA_STATUS:
-			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfct_attr_status.id,
+			proto_tree_add_bitmask(tree, tvb, offset, &hfi_nfct_attr_status,
 					       ett_nfct_status_attr, hfi_nfct_attr_status_flags, ENC_BIG_ENDIAN);
 			return 1;
 
@@ -976,7 +976,7 @@ dissect_nfexp_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, i
 			return 1;
 
 		case WS_CTA_EXPECT_FLAGS:
-			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfexp_attr_flags.id,
+			proto_tree_add_bitmask(tree, tvb, offset, &hfi_nfexp_attr_flags,
 					       ett_nfexp_flags_attr, hfi_nfexp_attr_flags_bitfield, ENC_BIG_ENDIAN);
 			return 1;
 

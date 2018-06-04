@@ -337,7 +337,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     gif_tree = proto_item_add_subtree(ti, ett_gif);
 
     /* GIF signature */
-    proto_tree_add_item_ret_string(gif_tree, hfi_version.id,
+    proto_tree_add_item_ret_string(gif_tree, &hfi_version,
             tvb, offset, 6, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ver_str);
     proto_item_append_text(ti, ", Version: %s", ver_str);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ver_str);
@@ -395,7 +395,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         peek = tvb_get_guint8(tvb, offset);
         if (peek) {
             /* Only display if different from 0 */
-            proto_tree_add_uint_format(gif_tree, hfi_pixel_aspect_ratio.id,
+            proto_tree_add_uint_format(gif_tree, &hfi_pixel_aspect_ratio,
                     tvb, offset, 1, peek,
                     "%u, yields an aspect ratio of (15 + %u) / 64 = %.2f",
                     peek, peek, (float)(15 + peek) / 64.0);

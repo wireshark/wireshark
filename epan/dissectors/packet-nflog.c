@@ -184,7 +184,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         if (nflog_tree) {
             gboolean handled = FALSE;
 
-            ti = proto_tree_add_bytes_format(nflog_tree, hfi_nflog_tlv.id,
+            ti = proto_tree_add_bytes_format(nflog_tree, &hfi_nflog_tlv,
                              tvb, offset, tlv_len, NULL,
                              "TLV Type: %s (%u), Length: %u",
                              val_to_str_const(tlv_type, nflog_tlv_vals, "Unknown"),

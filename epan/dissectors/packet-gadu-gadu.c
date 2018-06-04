@@ -682,7 +682,7 @@ dissect_gadu_gadu_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	/* hash is 32-bit number written in LE */
 	_tvb_memcpy_reverse(tvb, hash, offset, 4);
-	proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_login_hash.id, tvb, offset, 4, hash, "0x%.8x", tvb_get_letohl(tvb, offset));
+	proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_login_hash, tvb, offset, 4, hash, "0x%.8x", tvb_get_letohl(tvb, offset));
 	offset += 4;
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_login_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -715,7 +715,7 @@ dissect_gadu_gadu_login_hash(tvbuff_t *tvb, proto_tree *tree, int offset)
 		case GG_LOGIN_HASH_GG32:
 			/* hash is 32-bit number written in LE */
 			_tvb_memcpy_reverse(tvb, hash, offset, 4);
-			proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_login_hash.id, tvb, offset, 4, hash, "0x%.8x", tvb_get_letohl(tvb, offset));
+			proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_login_hash, tvb, offset, 4, hash, "0x%.8x", tvb_get_letohl(tvb, offset));
 			for (i = 4; i < 64; i++) {
 				if (tvb_get_guint8(tvb, offset+i)) {
 					proto_tree_add_item(tree, &hfi_gadu_gadu_data, tvb, offset + 4, 64-4, ENC_NA);
@@ -1428,14 +1428,14 @@ dissect_gadu_gadu_userlist_xml_compressed(tvbuff_t *tvb, packet_info *pinfo, pro
 		return offset;
 
 	if ((uncomp_tvb = tvb_child_uncompress(tvb, tvb, offset, remain))) {
-		proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_userlist.id, tvb, offset, remain, NULL, "[Decompression succeeded]");
+		proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_userlist, tvb, offset, remain, NULL, "[Decompression succeeded]");
 
 		add_new_data_source(pinfo, uncomp_tvb, "Uncompressed userlist");
 
 		/* XXX add DTD (pinfo->match_string) */
 		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree, NULL);
 	} else
-		proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_userlist.id, tvb, offset, remain, NULL, "[Error: Decompression failed] (or no zlib)");
+		proto_tree_add_bytes_format_value(tree, &hfi_gadu_gadu_userlist, tvb, offset, remain, NULL, "[Error: Decompression failed] (or no zlib)");
 
 	offset += remain;
 

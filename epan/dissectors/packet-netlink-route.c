@@ -750,7 +750,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info,
 	proto_tree* subtree;
 	switch (type) {
 		case WS_IFLA_IFNAME:
-			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifla_ifname.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_tree_add_item_ret_string(tree, &hfi_netlink_route_ifla_ifname, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
 		case WS_IFLA_MTU:
@@ -762,7 +762,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info,
 			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqlen, tvb, offset, len, info->encoding);
 			return 1;
 		case WS_IFLA_OPERSTATE:
-			proto_tree_add_item_ret_uint(tree, hfi_netlink_route_ifla_operstate.id, tvb, offset, len, info->encoding, &gint);
+			proto_tree_add_item_ret_uint(tree, &hfi_netlink_route_ifla_operstate, tvb, offset, len, info->encoding, &gint);
 			return 1;
 		case WS_IFLA_PROMISCUITY:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
@@ -811,7 +811,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info,
 			subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_netlink_route_attr_linkstats, NULL, "Statistics");
 			return dissect_netlink_route_ifla_linkstats(tvb, info, subtree, offset, 8);
 		case WS_IFLA_QDISC:
-			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifla_qdisc.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_tree_add_item_ret_string(tree, &hfi_netlink_route_ifla_qdisc, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
 		case WS_IFLA_MAP:
@@ -943,7 +943,7 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, struct netlink_route_info *info _
 
 	switch (type) {
 		case WS_IFA_LABEL:
-			proto_tree_add_item_ret_string(tree, hfi_netlink_route_ifa_label.id, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_tree_add_item_ret_string(tree, &hfi_netlink_route_ifa_label, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
 

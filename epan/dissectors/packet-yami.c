@@ -221,7 +221,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 			proto_item_append_text(ti, ", Type: binary, Value: %s", repr);
 			offset += (val_len + 3) & ~3;
-			proto_tree_add_bytes_format_value(yami_param, hfi_yami_param_value_bin.id, tvb, val_offset, offset - val_offset, val, "%s", repr);
+			proto_tree_add_bytes_format_value(yami_param, &hfi_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
 			break;
 		}
 
@@ -385,7 +385,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 				proto_item_append_text(ti, "%s, ", repr);
 				offset += (val_len + 3) & ~3;
-				proto_tree_add_bytes_format_value(yami_param, hfi_yami_param_value_bin.id, tvb, val_offset, offset - val_offset, val, "%s", repr);
+				proto_tree_add_bytes_format_value(yami_param, &hfi_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
 			}
 			proto_item_append_text(ti, "}");
 			break;
