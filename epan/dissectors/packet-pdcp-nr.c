@@ -105,8 +105,8 @@ static expert_field ei_pdcp_nr_missing_udp_framing_tag = EI_INIT;
 
 static const value_string direction_vals[] =
 {
-    { DIRECTION_UPLINK,      "Uplink"},
-    { DIRECTION_DOWNLINK,    "Downlink"},
+    { PDCP_NR_DIRECTION_UPLINK,      "Uplink"},
+    { PDCP_NR_DIRECTION_DOWNLINK,    "Downlink"},
     { 0, NULL }
 };
 
@@ -180,6 +180,25 @@ static const value_string ciphering_algorithm_vals[] = {
     { 0,   NULL }
 };
 #endif
+
+
+/* SDAP header fields and tree */
+static int proto_sdap = -1;
+static int hf_sdap_rdi = -1;
+static int hf_sdap_rqi = -1;
+static int hf_sdap_qfi = -1;
+static int hf_sdap_reserved = -1;
+static gint ett_sdap = -1;
+
+static const true_false_string sdap_rdi = {
+    "To store QoS flow to DRB mapping rule",
+    "No action"
+};
+
+static const true_false_string sdap_rqi = {
+    "To inform NAS that RQI bit is set to 1",
+    "No action"
+};
 
 
 static dissector_handle_t ip_handle;
@@ -887,6 +906,10 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                 case PDCP_NR_MACI_PRES_TAG:
                     p_pdcp_nr_info->maci_present = TRUE;
                     break;
+                case PDCP_NR_SDAP_HEADER_TAG:
+                    p_pdcp_nr_info->sdap_header = tvb_get_guint8(tvb, offset) & 0x03;
+                    offset++;
+                    break;
 
                 case PDCP_NR_PAYLOAD_TAG:
                     /* Have reached data, so get out of loop */
@@ -1239,6 +1262,26 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* User-plane payload here. */
         gint payload_length = tvb_reported_length_remaining(payload_tvb, offset) - ((p_pdcp_info->maci_present) ? 4 : 0);
 
+        if ((p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK &&
+             p_pdcp_info->sdap_header & PDCP_NR_UL_SDAP_HEADER_PRESENT) ||
+            (p_pdcp_info->direction == PDCP_NR_DIRECTION_DOWNLINK &&
+             p_pdcp_info->sdap_header & PDCP_NR_DL_SDAP_HEADER_PRESENT)) {
+            proto_item *sdap_ti;
+            proto_tree *sdap_tree;
+
+            sdap_ti = proto_tree_add_item(pdcp_tree, proto_sdap, payload_tvb, offset, 1, ENC_NA);
+            sdap_tree = proto_item_add_subtree(sdap_ti, ett_sdap);
+            if (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) {
+                proto_tree_add_item(sdap_tree, hf_sdap_reserved, payload_tvb, offset, 1, ENC_NA);
+            } else {
+                proto_tree_add_item(sdap_tree, hf_sdap_rdi, payload_tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sdap_tree, hf_sdap_rqi, payload_tvb, offset, 1, ENC_NA);
+            }
+            proto_tree_add_item(sdap_tree, hf_sdap_qfi, payload_tvb, offset, 1, ENC_NA);
+            offset++;
+            payload_length--;
+        }
+
         /* If not compressed with ROHC, show as user-plane data */
         if (!p_pdcp_info->rohc.rohc_compression) {
             if (payload_length > 0) {
@@ -1323,7 +1366,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 void proto_register_pdcp_nr(void)
 {
-    static hf_register_info hf[] =
+    static hf_register_info hf_pdcp[] =
     {
         { &hf_pdcp_nr_configuration,
             { "Configuration",
@@ -1540,13 +1583,42 @@ void proto_register_pdcp_nr(void)
         },
     };
 
+    static hf_register_info hf_sdap[] =
+    {
+        { &hf_sdap_rdi,
+            { "RDI",
+              "sdap.rdi", FT_BOOLEAN, 8, TFS(&sdap_rdi), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_sdap_rqi,
+            { "RQI",
+              "sdap.rqi", FT_BOOLEAN, 8, TFS(&sdap_rqi), 0x40,
+              NULL, HFILL
+            }
+        },
+        { &hf_sdap_qfi,
+            { "QFI",
+              "sdap.qfi", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+        { &hf_sdap_reserved,
+            { "Reserved",
+              "sdap.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              NULL, HFILL
+            }
+        }
+    };
+
     static gint *ett[] =
     {
         &ett_pdcp,
         &ett_pdcp_configuration,
         &ett_pdcp_packet,
         &ett_pdcp_nr_sequence_analysis,
-        &ett_pdcp_report_bitmap
+        &ett_pdcp_report_bitmap,
+        &ett_sdap
     };
 
     static ei_register_info ei[] = {
@@ -1577,10 +1649,12 @@ void proto_register_pdcp_nr(void)
 
     /* Register protocol. */
     proto_pdcp_nr = proto_register_protocol("PDCP-NR", "PDCP-NR", "pdcp-nr");
-    proto_register_field_array(proto_pdcp_nr, hf, array_length(hf));
+    proto_register_field_array(proto_pdcp_nr, hf_pdcp, array_length(hf_pdcp));
     proto_register_subtree_array(ett, array_length(ett));
     expert_pdcp_nr = expert_register_protocol(proto_pdcp_nr);
     expert_register_field_array(expert_pdcp_nr, ei, array_length(ei));
+    proto_sdap = proto_register_protocol("SDAP", "SDAP", "sdap");
+    proto_register_field_array(proto_sdap, hf_sdap, array_length(hf_sdap));
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("pdcp-nr", dissect_pdcp_nr, proto_pdcp_nr);

@@ -12,8 +12,8 @@
 #include "packet-rohc.h"
 
 /* Direction */
-#define DIRECTION_UPLINK   0
-#define DIRECTION_DOWNLINK 1
+#define PDCP_NR_DIRECTION_UPLINK   0
+#define PDCP_NR_DIRECTION_DOWNLINK 1
 
 enum pdcp_nr_plane
 {
@@ -34,7 +34,8 @@ typedef enum NRBearerType
 #define PDCP_NR_SN_LENGTH_12_BITS 12
 #define PDCP_NR_SN_LENGTH_18_BITS 18
 
-
+#define PDCP_NR_UL_SDAP_HEADER_PRESENT 0x01
+#define PDCP_NR_DL_SDAP_HEADER_PRESENT 0x02
 
 /* Info attached to each nr PDCP/RoHC packet */
 typedef struct pdcp_nr_info
@@ -49,6 +50,8 @@ typedef struct pdcp_nr_info
     enum pdcp_nr_plane plane;
     guint8             seqnum_length;
     gboolean           maci_present;
+    /* PDCP_NR_(U|D)L_SDAP_HEADER_PRESENT bitmask */
+    guint8             sdap_header;
 
     /* RoHC settings */
     rohc_info          rohc;
@@ -136,6 +139,9 @@ typedef struct pdcp_nr_info
 
 #define PDCP_NR_MACI_PRES_TAG              0x0F
 /* 0 byte */
+
+#define PDCP_NR_SDAP_HEADER_TAG            0x10
+/* 1 byte, bitmask with PDCP_NR_UL_SDAP_HEADER_PRESENT and/or PDCP_NR_DL_SDAP_HEADER_PRESENT */
 
 /* PDCP PDU. Following this tag comes the actual PDCP PDU (there is no length, the PDU
    continues until the end of the frame) */
