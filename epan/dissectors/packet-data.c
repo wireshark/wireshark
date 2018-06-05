@@ -19,12 +19,12 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 
-/* proto_data cannot be static because it's referenced in the
- * print routines
- */
 void proto_register_data(void);
 void proto_reg_handoff_data(void);
 
+/* proto_data cannot be static because it's referenced in the
+ * print routines
+ */
 int proto_data = -1;
 
 #define DATA_HFI_INIT HFI_INIT(proto_data)
@@ -66,7 +66,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		if (bytes > 0) {
 			tvbuff_t   *data_tvb;
 			tvbuff_t   *uncompr_tvb = NULL;
-			gint        uncompr_len = 0;
+			gint	    uncompr_len = 0;
 			proto_item *ti;
 			proto_tree *data_tree;
 			if (new_pane) {
@@ -106,7 +106,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 			if(generate_md5_hash) {
 				const guint8 *cp;
-				guint8        digest[HASH_MD5_LENGTH];
+				guint8	      digest[HASH_MD5_LENGTH];
 				const gchar  *digest_string;
 
 				cp = tvb_get_ptr(tvb, 0, bytes);
