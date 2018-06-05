@@ -2270,8 +2270,14 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Protocol" code="513" mandatory="may">
-			<type type-name="Unsigned32"/>
-		</avp>
+      <!-- The values for this AVP are managed by IANA under the Protocol Numbers registry as defined in [RFC2780]
+      For now only add the most common ones to avoid a long value_string (see epan/ipproto.c).
+      -->
+      <type type-name="Enumerated"/>
+      <enum name="TCP Transmission Control" code="6"/>
+      <enum name="UDP User Datagram" code="17"/>
+      <enum name="SCTP Stream Control Transmission Protocol" code="132"/>
+    </avp>
 		<avp name="Direction" code="514" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
 			<enum name="IN" code="0"/>
