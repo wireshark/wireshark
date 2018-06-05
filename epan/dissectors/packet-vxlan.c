@@ -122,7 +122,7 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
 
     if(is_gpe){
         if(!dissector_try_uint(vxlan_dissector_table, vxlan_next_proto, next_tvb, pinfo, tree)) {
-            call_data_dissector(next_tvb, pinfo, vxlan_tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
     } else {
         call_dissector(eth_handle, next_tvb, pinfo, tree);
