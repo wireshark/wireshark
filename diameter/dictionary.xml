@@ -2230,32 +2230,134 @@
 		</avp>
 
 		<!-- AVPs 504 - 507 are defined in mobileipv6.xml -->
-
-		<!--
-		508 QoS-Resources [RFC5777]
-		509 Filter-Rule [RFC5777]
-		510 Filter-Rule-Precedence [RFC5777]
-		511 Classifier [RFC5777]
-		512 Classifier-ID [RFC5777]
-		513 Protocol [RFC5777]
-		514 Direction [RFC5777]
-		515 From-Spec [RFC5777]
-		516 To-Spec [RFC5777]
-		517 Negated [RFC5777]
-		518 IP-Address [RFC5777]
-		519 IP-Address-Range [RFC5777]
-		520 IP-Address-Start [RFC5777]
-		521 IP-Address-End [RFC5777]
-		522 IP-Address-Mask [RFC5777]
-		523 IP-Mask-Bit-Mask-Width [RFC5777]
-		524 MAC-Address [RFC5777]
-		525 MAC-Address-Mask [RFC5777]
-		526 MAC-Address-Mask-Pattern [RFC5777]
-		527 EUI64-Address [RFC5777]
-		528 EUI64-Address-Mask [RFC5777]
-		529 EUI64-Address-Mask-Pattern [RFC5777]
-		-->
-
+		<avp name="QoS-Resources" code="508" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Filter-Rule"/>
+			</grouped>
+		</avp>
+		<avp name="Filter-Rule" code="509" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Filter-Rule-Precedence"/>
+				<gavp name="Classifier"/>
+				<gavp name="Time-Of-Day-Condition"/>
+				<gavp name="Treatment-Action"/>
+				<gavp name="QoS-Semantics"/>
+				<gavp name="QoS-Profile-Template"/>
+				<gavp name="QoS-Parameters"/>
+				<gavp name="Excess-Treatment"/>
+			</grouped>
+		</avp>
+		<avp name="Filter-Rule-Precedence" code="510" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Classifier" code="511" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Classifier-ID"/>
+				<gavp name="Protocol"/>
+				<gavp name="Direction"/>
+				<gavp name="From-Spec"/>
+				<gavp name="To-Spec"/>
+				<gavp name="Diffserv-Code-Point"/>
+				<gavp name="Fragmentation-Flag"/>
+				<gavp name="IP-Option"/>
+				<gavp name="TCP-Option"/>
+				<gavp name="TCP-Flags"/>
+				<gavp name="ICMP-Type"/>
+				<gavp name="ETH-Option"/>
+			</grouped>
+		</avp>
+		<avp name="Classifier-ID" code="512" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Protocol" code="513" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Direction" code="514" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="IN" code="0"/>
+			<enum name="OUT" code="1"/>
+			<enum name="BOTH" code="2"/>
+		</avp>
+		<avp name="From-Spec" code="515" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="IP-Address"/>
+				<gavp name="IP-Address-Range"/>
+				<gavp name="IP-Address-Mask"/>
+				<gavp name="MAC-Address"/>
+				<gavp name="MAC-Address-Mask"/>
+				<gavp name="EUI64-Address"/>
+				<gavp name="EUI64-Address-Mask"/>
+				<gavp name="Port"/>
+				<gavp name="Port-Range"/>
+				<gavp name="Negated"/>
+				<gavp name="Use-Assigned-Address"/>
+			</grouped>
+		</avp>
+		<avp name="To-Spec" code="516" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="IP-Address"/>
+				<gavp name="IP-Address-Range"/>
+				<gavp name="IP-Address-Mask"/>
+				<gavp name="MAC-Address"/>
+				<gavp name="MAC-Address-Mask"/>
+				<gavp name="EUI64-Address"/>
+				<gavp name="EUI64-Address-Mask"/>
+				<gavp name="Port"/>
+				<gavp name="Port-Range"/>
+				<gavp name="Negated"/>
+				<gavp name="Use-Assigned-Address"/>
+			</grouped>
+		</avp>
+		<avp name="Negated" code="517" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="False" code="0"/>
+			<enum name="True" code="1"/>
+		</avp>
+		<avp name="IP-Address" code="518" mandatory="may">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="IP-Address-Range" code="519" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="IP-Address-Start"/>
+				<gavp name="IP-Address-End"/>
+			</grouped>
+		</avp>
+		<avp name="IP-Address-Start" code="520" mandatory="may">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="IP-Address-End" code="521" mandatory="may">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="IP-Address-Mask" code="522" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="IP-Address"/>
+				<gavp name="IP-Bit-Mask-Width"/>
+			</grouped>
+		</avp>
+		<avp name="IP-Mask-Bit-Mask-Width" code="523" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="MAC-Address" code="524" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MAC-Address-Mask" code="525" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="MAC-Address"/>
+				<gavp name="MAC-Address-Mask-Pattern"/>
+			</grouped>
+		</avp>
+		<avp name="MAC-Address-Mask-Pattern" code="525" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="EUI64-Address" code="527" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="EUI64-Address-Mask" code="528" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="EUI64-Address"/>
+				<gavp name="EUI64-Address-Mask-Pattern"/>
+			</grouped>
+		</avp>
 		<avp name="Port" code="530" mandatory="may">
 			<type type-name="Integer32"/>
 		</avp>
@@ -2308,15 +2410,20 @@
 		<avp name="Time-Of-Day-End" code="562" mandatory="may">
 			<type type-name="Unsigned32"/>
 		</avp>
+    <!-- 
+    type Unsigned32.  The
+    value is a bit mask that specifies the day of the week for the time
+    window to match
+   -->
 		<avp name="Day-Of-Week-Mask" code="563" mandatory="may">
 			<type type-name="Enumerated"/>
 			<enum name="SUNDAY" code="0"/>
-			<enum name="MONDAY" code="1"/>
-			<enum name="TUESDAY" code="2"/>
-			<enum name="WEDNESDAY" code="3"/>
-			<enum name="THURSDAY" code="4"/>
-			<enum name="FRIDAY" code="5"/>
-			<enum name="SATURDAY" code="6"/>
+			<enum name="MONDAY" code="2"/>
+			<enum name="TUESDAY" code="4"/>
+			<enum name="WEDNESDAY" code="8"/>
+			<enum name="THURSDAY" code="16"/>
+			<enum name="FRIDAY" code="32"/>
+			<enum name="SATURDAY" code="64"/>
 		</avp>
 
 		<!--
@@ -2329,9 +2436,33 @@
 		570 Timezone-Flag [RFC5777]
 		571 Timezone-Offset [RFC5777]
 		572 Treatment-Action [RFC5777]
-		573 QoS-Profile-Id [RFC5777]
-		574 QoS-Profile-Template [RFC5777]
-		575 QoS-Semantics [RFC5777]
+   -->
+		<avp name="Treatment-Action" code="572" mandatory="may">
+			<type type-name="Enumerated"/>
+			<enum name="Drop" code="0"/>
+			<enum name="Shape" code="1"/>
+			<enum name="Mark" code="2"/>
+			<enum name="Permit" code="3"/>
+		</avp>
+    <avp name="QoS-Profile-Id" code="573" mandatory="may">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="QoS-Profile-Template" code="574" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+      <grouped>
+        <gavp name="Vendor-Id"/>
+        <gavp name="QoS-Profile-Id"/>
+      </grouped>
+    </avp>
+    <avp name="QoS-Semantics" code="575" mandatory="may">
+      <type type-name="Enumerated"/>
+      <enum name="QoS-Desired" code="0"/>
+      <enum name="QoS-Available" code="1"/>
+      <enum name="QoS-Delivered" code="2"/>
+      <enum name="Minimum-QoS" code="3"/>
+      <enum name="QoS-Authorized" code="4"/>
+    </avp>
+
+    <!--
 		576 QoS-Parameters [RFC5777]
 		577 Excess-Treatment [RFC5777]
 		578 QoS-Capability [RFC5777]
