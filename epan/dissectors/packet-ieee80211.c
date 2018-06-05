@@ -11107,19 +11107,21 @@ dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, int offset,
   while (offset + 2 <= end) {
     guint8 id, len;
     int s_end;
+    proto_item *ti;
+
     proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_id,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     id = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_len,
-                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_len,
+                             tvb, offset, 1, ENC_LITTLE_ENDIAN);
     len = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     if (offset + len > end) {
-      proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset,
-                            end - offset, "Invalid FTIE subelement");
+      expert_add_info_format(pinfo, ti, &ei_ieee80211_tag_length,
+                            "FTIE subelement length is too large for the FTIE content length");
       return;
     }
 
@@ -11578,13 +11580,12 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   /* 16 byte Supported MCS set */
   if (vendorspecific)
   {
-    ti = proto_tree_add_string(tree, hf_ieee80211_mcsset_vs, tvb, offset, 16,
-      basic ? "Basic MCS Set" : "MCS Set");
+    ti = proto_tree_add_item(tree, hf_ieee80211_mcsset_vs, tvb, offset, 16, ENC_NA);
   } else
   {
-    ti = proto_tree_add_string(tree, hf_ieee80211_mcsset, tvb, offset, 16,
-      basic ? "Basic MCS Set" : "MCS Set");
+    ti = proto_tree_add_item(tree, hf_ieee80211_mcsset, tvb, offset, 16, ENC_NA);
   }
+  proto_item_append_text(ti, ": %s", basic ? "Basic MCS Set" : "MCS Set");
   mcs_tree = proto_item_add_subtree(ti, ett_mcsset_tree);
 
   /* Rx MCS Bitmask */
@@ -23083,12 +23084,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_mcsset,
      {"Rx Supported Modulation and Coding Scheme Set", "wlan_mgt.ht.mcsset",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_vs,
      {"Rx Supported Modulation and Coding Scheme Set (VS)", "wlan_mgt.vs.ht.mcsset",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       "Vendor Specific Rx Supported Modulation and Coding Scheme Set", HFILL }},
 
     {&hf_ieee80211_mcsset_rx_bitmask,
