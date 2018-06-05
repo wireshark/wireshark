@@ -103,7 +103,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_INFO, "MBMS synchronisation protocol");
 
     /* Ugly, but necessary to get the correct length for type 3 */
-    packet_nr = tvb_get_ntohs(tvb, offset+3);
+    packet_nr = tvb_get_ntohs(tvb, offset+3) + 1;
 
         /* The length varies depending on PDU type */
         switch (type) {
@@ -140,7 +140,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 2;
 
         /* Octet 4 - Packet Number */
-        proto_tree_add_uint(sync_tree, hf_sync_packet_nr, tvb, offset, 2, packet_nr+1);
+        proto_tree_add_uint(sync_tree, hf_sync_packet_nr, tvb, offset, 2, packet_nr);
         offset += 2;
 
         /* Octet 6 - Elapsed Octet Counter */
