@@ -3613,7 +3613,6 @@ static int hf_ieee80211_tagged_parameters = -1;  /* Tagged payload item */
 static int hf_ieee80211_tag = -1;
 static int hf_ieee80211_tag_number = -1;
 static int hf_ieee80211_tag_length = -1;
-static int hf_ieee80211_tag_interpretation = -1;
 static int hf_ieee80211_tag_data = -1;
 static int hf_ieee80211_tag_oui = -1;
 static int hf_ieee80211_tag_oui_wfa_subtype = -1;
@@ -26319,11 +26318,6 @@ proto_register_ieee80211(void)
      {"Tag length", "wlan.tag.length",
       FT_UINT32, BASE_DEC, NULL, 0,
       "Length of tag", HFILL }},
-
-    {&hf_ieee80211_tag_interpretation,
-     {"Tag interpretation", "wlan.tag.interpretation",
-      FT_STRING, BASE_NONE, NULL, 0,
-      "Interpretation of tag", HFILL }},
 
     {&hf_ieee80211_tag_data,
      {"Tag Data", "wlan.tag.data",
