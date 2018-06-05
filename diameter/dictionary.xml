@@ -2320,7 +2320,7 @@
 			<enum name="True" code="1"/>
 		</avp>
 		<avp name="IP-Address" code="518" mandatory="may">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="IP-Address-Range" code="519" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -2329,10 +2329,10 @@
 			</grouped>
 		</avp>
 		<avp name="IP-Address-Start" code="520" mandatory="may">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="IP-Address-End" code="521" mandatory="may">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="IP-Address-Mask" code="522" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
