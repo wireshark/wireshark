@@ -1282,7 +1282,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     proto_tree_add_uint(fcsof_tree, hf_fceof, tvb, eof_offset, 4, eof);
 
-    next_tvb = tvb_new_subset_remaining(tvb, 4);
+    next_tvb = tvb_new_subset_length(tvb, 4, crc_offset-4);
 
     fc_data.ethertype = 0;
     fc_data.sof_eof = 0;
