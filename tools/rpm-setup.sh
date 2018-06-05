@@ -168,6 +168,8 @@ echo "perl-Pod-Html is unavailable" >&2
 add_package ADDITIONAL_LIST asciidoctor || add_package ADDITIONAL_LIST rubygem-asciidoctor.noarch ||
 echo "asciidoctor is unavailable" >&2
 
+ACTUAL_LIST=$BASIC_LIST
+
 # Now arrange for optional support libraries
 if [ $ADDITIONAL ]
 then
