@@ -713,14 +713,14 @@ Each row contains options for each interface available on your computer.
 === Configuration Profiles
 
 Configuration Profiles can be used to configure and use more than one set of
-preferences and configurations. Select the _Configuration Profiles..._ menu item
-from the _Edit_ menu, or simply press Shift-Ctrl-A; and Wireshark will pop up
+preferences and configurations. Select the menu:Edit[Configuration Profiles...] menu item
+or press kbd:[Shift+Ctrl+A] or kbd:[Shift+{cmd}+A] (macOS) and Wireshark will pop up
 the Configuration Profiles dialog box as shown in
 <<ChCustGUIConfigProfilesPage>>. It is also possible to click in the “Profile”
 part of the statusbar to popup a menu with available Configuration Profiles
 (<<ChUseWiresharkStatusbarProfile>>).
 
-Configuration files stored in the Profiles:
+Configuration files stored in each profile include:
 
 * Preferences (preferences) (<<ChCustPreferencesSection>>)
 
@@ -766,62 +766,41 @@ Configuration files stored in the Profiles:
 * IKEv2 decryption table (ikev2_decryption_table) (<<ChIKEv2DecryptionSection>>)
 --
 
-* Changed dissector assignments (decode_as_entries), which can be set in _Decode
-  As..._ dialog box (<<ChAdvDecodeAs>>), and further saved in the __User
-  Specified Decodes...__ window (<<ChAdvDecodeAsShow>>).
+* Changed dissector assignments (__decode_as_entries__), which can be set in the “Decode
+  As...” dialog box (<<ChAdvDecodeAs>>), and further saved in the “User
+  Specified Decodes...” window (<<ChAdvDecodeAsShow>>).
 
 * Some recent settings (recent), such as pane sizes in the Main window
   (<<ChUseMainWindowSection>>), column widths in the packet list
-  (<<ChUsePacketListPaneSection>>), all selections in the “View” menu
-  (<<ChUseViewMenuSection>>) and the last directory navigated to in the File
-  Open dialog.
+  (<<ChUsePacketListPaneSection>>), all selections in the menu:View[] menu
+  (<<ChUseViewMenuSection>>) and the last directory navigated to in the “File
+  Open” dialog.
 
-All other configurations are stored in the personal configuration folder, and
+All other configurations are stored in the personal configuration folder and
 are common to all profiles.
 
 [[ChCustGUIConfigProfilesPage]]
 .The configuration profiles dialog box
-image::wsug_graphics/ws-gui-config-profiles.png[{screenshot-attrs}]
+image::wsug_graphics/ws-gui-config-profiles.png[{medium-screenshot-attrs}]
 
-New::
-This button adds a new profile to the profiles list. The name of the created
-profile is “New profile” and can be changed in the Properties field.
+New (+)::
+Create a new profile. The name of the created profile is “New profile”
+and is highlighted so that you can more easily change it.
+
+Delete (-)::
+Deletes the selected profile. This includes all configuration files used
+in this profile. It is not possible to delete the “Default” profile or global
+profiles.
 
 Copy::
-This button adds a new profile to the profiles list, copying all configuration
-from the profile currently selected in the list. The name of the created profile
-is the same as the copied profile, with the text “(copy)” applied. The name
-can be changed in the Properties field.
-
-Delete::
-This button deletes the selected profile, including all configuration files used
-in this profile. It is not possible to delete the “Default” profile.
-
-Configuration Profiles::
-You can select a configuration profile from this list (which will fill in the
-profile name in the fields down at the bottom of the dialog box).
-
-Profile name::
-You can change the name of the currently selected profile here.
-+
---
-The profile name will be used as a folder name in the configured “Personal
-configurations” folder. If adding multiple profiles with the same name, only
-one profile will be created.
-
-On Windows the profile name cannot start or end with a period (.), and cannot
-contain any of the following characters: “{backslash}”, “/”, “:”, “{asterisk}”,
-“?”, “{backtick}”, “<”, “>”, “|”, or “{plus}”. On Unix the profile name
-cannot contain the “/” character.
---
+Copies the selected profile. This copies the configuration of the
+profile currently selected in the list. The name of the created profile
+is the same as the copied profile, with the text “(copy)” and is
+highlighted so that you can more easily change it.
 
 btn:[OK]::
 This button saves all changes, applies the selected profile and closes the
 dialog.
-
-btn:[Apply]::
-This button saves all changes, applies the selected profile and keeps the dialog
-open.
 
 btn:[Cancel]::
 Close this dialog. This will discard unsaved settings, new profiles will not be

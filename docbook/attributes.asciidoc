@@ -74,6 +74,7 @@
 // "scaledwidth" only applies to PDF output
 :pdf-scaledwidth: scaledwidth="85%"
 :screenshot-attrs: scaledwidth="85%"
+:medium-screenshot-attrs: scaledwidth="60%"
 :small-screenshot-attrs: scaledwidth="35%"
 :toolbar-icon-attrs: height=24,width=24
 :related-attrs: height=18
@@ -82,3 +83,4 @@
 :statusbar-attrs: scaledwidth="85%",height=22
 
 :multiplication: ×
+:cmd: ⌘
