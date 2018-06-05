@@ -11,10 +11,9 @@ Build-Depends: lsb-release,
  docbook-xsl (>= 1.64.1.0-0), docbook-xml, libxml2-utils, libpcre3-dev,
  libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any],
  bison, quilt, libparse-yapp-perl,
-# enable versioned libgnutls28-dev below to have GPLv2+ compatible GMP
- libgnutls28-dev (>= 3.2.14-1~),
-# enable backports-compatible libgnutls-dev
-# libgnutls-dev,
+# libgnutls28-dev >= 3.2.14-1 is GPLv2+ compatible. libgnutls-dev is
+# backports-compatible.
+ libgnutls28-dev (>= 3.2.14-1~) | libgnutls-dev,
  libgcrypt-dev, libkrb5-dev, liblua5.2-dev, libsmi2-dev,
  libmaxminddb-dev, dpkg-dev (>= 1.16.1~),
  libnl-genl-3-dev [linux-any], libnl-route-3-dev [linux-any], asciidoctor,
