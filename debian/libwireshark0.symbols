@@ -1129,6 +1129,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_register_protocol@Base 1.9.1
  proto_register_protocol_in_name_only@Base 2.3.0
  proto_register_subtree_array@Base 1.9.1
+ proto_registrar_dump_elastic@Base 2.9.0
  proto_registrar_dump_fieldcount@Base 2.0.0
  proto_registrar_dump_fields@Base 1.9.1
  proto_registrar_dump_ftypes@Base 1.9.1
@@ -1426,6 +1427,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  set_mac_lte_proto_data@Base 1.9.1
  set_mac_nr_proto_data@Base 2.5.2
  set_postdissector_wanted_hfids@Base 2.3.0
+ set_resolution_synchrony@Base 2.9.0
  set_srt_table_param_data@Base 1.99.8
  set_tap_dfilter@Base 1.9.1
  show_exception@Base 1.9.1
