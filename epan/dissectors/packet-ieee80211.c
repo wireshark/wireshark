@@ -11079,8 +11079,8 @@ dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, int offset,
-                            guint32 tag_len)
+dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo,
+                            int offset, guint32 tag_len)
 {
   int end = offset + tag_len;
   if (tag_len < 82) {
@@ -15083,7 +15083,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       break;
 
     case TAG_FAST_BSS_TRANSITION:
-      dissect_fast_bss_transition(tree, tvb, offset + 2, tag_len);
+      dissect_fast_bss_transition(tree, tvb, pinfo, offset + 2, tag_len);
       break;
 
     case TAG_MMIE:
