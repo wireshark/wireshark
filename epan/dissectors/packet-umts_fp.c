@@ -2356,7 +2356,7 @@ dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo, tvbuf
     proto_tree_add_float(tree, hf_fp_ul_sir_target, tvb, offset, 1, target);
     offset++;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " UL SIR Target = %f", target);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " UL SIR Target = %.1f", target);
 
     return offset;
 }
