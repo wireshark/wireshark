@@ -8,7 +8,7 @@
 
 TEST_TYPE="randpkt"
 # shellcheck source=tools/test-common.sh
-. `dirname $0`/test-common.sh || exit 1
+. "$( dirname "$0" )"/test-common.sh || exit 1
 
 # Run under valgrind ?
 VALGRIND=0
@@ -18,12 +18,12 @@ ASAN=$CONFIGURED_WITH_ASAN
 
 # Trigger an abort if a dissector finds a bug.
 # Uncomment to disable
-WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
+export WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 
 # The maximum permitted amount of memory leaked. Eventually this should be
 # worked down to zero, but right now that would fail on every single capture.
 # Only has effect when running under valgrind.
-MAX_LEAK=`expr 1024 \* 100`
+MAX_LEAK=$(( 1024 * 100 ))
 
 # To do: add options for file names and limits
 while getopts "ab:d:gp:t:" OPTCHAR ; do
@@ -34,9 +34,10 @@ while getopts "ab:d:gp:t:" OPTCHAR ; do
         g) VALGRIND=1 ;;
         p) MAX_PASSES=$OPTARG ;;
         t) PKT_TYPES=$OPTARG ;;
+        *) printf "Unknown option: %s\\n" "$OPTARG"
     esac
 done
-shift $(($OPTIND - 1))
+shift $(( OPTIND - 1 ))
 
 ### usually you won't have to change anything below this line ###
 
@@ -46,13 +47,13 @@ ws_check_exec "$TSHARK" "$RANDPKT" "$DATE" "$TMP_DIR"
 [[ -z "$PKT_TYPES" ]] && PKT_TYPES=$($RANDPKT -h | awk '/^\t/ {print $1}')
 
 if [ $VALGRIND -eq 1 ]; then
-    RUNNER="`dirname $0`/valgrind-wireshark.sh"
+    RUNNER="$( dirname "$0" )/valgrind-wireshark.sh"
     COMMON_ARGS="-b $WIRESHARK_BIN_DIR $COMMON_ARGS"
     declare -a RUNNER_ARGS=("" "-T")
     # Valgrind requires more resources, so permit 1.5x memory and 3x time
     # (1.5x time is too small for a few large captures in the menagerie)
-    MAX_CPU_TIME=`expr 3 \* $MAX_CPU_TIME`
-    MAX_VMEM=`expr 3 \* $MAX_VMEM / 2`
+    MAX_CPU_TIME=$(( 3 * "$MAX_CPU_TIME" ))
+    MAX_VMEM=$(( 3 * "$MAX_VMEM" / 2 ))
 else
     # Not using valgrind, use regular tshark.
     # TShark arguments (you won't have to change these)
@@ -73,7 +74,7 @@ else
 fi
 
 HOWMANY="forever"
-if [ $MAX_PASSES -gt 0 ]; then
+if [ "$MAX_PASSES" -gt 0 ]; then
     HOWMANY="$MAX_PASSES passes"
 fi
 echo -n "Running $RUNNER with args: "
@@ -87,12 +88,12 @@ trap "MAX_PASSES=1; echo 'Caught signal'" HUP INT TERM
 
 # Iterate over our capture files.
 PASS=0
-while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
-    let PASS=$PASS+1
+while [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ] ; do
+    PASS=$(( PASS + 1 ))
     echo "Pass $PASS:"
 
     for PKT_TYPE in $PKT_TYPES ; do
-        if [ $PASS -gt $MAX_PASSES -a $MAX_PASSES -ge 1 ] ; then
+        if [ $PASS -gt "$MAX_PASSES" ] && [ "$MAX_PASSES" -ge 1 ] ; then
             break # We caught a signal
         fi
         echo -n "    $PKT_TYPE: "
@@ -100,12 +101,13 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         DISSECTOR_BUG=0
         VG_ERR_CNT=0
 
-        "$RANDPKT" $RANDPKT_ARGS -t $PKT_TYPE $TMP_DIR/$TMP_FILE \
+        # shellcheck disable=SC2086
+        "$RANDPKT" $RANDPKT_ARGS -t "$PKT_TYPE" "$TMP_DIR/$TMP_FILE" \
             > /dev/null 2>&1
 
-	for ARGS in "${RUNNER_ARGS[@]}" ; do
+        for ARGS in "${RUNNER_ARGS[@]}" ; do
             echo -n "($ARGS) "
-	    echo -e "Command and args: $RUNNER $ARGS\n" > $TMP_DIR/$ERR_FILE
+               echo -e "Command and args: $RUNNER $ARGS\\n" > "$TMP_DIR/$ERR_FILE"
 
             # Run in a child process with limits.
             (
@@ -125,38 +127,39 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
                     ulimit -S -v $MAX_VMEM
                 fi
 
-                "$RUNNER" $ARGS $TMP_DIR/$TMP_FILE \
-                    > /dev/null 2>> $TMP_DIR/$ERR_FILE
+                # shellcheck disable=SC2086
+                "$RUNNER" $ARGS "$TMP_DIR/$TMP_FILE" \
+                    > /dev/null 2>> "$TMP_DIR/$ERR_FILE"
             )
             RETVAL=$?
 
             if [ $VALGRIND -eq 1 ]; then
-                VG_ERR_CNT=`grep "ERROR SUMMARY:" $TMP_DIR/$ERR_FILE | cut -f4 -d' '`
-                VG_DEF_LEAKED=`grep "definitely lost:" $TMP_DIR/$ERR_FILE | cut -f7 -d' ' | tr -d ,`
-                VG_IND_LEAKED=`grep "indirectly lost:" $TMP_DIR/$ERR_FILE | cut -f7 -d' ' | tr -d ,`
-                VG_TOTAL_LEAKED=`expr $VG_DEF_LEAKED + $VG_IND_LEAKED`
+                VG_ERR_CNT=$( grep "ERROR SUMMARY:" "$TMP_DIR/$ERR_FILE" | cut -f4 -d' ' )
+                VG_DEF_LEAKED=$( grep "definitely lost:" "$TMP_DIR/$ERR_FILE" | cut -f7 -d' ' | tr -d , )
+                VG_IND_LEAKED=$( grep "indirectly lost:" "$TMP_DIR/$ERR_FILE" | cut -f7 -d' ' | tr -d , )
+                VG_TOTAL_LEAKED=$(( "$VG_DEF_LEAKED" + "$VG_IND_LEAKED" ))
                 if [ $RETVAL -ne 0 ] ; then
                     echo "General Valgrind failure."
                     VG_ERR_CNT=1
                 elif [ "$VG_TOTAL_LEAKED" -gt "$MAX_LEAK" ] ; then
                     echo "Definitely + indirectly ($VG_DEF_LEAKED + $VG_IND_LEAKED) exceeds max ($MAX_LEAK)."
-                    echo "Definitely + indirectly ($VG_DEF_LEAKED + $VG_IND_LEAKED) exceeds max ($MAX_LEAK)." >> $TMP_DIR/$ERR_FILE
+                    echo "Definitely + indirectly ($VG_DEF_LEAKED + $VG_IND_LEAKED) exceeds max ($MAX_LEAK)." >> "$TMP_DIR/$ERR_FILE"
                     VG_ERR_CNT=1
                 fi
-                if grep -q "Valgrind cannot continue" $TMP_DIR/$ERR_FILE; then
+                if grep -q "Valgrind cannot continue" "$TMP_DIR/$ERR_FILE" ; then
                     echo "Valgrind unable to continue."
                     VG_ERR_CNT=-1
                 fi
             fi
 	    if [ $RETVAL -ne 0 ] ; then break ; fi
         done
-        grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
+        grep -i "dissector bug" "$TMP_DIR/$ERR_FILE" \
             > /dev/null 2>&1 && DISSECTOR_BUG=1
 
-        if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 ] ; then
+        if [ $RETVAL -ne 0 ] || [ $DISSECTOR_BUG -ne 0 ] || [ $VG_ERR_CNT -ne 0 ] ; then
             ws_exit_error
         fi
         echo " OK"
-        rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
+        rm -f "$TMP_DIR/$TMP_FILE" "$TMP_DIR/$ERR_FILE"
     done
 done

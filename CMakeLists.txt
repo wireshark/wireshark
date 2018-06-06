@@ -3013,6 +3013,11 @@ if(SHELLCHECK_EXECUTABLE)
 	# --external-sources requires 0.4.0 or later.
 	add_custom_command(TARGET shellcheck POST_BUILD
 		COMMAND shellcheck --external-sources
+			image/stock_icons/svg-to-png.sh
+			packaging/macosx/osx-app.sh.in
+			packaging/macosx/osx-dmg.sh.in
+			tools/compress-pngs.sh
+			tools/git-export-release.sh
 			tools/fuzz-test.sh
 			tools/randpkt-test.sh
 			tools/release-update-debian-soversions.sh

@@ -24,13 +24,12 @@ JOBS=8
 export FILE_LIST_CMD
 (
     echo -n "PNG_FILES ="
-    bash -c "$FILE_LIST_CMD" | while read PNG_FILE ; do
+    bash -c "$FILE_LIST_CMD" | while read -r PNG_FILE ; do
         echo -e " \\"
-        echo -e -n "\t${PNG_FILE}"
+        echo -e -n "\\t${PNG_FILE}"
 
     done
     cat <<"FIN"
-
 
 all: $(PNG_FILES)
 

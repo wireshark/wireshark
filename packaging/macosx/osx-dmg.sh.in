@@ -134,7 +134,7 @@ fi
 
 # Get the architecture
 ws_bin="$app_bundle/Contents/MacOS/Wireshark"
-case `file $ws_bin` in
+case $( file "$ws_bin" ) in
 	*Mach-O*64-bit*x86_64*)
 		architecture="Intel 64"
 		;;
@@ -143,7 +143,7 @@ case `file $ws_bin` in
 		;;
 	*)
 		echo "Cannot determine architecture of $ws_bin; file reports:"
-		file $ws_bin
+		file "$ws_bin"
 		exit 1
 		;;
 esac
@@ -155,7 +155,7 @@ if [ -z "$version" ] ; then
 	exit 1
 fi
 
-echo -e "\nCREATE WIRESHARK PACKAGE\n"
+echo -e "\\nCREATE WIRESHARK PACKAGE\\n"
 pkg_title="$volume_name $version $architecture"
 pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
@@ -175,12 +175,12 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	spctl --assess --type install "$pkg_file" || exit 1
 	pkgutil --check-signature "$pkg_file" || exit 1
 	shasum "$pkg_file"
-	rm -rf "$pkg_dir_unsigned" "$pkg_file_unsigned" "$pkg_file_flattened"
+	rm -rf "$pkg_file_unsigned"
 else
 	echo "Code signing not performed (no identity)"
 fi
 
-echo -e "\nCREATE WIRESHARK DISK IMAGE\n"
+echo -e "\\nCREATE WIRESHARK DISK IMAGE\\n"
 img_name="$pkg_title.dmg"
 
 # Create temp directory with desired contents of the release volume.
@@ -191,7 +191,7 @@ echo -e "Copying files to temp directory"
 # Copy the installer package
 cp "$pkg_file" "$tmp_dir"/ || exit 1
 # Copy the readme
-cp "$src_dir/Read_me_first.rtf" "$tmp_dir"/"Read me first.rtf" || exit 1
+cp "$src_dir/Read_me_first.rtf" "$tmp_dir/Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then
@@ -199,7 +199,7 @@ if [ ${set_ds_store} = "false" ]; then
 	# window size, appearance, etc.  Most of this can be set
 	# with Apple script but involves user intervention so we
 	# just keep a copy of the correct settings and use that instead.
-	cp $src_dir/$ds_store_root "$tmp_dir/.DS_Store" || exit 1
+	cp "$src_dir/$ds_store_root" "$tmp_dir/.DS_Store" || exit 1
 	auto_open_opt=-noautoopen
 fi
 
@@ -212,8 +212,8 @@ rm -f "$rw_name"
 rm -rf "$tmp_dir"
 
 # Mount the created image.
-MOUNT_DIR="/Volumes/$volume_name"
-DEV_NAME=`/usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt  "$rw_name" | egrep '^/dev/' | sed 1q | awk '{print $1}'`
+#MOUNT_DIR="/Volumes/$volume_name"
+DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt "$rw_name" | grep -E '^/dev/' | sed 1q | awk '{print $1}' )
 
 # Have the disk image window open automatically when mounted.
 bless -openfolder /Volumes/$volume_name
@@ -232,12 +232,12 @@ if [ ${set_ds_store} = "true" ]; then
         *   then close it and press enter    *
         **************************************
         "
-        read -e DUMB
+	read -r -e _
 
 	# .DS_Store files aren't written till the disk is unmounted, or finder is restarted.
 	hdiutil detach "$DEV_NAME"
 	auto_open_opt=-noautoopen
-	DEV_NAME=`/usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt  "$rw_name" | egrep '^/dev/' | sed 1q | awk '{print $1}'`
+	DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt  "$rw_name" | grep -E '^/dev/' | sed 1q | awk '{print $1}' )
 	echo
 	cp /Volumes/$volume_name/.DS_Store ./$ds_store_root
 	SetFile -a v ./$ds_store_root
