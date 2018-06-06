@@ -1477,17 +1477,15 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, struct fp_info *p_fp_info, void *data)
 {
     gboolean is_control_frame;
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
 
     /* Header CRC */
-    header_crc = tvb_get_bits8(tvb, 0, 7);
-    header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1497,7 +1495,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
     }
     else {
@@ -1732,17 +1730,15 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, struct fp_info *p_fp_info, void *data)
 {
     gboolean is_control_frame;
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
 
     /* Header CRC */
-    header_crc = tvb_get_bits8(tvb, 0, 7);
-    header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1752,7 +1748,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
     }
     else {
@@ -1813,8 +1809,7 @@ dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1823,14 +1818,13 @@ dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
     }
     else {
-        guint8 cfn;
+        guint32 cfn;
         guint header_length = 0;
 
         /* DATA */
 
         /* CFN */
-        cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
@@ -1897,8 +1891,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1915,8 +1908,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* DATA */
 
         /* CFN */
-        cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
@@ -1975,16 +1967,14 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16  pch_cfn;
     guint32  tfi;
     gboolean paging_indication;
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
 
     /* Header CRC */
-    header_crc = tvb_get_bits8(tvb, 0, 7);
-    header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1994,7 +1984,7 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
     }
     else {
@@ -2093,8 +2083,7 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -2110,8 +2099,7 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* DATA */
 
         /* CFN */
-        cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
@@ -2149,8 +2137,7 @@ dissect_bch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -2173,8 +2160,7 @@ dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -2392,7 +2378,6 @@ dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinf
     offset += 2;
 
     /* CFN  */
-    tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -2533,18 +2518,16 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          int offset, struct fp_info *p_fp_info, void *data)
 {
     gboolean is_control_frame;
-    guint8   cfn;
+    guint32   cfn;
     guint header_length = 0;
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
 
     /* Header CRC */
-    header_crc = tvb_get_bits8(tvb, 0, 7);
-    header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO,
@@ -2558,15 +2541,14 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
     } else {
         /************************/
         /* DCH data here        */
         int chan;
         /* CFN */
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
-        cfn = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
@@ -2609,10 +2591,10 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     gboolean is_control_frame;
     guint8   number_of_subframes;
-    guint8   cfn;
+    guint32  cfn;
     int      n;
     struct   edch_t1_subframe_info subframes[16];
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
     rlc_info * rlcinf;
@@ -2635,12 +2617,11 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
-        header_crc = tvb_get_bits8(tvb, 0, 7);
-        header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, 0, 1, ENC_BIG_ENDIAN);
+        header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
         proto_tree_add_item(tree, hf_fp_ft, tvb, 0, 1, ENC_BIG_ENDIAN);
         offset++;
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
         dissect_dch_control_frame(tree, pinfo, tvb, offset, p_fp_info);
     }
@@ -2696,8 +2677,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset++;
 
         /* CFN */
-        cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
         offset++;
 
         /* Remainder of T2 or common data frames differ here... */
@@ -3168,16 +3148,14 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     gboolean is_control_frame;
     guint header_length = 0;
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
 
     /* Header CRC */
-    header_crc = tvb_get_bits8(tvb, 0, 7);
-    header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -3187,7 +3165,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
     }
     else {
@@ -3373,17 +3351,15 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    void *data)
 {
     gboolean is_control_frame;
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint16 header_length = 0;
 
     /* Header CRC */
-    header_crc = tvb_get_bits8(tvb, 0, 7);
-    header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -3393,7 +3369,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
     }
     else {
@@ -3628,17 +3604,15 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                                         void *data)
 {
     gboolean is_control_frame;
-    guint16 header_crc = 0;
+    guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
 
     /* Header CRC */
-    header_crc = tvb_get_bits8(tvb, 0, 7);
-    header_crc_pi = proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
 
     /* Frame Type */
-    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN, &is_control_frame);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -3648,7 +3622,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /* For control frame the header CRC is actually frame CRC covering all
          * bytes except the first */
         if (preferences_header_checksum) {
-            verify_control_frame_crc(tvb, pinfo, header_crc_pi, header_crc);
+            verify_control_frame_crc(tvb, pinfo, header_crc_pi, (guint16)header_crc);
         }
     }
     else {
@@ -5902,7 +5876,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_cfn,
               { "CFN",
-                "fp.cfn", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "fp.cfn", FT_UINT8, BASE_DEC, NULL, 0xff,
                 "Connection Frame Number", HFILL
               }
             },
