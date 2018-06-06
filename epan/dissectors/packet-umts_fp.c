@@ -1100,11 +1100,12 @@ dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree *tree,
                                        tvbuff_t *tvb, int offset)
 {
     /* T1 (3 bytes) */
-    guint32 t1 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t1, tvb, offset, 3, ENC_BIG_ENDIAN);
+    guint32 encoded = tvb_get_ntoh24(tvb, offset);
+    float t1 = encoded * (float)0.125;
+    proto_tree_add_float_format_value(tree, hf_fp_t1, tvb, offset, 3, t1, "%.3f ms (%u)", t1, encoded);
     offset += 3;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%u", t1);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%.3f", t1);
 
     return offset;
 }
@@ -1113,24 +1114,28 @@ static int
 dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
                                        tvbuff_t *tvb, int offset)
 {
-    guint32 t1, t2, t3;
+    guint32 encoded;
+    float t1, t2, t3;
 
     /* T1 (3 bytes) */
-    t1 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t1, tvb, offset, 3, ENC_BIG_ENDIAN);
+    encoded = tvb_get_ntoh24(tvb, offset);
+    t1 = encoded * (float)0.125;
+    proto_tree_add_float_format_value(tree, hf_fp_t1, tvb, offset, 3, t1, "%.3f ms (%u)", t1, encoded);
     offset += 3;
 
     /* T2 (3 bytes) */
-    t2 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t2, tvb, offset, 3, ENC_BIG_ENDIAN);
+    encoded = tvb_get_ntoh24(tvb, offset);
+    t2 = encoded * (float)0.125;
+    proto_tree_add_float_format_value(tree, hf_fp_t2, tvb, offset, 3, t2, "%.3f ms (%u)", t2, encoded);
     offset += 3;
 
     /* T3 (3 bytes) */
-    t3 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t3, tvb, offset, 3, ENC_BIG_ENDIAN);
+    encoded = tvb_get_ntoh24(tvb, offset);
+    t3 = encoded * (float)0.125;
+    proto_tree_add_float_format_value(tree, hf_fp_t3, tvb, offset, 3, t3, "%.3f ms (%u)", t3, encoded);
     offset += 3;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%u T2=%u, T3=%u",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%.3f T2=%.3f, T3=%.3f",
                     t1, t2, t3);
 
     return offset;
@@ -6483,19 +6488,19 @@ void proto_register_fp(void)
             },
             { &hf_fp_t1,
               { "T1",
-                "fp.t1", FT_UINT24, BASE_DEC, NULL, 0x0,
+                "fp.t1", FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "RNC frame number indicating time it sends frame", HFILL
               }
             },
             { &hf_fp_t2,
               { "T2",
-                "fp.t2", FT_UINT24, BASE_DEC, NULL, 0x0,
+                "fp.t2", FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "NodeB frame number indicating time it received DL Sync", HFILL
               }
             },
             { &hf_fp_t3,
               { "T3",
-                "fp.t3", FT_UINT24, BASE_DEC, NULL, 0x0,
+                "fp.t3", FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "NodeB frame number indicating time it sends frame", HFILL
               }
             },
