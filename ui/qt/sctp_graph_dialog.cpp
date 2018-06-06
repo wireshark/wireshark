@@ -35,7 +35,9 @@ SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capt
     frame_num(0),
     direction(dir),
     gIsSackChunkPresent(false),
-    gIsNRSackChunkPresent(false)
+    gIsNRSackChunkPresent(false),
+    relative(false),
+    type(1)
 {
     ui->setupUi(this);
     if (!selected_assoc) {
@@ -53,7 +55,7 @@ SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capt
         msgBox.exec();
         return;
     } else {
-        drawGraph(3);
+        drawGraph();
     }
 }
 
@@ -68,7 +70,7 @@ void SCTPGraphDialog::drawNRSACKGraph()
     GList *list=NULL, *tlist;
     guint16 gap_start=0, gap_end=0, i, numberOf_gaps, numberOf_nr_gaps;
     guint8 type;
-    guint32 tsnumber, j = 0, min_tsn;
+    guint32 tsnumber, j = 0, min_tsn, rel = 0;
     struct nr_sack_chunk_header *nr_sack_header;
     struct gaps *nr_gap;
     /* This holds the sum of gap acks and nr gap acks */
@@ -80,6 +82,9 @@ void SCTPGraphDialog::drawNRSACKGraph()
     } else {
         list = g_list_last(selected_assoc->sack2);
         min_tsn = selected_assoc->min_tsn2;
+    }
+    if (relative) {
+        rel = min_tsn;
     }
     while (list) {
         sack = (tsn_t*) (list->data);
@@ -101,11 +106,11 @@ void SCTPGraphDialog::drawNRSACKGraph()
                         gap_end = g_ntohs(nr_gap->end);
                         for (j = gap_start; j <= gap_end; j++) {
                             if (i >= numberOf_gaps) {
-                                yn.append(j + tsnumber);
+                                yn.append(j + tsnumber - rel);
                                 xn.append(sack->secs + sack->usecs/1000000.0);
                                 fn.append(sack->frame_number);
                             } else {
-                                yg.append(j + tsnumber);
+                                yg.append(j + tsnumber - rel);
                                 xg.append(sack->secs + sack->usecs/1000000.0);
                                 fg.append(sack->frame_number);
                             }
@@ -115,7 +120,7 @@ void SCTPGraphDialog::drawNRSACKGraph()
                     }
 
                     if (tsnumber>=min_tsn) {
-                        ys.append(j + tsnumber);
+                        ys.append(j + tsnumber - rel);
                         xs.append(sack->secs + sack->usecs/1000000.0);
                         fs.append(sack->frame_number);
                     }
@@ -135,7 +140,7 @@ void SCTPGraphDialog::drawSACKGraph()
     struct gaps *gap;
     tsn_t *tsn;
     guint8 type;
-    guint32 tsnumber=0;
+    guint32 tsnumber=0, rel = 0;
     guint32 minTSN;
     guint32 *dup_list;
     int i, j;
@@ -146,6 +151,9 @@ void SCTPGraphDialog::drawSACKGraph()
     } else {
         minTSN = selected_assoc->min_tsn2;
         listSACK = g_list_last(selected_assoc->sack2);
+    }
+    if (relative) {
+        rel = minTSN;
     }
     while (listSACK) {
         tsn = (tsn_t*) (listSACK->data);
@@ -164,7 +172,7 @@ void SCTPGraphDialog::drawSACKGraph()
                         gap_start=g_ntohs(gap->start);
                         gap_end = g_ntohs(gap->end);
                         for (j=gap_start; j<=gap_end; j++) {
-                            yg.append(j+tsnumber);
+                            yg.append(j + tsnumber - rel);
                             xg.append(tsn->secs + tsn->usecs/1000000.0);
                             fg.append(tsn->frame_number);
                         }
@@ -173,7 +181,7 @@ void SCTPGraphDialog::drawSACKGraph()
                     }
                 }
                 if (tsnumber>=minTSN) { // CumTSNAck red
-                    ys.append(tsnumber);
+                    ys.append(tsnumber - rel);
                     xs.append(tsn->secs + tsn->usecs/1000000.0);
                     fs.append(tsn->frame_number);
                 }
@@ -182,7 +190,7 @@ void SCTPGraphDialog::drawSACKGraph()
                     for (i = 0; i < dup_nr; i++) {
                         tsnumber = g_ntohl(dup_list[i]);
                         if (tsnumber >= minTSN) {
-                            yd.append(tsnumber);
+                            yd.append(tsnumber - rel);
                             xd.append(tsn->secs + tsn->usecs/1000000.0);
                             fd.append(tsn->frame_number);
                         }
@@ -258,13 +266,19 @@ void SCTPGraphDialog::drawTSNGraph()
     GList *listTSN = NULL,*tlist;
     tsn_t *tsn;
     guint8 type;
-    guint32 tsnumber=0;
+    guint32 tsnumber=0, rel = 0, minTSN;
 
     if (direction == 1) {
         listTSN = g_list_last(selected_assoc->tsn1);
+         minTSN = selected_assoc->min_tsn1;
     } else {
         listTSN = g_list_last(selected_assoc->tsn2);
+         minTSN = selected_assoc->min_tsn2;
     }
+
+    if (relative) {
+        rel = minTSN;
+     }
 
     while (listTSN) {
         tsn = (tsn_t*) (listTSN->data);
@@ -274,7 +288,7 @@ void SCTPGraphDialog::drawTSNGraph()
             type = ((struct chunk_header *)tlist->data)->type;
             if (type == SCTP_DATA_CHUNK_ID || type == SCTP_I_DATA_CHUNK_ID || type == SCTP_FORWARD_TSN_CHUNK_ID) {
                 tsnumber = g_ntohl(((struct data_chunk_header *)tlist->data)->tsn);
-                yt.append(tsnumber);
+                yt.append(tsnumber - rel);
                 xt.append(tsn->secs + tsn->usecs/1000000.0);
                 ft.append(tsn->frame_number);
             }
@@ -303,7 +317,7 @@ void SCTPGraphDialog::drawTSNGraph()
     }
 }
 
-void SCTPGraphDialog::drawGraph(int which)
+void SCTPGraphDialog::drawGraph()
 {
     guint32 maxTSN, minTSN;
 
@@ -318,7 +332,7 @@ void SCTPGraphDialog::drawGraph(int which)
         minTSN = selected_assoc->min_tsn2;
     }
     ui->sctpPlot->clearGraphs();
-    switch (which) {
+    switch (type) {
     case 1: drawSACKGraph();
         drawNRSACKGraph();
         break;
@@ -340,34 +354,51 @@ void SCTPGraphDialog::drawGraph(int which)
     connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
     // set axes ranges, so we see all data:
     QCPRange myXRange(selected_assoc->min_secs, (selected_assoc->max_secs+1));
-    QCPRange myYRange(minTSN, maxTSN);
+    QCPRange myYRange;
+    if (relative) {
+        QCPRange myYRange(0, maxTSN - minTSN);
+        ui->sctpPlot->yAxis->setRange(myYRange);
+    } else {
+        QCPRange myYRange(minTSN, maxTSN);
+        ui->sctpPlot->yAxis->setRange(myYRange);
+    }
     ui->sctpPlot->xAxis->setRange(myXRange);
-    ui->sctpPlot->yAxis->setRange(myYRange);
     ui->sctpPlot->replot();
 }
 
 void SCTPGraphDialog::on_pushButton_clicked()
 {
-    drawGraph(1);
+    type = 1;
+    drawGraph();
 }
 
 void SCTPGraphDialog::on_pushButton_2_clicked()
 {
-    drawGraph(2);
+    type = 2;
+    drawGraph();
 }
 
 void SCTPGraphDialog::on_pushButton_3_clicked()
 {
-    drawGraph(3);
+    type = 3;
+    drawGraph();
 }
 
 void SCTPGraphDialog::on_pushButton_4_clicked()
 {
     ui->sctpPlot->xAxis->setRange(selected_assoc->min_secs, selected_assoc->max_secs+1);
-    if (direction == 1) {
-        ui->sctpPlot->yAxis->setRange(selected_assoc->min_tsn1, selected_assoc->max_tsn1);
-    } else {
-        ui->sctpPlot->yAxis->setRange(selected_assoc->min_tsn2, selected_assoc->max_tsn2);
+    if (relative) {
+        if (direction == 1) {
+            ui->sctpPlot->yAxis->setRange(0, selected_assoc->max_tsn1 - selected_assoc->min_tsn1);
+        } else {
+            ui->sctpPlot->yAxis->setRange(0, selected_assoc->max_tsn2 - selected_assoc->min_tsn2);
+        }
+   } else {
+        if (direction == 1) {
+            ui->sctpPlot->yAxis->setRange(selected_assoc->min_tsn1, selected_assoc->max_tsn1);
+        } else {
+            ui->sctpPlot->yAxis->setRange(selected_assoc->min_tsn2, selected_assoc->max_tsn2);
+        }
     }
     ui->sctpPlot->replot();
 }
@@ -463,6 +494,12 @@ void SCTPGraphDialog::save_graph(QDialog *dlg, QCustomPlot *plot)
 void SCTPGraphDialog::on_saveButton_clicked()
 {
     save_graph(this, ui->sctpPlot);
+}
+
+void SCTPGraphDialog::on_relativeTsn_stateChanged(int arg1)
+{
+    relative = arg1;
+    drawGraph();
 }
 
 /*

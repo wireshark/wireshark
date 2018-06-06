@@ -97,6 +97,8 @@ private slots:
 
     void on_saveButton_clicked();
 
+    void on_relativeTsn_stateChanged(int arg1);
+
 private:
     Ui::SCTPGraphDialog *ui;
     struct _sctp_assoc_info *selected_assoc;
@@ -108,8 +110,10 @@ private:
     QVector<QString> typeStrings;
     bool gIsSackChunkPresent;
     bool gIsNRSackChunkPresent;
+    bool relative;
+    int type;
 
-    void drawGraph(int which);
+    void drawGraph();
     void drawTSNGraph();
     void drawSACKGraph();
     void drawNRSACKGraph();
