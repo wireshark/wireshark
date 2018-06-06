@@ -2058,18 +2058,18 @@ static int handleflags(int i, FILE *err)
     return errcnt;
 }
 
-#ifndef __clang_analyzer__
 /*
 ** Process a command line switch which has an argument.
 */
 static int handleswitch(int i, FILE *err)
 {
+  int errcnt = 0;
+#ifndef __clang_analyzer__
   int lv = 0;
   double dv = 0.0;
   char *sv = 0, *end;
   char *cp;
   int j;
-  int errcnt = 0;
   cp = strchr(argv[i],'=');
   assert( cp!=0 );
   *cp = 0;
@@ -2146,9 +2146,9 @@ static int handleswitch(int i, FILE *err)
           break;
     }
   }
+#endif
   return errcnt;
 }
-#endif
 
 int OptInit(char **a, struct s_options *o, FILE *err)
 {
