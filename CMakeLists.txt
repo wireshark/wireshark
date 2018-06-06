@@ -3015,6 +3015,7 @@ if(SHELLCHECK_EXECUTABLE)
 		COMMAND shellcheck --external-sources
 			tools/fuzz-test.sh
 			tools/randpkt-test.sh
+			tools/release-update-debian-soversions.sh
 			tools/test-captures.sh
 			tools/valgrind-wireshark.sh
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"

@@ -526,9 +526,9 @@ sub update_cmake_lib_releases
 		$filepath = $filedir . "/CMakeLists.txt";
 		open(CMAKELISTS_TXT, "< $filepath") || die "Can't read $filepath!";
 		while ($line = <CMAKELISTS_TXT>) {
-			# set(FULL_SO_VERSION "0.0.0")
+			#	VERSION "0.0.0" SOVERSION 0
 
-			if ($line =~ /^(set\s*\(\s*FULL_SO_VERSION\s+"\d+\.\d+\.)\d+(".*[\r\n]+)$/) {
+			if ($line =~ /^(\s*VERSION\s+"\d+\.\d+\.)\d+(".*[\r\n]+)$/) {
 				$line = sprintf("$1%d$2", $version_pref{"version_micro"});
 			}
 			$contents .= $line
