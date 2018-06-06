@@ -1648,12 +1648,6 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
     /* Load interfaces from utility */
     interfaces = extcap_parse_interfaces(cb_info.output, &control_items);
 
-    if (control_items)
-    {
-        toolbar_entry = g_new0(iface_toolbar, 1);
-        toolbar_entry->controls = control_items;
-    }
-
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Loading interface list for %s ", cb_info.extcap);
 
     /* Seems, that there where no interfaces to be loaded */
@@ -1678,6 +1672,12 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
         g_list_free(interface_keys);
         g_free(toolname);
         return FALSE;
+    }
+
+    if (control_items)
+    {
+        toolbar_entry = g_new0(iface_toolbar, 1);
+        toolbar_entry->controls = control_items;
     }
 
     walker = interfaces;
