@@ -1930,13 +1930,6 @@ foreach(_data_file ${_data_files})
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_data_file}")
 endforeach()
 
-add_custom_command(
-	OUTPUT "${DATAFILE_DIR}/dtds" "${DATAFILE_DIR}/diameter" "${DATAFILE_DIR}/radius"
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/dtds"
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/diameter"
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/radius"
-)
-
 file(GLOB _dtds_src_files RELATIVE "${CMAKE_SOURCE_DIR}" "dtds/*.dtd")
 
 set (_dtds_data_files)
@@ -1946,11 +1939,12 @@ endforeach()
 
 add_custom_command(
 	OUTPUT ${_dtds_data_files}
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/dtds"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_dtds_src_files}
 		"${DATAFILE_DIR}/dtds"
 	VERBATIM
-	DEPENDS "${DATAFILE_DIR}/dtds"
+	DEPENDS ${_dtds_src_files}
 	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
 
@@ -1966,11 +1960,12 @@ endforeach()
 
 add_custom_command(
 	OUTPUT ${_diameter_data_files}
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/diameter"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_diameter_src_files}
 		"${DATAFILE_DIR}/diameter"
 	VERBATIM
-	DEPENDS "${DATAFILE_DIR}/diameter"
+	DEPENDS ${_diameter_src_files}
 	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
 
@@ -1988,11 +1983,12 @@ endforeach()
 
 add_custom_command(
 	OUTPUT ${_radius_data_files}
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/radius"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_radius_src_files}
 		"${DATAFILE_DIR}/radius"
 	VERBATIM
-	DEPENDS "${DATAFILE_DIR}/radius"
+	DEPENDS ${_radius_src_files}
 	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
 
