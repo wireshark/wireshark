@@ -234,7 +234,7 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && [ $DONE -ne
                 # shellcheck disable=SC2016
                 SUBSHELL_PID=$($SHELL -c 'echo $PPID')
 
-                printf 'Command and args: %s %s\n' "$RUNNER" "$ARGS" > "$TMP_DIR/$ERR_FILE.$SUBSHELL_PID"
+                printf 'Command and args: %s %s %s\n' "$RUNNER" "$COMMON_ARGS" "$ARGS" > "$TMP_DIR/$ERR_FILE.$SUBSHELL_PID"
                 # shellcheck disable=SC2086
                 "$RUNNER" $COMMON_ARGS $ARGS "$TMP_DIR/$TMP_FILE" \
                     > /dev/null 2>> "$TMP_DIR/$ERR_FILE.$SUBSHELL_PID"
