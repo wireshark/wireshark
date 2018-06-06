@@ -641,15 +641,32 @@ proto_tree_add_expert_internal(proto_tree *tree, packet_info *pinfo, expert_fiel
 {
 	expert_field_info *eiinfo;
 	proto_item        *ti;
+	gint               item_length, captured_length;
 	va_list            unused;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
-	ti = proto_tree_add_text_internal(tree, tvb, start, length, "%s", eiinfo->summary);
+	/* Make sure this doesn't throw an exception when adding the item */
+	item_length = length;
+	captured_length = tvb_captured_length_remaining(tvb, start);
+	if (captured_length < 0)
+		item_length = 0;
+	else if (captured_length < item_length)
+		item_length = captured_length;
+	ti = proto_tree_add_text_internal(tree, tvb, start, item_length, "%s", eiinfo->summary);
 	va_start(unused, length);
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, unused);
 	va_end(unused);
+
+	/* But make sure it throws an exception *after* adding the item */
+	if (length == -1) {
+		/* If we're fetching until the end of the TVB, only validate
+		 * that the offset is within range.
+		 */
+		length = 0;
+	}
+	tvb_ensure_bytes_exist(tvb, start, length);
 	return ti;
 }
 
@@ -666,19 +683,35 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 {
 	va_list            ap;
 	expert_field_info *eiinfo;
+	gint               item_length, captured_length;
 	proto_item        *ti;
 
 	/* Look up the item */
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
+	/* Make sure this doesn't throw an exception when adding the item */
+	item_length = length;
+	captured_length = tvb_captured_length_remaining(tvb, start);
+	if (captured_length < 0)
+		item_length = 0;
+	else if (captured_length < item_length)
+		item_length = captured_length;
 	va_start(ap, format);
-	ti = proto_tree_add_text_valist_internal(tree, tvb, start, length, format, ap);
+	ti = proto_tree_add_text_valist_internal(tree, tvb, start, item_length, format, ap);
 	va_end(ap);
 
 	va_start(ap, format);
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, TRUE, format, ap);
 	va_end(ap);
 
+	/* But make sure it throws an exception *after* adding the item */
+	if (length == -1) {
+		/* If we're fetching until the end of the TVB, only validate
+		 * that the offset is within range.
+		 */
+		length = 0;
+	}
+	tvb_ensure_bytes_exist(tvb, start, length);
 	return ti;
 }
 
