@@ -225,7 +225,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 
                 SUBSHELL_PID=$($SHELL -c 'echo $PPID')
 
-                echo -e "Command and args: $RUNNER $ARGS\n" > $TMP_DIR/$ERR_FILE.$SUBSHELL_PID
+                echo -e "Command and args: $RUNNER $COMMON_ARGS $ARGS\n" > $TMP_DIR/$ERR_FILE.$SUBSHELL_PID
                 "$RUNNER" $COMMON_ARGS $ARGS $TMP_DIR/$TMP_FILE \
                     > /dev/null 2>> $TMP_DIR/$ERR_FILE.$SUBSHELL_PID
             ) &
