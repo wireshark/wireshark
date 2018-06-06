@@ -8299,7 +8299,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
             if(format==1) {
                 if(rel_id <= 6){
                     dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
-                }else if(rel_id >6){
+                }else{
                     dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
                 }
             } else {
