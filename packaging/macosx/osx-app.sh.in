@@ -141,7 +141,7 @@ a=1
 nfiles=0
 endl=true
 while $endl; do
-	echo -e "Looking for dependencies. Round" $a
+	echo -e "Looking for dependencies. Round $a"
 	#
 	# To find dependencies, we:
 	#
@@ -181,10 +181,10 @@ while $endl; do
 		)"
 	# shellcheck disable=SC2086
 	cp -vn $libs "$pkglib"
-	(( a += 1 ))
+	(( a++ ))
 	# shellcheck disable=SC2012
 	nnfiles=$( ls "$pkglib" | wc -l )
-	if [ "$nnfiles" = $nfiles ]; then
+	if (( nnfiles == nfiles )); then
 		endl=false
 	else
 		nfiles=$nnfiles
