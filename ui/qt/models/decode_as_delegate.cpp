@@ -267,7 +267,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         //QMap already sorts the keys (protocols) alphabetically
         QMap<QString, dissector_info_t*>::iterator protocol;
-        for(protocol = protocols.begin(); protocol != protocols.end(); protocol++)
+        for(protocol = protocols.begin(); protocol != protocols.end(); ++protocol)
         {
             editor->addItem(protocol.key(), VariantPointer<dissector_info_t>::asQVariant(protocol.value()));
         }

@@ -193,7 +193,7 @@ LBMLBTRMSQNEntry::LBMLBTRMSQNEntry(guint32 sqn) :
 
 LBMLBTRMSQNEntry::~LBMLBTRMSQNEntry(void)
 {
-    for (LBMLBTRMFrameMapIterator it = m_frames.begin(); it != m_frames.end(); it++)
+    for (LBMLBTRMFrameMapIterator it = m_frames.begin(); it != m_frames.end(); ++it)
     {
         delete *it;
     }
@@ -266,7 +266,7 @@ LBMLBTRMNCFReasonEntry::LBMLBTRMNCFReasonEntry(guint8 reason) :
 
 LBMLBTRMNCFReasonEntry::~LBMLBTRMNCFReasonEntry(void)
 {
-    for (LBMLBTRMFrameMapIterator it = m_frames.begin(); it != m_frames.end(); it++)
+    for (LBMLBTRMFrameMapIterator it = m_frames.begin(); it != m_frames.end(); ++it)
     {
         delete *it;
     }
@@ -323,7 +323,7 @@ LBMLBTRMNCFSQNEntry::LBMLBTRMNCFSQNEntry(guint32 sqn) :
 
 LBMLBTRMNCFSQNEntry::~LBMLBTRMNCFSQNEntry(void)
 {
-    for (LBMLBTRMNCFReasonMapIterator it = m_reasons.begin(); it != m_reasons.end(); it++)
+    for (LBMLBTRMNCFReasonMapIterator it = m_reasons.begin(); it != m_reasons.end(); ++it)
     {
         delete *it;
     }
