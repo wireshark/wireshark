@@ -70,7 +70,8 @@ ADDITIONAL_LIST="libnl3-devel \
 	json-glib-devel \
 	doxygen \
 	libxml2-devel \
-	spandsp-devel"
+	spandsp-devel \
+	rpm-build"
 
 # Guess which package manager we will use
 PM=`which zypper 2> /dev/null ||
