@@ -342,7 +342,7 @@ static gchar* dissect_rbm_drb(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_t
 static gchar* dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
 {
 	guint8 subtype = tvb_get_guint8(tvb, *offset);
-	gchar* subtype_str = "unknown";
+	gchar* subtype_str = NULL;
 	gchar* label = "TBD";
 
 	proto_tree_add_item(tree, hf_rbm_type, tvb, *offset, 1, ENC_NA);
@@ -396,22 +396,27 @@ static gchar* dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 		case ',':
 			label = dissect_rbm_inline(tvb, pinfo, tree, offset);
 			break;
-		// Following cases will fall through
 		case 'o':
 			subtype_str = "Object";
+			break;
 		case 'C':
 			subtype_str = "User Class";
+			break;
 		case 'e':
 			subtype_str = "Extended Object";
+			break;
 		case '@':
 			subtype_str = "Object Link";
-			expert_add_info_format(pinfo, tree, &ei_rbm_unsupported,
-				"Object type 0x%x (%s) not supported yet", subtype, subtype_str);
 			break;
 		default:
 			expert_add_info_format(pinfo, tree, &ei_rbm_invalid,
 				"Object type 0x%x is invalid", subtype);
 	}
+
+	if (subtype_str)
+		expert_add_info_format(pinfo, tree, &ei_rbm_unsupported,
+			"Object type 0x%x (%s) not supported yet", subtype, subtype_str);
+
 	return label;
 }
 
