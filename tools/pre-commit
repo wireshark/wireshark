@@ -13,7 +13,7 @@
 #   tools/pre-commit HEAD~
 #
 # Relative paths are also supported. For instance, if you are in epan/, then you
-# could invoke `../tools/pre-commit HEAD` to check for changes to staged files.
+# could invoke  `../tools/pre-commit HEAD` to check for changes to staged files.
 #
 # From
 # http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
@@ -22,7 +22,7 @@
 # If the commit identifier is not given, use HEAD instead.
 COMMIT_ID="${1:-HEAD}"
 
-UNAME=`uname -a`
+UNAME=$( uname -a )
 
 case "$UNAME" in
     *\ Msys)
@@ -40,7 +40,10 @@ hook_script=${GIT_DIR:-.git}/hooks/pre-commit
 
 # Always start in the root directory of the source tree, this allows for
 # invocations via relative paths (such as ../tools/pre-commit):
-cd "$(git rev-parse --show-toplevel)"
+if ! cd "$(git rev-parse --show-toplevel)" ; then
+    echo "Can't change to the top-level source directory."
+    exit 1
+fi
 
 # Check for newer (actually, different) versions of the pre-commit script
 # (but only if invoked as hook, i.e. the commit ID is not given as argument).
@@ -52,15 +55,15 @@ fi
 
 exit_status=0
 
-COMMIT_FILES=`git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" | cut -f2 | grep "\.[ch]$"`
-DIAMETER_FILES=`git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" | cut -f2 | grep diameter/`
+COMMIT_FILES=$( git diff-index --cached --name-status "${COMMIT_ID}" | grep -v "^D" | cut -f2 | grep "\\.[ch]$" )
+DIAMETER_FILES=$( git diff-index --cached --name-status "${COMMIT_ID}" | grep -v "^D" | cut -f2 | grep diameter/ )
 
 # Path to filter script in the tools directory
 filter_script=${PWD}/tools/pre-commit-ignore.py
 filter_conf=${PWD}/tools/pre-commit-ignore.conf
 
 if [ -f "$filter_script" ] && [ -f "$filter_conf" ]; then
-    CHECK_FILES=`echo "$COMMIT_FILES" | "$PYBIN" "$filter_script" "$filter_conf"` || exit
+    CHECK_FILES=$( echo "$COMMIT_FILES" | "$PYBIN" "$filter_script" "$filter_conf" ) || exit
 else
     CHECK_FILES="$COMMIT_FILES"
 fi
@@ -74,24 +77,24 @@ fi
 #
 # The Single UNIX Specification says that tr supports \r; most if not
 # all modern UN*Xes should support it.
-CHECK_FILES=`echo "$CHECK_FILES" | tr -d '\r'`
+CHECK_FILES=$( echo "$CHECK_FILES" | tr -d '\r' )
 
 for FILE in $CHECK_FILES; do
 
     #Check if checkhf is good
-    ./tools/checkhf.pl $FILE            || exit_status=1
+    ./tools/checkhf.pl "$FILE"            || exit_status=1
 
     #Check if checkAPIs is good
-    ./tools/checkAPIs.pl -p $FILE       || exit_status=1
+    ./tools/checkAPIs.pl -p "$FILE"       || exit_status=1
 
     #Check if fix-encoding-args is good
-    ./tools/fix-encoding-args.pl $FILE  || exit_status=1
+    ./tools/fix-encoding-args.pl "$FILE"  || exit_status=1
 
     #Check if checkfiltername is good
-    ./tools/checkfiltername.pl $FILE    || exit_status=1
+    ./tools/checkfiltername.pl "$FILE"    || exit_status=1
 
     # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
-    git diff-index --check --cached ${COMMIT_ID} $FILE || exit_status=1
+    git diff-index --check --cached "${COMMIT_ID}" "$FILE" || exit_status=1
 
 done
 

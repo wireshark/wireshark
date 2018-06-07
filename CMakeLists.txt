@@ -3019,9 +3019,12 @@ if(SHELLCHECK_EXECUTABLE)
 			tools/compress-pngs.sh
 			tools/git-export-release.sh
 			tools/fuzz-test.sh
+			tools/gen-bugnote
+			tools/pre-commit
 			tools/randpkt-test.sh
 			tools/release-update-debian-soversions.sh
 			tools/test-captures.sh
+			tools/update-tx
 			tools/valgrind-wireshark.sh
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 	)

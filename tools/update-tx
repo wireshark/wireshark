@@ -7,6 +7,7 @@ NO_PUSH="False"
 while getopts "n" OPTCHAR ; do
     case $OPTCHAR in
         n) NO_PUSH="True" ;;
+        *) printf "Unknown option: %s\\n" "$OPTARG"
     esac
 done
 shift $((OPTIND - 1))
