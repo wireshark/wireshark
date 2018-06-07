@@ -52,7 +52,11 @@ Obsoletes:	wireshark-devel
 
 BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:	cmake >= 3.5 or cmake3 >= 3.5
+%if 0%{?rhel}
+BuildRequires:	cmake3 >= 3.5
+%else
+BuildRequires:	cmake >= 3.5
+%endif
 BuildRequires:	gcc
 BuildRequires:	python
 BuildRequires:	perl
@@ -214,7 +218,11 @@ Requires:	libmaxminddb
 # the prefix and everything else too.  If you need to change the prefix
 # set _prefix (note the underscore) either in this file or on rpmbuild's
 # command-line.
+%if 0%{?rhel}
+cmake3 \
+%else
 %cmake \
+%endif
 %if %{with qt5}
   -DBUILD_wireshark=ON \
 %else
