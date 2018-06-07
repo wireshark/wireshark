@@ -85,6 +85,7 @@ fi
 
 case $PM in
 	*/zypper)
+		PM_OPT="--non-interactive"
 		PM_SEARCH="search -x --provides"
 		;;
 	*/dnf)
@@ -181,7 +182,7 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
-$PM install $ACTUAL_LIST $OPTIONS
+$PM $PM_OPT install $ACTUAL_LIST $OPTIONS
 
 # Now arrange for optional support libraries
 if [ ! $ADDITIONAL ]
