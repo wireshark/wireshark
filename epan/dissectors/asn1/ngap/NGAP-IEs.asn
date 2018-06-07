@@ -1,0 +1,2129 @@
+-- 3GPP TS 38.413 1.0.0 (2018-06-04)
+-- 9.4.5	Information Element Definitions
+-- **************************************************************
+--
+-- Information Element Definitions
+--
+-- **************************************************************
+
+NGAP-IEs {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+ngran-Access (22) modules (3) ngap (1) version1 (1) ngap-IEs (2) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+
+	maxnoofAllowedAreas,
+	maxnoofAllowedS-NSSAIs,
+	maxnoofBPLMNs,
+	maxnoofCellIDforWarning,
+	maxnoofCellinEAI,
+	maxnoofCellsingNB,
+	maxnoofCellsinngeNB,
+	maxnoofCellinTAI,
+	maxnoofDRBs,
+	maxnoofEmergencyAreaID,
+	maxnoofEAIforRestart,
+	maxnoofEPLMNs,
+	maxnoofEPLMNsPlusOne,
+	maxnoofE-RABs,
+	maxnoofErrors,
+	maxnoofForbTACs,
+	maxnoofMultiConnectivities,
+	maxnoofPDUSessions,
+	maxnoofPLMNs,
+	maxnoofQosFlows,
+	maxnoofRecommendedCells,
+	maxnoofAoI,
+	maxnoofServedGUAMIs,
+	maxnoofSliceItems,
+	maxnoofTACs,
+	maxnoofTAIs,
+	maxnoofTAIforRestart,
+	maxnoofTAIforWarning,
+	maxnoofTNLAssociations,
+	maxnoofXnExtTLAs,
+	maxnoofXnGTP-TLAs,
+	maxnoofXnTLAs
+FROM NGAP-Constants
+
+	Criticality,
+	ProcedureCode,
+	ProtocolIE-ID,
+	TriggeringMessage
+FROM NGAP-CommonDataTypes
+
+	ProtocolExtensionContainer{},
+	NGAP-PROTOCOL-EXTENSION,
+	ProtocolIE-SingleContainer{},
+	NGAP-PROTOCOL-IES
+FROM NGAP-Containers;
+
+-- A
+
+AdditionalQosFlowInformation ::= ENUMERATED {
+	more-likely,
+	...
+}
+
+AllocationAndRetentionPriority ::= SEQUENCE {
+	priorityLevelARP				PriorityLevelARP,
+	pre-emptionCapability			Pre-emptionCapability,
+	pre-emptionVulnerability		Pre-emptionVulnerability,
+	iE-Extensions		ProtocolExtensionContainer { {AllocationAndRetentionPriority-ExtIEs} } OPTIONAL,
+	...
+}
+
+AllocationAndRetentionPriority-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AllowedNSSAI ::= SEQUENCE (SIZE(1..maxnoofAllowedS-NSSAIs)) OF AllowedNSSAI-Item
+
+AllowedNSSAI-Item ::= SEQUENCE {
+	s-NSSAI				S-NSSAI,
+	iE-Extensions		ProtocolExtensionContainer { {AllowedNSSAI-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+AllowedNSSAI-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AllowedTACs ::= SEQUENCE (SIZE(1..maxnoofAllowedAreas)) OF TAC
+
+AMFName ::= PrintableString (SIZE(1..150, ...))
+
+AMFPointer ::= BIT STRING (SIZE(4))
+
+AMFRegionID ::= OCTET STRING (SIZE(2))
+
+AMFSetID ::= BIT STRING (SIZE(4))
+
+AMF-UE-NGAP-ID ::= INTEGER (0..4294967295)
+
+AreaOfInterest ::= SEQUENCE {
+	areaOfInterestTAIList		AreaOfInterestTAIList,
+	iE-Extensions		ProtocolExtensionContainer { {AreaOfInterest-ExtIEs} }	OPTIONAL,
+	...
+}
+
+AreaOfInterest-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AreaOfInterestList ::= SEQUENCE (SIZE(1..maxnoofAoI)) OF AreaOfInterestItem
+
+AreaOfInterestItem ::= SEQUENCE {
+	areaOfInterest						AreaOfInterest,
+	locationReportingReferenceID		LocationReportingReferenceID				OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {AreaOfInterestItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+AreaOfInterestItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AreaOfInterestTAIList ::= SEQUENCE (SIZE(1..maxnoofAoI)) OF AreaOfInterestTAIItem
+
+AreaOfInterestTAIItem ::= SEQUENCE {
+	tAI					TAI,
+	iE-Extensions		ProtocolExtensionContainer { {AreaOfInterestTAIItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+AreaOfInterestTAIItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AssistanceDataForPaging ::= SEQUENCE {
+	assistanceDataForRecommendedCells		AssistanceDataForRecommendedCells			OPTIONAL,
+	pagingAttemptInformation				PagingAttemptInformation					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {AssistanceDataForPaging-ExtIEs} } OPTIONAL,
+	...
+}
+
+AssistanceDataForPaging-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AssistanceDataForRecommendedCells ::= SEQUENCE {
+	recommendedCellsForPaging		RecommendedCellsForPaging, 
+	iE-Extensions		ProtocolExtensionContainer { {AssistanceDataForRecommendedCells-ExtIEs} }	OPTIONAL,
+	...
+}
+
+AssistanceDataForRecommendedCells-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AssociatedQosFlowList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF AssociatedQosFlowItem
+
+AssociatedQosFlowItem ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	iE-Extensions		ProtocolExtensionContainer { {AssociatedQosFlowItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+AssociatedQosFlowItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AveragingWindow ::= INTEGER (0..63)		-- This IE may need to be refined
+
+-- B
+
+BitRate	::= INTEGER (0..4000000000000, ...) 
+
+BroadcastCancelledAreaList ::= CHOICE {
+	cellIDCancelledEUTRA				CellIDCancelledEUTRA,
+	tAICancelledEUTRA					TAICancelledEUTRA,
+	emergencyAreaIDCancelledEUTRA		EmergencyAreaIDCancelledEUTRA,
+	cellIDCancelledNR					CellIDCancelledNR,
+	tAICancelledNR						TAICancelledNR,
+	emergencyAreaIDCancelledNR			EmergencyAreaIDCancelledNR,
+	...
+}
+
+BroadcastCompletedAreaList ::= CHOICE {
+	cellIDBroadcastEUTRA				CellIDBroadcastEUTRA,
+	tAIBroadcastEUTRA					TAIBroadcastEUTRA,
+	emergencyAreaIDBroadcastEUTRA		EmergencyAreaIDBroadcastEUTRA,
+	cellIDBroadcastNR					CellIDBroadcastNR,
+	tAIBroadcastNR						TAIBroadcastNR,
+	emergencyAreaIDBroadcastNR			EmergencyAreaIDBroadcastNR,
+	...
+}
+
+BroadcastPLMNList ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF BroadcastPLMNItem
+
+BroadcastPLMNItem ::= SEQUENCE {
+	pLMNIdentity			PLMNIdentity,
+	tAISliceSupportList		SliceSupportList,
+	iE-Extensions		ProtocolExtensionContainer { {BroadcastPLMNItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+BroadcastPLMNItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- C
+
+CancelAllWarningMessages ::= ENUMERATED {true}
+
+CancelledCellsInEAI-EUTRA ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CancelledCellsInEAI-EUTRA-Item
+
+CancelledCellsInEAI-EUTRA-Item ::= SEQUENCE {
+	eUTRA-CGI				EUTRA-CGI,
+	numberOfBroadcasts		NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CancelledCellsInEAI-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellsInEAI-EUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CancelledCellsInEAI-NR ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CancelledCellsInEAI-NR-Item
+
+CancelledCellsInEAI-NR-Item ::= SEQUENCE {
+	nR-CGI					NR-CGI,
+	numberOfBroadcasts		NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CancelledCellsInEAI-NR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellsInEAI-NR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CancelledCellsInTAI-EUTRA ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CancelledCellsInTAI-EUTRA-Item
+
+CancelledCellsInTAI-EUTRA-Item ::= SEQUENCE {
+	eUTRA-CGI				EUTRA-CGI,
+	numberOfBroadcasts		NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CancelledCellsInTAI-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellsInTAI-EUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CancelledCellsInTAI-NR ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CancelledCellsInTAI-NR-Item
+
+CancelledCellsInTAI-NR-Item ::= SEQUENCE{
+	nR-CGI					NR-CGI,
+	numberOfBroadcasts		NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CancelledCellsInTAI-NR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellsInTAI-NR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Cause ::= CHOICE {
+	radioNetwork		CauseRadioNetwork,
+	transport			CauseTransport,
+	nas					CauseNas,
+	protocol			CauseProtocol,
+	misc				CauseMisc,
+	...
+}
+
+CauseMisc ::= ENUMERATED {
+	control-processing-overload,
+	not-enough-user-plane-processing-resources,
+	hardware-failure,
+	om-intervention,
+	unknown-PLMN,
+	unspecified,
+	...
+}
+
+CauseNas ::= ENUMERATED {
+	normal-release,
+	authentication-failure,
+	deregister,
+	unspecified,
+	...
+}
+
+CauseProtocol ::= ENUMERATED {
+	transfer-syntax-error,
+	abstract-syntax-error-reject,
+	abstract-syntax-error-ignore-and-notify,
+	message-not-compatible-with-receiver-state,
+	semantic-error,
+	abstract-syntax-error-falsely-constructed-message,
+	unspecified,
+	...
+}
+
+CauseRadioNetwork ::= ENUMERATED {
+	unspecified,
+	txnrelocoverall-expiry,
+	successful-handover,
+	release-due-to-ngran-generated-reason,
+	release-due-to-5gc-generated-reason,
+	handover-cancelled,	
+	partial-handover,	
+	ho-failure-in-target-5GC-ngran-node-or-target-system,
+	ho-target-not-allowed,
+	tngrelocoverall-expiry,
+	tngrelocprep-expiry,
+	cell-not-available,
+	unknown-targetID,
+	no-radio-resources-available-in-target-cell,
+	unknown-local-UE-NGAP-ID,
+	inconsistent-remote-UE-NGAP-ID,
+	handover-desirable-for-radio-reason,
+	time-critical-handover,
+	resource-optimisation-handover,
+	reduce-load-in-serving-cell,
+	user-inactivity,
+	radio-connection-with-ue-lost,
+	load-balancing-tau-required,
+	radio-resources-not-available,
+	invalid-qos-combination,
+	failure-in-radio-interface-procedure,
+	interaction-with-other-procedure,
+	unknown-PDU-session-ID,
+	unkown-qos-flow-ID,
+	multiple-PDU-session-ID-instances,
+	multiple-qos-flow-ID-instances,
+	encryption-and-or-integrity-protection-algorithms-not-supported,
+	ng-intra-system-handover-triggered,
+	ng-inter-system-handover-triggered,
+	xn-handover-triggered,
+	not-supported-5QI-value,
+	ue-context-transfer,
+	ims-voice-eps-fallback-or-rat-fallback-triggered,
+	up-integrity-protection-not-possible,
+	up-confidentiality-protection-not-possible,
+	slice-not-supported,
+	ue-in-rrc-inactive-state-not-reachable,
+	...
+}
+
+CauseTransport ::= ENUMERATED {
+	transport-resource-unavailable,
+	unspecified,
+	...
+}
+
+CellIDBroadcastEUTRA ::= SEQUENCE (SIZE(1..maxnoofCellIDforWarning)) OF CellIDBroadcastEUTRA-Item
+
+CellIDBroadcastEUTRA-Item ::= SEQUENCE {
+	eUTRA-CGI			EUTRA-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {CellIDBroadcastEUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellIDBroadcastEUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellIDBroadcastNR ::= SEQUENCE (SIZE(1..maxnoofCellIDforWarning)) OF CellIDBroadcastNR-Item
+
+CellIDBroadcastNR-Item ::= SEQUENCE {
+	nR-CGI				NR-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {CellIDBroadcastNR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellIDBroadcastNR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellIDCancelledEUTRA ::= SEQUENCE (SIZE(1..maxnoofCellIDforWarning)) OF CellIDCancelledEUTRA-Item
+
+CellIDCancelledEUTRA-Item ::= SEQUENCE {
+	eUTRA-CGI				EUTRA-CGI,
+	numberOfBroadcasts		NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CellIDCancelledEUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellIDCancelledEUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellIDCancelledNR ::= SEQUENCE (SIZE(1..maxnoofCellIDforWarning)) OF CellIDCancelledNR-Item
+
+CellIDCancelledNR-Item ::= SEQUENCE {
+	nR-CGI					NR-CGI,
+	numberOfBroadcasts		NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CellIDCancelledNR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellIDCancelledNR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellIDListForRestart ::= CHOICE {
+	eUTRA-CGIListforRestart		EUTRA-CGIList,
+	nR-CGIListforRestart		NR-CGIList,
+	...
+}
+
+CompletedCellsInEAI-EUTRA ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CompletedCellsInEAI-EUTRA-Item
+
+CompletedCellsInEAI-EUTRA-Item ::= SEQUENCE {
+	eUTRA-CGI			EUTRA-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {CompletedCellsInEAI-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CompletedCellsInEAI-EUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CompletedCellsInEAI-NR ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CompletedCellsInEAI-NR-Item
+
+CompletedCellsInEAI-NR-Item ::= SEQUENCE {
+	nR-CGI				NR-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {CompletedCellsInEAI-NR-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+CompletedCellsInEAI-NR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CompletedCellsInTAI-EUTRA ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CompletedCellsInTAI-EUTRA-Item
+
+CompletedCellsInTAI-EUTRA-Item ::= SEQUENCE{
+	eUTRA-CGI			EUTRA-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {CompletedCellsInTAI-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CompletedCellsInTAI-EUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CompletedCellsInTAI-NR ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CompletedCellsInTAI-NR-Item
+
+CompletedCellsInTAI-NR-Item ::= SEQUENCE{
+	nR-CGI				NR-CGI,
+	iE-Extensions		ProtocolExtensionContainer { {CompletedCellsInTAI-NR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CompletedCellsInTAI-NR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ConcurrentWarningMessageInd ::= ENUMERATED {true}
+
+ConfidentialityProtectionIndication ::= ENUMERATED {
+	required,
+	preferred,
+	not-needed,
+	...
+}
+
+ConfidentialityProtectionResult ::= ENUMERATED {
+	performed,
+	not-performed,
+	...
+}
+
+CPTransportLayerInformation ::= CHOICE {
+	endpointIPAddress		TransportLayerAddress,
+	...
+}
+
+CriticalityDiagnostics ::= SEQUENCE {
+	procedureCode					ProcedureCode														OPTIONAL,
+	triggeringMessage				TriggeringMessage													OPTIONAL,
+	procedureCriticality			Criticality															OPTIONAL,
+	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List										OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer {{CriticalityDiagnostics-ExtIEs}}		OPTIONAL,
+	...
+}
+
+CriticalityDiagnostics-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE(1..maxnoofErrors)) OF CriticalityDiagnostics-IE-Item
+
+CriticalityDiagnostics-IE-Item ::= SEQUENCE {
+	iECriticality		Criticality,
+	iE-ID				ProtocolIE-ID,
+	typeOfError 		TypeOfError,
+	iE-Extensions		ProtocolExtensionContainer {{CriticalityDiagnostics-IE-Item-ExtIEs}} OPTIONAL,
+	...
+}
+
+CriticalityDiagnostics-IE-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- D
+
+DataCodingScheme ::= BIT STRING (SIZE(8))
+
+DataForwardingAccepted ::= ENUMERATED {
+	data-forwarding-accepted,
+	...
+}
+
+DataForwardingNotPossible ::= ENUMERATED {
+	data-forwarding-not-possible,
+	...
+}
+
+DataForwardingResponseDRBList ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF DataForwardingResponseDRBItem
+
+DataForwardingResponseDRBItem ::= SEQUENCE {
+	dRB-ID								DRB-ID,
+	dLForwardingUP-TNLInformation		UPTransportLayerInformation								OPTIONAL,
+	uLForwardingUP-TNLInformation		UPTransportLayerInformation								OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer {{DataForwardingResponseDRBItem-ExtIEs}}		OPTIONAL,
+	...
+}
+
+DataForwardingResponseDRBItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DelayCritical ::= ENUMERATED {
+	delay-critical,
+	non-delay-critical,
+	...
+}
+
+DLForwarding ::= ENUMERATED {
+	dl-forwarding-proposed,
+	...
+}
+
+DirectForwardingPathAvailability ::= ENUMERATED {
+	direct-path-available,
+	...
+}
+
+DRB-ID ::= INTEGER (1..32, ...)
+
+DRBsToQosFlowsMappingList ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF DRBsToQosFlowsMappingItem
+
+DRBsToQosFlowsMappingItem ::= SEQUENCE {
+	dRB-ID								DRB-ID,
+	qosFlowMappingList					QosFlowMappingList,
+	iE-Extensions		ProtocolExtensionContainer {{DRBsToQosFlowsMappingItem-ExtIEs}}		OPTIONAL,
+	...
+}
+
+DRBsToQosFlowsMappingItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Dynamic5QIDescriptor ::= SEQUENCE {
+	priorityLevelQos			PriorityLevelQos,
+	packetDelayBudget			PacketDelayBudget,
+	packetErrorRate				PacketErrorRate,
+	delayCritical				DelayCritical											OPTIONAL,
+	averagingWindow				AveragingWindow											OPTIONAL,
+	maximumDataBurstVolume		MaximumDataBurstVolume									OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {Dynamic5QIDescriptor-ExtIEs} } 	OPTIONAL,
+	...
+}
+
+Dynamic5QIDescriptor-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- E
+
+EmergencyAreaID ::= OCTET STRING (SIZE(3))
+
+EmergencyAreaIDBroadcastEUTRA ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaIDBroadcastEUTRA-Item
+
+EmergencyAreaIDBroadcastEUTRA-Item ::= SEQUENCE {
+	emergencyAreaID					EmergencyAreaID,
+	completedCellsInEAI-EUTRA		CompletedCellsInEAI-EUTRA,
+	iE-Extensions		ProtocolExtensionContainer { {EmergencyAreaIDBroadcastEUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+EmergencyAreaIDBroadcastEUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EmergencyAreaIDBroadcastNR ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaIDBroadcastNR-Item
+
+EmergencyAreaIDBroadcastNR-Item ::= SEQUENCE {
+	emergencyAreaID				EmergencyAreaID,
+	completedCellsInEAI-NR		CompletedCellsInEAI-NR,
+	iE-Extensions		ProtocolExtensionContainer { {EmergencyAreaIDBroadcastNR-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+EmergencyAreaIDBroadcastNR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EmergencyAreaIDCancelledEUTRA ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaIDCancelledEUTRA-Item
+
+EmergencyAreaIDCancelledEUTRA-Item ::= SEQUENCE {
+	emergencyAreaID					EmergencyAreaID,
+	cancelledCellsInEAI-EUTRA		CancelledCellsInEAI-EUTRA,
+	iE-Extensions		ProtocolExtensionContainer { {EmergencyAreaIDCancelledEUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+EmergencyAreaIDCancelledEUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EmergencyAreaIDCancelledNR ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaIDCancelledNR-Item
+
+EmergencyAreaIDCancelledNR-Item ::= SEQUENCE {
+	emergencyAreaID				EmergencyAreaID,
+	cancelledCellsInEAI-NR		CancelledCellsInEAI-NR,
+	iE-Extensions		ProtocolExtensionContainer { {EmergencyAreaIDCancelledNR-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+EmergencyAreaIDCancelledNR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EmergencyAreaIDList ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaID
+
+EmergencyAreaIDListForRestart ::= SEQUENCE (SIZE(1..maxnoofEAIforRestart)) OF EmergencyAreaID
+
+EmergencyFallbackIndicator ::= ENUMERATED {
+	emergency-fallback-requested,
+	...
+}
+
+EquivalentPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMNIdentity
+
+EPS-TAC ::= OCTET STRING (SIZE(2))
+
+EPS-TAI ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	ePS-TAC				EPS-TAC,
+	iE-Extensions		ProtocolExtensionContainer { {EPS-TAI-ExtIEs} } OPTIONAL,
+	...
+}
+
+EPS-TAI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RAB-ID ::= INTEGER (0..15, ...)
+
+E-RABInformationList ::= SEQUENCE (SIZE(1..maxnoofE-RABs)) OF E-RABInformationItem
+
+E-RABInformationItem ::= SEQUENCE {
+	e-RAB-ID			E-RAB-ID,
+	dLForwarding		DLForwarding													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {E-RABInformationItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABInformationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRACellIdentity ::= BIT STRING (SIZE(28))
+
+EUTRA-CGI ::= SEQUENCE {
+	pLMNIdentity			PLMNIdentity,
+	eUTRACellIdentity		EUTRACellIdentity,
+	iE-Extensions		ProtocolExtensionContainer { {EUTRA-CGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+EUTRA-CGI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRA-CGIList ::= SEQUENCE (SIZE(1..maxnoofCellsinngeNB)) OF EUTRA-CGI
+
+EUTRA-CGIListForWarning ::= SEQUENCE (SIZE(1..maxnoofCellIDforWarning)) OF EUTRA-CGI
+
+EUTRAencryptionAlgorithms ::= BIT STRING (SIZE(16, ...))
+
+EUTRAintegrityProtectionAlgorithms ::= BIT STRING (SIZE(16, ...))
+
+EventType ::= ENUMERATED {
+	direct,
+	change-of-serve-cell,
+	ue-presence-in-area-of-interest,
+	stop-change-of-serve-cell,
+	stop-ue-presence-in-area-of-interest,
+	cancel-location-reporting-for-the-ue,
+	...
+}
+
+-- F
+
+FiveG-S-TMSI ::= SEQUENCE {
+	aMFSetID			AMFSetID,
+	aMFPointer			AMFPointer,
+	fiveG-TMSI			FiveG-TMSI,
+	iE-Extensions		ProtocolExtensionContainer { {FiveG-S-TMSI-ExtIEs} }	OPTIONAL,
+	...
+}
+
+FiveG-S-TMSI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+FiveG-TMSI ::= OCTET STRING (SIZE(4))
+
+FiveQI ::= INTEGER (0..255)
+
+ForbiddenAreaInformation ::= SEQUENCE (SIZE(1.. maxnoofEPLMNsPlusOne)) OF ForbiddenAreaInformation-Item
+
+ForbiddenAreaInformation-Item ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	forbiddenTACs		ForbiddenTACs,
+	iE-Extensions		ProtocolExtensionContainer { {ForbiddenAreaInformation-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ForbiddenAreaInformation-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ForbiddenTACs ::= SEQUENCE (SIZE(1..maxnoofForbTACs)) OF TAC
+
+-- G
+
+GBR-QosInformation ::= SEQUENCE {
+	maximumFlowBitRateDL		BitRate,
+	maximumFlowBitRateUL		BitRate,
+	guaranteedFlowBitRateDL		BitRate,
+	guaranteedFlowBitRateUL		BitRate,
+	notificationControl			NotificationControl									OPTIONAL,
+	maximumPacketLossRateDL		PacketLossRate										OPTIONAL,
+	maximumPacketLossRateUL		PacketLossRate										OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {GBR-QosInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+GBR-QosInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...}
+
+GlobalGNB-ID ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	gNB-ID				GNB-ID,
+	iE-Extensions		ProtocolExtensionContainer { {GlobalGNB-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GlobalGNB-ID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GlobalN3IWF-ID ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	n3IWF-ID			N3IWF-ID,
+	iE-Extensions		ProtocolExtensionContainer { {GlobalN3IWF-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GlobalN3IWF-ID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GlobalNgENB-ID ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	ngENB-ID			NgENB-ID,
+	iE-Extensions		ProtocolExtensionContainer { {GlobalNgENB-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GlobalNgENB-ID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GlobalRANNodeID ::= CHOICE {
+	globalGNB-ID		GlobalGNB-ID,
+	globalNgENB-ID		GlobalNgENB-ID,
+	globalN3IWF-ID		GlobalN3IWF-ID,
+	...
+}
+
+GNB-ID ::= CHOICE {
+	gNB-ID		BIT STRING (SIZE(22..32)),
+	...
+}
+
+GTP-TEID ::= OCTET STRING (SIZE(4))
+
+GTPTunnel ::= SEQUENCE {
+	transportLayerAddress		TransportLayerAddress,
+	gTP-TEID					GTP-TEID,
+	iE-Extensions		ProtocolExtensionContainer { {GTPTunnel-ExtIEs} } OPTIONAL,
+	...
+}
+
+GTPTunnel-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GUAMI ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	aMFRegionID			AMFRegionID,
+	aMFSetID			AMFSetID,
+	aMFPointer			AMFPointer,
+	iE-Extensions		ProtocolExtensionContainer { {GUAMI-ExtIEs} } OPTIONAL,
+	...
+}
+
+GUAMI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- H
+
+HandoverCommandTransfer ::= SEQUENCE {
+	dLForwardingUP-TNLInformation		UPTransportLayerInformation						OPTIONAL,
+	qosFlowToBeForwardedList			QosFlowToBeForwardedList,
+	dataForwardingResponseDRBList		DataForwardingResponseDRBList 					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {HandoverCommandTransfer-ExtIEs} } OPTIONAL,
+	...
+}
+
+HandoverCommandTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HandoverRequestAcknowledgeTransfer ::= SEQUENCE {
+	dL-NGU-UP-TNLInformation			UPTransportLayerInformation,
+	dLForwardingUP-TNLInformation		UPTransportLayerInformation										OPTIONAL,
+	securityResult						SecurityResult													OPTIONAL,
+	qosFlowSetupResponseList			QosFlowSetupResponseListHOReqAck,
+	qosFlowFailedToSetupList			QosFlowList														OPTIONAL,
+	dataForwardingResponseDRBList		DataForwardingResponseDRBList									OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {HandoverRequestAcknowledgeTransfer-ExtIEs} } 	OPTIONAL,
+	...
+}
+
+HandoverRequestAcknowledgeTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MobilityRestrictionList ::= SEQUENCE {
+	servingPLMN					PLMNIdentity,
+	equivalentPLMNs				EquivalentPLMNs											OPTIONAL,
+	rATRestrictions				RATRestrictions											OPTIONAL,
+	forbiddenAreaInformation	ForbiddenAreaInformation								OPTIONAL, 
+	serviceAreaInformation		ServiceAreaInformation									OPTIONAL, 
+	iE-Extensions		ProtocolExtensionContainer { {MobilityRestrictionList-ExtIEs} }	OPTIONAL,
+	...
+}
+
+MobilityRestrictionList-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HandoverType ::= ENUMERATED {
+	intra5gs,
+	fivegs-to-eps,
+	eps-to-5gs,
+	...
+}
+
+-- I
+
+IMSVoiceSupportIndicator ::= ENUMERATED {
+	supported,
+	not-supported,
+	...
+}
+
+IndexToRFSP ::= INTEGER (1..256, ...)
+
+InfoOnRecommendedCellsAndRANNodesForPaging ::= OCTET STRING		-- This IE may need to be refined
+
+IntegrityProtectionIndication ::= ENUMERATED {
+	required,
+	preferred,
+	not-needed,
+	...
+}
+
+IntegrityProtectionResult ::= ENUMERATED {
+	performed,
+	not-performed,
+	...
+}
+
+IntendedNumberOfPagingAttempts ::= INTEGER (1..16, ...)
+
+InterfacesToTrace ::= BIT STRING (SIZE(8))
+
+-- J
+-- K
+
+KamfChangeInd ::= ENUMERATED {
+	true,
+	...
+}
+
+-- L
+
+LocationReportingReferenceID ::= INTEGER (1..64, ...)
+
+LocationReportingRequestType ::= SEQUENCE {
+	eventType 										EventType,
+	reportArea 										ReportArea,
+	areaOfInterestList								AreaOfInterestList								OPTIONAL,
+	locationReportingReferenceIDToBeCancelled		LocationReportingReferenceID					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {LocationReportingRequestType-ExtIEs} }		OPTIONAL,
+	...
+}
+
+LocationReportingRequestType-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- M
+
+MaskedIMEISV ::= BIT STRING (SIZE(64))
+
+MaximumDataBurstVolume ::= INTEGER (0..63)		-- This IE may need to be refined
+
+MessageIdentifier ::= BIT STRING (SIZE(16))
+
+MICOModeIndication ::= ENUMERATED {
+	true,
+	...
+}
+
+MultipleTNLInformation ::= SEQUENCE {
+	tNLInformationList		TNLInformationList,
+	iE-Extensions		ProtocolExtensionContainer { {MultipleTNLInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+MultipleTNLInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- N
+
+N3IWF-ID ::= CHOICE {
+	n3IWF-ID				BIT STRING (SIZE(16)),
+	...
+}
+
+NAS-PDU ::= OCTET STRING
+
+NextHopChainingCount ::= INTEGER (0..7)
+
+NextPagingAreaScope ::= ENUMERATED {
+	same,
+	changed,
+	...
+}
+
+NgENB-ID ::= CHOICE {
+	macroNgENB-ID			BIT STRING (SIZE(20)),
+	shortMacroNgENB-ID 		BIT STRING (SIZE(18)),
+	longMacroNgENB-ID		BIT STRING (SIZE(21)),
+	...
+}
+
+NGRAN-CGI ::= CHOICE {
+	nR-CGI			NR-CGI,
+	eUTRA-CGI		EUTRA-CGI,
+	...
+}
+
+NGRANTraceID ::= OCTET STRING (SIZE(8))
+
+NonDynamic5QIDescriptor ::= SEQUENCE {
+	fiveQI						FiveQI,
+	priorityLevelQos			PriorityLevelQos										OPTIONAL,
+	averagingWindow				AveragingWindow											OPTIONAL,
+	maximumDataBurstVolume		MaximumDataBurstVolume									OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {NonDynamic5QIDescriptor-ExtIEs} }	OPTIONAL,
+	...
+}
+
+NonDynamic5QIDescriptor-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NotAllowedTACs ::= SEQUENCE (SIZE(1..maxnoofAllowedAreas)) OF TAC
+
+NotificationCause ::= ENUMERATED {
+	fulfilled,
+	not-fulfilled,
+	...
+}
+
+NotificationControl ::= ENUMERATED {
+	notification-enabled,
+	...
+}
+
+NRCellIdentity ::= BIT STRING (SIZE(36))
+
+NR-CGI ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	nRCellIdentity		NRCellIdentity,
+	iE-Extensions		ProtocolExtensionContainer { {NR-CGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+NR-CGI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NR-CGIList ::= SEQUENCE (SIZE(1..maxnoofCellsingNB)) OF NR-CGI
+
+NR-CGIListForWarning ::= SEQUENCE (SIZE(1..maxnoofCellIDforWarning)) OF NR-CGI
+
+NrencryptionAlgorithms ::= BIT STRING (SIZE(16, ...))
+
+NrintegrityProtectionAlgorithms ::= BIT STRING (SIZE(16, ...))
+
+NRPPa-PDU ::= OCTET STRING
+
+NumberOfBroadcasts ::= INTEGER (0..65535)
+
+NumberOfBroadcastsRequested ::= INTEGER (0..65535)
+
+-- O
+-- P
+
+PacketDelayBudget ::= INTEGER (0..63)	-- This IE may need to be refined
+
+PacketErrorRate ::= INTEGER (0..63)		-- This IE may need to be refined
+
+PacketLossRate ::= INTEGER (0..1000)
+
+PagingAttemptInformation ::= SEQUENCE {
+	pagingAttemptCount					PagingAttemptCount,
+	intendedNumberOfPagingAttempts		IntendedNumberOfPagingAttempts,
+	nextPagingAreaScope					NextPagingAreaScope									OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PagingAttemptInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PagingAttemptInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PagingAttemptCount ::= INTEGER (1..16, ...)
+
+PagingDRX ::= INTEGER (0..63)		-- This IE may need to be refined
+
+PagingOrigin ::= ENUMERATED {
+	non-3gpp,
+	...
+}
+
+PagingPriority ::= ENUMERATED {
+	priolevel1,
+	priolevel2,
+	priolevel3,
+	priolevel4,
+	priolevel5,
+	priolevel6,
+	priolevel7,
+	priolevel8,
+	...
+}
+
+PathSwitchRequestAcknowledgeTransfer ::= SEQUENCE {
+	uL-NGU-UP-TNLInformation		UPTransportLayerInformation,
+	securityIndication				SecurityIndication													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PathSwitchRequestAcknowledgeTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PathSwitchRequestAcknowledgeTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PathSwitchRequestTransfer ::= SEQUENCE {
+	dL-NGU-UP-TNLInformation			UPTransportLayerInformation,
+	userPlaneSecurityInformation		UserPlaneSecurityInformation						OPTIONAL,
+	qosFlowAcceptedList					QosFlowAcceptedList,
+	iE-Extensions		ProtocolExtensionContainer { {PathSwitchRequestTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PathSwitchRequestTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionID ::= INTEGER (0..255)
+
+PDUSessionList ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF PDUSessionItem
+
+PDUSessionItem ::= SEQUENCE {
+	pDUSessionID		PDUSessionID,
+	cause				Cause,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+PDUSessionItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceInformationList ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF PDUSessionResourceInformationItem
+
+PDUSessionResourceInformationItem ::= SEQUENCE {
+	pDUSessionID					PDUSessionID,
+	qosFlowInformationList			QosFlowInformationList,
+	dRBsToQosFlowsMappingList		DRBsToQosFlowsMappingList										OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceInformationItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceInformationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceModifyConfirmTransfer ::= SEQUENCE {
+	qosFlowModifyConfirmList		QosFlowModifyConfirmList,
+	qosFlowFailedToModifyList		QosFlowList																OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyConfirmTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceModifyConfirmTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceModifyRequestTransfer ::= SEQUENCE {
+	pDUSessionAggregateMaximumBitRate		BitRate															OPTIONAL,
+	uL-NGU-UP-TNLInformation				UPTransportLayerInformation										OPTIONAL,
+	qosFlowAddOrModifyRequestList			QosFlowAddOrModifyRequestList									OPTIONAL,
+	qosFlowToReleaseList					QosFlowList														OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyRequestTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceModifyRequestTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}	
+
+PDUSessionResourceModifyResponseTransfer ::= SEQUENCE {
+	dL-NGU-UP-TNLInformation			UPTransportLayerInformation												OPTIONAL,
+	qosFlowAddOrModifyResponseList		QosFlowAddOrModifyResponseList											OPTIONAL,
+	qosFlowFailedToAddOrModifyList		QosFlowList																OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyResponseTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceModifyResponseTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceModifyIndicationTransfer ::= SEQUENCE {
+	dL-UP-TNLInformation		UP-TNLInformation																OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyIndicationTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceModifyIndicationTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceNotifyTransfer ::= SEQUENCE {
+	qosFlowNotifyList		QosFlowNotifyList														OPTIONAL,
+	qosFlowReleasedList		QosFlowList																OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceNotifyTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceNotifyTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceSetupRequestTransfer ::= SEQUENCE {
+	pDUSessionAggregateMaximumBitRate		BitRate,
+	uL-NGU-UP-TNLInformation				UPTransportLayerInformation,
+	additionalUL-NGU-UP-TNLInformation		UPTransportLayerInformation										OPTIONAL,
+	dataForwardingNotPossible				DataForwardingNotPossible										OPTIONAL,
+	pDUSessionType							PDUSessionType,
+	securityIndication						SecurityIndication												OPTIONAL,
+	qosFlowSetupRequestList					QosFlowSetupRequestList,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceSetupRequestTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceSetupRequestTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceSetupResponseTransfer ::= SEQUENCE {
+	dL-NGU-UP-TNLInformation		UPTransportLayerInformation,
+	securityResult					SecurityResult															OPTIONAL,
+	qosFlowSetupResponseList		QosFlowSetupResponseListSURes,
+	qosFlowFailedToSetupList		QosFlowList																OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceSetupResponseTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionResourceSetupResponseTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PDUSessionResourceSubjectToHandover ::= OCTET STRING		-- This IE may need to be refined
+
+PDUSessionType ::= ENUMERATED {
+	ipv4,
+	ipv6,
+	ipv4v6,
+	ethernet,
+	unstructured,
+	...
+}
+
+PeriodicRegistrationUpdateTimer ::= INTEGER (0..63)		-- This IE may need to be refined
+
+PLMNIdentity ::= OCTET STRING (SIZE(3)) 
+
+PLMNSupportList ::= SEQUENCE (SIZE(1..maxnoofPLMNs)) OF PLMNSupportItem
+
+PLMNSupportItem ::= SEQUENCE {
+	pLMNIdentity			PLMNIdentity,
+	sliceSupportList		SliceSupportList,
+	iE-Extensions		ProtocolExtensionContainer { {PLMNSupportItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+PLMNSupportItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PortNumber ::= OCTET STRING (SIZE(2))
+
+PPI ::= INTEGER (1..8, ...)
+
+Pre-emptionCapability ::= ENUMERATED {
+	shall-not-trigger-pre-emption,
+	may-trigger-pre-emption
+}
+
+Pre-emptionVulnerability ::= ENUMERATED {
+	not-pre-emptable,
+	pre-emptable
+}
+
+PriorityLevelARP ::= INTEGER (1..15)
+
+PriorityLevelQos ::= INTEGER (1..127)		-- This IE may need to be refined
+
+PWSFailedCellIDList ::= CHOICE {
+	eUTRA-CGI-PWSFailedList		EUTRA-CGIList,
+	nR-CGI-PWSFailedList		NR-CGIList,
+	...
+}
+
+-- Q
+
+QosCharacteristics ::= CHOICE {
+	nonDynamic5QI		NonDynamic5QIDescriptor,
+	dynamic5QI			Dynamic5QIDescriptor,
+	...
+}
+
+QosFlowAcceptedList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowAcceptedItem
+
+QosFlowAcceptedItem ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowAcceptedItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+QosFlowAcceptedItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowAddOrModifyRequestList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowAddOrModifyRequestItem
+
+QosFlowAddOrModifyRequestItem ::= SEQUENCE {
+	qosFlowIndicator				QosFlowIndicator,
+	qosFlowLevelQosParameters		QosFlowLevelQosParameters									OPTIONAL,		-- presence may need to be refined
+	e-RAB-ID						E-RAB-ID													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowAddOrModifyRequestItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowAddOrModifyRequestItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowAddOrModifyResponseList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowAddOrModifyResponseItem
+
+QosFlowAddOrModifyResponseItem ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowAddOrModifyResponseItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowAddOrModifyResponseItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowIndicator ::= INTEGER (0..63, ...)
+
+QosFlowInformationList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowInformationItem
+
+QosFlowInformationItem ::= SEQUENCE {
+	qosFlowIndicator	QosFlowIndicator,
+	dLForwarding		DLForwarding													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowInformationItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowInformationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowLevelQosParameters ::= SEQUENCE {
+	qosCharacteristics					QosCharacteristics,
+	allocationAndRetentionPriority		AllocationAndRetentionPriority,
+	gBR-QosInformation					GBR-QosInformation									OPTIONAL,
+	reflectiveQosAttribute				ReflectiveQosAttribute								OPTIONAL,
+	additionalQosFlowInformation		AdditionalQosFlowInformation						OPTIONAL,
+	pPI									PPI													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowLevelQosParameters-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowLevelQosParameters-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowItem
+
+QosFlowItem ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	cause					Cause,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+QosFlowItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowMappingList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowMappingItem
+
+QosFlowMappingItem ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowMappingItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+QosFlowMappingItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowModifyConfirmList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowModifyConfirmItem
+
+QosFlowModifyConfirmItem ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowModifyConfirmItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowModifyConfirmItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowNotifyList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowNotifyItem
+
+QosFlowNotifyItem ::= SEQUENCE {
+	qosFlowIndicator			QosFlowIndicator,
+	notificationCause			NotificationCause,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowNotifyItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowNotifyItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowSetupRequestList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowSetupRequestItem
+
+QosFlowSetupRequestItem ::= SEQUENCE {
+	qosFlowIndicator				QosFlowIndicator,
+	qosFlowLevelQosParameters		QosFlowLevelQosParameters,
+	e-RAB-ID						E-RAB-ID											OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowSetupRequestItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+QosFlowSetupRequestItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowSetupResponseListHOReqAck ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowSetupResponseItemHOReqAck
+
+QosFlowSetupResponseItemHOReqAck ::= SEQUENCE {
+	qosFlowIndicator			QosFlowIndicator,
+	dataForwardingAccepted		DataForwardingAccepted												OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowSetupResponseItemHOReqAck-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowSetupResponseItemHOReqAck-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowSetupResponseListSURes ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowSetupResponseItemSURes
+
+QosFlowSetupResponseItemSURes ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowSetupResponseItemSURes-ExtIEs} } OPTIONAL,
+	...
+}
+
+QosFlowSetupResponseItemSURes-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QosFlowToBeForwardedList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowToBeForwardedItem
+
+QosFlowToBeForwardedItem ::= SEQUENCE {
+	qosFlowIndicator		QosFlowIndicator,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowToBeForwardedItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowToBeForwardedItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- R
+
+RANNodeName ::= PrintableString (SIZE(1..150, ...))
+
+RANPagingPriority ::= INTEGER (1..256)
+
+RANStatusTransfer-TransparentContainer ::= OCTET STRING		 -- This IE may need to be refined
+
+RAN-UE-NGAP-ID ::= INTEGER (0..4294967295)
+
+RATRestrictions ::= SEQUENCE (SIZE(0..maxnoofEPLMNsPlusOne)) OF RATRestrictions-Item
+
+RATRestrictions-Item ::= SEQUENCE {
+	pLMNIdentity					PLMNIdentity,
+	rATRestrictionInformation		RATRestrictionInformation,
+	iE-Extensions		ProtocolExtensionContainer { {RATRestrictions-Item-ExtIEs} }		OPTIONAL,
+	...
+}
+
+RATRestrictions-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RATRestrictionInformation ::= BIT STRING (SIZE(8, ...))
+
+RecommendedCellsForPaging ::= SEQUENCE {
+	recommendedCellList			RecommendedCellList,
+	iE-Extensions		ProtocolExtensionContainer { {RecommendedCellsForPaging-ExtIEs} }	OPTIONAL,
+	...
+}
+
+RecommendedCellsForPaging-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RecommendedCellList ::= SEQUENCE (SIZE(1..maxnoofRecommendedCells)) OF RecommendedCellItem
+
+RecommendedCellItem ::= SEQUENCE {
+	nGRAN-CGI				NGRAN-CGI,
+	timeStayedInCell		INTEGER (0..4095)		OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {RecommendedCellItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+RecommendedCellItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ReflectiveQosAttribute ::= ENUMERATED {
+	subject-to,
+	...
+}
+
+ReferenceID ::= INTEGER (1..64, ...)
+
+RelativeAMFCapacity ::= INTEGER (0..255)
+
+ReportArea ::= ENUMERATED {
+	cell,
+	...
+}
+
+RepetitionPeriod ::= INTEGER (0..131071)
+
+RoutingID ::= OCTET STRING
+
+RRCContainer ::= OCTET STRING
+
+RRCEstablishmentCause ::= OCTET STRING		-- This IE may need to be refined
+
+RRCInactiveAssistanceInformation ::= SEQUENCE {
+	uEIdentityIndexValue				UEIdentityIndexValue,
+	uESpecificDRX						UESpecificDRX,
+	periodicRegistrationUpdateTimer		PeriodicRegistrationUpdateTimer,
+	mICOModeIndication					MICOModeIndication,
+	tAIList								TAIList,
+	iE-Extensions		ProtocolExtensionContainer { {RRCInactiveAssistanceInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+RRCInactiveAssistanceInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- S
+
+SD ::= OCTET STRING (SIZE(3))
+
+SecurityContext ::= SEQUENCE {
+	nextHopChainingCount		NextHopChainingCount,
+	nextHopNH					SecurityKey,
+	iE-Extensions		ProtocolExtensionContainer { {SecurityContext-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SecurityContext-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SecurityIndication ::= SEQUENCE {
+	integrityProtectionIndication			IntegrityProtectionIndication,
+	confidentialityProtectionIndication		ConfidentialityProtectionIndication,
+	iE-Extensions		ProtocolExtensionContainer { {SecurityIndication-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SecurityIndication-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SecurityKey	::= BIT STRING (SIZE(256))
+
+SecurityResult ::= SEQUENCE {
+	integrityProtectionResult			IntegrityProtectionResult,
+	confidentialityProtectionResult		ConfidentialityProtectionResult,
+	iE-Extensions		ProtocolExtensionContainer { {SecurityResult-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SecurityResult-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SerialNumber ::= BIT STRING (SIZE(16))
+
+ServedGUAMIList ::= SEQUENCE (SIZE(1..maxnoofServedGUAMIs)) OF ServedGUAMIItem
+
+ServedGUAMIItem ::= SEQUENCE {
+	gUAMI				GUAMI,
+	backupAMFName		AMFName													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {ServedGUAMIItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ServedGUAMIItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ServiceAreaInformation ::= SEQUENCE (SIZE(1.. maxnoofEPLMNsPlusOne)) OF ServiceAreaInformation-Item
+
+ServiceAreaInformation-Item ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	allowedTACs			AllowedTACs																OPTIONAL,
+	notAllowedTACs		NotAllowedTACs															OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {ServiceAreaInformation-Item-ExtIEs} }		OPTIONAL,
+	...
+}
+
+ServiceAreaInformation-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SingleTNLInformation ::= SEQUENCE {
+	uPTransportLayerInformation		UPTransportLayerInformation,
+	iE-Extensions		ProtocolExtensionContainer { {SingleTNLInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SingleTNLInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SliceSupportList ::= SEQUENCE (SIZE(1..maxnoofSliceItems)) OF SliceSupportItem
+
+SliceSupportItem ::= SEQUENCE {
+	s-NSSAI				S-NSSAI,
+	iE-Extensions		ProtocolExtensionContainer { {SliceSupportItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SliceSupportItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+S-NSSAI ::= SEQUENCE {
+	sST 				SST,
+	sD					SD,
+	iE-Extensions		ProtocolExtensionContainer { { S-NSSAI-ExtIEs} }	OPTIONAL,
+	...
+}
+
+S-NSSAI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SONConfigurationTransfer ::= SEQUENCE {
+	targetRANNodeID				TargetRANNodeID,
+	sourceRANNodeID				SourceRANNodeID,
+	sONInformation				SONInformation,
+	xnTNLConfigurationInfo		XnTNLConfigurationInfo,
+	iE-Extensions		ProtocolExtensionContainer { {SONConfigurationTransfer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SONConfigurationTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SONInformation ::= CHOICE {
+	sONInformationRequest		SONInformationRequest,
+	sONInformationReply			SONInformationReply,
+	...
+}
+
+SONInformationReply ::= SEQUENCE {
+	xnTNLConfigurationInfo		XnTNLConfigurationInfo										OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {SONInformationReply-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SONInformationReply-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SONInformationRequest ::= ENUMERATED { 
+	xn-TNL-configuration-info,
+	...
+}
+
+SourceNGRANNode-ToTargetNGRANNode-TransparentContainer ::= SEQUENCE {
+	rRCContainer							RRCContainer,
+	pDUSessionResourceInformationList		PDUSessionResourceInformationList													OPTIONAL,
+	e-RABInformationList					E-RABInformationList																OPTIONAL,
+	targetCell-ID							NGRAN-CGI,
+	indexToRFSP								IndexToRFSP																			OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {SourceNGRANNode-ToTargetNGRANNode-TransparentContainer-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SourceNGRANNode-ToTargetNGRANNode-TransparentContainer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SourceRANNodeID ::= SEQUENCE {
+	globalRANNodeID		GlobalRANNodeID,
+	selectedTAI			TAI,
+	iE-Extensions		ProtocolExtensionContainer { {SourceRANNodeID-ExtIEs} } OPTIONAL,
+	...
+}
+
+SourceRANNodeID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SourceToTarget-TransparentContainer ::= OCTET STRING
+-- This IE includes a transparent container from the source RAN node to the target RAN node. 
+-- The octets of the OCTET STRING are encoded according to the specifications of the target system.
+
+SST ::= OCTET STRING (SIZE(1))
+
+SupportedTAList ::= SEQUENCE (SIZE(1..maxnoofTACs)) OF SupportedTAItem
+
+SupportedTAItem ::= SEQUENCE {
+	tAC									TAC,
+	broadcastPLMNList		BroadcastPLMNList,
+	iE-Extensions		ProtocolExtensionContainer { {SupportedTAItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+SupportedTAItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- T
+
+TAC ::= OCTET STRING (SIZE(3))
+
+TAI ::= SEQUENCE {
+	pLMNIdentity		PLMNIdentity,
+	tAC					TAC,
+	iE-Extensions		ProtocolExtensionContainer { {TAI-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAIBroadcastEUTRA ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAIBroadcastEUTRA-Item
+
+TAIBroadcastEUTRA-Item ::= SEQUENCE {
+	tAI								TAI,
+	completedCellsInTAI-EUTRA		CompletedCellsInTAI-EUTRA,
+	iE-Extensions		ProtocolExtensionContainer { {TAIBroadcastEUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAIBroadcastEUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAIBroadcastNR ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAIBroadcastNR-Item
+
+TAIBroadcastNR-Item ::= SEQUENCE {
+	tAI							TAI,
+	completedCellsInTAI-NR		CompletedCellsInTAI-NR,
+	iE-Extensions		ProtocolExtensionContainer { {TAIBroadcastNR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAIBroadcastNR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAICancelledEUTRA ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAICancelledEUTRA-Item
+
+TAICancelledEUTRA-Item ::= SEQUENCE {
+	tAI								TAI,
+	cancelledCellsInTAI-EUTRA		CancelledCellsInTAI-EUTRA,
+	iE-Extensions		ProtocolExtensionContainer { {TAICancelledEUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAICancelledEUTRA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAICancelledNR ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAICancelledNR-Item
+
+TAICancelledNR-Item ::= SEQUENCE {
+	tAI							TAI,
+	cancelledCellsInTAI-NR		CancelledCellsInTAI-NR,
+	iE-Extensions		ProtocolExtensionContainer { {TAICancelledNR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAICancelledNR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- TAIList ::= SEQUENCE (SIZE(1..maxnoofTAIs)) OF TAIItem
+
+--TAIItem ::= SEQUENCE {
+--	tAI					TAI,
+--	iE-Extensions		ProtocolExtensionContainer { {TAIItem-ExtIEs} } OPTIONAL,
+--	...
+--}
+
+--TAIItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+--	...
+--}
+
+TAIListForRestart ::= SEQUENCE (SIZE(1..maxnoofTAIforRestart)) OF TAI
+
+TAIListForWarning ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAI
+
+TargeteNB-ID ::= SEQUENCE {
+	globalENB-ID		GlobalNgENB-ID,
+	selected-EPS-TAI	EPS-TAI,
+	iE-Extensions		ProtocolExtensionContainer { {TargeteNB-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+TargeteNB-ID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TargetID ::= CHOICE {
+	targetRANNodeID		TargetRANNodeID,
+	targeteNB-ID		TargeteNB-ID,
+	...
+}
+
+TargetNGRANNode-ToSourceNGRANNode-TransparentContainer ::= SEQUENCE {
+	rRCContainer		RRCContainer,
+	iE-Extensions		ProtocolExtensionContainer { {TargetNGRANNode-ToSourceNGRANNode-TransparentContainer-ExtIEs} } OPTIONAL,
+	...
+}
+
+TargetNGRANNode-ToSourceNGRANNode-TransparentContainer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TargetRANNodeID ::= SEQUENCE {
+	globalRANNodeID		GlobalRANNodeID,
+	selectedTAI			TAI,
+	iE-Extensions		ProtocolExtensionContainer { {TargetRANNodeID-ExtIEs} } OPTIONAL,
+	...
+}
+
+TargetRANNodeID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TargetToSource-TransparentContainer ::= OCTET STRING
+-- This IE includes a transparent container from the target RAN node to the source RAN node. 
+-- The octets of the OCTET STRING are encoded according to the specifications of the target system.
+
+TimerApproachForGUAMIRemoval ::= ENUMERATED { 
+	apply-timer,
+	...
+}
+
+TimeStamp ::= OCTET STRING (SIZE(4))
+
+TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
+
+TNLAssociationList ::= SEQUENCE (SIZE(1..maxnoofTNLAssociations)) OF TNLAssociationItem
+
+TNLAssociationItem ::= SEQUENCE {
+	tNLAssociationAddress		CPTransportLayerInformation,
+	cause						Cause,
+	iE-Extensions		ProtocolExtensionContainer { {TNLAssociationItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+TNLAssociationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TNLAssociationUsage ::= ENUMERATED { 
+	ue,
+	non-ue,
+	both,
+	...
+}
+
+TNLAssociationWeightFactor ::= INTEGER (0..255)
+
+TNLInformationList ::= SEQUENCE (SIZE(1..maxnoofMultiConnectivities)) OF TNLInformationItem
+
+TNLInformationItem ::= SEQUENCE {
+	uPTransportLayerInformation		UPTransportLayerInformation,
+	associatedQoSFlowList			AssociatedQosFlowList,
+	iE-Extensions		ProtocolExtensionContainer { {TNLInformationItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TNLInformationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TraceActivation ::= SEQUENCE {
+	nGRANTraceID						NGRANTraceID,
+	interfacesToTrace					InterfacesToTrace,
+traceDepth							TraceDepth,
+traceCollectionEntityIPAddress		TransportLayerAddress,
+	iE-Extensions		ProtocolExtensionContainer { {TraceActivation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TraceActivation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TraceDepth ::= ENUMERATED { 
+	minimum,
+	medium,
+	maximum,
+	minimumWithoutVendorSpecificExtension,
+	mediumWithoutVendorSpecificExtension,
+	maximumWithoutVendorSpecificExtension,
+	...
+}
+
+TransportLayerAddress ::= BIT STRING (SIZE(1..160, ...))
+
+TypeOfError ::= ENUMERATED {
+	not-understood,
+	missing,
+	...
+}
+
+-- U
+
+UEAggregateMaximumBitRate ::= SEQUENCE {
+	uEAggregateMaximumBitRateDL		BitRate,
+	uEAggregateMaximumBitRateUL		BitRate,
+	iE-Extensions		ProtocolExtensionContainer { {UEAggregateMaximumBitRate-ExtIEs} } OPTIONAL,
+	...
+}
+
+UEAggregateMaximumBitRate-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UE-associatedLogicalNG-ConnectionItem ::= SEQUENCE {
+	aMF-UE-NGAP-ID		AMF-UE-NGAP-ID																		OPTIONAL,
+	rAN-UE-NGAP-ID		RAN-UE-NGAP-ID																		OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {UE-associatedLogicalNG-ConnectionItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UE-associatedLogicalNG-ConnectionItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UEContextRequest ::= ENUMERATED {requested, ...}
+
+UEIdentityIndexValue ::= INTEGER (0..63)		-- This IE may need to be refined
+
+UE-NGAP-IDs ::= CHOICE {
+	uE-NGAP-ID-pair		UE-NGAP-ID-pair,
+	aMF-UE-NGAP-ID		AMF-UE-NGAP-ID,
+	...
+}
+
+UE-NGAP-ID-pair ::= SEQUENCE{
+	aMF-UE-NGAP-ID		AMF-UE-NGAP-ID,
+	rAN-UE-NGAP-ID		RAN-UE-NGAP-ID,
+	iE-Extensions		ProtocolExtensionContainer { {UE-NGAP-ID-pair-ExtIEs} } OPTIONAL,
+	...
+}
+
+UE-NGAP-ID-pair-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UEPagingIdentity ::= CHOICE {
+	fiveG-S-TMSI		FiveG-S-TMSI,
+	...
+	}
+
+UEPresence ::= ENUMERATED {in, out, unknown, ...}
+
+UEPresenceInAreaOfInterestList ::= SEQUENCE (SIZE(1..maxnoofAoI)) OF UEPresenceInAreaOfInterestItem
+
+UEPresenceInAreaOfInterestItem ::= SEQUENCE {
+	locationReportingReferenceID		LocationReportingReferenceID,
+	uEPresence							UEPresence,
+	iE-Extensions		ProtocolExtensionContainer { {UEPresenceInAreaOfInterestItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UEPresenceInAreaOfInterestItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UERadioCapability ::= OCTET STRING
+
+UERadioCapabilityForPaging ::= OCTET STRING
+
+UESecurityCapabilities ::= SEQUENCE {
+	nRencryptionAlgorithms					NrencryptionAlgorithms,
+	nRintegrityProtectionAlgorithms			NrintegrityProtectionAlgorithms,
+	eUTRAencryptionAlgorithms				EUTRAencryptionAlgorithms,
+	eUTRAintegrityProtectionAlgorithms		EUTRAintegrityProtectionAlgorithms,
+
+	iE-Extensions		ProtocolExtensionContainer { {UESecurityCapabilities-ExtIEs} }	OPTIONAL,
+...
+}
+
+UESecurityCapabilities-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UESpecificDRX ::= INTEGER (0..63)		-- This IE may need to be refined
+
+UnavailableGUAMIList ::= SEQUENCE (SIZE(1..maxnoofServedGUAMIs)) OF UnavailableGUAMIItem
+
+UnavailableGUAMIItem ::= SEQUENCE {
+	gUAMI								GUAMI,
+	timerApproachForGUAMIRemoval		TimerApproachForGUAMIRemoval					OPTIONAL,
+	backupAMFName						AMFName											OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {UnavailableGUAMIItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UnavailableGUAMIItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UP-TNLInformation ::= CHOICE {
+	singleTNLInformation		SingleTNLInformation,
+	multipleTNLInformation		MultipleTNLInformation,
+	...
+}
+
+UPTransportLayerInformation ::= CHOICE {
+	gTPTunnel				GTPTunnel,
+	...
+}
+
+UserLocationInformation ::= CHOICE {
+	userLocationInformationEUTRA	UserLocationInformationEUTRA,
+	userLocationInformationNR		UserLocationInformationNR,
+	userLocationInformationN3IWF	UserLocationInformationN3IWF,
+	...
+}
+
+UserLocationInformationEUTRA ::= SEQUENCE {
+	eUTRA-CGI 			EUTRA-CGI,
+	tAI					TAI,
+	iE-Extensions		ProtocolExtensionContainer { { UserLocationInformationEUTRA-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UserLocationInformationEUTRA-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UserLocationInformationN3IWF ::= SEQUENCE {
+	iPAddress 			TransportLayerAddress,
+	portNumber			PortNumber,
+	iE-Extensions		ProtocolExtensionContainer { {UserLocationInformationN3IWF-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UserLocationInformationN3IWF-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UserLocationInformationNR ::= SEQUENCE {
+	nR-CGI 				NR-CGI,
+	tAI					TAI,
+	iE-Extensions		ProtocolExtensionContainer { {UserLocationInformationNR-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UserLocationInformationNR-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UserPlaneSecurityInformation ::= SEQUENCE {
+	securityResult 			SecurityResult,
+	securityIndication		SecurityIndication,
+	iE-Extensions		ProtocolExtensionContainer { {UserPlaneSecurityInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UserPlaneSecurityInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- V
+-- W
+
+WarningAreaList ::= CHOICE {
+	eUTRA-CGIListForWarning			EUTRA-CGIListForWarning,
+	nR-CGIListForWarning			NR-CGIListForWarning,
+	tAIListForWarning				TAIListForWarning,
+	emergencyAreaIDList				EmergencyAreaIDList,
+	...
+}
+
+WarningMessageContents ::= OCTET STRING (SIZE(1..9600))
+
+WarningSecurityInfo ::= OCTET STRING (SIZE(50))
+
+WarningType ::= OCTET STRING (SIZE(2))
+
+-- X
+
+XnExtTLAs ::= SEQUENCE (SIZE(1..maxnoofXnExtTLAs)) OF XnExtTLA-Item
+
+XnExtTLA-Item ::= SEQUENCE {
+	iPsecTLA					TransportLayerAddress		OPTIONAL,
+	gTP-TLAs					XnGTP-TLAs					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {XnExtTLA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+XnExtTLA-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+XnGTP-TLAs ::= SEQUENCE (SIZE(1..maxnoofXnGTP-TLAs)) OF TransportLayerAddress
+
+XnTLAs ::= SEQUENCE (SIZE(1..maxnoofXnTLAs)) OF TransportLayerAddress
+
+XnTNLConfigurationInfo ::= SEQUENCE {
+	xnTransportLayerAddresses			XnTLAs,
+	xnExtendedTransportLayerAddresses	XnExtTLAs										OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {XnTNLConfigurationInfo-ExtIEs} }	OPTIONAL,
+	...
+}
+
+XnTNLConfigurationInfo-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- Y
+-- Z
+
+END
